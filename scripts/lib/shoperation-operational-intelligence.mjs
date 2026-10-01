@@ -25,6 +25,16 @@ function meaningful(value,{minChars=18,minWords=3}={}){
 function semanticListIssues(issues,values,path,label,options={}){
   for(const [index,value] of asArray(values).entries())if(!meaningful(value,options))issue(issues,'DEV_PLAN_SEMANTIC_CONTENT_VACUOUS',`${path}.${index}`,`${label} must carry falsifiable engineering meaning; placeholders, one-token claims and TODO text are forbidden.`,{actual:value??null});
 }
+function normalizedSemanticText(value){
+  return String(value??'').toLowerCase().replace(/[^a-z0-9áéíóöőúüű]+/gi,' ').replace(/\s+/g,' ').trim();
+}
+function semanticallyTautological(a,b){
+  const left=normalizedSemanticText(a),right=normalizedSemanticText(b);
+  if(!left||!right)return false;
+  if(left===right)return true;
+  const min=Math.min(left.length,right.length),max=Math.max(left.length,right.length);
+  return min>=30&&min/max>=0.85&&(left.includes(right)||right.includes(left));
+}
 const DEFAULT_EVIDENCE_SEMANTICS=Object.freeze({
   'GUARD-KNOWLEDGE-PREFLIGHT':{
     producer:'knowledge-preflight',capabilities:['CAP-ATLAS'],scopeStrength:3,scope:'repository-architecture-and-knowledge-preflight',
@@ -148,11 +158,16 @@ export function validateOperationalIntelligence({plan,policy,guardIds=[]}){
     if(!text(item?.id)||!text(item?.summary)||!text(item?.reason)||!['selected','rejected'].includes(item?.disposition))issue(issues,'DEV_PLAN_ALTERNATIVE_INCOMPLETE',`operationalIntelligence.alternatives.${index}`,'Each alternative requires id, summary, disposition and reason.');
     if(oi.riskTier==='critical'&&(!meaningful(item?.summary,{minChars:24,minWords:4})||!meaningful(item?.reason,{minChars:30,minWords:5})))issue(issues,'DEV_PLAN_ALTERNATIVE_VACUOUS',`operationalIntelligence.alternatives.${index}`,'Critical alternatives need materially distinct implementation choices and rejection/selection reasoning.');
   }
+  if(oi.riskTier==='critical'){
+    const summaries=alternatives.map(item=>normalizedSemanticText(item?.summary)).filter(Boolean);
+    if(new Set(summaries).size!==summaries.length)issue(issues,'DEV_PLAN_ALTERNATIVES_TAUTOLOGICAL','operationalIntelligence.alternatives','Critical alternatives must be materially distinct choices, not duplicated prose under different IDs.');
+  }
   const challenges=asArray(oi.challenge);
   if(profile&&challenges.length<profile.minChallenges)issue(issues,'DEV_PLAN_CHALLENGE_INSUFFICIENT','operationalIntelligence.challenge','Adversarial challenge depth is below the risk profile.',{minimum:profile.minChallenges,actual:challenges.length});
   for(const [index,item] of challenges.entries()){
     if(!text(item?.id)||!text(item?.scenario)||!text(item?.finding)||!text(item?.resolution)||item?.status!=='resolved')issue(issues,'DEV_PLAN_CHALLENGE_UNRESOLVED',`operationalIntelligence.challenge.${index}`,'Every recorded challenge must be explicitly resolved before execution.');
     if(oi.riskTier==='critical'&&(!meaningful(item?.scenario,{minChars:24,minWords:4})||!meaningful(item?.finding,{minChars:24,minWords:4})||!meaningful(item?.resolution,{minChars:24,minWords:4})))issue(issues,'DEV_PLAN_CHALLENGE_VACUOUS',`operationalIntelligence.challenge.${index}`,'Critical adversarial challenge must state a concrete scenario, failure finding and distinct resolution.');
+    if(oi.riskTier==='critical'&&(semanticallyTautological(item?.scenario,item?.finding)||semanticallyTautological(item?.finding,item?.resolution)||semanticallyTautological(item?.scenario,item?.resolution)))issue(issues,'DEV_PLAN_CHALLENGE_TAUTOLOGICAL',`operationalIntelligence.challenge.${index}`,'Critical challenge scenario, finding and resolution must be semantically distinct; a self-confirming restatement is not adversarial review.');
   }
   const specialists=asArray(oi.specialistReviews);
   if(profile&&specialists.length<profile.minSpecialists)issue(issues,'DEV_PLAN_SPECIALIST_REVIEW_INSUFFICIENT','operationalIntelligence.specialistReviews','Relevant specialist review depth is below the risk profile.',{minimum:profile.minSpecialists,actual:specialists.length});
@@ -161,6 +176,7 @@ export function validateOperationalIntelligence({plan,policy,guardIds=[]}){
     if(!allowedRoles.has(item?.role))issue(issues,'DEV_PLAN_SPECIALIST_ROLE_INVALID',`operationalIntelligence.specialistReviews.${index}.role`,'Specialist role is outside the canonical role set.',{actual:item?.role??null});
     if(!text(item?.finding)||!text(item?.resolution)||!['review','dissent'].includes(item?.mode)||!['pass','challenge-resolved'].includes(item?.verdict))issue(issues,'DEV_PLAN_SPECIALIST_REVIEW_UNRESOLVED',`operationalIntelligence.specialistReviews.${index}`,'Specialist review must contain a resolved finding.');
     if(oi.riskTier==='critical'&&(!meaningful(item?.finding,{minChars:24,minWords:4})||!meaningful(item?.resolution,{minChars:24,minWords:4})))issue(issues,'DEV_PLAN_SPECIALIST_REVIEW_VACUOUS',`operationalIntelligence.specialistReviews.${index}`,'Critical specialist findings must contain evidence-bearing engineering substance.');
+    if(oi.riskTier==='critical'&&(!asArray(item?.evidence).length||asArray(item?.evidence).some(value=>!text(value))))issue(issues,'DEV_PLAN_SPECIALIST_EVIDENCE_REQUIRED',`operationalIntelligence.specialistReviews.${index}.evidence`,'Critical specialist verdicts require explicit source/evidence references; verdict presence alone is not proof.');
   }
   if(profile?.requireDissent&&!specialists.some(item=>item?.mode==='dissent'))issue(issues,'DEV_PLAN_DISSENT_REQUIRED','operationalIntelligence.specialistReviews','This risk tier requires at least one explicit dissent specialist.');
   if(!asArray(oi.proofPlan).length||asArray(oi.proofPlan).some(value=>!text(value)))issue(issues,'DEV_PLAN_PROOF_PLAN_REQUIRED','operationalIntelligence.proofPlan','Proof plan is required before execution.');
