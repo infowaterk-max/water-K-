@@ -335,6 +335,23 @@ describe('dependency-aware resumable verification',()=>{
     expect(final.manifest.comparison.discrepancies.map((item:any)=>item.code)).toContain('ACTIVE_RERUN_FAILED_OR_MISSING');
   });
 
+  it('forces full verification for tier-four semantic authority impact',()=>{
+    const a=identity('A'),b=identity('B');
+    const report=planFromSnapshots({
+      current:current({A:a,B:b}),
+      previousCheckpoint:checkpoint({A:a,B:b}),
+      checkpointValidation:valid,
+      changedFiles:['quality/knowledge/guard-registry.v1.json'],
+      activeFailureIds:['KF-1'],
+      semanticImpact:[{id:'AUTHORITY.CORE',impactTier:4,scope:'full-verification',files:['quality/knowledge/guard-registry.v1.json']}],
+    });
+    expect(report.verificationMode).toBe('FULL');
+    expect(report.reasons).toContain('semantic-impact-requires-full-verification');
+    expect(report.reusableEvidenceSet).toEqual([]);
+    expect(report.uncertainEvidenceSet).toEqual(expect.arrayContaining(['A','B']));
+    expect(report.rerunSet).toEqual(expect.arrayContaining(['A','B']));
+  });
+
   it('verification graph rejects cycles and unknown dependencies',()=>{
     const registry={
       guards:[
