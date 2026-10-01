@@ -48,6 +48,18 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     expect(merelyAbsent.TOMBSTONES).toEqual([]);
   });
 
+  it('does not classify Git CLI long options as CSS-variable contracts',()=>{
+    const cli=extractReferenceCandidatesFromLine("git(['diff','--name-only','--diff-filter=ACMR',base,head])",'scripts/lib/shoperation-development-runtime.mjs');
+    expect(cli.filter((item:any)=>item.kind==='css-variable')).toEqual([]);
+
+    const cssUse=extractReferenceCandidatesFromLine('color:var(--brand-accent);','src/app/demo.css');
+    const cssDeclaration=extractReferenceCandidatesFromLine('--brand-accent:#35e9ff;','src/app/demo.css');
+    const cssom=extractReferenceCandidatesFromLine("style.setProperty('--brand-accent',value)",'src/app/demo.ts');
+    for(const candidates of [cssUse,cssDeclaration,cssom]){
+      expect(candidates).toContainEqual(expect.objectContaining({kind:'css-variable',value:'--brand-accent'}));
+    }
+  });
+
   it('extracts display-text and component-key contracts instead of relying on generic grep expressions',()=>{
     const display=extractReferenceCandidatesFromLine('<h1>Termékfeltöltő Központ</h1>','src/app/admin/page.tsx');
     const component=extractReferenceCandidatesFromLine("componentKey:'commerce.product-grid'",'src/lib/builder/page.ts');
