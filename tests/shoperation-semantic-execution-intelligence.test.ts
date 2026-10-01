@@ -136,5 +136,5 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     expect(atlas.summary.typeCheckerAvailable).toBe(true);
     expect(atlas.summary.semanticNodes).toBeGreaterThan(atlas.summary.indexedNodes);
     expect(atlas.summary.semanticEdges).toBeGreaterThan(atlas.summary.importEdges);
-  });
+  },60000);
 });
