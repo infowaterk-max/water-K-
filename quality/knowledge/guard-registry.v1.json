@@ -441,7 +441,15 @@
         "resumedShadowPasses": 2,
         "falseReuse": 0
       },
-      "referenceFullRuntimeMs": 145506
+      "referenceFullRuntimeMs": 145506,
+      "engineInputs": [
+        "scripts/lib/shoperation-verification-reuse.mjs",
+        "scripts/shoperation-incremental-replay.mjs",
+        "scripts/shoperation-verification-checkpoint.mjs",
+        "scripts/shoperation-truth-gate.mjs",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        ".github/workflows/ci.yml"
+      ]
     },
     "semanticUnits": [
       {
