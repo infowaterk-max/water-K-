@@ -147,7 +147,8 @@
         "Blank Studio visual neutrality does not mean functional emptiness.",
         "Template DNA/global tokens remain the default style source for all inserted engines.",
         "System-template status never exempts Blank Studio from Template Factory quality ownership.",
-        "Installed Blank Studio pages and Builder runtime read neutral colors, typography, spacing and radius from the same canonical Global Styles authority used by normal templates."
+        "Installed Blank Studio pages and Builder runtime read neutral colors, typography, spacing and radius from the same canonical Global Styles authority used by normal templates.",
+        "Blank Studio preview theme and canonical Global Styles derive shared semantic colors from one neutral palette authority; duplicated hand-maintained palette values are forbidden."
       ],
       "forbiddenStates": [
         "blank-studio-counted-as-curated-43rd-design",
@@ -335,6 +336,13 @@
         "finding": "Preview-only design tokens would not guarantee neutral Template DNA in the canonical runtime because StorefrontRuntimeRenderer resolves Global Styles from Page Schema metadata.",
         "resolution": "Persist a versioned BLANK_STUDIO_GLOBAL_STYLE_STATE under the canonical shoporationGlobalStyles metadata key on all 14 pages and test the resolved runtime CSS variables.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-11",
+        "scenario": "Preview-theme colors and canonical Page Schema Global Styles evolve independently.",
+        "finding": "Two manually duplicated neutral palettes could drift and make preview, installed runtime and engine inheritance disagree.",
+        "resolution": "Introduce BLANK_STUDIO_NEUTRAL_PALETTE as the single palette source for both adapters and define all eleven engine semantic colors, including accentTertiary.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -463,5 +471,5 @@
       }
     ]
   },
-  "notes": "Blank Studio is a system creation surface beside the curated 42-template portfolio. It deliberately carries the minimum operational commerce shell and neutral DNA, while optional engines remain Library/capability-driven. No main merge and no golden update. Exact actual-diff reconciliation expanded the applicable known-failure envelope to the full 49/49 set for the same builder-template-system + shared-storefront scope. This updates machine-derived proof metadata only; acceptance criteria, forbidden states and implementation scope are unchanged. Template Factory correctly rejected the newly added template source until it owned an explicit quality manifest. Blank Studio is now registered as a candidate for canonical 14x3 structural/browser proof; no gate exemption or golden weakening was introduced. Header/footer identities were also normalized across all 14 documents so the canonical shell can be proven rather than special-cased. First owned 14x3 browser run exposed three concrete Blank-only issues: SHELL_SECTION_COUNT, TOUCH_TARGET_MINIMUM and product-mobile HORIZONTAL_OVERFLOW/UNBOUNDED_PROTRUSION. They are fixed in template markup rather than by lowering Factory thresholds. Completion review found that the explicit neutral design token map was registered for template preview but not yet persisted as canonical Page Schema Global Styles. Added versioned global-style metadata to every Blank Studio page so installed/runtime/Builder rendering and engine inheritance share one real Template DNA authority."
+  "notes": "Blank Studio is a system creation surface beside the curated 42-template portfolio. It deliberately carries the minimum operational commerce shell and neutral DNA, while optional engines remain Library/capability-driven. No main merge and no golden update. Exact actual-diff reconciliation expanded the applicable known-failure envelope to the full 49/49 set for the same builder-template-system + shared-storefront scope. This updates machine-derived proof metadata only; acceptance criteria, forbidden states and implementation scope are unchanged. Template Factory correctly rejected the newly added template source until it owned an explicit quality manifest. Blank Studio is now registered as a candidate for canonical 14x3 structural/browser proof; no gate exemption or golden weakening was introduced. Header/footer identities were also normalized across all 14 documents so the canonical shell can be proven rather than special-cased. First owned 14x3 browser run exposed three concrete Blank-only issues: SHELL_SECTION_COUNT, TOUCH_TARGET_MINIMUM and product-mobile HORIZONTAL_OVERFLOW/UNBOUNDED_PROTRUSION. They are fixed in template markup rather than by lowering Factory thresholds. Completion review found that the explicit neutral design token map was registered for template preview but not yet persisted as canonical Page Schema Global Styles. Added versioned global-style metadata to every Blank Studio page so installed/runtime/Builder rendering and engine inheritance share one real Template DNA authority. Neutral palette duplication was removed: preview CSS-token adapter and canonical Global Styles now derive from one BLANK_STUDIO_NEUTRAL_PALETTE. Accent tertiary is explicitly defined so every shared engine semantic color has deterministic Blank Studio inheritance."
 }
