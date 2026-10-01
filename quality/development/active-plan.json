@@ -16,12 +16,10 @@
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
-    "shared-storefront"
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -286,7 +284,8 @@
       "Run incremental replay, quality tests, typecheck and production build.",
       "Keep exact DOM structure and one renderer authority.",
       "No main merge or golden update."
-    ]
+    ],
+    "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
@@ -359,5 +358,5 @@
       }
     ]
   },
-  "notes": "Stacked runtime-only slice on PR #578. Builder UI controls and Blank Studio are intentionally excluded."
+  "notes": "Stacked runtime-only slice on PR #578. Builder UI controls and Blank Studio are intentionally excluded. Exact actual-diff reconciliation narrowed this runtime-only slice to DOMAIN-BUILDER / builder-template-system; shared-storefront and storefront-ui remain impacted subsystems through dependency propagation but are not direct file authorities in this two-file diff. Execution is explicitly authorized after challenge closure."
 }
