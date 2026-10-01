@@ -809,7 +809,19 @@
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists",
+      "resumableVerificationPromotion": {
+        "status": "shadow-revalidation",
+        "sourceRunId": "36905358000",
+        "sourceHead": "be0a84be1945644cfb30b5e2a0fb1676acef4bc2",
+        "shadowPassCount": 2,
+        "resumedShadowPassCount": 2,
+        "minimumShadowPasses": 3,
+        "minimumResumedShadowPasses": 2,
+        "falseReuseCount": 0,
+        "lastDecision": "PASS",
+        "note": "Verification-engine inputs changed in this foundational transaction; ACTIVE reuse remains fail-closed until the new engine independently re-earns promotion proof."
+      }
     }
   }
 }
