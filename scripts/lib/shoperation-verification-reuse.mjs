@@ -31,6 +31,29 @@ export function trackedWorkspaceDirty(){return Boolean(git(['status','--porcelai
 function trackedFiles(){const out=git(['ls-files','-z']);return out?out.split('\0').filter(Boolean):[];}
 function isAncestor(ancestor,head){if(!ancestor||!head)return false;try{execFileSync('git',['merge-base','--is-ancestor',ancestor,head],{stdio:'ignore'});return true;}catch{return false;}}
 function changedFilesBetween(base,head){if(!base||!head)return [];const out=git(['diff','--name-only','--diff-filter=ACMRD',base,head],{allowFailure:true});return out?out.split(/\r?\n/).filter(Boolean):[];}
+function diffTextBetween(base,head,file){if(!base||!head||!file)return '';return git(['diff','--unified=0',base,head,'--',file],{allowFailure:true});}
+
+export function classifySemanticUnits({registry,changedFiles=[],base=null,head=null,diffByFile={}}={}){
+  const units=registry?.verificationReuse?.semanticUnits??[],parents=units.filter(unit=>Array.isArray(unit.filePatterns)&&unit.filePatterns.length&&unit.kind!=='page'&&unit.kind!=='template-wide');
+  const children=units.filter(unit=>unit.parent&&unit.diffPattern),results=[];
+  for(const file of changedFiles){
+    const matchedParents=parents.filter(unit=>matchPatterns(file,unit.filePatterns));
+    for(const parent of matchedParents){
+      if(parent.allowPageNarrowing){
+        const diff=String(diffByFile[file]??(base&&head?diffTextBetween(base,head,file):''));
+        const childMatches=children.filter(unit=>unit.parent===parent.id&&new RegExp(unit.diffPattern,'i').test(diff));
+        const wide=childMatches.filter(unit=>unit.kind==='template-wide');
+        const pages=childMatches.filter(unit=>unit.kind==='page');
+        if(wide.length){for(const unit of wide)results.push({...unit,file,parentId:parent.id,narrowed:true});continue;}
+        if(pages.length===1){results.push({...pages[0],file,parentId:parent.id,narrowed:true});continue;}
+      }
+      results.push({...parent,file,narrowed:false});
+    }
+  }
+  const byId=new Map();
+  for(const item of results){const prior=byId.get(item.id);if(prior)prior.files=uniq([...prior.files,item.file]);else byId.set(item.id,{id:item.id,kind:item.kind,scope:item.scope,impactTier:Number(item.impactTier??2),reason:item.reason??null,pageType:item.pageType??null,parentId:item.parentId??null,narrowed:item.narrowed===true,files:[item.file]});}
+  return [...byId.values()].sort((a,b)=>a.id.localeCompare(b.id));
+}
 
 export function matchPatterns(file,patterns=[]){return patterns.some(pattern=>globToRegExp(pattern).test(file));}
 export function hashMatchedFiles(patterns=[],files=trackedFiles()){
@@ -163,7 +186,7 @@ export function loadCheckpoint(path){
   catch(error){return{checkpoint:null,validation:{ok:false,issues:[{code:'CHECKPOINT_CORRUPTED',message:String(error)}]}};}
 }
 
-export function planFromSnapshots({current,previousCheckpoint=null,checkpointValidation={ok:false,issues:[{code:'CHECKPOINT_MISSING'}]},changedFiles=[],dirty=false,activeFailureIds=[],forceFullRequested=false}){
+export function planFromSnapshots({current,previousCheckpoint=null,checkpointValidation={ok:false,issues:[{code:'CHECKPOINT_MISSING'}]},changedFiles=[],dirty=false,activeFailureIds=[],forceFullRequested=false,semanticImpact=[]}){
   const reasons=[],gates={};let forceFull=false;
   if(forceFullRequested){forceFull=true;reasons.push('force-full-verification');}
   if(dirty){forceFull=true;reasons.push('dirty-workspace');}
@@ -201,12 +224,15 @@ export function planFromSnapshots({current,previousCheckpoint=null,checkpointVal
   const values=Object.values(gates),reusable=values.filter(g=>g.action==='REUSE'),rerun=values.filter(g=>g.action==='RERUN');
   const invalidated=values.filter(g=>g.state==='INVALIDATED'),uncertain=values.filter(g=>g.state==='UNKNOWN');
   const tierDrivers=rerun.filter(g=>!g.reasons.includes('gate-non-reusable'));
-  const replayTier=forceFull?4:tierDrivers.length===0?0:Math.min(4,Math.max(0,...tierDrivers.map(g=>g.identity.impactTier||2)));
+  const semanticTier=semanticImpact.length?Math.max(...semanticImpact.map(unit=>Number(unit.impactTier??0))):0;
+  const gateTier=tierDrivers.length?Math.max(...tierDrivers.map(g=>g.identity.impactTier||2)):0;
+  const replayTier=forceFull?4:Math.min(4,Math.max(semanticTier,gateTier));
   const verificationMode=forceFull?'FULL':previousCheckpoint?(reusable.length?'RESUMED':'INCREMENTAL'):'FULL';
   const downstream=values.filter(g=>g.reasons.some(reason=>reason.startsWith('dependency-invalidated:'))).map(g=>g.gateId);
   const authorityChanged=values.filter(g=>g.reasons.includes('authority-change')).map(g=>g.gateId);
   const configChanged=values.filter(g=>g.reasons.includes('config-change')||g.reasons.includes('environment-change')||g.reasons.includes('toolchain-change')).map(g=>g.gateId);
-  const semanticChanged=values.filter(g=>g.reasons.includes('semantic-input-change')||g.reasons.includes('implementation-change')||g.reasons.includes('gate-version-change')).map(g=>g.gateId);
+  const semanticChanged=semanticImpact.length?semanticImpact.map(unit=>unit.id):values.filter(g=>g.reasons.includes('semantic-input-change')||g.reasons.includes('implementation-change')||g.reasons.includes('gate-version-change')).map(g=>g.gateId);
+  const proofScopes=semanticImpact.map(unit=>({unitId:unit.id,scope:unit.scope,files:unit.files,pageType:unit.pageType,narrowed:unit.narrowed,reason:unit.reason}));
   return{
     contract:PLAN_CONTRACT,schemaVersion:current.schemaVersion,verificationMode,executionMode:'SHADOW',replayTier,
     replayTierName:['Evidence Reuse','Local Replay','Dependency Replay','Subsystem Replay','Full Verification'][replayTier],
@@ -216,7 +242,7 @@ export function planFromSnapshots({current,previousCheckpoint=null,checkpointVal
     uncertainEvidenceSet:uncertain.map(g=>g.gateId),rerunSet:rerun.map(g=>g.gateId),
     evidence:{reused:reusable.length,rerun:rerun.length,invalidated:invalidated.length,unknown:uncertain.length,total:values.length},
     changeImpactSet:{
-      changedFiles,changedSemanticUnits:semanticChanged,changedAuthorities:authorityChanged,changedConfigurationUnits:configChanged,
+      changedFiles,changedSemanticUnits:semanticChanged,semanticImpact,proofScopes,changedAuthorities:authorityChanged,changedConfigurationUnits:configChanged,
       changedRuntimeInputs:changedFiles.filter(file=>file.startsWith('src/')||file.startsWith('public/')),
       changedProofInputs:invalidated.map(g=>g.gateId),affectedGates:rerun.map(g=>g.gateId),downstreamGates:downstream,reusableGates:reusable.map(g=>g.gateId),
     },
@@ -231,8 +257,9 @@ export function createReplayPlan({registry,checkpointPath,activeFailureIds=[]}={
   const current=buildRepositorySnapshot({registry,head,branch,gateScope}),loaded=loadCheckpoint(checkpointPath),checkpoint=loaded.checkpoint;
   const validation=loaded.validation??validateCheckpoint(checkpoint,{branch,head,requireAncestor:true});
   const changedFiles=validation.ok?changedFilesBetween(checkpoint.sourceCommit,head):[];
+  const semanticImpact=validation.ok?classifySemanticUnits({registry,changedFiles,base:checkpoint.sourceCommit,head}):[];
   const forceFullRequested=['1','true','yes'].includes(String(process.env.SHOPERATION_FORCE_FULL_VERIFICATION??'').toLowerCase());
-  const plan=planFromSnapshots({current,previousCheckpoint:checkpoint,checkpointValidation:validation,changedFiles,dirty,activeFailureIds,forceFullRequested});
+  const plan=planFromSnapshots({current,previousCheckpoint:checkpoint,checkpointValidation:validation,changedFiles,dirty,activeFailureIds,forceFullRequested,semanticImpact});
   plan.checkpointValidation=validation;plan.gateScope=gateScope;plan.plannerDurationMs=Date.now()-started;plan.metrics.dependencyResolutionMs=plan.plannerDurationMs;plan.generatedAt=new Date().toISOString();
   return{plan,current,checkpoint};
 }
