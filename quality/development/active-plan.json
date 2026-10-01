@@ -96,7 +96,12 @@
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [],
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "reason": "Reference Sync reports 53 ambiguous consumers for the generic JSX fragment </article>)}</div> after the page-template panel visual rewrite. The machine-meaningful page-template data marker was restored to data-storefront-page-templates-v1, leaving staleConsumers=0. The remaining matches are unrelated JSX closures across independent routes/components, not consumers of the Builder Library contract; changing them would create unrelated churn."
+    }
+  ],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-01-VX-BUILDER-LIBRARY-2",
@@ -320,6 +325,13 @@
         "finding": "Mobile audit becomes visibly broken even though desktop is primary.",
         "resolution": "Responsive Library CSS collapses grids and keeps actions/touch targets inside the panel without introducing separate content semantics.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-09",
+        "scenario": "Reference Sync flags a generic JSX closing fragment from the rewritten page-template panel across dozens of unrelated article lists.",
+        "finding": "The review signal is syntactically ambiguous rather than a real contract dependency; blindly editing every match would create unrelated repository churn.",
+        "resolution": "Restore the actual machine contract marker for backward compatibility, verify staleConsumers=0, and use the canonical review exception only for the remaining generic JSX matches with an explicit reason.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -514,5 +526,5 @@
       }
     ]
   },
-  "notes": "PO authorized continued VX Builder development while full desktop audit is deferred until the user has desktop hardware again. This slice addresses the visibly primitive Library/element-add experience without treating mobile as full authoring authority. No main merge and no golden update. Plan Before Code planned-projection currently resolves only existing admin-surface files; new Builder/Core files do not exist yet and therefore are not projected into Atlas authority scope. The pre-code expectation is intentionally DOMAIN-ADMIN/admin-operations and will be reconciled immediately after the first implementation commit when the actual diff contains the new Core files. Actual implementation diff now contains the new Core/Library files, so Atlas scope has expanded to the intended DOMAIN-ADMIN / DOMAIN-BUILDER / DOMAIN-STOREFRONT and matching admin-operations / builder-template-system / shared-storefront authorities. The plan is reconciled to actual implementation scope before verification. Element-card visual upgrade also requires the existing v3 CSS module; it is now explicitly part of the planned Library 2.0 surface. Actual-diff Atlas confirms Library 2.0 changes admin/builder authoring surfaces only; shared-storefront remains an impacted dependency/verification surface but is not an edited authority domain. Expected domain/authority scope is corrected to DOMAIN-ADMIN + DOMAIN-BUILDER and admin-operations + builder-template-system."
+  "notes": "PO authorized continued VX Builder development while full desktop audit is deferred until the user has desktop hardware again. This slice addresses the visibly primitive Library/element-add experience without treating mobile as full authoring authority. No main merge and no golden update. Plan Before Code planned-projection currently resolves only existing admin-surface files; new Builder/Core files do not exist yet and therefore are not projected into Atlas authority scope. The pre-code expectation is intentionally DOMAIN-ADMIN/admin-operations and will be reconciled immediately after the first implementation commit when the actual diff contains the new Core files. Actual implementation diff now contains the new Core/Library files, so Atlas scope has expanded to the intended DOMAIN-ADMIN / DOMAIN-BUILDER / DOMAIN-STOREFRONT and matching admin-operations / builder-template-system / shared-storefront authorities. The plan is reconciled to actual implementation scope before verification. Element-card visual upgrade also requires the existing v3 CSS module; it is now explicitly part of the planned Library 2.0 surface. Actual-diff Atlas confirms Library 2.0 changes admin/builder authoring surfaces only; shared-storefront remains an impacted dependency/verification surface but is not an edited authority domain. Expected domain/authority scope is corrected to DOMAIN-ADMIN + DOMAIN-BUILDER and admin-operations + builder-template-system. Reference Sync closure: the genuine page-template data-marker dependency was restored to v1 compatibility. The remaining 53 review-only hits all originate from a generic JSX closing fragment and have zero stale machine consumers; they are explicitly acknowledged through the canonical DEV-REVIEW-REFERENCE-SYNC review exception rather than by unrelated edits."
 }
