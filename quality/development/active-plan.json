@@ -23,7 +23,9 @@
     ".github/workflows/template-factory-quality-gate.yml",
     "scripts/template-factory-quality-gate.mjs",
     "src/app/api/visual-fidelity/templates/route.ts",
-    "tests/storefront-template-quality-gate-v2.test.ts"
+    "tests/storefront-template-quality-gate-v2.test.ts",
+    "scripts/lib/template-factory-resumable-verification.mjs",
+    "tests/template-factory-resumable-verification.test.ts"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -144,7 +146,8 @@
         "The exact-head evidence manifest records rerun/reused proofs, original revision and equivalence proof.",
         "Dirty workspace, branch mismatch, corrupted/incomplete checkpoint, unsupported change and unknown dependency fail closed.",
         "Shadow mode compares predicted reuse with full verification and blocks on any false-reuse discrepancy.",
-        "The existing Control Plane and subordinate authorities remain the only final authorities."
+        "The existing Control Plane and subordinate authorities remain the only final authorities.",
+        "Template Factory may reuse unchanged page/viewport browser evidence only after branch-scoped checkpoint reconciliation; ambiguous/shared/authority changes force the full 14x3 matrix."
       ],
       "invariants": [
         "UNKNOWN is never reusable.",
@@ -573,7 +576,7 @@
       },
       {
         "id": "REQ-10",
-        "requirement": "Prove local/shared/schema/authority/gate/config/unrelated/visual/transitive scenarios and safe fallback.",
+        "requirement": "Prove local/shared/schema/authority/gate/config/unrelated/visual/transitive scenarios and safe fallback, including Template Factory page-level browser-case reuse with full 14x3 fallback.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -595,5 +598,5 @@
       }
     ]
   },
-  "notes": "Control Plane resumable verification expanded within the existing 5-point Release Risk Budget to close Template Factory page-level browser replay. Planned release scope is quality-infrastructure + release-infrastructure + storefront-ui (5/5, three subsystems); DOMAIN-BUILDER is included only for the QA catalog page-fingerprint projection. Promotion is engine-identity-bound: any verification engine/policy change falls back to SHADOW and must re-earn promotion. No production runtime/template behavior is changed."
+  "notes": "Control Plane resumable verification expanded within the existing 5-point Release Risk Budget to close Template Factory page-level browser replay. Planned release scope is quality-infrastructure + release-infrastructure + storefront-ui (5/5, three subsystems); DOMAIN-BUILDER is included only for the QA catalog page-fingerprint projection. Promotion is engine-identity-bound: any verification engine/policy change falls back to SHADOW and must re-earn promotion. No production runtime/template behavior is changed. Template Factory selective browser replay is implemented as a subordinate evidence checkpoint inside the existing Template Factory Quality Gate; no parallel workflow authority."
 }
