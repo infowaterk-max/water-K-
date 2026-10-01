@@ -100,3 +100,6 @@ export async function GET(){
     templates:[...templates,...qualityCandidates,...factoryCandidates],
   });
 }
+
+// STRESS_ONLY: valid TypeScript, invalid Next.js route segment config
+export const dynamic = 'STRESS_INVALID_DYNAMIC';
