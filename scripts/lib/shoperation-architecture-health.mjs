@@ -1,6 +1,7 @@
 import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {dirname,join,normalize} from 'node:path';
+import {pathToFileURL} from 'node:url';
 import {buildCodebaseAtlas} from './shoperation-codebase-atlas-runtime.mjs';
 
 const readJson=path=>JSON.parse(readFileSync(path,'utf8'));
@@ -264,23 +265,26 @@ export function buildArchitectureHealth(){
   };
 }
 
-const report=buildArchitectureHealth();
-mkdirSync('artifacts/shoperation-architecture',{recursive:true});
-writeFileSync('artifacts/shoperation-architecture/architecture-health.json',JSON.stringify(report,null,2)+'\n');
-const md=[
- '# Shoperation Architecture Health','',
- `Decision: ${report.decision}`,
- `HEAD: ${report.head}`,
- `Average confidence: ${report.confidence.average}/100`,
- `Hard drift: ${report.hardDrift.length}`,
- `Warnings: ${report.warnings.length}`,
- `Blocking guards: ${report.guards.blocking} / responsibilities: ${report.guards.blockingResponsibilityCount}`,
- `Template Single Source Authority: ${report.templateAuthority.decision} / packages: ${report.templateAuthority.packages.length}`,
- '','## Capability confidence',
- ...report.confidence.capabilities.map(item=>`- ${item.capabilityId}: ${item.score}/100 (${item.level}), Atlas files=${item.atlasCoverage}, verified evidence=${item.verifiedEvidenceIds.length}`),
- '','## Hard drift',...(report.hardDrift.length?report.hardDrift.map(item=>`- ${item.code}: ${JSON.stringify(item)}`):['- none']),
- '','## Warnings',...(report.warnings.length?report.warnings.map(item=>`- ${item.code}: ${JSON.stringify(item)}`):['- none'])
-];
-writeFileSync('artifacts/shoperation-architecture/architecture-health.md',md.join('\n')+'\n');
-console.log(`Architecture Health: ${report.decision}; confidence=${report.confidence.average}; hardDrift=${report.hardDrift.length}; warnings=${report.warnings.length}.`);
-if(process.argv.includes('--check')&&report.decision!=='PASS')process.exit(1);
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
+  const report=buildArchitectureHealth();
+  mkdirSync('artifacts/shoperation-architecture',{recursive:true});
+  writeFileSync('artifacts/shoperation-architecture/architecture-health.json',JSON.stringify(report,null,2)+'\n');
+  const md=[
+   '# Shoperation Architecture Health','',
+   `Decision: ${report.decision}`,
+   `HEAD: ${report.head}`,
+   `Average confidence: ${report.confidence.average}/100`,
+   `Hard drift: ${report.hardDrift.length}`,
+   `Warnings: ${report.warnings.length}`,
+   `Blocking guards: ${report.guards.blocking} / responsibilities: ${report.guards.blockingResponsibilityCount}`,
+   `Template Single Source Authority: ${report.templateAuthority.decision} / packages: ${report.templateAuthority.packages.length}`,
+   '','## Capability confidence',
+   ...report.confidence.capabilities.map(item=>`- ${item.capabilityId}: ${item.score}/100 (${item.level}), Atlas files=${item.atlasCoverage}, verified evidence=${item.verifiedEvidenceIds.length}`),
+   '','## Hard drift',...(report.hardDrift.length?report.hardDrift.map(item=>`- ${item.code}: ${JSON.stringify(item)}`):['- none']),
+   '','## Warnings',...(report.warnings.length?report.warnings.map(item=>`- ${item.code}: ${JSON.stringify(item)}`):['- none'])
+  ];
+  writeFileSync('artifacts/shoperation-architecture/architecture-health.md',md.join('\n')+'\n');
+  console.log(`Architecture Health: ${report.decision}; confidence=${report.confidence.average}; hardDrift=${report.hardDrift.length}; warnings=${report.warnings.length}.`);
+  if(process.argv.includes('--check')&&report.decision!=='PASS')process.exit(1);
+  
+}
