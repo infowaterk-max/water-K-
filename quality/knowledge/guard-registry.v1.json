@@ -448,7 +448,9 @@
         "scripts/shoperation-verification-checkpoint.mjs",
         "scripts/shoperation-truth-gate.mjs",
         "scripts/lib/shoperation-operational-intelligence.mjs",
-        ".github/workflows/ci.yml"
+        ".github/workflows/ci.yml",
+        "quality/knowledge/guard-registry.v1.json",
+        "quality/knowledge/development-guard-policy.v1.json"
       ]
     },
     "semanticUnits": [
