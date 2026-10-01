@@ -8,7 +8,8 @@
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/lib/shoperation-reference-sync-runtime.mjs",
-    "tests/shoperation-development-guard.test.ts"
+    "tests/shoperation-development-guard.test.ts",
+    "quality/knowledge/development-guard-policy.v1.json"
   ],
   "expectedSubsystems": [],
   "expectedDomains": [
@@ -284,5 +285,5 @@
       }
     ]
   },
-  "notes": "Narrow precursor fix inside the existing Reference Sync authority. No new gate, no exception, no runtime behavior change."
+  "notes": "Narrow precursor fix inside the existing Reference Sync authority. No new gate, no exception, no runtime behavior change. The canonical development-guard policy is included as read-only projected authority because the legacy Plan Before Code domain projector intentionally excludes scripts/lib/shoperation-* knowledge infrastructure from direct domain ownership."
 }
