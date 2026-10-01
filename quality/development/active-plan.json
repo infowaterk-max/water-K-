@@ -35,7 +35,10 @@
     "tests/domain-foundations.test.ts",
     "tests/shoperation-quality-knowledge.test.ts",
     "tests/shoperation-semantic-execution-intelligence.test.ts",
-    "tests/shoperation-proof-semantics.test.ts"
+    "tests/shoperation-proof-semantics.test.ts",
+    "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
+    "scripts/lib/shoperation-reference-sync-runtime.d.mts",
+    "scripts/lib/shoperation-operational-intelligence.d.mts"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -782,5 +785,5 @@
       }
     ]
   },
-  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair. Completion Truth evidence now uses only exact-head blocking producers actually emitted on every PR; scheduled observation signals remain regression-tested but are not misrepresented as per-PR proof. Critical specialist reviews now carry explicit source/evidence references; verdict text alone is not accepted by PROVE_PLAN."
+  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair. Completion Truth evidence now uses only exact-head blocking producers actually emitted on every PR; scheduled observation signals remain regression-tested but are not misrepresented as per-PR proof. Critical specialist reviews now carry explicit source/evidence references; verdict text alone is not accepted by PROVE_PLAN. Exact-head TypeScript proof exposed missing declaration contracts for the Node ESM Control Plane runtimes consumed directly by adversarial TS tests; adjacent .d.mts public API contracts are added instead of suppressing compiler checks."
 }
