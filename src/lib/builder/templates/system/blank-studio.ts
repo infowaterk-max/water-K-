@@ -44,7 +44,7 @@ export const BLANK_STUDIO_DESIGN_TOKENS=Object.freeze({
 const node=(input:StorefrontComponentNode):StorefrontComponentNode=>input;
 
 const header=(prefix:string):StorefrontComponentNode=>node({
-  id:prefix+'-header',
+  id:'blank-studio-header',
   componentKey:'system.header',
   componentVersion:1,
   config:{brandLabel:'Webshop neve',brandHref:'/',tone:'background',sticky:true},
@@ -53,7 +53,7 @@ const header=(prefix:string):StorefrontComponentNode=>node({
     brandHref:{path:'brand.homeHref',fallback:'/'},
   },
   children:[node({
-    id:prefix+'-navigation',
+    id:'blank-studio-navigation',
     componentKey:'system.navigation',
     componentVersion:1,
     config:{ariaLabel:'Fő navigáció',items:[],layout:'horizontal'},
@@ -62,7 +62,7 @@ const header=(prefix:string):StorefrontComponentNode=>node({
 });
 
 const footer=(prefix:string):StorefrontComponentNode=>node({
-  id:prefix+'-footer',
+  id:'blank-studio-footer',
   componentKey:'editorial.footer',
   componentVersion:1,
   config:{brandLabel:'Webshop neve',columns:[],copyright:'',tone:'background'},
