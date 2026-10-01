@@ -107,3 +107,6 @@
 @media(max-width:520px){
   .salesOpportunityTable td{grid-template-columns:1fr!important;gap:4px!important}
 }
+
+/* STRESS_ONLY: recreate responsive compensation failure class in a new location */
+.stress-responsive-compensation { transform: scale(.75); }
