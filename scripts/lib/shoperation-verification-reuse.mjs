@@ -95,9 +95,10 @@ export function validateVerificationGraph(registry){
   return{ok:issues.length===0,issues};
 }
 
-export function buildRepositorySnapshot({registry,head=currentHead(),branch=currentBranch(),files=trackedFiles()}={}){
+export function buildRepositorySnapshot({registry,head=currentHead(),branch=currentBranch(),files=trackedFiles(),gateScope=[]}={}){
   const graphValidation=validateVerificationGraph(registry),root=registry.verificationReuse??{};
-  const gateMap=new Map((registry.guards??[]).filter(g=>g.blocking!==false).map(g=>[g.id,g])),direct=new Map();
+  const scopedIds=Array.isArray(gateScope)&&gateScope.length?new Set(gateScope):null;
+  const gateMap=new Map((registry.guards??[]).filter(g=>g.blocking!==false&&(!scopedIds||scopedIds.has(g.id))).map(g=>[g.id,g])),direct=new Map();
   for(const [id,gate] of gateMap){
     const cfg=verificationConfig(registry,gate);
     const semantic=hashMatchedFiles(cfg.semanticInputs,files),implementation=hashMatchedFiles(cfg.implementationInputs,files);
@@ -199,7 +200,8 @@ export function planFromSnapshots({current,previousCheckpoint=null,checkpointVal
   }
   const values=Object.values(gates),reusable=values.filter(g=>g.action==='REUSE'),rerun=values.filter(g=>g.action==='RERUN');
   const invalidated=values.filter(g=>g.state==='INVALIDATED'),uncertain=values.filter(g=>g.state==='UNKNOWN');
-  const replayTier=forceFull?4:rerun.length===0?0:Math.min(4,Math.max(0,...rerun.map(g=>g.identity.impactTier||2)));
+  const tierDrivers=rerun.filter(g=>!g.reasons.includes('gate-non-reusable'));
+  const replayTier=forceFull?4:tierDrivers.length===0?0:Math.min(4,Math.max(0,...tierDrivers.map(g=>g.identity.impactTier||2)));
   const verificationMode=forceFull?'FULL':previousCheckpoint?(reusable.length?'RESUMED':'INCREMENTAL'):'FULL';
   const downstream=values.filter(g=>g.reasons.some(reason=>reason.startsWith('dependency-invalidated:'))).map(g=>g.gateId);
   const authorityChanged=values.filter(g=>g.reasons.includes('authority-change')).map(g=>g.gateId);
@@ -225,12 +227,13 @@ export function planFromSnapshots({current,previousCheckpoint=null,checkpointVal
 
 export function createReplayPlan({registry,checkpointPath,activeFailureIds=[]}={}){
   const started=Date.now(),head=currentHead(),branch=currentBranch(),dirty=trackedWorkspaceDirty();
-  const current=buildRepositorySnapshot({registry,head,branch}),loaded=loadCheckpoint(checkpointPath),checkpoint=loaded.checkpoint;
+  const gateScope=String(process.env.SHOPERATION_VERIFICATION_GATE_SCOPE??'').split(',').map(value=>value.trim()).filter(Boolean);
+  const current=buildRepositorySnapshot({registry,head,branch,gateScope}),loaded=loadCheckpoint(checkpointPath),checkpoint=loaded.checkpoint;
   const validation=loaded.validation??validateCheckpoint(checkpoint,{branch,head,requireAncestor:true});
   const changedFiles=validation.ok?changedFilesBetween(checkpoint.sourceCommit,head):[];
   const forceFullRequested=['1','true','yes'].includes(String(process.env.SHOPERATION_FORCE_FULL_VERIFICATION??'').toLowerCase());
   const plan=planFromSnapshots({current,previousCheckpoint:checkpoint,checkpointValidation:validation,changedFiles,dirty,activeFailureIds,forceFullRequested});
-  plan.checkpointValidation=validation;plan.plannerDurationMs=Date.now()-started;plan.metrics.dependencyResolutionMs=plan.plannerDurationMs;plan.generatedAt=new Date().toISOString();
+  plan.checkpointValidation=validation;plan.gateScope=gateScope;plan.plannerDurationMs=Date.now()-started;plan.metrics.dependencyResolutionMs=plan.plannerDurationMs;plan.generatedAt=new Date().toISOString();
   return{plan,current,checkpoint};
 }
 
