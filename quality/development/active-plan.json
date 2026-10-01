@@ -40,7 +40,8 @@
     "scripts/lib/shoperation-reference-sync-runtime.d.mts",
     "scripts/lib/shoperation-operational-intelligence.d.mts",
     "deploy/release-risk-policy.json",
-    "tests/control-plane-diagnostic-coverage.test.ts"
+    "tests/control-plane-diagnostic-coverage.test.ts",
+    "scripts/shoperation-close-development-plan.mjs"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -173,7 +174,8 @@
         "Truth evaluation distinguishes VERIFIED, PARTIAL, MISSING, STALE, FAILED, OVERCLAIM and UNKNOWN and never maps OVERCLAIM to DONE.",
         "Confidence derives from structured proof strength, freshness, adversarial coverage and limitations rather than a non-empty evidence field.",
         "TRUTH_GATE completion has an explicit CLOSE then LEARN lifecycle transition and stale completed plans no longer remain implementation-ready.",
-        "Failure-intake duplicate reconciliation runs at development-relevant cadence without auto-promoting unproven Known Failures."
+        "Failure-intake duplicate reconciliation runs at development-relevant cadence without auto-promoting unproven Known Failures.",
+        "After an exact-head VERIFIED Truth result, the Control Plane automatically emits a deterministic CLOSE→LEARN active-plan candidate and final CI remains blocked until that metadata-only closure is committed and reverified."
       ],
       "invariants": [
         "UNKNOWN semantic relationships fail closed for serious development and are never silently downgraded to no-impact.",
@@ -197,7 +199,8 @@
         "truth-complete-plan-remains-ready-for-implementation",
         "unknown-semantics-treated-as-no-impact",
         "automatic-unreviewed-known-failure-promotion",
-        "parallel-control-plane-created"
+        "parallel-control-plane-created",
+        "verified-implementation-merge-ready-while-active-plan-remains-ready-for-implementation"
       ]
     },
     "model": {
@@ -380,7 +383,7 @@
         "id": "CH-09",
         "scenario": "Truth completes a task that is then merged but active-plan remains implementation-ready.",
         "finding": "Later branches inherit stale intent and can be blocked incorrectly.",
-        "resolution": "Make CLOSE/LEARN an idempotent explicit lifecycle transition bound to completion evidence and merge/head identity.",
+        "resolution": "Automatically emit a deterministic CLOSE→LEARN candidate after exact-head VERIFIED Truth, fail the lifecycle closure gate until that metadata-only candidate is committed, then require the closed-plan Truth path to prove verified-head ancestry and zero material post-verification changes.",
         "status": "resolved"
       },
       {
@@ -408,7 +411,8 @@
       "Prove bidirectional Implementation Sync by omitting a derived MUST_EDIT consumer and requiring BLOCK.",
       "Exercise lifecycle VERIFIED to CLOSE to LEARN plus idempotent rerun and stale-plan rejection.",
       "Run existing Resumable Verification, Known Failure generalization, Deep Atlas and Sentinel regressions to prove no foundational regression.",
-      "Use exact-head CI and relevant gates; no completion claim is permitted from local/unit green alone."
+      "Use exact-head CI and relevant gates; no completion claim is permitted from local/unit green alone.",
+      "Exercise the real two-phase lifecycle: implementation HEAD reaches VERIFIED Truth, lifecycle candidate is emitted and merge-readiness blocks; commit only active-plan closure; second exact-head CI must accept closed/LEARN state and reject any material post-verification change."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
@@ -794,5 +798,5 @@
       }
     ]
   },
-  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair. Completion Truth evidence now uses only exact-head blocking producers actually emitted on every PR; scheduled observation signals remain regression-tested but are not misrepresented as per-PR proof. Critical specialist reviews now carry explicit source/evidence references; verdict text alone is not accepted by PROVE_PLAN. Exact-head TypeScript proof exposed missing declaration contracts for the Node ESM Control Plane runtimes consumed directly by adversarial TS tests; adjacent .d.mts public API contracts are added instead of suppressing compiler checks. Release Risk classification is extended for adjacent Control Plane .d.mts declaration contracts; budget thresholds and risk weights remain unchanged."
+  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair. Completion Truth evidence now uses only exact-head blocking producers actually emitted on every PR; scheduled observation signals remain regression-tested but are not misrepresented as per-PR proof. Critical specialist reviews now carry explicit source/evidence references; verdict text alone is not accepted by PROVE_PLAN. Exact-head TypeScript proof exposed missing declaration contracts for the Node ESM Control Plane runtimes consumed directly by adversarial TS tests; adjacent .d.mts public API contracts are added instead of suppressing compiler checks. Release Risk classification is extended for adjacent Control Plane .d.mts declaration contracts; budget thresholds and risk weights remain unchanged. Lifecycle persistence is deliberately two-phase and fail-closed rather than granting PR workflows repository write permission: CI emits the exact closure candidate, final merge-ready CI requires the candidate to be committed and reverified."
 }
