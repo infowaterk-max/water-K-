@@ -130,3 +130,5 @@ export function defineStorefrontTemplateManifest<const T extends StorefrontTempl
   if(!manifest.demoContent.namespace.trim())throw new Error('TEMPLATE_DEMO_NAMESPACE_REQUIRED');
   return Object.freeze(manifest);
 }
+
+// STRESS_ONLY_UNPLANNED_SCOPE_CHANGE
