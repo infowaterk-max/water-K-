@@ -55,6 +55,15 @@ export type CodebaseAtlas={
 export function extractImports(file:string,source?:string):unknown;
 export function domainDependencyClosure(domainIds:string[]):string[];
 export function buildCodebaseAtlas():CodebaseAtlas;
+export function classifyAtlasPath(file:string):{
+  path:string;
+  route:{path:string;kind:string}|null;
+  subsystems:string[];
+  surfaces:string[];
+  domains:string[];
+  authorities:string[];
+  truthKeys:string[];
+};
 export function impactForAtlasPattern(atlas:CodebaseAtlas|Record<string,unknown>,pattern:string):{
   matchedFiles:string[];
   consumers:string[];
@@ -73,8 +82,9 @@ export function reconcileAuthorityDependencies(atlas:CodebaseAtlas|Record<string
   learningMode:string;
   [key:string]:unknown;
 };
-export function buildExecutionRoute(atlas:CodebaseAtlas,patterns:string[]):{
+export function buildExecutionRoute(atlas:CodebaseAtlas,patterns:string[],options?:{tombstones?:string[]}):{
   MUST_EDIT:string[];
+  TOMBSTONES:string[];
   INSTRUCTION_REQUIRED:string[];
   INSTRUCTION_REQUIREMENTS:Array<Record<string,unknown>>;
   MAY_EDIT:string[];
