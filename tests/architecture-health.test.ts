@@ -77,4 +77,18 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
     expect(byId.get('WEBSITE-BUILDER')?.status).toBe('parked');
   });
 
+  it('ADVERSARIAL: free-form capability evidence cannot produce PROVEN confidence',()=>{
+    execFileSync('node',['scripts/lib/shoperation-architecture-health.mjs','--check'],{encoding:'utf8'});
+    const report=JSON.parse(readFileSync('artifacts/shoperation-architecture/architecture-health.json','utf8')) as any;
+    const atlas=report.confidence.capabilities.find((item:any)=>item.capabilityId==='CAP-ATLAS');
+    expect(atlas.score).toBeLessThan(90);
+    expect(atlas.level).not.toBe('proven');
+    expect(atlas.evidenceSemantics.strong).toBe(false);
+    expect(atlas.limitations).toContain('No current structured capability-scoped behavioral evidence satisfies the semantic evidence contract.');
+    const runtime=readFileSync('scripts/lib/shoperation-architecture-health.mjs','utf8');
+    expect(runtime).not.toContain("if((item.evidence??[]).length)score+=15");
+    const registry=JSON.parse(readFileSync('quality/knowledge/capability-registry.v1.json','utf8')) as any;
+    expect(registry.capabilities.find((item:any)=>item.id==='CAP-ATLAS').evidenceRequirement.freeFormEvidenceDoesNotScore).toBe(true);
+  });
+
 });

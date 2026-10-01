@@ -203,7 +203,23 @@
       ],
       "roadmapRefs": [
         "SYSTEM-SOUL"
-      ]
+      ],
+      "evidenceRequirement": {
+        "capability": "CAP-QUALITY",
+        "requiredClassifications": [
+          "integration",
+          "adversarial"
+        ],
+        "requiredDimensions": [
+          "guard-selection",
+          "known-failure-replay",
+          "failure-intake"
+        ],
+        "minimumConfidence": 0.8,
+        "behavioralProofRequired": true,
+        "limitationsRequired": true,
+        "freeFormEvidenceDoesNotScore": true
+      }
     },
     {
       "id": "CAP-INCIDENT",
@@ -275,7 +291,27 @@
       ],
       "roadmapRefs": [
         "SYSTEM-SELF-KNOWLEDGE"
-      ]
+      ],
+      "evidenceRequirement": {
+        "capability": "CAP-ATLAS",
+        "requiredClassifications": [
+          "static",
+          "integration",
+          "adversarial"
+        ],
+        "requiredDimensions": [
+          "symbol-identity",
+          "semantic-consumer",
+          "task-impact",
+          "authority-reconciliation",
+          "unknown-handling"
+        ],
+        "minimumConfidence": 0.8,
+        "freshness": "exact-head-or-proven-ancestor-as-defined-by-producer",
+        "behavioralProofRequired": true,
+        "limitationsRequired": true,
+        "freeFormEvidenceDoesNotScore": true
+      }
     }
   ]
 }

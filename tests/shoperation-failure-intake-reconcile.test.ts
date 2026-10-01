@@ -68,6 +68,8 @@ describe('Failure Intake reconciliation',()=>{
     expect(workflow).toContain('Run deterministic Failure Intake reconciliation');
     expect(workflow).toContain('Apply explicit Failure Intake dispositions');
     expect(workflow).toContain('shoperation-failure-intake-reconcile.mjs');
+    expect(workflow).toContain("cron: '17 2 * * *'");
+    expect(workflow).not.toContain("cron: '17 2 * * 1'");
     expect(workflow).toContain("const currentBody=current.body||'';");
     expect(workflow).toContain('body:nextBody');
     const collect=workflow.split('Collect Failure Intake reconciliation evidence')[1]?.split('Run deterministic Failure Intake reconciliation')[0]??'';
