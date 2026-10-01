@@ -17,7 +17,25 @@
       "blocking": true,
       "responsibilityKey": "knowledge-integrity-and-change-impact",
       "producer": "scripts/shoperation-knowledge-preflight.mjs",
-      "evidence": "artifacts/shoperation-quality/knowledge-preflight.json"
+      "evidence": "artifacts/shoperation-quality/knowledge-preflight.json",
+      "verification": {
+        "reusePolicy": "never",
+        "dependsOn": [],
+        "impactTier": 4,
+        "shadowComparable": true,
+        "knownFailureConsumer": true,
+        "semanticInputs": [
+          "quality/knowledge/**",
+          "src/lib/quality-system/**",
+          "src/lib/builder/template-factory/knowledge-registry.ts",
+          "scripts/shoperation-knowledge-*",
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
+        ],
+        "configurationInputs": [
+          "quality/development/active-plan.json",
+          ".github/workflows/ci.yml"
+        ]
+      }
     },
     {
       "id": "GUARD-PLAN-BEFORE-CODE",
@@ -27,7 +45,25 @@
       "blocking": true,
       "responsibilityKey": "declared-change-scope",
       "producer": "scripts/shoperation-plan-before-code.mjs",
-      "evidence": "artifacts/shoperation-development-guard/plan-before-code.json"
+      "evidence": "artifacts/shoperation-development-guard/plan-before-code.json",
+      "verification": {
+        "reusePolicy": "never",
+        "dependsOn": [
+          "GUARD-KNOWLEDGE-PREFLIGHT"
+        ],
+        "impactTier": 4,
+        "shadowComparable": true,
+        "semanticInputs": [
+          "quality/development/active-plan.json",
+          "quality/knowledge/**",
+          "scripts/shoperation-plan-before-code.mjs",
+          "scripts/lib/shoperation-development-runtime.mjs",
+          "scripts/lib/shoperation-operational-intelligence.mjs"
+        ],
+        "configurationInputs": [
+          ".github/workflows/ci.yml"
+        ]
+      }
     },
     {
       "id": "GUARD-EDIT-TIME",
@@ -37,7 +73,25 @@
       "blocking": true,
       "responsibilityKey": "known-failure-edit-selection",
       "producer": "scripts/shoperation-edit-time-guard.mjs",
-      "evidence": "artifacts/shoperation-development-guard/edit-time-guard.json"
+      "evidence": "artifacts/shoperation-development-guard/edit-time-guard.json",
+      "verification": {
+        "reusePolicy": "never",
+        "dependsOn": [
+          "GUARD-PLAN-BEFORE-CODE"
+        ],
+        "impactTier": 3,
+        "shadowComparable": true,
+        "knownFailureConsumer": true,
+        "semanticInputs": [
+          "quality/knowledge/**",
+          "scripts/shoperation-edit-time-guard.mjs",
+          "scripts/lib/shoperation-reference-sync-runtime.mjs",
+          "scripts/lib/shoperation-development-runtime.mjs"
+        ],
+        "configurationInputs": [
+          "quality/development/active-plan.json"
+        ]
+      }
     },
     {
       "id": "GUARD-INCREMENTAL-REPLAY",
@@ -47,7 +101,27 @@
       "blocking": true,
       "responsibilityKey": "known-failure-regression-replay",
       "producer": "scripts/shoperation-incremental-replay.mjs",
-      "evidence": "artifacts/shoperation-development-guard/incremental-replay.json"
+      "evidence": "artifacts/shoperation-development-guard/incremental-replay.json",
+      "verification": {
+        "reusePolicy": "never",
+        "dependsOn": [
+          "GUARD-EDIT-TIME"
+        ],
+        "impactTier": 2,
+        "shadowComparable": true,
+        "knownFailureConsumer": true,
+        "semanticInputs": [
+          "quality/knowledge/**",
+          "tests/**",
+          "scripts/shoperation-incremental-replay.mjs",
+          "scripts/lib/shoperation-verification-reuse.mjs",
+          "scripts/lib/shoperation-development-runtime.mjs"
+        ],
+        "configurationInputs": [
+          "quality/development/active-plan.json",
+          ".github/workflows/ci.yml"
+        ]
+      }
     },
     {
       "id": "GUARD-COMPLETION-TRUTH",
@@ -57,7 +131,26 @@
       "blocking": true,
       "responsibilityKey": "po-completion-integrity",
       "producer": "scripts/shoperation-truth-gate.mjs",
-      "evidence": "artifacts/shoperation-development-guard/truth-gate.json"
+      "evidence": "artifacts/shoperation-development-guard/truth-gate.json",
+      "verification": {
+        "reusePolicy": "never",
+        "dependsOn": [
+          "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-QUALITY-TESTS",
+          "GUARD-TYPECHECK",
+          "GUARD-PRODUCTION-BUILD"
+        ],
+        "impactTier": 4,
+        "shadowComparable": false,
+        "semanticInputs": [
+          "quality/development/active-plan.json",
+          "scripts/shoperation-truth-gate.mjs",
+          "scripts/lib/shoperation-operational-intelligence.mjs"
+        ],
+        "configurationInputs": [
+          ".github/workflows/ci.yml"
+        ]
+      }
     },
     {
       "id": "GUARD-RELEASE-RISK",
@@ -67,7 +160,20 @@
       "blocking": true,
       "responsibilityKey": "release-coherence-risk-budget",
       "producer": "scripts/release-risk-budget.mjs",
-      "evidence": "artifacts/release-risk-budget.json"
+      "evidence": "artifacts/release-risk-budget.json",
+      "verification": {
+        "reusePolicy": "never",
+        "dependsOn": [],
+        "impactTier": 4,
+        "shadowComparable": true,
+        "semanticInputs": [
+          "deploy/release-risk-policy.json",
+          "scripts/release-risk-budget.mjs"
+        ],
+        "configurationInputs": [
+          ".github/workflows/ci.yml"
+        ]
+      }
     },
     {
       "id": "GUARD-CUSTOMER-BASELINE",
@@ -77,7 +183,22 @@
       "blocking": true,
       "responsibilityKey": "customer-schema-baseline",
       "producer": "scripts/customer-baseline-guard.mjs",
-      "evidence": "artifacts/customer-baseline/**"
+      "evidence": "artifacts/customer-baseline/**",
+      "verification": {
+        "reusePolicy": "safe",
+        "dependsOn": [],
+        "impactTier": 3,
+        "shadowComparable": true,
+        "semanticInputs": [
+          "supabase/customer-baseline/**",
+          "supabase/migrations/**",
+          "scripts/validate-customer-baseline.mjs",
+          "scripts/customer-baseline-*"
+        ],
+        "configurationInputs": [
+          "package.json"
+        ]
+      }
     },
     {
       "id": "GUARD-MARKET-READY",
@@ -87,7 +208,24 @@
       "blocking": true,
       "responsibilityKey": "market-ready-contract",
       "producer": "scripts/block24-market-ready-contract.mjs",
-      "evidence": "artifacts/block24-market-ready/**"
+      "evidence": "artifacts/block24-market-ready/**",
+      "verification": {
+        "reusePolicy": "safe",
+        "dependsOn": [
+          "GUARD-CUSTOMER-BASELINE"
+        ],
+        "impactTier": 3,
+        "shadowComparable": true,
+        "semanticInputs": [
+          "scripts/block24-market-ready-*",
+          "src/**",
+          "supabase/migrations/**",
+          "deploy/**"
+        ],
+        "configurationInputs": [
+          "package.json"
+        ]
+      }
     },
     {
       "id": "GUARD-QUALITY-TESTS",
@@ -97,7 +235,31 @@
       "blocking": true,
       "responsibilityKey": "automated-regression-suite",
       "producer": "npm test",
-      "evidence": "test-result"
+      "evidence": "test-result",
+      "verification": {
+        "reusePolicy": "safe",
+        "dependsOn": [
+          "GUARD-INCREMENTAL-REPLAY"
+        ],
+        "impactTier": 2,
+        "shadowComparable": true,
+        "knownFailureConsumer": true,
+        "semanticInputs": [
+          "src/**",
+          "tests/**",
+          "scripts/**",
+          "quality/**",
+          "supabase/**",
+          "deploy/**",
+          "next.config.*",
+          "tsconfig.json",
+          "vitest.config.*"
+        ],
+        "configurationInputs": [
+          "package.json",
+          ".github/workflows/ci.yml"
+        ]
+      }
     },
     {
       "id": "GUARD-TYPECHECK",
@@ -107,7 +269,25 @@
       "blocking": true,
       "responsibilityKey": "static-type-contract",
       "producer": "tsc --noEmit",
-      "evidence": "workflow-step"
+      "evidence": "workflow-step",
+      "verification": {
+        "reusePolicy": "safe",
+        "dependsOn": [],
+        "impactTier": 2,
+        "shadowComparable": true,
+        "semanticInputs": [
+          "src/**/*.ts",
+          "src/**/*.tsx",
+          "tests/**/*.ts",
+          "tests/**/*.tsx",
+          "scripts/**/*.mjs",
+          "tsconfig.json",
+          "next-env.d.ts"
+        ],
+        "configurationInputs": [
+          "package.json"
+        ]
+      }
     },
     {
       "id": "GUARD-PRODUCTION-BUILD",
@@ -117,7 +297,29 @@
       "blocking": true,
       "responsibilityKey": "production-buildability",
       "producer": "next build",
-      "evidence": "workflow-step"
+      "evidence": "workflow-step",
+      "verification": {
+        "reusePolicy": "safe",
+        "dependsOn": [
+          "GUARD-TYPECHECK"
+        ],
+        "impactTier": 3,
+        "shadowComparable": true,
+        "semanticInputs": [
+          "src/**",
+          "public/**",
+          "scripts/validate-vercel-deploy-env.mjs",
+          "next.config.*",
+          "tsconfig.json"
+        ],
+        "configurationInputs": [
+          "package.json",
+          ".github/workflows/ci.yml"
+        ],
+        "context": {
+          "environment": "ci-build"
+        }
+      }
     },
     {
       "id": "GUARD-TEMPLATE-FACTORY",
@@ -127,7 +329,37 @@
       "blocking": true,
       "responsibilityKey": "template-factory-browser-contract",
       "producer": ".github/workflows/template-factory-quality-gate.yml",
-      "evidence": "artifacts/template-factory-quality/**"
+      "evidence": "artifacts/template-factory-quality/**",
+      "verification": {
+        "reusePolicy": "safe",
+        "dependsOn": [
+          "GUARD-PRODUCTION-BUILD"
+        ],
+        "impactTier": 3,
+        "shadowComparable": false,
+        "semanticInputs": [
+          "src/lib/builder/**",
+          "src/app/**",
+          "src/components/**",
+          "public/**",
+          "scripts/template-factory-*",
+          "tests/**template-factory**",
+          "tests/storefront-*.test.ts",
+          "quality/knowledge/**"
+        ],
+        "configurationInputs": [
+          ".github/workflows/template-factory-quality-gate.yml"
+        ],
+        "context": {
+          "pageMatrix": 14,
+          "viewports": [
+            "desktop",
+            "tablet",
+            "mobile"
+          ],
+          "visualProof": true
+        }
+      }
     },
     {
       "id": "SIGNAL-ARCHITECTURE-CONFIDENCE",
@@ -159,5 +391,31 @@
       "producer": "scripts/shoperation-sentinel-scan.mjs",
       "evidence": "artifacts/shoperation-sentinel/sentinel-report.json"
     }
-  ]
+  ],
+  "verificationReuse": {
+    "contract": "shoporation.verification-reuse-registry.v1",
+    "schemaVersion": "shoporation.verification-reuse.v1",
+    "mode": "shadow",
+    "branchScoped": true,
+    "crossBranchReuse": false,
+    "unknownPolicy": "rerun",
+    "forceFullOnUnknownDependency": true,
+    "globalAuthorityInputs": [
+      "quality/knowledge/architecture-constitution.v1.json",
+      "quality/knowledge/domain-foundations.v1.json"
+    ],
+    "globalToolchainInputs": [
+      "package.json",
+      "package-lock.json"
+    ],
+    "globalEnvironmentKeys": [
+      "SHOPERATION_VERIFICATION_ENVIRONMENT",
+      "SHOPERATION_TOOLCHAIN_ID"
+    ],
+    "nonSemanticPatterns": [
+      "docs/**",
+      "README.md",
+      ".github/ISSUE_TEMPLATE/**"
+    ]
+  }
 }
