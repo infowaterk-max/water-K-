@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-SEMANTIC-PROOF-FOUNDATIONS",
   "task": "Complete existing Control Plane semantic execution and proof semantics capabilities with adversarial closure.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "efe9d183",
   "changeBaseSha": "cb3d625d3293d6e390f8652b00989d0c8067cbc1",
   "plannedFilePatterns": [
@@ -798,5 +798,18 @@
       }
     ]
   },
-  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair. Completion Truth evidence now uses only exact-head blocking producers actually emitted on every PR; scheduled observation signals remain regression-tested but are not misrepresented as per-PR proof. Critical specialist reviews now carry explicit source/evidence references; verdict text alone is not accepted by PROVE_PLAN. Exact-head TypeScript proof exposed missing declaration contracts for the Node ESM Control Plane runtimes consumed directly by adversarial TS tests; adjacent .d.mts public API contracts are added instead of suppressing compiler checks. Release Risk classification is extended for adjacent Control Plane .d.mts declaration contracts; budget thresholds and risk weights remain unchanged. Lifecycle persistence is deliberately two-phase and fail-closed rather than granting PR workflows repository write permission: CI emits the exact closure candidate, final merge-ready CI requires the candidate to be committed and reverified."
+  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair. Completion Truth evidence now uses only exact-head blocking producers actually emitted on every PR; scheduled observation signals remain regression-tested but are not misrepresented as per-PR proof. Critical specialist reviews now carry explicit source/evidence references; verdict text alone is not accepted by PROVE_PLAN. Exact-head TypeScript proof exposed missing declaration contracts for the Node ESM Control Plane runtimes consumed directly by adversarial TS tests; adjacent .d.mts public API contracts are added instead of suppressing compiler checks. Release Risk classification is extended for adjacent Control Plane .d.mts declaration contracts; budget thresholds and risk weights remain unchanged. Lifecycle persistence is deliberately two-phase and fail-closed rather than granting PR workflows repository write permission: CI emits the exact closure candidate, final merge-ready CI requires the candidate to be committed and reverified.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "72452d31b5576df7b61be5823aae52ffee86e2f5",
+    "closedAt": "2026-10-01T18:13:00.334Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-01-SEMANTIC-PROOF-FOUNDATIONS",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
