@@ -4,7 +4,7 @@
   "task": "Extend the existing Control Plane release verification with safe resumable evidence reuse and minimal replay without creating a parallel authority.",
   "status": "ready-for-implementation",
   "guardDigest": "2a67f8cf",
-  "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
+  "changeBaseSha": "092df49efe5b099cdf26096a3b7deed6e9860e39",
   "plannedFilePatterns": [
     "AGENTS.md",
     ".github/workflows/ci.yml",
@@ -388,7 +388,7 @@
     "requirements": [
       {
         "id": "REQ-01",
-        "requirement": "Build deterministic evidence identity from semantic inputs rather than commit SHA alone.",
+        "requirement": "The Control Plane guarantees complete semantic understanding of every code dependency, every transitive consumer and every required edit point across the entire repository with no material omissions.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -400,7 +400,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-01A",
-            "statement": "A previous PASS alone never authorizes reuse.",
+            "statement": "No code dependency or required edit point anywhere in the repository can ever be omitted.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
