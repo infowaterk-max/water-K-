@@ -290,7 +290,7 @@ export function finalizeVerification({plan,outcomes={},priorCheckpoint=null,runI
   }
   const unique=[...new Map(discrepancies.map(item=>[item.gateId+':'+item.code,item])).values()];
   const shadowComparison={mode:'SHADOW',compared:comparable.length,discrepancies:unique,decision:unique.length?'BLOCK':'PASS'};
-  const priorStats=priorCheckpoint?.shadowStats??{passes:0,resumedPasses:0,falseReuse:0};
+  const priorStats=priorCheckpoint?.shadowStats??(priorCheckpoint?.complete?{passes:1,resumedPasses:priorCheckpoint.verificationMode==='RESUMED'?1:0,falseReuse:0}:{passes:0,resumedPasses:0,falseReuse:0});
   const falseReuseThisRun=unique.filter(item=>item.code==='SHADOW_FALSE_REUSE').length;
   const shadowStats={
     passes:priorStats.passes+(shadowComparison.decision==='PASS'?1:0),
