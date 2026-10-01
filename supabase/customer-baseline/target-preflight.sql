@@ -102,3 +102,5 @@ select
   0::integer as historical_migration_rows,
   0::integer as auth_users,
   'target-preflight-ok'::text as status;
+
+-- STRESS_ONLY_RELEASE_RISK_DATABASE_TOUCH

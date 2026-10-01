@@ -87,3 +87,5 @@ const lines=[
 writeFileSync('artifacts/shoperation-development-guard/truth-gate.md',lines.join('\n')+'\n');
 console.log(`Completion Truth Gate: ${report.internalState}; PO=${report.poStatus}; pass=${report.evidenceSummary.pass}; stale=${report.evidenceSummary.stale}; missing=${report.evidenceSummary.missing}.`);
 if(report.decision!=='PASS'&&process.argv.includes('--check'))process.exit(1);
+
+// STRESS_ONLY_RELEASE_RISK_QUALITY_TOUCH
