@@ -33,6 +33,8 @@ const qualityInfrastructurePrefixes=[
   'scripts/lib/shoperation-verification-reuse.mjs',
   'scripts/lib/shoperation-development-runtime.mjs',
   'quality/knowledge/guard-registry.v1.json',
+  'package.json',
+  'package-lock.json',
   'scripts/template-factory-product-owner-handoff.mjs',
   'scripts/promote-template-golden-baseline.mjs',
   '.github/workflows/template-factory-quality-gate.yml',
@@ -155,7 +157,28 @@ function selectScope(catalog,changes,previous,{registry,diffByFile,factoryEngine
     selected.set(template.templateKey,{template,...decision,prior});
   }
 
-  const addedTemplateFiles=changes.filter(change=>change.status.startsWith('A')&&change.file.startsWith('src/lib/builder/templates/')&&/\.(ts|tsx)$/.test(change.file));
+  for(const template of templates){
+    const baselinePrefix=String(template.golden?.baselineDirectory??'').replace(/\/$/,'')+'/';
+    const baselineChanges=baselinePrefix!=='/'?changes.filter(change=>change.file.startsWith(baselinePrefix)):[];
+    if(!baselineChanges.length)continue;
+    const prior=priorTemplateProof(previous,template,{factoryEngineHash,toolchainHash});
+    if(!prior||selected.has(template.templateKey)){
+      selected.set(template.templateKey,{template,mode:'full',pages:[...template.pageTypes],reason:prior?'golden-change-overlaps-template-change':'golden-change-no-reusable-proof',semanticImpact:[],prior:prior??null});
+      continue;
+    }
+    const pages=new Set();
+    let unknown=false;
+    for(const change of baselineChanges){
+      const file=change.file.slice(baselinePrefix.length);
+      const match=template.pageTypes.find(pageType=>template.viewports.some(viewport=>file===pageType+'-'+viewport+'.png'));
+      if(!match){unknown=true;break;}
+      pages.add(match);
+    }
+    if(unknown||!pages.size)selected.set(template.templateKey,{template,mode:'full',pages:[...template.pageTypes],reason:'golden-change-scope-unknown',semanticImpact:[],prior});
+    else selected.set(template.templateKey,{template,mode:pages.size===template.pageTypes.length?'full':'partial',pages:[...pages],reason:'golden-baseline-changed',semanticImpact:[],prior});
+  }
+
+    const addedTemplateFiles=changes.filter(change=>change.status.startsWith('A')&&change.file.startsWith('src/lib/builder/templates/')&&/\.(ts|tsx)$/.test(change.file));
   for(const change of addedTemplateFiles){
     const owned=templates.some(template=>startsWithAny(change.file,template.sourcePrefixes??[]));
     if(!owned)throw new Error(`TEMPLATE_FACTORY_QUALITY_MANIFEST_REQUIRED:${change.file}`);
