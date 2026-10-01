@@ -1,12 +1,18 @@
+import {createHash} from 'node:crypto';
+import {existsSync,readFileSync} from 'node:fs';
 import {access,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
 import {chromium} from 'playwright';
+import {canonicalizeTemplateFactoryInfrastructureInput,deriveTemplateReplayDecision,reusableTemplateBrowserCase,templateBrowserCaseFingerprint,templateFactoryInfrastructureSemanticallyEquivalent} from './lib/shoperation-template-factory-resumable-verification.mjs';
 
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
 const outputDir=process.env.TEMPLATE_QUALITY_OUTPUT_DIR??'artifacts/template-factory-quality';
 const baseSha=(process.env.QUALITY_BASE_SHA??'').trim();
 const headSha=(process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').trim()||'HEAD';
+const currentBranch=(process.env.QUALITY_BRANCH??process.env.GITHUB_HEAD_REF??process.env.GITHUB_REF_NAME??'').trim();
+const currentRunId=(process.env.GITHUB_RUN_ID??'local').trim();
+const previousManifestPath=(process.env.TEMPLATE_QUALITY_PREVIOUS_MANIFEST??'').trim();
 const viewportProfiles=Object.freeze({
   desktop:{width:1200,height:1000},
   tablet:{width:768,height:1024},
@@ -23,6 +29,12 @@ const qualityInfrastructurePrefixes=[
   'src/app/api/visual-fidelity/templates/',
   'src/app/visual-fidelity-qa/',
   'scripts/template-factory-quality-gate.mjs',
+  'scripts/lib/shoperation-template-factory-resumable-verification.mjs',
+  'scripts/lib/shoperation-verification-reuse.mjs',
+  'scripts/lib/shoperation-development-runtime.mjs',
+  'quality/knowledge/guard-registry.v1.json',
+  'package.json',
+  'package-lock.json',
   'scripts/template-factory-product-owner-handoff.mjs',
   'scripts/promote-template-golden-baseline.mjs',
   '.github/workflows/template-factory-quality-gate.yml',
@@ -42,15 +54,40 @@ const sharedRuntimePrefixes=[
   'src/components/account/',
   'src/app/fiokom/',
   'src/lib/account/',
+  'src/app/public-pages-polish.css',
+  'src/app/v6.css',
+  'src/app/final-ux-audit.css',
+  'src/app/responsive-final.css',
+  'src/app/globals.css',
+  'public/',
 ];
 
 const safeName=value=>value.replace(/[^a-z0-9._-]+/gi,'-').replace(/^-+|-+$/g,'').toLowerCase();
 const exists=async file=>{try{await access(file);return true;}catch{return false;}};
+const canonicalJson=value=>Array.isArray(value)?'['+value.map(canonicalJson).join(',')+']':value&&typeof value==='object'?'{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}':JSON.stringify(value);
+const sha256=value=>createHash('sha256').update(String(value)).digest('hex');
+const manifestPayload=manifest=>{const copy={...manifest};delete copy.checksum;return copy;};
+const manifestChecksum=manifest=>sha256(canonicalJson(manifestPayload(manifest)));
+const isAncestor=(ancestor,head)=>{if(!ancestor||!head||head==='HEAD')return false;try{execFileSync('git',['merge-base','--is-ancestor',ancestor,head],{stdio:'ignore'});return true;}catch{return false;}};
 
-function changedFiles(){
-  if(!baseSha||/^0+$/.test(baseSha))return[];
+async function loadPreviousManifest(){
+  if(!previousManifestPath||!await exists(previousManifestPath))return{manifest:null,reason:'missing'};
   try{
-    const raw=execFileSync('git',['diff','--name-status',baseSha,headSha],{encoding:'utf8'});
+    const manifest=JSON.parse(await readFile(previousManifestPath,'utf8'));
+    if(manifest.contract!=='shoporation.template-factory-quality-evidence.v2'||manifest.reconciliationContract!=='shoporation.template-factory-page-evidence-reuse.v1')return{manifest:null,reason:'contract'};
+    if(manifest.complete!==true)return{manifest:null,reason:'incomplete'};
+    if(!manifest.checksum||manifest.checksum!==manifestChecksum(manifest))return{manifest:null,reason:'checksum'};
+    if(!currentBranch||manifest.branch!==currentBranch)return{manifest:null,reason:'branch'};
+    if(!isAncestor(manifest.sourceCommit,headSha))return{manifest:null,reason:'ancestry'};
+    if((manifest.errors??[]).length)return{manifest:null,reason:'errors'};
+    return{manifest,reason:'valid'};
+  }catch(error){return{manifest:null,reason:'corrupt',error:String(error)};}
+}
+
+function changedFiles(fromSha=baseSha){
+  if(!fromSha||/^0+$/.test(fromSha))return[];
+  try{
+    const raw=execFileSync('git',['diff','--name-status',fromSha,headSha],{encoding:'utf8'});
     return raw.split(/\r?\n/).filter(Boolean).map(line=>{
       const parts=line.split('\t');
       const status=parts[0]??'M';
@@ -62,21 +99,93 @@ function changedFiles(){
   }
 }
 
-function startsWithAny(file,prefixes){return prefixes.some(prefix=>file.startsWith(prefix));}
+function diffText(fromSha,file){
+  if(!fromSha||!file)return'';
+  try{return execFileSync('git',['diff','--unified=0',fromSha,headSha,'--',file],{encoding:'utf8'});}
+  catch{return'';}
+}
 
-function selectScope(catalog,changes){
+function repositoryFingerprint(prefixes){
+  const raw=execFileSync('git',['ls-files','-z'],{encoding:'utf8'});
+  const files=raw.split('\0').filter(Boolean).filter(file=>startsWithAny(file,prefixes)&&existsSync(file)).sort();
+  const hash=createHash('sha256');
+  for(const file of files){hash.update(file);hash.update('\0');hash.update(canonicalizeTemplateFactoryInfrastructureInput(file,readFileSync(file)));hash.update('\0');}
+  return hash.digest('hex');
+}
+
+async function fileFingerprint(file){
+  if(!await exists(file))return'missing';
+  return createHash('sha256').update(await readFile(file)).digest('hex');
+}
+
+function startsWithAny(file,prefixes){return prefixes.some(prefix=>file.startsWith(prefix));}
+function fileAtRevision(ref,file){if(!ref||!file)return null;try{return execFileSync('git',['show',`${ref}:${file}`],{encoding:'utf8'});}catch{return null;}}
+function semanticQualityInfrastructureChange(change,fromSha){
+  if(!startsWithAny(change.file,qualityInfrastructurePrefixes))return false;
+  const before=fileAtRevision(fromSha,change.file);
+  if(before!==null&&existsSync(change.file)&&templateFactoryInfrastructureSemanticallyEquivalent(change.file,before,readFileSync(change.file)))return false;
+  return true;
+}
+
+function priorTemplateProof(previous,template,{factoryEngineHash,toolchainHash}={}){
+  if(!previous)return null;
+  if(!previous.factoryEngineHash||previous.factoryEngineHash!==factoryEngineHash)return null;
+  if(!previous.toolchainHash||previous.toolchainHash!==toolchainHash)return null;
+  const priorFingerprint=previous.templatePageFingerprints?.[template.templateKey];
+  const acceptance=(previous.acceptanceProofs??[]).find(item=>item.templateKey===template.templateKey&&item.templateVersion===template.templateVersion);
+  if(!priorFingerprint||priorFingerprint.templateVersion!==template.templateVersion||acceptance?.browserMatrixPassed!==true||acceptance?.browserMatrixComplete!==true)return null;
+  const expected=new Set(template.pageTypes.flatMap(pageType=>template.viewports.map(viewport=>pageType+':'+viewport)));
+  const priorCases=(previous.cases??[]).filter(item=>item.templateKey===template.templateKey&&item.templateVersion===template.templateVersion&&expected.has(item.pageType+':'+item.viewport));
+  const keys=new Set(priorCases.filter(item=>(item.errors??[]).length===0).map(item=>item.pageType+':'+item.viewport));
+  if(keys.size!==expected.size||[...expected].some(key=>!keys.has(key)))return null;
+  return{fingerprints:priorFingerprint.pages??{},cases:priorCases,sourceCommit:previous.sourceCommit,runId:previous.runId??null};
+}
+
+function selectScope(catalog,changes,previous,{registry,diffByFile,factoryEngineHash,toolchainHash,diffBaseSha=null}={}){
   const templates=catalog.templates??[];
   const selected=new Map();
   const reasons=[];
-  const qualityInfra=changes.some(change=>startsWithAny(change.file,qualityInfrastructurePrefixes));
+  const qualityInfra=changes.some(change=>semanticQualityInfrastructureChange(change,diffBaseSha));
   const sharedRuntime=changes.some(change=>startsWithAny(change.file,sharedRuntimePrefixes)&&!startsWithAny(change.file,qualityInfrastructurePrefixes));
 
   for(const template of templates){
-    const direct=changes.some(change=>startsWithAny(change.file,template.sourcePrefixes??[]));
-    if(direct)selected.set(template.templateKey,{template,mode:'full',reason:'template-source-changed'});
+    const directChanges=changes.filter(change=>startsWithAny(change.file,template.sourcePrefixes??[]));
+    if(!directChanges.length)continue;
+    const prior=priorTemplateProof(previous,template,{factoryEngineHash,toolchainHash});
+    const decision=deriveTemplateReplayDecision({
+      registry,
+      changedFiles:directChanges.map(change=>change.file),
+      diffByFile,
+      pageTypes:template.pageTypes,
+      currentPageFingerprints:template.pageFingerprints??{},
+      previousPageFingerprints:prior?.fingerprints??{},
+      priorComplete:Boolean(prior),
+    });
+    selected.set(template.templateKey,{template,...decision,prior});
   }
 
-  const addedTemplateFiles=changes.filter(change=>change.status.startsWith('A')&&change.file.startsWith('src/lib/builder/templates/')&&/\.(ts|tsx)$/.test(change.file));
+  for(const template of templates){
+    const baselinePrefix=String(template.golden?.baselineDirectory??'').replace(/\/$/,'')+'/';
+    const baselineChanges=baselinePrefix!=='/'?changes.filter(change=>change.file.startsWith(baselinePrefix)):[];
+    if(!baselineChanges.length)continue;
+    const prior=priorTemplateProof(previous,template,{factoryEngineHash,toolchainHash});
+    if(!prior||selected.has(template.templateKey)){
+      selected.set(template.templateKey,{template,mode:'full',pages:[...template.pageTypes],reason:prior?'golden-change-overlaps-template-change':'golden-change-no-reusable-proof',semanticImpact:[],prior:prior??null});
+      continue;
+    }
+    const pages=new Set();
+    let unknown=false;
+    for(const change of baselineChanges){
+      const file=change.file.slice(baselinePrefix.length);
+      const match=template.pageTypes.find(pageType=>template.viewports.some(viewport=>file===pageType+'-'+viewport+'.png'));
+      if(!match){unknown=true;break;}
+      pages.add(match);
+    }
+    if(unknown||!pages.size)selected.set(template.templateKey,{template,mode:'full',pages:[...template.pageTypes],reason:'golden-change-scope-unknown',semanticImpact:[],prior});
+    else selected.set(template.templateKey,{template,mode:pages.size===template.pageTypes.length?'full':'partial',pages:[...pages],reason:'golden-baseline-changed',semanticImpact:[],prior});
+  }
+
+    const addedTemplateFiles=changes.filter(change=>change.status.startsWith('A')&&change.file.startsWith('src/lib/builder/templates/')&&/\.(ts|tsx)$/.test(change.file));
   for(const change of addedTemplateFiles){
     const owned=templates.some(template=>startsWithAny(change.file,template.sourcePrefixes??[]));
     if(!owned)throw new Error(`TEMPLATE_FACTORY_QUALITY_MANIFEST_REQUIRED:${change.file}`);
@@ -90,21 +199,31 @@ function selectScope(catalog,changes){
   }
 
   if(qualityInfra){
-    for(const template of templates)selected.set(template.templateKey,{template,mode:'full',reason:'quality-infrastructure-changed'});
+    for(const template of templates)selected.set(template.templateKey,{template,mode:'full',pages:[...template.pageTypes],reason:'quality-infrastructure-changed',prior:null});
   }else if(sharedRuntime){
     for(const template of templates){
-      if(!selected.has(template.templateKey))selected.set(template.templateKey,{template,mode:'full',reason:'shared-runtime-changed'});
+      if(!selected.has(template.templateKey))selected.set(template.templateKey,{template,mode:'full',pages:[...template.pageTypes],reason:'shared-runtime-changed',prior:null});
+      else{
+        const value=selected.get(template.templateKey);
+        selected.set(template.templateKey,{...value,mode:'full',pages:[...template.pageTypes],reason:'shared-runtime-changed',prior:null});
+      }
     }
   }
 
   if(!selected.size){
     for(const template of templates){
+      const prior=priorTemplateProof(previous,template,{factoryEngineHash,toolchainHash});
+      if(previous&&prior){
+        selected.set(template.templateKey,{template,mode:'reuse',pages:[],reason:'no-relevant-browser-input-change',semanticImpact:[],prior});
+        continue;
+      }
       const mode=template.factoryCandidate?'full':'canary';
+      const pages=mode==='full'?[...template.pageTypes]:template.pageTypes.filter(pageType=>canaryPageTypes.has(pageType));
       const reason=template.factoryCandidate?'factory-exact-head-full':'default-canary';
-      selected.set(template.templateKey,{template,mode,reason});
+      selected.set(template.templateKey,{template,mode,pages,reason,semanticImpact:[],prior:null});
     }
   }
-  for(const value of selected.values())reasons.push({templateKey:value.template.templateKey,mode:value.mode,reason:value.reason});
+  for(const value of selected.values())reasons.push({templateKey:value.template.templateKey,mode:value.mode,pages:value.pages,reason:value.reason,reusedFrom:value.prior?.sourceCommit??null});
   return{selected:[...selected.values()],reasons,qualityInfra,sharedRuntime,legacyTemplateChanges};
 }
 
@@ -302,16 +421,87 @@ const catalog=await loadCatalog();
 for(const item of catalog.templates??[]){
   if(item.structural?.ok!==true)throw new Error(`TEMPLATE_FACTORY_STRUCTURAL_GATE_FAILED:${item.templateKey}:${item.structural?.issues?.[0]?.code??'UNKNOWN'}`);
 }
-const changes=changedFiles();
-const scope=selectScope(catalog,changes);
+const previousResult=await loadPreviousManifest();
+const previousManifest=previousResult.manifest;
+const diffBaseSha=previousManifest?.sourceCommit??baseSha;
+const changes=changedFiles(diffBaseSha);
+const diffByFile=Object.fromEntries(changes.map(change=>[change.file,diffText(diffBaseSha,change.file)]));
+const guardRegistry=JSON.parse(await readFile('quality/knowledge/guard-registry.v1.json','utf8'));
+const toolchainHash=repositoryFingerprint(['package.json','package-lock.json']);
+const factoryEngineHash=repositoryFingerprint([...qualityInfrastructurePrefixes,...sharedRuntimePrefixes,'src/app/api/visual-fidelity/templates/route.ts']);
+const scope=selectScope(catalog,changes,previousManifest,{registry:guardRegistry,diffByFile,factoryEngineHash,toolchainHash,diffBaseSha});
+
+const caseFingerprint=async(manifest,pageType,viewport)=>{
+  const baselinePath=path.join(manifest.golden.baselineDirectory,`${pageType}-${viewport}.png`);
+  const baselineHash=await fileFingerprint(baselinePath);
+  return templateBrowserCaseFingerprint({
+    templateKey:manifest.templateKey,
+    templateVersion:manifest.templateVersion,
+    pageType,
+    viewport,
+    pageFingerprint:manifest.pageFingerprints?.[pageType]??null,
+    browser:manifest.browser,
+    golden:manifest.golden,
+    viewportProfile:viewportProfiles[viewport],
+    baselineHash,
+    factoryEngineHash,
+    toolchainHash,
+    candidateMode:manifest.factoryCandidate?'factory':manifest.qualityCandidate?'quality-candidate':'accepted',
+  });
+};
+
+for(const selected of scope.selected){
+  if(!selected.prior||!['partial','reuse'].includes(selected.mode))continue;
+  const rerun=new Set(selected.pages);
+  for(const pageType of selected.template.pageTypes){
+    if(rerun.has(pageType))continue;
+    for(const viewport of selected.template.viewports){
+      const priorCase=selected.prior.cases.find(item=>item.pageType===pageType&&item.viewport===viewport);
+      const currentCaseFingerprint=await caseFingerprint(selected.template,pageType,viewport);
+      if(!reusableTemplateBrowserCase({priorCase,currentCaseFingerprint}).reusable){
+        rerun.add(pageType);
+        break;
+      }
+    }
+  }
+  selected.pages=[...rerun];
+  selected.mode=selected.pages.length===selected.template.pageTypes.length?'full':selected.pages.length?'partial':'reuse';
+  if(selected.pages.length&&selected.reason==='no-relevant-browser-input-change')selected.reason='browser-case-context-changed';
+}
+
 const browser=await chromium.launch({headless:true});
 const cases=[];
 const errors=[];
 const warnings=[];
+for(const selected of scope.selected){
+  if(!selected.prior||!['partial','reuse'].includes(selected.mode))continue;
+  const rerunPages=new Set(selected.pages);
+  for(const priorCase of selected.prior.cases){
+    if(rerunPages.has(priorCase.pageType))continue;
+    const currentFingerprint=selected.template.pageFingerprints?.[priorCase.pageType];
+    const previousFingerprint=selected.prior.fingerprints?.[priorCase.pageType];
+    if(!currentFingerprint||currentFingerprint!==previousFingerprint)continue;
+    const currentCaseFingerprint=await caseFingerprint(selected.template,priorCase.pageType,priorCase.viewport);
+    if(!reusableTemplateBrowserCase({priorCase,currentCaseFingerprint}).reusable)continue;
+    cases.push({
+      ...priorCase,
+      screenshotPath:null,
+      originScreenshotPath:priorCase.screenshotPath??priorCase.originScreenshotPath??null,
+      evidenceExecution:'REUSED',
+      sourceCommit:headSha==='HEAD'?null:headSha,
+      originSourceCommit:priorCase.originSourceCommit??selected.prior.sourceCommit,
+      originRunId:priorCase.originRunId??selected.prior.runId,
+      originArtifactName:'template-factory-quality-'+selected.prior.sourceCommit,
+      pageFingerprint:currentFingerprint,
+      caseFingerprint:currentCaseFingerprint,
+      reuseProof:{fingerprintEquivalent:true,previousFingerprint,currentFingerprint,previousSourceCommit:selected.prior.sourceCommit},
+    });
+  }
+}
 try{
   for(const selected of scope.selected){
     const manifest=selected.template;
-    const pages=selected.mode==='full'?manifest.pageTypes:manifest.pageTypes.filter(pageType=>canaryPageTypes.has(pageType));
+    const pages=selected.pages;
     for(const pageType of pages){
       for(const viewport of manifest.viewports){
         const profile=viewportProfiles[viewport];
@@ -371,14 +561,15 @@ try{
           if(manifest.golden.required&&golden.status==='missing')caseErrors.push('GOLDEN_BASELINE_MISSING');
           if(golden.status==='fail'||golden.status==='dimension-mismatch')caseErrors.push(`GOLDEN_DIFF:${golden.mismatchRatio}`);
 
-          const record={templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType,viewport,mode:selected.mode,url,screenshotPath,diagnostics,golden,errors:caseErrors,warnings:caseWarnings};
+          const currentCaseFingerprint=await caseFingerprint(manifest,pageType,viewport);
+          const record={templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType,viewport,mode:selected.mode,url,screenshotPath,diagnostics,golden,errors:caseErrors,warnings:caseWarnings,evidenceExecution:'RERUN',sourceCommit:headSha==='HEAD'?null:headSha,originSourceCommit:headSha==='HEAD'?null:headSha,originRunId:currentRunId,pageFingerprint:manifest.pageFingerprints?.[pageType]??null,caseFingerprint:currentCaseFingerprint};
           cases.push(record);
           for(const error of caseErrors)errors.push({case:name,error});
           for(const warning of caseWarnings)warnings.push({case:name,warning});
         }catch(error){
           const message=error instanceof Error?error.message:String(error);
           errors.push({case:name,error:message});
-          cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType,viewport,mode:selected.mode,url,errors:[message],warnings:[]});
+          cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType,viewport,mode:selected.mode,url,errors:[message],warnings:[],evidenceExecution:'RERUN',sourceCommit:headSha==='HEAD'?null:headSha,originSourceCommit:headSha==='HEAD'?null:headSha,originRunId:currentRunId,pageFingerprint:manifest.pageFingerprints?.[pageType]??null,caseFingerprint:await caseFingerprint(manifest,pageType,viewport)});
         }finally{
           await page.close();
         }
@@ -410,7 +601,7 @@ try{
         for(const error of caseErrors)errors.push({case:name,error});
         const pathOut=path.join(outputDir,`${name}.png`);
         await page.screenshot({path:pathOut,fullPage:true,animations:'disabled'});
-        cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType:'content-demo',viewport:'mobile',url:demoUrl,screenshotPath:pathOut,errors:caseErrors,warnings:[]});
+        cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType:'content-demo',viewport:'mobile',url:demoUrl,screenshotPath:pathOut,errors:caseErrors,warnings:[],evidenceExecution:'RERUN',sourceCommit:headSha==='HEAD'?null:headSha,originSourceCommit:headSha==='HEAD'?null:headSha,originRunId:currentRunId,pageFingerprint:manifest.pageFingerprints?.content??null});
       }catch(error){
         errors.push({case:name,error:error instanceof Error?error.message:String(error)});
       }finally{await page.close();}
@@ -464,6 +655,9 @@ const acceptanceProofs=scope.selected.map(selected=>{
     browserMatrixComplete:fullBrowserMatrixComplete,
     browserMatrixCaseCount:observedMatrixKeys.size,
     browserMatrixExpectedCaseCount:expectedMatrixKeys.size,
+    browserMatrixReusedCaseCount:matrixCases.filter(item=>item.evidenceExecution==='REUSED').length,
+    browserMatrixRerunCaseCount:matrixCases.filter(item=>item.evidenceExecution!=='REUSED').length,
+    pageFingerprints:manifest.pageFingerprints??{},
     proceduralMemoryPassed,
     factoryIdentityPinned,
     showroomContractPassed,
@@ -475,21 +669,32 @@ const acceptanceProofs=scope.selected.map(selected=>{
   };
 });
 
+const templatePageFingerprints=Object.fromEntries(scope.selected.map(selected=>[selected.template.templateKey,{templateVersion:selected.template.templateVersion,pages:selected.template.pageFingerprints??{}}]));
 const evidence={
   contract:'shoporation.template-factory-quality-evidence.v2',
+  reconciliationContract:'shoporation.template-factory-page-evidence-reuse.v1',
   sourceCommit:headSha==='HEAD'?null:headSha,
+  branch:currentBranch||null,
+  runId:currentRunId,
   baseSha:baseSha||null,
+  diffBaseSha:diffBaseSha||null,
+  factoryEngineHash,
+  toolchainHash,
+  complete:errors.length===0,
+  previousEvidence:{status:previousResult.reason,sourceCommit:previousManifest?.sourceCommit??null,runId:previousManifest?.runId??null},
   changes,
   selection:scope.reasons,
   legacyTemplateChanges:scope.legacyTemplateChanges,
+  templatePageFingerprints,
   cases,
   acceptanceProofs,
   errors,
   warnings,
   capturedAt:new Date().toISOString(),
 };
+evidence.checksum=manifestChecksum(evidence);
 await writeFile(path.join(outputDir,'manifest.json'),JSON.stringify(evidence,null,2));
-console.log(JSON.stringify({selection:scope.reasons,legacyTemplateChanges:scope.legacyTemplateChanges,cases:cases.length,errorCount:errors.length,warningCount:warnings.length},null,2));
+console.log(JSON.stringify({selection:scope.reasons,previousEvidence:evidence.previousEvidence,cases:cases.length,reusedCases:cases.filter(item=>item.evidenceExecution==='REUSED').length,rerunCases:cases.filter(item=>item.evidenceExecution!=='REUSED').length,errorCount:errors.length,warningCount:warnings.length},null,2));
 if(errors.length){
   console.error(JSON.stringify(errors,null,2));
   process.exitCode=1;

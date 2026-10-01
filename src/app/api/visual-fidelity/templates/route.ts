@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 import {NextResponse} from 'next/server';
 import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES} from '@/lib/builder/storefront-template-catalog';
 import {STOREFRONT_TEMPLATE_QUALITY_MANIFESTS,evaluateStorefrontTemplateQualityGate} from '@/lib/builder/storefront-template-quality-gate';
@@ -7,6 +8,16 @@ import {STOREFRONT_TEMPLATE_FACTORY_RECIPES,buildRegisteredStorefrontTemplateFac
 import {evaluateTemplateFactoryPreflight,replayTemplateFactoryKnownFailures} from '@/lib/builder/template-factory/procedural-memory';
 
 export const dynamic='force-dynamic';
+
+const canonicalJson=(value:unknown):string=>{
+  if(Array.isArray(value))return '['+value.map(canonicalJson).join(',')+']';
+  if(value&&typeof value==='object')return '{'+Object.keys(value as Record<string,unknown>).sort().map(key=>JSON.stringify(key)+':'+canonicalJson((value as Record<string,unknown>)[key])).join(',')+'}';
+  return JSON.stringify(value)??'null';
+};
+const pageFingerprints=(template:{manifest:{templateKey:string;templateVersion:number};pages:readonly unknown[]})=>Object.fromEntries(template.pages.map((page:any)=>[
+  page.pageType,
+  createHash('sha256').update(canonicalJson({templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,pageType:page.pageType,page})).digest('hex'),
+]));
 
 export async function GET(){
   if(process.env.VISUAL_FIDELITY_QA!=='1')return new NextResponse(null,{status:404});
@@ -20,6 +31,7 @@ export async function GET(){
       status:manifest.status,
       sourcePrefixes:[...manifest.sourcePrefixes],
       pageTypes:[...manifest.pageTypes],
+      pageFingerprints:pageFingerprints(template),
       viewports:[...manifest.viewports],
       shell:manifest.shell,
       content:manifest.content,
@@ -37,6 +49,7 @@ export async function GET(){
       qualityCandidate:true,
       sourcePrefixes:[...manifest.sourcePrefixes],
       pageTypes:[...manifest.pageTypes],
+      pageFingerprints:pageFingerprints(template),
       viewports:[...manifest.viewports],
       shell:manifest.shell,
       content:manifest.content,
@@ -67,6 +80,7 @@ export async function GET(){
         'src/lib/builder/template-factory/scaffold.ts',
       ],
       pageTypes:[...STOREFRONT_PAGE_TYPES],
+      pageFingerprints:pageFingerprints(build.package),
       viewports:[...STOREFRONT_VIEWPORTS],
       shell:{canonical:true,allowedHeaderComponentKeys:['system.commerce-header'],mobileNavigation:'hamburger'},
       content:{informationPageRequired:true},

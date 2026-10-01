@@ -1,7 +1,7 @@
 name: Template Factory Quality Gate v2
 # Quality Gate v2 authority: exact-head proof required.
 # Generic roadmap/knowledge-only changes remain under normal CI/Architecture Health.
-# Template acceptance is always the complete canonical 14 pages x 3 viewports matrix; canary runs are regression signals only.
+# Template acceptance always requires a complete valid canonical 14 pages x 3 viewports evidence matrix; reconciled fingerprint-equivalent cases may be reused while canary runs remain regression signals only.
 
 on:
   push:
@@ -65,11 +65,20 @@ on:
       - 'supabase/customer-baseline/migrations/0042_customer_account_browser_grants.sql'
       - 'docs/support/STOREFRONT_SOCIAL_LINKS_TENANT_AUTHORITY_2026-09-21.md'
       - 'scripts/template-factory-quality-gate.mjs'
+      - 'scripts/lib/shoperation-template-factory-resumable-verification.mjs'
+      - 'scripts/lib/shoperation-verification-reuse.mjs'
+      - 'scripts/lib/shoperation-development-runtime.mjs'
+      - 'quality/knowledge/guard-registry.v1.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'public/**'
+      - 'src/app/globals.css'
       - 'scripts/promote-template-golden-baseline.mjs'
       - '.github/workflows/template-golden-baseline-promotion.yml'
       - 'tests/**storefront**'
       - 'tests/**template-factory**'
       - 'tests/**playroom**'
+      - 'tests/visual-baselines/**'
       - '.github/workflows/template-factory-quality-gate.yml'
   pull_request:
     paths:
@@ -132,11 +141,20 @@ on:
       - 'supabase/customer-baseline/migrations/0042_customer_account_browser_grants.sql'
       - 'docs/support/STOREFRONT_SOCIAL_LINKS_TENANT_AUTHORITY_2026-09-21.md'
       - 'scripts/template-factory-quality-gate.mjs'
+      - 'scripts/lib/shoperation-template-factory-resumable-verification.mjs'
+      - 'scripts/lib/shoperation-verification-reuse.mjs'
+      - 'scripts/lib/shoperation-development-runtime.mjs'
+      - 'quality/knowledge/guard-registry.v1.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'public/**'
+      - 'src/app/globals.css'
       - 'scripts/promote-template-golden-baseline.mjs'
       - '.github/workflows/template-golden-baseline-promotion.yml'
       - 'tests/**storefront**'
       - 'tests/**template-factory**'
       - 'tests/**playroom**'
+      - 'tests/visual-baselines/**'
       - '.github/workflows/template-factory-quality-gate.yml'
   workflow_dispatch:
 
@@ -158,7 +176,9 @@ jobs:
       NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
       QUALITY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
       QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      QUALITY_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
       TEMPLATE_QUALITY_OUTPUT_DIR: artifacts/template-factory-quality
+      TEMPLATE_QUALITY_PREVIOUS_MANIFEST: artifacts/template-factory-checkpoint/manifest.json
     steps:
       - name: Checkout exact head
         uses: actions/checkout@v4
@@ -173,6 +193,15 @@ jobs:
 
       - name: Install locked application dependencies
         run: npm ci --no-audit --no-fund
+
+      - name: Restore Template Factory browser evidence checkpoint
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@v4
+        with:
+          path: artifacts/template-factory-checkpoint/manifest.json
+          key: template-factory-browser-v2-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+          restore-keys: |
+            template-factory-browser-v2-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-
 
       - name: Knowledge Before Build preflight
         id: knowledge
@@ -229,6 +258,7 @@ jobs:
           npx vitest run
           tests/storefront-template-quality-gate-v2.test.ts
           tests/template-factory-scaffold-v1.test.ts
+          tests/template-factory-resumable-verification.test.ts
           tests/template-factory-loot-vault-v2.test.ts
           tests/storefront-template-factory-workflow-coverage.test.ts
           tests/storefront-responsive-isolation.test.ts
@@ -390,9 +420,23 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Run scoped Template Factory browser proof (acceptance requires 14x3)
+      - name: Run scoped Template Factory browser proof (acceptance requires reconciled 14x3)
         id: browser-matrix
         run: node scripts/template-factory-quality-gate.mjs
+
+      - name: Stage Template Factory browser evidence checkpoint
+        if: github.event_name == 'pull_request' && steps.browser-matrix.outcome == 'success'
+        shell: bash
+        run: |
+          mkdir -p artifacts/template-factory-checkpoint
+          cp artifacts/template-factory-quality/manifest.json artifacts/template-factory-checkpoint/manifest.json
+
+      - name: Save Template Factory browser evidence checkpoint
+        if: github.event_name == 'pull_request' && steps.browser-matrix.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: artifacts/template-factory-checkpoint/manifest.json
+          key: template-factory-browser-v2-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
 
       - name: Resolve Product Owner candidate target
         id: product-owner-target

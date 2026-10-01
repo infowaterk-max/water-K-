@@ -17,7 +17,25 @@
       "blocking": true,
       "responsibilityKey": "knowledge-integrity-and-change-impact",
       "producer": "scripts/shoperation-knowledge-preflight.mjs",
-      "evidence": "artifacts/shoperation-quality/knowledge-preflight.json"
+      "evidence": "artifacts/shoperation-quality/knowledge-preflight.json",
+      "verification": {
+        "reusePolicy": "never",
+        "dependsOn": [],
+        "impactTier": 4,
+        "shadowComparable": true,
+        "knownFailureConsumer": true,
+        "semanticInputs": [
+          "quality/knowledge/**",
+          "src/lib/quality-system/**",
+          "src/lib/builder/template-factory/knowledge-registry.ts",
+          "scripts/shoperation-knowledge-*",
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
+        ],
+        "configurationInputs": [
+          "quality/development/active-plan.json",
+          ".github/workflows/ci.yml"
+        ]
+      }
     },
     {
       "id": "GUARD-PLAN-BEFORE-CODE",
@@ -27,7 +45,28 @@
       "blocking": true,
       "responsibilityKey": "declared-change-scope",
       "producer": "scripts/shoperation-plan-before-code.mjs",
-      "evidence": "artifacts/shoperation-development-guard/plan-before-code.json"
+      "evidence": "artifacts/shoperation-development-guard/plan-before-code.json",
+      "verification": {
+        "reusePolicy": "never",
+        "dependsOn": [
+          "GUARD-KNOWLEDGE-PREFLIGHT"
+        ],
+        "impactTier": 4,
+        "shadowComparable": true,
+        "semanticInputs": [
+          "quality/development/active-plan.json",
+          "quality/knowledge/**",
+          "scripts/shoperation-plan-before-code.mjs",
+          "scripts/lib/shoperation-development-runtime.mjs",
+          "scripts/lib/shoperation-operational-intelligence.mjs"
+        ],
+        "configurationInputs": [
+          ".github/workflows/ci.yml"
+        ],
+        "authorityInputs": [
+          "AGENTS.md"
+        ]
+      }
     },
     {
       "id": "GUARD-EDIT-TIME",
@@ -37,7 +76,28 @@
       "blocking": true,
       "responsibilityKey": "known-failure-edit-selection",
       "producer": "scripts/shoperation-edit-time-guard.mjs",
-      "evidence": "artifacts/shoperation-development-guard/edit-time-guard.json"
+      "evidence": "artifacts/shoperation-development-guard/edit-time-guard.json",
+      "verification": {
+        "reusePolicy": "never",
+        "dependsOn": [
+          "GUARD-PLAN-BEFORE-CODE"
+        ],
+        "impactTier": 3,
+        "shadowComparable": true,
+        "knownFailureConsumer": true,
+        "semanticInputs": [
+          "quality/knowledge/**",
+          "scripts/shoperation-edit-time-guard.mjs",
+          "scripts/lib/shoperation-reference-sync-runtime.mjs",
+          "scripts/lib/shoperation-development-runtime.mjs"
+        ],
+        "configurationInputs": [
+          "quality/development/active-plan.json"
+        ],
+        "authorityInputs": [
+          "AGENTS.md"
+        ]
+      }
     },
     {
       "id": "GUARD-INCREMENTAL-REPLAY",
@@ -47,7 +107,30 @@
       "blocking": true,
       "responsibilityKey": "known-failure-regression-replay",
       "producer": "scripts/shoperation-incremental-replay.mjs",
-      "evidence": "artifacts/shoperation-development-guard/incremental-replay.json"
+      "evidence": "artifacts/shoperation-development-guard/incremental-replay.json",
+      "verification": {
+        "reusePolicy": "never",
+        "dependsOn": [
+          "GUARD-EDIT-TIME"
+        ],
+        "impactTier": 2,
+        "shadowComparable": true,
+        "knownFailureConsumer": true,
+        "semanticInputs": [
+          "quality/knowledge/**",
+          "tests/**",
+          "scripts/shoperation-incremental-replay.mjs",
+          "scripts/lib/shoperation-verification-reuse.mjs",
+          "scripts/lib/shoperation-development-runtime.mjs"
+        ],
+        "configurationInputs": [
+          "quality/development/active-plan.json",
+          ".github/workflows/ci.yml"
+        ],
+        "authorityInputs": [
+          "AGENTS.md"
+        ]
+      }
     },
     {
       "id": "GUARD-COMPLETION-TRUTH",
@@ -57,7 +140,29 @@
       "blocking": true,
       "responsibilityKey": "po-completion-integrity",
       "producer": "scripts/shoperation-truth-gate.mjs",
-      "evidence": "artifacts/shoperation-development-guard/truth-gate.json"
+      "evidence": "artifacts/shoperation-development-guard/truth-gate.json",
+      "verification": {
+        "reusePolicy": "never",
+        "dependsOn": [
+          "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-QUALITY-TESTS",
+          "GUARD-TYPECHECK",
+          "GUARD-PRODUCTION-BUILD"
+        ],
+        "impactTier": 4,
+        "shadowComparable": false,
+        "semanticInputs": [
+          "quality/development/active-plan.json",
+          "scripts/shoperation-truth-gate.mjs",
+          "scripts/lib/shoperation-operational-intelligence.mjs"
+        ],
+        "configurationInputs": [
+          ".github/workflows/ci.yml"
+        ],
+        "authorityInputs": [
+          "AGENTS.md"
+        ]
+      }
     },
     {
       "id": "GUARD-RELEASE-RISK",
@@ -67,7 +172,20 @@
       "blocking": true,
       "responsibilityKey": "release-coherence-risk-budget",
       "producer": "scripts/release-risk-budget.mjs",
-      "evidence": "artifacts/release-risk-budget.json"
+      "evidence": "artifacts/release-risk-budget.json",
+      "verification": {
+        "reusePolicy": "never",
+        "dependsOn": [],
+        "impactTier": 4,
+        "shadowComparable": true,
+        "semanticInputs": [
+          "deploy/release-risk-policy.json",
+          "scripts/release-risk-budget.mjs"
+        ],
+        "configurationInputs": [
+          ".github/workflows/ci.yml"
+        ]
+      }
     },
     {
       "id": "GUARD-CUSTOMER-BASELINE",
@@ -77,7 +195,22 @@
       "blocking": true,
       "responsibilityKey": "customer-schema-baseline",
       "producer": "scripts/customer-baseline-guard.mjs",
-      "evidence": "artifacts/customer-baseline/**"
+      "evidence": "artifacts/customer-baseline/**",
+      "verification": {
+        "reusePolicy": "safe",
+        "dependsOn": [],
+        "impactTier": 3,
+        "shadowComparable": true,
+        "semanticInputs": [
+          "supabase/customer-baseline/**",
+          "supabase/migrations/**",
+          "scripts/validate-customer-baseline.mjs",
+          "scripts/customer-baseline-*"
+        ],
+        "configurationInputs": [
+          "package.json"
+        ]
+      }
     },
     {
       "id": "GUARD-MARKET-READY",
@@ -87,7 +220,24 @@
       "blocking": true,
       "responsibilityKey": "market-ready-contract",
       "producer": "scripts/block24-market-ready-contract.mjs",
-      "evidence": "artifacts/block24-market-ready/**"
+      "evidence": "artifacts/block24-market-ready/**",
+      "verification": {
+        "reusePolicy": "safe",
+        "dependsOn": [
+          "GUARD-CUSTOMER-BASELINE"
+        ],
+        "impactTier": 3,
+        "shadowComparable": true,
+        "semanticInputs": [
+          "scripts/block24-market-ready-*",
+          "src/**",
+          "supabase/migrations/**",
+          "deploy/**"
+        ],
+        "configurationInputs": [
+          "package.json"
+        ]
+      }
     },
     {
       "id": "GUARD-QUALITY-TESTS",
@@ -97,7 +247,29 @@
       "blocking": true,
       "responsibilityKey": "automated-regression-suite",
       "producer": "npm test",
-      "evidence": "test-result"
+      "evidence": "test-result",
+      "verification": {
+        "reusePolicy": "safe",
+        "dependsOn": [],
+        "impactTier": 2,
+        "shadowComparable": true,
+        "knownFailureConsumer": true,
+        "semanticInputs": [
+          "src/**",
+          "tests/**",
+          "scripts/**",
+          "quality/**",
+          "supabase/**",
+          "deploy/**",
+          "next.config.*",
+          "tsconfig.json",
+          "vitest.config.*"
+        ],
+        "configurationInputs": [
+          "package.json",
+          ".github/workflows/ci.yml"
+        ]
+      }
     },
     {
       "id": "GUARD-TYPECHECK",
@@ -107,7 +279,25 @@
       "blocking": true,
       "responsibilityKey": "static-type-contract",
       "producer": "tsc --noEmit",
-      "evidence": "workflow-step"
+      "evidence": "workflow-step",
+      "verification": {
+        "reusePolicy": "safe",
+        "dependsOn": [],
+        "impactTier": 2,
+        "shadowComparable": true,
+        "semanticInputs": [
+          "src/**/*.ts",
+          "src/**/*.tsx",
+          "tests/**/*.ts",
+          "tests/**/*.tsx",
+          "scripts/**/*.mjs",
+          "tsconfig.json",
+          "next-env.d.ts"
+        ],
+        "configurationInputs": [
+          "package.json"
+        ]
+      }
     },
     {
       "id": "GUARD-PRODUCTION-BUILD",
@@ -117,7 +307,29 @@
       "blocking": true,
       "responsibilityKey": "production-buildability",
       "producer": "next build",
-      "evidence": "workflow-step"
+      "evidence": "workflow-step",
+      "verification": {
+        "reusePolicy": "safe",
+        "dependsOn": [
+          "GUARD-TYPECHECK"
+        ],
+        "impactTier": 3,
+        "shadowComparable": true,
+        "semanticInputs": [
+          "src/**",
+          "public/**",
+          "scripts/validate-vercel-deploy-env.mjs",
+          "next.config.*",
+          "tsconfig.json"
+        ],
+        "configurationInputs": [
+          "package.json",
+          ".github/workflows/ci.yml"
+        ],
+        "context": {
+          "environment": "ci-build"
+        }
+      }
     },
     {
       "id": "GUARD-TEMPLATE-FACTORY",
@@ -127,7 +339,37 @@
       "blocking": true,
       "responsibilityKey": "template-factory-browser-contract",
       "producer": ".github/workflows/template-factory-quality-gate.yml",
-      "evidence": "artifacts/template-factory-quality/**"
+      "evidence": "artifacts/template-factory-quality/**",
+      "verification": {
+        "reusePolicy": "safe",
+        "dependsOn": [
+          "GUARD-PRODUCTION-BUILD"
+        ],
+        "impactTier": 3,
+        "shadowComparable": false,
+        "semanticInputs": [
+          "src/lib/builder/**",
+          "src/app/**",
+          "src/components/**",
+          "public/**",
+          "scripts/template-factory-*",
+          "tests/**template-factory**",
+          "tests/storefront-*.test.ts",
+          "quality/knowledge/**"
+        ],
+        "configurationInputs": [
+          ".github/workflows/template-factory-quality-gate.yml"
+        ],
+        "context": {
+          "pageMatrix": 14,
+          "viewports": [
+            "desktop",
+            "tablet",
+            "mobile"
+          ],
+          "visualProof": true
+        }
+      }
     },
     {
       "id": "SIGNAL-ARCHITECTURE-CONFIDENCE",
@@ -159,5 +401,313 @@
       "producer": "scripts/shoperation-sentinel-scan.mjs",
       "evidence": "artifacts/shoperation-sentinel/sentinel-report.json"
     }
-  ]
+  ],
+  "verificationReuse": {
+    "contract": "shoporation.verification-reuse-registry.v1",
+    "schemaVersion": "shoporation.verification-reuse.v1",
+    "mode": "active",
+    "branchScoped": true,
+    "crossBranchReuse": false,
+    "unknownPolicy": "rerun",
+    "forceFullOnUnknownDependency": true,
+    "globalAuthorityInputs": [
+      "quality/knowledge/architecture-constitution.v1.json",
+      "quality/knowledge/domain-foundations.v1.json"
+    ],
+    "globalToolchainInputs": [
+      "package.json",
+      "package-lock.json"
+    ],
+    "globalEnvironmentKeys": [
+      "SHOPERATION_VERIFICATION_ENVIRONMENT",
+      "SHOPERATION_TOOLCHAIN_ID"
+    ],
+    "nonSemanticPatterns": [
+      "docs/**",
+      "README.md",
+      ".github/ISSUE_TEMPLATE/**"
+    ],
+    "promotion": {
+      "physicalSkippingEnabled": true,
+      "minimumShadowPasses": 3,
+      "minimumResumedShadowPasses": 2,
+      "maximumFalseReuse": 0,
+      "requireExactHeadTruth": true,
+      "fallback": "FULL",
+      "promotedFrom": {
+        "sourceCommit": "ef8e63c6df49bd4c7be797912f8092341ee7555c",
+        "ciRunId": "36861649334",
+        "shadowPasses": 7,
+        "resumedShadowPasses": 5,
+        "falseReuse": 0
+      },
+      "referenceFullRuntimeMs": 145506,
+      "engineInputs": [
+        "scripts/lib/shoperation-verification-reuse.mjs",
+        "scripts/shoperation-incremental-replay.mjs",
+        "scripts/shoperation-verification-checkpoint.mjs",
+        "scripts/shoperation-truth-gate.mjs",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        ".github/workflows/ci.yml",
+        "quality/knowledge/guard-registry.v1.json",
+        "quality/knowledge/development-guard-policy.v1.json"
+      ]
+    },
+    "semanticUnits": [
+      {
+        "id": "INSTRUCTION.LEDGER",
+        "kind": "instruction",
+        "filePatterns": [
+          "AGENTS.md"
+        ],
+        "impactTier": 3,
+        "scope": "development-control-plane",
+        "reason": "Repository development instructions changed and must invalidate gates whose correctness depends on them."
+      },
+      {
+        "id": "AUTHORITY.CORE",
+        "kind": "authority",
+        "filePatterns": [
+          "quality/knowledge/architecture-constitution.v1.json",
+          "quality/knowledge/domain-foundations.v1.json",
+          "quality/knowledge/development-guard-policy.v1.json",
+          "quality/knowledge/guard-registry.v1.json"
+        ],
+        "impactTier": 4,
+        "scope": "full-verification",
+        "reason": "Core verification/authority semantics changed."
+      },
+      {
+        "id": "BUILDER.PAGE_SCHEMA",
+        "kind": "schema",
+        "filePatterns": [
+          "src/lib/builder/storefront-page-schema.ts",
+          "src/lib/builder/storefront-foundation.ts"
+        ],
+        "impactTier": 4,
+        "scope": "all-templates-all-pages-viewports",
+        "reason": "Canonical Page Schema/grid/design contract changed."
+      },
+      {
+        "id": "BUILDER.RUNTIME",
+        "kind": "runtime",
+        "filePatterns": [
+          "src/lib/builder/storefront-runtime*",
+          "src/components/builder/storefront-runtime-*",
+          "src/components/builder/storefront-builder-renderer-registry*"
+        ],
+        "impactTier": 4,
+        "scope": "all-templates-all-pages-viewports",
+        "reason": "Shared storefront renderer/runtime changed."
+      },
+      {
+        "id": "BUILDER.RESPONSIVE",
+        "kind": "runtime",
+        "filePatterns": [
+          "src/lib/builder/storefront-fidelity-engine.ts",
+          "src/lib/builder/**/*responsive*",
+          "src/components/admin/storefront-fidelity-*"
+        ],
+        "impactTier": 3,
+        "scope": "affected-pages-all-viewports",
+        "reason": "Responsive inheritance or geometry authority changed."
+      },
+      {
+        "id": "BUILDER.GLOBAL_VISUALS",
+        "kind": "runtime",
+        "filePatterns": [
+          "src/app/public-pages-polish.css",
+          "src/app/v6.css",
+          "src/app/final-ux-audit.css",
+          "src/app/responsive-final.css",
+          "src/app/globals.css",
+          "public/**"
+        ],
+        "impactTier": 3,
+        "scope": "all-templates-all-pages-viewports",
+        "reason": "Global storefront CSS, fonts, public media or theme-level visual assets can alter browser proof across templates and viewports."
+      },
+      {
+        "id": "BUILDER.PRESETS",
+        "kind": "preset",
+        "filePatterns": [
+          "src/lib/builder/storefront-presets.ts",
+          "src/lib/builder/storefront-preset-application.ts",
+          "src/lib/builder/storefront-saved-blocks.ts",
+          "src/components/admin/storefront-preset-*",
+          "src/components/admin/storefront-saved-blocks-*"
+        ],
+        "impactTier": 2,
+        "scope": "preset-consumers",
+        "reason": "Shared preset/saved-block materialization changed."
+      },
+      {
+        "id": "TEMPLATE.FACTORY",
+        "kind": "factory",
+        "filePatterns": [
+          "src/lib/builder/template-factory/**",
+          "scripts/template-factory-*",
+          ".github/workflows/template-factory-quality-gate.yml"
+        ],
+        "impactTier": 4,
+        "scope": "factory-full-matrix",
+        "reason": "Template Factory compiler/quality authority changed."
+      },
+      {
+        "id": "TEMPLATE.LOCAL",
+        "kind": "template",
+        "filePatterns": [
+          "src/lib/builder/templates/**"
+        ],
+        "impactTier": 2,
+        "scope": "changed-template",
+        "reason": "Template-owned package or page composition changed.",
+        "allowPageNarrowing": true
+      },
+      {
+        "id": "TEMPLATE.PAGE.HOME",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "\\bhome\\b|főoldal",
+        "pageType": "home",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.CATALOG",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "catalog|katalóg",
+        "pageType": "catalog",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.PRODUCT",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "product|termékoldal",
+        "pageType": "product",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.CART",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "\\bcart\\b|kosár",
+        "pageType": "cart",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.CHECKOUT",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "checkout|pénztár",
+        "pageType": "checkout",
+        "impactTier": 2,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.ACCOUNT",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "account|fiók",
+        "pageType": "account",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.SEARCH",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "search|keres",
+        "pageType": "search",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.CONTENT",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "content|oldal",
+        "pageType": "content",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.BLOG_INDEX",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "blog-index|blog index|magazin",
+        "pageType": "blog-index",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.BLOG_ARTICLE",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "blog-article|blog article|cikk",
+        "pageType": "blog-article",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.FAQ",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "faq|gyik|gyakori kérd",
+        "pageType": "faq",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.CONTACT",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "contact|kapcsolat",
+        "pageType": "contact",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.LEGAL",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "legal|jogi",
+        "pageType": "legal",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.NOT_FOUND",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "not-found|404",
+        "pageType": "not-found",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.DESIGN_TOKENS",
+        "kind": "template-wide",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "DESIGN_TOKENS|VISUAL_DNA|--shoporation-|designTokens",
+        "impactTier": 3,
+        "scope": "changed-template-all-pages-viewports",
+        "reason": "Template DNA/design tokens affect every page and viewport of the changed template."
+      },
+      {
+        "id": "TEMPLATE.SHARED_SHELL",
+        "kind": "template-wide",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "(?:function|const)\\s+(?:header|footer)\\b|HEADER_(?:PRESET|CONTRACT)|FOOTER_(?:PRESET|CONTRACT)",
+        "impactTier": 3,
+        "scope": "changed-template-all-pages-viewports",
+        "reason": "Template-owned shared header/footer shell changed."
+      }
+    ]
+  }
 }

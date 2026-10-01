@@ -57,3 +57,17 @@ Final full CI and Quality Gate are still mandatory. Development-time guards redu
 Before declaring completion, run the read-only Completion Truth Gate against evidence bound to the current exact SHA, branch, state/version and run/timestamp. `CLAIM WITHOUT EVIDENCE = NOT VERIFIED`. Only `VERIFIED_DONE` may be reported to the Product Owner as `DONE`; `PARTIALLY_VERIFIED`, `NOT_DONE` and `STALE_EVIDENCE` map to `NOT DONE`, while `BLOCKED` maps to `BLOCKED`.
 
 If a later defect was reasonably foreseeable, do not stop at the patch. Use the existing Failure Intake / Known Failure / authority system to record why OBSERVE, MODEL, CHALLENGE, PROVE_PLAN or TRUTH_GATE missed it and strengthen the earliest existing control that should have prevented it. Do not create a defect-local gate by default.
+
+### RESUMABLE VERIFICATION
+
+After a failed proof is fixed, do not restart verification blindly and do not resume from the last green gate blindly.
+
+- run the existing Incremental Replay planner first;
+- treat prior evidence only as `REUSABLE`, `INVALIDATED` or `UNKNOWN`;
+- `UNKNOWN` always means rerun / fail closed;
+- if the verification graph, checkpoint, branch ancestry or semantic mapping is uncertain, force FULL verification;
+- Known Failure scope may widen the replay plan;
+- keep shadow/full comparison authoritative until the configured promotion proof enables physical skipping;
+- use the generated resumable-verification summary to explain why each gate reran or was reusable.
+
+`SHOPERATION_FORCE_FULL_VERIFICATION=true` is the explicit safe fallback.

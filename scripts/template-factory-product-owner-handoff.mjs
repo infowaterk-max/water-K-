@@ -141,8 +141,19 @@ async function proveSharedE13FunctionalEngine(page){
     const entryResponse=await page.goto(new URL('/storefront-template-preview/engine-proof/checkout',origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
     if(!entryResponse)throw new Error('ENGINE_ACCEPTANCE_ENTRY_NO_RESPONSE');
     await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
-    const entryRoot=page.locator('[data-engine-functional-proof="E13"]');
-    await entryRoot.waitFor({state:'visible',timeout:15000});
+    const entrySelector='[data-engine-functional-proof="E13"]';
+    const entryRoots=page.locator(entrySelector);
+    const uniqueEntryRoot=await page.waitForFunction(
+      selector=>document.querySelectorAll(selector).length===1,
+      entrySelector,
+      {timeout:15000},
+    ).then(()=>true).catch(()=>false);
+    let entryRootCount=await entryRoots.count();
+    if(!uniqueEntryRoot||entryRootCount!==1)throw new Error(`ENGINE_ACCEPTANCE_ENTRY_CARDINALITY_INVALID:${entryRootCount}`);
+    const entryRoot=entryRoots.first();
+    await entryRoot.waitFor({state:'visible',timeout:5000});
+    entryRootCount=await entryRoots.count();
+    if(entryRootCount!==1)throw new Error(`ENGINE_ACCEPTANCE_ENTRY_CARDINALITY_INVALID:${entryRootCount}`);
     const entryAlert=entryRoot.getByRole('alert');
     if(await entryAlert.count())throw new Error(`ENGINE_ACCEPTANCE_TARGET_FAILED:${(await entryAlert.first().innerText()).replace(/\s+/g,' ').slice(0,400)}`);
     proof.acceptanceEntry=true;

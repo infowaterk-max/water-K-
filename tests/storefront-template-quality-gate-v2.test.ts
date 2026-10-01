@@ -73,9 +73,10 @@ describe('Template Factory Quality Gate v2',()=>{
   it('keeps the browser runner and CI workflow mandatory rather than commit-message gated',()=>{
     const workflow=read('.github/workflows/template-factory-quality-gate.yml');
     const runner=read('scripts/template-factory-quality-gate.mjs');
+    const resumable=read('scripts/lib/shoperation-template-factory-resumable-verification.mjs');
     const knowledgeScope=read('quality/knowledge/knowledge-scope-policy.v1.json');
     expect(workflow).not.toContain('head_commit.message');
-    expect(workflow).toContain('Run scoped Template Factory browser proof (acceptance requires 14x3)');
+    expect(workflow).toContain('Run scoped Template Factory browser proof (acceptance requires reconciled 14x3)');
     expect(workflow).toContain('workflow_dispatch');
     expect(workflow).not.toContain("'quality/knowledge/**'");
     expect(workflow).not.toContain("'src/lib/quality-system/**'");
@@ -95,8 +96,10 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain('const modifiedTemplateFiles=');
     expect(runner).not.toContain('LEGACY_TEMPLATE_REACCEPTANCE_PENDING');
     expect(knowledgeScope).toContain('"scripts/template-factory-quality-gate.mjs"');
-    expect(runner).toContain("mode:'full',reason:'template-source-changed'");
-    expect(runner).toContain("mode:'full',reason:'shared-runtime-changed'");
+    expect(resumable).toContain("reason:'template-source-changed-no-reusable-proof'");
+    expect(resumable).toContain("reason:'template-semantic-page-impact'");
+    expect(resumable).toContain("reason:'template-browser-input-fingerprints-equivalent'");
+    expect(runner).toContain("mode:'full',pages:[...template.pageTypes],reason:'shared-runtime-changed'");
     expect(runner).toContain("const mode=template.factoryCandidate?'full':'canary'");
     expect(runner).toContain("const reason=template.factoryCandidate?'factory-exact-head-full':'default-canary'");
     expect(runner).toContain("'src/components/admin/storefront-visual-builder-v3.tsx'");
@@ -112,6 +115,28 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain("manifest.qualityCandidate?'&qualityCandidate=1'");
     expect(runner).toContain('manifest.factoryCandidate||manifest.qualityCandidate');
     expect(runner).toContain('CANDIDATE_SHOWROOM_PLACEHOLDER_WARNING_PRESENT');
+  });
+
+  it('reconciles page-level browser evidence without changing the v2 quality authority envelope',()=>{
+    const route=read('src/app/api/visual-fidelity/templates/route.ts');
+    const runner=read('scripts/template-factory-quality-gate.mjs');
+    const workflow=read('.github/workflows/template-factory-quality-gate.yml');
+    const promotion=read('scripts/promote-template-golden-baseline.mjs');
+    expect(route).toContain('pageFingerprints:pageFingerprints(template)');
+    expect(route).toContain('pageFingerprints:pageFingerprints(build.package)');
+    expect(runner).toContain("contract:'shoporation.template-factory-quality-evidence.v2'");
+    expect(runner).toContain("reconciliationContract:'shoporation.template-factory-page-evidence-reuse.v1'");
+    expect(runner).toContain('manifest.checksum!==manifestChecksum(manifest)');
+    expect(runner).toContain("manifest.branch!==currentBranch");
+    expect(runner).toContain('isAncestor(manifest.sourceCommit,headSha)');
+    expect(runner).toContain("evidenceExecution:'REUSED'");
+    expect(runner).toContain('fingerprintEquivalent:true');
+    expect(runner).toContain('browserMatrixReusedCaseCount');
+    expect(runner).toContain('browserMatrixRerunCaseCount');
+    expect(workflow).toContain('Restore Template Factory browser evidence checkpoint');
+    expect(workflow).toContain('Save Template Factory browser evidence checkpoint');
+    expect(workflow).toContain('TEMPLATE_QUALITY_PREVIOUS_MANIFEST: artifacts/template-factory-checkpoint/manifest.json');
+    expect(promotion).toContain("shoporation.template-factory-quality-evidence.v2");
   });
 
   it('keeps canonical quality candidates QA-only and distinct from production catalog or Factory recipe candidates',()=>{

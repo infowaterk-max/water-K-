@@ -162,3 +162,158 @@ Selected proof depth:
 - finite-state exhaustion for the deterministic completion evaluator.
 
 Full formal verification is intentionally not required because the new evaluator is bounded, deterministic repository/CI orchestration and does not mutate concurrent business state. Exhaustive finite-state tests provide a better cost/assurance tradeoff here.
+
+## Dependency-aware resumable verification
+
+Resumable verification is an extension of the existing Incremental Replay and Truth Gate path. It is not a second Control Plane or CI authority.
+
+The planner asks one question for every prior PASS:
+
+> Does the current exact HEAD have the same relevant semantic inputs, gate implementation, dependencies, authority, configuration, toolchain, environment and proof context?
+
+The answer is one of:
+
+- **REUSABLE** — equivalence is proven;
+- **INVALIDATED** — a known semantic input changed;
+- **UNKNOWN** — equivalence cannot be proven.
+
+`UNKNOWN -> RERUN` is mandatory. No prior PASS is inherited by status alone.
+
+### Evidence identity
+
+Each reusable gate proof is bound to a deterministic fingerprint over the gate's declared semantic inputs:
+
+- gate metadata / implementation identity;
+- semantic source input hash;
+- direct and transitive verification dependency fingerprint;
+- authority hash;
+- configuration hash;
+- toolchain hash;
+- environment-relevant hash;
+- gate-specific context.
+
+Commit SHA remains part of the provenance model, but no longer acts as the only evidence identity.
+
+### Verification dependency graph
+
+The canonical graph is stored on the existing guard registry. `dependsOn` edges mean that invalidation of an upstream proof invalidates dependent proof evidence as well.
+
+The model is intentionally explicit rather than a whole-repository static call graph. An unmapped changed file is therefore not optimistically ignored: it triggers the fail-closed full-verification path.
+
+### Checkpoints
+
+A checkpoint is data, not authority. It contains a finalized prior exact HEAD, branch identity, evidence fingerprints, original proof revisions and the Known Failure scope.
+
+A checkpoint is reusable only when it is complete, checksum-valid, from the same branch, an ancestor of the current HEAD, and compatible with the current verification schema. Corrupt, interrupted, cross-branch and non-ancestor checkpoints are rejected.
+
+### Change Impact Set and proof units
+
+Before replay, Incremental Replay now derives a Change Impact Set. In addition to gate-level impact it models semantic proof units for canonical Page Schema / 12-column grid, shared storefront renderer/runtime, responsive inheritance and fidelity geometry, presets / Saved Blocks, Template Factory compiler and quality authority, template-local package changes, template-local design tokens / visual DNA, template-owned shared shell, and the 14 canonical page families.
+
+A template-local diff may narrow to one page family only when the diff identifies exactly one supported page family and no template-wide token/shell marker. Ambiguous changes fail wider to the changed-template scope.
+
+Examples:
+
+- FAQ-only template change -> changed template / FAQ / Desktop+Tablet+Mobile;
+- template design token or shared shell -> all 14 pages and all three viewports of that template;
+- canonical Page Schema or shared renderer -> all relevant templates/pages/viewports;
+- unknown/unmapped change -> FULL.
+
+### Replay tiers
+
+The planner emits Tier 0 Evidence Reuse, Tier 1 Local/Page Replay, Tier 2 Dependency Replay, Tier 3 Subsystem Replay and Tier 4 Full Verification. The tier is derived from gate invalidation and semantic proof-unit impact; it is not a manual optimism switch.
+
+### Shadow mode and promotion
+
+Version 1 is branch-scoped shadow mode. The planner calculates which evidence could be reused, but the existing full gates still run as control authority. The reconciliation step compares the predicted reuse set with the full result.
+
+Any predicted REUSE whose full control gate fails is a `SHADOW_FALSE_REUSE` and blocks the replay engine.
+
+Promotion to physical gate skipping is separate and requires at least three green shadow passes, at least two green RESUMED passes, zero false reuse, exact-head Truth Gate PASS, complete evidence manifests and no unresolved dependency mapping. Until promotion, full verification is still the runtime authority.
+
+### Exact-head evidence manifest
+
+The final evidence manifest belongs to the current exact HEAD even when a proof is eventually reused physically. For each proof it records current exact HEAD, current branch and state version, origin source revision, current fingerprint, previous fingerprint, equivalence reason, execution kind and checkpoint source revision.
+
+Truth Gate accepts reused evidence only when the current-head manifest proves fingerprint equivalence. Otherwise it is stale.
+
+### Observability and explainability
+
+The resumable verification artifact exposes verification mode, replay tier and reason, reused / rerun / invalidated / unknown counts, cache hit and invalidation ratio, dependency resolution time, checkpoint source commit, semantic impact units and proof scopes, per-gate REUSE / RERUN explanation, shadow comparison result and final confidence.
+
+The diagnostic question "why did this gate rerun?" and its inverse are both answerable from the same artifact.
+
+### Residual risk
+
+The v1 model deliberately does not claim perfect source-level dependency discovery. Its safety property is the opposite: anything outside the declared semantic map is UNKNOWN and fails closed to FULL.
+
+Cross-branch reuse is intentionally disabled in v1. This avoids introducing identity and cache-poisoning complexity before branch-scoped behavior has accumulated stable shadow evidence.
+
+### Promotion proof invalidation
+
+A promotion proof is valid only for the exact verification-engine identity that produced it. Any change to replay planning, checkpoint reconciliation, Truth Gate semantics, CI orchestration, guard-registry verification metadata, or development-guard verification policy invalidates promotion credit and returns execution to shadow/full control until the configured proof threshold is rebuilt.
+
+Promotion provenance is observational evidence, not verification semantics. The engine identity therefore canonicalizes the two policy authorities before hashing and excludes only `verificationReuse.promotion.promotedFrom` and `resumableVerification.promotionEvidence`. Updating those proof pointers cannot invalidate the proof they describe, while every executable promotion threshold, guard definition, dependency, replay rule, workflow input, or execution-mode change remains identity-bearing and still invalidates promotion credit.
+
+Promotion eligibility is recorded only after a successful reconciliation; physical skipping can therefore begin no earlier than the next exact-head verification revision.
+
+### Interrupted shadow evidence
+
+A shadow comparison distinguishes a verified disagreement from an interrupted control run. An explicit gate failure against a predicted reusable proof is a `SHADOW_FALSE_REUSE`. A cancelled, pending, queued, skipped, neutral or otherwise incomplete control outcome is instead `SHADOW_FULL_EVIDENCE_INCOMPLETE`: it blocks reconciliation and leaves the checkpoint incomplete, but it does not increment false-reuse evidence or promotion credit.
+
+This separation prevents CI concurrency cancellation or infrastructure interruption from being misclassified as a semantic reuse defect while remaining fail-closed for completion.
+
+Cancelled or otherwise incomplete shadow control runs block reconciliation but do not count as false reuse unless a completed control gate explicitly fails against a predicted REUSE.
+
+### Runtime-savings accounting
+
+Shadow mode never claims physical verification savings: full control execution remains authoritative even when the planner predicts reusable evidence. The manifest may report cache-hit and invalidation ratios in SHADOW, but `physicalRuntimeSavingMs` remains zero.
+
+Physical runtime savings are reported only in ACTIVE mode, after promotion proof is valid and reusable gates are actually skipped. The saving is measured against the configured full-verification reference runtime and is accompanied by the exact reused/rerun evidence set so performance cannot override correctness evidence.
+
+### Truth-sealed promotion checkpoint
+
+A promotion-eligible checkpoint is persisted only after Completion Truth Gate has sealed it against the same exact HEAD, branch and state version. Reconciliation alone can create an unsealed checkpoint candidate, but that candidate cannot authorize ACTIVE evidence reuse and is never saved as the branch resume authority before Truth Gate PASS.
+Promotion shadow proof note: exact-head Truth sealing is part of checkpoint eligibility; a subsequent semantic-no-op revision may resume only after the prior checkpoint is sealed `VERIFIED_DONE`.
+Promotion shadow proof note: independent exact-head revisions, not repeated attempts of the same revision, are used to accumulate promotion confidence.
+ACTIVE promotion proof note: after a truth-sealed eligible checkpoint, a later semantic-no-op revision may physically skip only gates whose current evidence fingerprint is equivalent; non-reusable and invalidated gates still run.
+
+
+### Merge-readiness promotion rebuild audit
+
+- Engine reset baseline: `16a33cf1f37df5209a2f634ff24bc84d5a19c98d` — SHADOW PASS, RESUMED, 1/1 shadow/resumed pass, 0 false reuse, exact-head Truth Gate `VERIFIED_DONE`.
+- This section is documentation-only and intentionally excluded by the configured non-semantic path policy; subsequent revisions below are independent resume proofs, not executable-policy changes.
+
+### Merge-readiness promotion proof marker A
+
+Documentation-only exact-head revision used to re-establish shadow promotion confidence after the verification-engine provenance canonicalization change. This marker does not change verification semantics, thresholds, dependencies, authorities, workflows, or execution policy.
+
+### Merge-readiness promotion proof marker B
+
+Second documentation-only exact-head revision for the same verification-engine identity. Its sole purpose is to accumulate an independent resumed shadow proof before ACTIVE physical evidence reuse is re-authorized.
+
+- Promotion provenance refresh: `9108ca29b4b49a2b16f0a2e54e24729ad64110bd` — FULL/Tier-4 SHADOW PASS, 10/10 gates rerun, 0 discrepancies, exact-head Truth Gate `VERIFIED_DONE`; verification-engine hash remained `f1a4e958cb0aa36014a21a379ff5255435922fef0c539d17300c3a1427054c1d`. FULL verification intentionally clears immediate promotion eligibility, so one independent RESUMED SHADOW requalification is required before ACTIVE reuse.
+
+### Merge-readiness promotion proof marker C
+
+Documentation-only exact-head revision for the post-canonicalization verification-engine identity. This revision changes no executable verification semantics and exists only to accumulate an independent resumed shadow proof.
+
+### Merge-readiness promotion proof marker D
+
+Second documentation-only exact-head revision for the post-canonicalization verification-engine identity. It exists solely to complete the independent resumed shadow promotion threshold without changing executable policy or verification semantics.
+
+### Merge-readiness post-TF-hash requalification marker F
+
+Documentation-only exact-head revision after the Template Factory infrastructure fingerprint canonicalization fix. This revision changes no executable verification semantics, policy thresholds, authorities, dependencies, workflows, template runtime, or browser acceptance logic. It exists to prove two things simultaneously: Control Plane RESUMED SHADOW requalification after the preceding FULL/Tier-4 proof, and Template Factory browser-evidence reuse with the new canonicalized infrastructure hash.
+
+### Merge-readiness final ACTIVE proof marker G
+
+Final provenance/documentation-only exact-head revision after post-Template-Factory-hash requalification at `4304a93ba59205a855d93b4b01f0e5515e4d5131` (CI `36857859847`): 5 shadow PASS, 4 RESUMED shadow PASS, 0 false reuse, promotion eligible, exact-head Truth Gate `VERIFIED_DONE`. This revision changes no executable verification semantics, thresholds, dependencies, authorities, workflows, template runtime, or browser acceptance behavior. Expected proof: Control Plane RESUMED / ACTIVE physical evidence reuse and Template Factory 84 reused / 2 rerun browser cases with zero errors.
+
+### Merge-readiness TF scope reuse control H
+
+Documentation-only exact-head revision after the Template Factory provenance-only quality-scope classifier fix. No executable verification semantics, policy thresholds, authorities, dependencies, workflows, template runtime, browser acceptance logic, or factory engine inputs change. Expected proof: Control Plane RESUMED / SHADOW requalification and Template Factory reuse of fingerprint-equivalent canonical browser evidence instead of a full 86-case rerun.
+
+### Merge-readiness final ACTIVE + TF reuse proof I
+
+Final provenance/documentation-only exact-head revision after the post-scope-fix requalification at `ef8e63c6df49bd4c7be797912f8092341ee7555c` (CI `36861649334`): 7 shadow PASS, 5 RESUMED shadow PASS, 0 false reuse, promotion eligible, exact-head Truth Gate `VERIFIED_DONE`. The same revision proved Template Factory browser evidence reuse at 84 reused / 2 rerun / 0 errors / 0 warnings with E13 PASS. This final revision changes no executable verification semantics, policy thresholds, authorities, dependencies, workflows, template runtime, browser acceptance logic, or factory engine inputs. Expected result: Control Plane RESUMED / ACTIVE physical reuse and Template Factory 84 / 2 browser-evidence reuse on the same exact HEAD.

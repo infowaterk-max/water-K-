@@ -1,6 +1,7 @@
 import {execFileSync} from 'node:child_process';
-import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
+import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {evaluateCompletionTruth,validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
+import {atomicWriteJson,sealCheckpointTruth} from './lib/shoperation-verification-reuse.mjs';
 
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 const plan=readJson('quality/development/active-plan.json');
@@ -18,6 +19,18 @@ try{evidence=JSON.parse(env('SHOPERATION_TRUTH_EVIDENCE_JSON')||'[]');}catch(err
   evidence=[{id:'TRUTH_INPUT',status:'failure',sourceCommit:currentExactState.head,branch:currentExactState.branch,stateVersion:currentExactState.stateVersion,runId:env('GITHUB_RUN_ID')||'local',reason:String(error)}];
 }
 if(!Array.isArray(evidence))evidence=[];
+const manifestPath=env('SHOPERATION_TRUTH_EVIDENCE_MANIFEST');
+if(manifestPath&&existsSync(manifestPath)){
+  try{
+    const manifest=readJson(manifestPath);
+    const exactMatch=manifest?.sourceCommit===currentExactState.head&&manifest?.branch===currentExactState.branch&&manifest?.stateVersion===currentExactState.stateVersion;
+    if(manifest?.decision!=='PASS'||!exactMatch||!Array.isArray(manifest?.truthEvidence)){
+      evidence=[{id:'TRUTH_MANIFEST',status:'failure',sourceCommit:currentExactState.head,branch:currentExactState.branch,stateVersion:currentExactState.stateVersion,runId:env('GITHUB_RUN_ID')||'local',reason:'resumable-verification-manifest-invalid-or-stale'}];
+    }else evidence=manifest.truthEvidence;
+  }catch(error){
+    evidence=[{id:'TRUTH_MANIFEST',status:'failure',sourceCommit:currentExactState.head,branch:currentExactState.branch,stateVersion:currentExactState.stateVersion,runId:env('GITHUB_RUN_ID')||'local',reason:String(error)}];
+  }
+}
 const guardIds=(registry.guards??[]).map(item=>item.id);
 const validation=validateOperationalIntelligence({plan,policy,guardIds});
 const report=evaluateCompletionTruth({plan,evidence,currentExactState,planIssues:validation.issues});
@@ -27,6 +40,24 @@ report.runAttempt=env('GITHUB_RUN_ATTEMPT')||null;
 report.readOnly=true;
 report.authority='quality-knowledge-system';
 report.releaseAuthority='release-infrastructure';
+const checkpointPath=env('SHOPERATION_TRUTH_CHECKPOINT');
+report.checkpointTruthSeal={status:'NOT_REQUESTED',path:checkpointPath||null};
+if(checkpointPath){
+  if(report.decision==='PASS'&&report.internalState==='VERIFIED_DONE'){
+    try{
+      const checkpoint=readJson(checkpointPath);
+      const sealed=sealCheckpointTruth(checkpoint,{currentExactState,truthReport:report});
+      atomicWriteJson(checkpointPath,sealed);
+      report.checkpointTruthSeal={status:'PASS',path:checkpointPath,sourceCommit:sealed.sourceCommit,checksum:sealed.checksum};
+    }catch(error){
+      report.checkpointTruthSeal={status:'BLOCK',path:checkpointPath,error:String(error)};
+      report.decision='BLOCK';
+      report.internalState='BLOCKED';
+      report.poStatus='NOT_DONE';
+      report.next='Repair checkpoint truth seal and rerun exact-head verification.';
+    }
+  }else report.checkpointTruthSeal={status:'BLOCK',path:checkpointPath,error:'truth-gate-not-verified'};
+}
 mkdirSync('artifacts/shoperation-development-guard',{recursive:true});
 writeFileSync('artifacts/shoperation-development-guard/truth-gate.json',JSON.stringify(report,null,2)+'\n');
 const lines=[

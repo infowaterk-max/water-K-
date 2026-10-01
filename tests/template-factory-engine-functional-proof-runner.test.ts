@@ -20,13 +20,16 @@ describe('Template Factory shared engine functional proof runner',()=>{
     expect(runner).toContain("ENGINE_FUNCTIONAL_PLATFORM_ROLE_REQUIRED");
     expect(runner).toContain("dismissCookieConsent(page)");
     expect(runner).toContain("name:'Csak szükséges'");
+    expect(runner).toContain("ENGINE_ACCEPTANCE_ENTRY_CARDINALITY_INVALID");
+    expect(runner).toContain("document.querySelectorAll(selector).length===1");
+    expect(runner).toContain("entryRoots.first()");
     expect(runner).not.toContain("force:true");
     expect(runner).not.toContain("createPilotAcceptanceToken");
   });
 
   it('runs shared E13 behavior before the expensive 14x3 visual matrix',()=>{
     const engine=workflow.indexOf('Prove shared E13 engine functionality before visual matrix');
-    const matrix=workflow.indexOf('Run scoped Template Factory browser proof (acceptance requires 14x3)');
+    const matrix=workflow.indexOf('Run scoped Template Factory browser proof (acceptance requires reconciled 14x3)');
     expect(engine).toBeGreaterThan(0);
     expect(matrix).toBeGreaterThan(engine);
     expect(workflow).toContain('PRODUCT_OWNER_PREVIEW_URL: "${{ steps.engine-functional-preview.outputs.base-url }}/platform"');
