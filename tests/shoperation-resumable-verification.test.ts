@@ -74,7 +74,7 @@ describe('dependency-aware resumable verification',()=>{
   it('reuses unchanged semantic input on a new exact HEAD',()=>{
     const a=identity('A');
     const report=plan(current({A:a}),checkpoint({A:a}),{changedFiles:['docs/note.md']});
-    expect(report.verificationMode).toBe('RESUMED');
+    expect(report.verificationMode).toBe('STRESS_INTENTIONAL_FAILURE');
     expect(report.reusableEvidenceSet).toEqual(['A']);
     expect(report.rerunSet).toEqual([]);
   });
