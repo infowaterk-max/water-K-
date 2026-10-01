@@ -892,10 +892,10 @@
     "principle": "SPEED_BY_PROOF_NOT_BY_SKIPPING",
     "executionMode": "ACTIVE",
     "promotionEvidence": {
-      "sourceCommit": "ad1875c3b87458771b37fca60d036eb474a1d3b6",
-      "ciRunId": "36831730573",
+      "sourceCommit": "d87b16fad91f07a00ab58ff0794626a84048036c",
+      "ciRunId": "36851334972",
       "shadowPasses": 3,
-      "resumedShadowPasses": 2,
+      "resumedShadowPasses": 3,
       "falseReuse": 0,
       "decision": "PROMOTED"
     },
