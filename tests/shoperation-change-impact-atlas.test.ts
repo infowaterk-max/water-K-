@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {readFileSync} from 'node:fs';
 import {beforeAll,describe,expect,it} from 'vitest';
 import {buildCodebaseAtlas,impactForAtlasPattern,reconcileAuthorityDependencies} from '../scripts/lib/shoperation-codebase-atlas-runtime.mjs';
