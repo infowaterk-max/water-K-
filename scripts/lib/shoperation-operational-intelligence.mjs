@@ -16,10 +16,10 @@ const VACUOUS=/^(?:x|xx+|todo|tbd|n\/a|na|none|unknown|placeholder|later|fixme|p
 function meaningful(value,{minChars=18,minWords=3}={}){
   if(!text(value))return false;
   const v=value.trim();
-  if(VACUOUS.test(v)||/\b(?:TODO|TBD|FIXME|PLACEHOLDER)\b/i.test(v))return false;
+  if(VACUOUS.test(v)||/^(?:TODO|TBD|FIXME|PLACEHOLDER)\b\s*[:=-]?/i.test(v))return false;
   const words=v.split(/\s+/).filter(Boolean);
   if(v.length<minChars||words.length<minWords)return false;
-  if(new Set(words.map(word=>word.toLowerCase())).size===1)return false;
+  if(words.length>1&&new Set(words.map(word=>word.toLowerCase())).size===1)return false;
   return true;
 }
 function semanticListIssues(issues,values,path,label,options={}){
