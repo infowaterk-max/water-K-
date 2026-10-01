@@ -45,4 +45,11 @@ describe('Template Route Integrity + Demo Content Foundation',()=>{
     broken.pages[0]!.sections.push({id:'bad-filter',componentKey:'content.button',componentVersion:1,config:{label:'Bad filter',href:'/webaruhaz?magic=1',variant:'secondary',size:'m',ariaLabel:'Bad filter'}});
     expect(evaluateStorefrontTemplateRouteIntegrity(broken)).toEqual(expect.arrayContaining([expect.objectContaining({code:'CATALOG_QUERY_UNSUPPORTED',href:'/webaruhaz?magic=1'})]));
   });
+  it('STRESS: preserves PO decision that shipping and payment are separate pages',()=>{
+    expect(source).toContain("standardPage('szallitas','Szállítás'");
+    expect(source).toContain("standardPage('fizetes','Fizetés'");
+    expect(source).not.toContain("id:'shipping-payment'");
+    expect(source).not.toContain("route:'/szallitas-es-fizetes'");
+    expect(source).not.toContain("label:'Szállítás és fizetés'");
+  });
 });
