@@ -4,7 +4,7 @@ import {access,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
 import {chromium} from 'playwright';
-import {deriveTemplateReplayDecision,templateBrowserCaseFingerprint,reusableTemplateBrowserCase} from './lib/shoperation-template-factory-resumable-verification.mjs';
+import {canonicalizeTemplateFactoryInfrastructureInput,deriveTemplateReplayDecision,templateBrowserCaseFingerprint,reusableTemplateBrowserCase} from './lib/shoperation-template-factory-resumable-verification.mjs';
 
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
 const outputDir=process.env.TEMPLATE_QUALITY_OUTPUT_DIR??'artifacts/template-factory-quality';
@@ -109,7 +109,7 @@ function repositoryFingerprint(prefixes){
   const raw=execFileSync('git',['ls-files','-z'],{encoding:'utf8'});
   const files=raw.split('\0').filter(Boolean).filter(file=>startsWithAny(file,prefixes)&&existsSync(file)).sort();
   const hash=createHash('sha256');
-  for(const file of files){hash.update(file);hash.update('\0');hash.update(readFileSync(file));hash.update('\0');}
+  for(const file of files){hash.update(file);hash.update('\0');hash.update(canonicalizeTemplateFactoryInfrastructureInput(file,readFileSync(file)));hash.update('\0');}
   return hash.digest('hex');
 }
 

@@ -2,6 +2,7 @@
 import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {
+  canonicalizeTemplateFactoryInfrastructureInput,
   deriveTemplateReplayDecision,
   reusableTemplateBrowserCase,
   templateBrowserCaseFingerprint,
@@ -14,6 +15,16 @@ const fingerprints=(suffix='v1')=>Object.fromEntries(pageTypes.map(page=>[page,p
 const templateFile='src/lib/builder/templates/demo.ts';
 
 describe('Template Factory resumable browser verification',()=>{
+  it('keeps promotion provenance out of the Template Factory engine fingerprint while semantic policy remains identity-bearing',()=>{
+    const file='quality/knowledge/guard-registry.v1.json';
+    const a={verificationReuse:{promotion:{minimumShadowPasses:3,promotedFrom:{sourceCommit:'old',ciRunId:'1'}}}};
+    const b={verificationReuse:{promotion:{minimumShadowPasses:3,promotedFrom:{sourceCommit:'new',ciRunId:'2'}}}};
+    const semantic={verificationReuse:{promotion:{minimumShadowPasses:4,promotedFrom:{sourceCommit:'new',ciRunId:'2'}}}};
+    expect(canonicalizeTemplateFactoryInfrastructureInput(file,JSON.stringify(a))).toBe(canonicalizeTemplateFactoryInfrastructureInput(file,JSON.stringify(b)));
+    expect(canonicalizeTemplateFactoryInfrastructureInput(file,JSON.stringify(a))).not.toBe(canonicalizeTemplateFactoryInfrastructureInput(file,JSON.stringify(semantic)));
+    const qualityGate=readFileSync('scripts/template-factory-quality-gate.mjs','utf8');
+    expect(qualityGate).toContain('canonicalizeTemplateFactoryInfrastructureInput(file,readFileSync(file))');
+  });
   it('reruns only FAQ x 3 viewports and reuses the other 39 matrix cases',()=>{
     const previous=fingerprints();
     const current={...previous,faq:'faq-v2'};

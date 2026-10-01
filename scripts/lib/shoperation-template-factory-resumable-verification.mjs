@@ -1,6 +1,10 @@
-import {classifySemanticUnits,digestObject} from './shoperation-verification-reuse.mjs';
+import {canonicalizeVerificationEngineInput,classifySemanticUnits,digestObject} from './shoperation-verification-reuse.mjs';
 
 const uniq=values=>[...new Set(values)];
+
+export function canonicalizeTemplateFactoryInfrastructureInput(file,raw){
+  return canonicalizeVerificationEngineInput(file,raw);
+}
 
 export function deriveTemplateReplayDecision({
   registry,
