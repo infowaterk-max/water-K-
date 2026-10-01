@@ -13,6 +13,7 @@ import {
   sealCheckpointTruth,
   validateCheckpoint,
   validateVerificationGraph,
+  verificationPolicySemanticallyEquivalent,
 } from '../scripts/lib/shoperation-verification-reuse.mjs';
 
 const identity=(gateId,overrides={})=>({
@@ -374,6 +375,8 @@ describe('dependency-aware resumable verification',()=>{
     const registrySemanticChange={verificationReuse:{promotion:{minimumShadowPasses:4,promotedFrom:{sourceCommit:'new',ciRunId:'2'}}}};
     expect(canonicalizeVerificationEngineInput(registryPath,JSON.stringify(registryA))).toBe(canonicalizeVerificationEngineInput(registryPath,JSON.stringify(registryB)));
     expect(canonicalizeVerificationEngineInput(registryPath,JSON.stringify(registryA))).not.toBe(canonicalizeVerificationEngineInput(registryPath,JSON.stringify(registrySemanticChange)));
+    expect(verificationPolicySemanticallyEquivalent(registryPath,JSON.stringify(registryA),JSON.stringify(registryB))).toBe(true);
+    expect(verificationPolicySemanticallyEquivalent(registryPath,JSON.stringify(registryA),JSON.stringify(registrySemanticChange))).toBe(false);
 
     const policyPath='quality/knowledge/development-guard-policy.v1.json';
     const policyA={resumableVerification:{executionMode:'ACTIVE',promotionEvidence:{sourceCommit:'old',ciRunId:'1'}}};
@@ -381,6 +384,8 @@ describe('dependency-aware resumable verification',()=>{
     const policySemanticChange={resumableVerification:{executionMode:'SHADOW',promotionEvidence:{sourceCommit:'new',ciRunId:'2'}}};
     expect(canonicalizeVerificationEngineInput(policyPath,JSON.stringify(policyA))).toBe(canonicalizeVerificationEngineInput(policyPath,JSON.stringify(policyB)));
     expect(canonicalizeVerificationEngineInput(policyPath,JSON.stringify(policyA))).not.toBe(canonicalizeVerificationEngineInput(policyPath,JSON.stringify(policySemanticChange)));
+    expect(verificationPolicySemanticallyEquivalent(policyPath,JSON.stringify(policyA),JSON.stringify(policyB))).toBe(true);
+    expect(verificationPolicySemanticallyEquivalent(policyPath,JSON.stringify(policyA),JSON.stringify(policySemanticChange))).toBe(false);
   });
 
   it('falls back to SHADOW when ACTIVE promotion proof belongs to an older verification engine',()=>{
