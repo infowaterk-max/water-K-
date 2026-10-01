@@ -301,3 +301,7 @@ Documentation-only exact-head revision for the post-canonicalization verificatio
 ### Merge-readiness promotion proof marker D
 
 Second documentation-only exact-head revision for the post-canonicalization verification-engine identity. It exists solely to complete the independent resumed shadow promotion threshold without changing executable policy or verification semantics.
+
+### Merge-readiness post-TF-hash requalification marker F
+
+Documentation-only exact-head revision after the Template Factory infrastructure fingerprint canonicalization fix. This revision changes no executable verification semantics, policy thresholds, authorities, dependencies, workflows, template runtime, or browser acceptance logic. It exists to prove two things simultaneously: Control Plane RESUMED SHADOW requalification after the preceding FULL/Tier-4 proof, and Template Factory browser-evidence reuse with the new canonicalized infrastructure hash.
