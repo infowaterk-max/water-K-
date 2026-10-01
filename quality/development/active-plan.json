@@ -4,7 +4,7 @@
   "task": "Extend the existing Control Plane release verification with safe resumable evidence reuse and minimal replay without creating a parallel authority.",
   "status": "ready-for-implementation",
   "guardDigest": "2a67f8cf",
-  "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
+  "changeBaseSha": "092df49efe5b099cdf26096a3b7deed6e9860e39",
   "plannedFilePatterns": [
     "AGENTS.md",
     ".github/workflows/ci.yml",
@@ -600,5 +600,5 @@
       }
     ]
   },
-  "notes": "Control Plane resumable verification expanded within the existing 5-point Release Risk Budget to close Template Factory page-level browser replay. Planned release scope is quality-infrastructure + release-infrastructure + storefront-ui (5/5, three subsystems); DOMAIN-BUILDER is included only for the QA catalog page-fingerprint projection. Promotion is engine-identity-bound: any verification engine/policy change falls back to SHADOW and must re-earn promotion. No production runtime/template behavior is changed. Template Factory selective browser replay is implemented as a subordinate evidence checkpoint inside the existing Template Factory Quality Gate; no parallel workflow authority. Merge-readiness stress verification exposed a transient duplicate E13 acceptance root in the Product Owner functional-proof browser session; scope was widened to harden that existing runner with fail-closed cardinality convergence plus regression coverage."
+  "notes": "Control Plane resumable verification expanded within the existing 5-point Release Risk Budget to close Template Factory page-level browser replay. Planned release scope is quality-infrastructure + release-infrastructure + storefront-ui (5/5, three subsystems); DOMAIN-BUILDER is included only for the QA catalog page-fingerprint projection. Promotion is engine-identity-bound: any verification engine/policy change falls back to SHADOW and must re-earn promotion. No production runtime/template behavior is changed. Template Factory selective browser replay is implemented as a subordinate evidence checkpoint inside the existing Template Factory Quality Gate; no parallel workflow authority. Merge-readiness stress verification exposed a transient duplicate E13 acceptance root in the Product Owner functional-proof browser session; scope was widened to harden that existing runner with fail-closed cardinality convergence plus regression coverage. STRESS-ONLY BUILD_INVALID_ROUTE_SEGMENT; do not merge."
 }

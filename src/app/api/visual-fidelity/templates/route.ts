@@ -7,7 +7,7 @@ import {STOREFRONT_PAGE_TYPES,STOREFRONT_VIEWPORTS} from '@/lib/builder/storefro
 import {STOREFRONT_TEMPLATE_FACTORY_RECIPES,buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory/recipe-registry';
 import {evaluateTemplateFactoryPreflight,replayTemplateFactoryKnownFailures} from '@/lib/builder/template-factory/procedural-memory';
 
-export const dynamic='force-dynamic';
+export const dynamic='STRESS_INVALID_DYNAMIC';
 
 const canonicalJson=(value:unknown):string=>{
   if(Array.isArray(value))return '['+value.map(canonicalJson).join(',')+']';
