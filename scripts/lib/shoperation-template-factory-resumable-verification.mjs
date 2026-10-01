@@ -2,6 +2,44 @@ import {canonicalizeVerificationEngineInput,classifySemanticUnits,digestObject} 
 
 const uniq=values=>[...new Set(values)];
 
+export function evaluateGoldenMismatchHotspots({
+  diffData,
+  width,
+  height,
+  windowPx=96,
+  maxLocalMismatchRatio=.08,
+  minLocalMismatchedPixels=256,
+}={}){
+  const data=diffData;
+  if(!data||!Number.isInteger(width)||!Number.isInteger(height)||width<1||height<1){
+    return{status:'invalid',exceeds:false,windowPx,maxLocalMismatchRatio,minLocalMismatchedPixels,best:null};
+  }
+  const size=Math.max(16,Math.min(512,Math.round(Number(windowPx)||96)));
+  const shifts=[0,Math.floor(size/2)];
+  const buckets=new Map();
+  const add=(shift,x,y)=>{
+    const bx=Math.floor((x+shift)/size),by=Math.floor((y+shift)/size),key=`${shift}:${bx}:${by}`;
+    buckets.set(key,(buckets.get(key)??0)+1);
+  };
+  for(let y=0;y<height;y+=1){
+    for(let x=0;x<width;x+=1){
+      const at=(y*width+x)*4;
+      if(data[at]===255&&data[at+1]===0&&data[at+2]===0&&data[at+3]===255){
+        for(const shift of shifts)add(shift,x,y);
+      }
+    }
+  }
+  let best=null;
+  for(const[key,count]of buckets){
+    const[shiftRaw,bxRaw,byRaw]=key.split(':').map(Number),shift=shiftRaw,bx=bxRaw,by=byRaw;
+    const x0=bx*size-shift,y0=by*size-shift,x1=Math.max(0,x0),y1=Math.max(0,y0),x2=Math.min(width,x0+size),y2=Math.min(height,y0+size);
+    const area=Math.max(1,(x2-x1)*(y2-y1)),ratio=count/area;
+    if(!best||ratio>best.mismatchRatio||(ratio===best.mismatchRatio&&count>best.mismatchedPixels))best={x:x1,y:y1,width:x2-x1,height:y2-y1,mismatchedPixels:count,totalPixels:area,mismatchRatio:ratio};
+  }
+  const exceeds=Boolean(best&&best.mismatchedPixels>=minLocalMismatchedPixels&&best.mismatchRatio>maxLocalMismatchRatio);
+  return{status:'ok',exceeds,windowPx:size,maxLocalMismatchRatio,minLocalMismatchedPixels,best};
+}
+
 export function canonicalizeTemplateFactoryInfrastructureInput(file,raw){
   return canonicalizeVerificationEngineInput(file,raw);
 }
