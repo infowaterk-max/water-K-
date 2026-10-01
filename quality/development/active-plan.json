@@ -1,19 +1,22 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-VX-BUILDER-CORE-FOUNDATION",
-  "task": "Build the approved VX Builder Core foundation as one shared guarded authoring engine for VX Shop Builder and the future VX Site Builder, reusing the existing canonical builder document, runtime and publication authorities; adapt the current Shop Builder workspace to the approved Visual First gold/graphite design, product-profile boundaries, contextual insertion and controlled 12-column resize without Wix-style freeform positioning.",
+  "taskId": "DEV-VX-BUILDER-LIBRARY-2",
+  "task": "Upgrade the approved VX Builder Core with a curated visual Library 2.0 for sections, elements and page templates: lightweight semantic thumbnails, search/category filtering, contextual insertion and larger bounded previews, while preserving canonical preset/page-template/runtime authorities, product-profile capability filtering and Guarded Freedom.",
   "status": "ready-for-implementation",
   "guardDigest": "79f20cf3",
-  "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
+  "changeBaseSha": "8b5923cf8c6680829d4b8c29485e36ef94cf37ac",
   "plannedFilePatterns": [
+    "quality/development/active-plan.json",
     "docs/architecture/VX_BUILDER_CORE.md",
-    "src/lib/builder/vx-builder-core.ts",
+    "src/lib/builder/vx-builder-library.ts",
+    "src/components/admin/vx-builder-library-preview.tsx",
+    "src/components/admin/vx-builder-library.module.css",
+    "src/components/admin/storefront-preset-library-panel.tsx",
+    "src/components/admin/storefront-page-templates-panel.tsx",
     "src/components/admin/storefront-visual-builder-v3.tsx",
-    "src/components/admin/storefront-visual-builder-v3.module.css",
-    "src/lib/builder/storefront-visual-builder.ts",
-    "tests/vx-builder-core.test.ts",
-    "tests/visual-builder-production-completion.test.ts",
-    "tests/shoperation-operational-intelligence.test.ts"
+    "tests/vx-builder-library.test.ts",
+    "tests/storefront-preset-library.test.ts",
+    "tests/visual-builder-production-completion.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -97,11 +100,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-09-30-VX-BUILDER-CORE-VISUAL-FIRST",
+    "sourceRef": "PO-2026-10-01-VX-BUILDER-LIBRARY-2",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "The change touches the canonical authoring surface and responsive layout interactions used by every future VX Shop/Site page. Strong behavioral proof is justified, while critical finite-state/formal verification would add disproportionate cost because the slice reuses existing immutable draft/publish and runtime authorities rather than changing transactional commerce state.",
+      "rationale": "Library 2.0 sits directly on the authoring path and can influence what merchants insert into canonical Page documents. Strong behavioral proof is justified for capability filtering, bounded preview rendering, insertion integrity and performance. Formal verification would add disproportionate cost because the slice introduces no new transactional, persistence or concurrent protocol authority.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -116,49 +119,47 @@
       "deferredTechniques": [
         {
           "technique": "finite-state-exhaustion",
-          "reason": "The interaction state space is high-dimensional and UI-driven; targeted state/adversarial matrices plus browser/runtime evidence provide a better assurance-to-cost ratio."
+          "reason": "The gallery state is UI/filter driven; targeted state matrices and canonical insertion validation provide better assurance-to-cost ratio."
         },
         {
           "technique": "formal-verification",
-          "reason": "No new concurrent transactional or payment protocol is introduced; canonical persistence/publication authorities remain unchanged."
+          "reason": "No payment, inventory or distributed consistency protocol changes; persistence and runtime authorities remain unchanged."
         }
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "One shared VX Builder Core contract serves VX Shop Builder now and the future VX Site Builder through product profiles/capabilities rather than forks.",
-        "The existing Page document, Runtime, draft/preview/publish/rollback and capability authorities remain canonical; no second renderer, page authority or publication state is introduced.",
-        "The approved Visual First workspace is implemented: top toolbar, Library panel, live canvas and Inspector with no additional admin sidebar; Shoperation family styling uses light/ivory surfaces, graphite text and warm gold/ochre accents.",
-        "Contextual plus insertion only offers structurally valid targets and preserves Page -> Section -> Container -> Component structure.",
-        "Direct manipulation supports guarded 12-column resize with snapping and valid min/max spans; arbitrary freeform absolute positioning is not introduced.",
-        "Selected sections/components expose contextual quick operations including duplicate and delete while protected nodes remain protected.",
-        "Desktop, tablet and mobile editing keeps the existing canonical responsive authority and targeted overrides without duplicate breakpoint DOM/page authorities.",
-        "Merchant-facing terminology is product-profile driven so commerce-specific labels/capabilities do not become VX Builder Core assumptions.",
-        "Builder performance/stability and long-term editability take precedence over unrestricted styling freedom; guarded freedom is explicit in code and tests.",
-        "Existing Presets, Saved Blocks, Layers, Global Styles, history, preview and publish flows continue to work through their current authorities.",
-        "Operational Intelligence regression coverage must validate the active plan against its declared risk profile rather than hard-code the previous critical task, so future proportional-risk plans remain executable."
+        "Sections, elements and page templates use a shared VX Library visual language with lightweight semantic thumbnails instead of generic registry rows or live runtime instantiation.",
+        "Section Presets expose search, meaningful curated categories and a bounded larger preview before one-click insertion.",
+        "Element insertion cards expose recognizable semantic previews while continuing to list only structurally valid and product-profile/capability-allowed components.",
+        "Page Templates use the same visual card/preview language and retain existing apply/create-new-page authority.",
+        "Factory Section Presets remain source-controlled canonical preset material; tenant Saved Blocks remain a separate merchant-owned library.",
+        "Every insertion/application continues through existing preset/page-template materialization and validation functions; no second document, renderer, persistence or publish path is introduced.",
+        "Preview generation is bounded metadata/CSS composition only and must not instantiate one StorefrontRuntimeRenderer per Library card.",
+        "VX Shop may expose commerce library items, while the shared Core classification/preview system remains product-agnostic and compatible with future VX Site capability profiles.",
+        "Mobile Library remains polished and inspectable, but Desktop remains the full authoring authority and no mobile-only content/page model is created."
       ],
       "invariants": [
-        "There is exactly one runtime renderer and one Page-document mutation authority for this Builder path.",
-        "VX Builder Core does not own commerce behavior, inventory, customer identity, provider integrations or publication transactions.",
-        "Shop and Site variants differ by profile/capability composition, not by forked editor engines.",
-        "Generic drag/drop and resize cannot create out-of-grid spans, arbitrary coordinates or invalid parent-child relationships.",
-        "Responsive edits are scoped to the active canonical viewport and never create a second mobile document.",
-        "Protected system nodes cannot be deleted, duplicated or illegally reparented.",
-        "The accepted Builder shell contains no extra Shoperation admin navigation sidebar.",
-        "Normal-mode UX hides technical implementation noise while advanced controls remain progressively disclosed."
+        "Template -> Page Preset -> Section Preset -> Component remains canonical.",
+        "A Library preview is presentation metadata only and can never become insertion/persistence authority.",
+        "Factory presets and Saved Blocks are never merged into one ownership model.",
+        "Capability and parent/child compatibility remain fail-closed before insertion.",
+        "Library search/filtering cannot reveal or insert a component hidden by the active product profile or entitlement.",
+        "No unbounded number of live runtime renderers is mounted for thumbnails or previews.",
+        "Inserted preset nodes receive canonical fresh identities and remain fully editable native Builder content.",
+        "Guarded Freedom continues to prohibit arbitrary HTML/JavaScript and unbounded freeform layout primitives."
       ],
       "forbiddenStates": [
-        "parallel-builder-runtime-or-page-authority",
-        "shop-and-site-builder-fork",
-        "wix-style-unbounded-absolute-positioning",
-        "grid-span-below-1-or-above-12",
-        "responsive-edit-mutates-unrelated-viewport",
-        "invalid-contextual-insertion-target",
-        "protected-node-deleted-or-duplicated",
-        "accepted-visual-shell-replaced-with-admin-sidebar",
-        "commerce-only-assumption-inside-product-agnostic-core",
-        "completion-claimed-without-exact-head-evidence"
+        "live-runtime-per-library-card",
+        "preset-preview-becomes-second-renderer-authority",
+        "factory-and-tenant-library-ownership-collapse",
+        "capability-hidden-item-insertable-through-search",
+        "invalid-parent-child-insertion-through-gallery",
+        "preset-insertion-bypasses-canonical-validation",
+        "page-template-application-bypasses-current-authority",
+        "unbounded-preview-tree-walk",
+        "mobile-specific-page-or-breakpoint-document",
+        "wix-style-marketplace-or-arbitrary-widget-proliferation"
       ]
     },
     "model": {
@@ -190,48 +191,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "invalid-drop-target",
-        "grid-resize-overflow",
-        "responsive-authority-drift",
-        "protected-node-mutation",
-        "runtime-editor-divergence",
-        "product-profile-capability-leak",
-        "visual-shell-regression",
-        "preset-or-saved-block-authority-duplication",
-        "large-page-interaction-jank",
-        "stale-completion-evidence"
+        "gallery-runtime-explosion",
+        "wrong-category-classification",
+        "search-filter-capability-leak",
+        "stale-contextual-target",
+        "invalid-section-insertion",
+        "saved-block-authority-confusion",
+        "page-template-authority-duplication",
+        "mobile-library-overflow",
+        "visual-preview-misrepresents-semantic-type",
+        "large-fragment-preview-cost"
       ],
       "edgeCases": [
-        "resize-at-grid-span-1-and-12",
-        "resize-while-mobile-override-active",
-        "insert-into-node-with-no-child-policy",
-        "duplicate-protected-header-or-footer",
-        "empty-page-first-section-insertion",
-        "shop-only-component-requested-in-site-profile",
-        "undo-after-resize-and-duplicate",
-        "canvas-fit-with-both-panels-open",
-        "reduced-motion-preference",
-        "existing-template-with-unknown-forward-compatible-config"
+        "section-preset-with-deep-tree",
+        "preset-containing-commerce-components",
+        "site-profile-with-commerce-classification",
+        "zero-compatible-section-presets",
+        "selected-node-with-no-appearance-presets",
+        "search-query-with-diacritics",
+        "preview-of-unknown-forward-compatible-component",
+        "mobile-panel-width-under-360px",
+        "page-template-with-no-current-apply-compatibility",
+        "insertion-after-capability-change"
       ]
     },
     "alternatives": [
       {
         "id": "ALT-01",
-        "summary": "Fork the current Visual Builder into separate Shop and Site editors and evolve each independently.",
+        "summary": "Render every preset and element card with a full live StorefrontRuntimeRenderer miniature.",
         "disposition": "rejected",
-        "reason": "Duplicates interaction/runtime assumptions, creates drift and violates the accepted one-Core/two-products architecture."
+        "reason": "High runtime/DOM cost, duplicate interaction complexity and explicit conflict with the roadmap's bounded thumbnail contract."
       },
       {
         "id": "ALT-02",
-        "summary": "Evolve the existing canonical Visual Builder into a shared VX Builder Core contract and keep Shoperation as the first product/host profile while preserving existing runtime and persistence authorities.",
+        "summary": "Build a shared semantic Library descriptor/preview layer over existing canonical preset, component and page-template authorities.",
         "disposition": "selected",
-        "reason": "Reuses proven Page/runtime/publish infrastructure, minimizes blast radius and creates the correct extensibility seam for VX Site Builder."
+        "reason": "Improves merchant comprehension and visual quality while preserving one runtime/persistence authority and keeping previews bounded."
       },
       {
         "id": "ALT-03",
-        "summary": "Rewrite the Builder from scratch around a fully free canvas and migrate Shoperation later.",
+        "summary": "Create a separate visual preset database/marketplace with arbitrary merchant widgets.",
         "disposition": "rejected",
-        "reason": "High regression risk, duplicates mature authorities and conflicts with guarded freedom, performance and stability priorities."
+        "reason": "Would create a parallel authority, undermine Guarded Freedom and dramatically increase performance/security/regression surface."
       }
     ],
     "specialistReviews": [
@@ -239,129 +240,108 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The generic Core must not become a second Page/runtime/publish authority and Shop/Site must not fork.",
-        "resolution": "Use a product-profile/interaction contract over the existing Storefront Builder authorities; no replacement runtime or persistence path."
+        "finding": "Library 2.0 must be a presentation/indexing layer over existing preset/page-template authorities, not a new content authority.",
+        "resolution": "Introduce pure semantic descriptor helpers and lightweight preview components; insertion still calls the existing canonical functions."
       },
       {
-        "role": "Runtime",
+        "role": "Runtime / Performance",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Pointer resize and contextual insertion can bypass canonical responsive/grid rules or produce editor/runtime divergence.",
-        "resolution": "All direct manipulation resolves to existing validated Builder mutations and 12-column responsive values; no raw CSS-coordinate persistence or editor-only layout authority."
+        "finding": "A visually rich gallery can accidentally mount dozens of live storefront runtimes or traverse arbitrarily deep preset trees on every render.",
+        "resolution": "Use bounded pure descriptors and CSS semantic thumbnails; cap structural inspection and never mount StorefrontRuntimeRenderer in Library cards."
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The approved Visual First design requires direct manipulation and contextual actions without exposing technical complexity.",
-        "resolution": "Keep direct manipulation first, Inspector second; progressive disclosure, contextual plus controls and section quick actions are explicit acceptance criteria."
+        "finding": "Generic cube/line cards do not communicate what will be inserted and make the Builder feel registry-driven.",
+        "resolution": "Use recognizable section/element/page-template preview archetypes, curated categories, search and an explicit larger preview surface."
       },
       {
-        "role": "Operations",
+        "role": "Security / Entitlement",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A feature-rich canvas can add heavy listeners, layout thrash and visual instability.",
-        "resolution": "Use bounded pointer interactions, existing frame geometry/runtime rendering, no unrestricted freeform DOM, and verify performance/readiness through existing gates."
+        "finding": "Search/filter UI must not expose a hidden insert path for disallowed components or Pro-only capability.",
+        "resolution": "Derive candidate sets from the same contextual/capability-filtered authorities first, then apply visual search/category filtering only to that safe set."
       }
     ],
     "challenge": [
       {
         "id": "CH-01",
-        "scenario": "A resize drag attempts to make a component span 13 columns or zero columns.",
-        "finding": "Unbounded resizing can corrupt layout and responsive output.",
-        "resolution": "Clamp/snap all resize results to canonical spans 1..12 and persist only validated responsive mutation values.",
+        "scenario": "A template exposes 80 presets and each card renders a live runtime preview.",
+        "finding": "The Library becomes slower than the storefront and creates massive DOM/listener cost.",
+        "resolution": "Semantic CSS thumbnails only; no StorefrontRuntimeRenderer inside Library cards and larger preview remains the same bounded descriptor.",
         "status": "resolved"
       },
       {
         "id": "CH-02",
-        "scenario": "A user drags or inserts a component into a node whose child policy forbids it.",
-        "finding": "Visual freedom could bypass the component registry and create invalid documents.",
-        "resolution": "Contextual insertion/drop targets are derived from listStorefrontBuilderInsertableComponents and canonical mutation validation.",
+        "scenario": "A deep preset fragment recursively walks thousands of descendants to create a thumbnail.",
+        "finding": "Preview cost could be attacker/template amplified.",
+        "resolution": "Descriptor traversal uses an explicit node inspection budget and returns a safe generic preview when the budget is exhausted.",
         "status": "resolved"
       },
       {
         "id": "CH-03",
-        "scenario": "A direct manipulation on mobile silently changes desktop/tablet values.",
-        "finding": "Responsive inheritance can become unpredictable and destroy accepted layouts.",
-        "resolution": "Persist changes only to the active canonical viewport override and retain the existing shared Page document/responsive resolver.",
+        "scenario": "A user searches for a commerce component hidden by current profile/capability.",
+        "finding": "A secondary search index could leak an insertion route.",
+        "resolution": "Search operates only on the already filtered safe candidate list; classification never grants insertability.",
         "status": "resolved"
       },
       {
         "id": "CH-04",
-        "scenario": "Shop-specific commerce terminology and components are embedded into the shared Core.",
-        "finding": "VX Site Builder would inherit irrelevant commerce assumptions and force a future fork.",
-        "resolution": "Move product identity, terminology, categories and capability exposure behind an explicit Builder product profile.",
+        "scenario": "A section card looks like a Hero but insertion materializes a different authority or opaque widget.",
+        "finding": "Visual Library could become misleading and non-editable.",
+        "resolution": "Preview is derived from canonical fragment/component keys and insertion materializes ordinary editable native nodes through existing preset functions.",
         "status": "resolved"
       },
       {
         "id": "CH-05",
-        "scenario": "The accepted visual redesign adds an admin navigation rail or shrinks the canvas enough to recreate historical zoom/overflow defects.",
-        "finding": "The PO-approved workspace and canvas usability would regress.",
-        "resolution": "Preserve top toolbar + Library + canvas + Inspector only, keep the existing canonical canvas geometry/fit authority, and add visual contract regressions.",
+        "scenario": "Factory presets and merchant Saved Blocks are shown as one undifferentiated collection.",
+        "finding": "Ownership, lifecycle and trust become ambiguous.",
+        "resolution": "Keep separate top-level surfaces and explicit source badges; no combined persistence model.",
         "status": "resolved"
       },
       {
         "id": "CH-06",
-        "scenario": "Direct manipulation stores arbitrary left/top/width CSS coordinates for ordinary content.",
-        "finding": "Wix-style freedom would damage responsiveness, performance and long-term editability.",
-        "resolution": "Generic Core exposes guarded grid/token operations only; absolute positioning remains restricted to specialized layered components already modeled by canonical configuration.",
+        "scenario": "Page-template cards reimplement apply/create behavior inside the visual preview layer.",
+        "finding": "Would duplicate page authority and optimistic concurrency rules.",
+        "resolution": "Visual cards only call existing StorefrontPageTemplatesPanel actions/applyStorefrontPageTemplate paths.",
         "status": "resolved"
       },
       {
         "id": "CH-07",
-        "scenario": "A section preset or saved block creates a second rendering or state authority.",
-        "finding": "Library convenience could diverge from runtime and publication truth.",
-        "resolution": "Presets and saved blocks materialize normal canonical nodes/documents and continue through existing mutation, validation and persistence authorities.",
+        "scenario": "Unknown future component keys break thumbnail rendering.",
+        "finding": "Forward-compatible templates could crash the Library.",
+        "resolution": "Classification fails to a generic bounded preview without affecting canonical insertion eligibility.",
         "status": "resolved"
       },
       {
         "id": "CH-08",
-        "scenario": "A protected header/footer receives duplicate/delete controls.",
-        "finding": "Critical navigation/shell structure could be damaged.",
-        "resolution": "Quick actions remain visible only when allowed and canonical protectedSystem checks continue to block destructive mutations.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-09",
-        "scenario": "Large pages generate excessive pointer/resize state updates and degrade editing responsiveness.",
-        "finding": "Builder sophistication could reduce practical usability.",
-        "resolution": "Commit mutations at bounded interaction points, avoid per-frame persistence, preserve runtime rendering authority and include performance/readiness regression checks.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-10",
-        "scenario": "The Operational Intelligence regression test reads active-plan.json but assumes the previous task was always critical with exactly ten requirements.",
-        "finding": "The first high-risk non-Control-Plane task passes Plan Before Code but fails the global suite solely because the test is coupled to the previous plan instance.",
-        "resolution": "Make the test profile-aware: derive minimum challenge/specialist/technique expectations from the active risk profile and validate PO source/evidence invariants without hard-coded task-specific tier or requirement count.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-11",
-        "scenario": "The Completion Contract references GUARD-TEMPLATE-FACTORY even though the read-only CI Truth Gate only receives same-run CI guard evidence.",
-        "finding": "A cross-workflow guard reference would make VERIFIED_DONE mechanically unreachable even when both CI and Template Factory pass.",
-        "resolution": "Keep Template Factory/browser proof mandatory in the proof plan and PR checks, but bind Completion Contract claims to exact-head CI evidence that the Truth Gate can actually consume; do not add a parallel evidence aggregator.",
+        "scenario": "Mobile tries to show desktop-sized multi-column gallery cards and creates horizontal scroll.",
+        "finding": "Mobile audit becomes visibly broken even though desktop is primary.",
+        "resolution": "Responsive Library CSS collapses grids and keeps actions/touch targets inside the panel without introducing separate content semantics.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code against the exact branch before product-code execution.",
-      "Add unit coverage for VX Builder Core product profiles, guarded-freedom policy, structural hierarchy and resize normalization.",
-      "Extend Visual Builder completion regression coverage for approved shell, gold/graphite design tokens, contextual insertion, duplicate/delete and no extra admin sidebar.",
-      "Verify resize boundary cases 1/12 and 12/12 plus active viewport isolation against canonical responsive mutation behavior.",
-      "Run existing Visual Builder, Page/Runtime and Known Failure regression suites selected by Incremental Replay.",
-      "Run typecheck and production build on the exact implementation HEAD.",
-      "Run Template Factory / browser-facing quality authority where impacted to prove runtime/editor parity and responsive stability.",
-      "Run Completion Truth Gate with exact branch/SHA evidence; no DONE claim is allowed from a stale or partial run."
+      "Run Plan Before Code on the committed active plan before product implementation.",
+      "Add unit coverage for bounded semantic classification, category/search behavior and unknown-component fallback.",
+      "Extend preset-library regression coverage to prove visual metadata never replaces canonical insertion/materialization.",
+      "Extend Builder completion coverage to prove element cards use semantic previews and no Library card imports/mounts StorefrontRuntimeRenderer.",
+      "Run existing preset/page-template/Saved Block and capability regression suites through Incremental Replay.",
+      "Run typecheck and production build on exact implementation HEAD.",
+      "Run Template Factory Quality Gate/browser proof to catch responsive/visual/runtime regressions.",
+      "Close only after exact-head Completion Truth Gate evidence; no main merge or golden update in this slice."
     ],
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-09-30-VX-BUILDER-CORE-VISUAL-FIRST",
+    "sourceRef": "PO-2026-10-01-VX-BUILDER-LIBRARY-2",
     "requirements": [
       {
         "id": "REQ-01",
-        "requirement": "Implement one shared VX Builder Core foundation with product-profile composition for VX Shop Builder and future VX Site Builder, without forking editor/runtime authorities.",
+        "requirement": "Implement one shared visual Library descriptor/preview layer for Sections, Elements and Page Templates without introducing a second content or renderer authority.",
         "evidence": {
           "implementation": [
             "GUARD-PLAN-BEFORE-CODE",
@@ -375,7 +355,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-01A",
-            "statement": "No second renderer, Page-document authority, publication state or separate Shop/Site editor engine is introduced.",
+            "statement": "Library cards must not mount StorefrontRuntimeRenderer or create a new preset/page persistence path.",
             "evidence": [
               "GUARD-QUALITY-TESTS",
               "GUARD-INCREMENTAL-REPLAY"
@@ -385,7 +365,7 @@
       },
       {
         "id": "REQ-02",
-        "requirement": "Match the PO-approved Visual First workspace structure and Shoperation-family visual language: top toolbar, Library, live canvas, Inspector, light/ivory surfaces, graphite hierarchy and warm gold/ochre accents.",
+        "requirement": "Upgrade Section Presets with semantic thumbnails, search, curated categories and a bounded larger preview with canonical one-click insertion.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -397,17 +377,16 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-02A",
-            "statement": "No additional Shoperation admin navigation sidebar is added to the Builder workspace.",
+            "statement": "Section insertion must continue through insertStorefrontSectionPreset and canonical validation.",
             "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-PRODUCTION-BUILD"
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       },
       {
         "id": "REQ-03",
-        "requirement": "Provide contextual insertion through valid plus/drop targets while preserving Page -> Section -> Container -> Component structural authority.",
+        "requirement": "Upgrade Element insertion cards with recognizable semantic previews while preserving contextual/product-profile/capability filtering.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -419,7 +398,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-03A",
-            "statement": "Invalid parent-child insertion cannot bypass component registry or canonical mutation validation.",
+            "statement": "Search/category filtering cannot make an otherwise disallowed element insertable.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -428,29 +407,7 @@
       },
       {
         "id": "REQ-04",
-        "requirement": "Provide guarded direct 12-column resizing with snap/clamp behavior and active-viewport persistence.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-INCREMENTAL-REPLAY",
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-04A",
-            "statement": "Generic resizing cannot persist arbitrary freeform coordinates or grid spans outside 1..12 and cannot mutate unrelated viewports.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-05",
-        "requirement": "Keep contextual section/component quick operations including duplicate and delete, with protected-system safeguards.",
+        "requirement": "Upgrade Page Template cards to the same visual language while retaining existing apply and create-page authority.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -461,8 +418,29 @@
         },
         "forbiddenRegressions": [
           {
+            "id": "NEG-04A",
+            "statement": "No page-template action or page document authority is duplicated in the preview layer.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-05",
+        "requirement": "Keep Factory Presets and merchant Saved Blocks as visibly and technically separate ownership/lifecycle surfaces.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
             "id": "NEG-05A",
-            "statement": "Protected nodes cannot be illegally duplicated, deleted or reparented.",
+            "statement": "No combined storage or trust model is created for factory and tenant-owned blocks.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -471,31 +449,29 @@
       },
       {
         "id": "REQ-06",
-        "requirement": "Preserve Desktop/Tablet/Mobile authority, responsive overrides, history, Layers, Presets, Saved Blocks, Global Styles, preview and publish workflows.",
+        "requirement": "Keep Library preview work bounded and lightweight for large template catalogs and deep preset fragments.",
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-EDIT-TIME"
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-TYPECHECK",
             "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
             "id": "NEG-06A",
-            "statement": "No duplicate breakpoint DOM/page authority, runtime divergence or loss of existing Builder mutation/publish capabilities.",
+            "statement": "No unbounded recursive preview traversal or live runtime-per-card strategy is introduced.",
             "evidence": [
-              "GUARD-INCREMENTAL-REPLAY",
-              "GUARD-PRODUCTION-BUILD"
+              "GUARD-QUALITY-TESTS",
+              "GUARD-INCREMENTAL-REPLAY"
             ]
           }
         ]
       },
       {
         "id": "REQ-07",
-        "requirement": "Enforce Guarded Freedom: stability, storefront speed and long-term editability outrank unrestricted Wix-style configuration.",
+        "requirement": "Preserve Desktop-first authoring with polished responsive Library behavior on mobile without horizontal control overflow or a mobile-only document model.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -507,24 +483,21 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-07A",
-            "statement": "No unrestricted absolute positioning, raw HTML/JS composition or uncontrolled style/widget proliferation is added.",
+            "statement": "Library responsiveness must not create duplicate breakpoint/page authorities.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-INCREMENTAL-REPLAY"
             ]
           }
         ]
       },
       {
         "id": "REQ-08",
-        "requirement": "Close the slice only with fresh exact-head evidence under the new Operational Intelligence and Completion Truth Gate.",
+        "requirement": "Preserve Guarded Freedom and canonical runtime/performance/security boundaries while improving visual discoverability.",
         "evidence": {
           "implementation": [
-            "GUARD-KNOWLEDGE-PREFLIGHT",
-            "GUARD-PLAN-BEFORE-CODE"
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK",
             "GUARD-PRODUCTION-BUILD",
             "GUARD-RELEASE-RISK"
           ]
@@ -532,36 +505,15 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-08A",
-            "statement": "No main merge, golden update or gate weakening occurs as a side effect of this implementation.",
+            "statement": "No arbitrary HTML/JS widget marketplace, gate weakening, golden update or main merge occurs.",
             "evidence": [
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK"
             ]
           }
         ]
-      },
-      {
-        "id": "REQ-09",
-        "requirement": "Keep Operational Intelligence self-tests task-agnostic so proportional high/medium/critical active plans can replace one another without false global test failures.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-INCREMENTAL-REPLAY"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-09A",
-            "statement": "The regression suite must not hard-code the previous active task's risk tier or Completion Contract requirement count.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
       }
     ]
   },
-  "notes": "PO-approved Visual First authority is fixed for this slice. Implement by evolving the current canonical Visual Builder v3 and introducing shared VX Core/profile seams; do not rewrite or fork the editor. The large visual Section/Preset library framework may be made Core-ready now, but broad preset population remains aligned with the accepted template-portfolio sequencing. No main merge and no golden update. First execution exposed and now explicitly scopes a prerequisite SWAT/Operational-Intelligence test-coupling defect: the regression test must validate the current profile generically instead of pinning the preceding critical plan. Actual-diff reconciliation after the first implementation commit expanded the active known-failure envelope from 42 to the full 49 applicable failures for the same four impacted subsystems; the plan now acknowledges that exact machine-derived scope and digest. Completion evidence wiring was corrected after execution exposed a cross-workflow provenance mismatch: Template Factory remains mandatory independent proof, while the read-only CI Truth Gate consumes only same-run exact-head CI guard evidence. No PO requirement or runtime acceptance criterion was reduced."
+  "notes": "PO authorized continued VX Builder development while full desktop audit is deferred until the user has desktop hardware again. This slice addresses the visibly primitive Library/element-add experience without treating mobile as full authoring authority. No main merge and no golden update."
 }
