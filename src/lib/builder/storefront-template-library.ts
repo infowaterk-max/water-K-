@@ -1,4 +1,4 @@
-import {STOREFRONT_TEMPLATE_CATALOG,getStorefrontTemplatePackage,type StorefrontTemplateCatalogEntry} from '@/lib/builder/storefront-template-catalog';
+import {STOREFRONT_SYSTEM_TEMPLATE_CATALOG,STOREFRONT_TEMPLATE_CATALOG,getStorefrontTemplatePackage,type StorefrontTemplateCatalogEntry} from '@/lib/builder/storefront-template-catalog';
 
 export type StorefrontTemplateProComparison={
   status:'available';
@@ -22,10 +22,11 @@ type MerchandisingProfile={description:string;audience:string};
 type ProProfile={summary:string;highlights:readonly string[];optionalAddOns?:readonly string[]};
 
 const CATEGORY_LABELS:Record<string,string>={
-  beauty:'Szépség & Wellness',fashion:'Divat',food:'Élelmiszer & Gasztro',gaming:'Gaming',home:'Lakberendezés',industrial:'Ipari & B2B',jewelry:'Órák & Ékszerek',outdoor:'Outdoor & Utazás',pet:'Kisállat',sport:'Sport',tech:'Technológia',
+  system:'Rendszer / Üres alap',beauty:'Szépség & Wellness',fashion:'Divat',food:'Élelmiszer & Gasztro',gaming:'Gaming',home:'Lakberendezés',industrial:'Ipari & B2B',jewelry:'Órák & Ékszerek',outdoor:'Outdoor & Utazás',pet:'Kisállat',sport:'Sport',tech:'Technológia',
 };
 
 const CATEGORY_PROFILES:Record<string,MerchandisingProfile>={
+  system:{description:'Semleges, teljesen szerkeszthető rendszer-sablon azoknak, akik a kész vizuális dizájn helyett saját kompozíciót szeretnének építeni.',audience:'egyedi arculatot nulláról építő webshopoknak és ügynökségi munkához'},
   beauty:{description:'Tartalomvezérelt szépség- és wellness webshop, vizuális rutinokkal és erős termékfelfedezéssel.',audience:'kozmetikai, skincare, beauty és wellness márkáknak'},
   fashion:{description:'Editorial és kollekció-központú divatwebshop, erős kampány- és lookbook hangsúllyal.',audience:'divat-, streetwear-, cipő- és lifestyle márkáknak'},
   food:{description:'Termék- és történetközpontú gasztro webshop, ajándékozási és inspirációs tartalmakhoz is.',audience:'delikát, specialty food, italmentes gasztro és ajándék márkáknak'},
@@ -40,6 +41,7 @@ const CATEGORY_PROFILES:Record<string,MerchandisingProfile>={
 };
 
 const PRO_PROFILES:Record<string,ProProfile>={
+  system:{summary:'A Blank Studio Alap és Pro csomagban ugyanaz a semleges szerkesztési alap; Pro esetén több közös motor és capability válik elérhetővé.',highlights:['több capability és motor a közös Libraryból','haladó merchandising és automatizálás','Pro üzleti funkciók ugyanazon Blank Studio felépítésben']},
   beauty:{summary:'Ugyanez a sablon Pro csomagban több személyre szabást és automatizált merchandisingot tud használni.',highlights:['személyre szabott termék- és rutinajánlás','fejlettebb kampány- és upsell blokkok','CRM/automatizálás alapú utánkövetés']},
   fashion:{summary:'Ugyanez a sablon Pro csomagban look-alapú értékesítéssel és fejlettebb merchandisinggal bővíthető.',highlights:['Shop the Look / Complete the Look','személyre szabott ajánlók és cross-sell','fejlettebb promóciós és kollekciós merchandising']},
   food:{summary:'Ugyanez a sablon Pro csomagban inspirációból közvetlenebb vásárlási útvonalat és automatizálást használhat.',highlights:['receptből kosárba jellegű vásárlási flow','összeállítások, bundle és cross-sell','fejlettebb kampány- és automatizálási lehetőségek']},
@@ -54,6 +56,7 @@ const PRO_PROFILES:Record<string,ProProfile>={
 };
 
 const TEMPLATE_DESCRIPTIONS:Record<string,string>={
+  'system.blank-studio':'Szándékosan semleges, minimális vizuális kiindulópont teljes 14 oldalas webshop-alappal. A dizájnt a Builderben építed fel, a motorok pedig capabilityként illeszthetők be.',
   'beauty.beauty-lab':'Laborhangulatú, edukációs beauty storefront összetevő-, rutin- és termékfelfedezési blokkokkal.',
   'beauty.derma-studio':'Letisztult dermakozmetikai irány, concern → routine → active → product gondolkodással, diagnosztikai állítások nélkül.',
   'beauty.ritual-house':'Hangulat- és rituáléalapú wellness storefront illat-, format- és termékfelfedezéshez, egészségügyi állítások nélkül.',
@@ -80,16 +83,22 @@ const TEMPLATE_DESCRIPTIONS:Record<string,string>={
   'tech.tech-deck':'Modern, általános technológiai storefront erős termék-, kategória- és specifikációs prezentációval.',
 };
 
+const TEMPLATE_HIGHLIGHTS:Record<string,readonly string[]>={
+  'system.blank-studio':['Header + egy semleges kezdőszekció + footer','Teljes 14 oldalas működő webshop-alap','Motorok és capabilityk a közös Builder Libraryból','Nincs automatikus demótermék vagy kategória-DNA'],
+};
+
 const humanize=(value:string)=>value.split('.').at(-1)?.split('-').map(part=>part.charAt(0).toUpperCase()+part.slice(1)).join(' ')??value;
 const strings=(value:unknown)=>Array.isArray(value)?value.filter((item):item is string=>typeof item==='string'&&item.trim().length>0):[];
 
 export function listStorefrontTemplateLibraryEntries():readonly StorefrontTemplateLibraryEntry[]{
-  return STOREFRONT_TEMPLATE_CATALOG.map(entry=>{
+  const catalog=[...STOREFRONT_SYSTEM_TEMPLATE_CATALOG,...STOREFRONT_TEMPLATE_CATALOG];
+  return catalog.map(entry=>{
     const template=getStorefrontTemplatePackage(entry.templateKey,entry.templateVersion);
     const home=template?.pages.find(page=>page.pageType==='home')??template?.pages[0];
     const category=entry.category.toLowerCase();
     const categoryProfile=CATEGORY_PROFILES[category]??{description:'Szerkeszthető, reszponzív Shoperation storefront sablon.',audience:'általános webshopoknak'};
     const pro=PRO_PROFILES[category]??{summary:'Ugyanez a sablon Pro csomagban a közös motor fejlettebb üzleti képességeit is használhatja.',highlights:['fejlettebb merchandising','személyre szabás és automatizálás','Pro csomaghoz kötött üzleti képességek']};
+    const explicitHighlights=TEMPLATE_HIGHLIGHTS[entry.templateKey]??[];
     const metadataHighlights=strings(home?.metadata?.sectionOrder).slice(0,4);
     const fallbackHighlights=(home?.sections??[]).slice(0,4).map(section=>humanize(section.componentKey));
     return Object.freeze({
@@ -98,7 +107,7 @@ export function listStorefrontTemplateLibraryEntries():readonly StorefrontTempla
       categoryLabel:CATEGORY_LABELS[category]??humanize(category),
       description:TEMPLATE_DESCRIPTIONS[entry.templateKey]??categoryProfile.description,
       audience:categoryProfile.audience,
-      highlights:Object.freeze(metadataHighlights.length?metadataHighlights:fallbackHighlights),
+      highlights:Object.freeze(explicitHighlights.length?explicitHighlights:metadataHighlights.length?metadataHighlights:fallbackHighlights),
       previewPageKey:home?.pageKey??null,
       demoProductCount:(template?.demoFixtures??[]).filter(item=>item.entityType==='product'&&item.payload.installAsDemoProduct===true).length,
       proComparison:Object.freeze({status:'available' as const,summary:pro.summary,highlights:Object.freeze([...pro.highlights]),optionalAddOns:Object.freeze([...(pro.optionalAddOns??[])])}),
