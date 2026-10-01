@@ -1,23 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-VX-BUILDER-LIBRARY-2",
-  "task": "Upgrade the approved VX Builder Core with a curated visual Library 2.0 for sections, elements and page templates: lightweight semantic thumbnails, search/category filtering, contextual insertion and larger bounded previews, while preserving canonical preset/page-template/runtime authorities, product-profile capability filtering and Guarded Freedom.",
+  "task": "Complete PR #562 as one release unit: preserve the approved shared VX Builder Core foundation and add curated VX Library 2.0 for sections, elements and page templates with lightweight semantic previews, search/category filtering, contextual insertion and bounded larger previews, while preserving canonical runtime, preset, page-template and publication authorities.",
   "status": "ready-for-implementation",
   "guardDigest": "79f20cf3",
-  "changeBaseSha": "8b5923cf8c6680829d4b8c29485e36ef94cf37ac",
+  "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
   "plannedFilePatterns": [
-    "quality/development/active-plan.json",
     "docs/architecture/VX_BUILDER_CORE.md",
-    "src/lib/builder/vx-builder-library.ts",
+    "quality/development/active-plan.json",
+    "src/components/admin/storefront-page-templates-panel.tsx",
+    "src/components/admin/storefront-preset-library-panel.tsx",
+    "src/components/admin/storefront-visual-builder-v3.module.css",
+    "src/components/admin/storefront-visual-builder-v3.tsx",
     "src/components/admin/vx-builder-library-preview.tsx",
     "src/components/admin/vx-builder-library.module.css",
-    "src/components/admin/storefront-preset-library-panel.tsx",
-    "src/components/admin/storefront-page-templates-panel.tsx",
-    "src/components/admin/storefront-visual-builder-v3.tsx",
-    "src/components/admin/storefront-visual-builder-v3.module.css",
-    "tests/vx-builder-library.test.ts",
+    "src/lib/builder/vx-builder-core.ts",
+    "src/lib/builder/vx-builder-library.ts",
+    "tests/shoperation-operational-intelligence.test.ts",
     "tests/storefront-preset-library.test.ts",
-    "tests/visual-builder-production-completion.test.ts"
+    "tests/visual-builder-production-completion.test.ts",
+    "tests/vx-builder-core.test.ts",
+    "tests/vx-builder-library.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -27,11 +30,13 @@
   ],
   "expectedDomains": [
     "DOMAIN-ADMIN",
-    "DOMAIN-BUILDER"
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "admin-operations",
-    "builder-template-system"
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -526,5 +531,5 @@
       }
     ]
   },
-  "notes": "PO authorized continued VX Builder development while full desktop audit is deferred until the user has desktop hardware again. This slice addresses the visibly primitive Library/element-add experience without treating mobile as full authoring authority. No main merge and no golden update. Plan Before Code planned-projection currently resolves only existing admin-surface files; new Builder/Core files do not exist yet and therefore are not projected into Atlas authority scope. The pre-code expectation is intentionally DOMAIN-ADMIN/admin-operations and will be reconciled immediately after the first implementation commit when the actual diff contains the new Core files. Actual implementation diff now contains the new Core/Library files, so Atlas scope has expanded to the intended DOMAIN-ADMIN / DOMAIN-BUILDER / DOMAIN-STOREFRONT and matching admin-operations / builder-template-system / shared-storefront authorities. The plan is reconciled to actual implementation scope before verification. Element-card visual upgrade also requires the existing v3 CSS module; it is now explicitly part of the planned Library 2.0 surface. Actual-diff Atlas confirms Library 2.0 changes admin/builder authoring surfaces only; shared-storefront remains an impacted dependency/verification surface but is not an edited authority domain. Expected domain/authority scope is corrected to DOMAIN-ADMIN + DOMAIN-BUILDER and admin-operations + builder-template-system. Reference Sync closure: the genuine page-template data-marker dependency was restored to v1 compatibility. The remaining 53 review-only hits all originate from a generic JSX closing fragment and have zero stale machine consumers; they are explicitly acknowledged through the canonical DEV-REVIEW-REFERENCE-SYNC review exception rather than by unrelated edits."
+  "notes": "PO authorized continued VX Builder development while full desktop audit is deferred until the user has desktop hardware again. This slice addresses the visibly primitive Library/element-add experience without treating mobile as full authoring authority. No main merge and no golden update. Plan Before Code planned-projection currently resolves only existing admin-surface files; new Builder/Core files do not exist yet and therefore are not projected into Atlas authority scope. The pre-code expectation is intentionally DOMAIN-ADMIN/admin-operations and will be reconciled immediately after the first implementation commit when the actual diff contains the new Core files. Actual implementation diff now contains the new Core/Library files, so Atlas scope has expanded to the intended DOMAIN-ADMIN / DOMAIN-BUILDER / DOMAIN-STOREFRONT and matching admin-operations / builder-template-system / shared-storefront authorities. The plan is reconciled to actual implementation scope before verification. Element-card visual upgrade also requires the existing v3 CSS module; it is now explicitly part of the planned Library 2.0 surface. Actual-diff Atlas confirms Library 2.0 changes admin/builder authoring surfaces only; shared-storefront remains an impacted dependency/verification surface but is not an edited authority domain. Expected domain/authority scope is corrected to DOMAIN-ADMIN + DOMAIN-BUILDER and admin-operations + builder-template-system. Reference Sync closure: the genuine page-template data-marker dependency was restored to v1 compatibility. The remaining 53 review-only hits all originate from a generic JSX closing fragment and have zero stale machine consumers; they are explicitly acknowledged through the canonical DEV-REVIEW-REFERENCE-SYNC review exception rather than by unrelated edits. Release-unit reconciliation: because VX Library 2.0 is intentionally layered on the still-unmerged VX Builder Core foundation in the same PR, release risk compares the complete #562 diff to main. The development/change-impact base is therefore aligned to main and the plan envelope explicitly includes all 15 PR files. This prevents slice-local Atlas evidence from disagreeing with release-level evidence without weakening either gate."
 }
