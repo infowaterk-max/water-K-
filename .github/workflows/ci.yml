@@ -255,8 +255,21 @@ jobs:
             {"GUARD-KNOWLEDGE-PREFLIGHT":"${{ steps.knowledge.outcome }}","GUARD-PLAN-BEFORE-CODE":"${{ steps.development-plan.outcome }}","GUARD-EDIT-TIME":"${{ steps.edit-time-guard.outcome }}","GUARD-INCREMENTAL-REPLAY":"${{ steps.incremental-replay.outcome }}","GUARD-RELEASE-RISK":"${{ steps.release-risk.outcome }}","GUARD-CUSTOMER-BASELINE":"${{ steps.customer-baseline-guard.outcome }}","GUARD-MARKET-READY":"${{ steps.market-ready.outcome }}","GUARD-QUALITY-TESTS":"${{ steps.quality-tests.outcome }}","GUARD-TYPECHECK":"${{ steps.typecheck.outcome }}","GUARD-PRODUCTION-BUILD":"${{ steps.production-build.outcome }}"}
         run: node scripts/shoperation-verification-checkpoint.mjs --check
 
+      - name: Completion Truth Gate
+        if: always() && github.event_name == 'pull_request'
+        id: completion-truth
+        env:
+          SHOPERATION_TRUTH_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHOPERATION_TRUTH_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          SHOPERATION_TRUTH_STATE_VERSION: shoporation-ci.v1
+          SHOPERATION_TRUTH_EVIDENCE_MANIFEST: artifacts/shoperation-development-guard/final-evidence-manifest.json
+          SHOPERATION_TRUTH_CHECKPOINT: artifacts/shoperation-verification-cache/checkpoint.json
+          SHOPERATION_TRUTH_EVIDENCE_JSON: >-
+            [{"id":"GUARD-KNOWLEDGE-PREFLIGHT","status":"${{ steps.knowledge.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-PLAN-BEFORE-CODE","status":"${{ steps.development-plan.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-EDIT-TIME","status":"${{ steps.edit-time-guard.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-INCREMENTAL-REPLAY","status":"${{ steps.incremental-replay.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-RELEASE-RISK","status":"${{ steps.release-risk.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-QUALITY-TESTS","status":"${{ steps.quality-tests.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-TYPECHECK","status":"${{ steps.typecheck.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-PRODUCTION-BUILD","status":"${{ steps.production-build.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"}]
+        run: node scripts/shoperation-truth-gate.mjs --check
+
       - name: Save Resumable Verification checkpoint
-        if: always() && github.event_name == 'pull_request' && steps.verification-finalize.outcome == 'success'
+        if: always() && github.event_name == 'pull_request' && steps.verification-finalize.outcome == 'success' && steps.completion-truth.outcome == 'success'
         uses: actions/cache/save@v4
         with:
           path: artifacts/shoperation-verification-cache/checkpoint.json
@@ -272,20 +285,10 @@ jobs:
             artifacts/shoperation-development-guard/final-evidence-manifest.json
             artifacts/shoperation-development-guard/resumable-verification-summary.md
             artifacts/shoperation-verification-cache/checkpoint.json
+            artifacts/shoperation-development-guard/truth-gate.json
+            artifacts/shoperation-development-guard/truth-gate.md
           if-no-files-found: warn
           retention-days: 30
-
-      - name: Completion Truth Gate
-        if: always() && github.event_name == 'pull_request'
-        id: completion-truth
-        env:
-          SHOPERATION_TRUTH_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
-          SHOPERATION_TRUTH_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
-          SHOPERATION_TRUTH_STATE_VERSION: shoporation-ci.v1
-          SHOPERATION_TRUTH_EVIDENCE_MANIFEST: artifacts/shoperation-development-guard/final-evidence-manifest.json
-          SHOPERATION_TRUTH_EVIDENCE_JSON: >-
-            [{"id":"GUARD-KNOWLEDGE-PREFLIGHT","status":"${{ steps.knowledge.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-PLAN-BEFORE-CODE","status":"${{ steps.development-plan.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-EDIT-TIME","status":"${{ steps.edit-time-guard.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-INCREMENTAL-REPLAY","status":"${{ steps.incremental-replay.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-RELEASE-RISK","status":"${{ steps.release-risk.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-QUALITY-TESTS","status":"${{ steps.quality-tests.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-TYPECHECK","status":"${{ steps.typecheck.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-PRODUCTION-BUILD","status":"${{ steps.production-build.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"}]
-        run: node scripts/shoperation-truth-gate.mjs --check
 
       - name: Generate release manifest
         id: release-manifest
