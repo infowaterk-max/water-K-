@@ -4,7 +4,7 @@ import {access,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
 import {chromium} from 'playwright';
-import {canonicalizeTemplateFactoryInfrastructureInput,deriveTemplateReplayDecision,reusableTemplateBrowserCase,templateBrowserCaseFingerprint,templateFactoryInfrastructureSemanticallyEquivalent} from './lib/shoperation-template-factory-resumable-verification.mjs';
+import {canonicalizeTemplateFactoryInfrastructureInput,deriveTemplateReplayDecision,evaluateGoldenMismatchHotspots,reusableTemplateBrowserCase,templateBrowserCaseFingerprint,templateFactoryInfrastructureSemanticallyEquivalent} from './lib/shoperation-template-factory-resumable-verification.mjs';
 
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
 const outputDir=process.env.TEMPLATE_QUALITY_OUTPUT_DIR??'artifacts/template-factory-quality';
@@ -412,8 +412,18 @@ async function compareGolden({actualPath,baselinePath,diffPath,threshold}){
   const diff=new PNG({width:actual.width,height:actual.height});
   const mismatched=pixelmatch(actual.data,baseline.data,diff.data,actual.width,actual.height,{threshold:.1,includeAA:false});
   const ratio=mismatched/(actual.width*actual.height);
+  const local=evaluateGoldenMismatchHotspots({diffData:diff.data,width:actual.width,height:actual.height});
   if(ratio>0)await writeFile(diffPath,PNG.sync.write(diff));
-  return{status:ratio<=threshold?'pass':'fail',mismatchRatio:ratio,mismatchedPixels:mismatched,totalPixels:actual.width*actual.height};
+  const globalExceeded=ratio>threshold;
+  return{
+    status:globalExceeded||local.exceeds?'fail':'pass',
+    mismatchRatio:ratio,
+    mismatchedPixels:mismatched,
+    totalPixels:actual.width*actual.height,
+    globalThreshold:threshold,
+    globalExceeded,
+    localHotspot:local,
+  };
 }
 
 await mkdir(outputDir,{recursive:true});
