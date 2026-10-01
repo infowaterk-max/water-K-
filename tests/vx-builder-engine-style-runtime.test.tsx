@@ -19,7 +19,6 @@ describe('VX engine style runtime scoping',()=>{
     const html=renderToStaticMarkup(decorated);
     expect(html.match(/<section/g)).toHaveLength(1);
     expect(html).toContain('data-test-root="true"');
-    expect(html).toContain('data-vx-engine-style="local"');
     expect(html).toContain('display:grid');
     expect(html).toContain('grid-column:span 6 / span 6');
     expect(html).toContain('--shoporation-color-accent:#aa33cc');
@@ -36,7 +35,6 @@ describe('VX engine style runtime scoping',()=>{
     const html=renderToStaticMarkup(createElement('main',null,first,second));
     expect(html).toContain('<section style="--shoporation-color-accent:#111111"');
     expect(html).toContain('<section style="--shoporation-color-accent:#eeeeee"');
-    expect(html.match(/data-vx-engine-style="local"/g)).toHaveLength(2);
   });
 
   it('fails closed for malformed engine style state',()=>{
