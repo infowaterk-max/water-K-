@@ -92,17 +92,19 @@
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-01-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
     "riskTier": "critical",
-    "problemStatement": "The Template Factory golden gate currently decides visual equality only from one full-page pixel mismatch ratio. A small rendered element can change materially, including a strong color mutation, while the page-wide ratio remains below 0.005 and the gate incorrectly stays green.",
+    "problemStatement": "The Template Factory golden gate currently decides visual equality only from one full-page pixel mismatch ratio. A small rendered element can change materially, including a strong color mutation, while the page-wide ratio remains below 0.005 and the gate incorrectly stays green. Exact-head 14x3 browser proof then showed the first policy false positive: 12 Playroom desktop pages carried the identical shared-header text-rendering delta (5658 global pixels, 335 pixels in the peak 48x48 window at x=408,y=72, 14.54% local ratio). The local ratio alone therefore over-classifies concentrated typography/anti-aliasing noise as a severe localized region.",
     "observableOutcomes": [
       "The existing full-page maxPixelMismatchRatio remains enforced unchanged.",
       "A second local-severity proof detects concentrated mismatch regions using the same pixel diff evidence.",
       "The canonical stress mutation #35e9ff to #ff0000 over a small rendered region fails locally while remaining below the global 0.005 ratio.",
-      "Browser-case evidence records global and local mismatch measurements so a failure is diagnosable rather than threshold-opaque."
+      "Browser-case evidence records global and local mismatch measurements so a failure is diagnosable rather than threshold-opaque.",
+      "The local golden detector requires both a severe local ratio and an absolute 400-pixel mismatch floor (20x20-equivalent area), so the proven 335-pixel shared-header rendering strip does not block while the 24x24 / 576-pixel adversarial color mutation still blocks."
     ],
     "unresolvedRisks": [
       "A local detector can become oversensitive to anti-aliasing or scattered font-render differences if it ignores pixelmatch filtering.",
       "A fixed grid can split a regression across tile boundaries and create another false negative.",
-      "Changing the golden algorithm must invalidate reusable browser evidence through the existing Factory engine fingerprint."
+      "Changing the golden algorithm must invalidate reusable browser evidence through the existing Factory engine fingerprint.",
+      "Raising the absolute local floor too far could miss genuinely severe tiny defects; regression must pin the required 24x24 mutation as blocked."
     ],
     "scope": {
       "in": [
@@ -140,19 +142,26 @@
         "Local windows are evaluated at multiple offsets so a concentrated regression cannot evade detection by crossing a fixed grid boundary.",
         "The synthetic #35e9ff to #ff0000 mutation proves globalPassed=true, localPassed=false and final status=fail.",
         "The local severity algorithm is a dependency-free shared Factory proof helper, while browser/image dependencies remain confined to the browser quality workflow.",
-        "The dependency-free golden semantics helper has an explicit typed ESM declaration contract; TypeScript does not rely on implicit any or suppression."
+        "The dependency-free golden semantics helper has an explicit typed ESM declaration contract; TypeScript does not rely on implicit any or suppression.",
+        "A 48x48 local window with >12% mismatch but only 335 mismatched pixels is not sufficient by itself to fail the local severity gate.",
+        "The canonical adversarial 24x24 #35e9ff -> #ff0000 mutation still fails locally with 576 mismatched pixels and global mismatch below 0.5%.",
+        "The full 14x3 Template Factory browser proof passes on the unchanged accepted Playroom baselines without baseline promotion."
       ],
       "invariants": [
         "maxPixelMismatchRatio remains 0.005 for existing manifests.",
         "Anti-aliasing exclusion and pixelmatch perceptual threshold remain unchanged.",
         "Missing baselines and dimension mismatches retain their current fail-closed behavior.",
-        "No golden baseline files are updated by this transaction."
+        "No golden baseline files are updated by this transaction.",
+        "The global maxPixelMismatchRatio remains exactly 0.005.",
+        "Local severity is conjunctive: ratio threshold and absolute mismatch floor must both be exceeded."
       ],
       "forbiddenStates": [
         "local-severe-regression-passes-under-global-threshold",
         "global-threshold-lowered-to-mask-local-detector-design",
         "raw-rgb-diff-bypasses-pixelmatch-semantics",
-        "golden-baseline-updated-to-make-stress-pass"
+        "golden-baseline-updated-to-make-stress-pass",
+        "typography-antialias-strip-335px-causes-local-golden-block",
+        "24x24-solid-local-mutation-passes"
       ]
     },
     "model": {
@@ -187,13 +196,16 @@
         "A small colored component changes completely but global mismatch stays below 0.005.",
         "A regression straddles a local grid boundary and each fixed tile appears below threshold.",
         "Scattered anti-aliased text pixels create a false local severe region.",
-        "Browser evidence reuse ignores a changed golden algorithm."
+        "Browser evidence reuse ignores a changed golden algorithm.",
+        "A high local ratio caused by a narrow text-rendering strip crosses 12% even though its absolute changed area is materially smaller than the target localized mutation."
       ],
       "edgeCases": [
         "Mismatch region touches screenshot edge.",
         "Image dimensions are smaller than the configured local window.",
         "Mismatch pixel count is below the local minimum evidence floor.",
-        "Regression is globally large and should fail regardless of local score."
+        "Regression is globally large and should fail regardless of local score.",
+        "335 mismatched pixels concentrated in a 48x48 window with ratio above 12%.",
+        "576 mismatched pixels from a 24x24 solid color mutation with global ratio below 0.5%."
       ]
     },
     "alternatives": [
@@ -318,6 +330,13 @@
         "finding": "The original semantic defect would remain and the test would encode tuning rather than local significance.",
         "resolution": "The stress asserts globalPassed=true and localPassed=false simultaneously.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-LOCAL-FLOOR",
+        "scenario": "Accepted Playroom desktop baselines produce the identical 335-pixel local header text-rendering delta on 12 pages and are blocked by ratio-only local severity.",
+        "finding": "The 12% ratio criterion is necessary but not sufficient; typography edge noise can be locally dense while remaining below the intended severe-region area.",
+        "resolution": "Raise minMismatchPixels from 72 to 400 (20x20-equivalent) while retaining 48px windows, 24px stride and 12% local ratio. Prove the 335-pixel false positive passes and the 576-pixel 24x24 mutation still blocks.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -325,7 +344,9 @@
       "Add a deterministic CLI/self-test that constructs same-size PNGs with a small #35e9ff to #ff0000 region and proves globalPassed=true/localPassed=false/final fail.",
       "Regression-test that maxPixelMismatchRatio remains .005 in accepted/candidate manifests.",
       "Run exact-head Quality Tests, TypeScript, Production Build and Template Factory Quality Gate v2.",
-      "Require Completion Truth and the standard two-phase CLOSE→LEARN lifecycle."
+      "Require Completion Truth and the standard two-phase CLOSE→LEARN lifecycle.",
+      "Add a regression mask with 335 pixels inside one 48x48 window and assert localGoldenMismatch passes despite local ratio >12%.",
+      "Re-run the unchanged 14x3 browser matrix; no golden baseline update is permitted."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
@@ -457,5 +478,5 @@
       }
     ]
   },
-  "notes": "Targeted golden false-negative repair only. Handoff evidence flow and shipping/payment are separate transactions. No golden baseline update, no threshold lowering, no parallel visual gate. Plan projection reconciled to Builder/Storefront golden authority: full Known Failure replay, canonical 10-item negative knowledge set, no storefront-ui/quality-knowledge subsystem claim. Local golden semantics were extracted into the existing scripts/lib Shoperation quality-infrastructure namespace so full-repository Quality tests do not require Playwright/pngjs; the real browser comparator consumes the same helper."
+  "notes": "Targeted golden false-negative repair only. Handoff evidence flow and shipping/payment are separate transactions. No golden baseline update, no threshold lowering, no parallel visual gate. Plan projection reconciled to Builder/Storefront golden authority: full Known Failure replay, canonical 10-item negative knowledge set, no storefront-ui/quality-knowledge subsystem claim. Local golden semantics were extracted into the existing scripts/lib Shoperation quality-infrastructure namespace so full-repository Quality tests do not require Playwright/pngjs; the real browser comparator consumes the same helper. Browser-proof calibration: the first real full-matrix run exposed a repeated 335px/14px-high Playroom header text-rendering false positive. Local policy will use a 400px absolute floor plus the existing 12% ratio; global 0.005 and baselines remain unchanged."
 }
