@@ -1,7 +1,7 @@
 name: Template Factory Quality Gate v2
 # Quality Gate v2 authority: exact-head proof required.
 # Generic roadmap/knowledge-only changes remain under normal CI/Architecture Health.
-# Template acceptance is always the complete canonical 14 pages x 3 viewports matrix; canary runs are regression signals only.
+# Template acceptance always requires a complete valid canonical 14 pages x 3 viewports evidence matrix; reconciled fingerprint-equivalent cases may be reused while canary runs remain regression signals only.
 
 on:
   push:
@@ -65,6 +65,12 @@ on:
       - 'supabase/customer-baseline/migrations/0042_customer_account_browser_grants.sql'
       - 'docs/support/STOREFRONT_SOCIAL_LINKS_TENANT_AUTHORITY_2026-09-21.md'
       - 'scripts/template-factory-quality-gate.mjs'
+      - 'scripts/lib/template-factory-resumable-verification.mjs'
+      - 'quality/knowledge/guard-registry.v1.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'public/**'
+      - 'src/app/globals.css'
       - 'scripts/promote-template-golden-baseline.mjs'
       - '.github/workflows/template-golden-baseline-promotion.yml'
       - 'tests/**storefront**'
@@ -132,6 +138,12 @@ on:
       - 'supabase/customer-baseline/migrations/0042_customer_account_browser_grants.sql'
       - 'docs/support/STOREFRONT_SOCIAL_LINKS_TENANT_AUTHORITY_2026-09-21.md'
       - 'scripts/template-factory-quality-gate.mjs'
+      - 'scripts/lib/template-factory-resumable-verification.mjs'
+      - 'quality/knowledge/guard-registry.v1.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'public/**'
+      - 'src/app/globals.css'
       - 'scripts/promote-template-golden-baseline.mjs'
       - '.github/workflows/template-golden-baseline-promotion.yml'
       - 'tests/**storefront**'
@@ -181,9 +193,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: artifacts/template-factory-checkpoint/manifest.json
-          key: template-factory-browser-v1-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+          key: template-factory-browser-v2-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
           restore-keys: |
-            template-factory-browser-v1-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-
+            template-factory-browser-v2-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-
 
       - name: Knowledge Before Build preflight
         id: knowledge
@@ -240,6 +252,7 @@ jobs:
           npx vitest run
           tests/storefront-template-quality-gate-v2.test.ts
           tests/template-factory-scaffold-v1.test.ts
+          tests/template-factory-resumable-verification.test.ts
           tests/template-factory-loot-vault-v2.test.ts
           tests/storefront-template-factory-workflow-coverage.test.ts
           tests/storefront-responsive-isolation.test.ts
@@ -417,7 +430,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: artifacts/template-factory-checkpoint/manifest.json
-          key: template-factory-browser-v1-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+          key: template-factory-browser-v2-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
 
       - name: Resolve Product Owner candidate target
         id: product-owner-target
