@@ -26,6 +26,25 @@ describe('Template Factory local golden regression semantics',()=>{
     }
   });
 
+  it('does not block a measured typography-like local strip that exceeds the ratio threshold but stays below the material-area floor',()=>{
+    const mask=new Uint8Array(WIDTH*HEIGHT*4);
+    let remaining=335;
+    for(let y=72;y<86&&remaining>0;y+=1){
+      for(let x=408;x<456&&remaining>0;x+=1){
+        if((x-408)%2===0||y%3===0){
+          mask[(y*WIDTH+x)*4+3]=255;
+          remaining-=1;
+        }
+      }
+    }
+    expect(remaining).toBe(0);
+    const local=localGoldenMismatch(mask,WIDTH,HEIGHT);
+    expect(local.peakMismatchRatio).toBeGreaterThan(DEFAULT_LOCAL_GOLDEN_POLICY.maxMismatchRatio);
+    expect(local.peakMismatchPixels).toBe(335);
+    expect(local.peakMismatchPixels).toBeLessThan(DEFAULT_LOCAL_GOLDEN_POLICY.minMismatchPixels);
+    expect(local.passed).toBe(true);
+  });
+
   it('wires perceptual pixelmatch evidence into the local detector instead of raw RGB comparison',()=>{
     const gate=readFileSync('scripts/template-factory-quality-gate.mjs','utf8');
     expect(gate).toContain("diffMask:true");
