@@ -36,6 +36,9 @@ describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
     expect(policy.maxPoints).toBe(5);
     expect(policy.maxSubsystems).toBe(3);
     expect(policy.riskWeights.high).toBe(5);
+    const qualityInfrastructure=(policy as any).subsystems.find((item:any)=>item.name==='quality-infrastructure');
+    expect(qualityInfrastructure.patterns).toContain('scripts/shoperation-*.d.mts');
+    expect(qualityInfrastructure.patterns).toContain('scripts/lib/shoperation-*.d.mts');
     expect(risk).toContain('Atlas change-impact evidence unavailable');
     expect(risk).toContain('Atlas change-impact file set does not match the release diff');
     expect(risk).toContain('Atlas change-impact source SHA');
