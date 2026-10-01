@@ -170,7 +170,7 @@ jobs:
           retention-days: 30
 
       - name: Customer database baseline guard
-        if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.reuse_customer_baseline != 'true'
+        if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.execution_mode != 'ACTIVE' || steps.incremental-replay.outputs.reuse_customer_baseline != 'true'
         id: customer-baseline-guard
         env:
           SHOPERATION_DIAGNOSTIC_CODE: CUSTOMER_BASELINE_GUARD_FAILED
@@ -182,7 +182,7 @@ jobs:
         run: node scripts/shoperation-command-diagnostic.mjs -- npm run db:customer:guard
 
       - name: Block 24 market-ready contract
-        if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.reuse_market_ready != 'true'
+        if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.execution_mode != 'ACTIVE' || steps.incremental-replay.outputs.reuse_market_ready != 'true'
         id: market-ready
         env:
           SHOPERATION_DIAGNOSTIC_CODE: MARKET_READY_GATE_FAILED
@@ -194,7 +194,7 @@ jobs:
         run: node scripts/shoperation-command-diagnostic.mjs -- npm run market-ready:gate
 
       - name: Upload Block 24 market-ready contract
-        if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.reuse_market_ready != 'true'
+        if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.execution_mode != 'ACTIVE' || steps.incremental-replay.outputs.reuse_market_ready != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: block24-market-ready-contract
@@ -206,7 +206,7 @@ jobs:
         run: mkdir -p artifacts
 
       - name: Quality tests
-        if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.reuse_quality_tests != 'true'
+        if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.execution_mode != 'ACTIVE' || steps.incremental-replay.outputs.reuse_quality_tests != 'true'
         id: quality-tests
         run: npm test
 
@@ -220,7 +220,7 @@ jobs:
           retention-days: 14
 
       - name: TypeScript check
-        if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.reuse_typecheck != 'true'
+        if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.execution_mode != 'ACTIVE' || steps.incremental-replay.outputs.reuse_typecheck != 'true'
         id: typecheck
         env:
           SHOPERATION_DIAGNOSTIC_CODE: TYPECHECK_FAILED
@@ -232,7 +232,7 @@ jobs:
         run: node scripts/shoperation-command-diagnostic.mjs -- npm run typecheck
 
       - name: Production build
-        if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.reuse_production_build != 'true'
+        if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.execution_mode != 'ACTIVE' || steps.incremental-replay.outputs.reuse_production_build != 'true'
         id: production-build
         env:
           SHOPERATION_DIAGNOSTIC_CODE: BUILD_FAILED
