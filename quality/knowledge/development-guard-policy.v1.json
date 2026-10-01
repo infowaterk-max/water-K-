@@ -11,7 +11,13 @@
     "Execution is a privilege: medium, high and critical work may not enter implementation until its assurance ceiling, alternatives, challenge, specialist review and Completion Contract are machine-valid.",
     "Completion claims are independent from implementation plans: the Completion Contract must remain traceable to the original Product Owner request.",
     "Claim without fresh exact-state evidence is NOT VERIFIED and may not be reported as DONE.",
-    "When a later defect was reasonably foreseeable, learning must strengthen an existing authority, invariant, Known Failure or regression path instead of creating a defect-local gate."
+    "When a later defect was reasonably foreseeable, learning must strengthen an existing authority, invariant, Known Failure or regression path instead of creating a defect-local gate.",
+    "Previous PASS status is never sufficient for evidence reuse; reuse requires deterministic semantic fingerprint equivalence.",
+    "Resumable verification classifies prior evidence as REUSABLE, INVALIDATED or UNKNOWN; UNKNOWN always reruns and may force FULL verification.",
+    "Verification checkpoints are branch-scoped reconciliation inputs, never resume authorities; incomplete, corrupt, non-ancestor or cross-branch checkpoints fail closed.",
+    "Known Failure regression scope may widen but never narrow the replay scope computed from dependencies and semantic inputs.",
+    "Gate implementation, authority, schema, runtime, configuration, environment or toolchain changes invalidate dependent evidence.",
+    "Shadow mode keeps full verification authoritative until false-reuse count is zero across the configured promotion proof."
   ],
   "intentMatchers": [
     {
@@ -856,5 +862,33 @@
         "GUARD-COMPLETION-TRUTH"
       ]
     }
+  },
+  "resumableVerification": {
+    "contract": "shoporation.resumable-verification-policy.v1",
+    "authority": "quality-knowledge-system",
+    "plannerOwner": "GUARD-INCREMENTAL-REPLAY",
+    "completionOwner": "GUARD-COMPLETION-TRUTH",
+    "releaseAuthority": "GUARD-RELEASE-RISK",
+    "states": [
+      "REUSABLE",
+      "INVALIDATED",
+      "UNKNOWN"
+    ],
+    "unknownPolicy": "RERUN_FAIL_CLOSED",
+    "checkpointPolicy": "BRANCH_SCOPED_ANCESTOR_ONLY",
+    "crossBranchReuse": false,
+    "forceFullReasons": [
+      "dirty-workspace",
+      "verification-graph-invalid",
+      "checkpoint-invalid",
+      "unknown-dependency",
+      "explicit-force-full"
+    ],
+    "shadowMode": {
+      "fullVerificationAuthoritative": true,
+      "physicalSkippingEnabled": false,
+      "falseReuseTolerance": 0
+    },
+    "principle": "SPEED_BY_PROOF_NOT_BY_SKIPPING"
   }
 }
