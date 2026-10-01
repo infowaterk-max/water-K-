@@ -107,6 +107,7 @@ describe('Visual Builder v3 product completion',()=>{
     expect(css).not.toContain('#edf6f3');
     expect(css).not.toContain('#3e7368');
     expect(css).toContain('.node[data-hovered="true"]>.insertHandle');
+    expect(css).not.toContain('scale(.88)');
     expect(css).toContain('.primaryNav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))');
     expect(css).toContain('.floatingTools{position:absolute;right:8px;top:8px');
     expect(source).not.toContain('<span className={v3.brandMark}>S</span>');
