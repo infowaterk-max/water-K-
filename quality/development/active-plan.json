@@ -261,35 +261,57 @@
         "mode": "review",
         "verdict": "pass",
         "finding": "Semantic understanding must extend Atlas and Authority Graph rather than create a second graph authority.",
-        "resolution": "Use a shared typed semantic graph emitted by the existing Atlas runtime and consumed by planning, Reference Sync and Implementation Sync."
+        "resolution": "Use a shared typed semantic graph emitted by the existing Atlas runtime and consumed by planning, Reference Sync and Implementation Sync.",
+        "evidence": [
+          "stress:#639 Atlas semantic consumer capability failure",
+          "quality/knowledge/domain-foundations.v1.json",
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
+        ]
       },
       {
         "role": "Release",
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "A single foundational diff could exceed the existing Release Risk Budget when mixed with Template Factory and storefront route changes.",
-        "resolution": "Keep foundational Control Plane, Template Factory and storefront route corrections as separate release transactions while preserving one program and shared adversarial suite."
+        "resolution": "Keep foundational Control Plane, Template Factory and storefront route corrections as separate release transactions while preserving one program and shared adversarial suite.",
+        "evidence": [
+          "deploy/release-risk-policy.json",
+          "verified stress baseline: stale exact-head and risk-budget blocking"
+        ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
         "finding": "Claim and evidence records require stable identity, exact-head freshness and explicit proof boundaries.",
-        "resolution": "Add structured evidence semantics and compare proven scope against claim scope; legacy evidence remains conservative rather than implicitly upgraded."
+        "resolution": "Add structured evidence semantics and compare proven scope against claim scope; legacy evidence remains conservative rather than implicitly upgraded.",
+        "evidence": [
+          "verified stress baseline: Truth overclaim false positive",
+          "verified stress baseline: free-form confidence evidence false positive",
+          "quality/knowledge/evidence-ledger.v1.json"
+        ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
         "finding": "Newly discovered semantic edges and missed failure classes must become durable prevention without auto-promoting uncertain failures.",
-        "resolution": "Persist missing-edge learning metadata and shorten reconciliation latency while retaining human-governed Known Failure promotion."
+        "resolution": "Persist missing-edge learning metadata and shorten reconciliation latency while retaining human-governed Known Failure promotion.",
+        "evidence": [
+          "quality/knowledge/shoperation-quality-knowledge.v1.json",
+          "verified stress baseline: Known Failure responsive-compensation generalization PASS"
+        ]
       },
       {
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
         "finding": "Lifecycle state must not strand a merged task as implementation-ready.",
-        "resolution": "Model TRUTH_GATE to CLOSE to LEARN explicitly and test idempotent closure against exact task/head identity."
+        "resolution": "Model TRUTH_GATE to CLOSE to LEARN explicitly and test idempotent closure against exact task/head identity.",
+        "evidence": [
+          "quality/development/active-plan.json",
+          "verified stress baseline: merged #585 stale active-plan lifecycle failure"
+        ]
       }
     ],
     "challenge": [
@@ -760,5 +782,5 @@
       }
     ]
   },
-  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair. Completion Truth evidence now uses only exact-head blocking producers actually emitted on every PR; scheduled observation signals remain regression-tested but are not misrepresented as per-PR proof."
+  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair. Completion Truth evidence now uses only exact-head blocking producers actually emitted on every PR; scheduled observation signals remain regression-tested but are not misrepresented as per-PR proof. Critical specialist reviews now carry explicit source/evidence references; verdict text alone is not accepted by PROVE_PLAN."
 }
