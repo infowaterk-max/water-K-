@@ -261,7 +261,7 @@ jobs:
         env:
           SHOPERATION_TRUTH_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_TRUTH_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
-          SHOPERATION_TRUTH_STATE_VERSION: shoporation-ci.v1
+          SHOPERATION_TRUTH_STATE_VERSION: shoporation-ci.STRESS_STALE
           SHOPERATION_TRUTH_EVIDENCE_MANIFEST: artifacts/shoperation-development-guard/final-evidence-manifest.json
           SHOPERATION_TRUTH_CHECKPOINT: artifacts/shoperation-verification-cache/checkpoint.json
           SHOPERATION_TRUTH_EVIDENCE_JSON: >-
