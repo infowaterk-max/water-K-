@@ -110,20 +110,20 @@ export function describeVxSectionPreset(preset:StorefrontBuilderSectionPreset):V
 
 export function describeVxPageTemplate(template:StorefrontBuilderPageTemplate):VxLibraryDescriptor{
   const pageType=template.pageType.toLowerCase();
-  const keys=[\`page.\${pageType}\`];
+  const keys=[`page.${pageType}`];
   let fallback:VxLibraryPreviewKind='generic';
   if(['home','not-found'].includes(pageType))fallback='hero';
   else if(['catalog','product','cart','checkout','search','account'].includes(pageType))fallback='commerce';
   else if(['contact'].includes(pageType))fallback='form';
   else if(['faq'].includes(pageType))fallback='faq';
   else if(['blog-index','blog-article','content','legal'].includes(pageType))fallback='text';
-  return descriptor(keys,\`\${template.label} \${template.pageType}\`,1,false,fallback);
+  return descriptor(keys,`${template.label} ${template.pageType}`,1,false,fallback);
 }
 
 export function vxLibraryMatchesSearch(descriptorValue:VxLibraryDescriptor,label:string,query:string){
   const normalized=normalize(query);
   if(!normalized)return true;
-  return \`\${normalize(label)} \${descriptorValue.searchText}\`.includes(normalized);
+  return `${normalize(label)} ${descriptorValue.searchText}`.includes(normalized);
 }
 
 export function vxLibraryCategories(descriptors:readonly VxLibraryDescriptor[]){
