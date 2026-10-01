@@ -41,6 +41,7 @@ const lines=[
   '- Dependency resolution: '+String(plan.metrics.dependencyResolutionMs??plan.plannerDurationMs??0)+' ms',
   '- Verification wall time (shadow control): '+String(final.manifest.metrics.verificationRuntimeMs??'n/a')+' ms',
   '- Physical runtime saved: '+String(final.manifest.metrics.physicalRuntimeSavingMs??0)+' ms',
+  '- Physically skipped gates: '+String(Object.values(final.manifest.gates??{}).filter(item=>item.execution==='REUSED').length),
   '',
   '## Replay reason',
   ...(plan.reasons.length?plan.reasons.map(reason=>'- '+reason):['- fingerprint/dependency reconciliation']),
