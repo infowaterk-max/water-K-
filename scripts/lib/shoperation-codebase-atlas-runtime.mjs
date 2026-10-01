@@ -207,6 +207,8 @@ function buildSemanticGraph({files,fileSet,fileNodes,literalIndex,exportIndex,re
   };
   for(const [file,sourceFile] of sourceByFile){
     const fileId=semanticId('file',file);
+    const moduleId=addNode({id:semanticId('module',file,'module'),kind:'module',file,name:file});
+    addEdge({from:fileId,to:moduleId,type:'implements',fromFile:file,toFile:file,label:'module'});
     const declarationStack=[];
     const stateBindings=new Map();
     const visit=node=>{
@@ -358,6 +360,29 @@ function buildSemanticGraph({files,fileSet,fileNodes,literalIndex,exportIndex,re
       const designId=addNode({id:`design-token:${token}`,kind:'design-token',file:null,name:token});
       addEdge({from:semanticId('file',file),to:designId,type:'overrides',fromFile:file,toFile:null,label:token});
     }
+    const targetTemplate=sourceText.match(/\btemplateKey\s*:\s*['"]([^'"]+)['"]/i)?.[1]??null;
+    const foundationTemplate=sourceText.match(/\bfoundationTemplateKey\s*:\s*['"]([^'"]+)['"]/i)?.[1]??null;
+    if(targetTemplate&&foundationTemplate&&targetTemplate!==foundationTemplate){
+      const targetId=addNode({id:`template-preset:shared:${targetTemplate}`,kind:'template-preset',file:null,name:targetTemplate});
+      const foundationId=addNode({id:`template-preset:shared:${foundationTemplate}`,kind:'template-preset',file:null,name:foundationTemplate});
+      addEdge({from:targetId,to:foundationId,type:'overrides',fromFile:file,toFile:null,label:'template-foundation'});
+    }
+  }
+  for(const file of files){
+    if(sourceByFile.has(file)||!isText(file)||!existsSync(file))continue;
+    const sourceText=readFileSync(file,'utf8');
+    for(const match of sourceText.matchAll(/(--[a-z0-9_-]{3,})/gi)){
+      const token=match[1];
+      const cssId=addNode({id:`css-variable:shared:${token}`,kind:'css-variable',file:null,name:token});
+      const designId=addNode({id:`design-token:${token}`,kind:'design-token',file:null,name:token});
+      addEdge({from:semanticId('file',file),to:cssId,type:'styles',fromFile:file,toFile:null,label:token});
+      addEdge({from:cssId,to:designId,type:'implements',fromFile:null,toFile:null,label:token});
+    }
+    for(const match of sourceText.matchAll(/var\(\s*(--[a-z0-9_-]{3,})/gi)){
+      const token=match[1];
+      const designId=addNode({id:`design-token:${token}`,kind:'design-token',file:null,name:token});
+      addEdge({from:semanticId('file',file),to:designId,type:'inherits-token',fromFile:file,toFile:null,label:token});
+    }
   }
   for(const [value,paths] of Object.entries(literalIndex)){
     if(paths.length<2)continue;
@@ -368,6 +393,18 @@ function buildSemanticGraph({files,fileSet,fileNodes,literalIndex,exportIndex,re
   for(const [symbol,providers] of Object.entries(exportIndex)){
     const consumers=referenceIndex[symbol]??[];
     for(const provider of providers)for(const consumer of consumers)if(provider!==consumer)addEdge({from:semanticId('file',consumer),to:semanticId('file',provider),type:'references',fromFile:consumer,toFile:provider,label:symbol});
+  }
+  const semanticContracts=new Map();
+  for(const node of nodeMap.values()){
+    if(!node.file||!['component-key','registry-key','config-key','display-text'].includes(node.kind))continue;
+    const key=`${node.kind}:${node.name}`;
+    const filesForKey=semanticContracts.get(key)??new Set();
+    filesForKey.add(node.file);semanticContracts.set(key,filesForKey);
+  }
+  for(const [key,fileGroup] of semanticContracts){
+    const contractFiles=[...fileGroup];
+    if(contractFiles.length<2||contractFiles.length>20)continue;
+    for(const from of contractFiles)for(const to of contractFiles)if(from!==to)addEdge({from:semanticId('file',from),to:semanticId('file',to),type:'shares-contract',fromFile:from,toFile:to,label:key});
   }
   for(const node of fileNodes)for(const unresolved of node.imports??[])void unresolved;
   const edges=[...edgeMap.values()].slice(0,policy.semanticGraph?.maxEdges??250000);
