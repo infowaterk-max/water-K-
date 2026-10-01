@@ -141,7 +141,7 @@ async function proveSharedE13FunctionalEngine(page){
     const entryResponse=await page.goto(new URL('/storefront-template-preview/engine-proof/checkout',origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
     if(!entryResponse)throw new Error('ENGINE_ACCEPTANCE_ENTRY_NO_RESPONSE');
     await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
-    const entrySelector='[data-engine-functional-proof="E13"]';
+    const entrySelector='[data-engine-functional-proof="E13-STRESS"]';
     const entryRoots=page.locator(entrySelector);
     const uniqueEntryRoot=await page.waitForFunction(
       selector=>document.querySelectorAll(selector).length===1,
