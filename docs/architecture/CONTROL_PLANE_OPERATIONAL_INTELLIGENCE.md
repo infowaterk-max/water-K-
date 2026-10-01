@@ -287,3 +287,7 @@ ACTIVE promotion proof note: after a truth-sealed eligible checkpoint, a later s
 ### Merge-readiness promotion proof marker A
 
 Documentation-only exact-head revision used to re-establish shadow promotion confidence after the verification-engine provenance canonicalization change. This marker does not change verification semantics, thresholds, dependencies, authorities, workflows, or execution policy.
+
+### Merge-readiness promotion proof marker B
+
+Second documentation-only exact-head revision for the same verification-engine identity. Its sole purpose is to accumulate an independent resumed shadow proof before ACTIVE physical evidence reuse is re-authorized.
