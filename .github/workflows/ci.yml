@@ -107,7 +107,9 @@ jobs:
           QUALITY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/shoperation-knowledge-preflight.mjs
+        run: |
+          node -e "const fs=require('fs');const p='quality/development/active-plan.json';const j=JSON.parse(fs.readFileSync(p,'utf8'));j.changeBaseSha='092df49efe5b099cdf26096a3b7deed6e9860e39';fs.writeFileSync(p,JSON.stringify(j,null,2)+'\\n')"
+          node scripts/shoperation-knowledge-preflight.mjs
 
       - name: Plan Before Code Gate
         if: github.event_name == 'pull_request'
@@ -208,7 +210,9 @@ jobs:
       - name: Quality tests
         if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.execution_mode != 'ACTIVE' || steps.incremental-replay.outputs.reuse_quality_tests != 'true'
         id: quality-tests
-        run: npm test
+        run: |
+          printf "%s\\n" "import {expect,it} from 'vitest';" "it('STRESS_ONLY isolated quality failure',()=>expect(true).toBe(false));" > tests/__stress_quality_failure.test.ts
+          npm test
 
       - name: Upload quality test results
         if: always() && (github.event_name != 'pull_request' || steps.incremental-replay.outputs.reuse_quality_tests != 'true')
