@@ -93,4 +93,18 @@ describe('Control Plane Operational Intelligence',()=>{
     expect(doc).toContain('CLAIM WITHOUT EVIDENCE = NOT VERIFIED');
     expect(policy.operationalIntelligence.completionEvidence.forbiddenCircularEvidenceIds).toEqual(['GUARD-COMPLETION-TRUTH']);
   });
+
+  it('STRESS: rejects a broad capability claim when the evidence proves only a generic gate result',()=>{
+    const script=[
+      "import {evaluateCompletionTruth} from './scripts/lib/shoperation-operational-intelligence.mjs';",
+      "const exact={head:'stress-head',branch:'stress/truth-overclaim',stateVersion:'shoporation-ci.v1'};",
+      "const plan={taskId:'STRESS-OVERCLAIM',completionContract:{sourceRef:'PO-STRESS',requirements:[{id:'REQ-OVERCLAIM',requirement:'The Atlas identifies every impacted implementation point in the entire codebase.',evidence:{implementation:['GUARD-QUALITY-TESTS'],outcome:['GUARD-QUALITY-TESTS']},forbiddenRegressions:[{id:'NEG-OVERCLAIM',statement:'No impacted implementation point can be missed.',evidence:['GUARD-QUALITY-TESTS']}]}]}};",
+      "const evidence=[{id:'GUARD-QUALITY-TESTS',status:'success',sourceCommit:exact.head,branch:exact.branch,stateVersion:exact.stateVersion,runId:'stress-run'}];",
+      "const report=evaluateCompletionTruth({plan,evidence,currentExactState:exact});",
+      "process.stdout.write(report.poStatus);"
+    ].join('');
+    const output=execFileSync(process.execPath,['--input-type=module','-e',script],{encoding:'utf8'}).trim();
+    expect(output).not.toBe('DONE');
+  });
+
 });
