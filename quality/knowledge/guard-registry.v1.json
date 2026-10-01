@@ -634,6 +634,24 @@
         "pageType": "not-found",
         "impactTier": 1,
         "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.DESIGN_TOKENS",
+        "kind": "template-wide",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "DESIGN_TOKENS|VISUAL_DNA|--shoporation-|designTokens",
+        "impactTier": 3,
+        "scope": "changed-template-all-pages-viewports",
+        "reason": "Template DNA/design tokens affect every page and viewport of the changed template."
+      },
+      {
+        "id": "TEMPLATE.SHARED_SHELL",
+        "kind": "template-wide",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "(?:function|const)\\s+(?:header|footer)\\b|HEADER_(?:PRESET|CONTRACT)|FOOTER_(?:PRESET|CONTRACT)",
+        "impactTier": 3,
+        "scope": "changed-template-all-pages-viewports",
+        "reason": "Template-owned shared header/footer shell changed."
       }
     ]
   }
