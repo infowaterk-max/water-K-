@@ -91,7 +91,8 @@
       "patterns": [
         "quality/**",
         "scripts/shoperation-**",
-        "scripts/lib/shoperation-**"
+        "scripts/lib/shoperation-**",
+        "scripts/lib/template-factory-**"
       ],
       "label": "Quality knowledge / engineering controls"
     }
