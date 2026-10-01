@@ -5,7 +5,7 @@ import {
   deriveTemplateReplayDecision,
   reusableTemplateBrowserCase,
   templateBrowserCaseFingerprint,
-} from '../scripts/lib/template-factory-resumable-verification.mjs';
+} from '../scripts/lib/shoperation-template-factory-resumable-verification.mjs';
 
 const registry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
 const pageTypes=['home','catalog','product','cart','checkout','account','search','content','blog-index','blog-article','faq','contact','legal','not-found'];
