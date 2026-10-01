@@ -658,7 +658,7 @@
         "id": "TEMPLATE.PAGE.FAQ",
         "kind": "page",
         "parent": "TEMPLATE.LOCAL",
-        "diffPattern": "\\bfaq\\b|gyik|gyakori kérd",
+        "diffPattern": "faq|gyik|gyakori kérd",
         "pageType": "faq",
         "impactTier": 1,
         "scope": "changed-template-page-all-viewports"
