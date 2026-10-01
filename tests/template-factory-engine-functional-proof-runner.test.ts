@@ -52,3 +52,5 @@ describe('Template Factory shared engine functional proof runner',()=>{
     expect(runner).toContain("shoporation.template-factory-product-owner-handoff.v2");
   });
 });
+
+// STRESS_TRIGGER_ONLY: stress/e13-functional-proof-entry-mismatch
