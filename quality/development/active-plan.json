@@ -27,13 +27,11 @@
   ],
   "expectedDomains": [
     "DOMAIN-ADMIN",
-    "DOMAIN-BUILDER",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
     "admin-operations",
-    "builder-template-system",
-    "shared-storefront"
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -516,5 +514,5 @@
       }
     ]
   },
-  "notes": "PO authorized continued VX Builder development while full desktop audit is deferred until the user has desktop hardware again. This slice addresses the visibly primitive Library/element-add experience without treating mobile as full authoring authority. No main merge and no golden update. Plan Before Code planned-projection currently resolves only existing admin-surface files; new Builder/Core files do not exist yet and therefore are not projected into Atlas authority scope. The pre-code expectation is intentionally DOMAIN-ADMIN/admin-operations and will be reconciled immediately after the first implementation commit when the actual diff contains the new Core files. Actual implementation diff now contains the new Core/Library files, so Atlas scope has expanded to the intended DOMAIN-ADMIN / DOMAIN-BUILDER / DOMAIN-STOREFRONT and matching admin-operations / builder-template-system / shared-storefront authorities. The plan is reconciled to actual implementation scope before verification. Element-card visual upgrade also requires the existing v3 CSS module; it is now explicitly part of the planned Library 2.0 surface."
+  "notes": "PO authorized continued VX Builder development while full desktop audit is deferred until the user has desktop hardware again. This slice addresses the visibly primitive Library/element-add experience without treating mobile as full authoring authority. No main merge and no golden update. Plan Before Code planned-projection currently resolves only existing admin-surface files; new Builder/Core files do not exist yet and therefore are not projected into Atlas authority scope. The pre-code expectation is intentionally DOMAIN-ADMIN/admin-operations and will be reconciled immediately after the first implementation commit when the actual diff contains the new Core files. Actual implementation diff now contains the new Core/Library files, so Atlas scope has expanded to the intended DOMAIN-ADMIN / DOMAIN-BUILDER / DOMAIN-STOREFRONT and matching admin-operations / builder-template-system / shared-storefront authorities. The plan is reconciled to actual implementation scope before verification. Element-card visual upgrade also requires the existing v3 CSS module; it is now explicitly part of the planned Library 2.0 surface. Actual-diff Atlas confirms Library 2.0 changes admin/builder authoring surfaces only; shared-storefront remains an impacted dependency/verification surface but is not an edited authority domain. Expected domain/authority scope is corrected to DOMAIN-ADMIN + DOMAIN-BUILDER and admin-operations + builder-template-system."
 }
