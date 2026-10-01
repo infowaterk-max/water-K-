@@ -51,7 +51,7 @@ export function StorefrontPresetLibraryPanel({document,selectedNode,capability,o
   const run=(job:()=>void)=>startTransition(()=>{setError(null);job();});
   const insertPreset=(preset:StorefrontBuilderSectionPreset)=>run(()=>{
     const inserted=insertStorefrontSectionPreset(document,preset,registry,capability);
-    onApply(inserted.document,inserted.insertedNodeId,\`„\${preset.label}” szekció beillesztve · a módosítás még nincs mentve.\`);
+    onApply(inserted.document,inserted.insertedNodeId,`„${preset.label}” szekció beillesztve · a módosítás még nincs mentve.`);
   });
 
   return <div className={libraryStyles.library} data-storefront-preset-library-workspace-v2 data-vx-library-version="2">
@@ -75,7 +75,7 @@ export function StorefrontPresetLibraryPanel({document,selectedNode,capability,o
 
     <div className={libraryStyles.sectionGrid}>
       {visiblePresets.map(preset=>{const descriptor=describeVxSectionPreset(preset);return <article className={libraryStyles.sectionCard} key={preset.presetId}>
-        <button type="button" className={libraryStyles.previewButton} onClick={()=>setPreviewId(preset.presetId)} aria-label={\`\${preset.label} nagyobb előnézete\`}><VxBuilderLibraryPreview descriptor={descriptor} label={preset.label}/></button>
+        <button type="button" className={libraryStyles.previewButton} onClick={()=>setPreviewId(preset.presetId)} aria-label={`${preset.label} nagyobb előnézete`}><VxBuilderLibraryPreview descriptor={descriptor} label={preset.label}/></button>
         <div className={libraryStyles.cardMeta}><strong>{preset.label}</strong><div className={libraryStyles.cardBadges}><span className={libraryStyles.cardBadge}>{descriptor.categoryLabel}</span><span className={libraryStyles.cardBadge}>{descriptor.nodeCount}{descriptor.truncated?'+':''} elem</span></div><small>{label(preset.componentKey)} · gyári szekció</small></div>
         <div className={libraryStyles.cardActions}><button type="button" onClick={()=>setPreviewId(preset.presetId)}>Előnézet</button><button type="button" data-primary="true" disabled={busy} onClick={()=>insertPreset(preset)}>Beillesztés</button></div>
       </article>;})}
@@ -85,7 +85,7 @@ export function StorefrontPresetLibraryPanel({document,selectedNode,capability,o
 
     <section className={libraryStyles.subsection}>
       <div className={libraryStyles.subsectionHeader}><div><strong>Megjelenési presetek</strong><small>A tartalmat nem írják felül, csak a kijelölt elem megjelenését.</small></div></div>
-      {selectedNode?<div className={libraryStyles.appearanceList}>{compatible.map(preset=>{const descriptor=describeVxComponent(preset.componentKey,preset.label);return <article className={libraryStyles.appearanceItem} key={preset.presetId}><VxBuilderLibraryPreview descriptor={descriptor} size="compact"/><span><strong>{preset.label}</strong><small>{label(preset.componentKey)} · megjelenés</small></span><button type="button" disabled={busy} onClick={()=>run(()=>{const next=applyStorefrontComponentPresetAppearance(document,{nodeId:selectedNode.id,preset},registry,capability);onApply(next,selectedNode.id,\`„\${preset.label}” preset alkalmazva · a tartalom változatlan maradt.\`);})}>Alkalmazás</button></article>;})}</div>:<div className={libraryStyles.empty}>Válassz ki egy elemet a vásznon a hozzá illő megjelenési presetekhez.</div>}
+      {selectedNode?<div className={libraryStyles.appearanceList}>{compatible.map(preset=>{const descriptor=describeVxComponent(preset.componentKey,preset.label);return <article className={libraryStyles.appearanceItem} key={preset.presetId}><VxBuilderLibraryPreview descriptor={descriptor} size="compact"/><span><strong>{preset.label}</strong><small>{label(preset.componentKey)} · megjelenés</small></span><button type="button" disabled={busy} onClick={()=>run(()=>{const next=applyStorefrontComponentPresetAppearance(document,{nodeId:selectedNode.id,preset},registry,capability);onApply(next,selectedNode.id,`„${preset.label}” preset alkalmazva · a tartalom változatlan maradt.`);})}>Alkalmazás</button></article>;})}</div>:<div className={libraryStyles.empty}>Válassz ki egy elemet a vásznon a hozzá illő megjelenési presetekhez.</div>}
       {selectedNode&&library&&!compatible.length?<div className={libraryStyles.empty}>A kijelölt elemhez nincs kompatibilis gyári megjelenési preset.</div>:null}
     </section>
 
