@@ -13,7 +13,8 @@
     "src/lib/builder/storefront-template-library.ts",
     "src/lib/builder/storefront-template-preview-demo.ts",
     "src/lib/builder/storefront-cookie-consent-presets.ts",
-    "tests/storefront-blank-studio-template.test.ts"
+    "tests/storefront-blank-studio-template.test.ts",
+    "src/lib/builder/storefront-template-quality-candidates.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -132,7 +133,8 @@
         "The package ships no fake products or category-specific demo catalog by default.",
         "Shared engines such as Shop the Look / Interactive Scene remain available through capability/entitlement and Library composition, not hard-coded into Blank Studio.",
         "A neutral cookie-consent preset exists for the system template.",
-        "Template library UX clearly labels Blank Studio as a system/blank starting point rather than one of the curated visual designs."
+        "Template library UX clearly labels Blank Studio as a system/blank starting point rather than one of the curated visual designs.",
+        "Blank Studio owns an explicit Template Factory quality candidate manifest with canonical 14x3 coverage; the system-template distinction must not bypass normal browser/structural proof."
       ],
       "invariants": [
         "Curated launchTarget remains 42 and STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.implemented counts only curated design templates.",
@@ -141,7 +143,8 @@
         "No demo product is installed implicitly by Blank Studio.",
         "Commerce truth remains in shared catalog/cart/checkout authorities.",
         "Blank Studio visual neutrality does not mean functional emptiness.",
-        "Template DNA/global tokens remain the default style source for all inserted engines."
+        "Template DNA/global tokens remain the default style source for all inserted engines.",
+        "System-template status never exempts Blank Studio from Template Factory quality ownership."
       ],
       "forbiddenStates": [
         "blank-studio-counted-as-curated-43rd-design",
@@ -443,5 +446,5 @@
       }
     ]
   },
-  "notes": "Blank Studio is a system creation surface beside the curated 42-template portfolio. It deliberately carries the minimum operational commerce shell and neutral DNA, while optional engines remain Library/capability-driven. No main merge and no golden update. Exact actual-diff reconciliation expanded the applicable known-failure envelope to the full 49/49 set for the same builder-template-system + shared-storefront scope. This updates machine-derived proof metadata only; acceptance criteria, forbidden states and implementation scope are unchanged."
+  "notes": "Blank Studio is a system creation surface beside the curated 42-template portfolio. It deliberately carries the minimum operational commerce shell and neutral DNA, while optional engines remain Library/capability-driven. No main merge and no golden update. Exact actual-diff reconciliation expanded the applicable known-failure envelope to the full 49/49 set for the same builder-template-system + shared-storefront scope. This updates machine-derived proof metadata only; acceptance criteria, forbidden states and implementation scope are unchanged. Template Factory correctly rejected the newly added template source until it owned an explicit quality manifest. Blank Studio is now registered as a candidate for canonical 14x3 structural/browser proof; no gate exemption or golden weakening was introduced. Header/footer identities were also normalized across all 14 documents so the canonical shell can be proven rather than special-cased."
 }
