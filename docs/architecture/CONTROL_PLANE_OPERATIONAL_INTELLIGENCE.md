@@ -293,3 +293,7 @@ Documentation-only exact-head revision used to re-establish shadow promotion con
 Second documentation-only exact-head revision for the same verification-engine identity. Its sole purpose is to accumulate an independent resumed shadow proof before ACTIVE physical evidence reuse is re-authorized.
 
 - Promotion provenance refresh: `9108ca29b4b49a2b16f0a2e54e24729ad64110bd` — FULL/Tier-4 SHADOW PASS, 10/10 gates rerun, 0 discrepancies, exact-head Truth Gate `VERIFIED_DONE`; verification-engine hash remained `f1a4e958cb0aa36014a21a379ff5255435922fef0c539d17300c3a1427054c1d`. FULL verification intentionally clears immediate promotion eligibility, so one independent RESUMED SHADOW requalification is required before ACTIVE reuse.
+
+### Merge-readiness promotion proof marker C
+
+Documentation-only exact-head revision for the post-canonicalization verification-engine identity. This revision changes no executable verification semantics and exists only to accumulate an independent resumed shadow proof.
