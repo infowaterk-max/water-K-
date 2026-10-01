@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+const __STRESS_EDIT_TIME_DIALOG=()=>alert('STRESS_ONLY');
 import {NextResponse} from 'next/server';
 import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES} from '@/lib/builder/storefront-template-catalog';
 import {STOREFRONT_TEMPLATE_QUALITY_MANIFESTS,evaluateStorefrontTemplateQualityGate} from '@/lib/builder/storefront-template-quality-gate';
