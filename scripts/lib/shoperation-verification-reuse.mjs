@@ -1,0 +1,288 @@
+import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {existsSync,mkdirSync,readFileSync,renameSync,writeFileSync} from 'node:fs';
+import {dirname} from 'node:path';
+import {globToRegExp} from './shoperation-development-runtime.mjs';
+
+const CHECKPOINT_CONTRACT='shoporation.verification-checkpoint.v1';
+const PLAN_CONTRACT='shoporation.resumable-verification-plan.v1';
+const MANIFEST_CONTRACT='shoporation.exact-head-evidence-manifest.v1';
+const ENGINE_SCHEMA_VERSION='shoporation.verification-reuse.v1';
+const PASS_STATES=new Set(['pass','passed','success','succeeded','ok','green']);
+const normalizeStatus=value=>String(value??'').trim().toLowerCase().replaceAll(' ','_');
+const uniq=values=>[...new Set(values)];
+const sorted=values=>[...values].sort();
+
+export function canonicalJson(value){
+  if(Array.isArray(value))return '['+value.map(canonicalJson).join(',')+']';
+  if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}';
+  return JSON.stringify(value);
+}
+export function sha256(value){return createHash('sha256').update(Buffer.isBuffer(value)?value:String(value)).digest('hex');}
+export function digestObject(value){return sha256(canonicalJson(value));}
+
+function git(args,{allowFailure=false}={}){
+  try{return execFileSync('git',args,{encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();}
+  catch(error){if(allowFailure)return '';throw error;}
+}
+function currentHead(){return process.env.SHOPERATION_REPLAY_HEAD?.trim()||process.env.GITHUB_SHA?.trim()||git(['rev-parse','HEAD']);}
+function currentBranch(){return process.env.SHOPERATION_REPLAY_BRANCH?.trim()||process.env.GITHUB_HEAD_REF?.trim()||process.env.GITHUB_REF_NAME?.trim()||git(['rev-parse','--abbrev-ref','HEAD']);}
+export function trackedWorkspaceDirty(){return Boolean(git(['status','--porcelain','--untracked-files=no'],{allowFailure:true}));}
+function trackedFiles(){const out=git(['ls-files','-z']);return out?out.split('\0').filter(Boolean):[];}
+function isAncestor(ancestor,head){if(!ancestor||!head)return false;try{execFileSync('git',['merge-base','--is-ancestor',ancestor,head],{stdio:'ignore'});return true;}catch{return false;}}
+function changedFilesBetween(base,head){if(!base||!head)return [];const out=git(['diff','--name-only','--diff-filter=ACMRD',base,head],{allowFailure:true});return out?out.split(/\r?\n/).filter(Boolean):[];}
+
+export function matchPatterns(file,patterns=[]){return patterns.some(pattern=>globToRegExp(pattern).test(file));}
+export function hashMatchedFiles(patterns=[],files=trackedFiles()){
+  const matched=sorted(files.filter(file=>matchPatterns(file,patterns)&&existsSync(file)));
+  const hash=createHash('sha256');
+  for(const file of matched){hash.update(file);hash.update('\0');hash.update(readFileSync(file));hash.update('\0');}
+  return{hash:hash.digest('hex'),files:matched};
+}
+function producerFile(producer){const value=String(producer??'').trim();return value.includes('/')&&existsSync(value)?[value]:[];}
+function environmentFingerprint(keys=[]){
+  const values={};
+  for(const key of sorted(keys))values[key]=String(process.env[key]??'');
+  return digestObject(values);
+}
+function componentReasons(previous,current){
+  const reasons=[];
+  const pairs=[
+    ['gate-version-change','gateVersionHash'],['semantic-input-change','semanticInputHash'],
+    ['implementation-change','implementationHash'],['authority-change','authorityHash'],
+    ['config-change','configurationHash'],['toolchain-change','toolchainHash'],
+    ['environment-change','environmentHash'],['context-change','contextHash'],
+    ['dependency-change','dependencyFingerprint'],
+  ];
+  for(const pair of pairs)if(previous?.[pair[1]]!==current?.[pair[1]])reasons.push(pair[0]);
+  return reasons;
+}
+function verificationConfig(registry,gate){
+  const root=registry.verificationReuse??{},local=gate.verification??{};
+  return{
+    reusePolicy:local.reusePolicy??'safe',
+    dependsOn:uniq(local.dependsOn??[]),
+    semanticInputs:uniq(local.semanticInputs??[]),
+    implementationInputs:uniq([...(local.implementationInputs??[]),...producerFile(gate.producer)]),
+    authorityInputs:uniq([...(root.globalAuthorityInputs??[]),...(local.authorityInputs??[])]),
+    configurationInputs:uniq(local.configurationInputs??[]),
+    toolchainInputs:uniq([...(root.globalToolchainInputs??[]),...(local.toolchainInputs??[])]),
+    environmentKeys:uniq([...(root.globalEnvironmentKeys??[]),...(local.environmentKeys??[])]),
+    context:local.context??{},
+    impactTier:Number(local.impactTier??2),
+    shadowComparable:local.shadowComparable!==false,
+    knownFailureConsumer:local.knownFailureConsumer===true,
+  };
+}
+
+export function validateVerificationGraph(registry){
+  const issues=[],gates=(registry.guards??[]).filter(g=>g.blocking!==false),ids=new Set(gates.map(g=>g.id));
+  const visiting=new Set(),visited=new Set(),byId=new Map(gates.map(g=>[g.id,g]));
+  const visit=id=>{
+    if(visited.has(id))return;
+    if(visiting.has(id)){issues.push({code:'VERIFICATION_GRAPH_CYCLE',gateId:id});return;}
+    visiting.add(id);
+    const gate=byId.get(id);
+    if(gate){
+      for(const dep of verificationConfig(registry,gate).dependsOn){
+        if(!ids.has(dep))issues.push({code:'VERIFICATION_GRAPH_UNKNOWN_DEPENDENCY',gateId:id,dependency:dep});
+        else visit(dep);
+      }
+    }
+    visiting.delete(id);visited.add(id);
+  };
+  for(const gate of gates){if(!gate.verification)issues.push({code:'VERIFICATION_METADATA_MISSING',gateId:gate.id});visit(gate.id);}
+  return{ok:issues.length===0,issues};
+}
+
+export function buildRepositorySnapshot({registry,head=currentHead(),branch=currentBranch(),files=trackedFiles()}={}){
+  const graphValidation=validateVerificationGraph(registry),root=registry.verificationReuse??{};
+  const gateMap=new Map((registry.guards??[]).filter(g=>g.blocking!==false).map(g=>[g.id,g])),direct=new Map();
+  for(const [id,gate] of gateMap){
+    const cfg=verificationConfig(registry,gate);
+    const semantic=hashMatchedFiles(cfg.semanticInputs,files),implementation=hashMatchedFiles(cfg.implementationInputs,files);
+    const authority=hashMatchedFiles(cfg.authorityInputs,files),configuration=hashMatchedFiles(cfg.configurationInputs,files);
+    const toolchain=hashMatchedFiles(cfg.toolchainInputs,files);
+    direct.set(id,{
+      gateId:id,reusePolicy:cfg.reusePolicy,dependsOn:cfg.dependsOn,impactTier:cfg.impactTier,
+      shadowComparable:cfg.shadowComparable,knownFailureConsumer:cfg.knownFailureConsumer,
+      gateVersionHash:digestObject({id:gate.id,producer:gate.producer,responsibilityKey:gate.responsibilityKey,verification:gate.verification}),
+      semanticInputHash:semantic.hash,implementationHash:implementation.hash,authorityHash:authority.hash,
+      configurationHash:configuration.hash,toolchainHash:toolchain.hash,environmentHash:environmentFingerprint(cfg.environmentKeys),
+      contextHash:digestObject(cfg.context),
+      matchedFiles:{semantic:semantic.files,implementation:implementation.files,authority:authority.files,configuration:configuration.files,toolchain:toolchain.files},
+    });
+  }
+  const memo=new Map(),resolving=new Set();
+  const resolve=id=>{
+    if(memo.has(id))return memo.get(id);
+    const item=direct.get(id);if(!item)return null;
+    if(resolving.has(id)){
+      const dependencyFingerprint=digestObject({invalidGraph:true,gateId:id});
+      return{...item,dependencyFingerprint,fingerprint:digestObject({schemaVersion:root.schemaVersion??ENGINE_SCHEMA_VERSION,gateId:id,invalidGraph:true,dependencyFingerprint})};
+    }
+    resolving.add(id);
+    const deps=graphValidation.ok?item.dependsOn.map(dep=>resolve(dep)).filter(Boolean).map(dep=>({gateId:dep.gateId,fingerprint:dep.fingerprint})).sort((a,b)=>a.gateId.localeCompare(b.gateId)):[];
+    resolving.delete(id);
+    const dependencyFingerprint=graphValidation.ok?digestObject(deps):digestObject({invalidGraph:true,issues:graphValidation.issues});
+    const fingerprint=digestObject({
+      schemaVersion:root.schemaVersion??ENGINE_SCHEMA_VERSION,gateId:item.gateId,reusePolicy:item.reusePolicy,
+      gateVersionHash:item.gateVersionHash,semanticInputHash:item.semanticInputHash,implementationHash:item.implementationHash,
+      authorityHash:item.authorityHash,configurationHash:item.configurationHash,toolchainHash:item.toolchainHash,
+      environmentHash:item.environmentHash,contextHash:item.contextHash,dependencyFingerprint,
+    });
+    const out={...item,dependencyFingerprint,fingerprint};memo.set(id,out);return out;
+  };
+  const gates={};for(const id of gateMap.keys())gates[id]=resolve(id);
+  const coveredPatterns=[];
+  for(const gate of gateMap.values()){
+    const cfg=verificationConfig(registry,gate);
+    coveredPatterns.push(...cfg.semanticInputs,...cfg.implementationInputs,...cfg.authorityInputs,...cfg.configurationInputs,...cfg.toolchainInputs);
+  }
+  return{schemaVersion:root.schemaVersion??ENGINE_SCHEMA_VERSION,head,branch,graphValid:graphValidation.ok,graphIssues:graphValidation.issues,gates,coveredPatterns:uniq(coveredPatterns),nonSemanticPatterns:uniq(root.nonSemanticPatterns??[])};
+}
+
+export function checkpointPayload(checkpoint){const copy={...checkpoint};delete copy.checksum;return copy;}
+export function checkpointChecksum(checkpoint){return digestObject(checkpointPayload(checkpoint));}
+export function validateCheckpoint(checkpoint,{branch,head,requireAncestor=true}={}){
+  const issues=[];
+  if(!checkpoint||typeof checkpoint!=='object')issues.push({code:'CHECKPOINT_MISSING'});
+  else{
+    if(checkpoint.contract!==CHECKPOINT_CONTRACT)issues.push({code:'CHECKPOINT_CONTRACT_INVALID'});
+    if(checkpoint.complete!==true)issues.push({code:'CHECKPOINT_INCOMPLETE'});
+    if(!checkpoint.checksum||checkpoint.checksum!==checkpointChecksum(checkpoint))issues.push({code:'CHECKPOINT_CHECKSUM_INVALID'});
+    if(branch&&checkpoint.branch!==branch)issues.push({code:'CHECKPOINT_BRANCH_MISMATCH',expected:branch,actual:checkpoint.branch});
+    if(requireAncestor&&checkpoint.sourceCommit&&head&&!isAncestor(checkpoint.sourceCommit,head))issues.push({code:'CHECKPOINT_NOT_ANCESTOR',sourceCommit:checkpoint.sourceCommit,head});
+  }
+  return{ok:issues.length===0,issues};
+}
+export function loadCheckpoint(path){
+  if(!path||!existsSync(path))return{checkpoint:null,validation:{ok:false,issues:[{code:'CHECKPOINT_MISSING'}]}};
+  try{return{checkpoint:JSON.parse(readFileSync(path,'utf8')),validation:null};}
+  catch(error){return{checkpoint:null,validation:{ok:false,issues:[{code:'CHECKPOINT_CORRUPTED',message:String(error)}]}};}
+}
+
+export function planFromSnapshots({current,previousCheckpoint=null,checkpointValidation={ok:false,issues:[{code:'CHECKPOINT_MISSING'}]},changedFiles=[],dirty=false,activeFailureIds=[],forceFullRequested=false}){
+  const reasons=[],gates={};let forceFull=false;
+  if(forceFullRequested){forceFull=true;reasons.push('force-full-verification');}
+  if(dirty){forceFull=true;reasons.push('dirty-workspace');}
+  if(!current.graphValid){forceFull=true;reasons.push('verification-graph-invalid');}
+  if(!checkpointValidation.ok){forceFull=true;reasons.push(...checkpointValidation.issues.map(issue=>String(issue.code).toLowerCase()));}
+  const uncovered=changedFiles.filter(file=>!matchPatterns(file,current.coveredPatterns)&&!matchPatterns(file,current.nonSemanticPatterns));
+  if(uncovered.length){forceFull=true;reasons.push('unknown-dependency');}
+  const previousGates=previousCheckpoint?.gates??{};
+  for(const [gateId,identity] of Object.entries(current.gates)){
+    const prior=previousGates[gateId];let state='REUSABLE',gateReasons=[];
+    if(forceFull){state='UNKNOWN';gateReasons=['full-verification-fallback'];}
+    else if(identity.reusePolicy==='never'){state='INVALIDATED';gateReasons=['gate-non-reusable'];}
+    else if(!prior){state='UNKNOWN';gateReasons=['previous-evidence-missing'];}
+    else if(!PASS_STATES.has(normalizeStatus(prior.status))){state='UNKNOWN';gateReasons=['previous-evidence-not-pass'];}
+    else if(!prior.fingerprint){state='UNKNOWN';gateReasons=['previous-fingerprint-missing'];}
+    else if(prior.fingerprint!==identity.fingerprint){state='INVALIDATED';gateReasons=componentReasons(prior,identity);if(!gateReasons.length)gateReasons=['fingerprint-mismatch'];}
+    gates[gateId]={gateId,state,action:state==='REUSABLE'?'REUSE':'RERUN',reasons:gateReasons,identity,previous:prior??null};
+  }
+  if(!forceFull&&previousCheckpoint){
+    if(canonicalJson(sorted(activeFailureIds))!==canonicalJson(sorted(previousCheckpoint.activeFailureIds??[]))){
+      for(const gate of Object.values(gates))if(gate.identity.knownFailureConsumer&&gate.action==='REUSE'){
+        gate.state='INVALIDATED';gate.action='RERUN';gate.reasons.push('known-failure-scope-change');
+      }
+    }
+    let changed=true;
+    while(changed){
+      changed=false;
+      for(const gate of Object.values(gates)){
+        if(gate.action==='RERUN')continue;
+        const dep=gate.identity.dependsOn.find(id=>gates[id]?.action==='RERUN');
+        if(dep){gate.state='INVALIDATED';gate.action='RERUN';gate.reasons.push('dependency-invalidated:'+dep);changed=true;}
+      }
+    }
+  }
+  const values=Object.values(gates),reusable=values.filter(g=>g.action==='REUSE'),rerun=values.filter(g=>g.action==='RERUN');
+  const invalidated=values.filter(g=>g.state==='INVALIDATED'),uncertain=values.filter(g=>g.state==='UNKNOWN');
+  const replayTier=forceFull?4:rerun.length===0?0:Math.min(4,Math.max(0,...rerun.map(g=>g.identity.impactTier||2)));
+  const verificationMode=forceFull?'FULL':previousCheckpoint?(reusable.length?'RESUMED':'INCREMENTAL'):'FULL';
+  const downstream=values.filter(g=>g.reasons.some(reason=>reason.startsWith('dependency-invalidated:'))).map(g=>g.gateId);
+  const authorityChanged=values.filter(g=>g.reasons.includes('authority-change')).map(g=>g.gateId);
+  const configChanged=values.filter(g=>g.reasons.includes('config-change')||g.reasons.includes('environment-change')||g.reasons.includes('toolchain-change')).map(g=>g.gateId);
+  const semanticChanged=values.filter(g=>g.reasons.includes('semantic-input-change')||g.reasons.includes('implementation-change')||g.reasons.includes('gate-version-change')).map(g=>g.gateId);
+  return{
+    contract:PLAN_CONTRACT,schemaVersion:current.schemaVersion,verificationMode,executionMode:'SHADOW',replayTier,
+    replayTierName:['Evidence Reuse','Local Replay','Dependency Replay','Subsystem Replay','Full Verification'][replayTier],
+    sourceRevision:current.head,branch:current.branch,checkpointSourceCommit:previousCheckpoint?.sourceCommit??null,
+    changedFiles,uncoveredChangedFiles:uncovered,activeFailureIds:sorted(activeFailureIds),reasons:uniq(reasons),
+    reusableEvidenceSet:reusable.map(g=>g.gateId),invalidatedEvidenceSet:invalidated.map(g=>g.gateId),
+    uncertainEvidenceSet:uncertain.map(g=>g.gateId),rerunSet:rerun.map(g=>g.gateId),
+    evidence:{reused:reusable.length,rerun:rerun.length,invalidated:invalidated.length,unknown:uncertain.length,total:values.length},
+    changeImpactSet:{
+      changedFiles,changedSemanticUnits:semanticChanged,changedAuthorities:authorityChanged,changedConfigurationUnits:configChanged,
+      changedRuntimeInputs:changedFiles.filter(file=>file.startsWith('src/')||file.startsWith('public/')),
+      changedProofInputs:invalidated.map(g=>g.gateId),affectedGates:rerun.map(g=>g.gateId),downstreamGates:downstream,reusableGates:reusable.map(g=>g.gateId),
+    },
+    metrics:{cacheHitRate:values.length?reusable.length/values.length:0,invalidationRatio:values.length?(invalidated.length+uncertain.length)/values.length:0},
+    gates:Object.fromEntries(values.map(g=>[g.gateId,g])),decision:'PASS',
+  };
+}
+
+export function createReplayPlan({registry,checkpointPath,activeFailureIds=[]}={}){
+  const started=Date.now(),head=currentHead(),branch=currentBranch(),dirty=trackedWorkspaceDirty();
+  const current=buildRepositorySnapshot({registry,head,branch}),loaded=loadCheckpoint(checkpointPath),checkpoint=loaded.checkpoint;
+  const validation=loaded.validation??validateCheckpoint(checkpoint,{branch,head,requireAncestor:true});
+  const changedFiles=validation.ok?changedFilesBetween(checkpoint.sourceCommit,head):[];
+  const forceFullRequested=['1','true','yes'].includes(String(process.env.SHOPERATION_FORCE_FULL_VERIFICATION??'').toLowerCase());
+  const plan=planFromSnapshots({current,previousCheckpoint:checkpoint,checkpointValidation:validation,changedFiles,dirty,activeFailureIds,forceFullRequested});
+  plan.checkpointValidation=validation;plan.plannerDurationMs=Date.now()-started;plan.metrics.dependencyResolutionMs=plan.plannerDurationMs;plan.generatedAt=new Date().toISOString();
+  return{plan,current,checkpoint};
+}
+
+export function finalizeVerification({plan,outcomes={},priorCheckpoint=null,runId=null,stateVersion='shoporation-ci.v1'}={}){
+  const discrepancies=[],gates={},truthEvidence=[];
+  for(const [gateId,planned] of Object.entries(plan.gates??{})){
+    const raw=outcomes[gateId],fullPass=PASS_STATES.has(normalizeStatus(raw)),prior=planned.previous??priorCheckpoint?.gates?.[gateId]??null;
+    if(planned.action==='REUSE'&&planned.identity.shadowComparable&&!fullPass)discrepancies.push({gateId,code:'SHADOW_FALSE_REUSE',planned:'REUSE',actual:raw??'missing'});
+    const reusableFallback=planned.action==='REUSE'&&!raw&&prior&&PASS_STATES.has(normalizeStatus(prior.status));
+    const effectivePass=fullPass||reusableFallback,execution=fullPass?'RERUN':reusableFallback?'REUSED':'RERUN';
+    const originSourceCommit=fullPass?plan.sourceRevision:prior?.originSourceCommit??prior?.sourceCommit??plan.checkpointSourceCommit;
+    const evidence={
+      gateId,status:effectivePass?'PASS':raw??'MISSING',execution,sourceCommit:plan.sourceRevision,originSourceCommit,branch:plan.branch,stateVersion,runId,
+      fingerprint:planned.identity.fingerprint,gateVersionHash:planned.identity.gateVersionHash,semanticInputHash:planned.identity.semanticInputHash,
+      implementationHash:planned.identity.implementationHash,authorityHash:planned.identity.authorityHash,configurationHash:planned.identity.configurationHash,
+      toolchainHash:planned.identity.toolchainHash,environmentHash:planned.identity.environmentHash,contextHash:planned.identity.contextHash,
+      dependencyFingerprint:planned.identity.dependencyFingerprint,
+      reuseProof:execution==='REUSED'?{fingerprintEquivalent:prior?.fingerprint===planned.identity.fingerprint,previousFingerprint:prior?.fingerprint??null,currentFingerprint:planned.identity.fingerprint,checkpointSourceCommit:plan.checkpointSourceCommit,reasons:planned.reasons}:null,
+    };
+    gates[gateId]=evidence;
+    truthEvidence.push({id:gateId,status:evidence.status,sourceCommit:plan.sourceRevision,branch:plan.branch,stateVersion,runId:runId??'resumable-verification',execution:evidence.execution,originSourceCommit:evidence.originSourceCommit,reuseProof:evidence.reuseProof});
+  }
+  const comparable=Object.values(plan.gates??{}).filter(g=>g.identity.shadowComparable);
+  for(const planned of comparable){
+    const raw=outcomes[planned.gateId];
+    if(!PASS_STATES.has(normalizeStatus(raw)))discrepancies.push({gateId:planned.gateId,code:raw==null?'SHADOW_FULL_EVIDENCE_MISSING':'SHADOW_FULL_VERIFICATION_FAILED',planned:planned.action,actual:raw??'missing'});
+  }
+  const unique=[...new Map(discrepancies.map(item=>[item.gateId+':'+item.code,item])).values()];
+  const shadowComparison={mode:'SHADOW',compared:comparable.length,discrepancies:unique,decision:unique.length?'BLOCK':'PASS'};
+  const manifest={
+    contract:MANIFEST_CONTRACT,schemaVersion:plan.schemaVersion,sourceCommit:plan.sourceRevision,branch:plan.branch,stateVersion,runId,
+    verificationMode:plan.verificationMode,executionMode:'SHADOW',replayTier:plan.replayTier,checkpointSourceCommit:plan.checkpointSourceCommit,
+    evidenceSummary:plan.evidence,changeImpactSet:plan.changeImpactSet,metrics:plan.metrics,shadowComparison,finalConfidence:shadowComparison.decision,
+    gates,truthEvidence,generatedAt:new Date().toISOString(),decision:shadowComparison.decision,
+  };
+  const checkpoint={
+    contract:CHECKPOINT_CONTRACT,schemaVersion:plan.schemaVersion,complete:shadowComparison.decision==='PASS',sourceCommit:plan.sourceRevision,
+    branch:plan.branch,stateVersion,runId,activeFailureIds:plan.activeFailureIds,verificationMode:plan.verificationMode,replayTier:plan.replayTier,
+    gates,createdAt:new Date().toISOString(),
+  };
+  checkpoint.checksum=checkpointChecksum(checkpoint);
+  return{manifest,checkpoint,decision:shadowComparison.decision};
+}
+
+export function atomicWriteJson(path,value){
+  mkdirSync(dirname(path),{recursive:true});
+  const tmp=path+'.tmp-'+process.pid;
+  writeFileSync(tmp,JSON.stringify(value,null,2)+'\n');
+  renameSync(tmp,path);
+}
+export function explainGate(plan,gateId){
+  const gate=plan?.gates?.[gateId];if(!gate)return null;
+  return{gateId,action:gate.action,state:gate.state,reasons:gate.reasons,dependsOn:gate.identity.dependsOn,fingerprint:gate.identity.fingerprint,previousFingerprint:gate.previous?.fingerprint??null};
+}
+export const VERIFICATION_REUSE_CONTRACTS=Object.freeze({checkpoint:CHECKPOINT_CONTRACT,plan:PLAN_CONTRACT,manifest:MANIFEST_CONTRACT,schema:ENGINE_SCHEMA_VERSION});
