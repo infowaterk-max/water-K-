@@ -20,6 +20,7 @@ import {
   BLANK_STUDIO_DESIGN_TOKENS,
   BLANK_STUDIO_GLOBAL_STYLE_STATE,
   BLANK_STUDIO_HOME_PAGE,
+  BLANK_STUDIO_NEUTRAL_PALETTE,
   BLANK_STUDIO_TEMPLATE_KEY,
   BLANK_STUDIO_TEMPLATE_PACKAGE,
   BLANK_STUDIO_TEMPLATE_VERSION,
@@ -110,19 +111,22 @@ describe('VX Blank Studio system template',()=>{
       expect(getStorefrontGlobalStyleState(document)).toEqual(BLANK_STUDIO_GLOBAL_STYLE_STATE);
     }
     expect(BLANK_STUDIO_GLOBAL_STYLE_STATE.tokens).toMatchObject({
-      background:'#ffffff',surface:'#ffffff',surfaceMuted:'#f5f5f3',text:'#171717',mutedText:'#6b6b66',border:'#deded8',primary:'#171717',primaryContrast:'#ffffff',accent:'#b88716',accentSecondary:'#8d8d86',headingFont:'system-sans',bodyFont:'system-sans',spacingScale:'comfortable',radiusScale:'soft',
+      background:'#ffffff',surface:'#ffffff',surfaceMuted:'#f5f5f3',text:'#171717',mutedText:'#6b6b66',border:'#deded8',primary:'#171717',primaryContrast:'#ffffff',accent:'#b88716',accentSecondary:'#8d8d86',accentTertiary:'#b8b8b1',headingFont:'system-sans',bodyFont:'system-sans',spacingScale:'comfortable',radiusScale:'soft',
     });
     expect(resolveStorefrontGlobalStyleCssVariables(BLANK_STUDIO_HOME_PAGE)).toMatchObject({
       '--shoporation-color-background':'#ffffff',
       '--shoporation-color-text':'#171717',
       '--shoporation-color-primary':'#171717',
       '--shoporation-color-accent':'#b88716',
+      '--shoporation-color-accent-tertiary':'#b8b8b1',
     });
   });
 
   it('has no implicit demo catalog and has explicit neutral theme and cookie authorities',()=>{
     expect(BLANK_STUDIO_TEMPLATE_PACKAGE.demoFixtures).toEqual([]);
     expect(getStorefrontTemplatePreviewTheme(BLANK_STUDIO_TEMPLATE_KEY)).toMatchObject(BLANK_STUDIO_DESIGN_TOKENS);
+    expect(BLANK_STUDIO_DESIGN_TOKENS['--shoporation-color-accent']).toBe(BLANK_STUDIO_NEUTRAL_PALETTE.accent);
+    expect(BLANK_STUDIO_DESIGN_TOKENS['--shoporation-color-accent-tertiary']).toBe(BLANK_STUDIO_GLOBAL_STYLE_STATE.tokens.accentTertiary);
     const cookie=getStorefrontCookieConsentPreset(BLANK_STUDIO_TEMPLATE_KEY);
     expect(cookie?.presetId).toBe('blank-studio-cookie');
     expect(cookie?.fallback.accent).toBe('#b88716');
