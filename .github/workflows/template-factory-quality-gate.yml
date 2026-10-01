@@ -76,6 +76,7 @@ on:
       - 'tests/**storefront**'
       - 'tests/**template-factory**'
       - 'tests/**playroom**'
+      - 'tests/visual-baselines/**'
       - '.github/workflows/template-factory-quality-gate.yml'
   pull_request:
     paths:
@@ -149,6 +150,7 @@ on:
       - 'tests/**storefront**'
       - 'tests/**template-factory**'
       - 'tests/**playroom**'
+      - 'tests/visual-baselines/**'
       - '.github/workflows/template-factory-quality-gate.yml'
   workflow_dispatch:
 
