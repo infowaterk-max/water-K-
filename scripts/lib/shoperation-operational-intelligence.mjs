@@ -279,9 +279,9 @@ export function evaluateCompletionTruth({plan,evidence=[],currentExactState,plan
     if(states.has('FAIL'))truthStatus='FAILED';
     else if(states.has('BLOCKED'))truthStatus='FAILED';
     else if(states.has('STALE'))truthStatus='STALE';
-    else if(states.has('OVERCLAIM')||maxProven<required||missingDimensions.length)truthStatus='OVERCLAIM';
     else if(states.has('UNKNOWN'))truthStatus='UNKNOWN';
     else if(states.has('MISSING'))truthStatus='MISSING';
+    else if(states.has('OVERCLAIM')||maxProven<required||missingDimensions.length)truthStatus='OVERCLAIM';
     else if(!proofs.length||proofs.some(x=>x.state!=='PASS'))truthStatus='PARTIAL';
     return{id:req.id,requirement:req.requirement,claimScope:req.claimScope??null,requiredCapabilities:req.requiredCapabilities??[],requiredScopeStrength:required,provenScopeStrength:maxProven,requiredDimensions,provenDimensions,missingDimensions,truthStatus,implementation,outcome,negative};
   });
