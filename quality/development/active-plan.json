@@ -25,14 +25,10 @@
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-ADMIN",
-    "DOMAIN-BUILDER",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-ADMIN"
   ],
   "expectedAuthorities": [
-    "admin-operations",
-    "builder-template-system",
-    "shared-storefront"
+    "admin-operations"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -244,7 +240,7 @@
         "resolution": "Introduce pure semantic descriptor helpers and lightweight preview components; insertion still calls the existing canonical functions."
       },
       {
-        "role": "Runtime / Performance",
+        "role": "Runtime",
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "A visually rich gallery can accidentally mount dozens of live storefront runtimes or traverse arbitrarily deep preset trees on every render.",
@@ -258,7 +254,7 @@
         "resolution": "Use recognizable section/element/page-template preview archetypes, curated categories, search and an explicit larger preview surface."
       },
       {
-        "role": "Security / Entitlement",
+        "role": "Security",
         "mode": "review",
         "verdict": "pass",
         "finding": "Search/filter UI must not expose a hidden insert path for disallowed components or Pro-only capability.",
@@ -515,5 +511,5 @@
       }
     ]
   },
-  "notes": "PO authorized continued VX Builder development while full desktop audit is deferred until the user has desktop hardware again. This slice addresses the visibly primitive Library/element-add experience without treating mobile as full authoring authority. No main merge and no golden update."
+  "notes": "PO authorized continued VX Builder development while full desktop audit is deferred until the user has desktop hardware again. This slice addresses the visibly primitive Library/element-add experience without treating mobile as full authoring authority. No main merge and no golden update. Plan Before Code planned-projection currently resolves only existing admin-surface files; new Builder/Core files do not exist yet and therefore are not projected into Atlas authority scope. The pre-code expectation is intentionally DOMAIN-ADMIN/admin-operations and will be reconciled immediately after the first implementation commit when the actual diff contains the new Core files."
 }
