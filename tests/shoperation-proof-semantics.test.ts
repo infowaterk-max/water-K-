@@ -93,7 +93,7 @@ describe('Control Plane Proof Semantics adversarial regressions',()=>{
         capabilities:['CAP-ATLAS'],
         scopeStrength:4,
         scope:'repository-complete-semantic-impact',
-        dimensions:['symbols','semantic-consumers','execution-routes','unknowns'],
+        dimensions:['all-implementation-points','symbols','semantic-consumers','execution-routes','unknowns'],
         whatItProves:'Repository-wide adversarial semantic impact cases passed on this exact state.',
         whatItDoesNotProve:['Dynamic runtime relationships outside modeled authorities remain explicit UNKNOWN.'],
         classification:'adversarial',
@@ -106,6 +106,12 @@ describe('Control Plane Proof Semantics adversarial regressions',()=>{
     expect(verified.truthStatus).toBe('VERIFIED');
     expect(verified.internalState).toBe('VERIFIED_DONE');
     expect(verified.poStatus).toBe('DONE');
+
+    const missingDimension=structuredClone(strong);
+    missingDimension[0].semantics.dimensions=['symbols','semantic-consumers','execution-routes','unknowns'];
+    const dimensionOverclaim=evaluateCompletionTruth({plan,evidence:missingDimension,currentExactState:exact});
+    expect(dimensionOverclaim.truthStatus).toBe('OVERCLAIM');
+    expect(dimensionOverclaim.requirementResults[0].missingDimensions).toEqual(['all-implementation-points']);
 
     const wrongCapability=structuredClone(strong);
     wrongCapability[0].semantics.capabilities=['CAP-RELEASE'];
