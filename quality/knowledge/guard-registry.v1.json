@@ -405,7 +405,7 @@
   "verificationReuse": {
     "contract": "shoporation.verification-reuse-registry.v1",
     "schemaVersion": "shoporation.verification-reuse.v1",
-    "mode": "shadow",
+    "mode": "active",
     "branchScoped": true,
     "crossBranchReuse": false,
     "unknownPolicy": "rerun",
@@ -428,12 +428,20 @@
       ".github/ISSUE_TEMPLATE/**"
     ],
     "promotion": {
-      "physicalSkippingEnabled": false,
+      "physicalSkippingEnabled": true,
       "minimumShadowPasses": 3,
       "minimumResumedShadowPasses": 2,
       "maximumFalseReuse": 0,
       "requireExactHeadTruth": true,
-      "fallback": "FULL"
+      "fallback": "FULL",
+      "promotedFrom": {
+        "sourceCommit": "ad1875c3b87458771b37fca60d036eb474a1d3b6",
+        "ciRunId": "36831730573",
+        "shadowPasses": 3,
+        "resumedShadowPasses": 2,
+        "falseReuse": 0
+      },
+      "referenceFullRuntimeMs": 145506
     },
     "semanticUnits": [
       {
