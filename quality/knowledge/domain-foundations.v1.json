@@ -90,7 +90,8 @@
         "context.tenant",
         "context.instance",
         "context.membership",
-        "context.operating-scope"
+        "context.operating-scope",
+        "identity.actor"
       ],
       "responsibilities": [
         "tenant resolution",
