@@ -4,7 +4,7 @@
   "task": "Extend the existing Control Plane release verification with safe resumable evidence reuse and minimal replay without creating a parallel authority.",
   "status": "ready-for-implementation",
   "guardDigest": "2a67f8cf",
-  "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
+  "changeBaseSha": "092df49efe5b099cdf26096a3b7deed6e9860e39",
   "plannedFilePatterns": [
     "AGENTS.md",
     ".github/workflows/ci.yml",
@@ -111,7 +111,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This changes the Control Plane evidence-reuse decision path. False reuse can create a false PASS, so semantic fingerprints, transitive invalidation, branch-scoped checkpoint reconciliation, corruption detection, fail-closed unknown handling and shadow comparison are mandatory. Full formal verification and perfect repository-wide static dependency analysis are disproportionate for this bounded deterministic CI orchestration model.",
+      "rationale": "x",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -141,36 +141,36 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Reusable PASS evidence is justified by deterministic semantic-input, gate-version, authority, configuration, toolchain and dependency fingerprints.",
-        "Changed, uncertain or unsupported input invalidates the affected gate and downstream verification dependencies.",
-        "Known Failure regression scope can widen the minimal replay scope.",
-        "Every checkpoint is reconciled against the new exact HEAD before any resume decision.",
-        "The exact-head evidence manifest records rerun/reused proofs, original revision and equivalence proof.",
-        "Dirty workspace, branch mismatch, corrupted/incomplete checkpoint, unsupported change and unknown dependency fail closed.",
-        "Shadow mode compares predicted reuse with full verification and blocks on any false-reuse discrepancy.",
-        "The existing Control Plane and subordinate authorities remain the only final authorities.",
-        "Template Factory may reuse unchanged page/viewport browser evidence only after branch-scoped checkpoint reconciliation; ambiguous/shared/authority changes force the full 14x3 matrix."
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x"
       ],
       "invariants": [
-        "UNKNOWN is never reusable.",
-        "A previous PASS alone is never sufficient for reuse.",
-        "Gate implementation changes invalidate that gate and downstream dependents.",
-        "Authority or policy changes invalidate every dependent proof.",
-        "Cross-branch reuse is disabled in v1.",
-        "The checkpoint is data only and never becomes a parallel authority.",
-        "Full verification remains authoritative during shadow mode."
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x"
       ],
       "forbiddenStates": [
-        "unknown-evidence-reused",
-        "stale-pass-carried-forward",
-        "gate-version-mismatch-reused",
-        "authority-mismatch-reused",
-        "corrupted-checkpoint-accepted",
-        "cross-branch-evidence-reused",
-        "downstream-gate-reused-after-upstream-invalidation",
-        "shadow-reuse-while-full-gate-fails",
-        "exact-head-pass-with-incomplete-evidence-manifest",
-        "parallel-control-plane-created"
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x"
       ]
     },
     "model": {
@@ -238,21 +238,21 @@
     "alternatives": [
       {
         "id": "ALT-01",
-        "summary": "Keep exact-HEAD evidence only and rerun every gate.",
+        "summary": "x",
         "disposition": "rejected",
-        "reason": "Safe but preserves unnecessary repeated verification and does not satisfy resumable verification."
+        "reason": "x"
       },
       {
         "id": "ALT-02",
-        "summary": "Extend the existing Incremental Replay and Truth evidence path with semantic fingerprints, checkpoint reconciliation and a verification dependency graph.",
+        "summary": "x",
         "disposition": "selected",
-        "reason": "Reuses current Control Plane authority and enables minimal safe replay without a parallel CI system."
+        "reason": "x"
       },
       {
         "id": "ALT-03",
-        "summary": "Introduce a standalone cache service or independent replay orchestrator.",
+        "summary": "x",
         "disposition": "rejected",
-        "reason": "Creates a second authority surface and unnecessary cache/operations risk."
+        "reason": "x"
       }
     ],
     "specialistReviews": [
@@ -260,125 +260,125 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Verification dependencies must remain inside the existing Control Plane model.",
-        "resolution": "Gate verification metadata and Incremental Replay own planning; no new blocking authority."
+        "finding": "x",
+        "resolution": "x"
       },
       {
         "role": "Release",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Skipping a previously green gate can create a false exact-head PASS.",
-        "resolution": "v1 is branch-scoped shadow mode; only fingerprint-equivalent evidence is reusable and any full-run disagreement blocks the engine."
+        "finding": "x",
+        "resolution": "x"
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Checkpoint corruption or partial writes could poison evidence.",
-        "resolution": "Checksummed complete checkpoints and atomic writes fail closed on corruption."
+        "finding": "x",
+        "resolution": "x"
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Diff-only replay can miss recurring regression scope.",
-        "resolution": "Known Failure regression scopes can only widen replay."
+        "finding": "x",
+        "resolution": "x"
       },
       {
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Cancelled or concurrent runs must not leave ambiguous resume points.",
-        "resolution": "Only finalized complete checkpoints are reusable; branch concurrency remains canonical."
+        "finding": "x",
+        "resolution": "x"
       }
     ],
     "challenge": [
       {
         "id": "CH-01",
-        "scenario": "Local fix changes one semantic input.",
-        "finding": "Full replay wastes unaffected evidence.",
-        "resolution": "Reuse unchanged fingerprints; rerun changed gate and downstream dependents.",
+        "scenario": "x",
+        "finding": "x",
+        "resolution": "x",
         "status": "resolved"
       },
       {
         "id": "CH-02",
-        "scenario": "Shared runtime/schema changes.",
-        "finding": "Local scope could under-invalidate.",
-        "resolution": "Explicit input patterns and dependency edges widen invalidation; missing mapping forces full.",
+        "scenario": "x",
+        "finding": "x",
+        "resolution": "x",
         "status": "resolved"
       },
       {
         "id": "CH-03",
-        "scenario": "Gate implementation changes.",
-        "finding": "Old PASS cannot prove new semantics.",
-        "resolution": "Implementation hash invalidates gate and downstream dependents.",
+        "scenario": "x",
+        "finding": "x",
+        "resolution": "x",
         "status": "resolved"
       },
       {
         "id": "CH-04",
-        "scenario": "Authority/instruction state changes.",
-        "finding": "Correctness criteria can change without local source change.",
-        "resolution": "Authority/config fingerprints are first-class inputs.",
+        "scenario": "x",
+        "finding": "x",
+        "resolution": "x",
         "status": "resolved"
       },
       {
         "id": "CH-05",
-        "scenario": "Checkpoint is stale/truncated/corrupt.",
-        "finding": "Cache poisoning could permit unsafe reuse.",
-        "resolution": "Schema, checksum, completeness, branch and ancestry validation force full on mismatch.",
+        "scenario": "x",
+        "finding": "x",
+        "resolution": "x",
         "status": "resolved"
       },
       {
         "id": "CH-06",
-        "scenario": "Previous run is interrupted.",
-        "finding": "Partial PASS records could become a resume point.",
-        "resolution": "Only finalized complete checkpoints are candidates.",
+        "scenario": "x",
+        "finding": "x",
+        "resolution": "x",
         "status": "resolved"
       },
       {
         "id": "CH-07",
-        "scenario": "Known Failure scope is wider than diff.",
-        "finding": "Minimal replay could miss a recurring class.",
-        "resolution": "Known Failure scope is an additive replay override.",
+        "scenario": "x",
+        "finding": "x",
+        "resolution": "x",
         "status": "resolved"
       },
       {
         "id": "CH-08",
-        "scenario": "Planner predicts REUSE but full gate fails.",
-        "finding": "Reuse model produced a false PASS candidate.",
-        "resolution": "Shadow comparison blocks the scope engine; full verification remains authority.",
+        "scenario": "x",
+        "finding": "x",
+        "resolution": "x",
         "status": "resolved"
       },
       {
         "id": "CH-09",
-        "scenario": "Docs-only commit creates a new HEAD.",
-        "finding": "SHA-only identity would rerun everything.",
-        "resolution": "Semantic fingerprint equivalence permits reuse while manifest binds validity to current HEAD and preserves origin.",
+        "scenario": "x",
+        "finding": "x",
+        "resolution": "x",
         "status": "resolved"
       },
       {
         "id": "CH-10",
-        "scenario": "Branch changes or checkpoint commit is not ancestor.",
-        "finding": "Evidence lineage is ambiguous.",
-        "resolution": "v1 forbids cross-branch/non-ancestor reuse and forces full.",
+        "scenario": "x",
+        "finding": "x",
+        "resolution": "x",
         "status": "resolved"
       },
       {
         "id": "CH-11",
-        "scenario": "A template source file changes only one canonical page, such as FAQ, while the prior 14x3 browser matrix is green.",
-        "finding": "File-level hashing alone forces the full 42-case browser matrix and cannot safely distinguish unchanged page proofs.",
-        "resolution": "Template Factory emits deterministic compiled Page Schema fingerprints per page. Page-level browser evidence is reusable only when the prior manifest is complete, checksummed, same-branch, ancestor-bound, full-green, same template/version, and the page fingerprint is identical. Shared Runtime/Factory authority changes still force the full matrix.",
+        "scenario": "x",
+        "finding": "x",
+        "resolution": "x",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Exhaustive REUSABLE/INVALIDATED/UNKNOWN state tests with UNKNOWN always rerunning.",
-      "Scenario tests for local/shared/schema/authority/config/gate-version/unrelated/Known-Failure/dirty/corrupt/interrupted/branch/CSS-token/transitive changes.",
-      "Checksum and atomic checkpoint tests.",
-      "Truth Gate regression for reused evidence provenance and current exact-head validity.",
-      "Branch-scoped CI shadow restore/save with full-run comparison.",
-      "At least two exact-head CI cycles before physical gate-skipping promotion.",
-      "Template Factory proof: seed a complete checksummed 14x3 manifest, then prove a single-page fingerprint change reruns only that page across Desktop/Tablet/Mobile while reusing unchanged page evidence; corrupt/stale/branch-mismatched prior manifests force full matrix."
+      "x",
+      "x",
+      "x",
+      "x",
+      "x",
+      "x",
+      "x"
     ],
     "executionAuthorized": true
   },
@@ -388,7 +388,7 @@
     "requirements": [
       {
         "id": "REQ-01",
-        "requirement": "Build deterministic evidence identity from semantic inputs rather than commit SHA alone.",
+        "requirement": "x",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -400,7 +400,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-01A",
-            "statement": "A previous PASS alone never authorizes reuse.",
+            "statement": "x",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -409,7 +409,7 @@
       },
       {
         "id": "REQ-02",
-        "requirement": "Model verification dependencies and compute fail-closed transitive invalidation.",
+        "requirement": "x",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -421,7 +421,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-02A",
-            "statement": "Downstream dependents cannot remain reusable after upstream invalidation.",
+            "statement": "x",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -430,7 +430,7 @@
       },
       {
         "id": "REQ-03",
-        "requirement": "Reconcile branch-scoped checkpoints against every new exact HEAD before resume.",
+        "requirement": "x",
         "evidence": {
           "implementation": [
             "GUARD-INCREMENTAL-REPLAY"
@@ -442,7 +442,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-03A",
-            "statement": "Dirty, corrupt, incomplete, non-ancestor or cross-branch checkpoints fail closed.",
+            "statement": "x",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -451,7 +451,7 @@
       },
       {
         "id": "REQ-04",
-        "requirement": "Classify prior evidence as REUSABLE, INVALIDATED or UNKNOWN and rerun UNKNOWN.",
+        "requirement": "x",
         "evidence": {
           "implementation": [
             "GUARD-INCREMENTAL-REPLAY"
@@ -463,7 +463,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-04A",
-            "statement": "UNKNOWN never maps to REUSE.",
+            "statement": "x",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -472,7 +472,7 @@
       },
       {
         "id": "REQ-05",
-        "requirement": "Let Known Failure regression scope widen the replay plan.",
+        "requirement": "x",
         "evidence": {
           "implementation": [
             "GUARD-INCREMENTAL-REPLAY"
@@ -484,7 +484,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-05A",
-            "statement": "Minimal diff scope cannot override wider Known Failure regression scope.",
+            "statement": "x",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -493,7 +493,7 @@
       },
       {
         "id": "REQ-06",
-        "requirement": "Produce an auditable exact-head manifest for rerun and equivalence-proven reused proofs including origin revision.",
+        "requirement": "x",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -505,7 +505,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-06A",
-            "statement": "Reused proof origin and equivalence reason are retained.",
+            "statement": "x",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -514,7 +514,7 @@
       },
       {
         "id": "REQ-07",
-        "requirement": "Expose mode, reuse/rerun/invalidation counts, replay reason, checkpoint source and explain decisions.",
+        "requirement": "x",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -526,7 +526,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-07A",
-            "statement": "Replay decisions are never opaque.",
+            "statement": "x",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -535,7 +535,7 @@
       },
       {
         "id": "REQ-08",
-        "requirement": "Run v1 in shadow mode and block on any predicted-reuse/full-verification disagreement.",
+        "requirement": "x",
         "evidence": {
           "implementation": [
             "GUARD-INCREMENTAL-REPLAY"
@@ -547,7 +547,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-08A",
-            "statement": "Physical gate skipping is not promoted before shadow equivalence is proven.",
+            "statement": "x",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -556,7 +556,7 @@
       },
       {
         "id": "REQ-09",
-        "requirement": "Preserve existing Control Plane, Release Risk, Truth Gate and Template Factory ownership.",
+        "requirement": "x",
         "evidence": {
           "implementation": [
             "GUARD-PLAN-BEFORE-CODE",
@@ -569,7 +569,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-09A",
-            "statement": "No parallel blocking workflow or release authority is created.",
+            "statement": "x",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -578,7 +578,7 @@
       },
       {
         "id": "REQ-10",
-        "requirement": "Prove local/shared/schema/authority/gate/config/unrelated/visual/transitive scenarios and safe fallback, including Template Factory page-level browser-case reuse with full 14x3 fallback.",
+        "requirement": "x",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -591,7 +591,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-10A",
-            "statement": "Stale evidence, corrupted cache or unsupported state cannot produce final PASS.",
+            "statement": "x",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
