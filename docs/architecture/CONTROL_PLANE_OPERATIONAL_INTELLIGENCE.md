@@ -262,3 +262,9 @@ A shadow comparison distinguishes a verified disagreement from an interrupted co
 This separation prevents CI concurrency cancellation or infrastructure interruption from being misclassified as a semantic reuse defect while remaining fail-closed for completion.
 
 Cancelled or otherwise incomplete shadow control runs block reconciliation but do not count as false reuse unless a completed control gate explicitly fails against a predicted REUSE.
+
+### Runtime-savings accounting
+
+Shadow mode never claims physical verification savings: full control execution remains authoritative even when the planner predicts reusable evidence. The manifest may report cache-hit and invalidation ratios in SHADOW, but `physicalRuntimeSavingMs` remains zero.
+
+Physical runtime savings are reported only in ACTIVE mode, after promotion proof is valid and reusable gates are actually skipped. The saving is measured against the configured full-verification reference runtime and is accompanied by the exact reused/rerun evidence set so performance cannot override correctness evidence.
