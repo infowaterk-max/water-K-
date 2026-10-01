@@ -63,13 +63,25 @@ describe('VX Blank Studio system template',()=>{
   });
 
   it('keeps Home intentionally minimal and optional engines out of the template',()=>{
-    expect(BLANK_STUDIO_HOME_PAGE.sections.map(section=>section.componentKey)).toEqual(['system.header','layout.section','editorial.footer']);
+    expect(BLANK_STUDIO_HOME_PAGE.sections.map(section=>section.componentKey)).toEqual(['system.header','layout.section','layout.section']);
+    expect(nodes(BLANK_STUDIO_HOME_PAGE.sections).map(node=>node.componentKey)).toContain('editorial.footer');
     expect(keys('home')).toContain('content.heading');
     expect(keys('home')).toContain('content.text');
     const serialized=JSON.stringify(BLANK_STUDIO_TEMPLATE_PACKAGE);
     expect(serialized).not.toContain('commerce.interactive-scene');
     expect(serialized).not.toContain('guided.finder');
     expect(serialized).not.toContain('configurator.');
+  });
+
+  it('materializes a browser-proof neutral shell for touch and responsive safety',()=>{
+    const headerNode=BLANK_STUDIO_HOME_PAGE.sections[0];
+    const navNode=headerNode.children?.[0];
+    expect(headerNode.config.brandStyle).toMatchObject({minHeight:'2rem'});
+    expect(navNode?.config.styleSlots).toMatchObject({item:{minHeight:'2rem'}});
+    expect(BLANK_STUDIO_HOME_PAGE.sections.at(-1)?.componentKey).toBe('layout.section');
+    expect(BLANK_STUDIO_HOME_PAGE.sections.at(-1)?.children?.[0]?.componentKey).toBe('editorial.footer');
+    const productLayout=nodes(page('product').sections).find(node=>node.id==='blank-product-grid');
+    expect(productLayout?.config.gap).toBe('xs');
   });
 
   it('keeps commerce-critical pages operational instead of placeholder-only',()=>{
