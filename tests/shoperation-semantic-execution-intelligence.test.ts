@@ -80,14 +80,47 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     ]));
   });
 
-  it('keeps the real repository authority graph fail-closed until every actual dependency is reconciled',()=>{
+  it('keeps the real repository authority graph reconciled and exposes the typed execution vocabulary',()=>{
     const atlas:any=buildCodebaseAtlas();
     const reality=reconcileAuthorityDependencies(atlas);
+    expect(reality.discrepancies,JSON.stringify(reality.discrepancies.slice(0,20),null,2)).toEqual([]);
+    expect(reality.decision).toBe('PASS');
     for(const edge of reality.edges.filter((item:any)=>item.classification==='allowed-execution-edge')){
       expect(edge.reconciled).toBe(true);
       expect(edge.transfersTruthOwnership).toBe(false);
       expect(edge.policyId).toMatch(/^EXEC-/);
     }
-    for(const issue of reality.discrepancies)expect(['missing-authority-edge','ambiguous-mapping','illegal-dependency']).toContain(issue.classification);
+
+    const policy=JSON.parse(readFileSync('quality/knowledge/codebase-atlas-policy.v2.json','utf8')) as any;
+    const requiredNodeKinds=[
+      'file','module','export','imported-symbol','function','method','class','react-component','hook','context','provider',
+      'route','server-action','api-handler','rpc','schema-type','config-key','registry-key','component-key',
+      'page-schema-component','template-preset','design-token','css-variable','test','proof','authority','po-instruction','known-failure',
+    ];
+    const requiredEdgeKinds=[
+      'imports','exports','references','calls','renders','wraps','adapts','passes-prop','uses-hook','provides-context',
+      'consumes-context','reads-state','writes-state','uses-schema','invokes-rpc','resolves-route','registers','styles',
+      'inherits-token','overrides','implements','proves','authority-of','instruction-applies-to',
+    ];
+    expect(policy.semanticGraph.nodeKinds).toEqual(expect.arrayContaining(requiredNodeKinds));
+    expect(policy.semanticGraph.edgeKinds).toEqual(expect.arrayContaining(requiredEdgeKinds));
+
+    const actualNodeKinds=new Set(atlas.semanticGraph.nodes.map((item:any)=>item.kind));
+    for(const kind of [
+      'module','imported-symbol','react-component','context','provider','route','api-handler','rpc','schema-type',
+      'config-key','component-key','page-schema-component','template-preset','design-token','css-variable','test','proof',
+      'authority','po-instruction','known-failure',
+    ])expect(actualNodeKinds.has(kind),`missing semantic node kind ${kind}`).toBe(true);
+
+    const actualEdgeKinds=new Set(atlas.semanticGraph.edges.map((item:any)=>item.type));
+    for(const kind of [
+      'imports','exports','references','calls','renders','passes-prop','uses-hook','provides-context','consumes-context',
+      'reads-state','writes-state','uses-schema','invokes-rpc','resolves-route','registers','styles','inherits-token',
+      'implements','proves','authority-of','instruction-applies-to','shares-contract',
+    ])expect(actualEdgeKinds.has(kind),`missing semantic edge kind ${kind}`).toBe(true);
+
+    expect(atlas.summary.typeCheckerAvailable).toBe(true);
+    expect(atlas.summary.semanticNodes).toBeGreaterThan(atlas.summary.indexedNodes);
+    expect(atlas.summary.semanticEdges).toBeGreaterThan(atlas.summary.importEdges);
   });
 });
