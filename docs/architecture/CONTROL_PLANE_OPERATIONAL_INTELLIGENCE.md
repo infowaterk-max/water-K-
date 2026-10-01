@@ -162,3 +162,89 @@ Selected proof depth:
 - finite-state exhaustion for the deterministic completion evaluator.
 
 Full formal verification is intentionally not required because the new evaluator is bounded, deterministic repository/CI orchestration and does not mutate concurrent business state. Exhaustive finite-state tests provide a better cost/assurance tradeoff here.
+
+## Dependency-aware resumable verification
+
+Resumable verification is an extension of the existing Incremental Replay and Truth Gate path. It is not a second Control Plane or CI authority.
+
+The planner asks one question for every prior PASS:
+
+> Does the current exact HEAD have the same relevant semantic inputs, gate implementation, dependencies, authority, configuration, toolchain, environment and proof context?
+
+The answer is one of:
+
+- **REUSABLE** — equivalence is proven;
+- **INVALIDATED** — a known semantic input changed;
+- **UNKNOWN** — equivalence cannot be proven.
+
+`UNKNOWN -> RERUN` is mandatory. No prior PASS is inherited by status alone.
+
+### Evidence identity
+
+Each reusable gate proof is bound to a deterministic fingerprint over the gate's declared semantic inputs:
+
+- gate metadata / implementation identity;
+- semantic source input hash;
+- direct and transitive verification dependency fingerprint;
+- authority hash;
+- configuration hash;
+- toolchain hash;
+- environment-relevant hash;
+- gate-specific context.
+
+Commit SHA remains part of the provenance model, but no longer acts as the only evidence identity.
+
+### Verification dependency graph
+
+The canonical graph is stored on the existing guard registry. `dependsOn` edges mean that invalidation of an upstream proof invalidates dependent proof evidence as well.
+
+The model is intentionally explicit rather than a whole-repository static call graph. An unmapped changed file is therefore not optimistically ignored: it triggers the fail-closed full-verification path.
+
+### Checkpoints
+
+A checkpoint is data, not authority. It contains a finalized prior exact HEAD, branch identity, evidence fingerprints, original proof revisions and the Known Failure scope.
+
+A checkpoint is reusable only when it is complete, checksum-valid, from the same branch, an ancestor of the current HEAD, and compatible with the current verification schema. Corrupt, interrupted, cross-branch and non-ancestor checkpoints are rejected.
+
+### Change Impact Set and proof units
+
+Before replay, Incremental Replay now derives a Change Impact Set. In addition to gate-level impact it models semantic proof units for canonical Page Schema / 12-column grid, shared storefront renderer/runtime, responsive inheritance and fidelity geometry, presets / Saved Blocks, Template Factory compiler and quality authority, template-local package changes, template-local design tokens / visual DNA, template-owned shared shell, and the 14 canonical page families.
+
+A template-local diff may narrow to one page family only when the diff identifies exactly one supported page family and no template-wide token/shell marker. Ambiguous changes fail wider to the changed-template scope.
+
+Examples:
+
+- FAQ-only template change -> changed template / FAQ / Desktop+Tablet+Mobile;
+- template design token or shared shell -> all 14 pages and all three viewports of that template;
+- canonical Page Schema or shared renderer -> all relevant templates/pages/viewports;
+- unknown/unmapped change -> FULL.
+
+### Replay tiers
+
+The planner emits Tier 0 Evidence Reuse, Tier 1 Local/Page Replay, Tier 2 Dependency Replay, Tier 3 Subsystem Replay and Tier 4 Full Verification. The tier is derived from gate invalidation and semantic proof-unit impact; it is not a manual optimism switch.
+
+### Shadow mode and promotion
+
+Version 1 is branch-scoped shadow mode. The planner calculates which evidence could be reused, but the existing full gates still run as control authority. The reconciliation step compares the predicted reuse set with the full result.
+
+Any predicted REUSE whose full control gate fails is a `SHADOW_FALSE_REUSE` and blocks the replay engine.
+
+Promotion to physical gate skipping is separate and requires at least three green shadow passes, at least two green RESUMED passes, zero false reuse, exact-head Truth Gate PASS, complete evidence manifests and no unresolved dependency mapping. Until promotion, full verification is still the runtime authority.
+
+### Exact-head evidence manifest
+
+The final evidence manifest belongs to the current exact HEAD even when a proof is eventually reused physically. For each proof it records current exact HEAD, current branch and state version, origin source revision, current fingerprint, previous fingerprint, equivalence reason, execution kind and checkpoint source revision.
+
+Truth Gate accepts reused evidence only when the current-head manifest proves fingerprint equivalence. Otherwise it is stale.
+
+### Observability and explainability
+
+The resumable verification artifact exposes verification mode, replay tier and reason, reused / rerun / invalidated / unknown counts, cache hit and invalidation ratio, dependency resolution time, checkpoint source commit, semantic impact units and proof scopes, per-gate REUSE / RERUN explanation, shadow comparison result and final confidence.
+
+The diagnostic question "why did this gate rerun?" and its inverse are both answerable from the same artifact.
+
+### Residual risk
+
+The v1 model deliberately does not claim perfect source-level dependency discovery. Its safety property is the opposite: anything outside the declared semantic map is UNKNOWN and fails closed to FULL.
+
+Cross-branch reuse is intentionally disabled in v1. This avoids introducing identity and cache-poisoning complexity before branch-scoped behavior has accumulated stable shadow evidence.
