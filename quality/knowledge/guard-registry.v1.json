@@ -62,6 +62,9 @@
         ],
         "configurationInputs": [
           ".github/workflows/ci.yml"
+        ],
+        "authorityInputs": [
+          "AGENTS.md"
         ]
       }
     },
@@ -90,6 +93,9 @@
         ],
         "configurationInputs": [
           "quality/development/active-plan.json"
+        ],
+        "authorityInputs": [
+          "AGENTS.md"
         ]
       }
     },
@@ -120,6 +126,9 @@
         "configurationInputs": [
           "quality/development/active-plan.json",
           ".github/workflows/ci.yml"
+        ],
+        "authorityInputs": [
+          "AGENTS.md"
         ]
       }
     },
@@ -149,6 +158,9 @@
         ],
         "configurationInputs": [
           ".github/workflows/ci.yml"
+        ],
+        "authorityInputs": [
+          "AGENTS.md"
         ]
       }
     },
@@ -424,6 +436,16 @@
       "fallback": "FULL"
     },
     "semanticUnits": [
+      {
+        "id": "INSTRUCTION.LEDGER",
+        "kind": "instruction",
+        "filePatterns": [
+          "AGENTS.md"
+        ],
+        "impactTier": 3,
+        "scope": "development-control-plane",
+        "reason": "Repository development instructions changed and must invalidate gates whose correctness depends on them."
+      },
       {
         "id": "AUTHORITY.CORE",
         "kind": "authority",
