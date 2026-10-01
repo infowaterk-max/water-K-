@@ -260,3 +260,5 @@ Promotion eligibility is recorded only after a successful reconciliation; physic
 A shadow comparison distinguishes a verified disagreement from an interrupted control run. An explicit gate failure against a predicted reusable proof is a `SHADOW_FALSE_REUSE`. A cancelled, pending, queued, skipped, neutral or otherwise incomplete control outcome is instead `SHADOW_FULL_EVIDENCE_INCOMPLETE`: it blocks reconciliation and leaves the checkpoint incomplete, but it does not increment false-reuse evidence or promotion credit.
 
 This separation prevents CI concurrency cancellation or infrastructure interruption from being misclassified as a semantic reuse defect while remaining fail-closed for completion.
+
+Cancelled or otherwise incomplete shadow control runs block reconciliation but do not count as false reuse unless a completed control gate explicitly fails against a predicted REUSE.
