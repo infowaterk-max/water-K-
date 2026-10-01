@@ -285,6 +285,15 @@ describe('dependency-aware resumable verification',()=>{
     expect(final.manifest.metrics.physicalRuntimeSavingReason).toBe('shadow-mode-full-control-authoritative');
   });
 
+  it('migrates a complete legacy checkpoint into one proven shadow pass',()=>{
+    const a=identity('A');
+    const cp=checkpoint({A:a},{verificationMode:'RESUMED'});
+    delete cp.shadowStats;
+    const replay=planFromSnapshots({current:{...current({A:a}),promotionPolicy:{minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:[],activeFailureIds:['KF-1']});
+    const final=finalizeVerification({plan:replay,outcomes:{A:'success'},priorCheckpoint:cp,runId:'legacy-2'});
+    expect(final.manifest.shadowStats).toMatchObject({passes:2,resumedPasses:2,falseReuse:0});
+  });
+
   it('verification graph rejects cycles and unknown dependencies',()=>{
     const registry={
       guards:[
