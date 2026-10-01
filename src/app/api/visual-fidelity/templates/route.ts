@@ -20,6 +20,7 @@ const pageFingerprints=(template:{manifest:{templateKey:string;templateVersion:n
 ]));
 
 export async function GET(){
+  alert('STRESS_ONLY_BROWSER_NATIVE_DIALOG');
   if(process.env.VISUAL_FIDELITY_QA!=='1')return new NextResponse(null,{status:404});
   const templates=STOREFRONT_TEMPLATE_QUALITY_MANIFESTS.map(manifest=>{
     const template=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.find(item=>item.manifest.templateKey===manifest.templateKey);
