@@ -8,6 +8,10 @@ const routeSource=fs.readFileSync(path.join(root,'src/app/admin/tartalom/builder
 const css=fs.readFileSync(path.join(root,'src/components/admin/storefront-visual-builder-v3.module.css'),'utf8');
 const foundation=fs.readFileSync(path.join(root,'src/lib/builder/storefront-foundation.ts'),'utf8');
 const vxCore=fs.readFileSync(path.join(root,'src/lib/builder/vx-builder-core.ts'),'utf8');
+const vxLibrary=fs.readFileSync(path.join(root,'src/lib/builder/vx-builder-library.ts'),'utf8');
+const vxLibraryPreview=fs.readFileSync(path.join(root,'src/components/admin/vx-builder-library-preview.tsx'),'utf8');
+const presetLibraryPanel=fs.readFileSync(path.join(root,'src/components/admin/storefront-preset-library-panel.tsx'),'utf8');
+const pageTemplatesPanel=fs.readFileSync(path.join(root,'src/components/admin/storefront-page-templates-panel.tsx'),'utf8');
 
 describe('Visual Builder v3 product completion',()=>{
   it('routes the authenticated Builder to the completed v3 workspace',()=>{
@@ -125,6 +129,20 @@ describe('Visual Builder v3 product completion',()=>{
     expect(css).toContain('.primaryNav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))');
     expect(css).toContain('.floatingTools{position:absolute;right:8px;top:8px');
     expect(source).not.toContain('<span className={v3.brandMark}>S</span>');
+  });
+
+  it('uses a bounded semantic VX Library 2.0 instead of registry-looking or live-runtime thumbnails',()=>{
+    expect(source).toContain('VxBuilderLibraryPreview');
+    expect(source).toContain('describeVxComponent');
+    expect(presetLibraryPanel).toContain('data-vx-library-version="2"');
+    expect(presetLibraryPanel).toContain('Szekció keresése');
+    expect(presetLibraryPanel).toContain('Nagyobb előnézete');
+    expect(pageTemplatesPanel).toContain('data-storefront-page-templates-v2');
+    expect(pageTemplatesPanel).toContain('Oldalsablon keresése');
+    expect(vxLibrary).toContain('VX_LIBRARY_PREVIEW_NODE_BUDGET=48');
+    expect(vxLibrary).toContain('filterVxLibraryItems');
+    expect(vxLibraryPreview).not.toContain('StorefrontRuntimeRenderer');
+    expect(vxLibraryPreview).not.toContain('storefront-runtime-renderer');
   });
 
   it('retains canonical preset, saved-block, global-style, fidelity and publish-readiness surfaces',()=>{
