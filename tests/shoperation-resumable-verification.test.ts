@@ -277,21 +277,22 @@ describe('dependency-aware resumable verification',()=>{
 
   it('tracks shadow promotion proof without claiming physical runtime savings',()=>{
     const a=identity('A');
-    const cp=checkpoint({A:a},{shadowStats:{passes:2,resumedPasses:1,falseReuse:0}});
-    const replay=planFromSnapshots({current:{...current({A:a}),promotionPolicy:{minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:[],activeFailureIds:['KF-1']});
+    const cp=checkpoint({A:a},{shadowStats:{passes:2,resumedPasses:1,falseReuse:0},verificationEngineHash:'engine-same'});
+    const replay=planFromSnapshots({current:{...current({A:a}),verificationEngineHash:'engine-same',promotionPolicy:{minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:[],activeFailureIds:['KF-1']});
     const final=finalizeVerification({plan:{...replay,plannerStartedAtMs:Date.now()-5},outcomes:{A:'success'},priorCheckpoint:cp,runId:'3-1'});
     expect(final.manifest.shadowStats).toMatchObject({passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true});
     expect(final.manifest.metrics.physicalRuntimeSavingMs).toBe(0);
     expect(final.manifest.metrics.physicalRuntimeSavingReason).toBe('shadow-mode-full-control-authoritative');
   });
 
-  it('migrates a complete legacy checkpoint into one proven shadow pass',()=>{
+  it('does not carry promotion credit from a legacy checkpoint without engine identity',()=>{
     const a=identity('A');
     const cp=checkpoint({A:a},{verificationMode:'RESUMED'});
     delete cp.shadowStats;
-    const replay=planFromSnapshots({current:{...current({A:a}),promotionPolicy:{minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:[],activeFailureIds:['KF-1']});
+    delete cp.verificationEngineHash;
+    const replay=planFromSnapshots({current:{...current({A:a}),verificationEngineHash:'engine-new',promotionPolicy:{minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:[],activeFailureIds:['KF-1']});
     const final=finalizeVerification({plan:replay,outcomes:{A:'success'},priorCheckpoint:cp,runId:'legacy-2'});
-    expect(final.manifest.shadowStats).toMatchObject({passes:2,resumedPasses:2,falseReuse:0});
+    expect(final.manifest.shadowStats).toMatchObject({passes:1,resumedPasses:1,falseReuse:0,promotionEligible:false});
   });
 
   it('maps repository instructions as an explicit verification authority input',()=>{
@@ -304,17 +305,18 @@ describe('dependency-aware resumable verification',()=>{
 
   it('blocks ACTIVE execution without prior promotion proof',()=>{
     const a=identity('A');
-    const cp=checkpoint({A:a},{shadowStats:{passes:2,resumedPasses:1,falseReuse:0,promotionEligible:false}});
-    const replay=planFromSnapshots({current:{...current({A:a}),executionMode:'ACTIVE',promotionPolicy:{physicalSkippingEnabled:true,minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0,referenceFullRuntimeMs:1000}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:[],activeFailureIds:['KF-1']});
-    const final=finalizeVerification({plan:{...replay,plannerStartedAtMs:Date.now()-10},outcomes:{A:'skipped'},priorCheckpoint:cp,runId:'active-block'});
+    const cp=checkpoint({A:a},{shadowStats:{passes:2,resumedPasses:1,falseReuse:0,promotionEligible:false},verificationEngineHash:'engine-same'});
+    const replay=planFromSnapshots({current:{...current({A:a}),requestedExecutionMode:'ACTIVE',verificationEngineHash:'engine-same',promotionPolicy:{physicalSkippingEnabled:true,minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0,referenceFullRuntimeMs:1000}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:[],activeFailureIds:['KF-1']});
+    expect(replay.executionMode).toBe('SHADOW');
+    const final=finalizeVerification({plan:{...replay,executionMode:'ACTIVE',plannerStartedAtMs:Date.now()-10},outcomes:{A:'skipped'},priorCheckpoint:cp,runId:'active-block'});
     expect(final.decision).toBe('BLOCK');
     expect(final.manifest.comparison.discrepancies.map((item:any)=>item.code)).toContain('ACTIVE_WITHOUT_PROMOTION_PROOF');
   });
 
   it('reuses skipped safe evidence in ACTIVE mode only with fingerprint equivalence',()=>{
     const a=identity('A');
-    const cp=checkpoint({A:a},{shadowStats:{passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true}});
-    const replay=planFromSnapshots({current:{...current({A:a}),executionMode:'ACTIVE',promotionPolicy:{physicalSkippingEnabled:true,minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0,referenceFullRuntimeMs:1000}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:[],activeFailureIds:['KF-1']});
+    const cp=checkpoint({A:a},{shadowStats:{passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true},verificationEngineHash:'engine-same'});
+    const replay=planFromSnapshots({current:{...current({A:a}),requestedExecutionMode:'ACTIVE',verificationEngineHash:'engine-same',promotionPolicy:{physicalSkippingEnabled:true,minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0,referenceFullRuntimeMs:1000}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:[],activeFailureIds:['KF-1']});
     expect(replay.gates.A.action).toBe('REUSE');
     const final=finalizeVerification({plan:{...replay,plannerStartedAtMs:Date.now()-10},outcomes:{A:'skipped'},priorCheckpoint:cp,runId:'active-pass'});
     expect(final.decision).toBe('PASS');
@@ -327,8 +329,8 @@ describe('dependency-aware resumable verification',()=>{
 
   it('requires ACTIVE rerun gates to physically pass',()=>{
     const old=identity('A'),next={...old,semanticInputHash:'changed',fingerprint:'changed'};
-    const cp=checkpoint({A:old},{shadowStats:{passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true}});
-    const replay=planFromSnapshots({current:{...current({A:next}),executionMode:'ACTIVE',promotionPolicy:{physicalSkippingEnabled:true,minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:['src/a.ts'],activeFailureIds:['KF-1']});
+    const cp=checkpoint({A:old},{shadowStats:{passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true},verificationEngineHash:'engine-same'});
+    const replay=planFromSnapshots({current:{...current({A:next}),requestedExecutionMode:'ACTIVE',verificationEngineHash:'engine-same',promotionPolicy:{physicalSkippingEnabled:true,minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:['src/a.ts'],activeFailureIds:['KF-1']});
     expect(replay.gates.A.action).toBe('RERUN');
     const final=finalizeVerification({plan:replay,outcomes:{A:'skipped'},priorCheckpoint:cp,runId:'active-rerun-missing'});
     expect(final.decision).toBe('BLOCK');
