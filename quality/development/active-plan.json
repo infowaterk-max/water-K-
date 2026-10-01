@@ -1,42 +1,33 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-VX-BUILDER-LIBRARY-2",
-  "task": "Complete PR #562 as one release unit: preserve the approved shared VX Builder Core foundation and add curated VX Library 2.0 for sections, elements and page templates with lightweight semantic previews, search/category filtering, contextual insertion and bounded larger previews, while preserving canonical runtime, preset, page-template and publication authorities.",
+  "taskId": "DEV-VX-ENGINE-STYLE-CONTRACT",
+  "task": "Define validated reusable presentation tokens for existing shared commerce capabilities so engines remain template-independent, inherit Template DNA by default, and support safe local color overrides without changing runtime business authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "9df8eb64",
-  "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
+  "guardDigest": "3667fbec",
+  "changeBaseSha": "d5b7f21697a812504e21cb623f6127da719972f5",
   "plannedFilePatterns": [
-    "docs/architecture/VX_BUILDER_CORE.md",
     "quality/development/active-plan.json",
-    "src/components/admin/storefront-page-templates-panel.tsx",
-    "src/components/admin/storefront-preset-library-panel.tsx",
-    "src/components/admin/storefront-visual-builder-v3.module.css",
-    "src/components/admin/storefront-visual-builder-v3.tsx",
-    "src/components/admin/vx-builder-library-preview.tsx",
-    "src/components/admin/vx-builder-library.module.css",
-    "src/lib/builder/vx-builder-core.ts",
-    "src/lib/builder/vx-builder-library.ts",
-    "tests/shoperation-operational-intelligence.test.ts",
-    "tests/storefront-preset-library.test.ts",
-    "tests/visual-builder-production-completion.test.ts",
-    "tests/vx-builder-core.test.ts",
-    "tests/vx-builder-library.test.ts",
-    "scripts/template-factory-product-owner-handoff.mjs"
+    "docs/architecture/VX_ENGINE_CAPABILITY_STYLE.md",
+    "src/lib/builder/vx-builder-engine-style.ts",
+    "src/lib/builder/storefront-guided-finder.ts",
+    "src/lib/builder/storefront-multi-product-composer.ts",
+    "src/lib/builder/storefront-configurator.ts",
+    "src/lib/builder/storefront-interactive-scene.ts",
+    "src/lib/builder/storefront-recipe-commerce.ts",
+    "src/lib/builder/storefront-release-commerce.ts",
+    "tests/vx-builder-engine-style.test.ts"
   ],
   "expectedSubsystems": [
-    "admin-operations",
     "builder-template-system",
-    "release-infrastructure",
-    "shared-storefront",
-    "storefront-ui"
+    "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-ADMIN",
-    "DOMAIN-BUILDER"
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "admin-operations",
-    "builder-template-system"
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -94,7 +85,6 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -102,19 +92,14 @@
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [
-    {
-      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
-      "reason": "Reference Sync reports 53 ambiguous consumers for the generic JSX fragment </article>)}</div> after the page-template panel visual rewrite. The machine-meaningful page-template data marker was restored to data-storefront-page-templates-v1, leaving staleConsumers=0. The remaining matches are unrelated JSX closures across independent routes/components, not consumers of the Builder Library contract; changing them would create unrelated churn."
-    }
-  ],
+  "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-VX-BUILDER-LIBRARY-2",
+    "sourceRef": "PO-2026-10-01-VX-UNIVERSAL-ENGINE-STYLING",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "Library 2.0 sits directly on the authoring path and can influence what merchants insert into canonical Page documents. Strong behavioral proof is justified for capability filtering, bounded preview rendering, insertion integrity and performance. Formal verification would add disproportionate cost because the slice introduces no new transactional, persistence or concurrent protocol authority.",
+      "rationale": "The contract will be shared by multiple commerce capabilities and future templates. Strong behavioral proof is justified for inheritance, validation and authority boundaries. Formal verification is disproportionate because this slice does not alter engine state machines, transactions, persistence or checkout behavior.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -129,47 +114,42 @@
       "deferredTechniques": [
         {
           "technique": "finite-state-exhaustion",
-          "reason": "The gallery state is UI/filter driven; targeted state matrices and canonical insertion validation provide better assurance-to-cost ratio."
+          "reason": "The style contract is bounded data validation rather than a stateful protocol."
         },
         {
           "technique": "formal-verification",
-          "reason": "No payment, inventory or distributed consistency protocol changes; persistence and runtime authorities remain unchanged."
+          "reason": "No concurrent or transactional business authority changes."
         }
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Sections, elements and page templates use a shared VX Library visual language with lightweight semantic thumbnails instead of generic registry rows or live runtime instantiation.",
-        "Section Presets expose search, meaningful curated categories and a bounded larger preview before one-click insertion.",
-        "Element insertion cards expose recognizable semantic previews while continuing to list only structurally valid and product-profile/capability-allowed components.",
-        "Page Templates use the same visual card/preview language and retain existing apply/create-new-page authority.",
-        "Factory Section Presets remain source-controlled canonical preset material; tenant Saved Blocks remain a separate merchant-owned library.",
-        "Every insertion/application continues through existing preset/page-template materialization and validation functions; no second document, renderer, persistence or publish path is introduced.",
-        "Preview generation is bounded metadata/CSS composition only and must not instantiate one StorefrontRuntimeRenderer per Library card.",
-        "VX Shop may expose commerce library items, while the shared Core classification/preview system remains product-agnostic and compatible with future VX Site capability profiles.",
-        "Mobile Library remains polished and inspectable, but Desktop remains the full authoring authority and no mobile-only content/page model is created."
+        "Shared engines expose one reusable validated color-token contract rather than template-local styling APIs.",
+        "Omitted engine color tokens mean inherit from the active Template DNA/global storefront tokens.",
+        "Explicit local color overrides are bounded to an allowlist and valid six-digit hex colors.",
+        "Engine structure, product bindings, eligibility, pricing, stock, cart and checkout authorities are unchanged by presentation overrides.",
+        "Interactive Scene / Shop the Look uses the same styling contract as Finder, Composer, Configurator and other shared engines.",
+        "Existing engine component manifests opt into the shared engineStyle config key without introducing a second renderer or persistence model.",
+        "Unknown style keys and malformed color values fail closed.",
+        "The contract remains product/template agnostic and therefore works in future Blank Studio and VX Site-compatible capability surfaces where the engine itself is allowed."
       ],
       "invariants": [
-        "Template -> Page Preset -> Section Preset -> Component remains canonical.",
-        "A Library preview is presentation metadata only and can never become insertion/persistence authority.",
-        "Factory presets and Saved Blocks are never merged into one ownership model.",
-        "Capability and parent/child compatibility remain fail-closed before insertion.",
-        "Library search/filtering cannot reveal or insert a component hidden by the active product profile or entitlement.",
-        "No unbounded number of live runtime renderers is mounted for thumbnails or previews.",
-        "Inserted preset nodes receive canonical fresh identities and remain fully editable native Builder content.",
-        "Guarded Freedom continues to prohibit arbitrary HTML/JavaScript and unbounded freeform layout primitives."
+        "Template DNA is the default source of colors; engine overrides are optional and local.",
+        "Engine color editing never grants capability/entitlement or parent-child insertion permission.",
+        "No raw CSS, arbitrary custom property name, HTML or JavaScript enters the engineStyle contract.",
+        "Engine business/configuration state and engine presentation state remain separate.",
+        "One engine implementation can be styled differently by different templates without forking the engine.",
+        "Style token parsing is deterministic, bounded and side-effect free."
       ],
       "forbiddenStates": [
-        "live-runtime-per-library-card",
-        "preset-preview-becomes-second-renderer-authority",
-        "factory-and-tenant-library-ownership-collapse",
-        "capability-hidden-item-insertable-through-search",
-        "invalid-parent-child-insertion-through-gallery",
-        "preset-insertion-bypasses-canonical-validation",
-        "page-template-application-bypasses-current-authority",
-        "unbounded-preview-tree-walk",
-        "mobile-specific-page-or-breakpoint-document",
-        "wix-style-marketplace-or-arbitrary-widget-proliferation"
+        "template-specific-engine-fork",
+        "engine-style-grants-business-capability",
+        "raw-css-engine-override",
+        "unknown-css-variable-injection",
+        "malformed-color-persisted",
+        "engine-override-required-for-default-render",
+        "style-contract-mutates-commerce-truth",
+        "shop-the-look-template-local-hotspot-engine"
       ]
     },
     "model": {
@@ -201,48 +181,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "gallery-runtime-explosion",
-        "wrong-category-classification",
-        "search-filter-capability-leak",
-        "stale-contextual-target",
-        "invalid-section-insertion",
-        "saved-block-authority-confusion",
-        "page-template-authority-duplication",
-        "mobile-library-overflow",
-        "visual-preview-misrepresents-semantic-type",
-        "large-fragment-preview-cost"
+        "unknown-style-key",
+        "invalid-hex",
+        "too-many-style-keys",
+        "engine-manifest-forgets-style-contract",
+        "template-engine-coupling",
+        "commerce-authority-leak",
+        "style-required-to-render",
+        "local-style-global-leak"
       ],
       "edgeCases": [
-        "section-preset-with-deep-tree",
-        "preset-containing-commerce-components",
-        "site-profile-with-commerce-classification",
-        "zero-compatible-section-presets",
-        "selected-node-with-no-appearance-presets",
-        "search-query-with-diacritics",
-        "preview-of-unknown-forward-compatible-component",
-        "mobile-panel-width-under-360px",
-        "page-template-with-no-current-apply-compatibility",
-        "insertion-after-capability-change"
+        "empty-engine-style",
+        "partial-single-color-override",
+        "uppercase-hex-input",
+        "unknown-style-key",
+        "null-engine-style",
+        "shop-the-look-with-no-local-override",
+        "different-engine-in-same-page-with-different-overrides",
+        "future-engine-manifest-adoption"
       ]
     },
     "alternatives": [
       {
         "id": "ALT-01",
-        "summary": "Render every preset and element card with a full live StorefrontRuntimeRenderer miniature.",
+        "summary": "Allow arbitrary CSS/style objects per engine.",
         "disposition": "rejected",
-        "reason": "High runtime/DOM cost, duplicate interaction complexity and explicit conflict with the roadmap's bounded thumbnail contract."
+        "reason": "Violates Guarded Freedom, increases performance/security risk and makes engine rendering unstable."
       },
       {
         "id": "ALT-02",
-        "summary": "Build a shared semantic Library descriptor/preview layer over existing canonical preset, component and page-template authorities.",
+        "summary": "Use one validated semantic Engine Style Token contract inherited from Template DNA with optional local overrides.",
         "disposition": "selected",
-        "reason": "Improves merchant comprehension and visual quality while preserving one runtime/persistence authority and keeping previews bounded."
+        "reason": "Preserves universal engines, allows branding flexibility and keeps runtime optimization predictable."
       },
       {
         "id": "ALT-03",
-        "summary": "Create a separate visual preset database/marketplace with arbitrary merchant widgets.",
+        "summary": "Bake colors into each template-specific engine preset.",
         "disposition": "rejected",
-        "reason": "Would create a parallel authority, undermine Guarded Freedom and dramatically increase performance/security/regression surface."
+        "reason": "Recreates template-owned engines and prevents Blank Studio from composing capabilities independently."
       }
     ],
     "specialistReviews": [
@@ -250,115 +226,107 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Library 2.0 must be a presentation/indexing layer over existing preset/page-template authorities, not a new content authority.",
-        "resolution": "Introduce pure semantic descriptor helpers and lightweight preview components; insertion still calls the existing canonical functions."
-      },
-      {
-        "role": "Runtime",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "A visually rich gallery can accidentally mount dozens of live storefront runtimes or traverse arbitrarily deep preset trees on every render.",
-        "resolution": "Use bounded pure descriptors and CSS semantic thumbnails; cap structural inspection and never mount StorefrontRuntimeRenderer in Library cards."
-      },
-      {
-        "role": "UX / Template",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Generic cube/line cards do not communicate what will be inserted and make the Builder feel registry-driven.",
-        "resolution": "Use recognizable section/element/page-template preview archetypes, curated categories, search and an explicit larger preview surface."
+        "finding": "Presentation must not become a second engine authority.",
+        "resolution": "One pure style contract is consumed by existing component configs; runtime/business APIs remain unchanged."
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Search/filter UI must not expose a hidden insert path for disallowed components or Pro-only capability.",
-        "resolution": "Derive candidate sets from the same contextual/capability-filtered authorities first, then apply visual search/category filtering only to that safe set."
+        "finding": "Free-form CSS/custom properties would create injection and unbounded styling surface.",
+        "resolution": "Allowlisted semantic token keys plus strict #RRGGBB validation only."
+      },
+      {
+        "role": "Runtime",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Local overrides could accidentally become mandatory and break old templates.",
+        "resolution": "Empty/absent engineStyle resolves to no local variables, preserving current inherited behavior exactly."
+      },
+      {
+        "role": "UX / Template",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Merchants need brand control without understanding CSS.",
+        "resolution": "Expose semantic colors such as háttér/felület/szöveg/kiemelés later through Inspector; this slice creates the safe canonical data contract first."
       }
     ],
     "challenge": [
       {
         "id": "CH-01",
-        "scenario": "A template exposes 80 presets and each card renders a live runtime preview.",
-        "finding": "The Library becomes slower than the storefront and creates massive DOM/listener cost.",
-        "resolution": "Semantic CSS thumbnails only; no StorefrontRuntimeRenderer inside Library cards and larger preview remains the same bounded descriptor.",
+        "scenario": "A template inserts Shop the Look with no engineStyle config.",
+        "finding": "A new contract must not change existing output.",
+        "resolution": "Empty style state emits no override; inherited Template DNA remains authoritative.",
         "status": "resolved"
       },
       {
         "id": "CH-02",
-        "scenario": "A deep preset fragment recursively walks thousands of descendants to create a thumbnail.",
-        "finding": "Preview cost could be attacker/template amplified.",
-        "resolution": "Descriptor traversal uses an explicit node inspection budget and returns a safe generic preview when the budget is exhausted.",
+        "scenario": "Merchant sets only accent color.",
+        "finding": "Partial overrides could erase inherited colors.",
+        "resolution": "Only explicitly supplied token variables are emitted; all others continue inheritance.",
         "status": "resolved"
       },
       {
         "id": "CH-03",
-        "scenario": "A user searches for a commerce component hidden by current profile/capability.",
-        "finding": "A secondary search index could leak an insertion route.",
-        "resolution": "Search operates only on the already filtered safe candidate list; classification never grants insertability.",
+        "scenario": "A malicious config adds '--position' or arbitrary CSS.",
+        "finding": "Could bypass Guarded Freedom.",
+        "resolution": "Parser rejects every unknown semantic key and never accepts arbitrary CSS variable names.",
         "status": "resolved"
       },
       {
         "id": "CH-04",
-        "scenario": "A section card looks like a Hero but insertion materializes a different authority or opaque widget.",
-        "finding": "Visual Library could become misleading and non-editable.",
-        "resolution": "Preview is derived from canonical fragment/component keys and insertion materializes ordinary editable native nodes through existing preset functions.",
+        "scenario": "Malformed colors such as url(), rgb(), 3-digit hex or CSS expressions are supplied.",
+        "finding": "Unsafe/unpredictable rendering surface.",
+        "resolution": "Only #RRGGBB values are accepted and normalized to lowercase.",
         "status": "resolved"
       },
       {
         "id": "CH-05",
-        "scenario": "Factory presets and merchant Saved Blocks are shown as one undifferentiated collection.",
-        "finding": "Ownership, lifecycle and trust become ambiguous.",
-        "resolution": "Keep separate top-level surfaces and explicit source badges; no combined persistence model.",
+        "scenario": "A template defines a special Shop-the-Look-only color API.",
+        "finding": "Engine would again become template-owned.",
+        "resolution": "Interactive Scene uses the same generic engineStyle contract; templates provide defaults through DNA/presets only.",
         "status": "resolved"
       },
       {
         "id": "CH-06",
-        "scenario": "Page-template cards reimplement apply/create behavior inside the visual preview layer.",
-        "finding": "Would duplicate page authority and optimistic concurrency rules.",
-        "resolution": "Visual cards only call existing StorefrontPageTemplatesPanel actions/applyStorefrontPageTemplate paths.",
+        "scenario": "Engine styling changes capability or commerce binding data.",
+        "finding": "Presentation could corrupt business truth.",
+        "resolution": "Style parser has no access to bindings/capability/runtime engine documents and returns presentation tokens only.",
         "status": "resolved"
       },
       {
         "id": "CH-07",
-        "scenario": "Unknown future component keys break thumbnail rendering.",
-        "finding": "Forward-compatible templates could crash the Library.",
-        "resolution": "Classification fails to a generic bounded preview without affecting canonical insertion eligibility.",
+        "scenario": "Many engines on one page have different local overrides.",
+        "finding": "Overrides could leak across siblings.",
+        "resolution": "Runtime application in the next isolated slice is scoped to each engine root; this foundation contract contains no global mutation.",
         "status": "resolved"
       },
       {
         "id": "CH-08",
-        "scenario": "Mobile tries to show desktop-sized multi-column gallery cards and creates horizontal scroll.",
-        "finding": "Mobile audit becomes visibly broken even though desktop is primary.",
-        "resolution": "Responsive Library CSS collapses grids and keeps actions/touch targets inside the panel without introducing separate content semantics.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-09",
-        "scenario": "Reference Sync flags a generic JSX closing fragment from the rewritten page-template panel across dozens of unrelated article lists.",
-        "finding": "The review signal is syntactically ambiguous rather than a real contract dependency; blindly editing every match would create unrelated repository churn.",
-        "resolution": "Restore the actual machine contract marker for backward compatibility, verify staleConsumers=0, and use the canonical review exception only for the remaining generic JSX matches with an explicit reason.",
+        "scenario": "Future engines need the same color editability.",
+        "finding": "Per-engine ad-hoc schemas would proliferate.",
+        "resolution": "Export reusable ENGINE_STYLE_CONFIG_KEY and parser/types for manifest adoption.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code on the committed active plan before product implementation.",
-      "Add unit coverage for bounded semantic classification, category/search behavior and unknown-component fallback.",
-      "Extend preset-library regression coverage to prove visual metadata never replaces canonical insertion/materialization.",
-      "Extend Builder completion coverage to prove element cards use semantic previews and no Library card imports/mounts StorefrontRuntimeRenderer.",
-      "Run existing preset/page-template/Saved Block and capability regression suites through Incremental Replay.",
+      "Run Plan Before Code against the exact stacked branch before product-code execution.",
+      "Unit-test empty inheritance, partial overrides, normalization, unknown keys, malformed values and size bounds.",
+      "Assert all targeted shared engine manifests expose exactly the same engineStyle config key.",
+      "Assert Interactive Scene remains the canonical shared Shop-the-Look/Room component and no template-local engine is introduced.",
+      "Run incremental known-failure replay for Builder/shared-storefront scope.",
       "Run typecheck and production build on exact implementation HEAD.",
-      "Run Template Factory Quality Gate/browser proof to catch responsive/visual/runtime regressions.",
-      "Close only after exact-head Completion Truth Gate evidence; no main merge or golden update in this slice."
+      "Do not merge parent or child PR, update goldens or weaken release-risk gates."
     ],
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-VX-BUILDER-LIBRARY-2",
+    "sourceRef": "PO-2026-10-01-VX-UNIVERSAL-ENGINE-STYLING",
     "requirements": [
       {
         "id": "REQ-01",
-        "requirement": "Implement one shared visual Library descriptor/preview layer for Sections, Elements and Page Templates without introducing a second content or renderer authority.",
+        "requirement": "Provide one validated reusable Engine Style Token contract for shared capabilities.",
         "evidence": {
           "implementation": [
             "GUARD-PLAN-BEFORE-CODE",
@@ -372,29 +340,28 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-01A",
-            "statement": "Library cards must not mount StorefrontRuntimeRenderer or create a new preset/page persistence path.",
+            "statement": "No raw CSS/custom-property injection or template-specific engine style authority.",
             "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-INCREMENTAL-REPLAY"
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       },
       {
         "id": "REQ-02",
-        "requirement": "Upgrade Section Presets with semantic thumbnails, search, curated categories and a bounded larger preview with canonical one-click insertion.",
+        "requirement": "Preserve Template DNA inheritance when no or partial local engine override is supplied.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-PRODUCTION-BUILD"
+            "GUARD-INCREMENTAL-REPLAY"
           ]
         },
         "forbiddenRegressions": [
           {
             "id": "NEG-02A",
-            "statement": "Section insertion must continue through insertStorefrontSectionPreset and canonical validation.",
+            "statement": "The new contract must not make local styling mandatory for existing templates.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -403,19 +370,19 @@
       },
       {
         "id": "REQ-03",
-        "requirement": "Upgrade Element insertion cards with recognizable semantic previews while preserving contextual/product-profile/capability filtering.",
+        "requirement": "Make the shared engine families, including Interactive Scene / Shop the Look, opt into the same engineStyle config contract.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-INCREMENTAL-REPLAY"
+            "GUARD-TYPECHECK"
           ]
         },
         "forbiddenRegressions": [
           {
             "id": "NEG-03A",
-            "statement": "Search/category filtering cannot make an otherwise disallowed element insertable.",
+            "statement": "No Shop-the-Look-specific template engine or divergent styling schema is added.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -424,113 +391,27 @@
       },
       {
         "id": "REQ-04",
-        "requirement": "Upgrade Page Template cards to the same visual language while retaining existing apply and create-page authority.",
+        "requirement": "Keep all business capability, binding, pricing, stock, cart and checkout authority unchanged.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-INCREMENTAL-REPLAY"
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
             "id": "NEG-04A",
-            "statement": "No page-template action or page document authority is duplicated in the preview layer.",
+            "statement": "Presentation tokens cannot alter entitlement, bindings or commerce truth.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-05",
-        "requirement": "Keep Factory Presets and merchant Saved Blocks as visibly and technically separate ownership/lifecycle surfaces.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-05A",
-            "statement": "No combined storage or trust model is created for factory and tenant-owned blocks.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-06",
-        "requirement": "Keep Library preview work bounded and lightweight for large template catalogs and deep preset fragments.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-06A",
-            "statement": "No unbounded recursive preview traversal or live runtime-per-card strategy is introduced.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-INCREMENTAL-REPLAY"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-07",
-        "requirement": "Preserve Desktop-first authoring with polished responsive Library behavior on mobile without horizontal control overflow or a mobile-only document model.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-07A",
-            "statement": "Library responsiveness must not create duplicate breakpoint/page authorities.",
-            "evidence": [
-              "GUARD-INCREMENTAL-REPLAY"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-08",
-        "requirement": "Preserve Guarded Freedom and canonical runtime/performance/security boundaries while improving visual discoverability.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-PRODUCTION-BUILD",
-            "GUARD-RELEASE-RISK"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-08A",
-            "statement": "No arbitrary HTML/JS widget marketplace, gate weakening, golden update or main merge occurs.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-RELEASE-RISK"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "PO authorized continued VX Builder development while full desktop audit is deferred until the user has desktop hardware again. This slice addresses the visibly primitive Library/element-add experience without treating mobile as full authoring authority. No main merge and no golden update. Plan Before Code planned-projection currently resolves only existing admin-surface files; new Builder/Core files do not exist yet and therefore are not projected into Atlas authority scope. The pre-code expectation is intentionally DOMAIN-ADMIN/admin-operations and will be reconciled immediately after the first implementation commit when the actual diff contains the new Core files. Actual implementation diff now contains the new Core/Library files, so Atlas scope has expanded to the intended DOMAIN-ADMIN / DOMAIN-BUILDER / DOMAIN-STOREFRONT and matching admin-operations / builder-template-system / shared-storefront authorities. The plan is reconciled to actual implementation scope before verification. Element-card visual upgrade also requires the existing v3 CSS module; it is now explicitly part of the planned Library 2.0 surface. Actual-diff Atlas confirms Library 2.0 changes admin/builder authoring surfaces only; shared-storefront remains an impacted dependency/verification surface but is not an edited authority domain. Expected domain/authority scope is corrected to DOMAIN-ADMIN + DOMAIN-BUILDER and admin-operations + builder-template-system. Reference Sync closure: the genuine page-template data-marker dependency was restored to v1 compatibility. The remaining 53 review-only hits all originate from a generic JSX closing fragment and have zero stale machine consumers; they are explicitly acknowledged through the canonical DEV-REVIEW-REFERENCE-SYNC review exception rather than by unrelated edits. Release-unit reconciliation: because VX Library 2.0 is intentionally layered on the still-unmerged VX Builder Core foundation in the same PR, release risk compares the complete #562 diff to main. The development/change-impact base is therefore aligned to main and the plan envelope explicitly includes all 15 PR files. This prevents slice-local Atlas evidence from disagreeing with release-level evidence without weakening either gate. Full-PR Plan Before Code machine projection adds release-infrastructure through the pre-existing Operational Intelligence regression file and confirms direct Atlas authority remains DOMAIN-ADMIN + DOMAIN-BUILDER. Guard digest and negative-knowledge acknowledgement are reconciled exactly to the full release unit. Projected release-infrastructure scope activates SQ-NK-005, so the full-PR negative-knowledge acknowledgement now matches the machine projection exactly. E13 functional-proof strict-mode duplication was diagnosed as an automation locator ambiguity; the release proof script is now explicitly in-plan and requires exactly one visible E13 entry root before continuing."
+  "notes": "This is slice 1 of the PO-approved universal-engine + Blank Studio direction. It intentionally excludes runtime UI application and the Blank Studio package so the release-risk budget stays within two affected subsystems. A following stacked slice will apply local CSS-variable overrides at engine roots; Blank Studio is a separate system-template slice outside the curated 42 count. Actual-diff Plan Before Code reconciliation confirms the shared storefront-* engine definitions are dual-owned by DOMAIN-BUILDER and DOMAIN-STOREFRONT, with builder-template-system + shared-storefront authorities. Guard digest is reconciled to the exact machine projection; scope is unchanged at two subsystems."
 }
