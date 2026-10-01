@@ -414,6 +414,227 @@
       "docs/**",
       "README.md",
       ".github/ISSUE_TEMPLATE/**"
+    ],
+    "promotion": {
+      "physicalSkippingEnabled": false,
+      "minimumShadowPasses": 3,
+      "minimumResumedShadowPasses": 2,
+      "maximumFalseReuse": 0,
+      "requireExactHeadTruth": true,
+      "fallback": "FULL"
+    },
+    "semanticUnits": [
+      {
+        "id": "AUTHORITY.CORE",
+        "kind": "authority",
+        "filePatterns": [
+          "quality/knowledge/architecture-constitution.v1.json",
+          "quality/knowledge/domain-foundations.v1.json",
+          "quality/knowledge/development-guard-policy.v1.json",
+          "quality/knowledge/guard-registry.v1.json"
+        ],
+        "impactTier": 4,
+        "scope": "full-verification",
+        "reason": "Core verification/authority semantics changed."
+      },
+      {
+        "id": "BUILDER.PAGE_SCHEMA",
+        "kind": "schema",
+        "filePatterns": [
+          "src/lib/builder/storefront-page-schema.ts",
+          "src/lib/builder/storefront-foundation.ts"
+        ],
+        "impactTier": 4,
+        "scope": "all-templates-all-pages-viewports",
+        "reason": "Canonical Page Schema/grid/design contract changed."
+      },
+      {
+        "id": "BUILDER.RUNTIME",
+        "kind": "runtime",
+        "filePatterns": [
+          "src/lib/builder/storefront-runtime*",
+          "src/components/builder/storefront-runtime-*",
+          "src/components/builder/storefront-builder-renderer-registry*"
+        ],
+        "impactTier": 4,
+        "scope": "all-templates-all-pages-viewports",
+        "reason": "Shared storefront renderer/runtime changed."
+      },
+      {
+        "id": "BUILDER.RESPONSIVE",
+        "kind": "runtime",
+        "filePatterns": [
+          "src/lib/builder/storefront-fidelity-engine.ts",
+          "src/lib/builder/**/*responsive*",
+          "src/components/admin/storefront-fidelity-*"
+        ],
+        "impactTier": 3,
+        "scope": "affected-pages-all-viewports",
+        "reason": "Responsive inheritance or geometry authority changed."
+      },
+      {
+        "id": "BUILDER.PRESETS",
+        "kind": "preset",
+        "filePatterns": [
+          "src/lib/builder/storefront-presets.ts",
+          "src/lib/builder/storefront-preset-application.ts",
+          "src/lib/builder/storefront-saved-blocks.ts",
+          "src/components/admin/storefront-preset-*",
+          "src/components/admin/storefront-saved-blocks-*"
+        ],
+        "impactTier": 2,
+        "scope": "preset-consumers",
+        "reason": "Shared preset/saved-block materialization changed."
+      },
+      {
+        "id": "TEMPLATE.FACTORY",
+        "kind": "factory",
+        "filePatterns": [
+          "src/lib/builder/template-factory/**",
+          "scripts/template-factory-*",
+          ".github/workflows/template-factory-quality-gate.yml"
+        ],
+        "impactTier": 4,
+        "scope": "factory-full-matrix",
+        "reason": "Template Factory compiler/quality authority changed."
+      },
+      {
+        "id": "TEMPLATE.LOCAL",
+        "kind": "template",
+        "filePatterns": [
+          "src/lib/builder/templates/**"
+        ],
+        "impactTier": 2,
+        "scope": "changed-template",
+        "reason": "Template-owned package or page composition changed.",
+        "allowPageNarrowing": true
+      },
+      {
+        "id": "TEMPLATE.PAGE.HOME",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "\\bhome\\b|főoldal",
+        "pageType": "home",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.CATALOG",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "catalog|katalóg",
+        "pageType": "catalog",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.PRODUCT",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "product|termékoldal",
+        "pageType": "product",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.CART",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "\\bcart\\b|kosár",
+        "pageType": "cart",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.CHECKOUT",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "checkout|pénztár",
+        "pageType": "checkout",
+        "impactTier": 2,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.ACCOUNT",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "account|fiók",
+        "pageType": "account",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.SEARCH",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "search|keres",
+        "pageType": "search",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.CONTENT",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "content|oldal",
+        "pageType": "content",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.BLOG_INDEX",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "blog-index|blog index|magazin",
+        "pageType": "blog-index",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.BLOG_ARTICLE",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "blog-article|blog article|cikk",
+        "pageType": "blog-article",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.FAQ",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "\\bfaq\\b|gyik|gyakori kérd",
+        "pageType": "faq",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.CONTACT",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "contact|kapcsolat",
+        "pageType": "contact",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.LEGAL",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "legal|jogi",
+        "pageType": "legal",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      },
+      {
+        "id": "TEMPLATE.PAGE.NOT_FOUND",
+        "kind": "page",
+        "parent": "TEMPLATE.LOCAL",
+        "diffPattern": "not-found|404",
+        "pageType": "not-found",
+        "impactTier": 1,
+        "scope": "changed-template-page-all-viewports"
+      }
     ]
   }
 }
