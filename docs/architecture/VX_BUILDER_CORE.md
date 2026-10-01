@@ -43,6 +43,14 @@ The interaction order is **direct manipulation first, Inspector second**:
 - Desktop / Tablet / Mobile edits remain viewport-scoped canonical overrides;
 - advanced technical controls are progressively disclosed.
 
+## Authoring surface policy
+
+VX Builder is **desktop-first authoring software**. Desktop is the Product Owner and engineering authority for full visual composition, precision layout, responsive inheritance and advanced Inspector work.
+
+Mobile support is deliberately narrower but must remain polished and safe. A phone may be used for inspection, quick content edits, contextual insertion, basic corrections and acceptance checks, but the Core must not distort its desktop interaction model merely to make full storefront composition comfortable on a narrow screen.
+
+Mobile therefore uses progressive disclosure, compact action menus and automatic canvas fitting. Missing space on mobile is solved by prioritization and overlays — never by horizontal toolbar overflow, broken hit targets or a second mobile-only page/layout authority.
+
 ## Guarded Freedom
 
 VX Builder deliberately does **not** implement Wix-style unrestricted freeform editing.
