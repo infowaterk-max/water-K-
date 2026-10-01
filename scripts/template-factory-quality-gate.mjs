@@ -4,7 +4,7 @@ import {access,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
 import {chromium} from 'playwright';
-import {deriveTemplateReplayDecision,templateBrowserCaseFingerprint,reusableTemplateBrowserCase} from './lib/template-factory-resumable-verification.mjs';
+import {deriveTemplateReplayDecision,templateBrowserCaseFingerprint,reusableTemplateBrowserCase} from './lib/shoperation-template-factory-resumable-verification.mjs';
 
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
 const outputDir=process.env.TEMPLATE_QUALITY_OUTPUT_DIR??'artifacts/template-factory-quality';
@@ -29,7 +29,7 @@ const qualityInfrastructurePrefixes=[
   'src/app/api/visual-fidelity/templates/',
   'src/app/visual-fidelity-qa/',
   'scripts/template-factory-quality-gate.mjs',
-  'scripts/lib/template-factory-resumable-verification.mjs',
+  'scripts/lib/shoperation-template-factory-resumable-verification.mjs',
   'scripts/lib/shoperation-verification-reuse.mjs',
   'scripts/lib/shoperation-development-runtime.mjs',
   'quality/knowledge/guard-registry.v1.json',
