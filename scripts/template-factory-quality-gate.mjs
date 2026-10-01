@@ -1,8 +1,10 @@
 import {createHash} from 'node:crypto';
+import {existsSync,readFileSync} from 'node:fs';
 import {access,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
 import {chromium} from 'playwright';
+import {deriveTemplateReplayDecision,templateBrowserCaseFingerprint,reusableTemplateBrowserCase} from './lib/template-factory-resumable-verification.mjs';
 
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
 const outputDir=process.env.TEMPLATE_QUALITY_OUTPUT_DIR??'artifacts/template-factory-quality';
@@ -27,6 +29,8 @@ const qualityInfrastructurePrefixes=[
   'src/app/api/visual-fidelity/templates/',
   'src/app/visual-fidelity-qa/',
   'scripts/template-factory-quality-gate.mjs',
+  'scripts/lib/template-factory-resumable-verification.mjs',
+  'quality/knowledge/guard-registry.v1.json',
   'scripts/template-factory-product-owner-handoff.mjs',
   'scripts/promote-template-golden-baseline.mjs',
   '.github/workflows/template-factory-quality-gate.yml',
@@ -46,6 +50,12 @@ const sharedRuntimePrefixes=[
   'src/components/account/',
   'src/app/fiokom/',
   'src/lib/account/',
+  'src/app/public-pages-polish.css',
+  'src/app/v6.css',
+  'src/app/final-ux-audit.css',
+  'src/app/responsive-final.css',
+  'src/app/globals.css',
+  'public/',
 ];
 
 const safeName=value=>value.replace(/[^a-z0-9._-]+/gi,'-').replace(/^-+|-+$/g,'').toLowerCase();
@@ -70,10 +80,10 @@ async function loadPreviousManifest(){
   }catch(error){return{manifest:null,reason:'corrupt',error:String(error)};}
 }
 
-function changedFiles(){
-  if(!baseSha||/^0+$/.test(baseSha))return[];
+function changedFiles(fromSha=baseSha){
+  if(!fromSha||/^0+$/.test(fromSha))return[];
   try{
-    const raw=execFileSync('git',['diff','--name-status',baseSha,headSha],{encoding:'utf8'});
+    const raw=execFileSync('git',['diff','--name-status',fromSha,headSha],{encoding:'utf8'});
     return raw.split(/\r?\n/).filter(Boolean).map(line=>{
       const parts=line.split('\t');
       const status=parts[0]??'M';
@@ -85,10 +95,31 @@ function changedFiles(){
   }
 }
 
+function diffText(fromSha,file){
+  if(!fromSha||!file)return'';
+  try{return execFileSync('git',['diff','--unified=0',fromSha,headSha,'--',file],{encoding:'utf8'});}
+  catch{return'';}
+}
+
+function repositoryFingerprint(prefixes){
+  const raw=execFileSync('git',['ls-files','-z'],{encoding:'utf8'});
+  const files=raw.split('\0').filter(Boolean).filter(file=>startsWithAny(file,prefixes)&&existsSync(file)).sort();
+  const hash=createHash('sha256');
+  for(const file of files){hash.update(file);hash.update('\0');hash.update(readFileSync(file));hash.update('\0');}
+  return hash.digest('hex');
+}
+
+async function fileFingerprint(file){
+  if(!await exists(file))return'missing';
+  return createHash('sha256').update(await readFile(file)).digest('hex');
+}
+
 function startsWithAny(file,prefixes){return prefixes.some(prefix=>file.startsWith(prefix));}
 
-function priorTemplateProof(previous,template){
+function priorTemplateProof(previous,template,{factoryEngineHash,toolchainHash}={}){
   if(!previous)return null;
+  if(!previous.factoryEngineHash||previous.factoryEngineHash!==factoryEngineHash)return null;
+  if(!previous.toolchainHash||previous.toolchainHash!==toolchainHash)return null;
   const priorFingerprint=previous.templatePageFingerprints?.[template.templateKey];
   const acceptance=(previous.acceptanceProofs??[]).find(item=>item.templateKey===template.templateKey&&item.templateVersion===template.templateVersion);
   if(!priorFingerprint||priorFingerprint.templateVersion!==template.templateVersion||acceptance?.browserMatrixPassed!==true||acceptance?.browserMatrixComplete!==true)return null;
@@ -99,7 +130,7 @@ function priorTemplateProof(previous,template){
   return{fingerprints:priorFingerprint.pages??{},cases:priorCases,sourceCommit:previous.sourceCommit,runId:previous.runId??null};
 }
 
-function selectScope(catalog,changes,previous){
+function selectScope(catalog,changes,previous,{registry,diffByFile,factoryEngineHash,toolchainHash}={}){
   const templates=catalog.templates??[];
   const selected=new Map();
   const reasons=[];
@@ -107,21 +138,19 @@ function selectScope(catalog,changes,previous){
   const sharedRuntime=changes.some(change=>startsWithAny(change.file,sharedRuntimePrefixes)&&!startsWithAny(change.file,qualityInfrastructurePrefixes));
 
   for(const template of templates){
-    const direct=changes.some(change=>startsWithAny(change.file,template.sourcePrefixes??[]));
-    if(!direct)continue;
-    const prior=priorTemplateProof(previous,template);
-    if(!prior){
-      selected.set(template.templateKey,{template,mode:'full',pages:[...template.pageTypes],reason:'template-source-changed-no-reusable-proof',prior:null});
-      continue;
-    }
-    const changedPages=template.pageTypes.filter(pageType=>prior.fingerprints?.[pageType]!==template.pageFingerprints?.[pageType]);
-    if(changedPages.length===template.pageTypes.length){
-      selected.set(template.templateKey,{template,mode:'full',pages:[...template.pageTypes],reason:'template-all-page-fingerprints-changed',prior});
-    }else if(changedPages.length){
-      selected.set(template.templateKey,{template,mode:'partial',pages:changedPages,reason:'template-page-fingerprint-changed',prior});
-    }else{
-      selected.set(template.templateKey,{template,mode:'reuse',pages:[],reason:'template-browser-input-fingerprints-equivalent',prior});
-    }
+    const directChanges=changes.filter(change=>startsWithAny(change.file,template.sourcePrefixes??[]));
+    if(!directChanges.length)continue;
+    const prior=priorTemplateProof(previous,template,{factoryEngineHash,toolchainHash});
+    const decision=deriveTemplateReplayDecision({
+      registry,
+      changedFiles:directChanges.map(change=>change.file),
+      diffByFile,
+      pageTypes:template.pageTypes,
+      currentPageFingerprints:template.pageFingerprints??{},
+      previousPageFingerprints:prior?.fingerprints??{},
+      priorComplete:Boolean(prior),
+    });
+    selected.set(template.templateKey,{template,...decision,prior});
   }
 
   const addedTemplateFiles=changes.filter(change=>change.status.startsWith('A')&&change.file.startsWith('src/lib/builder/templates/')&&/\.(ts|tsx)$/.test(change.file));
@@ -151,10 +180,15 @@ function selectScope(catalog,changes,previous){
 
   if(!selected.size){
     for(const template of templates){
+      const prior=priorTemplateProof(previous,template,{factoryEngineHash,toolchainHash});
+      if(previous&&prior){
+        selected.set(template.templateKey,{template,mode:'reuse',pages:[],reason:'no-relevant-browser-input-change',semanticImpact:[],prior});
+        continue;
+      }
       const mode=template.factoryCandidate?'full':'canary';
       const pages=mode==='full'?[...template.pageTypes]:template.pageTypes.filter(pageType=>canaryPageTypes.has(pageType));
       const reason=template.factoryCandidate?'factory-exact-head-full':'default-canary';
-      selected.set(template.templateKey,{template,mode,pages,reason,prior:null});
+      selected.set(template.templateKey,{template,mode,pages,reason,semanticImpact:[],prior:null});
     }
   }
   for(const value of selected.values())reasons.push({templateKey:value.template.templateKey,mode:value.mode,pages:value.pages,reason:value.reason,reusedFrom:value.prior?.sourceCommit??null});
@@ -355,10 +389,54 @@ const catalog=await loadCatalog();
 for(const item of catalog.templates??[]){
   if(item.structural?.ok!==true)throw new Error(`TEMPLATE_FACTORY_STRUCTURAL_GATE_FAILED:${item.templateKey}:${item.structural?.issues?.[0]?.code??'UNKNOWN'}`);
 }
-const changes=changedFiles();
 const previousResult=await loadPreviousManifest();
 const previousManifest=previousResult.manifest;
-const scope=selectScope(catalog,changes,previousManifest);
+const diffBaseSha=previousManifest?.sourceCommit??baseSha;
+const changes=changedFiles(diffBaseSha);
+const diffByFile=Object.fromEntries(changes.map(change=>[change.file,diffText(diffBaseSha,change.file)]));
+const guardRegistry=JSON.parse(await readFile('quality/knowledge/guard-registry.v1.json','utf8'));
+const toolchainHash=repositoryFingerprint(['package.json','package-lock.json']);
+const factoryEngineHash=repositoryFingerprint([...qualityInfrastructurePrefixes,...sharedRuntimePrefixes,'src/app/api/visual-fidelity/templates/route.ts']);
+const scope=selectScope(catalog,changes,previousManifest,{registry:guardRegistry,diffByFile,factoryEngineHash,toolchainHash});
+
+const caseFingerprint=async(manifest,pageType,viewport)=>{
+  const baselinePath=path.join(manifest.golden.baselineDirectory,`${pageType}-${viewport}.png`);
+  const baselineHash=await fileFingerprint(baselinePath);
+  return templateBrowserCaseFingerprint({
+    templateKey:manifest.templateKey,
+    templateVersion:manifest.templateVersion,
+    pageType,
+    viewport,
+    pageFingerprint:manifest.pageFingerprints?.[pageType]??null,
+    browser:manifest.browser,
+    golden:manifest.golden,
+    viewportProfile:viewportProfiles[viewport],
+    baselineHash,
+    factoryEngineHash,
+    toolchainHash,
+    candidateMode:manifest.factoryCandidate?'factory':manifest.qualityCandidate?'quality-candidate':'accepted',
+  });
+};
+
+for(const selected of scope.selected){
+  if(!selected.prior||!['partial','reuse'].includes(selected.mode))continue;
+  const rerun=new Set(selected.pages);
+  for(const pageType of selected.template.pageTypes){
+    if(rerun.has(pageType))continue;
+    for(const viewport of selected.template.viewports){
+      const priorCase=selected.prior.cases.find(item=>item.pageType===pageType&&item.viewport===viewport);
+      const currentCaseFingerprint=await caseFingerprint(selected.template,pageType,viewport);
+      if(!reusableTemplateBrowserCase({priorCase,currentCaseFingerprint}).reusable){
+        rerun.add(pageType);
+        break;
+      }
+    }
+  }
+  selected.pages=[...rerun];
+  selected.mode=selected.pages.length===selected.template.pageTypes.length?'full':selected.pages.length?'partial':'reuse';
+  if(selected.pages.length&&selected.reason==='no-relevant-browser-input-change')selected.reason='browser-case-context-changed';
+}
+
 const browser=await chromium.launch({headless:true});
 const cases=[];
 const errors=[];
@@ -371,6 +449,8 @@ for(const selected of scope.selected){
     const currentFingerprint=selected.template.pageFingerprints?.[priorCase.pageType];
     const previousFingerprint=selected.prior.fingerprints?.[priorCase.pageType];
     if(!currentFingerprint||currentFingerprint!==previousFingerprint)continue;
+    const currentCaseFingerprint=await caseFingerprint(selected.template,priorCase.pageType,priorCase.viewport);
+    if(!reusableTemplateBrowserCase({priorCase,currentCaseFingerprint}).reusable)continue;
     cases.push({
       ...priorCase,
       screenshotPath:null,
@@ -381,6 +461,7 @@ for(const selected of scope.selected){
       originRunId:priorCase.originRunId??selected.prior.runId,
       originArtifactName:'template-factory-quality-'+selected.prior.sourceCommit,
       pageFingerprint:currentFingerprint,
+      caseFingerprint:currentCaseFingerprint,
       reuseProof:{fingerprintEquivalent:true,previousFingerprint,currentFingerprint,previousSourceCommit:selected.prior.sourceCommit},
     });
   }
@@ -448,14 +529,15 @@ try{
           if(manifest.golden.required&&golden.status==='missing')caseErrors.push('GOLDEN_BASELINE_MISSING');
           if(golden.status==='fail'||golden.status==='dimension-mismatch')caseErrors.push(`GOLDEN_DIFF:${golden.mismatchRatio}`);
 
-          const record={templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType,viewport,mode:selected.mode,url,screenshotPath,diagnostics,golden,errors:caseErrors,warnings:caseWarnings,evidenceExecution:'RERUN',sourceCommit:headSha==='HEAD'?null:headSha,originSourceCommit:headSha==='HEAD'?null:headSha,originRunId:currentRunId,pageFingerprint:manifest.pageFingerprints?.[pageType]??null};
+          const currentCaseFingerprint=await caseFingerprint(manifest,pageType,viewport);
+          const record={templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType,viewport,mode:selected.mode,url,screenshotPath,diagnostics,golden,errors:caseErrors,warnings:caseWarnings,evidenceExecution:'RERUN',sourceCommit:headSha==='HEAD'?null:headSha,originSourceCommit:headSha==='HEAD'?null:headSha,originRunId:currentRunId,pageFingerprint:manifest.pageFingerprints?.[pageType]??null,caseFingerprint:currentCaseFingerprint};
           cases.push(record);
           for(const error of caseErrors)errors.push({case:name,error});
           for(const warning of caseWarnings)warnings.push({case:name,warning});
         }catch(error){
           const message=error instanceof Error?error.message:String(error);
           errors.push({case:name,error:message});
-          cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType,viewport,mode:selected.mode,url,errors:[message],warnings:[],evidenceExecution:'RERUN',sourceCommit:headSha==='HEAD'?null:headSha,originSourceCommit:headSha==='HEAD'?null:headSha,originRunId:currentRunId,pageFingerprint:manifest.pageFingerprints?.[pageType]??null});
+          cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType,viewport,mode:selected.mode,url,errors:[message],warnings:[],evidenceExecution:'RERUN',sourceCommit:headSha==='HEAD'?null:headSha,originSourceCommit:headSha==='HEAD'?null:headSha,originRunId:currentRunId,pageFingerprint:manifest.pageFingerprints?.[pageType]??null,caseFingerprint:await caseFingerprint(manifest,pageType,viewport)});
         }finally{
           await page.close();
         }
@@ -563,6 +645,9 @@ const evidence={
   branch:currentBranch||null,
   runId:currentRunId,
   baseSha:baseSha||null,
+  diffBaseSha:diffBaseSha||null,
+  factoryEngineHash,
+  toolchainHash,
   complete:errors.length===0,
   previousEvidence:{status:previousResult.reason,sourceCommit:previousManifest?.sourceCommit??null,runId:previousManifest?.runId??null},
   changes,
