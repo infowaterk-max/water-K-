@@ -29,6 +29,7 @@ import {TABLE_GIFT_TEMPLATE_PACKAGE} from '@/lib/builder/templates/table-gift';
 import {TECH_DECK_TEMPLATE_PACKAGE} from '@/lib/builder/templates/tech-deck';
 import {TOOL_DEPOT_TEMPLATE_PACKAGE} from '@/lib/builder/templates/tool-depot';
 import {TRAIL_EXPEDITION_TEMPLATE_PACKAGE} from '@/lib/builder/templates/trail-expedition';
+import {BLANK_STUDIO_TEMPLATE_PACKAGE} from '@/lib/builder/templates/system/blank-studio';
 
 export const STOREFRONT_TEMPLATE_CATALOG_VERSION='shoporation.storefront-template-catalog.block21.v2' as const;
 export const STOREFRONT_TEMPLATE_LAUNCH_TARGET=42 as const;
@@ -130,12 +131,17 @@ export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstall
   TRAIL_EXPEDITION_TEMPLATE_PACKAGE,
 ].map(normalizeImplementedTemplatePackage);
 
+export const STOREFRONT_SYSTEM_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemplatePackage[]=[
+  BLANK_STUDIO_TEMPLATE_PACKAGE,
+].map(normalizeImplementedTemplatePackage);
+
 // Historical Playroom packages are source-history only. The active resolver exposes
 // one complete Playroom authority: gaming.playroom@20. When a future v21 becomes
 // canonical, v20 may move to an explicit migration/archive boundary, but versions
 // are never composed together at runtime.
 const STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemplatePackage[]=[
   ...STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,
+  ...STOREFRONT_SYSTEM_TEMPLATE_PACKAGES,
 ];
 
 const identity=(template:StorefrontInstallableTemplatePackage)=>`${template.manifest.templateKey}@${template.manifest.templateVersion}`;
@@ -176,6 +182,7 @@ for(const quality of STOREFRONT_TEMPLATE_QUALITY_MANIFESTS){
 }
 
 validateConcreteCatalog(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,{enforceCurrentCartContract:true,enforceRouteIntegrity:true});
+validateConcreteCatalog(STOREFRONT_SYSTEM_TEMPLATE_PACKAGES,{enforceCurrentCartContract:true,enforceRouteIntegrity:true});
 validateConcreteCatalog(STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES,{enforceCurrentCartContract:false,enforceRouteIntegrity:false});
 
 export type StorefrontTemplateCatalogEntry={
@@ -196,6 +203,22 @@ export const STOREFRONT_TEMPLATE_CATALOG:readonly StorefrontTemplateCatalogEntry
       templateKey:template.manifest.templateKey,
       templateVersion:template.manifest.templateVersion,
       category:template.manifest.templateKey.split('.')[0]??'unknown',
+      minPlan:template.manifest.minPlan,
+      requiredFeatures:[...template.manifest.requiredFeatures],
+      pageTypes:template.manifest.pageTypes,
+      pagePresetCount:template.pages.length,
+      responsive:template.manifest.responsive,
+      demoNamespace:template.manifest.demoContent.namespace,
+    }))
+    .sort((a,b)=>a.templateKey.localeCompare(b.templateKey)||a.templateVersion-b.templateVersion),
+);
+
+export const STOREFRONT_SYSTEM_TEMPLATE_CATALOG:readonly StorefrontTemplateCatalogEntry[]=Object.freeze(
+  STOREFRONT_SYSTEM_TEMPLATE_PACKAGES
+    .map(template=>Object.freeze({
+      templateKey:template.manifest.templateKey,
+      templateVersion:template.manifest.templateVersion,
+      category:'system',
       minPlan:template.manifest.minPlan,
       requiredFeatures:[...template.manifest.requiredFeatures],
       pageTypes:template.manifest.pageTypes,
