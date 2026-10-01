@@ -87,7 +87,7 @@ export function StorefrontPageTemplatesPanel({document,capability,onApply}:Props
     router.refresh();
   });
 
-  return <div className={libraryStyles.library} data-storefront-page-templates-v2 data-vx-library-version="2">
+  return <div className={libraryStyles.library} data-storefront-page-templates-v1 data-vx-library-version="2">
     <header className={libraryStyles.libraryHeader}>
       <span>Oldalkönyvtár</span>
       <strong>Oldalsablonok</strong>
