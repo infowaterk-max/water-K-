@@ -9,6 +9,8 @@ const PLAN_CONTRACT='shoporation.resumable-verification-plan.v1';
 const MANIFEST_CONTRACT='shoporation.exact-head-evidence-manifest.v1';
 const ENGINE_SCHEMA_VERSION='shoporation.verification-reuse.v1';
 const PASS_STATES=new Set(['pass','passed','success','succeeded','ok','green']);
+const FAILURE_STATES=new Set(['failure','failed','error','timed_out','timedout']);
+const INCOMPLETE_STATES=new Set(['','missing','cancelled','canceled','skipped','neutral','pending','queued','in_progress']);
 const normalizeStatus=value=>String(value??'').trim().toLowerCase().replaceAll(' ','_');
 const uniq=values=>[...new Set(values)];
 const sorted=values=>[...values].sort();
@@ -284,7 +286,6 @@ export function finalizeVerification({plan,outcomes={},priorCheckpoint=null,runI
     const raw=outcomes[gateId],normalized=normalizeStatus(raw),fullPass=PASS_STATES.has(normalized),prior=planned.previous??priorCheckpoint?.gates?.[gateId]??null;
     const reuseEquivalent=Boolean(prior&&PASS_STATES.has(normalizeStatus(prior.status))&&prior.fingerprint&&prior.fingerprint===planned.identity.fingerprint);
     const skippedOrMissing=!raw||normalized==='skipped'||normalized==='neutral'||normalized==='pending';
-    if(executionMode==='SHADOW'&&planned.action==='REUSE'&&planned.identity.shadowComparable&&!fullPass)discrepancies.push({gateId,code:'SHADOW_FALSE_REUSE',planned:'REUSE',actual:raw??'missing'});
     if(executionMode==='ACTIVE'&&planned.action==='RERUN'&&!fullPass)discrepancies.push({gateId,code:'ACTIVE_RERUN_FAILED_OR_MISSING',planned:'RERUN',actual:raw??'missing'});
     if(executionMode==='ACTIVE'&&planned.action==='REUSE'&&!fullPass&&!reuseEquivalent)discrepancies.push({gateId,code:'ACTIVE_REUSE_EVIDENCE_INVALID',planned:'REUSE',actual:raw??'missing'});
     const reusableFallback=planned.action==='REUSE'&&skippedOrMissing&&reuseEquivalent;
@@ -304,8 +305,14 @@ export function finalizeVerification({plan,outcomes={},priorCheckpoint=null,runI
   const comparable=Object.values(plan.gates??{}).filter(g=>g.identity.shadowComparable);
   if(executionMode==='SHADOW'){
     for(const planned of comparable){
-      const raw=outcomes[planned.gateId];
-      if(!PASS_STATES.has(normalizeStatus(raw)))discrepancies.push({gateId:planned.gateId,code:raw==null?'SHADOW_FULL_EVIDENCE_MISSING':'SHADOW_FULL_VERIFICATION_FAILED',planned:planned.action,actual:raw??'missing'});
+      const raw=outcomes[planned.gateId],normalized=normalizeStatus(raw);
+      if(PASS_STATES.has(normalized))continue;
+      const code=planned.action==='REUSE'&&FAILURE_STATES.has(normalized)
+        ?'SHADOW_FALSE_REUSE'
+        :INCOMPLETE_STATES.has(normalized)
+          ?'SHADOW_FULL_EVIDENCE_INCOMPLETE'
+          :'SHADOW_FULL_VERIFICATION_FAILED';
+      discrepancies.push({gateId:planned.gateId,code,planned:planned.action,actual:raw??'missing'});
     }
   }
   const unique=[...new Map(discrepancies.map(item=>[item.gateId+':'+item.code,item])).values()];
