@@ -43,11 +43,17 @@ export const BLANK_STUDIO_DESIGN_TOKENS=Object.freeze({
 
 const node=(input:StorefrontComponentNode):StorefrontComponentNode=>input;
 
-const header=(prefix:string):StorefrontComponentNode=>node({
+const header=(_prefix:string):StorefrontComponentNode=>node({
   id:'blank-studio-header',
   componentKey:'system.header',
   componentVersion:1,
-  config:{brandLabel:'Webshop neve',brandHref:'/',tone:'background',sticky:true},
+  config:{
+    brandLabel:'Webshop neve',
+    brandHref:'/',
+    tone:'background',
+    sticky:true,
+    brandStyle:{minHeight:'2rem',display:'inline-flex',alignItems:'center'},
+  },
   bindings:{
     brandLabel:{path:'brand.name',fallback:'Webshop neve'},
     brandHref:{path:'brand.homeHref',fallback:'/'},
@@ -56,21 +62,32 @@ const header=(prefix:string):StorefrontComponentNode=>node({
     id:'blank-studio-navigation',
     componentKey:'system.navigation',
     componentVersion:1,
-    config:{ariaLabel:'Fő navigáció',items:[],layout:'horizontal'},
+    config:{
+      ariaLabel:'Fő navigáció',
+      items:[],
+      layout:'horizontal',
+      styleSlots:{item:{minHeight:'2rem',display:'inline-flex',alignItems:'center',paddingInline:'.25rem'}},
+    },
     bindings:{items:{path:'navigation.primary',fallback:[]}},
   })],
 });
 
-const footer=(prefix:string):StorefrontComponentNode=>node({
-  id:'blank-studio-footer',
-  componentKey:'editorial.footer',
+const footer=(_prefix:string):StorefrontComponentNode=>node({
+  id:'blank-studio-footer-section',
+  componentKey:'layout.section',
   componentVersion:1,
-  config:{brandLabel:'Webshop neve',columns:[],copyright:'',tone:'background'},
-  bindings:{
-    brandLabel:{path:'brand.name',fallback:'Webshop neve'},
-    columns:{path:'navigation.footer',fallback:[]},
-    copyright:{path:'brand.copyright',fallback:''},
-  },
+  config:{tone:'background',spacing:'s',width:'full'},
+  children:[node({
+    id:'blank-studio-footer',
+    componentKey:'editorial.footer',
+    componentVersion:1,
+    config:{brandLabel:'Webshop neve',columns:[],copyright:'',tone:'background'},
+    bindings:{
+      brandLabel:{path:'brand.name',fallback:'Webshop neve'},
+      columns:{path:'navigation.footer',fallback:[]},
+      copyright:{path:'brand.copyright',fallback:''},
+    },
+  })],
 });
 
 const section=(id:string,children:StorefrontComponentNode[],tone='background',spacing='l'):StorefrontComponentNode=>node({
@@ -189,7 +206,7 @@ export const BLANK_STUDIO_PRODUCT_PAGE=base('blank-studio.product','product',[
     id:'blank-product-grid',
     componentKey:'layout.grid',
     componentVersion:1,
-    config:{columns:12,gap:'l',align:'start'},
+    config:{columns:12,gap:'xs',align:'start'},
     children:[
       node({
         id:'blank-product-gallery',
