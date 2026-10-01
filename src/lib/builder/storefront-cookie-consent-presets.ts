@@ -48,6 +48,7 @@ const p=(templateKey:string,presetId:string,layout:StorefrontCookieConsentLayout
 });
 
 export const STOREFRONT_COOKIE_CONSENT_PRESETS:Readonly<Record<string,StorefrontCookieConsentPreset>>=Object.freeze({
+  'system.blank-studio':p('system.blank-studio','blank-studio-cookie','compact','center',{radius:'12px',maxWidth:'820px',fallback:{surface:'#ffffff',surfaceMuted:'#f5f5f3',text:'#171717',mutedText:'#6b6b66',border:'#deded8',primary:'#171717',primaryContrast:'#ffffff',accent:'#b88716'}}),
   'outdoor.alpine-lodge':p('outdoor.alpine-lodge','alpine-lodge-cookie','panel','left',{radius:'18px',maxWidth:'860px'}),
   'beauty.beauty-lab':p('beauty.beauty-lab','beauty-lab-cookie','stacked','center',{radius:'28px',maxWidth:'760px'}),
   'tech.creator-station':p('tech.creator-station','creator-station-cookie','split','right',{radius:'16px',maxWidth:'900px'}),
