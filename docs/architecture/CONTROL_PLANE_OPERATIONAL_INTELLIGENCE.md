@@ -253,6 +253,8 @@ Cross-branch reuse is intentionally disabled in v1. This avoids introducing iden
 
 A promotion proof is valid only for the exact verification-engine identity that produced it. Any change to replay planning, checkpoint reconciliation, Truth Gate semantics, CI orchestration, guard-registry verification metadata, or development-guard verification policy invalidates promotion credit and returns execution to shadow/full control until the configured proof threshold is rebuilt.
 
+Promotion provenance is observational evidence, not verification semantics. The engine identity therefore canonicalizes the two policy authorities before hashing and excludes only `verificationReuse.promotion.promotedFrom` and `resumableVerification.promotionEvidence`. Updating those proof pointers cannot invalidate the proof they describe, while every executable promotion threshold, guard definition, dependency, replay rule, workflow input, or execution-mode change remains identity-bearing and still invalidates promotion credit.
+
 Promotion eligibility is recorded only after a successful reconciliation; physical skipping can therefore begin no earlier than the next exact-head verification revision.
 
 ### Interrupted shadow evidence
