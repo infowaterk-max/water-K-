@@ -5,6 +5,7 @@ import {join} from 'node:path';
 import {describe,expect,it} from 'vitest';
 import {
   checkpointChecksum,
+  classifySemanticUnits,
   finalizeVerification,
   loadCheckpoint,
   planFromSnapshots,
@@ -231,6 +232,47 @@ describe('dependency-aware resumable verification',()=>{
     expect(final.manifest.sourceCommit).toBe('head-2');
     expect(final.manifest.gates.A.originSourceCommit).toBe('head-2');
     expect(final.checkpoint.complete).toBe(true);
+  });
+
+  it('narrows an unambiguous template FAQ diff to the FAQ proof scope',()=>{
+    const registry={verificationReuse:{semanticUnits:[
+      {id:'TEMPLATE.LOCAL',kind:'template',filePatterns:['src/lib/builder/templates/**'],impactTier:2,scope:'changed-template',allowPageNarrowing:true},
+      {id:'TEMPLATE.PAGE.FAQ',kind:'page',parent:'TEMPLATE.LOCAL',diffPattern:'\\bfaq\\b|gyik',pageType:'faq',impactTier:1,scope:'changed-template-page-all-viewports'},
+      {id:'TEMPLATE.PAGE.CART',kind:'page',parent:'TEMPLATE.LOCAL',diffPattern:'\\bcart\\b|kosár',pageType:'cart',impactTier:1,scope:'changed-template-page-all-viewports'},
+    ]}};
+    const units=classifySemanticUnits({registry,changedFiles:['src/lib/builder/templates/demo.ts'],diffByFile:{'src/lib/builder/templates/demo.ts':'+ const buildFaq=()=>pageType:faq;'}});
+    expect(units).toHaveLength(1);
+    expect(units[0]).toMatchObject({id:'TEMPLATE.PAGE.FAQ',pageType:'faq',impactTier:1,narrowed:true});
+  });
+
+  it('widens ambiguous multi-page template diffs to the template package scope',()=>{
+    const registry={verificationReuse:{semanticUnits:[
+      {id:'TEMPLATE.LOCAL',kind:'template',filePatterns:['src/lib/builder/templates/**'],impactTier:2,scope:'changed-template',allowPageNarrowing:true},
+      {id:'TEMPLATE.PAGE.FAQ',kind:'page',parent:'TEMPLATE.LOCAL',diffPattern:'\\bfaq\\b',pageType:'faq',impactTier:1,scope:'changed-template-page-all-viewports'},
+      {id:'TEMPLATE.PAGE.CART',kind:'page',parent:'TEMPLATE.LOCAL',diffPattern:'\\bcart\\b',pageType:'cart',impactTier:1,scope:'changed-template-page-all-viewports'},
+    ]}};
+    const units=classifySemanticUnits({registry,changedFiles:['src/lib/builder/templates/demo.ts'],diffByFile:{'src/lib/builder/templates/demo.ts':'+ faq + cart'}});
+    expect(units).toHaveLength(1);
+    expect(units[0]).toMatchObject({id:'TEMPLATE.LOCAL',impactTier:2,narrowed:false});
+  });
+
+  it('widens design-token changes to every page and viewport of the changed template',()=>{
+    const registry={verificationReuse:{semanticUnits:[
+      {id:'TEMPLATE.LOCAL',kind:'template',filePatterns:['src/lib/builder/templates/**'],impactTier:2,scope:'changed-template',allowPageNarrowing:true},
+      {id:'TEMPLATE.DESIGN_TOKENS',kind:'template-wide',parent:'TEMPLATE.LOCAL',diffPattern:'DESIGN_TOKENS|--shoporation-',impactTier:3,scope:'changed-template-all-pages-viewports'},
+      {id:'TEMPLATE.PAGE.FAQ',kind:'page',parent:'TEMPLATE.LOCAL',diffPattern:'\\bfaq\\b',pageType:'faq',impactTier:1,scope:'changed-template-page-all-viewports'},
+    ]}};
+    const units=classifySemanticUnits({registry,changedFiles:['src/lib/builder/templates/demo.ts'],diffByFile:{'src/lib/builder/templates/demo.ts':'+ DEMO_DESIGN_TOKENS --shoporation-color-background'}});
+    expect(units).toHaveLength(1);
+    expect(units[0]).toMatchObject({id:'TEMPLATE.DESIGN_TOKENS',impactTier:3,scope:'changed-template-all-pages-viewports'});
+  });
+
+  it('uses semantic proof-unit impact as a replay tier floor',()=>{
+    const a=identity('A');
+    const report=planFromSnapshots({current:current({A:a}),previousCheckpoint:checkpoint({A:a}),checkpointValidation:valid,changedFiles:['src/lib/builder/templates/demo.ts'],activeFailureIds:['KF-1'],semanticImpact:[{id:'TEMPLATE.PAGE.FAQ',impactTier:1,scope:'changed-template-page-all-viewports',files:['src/lib/builder/templates/demo.ts']}]});
+    expect(report.replayTier).toBe(1);
+    expect(report.changeImpactSet.changedSemanticUnits).toEqual(['TEMPLATE.PAGE.FAQ']);
+    expect(report.changeImpactSet.proofScopes[0].scope).toBe('changed-template-page-all-viewports');
   });
 
   it('verification graph rejects cycles and unknown dependencies',()=>{
