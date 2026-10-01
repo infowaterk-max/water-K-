@@ -270,8 +270,7 @@
         "DOMAIN-RELEASE"
       ],
       "evidence": [
-        "Atlas validation",
-        "exact-head change-impact evidence"
+        "UNVERIFIED_FREEFORM_CLAIM"
       ],
       "roadmapRefs": [
         "SYSTEM-SELF-KNOWLEDGE"
