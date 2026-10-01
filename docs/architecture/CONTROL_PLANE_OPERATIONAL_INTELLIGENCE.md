@@ -305,3 +305,7 @@ Second documentation-only exact-head revision for the post-canonicalization veri
 ### Merge-readiness post-TF-hash requalification marker F
 
 Documentation-only exact-head revision after the Template Factory infrastructure fingerprint canonicalization fix. This revision changes no executable verification semantics, policy thresholds, authorities, dependencies, workflows, template runtime, or browser acceptance logic. It exists to prove two things simultaneously: Control Plane RESUMED SHADOW requalification after the preceding FULL/Tier-4 proof, and Template Factory browser-evidence reuse with the new canonicalized infrastructure hash.
+
+### Merge-readiness final ACTIVE proof marker G
+
+Final provenance/documentation-only exact-head revision after post-Template-Factory-hash requalification at `4304a93ba59205a855d93b4b01f0e5515e4d5131` (CI `36857859847`): 5 shadow PASS, 4 RESUMED shadow PASS, 0 false reuse, promotion eligible, exact-head Truth Gate `VERIFIED_DONE`. This revision changes no executable verification semantics, thresholds, dependencies, authorities, workflows, template runtime, or browser acceptance behavior. Expected proof: Control Plane RESUMED / ACTIVE physical evidence reuse and Template Factory 84 reused / 2 rerun browser cases with zero errors.

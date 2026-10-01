@@ -435,10 +435,10 @@
       "requireExactHeadTruth": true,
       "fallback": "FULL",
       "promotedFrom": {
-        "sourceCommit": "ab35c067efcaad03c6e25714bd344c5111154499",
-        "ciRunId": "36855588218",
-        "shadowPasses": 3,
-        "resumedShadowPasses": 3,
+        "sourceCommit": "4304a93ba59205a855d93b4b01f0e5515e4d5131",
+        "ciRunId": "36857859847",
+        "shadowPasses": 5,
+        "resumedShadowPasses": 4,
         "falseReuse": 0
       },
       "referenceFullRuntimeMs": 145506,
