@@ -1,5 +1,6 @@
 import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
+import {buildCodebaseAtlas,domainDependencyClosure} from '../scripts/lib/shoperation-codebase-atlas-runtime.mjs';
 
 const read=(path:string)=>readFileSync(path,'utf8');
 
@@ -37,5 +38,28 @@ describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
     expect(risk).toContain('Atlas change-impact file set does not match the release diff');
     expect(risk).toContain('Atlas change-impact source SHA');
     expect(risk).toContain('atlasClosure');
+  });
+  it('STRESS: declared authority dependencies cover actual cross-domain production imports',()=>{
+    const atlas:any=buildCodebaseAtlas();
+    const byPath=new Map(atlas.nodes.map((node:any)=>[node.path,node]));
+    const productionDomains=new Set([
+      'DOMAIN-IDENTITY','DOMAIN-TENANCY','DOMAIN-COMMERCE','DOMAIN-CATALOG','DOMAIN-CONTENT',
+      'DOMAIN-STOREFRONT','DOMAIN-BUILDER','DOMAIN-INTEGRATIONS','DOMAIN-ADMIN','DOMAIN-DATA'
+    ]);
+    const uncovered:any[]=[];
+    for(const node of atlas.nodes){
+      const sourceDomains=(node.domains??[]).filter((id:string)=>productionDomains.has(id));
+      if(!sourceDomains.length)continue;
+      const closure=new Set(domainDependencyClosure(sourceDomains));
+      for(const targetPath of node.imports??[]){
+        const target:any=byPath.get(targetPath);
+        for(const targetDomain of (target?.domains??[]).filter((id:string)=>productionDomains.has(id))){
+          if(!closure.has(targetDomain)){
+            uncovered.push({from:node.path,sourceDomains,to:targetPath,targetDomain});
+          }
+        }
+      }
+    }
+    expect(uncovered.slice(0,30),JSON.stringify(uncovered.slice(0,30),null,2)).toEqual([]);
   });
 });
