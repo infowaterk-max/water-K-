@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
   "task": "Repair the existing Template Factory golden visual comparison so a small but locally severe rendered regression cannot pass merely because the full-page mismatch ratio stays below the global threshold.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "3667fbec",
   "changeBaseSha": "d8465ed5cf13471d86dfa81f8c67039f6c3d70ae",
   "plannedFilePatterns": [
@@ -478,5 +478,18 @@
       }
     ]
   },
-  "notes": "Targeted golden false-negative repair only. Handoff evidence flow and shipping/payment are separate transactions. No golden baseline update, no threshold lowering, no parallel visual gate. Plan projection reconciled to Builder/Storefront golden authority: full Known Failure replay, canonical 10-item negative knowledge set, no storefront-ui/quality-knowledge subsystem claim. Local golden semantics were extracted into the existing scripts/lib Shoperation quality-infrastructure namespace so full-repository Quality tests do not require Playwright/pngjs; the real browser comparator consumes the same helper. Browser-proof calibration: the first real full-matrix run exposed a repeated 335px/14px-high Playroom header text-rendering false positive. Local policy will use a 400px absolute floor plus the existing 12% ratio; global 0.005 and baselines remain unchanged. Transaction base advanced to main d8465ed5 after PR #673 merged; golden-local intent, thresholds and proof obligations are unchanged."
+  "notes": "Targeted golden false-negative repair only. Handoff evidence flow and shipping/payment are separate transactions. No golden baseline update, no threshold lowering, no parallel visual gate. Plan projection reconciled to Builder/Storefront golden authority: full Known Failure replay, canonical 10-item negative knowledge set, no storefront-ui/quality-knowledge subsystem claim. Local golden semantics were extracted into the existing scripts/lib Shoperation quality-infrastructure namespace so full-repository Quality tests do not require Playwright/pngjs; the real browser comparator consumes the same helper. Browser-proof calibration: the first real full-matrix run exposed a repeated 335px/14px-high Playroom header text-rendering false positive. Local policy will use a 400px absolute floor plus the existing 12% ratio; global 0.005 and baselines remain unchanged. Transaction base advanced to main d8465ed5 after PR #673 merged; golden-local intent, thresholds and proof obligations are unchanged.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "892b4005f5f4f7d34b2a13a991c211907abfe130",
+    "closedAt": "2026-10-01T19:58:37.418Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-01-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
