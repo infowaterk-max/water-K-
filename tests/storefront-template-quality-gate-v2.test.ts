@@ -73,6 +73,7 @@ describe('Template Factory Quality Gate v2',()=>{
   it('keeps the browser runner and CI workflow mandatory rather than commit-message gated',()=>{
     const workflow=read('.github/workflows/template-factory-quality-gate.yml');
     const runner=read('scripts/template-factory-quality-gate.mjs');
+    const resumable=read('scripts/lib/shoperation-template-factory-resumable-verification.mjs');
     const knowledgeScope=read('quality/knowledge/knowledge-scope-policy.v1.json');
     expect(workflow).not.toContain('head_commit.message');
     expect(workflow).toContain('Run scoped Template Factory browser proof (acceptance requires reconciled 14x3)');
@@ -95,9 +96,9 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain('const modifiedTemplateFiles=');
     expect(runner).not.toContain('LEGACY_TEMPLATE_REACCEPTANCE_PENDING');
     expect(knowledgeScope).toContain('"scripts/template-factory-quality-gate.mjs"');
-    expect(runner).toContain("mode:'full',pages:[...template.pageTypes],reason:'template-source-changed-no-reusable-proof'");
-    expect(runner).toContain("mode:'partial',pages:changedPages,reason:'template-page-fingerprint-changed'");
-    expect(runner).toContain("mode:'reuse',pages:[],reason:'template-browser-input-fingerprints-equivalent'");
+    expect(resumable).toContain("reason:'template-source-changed-no-reusable-proof'");
+    expect(resumable).toContain("reason:'template-semantic-page-impact'");
+    expect(resumable).toContain("reason:'template-browser-input-fingerprints-equivalent'");
     expect(runner).toContain("mode:'full',pages:[...template.pageTypes],reason:'shared-runtime-changed'");
     expect(runner).toContain("const mode=template.factoryCandidate?'full':'canary'");
     expect(runner).toContain("const reason=template.factoryCandidate?'factory-exact-head-full':'default-canary'");
