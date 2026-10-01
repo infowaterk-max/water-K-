@@ -64,6 +64,34 @@ export function hashMatchedFiles(patterns=[],files=trackedFiles()){
   for(const file of matched){hash.update(file);hash.update('\0');hash.update(readFileSync(file));hash.update('\0');}
   return{hash:hash.digest('hex'),files:matched};
 }
+export function canonicalizeVerificationEngineInput(file,raw){
+  const text=Buffer.isBuffer(raw)?raw.toString('utf8'):String(raw);
+  if(file==='quality/knowledge/guard-registry.v1.json'){
+    try{
+      const value=JSON.parse(text);
+      if(value?.verificationReuse?.promotion)delete value.verificationReuse.promotion.promotedFrom;
+      return canonicalJson(value);
+    }catch{return text;}
+  }
+  if(file==='quality/knowledge/development-guard-policy.v1.json'){
+    try{
+      const value=JSON.parse(text);
+      if(value?.resumableVerification)delete value.resumableVerification.promotionEvidence;
+      return canonicalJson(value);
+    }catch{return text;}
+  }
+  return text;
+}
+export function hashVerificationEngineInputs(patterns=[],files=trackedFiles()){
+  const matched=sorted(files.filter(file=>matchPatterns(file,patterns)&&existsSync(file)));
+  const hash=createHash('sha256');
+  for(const file of matched){
+    hash.update(file);hash.update('\0');
+    hash.update(canonicalizeVerificationEngineInput(file,readFileSync(file)));
+    hash.update('\0');
+  }
+  return{hash:hash.digest('hex'),files:matched};
+}
 function producerFile(producer){const value=String(producer??'').trim();return value.includes('/')&&existsSync(value)?[value]:[];}
 function environmentFingerprint(keys=[]){
   const values={};
@@ -166,7 +194,7 @@ export function buildRepositorySnapshot({registry,head=currentHead(),branch=curr
     coveredPatterns.push(...cfg.semanticInputs,...cfg.implementationInputs,...cfg.authorityInputs,...cfg.configurationInputs,...cfg.toolchainInputs);
   }
   const promotionEngineInputs=root.promotion?.engineInputs??['scripts/lib/shoperation-verification-reuse.mjs','scripts/shoperation-incremental-replay.mjs','scripts/shoperation-verification-checkpoint.mjs','scripts/shoperation-truth-gate.mjs','scripts/lib/shoperation-operational-intelligence.mjs','.github/workflows/ci.yml'];
-  const verificationEngineHash=hashMatchedFiles(promotionEngineInputs,files).hash;
+  const verificationEngineHash=hashVerificationEngineInputs(promotionEngineInputs,files).hash;
   return{schemaVersion:root.schemaVersion??ENGINE_SCHEMA_VERSION,head,branch,graphValid:graphValidation.ok,graphIssues:graphValidation.issues,gates,coveredPatterns:uniq(coveredPatterns),nonSemanticPatterns:uniq(root.nonSemanticPatterns??[]),promotionPolicy:root.promotion??{},requestedExecutionMode:String(root.mode??'shadow').toUpperCase(),verificationEngineHash,promotionEngineInputs};
 }
 
