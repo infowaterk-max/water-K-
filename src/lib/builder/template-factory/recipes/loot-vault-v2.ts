@@ -3,6 +3,7 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import type {StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
 import {LOOT_VAULT_V2_GENERATOR_BLUEPRINT} from '@/lib/builder/template-factory/blueprints/loot-vault-v2';
 import {defineStorefrontTemplateGenome} from '@/lib/builder/template-factory/template-genome';
+import {STOREFRONT_TEMPLATE_PRODUCT_OWNER_INTENT_VERSION} from '@/lib/builder/template-factory/constraint-planner';
 import type {StorefrontTemplateFactoryMediaAsset,StorefrontTemplateFactoryRecipe} from '@/lib/builder/template-factory/scaffold';
 import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loot-vault/v2';
 
@@ -148,6 +149,19 @@ export const LOOT_VAULT_V2_TEMPLATE_GENOME=defineStorefrontTemplateGenome({
 export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object.freeze({
   blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,
   genome:LOOT_VAULT_V2_TEMPLATE_GENOME,
+  productionIntent:Object.freeze({
+    contract:STOREFRONT_TEMPLATE_PRODUCT_OWNER_INTENT_VERSION,
+    intentId:'gaming.loot-vault.v2.production-intent',
+    intentVersion:1,
+    visualAuthorityReferenceKey:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.productionContracts.visualAuthority.referenceKey,
+    emphasis:'balanced',
+    densityPreference:'balanced',
+    requiredArchetypes:Object.freeze(['cinematic-hero','collector-grid'] as const),
+    requiredMediaRoles:Object.freeze(['hero-scene','collector-product'] as const),
+    preferredComponentFamilies:Object.freeze(['story.hero','commerce.product-grid','commerce.key-specs'] as const),
+    prioritizedEngines:Object.freeze(['E6','E7','E10'] as const),
+    note:'Preserve the accepted collector-vault visual authority while prioritizing cinematic discovery, collector evidence and structured compatibility/specification proof.',
+  }),
   category:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.category,
   templateKey:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.templateKey,
   displayName:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.displayName,
