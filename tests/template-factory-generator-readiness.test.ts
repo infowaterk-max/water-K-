@@ -25,6 +25,9 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(build.report.generatorReadiness.typeSystemValidation.valid).toBe(true);
     expect(build.report.generatorReadiness.typeCompatibility.valid).toBe(true);
     expect(build.report.generatorReadiness.typeCompatibility.definition?.typeId).toBe('gaming');
+    expect(build.report.generatorReadiness.constraintPlanning.valid).toBe(true);
+    expect(build.report.generatorReadiness.constraintPlanning.plan?.sources.visualAuthority.referenceKey).toBe(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.productionContracts.visualAuthority.referenceKey);
+    expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).not.toContain('FACTORY-CONSTRAINT-PLANNER');
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toContain('VX-SMART-INTENT');
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.generator).toEqual({implementation:'deferred',target:'template-compiler'});
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.composition.pageTypes).toEqual(STOREFRONT_PAGE_TYPES);
@@ -105,6 +108,26 @@ describe('Template Generator Readiness v0.1',()=>{
       'TEMPLATE_TYPE_MEDIA_ROLE_INCOMPATIBLE',
       'TEMPLATE_TYPE_COMPONENT_GRAMMAR_INCOMPATIBLE',
     ]));
+  });
+
+
+  it('fails closed when generator-ready production intent is missing',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const recipe={...LOOT_VAULT_V2_FACTORY_RECIPE,productionIntent:undefined};
+    const result=evaluateStorefrontTemplateGeneratorReadiness({blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,recipe,package:build.package});
+    expect(result.ready).toBe(false);
+    expect(result.constraintPlanning.valid).toBe(false);
+    expect(result.issues.map(issue=>issue.code)).toContain('CONSTRAINT_PLANNER_INTENT_REQUIRED');
+  });
+
+  it('fails closed when Product Owner intent is bound to a foreign Visual Authority',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const productionIntent={...LOOT_VAULT_V2_FACTORY_RECIPE.productionIntent!,visualAuthorityReferenceKey:'gaming.foreign.reference'};
+    const recipe={...LOOT_VAULT_V2_FACTORY_RECIPE,productionIntent};
+    const result=evaluateStorefrontTemplateGeneratorReadiness({blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,recipe,package:build.package});
+    expect(result.ready).toBe(false);
+    expect(result.constraintPlanning.valid).toBe(false);
+    expect(result.issues.map(issue=>issue.code)).toContain('CONSTRAINT_PLANNER_VISUAL_AUTHORITY_DRIFT');
   });
 
   it('keeps undeclared recipes outside generator-ready status instead of inventing metadata',()=>{
