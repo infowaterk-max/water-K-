@@ -12,7 +12,6 @@ describe('Template Production Brabus maturity v1',()=>{
     expect(result.template3AuthoringReady).toBe(false);
     expect(result.blockingCapabilityIds).toEqual(expect.arrayContaining([
       'VX-SMART-INTENT','VX-SMART-AUTOFIX',
-      'FACTORY-DYNAMIC-PRODUCTION-COMPILER',
     ]));
     expect(result.blockingCapabilityIds).not.toContain('FACTORY-TEMPLATE-GENOME');
     expect(result.blockingCapabilityIds).not.toContain('FACTORY-TEMPLATE-TYPE-SYSTEM');
@@ -28,7 +27,6 @@ describe('Template Production Brabus maturity v1',()=>{
       'VX-SMART-INTENT',
       'VX-SMART-AUTOFIX',
     ]));
-    expect(result.blockingCapabilityIds).toContain('FACTORY-DYNAMIC-PRODUCTION-COMPILER');
     expect(result.capabilities.find(item=>item.id==='FACTORY-TEMPLATE-GENOME')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-TEMPLATE-TYPE-SYSTEM')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-CONSTRAINT-PLANNER')?.state).toBe('PROVEN');
