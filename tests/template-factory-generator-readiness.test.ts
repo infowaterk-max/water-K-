@@ -5,7 +5,7 @@ import {
   type StorefrontTemplateGeneratorBlueprint,
 } from '@/lib/builder/template-factory/generator-readiness';
 import {LOOT_VAULT_V2_GENERATOR_BLUEPRINT} from '@/lib/builder/template-factory/blueprints/loot-vault-v2';
-import {LOOT_VAULT_V2_FACTORY_RECIPE} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
+import {LOOT_VAULT_V2_FACTORY_RECIPE,LOOT_VAULT_V2_PRODUCTION_COMPILATION} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
 import {buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory/recipe-registry';
 import {STOREFRONT_PAGE_TYPES,STOREFRONT_VIEWPORTS} from '@/lib/builder/storefront-foundation';
 import {defineStorefrontTemplateGenome} from '@/lib/builder/template-factory/template-genome';
@@ -39,12 +39,64 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(build.report.generatorReadiness.distinctness.valid).toBe(true);
     expect(build.report.generatorReadiness.distinctness.corpusSize).toBeGreaterThan(20);
     expect(build.report.generatorReadiness.distinctness.comparisons.some(row=>row.reference.templateKey==='gaming.loot-vault')).toBe(false);
+    expect(build.report.generatorReadiness.productionCompiler).toMatchObject({required:true,valid:true,issues:[]});
+    expect(build.report.provenance.compiler?.hash).toBe(LOOT_VAULT_V2_PRODUCTION_COMPILATION.program?.hash);
+
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).not.toContain('FACTORY-CONSTRAINT-PLANNER');
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toContain('VX-SMART-INTENT');
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.generator).toEqual({implementation:'dynamic-production-compiler',target:'template-compiler',compilerContract:STOREFRONT_TEMPLATE_PRODUCTION_COMPILER_VERSION});
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.composition.pageTypes).toEqual(STOREFRONT_PAGE_TYPES);
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.composition.viewports).toEqual(STOREFRONT_VIEWPORTS);
     expect(()=>assertStorefrontTemplateGeneratorReady(build.report.generatorReadiness)).not.toThrow();
+  });
+
+
+  it('fails closed when a dynamic-compiler Blueprint recipe omits compiler provenance',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const recipe={...LOOT_VAULT_V2_FACTORY_RECIPE,compiler:undefined};
+    const result=evaluateStorefrontTemplateGeneratorReadiness({
+      blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,
+      recipe,
+      package:build.package,
+      lineageContext:{
+        factoryVersion:build.report.factoryVersion,
+        foundation:{
+          category:build.report.foundation.category,
+          templateKey:build.report.foundation.templateKey,
+          templateVersion:build.report.foundation.templateVersion,
+        },
+      },
+    });
+    expect(result.productionCompiler.required).toBe(true);
+    expect(result.productionCompiler.valid).toBe(false);
+    expect(result.ready).toBe(false);
+    expect(result.issues.map(issue=>issue.code)).toContain('PRODUCTION_COMPILER_PROVENANCE_REQUIRED');
+  });
+
+  it('fails closed when compiler provenance is stale even if the compiled package is otherwise valid',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const compiler=structuredClone(LOOT_VAULT_V2_FACTORY_RECIPE.compiler!);
+    compiler.sources.mediaPlanHash='fnv1a32:00000000';
+    const recipe={...LOOT_VAULT_V2_FACTORY_RECIPE,compiler};
+    const result=evaluateStorefrontTemplateGeneratorReadiness({
+      blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,
+      recipe,
+      package:build.package,
+      lineageContext:{
+        factoryVersion:build.report.factoryVersion,
+        foundation:{
+          category:build.report.foundation.category,
+          templateKey:build.report.foundation.templateKey,
+          templateVersion:build.report.foundation.templateVersion,
+        },
+      },
+    });
+    expect(result.productionCompiler.valid).toBe(false);
+    expect(result.ready).toBe(false);
+    expect(result.issues.map(issue=>issue.code)).toEqual(expect.arrayContaining([
+      'PRODUCTION_COMPILER_HASH_INVALID',
+      'PRODUCTION_COMPILER_SOURCE_DRIFT',
+    ]));
   });
 
   it('fails closed when canonical viewport authority drifts',()=>{
