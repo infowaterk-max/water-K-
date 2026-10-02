@@ -1,6 +1,6 @@
 import{describe,expect,it}from'vitest';
 // @ts-ignore JavaScript runtime module intentionally has no separate declaration file.
-import{evaluateSentinelIntegrity}from'../scripts/lib/shoperation-sentinel-integrity.mjs';
+import{evaluateSentinelIntegrity,normalizeSentinelControlPlaneEvidence}from'../scripts/lib/shoperation-sentinel-integrity.mjs';
 
 const guard=(id:string,options:Record<string,unknown>={})=>({
   id,name:id,blocking:true,responsibilityKey:`responsibility-${id}`,
@@ -61,8 +61,7 @@ describe('Sentinel integrity correlation',()=>{
     expect(report.findings.some((x:{code:string})=>x.code==='SENTINEL_INTEGRITY_PROOF_SCOPE_OVERCLAIM')).toBe(true);
     expect(report.findings.some((x:{code:string})=>x.code==='SENTINEL_INTEGRITY_PROOF_DIMENSION_DRIFT')).toBe(true);
   });
-  it('normalizes real Control Plane-shaped evidence and catches object child decisions',async()=>{
-    const {normalizeSentinelControlPlaneEvidence}=await import('../scripts/lib/shoperation-sentinel-integrity.mjs');
+  it('normalizes real Control Plane-shaped evidence and catches object child decisions',()=>{
     const records=normalizeSentinelControlPlaneEvidence({
       plan:{changeBaseSha:'base-a'},
       run:{headSha:'head-a',conclusion:'success'},
