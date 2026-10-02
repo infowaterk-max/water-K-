@@ -478,10 +478,10 @@ export function buildCodebaseAtlas(){
     const ext=path.extname(file).toLowerCase(),source=isText(file)&&existsSync(file)?readFileSync(file,'utf8'):'';
     const imports=sourceExtensions.has(ext)?extractImports(source):[],resolvedImports=[],externalImports=[];
     for(const spec of imports){const resolved=resolveImport(file,spec,fileSet);if(resolved)resolvedImports.push(resolved);else if(spec.startsWith('.')||spec.startsWith('@/'))unresolvedInternalImports.push({from:file,specifier:spec});else externalImports.push(spec);}
-    const route=routeForFile(file),domains=classifyDomains(file);
+    const classification=classifyAtlasPath(file),route=classification.route,domains=classification.domains;
     nodes.push({
       path:file,extension:ext,kind:route?'route':file.startsWith('tests/')?'test':file.startsWith('supabase/')?'database':sourceExtensions.has(ext)?'code':'supporting',
-      route,subsystems:classifySubsystems(file),surfaces:classifySurfaces(file),domains,authorities:domainAuthorities(domains),truthKeys:domainTruthKeys(domains),
+      route,subsystems:classification.subsystems,surfaces:classification.surfaces,domains,authorities:classification.authorities,truthKeys:classification.truthKeys,
       imports:[...new Set(resolvedImports)].sort(),externalImports:[...new Set(externalImports)].sort(),
       exports:sourceExtensions.has(ext)?extractExports(source):[],literalKeys:source?extractLiteralKeys(source):[],referenceTerms:source?extractReferenceTerms(source):[],
     });
@@ -526,7 +526,8 @@ function traverseReverse(atlas,startPaths){
 export function impactForAtlasPattern(atlas,pattern){
   const matcher=globToRegExp(pattern),matches=atlas.nodes.filter(node=>matcher.test(node.path)).map(node=>node.path),exact=atlas.nodes.some(node=>node.path===pattern)?[pattern]:[],start=exact.length?exact:matches.slice(0,policy.maxImpactResults);
   const nodeMap=new Map(atlas.nodes.map(node=>[node.path,node])),impact=traverseReverse(atlas,start);
-  const subsystems=[...new Set(start.flatMap(file=>nodeMap.get(file)?.subsystems??classifySubsystems(file)))].sort(),surfaces=[...new Set(start.flatMap(file=>nodeMap.get(file)?.surfaces??classifySurfaces(file)))].sort(),directDomains=[...new Set(start.flatMap(file=>nodeMap.get(file)?.domains??classifyDomains(file)))].sort();
+  const classificationFor=file=>nodeMap.get(file)??classifyAtlasPath(file);
+  const subsystems=[...new Set(start.flatMap(file=>classificationFor(file).subsystems??[]))].sort(),surfaces=[...new Set(start.flatMap(file=>classificationFor(file).surfaces??[]))].sort(),directDomains=[...new Set(start.flatMap(file=>classificationFor(file).domains??[]))].sort();
   const architecture=architectureProjection(directDomains),componentKeys=[...new Set(start.flatMap(file=>nodeMap.get(file)?.literalKeys??[]))].sort(),exports=[...new Set(start.flatMap(file=>nodeMap.get(file)?.exports??[]))].sort();
   const failureIds=getAllFailures().filter(f=>f.applicability.mode==='always'||f.applicability.subsystems.some(s=>subsystems.includes(s))).map(f=>f.id);
   return {contract:'shoporation.atlas-impact.v2',pattern,matchedFiles:start,matchCount:matches.length||exact.length,subsystems,surfaces,componentKeys,exports,...architecture,...impact,knownFailureIds:[...new Set(failureIds)].sort()};
@@ -725,8 +726,7 @@ export function buildExecutionRoute(atlas,patterns,{tombstones=[],plannedDeletio
 }
 
 export function resolveAtlasArchitectureForPath(atlas,file,{tombstones=[],plannedDeletions=[],executionRoute=null}={}){
-  const node=(atlas.nodes??[]).find(item=>item.path===file);
-  const classified=node??classifyAtlasPath(file);
+  const classified=classifyAtlasPath(file);
   const domains=[...(classified.domains??[])].sort();
   const authorities=[...(classified.authorities??domainAuthorities(domains))].sort();
   const route=classified.route??routeForFile(file);
@@ -781,8 +781,54 @@ export function validateCodebaseAtlas(atlas){
   if(!atlas.nodes.length)issues.push({code:'ATLAS_EMPTY'});
   if(atlas.semanticGraph?.contract!==(policy.semanticGraph?.contract??'shoporation.semantic-execution-graph.v1'))issues.push({code:'ATLAS_SEMANTIC_GRAPH_CONTRACT_INVALID'});
   if(!atlas.semanticGraph?.typeCheckerAvailable)issues.push({code:'ATLAS_TYPECHECKER_UNAVAILABLE'});
+
+  const normalizeList=value=>[...new Set(Array.isArray(value)?value:[])].sort();
+  const sameRoute=(left,right)=>JSON.stringify(left??null)===JSON.stringify(right??null);
+  for(const node of atlas.nodes??[]){
+    const expected=classifyAtlasPath(node.path);
+    const comparisons=[
+      ['route',node.route??null,expected.route??null,(a,b)=>sameRoute(a,b)],
+      ['subsystems',normalizeList(node.subsystems),normalizeList(expected.subsystems),(a,b)=>JSON.stringify(a)===JSON.stringify(b)],
+      ['surfaces',normalizeList(node.surfaces),normalizeList(expected.surfaces),(a,b)=>JSON.stringify(a)===JSON.stringify(b)],
+      ['domains',normalizeList(node.domains),normalizeList(expected.domains),(a,b)=>JSON.stringify(a)===JSON.stringify(b)],
+      ['authorities',normalizeList(node.authorities),normalizeList(expected.authorities),(a,b)=>JSON.stringify(a)===JSON.stringify(b)],
+      ['truthKeys',normalizeList(node.truthKeys),normalizeList(expected.truthKeys),(a,b)=>JSON.stringify(a)===JSON.stringify(b)],
+    ];
+    for(const [field,actual,wanted,equal] of comparisons)if(!equal(actual,wanted))issues.push({
+      code:'ATLAS_CLASSIFICATION_DIVERGENCE',
+      file:node.path,
+      field,
+      actual,
+      expected:wanted,
+    });
+  }
+
   const authorityReality=reconcileAuthorityDependencies(atlas);for(const discrepancy of authorityReality.discrepancies)issues.push({code:'ATLAS_AUTHORITY_DEPENDENCY_DRIFT',...discrepancy});
-  for(const instruction of poInstructionRegistry.instructions??[]){if(!instruction.id||instruction.lifecycle!=='active'||!instruction.positiveRequirement||(instruction.affectedPatterns??[]).length===0)issues.push({code:'ATLAS_PO_INSTRUCTION_INVALID',instructionId:instruction.id??null});}
+  const instructions=(atlas.poInstructions??poInstructionRegistry.instructions??[]);
+  for(const instruction of instructions){if(!instruction.id||instruction.lifecycle!=='active'||!instruction.positiveRequirement||(instruction.affectedPatterns??[]).length===0)issues.push({code:'ATLAS_PO_INSTRUCTION_INVALID',instructionId:instruction.id??null});}
+  const activeInstructions=instructions.filter(item=>item.lifecycle==='active'&&!item.supersededBy);
+  const requiredRoutes=[];
+  const forbiddenRoutes=[];
+  for(const instruction of activeInstructions){
+    for(const route of instruction.affectedRoutes??[])if(typeof route==='string'&&route.startsWith('/'))requiredRoutes.push({route,instructionId:instruction.id});
+    for(const forbidden of instruction.forbiddenStates??[]){
+      const parts=String(forbidden).split(':'),kind=parts.shift(),value=parts.join(':');
+      if(kind==='route'&&value?.startsWith('/'))forbiddenRoutes.push({route:value,instructionId:instruction.id});
+    }
+  }
+  const seenRouteConflicts=new Set();
+  for(const required of requiredRoutes)for(const forbidden of forbiddenRoutes){
+    if(required.route!==forbidden.route)continue;
+    const key=[required.route,required.instructionId,forbidden.instructionId].join('|');
+    if(seenRouteConflicts.has(key))continue;
+    seenRouteConflicts.add(key);
+    issues.push({
+      code:'ATLAS_PO_ROUTE_AUTHORITY_CONFLICT',
+      route:required.route,
+      requiredInstructionId:required.instructionId,
+      forbiddenInstructionId:forbidden.instructionId,
+    });
+  }
   const truthKeys=domainRegistry.domains.flatMap(domain=>domain.truthOwnership),uniqueTruth=new Set(truthKeys);
   if(uniqueTruth.size!==truthKeys.length)issues.push({code:'ATLAS_TRUTH_OWNER_DUPLICATE'});
   return {contract:'shoporation.codebase-atlas-validation.v2',issues,ok:issues.length===0};
