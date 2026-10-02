@@ -7,6 +7,7 @@ import {
   impactForAtlasPattern,
   reconcileAuthorityDependencies,
   resolveAtlasArchitectureForPath,
+  validateCodebaseAtlas,
 } from '../scripts/lib/shoperation-codebase-atlas-runtime.mjs';
 import {
   evaluateCandidateConsumers,
@@ -54,6 +55,105 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     expect(api.domains).toEqual(['DOMAIN-COMMERCE']);
     expect(api.authorities).toEqual(['commerce-core-authority']);
     expect(api.route?.kind).toBe('api');
+  });
+
+  it('keeps materialized Atlas, impact and resolver classification coherent with the canonical path classifier',()=>{
+    const atlas:any=buildCodebaseAtlas();
+    const paths=[
+      'src/app/oldal/[slug]/page.tsx',
+      'src/app/sitemap.ts',
+      'scripts/lib/shoperation-codebase-atlas-runtime.mjs',
+    ];
+    for(const path of paths){
+      const node=atlas.nodes.find((item:any)=>item.path===path);
+      expect(node).toBeTruthy();
+      const expected=classifyAtlasPath(path);
+      expect({
+        route:node.route,
+        subsystems:[...node.subsystems].sort(),
+        surfaces:[...node.surfaces].sort(),
+        domains:[...node.domains].sort(),
+        authorities:[...node.authorities].sort(),
+        truthKeys:[...node.truthKeys].sort(),
+      }).toEqual({
+        route:expected.route,
+        subsystems:[...expected.subsystems].sort(),
+        surfaces:[...expected.surfaces].sort(),
+        domains:[...expected.domains].sort(),
+        authorities:[...expected.authorities].sort(),
+        truthKeys:[...expected.truthKeys].sort(),
+      });
+    }
+
+    const qualityHelper=classifyAtlasPath('scripts/lib/shoperation-codebase-atlas-runtime.mjs');
+    expect(qualityHelper.surfaces).toContain('quality-system');
+    expect(qualityHelper.domains).toEqual(['DOMAIN-QUALITY']);
+    expect(qualityHelper.authorities).toEqual(['quality-knowledge-system']);
+
+    const cleanIssues=validateCodebaseAtlas(atlas).issues.filter((issue:any)=>
+      issue.code==='ATLAS_CLASSIFICATION_DIVERGENCE'||issue.code==='ATLAS_PO_ROUTE_AUTHORITY_CONFLICT'
+    );
+    expect(cleanIssues).toEqual([]);
+
+    const publicPath='src/app/oldal/[slug]/page.tsx';
+    const inconsistent:any={
+      ...atlas,
+      nodes:atlas.nodes.map((node:any)=>node.path===publicPath
+        ?{...node,domains:[],authorities:[],truthKeys:[]}
+        :node),
+    };
+    const divergence=validateCodebaseAtlas(inconsistent).issues.filter((issue:any)=>issue.code==='ATLAS_CLASSIFICATION_DIVERGENCE');
+    expect(divergence.map((issue:any)=>issue.field)).toEqual(expect.arrayContaining(['domains','authorities']));
+
+    const resolved=resolveAtlasArchitectureForPath(inconsistent,publicPath);
+    expect(resolved.pathDerived).toEqual({
+      domains:['DOMAIN-STOREFRONT'],
+      authorities:['shared-storefront'],
+    });
+    const impact=impactForAtlasPattern(inconsistent,publicPath);
+    expect(impact.domains).toContain('DOMAIN-STOREFRONT');
+    expect(impact.authorities).toContain('shared-storefront');
+  });
+
+  it('blocks structured active PO route-authority conflicts without inferring from prose',()=>{
+    const atlas:any=buildCodebaseAtlas();
+    const required={
+      id:'PO-REQ-CONFLICT',
+      lifecycle:'active',
+      supersededBy:null,
+      positiveRequirement:'Expose the required route as its own public authority.',
+      affectedPatterns:['src/app/**'],
+      affectedRoutes:['/coherence-conflict'],
+      forbiddenStates:[],
+    };
+    const forbidden={
+      id:'PO-FORBID-CONFLICT',
+      lifecycle:'active',
+      supersededBy:null,
+      positiveRequirement:'Keep the legacy state removed.',
+      affectedPatterns:['src/app/**'],
+      affectedRoutes:[],
+      forbiddenStates:['route:/coherence-conflict'],
+    };
+    const conflictAtlas={...atlas,poInstructions:[required,forbidden]};
+    const conflicts=validateCodebaseAtlas(conflictAtlas).issues.filter((issue:any)=>issue.code==='ATLAS_PO_ROUTE_AUTHORITY_CONFLICT');
+    expect(conflicts).toEqual([expect.objectContaining({
+      route:'/coherence-conflict',
+      requiredInstructionId:'PO-REQ-CONFLICT',
+      forbiddenInstructionId:'PO-FORBID-CONFLICT',
+    })]);
+
+    const inactiveAtlas={...atlas,poInstructions:[required,{...forbidden,lifecycle:'inactive'}]};
+    expect(validateCodebaseAtlas(inactiveAtlas).issues.filter((issue:any)=>issue.code==='ATLAS_PO_ROUTE_AUTHORITY_CONFLICT')).toEqual([]);
+
+    const supersededAtlas={...atlas,poInstructions:[required,{...forbidden,supersededBy:'PO-NEW'}]};
+    expect(validateCodebaseAtlas(supersededAtlas).issues.filter((issue:any)=>issue.code==='ATLAS_PO_ROUTE_AUTHORITY_CONFLICT')).toEqual([]);
+
+    const proseOnlyAtlas={...atlas,poInstructions:[
+      required,
+      {...forbidden,id:'PO-PROSE-ONLY',forbiddenStates:[],positiveRequirement:'Do not expose /coherence-conflict.'},
+    ]};
+    expect(validateCodebaseAtlas(proseOnlyAtlas).issues.filter((issue:any)=>issue.code==='ATLAS_PO_ROUTE_AUTHORITY_CONFLICT')).toEqual([]);
   });
 
   it('retains only Git-proven deleted planned paths as execution-route tombstones',()=>{
