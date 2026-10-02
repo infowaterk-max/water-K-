@@ -1,20 +1,21 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
-  "task": "Revalidate and harden the existing Template Production stack against the previously approved Maybach-Brabus VX Builder and Template Factory capability target before Template #3 authoring is allowed.",
-  "status": "closed",
+  "taskId": "DEV-TEMPLATE-GENOME-BRABUS-HARDENING",
+  "task": "Evolve the existing Template Factory visual-DNA/recipe authority into one canonical immutable Template Genome contract that becomes the upstream identity and constraint input for later Type System, Constraint Planner, Media Planner, distinctness, lineage and dynamic compiler hardening.",
+  "status": "ready-for-implementation",
   "guardDigest": "8a9bf46e",
-  "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
+  "changeBaseSha": "d6603f0eaef81d2cb34f82fb9c590071d998420c",
   "plannedFilePatterns": [
-    "src/lib/builder/template-factory/production-maturity.ts",
+    "quality/development/active-plan.json",
+    "src/lib/builder/template-factory/template-genome.ts",
+    "src/lib/builder/template-factory/scaffold.ts",
     "src/lib/builder/template-factory/generator-readiness.ts",
-    "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
-    "scripts/template-factory-quality-gate.mjs",
-    "tests/template-factory-production-maturity.test.ts",
+    "src/lib/builder/template-factory/production-contracts.ts",
+    "src/lib/builder/template-factory/production-maturity.ts",
+    "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
+    "tests/template-factory-template-genome.test.ts",
     "tests/template-factory-generator-readiness.test.ts",
-    "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
-    "src/app/api/visual-fidelity/templates/route.ts",
-    "quality/knowledge/guard-registry.v1.json"
+    "tests/template-factory-production-maturity.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -98,93 +99,86 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
+    "sourceRef": "PO-2026-10-02-TEMPLATE-GENOME-BRABUS-HARDENING",
     "riskTier": "critical",
-    "problemStatement": "The supervisory Control Plane is now materially stronger, but the template-production stack was accepted in earlier, less mature phases. The Product Owner explicitly forbids starting Template #3 until the shared engine set, VX Builder and Template Factory are revalidated against the already approved Maybach-Brabus target and any capability gaps are closed. Existing green tests prove local contracts, not that the complete production system has reached the intended dynamic, reusable and low-manual-rework capability ceiling. Sentinel integrity verification exposed that the existing blocking GUARD-TEMPLATE-FACTORY had no machine-readable proofSemantics, so Completion Contract evidence could not be proven semantically even though the workflow existed.",
+    "problemStatement": "Brabus revalidation proved that per-template visual DNA exists but is ad hoc and not a single versioned immutable Factory authority. Constraint planning, media planning, distinctness, lineage and compiler work would otherwise bind to unstable template-local shapes and be rewritten later.",
     "observableOutcomes": [
-      "The existing Template Factory / Generator Readiness path gains one canonical production-maturity model; no parallel gate or second Builder/Runtime authority is created.",
-      "Every shared storefront engine E1-E11 and E13 is classified by machine-readable evidence as PROVEN, EVOLVE or RETHINK/UNPROVEN against its intended capability and current proof strength.",
-      "The VX Builder capability profile is explicitly checked for Guarded Freedom workspace, Normal/Advanced/Expert disclosure, Layers, presets, Saved Blocks, Global Elements, Global Styles, responsive inheritance/reset, states/interactions, Design Guard, Publish Readiness, undo/redo and canonical schema-only mutation.",
-      "Previously approved Brabus capabilities that are not yet real implementation—especially Smart Intent / Smart Auto-Fix, Template Genome/DNA authority, Media Planner/Compiler, anti-clone/distinctness intelligence, deterministic lineage and compiler-oriented production planning—remain visibly NOT_READY instead of being inferred from documentation.",
-      "Template Factory readiness distinguishes technically valid 14-page packages from a production system actually ready to author Template #3 with minimal manual code repair.",
-      "Template #3 authoring remains forbidden until the production-maturity result is fully PROVEN and an end-to-end adversarial production rehearsal passes.",
-      "GUARD-TEMPLATE-FACTORY declares bounded machine-readable proof semantics for Builder/Storefront/Quality browser evidence so Sentinel can validate Completion Contract usage without treating workflow presence as proof."
+      "One canonical Template Genome contract owns template identity grammar, tokens, composition, media language, responsive behavior, exclusions, inheritance metadata, version and deterministic immutable hash.",
+      "Factory generator-ready recipes fail closed when Genome is missing, stale, malformed or does not match blueprint/template identity.",
+      "Compiled Factory lineage carries Genome identity/hash without copying another template's concrete media or visual identity.",
+      "Existing Page Schema, Runtime, Builder, recipe, visual authority and Template Factory remain the sole authorities; no parallel generator or gate is created.",
+      "Loot Vault v2 acts only as an existing accepted canary declaration for the generic Genome contract; Template #3 remains forbidden."
     ],
     "unresolvedRisks": [
-      "Some Brabus targets were product-direction decisions rather than completed code contracts; the revalidation must not fabricate implementation evidence from documentation.",
-      "Existing Builder functionality is spread across several generations/components, so capability detection must resolve canonical production authority rather than count duplicate/legacy surfaces.",
-      "A capability may be functionally present but too weak or too template-specific for dynamic production; classification must separate presence from sufficient maturity.",
-      "The revalidation foundation must not accidentally turn deferred full Template Generator automation into an immediate requirement; the compiler target remains staged while the Maybach-Brabus production system itself is mandatory."
+      "A Genome that stores concrete media paths would couple identity to assets and undermine the later Media Planner.",
+      "A shallow freeze or unchecked stored digest could permit silent post-definition drift.",
+      "A Genome contract that is too generic would become documentation rather than compiler input; one that is too template-specific would recreate clone skins."
     ],
     "scope": {
       "in": [
-        "Existing Template Factory Generator Readiness, production contracts and engine-functional proof registry.",
-        "Machine-readable production maturity classification for E1-E13, VX Builder and Template Factory capabilities.",
-        "Current canonical Builder/Runtime evidence and previously approved Maybach-Brabus Product Owner requirements.",
-        "Template #3 readiness barrier expressed through the existing Generator Readiness / Template Factory authority.",
-        "Adversarial proof that documentation-only, legacy-only or weakly-proven capabilities cannot be reported as ready."
+        "Canonical immutable Template Genome contract and validation.",
+        "Deterministic content hash and controlled evolution lineage metadata.",
+        "Factory recipe and Generator Readiness integration.",
+        "Compiled production lineage metadata.",
+        "Adversarial tests for missing, identity-drifted, mutated and concrete-media-contaminated genomes."
       ],
       "out": [
-        "Authoring or visually designing Template #3.",
-        "Creating a second Template Factory quality gate, second Page Schema, second Storefront Runtime or second Visual Builder.",
-        "Full autonomous Template Generator implementation in this first revalidation block.",
-        "Template-specific visual fixes to Playroom, Loot Vault or another storefront.",
-        "Weakening current quality, responsive, commerce, accessibility or authority contracts merely to classify a capability as ready."
+        "Template #3 design or authoring.",
+        "Template Type System and Constraint Planner implementation.",
+        "Media generation/selection implementation.",
+        "Cross-template similarity scoring implementation.",
+        "Dynamic template compiler activation.",
+        "New Control Plane gates or parallel completion systems."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "The next template-production architecture will become the factory used for the remaining template portfolio. The highest practical assurance is a canonical capability model tied to executable evidence, adversarial false-readiness tests and exact-head Template Factory/Control Plane proof, followed by targeted hardening of every detected gap before any new template starts.",
+      "rationale": "Genome becomes an upstream production authority consumed by several later Brabus capabilities. The highest practical assurance is a versioned deterministic immutable schema with fail-closed validation, identity binding, lineage rules and adversarial mutation/media-leak tests integrated into existing Factory readiness.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "what-if-matrix",
-        "capability-matrix",
+        "dependency-graph",
         "evidence-provenance",
         "adversarial-scenarios",
         "negative-tests",
         "boundary-cases",
-        "pairwise-interactions",
-        "threat-failure-model",
         "fault-injection",
-        "finite-state-exhaustion",
-        "end-to-end-rehearsal"
+        "combination-proof"
       ],
       "deferredTechniques": [
-        "full-autonomous-template-generator"
+        "template-type-system",
+        "constraint-planner",
+        "media-planner-compiler",
+        "cross-template-distinctness",
+        "dynamic-production-compiler"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Production maturity is part of the existing Template Factory/Generator Readiness authority rather than a new parallel gate.",
-        "A capability cannot be PROVEN solely because a documentation file says it exists.",
-        "A capability cannot be PROVEN solely because a similarly named legacy or noncanonical Builder component exists.",
-        "E1-E11/E13 engine registry entries expose enough maturity/proof metadata to distinguish contract presence from demonstrated intended behavior.",
-        "VX Builder Brabus baseline reports actual implementation evidence for Guarded Freedom, edit modes, hierarchy/layers, responsive inheritance, presets/blocks/globals, design diagnostics and publication readiness.",
-        "Smart Intent, Smart Auto-Fix, Template Genome/DNA, Media Planner/Compiler, cross-template anti-clone and deterministic lineage cannot silently pass if no executable authority/evidence exists.",
-        "The readiness result explicitly says whether Template #3 authoring is allowed; initial NOT_READY is acceptable and expected when real gaps are found.",
-        "Adversarial tests prove false-ready states are rejected when evidence is removed, downgraded, pointed at documentation only or supplied by a noncanonical authority.",
-        "The exact-head Template Factory Quality Gate and normal CI remain green for the revalidation foundation."
+        "Genome has one canonical versioned executable contract under builder-template-system.",
+        "All required Brabus Genome dimensions are explicit and non-empty.",
+        "Genome hash is deterministic over canonical content and cannot be accepted stale.",
+        "Genome identity matches Factory recipe and Blueprint template identity.",
+        "Genome contains semantic media language/roles only; concrete src/referenceSrc asset paths are rejected.",
+        "Generator-ready Factory recipes require valid Genome evidence.",
+        "Factory provenance exposes Genome id/version/hash for downstream lineage.",
+        "FACTORY-TEMPLATE-GENOME may become PROVEN only with canonical implementation plus adversarial executable tests."
       ],
       "invariants": [
-        "One canonical Page Schema, Component Registry, Storefront Runtime, Visual Builder and Template Factory authority remain in force.",
-        "Guarded Freedom remains the Builder model; arbitrary HTML/CSS/JS and uncontrolled Wix-style freeform are not introduced.",
-        "Desktop is the primary authoring authority; Tablet/Mobile are explicit responsive contexts and overrides, not independent duplicated pages.",
-        "Builder operations mutate canonical schema/configuration only and never become a second commerce/business authority.",
-        "Template DNA/Genome, when implemented, governs identity/constraints and inheritance but never copies concrete media or another template's visual identity.",
-        "Technical validity is not equivalent to production maturity or Product Owner visual acceptance.",
-        "Template #3 remains forbidden until all mandatory production capabilities are PROVEN and the final adversarial rehearsal passes."
+        "One Page Schema, Runtime, Builder and Template Factory authority remain.",
+        "Genome governs constraints/identity but never owns commerce truth or arbitrary source code.",
+        "Concrete media remains in Media Manifest/Planner authority, not Genome.",
+        "Template-specific identity cannot be inherited silently from another template.",
+        "UNKNOWN, malformed or stale Genome evidence never counts as ready."
       ],
       "forbiddenStates": [
-        "template-3-authoring-before-production-readiness",
-        "documentation-counted-as-executable-proof",
-        "legacy-builder-surface-counted-as-canonical-proof",
-        "parallel-template-factory-gate",
-        "parallel-builder-or-runtime-authority",
-        "generator-readiness-claims-brabus-ready-with-missing-smart-intent-or-genome",
-        "template-dna-copies-existing-template-media-or-visual-identity",
-        "green-local-tests-treated-as-end-to-end-production-proof"
+        "template-3-authoring",
+        "parallel-genome-gate",
+        "genome-with-concrete-media-paths",
+        "genome-hash-mismatch-accepted",
+        "genome-template-identity-drift-accepted",
+        "documentation-only-genome-proven"
       ]
     },
     "model": {
@@ -216,41 +210,36 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Generator Readiness stays green because it verifies 14-page identity and authority wiring but never verifies Brabus production capabilities.",
-        "An engine is registered and tested deterministically but the proof is too narrow for the dynamic behavior expected in real template production.",
-        "Builder documentation names Smart Intent/Auto-Fix while canonical production UI/runtime has no executable implementation.",
-        "Legacy Builder variants make a capability look present even though the canonical production component cannot use it.",
-        "Template-specific patches repeatedly extend shared authority because Template DNA/preset/component grammar is too weak.",
-        "Media generation produces technically valid assets without template-level distinctness, lineage or composition planning.",
-        "A new template passes technical gates yet still needs days of manual inheritance, responsive and visual repair."
+        "Later planners compile against ad hoc VISUAL_DNA constants and require rewrite.",
+        "Genome claims immutability while nested objects remain mutable or digest is not recomputed.",
+        "Genome embeds media URLs and clones concrete identity across templates.",
+        "Factory reports generator-ready with a missing or mismatched Genome."
       ],
       "edgeCases": [
-        "Capability exists in code but is dark-launched and not reachable from canonical production Builder.",
-        "Capability is available only in Advanced/Expert and should still count as implemented when Guarded Freedom intentionally hides it in Normal mode.",
-        "One engine has strong unit proof but no browser proof because its intended class is deterministic-runtime; maturity should use proof-class-appropriate evidence.",
-        "E13 is browser/network dependent and must not be downgraded merely because other engines are deterministic.",
-        "Full Template Generator remains deferred while Template Genome and production compiler inputs can still be mandatory.",
-        "A capability has correct implementation but no current regression proof; classify as EVOLVE/UNPROVEN rather than absent."
+        "Two semantically identical genomes declared with different object-key order must hash identically.",
+        "Hash changes on any semantic dimension change.",
+        "Controlled evolution may name a parent hash but cannot alter current template identity.",
+        "Legacy recipes without Blueprint remain usable for scaffold tests but are not generator-ready."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-REVALIDATE-EXISTING-FACTORY",
-        "summary": "Extend current Generator Readiness/Template Factory authority with Brabus production maturity and use it to drive hardening.",
+        "id": "ALT-GENOME-FIRST",
+        "summary": "Canonicalize Template Genome before downstream planners/compiler.",
         "disposition": "selected",
-        "reason": "Preserves one production authority and converts prior Product Owner intent into executable readiness without adding another gate."
+        "reason": "It is the common upstream contract for Type System, constraints, media semantics, distinctness and lineage."
       },
       {
-        "id": "ALT-START-TEMPLATE-3",
-        "summary": "Begin the third template and patch Factory/Builder weaknesses as they appear.",
+        "id": "ALT-TYPE-FIRST",
+        "summary": "Implement Template Type System first.",
         "disposition": "rejected",
-        "reason": "Playroom and Loot Vault already proved this creates expensive repeated manual repair and hides systemic capability gaps."
+        "reason": "Type-derived constraints would have no stable template identity/grammar target and would need rebinding."
       },
       {
-        "id": "ALT-NEW-BRABUS-GATE",
-        "summary": "Add a separate Brabus quality gate beside Template Factory v2.",
-        "disposition": "rejected",
-        "reason": "Would recreate parallel-rule complexity and contradict the newly hardened Control Plane architecture."
+        "id": "ALT-SMART-INTENT-FIRST",
+        "summary": "Implement VX Smart Intent first.",
+        "disposition": "deferred",
+        "reason": "Builder operations are already a proven base; Factory production planning has the higher rewrite-avoidance leverage now."
       }
     ],
     "specialistReviews": [
@@ -258,151 +247,97 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Current repository already has canonical Page Schema, Runtime, Builder, Template Factory and engine proof registry authorities; the revalidation must strengthen these owners instead of creating parallel production infrastructure.",
-        "resolution": "Keep the maturity model nested under the existing builder-template-system authority and reuse GUARD-TEMPLATE-FACTORY as the browser and acceptance proof owner.",
+        "finding": "Existing recipe/Blueprint/scaffold is the correct owner path.",
+        "resolution": "Add Genome as a canonical Factory input, not a new subsystem.",
         "evidence": [
-          "src/lib/builder/storefront-runtime.ts",
-          "src/lib/builder/template-factory/generator-readiness.ts",
-          "quality/knowledge/guard-registry.v1.json"
+          "src/lib/builder/template-factory/scaffold.ts",
+          "src/lib/builder/template-factory/generator-readiness.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Generator Readiness v0.1 proves blueprint, package, page matrix, viewport and ownership coherence but can still report ready while important Brabus capabilities are only documented or absent.",
-        "resolution": "Require executable evidence provenance and explicit non-ready maturity states so documentation or metadata presence alone cannot unlock Template #3 authoring.",
+        "finding": "Stored identity metadata without deterministic validation can drift.",
+        "resolution": "Recompute canonical hash and fail closed on mismatch/identity drift.",
         "evidence": [
-          "src/lib/builder/template-factory/generator-readiness.ts",
-          "tests/template-factory-generator-readiness.test.ts"
-        ]
-      },
-      {
-        "role": "Runtime",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Canonical Builder already exposes many Maybach foundations, but repository evidence does not establish Smart Intent and Smart Auto-Fix as implemented production capabilities, and duplicate historical Builder surfaces can confuse presence checks.",
-        "resolution": "Bind capability evidence to canonical production authority and appropriate executable proof producers; missing intelligence remains NOT_IMPLEMENTED or EVOLVE until proven.",
-        "evidence": [
-          "src/components/admin/storefront-visual-builder-production.tsx",
-          "src/components/admin/storefront-fidelity-settings.tsx",
-          "src/lib/builder/storefront-fidelity-engine.ts"
+          "src/lib/builder/template-factory/production-maturity.ts"
         ]
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Template Factory already compiles deterministic 14-page candidates and carries per-template visual DNA fragments, but there is no single immutable Template Genome contract proving composition grammar, exclusion rules, lineage and cross-template distinctness.",
-        "resolution": "Classify the current visual DNA/media scaffold honestly and use the maturity report to sequence Genome, Media Planner/Compiler and distinctness hardening before a third template is authored.",
+        "finding": "Existing VISUAL_DNA is valuable but underspecified and asset-adjacent.",
+        "resolution": "Preserve semantic grammar while explicitly forbidding concrete media paths.",
         "evidence": [
-          "docs/TEMPLATE_FACTORY_SCAFFOLD_V1.md",
-          "src/lib/builder/template-factory/production-contracts.ts",
-          "src/lib/builder/templates/modern-luxe.ts"
+          "src/lib/builder/templates/modern-luxe.ts",
+          "src/lib/builder/templates/loot-vault.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-1",
-        "scenario": "A docs file claims Smart Intent exists but no canonical executable implementation is found.",
-        "finding": "Name-based/documentation-based readiness can create a false PROVEN capability.",
-        "resolution": "Executable evidence sources must be canonical code/tests/registry contracts; documentation may explain but never satisfy proof alone.",
+        "id": "CH-GENOME-1",
+        "scenario": "Genome changes spacing grammar after hash creation.",
+        "finding": "Stale identity could pass.",
+        "resolution": "Validation recomputes hash from canonical content.",
         "status": "resolved"
       },
       {
-        "id": "CH-2",
-        "scenario": "A legacy Builder component has Layers or Publish Readiness while the canonical production Builder does not.",
-        "finding": "Repository-wide string search can misclassify legacy code as production capability.",
-        "resolution": "Capability evidence must name canonical authority surfaces and executable proof producers.",
+        "id": "CH-GENOME-2",
+        "scenario": "Genome contains /storefront-demo/... image URLs.",
+        "finding": "Concrete identity/media cloning contaminates reusable grammar.",
+        "resolution": "Reject path/URL-like values inside Genome media grammar and exclusions.",
         "status": "resolved"
       },
       {
-        "id": "CH-3",
-        "scenario": "All 14 pages compile and engine registry validates, but templates still require repeated template-local shared-authority patches.",
-        "finding": "Structural readiness can be green while production maturity is weak.",
-        "resolution": "Production maturity includes reuse, inheritance, dynamic configuration and no-template-local-engine invariants in addition to package validity.",
+        "id": "CH-GENOME-3",
+        "scenario": "Genome templateKey/version differs from recipe or Blueprint.",
+        "finding": "Lineage and production identity split.",
+        "resolution": "Generator Readiness blocks identity drift.",
         "status": "resolved"
       },
       {
-        "id": "CH-4",
-        "scenario": "An engine's unit tests are green but its expected user journey needs browser/runtime integration that was never exercised.",
-        "finding": "Proof class may be too weak for the capability claim.",
-        "resolution": "Each engine keeps proof-class-specific maturity requirements and any under-proven capability remains EVOLVE/UNPROVEN.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-5",
-        "scenario": "Template Genome is introduced by cloning Playroom/Loot Vault style/media values.",
-        "finding": "A genome could become an anti-pattern that spreads template identity rather than reusable grammar.",
-        "resolution": "Genome authority may inherit grammar/constraints only; concrete media and visual identity are exclusion-controlled and distinctness-checked.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-6",
-        "scenario": "Production maturity becomes another blocker separate from Template Factory.",
-        "finding": "Two authorities can disagree and recreate ping-pong.",
-        "resolution": "Maturity is nested inside existing Generator Readiness / GUARD-TEMPLATE-FACTORY evidence and has no independent blocking owner.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-7",
-        "scenario": "The repository contains per-template VISUAL_DNA constants, but no versioned immutable Genome contract or lineage authority links them to Factory production inputs.",
-        "finding": "String-level DNA presence could be mistaken for the previously approved Template Genome capability even though inheritance, hashing, exclusion and evolution semantics are not proven.",
-        "resolution": "Production maturity treats ad-hoc visual DNA constants as partial evidence only and keeps Template Genome unproven until a canonical versioned contract and executable tests exist.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-8",
-        "scenario": "The Factory media manifest and media-production documentation exist, but no canonical executable Media Planner or Media Compiler proves semantic role planning, lineage, distinctness and bounded auto-repair.",
-        "finding": "A technically populated media manifest could falsely satisfy the Brabus media capability while continuing to require manual image planning and cross-template visual policing.",
-        "resolution": "Separate manifest/scaffold capability from Brabus Media Planner/Compiler maturity and require executable planner/compiler evidence before Template #3 readiness can become true.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-9",
-        "scenario": "Completion Contract references the blocking Template Factory gate, but the Guard Registry entry has no proofSemantics even though the workflow is green.",
-        "finding": "Sentinel correctly reports proof capability drift because a workflow name and artifact path do not prove what the evidence semantically establishes.",
-        "resolution": "Add bounded proof semantics to the existing GUARD-TEMPLATE-FACTORY owner and keep Sentinel strict; do not weaken the integrity test or replace the evidence with a less specific gate.",
+        "id": "CH-GENOME-4",
+        "scenario": "Object key order differs but semantics are identical.",
+        "finding": "Naive JSON stringify creates unstable hashes.",
+        "resolution": "Canonical recursive key sorting before digest.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Define a canonical production-maturity capability contract inside Template Factory, with explicit evidence provenance and PROVEN/EVOLVE/RETHINK/NOT_IMPLEMENTED states.",
-      "Bind E1-E11/E13 registry definitions to maturity expectations without changing their business authority.",
-      "Add VX Builder capability evidence mapping against canonical production surfaces and executable regression tests.",
-      "Add Brabus future-capability declarations for Smart Intent/Auto-Fix, Template Genome/DNA, Media Planner/Compiler, distinctness/anti-clone and lineage so absent implementation remains visible.",
-      "Extend Generator Readiness to expose production maturity and an explicit Template #3 authoring decision.",
-      "Add adversarial tests for docs-only evidence, legacy-only evidence, proof-strength downgrade and missing mandatory capability.",
-      "Expose the same production-maturity result through the existing visual-fidelity Template Factory catalog so the current browser gate can retain and report it without a second workflow.",
-      "Wire the result into the existing Template Factory quality artifact rather than creating another workflow/gate.",
-      "Run exact-head CI and Template Factory Quality Gate v2; only then close this foundation and proceed to targeted EVOLVE/RETHINK implementation waves.",
-      "Re-run Sentinel integrity correlation and prove the existing Template Factory guard now semantically satisfies only its declared Builder/Storefront/Quality browser scope."
+      "Unit/adversarial proof for canonical hash stability, mutation sensitivity, deep freeze and required dimensions.",
+      "Fail-closed proof for media-path contamination, missing Genome and template identity drift.",
+      "Generator Readiness integration proof using Loot Vault v2 existing accepted recipe.",
+      "Production maturity proof promotion only after executable implementation and tests exist.",
+      "Normal CI + exact-head Template Factory Quality Gate v2 + Completion Truth."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
+      "request": "PO-2026-10-02-TEMPLATE-GENOME-BRABUS-HARDENING",
       "authority": [
         "builder-template-system"
       ],
       "mustEdit": [
+        "src/lib/builder/template-factory/template-genome.ts",
+        "src/lib/builder/template-factory/scaffold.ts",
         "src/lib/builder/template-factory/generator-readiness.ts",
-        "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
-        "scripts/template-factory-quality-gate.mjs",
-        "tests/template-factory-generator-readiness.test.ts",
-        "src/app/api/visual-fidelity/templates/route.ts",
-        "quality/knowledge/guard-registry.v1.json"
+        "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
+        "src/lib/builder/template-factory/production-maturity.ts",
+        "tests/template-factory-template-genome.test.ts",
+        "tests/template-factory-generator-readiness.test.ts"
       ],
-      "mayEdit": [],
-      "impactedReadOnly": [
-        "src/lib/builder/storefront-runtime.ts",
-        "src/components/admin/storefront-visual-builder-production.tsx",
-        "src/components/admin/storefront-fidelity-settings.tsx",
-        "src/lib/builder/storefront-fidelity-engine.ts",
+      "mayEdit": [
         "src/lib/builder/template-factory/production-contracts.ts",
-        "docs/TEMPLATE_FACTORY_SCAFFOLD_V1.md",
-        "docs/VISUAL_BUILDER_FIDELITY_ENGINE.md"
+        "tests/template-factory-production-maturity.test.ts"
+      ],
+      "impactedReadOnly": [
+        "src/lib/builder/templates/loot-vault.ts",
+        "src/lib/builder/templates/modern-luxe.ts",
+        "src/lib/builder/storefront-runtime.ts"
       ],
       "proof": [
+        "tests/template-factory-template-genome.test.ts",
         "tests/template-factory-generator-readiness.test.ts",
         "tests/template-factory-production-maturity.test.ts"
       ],
@@ -412,14 +347,14 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
+    "sourceRef": "PO-2026-10-02-TEMPLATE-GENOME-BRABUS-HARDENING",
     "requirements": [
       {
-        "id": "REQ-BRABUS-MATURITY-MODEL",
-        "requirement": "Existing Template Factory/Generator Readiness exposes an evidence-bound Maybach-Brabus production-maturity model without adding a parallel gate.",
+        "id": "REQ-TEMPLATE-GENOME-AUTHORITY",
+        "requirement": "Canonical immutable Template Genome is executable Factory authority with deterministic identity/hash and full required dimension coverage.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "template-production-maturity",
+          "breadth": "template-genome-authority",
           "strength": 2,
           "dimensions": [
             "claim-scope",
@@ -441,8 +376,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PARALLEL-BRABUS-GATE",
-            "statement": "No second Template Factory/Builder/Runtime blocking authority is introduced.",
+            "id": "NEG-GENOME-PARALLEL-AUTHORITY",
+            "statement": "No second Factory/Builder/Runtime authority or gate is created.",
             "evidence": [
               "GUARD-QUALITY-TESTS",
               "GUARD-TEMPLATE-FACTORY"
@@ -451,11 +386,11 @@
         ]
       },
       {
-        "id": "REQ-BRABUS-FALSE-READY",
-        "requirement": "Documentation-only, legacy-only, missing or under-strength capability evidence cannot produce Template #3 readiness.",
+        "id": "REQ-TEMPLATE-GENOME-FAIL-CLOSED",
+        "requirement": "Missing, stale, mutated, identity-drifted or concrete-media-contaminated Genome cannot produce generator readiness.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "template-production-false-readiness",
+          "breadth": "template-genome-integrity",
           "strength": 2,
           "dimensions": [
             "status",
@@ -477,63 +412,25 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-TEMPLATE3-FALSE-READY",
-            "statement": "Template #3 authoring cannot be reported ready while any mandatory Brabus capability is unproven.",
+            "id": "NEG-GENOME-FALSE-READY",
+            "statement": "Generator readiness cannot pass invalid Genome evidence.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-BRABUS-FACTORY-PROOF",
-        "requirement": "The revalidation foundation passes the existing Template Factory Quality Gate on the exact implementation head.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "template-factory-exact-head",
-          "strength": 2,
-          "dimensions": [
-            "runtime",
-            "browser",
-            "template-factory"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-TYPECHECK"
-          ],
-          "outcome": [
-            "GUARD-TEMPLATE-FACTORY"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-BRABUS-FACTORY-REGRESSION",
-            "statement": "No current Template Factory, Runtime or Builder regression is introduced.",
-            "evidence": [
-              "GUARD-TEMPLATE-FACTORY",
-              "GUARD-PRODUCTION-BUILD"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target. Plan-only Control Plane projection on 2026-10-02 resolved the canonical scope to DOMAIN-BUILDER / builder-template-system with builder-template-system + release-infrastructure + shared-storefront subsystem impact, full applicable negative knowledge, guard digest 91470973, and critical assurance depth. The existing visual-fidelity Template Factory catalog is included because it is the canonical handoff from Factory candidate build reports into GUARD-TEMPLATE-FACTORY browser evidence. Adding the canonical visual-fidelity QA catalog expands the projected subsystem set with storefront-ui and updates the canonical guard digest to 8a9bf46e. Sentinel integrity exposed missing proofSemantics on GUARD-TEMPLATE-FACTORY; this is treated as a real existing-authority metadata gap and repaired in-place rather than weakening Sentinel. After adding Guard Registry proof semantics, canonical subsystem projection remains builder-template-system + release-infrastructure + shared-storefront + storefront-ui; DOMAIN-QUALITY authority is represented without a separate quality-infrastructure subsystem impact. The generic exact-head external Completion proof transport is now supplied by stacked foundation PR #721 / branch feature/control-plane-external-proof-handoff at 1b4e678d6cccaa9672f7fe16dc38a5db68a43159. This Brabus transaction consumes that existing Control Plane capability and does not modify its CI/checkpoint/handoff implementation. PR #701 is now explicitly stacked on feature/control-plane-external-proof-handoff; the canonical Development Transaction base is 1b4e678d6cccaa9672f7fe16dc38a5db68a43159. The first retarget-triggered CI event still carried the former main base and was discarded as stale event identity. Foundation PR #721 is merged on main at 0cb93c0e30b6a2a1964395ea5fd85525829cd8a3; PR #701 returns to main-based Development Transaction semantics. The Brabus branch now treats that merged Control Plane capability as baseline rather than part of its change scope. PR #701 base retarget to main completed before this revision; this synchronization commit exists to bind GitHub pull_request event identity to the canonical main transaction base 0cb93c0e30b6a2a1964395ea5fd85525829cd8a3.",
+  "notes": "First Brabus hardening wave selected from the repository dependency graph after #701 revalidation foundation closed green at d6603f0eaef81d2cb34f82fb9c590071d998420c. Genome is upstream of Type System, Constraint Planner, Media Planner, distinctness, lineage and dynamic compiler. Template #3 remains forbidden.",
   "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "cd6475c607b1f39951c47c15a526475a04c3eeea",
-    "closedAt": "2026-10-02T11:27:40.310Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
+    "state": "EXECUTE",
+    "truthStatus": "UNVERIFIED",
+    "verifiedImplementationHead": null,
+    "closedAt": null,
+    "sourceRef": "PO-2026-10-02-TEMPLATE-GENOME-BRABUS-HARDENING",
     "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+      "state": "pending"
     }
   }
 }
