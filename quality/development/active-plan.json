@@ -1,7 +1,7 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-VX-INHERITANCE-INTELLIGENCE-CORE-BRABUS-HARDENING",
-  "task": "Evolve the existing responsive layout-depth authority into the canonical Inheritance Intelligence Core: exact base-plus-viewport provenance, redundant-override diagnostics and deterministic stale-safe bounded propagation using existing responsive setters/resetters, without restoring legacy cascade or adding admin UI in this release slice.",
+  "task": "Evolve the existing responsive layout-depth authority into the canonical VX Inheritance Intelligence Core: exact base-plus-viewport provenance, redundant-override diagnostics and deterministic stale-safe bounded propagation using existing responsive setters/resetters, without restoring legacy cascade. Builder-facing adoption remains a separate follow-up change set.",
   "status": "ready-for-implementation",
   "guardDigest": "79f20cf3",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
