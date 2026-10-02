@@ -1,7 +1,7 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-VX-VISUAL-DIFF-INTELLIGENCE-BRABUS-HARDENING",
-  "task": "Evolve exact-head visual fidelity evidence into the canonical VX Visual Diff Intelligence Core: verify evidence checksum, source identity and canonical page-document fingerprint, then derive deterministic per-viewport drift diagnostics without moving screenshot comparison or mutation authority into the Builder.",
+  "taskId": "DEV-VX-VISUAL-DIFF-INTELLIGENCE-CORE-BRABUS-HARDENING",
+  "task": "Evolve the existing exact-head Template Factory visual evidence into the canonical VX Visual Diff Intelligence Core: consume the existing quality-evidence case contract, validate evidence provenance and 14x3 completeness, classify structured runtime drift separately from unlocalized pixel drift, and produce deterministic reusable diagnostics without changing screenshot capture, Page Schema, Runtime or Builder mutations.",
   "status": "ready-for-implementation",
   "guardDigest": "94082bf1",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
@@ -12,6 +12,7 @@
     "scripts/template-factory-quality-gate.mjs",
     "src/app/api/visual-fidelity/templates/route.ts",
     "src/lib/builder/storefront-responsive-layout-depth.ts",
+    "src/lib/builder/storefront-visual-diff-intelligence.ts",
     "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts",
     "src/lib/builder/template-factory/constraint-planner.ts",
     "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
@@ -28,6 +29,7 @@
     "src/lib/builder/template-factory/template-genome.ts",
     "src/lib/builder/template-factory/template-type-system.ts",
     "tests/storefront-responsive-layout-depth.test.ts",
+    "tests/storefront-visual-diff-intelligence.test.ts",
     "tests/template-factory-constraint-planner.test.ts",
     "tests/template-factory-generator-readiness.test.ts",
     "tests/template-factory-media-planner.test.ts",
@@ -36,10 +38,7 @@
     "tests/template-factory-production-maturity.test.ts",
     "tests/template-factory-template-distinctness.test.ts",
     "tests/template-factory-template-genome.test.ts",
-    "tests/template-factory-template-type-system.test.ts",
-    "src/lib/builder/storefront-page-fingerprint.ts",
-    "src/lib/builder/storefront-visual-diff-intelligence.ts",
-    "tests/storefront-visual-diff-intelligence.test.ts"
+    "tests/template-factory-template-type-system.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -123,55 +122,56 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-VX-VISUAL-DIFF-INTELLIGENCE-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-VX-VISUAL-DIFF-INTELLIGENCE-CORE-BRABUS-HARDENING",
     "riskTier": "critical",
-    "problemStatement": "Exact-head Template Factory browser proof already captures per-template/page/viewport visual evidence with source commit, page fingerprint, case fingerprint, RERUN/REUSED provenance, browser diagnostics and golden global/local diff semantics. VX currently has no reusable authoring intelligence that can consume that evidence safely. The new Core must reason over verified evidence without treating screenshots as Runtime truth, without duplicating pixel comparison, and without accepting stale evidence after Page Schema or shared-runtime changes.",
+    "problemStatement": "Exact-head 14x3 browser evidence already captures page fingerprints, case fingerprints, runtime diagnostics, golden mismatch data including local hotspot evidence, warnings/errors and reuse provenance. That evidence currently remains CI-oriented and is not a reusable Builder intelligence contract. The Visual Diff Core must deterministically interpret the existing evidence without creating a second screenshot system and without treating pixels as Runtime truth or guessing Builder fixes from image mismatch alone.",
     "observableOutcomes": [
-      "A shared canonical Page Schema fingerprint helper reproduces the existing quality route SHA-256 fingerprint semantics over canonical JSON.",
-      "Visual Diff Intelligence accepts the existing shoporation.template-factory-quality-evidence.v2 envelope rather than creating a second screenshot-evidence format.",
-      "Manifest checksum is recomputed and must match before any visual conclusion is emitted.",
-      "Evidence source commit must match the caller-declared exact source commit; HEAD, missing or mismatched identities fail closed.",
-      "Current Page Schema fingerprint must match the case pageFingerprint for every viewport evidence item.",
-      "REUSED evidence is accepted only with explicit fingerprint-equivalent reuse proof; stale or unverifiable reuse fails closed.",
-      "Per-viewport state is classified deterministically as exact-match, bounded-drift, blocking-drift or no-baseline from existing golden global/local semantics and case errors.",
-      "A page-level matrix summary requires desktop/tablet/mobile evidence and exposes evidence-backed issues suitable for later Publish Readiness.",
-      "The Core performs no screenshot capture, pixel comparison, filesystem access, persistence, publish or Builder mutation.",
+      "One canonical Visual Diff Intelligence Core consumes the existing shoporation.template-factory-quality-evidence.v2 case shape without changing the browser capture authority.",
+      "Manifest analysis validates template identity, expected source commit, canonical page/viewport matrix completeness, unique case identity and current/reused evidence provenance before reporting drift.",
+      "Fresh RERUN evidence is accepted only when bound to the expected source identity and case/page fingerprints are present.",
+      "REUSED evidence is accepted only when the current source identity is correct and reuseProof.fingerprintEquivalent is true with matching current fingerprint provenance.",
+      "Golden pass/fail/missing/dimension-mismatch and local hotspot fields are preserved as visual evidence, but pixel drift is explicitly classified as unlocalized/manual-review evidence rather than a causal diagnosis.",
+      "Structured runtime diagnostics classify overflow, protrusion, broken images, touch-target, clipping, shell/cardinality, mobile-navigation and social-integrity drift as explainable categories.",
+      "Unknown gate errors/warnings are never dropped; they remain explicit unclassified evidence so the intelligence cannot create a false clean result.",
+      "The result is deterministic, immutable and contains per-case diagnostics plus manifest summary by severity/evidence class/repairability.",
+      "The Core emits no Builder mutation, no screenshot capture, no persistence, no publish action and no automatic repair recommendation.",
       "VX-VISUAL-DIFF-INTELLIGENCE becomes PROVEN only after executable adversarial proof; Publish Readiness, Smart Intent and Smart Auto-Fix remain non-PROVEN."
     ],
     "unresolvedRisks": [
-      "A stale screenshot may look plausible after Page Schema or shared Runtime changed and could be misreported as current.",
-      "A valid global mismatch ratio could hide a failing local hotspot if local golden semantics are ignored.",
-      "REUSED proof could be accepted without its fingerprint-equivalence chain.",
-      "A missing golden baseline could be misreported as exact visual match.",
-      "Case errors unrelated to golden diff could be discarded, overstating readiness.",
-      "The Builder could accidentally gain pixelmatch/filesystem dependencies and create a second visual truth engine.",
-      "Different canonical JSON implementations could make Page Schema fingerprints silently incompatible."
+      "Pixel mismatch ratio could be mistaken for a causal layout diagnosis and later drive unsafe Auto-Fix.",
+      "Reused browser evidence could be stale if fingerprint-equivalence provenance is incomplete or source identity changed.",
+      "A partial matrix could look clean simply because affected page/viewport cases are absent.",
+      "Unknown future gate error codes could be silently ignored by a fixed classifier.",
+      "Golden baseline missing or dimension mismatch could be collapsed into an ordinary pixel percentage and lose important semantics.",
+      "A case may have clean golden pixels but structured Runtime errors such as overflow or broken images.",
+      "A case may have pixel drift with no structured diagnostic; the Core must preserve uncertainty rather than inventing a cause.",
+      "Evidence aggregation could double-count duplicate page/viewport cases or mix another template/version into the matrix."
     ],
     "scope": {
       "in": [
-        "Shared SHA-256 canonical Page Schema fingerprint helper compatible with existing quality-route semantics.",
-        "Typed validation of existing Template Factory visual evidence envelope and per-case provenance.",
-        "Exact source-commit and Page Schema fingerprint binding.",
-        "Golden global/local diff reasoning and browser-case error/warning preservation.",
-        "Desktop/Tablet/Mobile page-matrix summary suitable as downstream diagnostic evidence.",
-        "Adversarial stale/tamper/missing-baseline/reused-evidence proof.",
-        "Maturity promotion after exact-head proof."
+        "Typed Visual Diff evidence contract matching the existing Template Factory quality case data used for canonical page/viewport cases.",
+        "Manifest-level identity, provenance, uniqueness and canonical matrix completeness validation.",
+        "Golden/global/local drift interpretation with explicit uncertainty boundary.",
+        "Structured Runtime diagnostic classification and preservation of unknown raw gate evidence.",
+        "Deterministic immutable per-case and aggregate intelligence result.",
+        "Adversarial proof for stale/reused/partial/duplicate/mixed-template/unknown-error/pixel-only/runtime-only cases.",
+        "Maturity promotion after executable proof."
       ],
       "out": [
-        "Screenshot capture or pixel comparison inside the Builder.",
-        "Golden baseline creation/promotion.",
-        "Changing Template Factory quality thresholds.",
-        "Builder UI adoption in this change set.",
-        "Automatic visual repair.",
-        "Publish blocking aggregation.",
+        "Changing screenshot capture or golden comparison thresholds.",
+        "Changing Template Factory browser gate decisions.",
+        "Builder-facing visual-diff UI in this change set.",
+        "Generating Builder operations from pixel differences.",
+        "Smart Auto-Fix.",
+        "Publish Readiness aggregation.",
         "Natural-language Smart Intent.",
-        "Persistence, database, publish or Page Schema mutation.",
+        "New renderer, Runtime, Page Schema, persistence or Control Plane gate.",
         "Template #3 authoring."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Visual evidence can become dangerously stale while still looking authoritative. Highest practical assurance requires cryptographic manifest/page identity, exact source binding, strict reuse provenance, global plus local golden interpretation, canonical three-viewport completeness and zero mutation authority.",
+      "rationale": "Visual evidence can become dangerously authoritative if provenance or causality is overstated. Highest practical assurance is a pure deterministic interpreter over the existing exact-head evidence contract, with fail-closed matrix/provenance validation, explicit structured-vs-pixel evidence separation, unknown-evidence preservation and adversarial proof that screenshot drift never becomes an invented mutation or causal diagnosis.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -189,43 +189,47 @@
         "finite-state-exhaustion"
       ],
       "deferredTechniques": [
-        "visual-repair-planning",
+        "builder-facing-diff-overlay",
+        "screenshot-region-to-node-inference",
+        "automatic-repair-planning",
         "publish-readiness-aggregation",
-        "natural-language-intent-planning",
-        "builder-ui-adoption"
+        "computer-vision-or-embedding-causality"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Canonical Page Schema fingerprint output matches Node SHA-256 over the exact quality-route canonical payload.",
-        "Invalid manifest contract, incomplete evidence, missing checksum, checksum mismatch or non-exact source identity fail closed.",
-        "No case may be used when template key/version/page type or pageFingerprint differs from the current document.",
-        "REUSED cases require reuseProof.fingerprintEquivalent=true and matching previous/current fingerprint chain.",
-        "Golden status pass with zero mismatch yields exact-match; pass with positive mismatch yields bounded-drift; fail or dimension-mismatch yields blocking-drift; missing yields no-baseline.",
-        "A failing local golden result cannot be downgraded by a passing global ratio.",
-        "Existing case errors remain blocking evidence and warnings remain visible diagnostics.",
-        "Page summary requires exactly one canonical case for each desktop/tablet/mobile viewport; duplicates or missing viewports fail closed.",
-        "Intelligence source imports no Playwright, pixelmatch, pngjs, node filesystem, persistence or publish authority.",
-        "VX-VISUAL-DIFF-INTELLIGENCE becomes PROVEN while VX-PUBLISH-READINESS, VX-SMART-INTENT and VX-SMART-AUTOFIX stay non-PROVEN."
+        "Core contract identifies the existing quality evidence version and never requires a second screenshot or golden authority.",
+        "A manifest cannot be valid intelligence input unless all expected canonical page×viewport cases exist exactly once for the target template/version.",
+        "Case source identity must match the expected current source identity; foreign or stale source evidence blocks intelligence validity.",
+        "REUSED cases require explicit fingerprint-equivalent reuse proof; RERUN cases do not masquerade as reused evidence.",
+        "Golden missing, dimension-mismatch, fail and pass remain distinct states; local peakRegion/hotspot data is preserved when available.",
+        "Pixel-only mismatch produces manual-review/unlocalized visual drift and never a structured-cause or auto-fix-eligible classification.",
+        "Structured runtime evidence produces deterministic categories with the original raw evidence retained.",
+        "Unknown error/warning codes are retained as unclassified diagnostics and prevent a false clean summary.",
+        "A clean result requires valid evidence plus zero error/warning drift diagnostics across the complete matrix.",
+        "Analysis of the same normalized evidence twice returns deep-equal immutable results independent of input object-key order.",
+        "VX-VISUAL-DIFF-INTELLIGENCE becomes PROVEN while VX-PUBLISH-READINESS, VX-SMART-INTENT and VX-SMART-AUTOFIX remain non-PROVEN."
       ],
       "invariants": [
-        "Screenshots and golden baselines remain external quality evidence, never Runtime or Page Schema truth.",
-        "The existing Template Factory evidence contract remains the source evidence envelope.",
-        "Current document identity and exact source identity are mandatory before visual reasoning.",
-        "No visual diagnostic mutates Page Schema or promotes a golden baseline.",
-        "UNKNOWN, missing, stale or unverifiable evidence is never PASS.",
-        "Local and global golden semantics are both authoritative inputs to drift classification."
+        "Template Factory browser/golden gate remains the visual evidence producer and pass/fail authority.",
+        "Screenshots and mismatch ratios are evidence, not Page Schema or Runtime truth.",
+        "Visual Diff Core does not modify evidence, capture images, compare PNG bytes, or mutate Builder documents.",
+        "Pixel evidence alone cannot claim a root cause or concrete repair operation.",
+        "Structured diagnostics never erase raw error/warning strings from the source case.",
+        "Reused evidence is only current when fingerprint-equivalence provenance explicitly proves reuse.",
+        "Missing/duplicate/mixed-identity matrix cases fail closed.",
+        "No timestamps or run IDs affect deterministic diagnostic classification."
       ],
       "forbiddenStates": [
-        "stale-evidence-reported-current",
-        "checksum-invalid-evidence-consumed",
-        "wrong-page-fingerprint-consumed",
-        "reused-case-without-reuse-proof",
-        "missing-baseline-reported-exact-match",
-        "local-diff-failure-ignored",
-        "builder-pixel-comparison-engine",
-        "visual-intelligence-mutates-page-schema",
-        "publish-readiness-falsely-proven",
+        "pixel-diff-treated-as-runtime-truth",
+        "pixel-hotspot-generates-builder-mutation",
+        "stale-reused-evidence-counted-current",
+        "partial-matrix-counted-clean",
+        "unknown-gate-error-dropped",
+        "mixed-template-cases-aggregated",
+        "visual-diff-core-captures-screenshot",
+        "visual-diff-core-persists-or-publishes",
+        "smart-autofix-falsely-proven",
         "template-3-authoring"
       ]
     },
@@ -258,46 +262,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Manifest checksum is stale after evidence fields change.",
-        "Evidence comes from another commit but the screenshot appears visually similar.",
-        "Case belongs to another template version or page type.",
-        "Current Page Schema changed after proof but source commit metadata was copied forward.",
-        "REUSED case lacks a valid fingerprint-equivalence chain.",
-        "Global mismatch passes while local concentrated mismatch fails.",
-        "No golden exists and intelligence reports no drift instead of unproven.",
-        "One viewport is missing but page-level summary still claims visual coverage."
+        "A 42-case matrix is missing one mobile case but summary still reports clean.",
+        "A reused case from an older source commit lacks valid reuse proof but is accepted as current.",
+        "A golden fail with no runtime issue is labeled overflow or spacing drift without evidence.",
+        "A runtime overflow exists while golden status passes and the case is incorrectly called clean.",
+        "Golden dimension mismatch is reduced to generic mismatchRatio=1 and loses dimension semantics.",
+        "Unknown future browser-gate error text is ignored and disappears from diagnostics.",
+        "Duplicate home-mobile cases inflate/replace each other instead of failing identity uniqueness.",
+        "Cases from a foreign template version are mixed into the requested matrix."
       ],
       "edgeCases": [
-        "Zero mismatched pixels with valid baseline.",
-        "Positive mismatch below global threshold with local pass.",
-        "Global pass with local fail.",
-        "Dimension mismatch.",
-        "Golden baseline missing on an otherwise valid browser case.",
-        "RERUN and REUSED cases mixed across three viewports.",
-        "Warnings only, with no errors and bounded drift.",
-        "Case errors with golden pass.",
-        "Duplicate viewport evidence for the same page.",
-        "Evidence checksum valid but source commit mismatched."
+        "Golden status pass with nonzero mismatch below both global and local budgets.",
+        "Golden fail caused only by local hotspot while global mismatch remains under threshold.",
+        "Missing baseline on a candidate where golden.required is false but evidence state still must remain explicit.",
+        "REUSED case has screenshotPath null but originScreenshotPath present.",
+        "RERUN case has no reuseProof.",
+        "Case has warnings only and no errors.",
+        "Case has both structured runtime error and visual pixel drift.",
+        "An extra noncanonical content-demo case exists beside a complete canonical matrix and is ignored for matrix completeness but may remain auxiliary evidence."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-VISUAL-DIFF-EVIDENCE-REASONER",
-        "summary": "Consume and verify existing exact-head Template Factory evidence, then derive deterministic Builder-facing diagnostics.",
+        "id": "ALT-VISUAL-DIFF-EVIDENCE-INTERPRETER",
+        "summary": "Consume the existing Template Factory evidence manifest in a typed pure intelligence core.",
         "disposition": "selected",
-        "reason": "Reuses the existing visual proof authority and prevents a second screenshot truth engine."
+        "reason": "Preserves the single screenshot/golden authority while making its evidence reusable and explainable."
       },
       {
-        "id": "ALT-VISUAL-DIFF-BUILDER-PIXELMATCH",
-        "summary": "Run screenshots and pixel comparison directly from the Builder.",
+        "id": "ALT-VISUAL-DIFF-SECOND-CAPTURE",
+        "summary": "Add a Builder-specific screenshot/diff engine.",
         "disposition": "rejected",
-        "reason": "Would duplicate quality infrastructure, add browser/filesystem dependencies and blur Runtime versus evidence authority."
+        "reason": "Would duplicate visual truth, thresholds and evidence provenance."
       },
       {
-        "id": "ALT-VISUAL-DIFF-RATIO-ONLY",
-        "summary": "Trust only golden mismatchRatio without provenance or local semantics.",
+        "id": "ALT-VISUAL-DIFF-PIXEL-TO-AUTOFIX",
+        "summary": "Map pixel hotspots directly to Builder repairs.",
         "disposition": "rejected",
-        "reason": "Would accept stale evidence and could miss concentrated local regressions."
+        "reason": "Pixels do not prove causal schema changes; this would create unsafe guessed mutations."
       }
     ],
     "specialistReviews": [
@@ -305,136 +307,135 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Template Factory quality evidence already contains the required page/viewport and golden provenance.",
-        "resolution": "Build a consumer/reasoner over the existing evidence envelope; do not modify screenshot authority.",
+        "finding": "The Template Factory quality evidence manifest already contains the necessary page/viewport, fingerprint, golden and runtime diagnostic evidence.",
+        "resolution": "Build a pure consumer contract around that evidence; do not modify or replace the capture authority.",
         "evidence": [
           "scripts/template-factory-quality-gate.mjs",
-          "src/app/api/visual-fidelity/templates/route.ts"
-        ]
-      },
-      {
-        "role": "Runtime",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Screenshot evidence must not become a Runtime dependency or render truth.",
-        "resolution": "Keep the intelligence pure and evidence-only; no renderer, screenshot or persistence imports.",
-        "evidence": [
-          "src/lib/builder/storefront-runtime.ts",
-          "scripts/template-factory-quality-gate.mjs"
+          "tests/storefront-template-quality-gate-v2.test.ts"
         ]
       },
       {
         "role": "Data Integrity",
-        "mode": "review",
+        "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Source commit alone cannot bind proof to an unsaved/current Page Schema.",
-        "resolution": "Require both exact source identity and SHA-256 Page Schema fingerprint equality.",
+        "finding": "REUSED cases can look current while originating from an older run.",
+        "resolution": "Require current source identity plus explicit fingerprintEquivalent reuse proof and preserve origin provenance separately.",
         "evidence": [
-          "src/app/api/visual-fidelity/templates/route.ts"
+          "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+          "scripts/template-factory-quality-gate.mjs"
         ]
       },
       {
-        "role": "Known Failure",
+        "role": "Runtime",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "The existing golden evidence already carries both global mismatch and local-hotspot semantics, and historical visual regressions show that collapsing them into one ratio would hide concentrated failures.",
-        "resolution": "Preserve both globalPassed and local.passed as independent blocking inputs and keep all case errors/warnings attached to the derived intelligence record.",
+        "finding": "Pixel mismatch is not Runtime state and cannot safely identify a schema cause.",
+        "resolution": "Separate visual-baseline evidence from structured runtime diagnostics and mark pixel-only drift manual-review/unlocalized.",
         "evidence": [
           "scripts/template-factory-quality-gate.mjs",
-          "scripts/lib/shoperation-template-factory-golden-semantics.mjs"
+          "src/lib/builder/storefront-runtime.ts"
+        ]
+      },
+      {
+        "role": "UX / Template",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Useful authoring intelligence needs page/viewport localization and preserved hotspot data, but not speculative fixes.",
+        "resolution": "Return page, viewport, mismatch/hotspot localization and structured issue categories; defer overlays and repair actions.",
+        "evidence": [
+          "scripts/lib/shoperation-template-factory-golden-semantics.mjs",
+          "scripts/template-factory-quality-gate.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-VISDIFF-1",
-        "scenario": "Evidence checksum is changed or omitted.",
-        "finding": "Untrusted payload could forge pass state.",
-        "resolution": "Recompute SHA-256 canonical manifest checksum and fail closed.",
+        "id": "CH-VDIFF-1",
+        "scenario": "One canonical page×viewport case is missing from otherwise clean evidence.",
+        "finding": "Partial evidence cannot prove a clean template.",
+        "resolution": "Manifest validity fails with MATRIX_CASE_MISSING.",
         "status": "resolved"
       },
       {
-        "id": "CH-VISDIFF-2",
-        "scenario": "Manifest is valid but sourceCommit differs from the caller-declared exact source.",
-        "finding": "Old shared Runtime proof could be reused.",
-        "resolution": "Classify evidence stale and reject page intelligence.",
+        "id": "CH-VDIFF-2",
+        "scenario": "A REUSED case points at current sourceCommit but lacks fingerprintEquivalent reuse proof.",
+        "finding": "Origin evidence freshness is unproven.",
+        "resolution": "Case provenance is invalid and the manifest cannot be clean.",
         "status": "resolved"
       },
       {
-        "id": "CH-VISDIFF-3",
-        "scenario": "Page Schema changed while template/version/pageType stayed identical.",
-        "finding": "Visual proof no longer represents current content/layout.",
-        "resolution": "Recompute current Page Schema fingerprint and require equality.",
+        "id": "CH-VDIFF-3",
+        "scenario": "Golden mismatch fails with a local hotspot but runtime diagnostics are otherwise clean.",
+        "finding": "The system knows there is visual drift but not the cause.",
+        "resolution": "Emit unlocalized pixel-drift/manual-review diagnostic carrying mismatch and peakRegion; no structured cause.",
         "status": "resolved"
       },
       {
-        "id": "CH-VISDIFF-4",
-        "scenario": "Global mismatch ratio is below threshold but local hotspot fails.",
-        "finding": "Ratio-only reasoning would hide concentrated regression.",
-        "resolution": "Blocking drift if either globalPassed=false or local.passed=false.",
+        "id": "CH-VDIFF-4",
+        "scenario": "Golden passes but horizontal overflow and protruding runtime diagnostics exist.",
+        "finding": "Pixel threshold must not hide structured defects.",
+        "resolution": "Emit structured runtime error diagnostics regardless of golden status.",
         "status": "resolved"
       },
       {
-        "id": "CH-VISDIFF-5",
-        "scenario": "A browser case completed successfully but its configured golden baseline file does not exist, so the evidence record reports golden.status='missing' and mismatchRatio=null.",
-        "finding": "Treating missing baseline as zero mismatch would fabricate visual certainty and incorrectly report the viewport as visually matched.",
-        "resolution": "Classify the viewport as no-baseline with explicit unproven diagnostic; exact-match and bounded-drift are forbidden until a real baseline-backed comparison exists.",
+        "id": "CH-VDIFF-5",
+        "scenario": "Case contains an unknown future error prefix.",
+        "finding": "Fixed mapping could silently erase new failures.",
+        "resolution": "Emit unclassified raw error diagnostic and keep non-clean status.",
         "status": "resolved"
       },
       {
-        "id": "CH-VISDIFF-6",
-        "scenario": "REUSED case is carried from an older proof without reuseProof.",
-        "finding": "Provenance chain is incomplete.",
-        "resolution": "Reject reused case unless fingerprint-equivalent proof is explicit and coherent.",
+        "id": "CH-VDIFF-6",
+        "scenario": "Two cases share the same pageType+viewport identity.",
+        "finding": "Aggregation order could overwrite evidence.",
+        "resolution": "Duplicate identity fails manifest validation before summary.",
         "status": "resolved"
       },
       {
-        "id": "CH-VISDIFF-7",
-        "scenario": "Only Desktop and Mobile cases exist.",
-        "finding": "Page summary could overclaim responsive coverage.",
-        "resolution": "Canonical matrix requires desktop/tablet/mobile exactly once each.",
+        "id": "CH-VDIFF-7",
+        "scenario": "A foreign template version case is mixed into a canonical matrix.",
+        "finding": "Matrix could accidentally satisfy cardinality with wrong evidence.",
+        "resolution": "Identity mismatch is explicit invalid evidence and cannot satisfy expected case coverage.",
         "status": "resolved"
       },
       {
-        "id": "CH-VISDIFF-8",
-        "scenario": "A developer tries to add Playwright/pixelmatch or mutation calls to the intelligence Core.",
-        "finding": "A second visual authority would emerge.",
-        "resolution": "Source-level negative proof forbids those dependencies and Page Schema mutation APIs.",
+        "id": "CH-VDIFF-8",
+        "scenario": "Equivalent evidence objects differ only in object-key insertion order or runId/capturedAt.",
+        "finding": "Classification should not fluctuate on irrelevant metadata.",
+        "resolution": "Normalization ignores non-semantic timing/run metadata and produces deterministic deep-equal intelligence output.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Fingerprint compatibility proof against Node createHash SHA-256 canonical payload.",
-      "Tamper one nested golden/case field after computing the manifest checksum and prove the intelligence rejects the entire evidence envelope before producing any viewport classification.",
-      "Exact source-commit stale evidence proof.",
-      "Independently drift template key, template version, page type and canonical page-document fingerprint and prove each mismatch blocks evidence consumption rather than downgrading to warning.",
-      "RERUN and valid REUSED provenance proof plus invalid reuse rejection.",
-      "Exact-match, bounded-drift, global-fail, local-fail, dimension-mismatch and no-baseline classification matrix.",
-      "Inject browser case errors and warnings alongside a golden pass and prove errors remain blocking while warnings remain visible diagnostic evidence without being silently discarded.",
-      "Canonical three-viewport completeness and duplicate-case fail-closed proof.",
-      "Source-level proof forbidding screenshot/pixel/filesystem/persistence/publish/mutation dependencies.",
-      "Maturity proof promotes only VX-VISUAL-DIFF-INTELLIGENCE; downstream VX blockers remain non-PROVEN.",
+      "Complete 14×3 synthetic canonical manifest produces valid clean intelligence when every case is clean and current.",
+      "Missing, duplicate and mixed-identity case adversarial proofs fail closed.",
+      "RERUN vs REUSED provenance proofs enforce fingerprint-equivalent reuse semantics.",
+      "Golden pass/fail/missing/dimension-mismatch and local hotspot proofs remain semantically distinct.",
+      "Pixel-only drift proof remains manual-review and has no structured repair category.",
+      "Runtime-only drift proof remains non-clean even when golden passes.",
+      "Unknown raw error/warning preservation proof prevents false-clean classification.",
+      "Determinism/immutability proof ignores runId/capturedAt/object-key order.",
+      "Source-code proof forbids screenshot capture, PNG comparison, Builder mutation, persistence and publish imports in the Core.",
+      "Maturity proof promotes only VX-VISUAL-DIFF-INTELLIGENCE; Publish Readiness, Smart Intent and Smart Auto-Fix remain non-PROVEN.",
       "Normal CI + exact-head Template Factory Quality Gate v2 + Completion Truth + lifecycle closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-VX-VISUAL-DIFF-INTELLIGENCE-BRABUS-HARDENING",
+      "request": "PO-2026-10-02-VX-VISUAL-DIFF-INTELLIGENCE-CORE-BRABUS-HARDENING",
       "authority": [
-        "builder-template-system",
-        "shared-storefront"
+        "builder-template-system"
       ],
       "mustEdit": [
+        "src/lib/builder/storefront-visual-diff-intelligence.ts",
         "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
-        "src/lib/builder/storefront-page-fingerprint.ts",
-        "src/lib/builder/storefront-visual-diff-intelligence.ts",
         "tests/storefront-visual-diff-intelligence.test.ts",
         "tests/template-factory-production-maturity.test.ts"
       ],
       "impactedReadOnly": [
         "scripts/template-factory-quality-gate.mjs",
         "scripts/lib/shoperation-template-factory-golden-semantics.mjs",
-        "src/app/api/visual-fidelity/templates/route.ts",
+        "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
         "src/lib/builder/storefront-runtime.ts"
       ],
       "proof": [
@@ -447,14 +448,14 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-VX-VISUAL-DIFF-INTELLIGENCE-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-VX-VISUAL-DIFF-INTELLIGENCE-CORE-BRABUS-HARDENING",
     "requirements": [
       {
-        "id": "REQ-VX-VISDIFF-EVIDENCE-INTEGRITY",
-        "requirement": "Visual Diff Intelligence accepts only checksum-valid exact-source Template Factory evidence bound to the current Page Schema fingerprint.",
+        "id": "REQ-VX-VISUAL-DIFF-EVIDENCE",
+        "requirement": "Existing exact-head Template Factory visual evidence becomes a typed deterministic intelligence input with fail-closed identity, provenance and canonical matrix validation.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "visual-diff-evidence-integrity",
+          "breadth": "vx-visual-diff-intelligence",
           "strength": 2,
           "dimensions": [
             "claim-scope",
@@ -476,20 +477,21 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-VISDIFF-STALE-EVIDENCE",
-            "statement": "Stale, wrong-page or checksum-invalid visual evidence cannot be reported current.",
+            "id": "NEG-VISUAL-DIFF-SECOND-TRUTH",
+            "statement": "Visual Diff Core cannot introduce a second screenshot/golden truth or accept stale/partial evidence as current.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-QUALITY-TESTS",
+              "GUARD-TEMPLATE-FACTORY"
             ]
           }
         ]
       },
       {
-        "id": "REQ-VX-VISDIFF-DRIFT-REASONING",
-        "requirement": "Golden global/local semantics and case diagnostics produce deterministic fail-closed per-viewport and three-viewport drift intelligence.",
+        "id": "REQ-VX-VISUAL-DIFF-CAUSALITY-BOUNDARY",
+        "requirement": "Pixel drift remains unlocalized/manual-review evidence while structured runtime diagnostics remain separately explainable; no pixel evidence directly generates Builder repairs.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "visual-diff-reasoning",
+          "breadth": "visual-diff-causality",
           "strength": 2,
           "dimensions": [
             "status",
@@ -511,8 +513,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-VISDIFF-SCREENSHOT-TRUTH",
-            "statement": "Visual Diff Intelligence cannot create a second screenshot/pixel or Page Schema mutation authority.",
+            "id": "NEG-VISUAL-DIFF-GUESSED-FIX",
+            "statement": "Mismatch ratios or hotspots cannot be converted into invented causal diagnoses or Builder mutations.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -520,7 +522,7 @@
         ]
       },
       {
-        "id": "REQ-VX-VISDIFF-CAPABILITY-SEPARATION",
+        "id": "REQ-VX-VISUAL-DIFF-CAPABILITY-SEPARATION",
         "requirement": "Visual Diff Intelligence completion does not promote Publish Readiness, Smart Intent or Smart Auto-Fix.",
         "claimScope": {
           "capability": "CAP-QUALITY",
@@ -546,8 +548,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-VISDIFF-FALSE-VX-PROVEN",
-            "statement": "Visual diff completion cannot imply downstream VX capabilities are proven.",
+            "id": "NEG-VISUAL-DIFF-FALSE-VX-PROVEN",
+            "statement": "Visual Diff completion cannot imply remaining VX capabilities are proven.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -556,13 +558,13 @@
       }
     ]
   },
-  "notes": "Ninth Brabus hardening wave. Factory Genome, Type System, Constraint Planner, Media Planner, deterministic lineage, anti-clone, Dynamic Production Compiler and VX Inheritance Intelligence Core are PROVEN and lifecycle-closed. Remaining dependency order: Visual Diff Intelligence → Publish Readiness → Smart Intent → Smart Auto-Fix. Builder-facing Inheritance UI adoption remains a separate change set and is not claimed by this wave. Template #3 remains forbidden. Plan reconciliation: task wording now reflects canonical page-document identity without activating unrelated database scope; new Core files are planned may-edit outputs while maturity remains the existing must-edit authority; specialist role and critical proof/challenge semantics aligned to canonical policy.",
+  "notes": "Ninth Brabus hardening wave. Inheritance Intelligence Core is PROVEN and lifecycle-closed. Remaining dependency order: Visual Diff Intelligence Core → Publish Readiness → Smart Intent → Smart Auto-Fix. This wave is core-only and does not add Builder UI or repair actions. Template #3 remains forbidden.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
     "verifiedImplementationHead": null,
     "closedAt": null,
-    "sourceRef": "PO-2026-10-02-VX-VISUAL-DIFF-INTELLIGENCE-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-VX-VISUAL-DIFF-INTELLIGENCE-CORE-BRABUS-HARDENING",
     "learning": {
       "state": "pending"
     }
