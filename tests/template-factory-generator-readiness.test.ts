@@ -8,6 +8,7 @@ import {LOOT_VAULT_V2_GENERATOR_BLUEPRINT} from '@/lib/builder/template-factory/
 import {LOOT_VAULT_V2_FACTORY_RECIPE} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
 import {buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory/recipe-registry';
 import {STOREFRONT_PAGE_TYPES,STOREFRONT_VIEWPORTS} from '@/lib/builder/storefront-foundation';
+import {defineStorefrontTemplateGenome} from '@/lib/builder/template-factory/template-genome';
 
 describe('Template Generator Readiness v0.1',()=>{
   it('marks Loot Vault v2 generator-ready without activating a generator runtime',()=>{
@@ -21,6 +22,9 @@ describe('Template Generator Readiness v0.1',()=>{
     });
     expect(build.report.generatorReadiness.productionMaturity.valid).toBe(true);
     expect(build.report.generatorReadiness.genomeValidation.valid).toBe(true);
+    expect(build.report.generatorReadiness.typeSystemValidation.valid).toBe(true);
+    expect(build.report.generatorReadiness.typeCompatibility.valid).toBe(true);
+    expect(build.report.generatorReadiness.typeCompatibility.definition?.typeId).toBe('gaming');
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toContain('VX-SMART-INTENT');
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.generator).toEqual({implementation:'deferred',target:'template-compiler'});
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.composition.pageTypes).toEqual(STOREFRONT_PAGE_TYPES);
@@ -71,6 +75,36 @@ describe('Template Generator Readiness v0.1',()=>{
     const result=evaluateStorefrontTemplateGeneratorReadiness({blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,recipe,package:build.package});
     expect(result.ready).toBe(false);
     expect(result.issues.map(issue=>issue.code)).toContain('TEMPLATE_GENOME_HASH_MISMATCH');
+  });
+
+
+  it('fails closed when a generator-ready recipe selects an unsupported Template Type',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const recipe={...LOOT_VAULT_V2_FACTORY_RECIPE,category:'automotive'};
+    const result=evaluateStorefrontTemplateGeneratorReadiness({blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,recipe,package:build.package});
+    expect(result.ready).toBe(false);
+    expect(result.typeCompatibility.valid).toBe(false);
+    expect(result.issues.map(issue=>issue.code)).toContain('TEMPLATE_TYPE_UNSUPPORTED');
+  });
+
+  it('fails closed when a hash-valid Genome has no meaningful semantic overlap with its selected type',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const source=structuredClone(LOOT_VAULT_V2_FACTORY_RECIPE.genome!);
+    const {hash:_hash,...input}=source;
+    input.dimensions.composition.archetypes=['alien-layout'];
+    input.dimensions.image.roles=['alien-media'];
+    input.dimensions.componentGrammar.preferred=['alien.component'];
+    const genome=defineStorefrontTemplateGenome(input);
+    const recipe={...LOOT_VAULT_V2_FACTORY_RECIPE,genome};
+    const result=evaluateStorefrontTemplateGeneratorReadiness({blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,recipe,package:build.package});
+    expect(result.genomeValidation.valid).toBe(true);
+    expect(result.typeCompatibility.valid).toBe(false);
+    expect(result.ready).toBe(false);
+    expect(result.issues.map(issue=>issue.code)).toEqual(expect.arrayContaining([
+      'TEMPLATE_TYPE_ARCHETYPE_INCOMPATIBLE',
+      'TEMPLATE_TYPE_MEDIA_ROLE_INCOMPATIBLE',
+      'TEMPLATE_TYPE_COMPONENT_GRAMMAR_INCOMPATIBLE',
+    ]));
   });
 
   it('keeps undeclared recipes outside generator-ready status instead of inventing metadata',()=>{
