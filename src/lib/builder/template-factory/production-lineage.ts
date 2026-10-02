@@ -228,6 +228,25 @@ function sourceIssues(input:StorefrontTemplateProductionLineageInput):Storefront
     issues.push(failure('PRODUCTION_LINEAGE_PACKAGE_IDENTITY_DRIFT','package.manifest','Compiled package identity must match the active Factory recipe.'));
   }
 
+  const expectedRecipeIdentity=`${input.recipe.templateKey}@${input.recipe.templateVersion}`;
+  for(const[index,page]of input.package.pages.entries()){
+    const raw=page.metadata?.templateFactory;
+    const metadata=raw&&typeof raw==='object'?raw as Record<string,unknown>:null;
+    const path=`package.pages[${index}].metadata.templateFactory`;
+    if(!metadata){
+      issues.push(failure('PRODUCTION_LINEAGE_PAGE_PROVENANCE_REQUIRED',path,'Compiled package pages must retain canonical Factory provenance.'));
+      continue;
+    }
+    if(metadata.compileSource!=='template-factory')issues.push(failure('PRODUCTION_LINEAGE_COMPILE_SOURCE_DRIFT',`${path}.compileSource`,'Compiled page lineage must originate from template-factory.'));
+    if(metadata.recipeIdentity!==expectedRecipeIdentity)issues.push(failure('PRODUCTION_LINEAGE_RECIPE_IDENTITY_DRIFT',`${path}.recipeIdentity`,'Compiled page recipe identity must match the active recipe.'));
+    if(metadata.targetTemplateKey!==input.recipe.templateKey)issues.push(failure('PRODUCTION_LINEAGE_PAGE_TEMPLATE_KEY_DRIFT',`${path}.targetTemplateKey`,'Compiled page target template key must match the active recipe.'));
+    if(metadata.targetTemplateVersion!==input.recipe.templateVersion)issues.push(failure('PRODUCTION_LINEAGE_PAGE_TEMPLATE_VERSION_DRIFT',`${path}.targetTemplateVersion`,'Compiled page target template version must match the active recipe.'));
+    if(metadata.referenceKey!==input.recipe.reference.key)issues.push(failure('PRODUCTION_LINEAGE_PAGE_REFERENCE_DRIFT',`${path}.referenceKey`,'Compiled page Visual Authority reference must match the active recipe.'));
+    if(metadata.category!==input.recipe.category)issues.push(failure('PRODUCTION_LINEAGE_PAGE_CATEGORY_DRIFT',`${path}.category`,'Compiled page category must match the active recipe.'));
+    if(metadata.foundationTemplateKey!==input.foundation.templateKey)issues.push(failure('PRODUCTION_LINEAGE_FOUNDATION_KEY_DRIFT',`${path}.foundationTemplateKey`,'Compiled page foundation key must match the lineage foundation source.'));
+    if(metadata.foundationTemplateVersion!==input.foundation.templateVersion)issues.push(failure('PRODUCTION_LINEAGE_FOUNDATION_VERSION_DRIFT',`${path}.foundationTemplateVersion`,'Compiled page foundation version must match the lineage foundation source.'));
+  }
+
   return issues;
 }
 
