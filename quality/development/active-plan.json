@@ -12,7 +12,8 @@
     "scripts/template-factory-quality-gate.mjs",
     "tests/template-factory-production-maturity.test.ts",
     "tests/template-factory-generator-readiness.test.ts",
-    "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md"
+    "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
+    "src/app/api/visual-fidelity/templates/route.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -361,6 +362,7 @@
       "Add Brabus future-capability declarations for Smart Intent/Auto-Fix, Template Genome/DNA, Media Planner/Compiler, distinctness/anti-clone and lineage so absent implementation remains visible.",
       "Extend Generator Readiness to expose production maturity and an explicit Template #3 authoring decision.",
       "Add adversarial tests for docs-only evidence, legacy-only evidence, proof-strength downgrade and missing mandatory capability.",
+      "Expose the same production-maturity result through the existing visual-fidelity Template Factory catalog so the current browser gate can retain and report it without a second workflow.",
       "Wire the result into the existing Template Factory quality artifact rather than creating another workflow/gate.",
       "Run exact-head CI and Template Factory Quality Gate v2; only then close this foundation and proceed to targeted EVOLVE/RETHINK implementation waves."
     ],
@@ -373,7 +375,8 @@
         "src/lib/builder/template-factory/generator-readiness.ts",
         "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
         "scripts/template-factory-quality-gate.mjs",
-        "tests/template-factory-generator-readiness.test.ts"
+        "tests/template-factory-generator-readiness.test.ts",
+        "src/app/api/visual-fidelity/templates/route.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -505,5 +508,5 @@
       }
     ]
   },
-  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target. Plan-only Control Plane projection on 2026-10-02 resolved the canonical scope to DOMAIN-BUILDER / builder-template-system with builder-template-system + release-infrastructure + shared-storefront subsystem impact, full applicable negative knowledge, guard digest 91470973, and critical assurance depth."
+  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target. Plan-only Control Plane projection on 2026-10-02 resolved the canonical scope to DOMAIN-BUILDER / builder-template-system with builder-template-system + release-infrastructure + shared-storefront subsystem impact, full applicable negative knowledge, guard digest 91470973, and critical assurance depth. The existing visual-fidelity Template Factory catalog is included because it is the canonical handoff from Factory candidate build reports into GUARD-TEMPLATE-FACTORY browser evidence."
 }
