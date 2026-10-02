@@ -43,6 +43,7 @@ export type StorefrontTemplateFactoryMediaAsset={
   key:string;
   state:'planned'|'internal-reference'|'ready';
   role:StorefrontTemplateFactoryMediaRole;
+  semanticRole?:string;
   src:string;
   referenceSrc?:string;
   alt:string;
@@ -55,11 +56,20 @@ export type StorefrontTemplateFactoryMediaRequirement={
   minCount:number;
   aspectRatio:StorefrontTemplateFactoryMediaAspectRatio;
 };
+export type StorefrontTemplateFactorySemanticMediaBinding={
+  semanticRole:string;
+  technicalRole:StorefrontTemplateFactoryMediaRole;
+  minCount:number;
+  aspectRatio:StorefrontTemplateFactoryMediaAspectRatio;
+  pageTypes:readonly StorefrontBuilderPageType[];
+  representative:true;
+};
 export type StorefrontTemplateFactoryMediaManifest={
   assets:readonly StorefrontTemplateFactoryMediaAsset[];
   requiredRoles:readonly StorefrontTemplateFactoryMediaRole[];
   inheritedFallbackSrc?:string;
   requirements?:readonly StorefrontTemplateFactoryMediaRequirement[];
+  semanticBindings?:readonly StorefrontTemplateFactorySemanticMediaBinding[];
   minimumRepresentativeMedia:number;
   forbidPlaceholderSvg:boolean;
 };
