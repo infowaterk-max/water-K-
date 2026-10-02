@@ -3,17 +3,24 @@
   "taskId": "DEV-CONTROL-PLANE-REFERENCE-RELOCATION-SEMANTICS",
   "task": "Reference Sync: distinguish typed references relocated into new/changed files from genuinely removed references while preserving stale-consumer blocking.",
   "status": "ready-for-implementation",
-  "guardDigest": "aa79c504",
+  "guardDigest": "62903da6",
   "changeBaseSha": "055a819a96bce7127f2fdf5258f4b85f47e84d74",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/lib/shoperation-reference-sync-runtime.mjs",
     "scripts/lib/shoperation-reference-sync-runtime.d.mts",
-    "tests/shoperation-semantic-execution-intelligence.test.ts"
+    "tests/shoperation-semantic-execution-intelligence.test.ts",
+    "scripts/shoperation-edit-time-guard.mjs"
   ],
-  "expectedSubsystems": [],
-  "expectedDomains": [],
-  "expectedAuthorities": [],
+  "expectedSubsystems": [
+    "quality-knowledge-system"
+  ],
+  "expectedDomains": [
+    "DOMAIN-QUALITY"
+  ],
+  "expectedAuthorities": [
+    "quality-knowledge-system"
+  ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
@@ -301,6 +308,20 @@
         "finding": "The relocation fix could incorrectly suppress the real stale assertion if it globally ignores the candidate after detecting one destination.",
         "resolution": "Record relocation provenance separately from consumer evaluation and preserve blocking for contract kinds whose old identity remains genuinely removed rather than broadly suppressing repository hits.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-7",
+        "scenario": "The Reference Sync runtime changes while its edit-time consumer contract remains unchanged.",
+        "finding": "The plan needs canonical Quality ownership without inventing runtime ownership for lib internals.",
+        "resolution": "Include scripts/shoperation-edit-time-guard.mjs as impacted read-only canonical Quality authority; do not modify it.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-8",
+        "scenario": "Relocation pairing is introduced but the normal edit-time integration still interprets the result as required edits.",
+        "finding": "Unit semantics alone are insufficient.",
+        "resolution": "Exact-head Edit-Time Guard on the corrected runtime must prove the consumer contract receives a non-blocking relocation result while genuine stale negatives remain blocking.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -323,7 +344,9 @@
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "mayEdit": [],
-      "impactedReadOnly": [],
+      "impactedReadOnly": [
+        "scripts/shoperation-edit-time-guard.mjs"
+      ],
       "proof": [
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
@@ -439,5 +462,5 @@
       }
     ]
   },
-  "notes": "Targeted Reference Sync capability correction proven by PR #666 exact-head replay. No storefront implementation or gate weakening in this transaction. Canonical plan-only projection on main 055a819a reported no domain/authority/subsystem ownership for the three planned quality-runtime/test files, negative knowledge SQ-NK-010/011/012/014/015, guard digest aa79c504, and critical challenge minimum 8; plan aligned to those repository-derived facts before implementation."
+  "notes": "Targeted Reference Sync capability correction proven by PR #666 exact-head replay. No storefront implementation or gate weakening in this transaction. Canonical plan-only projection on main 055a819a reported no domain/authority/subsystem ownership for the three planned quality-runtime/test files, negative knowledge SQ-NK-010/011/012/014/015, guard digest aa79c504, and critical challenge minimum 8; plan aligned to those repository-derived facts before implementation. Plan projection correction: Reference Sync lib files are not directly canonical-domain classified; the existing canonical Quality consumer scripts/shoperation-edit-time-guard.mjs is included as impacted read-only authority, preserving actual ownership without modifying it."
 }
