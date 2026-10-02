@@ -14,7 +14,12 @@
     "tests/template-factory-generator-readiness.test.ts",
     "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
     "src/app/api/visual-fidelity/templates/route.ts",
-    "quality/knowledge/guard-registry.v1.json"
+    "quality/knowledge/guard-registry.v1.json",
+    ".github/workflows/ci.yml",
+    "scripts/shoperation-external-proof-handoff.mjs",
+    "scripts/shoperation-verification-checkpoint.mjs",
+    "tests/shoperation-external-proof-handoff.test.ts",
+    "tests/shoperation-resumable-verification.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -123,14 +128,17 @@
         "Machine-readable production maturity classification for E1-E13, VX Builder and Template Factory capabilities.",
         "Current canonical Builder/Runtime evidence and previously approved Maybach-Brabus Product Owner requirements.",
         "Template #3 readiness barrier expressed through the existing Generator Readiness / Template Factory authority.",
-        "Adversarial proof that documentation-only, legacy-only or weakly-proven capabilities cannot be reported as ready."
+        "Adversarial proof that documentation-only, legacy-only or weakly-proven capabilities cannot be reported as ready.",
+        "Exact-head cross-workflow proof handoff from existing GUARD-TEMPLATE-FACTORY into the existing Resumable Verification / Completion Truth evidence manifest when the Completion Contract requires that guard.",
+        "Bounded fail-closed waiting and artifact validation for required external proof; unrelated development transactions do not wait for Template Factory."
       ],
       "out": [
         "Authoring or visually designing Template #3.",
         "Creating a second Template Factory quality gate, second Page Schema, second Storefront Runtime or second Visual Builder.",
         "Full autonomous Template Generator implementation in this first revalidation block.",
         "Template-specific visual fixes to Playroom, Loot Vault or another storefront.",
-        "Weakening current quality, responsive, commerce, accessibility or authority contracts merely to classify a capability as ready."
+        "Weakening current quality, responsive, commerce, accessibility or authority contracts merely to classify a capability as ready.",
+        "Any second Completion Truth or cross-workflow release authority; the handoff transports evidence only and never decides completion."
       ]
     },
     "assuranceCeiling": {
@@ -166,7 +174,11 @@
         "Smart Intent, Smart Auto-Fix, Template Genome/DNA, Media Planner/Compiler, cross-template anti-clone and deterministic lineage cannot silently pass if no executable authority/evidence exists.",
         "The readiness result explicitly says whether Template #3 authoring is allowed; initial NOT_READY is acceptable and expected when real gaps are found.",
         "Adversarial tests prove false-ready states are rejected when evidence is removed, downgraded, pointed at documentation only or supplied by a noncanonical authority.",
-        "The exact-head Template Factory Quality Gate and normal CI remain green for the revalidation foundation."
+        "The exact-head Template Factory Quality Gate and normal CI remain green for the revalidation foundation.",
+        "When Completion Contract requires GUARD-TEMPLATE-FACTORY, normal CI cannot reach VERIFIED_DONE until exact-head successful Template Factory evidence is present in the canonical final evidence manifest.",
+        "External Template Factory evidence with a different SHA, branch, failed workflow conclusion, malformed manifest, incomplete browser evidence or artifact errors fails closed and cannot be laundered into PASS.",
+        "When Completion Contract does not require GUARD-TEMPLATE-FACTORY, normal CI does not wait for or synthesize Template Factory evidence.",
+        "The handoff reuses the existing GUARD-TEMPLATE-FACTORY and GUARD-COMPLETION-TRUTH authorities and does not create a new blocking gate."
       ],
       "invariants": [
         "One canonical Page Schema, Component Registry, Storefront Runtime, Visual Builder and Template Factory authority remain in force.",
@@ -175,7 +187,8 @@
         "Builder operations mutate canonical schema/configuration only and never become a second commerce/business authority.",
         "Template DNA/Genome, when implemented, governs identity/constraints and inheritance but never copies concrete media or another template's visual identity.",
         "Technical validity is not equivalent to production maturity or Product Owner visual acceptance.",
-        "Template #3 remains forbidden until all mandatory production capabilities are PROVEN and the final adversarial rehearsal passes."
+        "Template #3 remains forbidden until all mandatory production capabilities are PROVEN and the final adversarial rehearsal passes.",
+        "Cross-workflow evidence identity includes guard id, exact source commit, branch/state version and producer run; workflow success without matching artifact truth is insufficient."
       ],
       "forbiddenStates": [
         "template-3-authoring-before-production-readiness",
@@ -185,7 +198,8 @@
         "parallel-builder-or-runtime-authority",
         "generator-readiness-claims-brabus-ready-with-missing-smart-intent-or-genome",
         "template-dna-copies-existing-template-media-or-visual-identity",
-        "green-local-tests-treated-as-end-to-end-production-proof"
+        "green-local-tests-treated-as-end-to-end-production-proof",
+        "completion-truth-verified-before-required-external-factory-proof"
       ]
     },
     "model": {
@@ -369,9 +383,16 @@
       },
       {
         "id": "CH-10",
-        "scenario": "Normal CI Completion Truth is asked to prove GUARD-TEMPLATE-FACTORY even though that gate executes in a separate parallel workflow and is absent from the CI evidence manifest.",
-        "finding": "Treating the missing external evidence as PASS would be false proof; treating it as ordinary CI evidence permanently prevents truthful Completion Truth closure.",
-        "resolution": "Keep the external Template Factory exact-head SUCCESS mandatory for program acceptance and merge, but make the CI Completion Contract claim only locally available type/build/wiring evidence; lifecycle closure is withheld until both proof channels are green.",
+        "scenario": "Normal CI reaches all local PASS outcomes while the separately triggered exact-head Template Factory workflow is still running or has not yet published its browser artifact.",
+        "finding": "Removing the external guard from the Completion Contract lets Completion Truth become VERIFIED_DONE before a mandatory acceptance authority has produced evidence; keeping it without a handoff deadlocks Truth as permanently missing.",
+        "resolution": "Keep GUARD-TEMPLATE-FACTORY in the Completion Contract and add a bounded exact-head evidence handoff into the existing Resumable Verification manifest. The handoff validates workflow conclusion plus artifact provenance and fails closed on missing/stale/mismatched evidence.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-11",
+        "scenario": "An older successful Template Factory artifact exists for the same branch while the current head run is queued, failed, cancelled or still running.",
+        "finding": "Branch-only artifact lookup could launder stale browser proof into the current Development Transaction and produce a false completion PASS.",
+        "resolution": "Resolve by exact head SHA and expected workflow identity, require the producer run conclusion to be success, validate manifest.sourceCommit/branch/complete/errors, and reject all stale or ambiguous candidates.",
         "status": "resolved"
       }
     ],
@@ -386,12 +407,18 @@
       "Wire the result into the existing Template Factory quality artifact rather than creating another workflow/gate.",
       "Run exact-head CI and Template Factory Quality Gate v2; only then close this foundation and proceed to targeted EVOLVE/RETHINK implementation waves.",
       "Re-run Sentinel integrity correlation and prove the existing Template Factory guard now semantically satisfies only its declared Builder/Storefront/Quality browser scope.",
-      "Before lifecycle closure, independently verify GUARD-TEMPLATE-FACTORY completed SUCCESS on the same exact implementation head; do not substitute normal CI build evidence for browser-gate evidence."
+      "Before lifecycle closure, independently verify GUARD-TEMPLATE-FACTORY completed SUCCESS on the same exact implementation head; do not substitute normal CI build evidence for browser-gate evidence.",
+      "Add a generic external-proof handoff helper that derives required non-local guard evidence from the active Completion Contract, validates exact-head Template Factory artifact provenance, and emits normalized truth evidence.",
+      "Extend existing Resumable Verification finalization to merge only validated external evidence into final-evidence-manifest.json; missing or invalid required external evidence blocks finalization rather than being ignored.",
+      "Wire normal CI to wait boundedly for GUARD-TEMPLATE-FACTORY only when the active Completion Contract references it, download the exact-run artifact, validate it, and pass the normalized evidence into Resumable Verification.",
+      "Adversarially prove wrong-head, wrong-branch, failed-run, malformed/incomplete artifact and stale prior-run evidence cannot produce VERIFIED_DONE, while a valid exact-head sibling proof can."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-02-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
       "authority": [
-        "builder-template-system"
+        "builder-template-system",
+        "quality-knowledge-system",
+        "release-infrastructure"
       ],
       "mustEdit": [
         "src/lib/builder/template-factory/generator-readiness.ts",
@@ -399,7 +426,10 @@
         "scripts/template-factory-quality-gate.mjs",
         "tests/template-factory-generator-readiness.test.ts",
         "src/app/api/visual-fidelity/templates/route.ts",
-        "quality/knowledge/guard-registry.v1.json"
+        "quality/knowledge/guard-registry.v1.json",
+        ".github/workflows/ci.yml",
+        "scripts/shoperation-external-proof-handoff.mjs",
+        "scripts/shoperation-verification-checkpoint.mjs"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -413,7 +443,9 @@
       ],
       "proof": [
         "tests/template-factory-generator-readiness.test.ts",
-        "tests/template-factory-production-maturity.test.ts"
+        "tests/template-factory-production-maturity.test.ts",
+        "tests/shoperation-external-proof-handoff.test.ts",
+        "tests/shoperation-resumable-verification.test.ts"
       ],
       "unknown": []
     },
@@ -454,7 +486,8 @@
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-QUALITY-TESTS",
+            "GUARD-TEMPLATE-FACTORY"
           ]
         },
         "forbiddenRegressions": [
@@ -462,7 +495,8 @@
             "id": "NEG-PARALLEL-BRABUS-GATE",
             "statement": "No second Template Factory/Builder/Runtime blocking authority is introduced.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-QUALITY-TESTS",
+              "GUARD-TEMPLATE-FACTORY"
             ]
           }
         ]
@@ -503,15 +537,19 @@
         ]
       },
       {
-        "id": "REQ-BRABUS-FACTORY-WIRING",
-        "requirement": "The revalidation foundation typechecks, production-builds and preserves the existing Template Factory evidence handoff; exact-head GUARD-TEMPLATE-FACTORY success remains a separate mandatory acceptance proof before lifecycle closure or merge.",
+        "id": "REQ-BRABUS-FACTORY-PROOF",
+        "requirement": "The revalidation foundation passes the existing Template Factory Quality Gate on the same exact implementation head, and that external workflow evidence is cryptographically/provenance-bound into the canonical Completion Truth evidence set.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "template-factory-maturity-wiring",
-          "strength": 1,
+          "breadth": "template-factory-exact-head",
+          "strength": 2,
           "dimensions": [
-            "types",
-            "build"
+            "runtime",
+            "browser",
+            "template-factory",
+            "freshness",
+            "coverage",
+            "limitations"
           ]
         },
         "requiredCapabilities": [
@@ -519,24 +557,25 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-TYPECHECK"
+            "GUARD-TYPECHECK",
+            "GUARD-PRODUCTION-BUILD"
           ],
           "outcome": [
-            "GUARD-PRODUCTION-BUILD"
+            "GUARD-TEMPLATE-FACTORY"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-BRABUS-FACTORY-WIRING",
-            "statement": "No current Template Factory, Runtime or Builder compile/build regression is introduced while maturity evidence is wired into the existing gate.",
+            "id": "NEG-BRABUS-FACTORY-HANDOFF",
+            "statement": "Completion Truth cannot become VERIFIED_DONE when required Template Factory evidence is missing, failed, stale, wrong-branch, wrong-head or from another workflow transaction.",
             "evidence": [
               "GUARD-QUALITY-TESTS",
-              "GUARD-PRODUCTION-BUILD"
+              "GUARD-TEMPLATE-FACTORY"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target. Plan-only Control Plane projection on 2026-10-02 resolved the canonical scope to DOMAIN-BUILDER / builder-template-system with builder-template-system + release-infrastructure + shared-storefront subsystem impact, full applicable negative knowledge, guard digest 91470973, and critical assurance depth. The existing visual-fidelity Template Factory catalog is included because it is the canonical handoff from Factory candidate build reports into GUARD-TEMPLATE-FACTORY browser evidence. Adding the canonical visual-fidelity QA catalog expands the projected subsystem set with storefront-ui and updates the canonical guard digest to 8a9bf46e. Sentinel integrity exposed missing proofSemantics on GUARD-TEMPLATE-FACTORY; this is treated as a real existing-authority metadata gap and repaired in-place rather than weakening Sentinel. After adding Guard Registry proof semantics, canonical subsystem projection remains builder-template-system + release-infrastructure + shared-storefront + storefront-ui; DOMAIN-QUALITY authority is represented without a separate quality-infrastructure subsystem impact. Completion Truth and Template Factory are parallel proof channels. Completion Contract now claims only CI-local evidence; exact-head Template Factory SUCCESS remains mandatory before CLOSE/LEARN and merge, preventing both false proof and permanent missing-evidence deadlock."
+  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target. Plan-only Control Plane projection on 2026-10-02 resolved the canonical scope to DOMAIN-BUILDER / builder-template-system with builder-template-system + release-infrastructure + shared-storefront subsystem impact, full applicable negative knowledge, guard digest 91470973, and critical assurance depth. The existing visual-fidelity Template Factory catalog is included because it is the canonical handoff from Factory candidate build reports into GUARD-TEMPLATE-FACTORY browser evidence. Adding the canonical visual-fidelity QA catalog expands the projected subsystem set with storefront-ui and updates the canonical guard digest to 8a9bf46e. Sentinel integrity exposed missing proofSemantics on GUARD-TEMPLATE-FACTORY; this is treated as a real existing-authority metadata gap and repaired in-place rather than weakening Sentinel. After adding Guard Registry proof semantics, canonical subsystem projection remains builder-template-system + release-infrastructure + shared-storefront + storefront-ui; DOMAIN-QUALITY authority is represented without a separate quality-infrastructure subsystem impact. Completion Truth and Template Factory are parallel proof channels. Completion Contract now claims only CI-local evidence; exact-head Template Factory SUCCESS remains mandatory before CLOSE/LEARN and merge, preventing both false proof and permanent missing-evidence deadlock. Cross-workflow truth audit proved CI-local Completion Truth can become VERIFIED before required GUARD-TEMPLATE-FACTORY finishes. The prior local-only Completion Contract workaround is superseded: Factory outcome is restored as mandatory Completion evidence and will be transported through existing Resumable Verification with exact-head fail-closed provenance."
 }
