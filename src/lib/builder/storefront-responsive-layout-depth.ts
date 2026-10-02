@@ -255,6 +255,19 @@ export function resetStorefrontResponsiveLayoutDepth(document:StorefrontPageDocu
   return next;
 }
 
+export type StorefrontResponsiveInheritanceViewportState={
+  viewport:StorefrontViewport;
+  visibility:{direct:boolean|null;effective:boolean;source:StorefrontResponsiveInheritanceSource};
+  gridPlacement:{direct:StorefrontGridPlacement;effectiveGridSpan:number;source:StorefrontResponsiveInheritanceSource};
+  container:{
+    kind:'grid'|'stack'|null;
+    direct:Record<string,unknown>;
+    effective:Record<string,unknown>;
+    sources:Record<string,StorefrontResponsiveInheritanceSource>;
+  };
+  childOrder:{direct:readonly string[]|null;effective:readonly string[];source:StorefrontResponsiveInheritanceSource};
+};
+
 export type StorefrontResponsiveInheritanceDiagnostic={
   code:'RESPONSIVE_INHERITANCE_REDUNDANT_OVERRIDE';
   severity:'warning';
@@ -435,7 +448,7 @@ export function inspectStorefrontResponsiveInheritance(document:StorefrontPageDo
         source:order?'viewport':'default' as StorefrontResponsiveInheritanceSource,
       },
     }];
-  })) as Record<StorefrontViewport,unknown>;
+  })) as Record<StorefrontViewport,StorefrontResponsiveInheritanceViewportState>;
   const diagnostics=STOREFRONT_VIEWPORTS.flatMap(viewport=>redundantDiagnostics(document,nodeId,viewport));
   return deepFreeze({
     version:STOREFRONT_RESPONSIVE_INHERITANCE_INTELLIGENCE_VERSION,
