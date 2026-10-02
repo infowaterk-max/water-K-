@@ -3,6 +3,7 @@ import {describe,expect,it} from 'vitest';
 import {
   buildCodebaseAtlas,
   buildExecutionRoute,
+  classifyAtlasPath,
   impactForAtlasPattern,
   reconcileAuthorityDependencies,
   resolveAtlasArchitectureForPath,
@@ -28,6 +29,31 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
       knownFailureIndex:{},
     };
     expect(impactForAtlasPattern(atlas,'src/provider.ts').consumers).toContain('src/consumer.ts');
+  });
+
+  it('falls back unowned public presentation paths to storefront without stealing explicit authority',()=>{
+    const publicPage=classifyAtlasPath('src/app/oldal/[slug]/page.tsx');
+    expect(publicPage.domains).toEqual(['DOMAIN-STOREFRONT']);
+    expect(publicPage.authorities).toEqual(['shared-storefront']);
+    expect(publicPage.route).toEqual({path:'/oldal/:slug',kind:'page'});
+
+    const sitemap=classifyAtlasPath('src/app/sitemap.ts');
+    expect(sitemap.domains).toEqual(['DOMAIN-STOREFRONT']);
+    expect(sitemap.authorities).toEqual(['shared-storefront']);
+    expect(sitemap.route).toBeNull();
+
+    const admin=classifyAtlasPath('src/app/admin/orders/page.tsx');
+    expect(admin.domains).toEqual(['DOMAIN-ADMIN']);
+    expect(admin.authorities).toEqual(['admin-operations']);
+
+    const builder=classifyAtlasPath('src/app/storefront-template-preview/page.tsx');
+    expect(builder.domains).toEqual(['DOMAIN-BUILDER']);
+    expect(builder.authorities).toEqual(['builder-template-system']);
+
+    const api=classifyAtlasPath('src/app/api/orders/route.ts');
+    expect(api.domains).toEqual(['DOMAIN-COMMERCE']);
+    expect(api.authorities).toEqual(['commerce-core-authority']);
+    expect(api.route?.kind).toBe('api');
   });
 
   it('retains only Git-proven deleted planned paths as execution-route tombstones',()=>{
