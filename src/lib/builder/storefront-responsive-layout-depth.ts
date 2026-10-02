@@ -421,20 +421,20 @@ function redundantDiagnostics(document:StorefrontPageDocument,nodeId:string,view
 
 export function inspectStorefrontResponsiveInheritance(document:StorefrontPageDocument,nodeId:string){
   const located=findNodeWithParent(document,nodeId);if(!located)throw new Error('RESPONSIVE_LAYOUT_NODE_NOT_FOUND');
-  const viewports=Object.fromEntries(STOREFRONT_VIEWPORTS.map(viewport=>{
+  const inspectViewport=(viewport:StorefrontViewport):StorefrontResponsiveInheritanceViewportState=>{
     const layout=inspectStorefrontResponsiveLayoutDepth(document,nodeId,viewport);
     const order=directChildOrder(document,located.node,viewport);
-    return[viewport,{
+    return{
       viewport,
       visibility:{
         direct:layout.visibility.direct,
         effective:layout.visibility.effective,
-        source:layout.visibility.direct===null?'default':'viewport' as StorefrontResponsiveInheritanceSource,
+        source:layout.visibility.direct===null?'default':'viewport',
       },
       gridPlacement:{
         direct:clone(layout.gridPlacement.direct),
         effectiveGridSpan:layout.effectiveGridSpan,
-        source:layout.gridPlacement.hasOverride?'viewport':'default' as StorefrontResponsiveInheritanceSource,
+        source:layout.gridPlacement.hasOverride?'viewport':'default',
       },
       container:{
         kind:layout.container.kind,
@@ -445,10 +445,15 @@ export function inspectStorefrontResponsiveInheritance(document:StorefrontPageDo
       childOrder:{
         direct:order?clone(order):null,
         effective:clone(layout.childOrder),
-        source:order?'viewport':'default' as StorefrontResponsiveInheritanceSource,
+        source:order?'viewport':'default',
       },
-    }];
-  })) as Record<StorefrontViewport,StorefrontResponsiveInheritanceViewportState>;
+    };
+  };
+  const viewports:Record<StorefrontViewport,StorefrontResponsiveInheritanceViewportState>={
+    desktop:inspectViewport('desktop'),
+    tablet:inspectViewport('tablet'),
+    mobile:inspectViewport('mobile'),
+  };
   const diagnostics=STOREFRONT_VIEWPORTS.flatMap(viewport=>redundantDiagnostics(document,nodeId,viewport));
   return deepFreeze({
     version:STOREFRONT_RESPONSIVE_INHERITANCE_INTELLIGENCE_VERSION,
@@ -480,21 +485,27 @@ export function planStorefrontResponsiveInheritancePropagation(input:{
   const targetViewports=STOREFRONT_VIEWPORTS.filter(viewport=>input.targetViewports.includes(viewport));
   const dimensions=STOREFRONT_RESPONSIVE_INHERITANCE_DIMENSIONS.filter(dimension=>input.dimensions.includes(dimension));
   const intents=Object.fromEntries(dimensions.map(dimension=>[dimension,inheritanceIntent(document,nodeId,sourceViewport,dimension)]));
-  const operations=targetViewports.flatMap(targetViewport=>dimensions.map(dimension=>{
-    const intent=intents[dimension] as {direct?:unknown};
-    return{
-      targetViewport,
-      dimension,
-      action:intent.direct===null?'reset':'copy-direct' as const,
-      intent:clone(intent),
-    };
-  }));
-  const targetFingerprints=Object.fromEntries(STOREFRONT_VIEWPORTS.map(viewport=>[
-    viewport,
-    targetViewports.includes(viewport)?inheritanceFingerprint(document,nodeId,viewport,dimensions):'not-target',
-  ])) as Record<StorefrontViewport,string>;
+  const operations:Array<StorefrontResponsiveInheritancePlan['operations'][number]>=targetViewports.flatMap(targetViewport=>
+    dimensions.map((dimension):StorefrontResponsiveInheritancePlan['operations'][number]=>{
+      const intent=intents[dimension] as {direct?:unknown};
+      return{
+        targetViewport,
+        dimension,
+        action:intent.direct===null?'reset':'copy-direct',
+        intent:clone(intent),
+      };
+    }),
+  );
+  const targetFingerprint=(viewport:StorefrontViewport)=>targetViewports.includes(viewport)
+    ?inheritanceFingerprint(document,nodeId,viewport,dimensions)
+    :'not-target';
+  const targetFingerprints:Record<StorefrontViewport,string>={
+    desktop:targetFingerprint('desktop'),
+    tablet:targetFingerprint('tablet'),
+    mobile:targetFingerprint('mobile'),
+  };
 
-  const withoutHash={
+  const withoutHash:Omit<StorefrontResponsiveInheritancePlan,'hash'>={
     contract:STOREFRONT_RESPONSIVE_INHERITANCE_PLAN_VERSION,
     page:{
       pageKey:document.pageKey,
@@ -510,7 +521,8 @@ export function planStorefrontResponsiveInheritancePropagation(input:{
     targetFingerprints:Object.freeze(targetFingerprints),
     operations:Object.freeze(operations),
   };
-  return deepFreeze({...withoutHash,hash:inheritanceDigest(withoutHash)});
+  const plan:StorefrontResponsiveInheritancePlan={...withoutHash,hash:inheritanceDigest(withoutHash)};
+  return deepFreeze(plan);
 }
 
 function validateInheritancePlanHash(plan:StorefrontResponsiveInheritancePlan){
