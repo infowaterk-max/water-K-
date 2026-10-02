@@ -1,7 +1,7 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-VX-VISUAL-DIFF-INTELLIGENCE-BRABUS-HARDENING",
-  "task": "Evolve exact-head visual fidelity evidence into the canonical VX Visual Diff Intelligence Core: verify evidence checksum, source identity and Page Schema fingerprint, then derive deterministic per-viewport drift diagnostics without moving screenshot comparison or mutation authority into the Builder.",
+  "task": "Evolve exact-head visual fidelity evidence into the canonical VX Visual Diff Intelligence Core: verify evidence checksum, source identity and canonical page-document fingerprint, then derive deterministic per-viewport drift diagnostics without moving screenshot comparison or mutation authority into the Builder.",
   "status": "ready-for-implementation",
   "guardDigest": "94082bf1",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
@@ -334,11 +334,11 @@
         ]
       },
       {
-        "role": "Quality",
+        "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Global mismatch thresholds are insufficient because local hotspot semantics already exist.",
-        "resolution": "Visual Diff Intelligence must preserve both global and local pass/fail semantics from the evidence case.",
+        "finding": "The existing golden evidence already carries both global mismatch and local-hotspot semantics, and historical visual regressions show that collapsing them into one ratio would hide concentrated failures.",
+        "resolution": "Preserve both globalPassed and local.passed as independent blocking inputs and keep all case errors/warnings attached to the derived intelligence record.",
         "evidence": [
           "scripts/template-factory-quality-gate.mjs",
           "scripts/lib/shoperation-template-factory-golden-semantics.mjs"
@@ -376,9 +376,9 @@
       },
       {
         "id": "CH-VISDIFF-5",
-        "scenario": "Golden baseline missing.",
-        "finding": "Absence could be mistaken for zero drift.",
-        "resolution": "Return no-baseline/unproven, never exact-match.",
+        "scenario": "A browser case completed successfully but its configured golden baseline file does not exist, so the evidence record reports golden.status='missing' and mismatchRatio=null.",
+        "finding": "Treating missing baseline as zero mismatch would fabricate visual certainty and incorrectly report the viewport as visually matched.",
+        "resolution": "Classify the viewport as no-baseline with explicit unproven diagnostic; exact-match and bounded-drift are forbidden until a real baseline-backed comparison exists.",
         "status": "resolved"
       },
       {
@@ -405,12 +405,12 @@
     ],
     "proofPlan": [
       "Fingerprint compatibility proof against Node createHash SHA-256 canonical payload.",
-      "Manifest checksum tamper proof.",
+      "Tamper one nested golden/case field after computing the manifest checksum and prove the intelligence rejects the entire evidence envelope before producing any viewport classification.",
       "Exact source-commit stale evidence proof.",
-      "Template/version/page/pageFingerprint identity drift proof.",
+      "Independently drift template key, template version, page type and canonical page-document fingerprint and prove each mismatch blocks evidence consumption rather than downgrading to warning.",
       "RERUN and valid REUSED provenance proof plus invalid reuse rejection.",
       "Exact-match, bounded-drift, global-fail, local-fail, dimension-mismatch and no-baseline classification matrix.",
-      "Case error/warning preservation proof.",
+      "Inject browser case errors and warnings alongside a golden pass and prove errors remain blocking while warnings remain visible diagnostic evidence without being silently discarded.",
       "Canonical three-viewport completeness and duplicate-case fail-closed proof.",
       "Source-level proof forbidding screenshot/pixel/filesystem/persistence/publish/mutation dependencies.",
       "Maturity proof promotes only VX-VISUAL-DIFF-INTELLIGENCE; downstream VX blockers remain non-PROVEN.",
@@ -423,11 +423,11 @@
         "shared-storefront"
       ],
       "mustEdit": [
-        "src/lib/builder/storefront-page-fingerprint.ts",
-        "src/lib/builder/storefront-visual-diff-intelligence.ts",
         "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
+        "src/lib/builder/storefront-page-fingerprint.ts",
+        "src/lib/builder/storefront-visual-diff-intelligence.ts",
         "tests/storefront-visual-diff-intelligence.test.ts",
         "tests/template-factory-production-maturity.test.ts"
       ],
@@ -556,7 +556,7 @@
       }
     ]
   },
-  "notes": "Ninth Brabus hardening wave. Factory Genome, Type System, Constraint Planner, Media Planner, deterministic lineage, anti-clone, Dynamic Production Compiler and VX Inheritance Intelligence Core are PROVEN and lifecycle-closed. Remaining dependency order: Visual Diff Intelligence → Publish Readiness → Smart Intent → Smart Auto-Fix. Builder-facing Inheritance UI adoption remains a separate change set and is not claimed by this wave. Template #3 remains forbidden.",
+  "notes": "Ninth Brabus hardening wave. Factory Genome, Type System, Constraint Planner, Media Planner, deterministic lineage, anti-clone, Dynamic Production Compiler and VX Inheritance Intelligence Core are PROVEN and lifecycle-closed. Remaining dependency order: Visual Diff Intelligence → Publish Readiness → Smart Intent → Smart Auto-Fix. Builder-facing Inheritance UI adoption remains a separate change set and is not claimed by this wave. Template #3 remains forbidden. Plan reconciliation: task wording now reflects canonical page-document identity without activating unrelated database scope; new Core files are planned may-edit outputs while maturity remains the existing must-edit authority; specialist role and critical proof/challenge semantics aligned to canonical policy.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
