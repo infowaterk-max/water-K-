@@ -22,7 +22,6 @@ describe('Template Production Brabus maturity v1',()=>{
     expect(result.blockingCapabilityIds).not.toContain('FACTORY-DYNAMIC-PRODUCTION-COMPILER');
     expect(result.blockingCapabilityIds).toEqual(expect.arrayContaining([
       'VX-PUBLISH-READINESS',
-      'VX-INHERITANCE-INTELLIGENCE',
       'VX-VISUAL-DIFF-INTELLIGENCE',
       'VX-SMART-INTENT',
       'VX-SMART-AUTOFIX',
@@ -34,8 +33,9 @@ describe('Template Production Brabus maturity v1',()=>{
     expect(result.capabilities.find(item=>item.id==='FACTORY-DETERMINISTIC-LINEAGE')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-DISTINCTNESS-ANTI-CLONE')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-DYNAMIC-PRODUCTION-COMPILER')?.state).toBe('PROVEN');
+    expect(result.blockingCapabilityIds).not.toContain('VX-INHERITANCE-INTELLIGENCE');
     expect(result.capabilities.find(item=>item.id==='VX-PUBLISH-READINESS')?.state).toBe('EVOLVE');
-    expect(result.capabilities.find(item=>item.id==='VX-INHERITANCE-INTELLIGENCE')?.state).toBe('EVOLVE');
+    expect(result.capabilities.find(item=>item.id==='VX-INHERITANCE-INTELLIGENCE')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='VX-VISUAL-DIFF-INTELLIGENCE')?.state).toBe('EVOLVE');
     expect(result.capabilities.find(item=>item.id==='VX-SMART-INTENT')?.state).toBe('NOT_IMPLEMENTED');
     expect(result.capabilities.find(item=>item.id==='VX-SMART-AUTOFIX')?.state).toBe('NOT_IMPLEMENTED');
