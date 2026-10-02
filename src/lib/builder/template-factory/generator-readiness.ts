@@ -42,6 +42,12 @@ import {
   type StorefrontTemplateDistinctnessResult,
 } from '@/lib/builder/template-factory/template-distinctness';
 import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES} from '@/lib/builder/storefront-template-catalog';
+import {
+  STOREFRONT_TEMPLATE_PRODUCTION_COMPILER_VERSION,
+  validateStorefrontTemplateProductionCompilerProgram,
+  type StorefrontTemplateProductionCompilerProgram,
+  type StorefrontTemplateProductionCompilerValidationIssue,
+} from '@/lib/builder/template-factory/production-compiler-contract';
 
 export const STOREFRONT_TEMPLATE_GENERATOR_BLUEPRINT_VERSION='shoporation.template-generator-blueprint.v0.1' as const;
 export const STOREFRONT_TEMPLATE_GENERATOR_READINESS_VERSION='shoporation.template-generator-readiness.v0.1' as const;
@@ -70,8 +76,9 @@ export type StorefrontTemplateGeneratorBlueprint={
   };
   productionContracts:StorefrontTemplateProductionContractDeclaration;
   generator:{
-    implementation:'deferred';
+    implementation:'deferred'|'dynamic-production-compiler';
     target:'template-compiler';
+    compilerContract?:typeof STOREFRONT_TEMPLATE_PRODUCTION_COMPILER_VERSION;
   };
 };
 
@@ -96,11 +103,17 @@ export type StorefrontTemplateGeneratorReadinessResult={
   mediaPlanning:StorefrontTemplateMediaPlannerResult;
   productionLineage:StorefrontTemplateProductionLineageResult|null;
   distinctness:StorefrontTemplateDistinctnessResult;
+  productionCompiler:{
+    required:boolean;
+    valid:boolean;
+    issues:readonly StorefrontTemplateProductionCompilerValidationIssue[];
+  };
   template3AuthoringReady:boolean;
   issues:readonly StorefrontTemplateGeneratorReadinessIssue[];
 };
 
 type GeneratorRecipeProjection={
+  compiler?:StorefrontTemplateProductionCompilerProgram;
   category:string;
   templateKey:string;
   displayName:string;
@@ -162,6 +175,27 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     genome:recipe.genome,
     references:STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,
   });
+  const compilerRequired=blueprint?.generator.implementation==='dynamic-production-compiler';
+  const compilerOwnedPageTypes=blueprint?STOREFRONT_PAGE_TYPES.filter(pageType=>blueprint.composition.templateOwnedPageTypes.includes(pageType)):[];
+  const compilerFoundation=input.lineageContext?.foundation??recipe.compiler?.sources.foundation??{category:'',templateKey:'',templateVersion:0};
+  const compilerIssues=compilerRequired&&blueprint?validateStorefrontTemplateProductionCompilerProgram({
+    program:recipe.compiler,
+    expected:{
+      category:recipe.category,
+      templateKey:recipe.templateKey,
+      templateVersion:recipe.templateVersion,
+      blueprintContract:blueprint.contract,
+      blueprintIdentity:blueprint.template.templateKey+'@'+blueprint.template.templateVersion,
+      foundation:compilerFoundation,
+      visualAuthorityReferenceKey:productionContracts.visualAuthority?.referenceKey??blueprint.productionContracts.visualAuthority.referenceKey,
+      genomeHash:recipe.genome?.hash??'',
+      constraintPlanHash:constraintPlanning.plan?.hash??'',
+      mediaPlanHash:mediaPlanning.plan?.hash??'',
+      ownedPageTypes:compilerOwnedPageTypes,
+    },
+    package:pkg,
+  }):Object.freeze([]);
+  const productionCompiler={required:compilerRequired,valid:!compilerRequired||compilerIssues.length===0,issues:compilerIssues};
   const productionLineage=input.lineageContext?createStorefrontTemplateProductionLineage({
     factoryVersion:input.lineageContext.factoryVersion,
     foundation:input.lineageContext.foundation,
@@ -195,6 +229,7 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
       mediaPlanning,
       productionLineage,
       distinctness,
+      productionCompiler,
       template3AuthoringReady:false,
       issues:Object.freeze(issues),
     };
@@ -202,7 +237,8 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
 
   const identity=`${blueprint.template.templateKey}@${blueprint.template.templateVersion}`;
   if(blueprint.contract!==STOREFRONT_TEMPLATE_GENERATOR_BLUEPRINT_VERSION)issues.push(failure('GENERATOR_BLUEPRINT_CONTRACT_INVALID','blueprint.contract','Template Blueprint contract version is unsupported.'));
-  if(blueprint.generator.implementation!=='deferred'||blueprint.generator.target!=='template-compiler')issues.push(failure('GENERATOR_IMPLEMENTATION_BOUNDARY_INVALID','blueprint.generator','Blueprint v0.1 must describe future compiler input without activating a generator runtime.'));
+  if(blueprint.generator.target!=='template-compiler')issues.push(failure('GENERATOR_IMPLEMENTATION_BOUNDARY_INVALID','blueprint.generator.target','Generator Blueprint must target the canonical template compiler.'));
+  if(blueprint.generator.implementation==='dynamic-production-compiler'&&blueprint.generator.compilerContract!==STOREFRONT_TEMPLATE_PRODUCTION_COMPILER_VERSION)issues.push(failure('GENERATOR_COMPILER_CONTRACT_INVALID','blueprint.generator.compilerContract','Dynamic compiler Blueprint must bind the canonical production compiler contract.'));
 
   const expectedAuthorities:StorefrontTemplateGeneratorBlueprint['authorities']={
     pageSchema:'canonical-page-schema',
@@ -227,6 +263,7 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     for(const lineageIssue of productionLineage.issues)issues.push(failure(lineageIssue.code,`productionLineage.${lineageIssue.path}`,lineageIssue.message));
   }
   for(const distinctnessIssue of distinctness.issues)issues.push(failure(distinctnessIssue.code,`distinctness.${distinctnessIssue.path}`,distinctnessIssue.message));
+  for(const compilerIssue of productionCompiler.issues)issues.push(failure(compilerIssue.code,compilerIssue.path,compilerIssue.message));
 
   const identityChecks=[
     ['category',blueprint.template.category,recipe.category],
@@ -269,7 +306,8 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     mediaPlanning,
     productionLineage,
     distinctness,
-    template3AuthoringReady:issues.length===0&&genomeValidation.valid&&typeSystemValidation.valid&&typeCompatibility.valid&&constraintPlanning.valid&&mediaPlanning.valid&&productionLineage?.valid===true&&distinctness.valid&&productionMaturity.valid&&productionMaturity.template3AuthoringReady,
+    productionCompiler,
+    template3AuthoringReady:issues.length===0&&genomeValidation.valid&&typeSystemValidation.valid&&typeCompatibility.valid&&constraintPlanning.valid&&mediaPlanning.valid&&productionLineage?.valid===true&&distinctness.valid&&productionCompiler.valid&&productionMaturity.valid&&productionMaturity.template3AuthoringReady,
     issues:Object.freeze(issues),
   };
 }
