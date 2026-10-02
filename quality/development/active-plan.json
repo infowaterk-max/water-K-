@@ -412,10 +412,12 @@
         ],
         "evidence": {
           "implementation": [
+            "GUARD-PLAN-BEFORE-CODE",
             "GUARD-EDIT-TIME",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
+            "GUARD-PLAN-BEFORE-CODE",
             "GUARD-QUALITY-TESTS"
           ]
         },
@@ -465,5 +467,5 @@
       }
     ]
   },
-  "notes": "Targeted follow-up to merged PR #673. PR #666 proved tombstone transaction semantics work but architecture resolution still rejects an intentionally non-canonical forbidden legacy route. No product code or domain canonical-path expansion in this transaction. Canonical plan projection expanded impacted scope to quality-knowledge-system + shared-storefront + storefront-ui with guard digest 52ef3463; critical assurance challenge/review depth aligned before implementation. Rebased after #670 merge onto canonical main 87438bbc6a35e3e44a79e91d8ea95c90cc8a1b10; product/storefront scope unchanged."
+  "notes": "Targeted follow-up to merged PR #673. PR #666 proved tombstone transaction semantics work but architecture resolution still rejects an intentionally non-canonical forbidden legacy route. No product code or domain canonical-path expansion in this transaction. Canonical plan projection expanded impacted scope to quality-knowledge-system + shared-storefront + storefront-ui with guard digest 52ef3463; critical assurance challenge/review depth aligned before implementation. Rebased after #670 merge onto canonical main 87438bbc6a35e3e44a79e91d8ea95c90cc8a1b10; product/storefront scope unchanged. Truth replay on ad31c841 exposed a correct OVERCLAIM: the architecture-resolution requirement claimed authority but did not cite the existing GUARD-PLAN-BEFORE-CODE authority-capable producer. The claim remains unchanged; proof mapping now requires that canonical producer in addition to edit-time/regression evidence."
 }
