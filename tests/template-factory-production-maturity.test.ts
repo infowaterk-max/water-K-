@@ -18,13 +18,16 @@ describe('Template Production Brabus maturity v1',()=>{
     expect(result.blockingCapabilityIds).not.toContain('FACTORY-TEMPLATE-TYPE-SYSTEM');
     expect(result.blockingCapabilityIds).not.toContain('FACTORY-CONSTRAINT-PLANNER');
     expect(result.blockingCapabilityIds).not.toContain('FACTORY-MEDIA-PLANNER-COMPILER');
+    expect(result.blockingCapabilityIds).not.toContain('FACTORY-DETERMINISTIC-LINEAGE');
     expect(result.blockingCapabilityIds).toContain('FACTORY-DISTINCTNESS-ANTI-CLONE');
     expect(result.blockingCapabilityIds).toContain('FACTORY-DYNAMIC-PRODUCTION-COMPILER');
     expect(result.capabilities.find(item=>item.id==='FACTORY-TEMPLATE-GENOME')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-TEMPLATE-TYPE-SYSTEM')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-CONSTRAINT-PLANNER')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-MEDIA-PLANNER-COMPILER')?.state).toBe('PROVEN');
+    expect(result.capabilities.find(item=>item.id==='FACTORY-DETERMINISTIC-LINEAGE')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-DISTINCTNESS-ANTI-CLONE')?.state).toBe('EVOLVE');
+    expect(result.capabilities.find(item=>item.id==='FACTORY-DYNAMIC-PRODUCTION-COMPILER')?.state).toBe('EVOLVE');
   });
 
   it('rejects documentation-only PROVEN claims',()=>{
