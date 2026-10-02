@@ -390,7 +390,7 @@
         ]
       },
       {
-        "role": "Control Plane",
+        "role": "Operations",
         "mode": "review",
         "verdict": "challenge-resolved",
         "finding": "Removing sibling evidence from Completion Contract avoids deadlock but creates false completion; re-running the producer inside CI duplicates proof authority.",
