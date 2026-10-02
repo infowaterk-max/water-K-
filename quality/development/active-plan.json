@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-EXTERNAL-PROOF-HANDOFF",
   "task": "Bind required exact-head evidence from existing parallel workflows into the canonical Resumable Verification and Completion Truth authority without creating another gate.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "efe9d183",
   "changeBaseSha": "d34e9ee152205440c553b6b8662c7b14042137d2",
   "plannedFilePatterns": [
@@ -524,14 +524,16 @@
   },
   "notes": "Isolated foundation extracted from the Brabus revalidation after Release Risk correctly blocked the mixed 4-subsystem/7-point Development Transaction. This branch changes only quality/release evidence transport. It does not implement or modify any Builder, template, Runtime or Factory maturity capability. Exact-head Quality exposed two proof-model issues: the handoff regression searched a fail-closed code in the wrapper instead of its owning helper, and Sentinel rejected noncanonical Completion claim dimensions. Both are repaired at their actual semantic owner; Sentinel is not weakened.",
   "lifecycle": {
-    "state": "EXECUTE",
-    "truthStatus": "UNVERIFIED",
-    "verifiedImplementationHead": null,
-    "closedAt": null,
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "c17ab9ce42db60d8b10b4cfb7d57e82bc6a98090",
+    "closedAt": "2026-10-02T11:07:42.691Z",
     "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
     "learning": {
-      "state": "pending"
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
     }
   }
 }
