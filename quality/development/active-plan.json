@@ -3,7 +3,7 @@
   "taskId": "DEV-CONSTRAINT-PLANNER-BRABUS-HARDENING",
   "task": "Implement the canonical deterministic Constraint Planner that combines accepted Visual Authority, proven Template Genome, proven Template Type semantics and bounded Product Owner production intent into an explainable immutable production constraint plan without mutating Page Schema.",
   "status": "ready-for-implementation",
-  "guardDigest": "8a9bf46e",
+  "guardDigest": "caa987ff",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
     "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
@@ -28,6 +28,7 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
+    "database-schema",
     "release-infrastructure",
     "shared-storefront",
     "storefront-ui"
@@ -103,7 +104,8 @@
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012"
+    "SQ-NK-012",
+    "SQ-NK-014"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -519,7 +521,7 @@
       }
     ]
   },
-  "notes": "Third Brabus hardening wave. Template Genome and Template Type System are PROVEN and lifecycle-closed. Constraint Planner is the next upstream dependency before Media Planner and Dynamic Compiler. It must remain semantic/deterministic only; Template #3 remains forbidden.",
+  "notes": "Third Brabus hardening wave. Template Genome and Template Type System are PROVEN and lifecycle-closed. Constraint Planner is the next upstream dependency before Media Planner and Dynamic Compiler. It must remain semantic/deterministic only; Template #3 remains forbidden. Canonical full-PR projection reconciled on exact Planner head: database-schema is transitively impacted, SQ-NK-014 applies, and guard digest is caa987ff.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
