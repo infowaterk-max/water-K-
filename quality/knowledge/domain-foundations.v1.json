@@ -579,7 +579,8 @@
         "Quality evidence must be bound to exact source/release identity.",
         "Unknown or review-required failure intake persists until explicit disposition.",
         "Quality controls may block invalid change but may not redefine domain truth to make tests pass.",
-        "Template Factory Known Failure and authority registries are quality knowledge even when stored beside Builder implementation."
+        "Template Factory Known Failure and authority registries are quality knowledge even when stored beside Builder implementation.",
+        "Quality-system helper modules under scripts/lib/shoperation-** are DOMAIN-QUALITY authority and must use the same canonical Atlas classification pipeline as materialized nodes and downstream resolvers."
       ],
       "principles": [
         "ARCH-004",
@@ -595,7 +596,8 @@
         "src/lib/quality-system/**",
         "scripts/lib/shoperation-architecture-health.mjs",
         "tests/architecture-health.test.ts",
-        "src/lib/builder/template-factory/knowledge-registry.ts"
+        "src/lib/builder/template-factory/knowledge-registry.ts",
+        "scripts/lib/shoperation-**"
       ],
       "evidenceObligations": [
         "guard-selection proof",
