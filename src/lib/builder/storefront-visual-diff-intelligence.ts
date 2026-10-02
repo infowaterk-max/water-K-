@@ -96,6 +96,13 @@ const exactCommit=(value:unknown):value is string=>nonEmptyString(value)&&value!
 const stringArray=(value:unknown):string[]=>Array.isArray(value)&&value.every(item=>typeof item==='string')?[...value]:[];
 const finiteNumber=(value:unknown):number|null=>typeof value==='number'&&Number.isFinite(value)?value:null;
 
+function deepFreezeVisualDiff<T>(value:T):T{
+  if(!value||typeof value!=='object'||Object.isFrozen(value))return value;
+  Object.freeze(value);
+  for(const child of Object.values(value as Record<string,unknown>))deepFreezeVisualDiff(child);
+  return value;
+}
+
 function issue(code:StorefrontVisualDiffIssue['code'],message:string,severity:StorefrontVisualDiffIssueSeverity='error',viewport?:StorefrontViewport):StorefrontVisualDiffIssue{
   return{code,severity,message,...(viewport?{viewport}:{})};
 }
@@ -508,7 +515,7 @@ function manifestCaseResult(row:EvidenceCase,pageType:StorefrontBuilderPageType,
   }
   const classification=classifyCase(row);
   const local=isRecord(row.golden?.local)?row.golden?.local:null;
-  return Object.freeze({
+  const result:StorefrontVisualDiffManifestCase={
     pageType,
     viewport,
     provenance:{
@@ -533,10 +540,19 @@ function manifestCaseResult(row:EvidenceCase,pageType:StorefrontBuilderPageType,
     },
     diagnostics:Object.freeze(diagnostics),
     clean:diagnostics.length===0,
-  });
+  };
+  return Object.freeze(result);
 }
 
-function emptyManifestSummary():StorefrontVisualDiffManifestResult['summary']{
+type MutableStorefrontVisualDiffManifestSummary={
+  diagnostics:number;
+  bySeverity:Record<'error'|'warning',number>;
+  byEvidenceClass:Record<StorefrontVisualDiffEvidenceClass,number>;
+  byRepairability:Record<StorefrontVisualDiffRepairability,number>;
+  byVisualState:Record<StorefrontVisualDiffManifestCase['visual']['state'],number>;
+};
+
+function emptyManifestSummary():MutableStorefrontVisualDiffManifestSummary{
   return{
     diagnostics:0,
     bySeverity:{error:0,warning:0},
@@ -615,7 +631,8 @@ export async function inspectStorefrontVisualDiffManifestIntelligence(input:{
   }
 
   const fingerprints=isRecord(evidence.templatePageFingerprints)?evidence.templatePageFingerprints:null;
-  const targetFingerprintEntry=fingerprints&&isRecord(fingerprints[input.templateKey])?fingerprints[input.templateKey]:null;
+  const rawTargetFingerprintEntry=fingerprints?.[input.templateKey];
+  const targetFingerprintEntry:Record<string,unknown>|null=isRecord(rawTargetFingerprintEntry)?rawTargetFingerprintEntry:null;
   if(!targetFingerprintEntry){
     issues.push(manifestIssue('VISUAL_DIFF_TEMPLATE_FINGERPRINTS_MISSING','evidence.templatePageFingerprints','Target template page fingerprints are required.'));
   }else if(targetFingerprintEntry.templateVersion!==input.templateVersion){
@@ -700,7 +717,7 @@ export async function inspectStorefrontVisualDiffManifestIntelligence(input:{
   const expectedCaseCount=STOREFRONT_PAGE_TYPES.length*STOREFRONT_VIEWPORTS.length;
   const valid=issues.length===0&&cases.length===expectedCaseCount;
   const clean=valid&&cases.every(row=>row.clean);
-  return deepFreeze({
+  return deepFreezeVisualDiff({
     contract:STOREFRONT_VISUAL_DIFF_INTELLIGENCE_VERSION,
     evidenceContract:STOREFRONT_VISUAL_DIFF_EVIDENCE_CONTRACT,
     target,
