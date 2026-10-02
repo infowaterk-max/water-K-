@@ -91,6 +91,7 @@ const SHARED_AUTHORITY_PREFIXES=Object.freeze([
   'src/lib/builder/template-factory/scaffold.ts',
   'src/lib/builder/template-factory/generator-readiness.ts',
   'src/lib/builder/template-factory/production-contracts.ts',
+  'src/lib/builder/template-factory/template-genome.ts',
   'src/lib/builder/template-factory/recipe-registry.ts',
 ] as const);
 
