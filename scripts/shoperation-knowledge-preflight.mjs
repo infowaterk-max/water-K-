@@ -1,7 +1,7 @@
 import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,readdirSync,writeFileSync} from 'node:fs';
 import path from 'node:path';
-import {resolveDevelopmentBase} from './lib/shoperation-development-runtime.mjs';
+import {getChangedFiles} from './lib/shoperation-development-runtime.mjs';
 import {releaseClosureForAtlasPatterns} from './lib/shoperation-codebase-atlas-runtime.mjs';
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 execFileSync(process.execPath,['scripts/shoperation-support-history-backfill.mjs','--check'],{stdio:'inherit',env:process.env});
@@ -13,10 +13,14 @@ function globToRegExp(glob){let out='^';for(let i=0;i<glob.length;i+=1){const ch
 const neutral=riskPolicy.neutralPatterns.map(globToRegExp),matchers=riskPolicy.subsystems.map(item=>({...item,matchers:item.patterns.map(globToRegExp)}));
 const knowledgePrefixes=scopePolicy.knowledgeInfrastructurePrefixes;
 const dependencies=scopePolicy.dependencies;
-const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
-const base=resolveDevelopmentBase({changeBaseSha:developmentPlan.changeBaseSha});
-const head=(process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').trim()||'HEAD';
-let changedFiles=[];if(base){try{changedFiles=git(['diff','--name-only','--diff-filter=ACMR',base,head]).split(/\r?\n/).filter(Boolean).filter(file=>file!=='quality/development/active-plan.json');}catch{}}
+const transaction=getChangedFiles({baseSha:developmentPlan.changeBaseSha});
+const base=transaction.base;
+const head=transaction.head;
+const changedFiles=[...(transaction.materialFiles??[])];
+const deletedFiles=[...(transaction.materialDeletedFiles??[])];
+const transactionIdentityIssue=!base||transaction.baseResolution==='UNRESOLVED'
+  ?{code:'SQ_DEVELOPMENT_TRANSACTION_BASE_UNRESOLVED',requestedBase:transaction.requestedBase??developmentPlan.changeBaseSha??null}
+  :null;
 const atlasNodeByPath=new Map(codebaseAtlas.nodes.map(node=>[node.path,node]));
 const changeImpactClosure=releaseClosureForAtlasPatterns(codebaseAtlas,changedFiles);
 const directDomains=[...new Set(changedFiles.flatMap(file=>atlasNodeByPath.get(file)?.domains??[]))].sort();
@@ -30,6 +34,7 @@ for(const file of changedFiles){if(knowledgePrefixes.some(prefix=>file.startsWit
 const impacted=new Set(direct),queue=[...direct];while(queue.length){const current=queue.shift();for(const dependency of dependencies[current]??[])if(!impacted.has(dependency)){impacted.add(dependency);queue.push(dependency);}}
 const fullReplay=forceFull||knowledgeInfrastructureChanged,globalIds=new Set(knowledge.knownFailures.map(item=>item.id));
 const tfSource=readFileSync('src/lib/builder/template-factory/knowledge-registry.ts','utf8'),tfIds=[...new Set([...tfSource.matchAll(/id:'(TF-KF-\d+)'/g)].map(match=>match[1]))],mappedTfIds=Object.keys(knowledge.templateFactoryFailureApplicability),integrityIssues=[];
+if(transactionIdentityIssue)integrityIssues.push(transactionIdentityIssue);
 if(new Set(knowledge.knownFailures.map(item=>item.id)).size!==knowledge.knownFailures.length)integrityIssues.push({code:'SQ_KNOWLEDGE_DUPLICATE_GLOBAL_FAILURE_ID'});
 for(const item of knowledge.knownFailures){if(item.lifecycle==='active'&&!item.invariantIds?.length)integrityIssues.push({code:'SQ_KNOWLEDGE_INVARIANT_REQUIRED',failureId:item.id});if(item.lifecycle==='active'&&!item.regressionTests?.length)integrityIssues.push({code:'SQ_KNOWLEDGE_REGRESSION_REQUIRED',failureId:item.id});if(item.applicability?.mode==='subsystem'&&!item.applicability.subsystems?.length)integrityIssues.push({code:'SQ_KNOWLEDGE_APPLICABILITY_REQUIRED',failureId:item.id});if(item.occurrences>=2&&item.remediationPolicy!=='shared-root-cause-required')integrityIssues.push({code:'SQ_KNOWLEDGE_RECURRING_SHARED_FIX_REQUIRED',failureId:item.id});for(const file of item.regressionTests??[])if(!existsSync(file))integrityIssues.push({code:'SQ_KNOWLEDGE_REGRESSION_FILE_MISSING',failureId:item.id,file});}
 for(const id of tfIds)if(!mappedTfIds.includes(id))integrityIssues.push({code:'SQ_TEMPLATE_FACTORY_APPLICABILITY_MISSING',failureId:id});for(const id of mappedTfIds)if(!tfIds.includes(id))integrityIssues.push({code:'SQ_TEMPLATE_FACTORY_APPLICABILITY_DANGLING',failureId:id});for(const id of knowledge.globalBaselineFailureIds)if(!globalIds.has(id))integrityIssues.push({code:'SQ_GLOBAL_BASELINE_DANGLING',failureId:id});
@@ -43,7 +48,7 @@ async function openIntakeIssues(){const token=process.env.GITHUB_TOKEN?.trim(),r
 const externalUnresolved=await openIntakeIssues();
 const changeImpactIssues=domainUnresolvedFiles.map(file=>({code:'SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED',file}));
 integrityIssues.push(...changeImpactIssues);
-const changeImpact={contract:'shoporation.change-impact.v1',sourceCommit:head==='HEAD'?null:head,baseCommit:base,changedFiles,directDomains,directAuthorities,closure:changeImpactClosure,unresolvedDomainFiles:domainUnresolvedFiles,decision:changeImpactIssues.length?'BLOCK':'PASS'};
+const changeImpact={contract:'shoporation.change-impact.v1',sourceCommit:head==='HEAD'?null:head,baseCommit:base,baseResolution:transaction.baseResolution??null,changedFiles,deletedFiles,directDomains,directAuthorities,closure:changeImpactClosure,unresolvedDomainFiles:domainUnresolvedFiles,decision:(changeImpactIssues.length||transactionIdentityIssue)?'BLOCK':'PASS'};
 const report={contract:'shoporation.quality-knowledge-preflight.v1',knowledgeVersion:knowledge.contract,sourceCommit:head==='HEAD'?null:head,baseCommit:base,changedFiles,directSubsystems:[...direct].sort(),impactedSubsystems:[...impacted].sort(),knowledgeInfrastructureChanged,fullReplay,unresolvedScopeFiles:unresolvedFiles,activeFailureIds,selection,unresolvedFailureIntake:{committed:committedUnresolved,external:externalUnresolved},changeImpact,codebaseAtlas:{contract:codebaseAtlas.contract,summary:codebaseAtlas.summary},historicalBackfill:{decision:historicalBackfill.decision,summary:historicalBackfill.summary,promotions:historicalBackfill.promotions,identityCollisions:historicalBackfill.identityCollisions},coverage:{globalKnownFailures:knowledge.knownFailures.length,templateFactoryKnownFailures:tfIds.length,totalKnownFailures:knowledge.knownFailures.length+tfIds.length,activeFailureCount:activeFailureIds.length,negativeKnowledgeRules:knowledge.negativeKnowledge.length,developmentDirectiveCoverage:Object.keys(developmentGuardPolicy.directives).length,supportKnowledgeRecords:supportRecords.length,historicalExplicitIncidents:historicalBackfill.summary.explicitIncidentCount,historicalDocuments:historicalBackfill.summary.documentCount,globalInvariantCoverage:knowledge.knownFailures.filter(item=>item.invariantIds?.length).length,globalRegressionCoverage:knowledge.knownFailures.filter(item=>item.regressionTests?.length).length,globalApplicabilityCoverage:knowledge.knownFailures.filter(item=>item.applicability&&(item.applicability.mode==='always'||item.applicability.subsystems?.length)).length},integrityIssues,decision:integrityIssues.length||historicalBackfill.decision!=='PASS'?'BLOCK':'PASS'};
 mkdirSync('artifacts/shoperation-quality',{recursive:true});writeFileSync('artifacts/shoperation-quality/change-impact.json',JSON.stringify(changeImpact,null,2)+'\n');writeFileSync('artifacts/shoperation-quality/knowledge-preflight.json',JSON.stringify(report,null,2)+'\n');writeFileSync('artifacts/shoperation-quality/support-knowledge-backfill.json',JSON.stringify({contract:'shoporation.support-knowledge-backfill.v1',records:supportRecords},null,2)+'\n');
 console.log(`Shoperation Knowledge Before Build: ${report.decision}; active ${activeFailureIds.length}/${report.coverage.totalKnownFailures}; subsystems ${report.impactedSubsystems.join(',')||'baseline-only'}.`);if(unresolvedFiles.length)console.warn(`SCOPE_UNRESOLVED: ${unresolvedFiles.join(', ')}`);if(committedUnresolved.length||externalUnresolved.length)console.warn(`UNRESOLVED_FAILURE_INTAKE: committed=${committedUnresolved.length}, external=${externalUnresolved.length}`);for(const issue of integrityIssues)console.error(`${issue.code}:${issue.failureId??issue.file??''}`);if(integrityIssues.length)process.exit(1);
