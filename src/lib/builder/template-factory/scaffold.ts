@@ -21,6 +21,7 @@ import {
   type StorefrontTemplateGeneratorBlueprint,
   type StorefrontTemplateGeneratorReadinessResult,
 } from '@/lib/builder/template-factory/generator-readiness';
+import type {StorefrontTemplateGenome} from '@/lib/builder/template-factory/template-genome';
 import {
   setStorefrontGlobalStyleState,
   type StorefrontGlobalStyleState,
@@ -90,6 +91,7 @@ export type StorefrontTemplateFactoryCommerceReadiness={
 
 export type StorefrontTemplateFactoryRecipe={
   blueprint?:StorefrontTemplateGeneratorBlueprint;
+  genome?:StorefrontTemplateGenome;
   category:string;
   templateKey:string;
   displayName:string;
@@ -141,6 +143,11 @@ export type StorefrontTemplateFactoryBuild={
       foundationTemplateKey:string;
       foundationTemplateVersion:number;
       referenceKey:string;
+      genome:{
+        contract:string;
+        genomeVersion:number;
+        hash:string;
+      }|null;
     };
     inheritedPageTypes:readonly StorefrontBuilderPageType[];
     overriddenPageTypes:readonly StorefrontBuilderPageType[];
@@ -459,6 +466,11 @@ export function compileStorefrontTemplateFactoryPackage(input:{
         targetTemplateKey:recipe.templateKey,
         targetTemplateVersion:recipe.templateVersion,
         ownership:recipe.pageOverrides?.[pageType]?'template':'category-foundation',
+        genome:recipe.genome?{
+          contract:recipe.genome.contract,
+          genomeVersion:recipe.genome.identity.genomeVersion,
+          hash:recipe.genome.hash,
+        }:null,
       },
     };
 
@@ -512,6 +524,11 @@ export function compileStorefrontTemplateFactoryPackage(input:{
         foundationTemplateKey:foundation.foundationTemplateKey,
         foundationTemplateVersion:foundation.foundationTemplateVersion,
         referenceKey:recipe.reference.key,
+        genome:recipe.genome?{
+          contract:recipe.genome.contract,
+          genomeVersion:recipe.genome.identity.genomeVersion,
+          hash:recipe.genome.hash,
+        }:null,
       },
       inheritedPageTypes:Object.freeze([...inherited]),
       overriddenPageTypes:Object.freeze([...overridden]),
