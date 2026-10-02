@@ -20,8 +20,7 @@
     "builder-template-system",
     "release-infrastructure",
     "shared-storefront",
-    "storefront-ui",
-    "quality-infrastructure"
+    "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
@@ -523,5 +522,5 @@
       }
     ]
   },
-  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target. Plan-only Control Plane projection on 2026-10-02 resolved the canonical scope to DOMAIN-BUILDER / builder-template-system with builder-template-system + release-infrastructure + shared-storefront subsystem impact, full applicable negative knowledge, guard digest 91470973, and critical assurance depth. The existing visual-fidelity Template Factory catalog is included because it is the canonical handoff from Factory candidate build reports into GUARD-TEMPLATE-FACTORY browser evidence. Adding the canonical visual-fidelity QA catalog expands the projected subsystem set with storefront-ui and updates the canonical guard digest to 8a9bf46e. Sentinel integrity exposed missing proofSemantics on GUARD-TEMPLATE-FACTORY; this is treated as a real existing-authority metadata gap and repaired in-place rather than weakening Sentinel."
+  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target. Plan-only Control Plane projection on 2026-10-02 resolved the canonical scope to DOMAIN-BUILDER / builder-template-system with builder-template-system + release-infrastructure + shared-storefront subsystem impact, full applicable negative knowledge, guard digest 91470973, and critical assurance depth. The existing visual-fidelity Template Factory catalog is included because it is the canonical handoff from Factory candidate build reports into GUARD-TEMPLATE-FACTORY browser evidence. Adding the canonical visual-fidelity QA catalog expands the projected subsystem set with storefront-ui and updates the canonical guard digest to 8a9bf46e. Sentinel integrity exposed missing proofSemantics on GUARD-TEMPLATE-FACTORY; this is treated as a real existing-authority metadata gap and repaired in-place rather than weakening Sentinel. After adding Guard Registry proof semantics, canonical subsystem projection remains builder-template-system + release-infrastructure + shared-storefront + storefront-ui; DOMAIN-QUALITY authority is represented without a separate quality-infrastructure subsystem impact."
 }
