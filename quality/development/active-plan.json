@@ -393,10 +393,11 @@
         "requirement": "The phase-aware Semantic Execution/Plan Gate change passes exact-head typecheck and production build.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "targeted-control-plane-build",
+          "breadth": "targeted-control-plane-type-build",
           "strength": 1,
           "dimensions": [
-            "regression"
+            "types",
+            "build"
           ]
         },
         "evidence": {
@@ -425,5 +426,5 @@
       }
     ]
   },
-  "notes": "Targeted follow-up discovered by #666 plan-only replay after merged #675 and #677. The defect is phase semantics, not storefront scope: planning authorization currently requires completion evidence. No product code or generic architecture exception in this transaction. Canonical planned-projection on main 2860a9 derived no release subsystem classification, SQ-NK-012, guard digest aa79c504; critical completion claims bind explicitly to CAP-ATLAS."
+  "notes": "Targeted follow-up discovered by #666 plan-only replay after merged #675 and #677. The defect is phase semantics, not storefront scope: planning authorization currently requires completion evidence. No product code or generic architecture exception in this transaction. Canonical planned-projection on main 2860a9 derived no release subsystem classification, SQ-NK-012, guard digest aa79c504; critical completion claims bind explicitly to CAP-ATLAS. Truth exact-head ca71a28e reported OVERCLAIM only because REQ-PLANNED-DELETION-BUILD declared the abstract dimension regression while its exact producers canonically prove types and build. Claim dimensions reconciled to producer semantics; evidence set and implementation unchanged."
 }
