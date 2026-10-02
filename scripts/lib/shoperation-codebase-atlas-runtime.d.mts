@@ -82,12 +82,14 @@ export function reconcileAuthorityDependencies(atlas:CodebaseAtlas|Record<string
   learningMode:string;
   [key:string]:unknown;
 };
-export function buildExecutionRoute(atlas:CodebaseAtlas,patterns:string[],options?:{tombstones?:string[]}):{
+export function buildExecutionRoute(atlas:CodebaseAtlas,patterns:string[],options?:{tombstones?:string[];plannedDeletions?:string[]}):{
   MUST_EDIT:string[];
   TOMBSTONES:string[];
+  PLANNED_DELETIONS:string[];
   INSTRUCTION_REQUIRED:string[];
   INSTRUCTION_REQUIREMENTS:Array<Record<string,unknown>>;
   FORBIDDEN_ROUTE_TOMBSTONES:string[];
+  PLANNED_FORBIDDEN_ROUTE_DELETIONS:string[];
   MAY_EDIT:string[];
   IMPACTED_READ_ONLY:string[];
   AUTHORITY:string[];
