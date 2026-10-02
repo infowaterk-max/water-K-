@@ -12,7 +12,11 @@ import {
   STOREFRONT_RESPONSIVE_LAYOUT_ALIGN,
   STOREFRONT_RESPONSIVE_LAYOUT_SPACING,
   STOREFRONT_RESPONSIVE_STACK_JUSTIFY,
+  STOREFRONT_RESPONSIVE_INHERITANCE_DIMENSIONS,
+  inspectStorefrontResponsiveInheritance,
   inspectStorefrontResponsiveLayoutDepth,
+  planStorefrontResponsiveInheritancePropagation,
+  applyStorefrontResponsiveInheritancePropagation,
   resetStorefrontResponsiveLayoutDepth,
   setStorefrontResponsiveGridContainerLayout,
   setStorefrontResponsiveStackContainerLayout,
@@ -29,6 +33,7 @@ const directString=(value:unknown)=>typeof value==='string'?value:'';
 const directNumber=(value:unknown)=>typeof value==='number'?value:'';
 const ALIGN_LABELS:Record<StorefrontResponsiveLayoutAlign,string>={start:'Kezdet',center:'Közép',end:'Vég',stretch:'Nyújtás'};
 const JUSTIFY_LABELS:Record<StorefrontResponsiveStackJustify,string>={start:'Kezdet',center:'Közép',end:'Vég',between:'Szétosztva'};
+const sourceLabel=(source:string)=>source==='viewport'?'Egyedi viewport':source==='base'?'Alap stílus':source==='component'?'Komponens alap':'Runtime alap';
 
 export function StorefrontResponsiveLayoutDepthControls({document,node,viewport,responsiveMode,supportsStyle,onApply}:{
   document:StorefrontPageDocument;
@@ -39,6 +44,9 @@ export function StorefrontResponsiveLayoutDepthControls({document,node,viewport,
   onApply:(next:StorefrontPageDocument,notice:string)=>void;
 }){
   const state=inspectStorefrontResponsiveLayoutDepth(document,node.id,viewport);
+  const inheritance=inspectStorefrontResponsiveInheritance(document,node.id);
+  const inheritanceState=inheritance.viewports[viewport];
+  const inheritanceWarnings=inheritance.diagnostics.filter(issue=>issue.viewport===viewport);
   const advanced=state.editMode==='advanced'||state.editMode==='expert';
   const canPlace=state.parentComponentKey==='layout.grid'||state.parentComponentKey==='layout.stack'||responsiveMode!=='fixed';
   const childById=new Map((node.children??[]).map(child=>[child.id,child]));
@@ -48,15 +56,44 @@ export function StorefrontResponsiveLayoutDepthControls({document,node,viewport,
     onApply(setStorefrontResponsiveGridPlacement(document,node.id,viewport,{...state.gridPlacement.direct,span}),`${viewportLabel(viewport)} grid szélesség módosítva.`);
   };
   const visibilityValue=state.visibility.direct===null?'inherit':state.visibility.direct?'hidden':'visible';
+  const containerSources=[...new Set(Object.values(inheritanceState.container.sources))];
+  const containerSourceLabel=containerSources.length===1?sourceLabel(containerSources[0]??'default'):containerSources.includes('viewport')?'Vegyes · egyedi override-dal':'Vegyes alapforrás';
+  const propagateTo=(target:StorefrontViewport)=>{
+    const plan=planStorefrontResponsiveInheritancePropagation({
+      document,
+      nodeId:node.id,
+      sourceViewport:viewport,
+      targetViewports:[target],
+      dimensions:STOREFRONT_RESPONSIVE_INHERITANCE_DIMENSIONS,
+    });
+    const next=applyStorefrontResponsiveInheritancePropagation(document,plan);
+    onApply(next,`${viewportLabel(viewport)} responsive szándék átmásolva ide: ${viewportLabel(target)}.`);
+  };
 
   return <div className={styles.fieldGroup} data-storefront-responsive-layout-depth-v1>
     <strong>{viewportLabel(viewport)} responsive layout</strong>
-    <p className={styles.emptyHint}>Ugyanazt a Page Schema dokumentumot szerkeszted minden nézetben. Az üres/örökölt beállítás az előző breakpoint értékét követi; nincs külön mobil DOM vagy külön layout motor.</p>
+    <p className={styles.emptyHint}>Ugyanazt a Page Schema dokumentumot szerkeszted minden nézetben. Az aktív Runtime szabály: alapérték + pontos viewport override; a Desktop, Tablet és Mobil nem örököl egymástól automatikusan.</p>
     <div className={styles.metaGrid}>
       <span><small>Mód</small><b>{state.editMode==='normal'?'Normál':state.editMode==='advanced'?'Haladó':'Expert'}</b></span>
       <span><small>Effektív span</small><b>{state.effectiveGridSpan} / 12</b></span>
       <span><small>Láthatóság</small><b>{state.visibility.effective?'Rejtett':'Látható'}</b></span>
       {state.parentComponentKey?<span><small>Szülő</small><b>{humanize(state.parentComponentKey)}</b></span>:null}
+      <span><small>Láthatóság forrása</small><b>{sourceLabel(inheritanceState.visibility.source)}</b></span>
+      <span><small>Grid forrása</small><b>{sourceLabel(inheritanceState.gridPlacement.source)}</b></span>
+      {inheritanceState.container.kind?<span><small>Konténer forrása</small><b>{containerSourceLabel}</b></span>:null}
+      {node.children?.length?<span><small>Gyereksorrend forrása</small><b>{sourceLabel(inheritanceState.childOrder.source)}</b></span>:null}
+    </div>
+
+    <div className={styles.complexField} data-responsive-inheritance-intelligence>
+      <strong>Öröklési intelligencia</strong>
+      <p className={styles.emptyHint}>A rendszer a base + pontos viewport forrásmodellt magyarázza. Más nézetre csak explicit művelettel másol, és a művelet a normál Builder előzményekbe kerül.</p>
+      {inheritanceWarnings.length?<div className={styles.outline}>{inheritanceWarnings.map(issue=><div key={`${issue.viewport}:${issue.dimension}`} className={styles.outlineRow}>
+        <span className={styles.outlineIcon} aria-hidden="true">!</span>
+        <span><strong>Redundáns override</strong><small>{humanize(issue.dimension)} · visszaállítható effektív változás nélkül</small></span>
+      </div>)}</div>:<p className={styles.emptyHint}>Nincs bizonyítottan redundáns override ezen a viewporton.</p>}
+      <div className={styles.rowMoves}>
+        {(['desktop','tablet','mobile'] as const).filter(target=>target!==viewport).map(target=><button type="button" key={target} onClick={()=>propagateTo(target)}>{viewportLabel(target)} cél</button>)}
+      </div>
     </div>
 
     <label className={styles.field}><span>Láthatóság ezen a breakpointon</span><select value={visibilityValue} onChange={event=>{
