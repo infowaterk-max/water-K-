@@ -20,6 +20,7 @@ describe('Template Generator Readiness v0.1',()=>{
       issues:[],
     });
     expect(build.report.generatorReadiness.productionMaturity.valid).toBe(true);
+    expect(build.report.generatorReadiness.genomeValidation.valid).toBe(true);
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toContain('VX-SMART-INTENT');
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.generator).toEqual({implementation:'deferred',target:'template-compiler'});
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.composition.pageTypes).toEqual(STOREFRONT_PAGE_TYPES);
@@ -51,6 +52,25 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(build.report.generatorReadiness.ready).toBe(true);
     expect(build.report.generatorReadiness.template3AuthoringReady).toBe(false);
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds.length).toBeGreaterThan(0);
+  });
+
+  it('fails closed when a generator-ready recipe omits its Template Genome',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const recipe={...LOOT_VAULT_V2_FACTORY_RECIPE,genome:undefined};
+    const result=evaluateStorefrontTemplateGeneratorReadiness({blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,recipe,package:build.package});
+    expect(result.ready).toBe(false);
+    expect(result.genomeValidation.valid).toBe(false);
+    expect(result.issues.map(issue=>issue.code)).toContain('TEMPLATE_GENOME_REQUIRED');
+  });
+
+  it('fails closed when Genome content drifts without a matching immutable hash',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const genome=structuredClone(LOOT_VAULT_V2_FACTORY_RECIPE.genome!);
+    genome.dimensions.composition.grammar='mutated-after-hash';
+    const recipe={...LOOT_VAULT_V2_FACTORY_RECIPE,genome};
+    const result=evaluateStorefrontTemplateGeneratorReadiness({blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,recipe,package:build.package});
+    expect(result.ready).toBe(false);
+    expect(result.issues.map(issue=>issue.code)).toContain('TEMPLATE_GENOME_HASH_MISMATCH');
   });
 
   it('keeps undeclared recipes outside generator-ready status instead of inventing metadata',()=>{
