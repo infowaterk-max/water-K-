@@ -72,11 +72,7 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -460,5 +456,5 @@
       }
     ]
   },
-  "notes": "Targeted Reference Sync capability correction proven by PR #666 exact-head replay. No storefront implementation or gate weakening in this transaction. Canonical plan-only projection on main 055a819a reported no domain/authority/subsystem ownership for the three planned quality-runtime/test files, negative knowledge SQ-NK-010/011/012/014/015, guard digest aa79c504, and critical challenge minimum 8; plan aligned to those repository-derived facts before implementation. Plan projection correction: Reference Sync lib files are not directly canonical-domain classified; the existing canonical Quality consumer scripts/shoperation-edit-time-guard.mjs is included as impacted read-only authority, preserving actual ownership without modifying it. Latest canonical planned-projection on 75f2eca reduced remaining drift to expectedSubsystems=[], negative knowledge SQ-NK-010/011/012/014/015 and guard digest aa79c504; corrected exactly, with no scope expansion."
+  "notes": "Targeted Reference Sync capability correction proven by PR #666 exact-head replay. No storefront implementation or gate weakening in this transaction. Canonical plan-only projection on main 055a819a reported no domain/authority/subsystem ownership for the three planned quality-runtime/test files, negative knowledge SQ-NK-010/011/012/014/015, guard digest aa79c504, and critical challenge minimum 8; plan aligned to those repository-derived facts before implementation. Plan projection correction: Reference Sync lib files are not directly canonical-domain classified; the existing canonical Quality consumer scripts/shoperation-edit-time-guard.mjs is included as impacted read-only authority, preserving actual ownership without modifying it. Latest canonical planned-projection on 75f2eca reduced remaining drift to expectedSubsystems=[], negative knowledge SQ-NK-010/011/012/014/015 and guard digest aa79c504; corrected exactly, with no scope expansion. Canonical Plan projection confirms DOMAIN-QUALITY authority but no release subsystem classification for this internal control-plane transaction; negative-knowledge applicability is therefore SQ-NK-012 with guard digest aa79c504."
 }
