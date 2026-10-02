@@ -33,6 +33,10 @@ import {
   type StorefrontTemplateProductionContractDeclaration,
   type StorefrontTemplateProductionContractsResult,
 } from '@/lib/builder/template-factory/production-contracts';
+import {
+  createStorefrontTemplateProductionLineage,
+  type StorefrontTemplateProductionLineageResult,
+} from '@/lib/builder/template-factory/production-lineage';
 
 export const STOREFRONT_TEMPLATE_GENERATOR_BLUEPRINT_VERSION='shoporation.template-generator-blueprint.v0.1' as const;
 export const STOREFRONT_TEMPLATE_GENERATOR_READINESS_VERSION='shoporation.template-generator-readiness.v0.1' as const;
@@ -85,6 +89,7 @@ export type StorefrontTemplateGeneratorReadinessResult={
   typeCompatibility:StorefrontTemplateTypeCompatibilityValidation;
   constraintPlanning:StorefrontTemplateConstraintPlannerResult;
   mediaPlanning:StorefrontTemplateMediaPlannerResult;
+  productionLineage:StorefrontTemplateProductionLineageResult|null;
   template3AuthoringReady:boolean;
   issues:readonly StorefrontTemplateGeneratorReadinessIssue[];
 };
@@ -114,6 +119,10 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
   package:StorefrontInstallableTemplatePackage;
   productionContracts?:StorefrontTemplateProductionContractsResult;
   productionMaturity?:StorefrontTemplateProductionMaturityResult;
+  lineageContext?:{
+    factoryVersion:string;
+    foundation:{category:string;templateKey:string;templateVersion:number};
+  };
 }):StorefrontTemplateGeneratorReadinessResult{
   const{blueprint,recipe}=input,pkg=input.package;
   const productionMaturity=input.productionMaturity??evaluateStorefrontTemplateProductionMaturity();
@@ -142,6 +151,22 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     constraintPlan:constraintPlanning.plan,
     manifest:recipe.media,
   });
+  const productionLineage=input.lineageContext?createStorefrontTemplateProductionLineage({
+    factoryVersion:input.lineageContext.factoryVersion,
+    foundation:input.lineageContext.foundation,
+    recipe:{
+      category:recipe.category,
+      templateKey:recipe.templateKey,
+      templateVersion:recipe.templateVersion,
+      reference:{key:recipe.reference.key},
+      genome:recipe.genome,
+      productionIntent:recipe.productionIntent,
+    },
+    visualAuthority:productionContracts.visualAuthority,
+    constraintPlan:constraintPlanning.plan,
+    mediaPlan:mediaPlanning.plan,
+    package:pkg,
+  }):null;
   const issues:StorefrontTemplateGeneratorReadinessIssue[]=[];
   if(!blueprint){
     issues.push(failure('GENERATOR_BLUEPRINT_REQUIRED','blueprint','Generator readiness requires an explicit versioned Template Blueprint.'));
@@ -157,6 +182,7 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
       typeCompatibility,
       constraintPlanning,
       mediaPlanning,
+      productionLineage,
       template3AuthoringReady:false,
       issues:Object.freeze(issues),
     };
@@ -184,6 +210,9 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
   for(const plannerIssue of constraintPlanning.issues)issues.push(failure(plannerIssue.code,plannerIssue.path,plannerIssue.message));
   if(constraintPlanning.valid){
     for(const mediaIssue of mediaPlanning.issues)issues.push(failure(mediaIssue.code,mediaIssue.path,mediaIssue.message));
+  }
+  if(productionLineage&&!productionLineage.valid){
+    for(const lineageIssue of productionLineage.issues)issues.push(failure(lineageIssue.code,`productionLineage.${lineageIssue.path}`,lineageIssue.message));
   }
 
   const identityChecks=[
@@ -225,7 +254,8 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     typeCompatibility,
     constraintPlanning,
     mediaPlanning,
-    template3AuthoringReady:issues.length===0&&genomeValidation.valid&&typeSystemValidation.valid&&typeCompatibility.valid&&constraintPlanning.valid&&mediaPlanning.valid&&productionMaturity.valid&&productionMaturity.template3AuthoringReady,
+    productionLineage,
+    template3AuthoringReady:issues.length===0&&genomeValidation.valid&&typeSystemValidation.valid&&typeCompatibility.valid&&constraintPlanning.valid&&mediaPlanning.valid&&productionLineage?.valid===true&&productionMaturity.valid&&productionMaturity.template3AuthoringReady,
     issues:Object.freeze(issues),
   };
 }
