@@ -52,6 +52,8 @@ import {
 export const STOREFRONT_TEMPLATE_GENERATOR_BLUEPRINT_VERSION='shoporation.template-generator-blueprint.v0.1' as const;
 export const STOREFRONT_TEMPLATE_GENERATOR_READINESS_VERSION='shoporation.template-generator-readiness.v0.1' as const;
 
+export type StorefrontTemplateGeneratorImplementation='deferred'|'dynamic-production-compiler';
+
 export type StorefrontTemplateGeneratorBlueprint={
   contract:typeof STOREFRONT_TEMPLATE_GENERATOR_BLUEPRINT_VERSION;
   template:{
@@ -76,7 +78,7 @@ export type StorefrontTemplateGeneratorBlueprint={
   };
   productionContracts:StorefrontTemplateProductionContractDeclaration;
   generator:{
-    implementation:'deferred'|'dynamic-production-compiler';
+    implementation:StorefrontTemplateGeneratorImplementation;
     target:'template-compiler';
     compilerContract?:typeof STOREFRONT_TEMPLATE_PRODUCTION_COMPILER_VERSION;
   };
