@@ -5,6 +5,7 @@ import {
   buildExecutionRoute,
   impactForAtlasPattern,
   reconcileAuthorityDependencies,
+  resolveAtlasArchitectureForPath,
 } from '../scripts/lib/shoperation-codebase-atlas-runtime.mjs';
 import {
   evaluateCandidateConsumers,
@@ -46,6 +47,52 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     const merelyAbsent=buildExecutionRoute(atlas,[deleted],{tombstones:[]});
     expect(merelyAbsent.MUST_EDIT).not.toContain(deleted);
     expect(merelyAbsent.TOMBSTONES).toEqual([]);
+  });
+
+  it('separates path domain, deleted route and PO instruction authority for forbidden route tombstones',()=>{
+    const deleted='src/app/szallitas-es-fizetes/page.tsx';
+    const instruction={
+      id:'PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE',
+      lifecycle:'active',
+      affectedPatterns:['src/app/**'],
+      affectedDomains:['DOMAIN-BUILDER','DOMAIN-STOREFRONT'],
+      affectedRoutes:['/szallitas','/fizetes'],
+      forbiddenStates:['route:/szallitas-es-fizetes'],
+    };
+    const atlas:any={
+      nodes:[],
+      reverseImports:{},
+      semanticGraph:{reverseFileEdges:{},unknowns:[]},
+      unresolvedInternalImports:[],
+      poInstructions:[instruction],
+    };
+
+    const route=buildExecutionRoute(atlas,[deleted],{tombstones:[deleted]});
+    expect(route.INSTRUCTION_REQUIRED).toContain(deleted);
+    expect(route.FORBIDDEN_ROUTE_TOMBSTONES).toEqual([deleted]);
+    expect(route.INSTRUCTION_REQUIREMENTS[0]).toEqual(expect.objectContaining({
+      instructionId:instruction.id,
+      forbiddenRouteTombstones:[deleted],
+    }));
+
+    const resolved=resolveAtlasArchitectureForPath(atlas,deleted,{tombstones:[deleted],executionRoute:route});
+    expect(resolved.pathDerived.domains).toEqual([]);
+    expect(resolved.routeAuthority).toEqual({path:'/szallitas-es-fizetes',kind:'page',state:'deleted-tombstone'});
+    expect(resolved.poInstructionAuthority).toEqual({instructionIds:[instruction.id],governsDeletion:true});
+    expect(resolved.resolved).toBe(true);
+
+    const noGitRoute=buildExecutionRoute(atlas,[deleted],{tombstones:[]});
+    const noGit=resolveAtlasArchitectureForPath(atlas,deleted,{tombstones:[],executionRoute:noGitRoute});
+    expect(noGit.poInstructionAuthority.governsDeletion).toBe(false);
+    expect(noGit.resolved).toBe(false);
+
+    const unrelated='src/app/legacy-payment/page.tsx';
+    const unrelatedRoute=buildExecutionRoute(atlas,[unrelated],{tombstones:[unrelated]});
+    const unrelatedEvidence=resolveAtlasArchitectureForPath(atlas,unrelated,{tombstones:[unrelated],executionRoute:unrelatedRoute});
+    expect(unrelatedRoute.FORBIDDEN_ROUTE_TOMBSTONES).toEqual([]);
+    expect(unrelatedEvidence.routeAuthority).toEqual({path:'/legacy-payment',kind:'page',state:'deleted-tombstone'});
+    expect(unrelatedEvidence.poInstructionAuthority.instructionIds).toEqual([]);
+    expect(unrelatedEvidence.resolved).toBe(false);
   });
 
   it('does not classify Git CLI long options as CSS-variable contracts',()=>{

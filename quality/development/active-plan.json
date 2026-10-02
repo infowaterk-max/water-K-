@@ -1,27 +1,27 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
-  "task": "Repair the existing Template Factory golden visual comparison so a small but locally severe rendered regression cannot pass merely because the full-page mismatch ratio stays below the global threshold.",
+  "taskId": "DEV-CONTROL-PLANE-INSTRUCTION-TOMBSTONE-ARCHITECTURE",
+  "task": "Quality Control Plane semantic execution: resolve Git-proven deleted legacy routes through durable Product Owner forbidden-route authority without restoring deleted routes as canonical domain ownership.",
   "status": "closed",
-  "guardDigest": "3667fbec",
-  "changeBaseSha": "d8465ed5cf13471d86dfa81f8c67039f6c3d70ae",
+  "guardDigest": "52ef3463",
+  "changeBaseSha": "87438bbc6a35e3e44a79e91d8ea95c90cc8a1b10",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/template-factory-quality-gate.mjs",
-    "src/lib/builder/storefront-template-quality-gate.ts",
-    "tests/template-factory-golden-local-regression.test.ts",
-    "scripts/lib/shoperation-template-factory-golden-semantics.mjs",
-    "scripts/lib/shoperation-template-factory-golden-semantics.d.mts"
+    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+    "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
+    "scripts/shoperation-plan-before-code.mjs",
+    "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
   "expectedSubsystems": [
-    "builder-template-system",
-    "shared-storefront"
+    "quality-knowledge-system",
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "builder-template-system"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -78,90 +78,84 @@
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
     "SQ-NK-002",
-    "SQ-NK-003",
     "SQ-NK-004",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012"
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
+    "sourceRef": "PO-2026-10-01-INSTRUCTION-TOMBSTONE-ARCHITECTURE",
     "riskTier": "critical",
-    "problemStatement": "The Template Factory golden gate currently decides visual equality only from one full-page pixel mismatch ratio. A small rendered element can change materially, including a strong color mutation, while the page-wide ratio remains below 0.005 and the gate incorrectly stays green. Exact-head 14x3 browser proof then showed the first policy false positive: 12 Playroom desktop pages carried the identical shared-header text-rendering delta (5658 global pixels, 335 pixels in the peak 48x48 window at x=408,y=72, 14.54% local ratio). The local ratio alone therefore over-classifies concentrated typography/anti-aliasing noise as a severe localized region.",
+    "problemStatement": "PR #673 made Git D changes first-class semantic tombstones and removed DEV_PLAN_SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE from PR #666. Exact-head replay then exposed a narrower gap: the deleted legacy route src/app/szallitas-es-fizetes/page.tsx has intentionally no current canonical domain path, so Plan Before Code reports ARCHITECTURE_SCOPE_UNRESOLVED even though an active durable Product Owner instruction explicitly forbids /szallitas-es-fizetes and the deletion is proven by Git D. Restoring the legacy path to DOMAIN-STOREFRONT would falsely make a forbidden route canonical.",
     "observableOutcomes": [
-      "The existing full-page maxPixelMismatchRatio remains enforced unchanged.",
-      "A second local-severity proof detects concentrated mismatch regions using the same pixel diff evidence.",
-      "The canonical stress mutation #35e9ff to #ff0000 over a small rendered region fails locally while remaining below the global 0.005 ratio.",
-      "Browser-case evidence records global and local mismatch measurements so a failure is diagnosable rather than threshold-opaque.",
-      "The local golden detector requires both a severe local ratio and an absolute 400-pixel mismatch floor (20x20-equivalent area), so the proven 335-pixel shared-header rendering strip does not block while the 24x24 / 576-pixel adversarial color mutation still blocks."
+      "An active PO instruction forbidden static route is mapped to its legacy route file when that exact file is present in Git-proven tombstones.",
+      "That instruction-governed tombstone is included in INSTRUCTION_REQUIRED with explicit tombstone provenance.",
+      "Plan architecture resolution accepts only those deleted paths that are both Git-proven tombstones and instruction-required forbidden routes, without assigning them fake current canonical domain ownership.",
+      "An arbitrary deleted unowned path without active forbidden-route authority remains ARCHITECTURE_SCOPE_UNRESOLVED."
     ],
     "unresolvedRisks": [
-      "A local detector can become oversensitive to anti-aliasing or scattered font-render differences if it ignores pixelmatch filtering.",
-      "A fixed grid can split a regression across tile boundaries and create another false negative.",
-      "Changing the golden algorithm must invalidate reusable browser evidence through the existing Factory engine fingerprint.",
-      "Raising the absolute local floor too far could miss genuinely severe tiny defects; regression must pin the required 24x24 mutation as blocked."
+      "A broad deletion exception could hide genuinely unowned architecture changes.",
+      "Mapping every forbidden string to a route file could misinterpret non-route forbidden states.",
+      "A stale PO instruction could incorrectly preserve legacy route authority after the instruction is retired."
     ],
     "scope": {
       "in": [
-        "Existing Template Factory compareGolden algorithm.",
-        "Local concentrated mismatch analysis derived from pixelmatch diff output.",
-        "Deterministic adversarial self-test for a globally-small, locally-severe color mutation."
+        "Existing PO instruction required-change derivation in Semantic Execution Intelligence.",
+        "Existing Plan Before Code architecture unresolved check for Git-proven tombstones.",
+        "Regression reproducing deleted /szallitas-es-fizetes under the active shipping/payment instruction."
       ],
       "out": [
-        "Golden baseline promotion or Product Owner approval policy.",
-        "Changing the global 0.005 threshold.",
-        "Template design, screenshots, or golden baseline content."
+        "Shipping/payment storefront implementation in PR #666.",
+        "Canonical DOMAIN-STOREFRONT ownership changes.",
+        "New gate, new instruction registry, or generic deleted-file exception.",
+        "Changes to durable PO instruction content or lifecycle."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Golden proof is release-blocking visual evidence and the stress demonstrated a material false negative. The proportionate fix is a deterministic dual global/local detector using the same perceptual pixelmatch evidence, boundary-shifted local windows, explicit minimum mismatch pixels, and adversarial synthetic proof without adding a second visual gate.",
+      "rationale": "This is a fail-closed architecture-boundary defect discovered by replaying a real PO-required route deletion. The highest practical correction is to derive deleted forbidden static-route files from the existing durable instruction authority, bind them to Git tombstone evidence, and adversarially prove that arbitrary unowned deletions remain blocked.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "what-if-matrix",
         "adversarial-scenarios",
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
-        "fault-injection",
-        "finite-state-exhaustion"
+        "finite-state-exhaustion",
+        "what-if-matrix",
+        "fault-injection"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "A case passes only when both the existing global mismatch threshold and the new local-severity threshold pass.",
-        "Local severity is calculated from pixelmatch-filtered mismatch pixels, not raw RGB inequality.",
-        "Local windows are evaluated at multiple offsets so a concentrated regression cannot evade detection by crossing a fixed grid boundary.",
-        "The synthetic #35e9ff to #ff0000 mutation proves globalPassed=true, localPassed=false and final status=fail.",
-        "The local severity algorithm is a dependency-free shared Factory proof helper, while browser/image dependencies remain confined to the browser quality workflow.",
-        "The dependency-free golden semantics helper has an explicit typed ESM declaration contract; TypeScript does not rely on implicit any or suppression.",
-        "A 48x48 local window with >12% mismatch but only 335 mismatched pixels is not sufficient by itself to fail the local severity gate.",
-        "The canonical adversarial 24x24 #35e9ff -> #ff0000 mutation still fails locally with 576 mismatched pixels and global mismatch below 0.5%.",
-        "The full 14x3 Template Factory browser proof passes on the unchanged accepted Playroom baselines without baseline promotion."
+        "For PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE and a Git tombstone src/app/szallitas-es-fizetes/page.tsx, buildExecutionRoute reports that file in INSTRUCTION_REQUIRED and identifies it as an instruction-governed tombstone.",
+        "Plan Before Code does not report ARCHITECTURE_SCOPE_UNRESOLVED for that exact instruction-governed tombstone.",
+        "The same path without Git D evidence is not granted tombstone resolution.",
+        "A Git D path with no matching active forbidden route remains unresolved when it has no canonical domain.",
+        "No legacy /szallitas-es-fizetes path is added to DOMAIN-STOREFRONT canonicalPaths."
       ],
       "invariants": [
-        "maxPixelMismatchRatio remains 0.005 for existing manifests.",
-        "Anti-aliasing exclusion and pixelmatch perceptual threshold remain unchanged.",
-        "Missing baselines and dimension mismatches retain their current fail-closed behavior.",
-        "No golden baseline files are updated by this transaction.",
-        "The global maxPixelMismatchRatio remains exactly 0.005.",
-        "Local severity is conjunctive: ratio threshold and absolute mismatch floor must both be exceeded."
+        "Git D evidence is mandatory for legacy tombstone resolution.",
+        "The matching PO instruction must be active and must contain a static forbidden route mapping to the exact tombstone file.",
+        "Live files still require normal canonical domain ownership.",
+        "Instruction-governed tombstones do not become canonical domain paths.",
+        "Retiring or changing the PO instruction removes this resolution authority automatically."
       ],
       "forbiddenStates": [
-        "local-severe-regression-passes-under-global-threshold",
-        "global-threshold-lowered-to-mask-local-detector-design",
-        "raw-rgb-diff-bypasses-pixelmatch-semantics",
-        "golden-baseline-updated-to-make-stress-pass",
-        "typography-antialias-strip-335px-causes-local-golden-block",
-        "24x24-solid-local-mutation-passes"
+        "generic-deleted-file-domain-bypass",
+        "forbidden-legacy-route-restored-as-canonical-domain",
+        "non-tombstone-absent-path-resolved-by-instruction",
+        "inactive-instruction-resolves-legacy-tombstone"
       ]
     },
     "model": {
@@ -193,39 +187,36 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A small colored component changes completely but global mismatch stays below 0.005.",
-        "A regression straddles a local grid boundary and each fixed tile appears below threshold.",
-        "Scattered anti-aliased text pixels create a false local severe region.",
-        "Browser evidence reuse ignores a changed golden algorithm.",
-        "A high local ratio caused by a narrow text-rendering strip crosses 12% even though its absolute changed area is materially smaller than the target localized mutation."
+        "A correct PO-required deletion stays blocked because canonical domain ownership intentionally disappears with the legacy route.",
+        "A generic tombstone exemption allows arbitrary unowned deleted files through architecture validation.",
+        "The instruction route is recognized only while the forbidden file exists, losing authority immediately after successful deletion."
       ],
       "edgeCases": [
-        "Mismatch region touches screenshot edge.",
-        "Image dimensions are smaller than the configured local window.",
-        "Mismatch pixel count is below the local minimum evidence floor.",
-        "Regression is globally large and should fail regardless of local score.",
-        "335 mismatched pixels concentrated in a 48x48 window with ratio above 12%.",
-        "576 mismatched pixels from a 24x24 solid color mutation with global ratio below 0.5%."
+        "Deleted forbidden static route with active instruction.",
+        "Same forbidden route path absent but not Git-deleted in the current transaction.",
+        "Deleted unowned path unrelated to any instruction.",
+        "Dynamic or wildcard forbidden route that cannot map safely to one static file.",
+        "Inactive PO instruction containing an old forbidden route."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-DUAL-LOCAL-GLOBAL",
-        "summary": "Retain the full-page threshold and add shifted local-window severity over the same pixelmatch mask.",
+        "id": "ALT-INSTRUCTION-GOVERNED-TOMBSTONE",
+        "summary": "Derive forbidden static-route tombstones from the existing active PO instruction and require exact Git D evidence before architecture resolution.",
         "disposition": "selected",
-        "reason": "This directly closes the proven false-negative class while preserving existing global behavior and perceptual filtering."
+        "reason": "Preserves fail-closed architecture semantics without making a forbidden legacy route canonical again."
       },
       {
-        "id": "ALT-LOWER-GLOBAL",
-        "summary": "Lower maxPixelMismatchRatio until the known small color mutation happens to fail.",
+        "id": "ALT-RESTORE-LEGACY-DOMAIN",
+        "summary": "Add src/app/szallitas-es-fizetes/page.tsx to DOMAIN-STOREFRONT canonicalPaths.",
         "disposition": "rejected",
-        "reason": "That is blind tuning, increases full-page noise sensitivity, and does not model why a concentrated local regression is important."
+        "reason": "Would declare the explicitly forbidden legacy route canonical after its removal."
       },
       {
-        "id": "ALT-COMPONENT-BBOX",
-        "summary": "Require DOM component bounding boxes and compare each component screenshot separately.",
+        "id": "ALT-ALL-DELETIONS-RESOLVED",
+        "summary": "Skip architecture unresolved checks for every Git D path.",
         "disposition": "rejected",
-        "reason": "It would significantly expand browser instrumentation and component identity coupling when shifted local regions can close the proven defect inside the existing screenshot authority."
+        "reason": "Would create a broad deletion bypass for genuinely unowned architecture changes."
       }
     ],
     "specialistReviews": [
@@ -233,159 +224,152 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The visual authority should remain one golden comparator, not a parallel component-screenshot gate.",
-        "resolution": "Extend compareGolden with local semantics and keep one acceptance status.",
+        "finding": "The legacy route should not regain canonical domain ownership merely so a deletion can be validated.",
+        "resolution": "Use active instruction authority plus Git D provenance as a tombstone-only architecture resolution.",
         "evidence": [
-          "scripts/template-factory-quality-gate.mjs",
-          "stress golden color mutation"
+          "quality/knowledge/po-instructions.v1.json",
+          "quality/knowledge/domain-foundations.v1.json"
         ]
       },
       {
-        "role": "UX / Template",
+        "role": "Known Failure",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A globally tiny change can still be visually dominant if concentrated in a button, badge, swatch, or other focal region.",
-        "resolution": "Measure local density with shifted windows and a mismatch-pixel floor instead of relying only on page-wide area.",
+        "finding": "Skipping domain checks for all deletions would weaken architecture coverage.",
+        "resolution": "Resolution is limited to exact static forbidden-route files derived from active instructions and intersected with Git tombstones.",
         "evidence": [
-          "stress mutation #35e9ff -> #ff0000",
-          "pixelmatch diff mask"
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+          "scripts/shoperation-plan-before-code.mjs"
         ]
       },
       {
         "role": "Runtime",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Browser proof already produces one stable PNG per page/viewport and pixelmatch excludes anti-aliasing.",
-        "resolution": "Reuse the existing screenshot and diff mask; do not add extra browser captures or runtime routes.",
+        "finding": "The existing execution route already carries tombstones and PO instructions; no parallel registry is required.",
+        "resolution": "Extend INSTRUCTION_REQUIREMENTS with forbiddenRouteTombstones and consume that evidence in the existing Plan gate.",
         "evidence": [
-          "scripts/template-factory-quality-gate.mjs compareGolden",
-          "pixelmatch includeAA:false"
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
         ]
       },
       {
-        "role": "Known Failure",
+        "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The proven defect is a false-negative class, not a one-off color constant.",
-        "resolution": "Add a synthetic adversarial regression where global proof passes and local proof must fail.",
+        "finding": "The durable instruction is the semantic reason the old combined route must disappear, but it must not become a general architecture owner.",
+        "resolution": "Expose instruction-governed tombstone provenance only for exact active forbidden static routes plus Git D evidence.",
         "evidence": [
-          "stress golden local color mutation",
-          "tests/template-factory-golden-local-regression.test.ts"
+          "quality/knowledge/po-instructions.v1.json",
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
         ]
       }
     ],
     "challenge": [
       {
         "id": "CH-1",
-        "scenario": "A 24x24 focal element changes color on a 512x512 screenshot.",
-        "finding": "Global mismatch can remain below 0.005 despite a complete local mutation.",
-        "resolution": "Require local mismatch density above threshold with a minimum mismatch-pixel floor.",
+        "scenario": "PR #666 deletes /szallitas-es-fizetes and no current Atlas node/domain remains.",
+        "finding": "Plan emits ARCHITECTURE_SCOPE_UNRESOLVED despite the deletion being the exact required product decision.",
+        "resolution": "Map the active instruction's forbidden static route to its route file and retain it only when that file is a Git-proven tombstone.",
         "status": "resolved"
       },
       {
         "id": "CH-2",
-        "scenario": "The changed element lies across a 64px tile boundary.",
-        "finding": "A single fixed grid can split the mismatch and dilute both regions.",
-        "resolution": "Evaluate the same local windows with zero and half-window offsets on both axes.",
+        "scenario": "An unrelated deleted file has no domain.",
+        "finding": "It must not benefit from the legacy-route rule.",
+        "resolution": "No matching active forbidden route means no instruction tombstone provenance; unresolved remains blocking.",
         "status": "resolved"
       },
       {
         "id": "CH-3",
-        "scenario": "Font anti-aliasing produces sparse changed pixels.",
-        "finding": "Raw RGB comparison could overreact to rendering noise.",
-        "resolution": "Derive local counts only from pixelmatch mismatch output with includeAA=false and threshold 0.1.",
+        "scenario": "The forbidden path is merely absent from the current Atlas but was not deleted in this transaction.",
+        "finding": "Absence is not proof of implementation.",
+        "resolution": "Require membership in the passed tombstones set before adding forbiddenRouteTombstones.",
         "status": "resolved"
       },
       {
         "id": "CH-4",
-        "scenario": "Only a handful of pixels differ in one window.",
-        "finding": "High ratio in a clipped tiny edge window can be misleading.",
-        "resolution": "Require an absolute minimum mismatch pixel count before local failure can trigger.",
+        "scenario": "The PO instruction becomes inactive.",
+        "finding": "Legacy resolution must disappear.",
+        "resolution": "buildExecutionRoute already filters instructions by lifecycle==='active'; preserve that condition.",
         "status": "resolved"
       },
       {
         "id": "CH-5",
-        "scenario": "The full page exceeds 0.005 but local regions do not.",
-        "finding": "Local proof must not weaken the existing global fail condition.",
-        "resolution": "Final status is pass only when both globalPassed and localPassed are true.",
+        "scenario": "Forbidden state is display-label or route-key rather than route.",
+        "finding": "It cannot safely identify a static filesystem route.",
+        "resolution": "Only forbiddenStates with kind route and a staticRouteFile mapping participate.",
         "status": "resolved"
       },
       {
         "id": "CH-6",
-        "scenario": "The algorithm changes but prior browser evidence is reused.",
-        "finding": "Old cases could retain semantics from the weaker comparator.",
-        "resolution": "The existing factoryEngineHash includes template-factory-quality-gate.mjs, invalidating reuse when the comparator changes.",
+        "scenario": "A matching forbidden route exists in an active instruction but the tombstone path belongs to a different static route.",
+        "finding": "Instruction presence alone cannot authorize a different deleted path.",
+        "resolution": "Intersect the static forbidden-route file with the exact Git tombstones set; no fuzzy or prefix match.",
         "status": "resolved"
       },
       {
         "id": "CH-7",
-        "scenario": "A baseline is missing or dimensions differ.",
-        "finding": "Local calculation could accidentally hide an existing hard failure.",
-        "resolution": "Return the existing missing/dimension-mismatch status before local evaluation.",
+        "scenario": "A live file matches a forbidden route but is not deleted.",
+        "finding": "Legacy tombstone architecture resolution must not convert a surviving forbidden file into an accepted architecture state.",
+        "resolution": "forbiddenRouteTombstones is restricted to Git D paths; live forbidden files remain handled by existing forbidden-state enforcement.",
         "status": "resolved"
       },
       {
         "id": "CH-8",
-        "scenario": "The regression test simply lowers the global threshold.",
-        "finding": "The original semantic defect would remain and the test would encode tuning rather than local significance.",
-        "resolution": "The stress asserts globalPassed=true and localPassed=false simultaneously.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-LOCAL-FLOOR",
-        "scenario": "Accepted Playroom desktop baselines produce the identical 335-pixel local header text-rendering delta on 12 pages and are blocked by ratio-only local severity.",
-        "finding": "The 12% ratio criterion is necessary but not sufficient; typography edge noise can be locally dense while remaining below the intended severe-region area.",
-        "resolution": "Raise minMismatchPixels from 72 to 400 (20x20-equivalent) while retaining 48px windows, 24px stride and 12% local ratio. Prove the 335-pixel false positive passes and the 576-pixel 24x24 mutation still blocks.",
+        "scenario": "A forbidden dynamic route such as /termek/:slug cannot map to one stable page file with staticRouteFile.",
+        "finding": "Treating dynamic routes as static tombstones could authorize the wrong filesystem target.",
+        "resolution": "staticRouteFile already rejects dynamic/wildcard route syntax; preserve fail-closed behavior.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code on the plan-only commit before changing compareGolden.",
-      "Add a deterministic CLI/self-test that constructs same-size PNGs with a small #35e9ff to #ff0000 region and proves globalPassed=true/localPassed=false/final fail.",
-      "Regression-test that maxPixelMismatchRatio remains .005 in accepted/candidate manifests.",
-      "Run exact-head Quality Tests, TypeScript, Production Build and Template Factory Quality Gate v2.",
-      "Require Completion Truth and the standard two-phase CLOSE→LEARN lifecycle.",
-      "Add a regression mask with 335 pixels inside one 48x48 window and assert localGoldenMismatch passes despite local ratio >12%.",
-      "Re-run the unchanged 14x3 browser matrix; no golden baseline update is permitted."
+      "Run plan-only canonical Plan Before Code before implementation.",
+      "Unit-test buildExecutionRoute with an active forbidden static route plus matching tombstone and assert INSTRUCTION_REQUIRED plus explicit forbiddenRouteTombstones evidence.",
+      "Repeat without tombstone evidence and with an unrelated tombstone; neither may receive instruction-tombstone resolution.",
+      "Run exact-head full Quality, TypeScript, Production Build and Completion Truth.",
+      "Merge only after lifecycle CLOSE→LEARN exact-head closure passes; then replay PR #666 without changing its product intent.",
+      "Bind REQ-TOMBSTONE-ARCHITECTURE-RESOLUTION explicitly to exact-head GUARD-PLAN-BEFORE-CODE authority evidence plus Quality regression proof; Truth Gate must reject any authority claim not covered by producer semantics."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-01-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
+      "request": "PO-2026-10-01-INSTRUCTION-TOMBSTONE-ARCHITECTURE",
       "authority": [
-        "template-factory-golden-comparator",
-        "template-factory-quality-gate"
+        "semantic-execution-route",
+        "po-instruction-authority",
+        "plan-before-code"
       ],
       "mustEdit": [
-        "scripts/template-factory-quality-gate.mjs",
-        "scripts/lib/shoperation-template-factory-golden-semantics.mjs",
-        "scripts/lib/shoperation-template-factory-golden-semantics.d.mts"
+        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+        "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
+        "scripts/shoperation-plan-before-code.mjs",
+        "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "src/lib/builder/storefront-template-quality-gate.ts",
-        "src/lib/builder/storefront-template-quality-candidates.ts"
+        "quality/knowledge/po-instructions.v1.json",
+        "quality/knowledge/domain-foundations.v1.json"
       ],
       "proof": [
-        "tests/template-factory-golden-local-regression.test.ts"
+        "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "unknown": []
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
+    "sourceRef": "PO-2026-10-01-INSTRUCTION-TOMBSTONE-ARCHITECTURE",
     "requirements": [
       {
-        "id": "REQ-GOLDEN-DUAL-SCOPE",
-        "requirement": "Golden proof blocks both globally excessive mismatch and locally concentrated severe mismatch using the same perceptual diff evidence.",
+        "id": "REQ-INSTRUCTION-TOMBSTONE-PROVENANCE",
+        "requirement": "Active PO forbidden static routes produce instruction-required tombstone provenance only when exact Git D evidence exists.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "targeted-visual-proof-algorithm",
+          "breadth": "po-instruction-tombstone-provenance",
           "strength": 2,
           "dimensions": [
-            "regression",
-            "positive-state",
-            "forbidden-state"
+            "scope",
+            "forbidden-state",
+            "regression"
           ]
         },
         "requiredCapabilities": [
@@ -393,6 +377,7 @@
         ],
         "evidence": {
           "implementation": [
+            "GUARD-EDIT-TIME",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
@@ -401,8 +386,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-LOCAL-FALSE-NEGATIVE",
-            "statement": "A globally-small but locally-severe rendered mutation may not return golden status pass.",
+            "id": "NEG-GENERIC-DELETION-BYPASS",
+            "statement": "Unrelated or non-Git-deleted paths may not receive instruction tombstone resolution.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -410,15 +395,17 @@
         ]
       },
       {
-        "id": "REQ-GLOBAL-PRESERVED",
-        "requirement": "The existing full-page 0.005 threshold and missing/dimension mismatch behavior remain unchanged while local proof is additive.",
+        "id": "REQ-TOMBSTONE-ARCHITECTURE-RESOLUTION",
+        "requirement": "Plan Before Code treats an instruction-governed legacy route tombstone as resolved without restoring canonical domain ownership.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "targeted-golden-contract",
+          "breadth": "plan-architecture-tombstone",
           "strength": 2,
           "dimensions": [
-            "regression",
-            "forbidden-state"
+            "scope",
+            "authority",
+            "forbidden-state",
+            "regression"
           ]
         },
         "requiredCapabilities": [
@@ -426,16 +413,19 @@
         ],
         "evidence": {
           "implementation": [
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
+            "GUARD-PLAN-BEFORE-CODE",
             "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-GLOBAL-WEAKENING",
-            "statement": "The repair may not lower or bypass the canonical global threshold to manufacture the stress result.",
+            "id": "NEG-LEGACY-CANONICALIZATION",
+            "statement": "The deleted forbidden route must not be added back to canonical domain paths.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -443,11 +433,11 @@
         ]
       },
       {
-        "id": "REQ-GOLDEN-BUILD",
-        "requirement": "The exact implementation head passes TypeScript, production build and the relevant Template Factory quality workflow.",
+        "id": "REQ-INSTRUCTION-TOMBSTONE-BUILD",
+        "requirement": "The exact implementation head passes TypeScript and production build with the extended execution-route evidence contract.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "targeted-runtime-build",
+          "breadth": "targeted-control-plane-build",
           "strength": 1,
           "dimensions": [
             "types",
@@ -467,8 +457,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-GOLDEN-BUILD",
-            "statement": "The comparator repair must not introduce TypeScript or production build regressions.",
+            "id": "NEG-INSTRUCTION-TOMBSTONE-BUILD",
+            "statement": "The correction must not introduce type or production build regressions.",
             "evidence": [
               "GUARD-TYPECHECK",
               "GUARD-PRODUCTION-BUILD"
@@ -478,14 +468,14 @@
       }
     ]
   },
-  "notes": "Targeted golden false-negative repair only. Handoff evidence flow and shipping/payment are separate transactions. No golden baseline update, no threshold lowering, no parallel visual gate. Plan projection reconciled to Builder/Storefront golden authority: full Known Failure replay, canonical 10-item negative knowledge set, no storefront-ui/quality-knowledge subsystem claim. Local golden semantics were extracted into the existing scripts/lib Shoperation quality-infrastructure namespace so full-repository Quality tests do not require Playwright/pngjs; the real browser comparator consumes the same helper. Browser-proof calibration: the first real full-matrix run exposed a repeated 335px/14px-high Playroom header text-rendering false positive. Local policy will use a 400px absolute floor plus the existing 12% ratio; global 0.005 and baselines remain unchanged. Transaction base advanced to main d8465ed5 after PR #673 merged; golden-local intent, thresholds and proof obligations are unchanged.",
+  "notes": "Targeted follow-up to merged PR #673. PR #666 proved tombstone transaction semantics work but architecture resolution still rejects an intentionally non-canonical forbidden legacy route. No product code or domain canonical-path expansion in this transaction. Canonical plan projection expanded impacted scope to quality-knowledge-system + shared-storefront + storefront-ui with guard digest 52ef3463; critical assurance challenge/review depth aligned before implementation. Rebased after #670 merge onto canonical main 87438bbc6a35e3e44a79e91d8ea95c90cc8a1b10; product/storefront scope unchanged. Truth replay on ad31c841 exposed a correct OVERCLAIM: the architecture-resolution requirement claimed authority but did not cite the existing GUARD-PLAN-BEFORE-CODE authority-capable producer. The claim remains unchanged; proof mapping now requires that canonical producer in addition to edit-time/regression evidence. Truth Gate exact-head replay on ad31c841 identified a semantic evidence-mapping overclaim: REQ-TOMBSTONE-ARCHITECTURE-RESOLUTION required authority but omitted GUARD-PLAN-BEFORE-CODE, the canonical producer that proves that dimension. Evidence mapping corrected without lowering claim strength or changing gate semantics.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "892b4005f5f4f7d34b2a13a991c211907abfe130",
-    "closedAt": "2026-10-01T19:58:37.418Z",
+    "verifiedImplementationHead": "59dc73947a822b344b032f4a9783a77a09c70eb4",
+    "closedAt": "2026-10-02T03:16:38.904Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-01-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
+    "sourceRef": "PO-2026-10-01-INSTRUCTION-TOMBSTONE-ARCHITECTURE",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
