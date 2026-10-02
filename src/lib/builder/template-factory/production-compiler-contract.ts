@@ -157,9 +157,35 @@ export function validateStorefrontTemplateProductionCompilerProgram(input:{
     issues.push(failure('PRODUCTION_COMPILER_PAGE_OPERATION_COVERAGE_DRIFT','compiler.operations.pagePresets','Compiler Page Preset operations must exactly match Blueprint-owned page types in canonical order.'));
   }
   for(const[index,row]of program.operations.pagePresets.entries()){
+    const path='compiler.operations.pagePresets['+index+']';
     if(row.type!=='materialize-page-preset'||!row.presetId.trim()||!row.sourcePageKey.trim()){
-      issues.push(failure('PRODUCTION_COMPILER_PAGE_OPERATION_INVALID','compiler.operations.pagePresets['+index+']','Compiler page operation must reference one concrete canonical Page Preset.'));
+      issues.push(failure('PRODUCTION_COMPILER_PAGE_OPERATION_INVALID',path,'Compiler page operation must reference one concrete canonical Page Preset.'));
+      continue;
     }
+    const expectedPresetId=input.expected.templateKey+'@'+input.expected.templateVersion+':page:'+row.sourcePageKey;
+    if(row.presetId!==expectedPresetId)issues.push(failure('PRODUCTION_COMPILER_PAGE_PRESET_ID_DRIFT',path+'.presetId','Compiler Page Preset id must be derived from the active template identity and source page key.'));
+    const page=input.package.pages.find(candidate=>candidate.pageType===row.pageType);
+    if(!page||page.pageKey!==row.sourcePageKey)issues.push(failure('PRODUCTION_COMPILER_PAGE_PRESET_SOURCE_DRIFT',path+'.sourcePageKey','Compiler Page Preset source must match the materialized package page identity.'));
+  }
+
+  const inheritedExpected=input.package.manifest.pageTypes.filter(pageType=>!new Set(input.expected.ownedPageTypes).has(pageType));
+  if(JSON.stringify(program.operations.inheritedPageTypes)!==JSON.stringify(inheritedExpected)){
+    issues.push(failure('PRODUCTION_COMPILER_INHERITED_PAGE_PARTITION_DRIFT','compiler.operations.inheritedPageTypes','Compiler inherited page partition must be the exact complement of Blueprint-owned pages.'));
+  }
+
+  const home=input.package.pages.find(page=>page.pageType==='home');
+  if(!home){
+    issues.push(failure('PRODUCTION_COMPILER_HOME_OUTPUT_REQUIRED','package.pages.home','Compiler output requires a Home page for shell and Global Styles provenance.'));
+  }else{
+    const header=home.sections[0],footer=home.sections.at(-1);
+    if(program.operations.globalStyles.sourcePageKey!==home.pageKey)issues.push(failure('PRODUCTION_COMPILER_GLOBAL_STYLE_SOURCE_DRIFT','compiler.operations.globalStyles.sourcePageKey','Compiler Global Styles source must match the output Home page.'));
+    if(program.operations.shell.sourcePageKey!==home.pageKey)issues.push(failure('PRODUCTION_COMPILER_SHELL_SOURCE_DRIFT','compiler.operations.shell.sourcePageKey','Compiler shell source must match the output Home page.'));
+    if(!header||program.operations.shell.headerNodeId!==header.id)issues.push(failure('PRODUCTION_COMPILER_HEADER_SOURCE_DRIFT','compiler.operations.shell.headerNodeId','Compiler header source must match the output Home header node.'));
+    if(!footer||program.operations.shell.footerNodeId!==footer.id)issues.push(failure('PRODUCTION_COMPILER_FOOTER_SOURCE_DRIFT','compiler.operations.shell.footerNodeId','Compiler footer source must match the output Home footer node.'));
+  }
+
+  if(program.operations.demo.namespace!==input.package.manifest.demoContent.namespace||program.operations.demo.fixtureCount!==(input.package.demoFixtures?.length??0)){
+    issues.push(failure('PRODUCTION_COMPILER_DEMO_SOURCE_DRIFT','compiler.operations.demo','Compiler demo provenance must match the output package namespace and fixture count.'));
   }
 
   const expectedCandidateHash=hashStorefrontTemplateProductionCompilerCandidate(input.package);
