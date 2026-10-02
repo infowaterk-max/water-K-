@@ -65,7 +65,18 @@
       "provenance",
       "coverage",
       "proof-semantics",
-      "freshness"
-    ]
+      "freshness",
+      "exception-scope"
+    ],
+    "controlPlaneEvidence": {
+      "enabled": true,
+      "scope": "latest-completed-main-ci",
+      "artifacts": [
+        "shoperation-development-guard-*",
+        "shoperation-quality-knowledge-*",
+        "release-risk-budget"
+      ],
+      "unknownVisible": true
+    }
   }
 }

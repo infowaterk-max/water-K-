@@ -604,7 +604,10 @@
           "dependency",
           "claim-scope",
           "evidence-scope",
-          "proven-scope"
+          "proven-scope",
+          "transaction-identity",
+          "deletion",
+          "exception-scope"
         ]
       }
     }

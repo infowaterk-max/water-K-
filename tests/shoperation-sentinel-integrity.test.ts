@@ -61,6 +61,24 @@ describe('Sentinel integrity correlation',()=>{
     expect(report.findings.some((x:{code:string})=>x.code==='SENTINEL_INTEGRITY_PROOF_SCOPE_OVERCLAIM')).toBe(true);
     expect(report.findings.some((x:{code:string})=>x.code==='SENTINEL_INTEGRITY_PROOF_DIMENSION_DRIFT')).toBe(true);
   });
+  it('normalizes real Control Plane-shaped evidence and catches object child decisions',async()=>{
+    const {normalizeSentinelControlPlaneEvidence}=await import('../scripts/lib/shoperation-sentinel-integrity.mjs');
+    const records=normalizeSentinelControlPlaneEvidence({
+      plan:{changeBaseSha:'base-a'},
+      run:{headSha:'head-a',conclusion:'success'},
+      planBeforeCode:{decision:'PASS',base:'base-a',head:'head-a',transactionIdentity:{requestedBase:'base-a',baseResolution:'DECLARED',requestedHead:'head-a',headResolution:'EXPLICIT'},deletedFiles:['old.ts'],changedFiles:['old.ts']},
+      editTime:{decision:'PASS',base:'base-a',head:'head-a',baseResolution:'DECLARED',headResolution:'EXPLICIT',materialFiles:['old.ts'],deletedFiles:['old.ts'],childDecisions:{referenceSync:'PASS',implementationSync:'BLOCK'},referenceSync:{coverage:{totalCandidateCount:5,processedCandidateCount:5,overflow:0,decision:'PASS'}}},
+      collectionExpected:true,
+    });
+    const report=evaluate({evidenceRecords:records});
+    expect(report.findings.some((x:{code:string})=>x.code==='SENTINEL_INTEGRITY_STATUS_LAUNDERING')).toBe(true);
+  });
+
+  it('detects broad review exceptions as integrity drift',()=>{
+    const report=evaluate({plan:{contract:'shoporation.development-plan.v1',exceptions:[{ruleId:'RULE-WIDE',reason:'too broad'}],completionContract:{requirements:[requirement]}}});
+    expect(report.findings.some((x:{code:string})=>x.code==='SENTINEL_INTEGRITY_EXCEPTION_SCOPE_BROAD')).toBe(true);
+  });
+
   it('keeps unknown evidence visible instead of manufacturing PASS',()=>{
     const report=evaluate({evidenceRecords:[{id:'probe-source',state:'UNKNOWN'}]});
     expect(report.decision).toBe('REVIEW');

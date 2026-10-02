@@ -1,6 +1,7 @@
 const BLOCKING=new Set(['BLOCK','FAIL','FAILED','FAILURE','STALE','CONFLICT','UNRESOLVED','UNKNOWN']);
 const SUCCESS=new Set(['PASS','SUCCESS','SUCCEEDED','COMPLETED']);
 const asArray=value=>Array.isArray(value)?value:[];
+const decisionList=value=>Array.isArray(value)?value:(value&&typeof value==='object'?Object.values(value):[]);
 const norm=value=>String(value??'').trim().toUpperCase();
 const unique=value=>[...new Set(value)];
 const requiredStrength=req=>Number(req?.claimScope?.strength??req?.claimScope?.scopeStrength??0)||0;
@@ -101,11 +102,91 @@ function proofSemanticFindings(guards,plan,findings){
   }
 }
 
+function planExceptionFindings(plan,findings){
+  for(const [index,exception] of asArray(plan?.exceptions).entries()){
+    if(!exception?.ruleId||!exception?.file||!exception?.findingFingerprint)add(
+      findings,'SENTINEL_INTEGRITY_EXCEPTION_SCOPE_BROAD','exception-scope','action',
+      'A development exception is broader than one exact finding fingerprint and file.',
+      {index,ruleId:exception?.ruleId??null,file:exception?.file??null,findingFingerprint:exception?.findingFingerprint??null}
+    );
+  }
+}
+
+export function normalizeSentinelControlPlaneEvidence({plan,run,planBeforeCode,editTime,finalManifest,collectionExpected=false}={}){
+  const records=[],runOutcome=run?.conclusion??run?.status??null,runHead=run?.headSha??run?.head_sha??null;
+  if(planBeforeCode){
+    records.push({
+      id:'latest-main-plan-before-code',
+      decision:planBeforeCode.decision,
+      workflowOutcome:runOutcome,
+      artifactDecision:planBeforeCode.decision,
+      transaction:{
+        declaredBase:planBeforeCode.transactionIdentity?.requestedBase??plan?.changeBaseSha??null,
+        evaluatedBase:planBeforeCode.base??null,
+        declaredHead:planBeforeCode.transactionIdentity?.requestedHead??runHead??null,
+        evaluatedHead:planBeforeCode.head??null,
+        baseResolution:planBeforeCode.transactionIdentity?.baseResolution??null,
+        headResolution:planBeforeCode.transactionIdentity?.headResolution??null,
+      },
+      deletedFiles:asArray(planBeforeCode.deletedFiles),
+      observedFiles:asArray(planBeforeCode.changedFiles),
+    });
+  }else if(collectionExpected)records.push({id:'latest-main-plan-before-code',state:'UNKNOWN'});
+
+  if(editTime){
+    const coverage=editTime.referenceSync?.coverage??null;
+    records.push({
+      id:'latest-main-edit-time',
+      parentDecision:editTime.decision,
+      childDecisions:editTime.childDecisions??{},
+      workflowOutcome:runOutcome,
+      artifactDecision:editTime.decision,
+      transaction:{
+        declaredBase:plan?.changeBaseSha??null,
+        evaluatedBase:editTime.base??null,
+        declaredHead:runHead??editTime.requestedHead??null,
+        evaluatedHead:editTime.head??null,
+        baseResolution:editTime.baseResolution??null,
+        headResolution:editTime.headResolution??null,
+      },
+      deletedFiles:asArray(editTime.deletedFiles),
+      observedFiles:asArray(editTime.materialFiles),
+      coverage:coverage?{
+        expected:Number(coverage.totalCandidateCount??0),
+        observed:Number(coverage.processedCandidateCount??0),
+        truncated:Number(coverage.overflow??0)>0||coverage.decision==='BLOCK',
+      }:undefined,
+    });
+  }else if(collectionExpected)records.push({id:'latest-main-edit-time',state:'UNKNOWN'});
+
+  for(const [index,check] of asArray(finalManifest?.producerDecisionChecks).entries())records.push({
+    id:`latest-main-producer-check-${index}-${check?.gateId??'unknown'}`,
+    workflowOutcome:check?.workflow??null,
+    artifactDecision:check?.artifactDecision??null,
+    transaction:{
+      declaredHead:check?.sourceRevision??null,
+      evaluatedHead:check?.artifactHead??check?.sourceRevision??null,
+      headResolution:check?.exactHead===false?'UNRESOLVED_MISMATCH':'EXACT',
+    },
+  });
+  if(asArray(finalManifest?.producerDecisionMismatches).length)for(const [index,mismatch] of finalManifest.producerDecisionMismatches.entries())records.push({
+    id:`latest-main-producer-mismatch-${index}-${mismatch?.gateId??'unknown'}`,
+    workflowOutcome:mismatch?.workflow??'success',
+    artifactDecision:mismatch?.artifactDecision??'BLOCK',
+    transaction:{
+      declaredHead:mismatch?.sourceRevision??null,
+      evaluatedHead:mismatch?.artifactHead??null,
+      headResolution:mismatch?.exactHead===false?'UNRESOLVED_MISMATCH':'EXACT',
+    },
+  });
+  return records;
+}
+
 function evidenceFindings(records,findings){
   for(const record of asArray(records)){
     const id=record?.id??'unnamed-evidence';
     const parent=norm(record?.parentDecision??record?.decision);
-    const children=asArray(record?.childDecisions).map(norm).filter(Boolean);
+    const children=decisionList(record?.childDecisions).map(norm).filter(Boolean);
     const blockingChildren=children.filter(value=>BLOCKING.has(value));
     if(SUCCESS.has(parent)&&blockingChildren.length)add(findings,'SENTINEL_INTEGRITY_STATUS_LAUNDERING','decision','action',
       `${id} reports ${parent} while child evidence is blocking.`,{id,parentDecision:parent,blockingChildDecisions:blockingChildren});
@@ -152,6 +233,7 @@ export function evaluateSentinelIntegrity({sourceCommit=null,guardRegistry,plan,
   const guards=asArray(guardRegistry?.guards);
   graphFindings(guards,findings);
   proofSemanticFindings(guards,plan,findings);
+  planExceptionFindings(plan,findings);
   evidenceFindings(evidenceRecords,findings);
   const actionCount=findings.filter(item=>item.severity==='action').length,reviewCount=findings.filter(item=>item.severity==='review').length;
   const decision=actionCount?'BLOCK':reviewCount?'REVIEW':'PASS';
