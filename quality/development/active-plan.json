@@ -1,25 +1,17 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-ATLAS-NODE-FALLBACK-RESOLUTION",
-  "task": "Atlas resolver: apply path-derived storefront fallback when an existing Atlas node has no canonical domain ownership.",
+  "taskId": "DEV-CONTROL-PLANE-ATLAS-RULE-COHERENCE",
+  "task": "Atlas rule coherence: enforce one canonical classification result across materialized nodes, path classification, impact and resolver paths, and detect structured active PO route-authority conflicts.",
   "status": "ready-for-implementation",
   "guardDigest": "f8395e8f",
   "changeBaseSha": "7ec2cb968b023da7cac3bf684e7ee4bb00f1be06",
   "plannedFilePatterns": [
-    "quality/knowledge/domain-foundations.v1.json",
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
     "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
-  "expectedSubsystems": [
-    "shared-storefront",
-    "storefront-ui"
-  ],
-  "expectedDomains": [
-    "DOMAIN-QUALITY"
-  ],
-  "expectedAuthorities": [
-    "quality-knowledge-system"
-  ],
+  "expectedSubsystems": [],
+  "expectedDomains": [],
+  "expectedAuthorities": [],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
@@ -85,34 +77,39 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-ATLAS-NODE-FALLBACK-RESOLUTION",
+    "sourceRef": "PO-2026-10-02-ATLAS-RULE-COHERENCE",
     "riskTier": "critical",
-    "problemStatement": "After #680 merged, PR #666 plan-only still reports ARCHITECTURE_SCOPE_UNRESOLVED for src/app/oldal/[slug]/page.tsx and src/app/sitemap.ts. classifyAtlasPath now correctly returns DOMAIN-STOREFRONT fallback, but resolveAtlasArchitectureForPath prefers an existing Atlas node even when node.domains is empty, bypassing path-derived fallback. Resolver semantics therefore diverge from classifier semantics.",
+    "problemStatement": "Repeated #666 replay exposed a split-brain Atlas: classifyAtlasPath assigns DOMAIN-STOREFRONT to public fallback paths while buildCodebaseAtlas materializes domains via classifyDomains, and resolveAtlasArchitectureForPath prefers the stale node. The system can therefore produce contradictory authority answers for the same file. Existing ARCH-001 already forbids parallel authorities, but validateCodebaseAtlas does not currently prove classification coherence or structured active PO route-rule compatibility.",
     "observableOutcomes": [
-      "An existing Atlas node with empty domains for an otherwise-unowned public app page resolves through classifyAtlasPath fallback to DOMAIN-STOREFRONT/shared-storefront.",
-      "An existing Atlas node with an explicit canonical domain retains that domain and is not replaced by fallback.",
-      "Deleted/planned route PO authority semantics remain unchanged and continue to distinguish ownership from deletion authorization/completion.",
-      "PR #666 planned projection resolves its live public page and sitemap consumers before product implementation."
+      "Every materialized Atlas node matches classifyAtlasPath for route, subsystems, surfaces, domains, authorities and truthKeys.",
+      "buildCodebaseAtlas materializes classification through the same canonical classifyAtlasPath pipeline used by direct path classification.",
+      "impactForAtlasPattern and resolveAtlasArchitectureForPath consume the same canonical classification semantics instead of maintaining independent domain fallbacks.",
+      "validateCodebaseAtlas hard-blocks a deliberately inconsistent materialized node with ATLAS_CLASSIFICATION_DIVERGENCE.",
+      "validateCodebaseAtlas hard-blocks machine-readable active PO route conflicts where one active instruction requires a route that another active instruction forbids without explicit supersession.",
+      "The unchanged #666 plan-only replay no longer ping-pongs between contradictory classification paths."
     ],
     "unresolvedRisks": [
-      "Blindly replacing node classification could discard semantic node metadata or explicit domain ownership.",
-      "Fallback must only fill missing path-derived ownership, not rewrite explicit node domains.",
-      "Tombstone/planned-deletion authority must remain independent from path fallback."
+      "Changing node materialization can alter domain/authority indexes across the repository, so exact-head Knowledge, Plan, Replay and Quality evidence must remain green.",
+      "A generic conflict detector must not infer contradictions from human prose or labels; only structured route fields are safe for deterministic blocking.",
+      "Planned-addition projection remains a separate missing capability and must not be disguised as solved by classification coherence."
     ],
     "scope": {
       "in": [
-        "resolveAtlasArchitectureForPath path-derived domain/authority resolution.",
-        "Adversarial tests for empty-domain existing nodes and explicit-domain precedence."
+        "Existing Codebase Atlas classification/materialization/impact/resolver pipeline.",
+        "Existing validateCodebaseAtlas invoked by Knowledge Before Build and Plan Before Code.",
+        "Structured active PO instruction route compatibility using affectedRoutes and forbiddenStates route entries.",
+        "Adversarial regressions for materialized-node divergence and route-rule conflict."
       ],
       "out": [
-        "Storefront product changes.",
-        "New authority registry or new gate.",
-        "Changes to deletion/tombstone completion semantics."
+        "Any new quality gate, registry or blocking authority.",
+        "Storefront shipping/payment implementation in PR #666.",
+        "Free-text semantic contradiction inference.",
+        "Planned additions/ownership overlay from PR #679."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This resolver is foundational pre-execution authority logic. The fix must unify classifier/resolver semantics without weakening explicit authority or deletion proof.",
+      "rationale": "This is a critical self-consistency defect in the architecture authority itself. A local resolver patch would leave other consumers free to diverge again. The practical ceiling is to make classification single-source, validate materialization against that source on every Atlas preflight, add structured PO rule-collision detection, and prove negative controls without introducing another gate.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -129,20 +126,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Given an Atlas node for src/app/oldal/[slug]/page.tsx with domains=[], resolveAtlasArchitectureForPath must report DOMAIN-STOREFRONT/shared-storefront from the canonical path fallback.",
-        "Given an Atlas node for src/app/admin/orders/page.tsx with domains=['DOMAIN-ADMIN'], resolver must preserve DOMAIN-ADMIN/admin-operations and must not add DOMAIN-STOREFRONT.",
-        "Given a forbidden deleted or planned route, path-derived storefront ownership may resolve while PO deletion authorization and Git completion remain independently governed by their existing evidence."
+        "For every real Atlas node, route, subsystems, surfaces, domains, authorities and truthKeys equal the result of classifyAtlasPath(node.path).",
+        "A synthetic node whose domains or authorities differ from classifyAtlasPath is rejected by validateCodebaseAtlas with ATLAS_CLASSIFICATION_DIVERGENCE and field-level evidence.",
+        "impactForAtlasPattern derives fallback classification from classifyAtlasPath rather than directly from classifyDomains.",
+        "resolveAtlasArchitectureForPath uses canonical path classification for architecture fields and does not let an inconsistent cached node become a second authority.",
+        "Two active PO instructions where one lists /example in affectedRoutes and another lists route:/example in forbiddenStates are rejected with ATLAS_PO_ROUTE_AUTHORITY_CONFLICT unless the conflicting instruction is inactive or explicitly superseded.",
+        "The current shipping/payment instruction remains valid and deletion/tombstone proof semantics are unchanged."
       ],
       "invariants": [
-        "Existing non-empty node domains are authoritative over fallback.",
-        "Empty node domains may be filled only by classifyAtlasPath path-derived classification.",
-        "Resolver does not mutate Atlas nodes or domain registry.",
-        "Deletion authorization/completion is not inferred from path domain ownership."
+        "There is one canonical path-classification function for route/domain/authority/truth materialization.",
+        "Atlas nodes are materialized evidence of canonical classification, not an independent authority.",
+        "Knowledge Before Build and Plan Before Code consume the same validateCodebaseAtlas coherence result.",
+        "Structured conflict detection is fail-closed but does not parse human prose.",
+        "No Product Owner or PR-specific file exception is introduced."
       ],
       "forbiddenStates": [
-        "explicit-node-domain-overridden",
-        "empty-node-remains-unresolved-despite-classifier-ownership",
-        "path-domain-implies-deletion-proof"
+        "node-classifier-split-brain",
+        "impact-classifier-split-brain",
+        "resolver-classifier-split-brain",
+        "active-required-route-also-forbidden",
+        "free-text-conflict-guessing",
+        "new-parallel-conflict-gate"
       ]
     },
     "model": {
@@ -174,35 +178,39 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Resolver bypasses classifier fallback because node exists.",
-        "Fallback overwrites explicit domain.",
-        "Resolver conflates path ownership with deletion proof."
+        "A direct classifier test passes while materialized Atlas nodes still carry old domain semantics.",
+        "A resolver uses cached node ownership while impact analysis uses another classifier and the gates ping-pong.",
+        "Two active structured PO instructions issue opposing route authority and both are individually valid.",
+        "A validator fix is bypassed because a downstream helper recomputes domains independently."
       ],
       "edgeCases": [
-        "Empty-domain live page node.",
-        "Empty-domain sitemap node.",
-        "Explicit admin node.",
-        "Deleted forbidden route with storefront path ownership."
+        "Public page receiving storefront fallback.",
+        "Sitemap metadata receiving storefront fallback without a route object.",
+        "Explicit admin/builder/API ownership that must remain unchanged.",
+        "Unknown file with no domain in both node and classifier.",
+        "Deleted/planned-deletion route where ownership and deletion proof remain separate.",
+        "Inactive or superseded PO instruction containing a conflicting route.",
+        "Same active instruction accidentally requiring and forbidding the same route."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-RESOLVER-FALLBACK",
-        "summary": "Use classifyAtlasPath only when existing node domains are empty; preserve other node metadata.",
+        "id": "ALT-CANONICAL-COHERENCE",
+        "summary": "Unify materialization and consumers on classifyAtlasPath and validate every materialized node plus structured PO route rules.",
         "disposition": "selected",
-        "reason": "Unifies path ownership semantics with minimal change."
+        "reason": "Eliminates the duplicated authority path and makes the existing Atlas preflight enforce ARCH-001 without another gate."
       },
       {
-        "id": "ALT-REBUILD-NODES",
-        "summary": "Rebuild every Atlas node classification before resolver use.",
+        "id": "ALT-RESOLVER-ONLY",
+        "summary": "Patch resolveAtlasArchitectureForPath to fall back when node domains are empty.",
         "disposition": "rejected",
-        "reason": "Broader mutation and unnecessary performance/semantic risk."
+        "reason": "Fixes the current #666 symptom but leaves buildCodebaseAtlas, impact analysis and future consumers able to diverge again."
       },
       {
-        "id": "ALT-PR666-EXCEPTION",
-        "summary": "Special-case the two #666 files.",
+        "id": "ALT-NEW-CONFLICT-GATE",
+        "summary": "Add a separate conflict-detection workflow after Plan Before Code.",
         "disposition": "rejected",
-        "reason": "Product-specific exception would hide foundational resolver divergence."
+        "reason": "Duplicates blocking authority and detects the problem later than the existing Atlas validation that already owns architecture integrity."
       }
     ],
     "specialistReviews": [
@@ -210,9 +218,10 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Resolver and classifier must share path-derived ownership semantics.",
-        "resolution": "Fallback only for empty node domains.",
+        "finding": "ARCH-001 already requires one canonical authority, but the Atlas currently materializes path ownership through two code paths.",
+        "resolution": "Make classifyAtlasPath the single materialization source and validate node equivalence on every Atlas validation.",
         "evidence": [
+          "quality/knowledge/architecture-constitution.v1.json",
           "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
         ]
       },
@@ -220,9 +229,10 @@
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Node existence must not automatically mean node domain data is complete.",
-        "resolution": "Use non-empty node domains when present; otherwise derive from current classifier without mutating node.",
+        "finding": "Silently preferring the classifier over an inconsistent node would hide corruption rather than prove coherence.",
+        "resolution": "Materialize from the canonical classifier and independently make validateCodebaseAtlas reject any node/classifier divergence.",
         "evidence": [
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
           "tests/shoperation-semantic-execution-intelligence.test.ts"
         ]
       },
@@ -230,8 +240,8 @@
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Deletion tests must not regress into ownership-as-proof.",
-        "resolution": "Retain independent PO/Git assertions and add node-fallback regression.",
+        "finding": "The recurring symptom class is conflicting internal rule results, not only one storefront fallback.",
+        "resolution": "Regression covers node/classifier/impact/resolver convergence plus structured PO route conflicts.",
         "evidence": [
           "tests/shoperation-semantic-execution-intelligence.test.ts"
         ]
@@ -240,8 +250,8 @@
         "role": "Runtime",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The resolver is called repeatedly by Plan Gate; change should remain deterministic and local.",
-        "resolution": "Single classifyAtlasPath call only when node domains are empty.",
+        "finding": "Repository-wide validation must remain deterministic and avoid expensive secondary graph reconstruction.",
+        "resolution": "Compare each existing node to classifyAtlasPath in O(nodes) and reuse structured registry data for PO route collision checks.",
         "evidence": [
           "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
         ]
@@ -250,83 +260,88 @@
     "challenge": [
       {
         "id": "CH-1",
-        "scenario": "Existing node has domains=[] but public page classifier has storefront fallback.",
-        "finding": "Current resolver returns unresolved.",
-        "resolution": "Fill pathDerived domains from classifier.",
+        "scenario": "classifyAtlasPath returns storefront but materialized node domains are empty.",
+        "finding": "Different gates can consume different truths for the same file.",
+        "resolution": "Node materialization uses classifyAtlasPath and validation blocks field divergence.",
         "status": "resolved"
       },
       {
         "id": "CH-2",
-        "scenario": "Existing admin node has explicit DOMAIN-ADMIN.",
-        "finding": "Fallback must not add storefront.",
-        "resolution": "Non-empty node domains win.",
+        "scenario": "Resolver receives an inconsistent synthetic node with explicit but wrong domain.",
+        "finding": "Trusting the cache would preserve a second authority.",
+        "resolution": "Architecture fields come from canonical classification; validator exposes the inconsistent cache as a hard issue.",
         "status": "resolved"
       },
       {
         "id": "CH-3",
-        "scenario": "Deleted forbidden route has empty-domain node.",
-        "finding": "Path ownership could be mistaken for deletion completion.",
-        "resolution": "PO/Git fields remain independent.",
+        "scenario": "Impact analysis has no node and needs a fallback.",
+        "finding": "Calling classifyDomains directly recreates a parallel classifier.",
+        "resolution": "Fallback goes through classifyAtlasPath and consumes its domains.",
         "status": "resolved"
       },
       {
         "id": "CH-4",
-        "scenario": "Sitemap node has empty domains.",
-        "finding": "No route object exists, but public metadata still has classifier fallback.",
-        "resolution": "Resolver may use classifier domains independently of route presence.",
+        "scenario": "Admin or builder path has explicit canonical ownership.",
+        "finding": "Storefront fallback must not steal specific ownership.",
+        "resolution": "Existing classifyAtlasPath precedence remains canonical and node materialization mirrors it.",
         "status": "resolved"
       },
       {
         "id": "CH-5",
-        "scenario": "Node authorities are stale/empty while node domains are explicit.",
-        "finding": "Authority must follow domain registry, not stale node authorities.",
-        "resolution": "Derive authorities from resolved domains.",
+        "scenario": "Two active PO instructions structurally oppose the same static route.",
+        "finding": "Individual instruction validation can pass while the combined rules are impossible.",
+        "resolution": "Atlas validation compares active affectedRoutes to active route: forbiddenStates and hard-blocks unresolved collision.",
         "status": "resolved"
       },
       {
         "id": "CH-6",
-        "scenario": "An existing Atlas node for a non-storefront unknown file has domains=[] and classifyAtlasPath also returns no canonical or fallback domain.",
-        "finding": "Resolver fallback must not turn the mere presence of an empty-domain node into fabricated Storefront ownership.",
-        "resolution": "Invoke path-derived classification only as a source of actual classifier evidence; if classifier domains remain empty, architecture remains unresolved.",
+        "scenario": "A conflicting historical instruction is inactive or superseded.",
+        "finding": "Historical intent must not block current execution.",
+        "resolution": "Collision set contains only active, non-superseded instructions.",
         "status": "resolved"
       },
       {
         "id": "CH-7",
-        "scenario": "A later exact canonical path is added.",
-        "finding": "Fallback should yield to registry automatically.",
-        "resolution": "classifyAtlasPath canonical precedence remains source of fallback.",
+        "scenario": "Human prose appears contradictory but structured route fields do not.",
+        "finding": "Text inference could create false blocking authority.",
+        "resolution": "Do not parse positiveRequirement prose for conflicts; only deterministic structured fields are compared.",
         "status": "resolved"
       },
       {
         "id": "CH-8",
-        "scenario": "PR #666 plan-only replays after merge.",
-        "finding": "Both live consumers must resolve before implementation.",
-        "resolution": "Use unchanged #666 plan as post-merge proof.",
+        "scenario": "The current #666 plan is replayed after coherence repair.",
+        "finding": "If any path still diverges, the same pingpong class remains alive.",
+        "resolution": "Use unchanged #666 plan-only replay as post-merge regression evidence before product implementation resumes.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Plan-only Plan Before Code PASS before implementation.",
-      "Document in the existing DOMAIN-STOREFRONT boundary that resolver consumption uses the same fallback only when node canonical domains are empty.",
-      "Implement resolver fallback without mutating existing Atlas nodes.",
-      "Add regressions for empty-domain public node, sitemap node, explicit admin node, and unknown non-storefront node.",
-      "Run exact-head Edit-Time, Replay, Quality, TypeScript, Build and Truth; CLOSE→LEARN.",
-      "Merge then replay #666 plan-only unchanged."
+      "Re-run Plan Before Code on the broadened #681 plan before implementation.",
+      "Materialize route/subsystem/surface/domain/authority/truth classification from classifyAtlasPath in buildCodebaseAtlas.",
+      "Make impact fallback and architecture resolver consume canonical classifyAtlasPath semantics.",
+      "Extend validateCodebaseAtlas with field-level ATLAS_CLASSIFICATION_DIVERGENCE and structured ATLAS_PO_ROUTE_AUTHORITY_CONFLICT checks.",
+      "Add adversarial tests that intentionally inject inconsistent nodes and conflicting active PO route rules, plus negative inactive/superseded controls.",
+      "Run exact-head Knowledge, Plan, Edit-Time, Incremental Replay, Quality, TypeScript, Production Build and Truth; CLOSE→LEARN.",
+      "Merge #681 and replay #666 plan-only unchanged; do not merge #679 until planned-addition need is re-evaluated on the coherent Atlas."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-ATLAS-NODE-FALLBACK-RESOLUTION",
+      "request": "PO-2026-10-02-ATLAS-RULE-COHERENCE",
       "authority": [
-        "semantic-execution-route",
-        "atlas-domain-classification"
+        "architecture-constitution",
+        "codebase-atlas",
+        "semantic-execution-route"
       ],
       "mustEdit": [
-        "quality/knowledge/domain-foundations.v1.json",
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "mayEdit": [],
-      "impactedReadOnly": [],
+      "impactedReadOnly": [
+        "quality/knowledge/architecture-constitution.v1.json",
+        "quality/knowledge/po-instructions.v1.json",
+        "quality/knowledge/domain-foundations.v1.json"
+      ],
       "proof": [
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
@@ -335,18 +350,19 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-ATLAS-NODE-FALLBACK-RESOLUTION",
+    "sourceRef": "PO-2026-10-02-ATLAS-RULE-COHERENCE",
     "requirements": [
       {
-        "id": "REQ-ATLAS-NODE-FALLBACK",
-        "requirement": "Resolver uses current path-derived classification when an existing Atlas node has no domains, while preserving explicit node-domain precedence.",
+        "id": "REQ-ATLAS-CLASSIFICATION-COHERENCE",
+        "requirement": "Atlas materialized nodes, direct path classification, impact analysis and architecture resolution produce one coherent canonical classification, and validateCodebaseAtlas rejects any divergence.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "targeted-resolver-classification",
-          "strength": 2,
+          "breadth": "repository-classification-coherence",
+          "strength": 3,
           "dimensions": [
-            "scope",
+            "classification",
             "authority",
+            "reconcile",
             "regression"
           ]
         },
@@ -355,17 +371,27 @@
         ],
         "evidence": {
           "implementation": [
+            "GUARD-KNOWLEDGE-PREFLIGHT",
             "GUARD-PLAN-BEFORE-CODE",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
+            "GUARD-KNOWLEDGE-PREFLIGHT",
             "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-EXPLICIT-NODE-OVERRIDE",
-            "statement": "Explicit node domain ownership must not be replaced by storefront fallback.",
+            "id": "NEG-ATLAS-SPLIT-BRAIN",
+            "statement": "No materialized Atlas node may disagree with classifyAtlasPath on route, subsystem, surface, domain, authority or truth classification.",
+            "evidence": [
+              "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-EXPLICIT-AUTHORITY-OVERRIDE",
+            "statement": "Specific admin, builder, API and other canonical ownership must not be replaced by storefront fallback.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -373,8 +399,52 @@
         ]
       },
       {
-        "id": "REQ-ATLAS-NODE-BUILD",
-        "requirement": "Resolver correction typechecks and production-builds on exact implementation head.",
+        "id": "REQ-PO-ROUTE-RULE-COHERENCE",
+        "requirement": "Existing Atlas validation blocks deterministic conflicts between active structured PO route requirements and forbidden route states without inferring from prose.",
+        "claimScope": {
+          "capability": "CAP-ATLAS",
+          "breadth": "active-po-route-rule-coherence",
+          "strength": 2,
+          "dimensions": [
+            "authority",
+            "forbidden-state",
+            "positive-state",
+            "regression"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-ATLAS"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-HISTORICAL-PO-CONFLICT",
+            "statement": "Inactive or superseded instructions must not create current blocking collisions.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-FREE-TEXT-CONFLICT-INFERENCE",
+            "statement": "Human prose alone must not create a blocking rule conflict.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-ATLAS-COHERENCE-BUILD",
+        "requirement": "The existing Atlas coherence repair typechecks and production-builds on the exact implementation head.",
         "claimScope": {
           "capability": "CAP-ATLAS",
           "breadth": "targeted-control-plane-type-build",
@@ -397,8 +467,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-ATLAS-NODE-BUILD",
-            "statement": "No type or production build regression.",
+            "id": "NEG-ATLAS-COHERENCE-BUILD",
+            "statement": "No type or production build regression is introduced.",
             "evidence": [
               "GUARD-TYPECHECK",
               "GUARD-PRODUCTION-BUILD"
@@ -408,5 +478,5 @@
       }
     ]
   },
-  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented."
+  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented. Broadened before implementation after Product Owner review: recurring pingpong is treated as Atlas rule-coherence failure, not a #666-specific resolver symptom. No new gate; existing validateCodebaseAtlas/Knowledge/Plan authority is strengthened."
 }
