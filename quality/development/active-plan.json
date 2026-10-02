@@ -20,7 +20,8 @@
     "scripts/shoperation-verification-checkpoint.mjs",
     "tests/shoperation-development-guard.test.ts",
     "tests/shoperation-resumable-verification.test.ts",
-    "tests/shoperation-proof-semantics.test.ts"
+    "tests/shoperation-proof-semantics.test.ts",
+    ".github/workflows/ci.yml"
   ],
   "expectedSubsystems": [
     "customer-account",
@@ -451,6 +452,13 @@
         "finding": "Silent slice truncation converts unknown coverage into apparent PASS.",
         "resolution": "Coverage overflow is explicit BLOCK evidence; no candidate is silently discarded.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-17",
+        "scenario": "Pull-request CI checks out refs/pull/<n>/merge while evidence is labeled with pull_request.head.sha.",
+        "finding": "Tests and artifacts can prove a synthetic merge commit while claiming exact branch-head provenance.",
+        "resolution": "Existing CI checkout is pinned to pull_request.head.sha and Development Transaction head resolution fails closed on an invalid explicit head.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -470,7 +478,8 @@
       "Exercise invalid explicit changeBaseSha and prove there is no fallback to main/HEAD^.",
       "Exercise two same-rule review findings with one exact exception and prove only the matching fingerprint is exempt.",
       "Exercise Reference Sync coverage overflow and prove explicit BLOCK rather than truncation.",
-      "Re-run exact-head #681 CI only after these truth-coherence regressions pass; keep PR draft and do not merge until lifecycle closure is coherent."
+      "Re-run exact-head #681 CI only after these truth-coherence regressions pass; keep PR draft and do not merge until lifecycle closure is coherent.",
+      "Prove CI checkout uses pull_request.head.sha for PR jobs and explicit Development Transaction head identity cannot silently fall back."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {

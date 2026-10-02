@@ -10,6 +10,7 @@ const changedFiles=[...(diff.materialFiles??[])];
 const deletedFiles=[...(diff.materialDeletedFiles??[])];
 const issues=[];
 if(diff.baseResolution==='UNRESOLVED'||!diff.base)issues.push({code:'DEV_PLAN_TRANSACTION_BASE_UNRESOLVED',requestedBase:diff.requestedBase??plan.changeBaseSha??null});
+if(diff.headResolution==='UNRESOLVED_EXPLICIT'||!diff.head)issues.push({code:'DEV_PLAN_TRANSACTION_HEAD_UNRESOLVED',requestedHead:diff.requestedHead??null,headSource:diff.headSource??null});
 
 if(plan.contract!=='shoporation.development-plan.v1')issues.push({code:'DEV_PLAN_CONTRACT_INVALID'});
 if(!['ready-for-implementation','closed'].includes(plan.status))issues.push({code:'DEV_PLAN_NOT_READY'});
@@ -131,7 +132,7 @@ const report={
   changedFiles,
   deletedFiles,
   transactionChanges:diff.changes??[],
-  transactionIdentity:{requestedBase:diff.requestedBase??plan.changeBaseSha??null,baseResolution:diff.baseResolution??null,metadataFiles:[...(diff.metadataFiles??[])]},
+  transactionIdentity:{requestedBase:diff.requestedBase??plan.changeBaseSha??null,baseResolution:diff.baseResolution??null,requestedHead:diff.requestedHead??null,headResolution:diff.headResolution??null,headSource:diff.headSource??null,metadataFiles:[...(diff.metadataFiles??[])]},
   projectedFiles,
   actualScope,
   projectedScope,

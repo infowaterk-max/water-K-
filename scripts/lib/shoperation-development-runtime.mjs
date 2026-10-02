@@ -107,16 +107,25 @@ export function parseChangedFileStatus(output){
 }
 export function resolveDevelopmentHead(){
   const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
-  const explicit=[process.env.DEVELOPMENT_HEAD_SHA,process.env.QUALITY_HEAD_SHA,process.env.SHOPERATION_REPLAY_HEAD].map(value=>String(value??'').trim()).filter(Boolean);
-  for(const candidate of explicit)if(!/^0+$/.test(candidate)){try{git(['cat-file','-e',`${candidate}^{commit}`]);return{head:candidate,resolution:'EXPLICIT'};}catch{}}
+  const explicitSources=[
+    ['DEVELOPMENT_HEAD_SHA',process.env.DEVELOPMENT_HEAD_SHA],
+    ['QUALITY_HEAD_SHA',process.env.QUALITY_HEAD_SHA],
+    ['SHOPERATION_REPLAY_HEAD',process.env.SHOPERATION_REPLAY_HEAD],
+  ];
+  const declared=explicitSources.map(([source,value])=>({source,value:String(value??'').trim()})).find(item=>item.value);
+  if(declared){
+    if(/^0+$/.test(declared.value))return{head:null,resolution:'UNRESOLVED_EXPLICIT',requestedHead:declared.value,source:declared.source};
+    try{git(['cat-file','-e',`${declared.value}^{commit}`]);return{head:declared.value,resolution:'EXPLICIT',requestedHead:declared.value,source:declared.source};}
+    catch{return{head:null,resolution:'UNRESOLVED_EXPLICIT',requestedHead:declared.value,source:declared.source};}
+  }
   const eventPath=String(process.env.GITHUB_EVENT_PATH??'').trim();
   if(eventPath&&existsSync(eventPath))try{
     const event=JSON.parse(readFileSync(eventPath,'utf8')),candidate=String(event?.pull_request?.head?.sha??'').trim();
-    if(candidate&&!/^0+$/.test(candidate)){git(['cat-file','-e',`${candidate}^{commit}`]);return{head:candidate,resolution:'PULL_REQUEST_HEAD'};}
+    if(candidate&&!/^0+$/.test(candidate)){git(['cat-file','-e',`${candidate}^{commit}`]);return{head:candidate,resolution:'PULL_REQUEST_HEAD',requestedHead:candidate,source:'GITHUB_EVENT_PATH'};}
   }catch{}
   const github=String(process.env.GITHUB_SHA??'').trim();
-  if(github&&!/^0+$/.test(github)){try{git(['cat-file','-e',`${github}^{commit}`]);return{head:github,resolution:'GITHUB_SHA'};}catch{}}
-  return{head:'HEAD',resolution:'LOCAL_HEAD'};
+  if(github&&!/^0+$/.test(github)){try{git(['cat-file','-e',`${github}^{commit}`]);return{head:github,resolution:'GITHUB_SHA',requestedHead:github,source:'GITHUB_SHA'};}catch{}}
+  return{head:'HEAD',resolution:'LOCAL_HEAD',requestedHead:null,source:'git'};
 }
 export function getChangedFiles({baseSha=null}={}){
   const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
@@ -125,13 +134,13 @@ export function getChangedFiles({baseSha=null}={}){
   const headIdentity=resolveDevelopmentHead();
   const head=headIdentity.head;
   const baseResolution=requestedBase?(base===requestedBase?'DECLARED':'UNRESOLVED'):(base?'FALLBACK':'UNRESOLVED');
-  if(!base)return {base:null,requestedBase:requestedBase||null,baseResolution,head,headResolution:headIdentity.resolution,files:[],deletedFiles:[],materialFiles:[],materialDeletedFiles:[],metadataFiles:[],changes:[]};
+  if(!base||!head)return {base:base??null,requestedBase:requestedBase||null,baseResolution,head:head??null,requestedHead:headIdentity.requestedHead??null,headResolution:headIdentity.resolution,headSource:headIdentity.source??null,files:[],deletedFiles:[],materialFiles:[],materialDeletedFiles:[],metadataFiles:[],changes:[]};
   const output=git(['diff','--name-status','--diff-filter=ACMRD',base,head]);
   const parsed=parseChangedFileStatus(output);
   const metadataFiles=parsed.files.filter(isDevelopmentMetadataFile);
   const materialFiles=parsed.files.filter(file=>!isDevelopmentMetadataFile(file));
   const materialDeletedFiles=parsed.deletedFiles.filter(file=>!isDevelopmentMetadataFile(file));
-  return {base,requestedBase:requestedBase||null,baseResolution,head,headResolution:headIdentity.resolution,...parsed,materialFiles,materialDeletedFiles,metadataFiles};
+  return {base,requestedBase:requestedBase||null,baseResolution,head,requestedHead:headIdentity.requestedHead??null,headResolution:headIdentity.resolution,headSource:headIdentity.source??null,...parsed,materialFiles,materialDeletedFiles,metadataFiles};
 }
 export function runVitest(files){
   if(!files.length)return {status:0,stdout:'',stderr:''};
