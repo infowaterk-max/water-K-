@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
   "task": "Revalidate and harden the existing Template Production stack against the previously approved Maybach-Brabus VX Builder and Template Factory capability target before Template #3 authoring is allowed.",
   "status": "ready-for-implementation",
-  "guardDigest": "91470973",
+  "guardDigest": "8a9bf46e",
   "changeBaseSha": "d34e9ee152205440c553b6b8662c7b14042137d2",
   "plannedFilePatterns": [
     "src/lib/builder/template-factory/production-maturity.ts",
@@ -18,7 +18,8 @@
   "expectedSubsystems": [
     "builder-template-system",
     "release-infrastructure",
-    "shared-storefront"
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER"
@@ -508,5 +509,5 @@
       }
     ]
   },
-  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target. Plan-only Control Plane projection on 2026-10-02 resolved the canonical scope to DOMAIN-BUILDER / builder-template-system with builder-template-system + release-infrastructure + shared-storefront subsystem impact, full applicable negative knowledge, guard digest 91470973, and critical assurance depth. The existing visual-fidelity Template Factory catalog is included because it is the canonical handoff from Factory candidate build reports into GUARD-TEMPLATE-FACTORY browser evidence."
+  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target. Plan-only Control Plane projection on 2026-10-02 resolved the canonical scope to DOMAIN-BUILDER / builder-template-system with builder-template-system + release-infrastructure + shared-storefront subsystem impact, full applicable negative knowledge, guard digest 91470973, and critical assurance depth. The existing visual-fidelity Template Factory catalog is included because it is the canonical handoff from Factory candidate build reports into GUARD-TEMPLATE-FACTORY browser evidence. Adding the canonical visual-fidelity QA catalog expands the projected subsystem set with storefront-ui and updates the canonical guard digest to 8a9bf46e."
 }
