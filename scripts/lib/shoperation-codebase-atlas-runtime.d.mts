@@ -87,6 +87,7 @@ export function buildExecutionRoute(atlas:CodebaseAtlas,patterns:string[],option
   TOMBSTONES:string[];
   INSTRUCTION_REQUIRED:string[];
   INSTRUCTION_REQUIREMENTS:Array<Record<string,unknown>>;
+  FORBIDDEN_ROUTE_TOMBSTONES:string[];
   MAY_EDIT:string[];
   IMPACTED_READ_ONLY:string[];
   AUTHORITY:string[];
@@ -96,6 +97,13 @@ export function buildExecutionRoute(atlas:CodebaseAtlas,patterns:string[],option
   UNKNOWN:unknown[];
   decision:'PASS'|'BLOCK';
   [key:string]:unknown;
+};
+export function resolveAtlasArchitectureForPath(atlas:CodebaseAtlas,file:string,options?:{tombstones?:string[];executionRoute?:Record<string,any>|null}):{
+  path:string;
+  pathDerived:{domains:string[];authorities:string[]};
+  routeAuthority:{path:string;kind:string;state:string}|null;
+  poInstructionAuthority:{instructionIds:string[];governsDeletion:boolean};
+  resolved:boolean;
 };
 export function applicablePoInstructions(atlas:CodebaseAtlas,files:string[]):Array<Record<string,unknown>>;
 export function evaluatePoInstructionStates(atlas:CodebaseAtlas,files:string[]):Record<string,unknown>;
