@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { resolveB2BAccountContext } from '@/lib/commerce/b2b-account';
-import { B2B_ACCOUNT_BUILDER_MANIFEST } from '@/lib/commerce/b2b-account-builder';
 import { B2BAccountPanel,B2BInviteAccept } from '@/components/account/b2b-account-panel';
 import { B2BIdentityPanel } from '@/components/account/b2b-identity-panel';
 import { ResellerRequestButton } from '@/components/account/reseller-request-button';
@@ -20,7 +19,6 @@ type IdentityChangeRow={id:string;requested_name:string;requested_tax_number:str
 export const dynamic='force-dynamic';
 
 export default async function B2BAccountPage({searchParams}:{searchParams:Promise<{invite?:string}>}){
-  void B2B_ACCOUNT_BUILDER_MANIFEST;
   const params=await searchParams;
   const instance=await getCurrentWebshopInstance();
   if(!instance)redirect('/fiokom');
