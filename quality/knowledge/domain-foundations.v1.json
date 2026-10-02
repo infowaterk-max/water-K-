@@ -376,7 +376,8 @@
         "Source preset, persisted draft/package and runtime materialization are distinct states.",
         "Blocks/presets may not introduce second authorities for shared capabilities.",
         "Template preview and visual-fidelity QA surfaces are Builder execution surfaces; they may consume shared Storefront runtime but must not call Admin action modules directly.",
-        "Template catalog, preview, quality-candidate and AI generation orchestration are Builder authority even when their filenames begin with storefront-."
+        "Template catalog, preview, quality-candidate and AI generation orchestration are Builder authority even when their filenames begin with storefront-.",
+        "Immutable storefront preview token routes under src/app/storefront-preview/** are Builder execution surfaces; they may render shared Storefront runtime but retain Builder preview authority."
       ],
       "principles": [
         "ARCH-001",
@@ -394,7 +395,8 @@
         "src/app/visual-fidelity-qa/**",
         "src/lib/commerce/b2b-account-builder.ts",
         "src/lib/builder/storefront-template-**",
-        "src/lib/builder/storefront-ai-generator*.ts"
+        "src/lib/builder/storefront-ai-generator*.ts",
+        "src/app/storefront-preview/**"
       ],
       "evidenceObligations": [
         "schema validation",
