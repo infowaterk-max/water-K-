@@ -3,37 +3,75 @@
   "taskId": "DEV-B2B-DEAD-BUILDER-ANCHOR-ISOLATION",
   "task": "Remove a side-effect-free unused manifest anchor import from src/app/fiokom/b2b/page.tsx without runtime behavior change.",
   "status": "ready-for-implementation",
-  "guardDigest": "61566de6",
+  "guardDigest": "d1c54c47",
   "changeBaseSha": "7ec2cb968b023da7cac3bf684e7ee4bb00f1be06",
   "plannedFilePatterns": [
-    "src/app/fiokom/b2b/page.tsx"
+    "src/app/fiokom/b2b/page.tsx",
+    "quality/knowledge/domain-foundations.v1.json",
+    "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
   "expectedSubsystems": [
     "customer-account",
     "storefront-ui"
   ],
   "expectedDomains": [
+    "DOMAIN-QUALITY",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
+    "quality-knowledge-system",
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
+    "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
+    "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
+    "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
+    "TF-KF-001",
     "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
     "TF-KF-006",
+    "TF-KF-007",
     "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
     "TF-KF-012",
-    "TF-KF-020"
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -57,16 +95,18 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The B2B page no longer imports B2B_ACCOUNT_BUILDER_MANIFEST.",
-        "The B2B page no longer void-references B2B_ACCOUNT_BUILDER_MANIFEST.",
-        "The canonical B2B Builder manifest remains defined and existing B2B account regressions pass."
+        "The B2B page no longer imports or void-references B2B_ACCOUNT_BUILDER_MANIFEST.",
+        "The materialized Atlas assigns src/app/fiokom/b2b/page.tsx to DOMAIN-STOREFRONT / shared-storefront.",
+        "The canonical B2B Builder manifest remains independently defined and existing B2B account regressions pass."
       ],
       "invariants": [
         "No B2B account runtime behavior changes.",
+        "Public account-page presentation authority is Storefront while customer/account/commerce truth remains in canonical business authorities.",
         "Builder compatibility metadata remains owned by src/lib/commerce/b2b-account-builder.ts."
       ],
       "forbiddenStates": [
         "dead-runtime-anchor-import-restored",
+        "b2b-account-route-domain-unresolved",
         "builder-manifest-definition-removed",
         "b2b-account-regression"
       ]
@@ -111,9 +151,18 @@
       }
     ],
     "specialistReviews": [],
-    "challenge": [],
+    "challenge": [
+      {
+        "id": "CH-B2B-ATLAS-OWNERSHIP",
+        "scenario": "Removing the dead B2B Builder anchor leaves the public B2B page with no materialized Atlas domain on main.",
+        "finding": "Knowledge correctly blocks SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED because the legacy materializer does not consume the generic Storefront fallback.",
+        "resolution": "Bind src/app/fiokom/** explicitly to existing DOMAIN-STOREFRONT authority and prove the materialized Atlas node, without creating a new domain or execution exception.",
+        "status": "resolved"
+      }
+    ],
     "proofPlan": [
-      "Run Plan Before Code, Edit-Time Guard and Incremental Replay on the isolated exact-head change.",
+      "Run Knowledge, Plan Before Code, Edit-Time Guard and Incremental Replay on the isolated exact-head prerequisite.",
+      "Prove the materialized Atlas node for src/app/fiokom/b2b/page.tsx resolves to DOMAIN-STOREFRONT / shared-storefront.",
       "Run the existing B2B ownership regression, full Quality Tests, TypeScript and Production Build.",
       "Require exact-head Completion Truth before lifecycle closure."
     ],
@@ -121,17 +170,19 @@
     "semanticExecutionRoute": {
       "request": "PO-2026-10-02-B2B-DEAD-ANCHOR-ISOLATION",
       "authority": [
+        "quality-knowledge-system",
         "shared-storefront"
       ],
       "mustEdit": [
+        "quality/knowledge/domain-foundations.v1.json",
         "src/app/fiokom/b2b/page.tsx"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "src/lib/commerce/b2b-account-builder.ts",
-        "tests/block7-b2b-account-ownership.test.ts"
+        "src/lib/commerce/b2b-account-builder.ts"
       ],
       "proof": [
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
         "tests/block7-b2b-account-ownership.test.ts"
       ],
       "unknown": []
@@ -143,9 +194,10 @@
     "requirements": [
       {
         "id": "REQ-B2B-DEAD-ANCHOR-REMOVAL",
-        "requirement": "The B2B page removes the side-effect-free Builder manifest runtime anchor while canonical Builder compatibility metadata and B2B behavior remain intact.",
+        "requirement": "The B2B page removes the side-effect-free Builder manifest runtime anchor, materializes under canonical Storefront presentation authority, and preserves B2B behavior plus the independent Builder manifest.",
         "evidence": {
           "implementation": [
+            "GUARD-KNOWLEDGE-PREFLIGHT",
             "GUARD-PLAN-BEFORE-CODE",
             "GUARD-QUALITY-TESTS"
           ],
@@ -170,10 +222,18 @@
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
+          },
+          {
+            "id": "NEG-B2B-ATLAS-OWNERSHIP",
+            "statement": "The B2B account page must not return to unresolved or non-Storefront presentation ownership.",
+            "evidence": [
+              "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-QUALITY-TESTS"
+            ]
           }
         ]
       }
     ]
   },
-  "notes": "Isolated from #681 because Release Risk Budget correctly rejected a combined quality-infrastructure + release-infrastructure + customer-account release transaction at 6/5 points. This prerequisite keeps the unrelated two-line runtime cleanup in its own release transaction instead of weakening the budget."
+  "notes": "Isolated from #681 because Release Risk Budget correctly rejected a combined quality-infrastructure + release-infrastructure + customer-account release transaction at 6/5 points. This prerequisite keeps the unrelated two-line runtime cleanup in its own release transaction instead of weakening the budget. Knowledge on 3f4695c8 exposed SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED for the B2B account page. The prerequisite now binds src/app/fiokom/** explicitly to the already-existing DOMAIN-STOREFRONT presentation authority and adds materialized-Atlas regression proof; no new authority or exception is introduced. Because domain-foundations is quality knowledge, expected Known Failure scope is reconciled to full replay."
 }

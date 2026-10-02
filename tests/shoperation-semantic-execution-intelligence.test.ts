@@ -56,6 +56,18 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     expect(api.route?.kind).toBe('api');
   });
 
+  it('materializes the B2B account route as canonical Storefront presentation authority',()=>{
+    const atlas:any=buildCodebaseAtlas();
+    const path='src/app/fiokom/b2b/page.tsx';
+    const node=atlas.nodes.find((item:any)=>item.path===path);
+    expect(node).toBeTruthy();
+    expect(node.domains).toEqual(['DOMAIN-STOREFRONT']);
+    expect(node.authorities).toEqual(['shared-storefront']);
+    const classified=classifyAtlasPath(path);
+    expect(classified.domains).toEqual(['DOMAIN-STOREFRONT']);
+    expect(classified.authorities).toEqual(['shared-storefront']);
+  },60_000);
+
   it('retains only Git-proven deleted planned paths as execution-route tombstones',()=>{
     const atlas:any={
       nodes:[
