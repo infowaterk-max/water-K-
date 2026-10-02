@@ -2,6 +2,7 @@ import {getStorefrontGlobalStyleState} from '@/lib/builder/storefront-global-sty
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
 import {LOOT_VAULT_V2_GENERATOR_BLUEPRINT} from '@/lib/builder/template-factory/blueprints/loot-vault-v2';
+import {defineStorefrontTemplateGenome} from '@/lib/builder/template-factory/template-genome';
 import type {StorefrontTemplateFactoryMediaAsset,StorefrontTemplateFactoryRecipe} from '@/lib/builder/template-factory/scaffold';
 import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loot-vault/v2';
 
@@ -49,8 +50,104 @@ export const LOOT_VAULT_V2_FACTORY_MEDIA_ASSETS:readonly StorefrontTemplateFacto
   {key:'catalog-background',state:'ready',role:'background',src:MEDIA.background,alt:'Sötét, színes neonfényes enteriőr',pageTypes:['catalog'],representative:true,aspectRatio:'16:9'},
 ]);
 
+export const LOOT_VAULT_V2_TEMPLATE_GENOME=defineStorefrontTemplateGenome({
+  contract:'shoporation.template-genome.v1',
+  identity:{
+    category:'gaming',
+    templateKey:'gaming.loot-vault',
+    displayName:'Loot Vault',
+    templateVersion:2,
+    genomeVersion:1,
+  },
+  lineage:{
+    parentHash:null,
+    evolution:'origin',
+    note:'Canonical Genome projection of the accepted Loot Vault v2 collector-vault identity; concrete media remains owned by the Factory Media Manifest.',
+  },
+  dimensions:{
+    identity:{
+      character:'dark-theatrical-collector-vault-commerce',
+      position:'collector-first premium vault storefront with editorial discovery and evidence-bound rarity',
+      rules:['collector-object-first','rarity-is-data-not-decoration','theatrical-not-casino'],
+    },
+    color:{
+      strategy:'near-black gallery surfaces with restrained bronze and oxidized-green accents',
+      tokens:{background:'#0D0E0F',surface:'#17191A',text:'#F3EBDD',accent:'#A57A45',secondary:'#53695D'},
+      rules:['high-contrast-content','accent-is-sparse','rarity-colors-never-invent-product-truth'],
+    },
+    typography:{
+      display:'cinematic editorial serif-or-display',
+      body:'clean readable sans',
+      data:'compact specification sans',
+      scale:'large editorial headings with compact commerce metadata',
+      rules:['display-for-story','sans-for-commerce','spec-data-remains-dense-and-legible'],
+    },
+    spacing:{
+      rhythm:'dramatic gallery pauses between dense collector groups',
+      density:'medium-low editorial with localized dense specification areas',
+      rules:['hero-breathes','product-grids-remain-scannable','specification-density-is-local'],
+    },
+    shape:{
+      language:'vault panels, framed collection surfaces and restrained rectangular cards',
+      radius:'restrained',
+      border:'subtle metallic or low-contrast framed separation',
+      rules:['no-bubbly-gaming-cards','no-random-pill-everywhere','framing-supports-collection-hierarchy'],
+    },
+    motion:{
+      character:'cinematic restrained reveal',
+      intensity:'subtle',
+      rules:['no-slot-machine-motion','no-fake-countdown-pressure','motion-never-owns-commerce-state'],
+    },
+    composition:{
+      grammar:'editorial hero to universe discovery to collector selection to story-led depth',
+      sectionRhythm:'alternating cinematic feature and commerce evidence blocks',
+      density:'hero-low then catalog-medium with focused high-density fact zones',
+      archetypes:['cinematic-hero','universe-selector','collector-grid','editorial-feature','fact-led-pdp'],
+      rules:['avoid-playroom-command-center-composition','commerce-remains-primary-after-discovery','story-never-replaces-product-truth'],
+    },
+    image:{
+      language:'cinematic collector displays, figurines, props, art books and archival vault lighting',
+      roles:['hero-scene','universe-editorial','collector-product','archive-story','supporting-background'],
+      rules:['assets-must-be-template-specific','no-foundation-media-reuse','media-supports-object-provenance-not-fake-scarcity'],
+      forbidConcreteSources:true,
+    },
+    commerce:{
+      character:'collector discovery over shared catalog, structured facts and provider-neutral checkout',
+      rules:['price-stock-order-remain-shared-authority','rarity-from-structured-product-data','preorder-never-fabricated'],
+    },
+    content:{
+      voice:'curatorial, informed and atmospheric without hype deception',
+      hierarchy:'object identity then evidence then story',
+      rules:['no-fake-exclusive-copy','no-invented-numbering','editorial-copy-cannot-overrule-commerce-data'],
+    },
+    shell:{
+      navigation:'vault/universe discovery with direct commerce access',
+      header:'dark restrained sticky commerce shell',
+      footer:'editorial vault/service split',
+      rules:['shell-stays-builder-editable','mobile-navigation-remains-complete','cart-and-account-affordances-stay-visible'],
+    },
+    responsive:{
+      desktopAuthority:true,
+      tabletStrategy:'preserve collector hierarchy while reducing simultaneous columns',
+      mobileStrategy:'stack editorial and commerce blocks without losing selected options or actions',
+      rules:['explicit-overrides-only','reset-to-inherited-remains-available','no-duplicate-mobile-page-authority'],
+    },
+    componentGrammar:{
+      preferred:['story.hero','story.feature','commerce.collection-navigation','commerce.product-grid','commerce.key-specs','commerce.specification-groups'],
+      discouraged:['generic-rgb-dashboard','slot-machine-countdown','foundation-specific-playroom-shell'],
+      rules:['prefer-shared-components','template-identity-through-bounded-config','no-template-local-commerce-engine'],
+    },
+    exclusion:{
+      identities:['playroom-neon-command-center','generic-rgb-gamer-skin','loot-box-casino-ui'],
+      similarities:['same-home-rhythm-as-playroom','same-media-language-as-playroom','repainted-foundation-shell-only'],
+      rules:['distinct-composition-required','distinct-spacing-rhythm-required','distinct-media-language-required'],
+    },
+  },
+});
+
 export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object.freeze({
   blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,
+  genome:LOOT_VAULT_V2_TEMPLATE_GENOME,
   category:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.category,
   templateKey:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.templateKey,
   displayName:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.displayName,
