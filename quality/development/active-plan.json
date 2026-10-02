@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-DYNAMIC-PRODUCTION-COMPILER-BRABUS-HARDENING",
   "task": "Implement the canonical Dynamic Production Compiler that deterministically turns a structured Product Owner-approved Page Schema candidate plus proven Genome, Template Type, Constraint Plan and Media Plan inputs into a compiler-proven Factory recipe/program and exact installable package, without generating arbitrary source code or bypassing Page Preset, Page Schema, Builder, Runtime, lineage or anti-clone authorities.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "1f7fdbbd",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
@@ -557,13 +557,16 @@
   },
   "notes": "Seventh Brabus hardening wave. Genome, Type System, Constraint Planner, Media Planner, deterministic lineage and cross-template anti-clone are PROVEN and lifecycle-closed. This wave removes hand-wired Factory materialization behind a deterministic structured-candidate compiler. Template #3 remains forbidden because multiple VX capabilities remain non-PROVEN. Canonical Dynamic Production Compiler projection reconciled: database-schema and release-infrastructure are transitive impacted subsystems; SQ-NK-005 and SQ-NK-014 apply; guard digest 1f7fdbbd.",
   "lifecycle": {
-    "state": "EXECUTE",
-    "truthStatus": "UNVERIFIED",
-    "verifiedImplementationHead": null,
-    "closedAt": null,
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "770b40a5fd970e12e7c84a8f0dfea59d8978f810",
+    "closedAt": "2026-10-02T18:55:49.172Z",
+    "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "PO-2026-10-02-DYNAMIC-PRODUCTION-COMPILER-BRABUS-HARDENING",
     "learning": {
-      "state": "pending"
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
     }
   }
 }
