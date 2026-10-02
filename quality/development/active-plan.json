@@ -1,26 +1,40 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-ATLAS-RULE-COHERENCE",
-  "task": "Atlas rule coherence: enforce one canonical classification result across materialized nodes, path classification, impact and resolver paths, and detect structured active PO route-authority conflicts.",
+  "task": "Control Plane truth coherence: preserve the #681 canonical Atlas repair while enforcing one fail-closed development transaction and monotonic evidence chain so no child BLOCK, deletion, stale identity or unresolved coverage can be normalized into PASS.",
   "status": "ready-for-implementation",
-  "guardDigest": "d1c54c47",
+  "guardDigest": "5ef39799",
   "changeBaseSha": "7ec2cb968b023da7cac3bf684e7ee4bb00f1be06",
   "plannedFilePatterns": [
     "quality/knowledge/domain-foundations.v1.json",
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
     "tests/shoperation-semantic-execution-intelligence.test.ts",
-    "src/app/fiokom/b2b/page.tsx"
+    "src/app/fiokom/b2b/page.tsx",
+    "scripts/lib/shoperation-development-runtime.mjs",
+    "scripts/shoperation-plan-before-code.mjs",
+    "scripts/shoperation-edit-time-guard.mjs",
+    "scripts/shoperation-knowledge-preflight.mjs",
+    "scripts/release-risk-budget.mjs",
+    "scripts/shoperation-truth-gate.mjs",
+    "scripts/lib/shoperation-reference-sync-runtime.mjs",
+    "scripts/shoperation-verification-checkpoint.mjs",
+    "tests/shoperation-development-guard.test.ts",
+    "tests/shoperation-resumable-verification.test.ts",
+    "tests/shoperation-proof-semantics.test.ts"
   ],
   "expectedSubsystems": [
     "customer-account",
+    "release-infrastructure",
     "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "quality-knowledge-system",
+    "release-infrastructure",
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
@@ -77,16 +91,20 @@
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-008",
+    "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-ATLAS-RULE-COHERENCE",
+    "sourceRef": "PO-2026-10-02-CONTROL-PLANE-TRUTH-COHERENCE",
     "riskTier": "critical",
-    "problemStatement": "Repeated #666 replay exposed a split-brain Atlas: classifyAtlasPath assigns DOMAIN-STOREFRONT to public fallback paths while buildCodebaseAtlas materializes domains via classifyDomains, and resolveAtlasArchitectureForPath prefers the stale node. The system can therefore produce contradictory authority answers for the same file. Existing ARCH-001 already forbids parallel authorities, but validateCodebaseAtlas does not currently prove classification coherence or structured active PO route-rule compatibility.",
+    "problemStatement": "Repeated #666 replay exposed a split-brain Atlas: classifyAtlasPath assigns DOMAIN-STOREFRONT to public fallback paths while buildCodebaseAtlas materializes domains via classifyDomains, and resolveAtlasArchitectureForPath prefers the stale node. The system can therefore produce contradictory authority answers for the same file. Existing ARCH-001 already forbids parallel authorities, but validateCodebaseAtlas does not currently prove classification coherence or structured active PO route-rule compatibility. The same exact-head #681 CI then proved a higher-order contradiction: Implementation Sync reported BLOCK while its parent Edit-Time Guard returned PASS; Resumable Verification and Completion Truth subsequently accepted that step-level success and reached VERIFIED_DONE. Additional audit found inconsistent deletion visibility across ACMR/ACMRD consumers, silent changeBaseSha fallback, rule-wide exceptions, and silent Reference Sync candidate truncation. The Control Plane therefore still lacks a closed monotonic truth protocol even though individual specialists can detect the right condition.",
     "observableOutcomes": [
       "Every materialized Atlas node matches classifyAtlasPath for route, subsystems, surfaces, domains, authorities and truthKeys.",
       "buildCodebaseAtlas materializes classification through the same canonical classifyAtlasPath pipeline used by direct path classification.",
@@ -95,13 +113,23 @@
       "validateCodebaseAtlas hard-blocks a deliberately inconsistent materialized node with ATLAS_CLASSIFICATION_DIVERGENCE.",
       "validateCodebaseAtlas hard-blocks machine-readable active PO route conflicts where one active instruction requires a route that another active instruction forbids without explicit supersession.",
       "The unchanged #666 plan-only replay no longer ping-pongs between contradictory classification paths.",
-      "The B2B customer account page no longer imports a Builder manifest solely as a void runtime anchor; Builder compatibility remains proven by the manifest and its dedicated tests."
+      "The B2B customer account page no longer imports a Builder manifest solely as a void runtime anchor; Builder compatibility remains proven by the manifest and its dedicated tests.",
+      "A child BLOCK from Reference Sync, Implementation Sync, PO instruction state or any composite guard propagates monotonically to the parent gate, resumable evidence manifest and Completion Truth; BLOCK cannot become PASS by interpretation.",
+      "Plan Before Code and Edit-Time consume one canonical material development diff that excludes only declared development metadata and includes A/C/M/R/D state consistently.",
+      "A declared changeBaseSha is transaction identity: if it cannot be resolved, Knowledge, Plan and Edit-Time fail closed instead of silently selecting another base.",
+      "Knowledge impact, release risk and post-verification Truth all treat deletions as first-class material changes.",
+      "Verification reconciliation cross-checks step outcomes against machine-readable producer artifacts and blocks any SUCCESS/BLOCK disagreement.",
+      "Reference Sync never silently truncates candidate coverage; unsupported or excessive coverage becomes explicit BLOCK evidence.",
+      "Review exceptions are finding-scoped rather than rule-wide so one authorized exception cannot suppress unrelated findings."
     ],
     "unresolvedRisks": [
       "Changing node materialization can alter domain/authority indexes across the repository, so exact-head Knowledge, Plan, Replay and Quality evidence must remain green.",
       "A generic conflict detector must not infer contradictions from human prose or labels; only structured route fields are safe for deterministic blocking.",
       "Planned-addition projection remains a separate missing capability and must not be disguised as solved by classification coherence.",
-      "Removing the unused B2B Builder-manifest import must not alter B2B account runtime behavior or Builder Foundation compatibility."
+      "Removing the unused B2B Builder-manifest import must not alter B2B account runtime behavior or Builder Foundation compatibility.",
+      "Tightening transaction identity may expose old branches whose active plan references an unavailable base; those states must be repaired explicitly rather than recovered by fallback.",
+      "Making deletion semantics uniform may widen legitimate release/knowledge impact and reveal previously hidden scope that requires plan reconciliation.",
+      "Artifact/outcome cross-checking must distinguish JSON producer evidence from gates whose canonical evidence is a command/test result rather than a JSON decision file."
     ],
     "scope": {
       "in": [
@@ -110,7 +138,12 @@
         "Structured active PO instruction route compatibility using affectedRoutes and forbiddenStates route entries.",
         "Adversarial regressions for materialized-node divergence and route-rule conflict.",
         "Alignment of existing Atlas quality-system surface policy with existing DOMAIN-QUALITY canonical ownership for scripts/lib/shoperation-**.",
-        "Removal of the gate-discovered dead Storefront→Builder manifest import from src/app/fiokom/b2b/page.tsx."
+        "Removal of the gate-discovered dead Storefront→Builder manifest import from src/app/fiokom/b2b/page.tsx.",
+        "Canonical Development Transaction material diff/base identity shared by existing development guards.",
+        "Monotonic child-to-parent decision propagation inside the existing Edit-Time/Verification/Truth chain.",
+        "Deletion visibility in existing Knowledge, Release Risk and closed-plan Truth consumers.",
+        "Existing Reference Sync coverage semantics and existing plan exception semantics.",
+        "Machine-readable producer artifact cross-check inside existing resumable verification finalization."
       ],
       "out": [
         "Any new quality gate, registry or blocking authority.",
@@ -146,7 +179,13 @@
         "Two active PO instructions where one lists /example in affectedRoutes and another lists route:/example in forbiddenStates are rejected with ATLAS_PO_ROUTE_AUTHORITY_CONFLICT unless the conflicting instruction is inactive or explicitly superseded.",
         "The current shipping/payment instruction remains valid and deletion/tombstone proof semantics are unchanged.",
         "src/app/storefront-preview/[token]/page.tsx resolves to DOMAIN-BUILDER because it is an immutable Builder/template preview surface.",
-        "src/app/fiokom/b2b/page.tsx has no runtime import of B2B_ACCOUNT_BUILDER_MANIFEST; the manifest remains independently defined and covered by Block 7 Builder compatibility tests."
+        "src/app/fiokom/b2b/page.tsx has no runtime import of B2B_ACCOUNT_BUILDER_MANIFEST; the manifest remains independently defined and covered by Block 7 Builder compatibility tests.",
+        "A synthetic Implementation Sync actualOutsidePlanned condition produces Edit-Time BLOCK and non-zero --check exit, never PASS with implementationSync=BLOCK.",
+        "A verification input that reports GitHub step success while the corresponding producer artifact says BLOCK is rejected as EVIDENCE_DECISION_MISMATCH and cannot produce a PASS manifest.",
+        "Knowledge, Release Risk and closed-plan Truth include a deleted material file in their change sets.",
+        "An invalid explicit changeBaseSha produces an unresolved transaction identity and blocks instead of falling back to main or HEAD^.",
+        "Reference Sync reports explicit coverage BLOCK instead of silently dropping candidates beyond its supported bound.",
+        "A review exception applies only to its exact finding fingerprint/file and cannot suppress another finding with the same ruleId."
       ],
       "invariants": [
         "There is one canonical path-classification function for route/domain/authority/truth materialization.",
@@ -155,7 +194,12 @@
         "Structured conflict detection is fail-closed but does not parse human prose.",
         "No Product Owner or PR-specific file exception is introduced.",
         "Existing quality-system surface classification for scripts/lib/shoperation-** and DOMAIN-QUALITY ownership must not contradict each other.",
-        "Cross-domain execution allow rules are not added to preserve imports that have no runtime responsibility."
+        "Cross-domain execution allow rules are not added to preserve imports that have no runtime responsibility.",
+        "Truth is monotonic across the Control Plane: downstream stages may add stronger evidence but may not reinterpret an upstream BLOCK/FAILED/STALE/UNRESOLVED state as PASS.",
+        "One canonical Development Transaction defines base, head, material changes, deletions and metadata exclusions for all development-time guards.",
+        "Producer artifact decision and workflow outcome must agree before evidence can be promoted.",
+        "Deletion is a material change everywhere release/development truth is computed.",
+        "Exceptions are scoped capabilities, never rule-wide bypasses."
       ],
       "forbiddenStates": [
         "node-classifier-split-brain",
@@ -163,7 +207,13 @@
         "resolver-classifier-split-brain",
         "active-required-route-also-forbidden",
         "free-text-conflict-guessing",
-        "new-parallel-conflict-gate"
+        "new-parallel-conflict-gate",
+        "child-block-parent-pass",
+        "artifact-block-workflow-success-promoted",
+        "silent-change-base-fallback",
+        "deletion-omitted-from-impact-or-truth",
+        "reference-sync-silent-truncation",
+        "rule-wide-exception-bypass"
       ]
     },
     "model": {
@@ -200,7 +250,12 @@
         "Two active structured PO instructions issue opposing route authority and both are individually valid.",
         "A validator fix is bypassed because a downstream helper recomputes domains independently.",
         "A file is declared quality-system by Atlas surface policy but remains unowned by DOMAIN-QUALITY due registry pattern drift.",
-        "A dead compatibility-anchor import is normalized as an allowed architecture edge instead of being removed."
+        "A dead compatibility-anchor import is normalized as an allowed architecture edge instead of being removed.",
+        "A specialist records BLOCK but a wrapper exits zero and later stages see only workflow success.",
+        "Different diff filters make multiple gates jointly blind to a deletion.",
+        "A missing planned base silently rebinds the transaction to another commit.",
+        "A broad exception suppresses a distinct finding sharing the same rule identifier.",
+        "Reference candidate limits discard unverified consumers without changing the gate decision."
       ],
       "edgeCases": [
         "Public page receiving storefront fallback.",
@@ -211,7 +266,13 @@
         "Inactive or superseded PO instruction containing a conflicting route.",
         "Same active instruction accidentally requiring and forbidding the same route.",
         "Quality helper under scripts/lib/shoperation-**.",
-        "Builder manifest exists for compatibility metadata but is not required by the customer runtime page."
+        "Builder manifest exists for compatibility metadata but is not required by the customer runtime page.",
+        "active-plan.json changes alongside implementation files but remains metadata-only in all development diff consumers.",
+        "delete-only transaction with no added or modified files.",
+        "renamed/deleted path crossing a PO-instruction boundary.",
+        "workflow success paired with JSON producer decision BLOCK.",
+        "two review findings with one explicitly fingerprinted exception.",
+        "Reference Sync candidate count exactly at and above the supported coverage limit."
       ]
     },
     "alternatives": [
@@ -348,6 +409,48 @@
         "finding": "The domain registry names storefront-template-preview but omits storefront-preview even though both are Builder preview execution surfaces.",
         "resolution": "Add src/app/storefront-preview/** to existing DOMAIN-BUILDER canonicalPaths so specific Builder ownership suppresses generic Storefront fallback.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-11",
+        "scenario": "Edit-Time child Implementation Sync returns BLOCK while parent report and workflow step still return PASS.",
+        "finding": "Status laundering lets downstream verification and Completion Truth certify a contradicted state.",
+        "resolution": "Parent decision is derived monotonically from all child decisions; adversarial regression requires process exit 1.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-12",
+        "scenario": "A delete-only change is evaluated by consumers using ACMR instead of ACMRD.",
+        "finding": "Knowledge/Release/closed Truth can jointly omit the same material deletion.",
+        "resolution": "Use deletion-inclusive transaction semantics in every material change consumer and add delete-only regressions.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-13",
+        "scenario": "The active plan names a changeBaseSha that is unavailable locally or in CI.",
+        "finding": "Fallback to another base silently changes transaction identity and can shrink or expand evidence scope.",
+        "resolution": "Explicit plan base is authoritative and unresolved identity fails closed; fallback remains only for callers without an explicit transaction base.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-14",
+        "scenario": "GitHub reports a guard step success but its machine-readable producer artifact records BLOCK.",
+        "finding": "Step outcome alone is weaker than the guard's own decision and can launder internal contradictions.",
+        "resolution": "Resumable finalization cross-checks available JSON producer artifacts and emits a blocking evidence-decision mismatch.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-15",
+        "scenario": "One legitimate review exception shares a ruleId with a second unrelated review finding.",
+        "finding": "Rule-wide exception mapping can suppress the unrelated finding.",
+        "resolution": "Exceptions bind to an exact finding fingerprint and file; unmatched findings remain blocking review.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-16",
+        "scenario": "Reference Sync derives more candidates than its implementation bound.",
+        "finding": "Silent slice truncation converts unknown coverage into apparent PASS.",
+        "resolution": "Coverage overflow is explicit BLOCK evidence; no candidate is silently discarded.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -360,7 +463,14 @@
       "Extend validateCodebaseAtlas with field-level ATLAS_CLASSIFICATION_DIVERGENCE and structured ATLAS_PO_ROUTE_AUTHORITY_CONFLICT checks.",
       "Add adversarial tests that intentionally inject inconsistent nodes and conflicting active PO route rules, plus negative inactive/superseded controls.",
       "Run exact-head Knowledge, Plan, Edit-Time, Incremental Replay, Quality, TypeScript, Production Build and Truth; CLOSE→LEARN.",
-      "Merge #681 and replay #666 plan-only unchanged; do not merge #679 until planned-addition need is re-evaluated on the coherent Atlas."
+      "Merge #681 and replay #666 plan-only unchanged; do not merge #679 until planned-addition need is re-evaluated on the coherent Atlas.",
+      "Adversarially inject child BLOCK with zero ordinary blocking findings and prove Edit-Time still exits non-zero.",
+      "Inject workflow-success/artifact-BLOCK evidence mismatch and prove resumable finalization BLOCKS.",
+      "Exercise delete-only diff semantics through Development Runtime and static guards for Knowledge/Release/Truth.",
+      "Exercise invalid explicit changeBaseSha and prove there is no fallback to main/HEAD^.",
+      "Exercise two same-rule review findings with one exact exception and prove only the matching fingerprint is exempt.",
+      "Exercise Reference Sync coverage overflow and prove explicit BLOCK rather than truncation.",
+      "Re-run exact-head #681 CI only after these truth-coherence regressions pass; keep PR draft and do not merge until lifecycle closure is coherent."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
@@ -390,7 +500,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-ATLAS-RULE-COHERENCE",
+    "sourceRef": "PO-2026-10-02-CONTROL-PLANE-TRUTH-COHERENCE",
     "requirements": [
       {
         "id": "REQ-ATLAS-CLASSIFICATION-COHERENCE",
@@ -517,8 +627,123 @@
             ]
           }
         ]
+      },
+      {
+        "id": "REQ-CONTROL-PLANE-TRUTH-MONOTONICITY",
+        "requirement": "The existing Control Plane propagates specialist decisions monotonically so a child BLOCK, stale identity or producer/workflow decision mismatch cannot become downstream PASS or VERIFIED_DONE.",
+        "claimScope": {
+          "breadth": "development-transaction-truth-chain",
+          "strength": 2,
+          "dimensions": [
+            "actual-subset-plan",
+            "required-subset-actual",
+            "status",
+            "truth"
+          ]
+        },
+        "requiredCapabilities": [],
+        "evidence": {
+          "implementation": [
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-STATUS-LAUNDERING",
+            "statement": "No child BLOCK or artifact/workflow mismatch may be promoted to PASS/VERIFIED_DONE.",
+            "evidence": [
+              "GUARD-EDIT-TIME",
+              "GUARD-INCREMENTAL-REPLAY",
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-DEVELOPMENT-TRANSACTION-IDENTITY",
+        "requirement": "Plan, Knowledge and Edit-Time consume one fail-closed Development Transaction identity and one deletion-inclusive material change set.",
+        "claimScope": {
+          "breadth": "development-transaction-identity",
+          "strength": 2,
+          "dimensions": [
+            "diff",
+            "scope",
+            "lifecycle"
+          ]
+        },
+        "requiredCapabilities": [],
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME",
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME",
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-SILENT-BASE-REBIND",
+            "statement": "An explicit unresolved changeBaseSha never falls back to another base.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-DELETION-VISIBILITY",
+            "statement": "Delete-only material changes remain visible to the transaction and truth chain.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-RELEASE-DELETION-COHERENCE",
+        "requirement": "Release risk and closed-plan truth treat deletions as first-class material changes on the exact release/development state.",
+        "claimScope": {
+          "capability": "CAP-RELEASE",
+          "breadth": "release-and-closure-deletion-coherence",
+          "strength": 2,
+          "dimensions": [
+            "risk",
+            "release-scope"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-RELEASE"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-RELEASE-RISK",
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-RELEASE-RISK",
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-DELETE-RISK-OMISSION",
+            "statement": "A deleted material file cannot disappear from release risk or post-verification material-change detection.",
+            "evidence": [
+              "GUARD-RELEASE-RISK",
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
       }
     ]
   },
-  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented. Broadened before implementation after Product Owner review: recurring pingpong is treated as Atlas rule-coherence failure, not a #666-specific resolver symptom. No new gate; existing validateCodebaseAtlas/Knowledge/Plan authority is strengthened. Canonical planned projection on 8c290f6 derived DOMAIN-QUALITY / quality-knowledge-system, full active negative-knowledge set SQ-NK-001/002/004/006/007/008/009/012 and guard digest aa79c504; reconciled without changing coherence scope. Additional registry-coherence evidence: codebase-atlas-policy.v2 quality-system surface already covers scripts/lib/shoperation-**, while DOMAIN-QUALITY canonicalPaths does not. Existing DOMAIN-QUALITY is extended to the same helper namespace; no new authority is created. Projected scope restored to the previously Plan-PASS shape for these three files. Canonical projection on 6455ea27 confirms DOMAIN-QUALITY / quality-knowledge-system, no release-subsystem classification, SQ-NK-012 only, and guard digest aa79c504. Reconciled exactly; three-file coherence transaction unchanged. During exact-head Knowledge verification of the canonicalization implementation, the strengthened Atlas exposed two real pre-existing authority drifts. Recovery envelope amended: classify storefront-preview as the already-declared Builder preview surface; remove the side-effect-free B2B manifest anchor instead of whitelisting a dead dependency. This is a gate-discovered scope expansion, not a permissive exception. After gate-discovered B2B runtime cleanup entered the transaction, canonical actual/projection scope expanded deterministically to DOMAIN-QUALITY + DOMAIN-STOREFRONT, quality-knowledge-system + shared-storefront, customer-account + storefront-ui, negative knowledge SQ-NK-001/006/008/012 and digest d1c54c47. Plan reconciled to exact derived scope. Truth exact-head 2e100c5f identified one semantic evidence-mapping overclaim: REQ-PO-ROUTE-RULE-COHERENCE asserts authority, while its mapping omitted GUARD-PLAN-BEFORE-CODE, the canonical producer that proves the authority dimension and executes the same Atlas validation. Mapping corrected without reducing claim strength or changing validator behavior."
+  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented. Broadened before implementation after Product Owner review: recurring pingpong is treated as Atlas rule-coherence failure, not a #666-specific resolver symptom. No new gate; existing validateCodebaseAtlas/Knowledge/Plan authority is strengthened. Canonical planned projection on 8c290f6 derived DOMAIN-QUALITY / quality-knowledge-system, full active negative-knowledge set SQ-NK-001/002/004/006/007/008/009/012 and guard digest aa79c504; reconciled without changing coherence scope. Additional registry-coherence evidence: codebase-atlas-policy.v2 quality-system surface already covers scripts/lib/shoperation-**, while DOMAIN-QUALITY canonicalPaths does not. Existing DOMAIN-QUALITY is extended to the same helper namespace; no new authority is created. Projected scope restored to the previously Plan-PASS shape for these three files. Canonical projection on 6455ea27 confirms DOMAIN-QUALITY / quality-knowledge-system, no release-subsystem classification, SQ-NK-012 only, and guard digest aa79c504. Reconciled exactly; three-file coherence transaction unchanged. During exact-head Knowledge verification of the canonicalization implementation, the strengthened Atlas exposed two real pre-existing authority drifts. Recovery envelope amended: classify storefront-preview as the already-declared Builder preview surface; remove the side-effect-free B2B manifest anchor instead of whitelisting a dead dependency. This is a gate-discovered scope expansion, not a permissive exception. After gate-discovered B2B runtime cleanup entered the transaction, canonical actual/projection scope expanded deterministically to DOMAIN-QUALITY + DOMAIN-STOREFRONT, quality-knowledge-system + shared-storefront, customer-account + storefront-ui, negative knowledge SQ-NK-001/006/008/012 and digest d1c54c47. Plan reconciled to exact derived scope. Truth exact-head 2e100c5f identified one semantic evidence-mapping overclaim: REQ-PO-ROUTE-RULE-COHERENCE asserts authority, while its mapping omitted GUARD-PLAN-BEFORE-CODE, the canonical producer that proves the authority dimension and executes the same Atlas validation. Mapping corrected without reducing claim strength or changing validator behavior. Scope broadened after exact-head #681 exposed Control Plane status laundering: implementationSync=BLOCK coexisted with Edit-Time PASS, followed by Resumable Verification PASS and Completion Truth VERIFIED_DONE. Product Owner directed a full rule-ecosystem audit rather than another local patch. Existing #681 remains the single draft transaction; no new gate is introduced. The repair now closes monotonic decision propagation, transaction identity, deletion semantics, exception scope, Reference Sync coverage and producer-artifact reconciliation before lifecycle closure."
 }
