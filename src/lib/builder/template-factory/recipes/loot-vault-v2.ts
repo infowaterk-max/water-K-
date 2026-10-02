@@ -35,20 +35,20 @@ const MEDIA={
 } as const;
 
 export const LOOT_VAULT_V2_FACTORY_MEDIA_ASSETS:readonly StorefrontTemplateFactoryMediaAsset[]=Object.freeze([
-  {key:'hero-main',state:'ready',role:'hero',src:MEDIA.hero,alt:'Cinematikus fantasy jelenet gyűjtői Loot Vault hangulattal',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
-  {key:'universe-1',state:'ready',role:'category',src:MEDIA.universe1,alt:'Gyűjtői figurák polcon',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-2',state:'ready',role:'category',src:MEDIA.universe2,alt:'Játék- és figuragyűjtemény',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-3',state:'ready',role:'category',src:MEDIA.universe3,alt:'Karakterfigurák gyűjtői displayen',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-4',state:'ready',role:'category',src:MEDIA.universe4,alt:'Anime figurák és emléktárgyak',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-5',state:'ready',role:'category',src:MEDIA.universe5,alt:'Vintage gyűjtői polc művészeti tárgyakkal',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-6',state:'ready',role:'category',src:MEDIA.universe6,alt:'Sötét neonfényes gyűjtői tér',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'product-1',state:'ready',role:'product',src:MEDIA.product1,alt:'Prémium gyűjtői figura',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'product-2',state:'ready',role:'product',src:MEDIA.product2,alt:'Fantasy gyűjtői szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'product-3',state:'ready',role:'product',src:MEDIA.product3,alt:'Dramatikus gyűjtői miniatűr kiadás',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'product-4',state:'ready',role:'product',src:MEDIA.product4,alt:'Sötét sci-fi gyűjtői relikvia',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'editorial-1',state:'ready',role:'editorial',src:MEDIA.editorial1,alt:'Sötét gyűjtői archívum polcokkal és kiállított tárgyakkal',pageTypes:['home','blog-index'],representative:true,aspectRatio:'3:2'},
-  {key:'editorial-2',state:'ready',role:'editorial',src:MEDIA.editorial2,alt:'Kurált miniatűr gyűjtemény és relikviák',pageTypes:['product','blog-article'],representative:true,aspectRatio:'3:2'},
-  {key:'catalog-background',state:'ready',role:'background',src:MEDIA.background,alt:'Sötét, színes neonfényes enteriőr',pageTypes:['catalog'],representative:true,aspectRatio:'16:9'},
+  {key:'hero-main',state:'ready',role:'hero',semanticRole:'hero-scene',src:MEDIA.hero,alt:'Cinematikus fantasy jelenet gyűjtői Loot Vault hangulattal',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
+  {key:'universe-1',state:'ready',role:'category',semanticRole:'universe-editorial',src:MEDIA.universe1,alt:'Gyűjtői figurák polcon',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-2',state:'ready',role:'category',semanticRole:'universe-editorial',src:MEDIA.universe2,alt:'Játék- és figuragyűjtemény',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-3',state:'ready',role:'category',semanticRole:'universe-editorial',src:MEDIA.universe3,alt:'Karakterfigurák gyűjtői displayen',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-4',state:'ready',role:'category',semanticRole:'universe-editorial',src:MEDIA.universe4,alt:'Anime figurák és emléktárgyak',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-5',state:'ready',role:'category',semanticRole:'universe-editorial',src:MEDIA.universe5,alt:'Vintage gyűjtői polc művészeti tárgyakkal',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-6',state:'ready',role:'category',semanticRole:'universe-editorial',src:MEDIA.universe6,alt:'Sötét neonfényes gyűjtői tér',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'product-1',state:'ready',role:'product',semanticRole:'collector-product',src:MEDIA.product1,alt:'Prémium gyűjtői figura',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'product-2',state:'ready',role:'product',semanticRole:'collector-product',src:MEDIA.product2,alt:'Fantasy gyűjtői szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'product-3',state:'ready',role:'product',semanticRole:'collector-product',src:MEDIA.product3,alt:'Dramatikus gyűjtői miniatűr kiadás',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'product-4',state:'ready',role:'product',semanticRole:'collector-product',src:MEDIA.product4,alt:'Sötét sci-fi gyűjtői relikvia',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'editorial-1',state:'ready',role:'editorial',semanticRole:'archive-story',src:MEDIA.editorial1,alt:'Sötét gyűjtői archívum polcokkal és kiállított tárgyakkal',pageTypes:['home','blog-index'],representative:true,aspectRatio:'3:2'},
+  {key:'editorial-2',state:'ready',role:'editorial',semanticRole:'archive-story',src:MEDIA.editorial2,alt:'Kurált miniatűr gyűjtemény és relikviák',pageTypes:['product','blog-article'],representative:true,aspectRatio:'3:2'},
+  {key:'catalog-background',state:'ready',role:'background',semanticRole:'supporting-background',src:MEDIA.background,alt:'Sötét, színes neonfényes enteriőr',pageTypes:['catalog'],representative:true,aspectRatio:'16:9'},
 ]);
 
 export const LOOT_VAULT_V2_TEMPLATE_GENOME=defineStorefrontTemplateGenome({
@@ -187,6 +187,13 @@ export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object
       {role:'product',minCount:4,aspectRatio:'4:5'} as const,
       {role:'editorial',minCount:2,aspectRatio:'3:2'} as const,
       {role:'background',minCount:1,aspectRatio:'16:9'} as const,
+    ]),
+    semanticBindings:Object.freeze([
+      {semanticRole:'hero-scene',technicalRole:'hero',minCount:1,aspectRatio:'16:9',pageTypes:['home'],representative:true} as const,
+      {semanticRole:'universe-editorial',technicalRole:'category',minCount:6,aspectRatio:'4:5',pageTypes:['home'],representative:true} as const,
+      {semanticRole:'collector-product',technicalRole:'product',minCount:4,aspectRatio:'4:5',pageTypes:['home','product'],representative:true} as const,
+      {semanticRole:'archive-story',technicalRole:'editorial',minCount:2,aspectRatio:'3:2',pageTypes:['home','product','blog-index','blog-article'],representative:true} as const,
+      {semanticRole:'supporting-background',technicalRole:'background',minCount:1,aspectRatio:'16:9',pageTypes:['catalog'],representative:true} as const,
     ]),
     minimumRepresentativeMedia:14,
     forbidPlaceholderSvg:true,
