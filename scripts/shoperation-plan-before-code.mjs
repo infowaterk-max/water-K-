@@ -6,9 +6,10 @@ import {validateOperationalIntelligence} from './lib/shoperation-operational-int
 const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
 const guardRegistry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
 const diff=getChangedFiles({baseSha:plan.changeBaseSha});
-const changedFiles=diff.files.filter(file=>file!=='quality/development/active-plan.json');
-const deletedFiles=(diff.deletedFiles??[]).filter(file=>file!=='quality/development/active-plan.json');
+const changedFiles=[...(diff.materialFiles??[])];
+const deletedFiles=[...(diff.materialDeletedFiles??[])];
 const issues=[];
+if(diff.baseResolution==='UNRESOLVED'||!diff.base)issues.push({code:'DEV_PLAN_TRANSACTION_BASE_UNRESOLVED',requestedBase:diff.requestedBase??plan.changeBaseSha??null});
 
 if(plan.contract!=='shoporation.development-plan.v1')issues.push({code:'DEV_PLAN_CONTRACT_INVALID'});
 if(!['ready-for-implementation','closed'].includes(plan.status))issues.push({code:'DEV_PLAN_NOT_READY'});
@@ -111,7 +112,9 @@ const projectedNegative=negativeFor(projectedScope);
 const acknowledged=[...(plan.acknowledgedNegativeKnowledgeIds??[])].sort();
 if(JSON.stringify(projectedNegative)!==JSON.stringify(acknowledged))issues.push({code:'DEV_PLAN_NEGATIVE_KNOWLEDGE_DRIFT',expected:projectedNegative,actual:acknowledged});
 
-for(const exception of plan.exceptions??[])if(!exception.ruleId||!exception.reason?.trim())issues.push({code:'DEV_PLAN_EXCEPTION_INVALID',exception});
+for(const exception of plan.exceptions??[]){
+  if(!exception.ruleId||!exception.reason?.trim()||!exception.file||!exception.findingFingerprint)issues.push({code:'DEV_PLAN_EXCEPTION_INVALID',exception,required:['ruleId','file','findingFingerprint','reason']});
+}
 
 const digest=stableDigest({failureIds:projectedFailures,subsystems:projectedSubsystems,negativeKnowledgeIds:projectedNegative});
 if(plan.guardDigest!==digest)issues.push({code:'DEV_PLAN_GUARD_DIGEST_DRIFT',expected:plan.guardDigest,actual:digest});
@@ -128,6 +131,7 @@ const report={
   changedFiles,
   deletedFiles,
   transactionChanges:diff.changes??[],
+  transactionIdentity:{requestedBase:diff.requestedBase??plan.changeBaseSha??null,baseResolution:diff.baseResolution??null,metadataFiles:[...(diff.metadataFiles??[])]},
   projectedFiles,
   actualScope,
   projectedScope,
