@@ -170,7 +170,7 @@ function deepFreeze<T>(value:T):T{
   return value;
 }
 
-const unique=(values:readonly string[])=>[...new Set(values)];
+const unique=<T extends string>(values:readonly T[]):T[]=>[...new Set(values)];
 const subset=(selected:readonly string[],allowed:readonly string[])=>{
   const set=new Set(allowed);
   return selected.every(value=>set.has(value));
@@ -179,8 +179,8 @@ const intersect=(left:readonly string[],right:readonly string[])=>{
   const wanted=new Set(right);
   return unique(left.filter(value=>wanted.has(value)));
 };
-const orderedSelection=(selected:readonly string[],canonicalOrder:readonly string[])=>{
-  const wanted=new Set(selected);
+const orderedSelection=<T extends string>(selected:readonly T[],canonicalOrder:readonly T[]):T[]=>{
+  const wanted=new Set<T>(selected);
   return canonicalOrder.filter(value=>wanted.has(value));
 };
 
