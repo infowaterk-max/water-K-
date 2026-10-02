@@ -497,6 +497,18 @@ describe('dependency-aware resumable verification',()=>{
     }
   });
 
+  it('recomputes checkpoint integrity after producer reconciliation metadata is attached',()=>{
+    const a=identity('A');
+    const replay=plan(current({A:a}),checkpoint({A:a}));
+    const final=finalizeVerification({plan:replay,outcomes:{A:'success'},runId:'checksum-1'});
+    final.checkpoint.producerDecisionMismatches=[];
+    expect(validateCheckpoint(final.checkpoint,{branch:'feature/test',head:'head-2',requireAncestor:false}).issues.map((item:any)=>item.code)).toContain('CHECKPOINT_CHECKSUM_INVALID');
+    final.checkpoint.checksum=checkpointChecksum(final.checkpoint);
+    expect(validateCheckpoint(final.checkpoint,{branch:'feature/test',head:'head-2',requireAncestor:false}).ok).toBe(true);
+    const source=readFileSync('scripts/shoperation-verification-checkpoint.mjs','utf8');
+    expect(source.indexOf('final.checkpoint.producerDecisionMismatches=producerReconciliation.mismatches')).toBeLessThan(source.indexOf('final.checkpoint.checksum=checkpointChecksum(final.checkpoint)'));
+  });
+
   it('fails closed when workflow outcome disagrees with the producer artifact or exact head',()=>{
     const output=execFileSync(process.execPath,['scripts/shoperation-verification-checkpoint.mjs','--producer-decision-self-test'],{encoding:'utf8'});
     expect(output).toContain('Producer decision self-test: PASS');

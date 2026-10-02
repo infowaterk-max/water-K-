@@ -1,5 +1,5 @@
 import {appendFileSync,existsSync,readFileSync,writeFileSync} from 'node:fs';
-import {atomicWriteJson,finalizeVerification,loadCheckpoint} from './lib/shoperation-verification-reuse.mjs';
+import {atomicWriteJson,checkpointChecksum,finalizeVerification,loadCheckpoint} from './lib/shoperation-verification-reuse.mjs';
 
 const planPath=process.env.SHOPERATION_REPLAY_PLAN||'artifacts/shoperation-development-guard/resumable-verification-plan.json';
 const checkpointPath=process.env.SHOPERATION_REPLAY_CHECKPOINT||'artifacts/shoperation-verification-cache/checkpoint.json';
@@ -68,6 +68,7 @@ const final=finalizeVerification({plan,outcomes:producerReconciliation.outcomes,
 final.manifest.producerDecisionChecks=producerReconciliation.checks;
 final.manifest.producerDecisionMismatches=producerReconciliation.mismatches;
 final.checkpoint.producerDecisionMismatches=producerReconciliation.mismatches;
+final.checkpoint.checksum=checkpointChecksum(final.checkpoint);
 
 
 atomicWriteJson(manifestPath,final.manifest);
