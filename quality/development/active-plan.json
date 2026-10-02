@@ -1,15 +1,13 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-PLANNED-DELETION-AUTHORIZATION",
-  "task": "Semantic Execution Intelligence: authorize explicit PO-governed planned route deletion before code while preserving Git D as mandatory completion proof.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-STOREFRONT-PATH-FALLBACK",
+  "task": "Atlas path classification: resolve otherwise-unowned shopper-facing app pages and storefront metadata without overriding specific domain authorities.",
+  "status": "ready-for-implementation",
   "guardDigest": "aa79c504",
-  "changeBaseSha": "2860a9bda9bc151d61fc18917021ea7414bc5acf",
+  "changeBaseSha": "6ddc62fbac729d593cda0c7fcbbf386062a89b45",
   "plannedFilePatterns": [
-    "quality/development/active-plan.json",
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
     "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
-    "scripts/shoperation-plan-before-code.mjs",
     "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
   "expectedSubsystems": [],
@@ -76,134 +74,90 @@
   ],
   "exceptions": [],
   "operationalIntelligence": {
-    "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-PLANNED-DELETION-AUTHORIZATION",
-    "riskTier": "critical",
-    "problemStatement": "PR #666 current-main plan-only replay proves a phase-semantics gap: Plan Before Code can resolve a PO-forbidden legacy route only after Git D already exists, so it cannot authorize the deletion before implementation. Authorization and completion evidence are conflated. Planned projection must be able to model an explicit PO-governed planned deletion, while actual-diff/Edit-Time/Truth must still require real Git deletion and must not accept mere plan intent as completion.",
+    "sourceRef": "PO-2026-10-02-STOREFRONT-PATH-FALLBACK",
+    "problemStatement": "PR #666 plan-only replay after planned-deletion authorization still cannot project DOMAIN-STOREFRONT for src/app/oldal/[slug]/page.tsx and src/app/sitemap.ts because canonical domain matching returns no owner before the planned domain-registry edit exists. Plan-before-code therefore deadlocks on an authority change it is supposed to authorize.",
     "observableOutcomes": [
-      "Plan Before Code can authorize an explicitly declared planned deletion when the exact static route is forbidden by an active Product Owner instruction and the file is inside the planned transaction.",
-      "Planned deletion authority is represented separately from Git tombstone evidence and never appears as a completed tombstone.",
-      "Actual-diff architecture resolution does not use planned intent as completion evidence; until Git D exists the live forbidden route remains subject to normal fail-closed enforcement.",
-      "Unrelated, non-forbidden, dynamic/wildcard, or undeclared paths cannot gain planned-deletion authorization."
+      "An otherwise-unowned src/app/**/page.tsx path resolves to DOMAIN-STOREFRONT/shared-storefront.",
+      "An otherwise-unowned src/app/sitemap.ts storefront metadata path resolves to DOMAIN-STOREFRONT/shared-storefront.",
+      "Existing explicit DOMAIN-ADMIN, DOMAIN-BUILDER, DOMAIN-IDENTITY, API and other canonical domain matches remain authoritative and are never replaced by the fallback.",
+      "PR #666 planned projection can resolve src/app/oldal/[slug]/page.tsx and src/app/sitemap.ts before implementation."
     ],
     "unresolvedRisks": [
-      "Treating planned intent as completed deletion would create a false PASS.",
-      "A generic planned-deletion list could become an architecture bypass unless intersected with active PO forbidden static-route authority.",
-      "Using planned deletion authority during actual-diff validation could hide an implementation that never removed the forbidden route."
+      "A broad fallback could incorrectly steal explicitly-owned admin/builder routes.",
+      "API route handlers must not be classified as storefront presentation merely because they live under src/app.",
+      "Fallback must remain path-derived classification, not an exception tied to PR #666 file names."
     ],
     "scope": {
       "in": [
-        "Existing Plan Before Code planned-projection semantics.",
-        "Existing Semantic Execution Route / Atlas architecture resolution for PO-governed static forbidden routes.",
-        "Regression coverage distinguishing planned authorization from Git-proven tombstone completion."
+        "Existing Codebase Atlas classifyAtlasPath fallback semantics.",
+        "Shopper-facing app page and sitemap metadata paths with no stronger canonical domain match.",
+        "Adversarial regression tests proving explicit domain ownership wins."
       ],
       "out": [
-        "Storefront shipping/payment implementation in PR #666.",
-        "New gate, registry, exception system, or canonical domain ownership for the forbidden legacy route.",
-        "Weakening Edit-Time, PO instruction enforcement, Truth Gate, or Git D completion proof."
+        "Storefront shipping/payment product implementation.",
+        "Domain registry rewrite or a second authority system.",
+        "API route ownership changes."
       ]
     },
     "assuranceCeiling": {
-      "level": "critical-practical",
-      "rationale": "This is a critical phase-boundary defect in a fail-closed pre-execution gate. The highest practical fix is an explicit planned-deletion state derived from the existing plan plus active PO instruction, kept semantically distinct from Git tombstone proof and adversarially tested against false completion and unrelated deletions.",
-      "selectedTechniques": [
-        "explicit-specification",
-        "invariants",
-        "state-model",
-        "adversarial-scenarios",
-        "boundary-cases",
-        "pairwise-interactions",
-        "threat-failure-model",
-        "finite-state-exhaustion",
-        "what-if-matrix",
-        "fault-injection"
-      ],
-      "deferredTechniques": []
+      "level": "high-assurance-targeted",
+      "rationale": "A foundational pre-execution authority classifier must resolve public presentation surfaces deterministically while preserving specific authority precedence; negative controls are required before replaying #666."
     },
     "definition": {
       "acceptanceCriteria": [
-        "A declared planned deletion of src/app/szallitas-es-fizetes/page.tsx is authorized in planned projection only when PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE is active and forbids /szallitas-es-fizetes.",
-        "Planned authorization exposes distinct provenance/state and does not populate Git tombstone evidence.",
-        "The same path in actual-diff mode without Git D is not considered a completed instruction-governed tombstone.",
-        "An unrelated planned deletion or a dynamic/wildcard forbidden route remains unresolved.",
-        "When Git D exists, the existing tombstone path and completion semantics remain unchanged."
+        "classifyAtlasPath('src/app/oldal/[slug]/page.tsx') includes only DOMAIN-STOREFRONT when no explicit canonical domain path matches.",
+        "classifyAtlasPath('src/app/sitemap.ts') includes DOMAIN-STOREFRONT.",
+        "classifyAtlasPath('src/app/admin/orders/page.tsx') remains DOMAIN-ADMIN and does not gain DOMAIN-STOREFRONT.",
+        "classifyAtlasPath('src/app/storefront-template-preview/page.tsx') remains DOMAIN-BUILDER and does not gain DOMAIN-STOREFRONT.",
+        "src/app/api/** route handlers do not receive storefront fallback."
       ],
       "invariants": [
-        "Planned intent is authorization, never completion evidence.",
-        "Git D remains mandatory for tombstone completion.",
-        "Only exact active forbidden static routes may be planned-deletion-authorized.",
-        "The planned path must be declared in the current plan transaction.",
-        "No canonical domain ownership is added to the forbidden legacy route."
+        "Explicit canonical domain matches always take precedence over storefront fallback.",
+        "Fallback applies only when classifyDomains(file) is empty.",
+        "Fallback is presentation-only and does not grant commerce/catalog/data truth ownership.",
+        "No PR-number or shipping/payment-specific file exception is introduced."
       ],
       "forbiddenStates": [
-        "planned-intent-counted-as-git-deletion",
-        "generic-planned-deletion-architecture-bypass",
-        "actual-diff-resolved-by-plan-intent-without-git-d",
-        "inactive-instruction-authorizes-planned-deletion",
-        "dynamic-route-mapped-as-static-planned-deletion"
+        "admin-page-reclassified-as-storefront",
+        "builder-preview-reclassified-as-storefront",
+        "api-route-reclassified-as-storefront",
+        "pr-specific-path-exception"
       ]
     },
     "model": {
-      "phases": [
-        "OBSERVE",
-        "DEFINE",
-        "MODEL",
-        "PLAN",
-        "CHALLENGE",
-        "IMPROVE",
-        "PROVE_PLAN",
-        "EXECUTE",
-        "VERIFY",
-        "TRUTH_GATE",
-        "CLOSE",
-        "LEARN"
-      ],
-      "transitions": [
-        "OBSERVE->DEFINE",
-        "DEFINE->MODEL",
-        "MODEL->PLAN",
-        "PLAN->CHALLENGE",
-        "CHALLENGE->IMPROVE",
-        "IMPROVE->PROVE_PLAN",
-        "PROVE_PLAN->EXECUTE",
-        "EXECUTE->VERIFY",
-        "VERIFY->TRUTH_GATE",
-        "TRUTH_GATE->CLOSE",
-        "CLOSE->LEARN"
-      ],
       "failureModes": [
-        "Plan-only work deadlocks because deletion proof is required before implementation authorization.",
-        "Planned deletion is mistakenly treated as completed tombstone.",
-        "An unrelated path gains deletion authorization from a broad matcher.",
-        "Actual implementation keeps the forbidden route but passes because the plan promised deletion."
+        "Unowned public page blocks Plan Before Code.",
+        "Fallback steals a more specific authority.",
+        "Sitemap remains unclassified.",
+        "API route receives storefront authority."
       ],
       "edgeCases": [
-        "Plan-only projection with active exact forbidden static route.",
-        "Same plan after implementation with real Git D.",
-        "Declared planned deletion unrelated to any PO instruction.",
-        "Inactive PO instruction.",
-        "Dynamic or wildcard forbidden route.",
-        "File declared for deletion but still live during actual-diff validation."
+        "Dynamic public page under src/app.",
+        "Root src/app/page.tsx.",
+        "Next sitemap metadata file.",
+        "Admin page with explicit DOMAIN-ADMIN match.",
+        "Builder preview page with explicit DOMAIN-BUILDER match.",
+        "API route handler."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-PHASE-AWARE-PLANNED-DELETION",
-        "summary": "Add explicit planned-deletion authorization to planned projection while preserving Git tombstone proof for actual completion.",
+        "id": "ALT-FALLBACK",
+        "summary": "Apply storefront presentation fallback only when no canonical domain matches.",
         "disposition": "selected",
-        "reason": "Separates authorization from evidence without weakening fail-closed completion semantics."
+        "reason": "Resolves unowned public presentation paths while preserving explicit authority precedence."
       },
       {
-        "id": "ALT-REQUIRE-GIT-D-BEFORE-PLAN",
-        "summary": "Keep current behavior and require deletion before Plan Before Code can pass.",
+        "id": "ALT-BROAD-GLOB",
+        "summary": "Add src/app/**/page.tsx to DOMAIN-STOREFRONT canonicalPaths.",
         "disposition": "rejected",
-        "reason": "Violates plan-before-code ordering and makes valid deletion work impossible to authorize pre-execution."
+        "reason": "Pattern specificity could outrank or interfere with explicit admin/builder ownership."
       },
       {
-        "id": "ALT-GENERIC-PLAN-DECLARATION-BYPASS",
-        "summary": "Treat any path named in the plan as architecture-resolved.",
+        "id": "ALT-PR-FILE-EXCEPTIONS",
+        "summary": "Special-case oldal/[slug] and sitemap in Plan Gate.",
         "disposition": "rejected",
-        "reason": "Would turn plan metadata into a broad architecture bypass."
+        "reason": "Would encode product-specific exceptions into foundational classification."
       }
     ],
     "specialistReviews": [
@@ -211,30 +165,20 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Authorization state and completion state must be distinct.",
-        "resolution": "Introduce planned-deletion provenance/state only for planned projection; retain Git tombstone semantics unchanged.",
+        "finding": "Fallback must run only after canonical domain matching returns empty.",
+        "resolution": "Preserve classifyDomains precedence; add storefront presentation fallback afterward.",
         "evidence": [
-          "scripts/shoperation-plan-before-code.mjs",
           "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
         ]
       },
       {
-        "role": "Data Integrity",
+        "role": "Authority",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A plan declaration alone is self-asserted and cannot prove deletion.",
-        "resolution": "Intersect planned declaration with active PO forbidden static-route authority, and never expose it as Git tombstone evidence.",
+        "finding": "Generic src/app ownership can collide with admin/builder domains.",
+        "resolution": "Negative controls prove existing explicit matches remain unchanged.",
         "evidence": [
-          "quality/knowledge/po-instructions.v1.json"
-        ]
-      },
-      {
-        "role": "Known Failure",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The fix must not reopen generic deleted-file architecture bypasses.",
-        "resolution": "Add negative controls for unrelated/deactivated/dynamic planned deletions and preserve existing tombstone tests.",
-        "evidence": [
+          "quality/knowledge/domain-foundations.v1.json",
           "tests/shoperation-semantic-execution-intelligence.test.ts"
         ]
       },
@@ -242,96 +186,101 @@
         "role": "Runtime",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Actual diff must not inherit planned-only authorization after edits begin.",
-        "resolution": "Use phase-specific architecture resolution: planned authorization for projected scope, Git-evidence-only resolution for actual scope.",
+        "finding": "Next metadata files are not routeForFile pages but still public storefront presentation composition.",
+        "resolution": "Handle sitemap metadata as a narrow presentation fallback; do not include route.ts/API handlers.",
         "evidence": [
-          "scripts/shoperation-plan-before-code.mjs"
+          "src/app/sitemap.ts"
+        ]
+      },
+      {
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Fix must not become a PR #666 path list.",
+        "resolution": "Tests target generic precedence rules and representative public/admin/builder/API paths.",
+        "evidence": [
+          "tests/shoperation-semantic-execution-intelligence.test.ts"
         ]
       }
     ],
     "challenge": [
       {
         "id": "CH-1",
-        "scenario": "Plan-only #666 declares removal of /szallitas-es-fizetes before any Git D exists.",
-        "finding": "Current Plan Gate deadlocks on ARCHITECTURE_SCOPE_UNRESOLVED.",
-        "resolution": "Allow exact PO-governed planned deletion in planned projection.",
+        "scenario": "Dynamic shopper page has no canonical domain path.",
+        "finding": "Plan projection reports ARCHITECTURE_SCOPE_UNRESOLVED.",
+        "resolution": "Fallback to DOMAIN-STOREFRONT only when canonical match set is empty.",
         "status": "resolved"
       },
       {
         "id": "CH-2",
-        "scenario": "The same route is still live after unrelated implementation edits.",
-        "finding": "Plan intent must not count as completed removal.",
-        "resolution": "Actual-diff architecture uses Git tombstones only; planned authorization is projection-only.",
+        "scenario": "Admin page also matches generic app-page shape.",
+        "finding": "Storefront fallback could steal ownership.",
+        "resolution": "Do not execute fallback when DOMAIN-ADMIN already matches.",
         "status": "resolved"
       },
       {
         "id": "CH-3",
-        "scenario": "A developer declares deletion of an unrelated unowned route.",
-        "finding": "Plan metadata could become a bypass.",
-        "resolution": "Require exact intersection with an active forbidden static route from durable PO authority.",
+        "scenario": "Builder preview page is under src/app.",
+        "finding": "Storefront fallback could steal builder authority.",
+        "resolution": "Existing DOMAIN-BUILDER canonical match wins before fallback.",
         "status": "resolved"
       },
       {
         "id": "CH-4",
-        "scenario": "The PO instruction is inactive.",
-        "finding": "Historical intent must not authorize new deletion work.",
-        "resolution": "Only lifecycle=active instructions participate.",
+        "scenario": "API route handler lives under src/app/api.",
+        "finding": "Presentation fallback would be incorrect.",
+        "resolution": "Fallback recognizes page.tsx/jsx presentation files, never route.ts handlers.",
         "status": "resolved"
       },
       {
         "id": "CH-5",
-        "scenario": "Forbidden state is dynamic or wildcard route.",
-        "finding": "It cannot map safely to one filesystem page.",
-        "resolution": "Reuse staticRouteFile fail-closed rejection.",
+        "scenario": "Sitemap has no page route.",
+        "finding": "It remains unowned despite composing public storefront navigation.",
+        "resolution": "Narrow metadata fallback covers src/app/sitemap.ts.",
         "status": "resolved"
       },
       {
         "id": "CH-6",
-        "scenario": "Planned path is not inside plannedFilePatterns / semantic mustEdit.",
-        "finding": "Out-of-transaction deletion could be silently authorized.",
-        "resolution": "Require planned declaration to be inside the current plan envelope and generated execution route.",
+        "scenario": "A commerce or auth page imports business truth.",
+        "finding": "Presentation ownership must not imply business truth ownership.",
+        "resolution": "Fallback adds only DOMAIN-STOREFRONT; dependency closure remains separate.",
         "status": "resolved"
       },
       {
         "id": "CH-7",
-        "scenario": "Git D later appears for the exact route.",
-        "finding": "Planned state must converge to existing tombstone semantics without a second authority model.",
-        "resolution": "Git tombstone remains canonical completion evidence and supersedes planned-only state.",
+        "scenario": "Canonical registry later adds an exact path.",
+        "finding": "Fallback could conflict with new authority.",
+        "resolution": "Canonical match automatically takes precedence and suppresses fallback.",
         "status": "resolved"
       },
       {
         "id": "CH-8",
-        "scenario": "Plan declares deletion but implementation instead edits the route and keeps it alive.",
-        "finding": "A false completion PASS would be catastrophic.",
-        "resolution": "Edit-Time PO forbidden-state enforcement and actual architecture resolution remain live-state/Git-evidence based; planned intent cannot satisfy them.",
+        "scenario": "PR #666 replays with planned domain-foundation edits still absent.",
+        "finding": "Plan must resolve current public paths pre-code.",
+        "resolution": "Generic path fallback provides pre-execution architecture ownership independent of future registry edits.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run plan-only Plan Before Code on this Control Plane change before implementation.",
-      "Unit-test planned PO-governed static deletion authorization with no Git D and assert distinct planned state.",
-      "Negative-control unrelated, inactive, dynamic and actual-diff-without-Git-D cases.",
-      "Preserve existing Git-proven tombstone tests and require them to remain PASS.",
-      "Run exact-head Edit-Time, Incremental Replay, Quality, TypeScript, Production Build and Completion Truth; CLOSE→LEARN before merge.",
-      "After merge replay PR #666 plan-only unchanged in product intent and require Plan Before Code PASS before storefront implementation replay."
+      "Plan-only Plan Before Code PASS before implementation.",
+      "Unit-test generic public page and sitemap fallback.",
+      "Negative-test admin, builder preview and API route precedence.",
+      "Run exact-head Edit-Time, Incremental Replay, Quality, TypeScript, Production Build and Truth; CLOSE→LEARN before merge.",
+      "After merge replay #666 plan-only without changing product intent."
     ],
-    "executionAuthorized": true,
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-PLANNED-DELETION-AUTHORIZATION",
+      "request": "PO-2026-10-02-STOREFRONT-PATH-FALLBACK",
       "authority": [
         "semantic-execution-route",
-        "po-instruction-authority",
-        "plan-before-code"
+        "atlas-domain-classification"
       ],
       "mustEdit": [
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
         "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
-        "scripts/shoperation-plan-before-code.mjs",
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "quality/knowledge/po-instructions.v1.json",
         "quality/knowledge/domain-foundations.v1.json"
       ],
       "proof": [
@@ -342,55 +291,46 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-PLANNED-DELETION-AUTHORIZATION",
+    "sourceRef": "PO-2026-10-02-STOREFRONT-PATH-FALLBACK",
     "requirements": [
       {
-        "id": "REQ-PLANNED-DELETION-AUTHORIZATION",
-        "requirement": "Plan Before Code authorizes only exact active-PO-governed planned static route deletion without representing it as completed Git tombstone evidence.",
+        "id": "REQ-STOREFRONT-PATH-FALLBACK",
+        "requirement": "Atlas assigns storefront presentation ownership only to otherwise-unowned public app pages and storefront sitemap metadata while preserving explicit authority precedence.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "planned-deletion-authorization",
+          "breadth": "targeted-path-classification",
           "strength": 2,
           "dimensions": [
             "scope",
             "authority",
-            "forbidden-state",
             "regression"
           ]
         },
+        "requiredCapabilities": [
+          "CAP-ATLAS"
+        ],
         "evidence": {
           "implementation": [
             "GUARD-PLAN-BEFORE-CODE",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-PLAN-BEFORE-CODE",
             "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PLANNED-AS-COMPLETED",
-            "statement": "Planned intent may not be reported as Git-proven deletion or satisfy actual-diff completion.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-GENERIC-PLANNED-BYPASS",
-            "statement": "Unrelated/inactive/dynamic planned deletions must remain unresolved.",
+            "id": "NEG-EXPLICIT-AUTHORITY-OVERRIDE",
+            "statement": "Admin/builder/API explicit ownership must not be replaced by storefront fallback.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           }
-        ],
-        "requiredCapabilities": [
-          "CAP-ATLAS"
         ]
       },
       {
-        "id": "REQ-PLANNED-DELETION-BUILD",
-        "requirement": "The phase-aware Semantic Execution/Plan Gate change passes exact-head typecheck and production build.",
+        "id": "REQ-STOREFRONT-PATH-BUILD",
+        "requirement": "The Atlas classification change typechecks and production-builds on the exact implementation head.",
         "claimScope": {
           "capability": "CAP-ATLAS",
           "breadth": "targeted-control-plane-type-build",
@@ -400,44 +340,29 @@
             "build"
           ]
         },
+        "requiredCapabilities": [
+          "CAP-ATLAS"
+        ],
         "evidence": {
           "implementation": [
-            "GUARD-TYPECHECK",
-            "GUARD-PRODUCTION-BUILD"
+            "GUARD-TYPECHECK"
           ],
           "outcome": [
-            "GUARD-TYPECHECK",
             "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PLANNED-DELETION-BUILD",
-            "statement": "The correction must not introduce type or production build regressions.",
+            "id": "NEG-STOREFRONT-PATH-BUILD",
+            "statement": "No type or production build regression.",
             "evidence": [
               "GUARD-TYPECHECK",
               "GUARD-PRODUCTION-BUILD"
             ]
           }
-        ],
-        "requiredCapabilities": [
-          "CAP-ATLAS"
         ]
       }
     ]
   },
-  "notes": "Targeted follow-up discovered by #666 plan-only replay after merged #675 and #677. The defect is phase semantics, not storefront scope: planning authorization currently requires completion evidence. No product code or generic architecture exception in this transaction. Canonical planned-projection on main 2860a9 derived no release subsystem classification, SQ-NK-012, guard digest aa79c504; critical completion claims bind explicitly to CAP-ATLAS. Truth exact-head ca71a28e reported OVERCLAIM only because REQ-PLANNED-DELETION-BUILD declared the abstract dimension regression while its exact producers canonically prove types and build. Claim dimensions reconciled to producer semantics; evidence set and implementation unchanged.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "47ca2c1e92d0d7b5037163f790337bff3cc9c33d",
-    "closedAt": "2026-10-02T04:20:08.418Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-PLANNED-DELETION-AUTHORIZATION",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Targeted foundational follow-up from #666 planned projection after #678. Resolves path-derived storefront presentation ownership without PR-specific exceptions or canonical authority overrides."
 }
