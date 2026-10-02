@@ -3,8 +3,8 @@ import {existsSync,readFileSync} from 'node:fs';
 import {access,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
-import {chromium} from 'playwright';
 import {canonicalizeTemplateFactoryInfrastructureInput,deriveTemplateReplayDecision,reusableTemplateBrowserCase,templateBrowserCaseFingerprint,templateFactoryInfrastructureSemanticallyEquivalent} from './lib/shoperation-template-factory-resumable-verification.mjs';
+import {DEFAULT_LOCAL_GOLDEN_POLICY,localGoldenMismatch} from './lib/shoperation-template-factory-golden-semantics.mjs';
 
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
 const outputDir=process.env.TEMPLATE_QUALITY_OUTPUT_DIR??'artifacts/template-factory-quality';
@@ -401,7 +401,7 @@ async function browserDiagnostics(page,manifest,viewport){
   });
 }
 
-async function compareGolden({actualPath,baselinePath,diffPath,threshold}){
+async function compareGolden({actualPath,baselinePath,diffPath,threshold,localPolicy=DEFAULT_LOCAL_GOLDEN_POLICY}){
   if(!await exists(baselinePath))return{status:'missing',mismatchRatio:null};
   const[{PNG},{default:pixelmatch}]=await Promise.all([import('pngjs'),import('pixelmatch')]);
   const[actualBytes,baselineBytes]=await Promise.all([readFile(actualPath),readFile(baselinePath)]);
@@ -410,13 +410,28 @@ async function compareGolden({actualPath,baselinePath,diffPath,threshold}){
     return{status:'dimension-mismatch',mismatchRatio:1,actual:{width:actual.width,height:actual.height},baseline:{width:baseline.width,height:baseline.height}};
   }
   const diff=new PNG({width:actual.width,height:actual.height});
-  const mismatched=pixelmatch(actual.data,baseline.data,diff.data,actual.width,actual.height,{threshold:.1,includeAA:false});
+  const mask=new PNG({width:actual.width,height:actual.height});
+  const pixelmatchOptions={threshold:.1,includeAA:false};
+  const mismatched=pixelmatch(actual.data,baseline.data,diff.data,actual.width,actual.height,pixelmatchOptions);
+  const maskMismatched=pixelmatch(actual.data,baseline.data,mask.data,actual.width,actual.height,{...pixelmatchOptions,diffMask:true});
+  if(maskMismatched!==mismatched)throw new Error(`GOLDEN_DIFF_MASK_COUNT_MISMATCH:${mismatched}:${maskMismatched}`);
   const ratio=mismatched/(actual.width*actual.height);
+  const local=localGoldenMismatch(mask.data,actual.width,actual.height,localPolicy);
+  const globalPassed=ratio<=threshold;
   if(ratio>0)await writeFile(diffPath,PNG.sync.write(diff));
-  return{status:ratio<=threshold?'pass':'fail',mismatchRatio:ratio,mismatchedPixels:mismatched,totalPixels:actual.width*actual.height};
+  return{
+    status:globalPassed&&local.passed?'pass':'fail',
+    mismatchRatio:ratio,
+    mismatchedPixels:mismatched,
+    totalPixels:actual.width*actual.height,
+    globalPassed,
+    globalThreshold:threshold,
+    local,
+  };
 }
 
 await mkdir(outputDir,{recursive:true});
+const{chromium}=await import('playwright');
 const catalog=await loadCatalog();
 for(const item of catalog.templates??[]){
   if(item.structural?.ok!==true)throw new Error(`TEMPLATE_FACTORY_STRUCTURAL_GATE_FAILED:${item.templateKey}:${item.structural?.issues?.[0]?.code??'UNKNOWN'}`);

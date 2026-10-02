@@ -1,29 +1,27 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-SEMANTIC-DELETION-TOMBSTONES",
-  "task": "Quality Control Plane semantic execution: make required file deletions first-class actual changes and tombstones in the existing execution route, Plan Before Code and Implementation Sync.",
+  "taskId": "DEV-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
+  "task": "Repair the existing Template Factory golden visual comparison so a small but locally severe rendered regression cannot pass merely because the full-page mismatch ratio stays below the global threshold.",
   "status": "closed",
-  "guardDigest": "62903da6",
-  "changeBaseSha": "3c08bac9524cd9af758e39dab6216a37ebe4b3a3",
+  "guardDigest": "3667fbec",
+  "changeBaseSha": "d8465ed5cf13471d86dfa81f8c67039f6c3d70ae",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/lib/shoperation-development-runtime.mjs",
-    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-    "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
-    "scripts/shoperation-plan-before-code.mjs",
-    "scripts/shoperation-edit-time-guard.mjs",
-    "tests/shoperation-development-guard.test.ts",
-    "tests/shoperation-semantic-execution-intelligence.test.ts",
-    "scripts/lib/shoperation-reference-sync-runtime.mjs"
+    "scripts/template-factory-quality-gate.mjs",
+    "src/lib/builder/storefront-template-quality-gate.ts",
+    "tests/template-factory-golden-local-regression.test.ts",
+    "scripts/lib/shoperation-template-factory-golden-semantics.mjs",
+    "scripts/lib/shoperation-template-factory-golden-semantics.d.mts"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system"
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -78,51 +76,51 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-004",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-SEMANTIC-DELETION-TOMBSTONES",
+    "sourceRef": "PO-2026-10-01-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
     "riskTier": "critical",
-    "problemStatement": "The existing Semantic Execution Intelligence models only files present at the current HEAD. getChangedFiles excludes D status entirely, so a required deletion disappears from the actual verified change set; after deletion the current Atlas also has no node for the file, causing Plan Before Code to report a correctly deleted MUST_EDIT target as outside the generated semantic route. PR #666 reproduced this with src/app/szallitas-es-fizetes/page.tsx. Exact-head verification then exposed an adjacent defect in the existing Reference Sync extractor: any --token is classified as a css-variable even in JavaScript CLI argument strings, so changing git --name-only to --name-status produced false stale consumers and false required edits.",
+    "problemStatement": "The Template Factory golden gate currently decides visual equality only from one full-page pixel mismatch ratio. A small rendered element can change materially, including a strong color mutation, while the page-wide ratio remains below 0.005 and the gate incorrectly stays green. Exact-head 14x3 browser proof then showed the first policy false positive: 12 Playroom desktop pages carried the identical shared-header text-rendering delta (5658 global pixels, 335 pixels in the peak 48x48 window at x=408,y=72, 14.54% local ratio). The local ratio alone therefore over-classifies concentrated typography/anti-aliasing noise as a severe localized region.",
     "observableOutcomes": [
-      "The shared development diff includes deleted paths with explicit deletion status instead of silently dropping them.",
-      "buildExecutionRoute can retain deleted planned paths as semantic tombstones in MUST_EDIT while continuing to use the current Atlas for live nodes and consumers.",
-      "Plan Before Code accepts a declared required deletion only when the exact deleted path is present in the transaction tombstones and planned envelope.",
-      "Edit-Time Implementation Sync counts an actual deletion as satisfying REQUIRED CHANGE SET subset ACTUAL VERIFIED CHANGE SET.",
-      "Deleted paths still receive canonical path/domain classification for scope evidence instead of becoming unresolved merely because the HEAD file no longer exists.",
-      "Reference Sync distinguishes CSS custom properties from command-line long options: '--name-only' in JavaScript command arguments is not a css-variable candidate, while var(--token) and CSS custom-property declarations remain discoverable."
+      "The existing full-page maxPixelMismatchRatio remains enforced unchanged.",
+      "A second local-severity proof detects concentrated mismatch regions using the same pixel diff evidence.",
+      "The canonical stress mutation #35e9ff to #ff0000 over a small rendered region fails locally while remaining below the global 0.005 ratio.",
+      "Browser-case evidence records global and local mismatch measurements so a failure is diagnosable rather than threshold-opaque.",
+      "The local golden detector requires both a severe local ratio and an absolute 400-pixel mismatch floor (20x20-equivalent area), so the proven 335-pixel shared-header rendering strip does not block while the 24x24 / 576-pixel adversarial color mutation still blocks."
     ],
     "unresolvedRisks": [
-      "Including deletions in every shared development diff can expose latent callers that assumed all changed files still exist.",
-      "Treating arbitrary absent planned paths as tombstones would allow a plan to claim a deletion that never occurred.",
-      "Rename handling must not double-count the old path as a deletion unless Git reports it as D rather than R.",
-      "PO instruction state evaluation must not treat a physically deleted forbidden file as a surviving violation.",
-      "Over-narrowing css-variable extraction could miss legitimate custom properties embedded in TS/TSX inline styles or var(...) expressions."
+      "A local detector can become oversensitive to anti-aliasing or scattered font-render differences if it ignores pixelmatch filtering.",
+      "A fixed grid can split a regression across tile boundaries and create another false negative.",
+      "Changing the golden algorithm must invalidate reusable browser evidence through the existing Factory engine fingerprint.",
+      "Raising the absolute local floor too far could miss genuinely severe tiny defects; regression must pin the required 24x24 mutation as blocked."
     ],
     "scope": {
       "in": [
-        "Existing getChangedFiles transaction diff representation and deletion status parsing.",
-        "Existing Atlas execution-route tombstone input and path classification.",
-        "Plan Before Code projected/actual scope for deleted paths.",
-        "Edit-Time Implementation Sync required-set reconciliation for deletions.",
-        "Adversarial regression reproducing the #666 deleted combined-route case."
+        "Existing Template Factory compareGolden algorithm.",
+        "Local concentrated mismatch analysis derived from pixelmatch diff output.",
+        "Deterministic adversarial self-test for a globally-small, locally-severe color mutation."
       ],
       "out": [
-        "Shipping/payment storefront implementation itself; #666 remains a separate product transaction.",
-        "A new gate, tombstone registry, parallel Atlas, or persistent deletion database.",
-        "Changing PO instruction meaning or weakening required-change enforcement.",
-        "Git history rewriting or automatic branch mutation."
+        "Golden baseline promotion or Product Owner approval policy.",
+        "Changing the global 0.005 threshold.",
+        "Template design, screenshots, or golden baseline content."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This is a foundational correctness defect in the newly merged two-direction semantic execution model: a required change class (deletion) is invisible to both route generation and actual-diff proof. The highest practical fix is to extend the shared transaction and Atlas route semantics with Git-derived tombstones, preserve path/domain classification, and adversarially prove both false-positive and false-negative boundaries.",
+      "rationale": "Golden proof is release-blocking visual evidence and the stress demonstrated a material false negative. The proportionate fix is a deterministic dual global/local detector using the same perceptual pixelmatch evidence, boundary-shifted local windows, explicit minimum mismatch pixels, and adversarial synthetic proof without adding a second visual gate.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -139,31 +137,31 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "getChangedFiles reports A/C/M/R/D transaction paths and separately identifies D tombstones from git name-status evidence.",
-        "A tombstone is accepted into semantic MUST_EDIT only when it both matches the plan pattern and is present in the Git-derived deletedFiles set.",
-        "A declared MUST_EDIT path that is absent from HEAD but was not deleted remains outside route and BLOCKs; arbitrary non-existent paths are not legitimized.",
-        "A deleted path contributes path-derived domain/authority scope without requiring a live Atlas node.",
-        "Edit-Time actualVerifiedChangeSet includes the deleted path, so a required deletion is proven rather than treated as missing.",
-        "PR #666's combined-route deletion class is represented without weakening the shipping/payment instruction.",
-        "extractReferenceCandidatesFromLine does not emit css-variable for Git/CLI long options such as '--name-only' in .mjs/.ts/.tsx code.",
-        "extractReferenceCandidatesFromLine still emits css-variable for var(--shoporation-color-primary) in TS/TSX and --shoporation-color-primary declarations in CSS/SCSS."
+        "A case passes only when both the existing global mismatch threshold and the new local-severity threshold pass.",
+        "Local severity is calculated from pixelmatch-filtered mismatch pixels, not raw RGB inequality.",
+        "Local windows are evaluated at multiple offsets so a concentrated regression cannot evade detection by crossing a fixed grid boundary.",
+        "The synthetic #35e9ff to #ff0000 mutation proves globalPassed=true, localPassed=false and final status=fail.",
+        "The local severity algorithm is a dependency-free shared Factory proof helper, while browser/image dependencies remain confined to the browser quality workflow.",
+        "The dependency-free golden semantics helper has an explicit typed ESM declaration contract; TypeScript does not rely on implicit any or suppression.",
+        "A 48x48 local window with >12% mismatch but only 335 mismatched pixels is not sufficient by itself to fail the local severity gate.",
+        "The canonical adversarial 24x24 #35e9ff -> #ff0000 mutation still fails locally with 576 mismatched pixels and global mismatch below 0.5%.",
+        "The full 14x3 Template Factory browser proof passes on the unchanged accepted Playroom baselines without baseline promotion."
       ],
       "invariants": [
-        "Current live Atlas nodes remain the authority for live-file semantic consumers and references.",
-        "Only Git diff evidence may create a transaction tombstone.",
-        "Deletion does not bypass Reference Sync; stale surviving consumers remain blockable.",
-        "PO forbidden-state scanning remains fail-closed for surviving files and naturally clears when the forbidden file is actually absent.",
-        "Renames continue to be represented as R/current-path changes unless Git explicitly reports a deletion.",
-        "Reference Sync may only create css-variable identity from CSS syntax/context, not lexical '--' coincidence."
+        "maxPixelMismatchRatio remains 0.005 for existing manifests.",
+        "Anti-aliasing exclusion and pixelmatch perceptual threshold remain unchanged.",
+        "Missing baselines and dimension mismatches retain their current fail-closed behavior.",
+        "No golden baseline files are updated by this transaction.",
+        "The global maxPixelMismatchRatio remains exactly 0.005.",
+        "Local severity is conjunctive: ratio threshold and absolute mismatch floor must both be exceeded."
       ],
       "forbiddenStates": [
-        "deleted-required-file-absent-from-actual-change-set",
-        "arbitrary-missing-file-treated-as-successful-deletion",
-        "deleted-path-reported-as-unresolved-only-because-head-node-is-absent",
-        "implementation-sync-required-deletion-reported-missing-after-git-proved-D",
-        "new-parallel-tombstone-registry",
-        "cli-long-option-classified-as-css-variable",
-        "css-custom-property-detection-disabled-in-tsx-inline-styles"
+        "local-severe-regression-passes-under-global-threshold",
+        "global-threshold-lowered-to-mask-local-detector-design",
+        "raw-rgb-diff-bypasses-pixelmatch-semantics",
+        "golden-baseline-updated-to-make-stress-pass",
+        "typography-antialias-strip-335px-causes-local-golden-block",
+        "24x24-solid-local-mutation-passes"
       ]
     },
     "model": {
@@ -195,41 +193,39 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A D change is omitted by --diff-filter=ACMR and Implementation Sync falsely says the required deletion never happened.",
-        "The deleted file is in actual diff but Plan architecture marks it unresolved because only HEAD Atlas nodes are consulted.",
-        "buildExecutionRoute accepts every absent exact plan path as a tombstone, allowing invented deletions.",
-        "A rename old path is mistakenly treated as a required deletion and pollutes MUST_EDIT.",
-        "A changed CLI flag creates repository-wide false stale consumers because the generic --token regex aliases CLI options to CSS custom properties."
+        "A small colored component changes completely but global mismatch stays below 0.005.",
+        "A regression straddles a local grid boundary and each fixed tile appears below threshold.",
+        "Scattered anti-aliased text pixels create a false local severe region.",
+        "Browser evidence reuse ignores a changed golden algorithm.",
+        "A high local ratio caused by a narrow text-rendering strip crosses 12% even though its absolute changed area is materially smaller than the target localized mutation."
       ],
       "edgeCases": [
-        "Deleted static Next.js route that was a PO-forbidden authority.",
-        "Deleted non-route source file with a classifiable domain path.",
-        "New planned file absent at plan-only time but not a deletion.",
-        "R100 rename with old and new path.",
-        "Deletion plus stale surviving cross-file consumer caught by Reference Sync.",
-        "JavaScript string '--name-only' used as git argument.",
-        "TSX string 'var(--shoporation-color-primary)'.",
-        "CSS declaration '--shoporation-color-primary: #111;'."
+        "Mismatch region touches screenshot edge.",
+        "Image dimensions are smaller than the configured local window.",
+        "Mismatch pixel count is below the local minimum evidence floor.",
+        "Regression is globally large and should fail regardless of local score.",
+        "335 mismatched pixels concentrated in a 48x48 window with ratio above 12%.",
+        "576 mismatched pixels from a 24x24 solid color mutation with global ratio below 0.5%."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-GIT-TOMBSTONES",
-        "summary": "Extend existing transaction diff with D status and pass only Git-proven deleted paths into existing Atlas execution-route reconciliation.",
+        "id": "ALT-DUAL-LOCAL-GLOBAL",
+        "summary": "Retain the full-page threshold and add shifted local-window severity over the same pixelmatch mask.",
         "disposition": "selected",
-        "reason": "It preserves one semantic system and provides provenance that an absent path was actually changed by deletion."
+        "reason": "This directly closes the proven false-negative class while preserving existing global behavior and perceptual filtering."
       },
       {
-        "id": "ALT-REMOVE-MUST-EDIT",
-        "summary": "Drop deleted files from declared semantic MUST_EDIT after implementation so Plan Before Code can pass.",
+        "id": "ALT-LOWER-GLOBAL",
+        "summary": "Lower maxPixelMismatchRatio until the known small color mutation happens to fail.",
         "disposition": "rejected",
-        "reason": "That destroys proof that a required deletion occurred and violates REQUIRED CHANGE SET subset ACTUAL VERIFIED CHANGE SET."
+        "reason": "That is blind tuning, increases full-page noise sensitivity, and does not model why a concentrated local regression is important."
       },
       {
-        "id": "ALT-ABSENT-MEANS-DELETED",
-        "summary": "Treat any planned path absent from current Atlas as a successful deletion.",
+        "id": "ALT-COMPONENT-BBOX",
+        "summary": "Require DOM component bounding boxes and compare each component screenshot separately.",
         "disposition": "rejected",
-        "reason": "It cannot distinguish a real deletion from an invented or not-yet-created path and would create a false positive."
+        "reason": "It would significantly expand browser instrumentation and component identity coupling when shifted local regions can close the proven defect inside the existing screenshot authority."
       }
     ],
     "specialistReviews": [
@@ -237,167 +233,159 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Deletion is a transaction state of an existing code authority, not a new authority type requiring another graph.",
-        "resolution": "Carry Git-derived tombstones into the current execution route and use existing path classifiers for scope.",
+        "finding": "The visual authority should remain one golden comparator, not a parallel component-screenshot gate.",
+        "resolution": "Extend compareGolden with local semantics and keep one acceptance status.",
         "evidence": [
-          "scripts/lib/shoperation-development-runtime.mjs",
-          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
+          "scripts/template-factory-quality-gate.mjs",
+          "stress golden color mutation"
+        ]
+      },
+      {
+        "role": "UX / Template",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "A globally tiny change can still be visually dominant if concentrated in a button, badge, swatch, or other focal region.",
+        "resolution": "Measure local density with shifted windows and a mismatch-pixel floor instead of relying only on page-wide area.",
+        "evidence": [
+          "stress mutation #35e9ff -> #ff0000",
+          "pixelmatch diff mask"
         ]
       },
       {
         "role": "Runtime",
         "mode": "review",
         "verdict": "pass",
-        "finding": "getChangedFiles is shared by Plan and Edit-Time; fixing only one caller would preserve disagreement between planning and implementation proof.",
-        "resolution": "Change the shared diff contract once and consume deletedFiles in both Plan and Edit-Time.",
+        "finding": "Browser proof already produces one stable PNG per page/viewport and pixelmatch excludes anti-aliasing.",
+        "resolution": "Reuse the existing screenshot and diff mask; do not add extra browser captures or runtime routes.",
         "evidence": [
-          "scripts/shoperation-plan-before-code.mjs",
-          "scripts/shoperation-edit-time-guard.mjs"
+          "scripts/template-factory-quality-gate.mjs compareGolden",
+          "pixelmatch includeAA:false"
         ]
       },
       {
         "role": "Known Failure",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "A naive absent-path fix could legitimize arbitrary missing files and weaken the new bidirectional Implementation Sync.",
-        "resolution": "Require exact Git D evidence and regression-test a non-deleted absent path remains BLOCKed.",
-        "evidence": [
-          "PR #666 tombstone reproduction",
-          "tests/shoperation-semantic-execution-intelligence.test.ts"
-        ]
-      },
-      {
-        "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Deleted paths still need domain/authority evidence even though their current Atlas node no longer exists.",
-        "resolution": "Expose the Atlas's existing path classification as a reusable function and use it only as fallback metadata for tombstones.",
+        "finding": "The proven defect is a false-negative class, not a one-off color constant.",
+        "resolution": "Add a synthetic adversarial regression where global proof passes and local proof must fail.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json",
-          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
+          "stress golden local color mutation",
+          "tests/template-factory-golden-local-regression.test.ts"
         ]
       }
     ],
     "challenge": [
       {
         "id": "CH-1",
-        "scenario": "The required combined route is deleted and disappears from HEAD Atlas.",
-        "finding": "Current Plan incorrectly emits DEV_PLAN_SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE.",
-        "resolution": "Git D path is supplied as a transaction tombstone and unioned into MUST_EDIT only when it matches the plan envelope.",
+        "scenario": "A 24x24 focal element changes color on a 512x512 screenshot.",
+        "finding": "Global mismatch can remain below 0.005 despite a complete local mutation.",
+        "resolution": "Require local mismatch density above threshold with a minimum mismatch-pixel floor.",
         "status": "resolved"
       },
       {
         "id": "CH-2",
-        "scenario": "A plan lists a file that never existed or was not changed.",
-        "finding": "Absent-from-Atlas alone is insufficient evidence of deletion.",
-        "resolution": "No tombstone exists without git name-status D; the declared MUST_EDIT therefore remains outside route and BLOCKs.",
+        "scenario": "The changed element lies across a 64px tile boundary.",
+        "finding": "A single fixed grid can split the mismatch and dilute both regions.",
+        "resolution": "Evaluate the same local windows with zero and half-window offsets on both axes.",
         "status": "resolved"
       },
       {
         "id": "CH-3",
-        "scenario": "Edit-Time evaluates a required deleted file.",
-        "finding": "Current diff.files omits D, so missingRequired remains true.",
-        "resolution": "Shared changed-file contract includes D path in files and deletedFiles; actualChanged therefore proves deletion.",
+        "scenario": "Font anti-aliasing produces sparse changed pixels.",
+        "finding": "Raw RGB comparison could overreact to rendering noise.",
+        "resolution": "Derive local counts only from pixelmatch mismatch output with includeAA=false and threshold 0.1.",
         "status": "resolved"
       },
       {
         "id": "CH-4",
-        "scenario": "Deleted path has no current Atlas node.",
-        "finding": "Architecture scope can be falsely unresolved.",
-        "resolution": "Use existing canonical-path classifiers as metadata fallback for Git-proven tombstones.",
+        "scenario": "Only a handful of pixels differ in one window.",
+        "finding": "High ratio in a clipped tiny edge window can be misleading.",
+        "resolution": "Require an absolute minimum mismatch pixel count before local failure can trigger.",
         "status": "resolved"
       },
       {
         "id": "CH-5",
-        "scenario": "A rename is reported by Git.",
-        "finding": "Old path could be accidentally considered deletion and satisfy unrelated required removal.",
-        "resolution": "Parse name-status explicitly; only status D enters deletedFiles while R contributes the destination to files.",
+        "scenario": "The full page exceeds 0.005 but local regions do not.",
+        "finding": "Local proof must not weaken the existing global fail condition.",
+        "resolution": "Final status is pass only when both globalPassed and localPassed are true.",
         "status": "resolved"
       },
       {
         "id": "CH-6",
-        "scenario": "Deleting a source contract leaves stale consumers.",
-        "finding": "Deletion support must not make stale references invisible.",
-        "resolution": "Reference Sync remains independent and runs on the same base/head diff before Implementation Sync decision.",
+        "scenario": "The algorithm changes but prior browser evidence is reused.",
+        "finding": "Old cases could retain semantics from the weaker comparator.",
+        "resolution": "The existing factoryEngineHash includes template-factory-quality-gate.mjs, invalidating reuse when the comparator changes.",
         "status": "resolved"
       },
       {
         "id": "CH-7",
-        "scenario": "PO instruction forbidden state lives in the deleted file.",
-        "finding": "Scanning a nonexistent file should not falsely report the state as surviving.",
-        "resolution": "Current forbidden-state scanner already returns false when the file does not exist; preserve that behavior.",
+        "scenario": "A baseline is missing or dimensions differ.",
+        "finding": "Local calculation could accidentally hide an existing hard failure.",
+        "resolution": "Return the existing missing/dimension-mismatch status before local evaluation.",
         "status": "resolved"
       },
       {
         "id": "CH-8",
-        "scenario": "A deletion is outside the planned envelope.",
-        "finding": "Including D in actual files could expose an unplanned change that was previously invisible.",
-        "resolution": "This is desired: actualSubsetPlanned and Plan Before Code must BLOCK the hidden deletion.",
+        "scenario": "The regression test simply lowers the global threshold.",
+        "finding": "The original semantic defect would remain and the test would encode tuning rather than local significance.",
+        "resolution": "The stress asserts globalPassed=true and localPassed=false simultaneously.",
         "status": "resolved"
       },
       {
-        "id": "CH-9",
-        "scenario": "Replacing git --name-only with --name-status causes Reference Sync to identify unrelated CLI users as stale css-variable consumers.",
-        "finding": "The extractor uses /(--[a-z0-9_-]{4,})/ globally with no CSS syntactic context.",
-        "resolution": "Restrict css-variable extraction to CSS/SCSS declarations/usages or var(--token) usage in code; add positive and negative extractor regressions.",
+        "id": "CH-LOCAL-FLOOR",
+        "scenario": "Accepted Playroom desktop baselines produce the identical 335-pixel local header text-rendering delta on 12 pages and are blocked by ratio-only local severity.",
+        "finding": "The 12% ratio criterion is necessary but not sufficient; typography edge noise can be locally dense while remaining below the intended severe-region area.",
+        "resolution": "Raise minMismatchPixels from 72 to 400 (20x20-equivalent) while retaining 48px windows, 24px stride and 12% local ratio. Prove the 335-pixel false positive passes and the 576-pixel 24x24 mutation still blocks.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code on the plan-only transaction before implementation.",
-      "Unit-test name-status parsing for M, D and R records and prove only D enters deletedFiles.",
-      "Adversarially call buildExecutionRoute with a Git-proven tombstone and prove it enters MUST_EDIT; repeat without tombstone evidence and prove it does not.",
-      "Regression-test Plan/Edit-Time source contracts include deletedFiles and actualVerifiedChangeSet semantics rather than deleting the declared MUST_EDIT.",
-      "Run exact-head full Quality, TypeScript, Production Build, Completion Truth and two-phase CLOSE→LEARN lifecycle before merge.",
-      "After merge, rebase/replay #666 unchanged in intent; its deleted combined route must no longer trigger SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE.",
-      "Regression-test the Reference Sync extractor with '--name-only' as a CLI argument and with var(--shoporation-color-primary) as a real CSS custom-property usage."
+      "Run Plan Before Code on the plan-only commit before changing compareGolden.",
+      "Add a deterministic CLI/self-test that constructs same-size PNGs with a small #35e9ff to #ff0000 region and proves globalPassed=true/localPassed=false/final fail.",
+      "Regression-test that maxPixelMismatchRatio remains .005 in accepted/candidate manifests.",
+      "Run exact-head Quality Tests, TypeScript, Production Build and Template Factory Quality Gate v2.",
+      "Require Completion Truth and the standard two-phase CLOSE→LEARN lifecycle.",
+      "Add a regression mask with 335 pixels inside one 48x48 window and assert localGoldenMismatch passes despite local ratio >12%.",
+      "Re-run the unchanged 14x3 browser matrix; no golden baseline update is permitted."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-01-SEMANTIC-DELETION-TOMBSTONES",
+      "request": "PO-2026-10-01-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
       "authority": [
-        "development-transaction-diff",
-        "semantic-execution-route",
-        "plan-before-code",
-        "implementation-sync"
+        "template-factory-golden-comparator",
+        "template-factory-quality-gate"
       ],
       "mustEdit": [
-        "scripts/lib/shoperation-development-runtime.mjs",
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
-        "scripts/shoperation-plan-before-code.mjs",
-        "scripts/shoperation-edit-time-guard.mjs",
-        "tests/shoperation-development-guard.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts",
-        "scripts/lib/shoperation-reference-sync-runtime.mjs"
+        "scripts/template-factory-quality-gate.mjs",
+        "scripts/lib/shoperation-template-factory-golden-semantics.mjs",
+        "scripts/lib/shoperation-template-factory-golden-semantics.d.mts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "quality/knowledge/domain-foundations.v1.json",
-        "quality/knowledge/po-instructions.v1.json"
+        "src/lib/builder/storefront-template-quality-gate.ts",
+        "src/lib/builder/storefront-template-quality-candidates.ts"
       ],
       "proof": [
-        "tests/shoperation-development-guard.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "tests/template-factory-golden-local-regression.test.ts"
       ],
       "unknown": []
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-SEMANTIC-DELETION-TOMBSTONES",
+    "sourceRef": "PO-2026-10-01-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
     "requirements": [
       {
-        "id": "REQ-DELETION-ACTUAL-DIFF",
-        "requirement": "Git-deleted paths are first-class actual verified changes and only Git D evidence creates deletedFiles tombstones.",
+        "id": "REQ-GOLDEN-DUAL-SCOPE",
+        "requirement": "Golden proof blocks both globally excessive mismatch and locally concentrated severe mismatch using the same perceptual diff evidence.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "development-transaction-deletion",
+          "breadth": "targeted-visual-proof-algorithm",
           "strength": 2,
           "dimensions": [
+            "regression",
             "positive-state",
-            "forbidden-state",
-            "regression"
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -405,7 +393,6 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-EDIT-TIME",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
@@ -414,8 +401,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-INVENTED-DELETION",
-            "statement": "An absent path without Git D evidence must not satisfy a required deletion.",
+            "id": "NEG-LOCAL-FALSE-NEGATIVE",
+            "statement": "A globally-small but locally-severe rendered mutation may not return golden status pass.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -423,50 +410,13 @@
         ]
       },
       {
-        "id": "REQ-TOMBSTONE-EXECUTION-ROUTE",
-        "requirement": "The existing semantic execution route and Plan Before Code retain Git-proven planned deletions as MUST_EDIT tombstones with path-derived architecture scope.",
+        "id": "REQ-GLOBAL-PRESERVED",
+        "requirement": "The existing full-page 0.005 threshold and missing/dimension mismatch behavior remain unchanged while local proof is additive.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "semantic-execution-tombstone",
+          "breadth": "targeted-golden-contract",
           "strength": 2,
           "dimensions": [
-            "scope",
-            "consumers",
-            "forbidden-state",
-            "regression"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-EDIT-TIME",
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-DELETION-OUTSIDE-ROUTE",
-            "statement": "A declared required deletion proven by Git D may not be rejected merely because the HEAD Atlas lacks its node.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-DELETION-IMPLEMENTATION-SYNC",
-        "requirement": "Edit-Time Implementation Sync counts a Git-proven required deletion inside ACTUAL VERIFIED CHANGE SET while preserving stale-consumer and unplanned-change blocking.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "bidirectional-implementation-sync",
-          "strength": 2,
-          "dimensions": [
-            "consumers",
             "regression",
             "forbidden-state"
           ]
@@ -476,7 +426,6 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-EDIT-TIME",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
@@ -485,18 +434,17 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-DELETE-BYPASS",
-            "statement": "Deletion support may not bypass Reference Sync or allow unplanned deletions.",
+            "id": "NEG-GLOBAL-WEAKENING",
+            "statement": "The repair may not lower or bypass the canonical global threshold to manufacture the stress result.",
             "evidence": [
-              "GUARD-EDIT-TIME",
               "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       },
       {
-        "id": "REQ-DELETION-BUILD",
-        "requirement": "The exact implementation head passes TypeScript and production build with the extended shared development-diff contract.",
+        "id": "REQ-GOLDEN-BUILD",
+        "requirement": "The exact implementation head passes TypeScript, production build and the relevant Template Factory quality workflow.",
         "claimScope": {
           "capability": "CAP-ATLAS",
           "breadth": "targeted-runtime-build",
@@ -519,8 +467,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-DELETION-BUILD",
-            "statement": "The tombstone semantics repair must not introduce type or production build regressions.",
+            "id": "NEG-GOLDEN-BUILD",
+            "statement": "The comparator repair must not introduce TypeScript or production build regressions.",
             "evidence": [
               "GUARD-TYPECHECK",
               "GUARD-PRODUCTION-BUILD"
@@ -530,14 +478,14 @@
       }
     ]
   },
-  "notes": "Targeted correction to the existing Semantic Execution Intelligence after #666 proved that required deletions are invisible once the HEAD Atlas node disappears. No parallel gate, no plan weakening, no product implementation in this transaction. Verification-failure replan: Reference Sync falsely classified CLI --name-only as a CSS variable. The existing extractor is now explicitly in scope; no stale-consumer check is weakened for real CSS variables.",
+  "notes": "Targeted golden false-negative repair only. Handoff evidence flow and shipping/payment are separate transactions. No golden baseline update, no threshold lowering, no parallel visual gate. Plan projection reconciled to Builder/Storefront golden authority: full Known Failure replay, canonical 10-item negative knowledge set, no storefront-ui/quality-knowledge subsystem claim. Local golden semantics were extracted into the existing scripts/lib Shoperation quality-infrastructure namespace so full-repository Quality tests do not require Playwright/pngjs; the real browser comparator consumes the same helper. Browser-proof calibration: the first real full-matrix run exposed a repeated 335px/14px-high Playroom header text-rendering false positive. Local policy will use a 400px absolute floor plus the existing 12% ratio; global 0.005 and baselines remain unchanged. Transaction base advanced to main d8465ed5 after PR #673 merged; golden-local intent, thresholds and proof obligations are unchanged.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "e9bb4edcf241f208b6b28655fa0078677d56c1ec",
-    "closedAt": "2026-10-01T19:28:29.736Z",
+    "verifiedImplementationHead": "892b4005f5f4f7d34b2a13a991c211907abfe130",
+    "closedAt": "2026-10-01T19:58:37.418Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-01-SEMANTIC-DELETION-TOMBSTONES",
+    "sourceRef": "PO-2026-10-01-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
