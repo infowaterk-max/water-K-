@@ -3,7 +3,12 @@ import {
   compileStorefrontTemplateMediaPlan,
   promoteStorefrontTemplateMediaAsset,
 } from '@/lib/builder/template-factory/media-planner';
-import {LOOT_VAULT_V2_FACTORY_RECIPE} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
+import {
+  LOOT_VAULT_V2_FACTORY_RECIPE,
+  LOOT_VAULT_V2_FACTORY_MEDIA_MANIFEST,
+  LOOT_VAULT_V2_PRODUCTION_INTENT,
+  LOOT_VAULT_V2_TEMPLATE_GENOME,
+} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
 import {buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory/recipe-registry';
 import {
   compileStorefrontTemplateFactoryPackage,
@@ -11,6 +16,9 @@ import {
   type StorefrontTemplateFactoryMediaManifest,
 } from '@/lib/builder/template-factory/scaffold';
 import {GAMING_TEMPLATE_FACTORY_FOUNDATION} from '@/lib/builder/template-factory/category-foundations';
+import {compileStorefrontTemplateProductionCandidate} from '@/lib/builder/template-factory/production-compiler';
+import {LOOT_VAULT_V2_GENERATOR_BLUEPRINT} from '@/lib/builder/template-factory/blueprints/loot-vault-v2';
+import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loot-vault/v2';
 
 function constraintPlan(){
   const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
@@ -174,25 +182,37 @@ describe('Template Media Planner / Compiler Brabus authority',()=>{
     expect(build.report.productOwnerReady).toBe(false);
   });
 
-  it('allows semantic internal-reference media for technical QA but not Product Owner readiness',()=>{
-    const recipe=structuredClone(LOOT_VAULT_V2_FACTORY_RECIPE);
-    const assets=structuredClone(recipe.media.assets) as StorefrontTemplateFactoryMediaAsset[];
+  it('allows semantic internal-reference media for technical QA only when compiler provenance is regenerated',()=>{
+    const media=structuredClone(LOOT_VAULT_V2_FACTORY_MEDIA_MANIFEST) as StorefrontTemplateFactoryMediaManifest;
+    const assets=structuredClone(media.assets) as StorefrontTemplateFactoryMediaAsset[];
     const heroIndex=assets.findIndex(row=>row.semanticRole==='hero-scene');
     if(heroIndex<0)throw new Error('TEST_HERO_ASSET_MISSING');
-    assets[heroIndex]={
-      ...assets[heroIndex]!,
-      state:'internal-reference',
-      referenceSrc:'https://example.invalid/reference/hero-scene.webp',
-    };
-    recipe.media={...recipe.media,assets};
+    const source=assets[heroIndex]!.src;
+    const referenceSrc='https://example.invalid/reference/hero-scene.webp';
+    assets[heroIndex]={...assets[heroIndex]!,state:'internal-reference',referenceSrc};
+    media.assets=assets;
 
-    const build=compileStorefrontTemplateFactoryPackage({foundation:GAMING_TEMPLATE_FACTORY_FOUNDATION,recipe});
-    expect(build.report.generatorReadiness.mediaPlanning.valid).toBe(true);
-    expect(build.report.generatorReadiness.mediaPlanning.technicalFulfilled).toBe(true);
-    expect(build.report.generatorReadiness.mediaPlanning.readyFulfilled).toBe(false);
-    expect(build.report.issues.map(row=>row.code)).toContain('FACTORY_MEDIA_FINALIZATION_REQUIRED');
-    expect(build.report.technicalReady).toBe(true);
-    expect(build.report.productOwnerReady).toBe(false);
+    const candidate=JSON.parse(
+      JSON.stringify(LOOT_VAULT_V2_TEMPLATE_PACKAGE).split(JSON.stringify(source)).join(JSON.stringify(referenceSrc)),
+    ) as typeof LOOT_VAULT_V2_TEMPLATE_PACKAGE;
+
+    const compilation=compileStorefrontTemplateProductionCandidate({
+      blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,
+      candidate,
+      genome:LOOT_VAULT_V2_TEMPLATE_GENOME,
+      productionIntent:LOOT_VAULT_V2_PRODUCTION_INTENT,
+      media,
+      productOwnerReview:{internalVisualReviewPassed:true},
+    });
+
+    expect(compilation.valid).toBe(true);
+    expect(compilation.build?.report.generatorReadiness.productionCompiler.valid).toBe(true);
+    expect(compilation.build?.report.generatorReadiness.mediaPlanning.valid).toBe(true);
+    expect(compilation.build?.report.generatorReadiness.mediaPlanning.technicalFulfilled).toBe(true);
+    expect(compilation.build?.report.generatorReadiness.mediaPlanning.readyFulfilled).toBe(false);
+    expect(compilation.build?.report.issues.map(row=>row.code)).toContain('FACTORY_MEDIA_FINALIZATION_REQUIRED');
+    expect(compilation.build?.report.technicalReady).toBe(true);
+    expect(compilation.build?.report.productOwnerReady).toBe(false);
   });
 
   it('enforces atomic media-state promotion and source evidence',()=>{
