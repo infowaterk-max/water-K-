@@ -27,6 +27,10 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(build.report.generatorReadiness.typeCompatibility.definition?.typeId).toBe('gaming');
     expect(build.report.generatorReadiness.constraintPlanning.valid).toBe(true);
     expect(build.report.generatorReadiness.constraintPlanning.plan?.sources.visualAuthority.referenceKey).toBe(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.productionContracts.visualAuthority.referenceKey);
+    expect(build.report.generatorReadiness.mediaPlanning.valid).toBe(true);
+    expect(build.report.generatorReadiness.mediaPlanning.technicalFulfilled).toBe(true);
+    expect(build.report.generatorReadiness.mediaPlanning.readyFulfilled).toBe(true);
+    expect(build.report.generatorReadiness.mediaPlanning.plan?.sources.constraintPlanHash).toBe(build.report.generatorReadiness.constraintPlanning.plan?.hash);
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).not.toContain('FACTORY-CONSTRAINT-PLANNER');
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toContain('VX-SMART-INTENT');
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.generator).toEqual({implementation:'deferred',target:'template-compiler'});
@@ -128,6 +132,40 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(result.ready).toBe(false);
     expect(result.constraintPlanning.valid).toBe(false);
     expect(result.issues.map(issue=>issue.code)).toContain('CONSTRAINT_PLANNER_VISUAL_AUTHORITY_DRIFT');
+  });
+
+
+  it('fails closed when a required Media Planner semantic binding is missing',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const media={
+      ...LOOT_VAULT_V2_FACTORY_RECIPE.media,
+      semanticBindings:LOOT_VAULT_V2_FACTORY_RECIPE.media.semanticBindings?.filter(row=>row.semanticRole!=='hero-scene'),
+    };
+    const recipe={...LOOT_VAULT_V2_FACTORY_RECIPE,media};
+    const result=evaluateStorefrontTemplateGeneratorReadiness({blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,recipe,package:build.package});
+    expect(result.constraintPlanning.valid).toBe(true);
+    expect(result.mediaPlanning.valid).toBe(false);
+    expect(result.ready).toBe(false);
+    expect(result.issues.map(issue=>issue.code)).toContain('MEDIA_PLANNER_REQUIRED_BINDING_MISSING');
+  });
+
+  it('does not confuse non-ready media production state with an invalid Media Plan',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const assets=structuredClone(LOOT_VAULT_V2_FACTORY_RECIPE.media.assets);
+    const index=assets.findIndex(row=>row.semanticRole==='hero-scene');
+    if(index<0)throw new Error('TEST_HERO_ASSET_MISSING');
+    assets[index]={
+      ...assets[index]!,
+      state:'internal-reference',
+      src:'planned://hero-scene',
+      referenceSrc:'https://example.invalid/hero-scene.webp',
+    };
+    const recipe={...LOOT_VAULT_V2_FACTORY_RECIPE,media:{...LOOT_VAULT_V2_FACTORY_RECIPE.media,assets}};
+    const result=evaluateStorefrontTemplateGeneratorReadiness({blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,recipe,package:build.package});
+    expect(result.mediaPlanning.valid).toBe(true);
+    expect(result.mediaPlanning.technicalFulfilled).toBe(true);
+    expect(result.mediaPlanning.readyFulfilled).toBe(false);
+    expect(result.ready).toBe(true);
   });
 
   it('keeps undeclared recipes outside generator-ready status instead of inventing metadata',()=>{
