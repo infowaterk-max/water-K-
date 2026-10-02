@@ -19,6 +19,11 @@ import {
   type StorefrontTemplateTypeSystemValidation,
 } from '@/lib/builder/template-factory/template-type-system';
 import {
+  planStorefrontTemplateConstraints,
+  type StorefrontTemplateConstraintPlannerResult,
+  type StorefrontTemplateProductOwnerIntent,
+} from '@/lib/builder/template-factory/constraint-planner';
+import {
   evaluateStorefrontTemplateProductionContracts,
   type StorefrontTemplateProductionContractDeclaration,
   type StorefrontTemplateProductionContractsResult,
@@ -73,6 +78,7 @@ export type StorefrontTemplateGeneratorReadinessResult={
   genomeValidation:StorefrontTemplateGenomeValidation;
   typeSystemValidation:StorefrontTemplateTypeSystemValidation;
   typeCompatibility:StorefrontTemplateTypeCompatibilityValidation;
+  constraintPlanning:StorefrontTemplateConstraintPlannerResult;
   template3AuthoringReady:boolean;
   issues:readonly StorefrontTemplateGeneratorReadinessIssue[];
 };
@@ -85,6 +91,7 @@ type GeneratorRecipeProjection={
   minPlan:PlanCode;
   requiredFeatures:readonly FeatureCode[];
   genome?:StorefrontTemplateGenome;
+  productionIntent?:StorefrontTemplateProductOwnerIntent;
   reference:{key:string;approved:boolean;requiredPageTypes:readonly StorefrontBuilderPageType[]};
   pageOverrides?:Partial<Record<StorefrontBuilderPageType,unknown>>;
 };
@@ -116,6 +123,14 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     recipe,
     package:pkg,
   });
+  const constraintPlanning=planStorefrontTemplateConstraints({
+    category:recipe.category,
+    templateKey:recipe.templateKey,
+    templateVersion:recipe.templateVersion,
+    visualAuthority:productionContracts.visualAuthority,
+    genome:recipe.genome,
+    intent:recipe.productionIntent,
+  });
   const issues:StorefrontTemplateGeneratorReadinessIssue[]=[];
   if(!blueprint){
     issues.push(failure('GENERATOR_BLUEPRINT_REQUIRED','blueprint','Generator readiness requires an explicit versioned Template Blueprint.'));
@@ -129,6 +144,7 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
       genomeValidation,
       typeSystemValidation,
       typeCompatibility,
+      constraintPlanning,
       template3AuthoringReady:false,
       issues:Object.freeze(issues),
     };
@@ -153,6 +169,7 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
   for(const genomeIssue of genomeValidation.issues)issues.push(failure(genomeIssue.code,genomeIssue.path,genomeIssue.message));
   for(const typeIssue of typeSystemValidation.issues)issues.push(failure(typeIssue.code,typeIssue.path,typeIssue.message));
   for(const typeIssue of typeCompatibility.issues)issues.push(failure(typeIssue.code,typeIssue.path,typeIssue.message));
+  for(const plannerIssue of constraintPlanning.issues)issues.push(failure(plannerIssue.code,plannerIssue.path,plannerIssue.message));
 
   const identityChecks=[
     ['category',blueprint.template.category,recipe.category],
@@ -191,7 +208,8 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     genomeValidation,
     typeSystemValidation,
     typeCompatibility,
-    template3AuthoringReady:issues.length===0&&genomeValidation.valid&&typeSystemValidation.valid&&typeCompatibility.valid&&productionMaturity.valid&&productionMaturity.template3AuthoringReady,
+    constraintPlanning,
+    template3AuthoringReady:issues.length===0&&genomeValidation.valid&&typeSystemValidation.valid&&typeCompatibility.valid&&constraintPlanning.valid&&productionMaturity.valid&&productionMaturity.template3AuthoringReady,
     issues:Object.freeze(issues),
   };
 }
