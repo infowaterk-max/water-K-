@@ -3,7 +3,7 @@
   "taskId": "DEV-SENTINEL-INTEGRITY-DIVERGENCE-CORRELATION",
   "task": "Extend Sentinel with general integrity divergence correlation across existing Control Plane authorities and evidence.",
   "status": "ready-for-implementation",
-  "guardDigest": "540e4ce8",
+  "guardDigest": "efe9d183",
   "changeBaseSha": "ca7dd6e85e521bca2732590a3a5a8afe3f489ea7",
   "plannedFilePatterns": [
     "scripts/lib/shoperation-sentinel-integrity.mjs",
@@ -16,6 +16,7 @@
     "tests/shoperation-sentinel-integrity.test.ts"
   ],
   "expectedSubsystems": [
+    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -369,14 +370,11 @@
         "release-infrastructure"
       ],
       "mustEdit": [
-        "scripts/lib/shoperation-sentinel-integrity.mjs",
-        "scripts/shoperation-sentinel-integrity-probe.mjs",
         "scripts/shoperation-sentinel-scan.mjs",
         "quality/knowledge/sentinel-policy.v1.json",
         "quality/knowledge/guard-registry.v1.json",
         ".github/workflows/shoperation-sentinel.yml",
-        "tests/shoperation-sentinel.test.ts",
-        "tests/shoperation-sentinel-integrity.test.ts"
+        "tests/shoperation-sentinel.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -537,5 +535,5 @@
       }
     ]
   },
-  "notes": "Follow-up after the closed #681 Control Plane coherence repair. This transaction strengthens the existing Sentinel observation layer so newly introduced integrity divergence is discovered automatically where structured evidence exists. It does not create a new gate or autonomous repair authority."
+  "notes": "Follow-up after the closed #681 Control Plane coherence repair. This transaction strengthens the existing Sentinel observation layer so newly introduced integrity divergence is discovered automatically where structured evidence exists. It does not create a new gate or autonomous repair authority. Plan-only CI derived projected subsystems quality-infrastructure + release-infrastructure and canonical guard digest efe9d183. New planned files are intentionally not placed in semantic MUST_EDIT before they exist in Atlas; they remain explicit plannedFilePatterns and will become actual tracked files during implementation."
 }
