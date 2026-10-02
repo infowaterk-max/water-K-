@@ -25,8 +25,9 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(runtime).toContain('export function resolveDevelopmentBase');
     expect(plan).toContain('getChangedFiles({baseSha:plan.changeBaseSha})');
     expect(edit).toContain('getChangedFiles({baseSha:plan.changeBaseSha})');
-    expect(preflight).toContain("import {resolveDevelopmentBase} from './lib/shoperation-development-runtime.mjs'");
-    expect(preflight).toContain('resolveDevelopmentBase({changeBaseSha:developmentPlan.changeBaseSha})');
+    expect(preflight).toContain("import {getChangedFiles} from './lib/shoperation-development-runtime.mjs'");
+    expect(preflight).toContain('getChangedFiles({baseSha:developmentPlan.changeBaseSha})');
+    expect(preflight).toContain('transaction.materialFiles??[]');
     expect(preflight).not.toContain("developmentPlan.changeBaseSha?.trim()||process.env.QUALITY_BASE_SHA");
   });
   it('keeps Git-proven deletions in the shared development transaction instead of dropping D status',()=>{
@@ -37,17 +38,51 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(runtime).toContain("'--name-status','--diff-filter=ACMRD'");
     expect(runtime).toContain('deletedFiles');
     expect(edit).toContain('deletedVerifiedChangeSet');
-    expect(edit).toContain('{tombstones:diff.deletedFiles??[]}');
+    expect(edit).toContain('{tombstones:diff.materialDeletedFiles??[]}');
+    const knowledge=readFileSync('scripts/shoperation-knowledge-preflight.mjs','utf8');
+    const risk=readFileSync('scripts/release-risk-budget.mjs','utf8');
+    const truth=readFileSync('scripts/shoperation-truth-gate.mjs','utf8');
+    expect(knowledge).toContain('transaction.materialDeletedFiles??[]');
+    expect(risk).toContain("'--diff-filter=ACMRD'");
+    expect(truth).toContain("'--diff-filter=ACMRD'");
+    expect(risk).toContain('RELEASE_RISK_EXPLICIT_BASE_UNRESOLVED');
+    expect(risk).toContain('RELEASE_RISK_EXPLICIT_HEAD_UNRESOLVED');
+    expect(risk).toContain('RELEASE_RISK_MERGE_BASE_UNRESOLVED');
+  });
+  it('resolves pull-request head identity before generic GITHUB_SHA fallback',()=>{
+    const runtime=readFileSync('scripts/lib/shoperation-development-runtime.mjs','utf8');
+    expect(runtime).toContain('event?.pull_request?.head?.sha');
+    expect(runtime).toContain("resolution:'PULL_REQUEST_HEAD'");
+    expect(runtime).toContain("resolution:'UNRESOLVED_EXPLICIT'");
+    expect(runtime).toContain('const headIdentity=resolveDevelopmentHead()');
+    expect(runtime.indexOf('process.env.SHOPERATION_REPLAY_HEAD')).toBeLessThan(runtime.indexOf('process.env.GITHUB_SHA'));
   });
   it('prevents plan-only or metadata commits from shrinking the active development transaction',()=>{
     const runtime=readFileSync('scripts/lib/shoperation-development-runtime.mjs','utf8'),plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
     expect(runtime).toContain("git(['diff','--name-status','--diff-filter=ACMRD',base,head])");
-    expect(runtime).toContain('const base=resolveDevelopmentBase({changeBaseSha:explicit})');
-    expect(plan).toContain("diff.files.filter(file=>file!=='quality/development/active-plan.json')");
+    expect(runtime).toContain('const base=resolveDevelopmentBase({changeBaseSha:requestedBase||null})');
+    expect(plan).toContain('diff.materialFiles??[]');
     expect(plan).not.toContain("getChangedFiles()");
   });
-  it('wires development-time guards into PR CI while preserving post-merge replay and evidence',()=>{for(const file of ['.github/workflows/ci.yml','.github/workflows/template-factory-quality-gate.yml']){const workflow=readFileSync(file,'utf8');expect(workflow).toContain("Plan Before Code Gate\n        if: github.event_name == 'pull_request'");expect(workflow).toContain("Edit-Time Known Failure Guard\n        if: github.event_name == 'pull_request'");expect(workflow).toContain('Incremental Known Failure Replay');expect(workflow).toContain('shoperation-plan-before-code.mjs --check');expect(workflow).toContain('shoperation-edit-time-guard.mjs --check');expect(workflow).toContain('shoperation-incremental-replay.mjs --check');expect(workflow).toContain('INCREMENTAL_OUTCOME');expect(workflow).toContain('INCREMENTAL_REPLAY_FAILED');expect(workflow).toContain('Upload Development Guard evidence');}});
-  it('runs A/B Reference Sync before replay and catches stale source assertions plus deleted asset paths',()=>{const output=execFileSync(process.execPath,['scripts/lib/shoperation-reference-sync-runtime.mjs','--self-test'],{encoding:'utf8'});expect(output).toContain('Reference Sync self-test: PASS');const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');expect(edit).toContain('evaluateReferenceSynchronization');expect(edit).toContain('DEV-BLOCK-REFERENCE-SYNC');expect(edit).toContain('DEV-REVIEW-REFERENCE-SYNC');expect(edit).toContain('reference-sync.json');expect(policy.generalRules.some(rule=>rule.includes('repository-wide Reference Sync closure'))).toBe(true);});
+  it('binds stacked branch CI to the canonical Development Transaction instead of reinterpreting event refs',()=>{
+    const output=execFileSync(process.execPath,['scripts/lib/shoperation-development-runtime.mjs','--ci-transaction-self-test'],{encoding:'utf8'});
+    expect(output).toContain('Development CI transaction self-test: PASS');
+    const workflow=readFileSync('.github/workflows/ci.yml','utf8');
+    const runtime=readFileSync('scripts/lib/shoperation-development-runtime.mjs','utf8');
+    const exactHead="ref: ${{ github.event.pull_request.head.sha || github.sha }}";
+    expect(workflow.split(exactHead).length-1).toBeGreaterThanOrEqual(2);
+    expect(workflow).toContain("- 'fix/**'");
+    expect(workflow).toContain('Bind canonical Development Transaction identity');
+    expect(workflow).toContain('--ci-transaction-env >> "$GITHUB_ENV"');
+    expect(workflow).not.toContain('QUALITY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}');
+    expect(workflow).not.toContain('DEVELOPMENT_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}');
+    expect(workflow).not.toContain('RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}');
+    expect(runtime).toContain('CI_TRANSACTION_BASE_MISMATCH');
+    expect(runtime).toContain('CI_TRANSACTION_ANCESTRY_INVALID');
+    expect(runtime).toContain("authority:'quality/development/active-plan.json#changeBaseSha'");
+  });
+  it('wires development-time guards into development proof CI while preserving post-merge replay and evidence',()=>{for(const file of ['.github/workflows/ci.yml','.github/workflows/template-factory-quality-gate.yml']){const workflow=readFileSync(file,'utf8');expect(workflow).toContain('Plan Before Code Gate');expect(workflow).toContain('Edit-Time Known Failure Guard');expect(workflow).toContain('Incremental Known Failure Replay');expect(workflow).toContain('shoperation-plan-before-code.mjs --check');expect(workflow).toContain('shoperation-edit-time-guard.mjs --check');expect(workflow).toContain('shoperation-incremental-replay.mjs --check');expect(workflow).toContain('INCREMENTAL_OUTCOME');expect(workflow).toContain('INCREMENTAL_REPLAY_FAILED');expect(workflow).toContain('Upload Development Guard evidence');}});
+  it('runs A/B Reference Sync before replay and catches stale source assertions plus deleted asset paths',()=>{const output=execFileSync(process.execPath,['scripts/lib/shoperation-reference-sync-runtime.mjs','--self-test'],{encoding:'utf8'});expect(output).toContain('Reference Sync self-test: PASS');expect(output).toContain('bare-object-key=IGNORED');expect(output).toContain('coverage-overflow=BLOCK');const refSource=readFileSync('scripts/lib/shoperation-reference-sync-runtime.mjs','utf8');expect(refSource).toContain('diffData(base,head)');expect(refSource).toContain('grep(patterns,head)');expect(refSource).toContain('REFERENCE_SYNC_CHECKOUT_HEAD_MISMATCH');const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');expect(edit).toContain('evaluateReferenceSynchronization');expect(edit).toContain('DEV-BLOCK-REFERENCE-SYNC');expect(edit).toContain('DEV-REVIEW-REFERENCE-SYNC');expect(edit).toContain('reference-sync.json');expect(policy.generalRules.some(rule=>rule.includes('repository-wide Reference Sync closure'))).toBe(true);});
   it('enforces durable PO instruction required edits in both plan and edit-time directions',()=>{
     const plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
     const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');
@@ -56,6 +91,24 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(edit).toContain('buildExecutionRoute');
     expect(edit).toContain('instructionRequired');
     expect(edit).toContain('requiredChangeSet=[...new Set([...declaredSemanticRequired,...instructionRequired,...referenceRequired])]');
+  });
+  it('binds review exceptions to one exact finding fingerprint instead of a whole rule',()=>{
+    const output=execFileSync(process.execPath,['scripts/lib/shoperation-development-runtime.mjs','--exception-self-test'],{encoding:'utf8'});
+    expect(output).toContain('Development exception self-test: PASS');
+    const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');
+    const plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
+    expect(edit).toContain('matchGuardException(finding,exceptionList)');
+    expect(edit).not.toContain('exceptions.get(rule.id)');
+    expect(plan).toContain("required:['ruleId','file','findingFingerprint','reason']");
+  });
+  it('keeps composite Edit-Time decisions monotonic and excludes plan metadata from material implementation scope',()=>{
+    const output=execFileSync(process.execPath,['scripts/lib/shoperation-development-runtime.mjs','--decision-self-test'],{encoding:'utf8'});
+    expect(output).toContain('Development decision self-test: PASS');
+    const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');
+    expect(edit).toContain('diff.materialFiles??[]');
+    expect(edit).toContain('DEV-BLOCK-IMPLEMENTATION-SYNC-OUTSIDE-PLAN');
+    expect(edit).toContain('childDecisions={referenceSync:referenceSync.decision,implementationSync:implementationSync.decision,poInstructionState:poInstructionState.decision}');
+    expect(edit).toContain('aggregateGateDecision({localBlocking:blocking.length>0,childDecisions:Object.values(childDecisions)})');
   });
   it('makes the preventive protocol repository-level instructions for coding agents',()=>{const agents=readFileSync('AGENTS.md','utf8');expect(agents).toContain('BEFORE THE FIRST IMPLEMENTATION EDIT');expect(agents).toContain('development-guard.md');expect(agents).toContain('Plan Before Code');expect(agents).toContain('shoperation-incremental-replay.mjs --check');});
 });

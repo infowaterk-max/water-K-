@@ -40,9 +40,15 @@ describe('Daily Deep Atlas Scan',()=>{
     expect(registry.guards.filter(item=>item.blocking&&item.responsibilityKey===scan?.responsibilityKey)).toHaveLength(0);
   });
 
-  it('does not run production release proof on feature-branch push noise',()=>{
+  it('separates development Release Risk analysis from production deployment authority',()=>{
     const ci=read('.github/workflows/ci.yml');
-    expect(ci).toContain("if: github.event_name == 'pull_request' || github.ref_name == 'main'");
+    expect(ci).toContain('Bind canonical Development Transaction identity');
+    expect(ci).toContain('Production release risk budget');
+    expect(ci).not.toContain("if: github.event_name == 'pull_request' || github.ref_name == 'main'\n        id: release-risk");
+    expect(ci).toContain('DEPLOY_ENVIRONMENT: ci');
+    expect(ci).not.toMatch(/vercel\s+--prod|deploy\s+--prod/i);
+    const policy=JSON.parse(read('quality/knowledge/development-guard-policy.v1.json')) as {generalRules:string[]};
+    expect(policy.generalRules.some(rule=>rule.includes('Development-branch Release Risk is risk analysis'))).toBe(true);
   });
 
   it('records Drift Confidence and Deep Atlas as proven after their merge proof exists',()=>{

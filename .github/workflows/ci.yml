@@ -6,6 +6,7 @@ on:
       - main
       - 'feature/**'
       - 'roadmap/**'
+      - 'fix/**'
       - core-engine-2-batch
       - production-provisioning-acceptance
       - release-nonpayment-final-batch
@@ -29,6 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -81,6 +83,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -90,6 +93,12 @@ jobs:
 
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+
+      - name: Bind canonical Development Transaction identity
+        env:
+          CI_EVENT_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+          CI_EVENT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node scripts/lib/shoperation-development-runtime.mjs --ci-transaction-env >> "$GITHUB_ENV"
 
       - name: Restore Resumable Verification checkpoint
         if: github.event_name == 'pull_request'
@@ -104,21 +113,16 @@ jobs:
       - name: Knowledge Before Build preflight
         id: knowledge
         env:
-          QUALITY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-          QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/shoperation-knowledge-preflight.mjs
 
       - name: Plan Before Code Gate
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.ref_name != 'main'
         id: development-plan
-        env:
-          DEVELOPMENT_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-          DEVELOPMENT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node scripts/shoperation-plan-before-code.mjs --check
 
       - name: Edit-Time Known Failure Guard
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.ref_name != 'main'
         id: edit-time-guard
         run: node scripts/shoperation-edit-time-guard.mjs --check
 
@@ -126,7 +130,6 @@ jobs:
         id: incremental-replay
         env:
           SHOPERATION_REPLAY_CHECKPOINT: artifacts/shoperation-verification-cache/checkpoint.json
-          SHOPERATION_REPLAY_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_REPLAY_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
           SHOPERATION_VERIFICATION_ENVIRONMENT: ci
           SHOPERATION_TOOLCHAIN_ID: node24
@@ -152,11 +155,8 @@ jobs:
           retention-days: 30
 
       - name: Production release risk budget
-        if: github.event_name == 'pull_request' || github.ref_name == 'main'
         id: release-risk
         env:
-          RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-          RELEASE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           RELEASE_BASE_REF: origin/main
         run: node scripts/release-risk-budget.mjs
 
@@ -244,7 +244,7 @@ jobs:
         run: node scripts/shoperation-command-diagnostic.mjs -- npm run build
 
       - name: Reconcile Resumable Verification
-        if: always() && github.event_name == 'pull_request'
+        if: always() && (github.event_name == 'pull_request' || github.ref_name != 'main')
         id: verification-finalize
         env:
           SHOPERATION_REPLAY_CHECKPOINT: artifacts/shoperation-verification-cache/checkpoint.json
@@ -256,7 +256,7 @@ jobs:
         run: node scripts/shoperation-verification-checkpoint.mjs --check
 
       - name: Completion Truth Gate
-        if: always() && github.event_name == 'pull_request'
+        if: always() && (github.event_name == 'pull_request' || github.ref_name != 'main')
         id: completion-truth
         env:
           SHOPERATION_TRUTH_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -276,15 +276,15 @@ jobs:
           key: shoperation-verification-v1-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
 
       - name: Prepare CLOSE to LEARN lifecycle transition
-        if: always() && github.event_name == 'pull_request' && steps.completion-truth.outcome == 'success'
+        if: always() && (github.event_name == 'pull_request' || github.ref_name != 'main') && steps.completion-truth.outcome == 'success'
         id: lifecycle-transition
         env:
-          SHOPERATION_CLOSURE_HEAD: ${{ github.event.pull_request.head.sha }}
+          SHOPERATION_CLOSURE_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_CLOSURE_TRUTH_REPORT: artifacts/shoperation-development-guard/truth-gate.json
         run: node scripts/shoperation-close-development-plan.mjs --emit
 
       - name: Upload Resumable Verification evidence
-        if: always() && github.event_name == 'pull_request'
+        if: always() && (github.event_name == 'pull_request' || github.ref_name != 'main')
         uses: actions/upload-artifact@v4
         with:
           name: shoperation-resumable-verification-${{ github.event.pull_request.head.sha || github.sha }}
@@ -301,7 +301,7 @@ jobs:
           retention-days: 30
 
       - name: Lifecycle Closure Gate
-        if: always() && github.event_name == 'pull_request' && steps.completion-truth.outcome == 'success'
+        if: always() && (github.event_name == 'pull_request' || github.ref_name != 'main') && steps.completion-truth.outcome == 'success'
         id: lifecycle-closure
         env:
           CLOSURE_REQUIRED: ${{ steps.lifecycle-transition.outputs.closure_required }}

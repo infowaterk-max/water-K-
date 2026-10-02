@@ -17,7 +17,8 @@
     "Verification checkpoints are branch-scoped reconciliation inputs, never resume authorities; incomplete, corrupt, non-ancestor or cross-branch checkpoints fail closed.",
     "Known Failure regression scope may widen but never narrow the replay scope computed from dependencies and semantic inputs.",
     "Gate implementation, authority, schema, runtime, configuration, environment or toolchain changes invalidate dependent evidence.",
-    "Shadow mode keeps full verification authoritative until false-reuse count is zero across the configured promotion proof."
+    "Shadow mode keeps full verification authoritative until false-reuse count is zero across the configured promotion proof.",
+    "Development-branch Release Risk is risk analysis bound to the canonical Development Transaction; PASS or BLOCK never grants deployment or production-release authority by itself."
   ],
   "intentMatchers": [
     {

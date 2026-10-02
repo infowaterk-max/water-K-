@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs';
+
 const asArray=value=>Array.isArray(value)?value:[];
 const text=value=>typeof value==='string'&&value.trim().length>0;
 const uniq=values=>new Set(values).size===values.length;
@@ -35,39 +37,27 @@ function semanticallyTautological(a,b){
   const min=Math.min(left.length,right.length),max=Math.max(left.length,right.length);
   return min>=30&&min/max>=0.85&&(left.includes(right)||right.includes(left));
 }
-const DEFAULT_EVIDENCE_SEMANTICS=Object.freeze({
-  'GUARD-KNOWLEDGE-PREFLIGHT':{
-    producer:'knowledge-preflight',capabilities:['CAP-ATLAS'],scopeStrength:3,scope:'repository-architecture-and-knowledge-preflight',
-    dimensions:['scope','known-failure','atlas-impact','domain-closure','classification','missing-edge','reconcile','human-promotion'],
-  },
-  'GUARD-PLAN-BEFORE-CODE':{
-    producer:'plan-before-code',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'active-development-plan',
-    dimensions:['plan','scope','authority','positive-state','forbidden-state','lifecycle','problem','outcome','failure-model','alternatives','challenge','proof'],
-  },
-  'GUARD-EDIT-TIME':{
-    producer:'edit-time-guard',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'active-diff-semantic-consumers-and-instruction-state',
-    dimensions:['diff','references','known-failure','symbols','consumers','unknowns','actual-subset-plan','required-subset-actual','scope','positive-state','forbidden-state','lifecycle'],
-  },
-  'GUARD-INCREMENTAL-REPLAY':{
-    producer:'incremental-replay',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'selected-regression-replay',
-    dimensions:['regression','failure-class','resumable','known-failure','deep-atlas','sentinel'],
-  },
-  'GUARD-QUALITY-TESTS':{
-    producer:'quality-tests',capabilities:['*'],scopeStrength:2,scope:'executed-adversarial-and-regression-test-suite',
-    dimensions:[
-      'tests','regression','symbols','consumers','unknowns','domain-closure','classification','scope','positive-state','forbidden-state','lifecycle',
-      'actual-subset-plan','required-subset-actual','problem','outcome','failure-model','alternatives','challenge','proof',
-      'claim-scope','evidence-scope','proven-scope','status','behavioral-proof','freshness','coverage','limitations',
-      'truth','close','learn','idempotency','missing-edge','reconcile','human-promotion','resumable','known-failure','deep-atlas','sentinel'
-    ],
-  },
-  'GUARD-TYPECHECK':{producer:'typescript',capabilities:['*'],scopeStrength:1,scope:'typescript-static-check',dimensions:['types']},
-  'GUARD-PRODUCTION-BUILD':{producer:'production-build',capabilities:['*'],scopeStrength:1,scope:'production-build',dimensions:['build']},
-  'GUARD-RELEASE-RISK':{producer:'release-risk',capabilities:['CAP-RELEASE'],scopeStrength:2,scope:'release-diff-risk',dimensions:['risk','release-scope']},
-  'SIGNAL-DEEP-ATLAS-SCAN':{producer:'deep-atlas',capabilities:['CAP-ATLAS'],scopeStrength:3,scope:'architecture-hard-drift-scan',dimensions:['authority','dependency','duplicate-truth','domain-closure','classification']},
-  'SIGNAL-ARCHITECTURE-CONFIDENCE':{producer:'architecture-health',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'architecture-confidence-model',dimensions:['confidence','evidence','behavioral-proof','freshness','coverage','limitations']},
-  'SIGNAL-SENTINEL':{producer:'sentinel',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'failure-signal-classification',dimensions:['canonical-vs-development','signal','sentinel']}
-});
+const GUARD_REGISTRY=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
+const CAPABILITY_REGISTRY=JSON.parse(readFileSync('quality/knowledge/capability-registry.v1.json','utf8'));
+const KNOWN_CAPABILITIES=new Set((CAPABILITY_REGISTRY.capabilities??[]).map(item=>item.id));
+const CANONICAL_EVIDENCE_SEMANTICS=Object.freeze(Object.fromEntries(
+  (GUARD_REGISTRY.guards??[])
+    .filter(item=>item?.proofSemantics)
+    .map(item=>{
+      const semantic=item.proofSemantics;
+      const capabilities=Array.isArray(semantic.capabilities)?semantic.capabilities:[];
+      for(const capability of capabilities)if(capability!=='*'&&!KNOWN_CAPABILITIES.has(capability))throw new Error(`PROOF_SEMANTICS_UNKNOWN_CAPABILITY:${item.id}:${capability}`);
+      if(!Number.isFinite(Number(semantic.scopeStrength))||Number(semantic.scopeStrength)<1)throw new Error(`PROOF_SEMANTICS_INVALID_SCOPE_STRENGTH:${item.id}`);
+      if(!Array.isArray(semantic.dimensions)||!semantic.dimensions.length)throw new Error(`PROOF_SEMANTICS_DIMENSIONS_REQUIRED:${item.id}`);
+      return[item.id,{
+        producer:item.producer??'unknown',
+        capabilities,
+        scopeStrength:Number(semantic.scopeStrength),
+        scope:String(semantic.scope??'unknown'),
+        dimensions:[...semantic.dimensions],
+      }];
+    })
+));
 function claimStrength(req){
   const declared=Number(req?.claimScope?.strength);
   if(Number.isFinite(declared)&&declared>=1)return Math.min(4,Math.max(1,declared));
@@ -80,8 +70,8 @@ function claimStrength(req){
 }
 function evidenceSemantics(item,id){
   const semantic=item?.semantics??item?.evidenceSemantics??null;
-  const knownProducer=Boolean(DEFAULT_EVIDENCE_SEMANTICS[id]);
-  const fallback=DEFAULT_EVIDENCE_SEMANTICS[id]??{producer:'unknown',capabilities:[],scopeStrength:0,scope:'unknown',dimensions:[]};
+  const knownProducer=Boolean(CANONICAL_EVIDENCE_SEMANTICS[id]);
+  const fallback=CANONICAL_EVIDENCE_SEMANTICS[id]??{producer:'unknown',capabilities:[],scopeStrength:0,scope:'unknown',dimensions:[]};
   if(!semantic)return{
     ...fallback,
     classification:item?.classification??(knownProducer?'integration':'legacy-derived'),

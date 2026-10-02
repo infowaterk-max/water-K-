@@ -40,7 +40,7 @@ if(plan.status==='closed'){
   let changedSinceVerified=[];
   if(verifiedHead){
     try{
-      const output=execFileSync('git',['diff','--name-only','--diff-filter=ACMR',verifiedHead,currentExactState.head,'--'],{encoding:'utf8'}).trim();
+      const output=execFileSync('git',['diff','--name-only','--diff-filter=ACMRD',verifiedHead,currentExactState.head,'--'],{encoding:'utf8'}).trim();
       changedSinceVerified=output?output.split(/\r?\n/).filter(Boolean):[];
     }catch{changedSinceVerified=['__UNRESOLVED_CLOSURE_DIFF__'];}
   }else changedSinceVerified=['__MISSING_VERIFIED_HEAD__'];

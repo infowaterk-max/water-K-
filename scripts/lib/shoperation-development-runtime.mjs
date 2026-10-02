@@ -28,7 +28,14 @@ export function globToRegExp(glob){
 }
 const neutralMatchers=releasePolicy.neutralPatterns.map(globToRegExp);
 const subsystemMatchers=releasePolicy.subsystems.map(item=>({...item,matchers:item.patterns.map(globToRegExp)}));
+const DEVELOPMENT_METADATA_FILES=new Set(['quality/development/active-plan.json']);
 export function isNeutralFile(file){return neutralMatchers.some(matcher=>matcher.test(file));}
+export function isDevelopmentMetadataFile(file){return DEVELOPMENT_METADATA_FILES.has(String(file??''));}
+const BLOCKING_GATE_DECISIONS=new Set(['BLOCK','FAIL','FAILED','FAILURE','STALE','CONFLICT','UNRESOLVED','UNKNOWN']);
+export function isBlockingGateDecision(value){return BLOCKING_GATE_DECISIONS.has(String(value??'').trim().toUpperCase());}
+export function aggregateGateDecision({localBlocking=false,childDecisions=[]}={}){return localBlocking||childDecisions.some(isBlockingGateDecision)?'BLOCK':'PASS';}
+export function guardFindingFingerprint(finding){return stableDigest({ruleId:finding?.ruleId??null,file:finding?.file??null,line:Number(finding?.line??0),code:finding?.code??'',message:finding?.message??''});}
+export function matchGuardException(finding,exceptions=[]){const findingFingerprint=guardFindingFingerprint(finding);const exception=(exceptions??[]).find(item=>item?.ruleId===finding?.ruleId&&item?.file===finding?.file&&item?.findingFingerprint===findingFingerprint)??null;return{findingFingerprint,exception};}
 
 export function parseTemplateFactoryFailures(){
   const source=readFileSync('src/lib/builder/template-factory/knowledge-registry.ts','utf8');
@@ -73,11 +80,40 @@ export function resolveDevelopmentScope({files=[],task='',forceFull=false}){
 }
 export function resolveDevelopmentBase({changeBaseSha=null}={}){
   const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
-  const candidates=[changeBaseSha,process.env.DEVELOPMENT_BASE_SHA,process.env.QUALITY_BASE_SHA,process.env.RELEASE_BASE_SHA].map(value=>String(value??'').trim()).filter(Boolean);
-  for(const explicit of candidates)if(!/^0+$/.test(explicit)){try{git(['cat-file','-e',`${explicit}^{commit}`]);return explicit;}catch{}}
+  const declared=String(changeBaseSha??'').trim();
+  if(declared){
+    if(/^0+$/.test(declared))return null;
+    try{git(['cat-file','-e',`${declared}^{commit}`]);return declared;}catch{return null;}
+  }
+  const candidates=[process.env.DEVELOPMENT_BASE_SHA,process.env.QUALITY_BASE_SHA,process.env.RELEASE_BASE_SHA].map(value=>String(value??'').trim()).filter(Boolean);
+  for(const candidate of candidates)if(!/^0+$/.test(candidate)){try{git(['cat-file','-e',`${candidate}^{commit}`]);return candidate;}catch{}}
   for(const candidate of ['origin/main','main','HEAD^']){try{git(['cat-file','-e',`${candidate}^{commit}`]);return candidate;}catch{}}
   return null;
 }
+
+function gitCommitExists(sha){
+  try{execFileSync('git',['cat-file','-e',`${sha}^{commit}`],{stdio:'ignore'});return true;}catch{return false;}
+}
+function gitIsAncestor(base,head){
+  try{execFileSync('git',['merge-base','--is-ancestor',base,head],{stdio:'ignore'});return true;}catch{return false;}
+}
+export function resolveCanonicalDevelopmentTransactionIdentity({
+  plan,
+  eventBaseSha='',
+  eventHeadSha='',
+  commitExists=gitCommitExists,
+  isAncestor=gitIsAncestor,
+}={}){
+  const base=String(plan?.changeBaseSha??'').trim(),eventBase=String(eventBaseSha??'').trim(),head=String(eventHeadSha??'').trim();
+  if(!base)return{decision:'BLOCK',code:'CI_TRANSACTION_BASE_REQUIRED',base:null,head:head||null};
+  if(!head)return{decision:'BLOCK',code:'CI_TRANSACTION_HEAD_REQUIRED',base,head:null};
+  if(eventBase&&eventBase!==base)return{decision:'BLOCK',code:'CI_TRANSACTION_BASE_MISMATCH',base,head,eventBase};
+  if(!commitExists(base))return{decision:'BLOCK',code:'CI_TRANSACTION_BASE_UNRESOLVED',base,head,eventBase:eventBase||null};
+  if(!commitExists(head))return{decision:'BLOCK',code:'CI_TRANSACTION_HEAD_UNRESOLVED',base,head,eventBase:eventBase||null};
+  if(!isAncestor(base,head))return{decision:'BLOCK',code:'CI_TRANSACTION_ANCESTRY_INVALID',base,head,eventBase:eventBase||null};
+  return{decision:'PASS',code:null,base,head,eventBase:eventBase||null,authority:'quality/development/active-plan.json#changeBaseSha'};
+}
+
 export function parseChangedFileStatus(output){
   const changes=[];
   for(const line of String(output??'').split(/\r?\n/).filter(Boolean)){
@@ -93,14 +129,42 @@ export function parseChangedFileStatus(output){
   const deletedFiles=[...new Set(changes.filter(change=>change.status==='D').map(change=>change.file))];
   return{changes,files,deletedFiles};
 }
+export function resolveDevelopmentHead(){
+  const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
+  const explicitSources=[
+    ['DEVELOPMENT_HEAD_SHA',process.env.DEVELOPMENT_HEAD_SHA],
+    ['QUALITY_HEAD_SHA',process.env.QUALITY_HEAD_SHA],
+    ['SHOPERATION_REPLAY_HEAD',process.env.SHOPERATION_REPLAY_HEAD],
+  ];
+  const declared=explicitSources.map(([source,value])=>({source,value:String(value??'').trim()})).find(item=>item.value);
+  if(declared){
+    if(/^0+$/.test(declared.value))return{head:null,resolution:'UNRESOLVED_EXPLICIT',requestedHead:declared.value,source:declared.source};
+    try{git(['cat-file','-e',`${declared.value}^{commit}`]);return{head:declared.value,resolution:'EXPLICIT',requestedHead:declared.value,source:declared.source};}
+    catch{return{head:null,resolution:'UNRESOLVED_EXPLICIT',requestedHead:declared.value,source:declared.source};}
+  }
+  const eventPath=String(process.env.GITHUB_EVENT_PATH??'').trim();
+  if(eventPath&&existsSync(eventPath))try{
+    const event=JSON.parse(readFileSync(eventPath,'utf8')),candidate=String(event?.pull_request?.head?.sha??'').trim();
+    if(candidate&&!/^0+$/.test(candidate)){git(['cat-file','-e',`${candidate}^{commit}`]);return{head:candidate,resolution:'PULL_REQUEST_HEAD',requestedHead:candidate,source:'GITHUB_EVENT_PATH'};}
+  }catch{}
+  const github=String(process.env.GITHUB_SHA??'').trim();
+  if(github&&!/^0+$/.test(github)){try{git(['cat-file','-e',`${github}^{commit}`]);return{head:github,resolution:'GITHUB_SHA',requestedHead:github,source:'GITHUB_SHA'};}catch{}}
+  return{head:'HEAD',resolution:'LOCAL_HEAD',requestedHead:null,source:'git'};
+}
 export function getChangedFiles({baseSha=null}={}){
   const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
-  const explicit=String(baseSha??process.env.DEVELOPMENT_BASE_SHA??'').trim();
-  const base=resolveDevelopmentBase({changeBaseSha:explicit});
-  const head=(process.env.DEVELOPMENT_HEAD_SHA??process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').trim()||'HEAD';
-  if(!base)return {base:null,head,files:[],deletedFiles:[],changes:[]};
+  const requestedBase=String(baseSha??'').trim();
+  const base=resolveDevelopmentBase({changeBaseSha:requestedBase||null});
+  const headIdentity=resolveDevelopmentHead();
+  const head=headIdentity.head;
+  const baseResolution=requestedBase?(base===requestedBase?'DECLARED':'UNRESOLVED'):(base?'FALLBACK':'UNRESOLVED');
+  if(!base||!head)return {base:base??null,requestedBase:requestedBase||null,baseResolution,head:head??null,requestedHead:headIdentity.requestedHead??null,headResolution:headIdentity.resolution,headSource:headIdentity.source??null,files:[],deletedFiles:[],materialFiles:[],materialDeletedFiles:[],metadataFiles:[],changes:[]};
   const output=git(['diff','--name-status','--diff-filter=ACMRD',base,head]);
-  return {base,head,...parseChangedFileStatus(output)};
+  const parsed=parseChangedFileStatus(output);
+  const metadataFiles=parsed.files.filter(isDevelopmentMetadataFile);
+  const materialFiles=parsed.files.filter(file=>!isDevelopmentMetadataFile(file));
+  const materialDeletedFiles=parsed.deletedFiles.filter(file=>!isDevelopmentMetadataFile(file));
+  return {base,requestedBase:requestedBase||null,baseResolution,head,requestedHead:headIdentity.requestedHead??null,headResolution:headIdentity.resolution,headSource:headIdentity.source??null,...parsed,materialFiles,materialDeletedFiles,metadataFiles};
 }
 export function runVitest(files){
   if(!files.length)return {status:0,stdout:'',stderr:''};
@@ -109,6 +173,55 @@ export function runVitest(files){
 }
 export function ensureFile(file){if(!existsSync(file))throw new Error(`Required file missing: ${file}`);}
 
+
+
+if(process.argv.includes('--ci-transaction-self-test')){
+  const commitExists=sha=>sha==='base'||sha==='head',isAncestor=(base,head)=>base==='base'&&head==='head';
+  const pass=resolveCanonicalDevelopmentTransactionIdentity({plan:{changeBaseSha:'base'},eventBaseSha:'base',eventHeadSha:'head',commitExists,isAncestor});
+  const mismatch=resolveCanonicalDevelopmentTransactionIdentity({plan:{changeBaseSha:'base'},eventBaseSha:'other',eventHeadSha:'head',commitExists,isAncestor});
+  const ancestry=resolveCanonicalDevelopmentTransactionIdentity({plan:{changeBaseSha:'base'},eventHeadSha:'head',commitExists,isAncestor:()=>false});
+  const ok=pass.decision==='PASS'&&mismatch.code==='CI_TRANSACTION_BASE_MISMATCH'&&ancestry.code==='CI_TRANSACTION_ANCESTRY_INVALID';
+  console.log(`Development CI transaction self-test: ${ok?'PASS':'FAIL'}`);
+  if(!ok)process.exitCode=1;
+}
+
+if(process.argv.includes('--ci-transaction-env')){
+  const activePlan=readJson('quality/development/active-plan.json');
+  const identity=resolveCanonicalDevelopmentTransactionIdentity({
+    plan:activePlan,
+    eventBaseSha:process.env.CI_EVENT_BASE_SHA,
+    eventHeadSha:process.env.CI_EVENT_HEAD_SHA??process.env.GITHUB_SHA,
+  });
+  if(identity.decision!=='PASS'){
+    console.error(`${identity.code}: canonical Development Transaction identity is invalid; planBase=${identity.base??'null'} eventBase=${identity.eventBase??'null'} head=${identity.head??'null'}`);
+    process.exit(1);
+  }
+  for(const name of ['QUALITY_BASE_SHA','DEVELOPMENT_BASE_SHA','RELEASE_BASE_SHA'])console.log(`${name}=${identity.base}`);
+  for(const name of ['QUALITY_HEAD_SHA','DEVELOPMENT_HEAD_SHA','RELEASE_HEAD_SHA','SHOPERATION_REPLAY_HEAD'])console.log(`${name}=${identity.head}`);
+  console.log(`SHOPERATION_CANONICAL_BASE_SHA=${identity.base}`);
+  console.log(`SHOPERATION_CANONICAL_HEAD_SHA=${identity.head}`);
+  process.exit(0);
+}
+
+if(process.argv.includes('--exception-self-test')){
+  const first={ruleId:'DEV-REVIEW-X',file:'src/a.ts',line:1,code:'x',message:'review'};
+  const second={...first,file:'src/b.ts'};
+  const fp=guardFindingFingerprint(first);
+  const exact=matchGuardException(first,[{ruleId:first.ruleId,file:first.file,findingFingerprint:fp,reason:'intentional'}]);
+  const unrelated=matchGuardException(second,[{ruleId:first.ruleId,file:first.file,findingFingerprint:fp,reason:'intentional'}]);
+  const ok=exact.exception?.reason==='intentional'&&unrelated.exception===null&&exact.findingFingerprint!==unrelated.findingFingerprint;
+  console.log(`Development exception self-test: ${ok?'PASS':'FAIL'}`);
+  if(!ok)process.exitCode=1;
+}
+
+if(process.argv.includes('--decision-self-test')){
+  const ok=aggregateGateDecision({childDecisions:['PASS','PASS']})==='PASS'
+    &&aggregateGateDecision({childDecisions:['PASS','BLOCK']})==='BLOCK'
+    &&aggregateGateDecision({localBlocking:true,childDecisions:['PASS']})==='BLOCK'
+    &&aggregateGateDecision({childDecisions:['UNKNOWN']})==='BLOCK';
+  console.log(`Development decision self-test: ${ok?'PASS':'FAIL'}`);
+  if(!ok)process.exitCode=1;
+}
 
 if(process.argv.includes('--change-status-self-test')){
   const parsed=parseChangedFileStatus([
