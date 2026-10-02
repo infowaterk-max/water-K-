@@ -119,6 +119,28 @@ describe('Template Media Planner / Compiler Brabus authority',()=>{
     expect(result.repairs).toContainEqual(expect.objectContaining({action:'promote-or-replace',semanticRole:'hero-scene'}));
   });
 
+
+  it('fails closed when manifest state labels are unsupported by their source evidence',()=>{
+    const badReference=manifest();
+    const referenceAssets=structuredClone(badReference.assets) as StorefrontTemplateFactoryMediaAsset[];
+    const heroIndex=referenceAssets.findIndex(row=>row.semanticRole==='hero-scene');
+    if(heroIndex<0)throw new Error('TEST_HERO_ASSET_MISSING');
+    referenceAssets[heroIndex]={...referenceAssets[heroIndex]!,state:'internal-reference',src:'planned://hero'};
+    badReference.assets=referenceAssets;
+    const referenceResult=compileStorefrontTemplateMediaPlan({constraintPlan:constraintPlan(),manifest:badReference});
+    expect(referenceResult.valid).toBe(false);
+    expect(referenceResult.issues.map(row=>row.code)).toContain('MEDIA_PLANNER_INTERNAL_REFERENCE_SOURCE_INVALID');
+
+    const badReady=manifest();
+    const readyAssets=structuredClone(badReady.assets) as StorefrontTemplateFactoryMediaAsset[];
+    readyAssets[heroIndex]={...readyAssets[heroIndex]!,state:'ready',src:'https://example.invalid/fake-ready.webp'};
+    badReady.assets=readyAssets;
+    const readyResult=compileStorefrontTemplateMediaPlan({constraintPlan:constraintPlan(),manifest:badReady});
+    expect(readyResult.valid).toBe(false);
+    expect(readyResult.issues.map(row=>row.code)).toContain('MEDIA_PLANNER_READY_SOURCE_INVALID');
+    expect(readyResult.readyFulfilled).toBe(false);
+  });
+
   it('hashes the complete Asset Brief so binding changes cannot reuse stale evidence',()=>{
     const plan=constraintPlan();
     const first=compileStorefrontTemplateMediaPlan({constraintPlan:plan,manifest:manifest()});
