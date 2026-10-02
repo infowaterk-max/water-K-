@@ -158,6 +158,14 @@ export function compileStorefrontTemplateMediaPlan(input:{
   const required=new Set(constraintPlan.constraints.media.requiredSemanticRoles);
 
   for(const[index,asset]of input.manifest.assets.entries()){
+    if(asset.state==='internal-reference'&&!https(asset.referenceSrc)){
+      issues.push(failure('MEDIA_PLANNER_INTERNAL_REFERENCE_SOURCE_INVALID',`media.assets[${index}].referenceSrc`,'Internal-reference media requires an explicit HTTPS reference source.'));
+      repairs.push({action:'promote-or-replace',semanticRole:asset.semanticRole??'unbound',assetKey:asset.key,message:'Attach a valid HTTPS internal reference or replace the asset.'});
+    }
+    if(asset.state==='ready'&&!localPath(asset.src)){
+      issues.push(failure('MEDIA_PLANNER_READY_SOURCE_INVALID',`media.assets[${index}].src`,'Ready media requires a package-owned local source.'));
+      repairs.push({action:'promote-or-replace',semanticRole:asset.semanticRole??'unbound',assetKey:asset.key,message:'Replace the ready asset with a package-owned local media source.'});
+    }
     if(!asset.semanticRole)continue;
     const binding=bindingByRole.get(asset.semanticRole);
     if(!binding){
