@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CROSS-TEMPLATE-DISTINCTNESS-BRABUS-HARDENING",
   "task": "Implement canonical executable cross-template distinctness / anti-clone intelligence over the source-controlled storefront template catalog, using explainable multi-axis package similarity plus Template Genome exclusion semantics, without introducing a subjective visual ranking or a parallel template authority.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "1c170eef",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
@@ -533,13 +533,16 @@
   },
   "notes": "Sixth Brabus hardening wave. Genome, Type System, Constraint Planner, Media Planner and deterministic lineage are PROVEN and lifecycle-closed. This wave turns existing Visual DNA/exclusion conventions into executable catalog-wide anti-clone evidence. Template #3 remains forbidden. Canonical anti-clone projection reconciled: release-infrastructure is outside scope; SQ-NK-005 does not apply; guard digest 1c170eef; downstream capability-separation acceptance is now explicitly falsifiable.",
   "lifecycle": {
-    "state": "EXECUTE",
-    "truthStatus": "UNVERIFIED",
-    "verifiedImplementationHead": null,
-    "closedAt": null,
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "e7adecd85eff1f590926ab60c21e5884ac0499f8",
+    "closedAt": "2026-10-02T17:08:27.392Z",
+    "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "PO-2026-10-02-CROSS-TEMPLATE-DISTINCTNESS-BRABUS-HARDENING",
     "learning": {
-      "state": "pending"
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
     }
   }
 }
