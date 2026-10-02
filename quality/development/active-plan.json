@@ -3,7 +3,7 @@
   "taskId": "DEV-DETERMINISTIC-PRODUCTION-LINEAGE-BRABUS-HARDENING",
   "task": "Implement one canonical deterministic production-lineage contract that binds the existing Template Factory recipe/foundation identity, accepted Visual Authority, Template Genome, Constraint Plan, Media Plan and compiled package identity into an immutable hash chain without creating a parallel production authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "afc442ca",
+  "guardDigest": "057ebf08",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
     "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
@@ -32,9 +32,8 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "customer-account",
-    "inventory-fulfillment-authority",
-    "payment-checkout-order-authority",
+    "dependency-contract",
+    "release-infrastructure",
     "shared-storefront",
     "storefront-ui"
   ],
@@ -103,6 +102,7 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -393,12 +393,12 @@
         "builder-template-system"
       ],
       "mustEdit": [
-        "src/lib/builder/template-factory/production-lineage.ts",
         "src/lib/builder/template-factory/generator-readiness.ts",
         "src/lib/builder/template-factory/scaffold.ts",
         "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
+        "src/lib/builder/template-factory/production-lineage.ts",
         "src/lib/builder/template-factory/production-contracts.ts"
       ],
       "impactedReadOnly": [
@@ -529,7 +529,7 @@
       }
     ]
   },
-  "notes": "Fifth Brabus hardening wave. Genome, Type System, Constraint Planner and Media Planner are PROVEN and lifecycle-closed. This wave closes deterministic production lineage before anti-clone and dynamic compiler work. Template #3 remains forbidden.",
+  "notes": "Fifth Brabus hardening wave. Genome, Type System, Constraint Planner and Media Planner are PROVEN and lifecycle-closed. This wave closes deterministic production lineage before anti-clone and dynamic compiler work. Template #3 remains forbidden. Canonical lineage projected scope reconciled: builder-template-system/dependency-contract/release-infrastructure/shared-storefront/storefront-ui; SQ-NK-005 applies; guard digest 057ebf08. New production-lineage.ts remains planned/may-edit until the canonical file exists.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
