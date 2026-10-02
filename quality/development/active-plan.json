@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-MEDIA-PLANNER-COMPILER-BRABUS-HARDENING",
   "task": "Evolve the existing Template Factory media manifest into a canonical Media Planner / Compiler that converts proven Constraint Plan semantic media requirements into immutable Asset Briefs, validates concrete manifest fulfillment, emits bounded repair actions, supports atomic media-state promotion, and preserves deterministic lineage without generating or selecting assets through a parallel authority.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "afc442ca",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
@@ -524,13 +524,16 @@
   },
   "notes": "Fourth Brabus hardening wave. Genome, Type System and Constraint Planner are PROVEN and lifecycle-closed. Media Planner/Compiler now bridges semantic constraints to the existing concrete Factory media manifest. Actual image generation and anti-clone scoring remain separate. Template #3 remains forbidden. Canonical Media Planner projection reconciled: impacted subsystems are builder-template-system/customer-account/inventory-fulfillment-authority/payment-checkout-order-authority/shared-storefront/storefront-ui; SQ-NK-005 and SQ-NK-014 do not apply; guard digest afc442ca. Proof files remain proof-only, outside semantic must-edit authority.",
   "lifecycle": {
-    "state": "EXECUTE",
-    "truthStatus": "UNVERIFIED",
-    "verifiedImplementationHead": null,
-    "closedAt": null,
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "9d75a9e37b32f08b0f576e937d7c10b3d19d0e46",
+    "closedAt": "2026-10-02T15:23:23.833Z",
+    "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "PO-2026-10-02-MEDIA-PLANNER-COMPILER-BRABUS-HARDENING",
     "learning": {
-      "state": "pending"
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
     }
   }
 }
