@@ -32,7 +32,8 @@ const routeForFile=file=>{
 
 function implementationExpression(line){
   const value=line.trim().replace(/[;,]\s*$/,'');
-  if(value.length<16||value.length>200||/^(?:\/\/|\/\*|\*|#|import\b|export\s+type\b)/.test(value)||/\b(?:expect|toContain|toMatch|describe|it|test)\s*\(/.test(value)||!/[A-Za-z_$]/.test(value)||!/[.()[\]\/ :=<>-]/.test(value))return'';
+  const bareObjectKey=/^(?:['"`][^'"`]+['"`]|[A-Za-z_$][\w$-]*)\s*:\s*\{$/;
+  if(value.length<16||value.length>200||bareObjectKey.test(value)||/^(?:\/\/|\/\*|\*|#|import\b|export\s+type\b)/.test(value)||/\b(?:expect|toContain|toMatch|describe|it|test)\s*\(/.test(value)||!/[A-Za-z_$]/.test(value)||!/[.()[\]\/ :=<>-]/.test(value))return'';
   return value;
 }
 
@@ -249,7 +250,11 @@ if(process.argv.includes('--self-test')){
   if(exportsRemovedAcrossPathChange(before,unchanged).length!==0)throw new Error('REFERENCE_SYNC_RENAME_UNCHANGED_EXPORT_FALSE_POSITIVE');
   const movedRemoved=exportsRemovedAcrossPathChange(before,renamed);
   if(!movedRemoved.includes('startPlatformPilotAcceptanceAction')||movedRemoved.includes('KEEP_ME'))throw new Error('REFERENCE_SYNC_RENAME_REMOVED_EXPORT_FALSE_NEGATIVE');
+  const bareKeyCandidates=extractReferenceCandidatesFromLine("'GUARD-EDIT-TIME':{",'scripts/example.mjs');
+  if(bareKeyCandidates.some(item=>item.kind==='implementation-expression'))throw new Error('REFERENCE_SYNC_BARE_OBJECT_KEY_FALSE_POSITIVE');
+  const substantiveCandidates=extractReferenceCandidatesFromLine("const decision=aggregateGateDecision({localBlocking:true,childDecisions:['BLOCK']})",'scripts/example.mjs');
+  if(!substantiveCandidates.some(item=>item.kind==='implementation-expression'))throw new Error('REFERENCE_SYNC_HIGH_SIGNAL_EXPRESSION_FALSE_NEGATIVE');
   const overflowProbe=boundReferenceCandidates(Array.from({length:1001},(_,index)=>({kind:'route-literal',value:'/r'+index,originFile:'src/x.ts'})));
   if(overflowProbe.coverage.decision!=='BLOCK'||overflowProbe.coverage.overflow!==1||overflowProbe.candidates.length!==1000)throw new Error('REFERENCE_SYNC_OVERFLOW_FAIL_OPEN');
-  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS; coverage-overflow=BLOCK');
+  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS; bare-object-key=IGNORED; coverage-overflow=BLOCK');
 }
