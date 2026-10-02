@@ -37,6 +37,11 @@ import {
   createStorefrontTemplateProductionLineage,
   type StorefrontTemplateProductionLineageResult,
 } from '@/lib/builder/template-factory/production-lineage';
+import {
+  evaluateStorefrontTemplateDistinctness,
+  type StorefrontTemplateDistinctnessResult,
+} from '@/lib/builder/template-factory/template-distinctness';
+import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES} from '@/lib/builder/storefront-template-catalog';
 
 export const STOREFRONT_TEMPLATE_GENERATOR_BLUEPRINT_VERSION='shoporation.template-generator-blueprint.v0.1' as const;
 export const STOREFRONT_TEMPLATE_GENERATOR_READINESS_VERSION='shoporation.template-generator-readiness.v0.1' as const;
@@ -90,6 +95,7 @@ export type StorefrontTemplateGeneratorReadinessResult={
   constraintPlanning:StorefrontTemplateConstraintPlannerResult;
   mediaPlanning:StorefrontTemplateMediaPlannerResult;
   productionLineage:StorefrontTemplateProductionLineageResult|null;
+  distinctness:StorefrontTemplateDistinctnessResult;
   template3AuthoringReady:boolean;
   issues:readonly StorefrontTemplateGeneratorReadinessIssue[];
 };
@@ -151,6 +157,11 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     constraintPlan:constraintPlanning.plan,
     manifest:recipe.media,
   });
+  const distinctness=evaluateStorefrontTemplateDistinctness({
+    package:pkg,
+    genome:recipe.genome,
+    references:STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,
+  });
   const productionLineage=input.lineageContext?createStorefrontTemplateProductionLineage({
     factoryVersion:input.lineageContext.factoryVersion,
     foundation:input.lineageContext.foundation,
@@ -183,6 +194,7 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
       constraintPlanning,
       mediaPlanning,
       productionLineage,
+      distinctness,
       template3AuthoringReady:false,
       issues:Object.freeze(issues),
     };
@@ -214,6 +226,7 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
   if(productionLineage&&!productionLineage.valid){
     for(const lineageIssue of productionLineage.issues)issues.push(failure(lineageIssue.code,`productionLineage.${lineageIssue.path}`,lineageIssue.message));
   }
+  for(const distinctnessIssue of distinctness.issues)issues.push(failure(distinctnessIssue.code,`distinctness.${distinctnessIssue.path}`,distinctnessIssue.message));
 
   const identityChecks=[
     ['category',blueprint.template.category,recipe.category],
@@ -255,7 +268,8 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     constraintPlanning,
     mediaPlanning,
     productionLineage,
-    template3AuthoringReady:issues.length===0&&genomeValidation.valid&&typeSystemValidation.valid&&typeCompatibility.valid&&constraintPlanning.valid&&mediaPlanning.valid&&productionLineage?.valid===true&&productionMaturity.valid&&productionMaturity.template3AuthoringReady,
+    distinctness,
+    template3AuthoringReady:issues.length===0&&genomeValidation.valid&&typeSystemValidation.valid&&typeCompatibility.valid&&constraintPlanning.valid&&mediaPlanning.valid&&productionLineage?.valid===true&&distinctness.valid&&productionMaturity.valid&&productionMaturity.template3AuthoringReady,
     issues:Object.freeze(issues),
   };
 }
