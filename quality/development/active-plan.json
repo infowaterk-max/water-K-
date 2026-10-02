@@ -1,8 +1,8 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-TYPE-SYSTEM-BRABUS-HARDENING",
-  "task": "Implement the canonical versioned Template Type System above the proven Template Genome so template categories select executable production semantics instead of remaining labels, while keeping Constraint Planner explicitly separate and NOT_IMPLEMENTED.",
-  "status": "closed",
+  "taskId": "DEV-CONSTRAINT-PLANNER-BRABUS-HARDENING",
+  "task": "Implement the canonical deterministic Constraint Planner that combines accepted Visual Authority, proven Template Genome, proven Template Type semantics and bounded Product Owner production intent into an explainable immutable production constraint plan without mutating Page Schema.",
+  "status": "ready-for-implementation",
   "guardDigest": "8a9bf46e",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
@@ -11,6 +11,7 @@
     "quality/knowledge/guard-registry.v1.json",
     "scripts/template-factory-quality-gate.mjs",
     "src/app/api/visual-fidelity/templates/route.ts",
+    "src/lib/builder/template-factory/constraint-planner.ts",
     "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
     "src/lib/builder/template-factory/generator-readiness.ts",
     "src/lib/builder/template-factory/production-contracts.ts",
@@ -19,6 +20,7 @@
     "src/lib/builder/template-factory/scaffold.ts",
     "src/lib/builder/template-factory/template-genome.ts",
     "src/lib/builder/template-factory/template-type-system.ts",
+    "tests/template-factory-constraint-planner.test.ts",
     "tests/template-factory-generator-readiness.test.ts",
     "tests/template-factory-production-maturity.test.ts",
     "tests/template-factory-template-genome.test.ts",
@@ -106,43 +108,44 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-TEMPLATE-TYPE-SYSTEM-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-CONSTRAINT-PLANNER-BRABUS-HARDENING",
     "riskTier": "critical",
-    "problemStatement": "Template production currently carries category strings such as gaming but no canonical executable type semantics. Without a Type System, Constraint Planner, Media Planner and compiler work would either hard-code category assumptions independently or bind to prose, creating parallel authorities and later rewrites.",
+    "problemStatement": "Genome and Template Type semantics are now proven, but no canonical executable authority combines them with accepted Visual Authority and Product Owner intent into bounded deterministic production constraints. Without this planner, later Media Planner and Dynamic Compiler work would each invent their own interpretation rules and reintroduce manual template-local decisions.",
     "observableOutcomes": [
-      "A single versioned Template Type System maps supported template types to explicit layout archetypes, density, navigation, interaction, content hierarchy, commerce behavior, media roles, component grammar and engine expectations.",
-      "The existing recipe.category remains the selector so the Type System does not introduce a second template identity or category authority.",
-      "Generator Readiness fails closed when a declared generator-ready recipe has an unsupported template type, invalid type registry, or a Genome whose identity/semantic surface is incompatible with the selected type.",
-      "Template Type System maturity is tracked independently from Constraint Planner so Type System may become PROVEN without falsely claiming deterministic production planning exists.",
-      "Template #3 remains blocked because Constraint Planner and other mandatory Brabus capabilities remain incomplete."
+      "One versioned Constraint Planner compiles accepted Visual Authority + Template Genome + Template Type + bounded Product Owner production intent into an immutable deterministic constraint plan.",
+      "Product Owner intent can only narrow or prioritize semantic options already allowed by the selected Template Type and Genome; it cannot invent arbitrary layouts, media roles, component families or engine authorities.",
+      "The planner output contains explainable composition, density, navigation, interaction, content, commerce, media, component, engine, responsive and exclusion constraints plus source lineage and deterministic plan hash.",
+      "Generator Readiness fails closed when production intent is missing, references the wrong Visual Authority, requests unsupported semantics, or produces an invalid planner result.",
+      "The planner does not mutate Page Schema, choose concrete media, generate components or bypass canonical Builder operations.",
+      "Template #3 remains blocked by the remaining Media Planner, distinctness, lineage, dynamic compiler and VX intelligence gaps."
     ],
     "unresolvedRisks": [
-      "A Type System that merely stores labels would be documentation rather than executable production semantics.",
-      "A Type System that emits concrete page mutations now would prematurely become the Constraint Planner and create overlapping responsibilities.",
-      "Overly narrow type rules could make valid templates impossible to express while overly broad rules would fail to constrain later production planning.",
-      "Engine expectations must reference canonical E1-E13 engine identities rather than inventing type-local engine abstractions."
+      "If Product Owner intent is unbounded, the planner becomes a hidden freeform generator and defeats Type/Genome authority.",
+      "If planner output contains concrete component instances or page mutations, it prematurely becomes the Dynamic Compiler.",
+      "If plan identity is not deterministic, downstream lineage and evidence reuse cannot prove which constraints produced a package.",
+      "If accepted Visual Authority is represented twice, reference drift can create conflicting design owners."
     ],
     "scope": {
       "in": [
-        "Canonical versioned Template Type definitions for fashion, gaming, outdoor, luxury, beauty, B2B, editorial and hobby.",
-        "Executable registry integrity and semantic completeness validation.",
-        "Fail-closed type selection from existing recipe.category.",
-        "Genome/type compatibility checks limited to identity plus semantic-overlap invariants appropriate before Constraint Planner exists.",
-        "Generator Readiness integration and independent maturity capability tracking.",
-        "Adversarial tests for unsupported types, invalid engine IDs, duplicate definitions and semantically incompatible Genome/type combinations."
+        "Canonical versioned Product Owner production intent contract linked to the existing accepted visualAuthority reference key.",
+        "Deterministic constraint planning over proven Template Genome and Template Type System.",
+        "Bounded selection/priority rules for archetypes, semantic media roles, component families, density and canonical engine priorities.",
+        "Carrying existing type/genome navigation, interaction, content, commerce, responsive and exclusion semantics into explainable planner output.",
+        "Deterministic plan hash and source lineage.",
+        "Generator Readiness integration and adversarial planner proofs."
       ],
       "out": [
-        "Constraint Planner implementation or production constraint emission.",
-        "Template #3 design, media generation, routes or authoring.",
-        "Dynamic production compiler activation.",
-        "Media Planner implementation.",
+        "Page Schema mutation or component generation.",
+        "Concrete media generation/selection or asset promotion.",
         "Cross-template distinctness scoring.",
-        "New Control Plane gates or completion authorities."
+        "Dynamic production compiler activation.",
+        "Template #3 design or implementation.",
+        "New Control Plane gates or parallel completion systems."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Template Type semantics become an upstream compiler input consumed by Constraint Planner, Media Planner and dynamic production compilation. The highest practical assurance is a versioned executable registry with complete semantic dimensions, canonical engine references, fail-closed lookup, Genome compatibility checks and adversarial registry/selection tests, while explicitly stopping before planning or page mutation.",
+      "rationale": "Constraint Planner is the semantic bridge between design authorities and later compilation. It must be deterministic, immutable, fail-closed and authority-preserving because Media Planner and Dynamic Compiler will consume its output. The practical ceiling is exhaustive contract/invariant validation, bounded intent semantics, deterministic hashing, negative/adversarial proofs and Generator Readiness combination proof.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -160,37 +163,40 @@
         "finite-state-exhaustion"
       ],
       "deferredTechniques": [
-        "constraint-plan-compilation",
-        "media-plan-compilation",
-        "cross-template-distinctness",
+        "media-asset-compilation",
+        "cross-template-similarity-scoring",
+        "page-schema-synthesis",
         "dynamic-production-compiler"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Type System has one canonical versioned executable contract under builder-template-system.",
-        "Every supported type explicitly defines all required Brabus semantic dimensions.",
-        "All engine expectations resolve only to canonical shared E1-E13 engine IDs.",
-        "Type selection is derived from existing recipe.category and unsupported types fail closed.",
-        "Generator Readiness reports type validation and cannot be ready with type/Genome incompatibility.",
-        "Type System does not mutate Page Schema, Runtime commerce truth or concrete media.",
-        "Maturity exposes FACTORY-TEMPLATE-TYPE-SYSTEM as PROVEN only with implementation plus adversarial executable tests.",
-        "FACTORY-CONSTRAINT-PLANNER remains NOT_IMPLEMENTED after this wave."
+        "Constraint Planner has one canonical versioned executable contract under builder-template-system.",
+        "Planner requires accepted Visual Authority, valid Genome, valid Template Type compatibility and explicit bounded Product Owner intent.",
+        "Product Owner selections must be subsets of the Type/Genome semantic intersection where applicable.",
+        "Planner output is deterministic and deeply immutable with a stable content hash and source lineage.",
+        "Planner output carries no concrete media src/referenceSrc, Page Schema nodes or arbitrary source-code instructions.",
+        "Generator Readiness cannot be ready when planner evidence is missing or invalid.",
+        "FACTORY-CONSTRAINT-PLANNER becomes PROVEN only with implementation plus adversarial executable tests.",
+        "Remaining Brabus blockers continue to block Template #3."
       ],
       "invariants": [
-        "recipe.category remains the current type selector; no parallel category identity is introduced.",
-        "Template Genome owns concrete template identity/grammar; Type System owns reusable type-level production semantics.",
-        "Constraint Planner remains the future authority that converts Type + Genome + PO intent into bounded production constraints.",
-        "Shared engine identities come from the canonical engine registry.",
-        "UNKNOWN or unsupported type never counts as generator-ready."
+        "Existing visualAuthority manifest remains the only accepted visual reference authority.",
+        "Template Genome remains template identity/grammar authority.",
+        "Template Type System remains reusable type semantics authority.",
+        "Product Owner intent may narrow/priority-select only; it may not expand canonical semantic authority.",
+        "Constraint Planner plans constraints only and does not emit Builder mutations or compiled pages.",
+        "Commerce truth and Runtime behavior remain in shared platform authorities.",
+        "UNKNOWN, stale, conflicting or unsupported planner input never counts as ready."
       ],
       "forbiddenStates": [
         "template-3-authoring",
-        "parallel-template-category-registry",
-        "type-system-page-schema-mutation",
-        "type-system-concrete-media-selection",
-        "constraint-planner-falsely-proven",
-        "unsupported-type-treated-as-generic-pass"
+        "parallel-visual-authority",
+        "constraint-plan-page-schema-mutation",
+        "constraint-plan-concrete-media-src",
+        "unbounded-product-owner-freeform",
+        "unsupported-semantic-selection-pass",
+        "non-deterministic-plan-identity"
       ]
     },
     "model": {
@@ -222,37 +228,38 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Later Constraint Planner duplicates type semantics because no canonical Type System exists.",
-        "A recipe category resolves by fallback instead of fail-closed and silently receives wrong production semantics.",
-        "Type definitions reference invented engine names rather than canonical engine IDs.",
-        "Type System and Genome disagree on template identity yet Generator Readiness remains green.",
-        "The wave accidentally starts emitting page/layout mutations and becomes an undeclared Constraint Planner."
+        "Product Owner intent references a stale or foreign Visual Authority and planner still emits a plan.",
+        "Intent requests an archetype/media role/component family outside the Type/Genome intersection.",
+        "Intent changes engine expectations beyond the canonical Template Type definition.",
+        "Identical semantic inputs in different set ordering produce different plan hashes.",
+        "Planner output starts containing concrete Page Schema nodes or media file paths.",
+        "Constraint Planner promotion accidentally clears unrelated Template #3 blockers."
       ],
       "edgeCases": [
-        "Category casing or alias drift must not silently normalize to a different type.",
-        "A type definition with duplicate required/priority engine IDs must fail registry integrity.",
-        "A Genome may have richer archetypes/media roles than the type definition, but must retain a meaningful semantic overlap.",
-        "A supported type may exist before a category foundation exists; Type System support alone must not imply generator or Template #3 readiness."
+        "Mixed-density Template Type may be narrowed to sparse/balanced/dense; a fixed-density type cannot be contradicted.",
+        "Intent arrays with duplicates or alternate ordering normalize deterministically.",
+        "A valid Type System definition may exist before a Factory foundation; planner validity alone does not imply package readiness.",
+        "A Genome may be richer than the selected type; planner uses semantic intersection for selectable composition/media/components while retaining Genome-owned exclusions and responsive grammar."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-TYPE-SYSTEM-FIRST",
-        "summary": "Build canonical reusable type semantics now and keep planning separate.",
+        "id": "ALT-DETERMINISTIC-PLANNER",
+        "summary": "Compile a bounded immutable plan from existing authorities and explicit narrow PO intent.",
         "disposition": "selected",
-        "reason": "It establishes the upstream semantic contract needed by Constraint Planner without prematurely deciding page mutations."
+        "reason": "Preserves authority boundaries and creates a stable upstream contract for Media Planner and Dynamic Compiler."
       },
       {
-        "id": "ALT-CONSTRAINT-PLANNER-DIRECT",
-        "summary": "Skip Type System and hard-code category logic inside Constraint Planner.",
+        "id": "ALT-RECIPE-HARDCODE",
+        "summary": "Continue encoding production choices directly in each Factory recipe.",
         "disposition": "rejected",
-        "reason": "This would duplicate reusable type semantics inside planning logic and force later extraction/rewrite."
+        "reason": "Would perpetuate template-local manual decisions and force Media/Compiler logic to infer intent from final implementation."
       },
       {
-        "id": "ALT-GENOME-ONLY",
-        "summary": "Use each Template Genome as the only source of type-level semantics.",
+        "id": "ALT-FREEFORM-PO-PROMPT",
+        "summary": "Let Product Owner provide unrestricted textual generator instructions.",
         "disposition": "rejected",
-        "reason": "Genome is template-specific identity; reusable type expectations would be copied across genomes and anti-clone evolution would become harder."
+        "reason": "Would be non-deterministic, difficult to prove, and capable of bypassing Type/Genome/Builder constraints."
       }
     ],
     "specialistReviews": [
@@ -260,42 +267,42 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Existing recipe.category, Genome and Generator Readiness form the correct authority path for type selection without another template identity registry.",
-        "resolution": "Use category only as lookup selector and keep all reusable type semantics in one canonical Type System module.",
+        "finding": "Visual Authority manifest, Template Genome and Template Type System are already separate canonical inputs; planner should compose them rather than replace them.",
+        "resolution": "Planner consumes authorities by reference/value and emits only an immutable constraint artifact.",
         "evidence": [
-          "src/lib/builder/template-factory/scaffold.ts",
+          "src/lib/builder/template-factory/production-contracts.ts",
           "src/lib/builder/template-factory/template-genome.ts",
-          "src/lib/builder/template-factory/generator-readiness.ts"
+          "src/lib/builder/template-factory/template-type-system.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A catalog can appear complete while containing duplicate type IDs, invalid engine references or empty semantic families that downstream planners would treat as truth.",
-        "resolution": "Validate the entire registry structurally and semantically before any selected type can participate in Generator Readiness.",
+        "finding": "A stored planner artifact could become stale if source identities are not embedded and revalidated.",
+        "resolution": "Plan embeds visual reference, Genome hash/version, Type System contract/type and PO intent identity, then hashes normalized content deterministically.",
         "evidence": [
-          "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
-          "src/lib/builder/template-factory/template-genome.ts"
+          "src/lib/builder/template-factory/template-genome.ts",
+          "src/lib/builder/template-factory/generator-readiness.ts"
         ]
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Type semantics must distinguish composition and media expectations without forcing every gaming, fashion or luxury template onto one visual skeleton.",
-        "resolution": "Encode bounded semantic families and overlap requirements rather than exact page layouts, colors, fonts or asset choices.",
+        "finding": "Planner constraints must guide composition without turning each template type into one fixed skeleton.",
+        "resolution": "PO intent selects from semantic intersections and carries type/genome grammar, but no exact section tree or concrete visual assets are emitted.",
         "evidence": [
-          "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
-          "src/lib/builder/template-factory/template-genome.ts"
+          "src/lib/builder/template-factory/template-type-system.ts",
+          "src/lib/builder/template-factory/recipes/loot-vault-v2.ts"
         ]
       },
       {
         "role": "Runtime",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Type selection must not become Runtime business truth or introduce type-specific commerce engines that bypass the shared E1-E13 authorities.",
-        "resolution": "Type definitions reference canonical engine IDs as expectations only; no Runtime or commerce mutation is emitted by this wave.",
+        "finding": "Planner must not become a runtime behavior or commerce authority.",
+        "resolution": "Engine IDs are expectations only and output contains no runtime mutations, commerce state, checkout logic or Page Schema nodes.",
         "evidence": [
           "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
           "src/lib/builder/storefront-runtime.ts"
@@ -304,79 +311,82 @@
     ],
     "challenge": [
       {
-        "id": "CH-TYPE-1",
-        "scenario": "A generator-ready recipe declares an unknown category such as automotive while every other contract is valid.",
-        "finding": "Fallback-to-generic behavior would let an untyped template bypass production semantics.",
-        "resolution": "Type lookup returns null and Generator Readiness emits a blocking unsupported-type issue.",
+        "id": "CH-PLAN-1",
+        "scenario": "PO intent references a different visualAuthority key than the Blueprint.",
+        "finding": "A plan could be produced against the wrong approved design.",
+        "resolution": "Planner fails closed on visual reference mismatch.",
         "status": "resolved"
       },
       {
-        "id": "CH-TYPE-2",
-        "scenario": "A type definition references reserved E12 or a non-existent E99 engine identifier.",
-        "finding": "Downstream planning would bind to an engine surface outside the canonical shared registry.",
-        "resolution": "Registry validation requires every engine expectation to exist in SHARED_STOREFRONT_ENGINE_IDS.",
+        "id": "CH-PLAN-2",
+        "scenario": "PO requests an archetype that exists in Type System but not in this Genome.",
+        "finding": "Type-level validity could overwrite template identity.",
+        "resolution": "Selectable archetypes are the Type/Genome intersection; out-of-intersection request blocks.",
         "status": "resolved"
       },
       {
-        "id": "CH-TYPE-3",
-        "scenario": "Two catalog entries use the same type ID with different semantics.",
-        "finding": "Selection would become order-dependent and non-deterministic.",
-        "resolution": "Registry validation blocks duplicate IDs before selection.",
+        "id": "CH-PLAN-3",
+        "scenario": "PO requests a semantic media role or component family outside the Type/Genome intersection.",
+        "finding": "Later Media/Compiler stages could silently broaden template identity.",
+        "resolution": "Planner validates required media and preferred component selections as subsets of the intersections.",
         "status": "resolved"
       },
       {
-        "id": "CH-TYPE-4",
-        "scenario": "A supported type has empty media roles, component grammar or layout archetypes.",
-        "finding": "The Type System would be a label registry rather than executable compiler input.",
-        "resolution": "Semantic completeness validation requires non-empty values for every mandatory dimension.",
+        "id": "CH-PLAN-4",
+        "scenario": "PO attempts to prioritize E11 for a gaming type where E11 is not a type engine expectation.",
+        "finding": "Planner could invent unsupported engine requirements.",
+        "resolution": "Intent engine priorities must be subset of selected Type required/priority engine expectations.",
         "status": "resolved"
       },
       {
-        "id": "CH-TYPE-5",
-        "scenario": "Recipe category is gaming but the Genome identity category is fashion.",
-        "finding": "Template identity and reusable production semantics would split.",
-        "resolution": "Type compatibility binds selected type ID to Genome category and Generator Readiness blocks drift.",
+        "id": "CH-PLAN-5",
+        "scenario": "Fixed sparse luxury type receives explicit dense density intent.",
+        "finding": "PO preference would contradict reusable type semantics.",
+        "resolution": "Only mixed-density types permit narrowing; fixed-density conflicts block.",
         "status": "resolved"
       },
       {
-        "id": "CH-TYPE-6",
-        "scenario": "Gaming Genome has no overlap with gaming layout archetypes, media roles or component families.",
-        "finding": "A category label alone could falsely satisfy type compatibility.",
-        "resolution": "Compatibility requires meaningful overlap across composition, media and component grammar without prescribing exact page layouts.",
+        "id": "CH-PLAN-6",
+        "scenario": "Semantically identical PO sets arrive in different array order or with duplicates.",
+        "finding": "Naive hashing would create non-deterministic lineage.",
+        "resolution": "Set-like intent fields normalize to sorted unique lists before plan hashing.",
         "status": "resolved"
       },
       {
-        "id": "CH-TYPE-7",
-        "scenario": "A new supported type exists before a Factory category foundation or recipe exists.",
-        "finding": "Type support could be misread as production readiness.",
-        "resolution": "Type System selection does not create a recipe/foundation and existing Generator/Factory readiness requirements remain independent.",
+        "id": "CH-PLAN-7",
+        "scenario": "Planner output contains media URL/path or Page Schema node-like structures.",
+        "finding": "Planner would absorb Media Planner/Dynamic Compiler authority.",
+        "resolution": "Planner schema contains semantic constraints only and tests reject concrete-source contamination.",
         "status": "resolved"
       },
       {
-        "id": "CH-TYPE-8",
-        "scenario": "Type System starts outputting concrete section mutations to make tests pass.",
-        "finding": "The capability would silently absorb Constraint Planner responsibility and create an overlapping authority.",
-        "resolution": "Type System output is immutable semantic definition plus validation only; production mutation remains explicitly out of scope.",
+        "id": "CH-PLAN-8",
+        "scenario": "Constraint Planner becomes PROVEN while Media Planner/Distinctness/Compiler remain incomplete.",
+        "finding": "Template #3 might be accidentally unblocked.",
+        "resolution": "Maturity promotion is capability-specific; all remaining required blockers continue to block authoring.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Adversarial unit proof validates catalog completeness, uniqueness, canonical engine references and fail-closed unknown-type lookup.",
-      "Compatibility proof validates recipe.category to Genome identity plus composition/media/component semantic overlap without exact-layout coupling.",
-      "Generator Readiness proof demonstrates unsupported or incompatible types block readiness while Loot Vault gaming remains valid.",
-      "Maturity proof separates Type System from Constraint Planner and keeps Template #3 blocked after Type System promotion.",
-      "Normal CI, exact-head Template Factory Quality Gate v2, external proof handoff, Resumable Verification and Completion Truth close the wave."
+      "Unit/adversarial proof for deterministic normalization/hash, deep immutability and source lineage.",
+      "Fail-closed proof for missing intent, wrong visual reference, unsupported semantic selections, invalid engine priorities and density conflicts.",
+      "Boundary proof that planner output contains no concrete media paths or Page Schema/component instances.",
+      "Generator Readiness combination proof using Loot Vault v2 existing accepted Visual Authority, Genome and Type semantics.",
+      "Production maturity proof promotes only FACTORY-CONSTRAINT-PLANNER and keeps remaining Template #3 blockers.",
+      "Normal CI + exact-head Template Factory Quality Gate v2 + external proof handoff + Completion Truth + lifecycle closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-TEMPLATE-TYPE-SYSTEM-BRABUS-HARDENING",
+      "request": "PO-2026-10-02-CONSTRAINT-PLANNER-BRABUS-HARDENING",
       "authority": [
         "builder-template-system"
       ],
       "mustEdit": [
-        "src/lib/builder/template-factory/template-type-system.ts",
+        "src/lib/builder/template-factory/constraint-planner.ts",
+        "src/lib/builder/template-factory/scaffold.ts",
+        "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
         "src/lib/builder/template-factory/generator-readiness.ts",
         "src/lib/builder/template-factory/production-maturity.ts",
-        "tests/template-factory-template-type-system.test.ts",
+        "tests/template-factory-constraint-planner.test.ts",
         "tests/template-factory-generator-readiness.test.ts",
         "tests/template-factory-production-maturity.test.ts"
       ],
@@ -385,12 +395,11 @@
       ],
       "impactedReadOnly": [
         "src/lib/builder/template-factory/template-genome.ts",
-        "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
-        "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
-        "src/lib/builder/template-factory/scaffold.ts"
+        "src/lib/builder/template-factory/template-type-system.ts",
+        "src/lib/builder/template-factory/engine-functional-proof-registry.ts"
       ],
       "proof": [
-        "tests/template-factory-template-type-system.test.ts",
+        "tests/template-factory-constraint-planner.test.ts",
         "tests/template-factory-generator-readiness.test.ts",
         "tests/template-factory-production-maturity.test.ts"
       ],
@@ -400,14 +409,14 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-TEMPLATE-TYPE-SYSTEM-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-CONSTRAINT-PLANNER-BRABUS-HARDENING",
     "requirements": [
       {
-        "id": "REQ-TEMPLATE-TYPE-SYSTEM",
-        "requirement": "Canonical Template Type System provides executable versioned production semantics for every supported Brabus template type using the existing category selector.",
+        "id": "REQ-CONSTRAINT-PLANNER",
+        "requirement": "Canonical deterministic Constraint Planner compiles accepted Visual Authority, Genome, Template Type and bounded Product Owner intent into immutable explainable production constraints.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "template-type-system",
+          "breadth": "constraint-planner",
           "strength": 2,
           "dimensions": [
             "claim-scope",
@@ -429,8 +438,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-TYPE-PARALLEL-IDENTITY",
-            "statement": "No second template/category identity authority or page mutation authority is created.",
+            "id": "NEG-PLANNER-AUTHORITY-EXPANSION",
+            "statement": "Planner does not create a second visual, runtime, commerce, Page Schema or media authority.",
             "evidence": [
               "GUARD-QUALITY-TESTS",
               "GUARD-TEMPLATE-FACTORY"
@@ -439,11 +448,11 @@
         ]
       },
       {
-        "id": "REQ-TEMPLATE-TYPE-FAIL-CLOSED",
-        "requirement": "Unknown, malformed, engine-invalid or Genome-incompatible template types cannot satisfy Generator Readiness.",
+        "id": "REQ-CONSTRAINT-PLANNER-FAIL-CLOSED",
+        "requirement": "Missing, stale, conflicting or unsupported planner inputs cannot satisfy Generator Readiness.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "template-type-integrity",
+          "breadth": "constraint-planner-integrity",
           "strength": 2,
           "dimensions": [
             "status",
@@ -465,8 +474,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-TYPE-FALSE-READY",
-            "statement": "Unsupported or incompatible type evidence cannot produce ready=true.",
+            "id": "NEG-PLANNER-FALSE-READY",
+            "statement": "Invalid planner evidence cannot produce ready=true.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -475,10 +484,10 @@
       },
       {
         "id": "REQ-CONSTRAINT-PLANNER-SEPARATION",
-        "requirement": "Constraint Planner remains explicitly NOT_IMPLEMENTED after Type System completion and Template #3 remains blocked.",
+        "requirement": "Constraint Planner completion must not promote Media Planner, Distinctness, Dynamic Compiler or Template #3 readiness.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "capability-separation",
+          "breadth": "planner-capability-separation",
           "strength": 2,
           "dimensions": [
             "status",
@@ -500,8 +509,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PLANNER-FALSE-PROVEN",
-            "statement": "Type System completion cannot promote Constraint Planner.",
+            "id": "NEG-PLANNER-OVERCLAIM",
+            "statement": "Planner proof cannot stand in for downstream Brabus capabilities.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -510,18 +519,15 @@
       }
     ]
   },
-  "notes": "Second Brabus hardening wave. Template Genome is PROVEN at verified implementation HEAD deecbdeb20fd7e2f290c41e1275de9d9fe9733fc and closure HEAD 4930accd02867b790e88ae71c283042ae40cca37. This wave builds reusable type semantics only; Constraint Planner remains the next separate dependency. Template #3 remains forbidden. Canonical full-PR projected scope reconciled on exact head: release-infrastructure is transitively impacted, SQ-NK-005 applies, and guard digest is 8a9bf46e. Sentinel integrity proof-semantics reconciliation: capability separation claim uses canonical GUARD-QUALITY-TESTS dimensions status/classification/scope/limitations instead of undeclared maturity.",
+  "notes": "Third Brabus hardening wave. Template Genome and Template Type System are PROVEN and lifecycle-closed. Constraint Planner is the next upstream dependency before Media Planner and Dynamic Compiler. It must remain semantic/deterministic only; Template #3 remains forbidden.",
   "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "f2fdcb1f57246eaf10c80d653541b63d22bad4c9",
-    "closedAt": "2026-10-02T12:49:01.187Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-TEMPLATE-TYPE-SYSTEM-BRABUS-HARDENING",
+    "state": "EXECUTE",
+    "truthStatus": "UNVERIFIED",
+    "verifiedImplementationHead": null,
+    "closedAt": null,
+    "sourceRef": "PO-2026-10-02-CONSTRAINT-PLANNER-BRABUS-HARDENING",
     "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+      "state": "pending"
     }
   }
 }
