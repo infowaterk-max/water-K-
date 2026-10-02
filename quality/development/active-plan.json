@@ -3,7 +3,7 @@
   "taskId": "DEV-DETERMINISTIC-PRODUCTION-LINEAGE-BRABUS-HARDENING",
   "task": "Implement canonical deterministic end-to-end Template Factory production lineage that binds accepted Visual Authority, Template Genome, Template Type, Product Owner intent, Constraint Plan, Media Plan, Factory/foundation identity and the compiled package fingerprint into one immutable proof chain without becoming a second production or Page Schema authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "afc442ca",
+  "guardDigest": "1f7fdbbd",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
     "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
@@ -32,9 +32,9 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "customer-account",
-    "inventory-fulfillment-authority",
-    "payment-checkout-order-authority",
+    "database-schema",
+    "dependency-contract",
+    "release-infrastructure",
     "shared-storefront",
     "storefront-ui"
   ],
@@ -103,12 +103,14 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012"
+    "SQ-NK-012",
+    "SQ-NK-014"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -400,11 +402,11 @@
         "builder-template-system"
       ],
       "mustEdit": [
-        "src/lib/builder/template-factory/production-lineage.ts",
         "src/lib/builder/template-factory/scaffold.ts",
         "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
+        "src/lib/builder/template-factory/production-lineage.ts",
         "src/lib/builder/template-factory/production-contracts.ts"
       ],
       "impactedReadOnly": [
@@ -536,7 +538,7 @@
       }
     ]
   },
-  "notes": "Fifth Brabus hardening wave. Genome, Template Type System, Constraint Planner and Media Planner/Compiler are PROVEN and lifecycle-closed. This wave creates derived end-to-end production evidence only; it must not mutate compiled Page Schema/package content. Anti-clone and Dynamic Production Compiler remain separate blockers. Template #3 remains forbidden.",
+  "notes": "Fifth Brabus hardening wave. Genome, Template Type System, Constraint Planner and Media Planner/Compiler are PROVEN and lifecycle-closed. This wave creates derived end-to-end production evidence only; it must not mutate compiled Page Schema/package content. Anti-clone and Dynamic Production Compiler remain separate blockers. Template #3 remains forbidden. Canonical full-PR lineage projection reconciled: impacted subsystems are builder-template-system/database-schema/dependency-contract/release-infrastructure/shared-storefront/storefront-ui; SQ-NK-005 and SQ-NK-014 apply; guard digest 1f7fdbbd. New production-lineage.ts is a planned canonical extension under mayEdit until it exists; scaffold and maturity remain mandatory integration edits.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
