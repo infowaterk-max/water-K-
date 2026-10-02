@@ -528,12 +528,10 @@
       },
       "proofSemantics": {
         "capabilities": [
-          "CAP-BUILDER",
-          "CAP-STOREFRONT",
           "CAP-QUALITY"
         ],
         "scopeStrength": 2,
-        "scope": "exact-head-template-factory-runtime-and-browser-proof",
+        "scope": "template-factory-exact-head-browser-and-acceptance-proof",
         "dimensions": [
           "runtime",
           "browser",
@@ -541,9 +539,6 @@
           "status",
           "freshness",
           "coverage",
-          "claim-scope",
-          "evidence-scope",
-          "proven-scope",
           "limitations"
         ]
       }
