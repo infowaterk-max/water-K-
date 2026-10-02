@@ -1,21 +1,16 @@
-import {getStorefrontGlobalStyleState} from '@/lib/builder/storefront-global-styles';
-import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import type {StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
 import {LOOT_VAULT_V2_GENERATOR_BLUEPRINT} from '@/lib/builder/template-factory/blueprints/loot-vault-v2';
 import {defineStorefrontTemplateGenome} from '@/lib/builder/template-factory/template-genome';
-import {STOREFRONT_TEMPLATE_PRODUCT_OWNER_INTENT_VERSION} from '@/lib/builder/template-factory/constraint-planner';
-import type {StorefrontTemplateFactoryMediaAsset,StorefrontTemplateFactoryRecipe} from '@/lib/builder/template-factory/scaffold';
+import {
+  STOREFRONT_TEMPLATE_PRODUCT_OWNER_INTENT_VERSION,
+  type StorefrontTemplateProductOwnerIntent,
+} from '@/lib/builder/template-factory/constraint-planner';
+import {compileStorefrontTemplateProductionCandidate} from '@/lib/builder/template-factory/production-compiler';
+import type {
+  StorefrontTemplateFactoryMediaAsset,
+  StorefrontTemplateFactoryMediaManifest,
+  StorefrontTemplateFactoryRecipe,
+} from '@/lib/builder/template-factory/scaffold';
 import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loot-vault/v2';
-
-const canonicalHome=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='home');
-if(!canonicalHome)throw new Error('LOOT_VAULT_V2_FACTORY_CANONICAL_HOME_MISSING');
-const canonicalHeader=canonicalHome.sections[0];
-const canonicalFooter=canonicalHome.sections.at(-1);
-if(!canonicalHeader||!canonicalFooter)throw new Error('LOOT_VAULT_V2_FACTORY_CANONICAL_SHELL_MISSING');
-
-const CANONICAL_PAGE_OVERRIDES=Object.freeze(Object.fromEntries(
-  LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.map(page=>[page.pageType,structuredClone(page)]),
-)) as Readonly<Partial<Record<StorefrontBuilderPageType,StorefrontPageDocument>>>;
 
 const MEDIA={
   hero:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',
@@ -146,69 +141,54 @@ export const LOOT_VAULT_V2_TEMPLATE_GENOME=defineStorefrontTemplateGenome({
   },
 });
 
-export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object.freeze({
+export const LOOT_VAULT_V2_PRODUCTION_INTENT:StorefrontTemplateProductOwnerIntent=Object.freeze({
+  contract:STOREFRONT_TEMPLATE_PRODUCT_OWNER_INTENT_VERSION,
+  intentId:'gaming.loot-vault.v2.production-intent',
+  intentVersion:1,
+  visualAuthorityReferenceKey:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.productionContracts.visualAuthority.referenceKey,
+  emphasis:'balanced',
+  densityPreference:'balanced',
+  requiredArchetypes:Object.freeze(['cinematic-hero','collector-grid'] as const),
+  requiredMediaRoles:Object.freeze(['hero-scene','collector-product'] as const),
+  preferredComponentFamilies:Object.freeze(['story.hero','commerce.product-grid','commerce.key-specs'] as const),
+  prioritizedEngines:Object.freeze(['E6','E7','E10'] as const),
+  note:'Preserve the accepted collector-vault visual authority while prioritizing cinematic discovery, collector evidence and structured compatibility/specification proof.',
+});
+
+export const LOOT_VAULT_V2_FACTORY_MEDIA_MANIFEST:StorefrontTemplateFactoryMediaManifest=Object.freeze({
+  assets:LOOT_VAULT_V2_FACTORY_MEDIA_ASSETS,
+  inheritedFallbackSrc:MEDIA.background,
+  requiredRoles:Object.freeze(['hero','category','product','editorial','background'] as const),
+  requirements:Object.freeze([
+    {role:'hero',minCount:1,aspectRatio:'16:9'} as const,
+    {role:'category',minCount:6,aspectRatio:'4:5'} as const,
+    {role:'product',minCount:4,aspectRatio:'4:5'} as const,
+    {role:'editorial',minCount:2,aspectRatio:'3:2'} as const,
+    {role:'background',minCount:1,aspectRatio:'16:9'} as const,
+  ]),
+  semanticBindings:Object.freeze([
+    {semanticRole:'hero-scene',technicalRole:'hero',minCount:1,aspectRatio:'16:9',pageTypes:['home'],representative:true} as const,
+    {semanticRole:'universe-editorial',technicalRole:'category',minCount:6,aspectRatio:'4:5',pageTypes:['home'],representative:true} as const,
+    {semanticRole:'collector-product',technicalRole:'product',minCount:4,aspectRatio:'4:5',pageTypes:['home','product'],representative:true} as const,
+    {semanticRole:'archive-story',technicalRole:'editorial',minCount:2,aspectRatio:'3:2',pageTypes:['home','product','blog-index','blog-article'],representative:true} as const,
+    {semanticRole:'supporting-background',technicalRole:'background',minCount:1,aspectRatio:'16:9',pageTypes:['catalog'],representative:true} as const,
+  ]),
+  minimumRepresentativeMedia:14,
+  forbidPlaceholderSvg:true,
+});
+
+export const LOOT_VAULT_V2_PRODUCTION_COMPILATION=compileStorefrontTemplateProductionCandidate({
   blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,
+  candidate:LOOT_VAULT_V2_TEMPLATE_PACKAGE,
   genome:LOOT_VAULT_V2_TEMPLATE_GENOME,
-  productionIntent:Object.freeze({
-    contract:STOREFRONT_TEMPLATE_PRODUCT_OWNER_INTENT_VERSION,
-    intentId:'gaming.loot-vault.v2.production-intent',
-    intentVersion:1,
-    visualAuthorityReferenceKey:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.productionContracts.visualAuthority.referenceKey,
-    emphasis:'balanced',
-    densityPreference:'balanced',
-    requiredArchetypes:Object.freeze(['cinematic-hero','collector-grid'] as const),
-    requiredMediaRoles:Object.freeze(['hero-scene','collector-product'] as const),
-    preferredComponentFamilies:Object.freeze(['story.hero','commerce.product-grid','commerce.key-specs'] as const),
-    prioritizedEngines:Object.freeze(['E6','E7','E10'] as const),
-    note:'Preserve the accepted collector-vault visual authority while prioritizing cinematic discovery, collector evidence and structured compatibility/specification proof.',
-  }),
-  category:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.category,
-  templateKey:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.templateKey,
-  displayName:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.displayName,
-  templateVersion:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.templateVersion,
-  minPlan:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.minPlan,
-  requiredFeatures:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.requiredFeatures,
-  demoNamespace:'gaming-loot-vault-v2',
-  globalStyles:Object.freeze(getStorefrontGlobalStyleState(canonicalHome)),
-  shell:Object.freeze({
-    headerNode:structuredClone(canonicalHeader) as StorefrontComponentNode,
-    footerNode:structuredClone(canonicalFooter) as StorefrontComponentNode,
-    header:Object.freeze(structuredClone(canonicalHeader.config)),
-  }),
-  pageOverrides:CANONICAL_PAGE_OVERRIDES,
-  demoFixtures:Object.freeze(structuredClone(LOOT_VAULT_V2_TEMPLATE_PACKAGE.demoFixtures??[])),
-  media:Object.freeze({
-    assets:LOOT_VAULT_V2_FACTORY_MEDIA_ASSETS,
-    inheritedFallbackSrc:MEDIA.background,
-    requiredRoles:Object.freeze(['hero','category','product','editorial','background'] as const),
-    requirements:Object.freeze([
-      {role:'hero',minCount:1,aspectRatio:'16:9'} as const,
-      {role:'category',minCount:6,aspectRatio:'4:5'} as const,
-      {role:'product',minCount:4,aspectRatio:'4:5'} as const,
-      {role:'editorial',minCount:2,aspectRatio:'3:2'} as const,
-      {role:'background',minCount:1,aspectRatio:'16:9'} as const,
-    ]),
-    semanticBindings:Object.freeze([
-      {semanticRole:'hero-scene',technicalRole:'hero',minCount:1,aspectRatio:'16:9',pageTypes:['home'],representative:true} as const,
-      {semanticRole:'universe-editorial',technicalRole:'category',minCount:6,aspectRatio:'4:5',pageTypes:['home'],representative:true} as const,
-      {semanticRole:'collector-product',technicalRole:'product',minCount:4,aspectRatio:'4:5',pageTypes:['home','product'],representative:true} as const,
-      {semanticRole:'archive-story',technicalRole:'editorial',minCount:2,aspectRatio:'3:2',pageTypes:['home','product','blog-index','blog-article'],representative:true} as const,
-      {semanticRole:'supporting-background',technicalRole:'background',minCount:1,aspectRatio:'16:9',pageTypes:['catalog'],representative:true} as const,
-    ]),
-    minimumRepresentativeMedia:14,
-    forbidPlaceholderSvg:true,
-  }),
-  reference:Object.freeze({
-    key:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.productionContracts.visualAuthority.referenceKey,
-    approved:true,
-    requiredPageTypes:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.productionContracts.visualAuthority.requiredPageTypes,
-  }),
-  commerceReadiness:Object.freeze({
-    productCardPurchaseActions:Object.freeze({
-      pageTypes:Object.freeze(['home','catalog'] as const),
-    }),
-  }),
-  // Recovered from the previously proven #439 candidate. This is the internal
-  // pre-Product-Owner review state only; it is not template acceptance.
+  productionIntent:LOOT_VAULT_V2_PRODUCTION_INTENT,
+  media:LOOT_VAULT_V2_FACTORY_MEDIA_MANIFEST,
   productOwnerReview:Object.freeze({internalVisualReviewPassed:true}),
 });
+
+if(!LOOT_VAULT_V2_PRODUCTION_COMPILATION.valid||!LOOT_VAULT_V2_PRODUCTION_COMPILATION.recipe){
+  const blocker=LOOT_VAULT_V2_PRODUCTION_COMPILATION.issues[0];
+  throw new Error('LOOT_VAULT_V2_DYNAMIC_COMPILER_FAILED:'+(blocker?.code??'UNKNOWN')+':'+(blocker?.path??'unknown'));
+}
+
+export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=LOOT_VAULT_V2_PRODUCTION_COMPILATION.recipe;
