@@ -327,7 +327,8 @@
       "Unit-test buildExecutionRoute with an active forbidden static route plus matching tombstone and assert INSTRUCTION_REQUIRED plus explicit forbiddenRouteTombstones evidence.",
       "Repeat without tombstone evidence and with an unrelated tombstone; neither may receive instruction-tombstone resolution.",
       "Run exact-head full Quality, TypeScript, Production Build and Completion Truth.",
-      "Merge only after lifecycle CLOSE→LEARN exact-head closure passes; then replay PR #666 without changing its product intent."
+      "Merge only after lifecycle CLOSE→LEARN exact-head closure passes; then replay PR #666 without changing its product intent.",
+      "Bind REQ-TOMBSTONE-ARCHITECTURE-RESOLUTION explicitly to exact-head GUARD-PLAN-BEFORE-CODE authority evidence plus Quality regression proof; Truth Gate must reject any authority claim not covered by producer semantics."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
@@ -467,5 +468,5 @@
       }
     ]
   },
-  "notes": "Targeted follow-up to merged PR #673. PR #666 proved tombstone transaction semantics work but architecture resolution still rejects an intentionally non-canonical forbidden legacy route. No product code or domain canonical-path expansion in this transaction. Canonical plan projection expanded impacted scope to quality-knowledge-system + shared-storefront + storefront-ui with guard digest 52ef3463; critical assurance challenge/review depth aligned before implementation. Rebased after #670 merge onto canonical main 87438bbc6a35e3e44a79e91d8ea95c90cc8a1b10; product/storefront scope unchanged. Truth replay on ad31c841 exposed a correct OVERCLAIM: the architecture-resolution requirement claimed authority but did not cite the existing GUARD-PLAN-BEFORE-CODE authority-capable producer. The claim remains unchanged; proof mapping now requires that canonical producer in addition to edit-time/regression evidence."
+  "notes": "Targeted follow-up to merged PR #673. PR #666 proved tombstone transaction semantics work but architecture resolution still rejects an intentionally non-canonical forbidden legacy route. No product code or domain canonical-path expansion in this transaction. Canonical plan projection expanded impacted scope to quality-knowledge-system + shared-storefront + storefront-ui with guard digest 52ef3463; critical assurance challenge/review depth aligned before implementation. Rebased after #670 merge onto canonical main 87438bbc6a35e3e44a79e91d8ea95c90cc8a1b10; product/storefront scope unchanged. Truth replay on ad31c841 exposed a correct OVERCLAIM: the architecture-resolution requirement claimed authority but did not cite the existing GUARD-PLAN-BEFORE-CODE authority-capable producer. The claim remains unchanged; proof mapping now requires that canonical producer in addition to edit-time/regression evidence. Truth Gate exact-head replay on ad31c841 identified a semantic evidence-mapping overclaim: REQ-TOMBSTONE-ARCHITECTURE-RESOLUTION required authority but omitted GUARD-PLAN-BEFORE-CODE, the canonical producer that proves that dimension. Evidence mapping corrected without lowering claim strength or changing gate semantics."
 }
