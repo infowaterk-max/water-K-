@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONSTRAINT-PLANNER-BRABUS-HARDENING",
   "task": "Implement the canonical deterministic Constraint Planner that combines accepted Visual Authority, proven Template Genome, proven Template Type semantics and bounded Product Owner production intent into an explainable immutable production constraint plan without mutating Page Schema.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "caa987ff",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
@@ -523,13 +523,16 @@
   },
   "notes": "Third Brabus hardening wave. Template Genome and Template Type System are PROVEN and lifecycle-closed. Constraint Planner is the next upstream dependency before Media Planner and Dynamic Compiler. It must remain semantic/deterministic only; Template #3 remains forbidden. Canonical full-PR projection reconciled on exact Planner head: database-schema is transitively impacted, SQ-NK-014 applies, and guard digest is caa987ff.",
   "lifecycle": {
-    "state": "EXECUTE",
-    "truthStatus": "UNVERIFIED",
-    "verifiedImplementationHead": null,
-    "closedAt": null,
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "45aaa948b8f8cded09388c56a061e1315b4a8d10",
+    "closedAt": "2026-10-02T13:47:38.819Z",
+    "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "PO-2026-10-02-CONSTRAINT-PLANNER-BRABUS-HARDENING",
     "learning": {
-      "state": "pending"
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
     }
   }
 }
