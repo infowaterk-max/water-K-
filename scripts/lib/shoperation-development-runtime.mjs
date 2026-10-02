@@ -31,6 +31,9 @@ const subsystemMatchers=releasePolicy.subsystems.map(item=>({...item,matchers:it
 const DEVELOPMENT_METADATA_FILES=new Set(['quality/development/active-plan.json']);
 export function isNeutralFile(file){return neutralMatchers.some(matcher=>matcher.test(file));}
 export function isDevelopmentMetadataFile(file){return DEVELOPMENT_METADATA_FILES.has(String(file??''));}
+const BLOCKING_GATE_DECISIONS=new Set(['BLOCK','FAIL','FAILED','FAILURE','STALE','CONFLICT','UNRESOLVED','UNKNOWN']);
+export function isBlockingGateDecision(value){return BLOCKING_GATE_DECISIONS.has(String(value??'').trim().toUpperCase());}
+export function aggregateGateDecision({localBlocking=false,childDecisions=[]}={}){return localBlocking||childDecisions.some(isBlockingGateDecision)?'BLOCK':'PASS';}
 
 export function parseTemplateFactoryFailures(){
   const source=readFileSync('src/lib/builder/template-factory/knowledge-registry.ts','utf8');
@@ -121,6 +124,15 @@ export function runVitest(files){
 }
 export function ensureFile(file){if(!existsSync(file))throw new Error(`Required file missing: ${file}`);}
 
+
+if(process.argv.includes('--decision-self-test')){
+  const ok=aggregateGateDecision({childDecisions:['PASS','PASS']})==='PASS'
+    &&aggregateGateDecision({childDecisions:['PASS','BLOCK']})==='BLOCK'
+    &&aggregateGateDecision({localBlocking:true,childDecisions:['PASS']})==='BLOCK'
+    &&aggregateGateDecision({childDecisions:['UNKNOWN']})==='BLOCK';
+  console.log(`Development decision self-test: ${ok?'PASS':'FAIL'}`);
+  if(!ok)process.exitCode=1;
+}
 
 if(process.argv.includes('--change-status-self-test')){
   const parsed=parseChangedFileStatus([

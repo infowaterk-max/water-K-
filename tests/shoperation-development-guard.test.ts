@@ -42,8 +42,8 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
   it('prevents plan-only or metadata commits from shrinking the active development transaction',()=>{
     const runtime=readFileSync('scripts/lib/shoperation-development-runtime.mjs','utf8'),plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
     expect(runtime).toContain("git(['diff','--name-status','--diff-filter=ACMRD',base,head])");
-    expect(runtime).toContain('const base=resolveDevelopmentBase({changeBaseSha:explicit})');
-    expect(plan).toContain("diff.files.filter(file=>file!=='quality/development/active-plan.json')");
+    expect(runtime).toContain('const base=resolveDevelopmentBase({changeBaseSha:requestedBase||null})');
+    expect(plan).toContain('diff.materialFiles??[]');
     expect(plan).not.toContain("getChangedFiles()");
   });
   it('wires development-time guards into PR CI while preserving post-merge replay and evidence',()=>{for(const file of ['.github/workflows/ci.yml','.github/workflows/template-factory-quality-gate.yml']){const workflow=readFileSync(file,'utf8');expect(workflow).toContain("Plan Before Code Gate\n        if: github.event_name == 'pull_request'");expect(workflow).toContain("Edit-Time Known Failure Guard\n        if: github.event_name == 'pull_request'");expect(workflow).toContain('Incremental Known Failure Replay');expect(workflow).toContain('shoperation-plan-before-code.mjs --check');expect(workflow).toContain('shoperation-edit-time-guard.mjs --check');expect(workflow).toContain('shoperation-incremental-replay.mjs --check');expect(workflow).toContain('INCREMENTAL_OUTCOME');expect(workflow).toContain('INCREMENTAL_REPLAY_FAILED');expect(workflow).toContain('Upload Development Guard evidence');}});
@@ -56,6 +56,15 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(edit).toContain('buildExecutionRoute');
     expect(edit).toContain('instructionRequired');
     expect(edit).toContain('requiredChangeSet=[...new Set([...declaredSemanticRequired,...instructionRequired,...referenceRequired])]');
+  });
+  it('keeps composite Edit-Time decisions monotonic and excludes plan metadata from material implementation scope',()=>{
+    const output=execFileSync(process.execPath,['scripts/lib/shoperation-development-runtime.mjs','--decision-self-test'],{encoding:'utf8'});
+    expect(output).toContain('Development decision self-test: PASS');
+    const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');
+    expect(edit).toContain('diff.materialFiles??[]');
+    expect(edit).toContain('DEV-BLOCK-IMPLEMENTATION-SYNC-OUTSIDE-PLAN');
+    expect(edit).toContain('childDecisions={referenceSync:referenceSync.decision,implementationSync:implementationSync.decision,poInstructionState:poInstructionState.decision}');
+    expect(edit).toContain('aggregateGateDecision({localBlocking:blocking.length>0,childDecisions:Object.values(childDecisions)})');
   });
   it('makes the preventive protocol repository-level instructions for coding agents',()=>{const agents=readFileSync('AGENTS.md','utf8');expect(agents).toContain('BEFORE THE FIRST IMPLEMENTATION EDIT');expect(agents).toContain('development-guard.md');expect(agents).toContain('Plan Before Code');expect(agents).toContain('shoperation-incremental-replay.mjs --check');});
 });
