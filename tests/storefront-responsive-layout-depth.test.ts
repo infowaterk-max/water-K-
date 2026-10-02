@@ -238,20 +238,16 @@ describe('Responsive / Layout Depth v1',()=>{
     expect(()=>applyStorefrontResponsiveInheritancePropagation(document,plan)).toThrow('RESPONSIVE_INHERITANCE_PLAN_HASH_INVALID');
   });
 
-  it('keeps legacy cascade migration-only and routes UI propagation through ordinary Builder history',()=>{
+  it('keeps legacy cascade migration-only and the core intelligence persistence-free',()=>{
     const engine=read('src/lib/builder/storefront-responsive-layout-depth.ts');
     const runtime=read('src/lib/builder/storefront-runtime.ts');
-    const controls=read('src/components/admin/storefront-responsive-layout-depth-controls.tsx');
-    const builder=read('src/components/admin/storefront-visual-builder-v3.tsx');
     expect(engine).not.toContain('LegacyCascade');
     expect(runtime).toContain('resolveStorefrontResponsiveOverrideLegacyCascade');
-    expect(controls).toContain('inspectStorefrontResponsiveInheritance');
-    expect(controls).toContain('planStorefrontResponsiveInheritancePropagation');
-    expect(controls).toContain('applyStorefrontResponsiveInheritancePropagation');
-    expect(controls).toContain('Desktop, Tablet és Mobil nem örököl egymástól automatikusan');
-    expect(controls).toContain('data-responsive-inheritance-intelligence');
-    expect(builder).toContain('const applyFidelity=(next:StorefrontPageDocument,message:string)=>{commitDocument(next);');
-    expect(builder).toContain('pushStorefrontBuilderHistory');
+    expect(engine).toContain('planStorefrontResponsiveInheritancePropagation');
+    expect(engine).toContain('applyStorefrontResponsiveInheritancePropagation');
+    expect(engine).not.toContain('publishVisualBuilderPageAction');
+    expect(engine).not.toContain('saveVisualBuilderDraftAction');
+    expect(engine).not.toContain('supabase');
   });
 
 });
