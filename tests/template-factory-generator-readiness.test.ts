@@ -11,9 +11,10 @@ import {STOREFRONT_PAGE_TYPES,STOREFRONT_VIEWPORTS} from '@/lib/builder/storefro
 import {defineStorefrontTemplateGenome} from '@/lib/builder/template-factory/template-genome';
 import type {StorefrontTemplateFactoryMediaAsset} from '@/lib/builder/template-factory/scaffold';
 import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/playroom/v20';
+import {STOREFRONT_TEMPLATE_PRODUCTION_COMPILER_VERSION} from '@/lib/builder/template-factory/production-compiler-contract';
 
 describe('Template Generator Readiness v0.1',()=>{
-  it('marks Loot Vault v2 generator-ready without activating a generator runtime',()=>{
+  it('marks Loot Vault v2 generator-ready through the canonical Dynamic Production Compiler',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
     expect(build.report.generatorReadiness).toMatchObject({
       declared:true,
@@ -40,7 +41,7 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(build.report.generatorReadiness.distinctness.comparisons.some(row=>row.reference.templateKey==='gaming.loot-vault')).toBe(false);
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).not.toContain('FACTORY-CONSTRAINT-PLANNER');
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toContain('VX-SMART-INTENT');
-    expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.generator).toEqual({implementation:'deferred',target:'template-compiler'});
+    expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.generator).toEqual({implementation:'dynamic-production-compiler',target:'template-compiler',compilerContract:STOREFRONT_TEMPLATE_PRODUCTION_COMPILER_VERSION});
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.composition.pageTypes).toEqual(STOREFRONT_PAGE_TYPES);
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.composition.viewports).toEqual(STOREFRONT_VIEWPORTS);
     expect(()=>assertStorefrontTemplateGeneratorReady(build.report.generatorReadiness)).not.toThrow();
