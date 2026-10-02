@@ -516,7 +516,22 @@ export function compileStorefrontTemplateFactoryPackage(input:{
   });
   const productionContracts=generatorReadiness.productionContracts;
   const issues=evaluateBuild({foundation,recipe,pkg,patchMisses,overridden});
-  if(recipe.blueprint)issues.push(...generatorReadiness.issues);
+  if(recipe.blueprint){
+    issues.push(...generatorReadiness.issues);
+    if(generatorReadiness.mediaPlanning.valid&&!generatorReadiness.mediaPlanning.technicalFulfilled){
+      issues.push(issue(
+        'FACTORY_SEMANTIC_MEDIA_COVERAGE',
+        'media.semanticBindings',
+        'Required semantic Asset Briefs need enough internal-reference or ready assets before technical Factory readiness.',
+      ));
+    }else if(generatorReadiness.mediaPlanning.valid&&!generatorReadiness.mediaPlanning.readyFulfilled){
+      issues.push(issue(
+        'FACTORY_MEDIA_FINALIZATION_REQUIRED',
+        'media.semanticBindings',
+        'Required semantic Asset Briefs must be fulfilled by package-owned ready media before Product Owner preview.',
+      ));
+    }
+  }
   return{
     package:pkg,
     report:{
