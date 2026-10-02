@@ -10,6 +10,7 @@ import {buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/t
 import {STOREFRONT_PAGE_TYPES,STOREFRONT_VIEWPORTS} from '@/lib/builder/storefront-foundation';
 import {defineStorefrontTemplateGenome} from '@/lib/builder/template-factory/template-genome';
 import type {StorefrontTemplateFactoryMediaAsset} from '@/lib/builder/template-factory/scaffold';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/playroom/v20';
 
 describe('Template Generator Readiness v0.1',()=>{
   it('marks Loot Vault v2 generator-ready without activating a generator runtime',()=>{
@@ -34,6 +35,9 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(build.report.generatorReadiness.mediaPlanning.plan?.sources.constraintPlanHash).toBe(build.report.generatorReadiness.constraintPlanning.plan?.hash);
     expect(build.report.generatorReadiness.productionLineage?.valid).toBe(true);
     expect(build.report.generatorReadiness.productionLineage?.lineage?.hash).toBe(build.report.provenance.lineage?.hash);
+    expect(build.report.generatorReadiness.distinctness.valid).toBe(true);
+    expect(build.report.generatorReadiness.distinctness.corpusSize).toBeGreaterThan(20);
+    expect(build.report.generatorReadiness.distinctness.comparisons.some(row=>row.reference.templateKey==='gaming.loot-vault')).toBe(false);
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).not.toContain('FACTORY-CONSTRAINT-PLANNER');
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toContain('VX-SMART-INTENT');
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.generator).toEqual({implementation:'deferred',target:'template-compiler'});
@@ -190,6 +194,31 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(result.productionLineage?.valid).toBe(false);
     expect(result.ready).toBe(false);
     expect(result.issues.map(issue=>issue.code)).toContain('PRODUCTION_LINEAGE_FOUNDATION_VERSION_DRIFT');
+  });
+
+
+  it('fails closed when a foreign Playroom package is relabeled as the Loot Vault candidate',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const clone=structuredClone(PLAYROOM_V20_TEMPLATE_PACKAGE);
+    clone.manifest={...clone.manifest,templateKey:LOOT_VAULT_V2_FACTORY_RECIPE.templateKey,templateVersion:LOOT_VAULT_V2_FACTORY_RECIPE.templateVersion};
+    clone.pages=clone.pages.map(page=>({...page,templateKey:LOOT_VAULT_V2_FACTORY_RECIPE.templateKey,templateVersion:LOOT_VAULT_V2_FACTORY_RECIPE.templateVersion}));
+    const result=evaluateStorefrontTemplateGeneratorReadiness({
+      blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,
+      recipe:LOOT_VAULT_V2_FACTORY_RECIPE,
+      package:clone,
+      lineageContext:{
+        factoryVersion:build.report.factoryVersion,
+        foundation:{
+          category:build.report.foundation.category,
+          templateKey:build.report.foundation.templateKey,
+          templateVersion:build.report.foundation.templateVersion,
+        },
+      },
+    });
+    expect(result.distinctness.valid).toBe(false);
+    expect(result.ready).toBe(false);
+    expect(result.issues.map(issue=>issue.code)).toContain('DISTINCTNESS_SIMILARITY_BUDGET_EXCEEDED');
+    expect(result.distinctness.comparisons.find(row=>row.reference.templateKey==='gaming.playroom')?.blocked).toBe(true);
   });
 
   it('keeps undeclared recipes outside generator-ready status instead of inventing metadata',()=>{
