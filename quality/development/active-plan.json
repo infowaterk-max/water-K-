@@ -3,20 +3,19 @@
   "taskId": "DEV-CONTROL-PLANE-STOREFRONT-PATH-FALLBACK",
   "task": "Atlas path classification: resolve otherwise-unowned shopper-facing app pages and storefront metadata without overriding specific domain authorities.",
   "status": "ready-for-implementation",
-  "guardDigest": "aa79c504",
+  "guardDigest": "f8395e8f",
   "changeBaseSha": "6ddc62fbac729d593cda0c7fcbbf386062a89b45",
   "plannedFilePatterns": [
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
     "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
     "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
-  "expectedSubsystems": [],
-  "expectedDomains": [
-    "DOMAIN-QUALITY"
+  "expectedSubsystems": [
+    "shared-storefront",
+    "storefront-ui"
   ],
-  "expectedAuthorities": [
-    "quality-knowledge-system"
-  ],
+  "expectedDomains": [],
+  "expectedAuthorities": [],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
@@ -70,6 +69,13 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-004",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-012"
   ],
   "exceptions": [],
@@ -138,6 +144,33 @@
         "Admin page with explicit DOMAIN-ADMIN match.",
         "Builder preview page with explicit DOMAIN-BUILDER match.",
         "API route handler."
+      ],
+      "phases": [
+        "OBSERVE",
+        "DEFINE",
+        "MODEL",
+        "PLAN",
+        "CHALLENGE",
+        "IMPROVE",
+        "PROVE_PLAN",
+        "EXECUTE",
+        "VERIFY",
+        "TRUTH_GATE",
+        "CLOSE",
+        "LEARN"
+      ],
+      "transitions": [
+        "OBSERVE->DEFINE",
+        "DEFINE->MODEL",
+        "MODEL->PLAN",
+        "PLAN->CHALLENGE",
+        "CHALLENGE->IMPROVE",
+        "IMPROVE->PROVE_PLAN",
+        "PROVE_PLAN->EXECUTE",
+        "EXECUTE->VERIFY",
+        "VERIFY->TRUTH_GATE",
+        "TRUTH_GATE->CLOSE",
+        "CLOSE->LEARN"
       ]
     },
     "alternatives": [
@@ -172,7 +205,7 @@
         ]
       },
       {
-        "role": "Authority",
+        "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "Generic src/app ownership can collide with admin/builder domains.",
@@ -287,7 +320,10 @@
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "unknown": []
-    }
+    },
+    "sourceKind": "product-owner-request",
+    "riskTier": "critical",
+    "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
@@ -364,5 +400,5 @@
       }
     ]
   },
-  "notes": "Targeted foundational follow-up from #666 planned projection after #678. Resolves path-derived storefront presentation ownership without PR-specific exceptions or canonical authority overrides."
+  "notes": "Targeted foundational follow-up from #666 planned projection after #678. Resolves path-derived storefront presentation ownership without PR-specific exceptions or canonical authority overrides. Canonical plan-only projection on 792b84d derived domains=[], authorities=[], subsystems=[shared-storefront,storefront-ui], negative knowledge SQ-NK-001/002/004/006/007/008/009/012 and guard digest f8395e8f. Canonical critical operational metadata restored; engineering scope unchanged."
 }
