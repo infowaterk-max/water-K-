@@ -13,6 +13,12 @@ import {
   type StorefrontTemplateGenomeValidation,
 } from '@/lib/builder/template-factory/template-genome';
 import {
+  validateStorefrontTemplateTypeCompatibility,
+  validateStorefrontTemplateTypeSystemCatalog,
+  type StorefrontTemplateTypeCompatibilityValidation,
+  type StorefrontTemplateTypeSystemValidation,
+} from '@/lib/builder/template-factory/template-type-system';
+import {
   evaluateStorefrontTemplateProductionContracts,
   type StorefrontTemplateProductionContractDeclaration,
   type StorefrontTemplateProductionContractsResult,
@@ -65,6 +71,8 @@ export type StorefrontTemplateGeneratorReadinessResult={
   productionContracts:StorefrontTemplateProductionContractsResult;
   productionMaturity:StorefrontTemplateProductionMaturityResult;
   genomeValidation:StorefrontTemplateGenomeValidation;
+  typeSystemValidation:StorefrontTemplateTypeSystemValidation;
+  typeCompatibility:StorefrontTemplateTypeCompatibilityValidation;
   template3AuthoringReady:boolean;
   issues:readonly StorefrontTemplateGeneratorReadinessIssue[];
 };
@@ -95,6 +103,8 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
 }):StorefrontTemplateGeneratorReadinessResult{
   const{blueprint,recipe}=input,pkg=input.package;
   const productionMaturity=input.productionMaturity??evaluateStorefrontTemplateProductionMaturity();
+  const typeSystemValidation=validateStorefrontTemplateTypeSystemCatalog();
+  const typeCompatibility=validateStorefrontTemplateTypeCompatibility({category:recipe.category,genome:recipe.genome});
   const genomeValidation=validateStorefrontTemplateGenome(recipe.genome,{
     category:recipe.category,
     templateKey:recipe.templateKey,
@@ -117,6 +127,8 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
       productionContracts,
       productionMaturity,
       genomeValidation,
+      typeSystemValidation,
+      typeCompatibility,
       template3AuthoringReady:false,
       issues:Object.freeze(issues),
     };
@@ -139,6 +151,8 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
   if(!productionContracts.declared)issues.push(failure('GENERATOR_PRODUCTION_CONTRACTS_REQUIRED','blueprint.productionContracts','Generator-ready templates require explicit production contracts for visual authority and template file ownership.'));
   for(const contractIssue of productionContracts.issues)issues.push(failure(contractIssue.code,`blueprint.productionContracts.${contractIssue.path}`,contractIssue.message));
   for(const genomeIssue of genomeValidation.issues)issues.push(failure(genomeIssue.code,genomeIssue.path,genomeIssue.message));
+  for(const typeIssue of typeSystemValidation.issues)issues.push(failure(typeIssue.code,typeIssue.path,typeIssue.message));
+  for(const typeIssue of typeCompatibility.issues)issues.push(failure(typeIssue.code,typeIssue.path,typeIssue.message));
 
   const identityChecks=[
     ['category',blueprint.template.category,recipe.category],
@@ -175,7 +189,9 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     productionContracts,
     productionMaturity,
     genomeValidation,
-    template3AuthoringReady:issues.length===0&&genomeValidation.valid&&productionMaturity.valid&&productionMaturity.template3AuthoringReady,
+    typeSystemValidation,
+    typeCompatibility,
+    template3AuthoringReady:issues.length===0&&genomeValidation.valid&&typeSystemValidation.valid&&typeCompatibility.valid&&productionMaturity.valid&&productionMaturity.template3AuthoringReady,
     issues:Object.freeze(issues),
   };
 }
