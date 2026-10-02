@@ -1,6 +1,10 @@
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import type {StorefrontTemplateConstraintPlan} from '@/lib/builder/template-factory/constraint-planner';
 import type {StorefrontTemplateMediaPlan} from '@/lib/builder/template-factory/media-planner';
+import {
+  validateStorefrontTemplateGenome,
+  type StorefrontTemplateGenome,
+} from '@/lib/builder/template-factory/template-genome';
 
 export const STOREFRONT_TEMPLATE_PRODUCTION_LINEAGE_VERSION='shoporation.template-production-lineage.v1' as const;
 export type StorefrontTemplateProductionLineageHash=`fnv1a32:${string}`;
@@ -85,11 +89,7 @@ export type StorefrontTemplateProductionLineageInput={
     templateKey:string;
     templateVersion:number;
     reference:{key:string};
-    genome?:{
-      contract:string;
-      identity:{genomeVersion:number};
-      hash:string;
-    }|null;
+    genome?:StorefrontTemplateGenome|null;
     productionIntent?:{
       contract:string;
       intentId:string;
@@ -186,11 +186,23 @@ function sourceIssues(input:StorefrontTemplateProductionLineageInput):Storefront
   }
 
   if(!genome)issues.push(failure('PRODUCTION_LINEAGE_GENOME_REQUIRED','recipe.genome','Production lineage requires the canonical Template Genome.'));
+  else{
+    const genomeValidation=validateStorefrontTemplateGenome(genome,{
+      category:input.recipe.category,
+      templateKey:input.recipe.templateKey,
+      templateVersion:input.recipe.templateVersion,
+    });
+    for(const row of genomeValidation.issues){
+      issues.push(failure(`PRODUCTION_LINEAGE_${row.code}` ,`recipe.genome.${row.path}`,row.message));
+    }
+  }
   if(!intent)issues.push(failure('PRODUCTION_LINEAGE_PO_INTENT_REQUIRED','recipe.productionIntent','Production lineage requires bounded Product Owner production intent.'));
   if(!constraint)issues.push(failure('PRODUCTION_LINEAGE_CONSTRAINT_PLAN_REQUIRED','constraintPlan','Production lineage requires a valid Constraint Plan.'));
   if(!media)issues.push(failure('PRODUCTION_LINEAGE_MEDIA_PLAN_REQUIRED','mediaPlan','Production lineage requires a valid Media Plan.'));
 
   if(constraint){
+    const{hash:constraintHash,...constraintWithoutHash}=constraint;
+    if(fnv1a32(constraintWithoutHash)!==constraintHash)issues.push(failure('PRODUCTION_LINEAGE_CONSTRAINT_HASH_INVALID','constraintPlan.hash','Constraint Plan hash must match its canonical content.'));
     if(!sameIdentity(constraint.identity,recipeIdentity))issues.push(failure('PRODUCTION_LINEAGE_CONSTRAINT_IDENTITY_DRIFT','constraintPlan.identity','Constraint Plan identity must match the active Factory recipe.'));
     if(visual&&constraint.sources.visualAuthority.referenceKey!==visual.referenceKey)issues.push(failure('PRODUCTION_LINEAGE_VISUAL_AUTHORITY_CONSTRAINT_DRIFT','constraintPlan.sources.visualAuthority.referenceKey','Constraint Plan must bind the same accepted Visual Authority.'));
     if(genome&&constraint.sources.genome.hash!==genome.hash)issues.push(failure('PRODUCTION_LINEAGE_GENOME_HASH_DRIFT','constraintPlan.sources.genome.hash','Constraint Plan Genome hash must match the active recipe Genome.'));
@@ -204,6 +216,8 @@ function sourceIssues(input:StorefrontTemplateProductionLineageInput):Storefront
   }
 
   if(media&&constraint){
+    const{hash:mediaHash,...mediaWithoutHash}=media;
+    if(fnv1a32(mediaWithoutHash)!==mediaHash)issues.push(failure('PRODUCTION_LINEAGE_MEDIA_HASH_INVALID','mediaPlan.hash','Media Plan hash must match its canonical content.'));
     if(!sameIdentity(media.identity,constraint.identity))issues.push(failure('PRODUCTION_LINEAGE_MEDIA_IDENTITY_DRIFT','mediaPlan.identity','Media Plan identity must match the Constraint Plan identity.'));
     if(media.sources.constraintPlanHash!==constraint.hash)issues.push(failure('PRODUCTION_LINEAGE_MEDIA_CONSTRAINT_HASH_DRIFT','mediaPlan.sources.constraintPlanHash','Media Plan must bind the exact Constraint Plan hash.'));
     if(media.sources.genomeHash!==constraint.sources.genome.hash)issues.push(failure('PRODUCTION_LINEAGE_MEDIA_GENOME_HASH_DRIFT','mediaPlan.sources.genomeHash','Media Plan Genome hash must match the Constraint Plan Genome source.'));
