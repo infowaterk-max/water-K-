@@ -3,7 +3,7 @@
   "taskId": "DEV-MEDIA-PLANNER-COMPILER-BRABUS-HARDENING",
   "task": "Evolve the existing Template Factory media manifest into a canonical Media Planner / Compiler that converts proven Constraint Plan semantic media requirements into immutable Asset Briefs, validates concrete manifest fulfillment, emits bounded repair actions, supports atomic media-state promotion, and preserves deterministic lineage without generating or selecting assets through a parallel authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "caa987ff",
+  "guardDigest": "afc442ca",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
     "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
@@ -30,8 +30,9 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "database-schema",
-    "release-infrastructure",
+    "customer-account",
+    "inventory-fulfillment-authority",
+    "payment-checkout-order-authority",
     "shared-storefront",
     "storefront-ui"
   ],
@@ -100,14 +101,12 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-014"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -353,9 +352,9 @@
       },
       {
         "id": "CH-MEDIA-6",
-        "scenario": "Two bindings declare the same semantic role.",
-        "finding": "Compilation becomes order-dependent.",
-        "resolution": "Duplicate semantic roles block planning.",
+        "scenario": "The manifest declares two different bindings for semantic role collector-product: one maps it to technical role product/4:5 and another maps the same semantic role to editorial/3:2.",
+        "finding": "Without uniqueness enforcement, compilation would depend on declaration order, producing two incompatible Asset Brief interpretations for the same Constraint Plan role.",
+        "resolution": "Reject the manifest before brief compilation with MEDIA_PLANNER_SEMANTIC_ROLE_DUPLICATE so exactly one binding can own each semantic role.",
         "status": "resolved"
       },
       {
@@ -391,10 +390,7 @@
         "src/lib/builder/template-factory/scaffold.ts",
         "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
         "src/lib/builder/template-factory/generator-readiness.ts",
-        "src/lib/builder/template-factory/production-maturity.ts",
-        "tests/template-factory-media-planner.test.ts",
-        "tests/template-factory-generator-readiness.test.ts",
-        "tests/template-factory-production-maturity.test.ts"
+        "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
         "src/lib/builder/template-factory/production-contracts.ts"
@@ -526,7 +522,7 @@
       }
     ]
   },
-  "notes": "Fourth Brabus hardening wave. Genome, Type System and Constraint Planner are PROVEN and lifecycle-closed. Media Planner/Compiler now bridges semantic constraints to the existing concrete Factory media manifest. Actual image generation and anti-clone scoring remain separate. Template #3 remains forbidden.",
+  "notes": "Fourth Brabus hardening wave. Genome, Type System and Constraint Planner are PROVEN and lifecycle-closed. Media Planner/Compiler now bridges semantic constraints to the existing concrete Factory media manifest. Actual image generation and anti-clone scoring remain separate. Template #3 remains forbidden. Canonical Media Planner projection reconciled: impacted subsystems are builder-template-system/customer-account/inventory-fulfillment-authority/payment-checkout-order-authority/shared-storefront/storefront-ui; SQ-NK-005 and SQ-NK-014 do not apply; guard digest afc442ca. Proof files remain proof-only, outside semantic must-edit authority.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
