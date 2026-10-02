@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-PLANNED-DELETION-AUTHORIZATION",
   "task": "Semantic Execution Intelligence: authorize explicit PO-governed planned route deletion before code while preserving Git D as mandatory completion proof.",
   "status": "ready-for-implementation",
-  "guardDigest": "52ef3463",
+  "guardDigest": "aa79c504",
   "changeBaseSha": "2860a9bda9bc151d61fc18917021ea7414bc5acf",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -12,11 +12,7 @@
     "scripts/shoperation-plan-before-code.mjs",
     "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
-  "expectedSubsystems": [
-    "quality-knowledge-system",
-    "shared-storefront",
-    "storefront-ui"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
     "DOMAIN-QUALITY"
   ],
@@ -76,18 +72,7 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-004",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
-    "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -398,6 +383,9 @@
               "GUARD-QUALITY-TESTS"
             ]
           }
+        ],
+        "requiredCapabilities": [
+          "CAP-ATLAS"
         ]
       },
       {
@@ -430,9 +418,12 @@
               "GUARD-PRODUCTION-BUILD"
             ]
           }
+        ],
+        "requiredCapabilities": [
+          "CAP-ATLAS"
         ]
       }
     ]
   },
-  "notes": "Targeted follow-up discovered by #666 plan-only replay after merged #675 and #677. The defect is phase semantics, not storefront scope: planning authorization currently requires completion evidence. No product code or generic architecture exception in this transaction."
+  "notes": "Targeted follow-up discovered by #666 plan-only replay after merged #675 and #677. The defect is phase semantics, not storefront scope: planning authorization currently requires completion evidence. No product code or generic architecture exception in this transaction. Canonical planned-projection on main 2860a9 derived no release subsystem classification, SQ-NK-012, guard digest aa79c504; critical completion claims bind explicitly to CAP-ATLAS."
 }
