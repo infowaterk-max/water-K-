@@ -3,17 +3,14 @@
   "taskId": "DEV-CONTROL-PLANE-ATLAS-RULE-COHERENCE",
   "task": "Atlas rule coherence: enforce one canonical classification result across materialized nodes, path classification, impact and resolver paths, and detect structured active PO route-authority conflicts.",
   "status": "ready-for-implementation",
-  "guardDigest": "f8395e8f",
+  "guardDigest": "aa79c504",
   "changeBaseSha": "7ec2cb968b023da7cac3bf684e7ee4bb00f1be06",
   "plannedFilePatterns": [
     "quality/knowledge/domain-foundations.v1.json",
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
     "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
-  "expectedSubsystems": [
-    "shared-storefront",
-    "storefront-ui"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
     "DOMAIN-QUALITY"
   ],
@@ -73,13 +70,6 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-004",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
     "SQ-NK-012"
   ],
   "exceptions": [],
@@ -494,5 +484,5 @@
       }
     ]
   },
-  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented. Broadened before implementation after Product Owner review: recurring pingpong is treated as Atlas rule-coherence failure, not a #666-specific resolver symptom. No new gate; existing validateCodebaseAtlas/Knowledge/Plan authority is strengthened. Canonical planned projection on 8c290f6 derived DOMAIN-QUALITY / quality-knowledge-system, full active negative-knowledge set SQ-NK-001/002/004/006/007/008/009/012 and guard digest aa79c504; reconciled without changing coherence scope. Additional registry-coherence evidence: codebase-atlas-policy.v2 quality-system surface already covers scripts/lib/shoperation-**, while DOMAIN-QUALITY canonicalPaths does not. Existing DOMAIN-QUALITY is extended to the same helper namespace; no new authority is created. Projected scope restored to the previously Plan-PASS shape for these three files."
+  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented. Broadened before implementation after Product Owner review: recurring pingpong is treated as Atlas rule-coherence failure, not a #666-specific resolver symptom. No new gate; existing validateCodebaseAtlas/Knowledge/Plan authority is strengthened. Canonical planned projection on 8c290f6 derived DOMAIN-QUALITY / quality-knowledge-system, full active negative-knowledge set SQ-NK-001/002/004/006/007/008/009/012 and guard digest aa79c504; reconciled without changing coherence scope. Additional registry-coherence evidence: codebase-atlas-policy.v2 quality-system surface already covers scripts/lib/shoperation-**, while DOMAIN-QUALITY canonicalPaths does not. Existing DOMAIN-QUALITY is extended to the same helper namespace; no new authority is created. Projected scope restored to the previously Plan-PASS shape for these three files. Canonical projection on 6455ea27 confirms DOMAIN-QUALITY / quality-knowledge-system, no release-subsystem classification, SQ-NK-012 only, and guard digest aa79c504. Reconciled exactly; three-file coherence transaction unchanged."
 }
