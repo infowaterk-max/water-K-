@@ -3,13 +3,17 @@
   "taskId": "DEV-CONTROL-PLANE-ATLAS-RULE-COHERENCE",
   "task": "Atlas rule coherence: enforce one canonical classification result across materialized nodes, path classification, impact and resolver paths, and detect structured active PO route-authority conflicts.",
   "status": "ready-for-implementation",
-  "guardDigest": "aa79c504",
+  "guardDigest": "f8395e8f",
   "changeBaseSha": "7ec2cb968b023da7cac3bf684e7ee4bb00f1be06",
   "plannedFilePatterns": [
+    "quality/knowledge/domain-foundations.v1.json",
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
     "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
-  "expectedSubsystems": [],
+  "expectedSubsystems": [
+    "shared-storefront",
+    "storefront-ui"
+  ],
   "expectedDomains": [
     "DOMAIN-QUALITY"
   ],
@@ -88,6 +92,7 @@
       "Every materialized Atlas node matches classifyAtlasPath for route, subsystems, surfaces, domains, authorities and truthKeys.",
       "buildCodebaseAtlas materializes classification through the same canonical classifyAtlasPath pipeline used by direct path classification.",
       "impactForAtlasPattern and resolveAtlasArchitectureForPath consume the same canonical classification semantics instead of maintaining independent domain fallbacks.",
+      "DOMAIN-QUALITY canonical ownership covers scripts/lib/shoperation-** in agreement with the existing Atlas quality-system surface rule.",
       "validateCodebaseAtlas hard-blocks a deliberately inconsistent materialized node with ATLAS_CLASSIFICATION_DIVERGENCE.",
       "validateCodebaseAtlas hard-blocks machine-readable active PO route conflicts where one active instruction requires a route that another active instruction forbids without explicit supersession.",
       "The unchanged #666 plan-only replay no longer ping-pongs between contradictory classification paths."
@@ -102,7 +107,8 @@
         "Existing Codebase Atlas classification/materialization/impact/resolver pipeline.",
         "Existing validateCodebaseAtlas invoked by Knowledge Before Build and Plan Before Code.",
         "Structured active PO instruction route compatibility using affectedRoutes and forbiddenStates route entries.",
-        "Adversarial regressions for materialized-node divergence and route-rule conflict."
+        "Adversarial regressions for materialized-node divergence and route-rule conflict.",
+        "Alignment of existing Atlas quality-system surface policy with existing DOMAIN-QUALITY canonical ownership for scripts/lib/shoperation-**."
       ],
       "out": [
         "Any new quality gate, registry or blocking authority.",
@@ -134,6 +140,7 @@
         "A synthetic node whose domains or authorities differ from classifyAtlasPath is rejected by validateCodebaseAtlas with ATLAS_CLASSIFICATION_DIVERGENCE and field-level evidence.",
         "impactForAtlasPattern derives fallback classification from classifyAtlasPath rather than directly from classifyDomains.",
         "resolveAtlasArchitectureForPath uses canonical path classification for architecture fields and does not let an inconsistent cached node become a second authority.",
+        "classifyAtlasPath('scripts/lib/shoperation-codebase-atlas-runtime.mjs') resolves to DOMAIN-QUALITY/quality-knowledge-system, matching its existing quality-system surface classification.",
         "Two active PO instructions where one lists /example in affectedRoutes and another lists route:/example in forbiddenStates are rejected with ATLAS_PO_ROUTE_AUTHORITY_CONFLICT unless the conflicting instruction is inactive or explicitly superseded.",
         "The current shipping/payment instruction remains valid and deletion/tombstone proof semantics are unchanged."
       ],
@@ -142,7 +149,8 @@
         "Atlas nodes are materialized evidence of canonical classification, not an independent authority.",
         "Knowledge Before Build and Plan Before Code consume the same validateCodebaseAtlas coherence result.",
         "Structured conflict detection is fail-closed but does not parse human prose.",
-        "No Product Owner or PR-specific file exception is introduced."
+        "No Product Owner or PR-specific file exception is introduced.",
+        "Existing quality-system surface classification for scripts/lib/shoperation-** and DOMAIN-QUALITY ownership must not contradict each other."
       ],
       "forbiddenStates": [
         "node-classifier-split-brain",
@@ -185,7 +193,8 @@
         "A direct classifier test passes while materialized Atlas nodes still carry old domain semantics.",
         "A resolver uses cached node ownership while impact analysis uses another classifier and the gates ping-pong.",
         "Two active structured PO instructions issue opposing route authority and both are individually valid.",
-        "A validator fix is bypassed because a downstream helper recomputes domains independently."
+        "A validator fix is bypassed because a downstream helper recomputes domains independently.",
+        "A file is declared quality-system by Atlas surface policy but remains unowned by DOMAIN-QUALITY due registry pattern drift."
       ],
       "edgeCases": [
         "Public page receiving storefront fallback.",
@@ -194,7 +203,8 @@
         "Unknown file with no domain in both node and classifier.",
         "Deleted/planned-deletion route where ownership and deletion proof remain separate.",
         "Inactive or superseded PO instruction containing a conflicting route.",
-        "Same active instruction accidentally requiring and forbidding the same route."
+        "Same active instruction accidentally requiring and forbidding the same route.",
+        "Quality helper under scripts/lib/shoperation-**."
       ]
     },
     "alternatives": [
@@ -222,8 +232,8 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "ARCH-001 already requires one canonical authority, but the Atlas currently materializes path ownership through two code paths.",
-        "resolution": "Make classifyAtlasPath the single materialization source and validate node equivalence on every Atlas validation.",
+        "finding": "ARCH-001 already requires one canonical authority, but the Atlas currently materializes path ownership through two code paths. The quality-system surface registry and DOMAIN-QUALITY path registry also disagree for scripts/lib/shoperation-**.",
+        "resolution": "Make classifyAtlasPath the single materialization source and validate node equivalence on every Atlas validation. Align the existing DOMAIN-QUALITY canonical path with the already-declared quality-system surface.",
         "evidence": [
           "quality/knowledge/architecture-constitution.v1.json",
           "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
@@ -264,9 +274,9 @@
     "challenge": [
       {
         "id": "CH-1",
-        "scenario": "classifyAtlasPath returns storefront but materialized node domains are empty.",
+        "scenario": "classifyAtlasPath returns storefront but materialized node domains are empty. The Atlas runtime helper itself is surface-classified as quality-system but lacks DOMAIN-QUALITY ownership.",
         "finding": "Different gates can consume different truths for the same file.",
-        "resolution": "Node materialization uses classifyAtlasPath and validation blocks field divergence.",
+        "resolution": "Node materialization uses classifyAtlasPath and validation blocks field divergence. Align the existing quality domain registry at the same time.",
         "status": "resolved"
       },
       {
@@ -322,6 +332,7 @@
     "proofPlan": [
       "Re-run Plan Before Code on the broadened #681 plan before implementation.",
       "Materialize route/subsystem/surface/domain/authority/truth classification from classifyAtlasPath in buildCodebaseAtlas.",
+      "Align DOMAIN-QUALITY canonicalPaths with the existing quality-system surface rule for scripts/lib/shoperation-**.",
       "Make impact fallback and architecture resolver consume canonical classifyAtlasPath semantics.",
       "Extend validateCodebaseAtlas with field-level ATLAS_CLASSIFICATION_DIVERGENCE and structured ATLAS_PO_ROUTE_AUTHORITY_CONFLICT checks.",
       "Add adversarial tests that intentionally inject inconsistent nodes and conflicting active PO route rules, plus negative inactive/superseded controls.",
@@ -337,6 +348,7 @@
         "semantic-execution-route"
       ],
       "mustEdit": [
+        "quality/knowledge/domain-foundations.v1.json",
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
@@ -344,7 +356,7 @@
       "impactedReadOnly": [
         "quality/knowledge/architecture-constitution.v1.json",
         "quality/knowledge/po-instructions.v1.json",
-        "quality/knowledge/domain-foundations.v1.json"
+        "quality/knowledge/codebase-atlas-policy.v2.json"
       ],
       "proof": [
         "tests/shoperation-semantic-execution-intelligence.test.ts"
@@ -482,5 +494,5 @@
       }
     ]
   },
-  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented. Broadened before implementation after Product Owner review: recurring pingpong is treated as Atlas rule-coherence failure, not a #666-specific resolver symptom. No new gate; existing validateCodebaseAtlas/Knowledge/Plan authority is strengthened. Canonical planned projection on 8c290f6 derived DOMAIN-QUALITY / quality-knowledge-system, full active negative-knowledge set SQ-NK-001/002/004/006/007/008/009/012 and guard digest aa79c504; reconciled without changing coherence scope."
+  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented. Broadened before implementation after Product Owner review: recurring pingpong is treated as Atlas rule-coherence failure, not a #666-specific resolver symptom. No new gate; existing validateCodebaseAtlas/Knowledge/Plan authority is strengthened. Canonical planned projection on 8c290f6 derived DOMAIN-QUALITY / quality-knowledge-system, full active negative-knowledge set SQ-NK-001/002/004/006/007/008/009/012 and guard digest aa79c504; reconciled without changing coherence scope. Additional registry-coherence evidence: codebase-atlas-policy.v2 quality-system surface already covers scripts/lib/shoperation-**, while DOMAIN-QUALITY canonicalPaths does not. Existing DOMAIN-QUALITY is extended to the same helper namespace; no new authority is created. Projected scope restored to the previously Plan-PASS shape for these three files."
 }
