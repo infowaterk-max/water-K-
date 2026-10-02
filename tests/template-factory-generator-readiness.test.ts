@@ -32,6 +32,8 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(build.report.generatorReadiness.mediaPlanning.technicalFulfilled).toBe(true);
     expect(build.report.generatorReadiness.mediaPlanning.readyFulfilled).toBe(true);
     expect(build.report.generatorReadiness.mediaPlanning.plan?.sources.constraintPlanHash).toBe(build.report.generatorReadiness.constraintPlanning.plan?.hash);
+    expect(build.report.generatorReadiness.productionLineage?.valid).toBe(true);
+    expect(build.report.generatorReadiness.productionLineage?.lineage?.hash).toBe(build.report.provenance.lineage?.hash);
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).not.toContain('FACTORY-CONSTRAINT-PLANNER');
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toContain('VX-SMART-INTENT');
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.generator).toEqual({implementation:'deferred',target:'template-compiler'});
@@ -167,6 +169,27 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(result.mediaPlanning.technicalFulfilled).toBe(true);
     expect(result.mediaPlanning.readyFulfilled).toBe(false);
     expect(result.ready).toBe(true);
+  });
+
+
+  it('fails closed when Factory lineage context disagrees with compiled page provenance',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const result=evaluateStorefrontTemplateGeneratorReadiness({
+      blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,
+      recipe:LOOT_VAULT_V2_FACTORY_RECIPE,
+      package:build.package,
+      lineageContext:{
+        factoryVersion:build.report.factoryVersion,
+        foundation:{
+          category:build.report.foundation.category,
+          templateKey:build.report.foundation.templateKey,
+          templateVersion:build.report.foundation.templateVersion+1,
+        },
+      },
+    });
+    expect(result.productionLineage?.valid).toBe(false);
+    expect(result.ready).toBe(false);
+    expect(result.issues.map(issue=>issue.code)).toContain('PRODUCTION_LINEAGE_FOUNDATION_VERSION_DRIFT');
   });
 
   it('keeps undeclared recipes outside generator-ready status instead of inventing metadata',()=>{
