@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-TYPE-SYSTEM-BRABUS-HARDENING",
   "task": "Implement the canonical versioned Template Type System above the proven Template Genome so template categories select executable production semantics instead of remaining labels, while keeping Constraint Planner explicitly separate and NOT_IMPLEMENTED.",
   "status": "ready-for-implementation",
-  "guardDigest": "94082bf1",
+  "guardDigest": "8a9bf46e",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
     "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
@@ -26,6 +26,7 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
+    "release-infrastructure",
     "shared-storefront",
     "storefront-ui"
   ],
@@ -94,6 +95,7 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -507,7 +509,7 @@
       }
     ]
   },
-  "notes": "Second Brabus hardening wave. Template Genome is PROVEN at verified implementation HEAD deecbdeb20fd7e2f290c41e1275de9d9fe9733fc and closure HEAD 4930accd02867b790e88ae71c283042ae40cca37. This wave builds reusable type semantics only; Constraint Planner remains the next separate dependency. Template #3 remains forbidden.",
+  "notes": "Second Brabus hardening wave. Template Genome is PROVEN at verified implementation HEAD deecbdeb20fd7e2f290c41e1275de9d9fe9733fc and closure HEAD 4930accd02867b790e88ae71c283042ae40cca37. This wave builds reusable type semantics only; Constraint Planner remains the next separate dependency. Template #3 remains forbidden. Canonical full-PR projected scope reconciled on exact head: release-infrastructure is transitively impacted, SQ-NK-005 applies, and guard digest is 8a9bf46e.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
