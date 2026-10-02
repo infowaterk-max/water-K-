@@ -56,6 +56,21 @@ describe('Control Plane Operational Intelligence',()=>{
     }
   });
 
+  it('keeps proof capabilities canonical in the existing Guard Registry',()=>{
+    const registry=json<any>('quality/knowledge/guard-registry.v1.json');
+    const capabilities=new Set(json<any>('quality/knowledge/capability-registry.v1.json').capabilities.map((item:any)=>item.id));
+    const byId=(id:string)=>registry.guards.find((item:any)=>item.id===id);
+    for(const id of ['GUARD-PLAN-BEFORE-CODE','GUARD-EDIT-TIME','GUARD-INCREMENTAL-REPLAY'])expect(byId(id).proofSemantics.capabilities).toContain('CAP-QUALITY');
+    expect(byId('GUARD-RELEASE-RISK').proofSemantics.capabilities).toEqual(['CAP-RELEASE']);
+    for(const guard of registry.guards.filter((item:any)=>item.proofSemantics)){
+      for(const capability of guard.proofSemantics.capabilities)if(capability!=='*')expect(capabilities.has(capability),`${guard.id}:${capability}`).toBe(true);
+    }
+    const runtime=read('scripts/lib/shoperation-operational-intelligence.mjs');
+    expect(runtime).toContain("quality/knowledge/guard-registry.v1.json");
+    expect(runtime).toContain('CANONICAL_EVIDENCE_SEMANTICS');
+    expect(runtime).not.toContain('const DEFAULT_EVIDENCE_SEMANTICS=Object.freeze');
+  });
+
   it('exhausts PASS FAIL BLOCKED STALE and MISSING completion evidence combinations',()=>{
     const output=execFileSync(process.execPath,['scripts/lib/shoperation-operational-intelligence.mjs','--self-test'],{encoding:'utf8'});
     expect(output).toContain('Operational Intelligence self-test: PASS');

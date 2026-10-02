@@ -155,6 +155,31 @@ describe('Control Plane Proof Semantics adversarial regressions',()=>{
     expect(blockedReport.internalState).toBe('BLOCKED');
   });
 
+  it('derives producer capability truth from Guard Registry and rejects cross-capability laundering',()=>{
+    const exact={head:'quality123',branch:'fix/proof-semantics',stateVersion:'shoporation-ci.v1'};
+    const qualityPlan={
+      taskId:'QUALITY-PRODUCER-SEMANTICS',
+      completionContract:{sourceRef:'PO-QUALITY-PRODUCER-SEMANTICS',requirements:[{
+        id:'REQ-QUALITY-CHAIN',
+        requirement:'The development quality chain remains monotonic.',
+        claimScope:{capability:'CAP-QUALITY',breadth:'development-transaction-truth-chain',strength:2,dimensions:['actual-subset-plan','required-subset-actual','status','truth']},
+        requiredCapabilities:['CAP-QUALITY'],
+        evidence:{implementation:['GUARD-EDIT-TIME','GUARD-INCREMENTAL-REPLAY','GUARD-QUALITY-TESTS'],outcome:['GUARD-INCREMENTAL-REPLAY','GUARD-QUALITY-TESTS']},
+        forbiddenRegressions:[{id:'NEG-QUALITY-LAUNDER',statement:'No blocked child becomes PASS.',evidence:['GUARD-EDIT-TIME','GUARD-QUALITY-TESTS']}],
+      }]},
+    };
+    const fresh=(id:string)=>({id,status:'success',sourceCommit:exact.head,branch:exact.branch,stateVersion:exact.stateVersion,runId:'run-1'});
+    const verified=evaluateCompletionTruth({plan:qualityPlan,evidence:['GUARD-EDIT-TIME','GUARD-INCREMENTAL-REPLAY','GUARD-QUALITY-TESTS'].map(fresh),currentExactState:exact});
+    expect(verified.truthStatus).toBe('VERIFIED');
+    expect(verified.internalState).toBe('VERIFIED_DONE');
+
+    const laundered=structuredClone(qualityPlan);
+    laundered.completionContract.requirements[0].forbiddenRegressions[0].evidence=['GUARD-RELEASE-RISK','GUARD-QUALITY-TESTS'];
+    const blocked=evaluateCompletionTruth({plan:laundered,evidence:['GUARD-EDIT-TIME','GUARD-INCREMENTAL-REPLAY','GUARD-QUALITY-TESTS','GUARD-RELEASE-RISK'].map(fresh),currentExactState:exact});
+    expect(blocked.truthStatus).toBe('UNKNOWN');
+    expect(blocked.issues.some((item:any)=>item.message.includes('GUARD-RELEASE-RISK: evidence-capability-scope-mismatch'))).toBe(true);
+  });
+
   it('closes only a VERIFIED exact implementation head and fails closed on later material changes',()=>{
     const source=json('quality/development/active-plan.json');
     const truth={
