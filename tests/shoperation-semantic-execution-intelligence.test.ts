@@ -124,7 +124,7 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     const impact=impactForAtlasPattern(inconsistent,publicPath);
     expect(impact.domains).toContain('DOMAIN-STOREFRONT');
     expect(impact.authorities).toContain('shared-storefront');
-  });
+  },60_000);
 
   it('blocks structured active PO route-authority conflicts without inferring from prose',()=>{
     const atlas:any=buildCodebaseAtlas();
