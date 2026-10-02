@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-B2B-DEAD-BUILDER-ANCHOR-ISOLATION",
   "task": "Remove a side-effect-free unused manifest anchor import from src/app/fiokom/b2b/page.tsx without runtime behavior change.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "d1c54c47",
   "changeBaseSha": "7ec2cb968b023da7cac3bf684e7ee4bb00f1be06",
   "plannedFilePatterns": [
@@ -244,5 +244,18 @@
       }
     ]
   },
-  "notes": "Isolated from #681 because Release Risk Budget correctly rejected a combined quality-infrastructure + release-infrastructure + customer-account release transaction at 6/5 points. This prerequisite keeps the unrelated two-line runtime cleanup in its own release transaction instead of weakening the budget. Knowledge on 3f4695c8 exposed SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED for the B2B account page. The prerequisite now binds src/app/fiokom/** explicitly to the already-existing DOMAIN-STOREFRONT presentation authority and adds materialized-Atlas regression proof; no new authority or exception is introduced. Because domain-foundations is quality knowledge, expected Known Failure scope is reconciled to full replay. Full Quality on 9559cabf exposed hidden test coupling: the critical Proof Semantics adversarial case inherited the active plan risk tier. The test now owns an explicit critical fixture, so proof behavior is invariant to whichever legitimate Development Plan is active."
+  "notes": "Isolated from #681 because Release Risk Budget correctly rejected a combined quality-infrastructure + release-infrastructure + customer-account release transaction at 6/5 points. This prerequisite keeps the unrelated two-line runtime cleanup in its own release transaction instead of weakening the budget. Knowledge on 3f4695c8 exposed SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED for the B2B account page. The prerequisite now binds src/app/fiokom/** explicitly to the already-existing DOMAIN-STOREFRONT presentation authority and adds materialized-Atlas regression proof; no new authority or exception is introduced. Because domain-foundations is quality knowledge, expected Known Failure scope is reconciled to full replay. Full Quality on 9559cabf exposed hidden test coupling: the critical Proof Semantics adversarial case inherited the active plan risk tier. The test now owns an explicit critical fixture, so proof behavior is invariant to whichever legitimate Development Plan is active.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "0ae62d0208ccade084dabbac1d61abb0642426d5",
+    "closedAt": "2026-10-02T07:23:42.473Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-02-B2B-DEAD-ANCHOR-ISOLATION",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
