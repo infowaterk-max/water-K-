@@ -1,167 +1,77 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-STOREFRONT-PATH-FALLBACK",
-  "task": "Atlas path classification: resolve otherwise-unowned shopper-facing app pages and storefront metadata without overriding specific domain authorities.",
-  "status": "closed",
-  "guardDigest": "f8395e8f",
-  "changeBaseSha": "6ddc62fbac729d593cda0c7fcbbf386062a89b45",
+  "taskId": "DEV-B2B-DEAD-BUILDER-ANCHOR-ISOLATION",
+  "task": "Remove a side-effect-free unused manifest anchor import from src/app/fiokom/b2b/page.tsx without runtime behavior change.",
+  "status": "ready-for-implementation",
+  "guardDigest": "61566de6",
+  "changeBaseSha": "7ec2cb968b023da7cac3bf684e7ee4bb00f1be06",
   "plannedFilePatterns": [
-    "quality/knowledge/domain-foundations.v1.json",
-    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-    "tests/shoperation-semantic-execution-intelligence.test.ts"
+    "src/app/fiokom/b2b/page.tsx"
   ],
   "expectedSubsystems": [
-    "shared-storefront",
+    "customer-account",
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
-    "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
-    "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
-    "TF-KF-001",
     "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
     "TF-KF-006",
-    "TF-KF-007",
     "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
     "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "TF-KF-020"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-004",
     "SQ-NK-006",
-    "SQ-NK-007",
     "SQ-NK-008",
-    "SQ-NK-009",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
-    "sourceRef": "PO-2026-10-02-STOREFRONT-PATH-FALLBACK",
-    "problemStatement": "PR #666 plan-only replay after planned-deletion authorization still cannot project DOMAIN-STOREFRONT for src/app/oldal/[slug]/page.tsx and src/app/sitemap.ts because canonical domain matching returns no owner before the planned domain-registry edit exists. Plan-before-code therefore deadlocks on an authority change it is supposed to authorize.",
-    "observableOutcomes": [
-      "An otherwise-unowned src/app/**/page.tsx path resolves to DOMAIN-STOREFRONT/shared-storefront.",
-      "An otherwise-unowned src/app/sitemap.ts storefront metadata path resolves to DOMAIN-STOREFRONT/shared-storefront.",
-      "Existing explicit DOMAIN-ADMIN, DOMAIN-BUILDER, DOMAIN-IDENTITY, API and other canonical domain matches remain authoritative and are never replaced by the fallback.",
-      "PR #666 planned projection can resolve src/app/oldal/[slug]/page.tsx and src/app/sitemap.ts before implementation."
-    ],
-    "unresolvedRisks": [
-      "A broad fallback could incorrectly steal explicitly-owned admin/builder routes.",
-      "API route handlers must not be classified as storefront presentation merely because they live under src/app.",
-      "Fallback must remain path-derived classification, not an exception tied to PR #666 file names."
-    ],
-    "scope": {
-      "in": [
-        "Existing Codebase Atlas classifyAtlasPath fallback semantics.",
-        "Shopper-facing app page and sitemap metadata paths with no stronger canonical domain match.",
-        "Adversarial regression tests proving explicit domain ownership wins."
-      ],
-      "out": [
-        "Storefront shipping/payment product implementation.",
-        "Domain registry rewrite or a second authority system.",
-        "API route ownership changes."
-      ]
-    },
+    "sourceKind": "product-owner-request",
+    "sourceRef": "PO-2026-10-02-B2B-DEAD-ANCHOR-ISOLATION",
+    "riskTier": "low",
     "assuranceCeiling": {
-      "level": "critical-practical",
-      "rationale": "A foundational pre-execution authority classifier must resolve public presentation surfaces deterministically while preserving specific authority precedence; negative controls are required before replaying #666.",
+      "level": "lightweight",
+      "rationale": "The change removes a side-effect-free import and void reference only; existing B2B behavior and Builder-manifest authority remain independently proven, so lightweight exact-head regression proof is the practical ceiling.",
       "selectedTechniques": [
-        "explicit-specification",
-        "invariants",
-        "state-model",
-        "adversarial-scenarios",
-        "boundary-cases",
-        "pairwise-interactions",
-        "threat-failure-model",
-        "finite-state-exhaustion",
-        "what-if-matrix",
-        "fault-injection"
+        "explicit-specification"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "For an otherwise-unowned shopper-facing dynamic page such as src/app/oldal/[slug]/page.tsx, classifyAtlasPath must return DOMAIN-STOREFRONT/shared-storefront and a page route while preserving the absence of any business-truth ownership.",
-        "For src/app/sitemap.ts with no stronger canonical domain match, classifyAtlasPath must return DOMAIN-STOREFRONT/shared-storefront so public navigation metadata has deterministic presentation authority.",
-        "For src/app/admin/orders/page.tsx with an explicit DOMAIN-ADMIN match, classifyAtlasPath must return DOMAIN-ADMIN/admin-operations without adding DOMAIN-STOREFRONT.",
-        "For src/app/storefront-template-preview/page.tsx with an explicit DOMAIN-BUILDER match, classifyAtlasPath must retain DOMAIN-BUILDER/builder-template-system without storefront fallback.",
-        "For src/app/api/orders/route.ts, storefront presentation fallback must not apply and the existing explicit API/business authority remains unchanged."
+        "The B2B page no longer imports B2B_ACCOUNT_BUILDER_MANIFEST.",
+        "The B2B page no longer void-references B2B_ACCOUNT_BUILDER_MANIFEST.",
+        "The canonical B2B Builder manifest remains defined and existing B2B account regressions pass."
       ],
       "invariants": [
-        "Explicit canonical domain matches always take precedence over storefront fallback.",
-        "Fallback applies only when classifyDomains(file) is empty.",
-        "Fallback is presentation-only and does not grant commerce/catalog/data truth ownership.",
-        "No PR-number or shipping/payment-specific file exception is introduced."
+        "No B2B account runtime behavior changes.",
+        "Builder compatibility metadata remains owned by src/lib/commerce/b2b-account-builder.ts."
       ],
       "forbiddenStates": [
-        "admin-page-reclassified-as-storefront",
-        "builder-preview-reclassified-as-storefront",
-        "api-route-reclassified-as-storefront",
-        "pr-specific-path-exception"
+        "dead-runtime-anchor-import-restored",
+        "builder-manifest-definition-removed",
+        "b2b-account-regression"
       ]
     },
     "model": {
-      "failureModes": [
-        "Unowned public page blocks Plan Before Code.",
-        "Fallback steals a more specific authority.",
-        "Sitemap remains unclassified.",
-        "API route receives storefront authority."
-      ],
-      "edgeCases": [
-        "Dynamic public page under src/app.",
-        "Root src/app/page.tsx.",
-        "Next sitemap metadata file.",
-        "Admin page with explicit DOMAIN-ADMIN match.",
-        "Builder preview page with explicit DOMAIN-BUILDER match.",
-        "API route handler."
-      ],
       "phases": [
         "OBSERVE",
         "DEFINE",
@@ -188,246 +98,82 @@
         "VERIFY->TRUTH_GATE",
         "TRUTH_GATE->CLOSE",
         "CLOSE->LEARN"
-      ]
+      ],
+      "failureModes": [],
+      "edgeCases": []
     },
     "alternatives": [
       {
-        "id": "ALT-FALLBACK",
-        "summary": "Apply storefront presentation fallback only when no canonical domain matches.",
+        "id": "ALT-REMOVE-DEAD-ANCHOR",
+        "summary": "Remove the unused import and void anchor from the B2B page.",
         "disposition": "selected",
-        "reason": "Resolves unowned public presentation paths while preserving explicit authority precedence."
-      },
-      {
-        "id": "ALT-BROAD-GLOB",
-        "summary": "Add src/app/**/page.tsx to DOMAIN-STOREFRONT canonicalPaths.",
-        "disposition": "rejected",
-        "reason": "Pattern specificity could outrank or interfere with explicit admin/builder ownership."
-      },
-      {
-        "id": "ALT-PR-FILE-EXCEPTIONS",
-        "summary": "Special-case oldal/[slug] and sitemap in Plan Gate.",
-        "disposition": "rejected",
-        "reason": "Would encode product-specific exceptions into foundational classification."
+        "reason": "The imported manifest has no registration side effect; removing the dead dependency preserves the canonical manifest without creating a cross-domain runtime edge."
       }
     ],
-    "specialistReviews": [
-      {
-        "role": "Architecture",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Fallback must run only after canonical domain matching returns empty.",
-        "resolution": "Preserve classifyDomains precedence; add storefront presentation fallback afterward.",
-        "evidence": [
-          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
-        ]
-      },
-      {
-        "role": "Data Integrity",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Generic src/app ownership can collide with admin/builder domains.",
-        "resolution": "Negative controls prove existing explicit matches remain unchanged.",
-        "evidence": [
-          "quality/knowledge/domain-foundations.v1.json",
-          "tests/shoperation-semantic-execution-intelligence.test.ts"
-        ]
-      },
-      {
-        "role": "Runtime",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Next metadata files are not routeForFile pages but still public storefront presentation composition.",
-        "resolution": "Handle sitemap metadata as a narrow presentation fallback; do not include route.ts/API handlers.",
-        "evidence": [
-          "src/app/sitemap.ts"
-        ]
-      },
-      {
-        "role": "Known Failure",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Fix must not become a PR #666 path list.",
-        "resolution": "Tests target generic precedence rules and representative public/admin/builder/API paths.",
-        "evidence": [
-          "tests/shoperation-semantic-execution-intelligence.test.ts"
-        ]
-      }
-    ],
-    "challenge": [
-      {
-        "id": "CH-1",
-        "scenario": "Dynamic shopper page has no canonical domain path.",
-        "finding": "Plan projection reports ARCHITECTURE_SCOPE_UNRESOLVED.",
-        "resolution": "Fallback to DOMAIN-STOREFRONT only when canonical match set is empty.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-2",
-        "scenario": "Admin page also matches generic app-page shape.",
-        "finding": "Storefront fallback could steal ownership.",
-        "resolution": "Do not execute fallback when DOMAIN-ADMIN already matches.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-3",
-        "scenario": "Builder preview page is under src/app.",
-        "finding": "Storefront fallback could steal builder authority.",
-        "resolution": "Existing DOMAIN-BUILDER canonical match wins before fallback.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-4",
-        "scenario": "API route handler lives under src/app/api.",
-        "finding": "Presentation fallback would be incorrect.",
-        "resolution": "Fallback recognizes page.tsx/jsx presentation files, never route.ts handlers.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-5",
-        "scenario": "Sitemap has no page route.",
-        "finding": "It remains unowned despite composing public storefront navigation.",
-        "resolution": "Narrow metadata fallback covers src/app/sitemap.ts.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-6",
-        "scenario": "A commerce or auth page imports business truth.",
-        "finding": "Presentation ownership must not imply business truth ownership.",
-        "resolution": "Fallback adds only DOMAIN-STOREFRONT; dependency closure remains separate.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-7",
-        "scenario": "Canonical registry later adds an exact path.",
-        "finding": "Fallback could conflict with new authority.",
-        "resolution": "Canonical match automatically takes precedence and suppresses fallback.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-8",
-        "scenario": "PR #666 replays with planned domain-foundation edits still absent.",
-        "finding": "Plan must resolve current public paths pre-code.",
-        "resolution": "Generic path fallback provides pre-execution architecture ownership independent of future registry edits.",
-        "status": "resolved"
-      }
-    ],
+    "specialistReviews": [],
+    "challenge": [],
     "proofPlan": [
-      "Plan-only Plan Before Code PASS before implementation.",
-      "Document storefront fallback precedence in the existing DOMAIN-STOREFRONT boundary rules.",
-      "Implement fallback only after canonical domain matching returns empty.",
-      "Unit-test generic public page and sitemap fallback plus admin/builder/API negative controls.",
-      "Run exact-head Edit-Time, Incremental Replay, Quality, TypeScript, Production Build and Truth; CLOSE→LEARN before merge.",
-      "After merge replay #666 plan-only without changing product intent."
+      "Run Plan Before Code, Edit-Time Guard and Incremental Replay on the isolated exact-head change.",
+      "Run the existing B2B ownership regression, full Quality Tests, TypeScript and Production Build.",
+      "Require exact-head Completion Truth before lifecycle closure."
     ],
+    "executionAuthorized": true,
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-STOREFRONT-PATH-FALLBACK",
+      "request": "PO-2026-10-02-B2B-DEAD-ANCHOR-ISOLATION",
       "authority": [
-        "semantic-execution-route",
-        "atlas-domain-classification"
+        "shared-storefront"
       ],
       "mustEdit": [
-        "quality/knowledge/domain-foundations.v1.json",
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "src/app/fiokom/b2b/page.tsx"
       ],
       "mayEdit": [],
-      "impactedReadOnly": [],
+      "impactedReadOnly": [
+        "src/lib/commerce/b2b-account-builder.ts",
+        "tests/block7-b2b-account-ownership.test.ts"
+      ],
       "proof": [
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "tests/block7-b2b-account-ownership.test.ts"
       ],
       "unknown": []
-    },
-    "sourceKind": "product-owner-request",
-    "riskTier": "critical",
-    "executionAuthorized": true
+    }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-STOREFRONT-PATH-FALLBACK",
+    "sourceRef": "PO-2026-10-02-B2B-DEAD-ANCHOR-ISOLATION",
     "requirements": [
       {
-        "id": "REQ-STOREFRONT-PATH-FALLBACK",
-        "requirement": "Atlas assigns storefront presentation ownership only to otherwise-unowned public app pages and storefront sitemap metadata while preserving explicit authority precedence.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "targeted-path-classification",
-          "strength": 2,
-          "dimensions": [
-            "scope",
-            "authority",
-            "regression"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
+        "id": "REQ-B2B-DEAD-ANCHOR-REMOVAL",
+        "requirement": "The B2B page removes the side-effect-free Builder manifest runtime anchor while canonical Builder compatibility metadata and B2B behavior remain intact.",
         "evidence": {
           "implementation": [
             "GUARD-PLAN-BEFORE-CODE",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-EXPLICIT-AUTHORITY-OVERRIDE",
-            "statement": "Admin/builder/API explicit ownership must not be replaced by storefront fallback.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-STOREFRONT-PATH-BUILD",
-        "requirement": "The Atlas classification change typechecks and production-builds on the exact implementation head.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "targeted-control-plane-type-build",
-          "strength": 1,
-          "dimensions": [
-            "types",
-            "build"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-TYPECHECK"
-          ],
-          "outcome": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-TYPECHECK",
             "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-STOREFRONT-PATH-BUILD",
-            "statement": "No type or production build regression.",
+            "id": "NEG-B2B-RUNTIME-REGRESSION",
+            "statement": "Removing the dead anchor must not change B2B account runtime behavior.",
             "evidence": [
-              "GUARD-TYPECHECK",
+              "GUARD-QUALITY-TESTS",
               "GUARD-PRODUCTION-BUILD"
+            ]
+          },
+          {
+            "id": "NEG-B2B-BUILDER-MANIFEST-LOSS",
+            "statement": "The canonical B2B Builder manifest must remain independently defined and covered.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Targeted foundational follow-up from #666 planned projection after #678. Resolves path-derived storefront presentation ownership without PR-specific exceptions or canonical authority overrides. Canonical plan-only projection on 792b84d derived domains=[], authorities=[], subsystems=[shared-storefront,storefront-ui], negative knowledge SQ-NK-001/002/004/006/007/008/009/012 and guard digest f8395e8f. Canonical critical operational metadata restored; engineering scope unchanged. Plan quality refinement: DOMAIN-STOREFRONT boundary contract is now an explicit must-edit so the classifier behavior and durable authority documentation remain synchronized; unchanged .d.mts removed because public types do not change. Critical assurance technique set made explicit.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "748613fdd9457996527a5c501b3e4bcba30bc6d2",
-    "closedAt": "2026-10-02T05:12:30.693Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-STOREFRONT-PATH-FALLBACK",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Isolated from #681 because Release Risk Budget correctly rejected a combined quality-infrastructure + release-infrastructure + customer-account release transaction at 6/5 points. This prerequisite keeps the unrelated two-line runtime cleanup in its own release transaction instead of weakening the budget."
 }
