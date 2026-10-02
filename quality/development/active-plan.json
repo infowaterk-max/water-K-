@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-STOREFRONT-PATH-FALLBACK",
   "task": "Atlas path classification: resolve otherwise-unowned shopper-facing app pages and storefront metadata without overriding specific domain authorities.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "f8395e8f",
   "changeBaseSha": "6ddc62fbac729d593cda0c7fcbbf386062a89b45",
   "plannedFilePatterns": [
@@ -416,5 +416,18 @@
       }
     ]
   },
-  "notes": "Targeted foundational follow-up from #666 planned projection after #678. Resolves path-derived storefront presentation ownership without PR-specific exceptions or canonical authority overrides. Canonical plan-only projection on 792b84d derived domains=[], authorities=[], subsystems=[shared-storefront,storefront-ui], negative knowledge SQ-NK-001/002/004/006/007/008/009/012 and guard digest f8395e8f. Canonical critical operational metadata restored; engineering scope unchanged. Plan quality refinement: DOMAIN-STOREFRONT boundary contract is now an explicit must-edit so the classifier behavior and durable authority documentation remain synchronized; unchanged .d.mts removed because public types do not change. Critical assurance technique set made explicit."
+  "notes": "Targeted foundational follow-up from #666 planned projection after #678. Resolves path-derived storefront presentation ownership without PR-specific exceptions or canonical authority overrides. Canonical plan-only projection on 792b84d derived domains=[], authorities=[], subsystems=[shared-storefront,storefront-ui], negative knowledge SQ-NK-001/002/004/006/007/008/009/012 and guard digest f8395e8f. Canonical critical operational metadata restored; engineering scope unchanged. Plan quality refinement: DOMAIN-STOREFRONT boundary contract is now an explicit must-edit so the classifier behavior and durable authority documentation remain synchronized; unchanged .d.mts removed because public types do not change. Critical assurance technique set made explicit.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "748613fdd9457996527a5c501b3e4bcba30bc6d2",
+    "closedAt": "2026-10-02T05:12:30.693Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-02-STOREFRONT-PATH-FALLBACK",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
