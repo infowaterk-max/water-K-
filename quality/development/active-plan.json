@@ -19,7 +19,9 @@
     "scripts/shoperation-verification-checkpoint.mjs",
     "tests/shoperation-development-guard.test.ts",
     "tests/shoperation-resumable-verification.test.ts",
-    ".github/workflows/ci.yml"
+    ".github/workflows/ci.yml",
+    "tests/deep-atlas-scan.test.ts",
+    "quality/knowledge/development-guard-policy.v1.json"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -464,6 +466,13 @@
         "finding": "Keeping customer-account together with quality/release infrastructure couples independent risk domains and forces an otherwise unnecessary budget violation.",
         "resolution": "#683 is a verified, lifecycle-closed prerequisite; #681 is stacked on it so the current release transaction contains only quality-infrastructure and release-infrastructure changes.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-20",
+        "scenario": "An older Deep Atlas regression forbids Release Risk on feature-branch pushes because it treats risk analysis itself as production release proof.",
+        "finding": "The rule conflicts with canonical stacked verification: risk must be computed on the development transaction, but deployment authority must remain separate.",
+        "resolution": "Development Guard policy now explicitly separates Release Risk analysis from production deployment authority; the regression proves canonical risk analysis may run without any production deploy command or authority.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -486,7 +495,8 @@
       "Re-run exact-head #681 CI only after these truth-coherence regressions pass; keep PR draft and do not merge until lifecycle closure is coherent.",
       "Prove CI checkout uses pull_request.head.sha for PR jobs and explicit Development Transaction head identity cannot silently fall back.",
       "Prove Reference Sync base-to-head identity and Release Risk explicit base/head/merge-base fail-closed behavior.",
-      "Prove stacked branch CI uses active-plan.changeBaseSha for Knowledge, Plan, Edit-Time, Replay and Release Risk, blocks PR/base mismatch, and preserves exact-head Truth propagation."
+      "Prove stacked branch CI uses active-plan.changeBaseSha for Knowledge, Plan, Edit-Time, Replay and Release Risk, blocks PR/base mismatch, and preserves exact-head Truth propagation.",
+      "Prove development-branch Release Risk analysis is canonical-transaction-bound while remaining separate from production deployment authority."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
@@ -510,7 +520,8 @@
         "src/lib/commerce/b2b-account-builder.ts"
       ],
       "proof": [
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/deep-atlas-scan.test.ts"
       ],
       "unknown": []
     }
@@ -682,6 +693,14 @@
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-QUALITY-TESTS"
             ]
+          },
+          {
+            "id": "NEG-RISK-ANALYSIS-DEPLOYMENT-CONFLATION",
+            "statement": "A Release Risk decision on a development branch may constrain the change but must never be interpreted as deployment or production-release approval.",
+            "evidence": [
+              "GUARD-RELEASE-RISK",
+              "GUARD-QUALITY-TESTS"
+            ]
           }
         ]
       },
@@ -801,5 +820,5 @@
       }
     ]
   },
-  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented. Broadened before implementation after Product Owner review: recurring pingpong is treated as Atlas rule-coherence failure, not a #666-specific resolver symptom. No new gate; existing validateCodebaseAtlas/Knowledge/Plan authority is strengthened. Canonical planned projection on 8c290f6 derived DOMAIN-QUALITY / quality-knowledge-system, full active negative-knowledge set SQ-NK-001/002/004/006/007/008/009/012 and guard digest aa79c504; reconciled without changing coherence scope. Additional registry-coherence evidence: codebase-atlas-policy.v2 quality-system surface already covers scripts/lib/shoperation-**, while DOMAIN-QUALITY canonicalPaths does not. Existing DOMAIN-QUALITY is extended to the same helper namespace; no new authority is created. Projected scope restored to the previously Plan-PASS shape for these three files. Canonical projection on 6455ea27 confirms DOMAIN-QUALITY / quality-knowledge-system, no release-subsystem classification, SQ-NK-012 only, and guard digest aa79c504. Reconciled exactly; three-file coherence transaction unchanged. During exact-head Knowledge verification of the canonicalization implementation, the strengthened Atlas exposed two real pre-existing authority drifts. Recovery envelope amended: classify storefront-preview as the already-declared Builder preview surface; remove the side-effect-free B2B manifest anchor instead of whitelisting a dead dependency. This is a gate-discovered scope expansion, not a permissive exception. After gate-discovered B2B runtime cleanup entered the transaction, canonical actual/projection scope expanded deterministically to DOMAIN-QUALITY + DOMAIN-STOREFRONT, quality-knowledge-system + shared-storefront, customer-account + storefront-ui, negative knowledge SQ-NK-001/006/008/012 and digest d1c54c47. Plan reconciled to exact derived scope. Truth exact-head 2e100c5f identified one semantic evidence-mapping overclaim: REQ-PO-ROUTE-RULE-COHERENCE asserts authority, while its mapping omitted GUARD-PLAN-BEFORE-CODE, the canonical producer that proves the authority dimension and executes the same Atlas validation. Mapping corrected without reducing claim strength or changing validator behavior. Scope broadened after exact-head #681 exposed Control Plane status laundering: implementationSync=BLOCK coexisted with Edit-Time PASS, followed by Resumable Verification PASS and Completion Truth VERIFIED_DONE. Product Owner directed a full rule-ecosystem audit rather than another local patch. Existing #681 remains the single draft transaction; no new gate is introduced. The repair now closes monotonic decision propagation, transaction identity, deletion semantics, exception scope, Reference Sync coverage and producer-artifact reconciliation before lifecycle closure. Exact-head Plan replay on 7d36400d proved the broadened transaction also activates quality-infrastructure. Expected subsystem closure and guard digest are reconciled to the machine-derived projection; Control Plane truth/transaction claims are bound to canonical CAP-QUALITY instead of capability-less assertions. Stacked on verified prerequisite #683 closure 6b5f67d903da27b586175e462c695386ac0f2940 (verified implementation 0ae62d0208ccade084dabbac1d61abb0642426d5). B2B/customer-account cleanup and fiokom Storefront ownership are inherited base state, not #681 release scope. Canonical expected scope is reduced to quality-infrastructure + release-infrastructure with DOMAIN-QUALITY + DOMAIN-RELEASE; guard digest efe9d183. GitHub PR base retargeted to verified prerequisite #683 at 6b5f67d903da27b586175e462c695386ac0f2940; this metadata-only commit requests fresh exact-head proof using the same canonical changeBaseSha. Stacked proof exposed a workflow-level contradiction: main-only PR triggering and event-derived base identity could either disable CI on a correct stacked base or reintroduce the rejected main-based release transaction. Existing CI is now stack-aware through canonical active-plan transaction binding; no parallel gate was added."
+  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented. Broadened before implementation after Product Owner review: recurring pingpong is treated as Atlas rule-coherence failure, not a #666-specific resolver symptom. No new gate; existing validateCodebaseAtlas/Knowledge/Plan authority is strengthened. Canonical planned projection on 8c290f6 derived DOMAIN-QUALITY / quality-knowledge-system, full active negative-knowledge set SQ-NK-001/002/004/006/007/008/009/012 and guard digest aa79c504; reconciled without changing coherence scope. Additional registry-coherence evidence: codebase-atlas-policy.v2 quality-system surface already covers scripts/lib/shoperation-**, while DOMAIN-QUALITY canonicalPaths does not. Existing DOMAIN-QUALITY is extended to the same helper namespace; no new authority is created. Projected scope restored to the previously Plan-PASS shape for these three files. Canonical projection on 6455ea27 confirms DOMAIN-QUALITY / quality-knowledge-system, no release-subsystem classification, SQ-NK-012 only, and guard digest aa79c504. Reconciled exactly; three-file coherence transaction unchanged. During exact-head Knowledge verification of the canonicalization implementation, the strengthened Atlas exposed two real pre-existing authority drifts. Recovery envelope amended: classify storefront-preview as the already-declared Builder preview surface; remove the side-effect-free B2B manifest anchor instead of whitelisting a dead dependency. This is a gate-discovered scope expansion, not a permissive exception. After gate-discovered B2B runtime cleanup entered the transaction, canonical actual/projection scope expanded deterministically to DOMAIN-QUALITY + DOMAIN-STOREFRONT, quality-knowledge-system + shared-storefront, customer-account + storefront-ui, negative knowledge SQ-NK-001/006/008/012 and digest d1c54c47. Plan reconciled to exact derived scope. Truth exact-head 2e100c5f identified one semantic evidence-mapping overclaim: REQ-PO-ROUTE-RULE-COHERENCE asserts authority, while its mapping omitted GUARD-PLAN-BEFORE-CODE, the canonical producer that proves the authority dimension and executes the same Atlas validation. Mapping corrected without reducing claim strength or changing validator behavior. Scope broadened after exact-head #681 exposed Control Plane status laundering: implementationSync=BLOCK coexisted with Edit-Time PASS, followed by Resumable Verification PASS and Completion Truth VERIFIED_DONE. Product Owner directed a full rule-ecosystem audit rather than another local patch. Existing #681 remains the single draft transaction; no new gate is introduced. The repair now closes monotonic decision propagation, transaction identity, deletion semantics, exception scope, Reference Sync coverage and producer-artifact reconciliation before lifecycle closure. Exact-head Plan replay on 7d36400d proved the broadened transaction also activates quality-infrastructure. Expected subsystem closure and guard digest are reconciled to the machine-derived projection; Control Plane truth/transaction claims are bound to canonical CAP-QUALITY instead of capability-less assertions. Stacked on verified prerequisite #683 closure 6b5f67d903da27b586175e462c695386ac0f2940 (verified implementation 0ae62d0208ccade084dabbac1d61abb0642426d5). B2B/customer-account cleanup and fiokom Storefront ownership are inherited base state, not #681 release scope. Canonical expected scope is reduced to quality-infrastructure + release-infrastructure with DOMAIN-QUALITY + DOMAIN-RELEASE; guard digest efe9d183. GitHub PR base retargeted to verified prerequisite #683 at 6b5f67d903da27b586175e462c695386ac0f2940; this metadata-only commit requests fresh exact-head proof using the same canonical changeBaseSha. Stacked proof exposed a workflow-level contradiction: main-only PR triggering and event-derived base identity could either disable CI on a correct stacked base or reintroduce the rejected main-based release transaction. Existing CI is now stack-aware through canonical active-plan transaction binding; no parallel gate was added. Full Quality on 82238415 exposed a legacy rule conflating Release Risk analysis with production release proof. Policy and regression now distinguish risk analysis from deployment authority, preserving feature-branch safety without disabling stacked risk verification."
 }
