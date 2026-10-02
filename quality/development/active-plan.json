@@ -1,21 +1,18 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-INSTRUCTION-TOMBSTONE-ARCHITECTURE",
-  "task": "Quality Control Plane semantic execution: resolve Git-proven deleted legacy routes through durable Product Owner forbidden-route authority without restoring deleted routes as canonical domain ownership.",
-  "status": "closed",
-  "guardDigest": "52ef3463",
-  "changeBaseSha": "87438bbc6a35e3e44a79e91d8ea95c90cc8a1b10",
+  "taskId": "DEV-CONTROL-PLANE-REFERENCE-RELOCATION-SEMANTICS",
+  "task": "Reference Sync: distinguish typed references relocated into new/changed files from genuinely removed references while preserving stale-consumer blocking.",
+  "status": "ready-for-implementation",
+  "guardDigest": "62903da6",
+  "changeBaseSha": "055a819a96bce7127f2fdf5258f4b85f47e84d74",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-    "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
-    "scripts/shoperation-plan-before-code.mjs",
+    "scripts/lib/shoperation-reference-sync-runtime.mjs",
+    "scripts/lib/shoperation-reference-sync-runtime.d.mts",
     "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system",
-    "shared-storefront",
-    "storefront-ui"
+    "quality-knowledge-system"
   ],
   "expectedDomains": [
     "DOMAIN-QUALITY"
@@ -76,13 +73,6 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-004",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-011",
     "SQ-NK-012",
@@ -92,70 +82,69 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-INSTRUCTION-TOMBSTONE-ARCHITECTURE",
+    "sourceRef": "PO-2026-10-02-REFERENCE-RELOCATION-SEMANTICS",
     "riskTier": "critical",
-    "problemStatement": "PR #673 made Git D changes first-class semantic tombstones and removed DEV_PLAN_SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE from PR #666. Exact-head replay then exposed a narrower gap: the deleted legacy route src/app/szallitas-es-fizetes/page.tsx has intentionally no current canonical domain path, so Plan Before Code reports ARCHITECTURE_SCOPE_UNRESOLVED even though an active durable Product Owner instruction explicitly forbids /szallitas-es-fizetes and the deletion is proven by Git D. Restoring the legacy path to DOMAIN-STOREFRONT would falsely make a forbidden route canonical.",
+    "problemStatement": "PR #666 moved shipping/payment presentation authority from src/app/oldal/[slug]/page.tsx into a newly added shared component. Plan Before Code passed, but Edit-Time Reference Sync treated every typed display reference removed from the old file as globally removed even when the same typed reference was explicitly added in another changed file. Because the new file does not exist at the base SHA, base lookup also emits fatal git-show noise. The result is hundreds of false stale consumers and an inflated Implementation Sync required set.",
     "observableOutcomes": [
-      "An active PO instruction forbidden static route is mapped to its legacy route file when that exact file is present in Git-proven tombstones.",
-      "That instruction-governed tombstone is included in INSTRUCTION_REQUIRED with explicit tombstone provenance.",
-      "Plan architecture resolution accepts only those deleted paths that are both Git-proven tombstones and instruction-required forbidden routes, without assigning them fake current canonical domain ownership.",
-      "An arbitrary deleted unowned path without active forbidden-route authority remains ARCHITECTURE_SCOPE_UNRESOLVED."
+      "A typed reference removed from one changed file and explicitly added with the same kind/value in another changed or newly added file is recorded as a relocation rather than a removal.",
+      "Relocated references do not create stale-consumer or required-change findings merely because unchanged files also contain the same lexical value.",
+      "A genuinely removed typed reference that survives only in unchanged machine consumers still blocks exactly as before.",
+      "Files added after the base SHA are handled as absent-before state without fatal git-show diagnostics."
     ],
     "unresolvedRisks": [
-      "A broad deletion exception could hide genuinely unowned architecture changes.",
-      "Mapping every forbidden string to a route file could misinterpret non-route forbidden states.",
-      "A stale PO instruction could incorrectly preserve legacy route authority after the instruction is retired."
+      "Global suppression based only on repository presence would hide genuine stale consumers and is forbidden.",
+      "Cross-kind lexical equality must not count as relocation; kind and value must both match.",
+      "A same-value addition in an unrelated changed file could be mistaken for authority relocation unless provenance is restricted to explicit diff-added typed references."
     ],
     "scope": {
       "in": [
-        "Existing PO instruction required-change derivation in Semantic Execution Intelligence.",
-        "Existing Plan Before Code architecture unresolved check for Git-proven tombstones.",
-        "Regression reproducing deleted /szallitas-es-fizetes under the active shipping/payment instruction."
+        "Existing Reference Sync diff candidate extraction and typed-reference reconciliation.",
+        "Added-file/base-absence handling used by Reference Sync.",
+        "Adversarial regression proving relocation PASS and genuine stale consumer BLOCK."
       ],
       "out": [
-        "Shipping/payment storefront implementation in PR #666.",
-        "Canonical DOMAIN-STOREFRONT ownership changes.",
-        "New gate, new instruction registry, or generic deleted-file exception.",
-        "Changes to durable PO instruction content or lifecycle."
+        "Shipping/payment storefront implementation itself.",
+        "New reference registry, new gate, or generic stale-consumer exception.",
+        "Weakening component-key, export-symbol, route, CSS or implementation-expression stale detection."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This is a fail-closed architecture-boundary defect discovered by replaying a real PO-required route deletion. The highest practical correction is to derive deleted forbidden static-route files from the existing durable instruction authority, bind them to Git tombstone evidence, and adversarially prove that arbitrary unowned deletions remain blocked.",
+      "rationale": "Reference Sync is an edit-time fail-closed authority. The proven false positive blocks valid refactors, while an over-broad fix could create false negatives. The highest practical correction is typed diff-side relocation evidence with negative controls proving unchanged stale consumers remain blockable.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
+        "what-if-matrix",
         "adversarial-scenarios",
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
-        "finite-state-exhaustion",
-        "what-if-matrix",
-        "fault-injection"
+        "fault-injection",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "For PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE and a Git tombstone src/app/szallitas-es-fizetes/page.tsx, buildExecutionRoute reports that file in INSTRUCTION_REQUIRED and identifies it as an instruction-governed tombstone.",
-        "Plan Before Code does not report ARCHITECTURE_SCOPE_UNRESOLVED for that exact instruction-governed tombstone.",
-        "The same path without Git D evidence is not granted tombstone resolution.",
-        "A Git D path with no matching active forbidden route remains unresolved when it has no canonical domain.",
-        "No legacy /szallitas-es-fizetes path is added to DOMAIN-STOREFRONT canonicalPaths."
+        "Removed candidate kind/value pairs are suppressed from removedReferences only when the same kind/value is extracted from added diff lines in another current changed path.",
+        "Relocation provenance records from/to paths and remains transaction-local; repository-wide grep presence alone never proves relocation.",
+        "A same-value unchanged consumer without an explicit added-side authority continues to produce DEV-BLOCK-REFERENCE-SYNC.",
+        "Added files absent at base are treated as empty before-state without stderr fatal diagnostics.",
+        "PR #666 replay drops the relocation-derived stale/reference required-set explosion without exceptions."
       ],
       "invariants": [
-        "Git D evidence is mandatory for legacy tombstone resolution.",
-        "The matching PO instruction must be active and must contain a static forbidden route mapping to the exact tombstone file.",
-        "Live files still require normal canonical domain ownership.",
-        "Instruction-governed tombstones do not become canonical domain paths.",
-        "Retiring or changing the PO instruction removes this resolution authority automatically."
+        "Reference Sync remains fail-closed for genuine stale machine consumers.",
+        "Typed identity is kind + value; lexical equality across different kinds is not relocation.",
+        "Component/export/route/schema/token detection semantics are not weakened.",
+        "No Product Owner or storefront-specific special case is introduced."
       ],
       "forbiddenStates": [
-        "generic-deleted-file-domain-bypass",
-        "forbidden-legacy-route-restored-as-canonical-domain",
-        "non-tombstone-absent-path-resolved-by-instruction",
-        "inactive-instruction-resolves-legacy-tombstone"
+        "repository-presence-means-relocation",
+        "all-moved-text-ignored",
+        "unchanged-stale-consumer-passes",
+        "cross-kind-relocation",
+        "added-file-base-lookup-fatal"
       ]
     },
     "model": {
@@ -187,36 +176,37 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A correct PO-required deletion stays blocked because canonical domain ownership intentionally disappears with the legacy route.",
-        "A generic tombstone exemption allows arbitrary unowned deleted files through architecture validation.",
-        "The instruction route is recognized only while the forbidden file exists, losing authority immediately after successful deletion."
+        "Moved authority is interpreted as removed and every lexical peer becomes stale.",
+        "A broad relocation heuristic suppresses a genuinely stale consumer.",
+        "A newly added path causes noisy base-object lookup failures.",
+        "Same lexical value with different semantic kind is falsely paired."
       ],
       "edgeCases": [
-        "Deleted forbidden static route with active instruction.",
-        "Same forbidden route path absent but not Git-deleted in the current transaction.",
-        "Deleted unowned path unrelated to any instruction.",
-        "Dynamic or wildcard forbidden route that cannot map safely to one static file.",
-        "Inactive PO instruction containing an old forbidden route."
+        "A -> added-file relocation.",
+        "M -> existing-file relocation.",
+        "Same candidate appears in multiple added changed files.",
+        "Old value survives only in unchanged tests or machine consumers.",
+        "Same value appears as display-text and route/component key."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-INSTRUCTION-GOVERNED-TOMBSTONE",
-        "summary": "Derive forbidden static-route tombstones from the existing active PO instruction and require exact Git D evidence before architecture resolution.",
+        "id": "ALT-TYPED-DIFF-RELOCATION",
+        "summary": "Pair removed typed candidates with explicit added-side typed candidates in the same transaction.",
         "disposition": "selected",
-        "reason": "Preserves fail-closed architecture semantics without making a forbidden legacy route canonical again."
+        "reason": "Preserves provenance and stale detection without repository-wide presence heuristics."
       },
       {
-        "id": "ALT-RESTORE-LEGACY-DOMAIN",
-        "summary": "Add src/app/szallitas-es-fizetes/page.tsx to DOMAIN-STOREFRONT canonicalPaths.",
+        "id": "ALT-GLOBAL-PRESENCE",
+        "summary": "Treat a removed candidate as preserved whenever grep finds it anywhere after the change.",
         "disposition": "rejected",
-        "reason": "Would declare the explicitly forbidden legacy route canonical after its removal."
+        "reason": "A stale consumer itself would falsely prove preservation."
       },
       {
-        "id": "ALT-ALL-DELETIONS-RESOLVED",
-        "summary": "Skip architecture unresolved checks for every Git D path.",
+        "id": "ALT-EXCEPT-666",
+        "summary": "Add Reference Sync exceptions for the shipping/payment files.",
         "disposition": "rejected",
-        "reason": "Would create a broad deletion bypass for genuinely unowned architecture changes."
+        "reason": "Would hide a foundational capability defect and would not generalize to future refactors."
       }
     ],
     "specialistReviews": [
@@ -224,131 +214,108 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The legacy route should not regain canonical domain ownership merely so a deletion can be validated.",
-        "resolution": "Use active instruction authority plus Git D provenance as a tombstone-only architecture resolution.",
+        "finding": "Reference identity reconciliation belongs inside the existing Reference Sync runtime.",
+        "resolution": "Extend diffData relocation semantics; do not add a registry or gate.",
         "evidence": [
-          "quality/knowledge/po-instructions.v1.json",
-          "quality/knowledge/domain-foundations.v1.json"
+          "scripts/lib/shoperation-reference-sync-runtime.mjs"
+        ]
+      },
+      {
+        "role": "Data Integrity",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Suppressing candidates because they exist anywhere after the change would convert stale consumers into false proof.",
+        "resolution": "Require explicit added-side typed diff evidence with matching kind/value.",
+        "evidence": [
+          "PR #666 exact-head Edit-Time failure"
         ]
       },
       {
         "role": "Known Failure",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Skipping domain checks for all deletions would weaken architecture coverage.",
-        "resolution": "Resolution is limited to exact static forbidden-route files derived from active instructions and intersected with Git tombstones.",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Existing stale-consumer adversarial coverage must remain negative control.",
+        "resolution": "Add relocation regression beside existing semantic Reference Sync tests and retain stale BLOCK assertion.",
         "evidence": [
-          "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-          "scripts/shoperation-plan-before-code.mjs"
+          "tests/shoperation-semantic-execution-intelligence.test.ts"
         ]
       },
       {
         "role": "Runtime",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The existing execution route already carries tombstones and PO instructions; no parallel registry is required.",
-        "resolution": "Extend INSTRUCTION_REQUIREMENTS with forbiddenRouteTombstones and consume that evidence in the existing Plan gate.",
+        "finding": "Base reads for A-status files are expected absence, not exceptional diagnostics.",
+        "resolution": "Make base file reads existence-aware/fail-silent without changing current-file reads.",
         "evidence": [
-          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
-        ]
-      },
-      {
-        "role": "Operations",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The durable instruction is the semantic reason the old combined route must disappear, but it must not become a general architecture owner.",
-        "resolution": "Expose instruction-governed tombstone provenance only for exact active forbidden static routes plus Git D evidence.",
-        "evidence": [
-          "quality/knowledge/po-instructions.v1.json",
-          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
+          "PR #666 fatal git show base:new-file evidence"
         ]
       }
     ],
     "challenge": [
       {
         "id": "CH-1",
-        "scenario": "PR #666 deletes /szallitas-es-fizetes and no current Atlas node/domain remains.",
-        "finding": "Plan emits ARCHITECTURE_SCOPE_UNRESOLVED despite the deletion being the exact required product decision.",
-        "resolution": "Map the active instruction's forbidden static route to its route file and retain it only when that file is a Git-proven tombstone.",
+        "scenario": "Reference moves from an existing file to a newly added file.",
+        "finding": "Current candidate filter checks only the old origin path and falsely calls the reference removed.",
+        "resolution": "Pair typed removed/added diff candidates across changed paths.",
         "status": "resolved"
       },
       {
         "id": "CH-2",
-        "scenario": "An unrelated deleted file has no domain.",
-        "finding": "It must not benefit from the legacy-route rule.",
-        "resolution": "No matching active forbidden route means no instruction tombstone provenance; unresolved remains blocking.",
+        "scenario": "Old value survives only in an unchanged test.",
+        "finding": "Global presence cannot distinguish stale consumer from relocation authority.",
+        "resolution": "Only added-side changed-file evidence can prove relocation.",
         "status": "resolved"
       },
       {
         "id": "CH-3",
-        "scenario": "The forbidden path is merely absent from the current Atlas but was not deleted in this transaction.",
-        "finding": "Absence is not proof of implementation.",
-        "resolution": "Require membership in the passed tombstones set before adding forbiddenRouteTombstones.",
+        "scenario": "Same text exists in an unrelated changed file as a different semantic kind.",
+        "finding": "Lexical pairing would over-suppress.",
+        "resolution": "Relocation key is kind + value.",
         "status": "resolved"
       },
       {
         "id": "CH-4",
-        "scenario": "The PO instruction becomes inactive.",
-        "finding": "Legacy resolution must disappear.",
-        "resolution": "buildExecutionRoute already filters instructions by lifecycle==='active'; preserve that condition.",
+        "scenario": "New file is queried at the base SHA.",
+        "finding": "git show reports expected absence as fatal noise.",
+        "resolution": "Use diff status/base-path knowledge or silent base read so A status has empty before-state.",
         "status": "resolved"
       },
       {
         "id": "CH-5",
-        "scenario": "Forbidden state is display-label or route-key rather than route.",
-        "finding": "It cannot safely identify a static filesystem route.",
-        "resolution": "Only forbiddenStates with kind route and a staticRouteFile mapping participate.",
+        "scenario": "A component key is genuinely renamed and stale consumers retain the old key.",
+        "finding": "The fix must not downgrade existing strong stale detection.",
+        "resolution": "No matching old key on added side means candidate remains removed and consumers block.",
         "status": "resolved"
       },
       {
         "id": "CH-6",
-        "scenario": "A matching forbidden route exists in an active instruction but the tombstone path belongs to a different static route.",
-        "finding": "Instruction presence alone cannot authorize a different deleted path.",
-        "resolution": "Intersect the static forbidden-route file with the exact Git tombstones set; no fuzzy or prefix match.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-7",
-        "scenario": "A live file matches a forbidden route but is not deleted.",
-        "finding": "Legacy tombstone architecture resolution must not convert a surviving forbidden file into an accepted architecture state.",
-        "resolution": "forbiddenRouteTombstones is restricted to Git D paths; live forbidden files remain handled by existing forbidden-state enforcement.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-8",
-        "scenario": "A forbidden dynamic route such as /termek/:slug cannot map to one stable page file with staticRouteFile.",
-        "finding": "Treating dynamic routes as static tombstones could authorize the wrong filesystem target.",
-        "resolution": "staticRouteFile already rejects dynamic/wildcard route syntax; preserve fail-closed behavior.",
+        "scenario": "A candidate is relocated twice.",
+        "finding": "Relocation provenance can be one-to-many.",
+        "resolution": "Record all matching added current paths while suppressing only the removed-candidate classification.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run plan-only canonical Plan Before Code before implementation.",
-      "Unit-test buildExecutionRoute with an active forbidden static route plus matching tombstone and assert INSTRUCTION_REQUIRED plus explicit forbiddenRouteTombstones evidence.",
-      "Repeat without tombstone evidence and with an unrelated tombstone; neither may receive instruction-tombstone resolution.",
-      "Run exact-head full Quality, TypeScript, Production Build and Completion Truth.",
-      "Merge only after lifecycle CLOSE→LEARN exact-head closure passes; then replay PR #666 without changing its product intent.",
-      "Bind REQ-TOMBSTONE-ARCHITECTURE-RESOLUTION explicitly to exact-head GUARD-PLAN-BEFORE-CODE authority evidence plus Quality regression proof; Truth Gate must reject any authority claim not covered by producer semantics."
+      "Run plan-only Plan Before Code before implementation.",
+      "Regression-test typed display-text relocation into an A-status file and assert no stale block from unrelated unchanged peers.",
+      "Negative-control a genuine component-key/export-style removal with unchanged machine consumer and assert BLOCK remains.",
+      "Run exact-head Edit-Time, Quality, TypeScript, Production Build and Completion Truth; then CLOSE→LEARN before merge.",
+      "After merge replay PR #666 unchanged in product intent and require Reference Sync/Implementation Sync PASS."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-01-INSTRUCTION-TOMBSTONE-ARCHITECTURE",
+      "request": "PO-2026-10-02-REFERENCE-RELOCATION-SEMANTICS",
       "authority": [
-        "semantic-execution-route",
-        "po-instruction-authority",
-        "plan-before-code"
+        "reference-sync",
+        "semantic-execution-route"
       ],
       "mustEdit": [
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
-        "scripts/shoperation-plan-before-code.mjs",
+        "scripts/lib/shoperation-reference-sync-runtime.mjs",
+        "scripts/lib/shoperation-reference-sync-runtime.d.mts",
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "mayEdit": [],
-      "impactedReadOnly": [
-        "quality/knowledge/po-instructions.v1.json",
-        "quality/knowledge/domain-foundations.v1.json"
-      ],
+      "impactedReadOnly": [],
       "proof": [
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
@@ -357,18 +324,18 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-INSTRUCTION-TOMBSTONE-ARCHITECTURE",
+    "sourceRef": "PO-2026-10-02-REFERENCE-RELOCATION-SEMANTICS",
     "requirements": [
       {
-        "id": "REQ-INSTRUCTION-TOMBSTONE-PROVENANCE",
-        "requirement": "Active PO forbidden static routes produce instruction-required tombstone provenance only when exact Git D evidence exists.",
+        "id": "REQ-TYPED-REFERENCE-RELOCATION",
+        "requirement": "Reference Sync recognizes transaction-local typed reference relocation into another changed/new file without converting unchanged lexical peers into stale consumers.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "po-instruction-tombstone-provenance",
+          "breadth": "reference-sync-relocation",
           "strength": 2,
           "dimensions": [
+            "consumers",
             "scope",
-            "forbidden-state",
             "regression"
           ]
         },
@@ -386,25 +353,24 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-GENERIC-DELETION-BYPASS",
-            "statement": "Unrelated or non-Git-deleted paths may not receive instruction tombstone resolution.",
+            "id": "NEG-STALE-SUPPRESSION",
+            "statement": "A genuinely removed typed reference with an unchanged machine consumer must still BLOCK.",
             "evidence": [
+              "GUARD-EDIT-TIME",
               "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       },
       {
-        "id": "REQ-TOMBSTONE-ARCHITECTURE-RESOLUTION",
-        "requirement": "Plan Before Code treats an instruction-governed legacy route tombstone as resolved without restoring canonical domain ownership.",
+        "id": "REQ-ADDED-FILE-BEFORE-STATE",
+        "requirement": "Reference Sync treats an A-status file as absent before the base SHA without fatal base-object lookup behavior.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "plan-architecture-tombstone",
-          "strength": 2,
+          "breadth": "reference-sync-added-file",
+          "strength": 1,
           "dimensions": [
             "scope",
-            "authority",
-            "forbidden-state",
             "regression"
           ]
         },
@@ -413,19 +379,16 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-EDIT-TIME",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-PLAN-BEFORE-CODE",
             "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-LEGACY-CANONICALIZATION",
-            "statement": "The deleted forbidden route must not be added back to canonical domain paths.",
+            "id": "NEG-BASE-ABSENCE-FATAL",
+            "statement": "Expected absence of an added file at the base may not surface as a fatal Reference Sync condition.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -433,8 +396,8 @@
         ]
       },
       {
-        "id": "REQ-INSTRUCTION-TOMBSTONE-BUILD",
-        "requirement": "The exact implementation head passes TypeScript and production build with the extended execution-route evidence contract.",
+        "id": "REQ-REFERENCE-RELOCATION-BUILD",
+        "requirement": "The exact implementation head passes TypeScript and production build after Reference Sync relocation semantics are extended.",
         "claimScope": {
           "capability": "CAP-ATLAS",
           "breadth": "targeted-control-plane-build",
@@ -457,7 +420,7 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-INSTRUCTION-TOMBSTONE-BUILD",
+            "id": "NEG-REFERENCE-RELOCATION-BUILD",
             "statement": "The correction must not introduce type or production build regressions.",
             "evidence": [
               "GUARD-TYPECHECK",
@@ -468,18 +431,5 @@
       }
     ]
   },
-  "notes": "Targeted follow-up to merged PR #673. PR #666 proved tombstone transaction semantics work but architecture resolution still rejects an intentionally non-canonical forbidden legacy route. No product code or domain canonical-path expansion in this transaction. Canonical plan projection expanded impacted scope to quality-knowledge-system + shared-storefront + storefront-ui with guard digest 52ef3463; critical assurance challenge/review depth aligned before implementation. Rebased after #670 merge onto canonical main 87438bbc6a35e3e44a79e91d8ea95c90cc8a1b10; product/storefront scope unchanged. Truth replay on ad31c841 exposed a correct OVERCLAIM: the architecture-resolution requirement claimed authority but did not cite the existing GUARD-PLAN-BEFORE-CODE authority-capable producer. The claim remains unchanged; proof mapping now requires that canonical producer in addition to edit-time/regression evidence. Truth Gate exact-head replay on ad31c841 identified a semantic evidence-mapping overclaim: REQ-TOMBSTONE-ARCHITECTURE-RESOLUTION required authority but omitted GUARD-PLAN-BEFORE-CODE, the canonical producer that proves that dimension. Evidence mapping corrected without lowering claim strength or changing gate semantics.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "59dc73947a822b344b032f4a9783a77a09c70eb4",
-    "closedAt": "2026-10-02T03:16:38.904Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-01-INSTRUCTION-TOMBSTONE-ARCHITECTURE",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Targeted Reference Sync capability correction proven by PR #666 exact-head replay. No storefront implementation or gate weakening in this transaction."
 }
