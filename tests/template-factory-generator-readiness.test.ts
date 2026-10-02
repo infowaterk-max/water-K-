@@ -9,6 +9,7 @@ import {LOOT_VAULT_V2_FACTORY_RECIPE} from '@/lib/builder/template-factory/recip
 import {buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory/recipe-registry';
 import {STOREFRONT_PAGE_TYPES,STOREFRONT_VIEWPORTS} from '@/lib/builder/storefront-foundation';
 import {defineStorefrontTemplateGenome} from '@/lib/builder/template-factory/template-genome';
+import type {StorefrontTemplateFactoryMediaAsset} from '@/lib/builder/template-factory/scaffold';
 
 describe('Template Generator Readiness v0.1',()=>{
   it('marks Loot Vault v2 generator-ready without activating a generator runtime',()=>{
@@ -151,7 +152,7 @@ describe('Template Generator Readiness v0.1',()=>{
 
   it('does not confuse non-ready media production state with an invalid Media Plan',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
-    const assets=structuredClone(LOOT_VAULT_V2_FACTORY_RECIPE.media.assets);
+    const assets=structuredClone(LOOT_VAULT_V2_FACTORY_RECIPE.media.assets) as StorefrontTemplateFactoryMediaAsset[];
     const index=assets.findIndex(row=>row.semanticRole==='hero-scene');
     if(index<0)throw new Error('TEST_HERO_ASSET_MISSING');
     assets[index]={
