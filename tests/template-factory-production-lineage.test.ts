@@ -136,6 +136,17 @@ describe('Deterministic Template Production Lineage Brabus authority',()=>{
     expect(foreignIntent.issues.map(row=>row.code)).toContain('PRODUCTION_LINEAGE_PO_INTENT_DRIFT');
   });
 
+
+  it('rejects a foundation source that disagrees with compiled page provenance',()=>{
+    const{input}=fixture();
+    const result=createStorefrontTemplateProductionLineage({
+      ...input,
+      foundation:{...input.foundation,templateVersion:input.foundation.templateVersion+1},
+    });
+    expect(result.valid).toBe(false);
+    expect(result.issues.map(row=>row.code)).toContain('PRODUCTION_LINEAGE_FOUNDATION_VERSION_DRIFT');
+  });
+
   it('rejects package identity drift and missing upstream plans instead of synthesizing placeholder lineage',()=>{
     const{input}=fixture();
     const pkg=structuredClone(input.package);
