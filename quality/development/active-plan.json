@@ -1,24 +1,44 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-STOREFRONT-PATH-FALLBACK",
-  "task": "Atlas path classification: resolve otherwise-unowned shopper-facing app pages and storefront metadata without overriding specific domain authorities.",
-  "status": "closed",
-  "guardDigest": "f8395e8f",
-  "changeBaseSha": "6ddc62fbac729d593cda0c7fcbbf386062a89b45",
+  "taskId": "DEV-STOREFRONT-SHIPPING-PAYMENT-SEPARATION",
+  "task": "Replace the obsolete combined public shipping/payment authority with independent /szallitas and /fizetes authorities while preserving storefront runtime behavior, template navigation, and Product Owner proof.",
+  "status": "ready-for-implementation",
+  "guardDigest": "afc442ca",
+  "changeBaseSha": "7ec2cb968b023da7cac3bf684e7ee4bb00f1be06",
   "plannedFilePatterns": [
-    "quality/knowledge/domain-foundations.v1.json",
-    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-    "tests/shoperation-semantic-execution-intelligence.test.ts"
+    "quality/development/active-plan.json",
+    "src/app/szallitas-es-fizetes/page.tsx",
+    "src/app/szallitas/page.tsx",
+    "src/app/fizetes/page.tsx",
+    "src/app/oldal/[slug]/page.tsx",
+    "src/app/sitemap.ts",
+    "src/components/content/storefront-commerce-information-page.tsx",
+    "src/lib/builder/storefront-template-route-integrity.ts",
+    "scripts/template-factory-product-owner-handoff.mjs",
+    "tests/storefront-template-route-integrity.test.ts",
+    "tests/storefront-public-information-routes.test.ts",
+    "tests/storefront-real-route-template-authority.test.ts",
+    "tests/template-factory-loot-vault-v2.test.ts",
+    "tests/customer-order-service-ux.test.ts",
+    "quality/knowledge/domain-foundations.v1.json"
   ],
   "expectedSubsystems": [
+    "builder-template-system",
+    "customer-account",
+    "inventory-fulfillment-authority",
+    "payment-checkout-order-authority",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-BUILDER",
+    "DOMAIN-QUALITY",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "builder-template-system",
+    "quality-knowledge-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -71,97 +91,89 @@
     "TF-KF-024",
     "TF-KF-025"
   ],
-  "acknowledgedPoInstructionIds": [],
+  "acknowledgedPoInstructionIds": [
+    "PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE"
+  ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
     "SQ-NK-002",
+    "SQ-NK-003",
     "SQ-NK-004",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
+    "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
-    "sourceRef": "PO-2026-10-02-STOREFRONT-PATH-FALLBACK",
-    "problemStatement": "PR #666 plan-only replay after planned-deletion authorization still cannot project DOMAIN-STOREFRONT for src/app/oldal/[slug]/page.tsx and src/app/sitemap.ts because canonical domain matching returns no owner before the planned domain-registry edit exists. Plan-before-code therefore deadlocks on an authority change it is supposed to authorize.",
+    "sourceKind": "product-owner-request",
+    "sourceRef": "PO-2026-09-29-SHIPPING-PAYMENT-SEPARATE",
+    "riskTier": "critical",
+    "problemStatement": "The Product Owner explicitly required shipping and payment to be separate public pages, but canonical route integrity, sitemap authority, browser handoff convergence and regressions still preserve the obsolete combined /szallitas-es-fizetes authority.",
     "observableOutcomes": [
-      "An otherwise-unowned src/app/**/page.tsx path resolves to DOMAIN-STOREFRONT/shared-storefront.",
-      "An otherwise-unowned src/app/sitemap.ts storefront metadata path resolves to DOMAIN-STOREFRONT/shared-storefront.",
-      "Existing explicit DOMAIN-ADMIN, DOMAIN-BUILDER, DOMAIN-IDENTITY, API and other canonical domain matches remain authoritative and are never replaced by the fallback.",
-      "PR #666 planned projection can resolve src/app/oldal/[slug]/page.tsx and src/app/sitemap.ts before implementation."
+      "The storefront serves independent /szallitas and /fizetes pages with canonical metadata and customer-facing runtime content.",
+      "No canonical navigation, sitemap, showroom surface, Product Owner handoff convergence or regression test retains the combined public /szallitas-es-fizetes authority.",
+      "Legacy /oldal/szallitas and /oldal/fizetes entry points converge to the new direct public authorities without creating duplicate public truth ownership."
     ],
     "unresolvedRisks": [
-      "A broad fallback could incorrectly steal explicitly-owned admin/builder routes.",
-      "API route handlers must not be classified as storefront presentation merely because they live under src/app.",
-      "Fallback must remain path-derived classification, not an exception tied to PR #666 file names."
+      "Template shell links may contain indirect or generated consumers that are not visible from a simple lexical route search and must be covered by semantic/reference synchronization.",
+      "Moving public information rendering must not discard live commerce settings or merchant-owned content semantics.",
+      "Template Factory route convergence must remain executable after replacing one combined navigation destination with two independent destinations."
     ],
     "scope": {
       "in": [
-        "Existing Codebase Atlas classifyAtlasPath fallback semantics.",
-        "Shopper-facing app page and sitemap metadata paths with no stronger canonical domain match.",
-        "Adversarial regression tests proving explicit domain ownership wins."
+        "Public shipping and payment route authority, canonical metadata, sitemap and legacy-route convergence.",
+        "Template route integrity, shopper navigation and Product Owner handoff consumers of the obsolete combined route.",
+        "Adversarial regressions proving the explicit Product Owner instruction remains durable."
       ],
       "out": [
-        "Storefront shipping/payment product implementation.",
-        "Domain registry rewrite or a second authority system.",
-        "API route ownership changes."
+        "Admin payment and shipping configuration pages, which are a separate operational settings authority.",
+        "Checkout workflow steps that legitimately group shipping and payment inside one purchase flow.",
+        "Provider configuration, order persistence and payment processing behavior."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "A foundational pre-execution authority classifier must resolve public presentation surfaces deterministically while preserving specific authority precedence; negative controls are required before replaying #666.",
+      "rationale": "This repair exercises the new PO-instruction and semantic execution foundations on the exact failure class that previously escaped Plan Before Code. It therefore requires repository-aware consumer discovery, explicit forbidden-state proof, exact-head runtime/build verification and adversarial regression without expanding into unrelated commerce internals.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
+        "what-if-matrix",
         "adversarial-scenarios",
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
-        "finite-state-exhaustion",
-        "what-if-matrix",
-        "fault-injection"
+        "fault-injection",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "For an otherwise-unowned shopper-facing dynamic page such as src/app/oldal/[slug]/page.tsx, classifyAtlasPath must return DOMAIN-STOREFRONT/shared-storefront and a page route while preserving the absence of any business-truth ownership.",
-        "For src/app/sitemap.ts with no stronger canonical domain match, classifyAtlasPath must return DOMAIN-STOREFRONT/shared-storefront so public navigation metadata has deterministic presentation authority.",
-        "For src/app/admin/orders/page.tsx with an explicit DOMAIN-ADMIN match, classifyAtlasPath must return DOMAIN-ADMIN/admin-operations without adding DOMAIN-STOREFRONT.",
-        "For src/app/storefront-template-preview/page.tsx with an explicit DOMAIN-BUILDER match, classifyAtlasPath must retain DOMAIN-BUILDER/builder-template-system without storefront fallback.",
-        "For src/app/api/orders/route.ts, storefront presentation fallback must not apply and the existing explicit API/business authority remains unchanged."
+        "Both /szallitas and /fizetes are real public route authorities with direct canonical metadata and active storefront shell rendering.",
+        "The combined /szallitas-es-fizetes route module and every canonical route key, URL and public navigation assertion for it are removed.",
+        "Legacy generic information URLs converge to the direct route authorities instead of remaining competing canonical destinations.",
+        "Template Factory Product Owner route convergence independently proves both Szállítás and Fizetés destinations.",
+        "The existing stress regression from PR #645 becomes a canonical regression and passes unchanged in intent."
       ],
       "invariants": [
-        "Explicit canonical domain matches always take precedence over storefront fallback.",
-        "Fallback applies only when classifyDomains(file) is empty.",
-        "Fallback is presentation-only and does not grant commerce/catalog/data truth ownership.",
-        "No PR-number or shipping/payment-specific file exception is introduced."
+        "Admin shipping/payment settings and checkout provider behavior remain outside this public-route refactor.",
+        "Shipping content continues to reflect active shipping options and free-shipping threshold; payment content continues to reflect active payment options.",
+        "The canonical 14 Page Schema matrix is not expanded or mutated by this public information route split.",
+        "No redirect or alias may point the new direct routes back to the removed combined authority."
       ],
       "forbiddenStates": [
-        "admin-page-reclassified-as-storefront",
-        "builder-preview-reclassified-as-storefront",
-        "api-route-reclassified-as-storefront",
-        "pr-specific-path-exception"
+        "route:/szallitas-es-fizetes",
+        "route-key:shipping-payment",
+        "display-label:Szállítás és fizetés as a canonical public navigation destination",
+        "direct /szallitas or /fizetes route missing while tests are rewritten to weaker expectations",
+        "merchant public information content or active commerce settings silently dropped"
       ]
     },
     "model": {
-      "failureModes": [
-        "Unowned public page blocks Plan Before Code.",
-        "Fallback steals a more specific authority.",
-        "Sitemap remains unclassified.",
-        "API route receives storefront authority."
-      ],
-      "edgeCases": [
-        "Dynamic public page under src/app.",
-        "Root src/app/page.tsx.",
-        "Next sitemap metadata file.",
-        "Admin page with explicit DOMAIN-ADMIN match.",
-        "Builder preview page with explicit DOMAIN-BUILDER match.",
-        "API route handler."
-      ],
       "phases": [
         "OBSERVE",
         "DEFINE",
@@ -188,26 +200,39 @@
         "VERIFY->TRUTH_GATE",
         "TRUTH_GATE->CLOSE",
         "CLOSE->LEARN"
+      ],
+      "failureModes": [
+        "A stale combined route remains reachable from sitemap, template shell or browser handoff despite direct routes existing.",
+        "One direct page is implemented while the other remains a generic /oldal slug, recreating asymmetric authority.",
+        "Template Factory navigation changes but route presentation mapping still classifies the removed combined route.",
+        "Tests pass lexically while runtime metadata or build route generation still exposes the obsolete URL."
+      ],
+      "edgeCases": [
+        "No shipping options configured.",
+        "No payment options configured.",
+        "Merchant has previously seeded szallitas/fizetes information content.",
+        "Mobile navigation and footer navigation both contain the affected destinations.",
+        "Template Factory preview rewrites legal/content routes through preview query parameters."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-FALLBACK",
-        "summary": "Apply storefront presentation fallback only when no canonical domain matches.",
+        "id": "ALT-DIRECT-CANONICAL",
+        "summary": "Create independent direct route authorities and converge old generic information entry points onto them.",
         "disposition": "selected",
-        "reason": "Resolves unowned public presentation paths while preserving explicit authority precedence."
+        "reason": "This satisfies the explicit PO URL authority, removes duplicate canonical truth, and preserves compatibility through one-way convergence."
       },
       {
-        "id": "ALT-BROAD-GLOB",
-        "summary": "Add src/app/**/page.tsx to DOMAIN-STOREFRONT canonicalPaths.",
+        "id": "ALT-REDIRECT-ONLY",
+        "summary": "Create /szallitas and /fizetes as redirects to the existing /oldal slugs.",
         "disposition": "rejected",
-        "reason": "Pattern specificity could outrank or interfere with explicit admin/builder ownership."
+        "reason": "The requested direct routes would not own canonical content and the old generic route would remain the real authority."
       },
       {
-        "id": "ALT-PR-FILE-EXCEPTIONS",
-        "summary": "Special-case oldal/[slug] and sitemap in Plan Gate.",
+        "id": "ALT-KEEP-COMBINED-ALIAS",
+        "summary": "Keep the combined route as a compatibility alias while adding two new pages.",
         "disposition": "rejected",
-        "reason": "Would encode product-specific exceptions into foundational classification."
+        "reason": "The Product Owner explicitly forbids the combined public authority; retaining it would preserve the proven instruction-retention defect."
       }
     ],
     "specialistReviews": [
@@ -215,146 +240,166 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Fallback must run only after canonical domain matching returns empty.",
-        "resolution": "Preserve classifyDomains precedence; add storefront presentation fallback afterward.",
+        "finding": "The public authority must be one-way: direct routes own shipping/payment while legacy generic entry points may only converge toward them.",
+        "resolution": "Remove the combined route and update route-integrity/sitemap consumers; prevent reverse aliasing.",
         "evidence": [
-          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
+          "PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE",
+          "src/lib/builder/storefront-template-route-integrity.ts",
+          "src/app/sitemap.ts"
         ]
       },
       {
-        "role": "Data Integrity",
+        "role": "UX / Template",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Generic src/app ownership can collide with admin/builder domains.",
-        "resolution": "Negative controls prove existing explicit matches remain unchanged.",
+        "finding": "Splitting one footer destination into two can increase navigation density and break showroom convergence assumptions.",
+        "resolution": "Preserve both destinations as independent required links and update Product Owner browser convergence to prove each one rather than hiding one behind the other.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json",
-          "tests/shoperation-semantic-execution-intelligence.test.ts"
+          "tests/template-factory-loot-vault-v2.test.ts",
+          "scripts/template-factory-product-owner-handoff.mjs"
         ]
       },
       {
         "role": "Runtime",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Next metadata files are not routeForFile pages but still public storefront presentation composition.",
-        "resolution": "Handle sitemap metadata as a narrow presentation fallback; do not include route.ts/API handlers.",
+        "finding": "The current generic system-info route already contains correct live shipping and payment runtime semantics that must not be lost.",
+        "resolution": "Reuse a shared server-rendered commerce information component and make direct routes the canonical entry points.",
         "evidence": [
-          "src/app/sitemap.ts"
+          "src/app/oldal/[slug]/page.tsx",
+          "src/app/szallitas-es-fizetes/page.tsx"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Fix must not become a PR #666 path list.",
-        "resolution": "Tests target generic precedence rules and representative public/admin/builder/API paths.",
+        "finding": "PR #645 proves that documentation/chat memory was insufficient because the combined authority survived previous plans.",
+        "resolution": "Promote the exact split expectation into canonical regression while retaining machine-readable PO instruction enforcement.",
         "evidence": [
-          "tests/shoperation-semantic-execution-intelligence.test.ts"
+          "stress PR #645",
+          "quality/knowledge/po-instructions.v1.json"
         ]
       }
     ],
     "challenge": [
       {
         "id": "CH-1",
-        "scenario": "Dynamic shopper page has no canonical domain path.",
-        "finding": "Plan projection reports ARCHITECTURE_SCOPE_UNRESOLVED.",
-        "resolution": "Fallback to DOMAIN-STOREFRONT only when canonical match set is empty.",
+        "scenario": "The new direct routes exist but sitemap still advertises the combined URL.",
+        "finding": "Search engines and route authority would continue to expose the forbidden state.",
+        "resolution": "Replace the combined sitemap entry with both direct routes and regression-test both URLs.",
         "status": "resolved"
       },
       {
         "id": "CH-2",
-        "scenario": "Admin page also matches generic app-page shape.",
-        "finding": "Storefront fallback could steal ownership.",
-        "resolution": "Do not execute fallback when DOMAIN-ADMIN already matches.",
+        "scenario": "Header/footer links are updated but Template Factory handoff still clicks the combined label.",
+        "finding": "Technical quality could pass while Product Owner browser convergence silently skips the new split.",
+        "resolution": "Require separate browser convergence checks for Szállítás and Fizetés.",
         "status": "resolved"
       },
       {
         "id": "CH-3",
-        "scenario": "Builder preview page is under src/app.",
-        "finding": "Storefront fallback could steal builder authority.",
-        "resolution": "Existing DOMAIN-BUILDER canonical match wins before fallback.",
+        "scenario": "The old /oldal/szallitas and /oldal/fizetes pages remain independently canonical.",
+        "finding": "Two URL families would own the same public information truth.",
+        "resolution": "Converge legacy generic entry points to the direct authorities and make direct metadata canonical.",
         "status": "resolved"
       },
       {
         "id": "CH-4",
-        "scenario": "API route handler lives under src/app/api.",
-        "finding": "Presentation fallback would be incorrect.",
-        "resolution": "Fallback recognizes page.tsx/jsx presentation files, never route.ts handlers.",
+        "scenario": "Shipping and payment UI is duplicated into two new route files.",
+        "finding": "Future copy/runtime fixes could drift between route implementations.",
+        "resolution": "Move shared server rendering to one commerce-information component consumed by both direct routes.",
         "status": "resolved"
       },
       {
         "id": "CH-5",
-        "scenario": "Sitemap has no page route.",
-        "finding": "It remains unowned despite composing public storefront navigation.",
-        "resolution": "Narrow metadata fallback covers src/app/sitemap.ts.",
+        "scenario": "The combined page is deleted before semantic consumers are updated.",
+        "finding": "Template or regression consumers can become stale and only fail late.",
+        "resolution": "Use the execution route plus Reference Sync and keep the stress assertions as explicit negative proof.",
         "status": "resolved"
       },
       {
         "id": "CH-6",
-        "scenario": "A commerce or auth page imports business truth.",
-        "finding": "Presentation ownership must not imply business truth ownership.",
-        "resolution": "Fallback adds only DOMAIN-STOREFRONT; dependency closure remains separate.",
+        "scenario": "The route split changes checkout or admin configuration semantics.",
+        "finding": "A public information repair could accidentally expand into transaction/provider authority.",
+        "resolution": "Keep admin configuration and checkout flow explicitly out of scope and assert no related provider code is edited.",
         "status": "resolved"
       },
       {
         "id": "CH-7",
-        "scenario": "Canonical registry later adds an exact path.",
-        "finding": "Fallback could conflict with new authority.",
-        "resolution": "Canonical match automatically takes precedence and suppresses fallback.",
+        "scenario": "A merchant has no active provider options.",
+        "finding": "The new direct pages could render empty or crash despite nominal route existence.",
+        "resolution": "Preserve the current explicit empty-state cards for both shipping and payment.",
         "status": "resolved"
       },
       {
         "id": "CH-8",
-        "scenario": "PR #666 replays with planned domain-foundation edits still absent.",
-        "finding": "Plan must resolve current public paths pre-code.",
-        "resolution": "Generic path fallback provides pre-execution architecture ownership independent of future registry edits.",
+        "scenario": "Tests are weakened to accept any two labels without proving the old authority disappeared.",
+        "finding": "The original defect could survive under renamed tests.",
+        "resolution": "Retain negative assertions for route key, URL and combined display label alongside positive direct-route checks.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Plan-only Plan Before Code PASS before implementation.",
-      "Document storefront fallback precedence in the existing DOMAIN-STOREFRONT boundary rules.",
-      "Implement fallback only after canonical domain matching returns empty.",
-      "Unit-test generic public page and sitemap fallback plus admin/builder/API negative controls.",
-      "Run exact-head Edit-Time, Incremental Replay, Quality, TypeScript, Production Build and Truth; CLOSE→LEARN before merge.",
-      "After merge replay #666 plan-only without changing product intent."
+      "Run Plan Before Code on a plan-only commit and require the generated semantic execution route to reconcile every PO-instruction-required edit before implementation starts.",
+      "Replay the PR #645 split expectation as a canonical regression together with public route, sitemap, template navigation and Product Owner convergence tests.",
+      "Require Reference Sync/Edit-Time Guard to report no stale combined route consumers after the route module deletion.",
+      "Run full Quality Tests, TypeScript and Production Build on the exact implementation HEAD.",
+      "Require Completion Truth to verify positive direct routes and negative absence of the combined authority before lifecycle closure."
     ],
+    "executionAuthorized": true,
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-STOREFRONT-PATH-FALLBACK",
+      "request": "PO-2026-09-29-SHIPPING-PAYMENT-SEPARATE",
       "authority": [
-        "semantic-execution-route",
-        "atlas-domain-classification"
+        "PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE",
+        "storefront-route-integrity"
       ],
       "mustEdit": [
-        "quality/knowledge/domain-foundations.v1.json",
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "src/app/szallitas-es-fizetes/page.tsx",
+        "src/app/szallitas/page.tsx",
+        "src/app/fizetes/page.tsx",
+        "src/app/oldal/[slug]/page.tsx",
+        "src/app/sitemap.ts",
+        "src/lib/builder/storefront-template-route-integrity.ts",
+        "scripts/template-factory-product-owner-handoff.mjs",
+        "tests/storefront-template-route-integrity.test.ts",
+        "tests/storefront-public-information-routes.test.ts",
+        "tests/storefront-real-route-template-authority.test.ts",
+        "tests/template-factory-loot-vault-v2.test.ts",
+        "tests/customer-order-service-ux.test.ts",
+        "quality/knowledge/domain-foundations.v1.json"
       ],
-      "mayEdit": [],
+      "mayEdit": [
+        "src/components/content/storefront-commerce-information-page.tsx"
+      ],
       "impactedReadOnly": [],
       "proof": [
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "tests/storefront-template-route-integrity.test.ts",
+        "tests/storefront-public-information-routes.test.ts",
+        "tests/storefront-real-route-template-authority.test.ts",
+        "tests/template-factory-loot-vault-v2.test.ts",
+        "tests/customer-order-service-ux.test.ts"
       ],
-      "unknown": []
-    },
-    "sourceKind": "product-owner-request",
-    "riskTier": "critical",
-    "executionAuthorized": true
+      "unknown": [],
+      "plannedDeletions": [
+        "src/app/szallitas-es-fizetes/page.tsx"
+      ]
+    }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-STOREFRONT-PATH-FALLBACK",
+    "sourceRef": "PO-2026-09-29-SHIPPING-PAYMENT-SEPARATE",
     "requirements": [
       {
-        "id": "REQ-STOREFRONT-PATH-FALLBACK",
-        "requirement": "Atlas assigns storefront presentation ownership only to otherwise-unowned public app pages and storefront sitemap metadata while preserving explicit authority precedence.",
+        "id": "REQ-SEPARATE-PUBLIC-ROUTES",
+        "requirement": "The public storefront exposes independent canonical /szallitas and /fizetes authorities and no canonical combined shipping/payment authority remains.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "targeted-path-classification",
+          "breadth": "targeted-public-route-authority",
           "strength": 2,
           "dimensions": [
-            "scope",
-            "authority",
+            "positive-state",
+            "forbidden-state",
             "regression"
           ]
         },
@@ -363,7 +408,7 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
@@ -372,20 +417,57 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-EXPLICIT-AUTHORITY-OVERRIDE",
-            "statement": "Admin/builder/API explicit ownership must not be replaced by storefront fallback.",
+            "id": "NEG-COMBINED-ROUTE-RETURNS",
+            "statement": "The combined /szallitas-es-fizetes route, shipping-payment key or canonical public label must not reappear.",
             "evidence": [
+              "GUARD-QUALITY-TESTS",
+              "GUARD-EDIT-TIME"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-NAVIGATION-CONSUMER-SYNC",
+        "requirement": "Sitemap, template shell navigation, showroom surfaces and Product Owner browser convergence all consume the two separate destinations without stale combined references.",
+        "claimScope": {
+          "capability": "CAP-ATLAS",
+          "breadth": "targeted-cross-file-consumers",
+          "strength": 2,
+          "dimensions": [
+            "consumers",
+            "scope",
+            "forbidden-state"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-ATLAS"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-EDIT-TIME",
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-STALE-CONSUMER",
+            "statement": "No stale combined route consumer may remain in the affected public/template execution route.",
+            "evidence": [
+              "GUARD-EDIT-TIME",
               "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       },
       {
-        "id": "REQ-STOREFRONT-PATH-BUILD",
-        "requirement": "The Atlas classification change typechecks and production-builds on the exact implementation head.",
+        "id": "REQ-DIRECT-ROUTE-RUNTIME",
+        "requirement": "The exact implementation head typechecks and production-builds with both direct public route modules and preserved empty/live commerce information states.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "targeted-control-plane-type-build",
+          "breadth": "targeted-runtime-build",
           "strength": 1,
           "dimensions": [
             "types",
@@ -405,8 +487,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-STOREFRONT-PATH-BUILD",
-            "statement": "No type or production build regression.",
+            "id": "NEG-RUNTIME-BUILD",
+            "statement": "The route split must not introduce TypeScript or production build regressions.",
             "evidence": [
               "GUARD-TYPECHECK",
               "GUARD-PRODUCTION-BUILD"
@@ -416,18 +498,5 @@
       }
     ]
   },
-  "notes": "Targeted foundational follow-up from #666 planned projection after #678. Resolves path-derived storefront presentation ownership without PR-specific exceptions or canonical authority overrides. Canonical plan-only projection on 792b84d derived domains=[], authorities=[], subsystems=[shared-storefront,storefront-ui], negative knowledge SQ-NK-001/002/004/006/007/008/009/012 and guard digest f8395e8f. Canonical critical operational metadata restored; engineering scope unchanged. Plan quality refinement: DOMAIN-STOREFRONT boundary contract is now an explicit must-edit so the classifier behavior and durable authority documentation remain synchronized; unchanged .d.mts removed because public types do not change. Critical assurance technique set made explicit.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "748613fdd9457996527a5c501b3e4bcba30bc6d2",
-    "closedAt": "2026-10-02T05:12:30.693Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-STOREFRONT-PATH-FALLBACK",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Pre-implementation scope is fully repository-derived: Storefront public route ownership is mapped, DOMAIN-QUALITY is acknowledged for the knowledge correction itself, full Known Failure replay and negative knowledge are preserved, and no product implementation has started before Plan PASS. Transaction base advanced to main d8465ed5 after PR #673 semantic deletion tombstones merged; intent and planned product scope are unchanged. Replayed atomically onto canonical main 055a819a96bce7127f2fdf5258f4b85f47e84d74 after #670 and #675 merged. Storefront product intent and PO instruction remain unchanged; the existing instruction-governed tombstone architecture capability now owns deleted legacy-route resolution. Replayed after merged Reference Sync relocation repair #677 onto canonical main 2860a9bda9bc151d61fc18917021ea7414bc5acf; product intent and planned implementation scope unchanged. Replayed after merged #678 phase-aware planned-deletion authorization onto canonical main 6ddc62fbac729d593cda0c7fcbbf386062a89b45; explicit plannedDeletions contains only the PO-forbidden combined route and remains authorization-only until Git D completion evidence exists. Rebased after merged #680 storefront path fallback onto canonical main 7ec2cb968b023da7cac3bf684e7ee4bb00f1be06; Product Owner shipping/payment split intent, planned deletion and completion contract unchanged."
 }
