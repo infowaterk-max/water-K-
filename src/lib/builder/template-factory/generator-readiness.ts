@@ -24,6 +24,11 @@ import {
   type StorefrontTemplateProductOwnerIntent,
 } from '@/lib/builder/template-factory/constraint-planner';
 import {
+  compileStorefrontTemplateMediaPlan,
+  type StorefrontTemplateMediaPlannerResult,
+} from '@/lib/builder/template-factory/media-planner';
+import type {StorefrontTemplateFactoryMediaManifest} from '@/lib/builder/template-factory/scaffold';
+import {
   evaluateStorefrontTemplateProductionContracts,
   type StorefrontTemplateProductionContractDeclaration,
   type StorefrontTemplateProductionContractsResult,
@@ -79,6 +84,7 @@ export type StorefrontTemplateGeneratorReadinessResult={
   typeSystemValidation:StorefrontTemplateTypeSystemValidation;
   typeCompatibility:StorefrontTemplateTypeCompatibilityValidation;
   constraintPlanning:StorefrontTemplateConstraintPlannerResult;
+  mediaPlanning:StorefrontTemplateMediaPlannerResult;
   template3AuthoringReady:boolean;
   issues:readonly StorefrontTemplateGeneratorReadinessIssue[];
 };
@@ -92,6 +98,7 @@ type GeneratorRecipeProjection={
   requiredFeatures:readonly FeatureCode[];
   genome?:StorefrontTemplateGenome;
   productionIntent?:StorefrontTemplateProductOwnerIntent;
+  media:StorefrontTemplateFactoryMediaManifest;
   reference:{key:string;approved:boolean;requiredPageTypes:readonly StorefrontBuilderPageType[]};
   pageOverrides?:Partial<Record<StorefrontBuilderPageType,unknown>>;
 };
@@ -131,6 +138,10 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     genome:recipe.genome,
     intent:recipe.productionIntent,
   });
+  const mediaPlanning=compileStorefrontTemplateMediaPlan({
+    constraintPlan:constraintPlanning.plan,
+    manifest:recipe.media,
+  });
   const issues:StorefrontTemplateGeneratorReadinessIssue[]=[];
   if(!blueprint){
     issues.push(failure('GENERATOR_BLUEPRINT_REQUIRED','blueprint','Generator readiness requires an explicit versioned Template Blueprint.'));
@@ -145,6 +156,7 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
       typeSystemValidation,
       typeCompatibility,
       constraintPlanning,
+      mediaPlanning,
       template3AuthoringReady:false,
       issues:Object.freeze(issues),
     };
@@ -170,6 +182,9 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
   for(const typeIssue of typeSystemValidation.issues)issues.push(failure(typeIssue.code,typeIssue.path,typeIssue.message));
   for(const typeIssue of typeCompatibility.issues)issues.push(failure(typeIssue.code,typeIssue.path,typeIssue.message));
   for(const plannerIssue of constraintPlanning.issues)issues.push(failure(plannerIssue.code,plannerIssue.path,plannerIssue.message));
+  if(constraintPlanning.valid){
+    for(const mediaIssue of mediaPlanning.issues)issues.push(failure(mediaIssue.code,mediaIssue.path,mediaIssue.message));
+  }
 
   const identityChecks=[
     ['category',blueprint.template.category,recipe.category],
@@ -209,7 +224,8 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     typeSystemValidation,
     typeCompatibility,
     constraintPlanning,
-    template3AuthoringReady:issues.length===0&&genomeValidation.valid&&typeSystemValidation.valid&&typeCompatibility.valid&&constraintPlanning.valid&&productionMaturity.valid&&productionMaturity.template3AuthoringReady,
+    mediaPlanning,
+    template3AuthoringReady:issues.length===0&&genomeValidation.valid&&typeSystemValidation.valid&&typeCompatibility.valid&&constraintPlanning.valid&&mediaPlanning.valid&&productionMaturity.valid&&productionMaturity.template3AuthoringReady,
     issues:Object.freeze(issues),
   };
 }
