@@ -526,7 +526,7 @@ function traverseReverse(atlas,startPaths){
 export function impactForAtlasPattern(atlas,pattern){
   const matcher=globToRegExp(pattern),matches=atlas.nodes.filter(node=>matcher.test(node.path)).map(node=>node.path),exact=atlas.nodes.some(node=>node.path===pattern)?[pattern]:[],start=exact.length?exact:matches.slice(0,policy.maxImpactResults);
   const nodeMap=new Map(atlas.nodes.map(node=>[node.path,node])),impact=traverseReverse(atlas,start);
-  const classificationFor=file=>nodeMap.get(file)??classifyAtlasPath(file);
+  const classificationFor=file=>classifyAtlasPath(file);
   const subsystems=[...new Set(start.flatMap(file=>classificationFor(file).subsystems??[]))].sort(),surfaces=[...new Set(start.flatMap(file=>classificationFor(file).surfaces??[]))].sort(),directDomains=[...new Set(start.flatMap(file=>classificationFor(file).domains??[]))].sort();
   const architecture=architectureProjection(directDomains),componentKeys=[...new Set(start.flatMap(file=>nodeMap.get(file)?.literalKeys??[]))].sort(),exports=[...new Set(start.flatMap(file=>nodeMap.get(file)?.exports??[]))].sort();
   const failureIds=getAllFailures().filter(f=>f.applicability.mode==='always'||f.applicability.subsystems.some(s=>subsystems.includes(s))).map(f=>f.id);
