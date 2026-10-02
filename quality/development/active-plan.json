@@ -1,8 +1,8 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-DYNAMIC-PRODUCTION-COMPILER-BRABUS-HARDENING",
-  "task": "Implement the canonical Dynamic Production Compiler that deterministically turns a structured Product Owner-approved Page Schema candidate plus proven Genome, Template Type, Constraint Plan and Media Plan inputs into a compiler-proven Factory recipe/program and exact installable package, without generating arbitrary source code or bypassing Page Preset, Page Schema, Builder, Runtime, lineage or anti-clone authorities.",
-  "status": "closed",
+  "taskId": "DEV-VX-INHERITANCE-INTELLIGENCE-BRABUS-HARDENING",
+  "task": "Evolve the existing responsive layout-depth authority into explainable Inheritance Intelligence with exact base-plus-viewport provenance, redundant-override drift diagnostics, deterministic bounded propagation plans and explicit application through existing responsive setters/resetters and Builder history, without restoring the legacy Desktop→Tablet→Mobile cascade.",
+  "status": "ready-for-implementation",
   "guardDigest": "1f7fdbbd",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
@@ -11,6 +11,8 @@
     "quality/knowledge/guard-registry.v1.json",
     "scripts/template-factory-quality-gate.mjs",
     "src/app/api/visual-fidelity/templates/route.ts",
+    "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
+    "src/lib/builder/storefront-responsive-layout-depth.ts",
     "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts",
     "src/lib/builder/template-factory/constraint-planner.ts",
     "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
@@ -26,6 +28,7 @@
     "src/lib/builder/template-factory/template-distinctness.ts",
     "src/lib/builder/template-factory/template-genome.ts",
     "src/lib/builder/template-factory/template-type-system.ts",
+    "tests/storefront-responsive-layout-depth.test.ts",
     "tests/template-factory-constraint-planner.test.ts",
     "tests/template-factory-generator-readiness.test.ts",
     "tests/template-factory-media-planner.test.ts",
@@ -121,52 +124,54 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-DYNAMIC-PRODUCTION-COMPILER-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-VX-INHERITANCE-INTELLIGENCE-BRABUS-HARDENING",
     "riskTier": "critical",
-    "problemStatement": "The Factory already has deterministic 14-page scaffold compilation and all upstream semantic authorities are PROVEN, but the active Loot Vault path still hand-authors Factory pageOverrides, shell/global-style adoption and production wiring in the recipe. A real Dynamic Production Compiler is required to compile a structured Visual First candidate through canonical Page Presets and the proven Genome/Constraint/Media chain into one deterministic Factory recipe/program, so future authoring intelligence can emit bounded structured candidates instead of source code.",
+    "problemStatement": "Responsive layout mechanics are already PROVEN and the active Runtime deliberately uses base + exact viewport authority, while historical Desktop→Tablet→Mobile cascading is legacy-only. The Builder can inspect, set and reset viewport-local state, but it cannot yet explain the effective value's source, identify redundant/stale overrides, or safely propagate explicit responsive intent between selected viewports. Brabus Inheritance Intelligence must add those capabilities to the existing responsive layout-depth authority without changing Runtime semantics.",
     "observableOutcomes": [
-      "One versioned compiler contract and implementation accepts an explicit Generator Blueprint, structured Page Schema candidate, Genome, bounded Product Owner intent, Media Manifest and internal visual review state.",
-      "The compiler recomputes canonical Production Contracts, Constraint Plan and Media Plan before materialization; invalid or stale semantic inputs fail closed.",
-      "The compiler derives template identity, demo namespace/fixtures, Global Styles, canonical shell and Blueprint-owned page overrides from the candidate through existing Page Preset authority instead of hand-authored recipe copies.",
-      "The compiler emits an immutable deterministic production program with source hashes/identities, selected Page Preset operations and a compiler hash.",
-      "The emitted Factory recipe carries compiler provenance; Generator Readiness requires valid compiler provenance when the Blueprint declares the dynamic compiler implementation.",
-      "The compiler invokes the existing Factory scaffold; the scaffold remains the sole 14-page materialization authority and Page Schema/Runtime remain unchanged.",
-      "The compiled Loot Vault v2 package is exactly equal to the current canonical package while its Factory recipe no longer manually reconstructs shell/global styles/pageOverrides/demo fixtures.",
-      "Lineage and catalog-wide anti-clone are evaluated on the compiler output and remain mandatory; the compiler cannot bypass either.",
-      "No timestamps, CI run IDs, random UUIDs, source-code generation, HTML/JS generation, direct DB mutation or publish action participate in compiler truth."
+      "One canonical Inheritance Intelligence contract lives inside the existing storefront-responsive-layout-depth authority and reports base/exact-viewport provenance for visibility, grid placement, container flow and child order.",
+      "Diagnostics distinguish explicit viewport overrides from inherited/base/component/default values and identify redundant overrides that can be removed without changing effective rendering.",
+      "The active runtime continues to use base + exact viewport semantics; no Desktop→Tablet→Mobile implicit cascade is introduced.",
+      "A deterministic propagation planner accepts one source viewport, explicit target viewports and an allowlisted set of responsive dimensions and returns an immutable bounded plan.",
+      "Propagation copies the source viewport's direct intent: direct source overrides become explicit target overrides; absent source overrides reset the matching target dimension instead of inventing values.",
+      "Applying a propagation plan delegates only to existing set/reset responsive authorities and produces a normal Page Schema document that can be committed through existing Builder history/undo-redo.",
+      "No propagation operation touches unselected viewports or unrelated style/config keys.",
+      "The Builder responsive controls expose provenance/diagnostics and explicit target actions; there is no silent auto-propagation.",
+      "VX-INHERITANCE-INTELLIGENCE becomes PROVEN only after executable adversarial proof; Publish Readiness, Visual Diff Intelligence, Smart Intent and Smart Auto-Fix remain non-PROVEN."
     ],
     "unresolvedRisks": [
-      "Using a candidate package as an unchecked copy source would merely rename pageOverrides and could bypass Genome/Constraint/Media semantics.",
-      "Import cycles between compiler, scaffold and Generator Readiness could create runtime initialization failures.",
-      "Page Preset replay may alter node identities or metadata and fail exact canonical package equality.",
-      "Compiler provenance could be self-asserted by hand-authored recipes unless it is recomputable and Generator Readiness validates it.",
-      "Deriving shell/global styles from the wrong candidate page could produce nondeterministic or incomplete output.",
-      "A dynamic compiler could accidentally absorb Smart Intent responsibilities and begin inventing composition from free text before that capability is separately proven."
+      "Accidentally using legacy cascade helpers would reintroduce breakpoint leakage already removed from the active Runtime.",
+      "Copying effective values instead of direct intent could freeze defaults into redundant overrides and create future drift.",
+      "A reset-style propagation could erase unrelated viewport style properties such as backgroundColor.",
+      "Child-order propagation could accept stale or foreign node IDs and silently reorder the wrong tree.",
+      "A propagation plan could be replayed after the document changed and overwrite newer responsive intent unless source/target fingerprints are validated.",
+      "Diagnostics could treat legitimate responsive differences as drift and later mislead Publish Readiness or Auto-Fix.",
+      "Direct helper application outside Builder history could make propagation non-undoable in the UI."
     ],
     "scope": {
       "in": [
-        "Versioned compiler contract/provenance and deterministic hash.",
-        "Structured candidate Page Schema package as Visual First implementation input.",
-        "Canonical Page Preset-based derivation of Blueprint-owned pages.",
-        "Automatic derivation of shell, Global Styles, demo namespace/fixtures and commerce-readiness evidence where deterministic.",
-        "Genome / Constraint Plan / Media Plan recomputation and source-chain validation.",
-        "Existing Factory scaffold invocation and exact-package proof.",
-        "Compiler provenance enforcement in Generator Readiness.",
-        "Loot Vault v2 migration from hand-wired Factory recipe materialization to compiler-derived recipe.",
+        "Explainable source/provenance inspection for responsive visibility, grid placement, container layout and child order.",
+        "Redundant override diagnostics based on effective-state equivalence after dimension-local reset.",
+        "Deterministic immutable propagation-plan contract with source and target fingerprints.",
+        "Explicit bounded propagation across selected viewports only.",
+        "Application through existing responsive layout/fidelity setters and resetters.",
+        "Responsive Builder controls for diagnostics and explicit propagation actions.",
+        "Undo/redo integration through existing onApply → commitDocument → Builder history path.",
         "Maturity promotion with adversarial executable proof."
       ],
       "out": [
-        "Template #3 authoring.",
-        "Natural-language or merchant-intent interpretation.",
-        "AI layout generation, embeddings or screenshot-to-layout inference.",
-        "Smart Intent or Smart Auto-Fix implementation.",
-        "Automatic Product Owner approval.",
-        "New Page Schema, renderer, runtime, publish path, database mutation or Control Plane gate."
+        "Legacy Desktop→Tablet→Mobile cascade restoration.",
+        "Automatic cross-viewport propagation without explicit target selection.",
+        "Natural-language Smart Intent.",
+        "Smart Auto-Fix.",
+        "Visual screenshot diffing.",
+        "Publish blocking/readiness aggregation.",
+        "New Page Schema, renderer, persistence, publish endpoint, database mutation or Control Plane gate.",
+        "Template #3 authoring."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "The compiler will become the deterministic bridge from structured Visual First implementation to production Factory output. Highest practical assurance requires canonical source hashes, Page Preset replay, exact package equality, semantic source-chain checks, compiler provenance, anti-clone/lineage enforcement and adversarial rejection of stale/tampered candidates, while leaving intent inference to later VX capabilities.",
+      "rationale": "Responsive propagation can silently damage all three canonical viewports and later feed Smart Intent/Auto-Fix, so the highest practical assurance is deterministic provenance, stale-plan rejection, dimension-local operations, exact target scoping, regression proof against legacy cascade semantics and normal Builder history integration.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -184,45 +189,46 @@
         "finite-state-exhaustion"
       ],
       "deferredTechniques": [
-        "natural-language-intent-compilation",
-        "diagnostic-auto-fix",
-        "computer-vision-layout-generation",
-        "probabilistic-aesthetic-selection"
+        "visual-screenshot-drift-reasoning",
+        "publish-readiness-aggregation",
+        "natural-language-intent-planning",
+        "automatic-diagnostic-repair"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "A canonical shoporation.template-production-compiler.v1 contract emits an immutable deterministic compiler program and provenance hash from structured production inputs.",
-        "Compiler input identity must exactly match Blueprint template identity and the candidate package manifest; cross-template or cross-version candidates block.",
-        "The compiler must independently produce valid Constraint Plan and Media Plan results from the Blueprint/Genome/intent/media inputs before generating a Factory recipe.",
-        "Every Blueprint-owned page must be materialized from an existing candidate Page Preset; missing, duplicate or non-canonical page coverage blocks.",
-        "The compiler derives Global Styles and shell from the structured candidate and cannot accept caller-authored pageOverrides, shell nodes or arbitrary source snippets.",
-        "Compiler output recipe records recomputable compiler provenance; a Blueprint declaring dynamic-production-compiler is not Generator Ready without matching provenance.",
-        "Factory scaffold output from compiler-derived Loot Vault v2 recipe must deep-equal the current canonical Loot Vault v2 package.",
-        "Compiler result exposes the existing Generator Readiness, deterministic Production Lineage and Distinctness results; any invalid result blocks compiler success.",
-        "The compiler contains no persistence, publish, tenant, product, order or database mutation code.",
-        "FACTORY-DYNAMIC-PRODUCTION-COMPILER becomes PROVEN only after executable adversarial tests, while VX Publish Readiness, Inheritance Intelligence, Visual Diff Intelligence, Smart Intent and Smart Auto-Fix remain their existing non-PROVEN states."
+        "Inheritance inspection reports, for every canonical viewport, whether each supported dimension is direct or fallback-derived and exposes the effective state without consulting legacy cascade helpers.",
+        "Redundant override diagnostics are emitted only when resetting that same dimension on that same viewport preserves its effective state.",
+        "Propagation plans are deterministic, immutable and bind page identity, node identity, source viewport, explicit target viewports, selected dimensions and source-state fingerprint.",
+        "Plans with duplicate/invalid/source-equal targets, missing nodes or unsupported dimensions fail closed.",
+        "Applying a stale plan after the source node's responsive state changes fails closed rather than replaying old intent.",
+        "Direct source overrides are copied to targets; absent source overrides cause dimension-local target reset, preserving unrelated style/config keys.",
+        "No plan mutates a viewport outside its explicit target set.",
+        "Child-order propagation uses only known children and existing fidelity order authority.",
+        "Builder UI shows provenance/diagnostic state and explicit propagation controls; applying through onApply remains undoable/redoable.",
+        "Runtime exact-viewport behavior and legacy-cascade isolation tests remain unchanged.",
+        "VX-INHERITANCE-INTELLIGENCE becomes PROVEN while VX-VISUAL-DIFF-INTELLIGENCE, VX-PUBLISH-READINESS, VX-SMART-INTENT and VX-SMART-AUTOFIX remain non-PROVEN."
       ],
       "invariants": [
-        "Page Schema remains the only page document authority.",
-        "Factory scaffold remains the only 14-page package materialization authority.",
-        "Page Presets are the compiler's page-level reuse authority; no raw component tree code generation is introduced.",
-        "Genome owns template identity/visual grammar, Constraint Plan owns bounded semantic constraints and Media Plan owns semantic media requirements.",
-        "Compiler provenance is deterministic and excludes timestamps, run IDs, branches, deployment URLs and randomness.",
-        "Product Owner visual acceptance remains separate and cannot be synthesized by compiler success.",
-        "Compiler output never publishes or mutates tenant/business data."
+        "Active responsive override authority is exact viewport; base style may feed every viewport, but sibling viewport overrides never implicitly inherit.",
+        "LegacyCascade functions remain migration-only and are never imported by Inheritance Intelligence.",
+        "Page Schema and existing fidelity/responsive setters remain mutation authorities.",
+        "Propagation is opt-in, bounded to explicit targets and produces no persistence or publish side effects.",
+        "Resetting one responsive dimension cannot erase unrelated viewport styles or config.",
+        "Diagnostics are explanatory evidence, not automatic mutation authority.",
+        "Every applied document remains a normal Builder history entry."
       ],
       "forbiddenStates": [
-        "template-3-authoring",
-        "compiler-generates-arbitrary-source-code",
-        "compiler-generates-html-or-javascript",
-        "compiler-bypasses-page-schema",
-        "compiler-bypasses-factory-scaffold",
-        "compiler-bypasses-lineage-or-distinctness",
-        "hand-authored-fake-compiler-provenance",
-        "compiler-self-approves-product-owner-review",
+        "implicit-desktop-tablet-mobile-cascade",
+        "legacy-cascade-helper-used-by-active-intelligence",
+        "propagation-to-unselected-viewport",
+        "stale-plan-applied",
+        "unrelated-style-erased",
+        "unknown-child-order-propagated",
+        "background-persistence-or-publish",
         "smart-intent-falsely-proven",
-        "smart-autofix-falsely-proven"
+        "smart-autofix-falsely-proven",
+        "template-3-authoring"
       ]
     },
     "model": {
@@ -254,42 +260,45 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Candidate identity differs from Blueprint but compiler still materializes it.",
-        "Candidate has 14 pages but a Blueprint-owned page type is duplicated or missing.",
-        "Genome/Constraint/Media source chain is stale but compiler provenance still reports valid.",
-        "A caller manually supplies pageOverrides or shell structures and bypasses Page Preset derivation.",
-        "Compiler-generated recipe can be hand-forged with arbitrary provenance and Generator Readiness accepts it.",
-        "Compiler output is technically valid but anti-clone blocks; compiler still returns success.",
-        "Compiler output differs from the canonical candidate package because Page Preset replay rewrites structure unexpectedly.",
-        "Compiler success changes because of runtime timestamps or random IDs."
+        "Tablet override is mistaken for Mobile inheritance and silently copied.",
+        "Source has no direct override but planner serializes its current effective default as a new direct target override.",
+        "Redundant-override detector removes a value whose fallback differs after reset.",
+        "Propagation resets container layout and accidentally removes unrelated background/style properties.",
+        "Source state changes after planning but the stale plan still applies.",
+        "Target list contains source viewport or duplicates and application order becomes ambiguous.",
+        "Child order contains stale node ids and propagation corrupts order metadata.",
+        "UI applies propagation outside Builder history and undo cannot restore the prior document."
       ],
       "edgeCases": [
-        "Blueprint owns all 14 pages as Loot Vault does.",
-        "A future Blueprint owns only a subset and intentionally inherits remaining pages from the category foundation.",
-        "Candidate carries existing templateFactory metadata; compiler/scaffold must canonicalize it without duplicate authority.",
-        "Candidate package object keys are inserted in different order but compiler hash/result remain stable.",
-        "Media may be technically fulfilled but not Product Owner-ready; compiler truth must not silently convert that into visual approval.",
-        "Same candidate compiled twice must yield byte-semantically equal recipe program/package and identical compiler hash."
+        "Source viewport has no overrides in any selected dimension.",
+        "Source has only visibility override while target has container and grid overrides.",
+        "Base visual style equals a viewport direct style exactly, making the direct override redundant.",
+        "Grid node and stack node require different container-operation shapes.",
+        "Leaf node has no child-order dimension.",
+        "All two non-source viewports are selected together.",
+        "A target already exactly matches source direct intent.",
+        "Same plan is evaluated twice against unchanged document and must produce identical output.",
+        "Plan is applied after an unrelated style property changes and should remain valid if its bound responsive source fingerprint is unchanged."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-COMPILER-PRESET-PROGRAM",
-        "summary": "Compile a structured Visual First candidate through canonical Page Presets into a deterministic Factory recipe/program.",
+        "id": "ALT-INHERITANCE-EXACT-VIEWPORT-INTELLIGENCE",
+        "summary": "Evolve current responsive layout-depth authority with explainable base/exact-viewport provenance and explicit bounded propagation.",
         "disposition": "selected",
-        "reason": "It removes hand-wired production materialization while preserving Page Schema, Builder, Factory and Visual First authority boundaries."
+        "reason": "Matches the active Runtime contract and preserves breakpoint isolation while providing the intelligence needed by later Publish Readiness, Smart Intent and Auto-Fix."
       },
       {
-        "id": "ALT-COMPILER-FREEFORM-GENERATOR",
-        "summary": "Generate component trees/source directly from Genome and text intent.",
+        "id": "ALT-INHERITANCE-RESTORE-CASCADE",
+        "summary": "Restore Desktop→Tablet→Mobile automatic inheritance.",
         "disposition": "rejected",
-        "reason": "That would prematurely absorb Smart Intent/AI responsibilities and bypass existing preset/Builder safeguards."
+        "reason": "The repository explicitly isolates that behavior as legacy migration semantics because it causes sibling-breakpoint leakage."
       },
       {
-        "id": "ALT-COMPILER-WRAP-STATIC-RECIPE",
-        "summary": "Call the existing scaffold around the existing hand-authored recipe and label the wrapper a compiler.",
+        "id": "ALT-INHERITANCE-NEW-PARALLEL-ENGINE",
+        "summary": "Create a separate responsive intelligence engine with its own mutation model.",
         "disposition": "rejected",
-        "reason": "It would not remove manual pageOverrides/shell/global-style production wiring and would be a false capability promotion."
+        "reason": "Would duplicate Page Schema/Fidelity authorities and violate the no-parallel-system requirement."
       }
     ],
     "specialistReviews": [
@@ -297,146 +306,143 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The existing hierarchy already defines Template → Page Presets → Section Presets → Components; compiler output must materialize through that hierarchy and the Factory scaffold.",
-        "resolution": "Use structured candidate Page Presets as the page-level compiler input and preserve scaffold as package authority.",
+        "finding": "Runtime and Visual Style already define exact-viewport plus base semantics, and responsive layout-depth centralizes the supported Builder controls.",
+        "resolution": "Extend storefront-responsive-layout-depth.ts rather than creating a second inheritance authority.",
         "evidence": [
-          "src/lib/builder/storefront-presets.ts",
-          "src/lib/builder/template-factory/scaffold.ts"
+          "src/lib/builder/storefront-runtime.ts",
+          "src/lib/builder/storefront-visual-style.ts",
+          "src/lib/builder/storefront-responsive-layout-depth.ts"
+        ]
+      },
+      {
+        "role": "Runtime",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "The repository still contains LegacyCascade helpers, so careless reuse could silently restore the old behavior.",
+        "resolution": "Inheritance Intelligence must not import LegacyCascade functions and gets explicit regression tests proving sibling viewport isolation.",
+        "evidence": [
+          "src/lib/builder/storefront-runtime.ts",
+          "src/lib/builder/storefront-fidelity-engine.ts"
         ]
       },
       {
         "role": "Data Integrity",
-        "mode": "dissent",
+        "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A provenance field supplied by the recipe itself is forgeable unless its hash is recomputed from Blueprint, candidate and semantic plan sources.",
-        "resolution": "Compiler provenance contains canonical source identities/hashes and Generator Readiness recomputes/validates the contract rather than trusting a boolean.",
+        "finding": "A propagation plan can become stale between preview and application.",
+        "resolution": "Bind plans to deterministic source-state fingerprints and fail closed when the bound node responsive state no longer matches.",
         "evidence": [
-          "src/lib/builder/template-factory/production-lineage.ts",
-          "src/lib/builder/template-factory/generator-readiness.ts"
+          "src/lib/builder/storefront-responsive-layout-depth.ts"
         ]
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Compiler success cannot mean the design was aesthetically approved or that it may skip Visual First.",
-        "resolution": "Candidate is an already structured Visual First implementation bound to accepted Visual Authority; Product Owner review remains a separate explicit input/state.",
+        "finding": "Automatic propagation would be surprising and could erase deliberate breakpoint differences.",
+        "resolution": "Expose source explanation, warnings and explicit target buttons only; no silent propagation.",
         "evidence": [
-          "src/lib/builder/template-factory/production-contracts.ts",
-          "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts"
-        ]
-      },
-      {
-        "role": "Runtime",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "A compiler must not create a second renderer or mutate persisted storefront/business state.",
-        "resolution": "Implementation is a pure in-memory derivation plus existing scaffold call; tests forbid persistence/publish/server imports.",
-        "evidence": [
-          "src/lib/builder/storefront-visual-builder.ts",
-          "src/lib/builder/storefront-template-installation.ts"
+          "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
+          "src/components/admin/storefront-visual-builder-v3.tsx"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-COMPILER-1",
-        "scenario": "Candidate package is for gaming.playroom but Blueprint is gaming.loot-vault.",
-        "finding": "Cross-template candidate reuse could produce a valid-looking but wrong package.",
-        "resolution": "Compiler rejects candidate manifest identity before any recipe/program materialization.",
+        "id": "CH-INHERIT-1",
+        "scenario": "Desktop has gridSpan=8; Tablet has none; Mobile has gridSpan=12.",
+        "finding": "Legacy mental model may incorrectly claim Tablet inherits Desktop.",
+        "resolution": "Inspection reports Tablet runtime/default source and never reads Desktop override.",
         "status": "resolved"
       },
       {
-        "id": "CH-COMPILER-2",
-        "scenario": "Candidate has all 14 pages but two have the same pageType and one required owned page type is absent.",
-        "finding": "Cardinality alone is insufficient.",
-        "resolution": "Compiler enforces canonical unique pageType coverage and exact Blueprint-owned Page Preset resolution.",
+        "id": "CH-INHERIT-2",
+        "scenario": "Desktop source has no direct container override; Tablet has a custom container override.",
+        "finding": "Copying effective Desktop values would freeze defaults rather than source intent.",
+        "resolution": "Propagation resets Tablet container dimension to fallback when source has no direct override.",
         "status": "resolved"
       },
       {
-        "id": "CH-COMPILER-3",
-        "scenario": "Genome changes after a previously generated compiler program.",
-        "finding": "Stale program could replay against a new template identity.",
-        "resolution": "Compiler program binds Genome hash, Constraint Plan hash and Media Plan hash; Generator Readiness rejects mismatched provenance.",
+        "id": "CH-INHERIT-3",
+        "scenario": "Tablet gap override equals base/config effective gap.",
+        "finding": "Override adds drift risk without changing rendering.",
+        "resolution": "Dimension-local reset equivalence emits REDUNDANT_OVERRIDE diagnostic.",
         "status": "resolved"
       },
       {
-        "id": "CH-COMPILER-4",
-        "scenario": "Media manifest semantic bindings no longer satisfy Constraint Plan.",
-        "finding": "Compiler could materialize visually but violate semantic media requirements.",
-        "resolution": "Media Planner must be valid before compiler program creation and its hash is embedded in provenance.",
+        "id": "CH-INHERIT-4",
+        "scenario": "Target mobile also has backgroundColor in its viewport style.",
+        "finding": "Container propagation could erase unrelated style.",
+        "resolution": "Existing allowlisted patch/reset functions touch only container keys; test preserves backgroundColor.",
         "status": "resolved"
       },
       {
-        "id": "CH-COMPILER-5",
-        "scenario": "Caller attempts to pass arbitrary pageOverrides or shell nodes into compiler input.",
-        "finding": "This recreates hand-authored recipe authority.",
-        "resolution": "Compiler input contract exposes only structured candidate package and semantic inputs; recipe internals are output-only.",
+        "id": "CH-INHERIT-5",
+        "scenario": "User previews a propagation plan then edits source responsive state before applying.",
+        "finding": "Old plan would no longer represent user intent.",
+        "resolution": "Plan binds deterministic source-state fingerprint; application rejects stale fingerprint.",
         "status": "resolved"
       },
       {
-        "id": "CH-COMPILER-6",
-        "scenario": "Compiler output is a repaint clone of another catalog template.",
-        "finding": "Technically valid materialization must not bypass distinctness.",
-        "resolution": "Compiler success requires the existing Generator Readiness distinctness result to be valid.",
+        "id": "CH-INHERIT-6",
+        "scenario": "Source and target are the same viewport or target list duplicates a viewport.",
+        "finding": "Ambiguous/self propagation creates meaningless operations.",
+        "resolution": "Planner fails closed on source-as-target and canonicalizes/rejects duplicate targets.",
         "status": "resolved"
       },
       {
-        "id": "CH-COMPILER-7",
-        "scenario": "Two equivalent candidate objects have different object-key insertion order.",
-        "finding": "Naive serialization could create unstable compiler identity.",
-        "resolution": "Compiler uses recursive canonical serialization for program/provenance hash and Page Preset selection is canonical-order.",
+        "id": "CH-INHERIT-7",
+        "scenario": "Child-order metadata references removed children.",
+        "finding": "Stale ids could be propagated.",
+        "resolution": "Plan derives order through existing resolver and validates exact known-child set before application.",
         "status": "resolved"
       },
       {
-        "id": "CH-COMPILER-8",
-        "scenario": "Compiler is called twice with identical inputs.",
-        "finding": "Random node IDs or timestamps would break deterministic production.",
-        "resolution": "No random/time input is permitted; Page Preset materialization preserves stable source identities and both program hash and package output must repeat exactly.",
+        "id": "CH-INHERIT-8",
+        "scenario": "Propagation is applied from Builder UI.",
+        "finding": "Direct document replacement could bypass undo/redo.",
+        "resolution": "Controls call onApply and existing applyFidelity→commitDocument→pushStorefrontBuilderHistory path; UI proof locks this.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Canonical Loot Vault v2 compiler proof derives recipe/program from structured candidate and deep-equals the current canonical 14-page package.",
-      "Static-recipe removal proof confirms Loot Vault Factory recipe no longer manually declares pageOverrides, shell nodes, Global Styles or demo fixtures.",
-      "Determinism proof recompiles identical input twice with identical compiler hash, recipe projection and package.",
-      "Identity-drift proof rejects foreign template/version candidate.",
-      "Page-matrix proof rejects missing/duplicate Blueprint-owned Page Presets.",
-      "Semantic-source proof rejects invalid Genome/Constraint/Media chain before Factory materialization.",
-      "Forged/stale compiler provenance proof makes Generator Readiness fail closed.",
-      "Anti-clone and Production Lineage combination proof remains mandatory on compiler output.",
-      "Maturity proof promotes only Dynamic Production Compiler; remaining VX blockers stay non-PROVEN.",
+      "Exact viewport provenance proof demonstrates Desktop override never becomes Tablet/Mobile source.",
+      "Redundant override proof compares effective state before/after dimension-local reset and avoids false positives.",
+      "Determinism proof creates identical propagation plan/fingerprint/output twice from identical input.",
+      "Target-isolation proof shows only explicit target viewports change.",
+      "Stale-plan adversarial proof mutates source responsive intent after planning and requires application to reject.",
+      "Unrelated-style preservation proof keeps non-layout viewport style keys unchanged through set/reset propagation.",
+      "Grid, stack, visibility, placement and child-order propagation/reset combination proof.",
+      "Builder UI source/diagnostic/explicit propagation proof plus existing history path assertion.",
+      "Legacy cascade exclusion proof ensures intelligence source contains no LegacyCascade imports/calls.",
+      "Maturity proof promotes only VX-INHERITANCE-INTELLIGENCE; the other four VX blockers stay non-PROVEN.",
       "Normal CI + exact-head Template Factory Quality Gate v2 + Completion Truth + lifecycle closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-DYNAMIC-PRODUCTION-COMPILER-BRABUS-HARDENING",
+      "request": "PO-2026-10-02-VX-INHERITANCE-INTELLIGENCE-BRABUS-HARDENING",
       "authority": [
         "builder-template-system"
       ],
       "mustEdit": [
-        "src/lib/builder/template-factory/generator-readiness.ts",
-        "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts",
-        "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
-        "src/lib/builder/template-factory/scaffold.ts",
+        "src/lib/builder/storefront-responsive-layout-depth.ts",
+        "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
         "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
-        "src/lib/builder/template-factory/production-compiler-contract.ts",
-        "src/lib/builder/template-factory/production-compiler.ts",
-        "src/lib/builder/template-factory/production-contracts.ts"
+        "tests/storefront-responsive-layout-depth.test.ts",
+        "tests/template-factory-production-maturity.test.ts"
       ],
       "impactedReadOnly": [
-        "src/lib/builder/storefront-presets.ts",
-        "src/lib/builder/storefront-preset-application.ts",
-        "src/lib/builder/storefront-visual-builder.ts",
-        "src/lib/builder/template-factory/constraint-planner.ts",
-        "src/lib/builder/template-factory/media-planner.ts",
-        "src/lib/builder/template-factory/production-lineage.ts",
-        "src/lib/builder/template-factory/template-distinctness.ts"
+        "src/lib/builder/storefront-runtime.ts",
+        "src/lib/builder/storefront-visual-style.ts",
+        "src/lib/builder/storefront-fidelity-engine.ts",
+        "src/lib/builder/storefront-fidelity-builder-operations.ts",
+        "src/lib/builder/storefront-fidelity-layout.ts",
+        "src/components/admin/storefront-visual-builder-v3.tsx",
+        "src/components/admin/storefront-visual-builder-production.tsx"
       ],
       "proof": [
-        "tests/template-factory-production-compiler.test.ts",
-        "tests/template-factory-generator-readiness.test.ts",
+        "tests/storefront-responsive-layout-depth.test.ts",
         "tests/template-factory-production-maturity.test.ts"
       ],
       "unknown": []
@@ -445,14 +451,14 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-DYNAMIC-PRODUCTION-COMPILER-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-VX-INHERITANCE-INTELLIGENCE-BRABUS-HARDENING",
     "requirements": [
       {
-        "id": "REQ-DYNAMIC-PRODUCTION-COMPILER",
-        "requirement": "Canonical deterministic compiler derives Factory production recipe/program from structured Visual First candidate plus proven semantic inputs through Page Preset and scaffold authorities, with exact package reproducibility.",
+        "id": "REQ-VX-INHERITANCE-EXPLAINABLE",
+        "requirement": "Existing responsive authority provides exact base/viewport provenance and drift diagnostics without restoring legacy cross-viewport cascade.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "dynamic-production-compiler",
+          "breadth": "vx-inheritance-intelligence",
           "strength": 2,
           "dimensions": [
             "claim-scope",
@@ -474,21 +480,20 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-COMPILER-PARALLEL-AUTHORITY",
-            "statement": "Compiler cannot create source/render/runtime/page authorities outside canonical Page Presets, Page Schema and Factory scaffold.",
+            "id": "NEG-INHERITANCE-LEGACY-CASCADE",
+            "statement": "Active Inheritance Intelligence cannot use legacy Desktop→Tablet→Mobile cascade semantics.",
             "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-TEMPLATE-FACTORY"
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       },
       {
-        "id": "REQ-COMPILER-FAIL-CLOSED",
-        "requirement": "Identity drift, invalid semantic source chain, incomplete Page Preset coverage, forged provenance, invalid lineage or anti-clone block cannot produce compiler success or Generator Ready status.",
+        "id": "REQ-VX-INHERITANCE-BOUNDED-PROPAGATION",
+        "requirement": "Responsive intent propagation is deterministic, stale-safe, dimension-local, explicit-target-only and applies through existing setters/resetters and Builder history.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "compiler-integrity",
+          "breadth": "responsive-propagation",
           "strength": 2,
           "dimensions": [
             "status",
@@ -510,8 +515,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-COMPILER-FALSE-PASS",
-            "statement": "Partial, stale or hand-forged compiler evidence cannot count as valid production compilation.",
+            "id": "NEG-INHERITANCE-SILENT-MUTATION",
+            "statement": "Propagation cannot silently mutate unselected viewports, unrelated style keys, persistence or publish state.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -519,8 +524,8 @@
         ]
       },
       {
-        "id": "REQ-COMPILER-CAPABILITY-SEPARATION",
-        "requirement": "Dynamic compiler completion does not promote Publish Readiness, Inheritance Intelligence, Visual Diff Intelligence, Smart Intent or Smart Auto-Fix.",
+        "id": "REQ-VX-INHERITANCE-CAPABILITY-SEPARATION",
+        "requirement": "Inheritance Intelligence completion does not promote Visual Diff Intelligence, Publish Readiness, Smart Intent or Smart Auto-Fix.",
         "claimScope": {
           "capability": "CAP-QUALITY",
           "breadth": "capability-separation",
@@ -545,8 +550,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-COMPILER-FALSE-VX-PROVEN",
-            "statement": "Compiler completion cannot imply remaining VX intelligence capabilities are proven.",
+            "id": "NEG-INHERITANCE-FALSE-VX-PROVEN",
+            "statement": "Inheritance completion cannot imply the remaining VX intelligence capabilities are proven.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -555,18 +560,15 @@
       }
     ]
   },
-  "notes": "Seventh Brabus hardening wave. Genome, Type System, Constraint Planner, Media Planner, deterministic lineage and cross-template anti-clone are PROVEN and lifecycle-closed. This wave removes hand-wired Factory materialization behind a deterministic structured-candidate compiler. Template #3 remains forbidden because multiple VX capabilities remain non-PROVEN. Canonical Dynamic Production Compiler projection reconciled: database-schema and release-infrastructure are transitive impacted subsystems; SQ-NK-005 and SQ-NK-014 apply; guard digest 1f7fdbbd.",
+  "notes": "Eighth Brabus hardening wave. Factory Genome, Type System, Constraint Planner, Media Planner, deterministic lineage, anti-clone and Dynamic Production Compiler are PROVEN and lifecycle-closed. Dependency order for remaining VX blockers: Inheritance Intelligence → Visual Diff Intelligence → Publish Readiness → Smart Intent → Smart Auto-Fix. This wave handles only Inheritance Intelligence. Template #3 remains forbidden.",
   "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "770b40a5fd970e12e7c84a8f0dfea59d8978f810",
-    "closedAt": "2026-10-02T18:55:49.172Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-DYNAMIC-PRODUCTION-COMPILER-BRABUS-HARDENING",
+    "state": "EXECUTE",
+    "truthStatus": "UNVERIFIED",
+    "verifiedImplementationHead": null,
+    "closedAt": null,
+    "sourceRef": "PO-2026-10-02-VX-INHERITANCE-INTELLIGENCE-BRABUS-HARDENING",
     "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+      "state": "pending"
     }
   }
 }
