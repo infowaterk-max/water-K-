@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
   "task": "Revalidate and harden the existing Template Production stack against the previously approved Maybach-Brabus VX Builder and Template Factory capability target before Template #3 authoring is allowed.",
   "status": "ready-for-implementation",
-  "guardDigest": "efe9d183",
+  "guardDigest": "91470973",
   "changeBaseSha": "d34e9ee152205440c553b6b8662c7b14042137d2",
   "plannedFilePatterns": [
     "src/lib/builder/template-factory/production-maturity.ts",
@@ -16,15 +16,14 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "quality-infrastructure"
+    "release-infrastructure",
+    "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
-    "DOMAIN-QUALITY"
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
-    "quality-knowledge-system"
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -79,9 +78,15 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
+    "SQ-NK-004",
     "SQ-NK-005",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012"
   ],
@@ -127,13 +132,17 @@
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
+        "state-model",
+        "what-if-matrix",
         "capability-matrix",
         "evidence-provenance",
         "adversarial-scenarios",
         "negative-tests",
         "boundary-cases",
         "pairwise-interactions",
+        "threat-failure-model",
         "fault-injection",
+        "finite-state-exhaustion",
         "end-to-end-rehearsal"
       ],
       "deferredTechniques": [
@@ -243,46 +252,47 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Current repository already has canonical Page Schema, Runtime, Builder, Template Factory and engine proof registry authorities.",
-        "resolution": "Extend these authorities in place; do not fork them.",
+        "finding": "Current repository already has canonical Page Schema, Runtime, Builder, Template Factory and engine proof registry authorities; the revalidation must strengthen these owners instead of creating parallel production infrastructure.",
+        "resolution": "Keep the maturity model nested under the existing builder-template-system authority and reuse GUARD-TEMPLATE-FACTORY as the browser and acceptance proof owner.",
         "evidence": [
           "src/lib/builder/storefront-runtime.ts",
           "src/lib/builder/template-factory/generator-readiness.ts",
-          "src/lib/builder/template-factory/engine-functional-proof-registry.ts"
+          "quality/knowledge/guard-registry.v1.json"
         ]
       },
       {
-        "role": "Product System",
+        "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Generator Readiness v0.1 currently proves blueprint/package/14-page/viewport/ownership coherence but does not prove Maybach-Brabus production maturity.",
-        "resolution": "Add capability maturity/evidence semantics to the existing readiness result and make Template #3 readiness explicit.",
+        "finding": "Generator Readiness v0.1 proves blueprint, package, page matrix, viewport and ownership coherence but can still report ready while important Brabus capabilities are only documented or absent.",
+        "resolution": "Require executable evidence provenance and explicit non-ready maturity states so documentation or metadata presence alone cannot unlock Template #3 authoring.",
         "evidence": [
           "src/lib/builder/template-factory/generator-readiness.ts",
           "tests/template-factory-generator-readiness.test.ts"
         ]
       },
       {
-        "role": "Builder",
+        "role": "Runtime",
         "mode": "review",
-        "verdict": "pass-with-gaps",
-        "finding": "Canonical Builder already contains many Maybach foundations—Guarded Freedom UI, Normal/Advanced/Expert, responsive overrides, Layers, Saved Blocks, Globals, Design Guard and Publish Readiness—but Smart Intent is not evidenced as implemented.",
-        "resolution": "Treat existing capabilities as candidates for proof, not assumptions; keep missing Brabus intelligence NOT_READY until implemented.",
+        "verdict": "challenge-resolved",
+        "finding": "Canonical Builder already exposes many Maybach foundations, but repository evidence does not establish Smart Intent and Smart Auto-Fix as implemented production capabilities, and duplicate historical Builder surfaces can confuse presence checks.",
+        "resolution": "Bind capability evidence to canonical production authority and appropriate executable proof producers; missing intelligence remains NOT_IMPLEMENTED or EVOLVE until proven.",
         "evidence": [
           "src/components/admin/storefront-visual-builder-production.tsx",
           "src/components/admin/storefront-fidelity-settings.tsx",
-          "docs/VISUAL_BUILDER_FIDELITY_ENGINE.md"
+          "src/lib/builder/storefront-fidelity-engine.ts"
         ]
       },
       {
-        "role": "Template Production",
+        "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Template Factory scaffold already models 14 pages and recipe compilation, while Template Genome/Media Planner/anti-clone/deterministic lineage remain incomplete or not canonicalized.",
-        "resolution": "Use revalidation output to sequence the next hardening waves before Template #3.",
+        "finding": "Template Factory already compiles deterministic 14-page candidates and carries per-template visual DNA fragments, but there is no single immutable Template Genome contract proving composition grammar, exclusion rules, lineage and cross-template distinctness.",
+        "resolution": "Classify the current visual DNA/media scaffold honestly and use the maturity report to sequence Genome, Media Planner/Compiler and distinctness hardening before a third template is authored.",
         "evidence": [
           "docs/TEMPLATE_FACTORY_SCAFFOLD_V1.md",
-          "src/lib/builder/template-factory/production-contracts.ts"
+          "src/lib/builder/template-factory/production-contracts.ts",
+          "src/lib/builder/templates/modern-luxe.ts"
         ]
       }
     ],
@@ -328,6 +338,20 @@
         "finding": "Two authorities can disagree and recreate ping-pong.",
         "resolution": "Maturity is nested inside existing Generator Readiness / GUARD-TEMPLATE-FACTORY evidence and has no independent blocking owner.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-7",
+        "scenario": "The repository contains per-template VISUAL_DNA constants, but no versioned immutable Genome contract or lineage authority links them to Factory production inputs.",
+        "finding": "String-level DNA presence could be mistaken for the previously approved Template Genome capability even though inheritance, hashing, exclusion and evolution semantics are not proven.",
+        "resolution": "Production maturity treats ad-hoc visual DNA constants as partial evidence only and keeps Template Genome unproven until a canonical versioned contract and executable tests exist.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-8",
+        "scenario": "The Factory media manifest and media-production documentation exist, but no canonical executable Media Planner or Media Compiler proves semantic role planning, lineage, distinctness and bounded auto-repair.",
+        "finding": "A technically populated media manifest could falsely satisfy the Brabus media capability while continuing to require manual image planning and cross-template visual policing.",
+        "resolution": "Separate manifest/scaffold capability from Brabus Media Planner/Compiler maturity and require executable planner/compiler evidence before Template #3 readiness can become true.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -343,8 +367,7 @@
     "semanticExecutionRoute": {
       "request": "PO-2026-10-02-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
       "authority": [
-        "builder-template-system",
-        "quality-knowledge-system"
+        "builder-template-system"
       ],
       "mustEdit": [
         "src/lib/builder/template-factory/generator-readiness.ts",
@@ -482,5 +505,5 @@
       }
     ]
   },
-  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target."
+  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target. Plan-only Control Plane projection on 2026-10-02 resolved the canonical scope to DOMAIN-BUILDER / builder-template-system with builder-template-system + release-infrastructure + shared-storefront subsystem impact, full applicable negative knowledge, guard digest 91470973, and critical assurance depth."
 }
