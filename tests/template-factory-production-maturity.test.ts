@@ -11,9 +11,11 @@ describe('Template Production Brabus maturity v1',()=>{
     expect(result.valid).toBe(true);
     expect(result.template3AuthoringReady).toBe(false);
     expect(result.blockingCapabilityIds).toEqual(expect.arrayContaining([
-      'VX-SMART-INTENT','VX-SMART-AUTOFIX','FACTORY-TEMPLATE-GENOME',
+      'VX-SMART-INTENT','VX-SMART-AUTOFIX',
       'FACTORY-MEDIA-PLANNER-COMPILER','FACTORY-DISTINCTNESS-ANTI-CLONE','FACTORY-CONSTRAINT-PLANNER',
     ]));
+    expect(result.blockingCapabilityIds).not.toContain('FACTORY-TEMPLATE-GENOME');
+    expect(result.capabilities.find(item=>item.id==='FACTORY-TEMPLATE-GENOME')?.state).toBe('PROVEN');
   });
 
   it('rejects documentation-only PROVEN claims',()=>{
