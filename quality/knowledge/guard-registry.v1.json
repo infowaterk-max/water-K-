@@ -524,6 +524,27 @@
           ],
           "visualProof": true
         }
+      },
+      "proofSemantics": {
+        "capabilities": [
+          "CAP-BUILDER",
+          "CAP-STOREFRONT",
+          "CAP-QUALITY"
+        ],
+        "scopeStrength": 2,
+        "scope": "exact-head-template-factory-runtime-and-browser-proof",
+        "dimensions": [
+          "runtime",
+          "browser",
+          "template-factory",
+          "status",
+          "freshness",
+          "coverage",
+          "claim-scope",
+          "evidence-scope",
+          "proven-scope",
+          "limitations"
+        ]
       }
     },
     {

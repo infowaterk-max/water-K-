@@ -13,19 +13,23 @@
     "tests/template-factory-production-maturity.test.ts",
     "tests/template-factory-generator-readiness.test.ts",
     "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
-    "src/app/api/visual-fidelity/templates/route.ts"
+    "src/app/api/visual-fidelity/templates/route.ts",
+    "quality/knowledge/guard-registry.v1.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
     "release-infrastructure",
     "shared-storefront",
-    "storefront-ui"
+    "storefront-ui",
+    "quality-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER"
+    "DOMAIN-BUILDER",
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "builder-template-system"
+    "builder-template-system",
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -97,14 +101,15 @@
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-02-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
     "riskTier": "critical",
-    "problemStatement": "The supervisory Control Plane is now materially stronger, but the template-production stack was accepted in earlier, less mature phases. The Product Owner explicitly forbids starting Template #3 until the shared engine set, VX Builder and Template Factory are revalidated against the already approved Maybach-Brabus target and any capability gaps are closed. Existing green tests prove local contracts, not that the complete production system has reached the intended dynamic, reusable and low-manual-rework capability ceiling.",
+    "problemStatement": "The supervisory Control Plane is now materially stronger, but the template-production stack was accepted in earlier, less mature phases. The Product Owner explicitly forbids starting Template #3 until the shared engine set, VX Builder and Template Factory are revalidated against the already approved Maybach-Brabus target and any capability gaps are closed. Existing green tests prove local contracts, not that the complete production system has reached the intended dynamic, reusable and low-manual-rework capability ceiling. Sentinel integrity verification exposed that the existing blocking GUARD-TEMPLATE-FACTORY had no machine-readable proofSemantics, so Completion Contract evidence could not be proven semantically even though the workflow existed.",
     "observableOutcomes": [
       "The existing Template Factory / Generator Readiness path gains one canonical production-maturity model; no parallel gate or second Builder/Runtime authority is created.",
       "Every shared storefront engine E1-E11 and E13 is classified by machine-readable evidence as PROVEN, EVOLVE or RETHINK/UNPROVEN against its intended capability and current proof strength.",
       "The VX Builder capability profile is explicitly checked for Guarded Freedom workspace, Normal/Advanced/Expert disclosure, Layers, presets, Saved Blocks, Global Elements, Global Styles, responsive inheritance/reset, states/interactions, Design Guard, Publish Readiness, undo/redo and canonical schema-only mutation.",
       "Previously approved Brabus capabilities that are not yet real implementation—especially Smart Intent / Smart Auto-Fix, Template Genome/DNA authority, Media Planner/Compiler, anti-clone/distinctness intelligence, deterministic lineage and compiler-oriented production planning—remain visibly NOT_READY instead of being inferred from documentation.",
       "Template Factory readiness distinguishes technically valid 14-page packages from a production system actually ready to author Template #3 with minimal manual code repair.",
-      "Template #3 authoring remains forbidden until the production-maturity result is fully PROVEN and an end-to-end adversarial production rehearsal passes."
+      "Template #3 authoring remains forbidden until the production-maturity result is fully PROVEN and an end-to-end adversarial production rehearsal passes.",
+      "GUARD-TEMPLATE-FACTORY declares bounded machine-readable proof semantics for Builder/Storefront/Quality browser evidence so Sentinel can validate Completion Contract usage without treating workflow presence as proof."
     ],
     "unresolvedRisks": [
       "Some Brabus targets were product-direction decisions rather than completed code contracts; the revalidation must not fabricate implementation evidence from documentation.",
@@ -354,6 +359,13 @@
         "finding": "A technically populated media manifest could falsely satisfy the Brabus media capability while continuing to require manual image planning and cross-template visual policing.",
         "resolution": "Separate manifest/scaffold capability from Brabus Media Planner/Compiler maturity and require executable planner/compiler evidence before Template #3 readiness can become true.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-9",
+        "scenario": "Completion Contract references the blocking Template Factory gate, but the Guard Registry entry has no proofSemantics even though the workflow is green.",
+        "finding": "Sentinel correctly reports proof capability drift because a workflow name and artifact path do not prove what the evidence semantically establishes.",
+        "resolution": "Add bounded proof semantics to the existing GUARD-TEMPLATE-FACTORY owner and keep Sentinel strict; do not weaken the integrity test or replace the evidence with a less specific gate.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -365,7 +377,8 @@
       "Add adversarial tests for docs-only evidence, legacy-only evidence, proof-strength downgrade and missing mandatory capability.",
       "Expose the same production-maturity result through the existing visual-fidelity Template Factory catalog so the current browser gate can retain and report it without a second workflow.",
       "Wire the result into the existing Template Factory quality artifact rather than creating another workflow/gate.",
-      "Run exact-head CI and Template Factory Quality Gate v2; only then close this foundation and proceed to targeted EVOLVE/RETHINK implementation waves."
+      "Run exact-head CI and Template Factory Quality Gate v2; only then close this foundation and proceed to targeted EVOLVE/RETHINK implementation waves.",
+      "Re-run Sentinel integrity correlation and prove the existing Template Factory guard now semantically satisfies only its declared Builder/Storefront/Quality browser scope."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-02-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
@@ -377,7 +390,8 @@
         "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
         "scripts/template-factory-quality-gate.mjs",
         "tests/template-factory-generator-readiness.test.ts",
-        "src/app/api/visual-fidelity/templates/route.ts"
+        "src/app/api/visual-fidelity/templates/route.ts",
+        "quality/knowledge/guard-registry.v1.json"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -509,5 +523,5 @@
       }
     ]
   },
-  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target. Plan-only Control Plane projection on 2026-10-02 resolved the canonical scope to DOMAIN-BUILDER / builder-template-system with builder-template-system + release-infrastructure + shared-storefront subsystem impact, full applicable negative knowledge, guard digest 91470973, and critical assurance depth. The existing visual-fidelity Template Factory catalog is included because it is the canonical handoff from Factory candidate build reports into GUARD-TEMPLATE-FACTORY browser evidence. Adding the canonical visual-fidelity QA catalog expands the projected subsystem set with storefront-ui and updates the canonical guard digest to 8a9bf46e."
+  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target. Plan-only Control Plane projection on 2026-10-02 resolved the canonical scope to DOMAIN-BUILDER / builder-template-system with builder-template-system + release-infrastructure + shared-storefront subsystem impact, full applicable negative knowledge, guard digest 91470973, and critical assurance depth. The existing visual-fidelity Template Factory catalog is included because it is the canonical handoff from Factory candidate build reports into GUARD-TEMPLATE-FACTORY browser evidence. Adding the canonical visual-fidelity QA catalog expands the projected subsystem set with storefront-ui and updates the canonical guard digest to 8a9bf46e. Sentinel integrity exposed missing proofSemantics on GUARD-TEMPLATE-FACTORY; this is treated as a real existing-authority metadata gap and repaired in-place rather than weakening Sentinel."
 }
