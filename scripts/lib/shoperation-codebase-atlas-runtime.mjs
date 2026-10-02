@@ -45,11 +45,20 @@ function routeForFile(file){
   });
   return {path:'/'+segments.join('/'),kind:kind==='route'?'api':'page'};
 }
+function storefrontPresentationFallbackDomains(file,route,canonicalDomains){
+  if(canonicalDomains.length)return canonicalDomains;
+  if(file.startsWith('src/app/api/'))return canonicalDomains;
+  if(route?.kind==='page')return['DOMAIN-STOREFRONT'];
+  if(/^src\/app\/sitemap\.(?:ts|js)$/.test(file))return['DOMAIN-STOREFRONT'];
+  return canonicalDomains;
+}
 export function classifyAtlasPath(file){
-  const domains=classifyDomains(file);
+  const route=routeForFile(file);
+  const canonicalDomains=classifyDomains(file);
+  const domains=storefrontPresentationFallbackDomains(file,route,canonicalDomains);
   return{
     path:file,
-    route:routeForFile(file),
+    route,
     subsystems:classifySubsystems(file),
     surfaces:classifySurfaces(file),
     domains,

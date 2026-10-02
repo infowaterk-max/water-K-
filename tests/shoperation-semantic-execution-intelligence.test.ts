@@ -3,6 +3,7 @@ import {describe,expect,it} from 'vitest';
 import {
   buildCodebaseAtlas,
   buildExecutionRoute,
+  classifyAtlasPath,
   impactForAtlasPattern,
   reconcileAuthorityDependencies,
   resolveAtlasArchitectureForPath,
@@ -28,6 +29,31 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
       knownFailureIndex:{},
     };
     expect(impactForAtlasPattern(atlas,'src/provider.ts').consumers).toContain('src/consumer.ts');
+  });
+
+  it('falls back unowned public presentation paths to storefront without stealing explicit authority',()=>{
+    const publicPage=classifyAtlasPath('src/app/oldal/[slug]/page.tsx');
+    expect(publicPage.domains).toEqual(['DOMAIN-STOREFRONT']);
+    expect(publicPage.authorities).toEqual(['shared-storefront']);
+    expect(publicPage.route).toEqual({path:'/oldal/:slug',kind:'page'});
+
+    const sitemap=classifyAtlasPath('src/app/sitemap.ts');
+    expect(sitemap.domains).toEqual(['DOMAIN-STOREFRONT']);
+    expect(sitemap.authorities).toEqual(['shared-storefront']);
+    expect(sitemap.route).toBeNull();
+
+    const admin=classifyAtlasPath('src/app/admin/orders/page.tsx');
+    expect(admin.domains).toEqual(['DOMAIN-ADMIN']);
+    expect(admin.authorities).toEqual(['admin-operations']);
+
+    const builder=classifyAtlasPath('src/app/storefront-template-preview/page.tsx');
+    expect(builder.domains).toEqual(['DOMAIN-BUILDER']);
+    expect(builder.authorities).toEqual(['builder-template-system']);
+
+    const api=classifyAtlasPath('src/app/api/orders/route.ts');
+    expect(api.domains).toEqual(['DOMAIN-COMMERCE']);
+    expect(api.authorities).toEqual(['commerce-core-authority']);
+    expect(api.route?.kind).toBe('api');
   });
 
   it('retains only Git-proven deleted planned paths as execution-route tombstones',()=>{
@@ -77,23 +103,28 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     }));
 
     const resolved=resolveAtlasArchitectureForPath(atlas,deleted,{tombstones:[deleted],executionRoute:route});
-    expect(resolved.pathDerived.domains).toEqual([]);
+    expect(resolved.pathDerived.domains).toEqual(['DOMAIN-STOREFRONT']);
+    expect(resolved.pathDerived.authorities).toEqual(['shared-storefront']);
     expect(resolved.routeAuthority).toEqual({path:'/szallitas-es-fizetes',kind:'page',state:'deleted-tombstone'});
     expect(resolved.poInstructionAuthority).toEqual({instructionIds:[instruction.id],governsDeletion:true});
     expect(resolved.resolved).toBe(true);
 
     const noGitRoute=buildExecutionRoute(atlas,[deleted],{tombstones:[]});
     const noGit=resolveAtlasArchitectureForPath(atlas,deleted,{tombstones:[],executionRoute:noGitRoute});
+    expect(noGit.pathDerived.domains).toEqual(['DOMAIN-STOREFRONT']);
     expect(noGit.poInstructionAuthority.governsDeletion).toBe(false);
-    expect(noGit.resolved).toBe(false);
+    expect(noGit.routeAuthority).toEqual({path:'/szallitas-es-fizetes',kind:'page',state:'current-or-planned'});
+    expect(noGit.resolved).toBe(true);
 
     const unrelated='src/app/legacy-payment/page.tsx';
     const unrelatedRoute=buildExecutionRoute(atlas,[unrelated],{tombstones:[unrelated]});
     const unrelatedEvidence=resolveAtlasArchitectureForPath(atlas,unrelated,{tombstones:[unrelated],executionRoute:unrelatedRoute});
     expect(unrelatedRoute.FORBIDDEN_ROUTE_TOMBSTONES).toEqual([]);
     expect(unrelatedEvidence.routeAuthority).toEqual({path:'/legacy-payment',kind:'page',state:'deleted-tombstone'});
+    expect(unrelatedEvidence.pathDerived.domains).toEqual(['DOMAIN-STOREFRONT']);
     expect(unrelatedEvidence.poInstructionAuthority.instructionIds).toEqual([]);
-    expect(unrelatedEvidence.resolved).toBe(false);
+    expect(unrelatedEvidence.poInstructionAuthority.governsDeletion).toBe(false);
+    expect(unrelatedEvidence.resolved).toBe(true);
   });
 
   it('authorizes only active PO-governed planned static deletion without treating intent as Git proof',()=>{
@@ -121,18 +152,25 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     const actualWithoutGit=resolveAtlasArchitectureForPath(atlas,deleted,{tombstones:[],executionRoute:plannedRoute});
     expect(actualWithoutGit.routeAuthority).toEqual({path:'/szallitas-es-fizetes',kind:'page',state:'current-or-planned'});
     expect(actualWithoutGit.poInstructionAuthority.governsDeletion).toBe(false);
+    expect(actualWithoutGit.pathDerived.domains).toEqual(['DOMAIN-STOREFRONT']);
     expect(actualWithoutGit.poInstructionAuthority.authorizesPlannedDeletion).toBeUndefined();
-    expect(actualWithoutGit.resolved).toBe(false);
+    expect(actualWithoutGit.resolved).toBe(true);
 
     const unrelated='src/app/unrelated-legacy/page.tsx';
     const unrelatedRoute=buildExecutionRoute(atlas,[unrelated],{plannedDeletions:[unrelated]});
     expect(unrelatedRoute.PLANNED_FORBIDDEN_ROUTE_DELETIONS).toEqual([]);
-    expect(resolveAtlasArchitectureForPath(atlas,unrelated,{plannedDeletions:[unrelated],executionRoute:unrelatedRoute}).resolved).toBe(false);
+    const unrelatedPlanned=resolveAtlasArchitectureForPath(atlas,unrelated,{plannedDeletions:[unrelated],executionRoute:unrelatedRoute});
+    expect(unrelatedPlanned.pathDerived.domains).toEqual(['DOMAIN-STOREFRONT']);
+    expect(unrelatedPlanned.poInstructionAuthority.authorizesPlannedDeletion).toBeUndefined();
+    expect(unrelatedPlanned.resolved).toBe(true);
 
     const inactiveAtlas:any={...atlas,poInstructions:[{...instruction,lifecycle:'inactive'}]};
     const inactiveRoute=buildExecutionRoute(inactiveAtlas,[deleted],{plannedDeletions:[deleted]});
     expect(inactiveRoute.PLANNED_FORBIDDEN_ROUTE_DELETIONS).toEqual([]);
-    expect(resolveAtlasArchitectureForPath(inactiveAtlas,deleted,{plannedDeletions:[deleted],executionRoute:inactiveRoute}).resolved).toBe(false);
+    const inactivePlanned=resolveAtlasArchitectureForPath(inactiveAtlas,deleted,{plannedDeletions:[deleted],executionRoute:inactiveRoute});
+    expect(inactivePlanned.pathDerived.domains).toEqual(['DOMAIN-STOREFRONT']);
+    expect(inactivePlanned.poInstructionAuthority.authorizesPlannedDeletion).toBeUndefined();
+    expect(inactivePlanned.resolved).toBe(true);
   });
 
   it('does not classify Git CLI long options as CSS-variable contracts',()=>{
