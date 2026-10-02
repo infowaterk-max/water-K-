@@ -1,3 +1,7 @@
+import{mkdtempSync,mkdirSync,readFileSync,rmSync,writeFileSync}from'node:fs';
+import{tmpdir}from'node:os';
+import path from'node:path';
+import{spawnSync}from'node:child_process';
 import{describe,expect,it}from'vitest';
 // @ts-ignore JavaScript runtime module intentionally has no separate declaration file.
 import{evaluateSentinelIntegrity,normalizeSentinelControlPlaneEvidence}from'../scripts/lib/shoperation-sentinel-integrity.mjs';
@@ -76,6 +80,34 @@ describe('Sentinel integrity correlation',()=>{
   it('detects broad review exceptions as integrity drift',()=>{
     const report=evaluate({plan:{contract:'shoporation.development-plan.v1',exceptions:[{ruleId:'RULE-WIDE',reason:'too broad'}],completionContract:{requirements:[requirement]}}});
     expect(report.findings.some((x:{code:string})=>x.code==='SENTINEL_INTEGRITY_EXCEPTION_SCOPE_BROAD')).toBe(true);
+  });
+
+  it('runs the daily integrity probe against real registry/plan plus normalized main evidence',()=>{
+    const dir=mkdtempSync(path.join(tmpdir(),'sentinel-integrity-probe-')),evidenceDir=path.join(dir,'evidence'),out=path.join(dir,'out');
+    mkdirSync(evidenceDir,{recursive:true});
+    const activePlan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
+    writeFileSync(path.join(evidenceDir,'run.json'),JSON.stringify({headSha:'head-a',conclusion:'success'}));
+    writeFileSync(path.join(evidenceDir,'plan-before-code.json'),JSON.stringify({
+      decision:'PASS',base:activePlan.changeBaseSha,head:'head-a',
+      transactionIdentity:{requestedBase:activePlan.changeBaseSha,baseResolution:'DECLARED',requestedHead:'head-a',headResolution:'EXPLICIT'},
+      deletedFiles:[],changedFiles:[],
+    }));
+    writeFileSync(path.join(evidenceDir,'edit-time-guard.json'),JSON.stringify({
+      decision:'PASS',base:activePlan.changeBaseSha,head:'head-a',baseResolution:'DECLARED',headResolution:'EXPLICIT',
+      materialFiles:[],deletedFiles:[],childDecisions:{referenceSync:'PASS',implementationSync:'PASS',poInstructionState:'PASS'},
+      referenceSync:{coverage:{totalCandidateCount:0,processedCandidateCount:0,overflow:0,decision:'PASS'}},
+    }));
+    const probePath=path.join(out,'integrity-probe.json');
+    const result=spawnSync(process.execPath,['scripts/shoperation-sentinel-integrity-probe.mjs'],{
+      encoding:'utf8',
+      env:{...process.env,SHOPERATION_SENTINEL_OUT_DIR:out,SHOPERATION_SENTINEL_INTEGRITY_PROBE:probePath,SHOPERATION_SENTINEL_CONTROL_PLANE_EVIDENCE_DIR:evidenceDir,SHOPERATION_SOURCE_COMMIT:'head-a'},
+    });
+    const report=result.status===0?JSON.parse(readFileSync(probePath,'utf8')):null;
+    rmSync(dir,{recursive:true,force:true});
+    expect(result.status).toBe(0);
+    expect(report.contract).toBe('shoporation.sentinel-integrity-report.v1');
+    expect(report.decision).toBe('PASS');
+    expect(report.controlPlaneEvidence.fileCount).toBeGreaterThanOrEqual(3);
   });
 
   it('keeps unknown evidence visible instead of manufacturing PASS',()=>{

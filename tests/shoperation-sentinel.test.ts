@@ -42,6 +42,8 @@ describe('Shoperation Sentinel',()=>{
     const registry=JSON.parse(read('quality/knowledge/guard-registry.v1.json'));
     const signal=registry.guards.find((x:{id:string})=>x.id==='SIGNAL-SENTINEL');
     expect(workflow).toContain("cron: '17 4 * * *'");
+    expect(workflow).toContain('Collect latest main Control Plane evidence');
+    expect(workflow).toContain('Sentinel integrity probe');
     expect(workflow).toContain('Sync Sentinel attention issue');
     expect(workflow).toContain('compareCommits');
     expect(workflow).toContain("sourceScope=comparison.data.merge_base_commit?.sha===sourceCommit?'canonical':'development'");
