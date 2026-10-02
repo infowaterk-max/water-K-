@@ -3,15 +3,23 @@
   "taskId": "DEV-CONTROL-PLANE-ATLAS-NODE-FALLBACK-RESOLUTION",
   "task": "Atlas resolver: apply path-derived storefront fallback when an existing Atlas node has no canonical domain ownership.",
   "status": "ready-for-implementation",
-  "guardDigest": "aa79c504",
+  "guardDigest": "f8395e8f",
   "changeBaseSha": "7ec2cb968b023da7cac3bf684e7ee4bb00f1be06",
   "plannedFilePatterns": [
+    "quality/knowledge/domain-foundations.v1.json",
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
     "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
-  "expectedSubsystems": [],
-  "expectedDomains": [],
-  "expectedAuthorities": [],
+  "expectedSubsystems": [
+    "shared-storefront",
+    "storefront-ui"
+  ],
+  "expectedDomains": [
+    "DOMAIN-QUALITY"
+  ],
+  "expectedAuthorities": [
+    "quality-knowledge-system"
+  ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
@@ -65,6 +73,13 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-004",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-012"
   ],
   "exceptions": [],
@@ -270,9 +285,9 @@
       },
       {
         "id": "CH-6",
-        "scenario": "Classifier returns no domain for an unknown non-app file.",
-        "finding": "Fallback must not fabricate ownership.",
-        "resolution": "Resolver remains unresolved.",
+        "scenario": "An existing Atlas node for a non-storefront unknown file has domains=[] and classifyAtlasPath also returns no canonical or fallback domain.",
+        "finding": "Resolver fallback must not turn the mere presence of an empty-domain node into fabricated Storefront ownership.",
+        "resolution": "Invoke path-derived classification only as a source of actual classifier evidence; if classifier domains remain empty, architecture remains unresolved.",
         "status": "resolved"
       },
       {
@@ -292,7 +307,9 @@
     ],
     "proofPlan": [
       "Plan-only Plan Before Code PASS before implementation.",
-      "Add resolver regression for existing empty-domain public page/sitemap nodes and explicit-domain precedence.",
+      "Document in the existing DOMAIN-STOREFRONT boundary that resolver consumption uses the same fallback only when node canonical domains are empty.",
+      "Implement resolver fallback without mutating existing Atlas nodes.",
+      "Add regressions for empty-domain public node, sitemap node, explicit admin node, and unknown non-storefront node.",
       "Run exact-head Edit-Time, Replay, Quality, TypeScript, Build and Truth; CLOSE→LEARN.",
       "Merge then replay #666 plan-only unchanged."
     ],
@@ -304,13 +321,12 @@
         "atlas-domain-classification"
       ],
       "mustEdit": [
+        "quality/knowledge/domain-foundations.v1.json",
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "mayEdit": [],
-      "impactedReadOnly": [
-        "quality/knowledge/domain-foundations.v1.json"
-      ],
+      "impactedReadOnly": [],
       "proof": [
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
@@ -392,5 +408,5 @@
       }
     ]
   },
-  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism."
+  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented."
 }
