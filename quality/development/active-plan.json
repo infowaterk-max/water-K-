@@ -1,7 +1,7 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-VX-INHERITANCE-INTELLIGENCE-BRABUS-HARDENING",
-  "task": "Evolve the existing responsive layout-depth authority into explainable Inheritance Intelligence with exact base-plus-viewport provenance, redundant-override drift diagnostics, deterministic bounded propagation plans and explicit application through existing responsive setters/resetters and Builder history, without restoring the legacy Desktop→Tablet→Mobile cascade.",
+  "taskId": "DEV-VX-INHERITANCE-INTELLIGENCE-CORE-BRABUS-HARDENING",
+  "task": "Evolve the existing responsive layout-depth authority into the canonical Inheritance Intelligence Core: exact base-plus-viewport provenance, redundant-override diagnostics and deterministic stale-safe bounded propagation using existing responsive setters/resetters, without restoring legacy cascade or adding admin UI in this release slice.",
   "status": "ready-for-implementation",
   "guardDigest": "79f20cf3",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
@@ -11,7 +11,6 @@
     "quality/knowledge/guard-registry.v1.json",
     "scripts/template-factory-quality-gate.mjs",
     "src/app/api/visual-fidelity/templates/route.ts",
-    "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
     "src/lib/builder/storefront-responsive-layout-depth.ts",
     "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts",
     "src/lib/builder/template-factory/constraint-planner.ts",
@@ -40,19 +39,16 @@
     "tests/template-factory-template-type-system.test.ts"
   ],
   "expectedSubsystems": [
-    "admin-operations",
     "builder-template-system",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-ADMIN",
     "DOMAIN-BUILDER",
     "DOMAIN-QUALITY",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "admin-operations",
     "builder-template-system",
     "quality-knowledge-system",
     "shared-storefront"
@@ -124,19 +120,18 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-VX-INHERITANCE-INTELLIGENCE-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-VX-INHERITANCE-INTELLIGENCE-CORE-BRABUS-HARDENING",
     "riskTier": "critical",
-    "problemStatement": "Responsive layout mechanics are already PROVEN and the active Runtime deliberately uses base + exact viewport authority, while historical Desktop→Tablet→Mobile cascading is legacy-only. The Builder can inspect, set and reset viewport-local state, but it cannot yet explain the effective value's source, identify redundant/stale overrides, or safely propagate explicit responsive intent between selected viewports. Brabus Inheritance Intelligence must add those capabilities to the existing responsive layout-depth authority without changing Runtime semantics.",
+    "problemStatement": "Responsive mechanics are already PROVEN and the active Runtime deliberately uses base + exact viewport authority. The combined Core+Admin adoption exceeded the Release Risk Budget because #701 already spans quality-infrastructure, storefront-ui and builder-template-system; adding admin-operations created a fourth subsystem. This release slice therefore proves only the canonical Inheritance Intelligence Core in the existing responsive layout-depth authority. Admin UI adoption is explicitly deferred to a separate release slice.",
     "observableOutcomes": [
       "One canonical Inheritance Intelligence contract lives inside the existing storefront-responsive-layout-depth authority and reports base/exact-viewport provenance for visibility, grid placement, container flow and child order.",
       "Diagnostics distinguish explicit viewport overrides from inherited/base/component/default values and identify redundant overrides that can be removed without changing effective rendering.",
       "The active runtime continues to use base + exact viewport semantics; no Desktop→Tablet→Mobile implicit cascade is introduced.",
       "A deterministic propagation planner accepts one source viewport, explicit target viewports and an allowlisted set of responsive dimensions and returns an immutable bounded plan.",
       "Propagation copies the source viewport's direct intent: direct source overrides become explicit target overrides; absent source overrides reset the matching target dimension instead of inventing values.",
-      "Applying a propagation plan delegates only to existing set/reset responsive authorities and produces a normal Page Schema document that can be committed through existing Builder history/undo-redo.",
       "No propagation operation touches unselected viewports or unrelated style/config keys.",
-      "The Builder responsive controls expose provenance/diagnostics and explicit target actions; there is no silent auto-propagation.",
-      "VX-INHERITANCE-INTELLIGENCE becomes PROVEN only after executable adversarial proof; Publish Readiness, Visual Diff Intelligence, Smart Intent and Smart Auto-Fix remain non-PROVEN."
+      "VX-INHERITANCE-INTELLIGENCE becomes PROVEN only after executable adversarial proof; Publish Readiness, Visual Diff Intelligence, Smart Intent and Smart Auto-Fix remain non-PROVEN.",
+      "The core remains pure/in-memory and is consumable by later Publish Readiness, Smart Intent, Auto-Fix or a separately budgeted Builder UI adoption without persistence or publish side effects."
     ],
     "unresolvedRisks": [
       "Accidentally using legacy cascade helpers would reintroduce breakpoint leakage already removed from the active Runtime.",
@@ -144,8 +139,7 @@
       "A reset-style propagation could erase unrelated viewport style properties such as backgroundColor.",
       "Child-order propagation could accept stale or foreign node IDs and silently reorder the wrong tree.",
       "A propagation plan could be replayed after the document changed and overwrite newer responsive intent unless source/target fingerprints are validated.",
-      "Diagnostics could treat legitimate responsive differences as drift and later mislead Publish Readiness or Auto-Fix.",
-      "Direct helper application outside Builder history could make propagation non-undoable in the UI."
+      "Diagnostics could treat legitimate responsive differences as drift and later mislead Publish Readiness or Auto-Fix."
     ],
     "scope": {
       "in": [
@@ -154,9 +148,8 @@
         "Deterministic immutable propagation-plan contract with source and target fingerprints.",
         "Explicit bounded propagation across selected viewports only.",
         "Application through existing responsive layout/fidelity setters and resetters.",
-        "Responsive Builder controls for diagnostics and explicit propagation actions.",
-        "Undo/redo integration through existing onApply → commitDocument → Builder history path.",
-        "Maturity promotion with adversarial executable proof."
+        "Maturity promotion with adversarial executable proof.",
+        "Pure in-memory Core API suitable for later Builder UI adoption through the existing history path."
       ],
       "out": [
         "Legacy Desktop→Tablet→Mobile cascade restoration.",
@@ -166,12 +159,13 @@
         "Visual screenshot diffing.",
         "Publish blocking/readiness aggregation.",
         "New Page Schema, renderer, persistence, publish endpoint, database mutation or Control Plane gate.",
-        "Template #3 authoring."
+        "Template #3 authoring.",
+        "Admin Builder UI adoption in this release slice."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Responsive propagation can silently damage all three canonical viewports and later feed Smart Intent/Auto-Fix, so the highest practical assurance is deterministic provenance, stale-plan rejection, dimension-local operations, exact target scoping, regression proof against legacy cascade semantics and normal Builder history integration.",
+      "rationale": "Responsive propagation can silently damage canonical viewports and will feed later Publish Readiness/Smart Intent/Auto-Fix. Highest practical assurance for this core slice requires deterministic provenance, stale source/target rejection, exact target scoping, dimension-local reset/application and explicit regression proof that legacy cascade semantics remain migration-only.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -205,7 +199,6 @@
         "Direct source overrides are copied to targets; absent source overrides cause dimension-local target reset, preserving unrelated style/config keys.",
         "No plan mutates a viewport outside its explicit target set.",
         "Child-order propagation uses only known children and existing fidelity order authority.",
-        "Builder UI shows provenance/diagnostic state and explicit propagation controls; applying through onApply remains undoable/redoable.",
         "Runtime exact-viewport behavior and legacy-cascade isolation tests remain unchanged.",
         "VX-INHERITANCE-INTELLIGENCE becomes PROVEN while VX-VISUAL-DIFF-INTELLIGENCE, VX-PUBLISH-READINESS, VX-SMART-INTENT and VX-SMART-AUTOFIX remain non-PROVEN."
       ],
@@ -215,8 +208,7 @@
         "Page Schema and existing fidelity/responsive setters remain mutation authorities.",
         "Propagation is opt-in, bounded to explicit targets and produces no persistence or publish side effects.",
         "Resetting one responsive dimension cannot erase unrelated viewport styles or config.",
-        "Diagnostics are explanatory evidence, not automatic mutation authority.",
-        "Every applied document remains a normal Builder history entry."
+        "Diagnostics are explanatory evidence, not automatic mutation authority."
       ],
       "forbiddenStates": [
         "implicit-desktop-tablet-mobile-cascade",
@@ -225,10 +217,10 @@
         "stale-plan-applied",
         "unrelated-style-erased",
         "unknown-child-order-propagated",
-        "background-persistence-or-publish",
         "smart-intent-falsely-proven",
         "smart-autofix-falsely-proven",
-        "template-3-authoring"
+        "template-3-authoring",
+        "core-performs-persistence-or-publish"
       ]
     },
     "model": {
@@ -266,8 +258,7 @@
         "Propagation resets container layout and accidentally removes unrelated background/style properties.",
         "Source state changes after planning but the stale plan still applies.",
         "Target list contains source viewport or duplicates and application order becomes ambiguous.",
-        "Child order contains stale node ids and propagation corrupts order metadata.",
-        "UI applies propagation outside Builder history and undo cannot restore the prior document."
+        "Child order contains stale node ids and propagation corrupts order metadata."
       ],
       "edgeCases": [
         "Source viewport has no overrides in any selected dimension.",
@@ -339,11 +330,11 @@
         "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Automatic propagation would be surprising and could erase deliberate breakpoint differences.",
-        "resolution": "Expose source explanation, warnings and explicit target buttons only; no silent propagation.",
+        "finding": "The combined Core + Admin UI adoption exceeds the Release Risk Budget on #701.",
+        "resolution": "Keep this release slice core-only. Admin UI adoption is deferred to a separately budgeted release slice; no UI readiness claim is made here.",
         "evidence": [
-          "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
-          "src/components/admin/storefront-visual-builder-v3.tsx"
+          "artifacts/release-risk-budget.json",
+          "src/lib/builder/storefront-responsive-layout-depth.ts"
         ]
       }
     ],
@@ -399,9 +390,9 @@
       },
       {
         "id": "CH-INHERIT-8",
-        "scenario": "Propagation is applied from Builder UI.",
-        "finding": "Direct document replacement could bypass undo/redo.",
-        "resolution": "Controls call onApply and existing applyFidelity→commitDocument→pushStorefrontBuilderHistory path; UI proof locks this.",
+        "scenario": "Core propagation API is invoked by a future consumer.",
+        "finding": "The core must not acquire hidden persistence, publish or admin-side effects.",
+        "resolution": "Core functions remain pure Page Schema transformations using existing responsive setters/resetters; source tests forbid persistence/publish imports.",
         "status": "resolved"
       }
     ],
@@ -413,19 +404,18 @@
       "Stale-plan adversarial proof mutates source responsive intent after planning and requires application to reject.",
       "Unrelated-style preservation proof keeps non-layout viewport style keys unchanged through set/reset propagation.",
       "Grid, stack, visibility, placement and child-order propagation/reset combination proof.",
-      "Builder UI source/diagnostic/explicit propagation proof plus existing history path assertion.",
       "Legacy cascade exclusion proof ensures intelligence source contains no LegacyCascade imports/calls.",
       "Maturity proof promotes only VX-INHERITANCE-INTELLIGENCE; the other four VX blockers stay non-PROVEN.",
-      "Normal CI + exact-head Template Factory Quality Gate v2 + Completion Truth + lifecycle closure."
+      "Normal CI + exact-head Template Factory Quality Gate v2 + Completion Truth + lifecycle closure.",
+      "Release Risk proof must stay within max score/subsystem budget; admin UI adoption remains outside this slice."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-VX-INHERITANCE-INTELLIGENCE-BRABUS-HARDENING",
+      "request": "PO-2026-10-02-VX-INHERITANCE-INTELLIGENCE-CORE-BRABUS-HARDENING",
       "authority": [
         "builder-template-system"
       ],
       "mustEdit": [
         "src/lib/builder/storefront-responsive-layout-depth.ts",
-        "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
         "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
@@ -439,7 +429,8 @@
         "src/lib/builder/storefront-fidelity-builder-operations.ts",
         "src/lib/builder/storefront-fidelity-layout.ts",
         "src/components/admin/storefront-visual-builder-v3.tsx",
-        "src/components/admin/storefront-visual-builder-production.tsx"
+        "src/components/admin/storefront-visual-builder-production.tsx",
+        "src/components/admin/storefront-responsive-layout-depth-controls.tsx"
       ],
       "proof": [
         "tests/storefront-responsive-layout-depth.test.ts",
@@ -451,7 +442,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-VX-INHERITANCE-INTELLIGENCE-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-VX-INHERITANCE-INTELLIGENCE-CORE-BRABUS-HARDENING",
     "requirements": [
       {
         "id": "REQ-VX-INHERITANCE-EXPLAINABLE",
@@ -490,7 +481,7 @@
       },
       {
         "id": "REQ-VX-INHERITANCE-BOUNDED-PROPAGATION",
-        "requirement": "Responsive intent propagation is deterministic, stale-safe, dimension-local, explicit-target-only and applies through existing setters/resetters and Builder history.",
+        "requirement": "Responsive intent propagation Core is deterministic, stale-safe, dimension-local, explicit-target-only and applies only through existing in-memory responsive setters/resetters.",
         "claimScope": {
           "capability": "CAP-QUALITY",
           "breadth": "responsive-propagation",
@@ -516,7 +507,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-INHERITANCE-SILENT-MUTATION",
-            "statement": "Propagation cannot silently mutate unselected viewports, unrelated style keys, persistence or publish state.",
+            "statement": "Core propagation cannot silently mutate unselected viewports, unrelated style keys, persistence or publish state.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -560,13 +551,13 @@
       }
     ]
   },
-  "notes": "Eighth Brabus hardening wave. Factory Genome, Type System, Constraint Planner, Media Planner, deterministic lineage, anti-clone and Dynamic Production Compiler are PROVEN and lifecycle-closed. Dependency order for remaining VX blockers: Inheritance Intelligence → Visual Diff Intelligence → Publish Readiness → Smart Intent → Smart Auto-Fix. This wave handles only Inheritance Intelligence. Template #3 remains forbidden. Canonical Inheritance Intelligence projection reconciled: admin-operations/builder-template-system/shared-storefront/storefront-ui; domains ADMIN/BUILDER/QUALITY/STOREFRONT; authorities admin-operations/builder-template-system/quality-knowledge-system/shared-storefront; negative knowledge excludes SQ-NK-005 and SQ-NK-014; guard digest 79f20cf3.",
+  "notes": "Eighth Brabus hardening wave. Factory Genome, Type System, Constraint Planner, Media Planner, deterministic lineage, anti-clone and Dynamic Production Compiler are PROVEN and lifecycle-closed. Dependency order for remaining VX blockers: Inheritance Intelligence → Visual Diff Intelligence → Publish Readiness → Smart Intent → Smart Auto-Fix. This wave handles only Inheritance Intelligence. Template #3 remains forbidden. Canonical Inheritance Intelligence projection reconciled: admin-operations/builder-template-system/shared-storefront/storefront-ui; domains ADMIN/BUILDER/QUALITY/STOREFRONT; authorities admin-operations/builder-template-system/quality-knowledge-system/shared-storefront; negative knowledge excludes SQ-NK-005 and SQ-NK-014; guard digest 79f20cf3. Release Risk Budget split applied: admin-operations UI adoption removed from #701 core slice after score 7/5 and subsystem 4/3 block. Core engine will be proven first; UI adoption is a separate release slice.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
     "verifiedImplementationHead": null,
     "closedAt": null,
-    "sourceRef": "PO-2026-10-02-VX-INHERITANCE-INTELLIGENCE-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-VX-INHERITANCE-INTELLIGENCE-CORE-BRABUS-HARDENING",
     "learning": {
       "state": "pending"
     }
