@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-INSTRUCTION-TOMBSTONE-ARCHITECTURE",
   "task": "Quality Control Plane semantic execution: resolve Git-proven deleted legacy routes through durable Product Owner forbidden-route authority without restoring deleted routes as canonical domain ownership.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "52ef3463",
   "changeBaseSha": "87438bbc6a35e3e44a79e91d8ea95c90cc8a1b10",
   "plannedFilePatterns": [
@@ -468,5 +468,18 @@
       }
     ]
   },
-  "notes": "Targeted follow-up to merged PR #673. PR #666 proved tombstone transaction semantics work but architecture resolution still rejects an intentionally non-canonical forbidden legacy route. No product code or domain canonical-path expansion in this transaction. Canonical plan projection expanded impacted scope to quality-knowledge-system + shared-storefront + storefront-ui with guard digest 52ef3463; critical assurance challenge/review depth aligned before implementation. Rebased after #670 merge onto canonical main 87438bbc6a35e3e44a79e91d8ea95c90cc8a1b10; product/storefront scope unchanged. Truth replay on ad31c841 exposed a correct OVERCLAIM: the architecture-resolution requirement claimed authority but did not cite the existing GUARD-PLAN-BEFORE-CODE authority-capable producer. The claim remains unchanged; proof mapping now requires that canonical producer in addition to edit-time/regression evidence. Truth Gate exact-head replay on ad31c841 identified a semantic evidence-mapping overclaim: REQ-TOMBSTONE-ARCHITECTURE-RESOLUTION required authority but omitted GUARD-PLAN-BEFORE-CODE, the canonical producer that proves that dimension. Evidence mapping corrected without lowering claim strength or changing gate semantics."
+  "notes": "Targeted follow-up to merged PR #673. PR #666 proved tombstone transaction semantics work but architecture resolution still rejects an intentionally non-canonical forbidden legacy route. No product code or domain canonical-path expansion in this transaction. Canonical plan projection expanded impacted scope to quality-knowledge-system + shared-storefront + storefront-ui with guard digest 52ef3463; critical assurance challenge/review depth aligned before implementation. Rebased after #670 merge onto canonical main 87438bbc6a35e3e44a79e91d8ea95c90cc8a1b10; product/storefront scope unchanged. Truth replay on ad31c841 exposed a correct OVERCLAIM: the architecture-resolution requirement claimed authority but did not cite the existing GUARD-PLAN-BEFORE-CODE authority-capable producer. The claim remains unchanged; proof mapping now requires that canonical producer in addition to edit-time/regression evidence. Truth Gate exact-head replay on ad31c841 identified a semantic evidence-mapping overclaim: REQ-TOMBSTONE-ARCHITECTURE-RESOLUTION required authority but omitted GUARD-PLAN-BEFORE-CODE, the canonical producer that proves that dimension. Evidence mapping corrected without lowering claim strength or changing gate semantics.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "59dc73947a822b344b032f4a9783a77a09c70eb4",
+    "closedAt": "2026-10-02T03:16:38.904Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-01-INSTRUCTION-TOMBSTONE-ARCHITECTURE",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
