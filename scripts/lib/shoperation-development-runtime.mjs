@@ -28,7 +28,9 @@ export function globToRegExp(glob){
 }
 const neutralMatchers=releasePolicy.neutralPatterns.map(globToRegExp);
 const subsystemMatchers=releasePolicy.subsystems.map(item=>({...item,matchers:item.patterns.map(globToRegExp)}));
+const DEVELOPMENT_METADATA_FILES=new Set(['quality/development/active-plan.json']);
 export function isNeutralFile(file){return neutralMatchers.some(matcher=>matcher.test(file));}
+export function isDevelopmentMetadataFile(file){return DEVELOPMENT_METADATA_FILES.has(String(file??''));}
 
 export function parseTemplateFactoryFailures(){
   const source=readFileSync('src/lib/builder/template-factory/knowledge-registry.ts','utf8');
@@ -73,8 +75,13 @@ export function resolveDevelopmentScope({files=[],task='',forceFull=false}){
 }
 export function resolveDevelopmentBase({changeBaseSha=null}={}){
   const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
-  const candidates=[changeBaseSha,process.env.DEVELOPMENT_BASE_SHA,process.env.QUALITY_BASE_SHA,process.env.RELEASE_BASE_SHA].map(value=>String(value??'').trim()).filter(Boolean);
-  for(const explicit of candidates)if(!/^0+$/.test(explicit)){try{git(['cat-file','-e',`${explicit}^{commit}`]);return explicit;}catch{}}
+  const declared=String(changeBaseSha??'').trim();
+  if(declared){
+    if(/^0+$/.test(declared))return null;
+    try{git(['cat-file','-e',`${declared}^{commit}`]);return declared;}catch{return null;}
+  }
+  const candidates=[process.env.DEVELOPMENT_BASE_SHA,process.env.QUALITY_BASE_SHA,process.env.RELEASE_BASE_SHA].map(value=>String(value??'').trim()).filter(Boolean);
+  for(const candidate of candidates)if(!/^0+$/.test(candidate)){try{git(['cat-file','-e',`${candidate}^{commit}`]);return candidate;}catch{}}
   for(const candidate of ['origin/main','main','HEAD^']){try{git(['cat-file','-e',`${candidate}^{commit}`]);return candidate;}catch{}}
   return null;
 }
@@ -95,12 +102,17 @@ export function parseChangedFileStatus(output){
 }
 export function getChangedFiles({baseSha=null}={}){
   const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
-  const explicit=String(baseSha??process.env.DEVELOPMENT_BASE_SHA??'').trim();
-  const base=resolveDevelopmentBase({changeBaseSha:explicit});
+  const requestedBase=String(baseSha??'').trim();
+  const base=resolveDevelopmentBase({changeBaseSha:requestedBase||null});
   const head=(process.env.DEVELOPMENT_HEAD_SHA??process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').trim()||'HEAD';
-  if(!base)return {base:null,head,files:[],deletedFiles:[],changes:[]};
+  const baseResolution=requestedBase?(base===requestedBase?'DECLARED':'UNRESOLVED'):(base?'FALLBACK':'UNRESOLVED');
+  if(!base)return {base:null,requestedBase:requestedBase||null,baseResolution,head,files:[],deletedFiles:[],materialFiles:[],materialDeletedFiles:[],metadataFiles:[],changes:[]};
   const output=git(['diff','--name-status','--diff-filter=ACMRD',base,head]);
-  return {base,head,...parseChangedFileStatus(output)};
+  const parsed=parseChangedFileStatus(output);
+  const metadataFiles=parsed.files.filter(isDevelopmentMetadataFile);
+  const materialFiles=parsed.files.filter(file=>!isDevelopmentMetadataFile(file));
+  const materialDeletedFiles=parsed.deletedFiles.filter(file=>!isDevelopmentMetadataFile(file));
+  return {base,requestedBase:requestedBase||null,baseResolution,head,...parsed,materialFiles,materialDeletedFiles,metadataFiles};
 }
 export function runVitest(files){
   if(!files.length)return {status:0,stdout:'',stderr:''};
