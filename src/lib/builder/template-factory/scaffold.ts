@@ -24,6 +24,7 @@ import {
 import type {StorefrontTemplateGenome} from '@/lib/builder/template-factory/template-genome';
 import type {StorefrontTemplateProductOwnerIntent} from '@/lib/builder/template-factory/constraint-planner';
 import type {StorefrontTemplateProductionLineage} from '@/lib/builder/template-factory/production-lineage';
+import type {StorefrontTemplateProductionCompilerProgram} from '@/lib/builder/template-factory/production-compiler-contract';
 import {
   setStorefrontGlobalStyleState,
   type StorefrontGlobalStyleState,
@@ -103,6 +104,7 @@ export type StorefrontTemplateFactoryCommerceReadiness={
 
 export type StorefrontTemplateFactoryRecipe={
   blueprint?:StorefrontTemplateGeneratorBlueprint;
+  compiler?:StorefrontTemplateProductionCompilerProgram;
   genome?:StorefrontTemplateGenome;
   productionIntent?:StorefrontTemplateProductOwnerIntent;
   category:string;
