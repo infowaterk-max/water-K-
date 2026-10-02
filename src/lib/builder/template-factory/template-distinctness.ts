@@ -140,19 +140,8 @@ function packageAxes(pkg:StorefrontInstallableTemplatePackage):Record<Storefront
   }
   return axes;
 }
-function addGenomeEvidence(axes:Record<StorefrontTemplateDistinctnessAxis,Set<string>>,genome:StorefrontTemplateGenome|undefined|null):void{
-  if(!genome)return;const d=genome.dimensions;
-  for(const value of [d.composition.grammar,...d.composition.archetypes,...d.componentGrammar.preferred]){const token=clean(value);if(token)axes.composition.add('genome:'+token);}
-  for(const value of [d.composition.sectionRhythm,...d.composition.rules]){const token=clean(value);if(token)axes.sectionRhythm.add('genome:'+token);}
-  for(const value of [d.typography.display,d.typography.body,d.typography.data,d.typography.scale,...d.typography.rules]){const token=clean(value);if(token)axes.typography.add('genome:'+token);}
-  for(const value of [d.spacing.rhythm,d.spacing.density,...d.spacing.rules]){const token=clean(value);if(token)axes.spacing.add('genome:'+token);}
-  for(const value of [d.spacing.density,d.composition.density]){const token=clean(value);if(token)axes.density.add('genome:'+token);}
-  for(const value of [d.shape.language,d.shape.radius,d.shape.border,...d.shape.rules]){const token=clean(value);if(token)axes.shape.add('genome:'+token);}
-  for(const value of [d.image.language,...d.image.roles,...d.image.rules]){const token=clean(value);if(token)axes.mediaLanguage.add('genome:'+token);}
-  for(const value of [d.motion.character,d.motion.intensity,...d.motion.rules,d.commerce.character]){const token=clean(value);if(token)axes.interaction.add('genome:'+token);}
-}
 export function createStorefrontTemplateDistinctnessProfile(input:{package:StorefrontInstallableTemplatePackage;genome?:StorefrontTemplateGenome|null}):StorefrontTemplateDistinctnessProfile{
-  const axes=packageAxes(input.package);addGenomeEvidence(axes,input.genome);
+  const axes=packageAxes(input.package);
   return deepFreeze({
     contract:STOREFRONT_TEMPLATE_DISTINCTNESS_VERSION,
     identity:{templateKey:input.package.manifest.templateKey,templateVersion:input.package.manifest.templateVersion},
