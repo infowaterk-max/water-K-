@@ -62,6 +62,7 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     const paths=[
       'src/app/oldal/[slug]/page.tsx',
       'src/app/sitemap.ts',
+      'src/app/storefront-preview/[token]/page.tsx',
       'scripts/lib/shoperation-codebase-atlas-runtime.mjs',
     ];
     for(const path of paths){
@@ -90,8 +91,18 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     expect(qualityHelper.domains).toEqual(['DOMAIN-QUALITY']);
     expect(qualityHelper.authorities).toEqual(['quality-knowledge-system']);
 
+    const preview=classifyAtlasPath('src/app/storefront-preview/[token]/page.tsx');
+    expect(preview.domains).toEqual(['DOMAIN-BUILDER']);
+    expect(preview.authorities).toEqual(['builder-template-system']);
+
+    const b2bPage=readFileSync('src/app/fiokom/b2b/page.tsx','utf8');
+    expect(b2bPage).not.toContain('B2B_ACCOUNT_BUILDER_MANIFEST');
+    expect(b2bPage).not.toContain("@/lib/commerce/b2b-account-builder");
+
     const cleanIssues=validateCodebaseAtlas(atlas).issues.filter((issue:any)=>
-      issue.code==='ATLAS_CLASSIFICATION_DIVERGENCE'||issue.code==='ATLAS_PO_ROUTE_AUTHORITY_CONFLICT'
+      issue.code==='ATLAS_CLASSIFICATION_DIVERGENCE'
+      ||issue.code==='ATLAS_PO_ROUTE_AUTHORITY_CONFLICT'
+      ||issue.code==='ATLAS_AUTHORITY_DEPENDENCY_DRIFT'
     );
     expect(cleanIssues).toEqual([]);
 
