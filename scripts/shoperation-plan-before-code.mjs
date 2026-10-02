@@ -32,8 +32,13 @@ const projectedFiles=[...new Set([
 ])].sort();
 if(!projectedFiles.length)issues.push({code:'DEV_PLAN_PROJECTION_EMPTY',plannedFilePatterns:plan.plannedFilePatterns});
 
-const generatedExecutionRoute=buildExecutionRoute(atlas,plan.plannedFilePatterns??[],{tombstones:deletedFiles});
 const declaredExecutionRoute=plan.operationalIntelligence?.semanticExecutionRoute??null;
+const declaredPlannedDeletions=[...new Set(declaredExecutionRoute?.plannedDeletions??[])].sort();
+for(const file of declaredPlannedDeletions)if(!planMatchers.some(m=>m.test(file)))issues.push({code:'DEV_PLAN_PLANNED_DELETION_OUTSIDE_PLAN',file});
+const actualExecutionRoute=buildExecutionRoute(atlas,plan.plannedFilePatterns??[],{tombstones:deletedFiles});
+const generatedExecutionRoute=buildExecutionRoute(atlas,plan.plannedFilePatterns??[],{tombstones:deletedFiles,plannedDeletions:declaredPlannedDeletions});
+const unauthorizedPlannedDeletions=declaredPlannedDeletions.filter(file=>!(generatedExecutionRoute.PLANNED_FORBIDDEN_ROUTE_DELETIONS??[]).includes(file)&&!deletedFiles.includes(file));
+if(unauthorizedPlannedDeletions.length)issues.push({code:'DEV_PLAN_PLANNED_DELETION_UNAUTHORIZED',files:unauthorizedPlannedDeletions});
 if(plan.operationalIntelligence?.riskTier==='critical'){
   const declaredMustEdit=[...(declaredExecutionRoute?.mustEdit??[])];
   for(const file of declaredMustEdit)if(!generatedExecutionRoute.MUST_EDIT.includes(file)&&!generatedExecutionRoute.INSTRUCTION_REQUIRED.includes(file))issues.push({code:'DEV_PLAN_SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE',file});
@@ -53,20 +58,21 @@ const projectedScope=resolveDevelopmentScope({files:projectedFiles,task:plan.tas
 const expectedFailures=[...(plan.expectedKnownFailureIds??[])].sort();
 const projectedFailures=[...projectedScope.activeFailureIds].sort();
 
-const architectureFor=file=>resolveAtlasArchitectureForPath(atlas,file,{tombstones:deletedFiles,executionRoute:generatedExecutionRoute});
-const domainsFor=files=>[...new Set(files.flatMap(file=>architectureFor(file).pathDerived.domains))].sort();
+const actualArchitectureFor=file=>resolveAtlasArchitectureForPath(atlas,file,{tombstones:deletedFiles,executionRoute:actualExecutionRoute});
+const projectedArchitectureFor=file=>resolveAtlasArchitectureForPath(atlas,file,{tombstones:deletedFiles,plannedDeletions:declaredPlannedDeletions,executionRoute:generatedExecutionRoute});
+const domainsFor=(files,resolver)=>[...new Set(files.flatMap(file=>resolver(file).pathDerived.domains))].sort();
 const authoritiesFor=domains=>[...new Set(domains.map(id=>atlas.domainIndexDefinition?.[id]?.owner).filter(Boolean))].sort();
-const unresolvedFor=files=>files.filter(file=>{
+const unresolvedFor=(files,resolver)=>files.filter(file=>{
   if(scopePolicy.knowledgeInfrastructurePrefixes.some(prefix=>file.startsWith(prefix))||isNeutralFile(file))return false;
-  return !architectureFor(file).resolved;
+  return !resolver(file).resolved;
 });
 
-const actualDomains=domainsFor(changedFiles);
+const actualDomains=domainsFor(changedFiles,actualArchitectureFor);
 const actualAuthorities=authoritiesFor(actualDomains);
-const projectedDomains=domainsFor(projectedFiles);
+const projectedDomains=domainsFor(projectedFiles,projectedArchitectureFor);
 const projectedAuthorities=authoritiesFor(projectedDomains);
-const actualUnresolved=unresolvedFor(changedFiles);
-const projectedUnresolved=unresolvedFor(projectedFiles);
+const actualUnresolved=unresolvedFor(changedFiles,actualArchitectureFor);
+const projectedUnresolved=unresolvedFor(projectedFiles,projectedArchitectureFor);
 
 if(actualUnresolved.length)issues.push({code:'DEV_PLAN_ARCHITECTURE_SCOPE_UNRESOLVED',files:actualUnresolved,mode:'actual-diff'});
 if(projectedUnresolved.length)issues.push({code:'DEV_PLAN_ARCHITECTURE_SCOPE_UNRESOLVED',files:projectedUnresolved,mode:'planned-projection'});
@@ -130,9 +136,11 @@ const report={
     projected:{directDomains:projectedDomains,directAuthorities:projectedAuthorities,unresolvedFiles:projectedUnresolved},
     atlasContract:atlas.contract,
     semanticExecutionRoute:generatedExecutionRoute,
+    actualExecutionRoute,
+    plannedDeletions:declaredPlannedDeletions,
     tombstoneArchitecture:{
-      actual:changedFiles.filter(file=>deletedFiles.includes(file)).map(file=>architectureFor(file)),
-      projected:projectedFiles.filter(file=>deletedFiles.includes(file)).map(file=>architectureFor(file)),
+      actual:changedFiles.filter(file=>deletedFiles.includes(file)).map(file=>actualArchitectureFor(file)),
+      projected:projectedFiles.filter(file=>deletedFiles.includes(file)||declaredPlannedDeletions.includes(file)).map(file=>projectedArchitectureFor(file)),
     },
     applicablePoInstructionIds:expectedInstructionIds,
   },

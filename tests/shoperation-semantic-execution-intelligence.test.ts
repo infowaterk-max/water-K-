@@ -96,6 +96,45 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     expect(unrelatedEvidence.resolved).toBe(false);
   });
 
+  it('authorizes only active PO-governed planned static deletion without treating intent as Git proof',()=>{
+    const deleted='src/app/szallitas-es-fizetes/page.tsx';
+    const instruction={
+      id:'PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE',
+      lifecycle:'active',
+      affectedPatterns:['src/app/**'],
+      affectedDomains:['DOMAIN-BUILDER','DOMAIN-STOREFRONT'],
+      affectedRoutes:['/szallitas','/fizetes'],
+      forbiddenStates:['route:/szallitas-es-fizetes'],
+    };
+    const atlas:any={nodes:[],reverseImports:{},semanticGraph:{reverseFileEdges:{},unknowns:[]},unresolvedInternalImports:[],poInstructions:[instruction]};
+
+    const plannedRoute=buildExecutionRoute(atlas,[deleted],{plannedDeletions:[deleted]});
+    expect(plannedRoute.TOMBSTONES).toEqual([]);
+    expect(plannedRoute.PLANNED_DELETIONS).toEqual([deleted]);
+    expect(plannedRoute.FORBIDDEN_ROUTE_TOMBSTONES).toEqual([]);
+    expect(plannedRoute.PLANNED_FORBIDDEN_ROUTE_DELETIONS).toEqual([deleted]);
+    const planned=resolveAtlasArchitectureForPath(atlas,deleted,{plannedDeletions:[deleted],executionRoute:plannedRoute});
+    expect(planned.routeAuthority).toEqual({path:'/szallitas-es-fizetes',kind:'page',state:'planned-deletion'});
+    expect(planned.poInstructionAuthority).toEqual({instructionIds:[instruction.id],governsDeletion:false,authorizesPlannedDeletion:true});
+    expect(planned.resolved).toBe(true);
+
+    const actualWithoutGit=resolveAtlasArchitectureForPath(atlas,deleted,{tombstones:[],executionRoute:plannedRoute});
+    expect(actualWithoutGit.routeAuthority).toEqual({path:'/szallitas-es-fizetes',kind:'page',state:'current-or-planned'});
+    expect(actualWithoutGit.poInstructionAuthority.governsDeletion).toBe(false);
+    expect(actualWithoutGit.poInstructionAuthority.authorizesPlannedDeletion).toBeUndefined();
+    expect(actualWithoutGit.resolved).toBe(false);
+
+    const unrelated='src/app/unrelated-legacy/page.tsx';
+    const unrelatedRoute=buildExecutionRoute(atlas,[unrelated],{plannedDeletions:[unrelated]});
+    expect(unrelatedRoute.PLANNED_FORBIDDEN_ROUTE_DELETIONS).toEqual([]);
+    expect(resolveAtlasArchitectureForPath(atlas,unrelated,{plannedDeletions:[unrelated],executionRoute:unrelatedRoute}).resolved).toBe(false);
+
+    const inactiveAtlas:any={...atlas,poInstructions:[{...instruction,lifecycle:'inactive'}]};
+    const inactiveRoute=buildExecutionRoute(inactiveAtlas,[deleted],{plannedDeletions:[deleted]});
+    expect(inactiveRoute.PLANNED_FORBIDDEN_ROUTE_DELETIONS).toEqual([]);
+    expect(resolveAtlasArchitectureForPath(inactiveAtlas,deleted,{plannedDeletions:[deleted],executionRoute:inactiveRoute}).resolved).toBe(false);
+  });
+
   it('does not classify Git CLI long options as CSS-variable contracts',()=>{
     const cli=extractReferenceCandidatesFromLine("git(['diff','--name-only','--diff-filter=ACMR',base,head])",'scripts/lib/shoperation-development-runtime.mjs');
     expect(cli.filter((item:any)=>item.kind==='css-variable')).toEqual([]);

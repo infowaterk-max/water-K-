@@ -82,12 +82,14 @@ export function reconcileAuthorityDependencies(atlas:CodebaseAtlas|Record<string
   learningMode:string;
   [key:string]:unknown;
 };
-export function buildExecutionRoute(atlas:CodebaseAtlas,patterns:string[],options?:{tombstones?:string[]}):{
+export function buildExecutionRoute(atlas:CodebaseAtlas,patterns:string[],options?:{tombstones?:string[];plannedDeletions?:string[]}):{
   MUST_EDIT:string[];
   TOMBSTONES:string[];
+  PLANNED_DELETIONS:string[];
   INSTRUCTION_REQUIRED:string[];
   INSTRUCTION_REQUIREMENTS:Array<Record<string,unknown>>;
   FORBIDDEN_ROUTE_TOMBSTONES:string[];
+  PLANNED_FORBIDDEN_ROUTE_DELETIONS:string[];
   MAY_EDIT:string[];
   IMPACTED_READ_ONLY:string[];
   AUTHORITY:string[];
@@ -98,11 +100,11 @@ export function buildExecutionRoute(atlas:CodebaseAtlas,patterns:string[],option
   decision:'PASS'|'BLOCK';
   [key:string]:unknown;
 };
-export function resolveAtlasArchitectureForPath(atlas:CodebaseAtlas,file:string,options?:{tombstones?:string[];executionRoute?:Record<string,any>|null}):{
+export function resolveAtlasArchitectureForPath(atlas:CodebaseAtlas,file:string,options?:{tombstones?:string[];plannedDeletions?:string[];executionRoute?:Record<string,any>|null}):{
   path:string;
   pathDerived:{domains:string[];authorities:string[]};
   routeAuthority:{path:string;kind:string;state:string}|null;
-  poInstructionAuthority:{instructionIds:string[];governsDeletion:boolean};
+  poInstructionAuthority:{instructionIds:string[];governsDeletion:boolean;authorizesPlannedDeletion?:boolean};
   resolved:boolean;
 };
 export function applicablePoInstructions(atlas:CodebaseAtlas,files:string[]):Array<Record<string,unknown>>;
