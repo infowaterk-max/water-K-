@@ -5,10 +5,12 @@ import {
 } from '@/lib/builder/template-factory/media-planner';
 import {LOOT_VAULT_V2_FACTORY_RECIPE} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
 import {buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory/recipe-registry';
-import type {
-  StorefrontTemplateFactoryMediaAsset,
-  StorefrontTemplateFactoryMediaManifest,
+import {
+  compileStorefrontTemplateFactoryPackage,
+  type StorefrontTemplateFactoryMediaAsset,
+  type StorefrontTemplateFactoryMediaManifest,
 } from '@/lib/builder/template-factory/scaffold';
+import {GAMING_TEMPLATE_FACTORY_FOUNDATION} from '@/lib/builder/template-factory/category-foundations';
 
 function constraintPlan(){
   const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
@@ -152,6 +154,45 @@ describe('Template Media Planner / Compiler Brabus authority',()=>{
     expect(first.valid).toBe(true);
     expect(second.valid).toBe(true);
     expect(second.plan?.hash).not.toBe(first.plan?.hash);
+  });
+
+
+  it('blocks Factory technical readiness when generic media exists but required semantic fulfillment is missing',()=>{
+    const recipe=structuredClone(LOOT_VAULT_V2_FACTORY_RECIPE);
+    const assets=structuredClone(recipe.media.assets) as StorefrontTemplateFactoryMediaAsset[];
+    const heroIndex=assets.findIndex(row=>row.semanticRole==='hero-scene');
+    if(heroIndex<0)throw new Error('TEST_HERO_ASSET_MISSING');
+    const {semanticRole:_semanticRole,...genericHero}=assets[heroIndex]!;
+    assets[heroIndex]=genericHero;
+    recipe.media={...recipe.media,assets};
+
+    const build=compileStorefrontTemplateFactoryPackage({foundation:GAMING_TEMPLATE_FACTORY_FOUNDATION,recipe});
+    expect(build.report.generatorReadiness.mediaPlanning.valid).toBe(true);
+    expect(build.report.generatorReadiness.mediaPlanning.technicalFulfilled).toBe(false);
+    expect(build.report.issues.map(row=>row.code)).toContain('FACTORY_SEMANTIC_MEDIA_COVERAGE');
+    expect(build.report.technicalReady).toBe(false);
+    expect(build.report.productOwnerReady).toBe(false);
+  });
+
+  it('allows semantic internal-reference media for technical QA but not Product Owner readiness',()=>{
+    const recipe=structuredClone(LOOT_VAULT_V2_FACTORY_RECIPE);
+    const assets=structuredClone(recipe.media.assets) as StorefrontTemplateFactoryMediaAsset[];
+    const heroIndex=assets.findIndex(row=>row.semanticRole==='hero-scene');
+    if(heroIndex<0)throw new Error('TEST_HERO_ASSET_MISSING');
+    assets[heroIndex]={
+      ...assets[heroIndex]!,
+      state:'internal-reference',
+      referenceSrc:'https://example.invalid/reference/hero-scene.webp',
+    };
+    recipe.media={...recipe.media,assets};
+
+    const build=compileStorefrontTemplateFactoryPackage({foundation:GAMING_TEMPLATE_FACTORY_FOUNDATION,recipe});
+    expect(build.report.generatorReadiness.mediaPlanning.valid).toBe(true);
+    expect(build.report.generatorReadiness.mediaPlanning.technicalFulfilled).toBe(true);
+    expect(build.report.generatorReadiness.mediaPlanning.readyFulfilled).toBe(false);
+    expect(build.report.issues.map(row=>row.code)).toContain('FACTORY_MEDIA_FINALIZATION_REQUIRED');
+    expect(build.report.technicalReady).toBe(true);
+    expect(build.report.productOwnerReady).toBe(false);
   });
 
   it('enforces atomic media-state promotion and source evidence',()=>{
