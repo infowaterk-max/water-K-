@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-TEMPLATE-GENOME-BRABUS-HARDENING",
   "task": "Evolve the existing Template Factory visual-DNA/recipe authority into one canonical immutable Template Genome contract that becomes the upstream identity and constraint input for later Type System, Constraint Planner, Media Planner, distinctness, lineage and dynamic compiler hardening.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "94082bf1",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
@@ -470,13 +470,16 @@
   },
   "notes": "First Brabus hardening wave selected from the repository dependency graph after #701 revalidation foundation closed green at d6603f0eaef81d2cb34f82fb9c590071d998420c. Genome is upstream of Type System, Constraint Planner, Media Planner, distinctness, lineage and dynamic compiler. Template #3 remains forbidden. Canonical Development Transaction base corrected to current PR/main event base 0cb93c0e30b6a2a1964395ea5fd85525829cd8a3; d6603f0 remains only the prior lifecycle-closure head. Plan projection reconciled against exact-head planned projection: DOMAIN-BUILDER + DOMAIN-QUALITY, builder-template-system + quality-knowledge-system, builder-template-system/shared-storefront/storefront-ui, all applicable SQ-KF-001..024 and TF-KF-001..025, projected negative knowledge excluding SQ-NK-005, guard digest 94082bf1.",
   "lifecycle": {
-    "state": "EXECUTE",
-    "truthStatus": "UNVERIFIED",
-    "verifiedImplementationHead": null,
-    "closedAt": null,
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "deecbdeb20fd7e2f290c41e1275de9d9fe9733fc",
+    "closedAt": "2026-10-02T11:57:01.633Z",
+    "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "PO-2026-10-02-TEMPLATE-GENOME-BRABUS-HARDENING",
     "learning": {
-      "state": "pending"
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
     }
   }
 }
