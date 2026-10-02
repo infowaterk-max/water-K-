@@ -1,31 +1,30 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-SENTINEL-INTEGRITY-DIVERGENCE-CORRELATION",
-  "task": "Extend Sentinel with general integrity divergence correlation across existing Control Plane authorities and evidence.",
-  "status": "closed",
+  "taskId": "DEV-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
+  "task": "Revalidate and harden the existing Template Production stack against the previously approved Maybach-Brabus VX Builder and Template Factory capability target before Template #3 authoring is allowed.",
+  "status": "ready-for-implementation",
   "guardDigest": "efe9d183",
-  "changeBaseSha": "ca7dd6e85e521bca2732590a3a5a8afe3f489ea7",
+  "changeBaseSha": "d34e9ee152205440c553b6b8662c7b14042137d2",
   "plannedFilePatterns": [
-    "scripts/lib/shoperation-sentinel-integrity.mjs",
-    "scripts/shoperation-sentinel-integrity-probe.mjs",
-    "scripts/shoperation-sentinel-scan.mjs",
-    "quality/knowledge/sentinel-policy.v1.json",
-    "quality/knowledge/guard-registry.v1.json",
-    ".github/workflows/shoperation-sentinel.yml",
-    "tests/shoperation-sentinel.test.ts",
-    "tests/shoperation-sentinel-integrity.test.ts"
+    "src/lib/builder/template-factory/production-maturity.ts",
+    "src/lib/builder/template-factory/generator-readiness.ts",
+    "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
+    "scripts/template-factory-quality-gate.mjs",
+    "tests/template-factory-production-maturity.test.ts",
+    "tests/template-factory-generator-readiness.test.ts",
+    "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
-    "release-infrastructure"
+    "builder-template-system",
+    "quality-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-BUILDER",
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "builder-template-system",
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -89,86 +88,88 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-SENTINEL-INTEGRITY-DIVERGENCE",
+    "sourceRef": "PO-2026-10-02-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
     "riskTier": "critical",
-    "problemStatement": "Sentinel currently observes workflow trends, Failure Intake and Deep Atlas attention, but it does not generically correlate contradictions between declared truth, authority, proof semantics, transaction identity, coverage and downstream execution. The just-closed Control Plane repair proved that status laundering, provenance drift, deletion blindness, evidence/workflow disagreement and semantic proof drift can coexist while individual controls look locally valid.",
+    "problemStatement": "The supervisory Control Plane is now materially stronger, but the template-production stack was accepted in earlier, less mature phases. The Product Owner explicitly forbids starting Template #3 until the shared engine set, VX Builder and Template Factory are revalidated against the already approved Maybach-Brabus target and any capability gaps are closed. Existing green tests prove local contracts, not that the complete production system has reached the intended dynamic, reusable and low-manual-rework capability ceiling.",
     "observableOutcomes": [
-      "Sentinel evaluates a normalized integrity model that can report authority, provenance, decision, coverage and proof-semantics divergence without hard-coding one PR or defect number.",
-      "A child BLOCK, failed artifact, stale transaction identity or incomplete coverage can never be interpreted by Sentinel as a healthy integrity state when the surrounding workflow reports success.",
-      "Sentinel correlates the existing Guard Registry and active Completion Contract so unknown evidence references, capability mismatch, scope overclaim and missing proof dimensions become explicit integrity findings.",
-      "Sentinel keeps the existing Deep Atlas authority boundary intact: architecture findings are consumed as existing evidence rather than replaced by a second Atlas or blocking gate.",
-      "The daily Sentinel workflow executes the integrity probe before trend correlation and a missing or UNKNOWN probe remains visible instead of silently producing HEALTHY.",
-      "Sentinel remains observation-only, cannot mutate code, cannot merge, and cannot override Control Plane, Atlas, Failure Intake, Release Risk or Completion Truth authority."
+      "The existing Template Factory / Generator Readiness path gains one canonical production-maturity model; no parallel gate or second Builder/Runtime authority is created.",
+      "Every shared storefront engine E1-E11 and E13 is classified by machine-readable evidence as PROVEN, EVOLVE or RETHINK/UNPROVEN against its intended capability and current proof strength.",
+      "The VX Builder capability profile is explicitly checked for Guarded Freedom workspace, Normal/Advanced/Expert disclosure, Layers, presets, Saved Blocks, Global Elements, Global Styles, responsive inheritance/reset, states/interactions, Design Guard, Publish Readiness, undo/redo and canonical schema-only mutation.",
+      "Previously approved Brabus capabilities that are not yet real implementation—especially Smart Intent / Smart Auto-Fix, Template Genome/DNA authority, Media Planner/Compiler, anti-clone/distinctness intelligence, deterministic lineage and compiler-oriented production planning—remain visibly NOT_READY instead of being inferred from documentation.",
+      "Template Factory readiness distinguishes technically valid 14-page packages from a production system actually ready to author Template #3 with minimal manual code repair.",
+      "Template #3 authoring remains forbidden until the production-maturity result is fully PROVEN and an end-to-end adversarial production rehearsal passes."
     ],
     "unresolvedRisks": [
-      "Daily observation can only correlate evidence that is available on main or normalized into the Sentinel probe; feature-branch defects still rely on the existing change-time Control Plane until merged.",
-      "Generic evidence schemas must avoid guessing semantics from human prose, otherwise broad anomaly detection could create false positive authority conflicts.",
-      "Not every existing guard exposes a JSON artifact or full proof semantics, so missing evidence must remain visible without falsely claiming that every absence is a product defect.",
-      "The integrity probe must stay computationally cheap and deterministic because Sentinel runs daily and must not become a duplicate full CI or Deep Atlas execution."
+      "Some Brabus targets were product-direction decisions rather than completed code contracts; the revalidation must not fabricate implementation evidence from documentation.",
+      "Existing Builder functionality is spread across several generations/components, so capability detection must resolve canonical production authority rather than count duplicate/legacy surfaces.",
+      "A capability may be functionally present but too weak or too template-specific for dynamic production; classification must separate presence from sufficient maturity.",
+      "The revalidation foundation must not accidentally turn deferred full Template Generator automation into an immediate requirement; the compiler target remains staged while the Maybach-Brabus production system itself is mandatory."
     ],
     "scope": {
       "in": [
-        "Existing Shoperation Sentinel scan, policy and scheduled workflow.",
-        "A Sentinel-internal integrity correlator that consumes existing authority declarations and normalized evidence without gaining blocking authority.",
-        "Guard dependency/responsibility coherence, active Completion Contract proof semantics, exact-state provenance, decision monotonicity, deletion visibility and coverage completeness.",
-        "Fail-visible UNKNOWN behavior and adversarial tests for the generic divergence classes exposed by the latest Control Plane repair."
+        "Existing Template Factory Generator Readiness, production contracts and engine-functional proof registry.",
+        "Machine-readable production maturity classification for E1-E13, VX Builder and Template Factory capabilities.",
+        "Current canonical Builder/Runtime evidence and previously approved Maybach-Brabus Product Owner requirements.",
+        "Template #3 readiness barrier expressed through the existing Generator Readiness / Template Factory authority.",
+        "Adversarial proof that documentation-only, legacy-only or weakly-proven capabilities cannot be reported as ready."
       ],
       "out": [
-        "Any new blocking CI gate, release authority, Atlas authority, Failure Intake authority or autonomous repair system.",
-        "Re-running the full Deep Atlas or complete regression suite inside the daily Sentinel workflow.",
-        "Free-text contradiction inference or automatic mutation of rules, code, plans, Known Failures or evidence.",
-        "Product/storefront/template changes unrelated to Sentinel integrity observation."
+        "Authoring or visually designing Template #3.",
+        "Creating a second Template Factory quality gate, second Page Schema, second Storefront Runtime or second Visual Builder.",
+        "Full autonomous Template Generator implementation in this first revalidation block.",
+        "Template-specific visual fixes to Playroom, Loot Vault or another storefront.",
+        "Weakening current quality, responsive, commerce, accessibility or authority contracts merely to classify a capability as ready."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This change observes the self-consistency of the system that decides whether development evidence is trustworthy. The practical ceiling is therefore a normalized, fail-visible correlation layer with adversarial proofs for known contradiction classes, while reusing existing authorities rather than duplicating their decisions or turning Sentinel into another blocker.",
+      "rationale": "The next template-production architecture will become the factory used for the remaining template portfolio. The highest practical assurance is a canonical capability model tied to executable evidence, adversarial false-readiness tests and exact-head Template Factory/Control Plane proof, followed by targeted hardening of every detected gap before any new template starts.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
-        "state-model",
-        "what-if-matrix",
+        "capability-matrix",
+        "evidence-provenance",
         "adversarial-scenarios",
+        "negative-tests",
         "boundary-cases",
         "pairwise-interactions",
-        "threat-failure-model",
         "fault-injection",
-        "finite-state-exhaustion"
+        "end-to-end-rehearsal"
       ],
-      "deferredTechniques": []
+      "deferredTechniques": [
+        "full-autonomous-template-generator"
+      ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "A synthetic parent PASS containing a child BLOCK is reported as an ACTION integrity finding and cannot yield a HEALTHY Sentinel report.",
-        "A workflow success paired with a machine-readable artifact BLOCK is reported as decision laundering rather than accepted as successful evidence.",
-        "Declared base/head provenance that is unresolved or differs from evaluated base/head is reported as transaction identity drift.",
-        "A delete-only material change omitted from an observer change set is reported as deletion visibility drift.",
-        "Coverage truncation or observed coverage smaller than declared expected coverage is reported explicitly and cannot be hidden by a PASS decision.",
-        "Completion Contract evidence references are checked against the existing Guard Registry for guard existence, required capability, proof strength and required dimensions.",
-        "Duplicate blocking responsibility, unknown guard dependency and dependency cycles are reported from the existing Guard Registry without creating another registry.",
-        "Missing or UNKNOWN integrity-probe evidence makes Sentinel REVIEW-visible; it never silently collapses to HEALTHY.",
-        "The scheduled workflow runs the integrity probe and the existing Sentinel scan remains observation-only with autoMutationAllowed=false."
+        "Production maturity is part of the existing Template Factory/Generator Readiness authority rather than a new parallel gate.",
+        "A capability cannot be PROVEN solely because a documentation file says it exists.",
+        "A capability cannot be PROVEN solely because a similarly named legacy or noncanonical Builder component exists.",
+        "E1-E11/E13 engine registry entries expose enough maturity/proof metadata to distinguish contract presence from demonstrated intended behavior.",
+        "VX Builder Brabus baseline reports actual implementation evidence for Guarded Freedom, edit modes, hierarchy/layers, responsive inheritance, presets/blocks/globals, design diagnostics and publication readiness.",
+        "Smart Intent, Smart Auto-Fix, Template Genome/DNA, Media Planner/Compiler, cross-template anti-clone and deterministic lineage cannot silently pass if no executable authority/evidence exists.",
+        "The readiness result explicitly says whether Template #3 authoring is allowed; initial NOT_READY is acceptable and expected when real gaps are found.",
+        "Adversarial tests prove false-ready states are rejected when evidence is removed, downgraded, pointed at documentation only or supplied by a noncanonical authority.",
+        "The exact-head Template Factory Quality Gate and normal CI remain green for the revalidation foundation."
       ],
       "invariants": [
-        "Sentinel observes and correlates authority outputs but never becomes the authority that defines their domain truth.",
-        "Integrity classification is based on structured machine-readable fields and registry contracts, never inferred from human prose.",
-        "Blocking child truth is monotonic for observation: downstream PASS cannot erase BLOCK, FAIL, STALE, UNRESOLVED or UNKNOWN evidence.",
-        "Exact-state provenance is part of evidence identity; a different base, head, branch or state cannot be treated as equivalent without explicit proof.",
-        "Expected coverage and deletions are first-class integrity dimensions; missing observation is not equivalent to absence of change.",
-        "One blocking responsibility has one owner and guard dependency relationships must remain resolvable and acyclic.",
-        "UNKNOWN remains visible and conservative; Sentinel may recommend deeper verification but may not manufacture PASS."
+        "One canonical Page Schema, Component Registry, Storefront Runtime, Visual Builder and Template Factory authority remain in force.",
+        "Guarded Freedom remains the Builder model; arbitrary HTML/CSS/JS and uncontrolled Wix-style freeform are not introduced.",
+        "Desktop is the primary authoring authority; Tablet/Mobile are explicit responsive contexts and overrides, not independent duplicated pages.",
+        "Builder operations mutate canonical schema/configuration only and never become a second commerce/business authority.",
+        "Template DNA/Genome, when implemented, governs identity/constraints and inheritance but never copies concrete media or another template's visual identity.",
+        "Technical validity is not equivalent to production maturity or Product Owner visual acceptance.",
+        "Template #3 remains forbidden until all mandatory production capabilities are PROVEN and the final adversarial rehearsal passes."
       ],
       "forbiddenStates": [
-        "sentinel-hardcoded-pr-defect-detector",
-        "new-parallel-integrity-gate",
-        "child-block-observed-as-healthy",
-        "artifact-block-workflow-success-observed-as-healthy",
-        "transaction-identity-drift-observed-as-fresh",
-        "delete-only-change-disappears-from-observation",
-        "coverage-truncation-observed-as-complete",
-        "proof-capability-or-dimension-drift-observed-as-proven",
-        "missing-integrity-probe-collapses-to-healthy",
-        "sentinel-autonomous-code-or-rule-mutation"
+        "template-3-authoring-before-production-readiness",
+        "documentation-counted-as-executable-proof",
+        "legacy-builder-surface-counted-as-canonical-proof",
+        "parallel-template-factory-gate",
+        "parallel-builder-or-runtime-authority",
+        "generator-readiness-claims-brabus-ready-with-missing-smart-intent-or-genome",
+        "template-dna-copies-existing-template-media-or-visual-identity",
+        "green-local-tests-treated-as-end-to-end-production-proof"
       ]
     },
     "model": {
@@ -200,44 +201,41 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A specialist artifact records BLOCK while the wrapper or workflow reports success and trend-only Sentinel sees a healthy run.",
-        "Two blocking guards accidentally share one responsibility or a guard dependency points to an unknown/cyclic owner.",
-        "A Completion Contract keeps an evidence ID after its Guard Registry proof capability or dimensions change.",
-        "A transaction is evaluated on a different base/head than the evidence metadata claims.",
-        "A delete-only change or truncated Reference Sync candidate set disappears from a downstream observer while decision remains PASS.",
-        "The integrity probe itself fails or is missing and the trend scan interprets lack of evidence as health.",
-        "Architecture drift is reimplemented in Sentinel instead of being consumed from existing Atlas/Deep Atlas authority.",
-        "Development branch noise is promoted to canonical platform-health action without main/scheduled evidence."
+        "Generator Readiness stays green because it verifies 14-page identity and authority wiring but never verifies Brabus production capabilities.",
+        "An engine is registered and tested deterministically but the proof is too narrow for the dynamic behavior expected in real template production.",
+        "Builder documentation names Smart Intent/Auto-Fix while canonical production UI/runtime has no executable implementation.",
+        "Legacy Builder variants make a capability look present even though the canonical production component cannot use it.",
+        "Template-specific patches repeatedly extend shared authority because Template DNA/preset/component grammar is too weak.",
+        "Media generation produces technically valid assets without template-level distinctness, lineage or composition planning.",
+        "A new template passes technical gates yet still needs days of manual inheritance, responsive and visual repair."
       ],
       "edgeCases": [
-        "No active Completion Contract requirement references a guard with detailed proof semantics.",
-        "A referenced guard uses wildcard capability but low scope strength.",
-        "Multiple evidence producers jointly cover required dimensions while no single producer covers all dimensions.",
-        "An evidence record has no child decisions and therefore must not invent a monotonicity conflict.",
-        "Expected deletion set is empty and must not create a false deletion warning.",
-        "Coverage expected and observed counts are equal exactly at a supported implementation bound.",
-        "A nonblocking observation signal depends on a blocking guard and must not become a second blocker.",
-        "Current closed plan verified head is an ancestor of main but later metadata-only commits exist."
+        "Capability exists in code but is dark-launched and not reachable from canonical production Builder.",
+        "Capability is available only in Advanced/Expert and should still count as implemented when Guarded Freedom intentionally hides it in Normal mode.",
+        "One engine has strong unit proof but no browser proof because its intended class is deterministic-runtime; maturity should use proof-class-appropriate evidence.",
+        "E13 is browser/network dependent and must not be downgraded merely because other engines are deterministic.",
+        "Full Template Generator remains deferred while Template Genome and production compiler inputs can still be mandatory.",
+        "A capability has correct implementation but no current regression proof; classify as EVOLVE/UNPROVEN rather than absent."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-SENTINEL-CORRELATOR",
-        "summary": "Extend the existing Sentinel with a normalized integrity correlator and daily probe that reuse current Control Plane authorities.",
+        "id": "ALT-REVALIDATE-EXISTING-FACTORY",
+        "summary": "Extend current Generator Readiness/Template Factory authority with Brabus production maturity and use it to drive hardening.",
         "disposition": "selected",
-        "reason": "It detects cross-authority contradictions at the observation layer without adding a new blocking owner or duplicating Atlas and Completion Truth logic."
+        "reason": "Preserves one production authority and converts prior Product Owner intent into executable readiness without adding another gate."
       },
       {
-        "id": "ALT-NEW-INTEGRITY-GATE",
-        "summary": "Create a new blocking Integrity Gate after the existing Control Plane chain and make it the final release decision.",
+        "id": "ALT-START-TEMPLATE-3",
+        "summary": "Begin the third template and patch Factory/Builder weaknesses as they appear.",
         "disposition": "rejected",
-        "reason": "It would duplicate authority, add another place for rule disagreement, and recreate the exact parallel-gate problem this work is meant to prevent."
+        "reason": "Playroom and Loot Vault already proved this creates expensive repeated manual repair and hides systemic capability gaps."
       },
       {
-        "id": "ALT-HARDCODE-681",
-        "summary": "Teach Sentinel only the concrete pingpong, Reference Sync and proof-semantic symptoms observed in the most recent repair.",
+        "id": "ALT-NEW-BRABUS-GATE",
+        "summary": "Add a separate Brabus quality gate beside Template Factory v2.",
         "disposition": "rejected",
-        "reason": "Concrete signatures would miss the next structurally equivalent defect when filenames, guards or workflows change, leaving detection dependent on manual discovery again."
+        "reason": "Would recreate parallel-rule complexity and contradict the newly hardened Control Plane architecture."
       }
     ],
     "specialistReviews": [
@@ -245,147 +243,128 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Sentinel already owns observation and recommendation, while Atlas, Control Plane and Completion Truth own their respective truth decisions.",
-        "resolution": "Keep integrity work inside SIGNAL-SENTINEL and consume structured authority outputs; do not add another guard or authority node.",
+        "finding": "Current repository already has canonical Page Schema, Runtime, Builder, Template Factory and engine proof registry authorities.",
+        "resolution": "Extend these authorities in place; do not fork them.",
         "evidence": [
-          "docs/architecture/SHOPERATION_SENTINEL.md",
-          "quality/knowledge/guard-registry.v1.json"
+          "src/lib/builder/storefront-runtime.ts",
+          "src/lib/builder/template-factory/generator-readiness.ts",
+          "src/lib/builder/template-factory/engine-functional-proof-registry.ts"
         ]
       },
       {
-        "role": "Data Integrity",
+        "role": "Product System",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Treating a missing probe as clean would recreate evidence laundering because absence of integrity evidence would become implicit PASS.",
-        "resolution": "Model missing or malformed probe evidence as UNKNOWN/REVIEW-visible and reserve HEALTHY for positively evaluated clean integrity evidence.",
+        "finding": "Generator Readiness v0.1 currently proves blueprint/package/14-page/viewport/ownership coherence but does not prove Maybach-Brabus production maturity.",
+        "resolution": "Add capability maturity/evidence semantics to the existing readiness result and make Template #3 readiness explicit.",
         "evidence": [
-          "scripts/shoperation-sentinel-scan.mjs",
-          "quality/knowledge/sentinel-policy.v1.json"
+          "src/lib/builder/template-factory/generator-readiness.ts",
+          "tests/template-factory-generator-readiness.test.ts"
         ]
       },
       {
-        "role": "Runtime",
+        "role": "Builder",
         "mode": "review",
-        "verdict": "pass",
-        "finding": "Running full CI or Deep Atlas again inside Sentinel would be expensive and duplicate existing scheduled verification.",
-        "resolution": "Use a cheap deterministic probe over current registry/plan plus normalized evidence and continue consuming existing Deep Atlas attention separately.",
+        "verdict": "pass-with-gaps",
+        "finding": "Canonical Builder already contains many Maybach foundations—Guarded Freedom UI, Normal/Advanced/Expert, responsive overrides, Layers, Saved Blocks, Globals, Design Guard and Publish Readiness—but Smart Intent is not evidenced as implemented.",
+        "resolution": "Treat existing capabilities as candidates for proof, not assumptions; keep missing Brabus intelligence NOT_READY until implemented.",
         "evidence": [
-          ".github/workflows/shoperation-sentinel.yml",
-          "tests/deep-atlas-scan.test.ts"
+          "src/components/admin/storefront-visual-builder-production.tsx",
+          "src/components/admin/storefront-fidelity-settings.tsx",
+          "docs/VISUAL_BUILDER_FIDELITY_ENGINE.md"
         ]
       },
       {
-        "role": "Known Failure",
+        "role": "Template Production",
         "mode": "review",
-        "verdict": "pass",
-        "finding": "The recurring class is not one pingpong signature but disagreement between evidence identity, decision propagation, coverage and claimed proof semantics.",
-        "resolution": "Adversarial tests target generic structured contradiction classes so future equivalent defects are detected despite different files or guard names.",
+        "verdict": "challenge-resolved",
+        "finding": "Template Factory scaffold already models 14 pages and recipe compilation, while Template Genome/Media Planner/anti-clone/deterministic lineage remain incomplete or not canonicalized.",
+        "resolution": "Use revalidation output to sequence the next hardening waves before Template #3.",
         "evidence": [
-          "tests/shoperation-development-guard.test.ts",
-          "tests/shoperation-proof-semantics.test.ts",
-          "tests/shoperation-resumable-verification.test.ts"
+          "docs/TEMPLATE_FACTORY_SCAFFOLD_V1.md",
+          "src/lib/builder/template-factory/production-contracts.ts"
         ]
       }
     ],
     "challenge": [
       {
         "id": "CH-1",
-        "scenario": "A child guard emits BLOCK but a composite parent record says PASS.",
-        "finding": "Trend-only observation can accept the wrapper status and miss a real internal contradiction.",
-        "resolution": "Integrity correlation inspects structured child decisions and emits status-laundering ACTION evidence.",
+        "scenario": "A docs file claims Smart Intent exists but no canonical executable implementation is found.",
+        "finding": "Name-based/documentation-based readiness can create a false PROVEN capability.",
+        "resolution": "Executable evidence sources must be canonical code/tests/registry contracts; documentation may explain but never satisfy proof alone.",
         "status": "resolved"
       },
       {
         "id": "CH-2",
-        "scenario": "A workflow step is successful while its producer artifact records BLOCK or FAIL.",
-        "finding": "Workflow status is weaker than producer truth and can launder a failed specialist decision.",
-        "resolution": "When both structured decisions exist, disagreement is an explicit decision-integrity finding.",
+        "scenario": "A legacy Builder component has Layers or Publish Readiness while the canonical production Builder does not.",
+        "finding": "Repository-wide string search can misclassify legacy code as production capability.",
+        "resolution": "Capability evidence must name canonical authority surfaces and executable proof producers.",
         "status": "resolved"
       },
       {
         "id": "CH-3",
-        "scenario": "Evidence claims one base or head while the evaluated transaction resolves to another identity.",
-        "finding": "A green proof may describe a different code state than the one actually tested.",
-        "resolution": "Declared and evaluated transaction identities are compared structurally and unresolved explicit identity stays visible.",
+        "scenario": "All 14 pages compile and engine registry validates, but templates still require repeated template-local shared-authority patches.",
+        "finding": "Structural readiness can be green while production maturity is weak.",
+        "resolution": "Production maturity includes reuse, inheritance, dynamic configuration and no-template-local-engine invariants in addition to package validity.",
         "status": "resolved"
       },
       {
         "id": "CH-4",
-        "scenario": "A delete-only change is absent from the observer file set while decision remains PASS.",
-        "finding": "Deletion blindness can jointly hide material change from later evidence consumers.",
-        "resolution": "Integrity records compare declared deleted files with observed material files and report omissions.",
+        "scenario": "An engine's unit tests are green but its expected user journey needs browser/runtime integration that was never exercised.",
+        "finding": "Proof class may be too weak for the capability claim.",
+        "resolution": "Each engine keeps proof-class-specific maturity requirements and any under-proven capability remains EVOLVE/UNPROVEN.",
         "status": "resolved"
       },
       {
         "id": "CH-5",
-        "scenario": "Reference coverage is silently truncated or observed count is lower than expected while the record says PASS.",
-        "finding": "Incomplete proof can masquerade as complete coverage and reproduce silent Reference Sync truncation.",
-        "resolution": "Coverage mismatch or explicit truncation produces an integrity finding independent of the outer PASS label.",
+        "scenario": "Template Genome is introduced by cloning Playroom/Loot Vault style/media values.",
+        "finding": "A genome could become an anti-pattern that spreads template identity rather than reusable grammar.",
+        "resolution": "Genome authority may inherit grammar/constraints only; concrete media and visual identity are exclusion-controlled and distinctness-checked.",
         "status": "resolved"
       },
       {
         "id": "CH-6",
-        "scenario": "A Completion Contract references a guard whose capabilities, strength or dimensions no longer prove the claim.",
-        "finding": "Registry evolution can make previously valid evidence semantically stale without changing the evidence ID.",
-        "resolution": "Sentinel correlates current Guard Registry proof semantics against active claim scope and reports semantic drift.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-7",
-        "scenario": "Guard dependencies form a cycle or reference a missing guard after registry edits.",
-        "finding": "Execution ordering becomes contradictory even though every guard entry may be locally well formed.",
-        "resolution": "Sentinel performs a registry graph coherence correlation and reports missing nodes or cycles without owning the graph.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-8",
-        "scenario": "The integrity probe cannot run or its report is missing on a day with otherwise successful workflows.",
-        "finding": "No evidence could be misread as no problem, recreating a false HEALTHY state.",
-        "resolution": "The scan treats missing, malformed or UNKNOWN integrity evidence as REVIEW-visible and recommends deeper verification.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-9",
-        "scenario": "Deep Atlas already reports architecture drift and Sentinel independently reimplements the same classifier.",
-        "finding": "Two architecture authorities could disagree and produce another pingpong source.",
-        "resolution": "Sentinel consumes existing Deep Atlas attention and keeps the new correlator focused on cross-evidence integrity, not architecture reclassification.",
+        "scenario": "Production maturity becomes another blocker separate from Template Factory.",
+        "finding": "Two authorities can disagree and recreate ping-pong.",
+        "resolution": "Maturity is nested inside existing Generator Readiness / GUARD-TEMPLATE-FACTORY evidence and has no independent blocking owner.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Create the normalized Sentinel integrity evaluator as a pure module and adversarially test each contradiction class with synthetic structured evidence.",
-      "Add a daily integrity probe that reads the existing Guard Registry and active Development Plan, producing observation evidence without mutating either authority.",
-      "Correlate Completion Contract evidence references with current guard proof semantics and prove missing capability, insufficient strength and missing dimensions remain visible.",
-      "Prove child BLOCK versus parent PASS and artifact BLOCK versus workflow success both yield action-level integrity findings.",
-      "Prove transaction base/head mismatch, deletion omission and coverage truncation are detected without relying on concrete PR numbers or filenames.",
-      "Prove duplicate blocking responsibility, unknown guard dependency and dependency cycles are detected from the existing registry structure.",
-      "Wire the probe into the existing Shoperation Sentinel schedule and make missing/UNKNOWN probe evidence produce REVIEW rather than HEALTHY.",
-      "Retain existing main/development scope classification so iterative feature failures alone do not become canonical ACTION_REQUIRED.",
-      "Run Sentinel tests plus full Quality, TypeScript and Production Build on the exact branch head before Completion Truth and lifecycle closure."
+      "Define a canonical production-maturity capability contract inside Template Factory, with explicit evidence provenance and PROVEN/EVOLVE/RETHINK/NOT_IMPLEMENTED states.",
+      "Bind E1-E11/E13 registry definitions to maturity expectations without changing their business authority.",
+      "Add VX Builder capability evidence mapping against canonical production surfaces and executable regression tests.",
+      "Add Brabus future-capability declarations for Smart Intent/Auto-Fix, Template Genome/DNA, Media Planner/Compiler, distinctness/anti-clone and lineage so absent implementation remains visible.",
+      "Extend Generator Readiness to expose production maturity and an explicit Template #3 authoring decision.",
+      "Add adversarial tests for docs-only evidence, legacy-only evidence, proof-strength downgrade and missing mandatory capability.",
+      "Wire the result into the existing Template Factory quality artifact rather than creating another workflow/gate.",
+      "Run exact-head CI and Template Factory Quality Gate v2; only then close this foundation and proceed to targeted EVOLVE/RETHINK implementation waves."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-SENTINEL-INTEGRITY-DIVERGENCE",
+      "request": "PO-2026-10-02-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
       "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
+        "builder-template-system",
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        "scripts/shoperation-sentinel-scan.mjs",
-        "quality/knowledge/sentinel-policy.v1.json",
-        "quality/knowledge/guard-registry.v1.json",
-        ".github/workflows/shoperation-sentinel.yml",
-        "tests/shoperation-sentinel.test.ts"
+        "src/lib/builder/template-factory/generator-readiness.ts",
+        "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
+        "scripts/template-factory-quality-gate.mjs",
+        "tests/template-factory-generator-readiness.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "quality/development/active-plan.json",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/lib/shoperation-development-runtime.mjs",
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
+        "src/lib/builder/storefront-runtime.ts",
+        "src/components/admin/storefront-visual-builder-production.tsx",
+        "src/components/admin/storefront-fidelity-settings.tsx",
+        "src/lib/builder/storefront-fidelity-engine.ts",
+        "src/lib/builder/template-factory/production-contracts.ts",
+        "docs/TEMPLATE_FACTORY_SCAFFOLD_V1.md",
+        "docs/VISUAL_BUILDER_FIDELITY_ENGINE.md"
       ],
       "proof": [
-        "tests/shoperation-sentinel.test.ts",
-        "tests/shoperation-sentinel-integrity.test.ts"
+        "tests/template-factory-generator-readiness.test.ts",
+        "tests/template-factory-production-maturity.test.ts"
       ],
       "unknown": []
     },
@@ -393,49 +372,14 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-SENTINEL-INTEGRITY-DIVERGENCE",
+    "sourceRef": "PO-2026-10-02-TEMPLATE-PRODUCTION-BRABUS-REVALIDATION",
     "requirements": [
       {
-        "id": "REQ-SENTINEL-INTEGRITY-CORRELATION",
-        "requirement": "Sentinel detects structured cross-authority integrity divergence without hard-coded defect identities or a new blocking authority.",
+        "id": "REQ-BRABUS-MATURITY-MODEL",
+        "requirement": "Existing Template Factory/Generator Readiness exposes an evidence-bound Maybach-Brabus production-maturity model without adding a parallel gate.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "sentinel-integrity-correlation",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "truth",
-            "freshness",
-            "coverage"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-SENTINEL-STATUS-LAUNDERING",
-            "statement": "Child BLOCK, artifact BLOCK, stale identity or incomplete coverage cannot be observed as clean integrity.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-SENTINEL-PROOF-SEMANTICS",
-        "requirement": "Sentinel correlates active Completion Contract claims with current Guard Registry capabilities, strength and proof dimensions.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "sentinel-proof-semantics-correlation",
+          "breadth": "template-production-maturity",
           "strength": 2,
           "dimensions": [
             "claim-scope",
@@ -452,29 +396,31 @@
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-TEMPLATE-FACTORY"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SENTINEL-PROOF-DRIFT",
-            "statement": "Unknown evidence IDs or semantic proof drift cannot silently remain HEALTHY.",
+            "id": "NEG-PARALLEL-BRABUS-GATE",
+            "statement": "No second Template Factory/Builder/Runtime blocking authority is introduced.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-QUALITY-TESTS",
+              "GUARD-TEMPLATE-FACTORY"
             ]
           }
         ]
       },
       {
-        "id": "REQ-SENTINEL-UNKNOWN-VISIBILITY",
-        "requirement": "Missing, malformed or UNKNOWN integrity-probe evidence remains operator-visible and never collapses into a HEALTHY daily Sentinel state.",
+        "id": "REQ-BRABUS-FALSE-READY",
+        "requirement": "Documentation-only, legacy-only, missing or under-strength capability evidence cannot produce Template #3 readiness.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "sentinel-fail-visible-observation",
+          "breadth": "template-production-false-readiness",
           "strength": 2,
           "dimensions": [
             "status",
-            "freshness",
+            "truth",
+            "coverage",
             "limitations"
           ]
         },
@@ -491,8 +437,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SENTINEL-MISSING-PROBE-HEALTHY",
-            "statement": "A missing or UNKNOWN integrity probe cannot produce HEALTHY.",
+            "id": "NEG-TEMPLATE3-FALSE-READY",
+            "statement": "Template #3 authoring cannot be reported ready while any mandatory Brabus capability is unproven.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -500,15 +446,16 @@
         ]
       },
       {
-        "id": "REQ-SENTINEL-INTEGRITY-BUILD",
-        "requirement": "The Sentinel integrity extension typechecks and production-builds on the exact implementation head without changing blocking authority.",
+        "id": "REQ-BRABUS-FACTORY-PROOF",
+        "requirement": "The revalidation foundation passes the existing Template Factory Quality Gate on the exact implementation head.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "sentinel-type-build",
-          "strength": 1,
+          "breadth": "template-factory-exact-head",
+          "strength": 2,
           "dimensions": [
-            "types",
-            "build"
+            "runtime",
+            "browser",
+            "template-factory"
           ]
         },
         "requiredCapabilities": [
@@ -519,15 +466,15 @@
             "GUARD-TYPECHECK"
           ],
           "outcome": [
-            "GUARD-PRODUCTION-BUILD"
+            "GUARD-TEMPLATE-FACTORY"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SENTINEL-INTEGRITY-BUILD",
-            "statement": "No type or production build regression is introduced by the Sentinel integrity extension.",
+            "id": "NEG-BRABUS-FACTORY-REGRESSION",
+            "statement": "No current Template Factory, Runtime or Builder regression is introduced.",
             "evidence": [
-              "GUARD-TYPECHECK",
+              "GUARD-TEMPLATE-FACTORY",
               "GUARD-PRODUCTION-BUILD"
             ]
           }
@@ -535,18 +482,5 @@
       }
     ]
   },
-  "notes": "Follow-up after the closed #681 Control Plane coherence repair. This transaction strengthens the existing Sentinel observation layer so newly introduced integrity divergence is discovered automatically where structured evidence exists. It does not create a new gate or autonomous repair authority. Plan-only CI derived projected subsystems quality-infrastructure + release-infrastructure and canonical guard digest efe9d183. New planned files are intentionally not placed in semantic MUST_EDIT before they exist in Atlas; they remain explicit plannedFilePatterns and will become actual tracked files during implementation.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "2c70ad1b69f1c339c910b3715b4d15f27a8b265d",
-    "closedAt": "2026-10-02T09:32:59.136Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-SENTINEL-INTEGRITY-DIVERGENCE",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Program foundation for the next major template-production development stage. Product Owner authority: do not begin Template #3 until shared engines, VX Builder and Template Factory reach proven production readiness under the previously agreed Maybach-Brabus target."
 }
