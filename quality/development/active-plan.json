@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-GENOME-BRABUS-HARDENING",
   "task": "Evolve the existing Template Factory visual-DNA/recipe authority into one canonical immutable Template Genome contract that becomes the upstream identity and constraint input for later Type System, Constraint Planner, Media Planner, distinctness, lineage and dynamic compiler hardening.",
   "status": "ready-for-implementation",
-  "guardDigest": "5629f201",
+  "guardDigest": "94082bf1",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
     "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
@@ -24,13 +24,16 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "shared-storefront"
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER"
+    "DOMAIN-BUILDER",
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "builder-template-system"
+    "builder-template-system",
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -38,7 +41,10 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -47,9 +53,13 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -82,7 +92,6 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -274,7 +283,7 @@
         ]
       },
       {
-        "role": "Runtime / Integration",
+        "role": "Runtime",
         "mode": "review",
         "verdict": "challenge-resolved",
         "finding": "Genome lineage will be consumed by Factory output and later Builder/compiler layers, so it must not become runtime commerce truth or duplicate Page Schema.",
@@ -459,7 +468,7 @@
       }
     ]
   },
-  "notes": "First Brabus hardening wave selected from the repository dependency graph after #701 revalidation foundation closed green at d6603f0eaef81d2cb34f82fb9c590071d998420c. Genome is upstream of Type System, Constraint Planner, Media Planner, distinctness, lineage and dynamic compiler. Template #3 remains forbidden. Canonical Development Transaction base corrected to current PR/main event base 0cb93c0e30b6a2a1964395ea5fd85525829cd8a3; d6603f0 remains only the prior lifecycle-closure head.",
+  "notes": "First Brabus hardening wave selected from the repository dependency graph after #701 revalidation foundation closed green at d6603f0eaef81d2cb34f82fb9c590071d998420c. Genome is upstream of Type System, Constraint Planner, Media Planner, distinctness, lineage and dynamic compiler. Template #3 remains forbidden. Canonical Development Transaction base corrected to current PR/main event base 0cb93c0e30b6a2a1964395ea5fd85525829cd8a3; d6603f0 remains only the prior lifecycle-closure head. Plan projection reconciled against exact-head planned projection: DOMAIN-BUILDER + DOMAIN-QUALITY, builder-template-system + quality-knowledge-system, builder-template-system/shared-storefront/storefront-ui, all applicable SQ-KF-001..024 and TF-KF-001..025, projected negative knowledge excluding SQ-NK-005, guard digest 94082bf1.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
