@@ -1,6 +1,6 @@
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
-import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,classifyAtlasPath,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
+import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,classifyAtlasPath,resolveAtlasArchitectureForPath,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
 import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
 
 const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
@@ -53,11 +53,12 @@ const projectedScope=resolveDevelopmentScope({files:projectedFiles,task:plan.tas
 const expectedFailures=[...(plan.expectedKnownFailureIds??[])].sort();
 const projectedFailures=[...projectedScope.activeFailureIds].sort();
 
-const domainsFor=files=>[...new Set(files.flatMap(file=>atlasNodes.get(file)?.domains??classifyAtlasPath(file).domains))].sort();
+const architectureFor=file=>resolveAtlasArchitectureForPath(atlas,file,{tombstones:deletedFiles,executionRoute:generatedExecutionRoute});
+const domainsFor=files=>[...new Set(files.flatMap(file=>architectureFor(file).pathDerived.domains))].sort();
 const authoritiesFor=domains=>[...new Set(domains.map(id=>atlas.domainIndexDefinition?.[id]?.owner).filter(Boolean))].sort();
 const unresolvedFor=files=>files.filter(file=>{
   if(scopePolicy.knowledgeInfrastructurePrefixes.some(prefix=>file.startsWith(prefix))||isNeutralFile(file))return false;
-  return !((atlasNodes.get(file)?.domains??classifyAtlasPath(file).domains).length);
+  return !architectureFor(file).resolved;
 });
 
 const actualDomains=domainsFor(changedFiles);
@@ -129,6 +130,10 @@ const report={
     projected:{directDomains:projectedDomains,directAuthorities:projectedAuthorities,unresolvedFiles:projectedUnresolved},
     atlasContract:atlas.contract,
     semanticExecutionRoute:generatedExecutionRoute,
+    tombstoneArchitecture:{
+      actual:changedFiles.filter(file=>deletedFiles.includes(file)).map(file=>architectureFor(file)),
+      projected:projectedFiles.filter(file=>deletedFiles.includes(file)).map(file=>architectureFor(file)),
+    },
     applicablePoInstructionIds:expectedInstructionIds,
   },
   guardDigest:digest,
