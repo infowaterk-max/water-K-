@@ -1,10 +1,10 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-PLANNED-DELETION-AUTHORIZATION",
-  "task": "Semantic Execution Intelligence: authorize explicit PO-governed planned route deletion before code while preserving Git D as mandatory completion proof.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-PLANNED-ARCHITECTURE-PROJECTION",
+  "task": "Semantic Execution Intelligence: project explicit planned file additions and canonical domain ownership changes before implementation without treating plan intent as actual architecture evidence.",
+  "status": "ready-for-implementation",
   "guardDigest": "aa79c504",
-  "changeBaseSha": "2860a9bda9bc151d61fc18917021ea7414bc5acf",
+  "changeBaseSha": "6ddc62fbac729d593cda0c7fcbbf386062a89b45",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
@@ -77,35 +77,36 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-PLANNED-DELETION-AUTHORIZATION",
+    "sourceRef": "PO-2026-10-02-PLANNED-ARCHITECTURE-PROJECTION",
     "riskTier": "critical",
-    "problemStatement": "PR #666 current-main plan-only replay proves a phase-semantics gap: Plan Before Code can resolve a PO-forbidden legacy route only after Git D already exists, so it cannot authorize the deletion before implementation. Authorization and completion evidence are conflated. Planned projection must be able to model an explicit PO-governed planned deletion, while actual-diff/Edit-Time/Truth must still require real Git deletion and must not accept mere plan intent as completion.",
+    "problemStatement": "PR #666 plan-only replay after #678 now correctly authorizes the planned deletion, but still cannot prove storefront scope for live/new files whose canonical ownership is itself part of the planned domain-foundations edit. The Plan Gate evaluates current registry state only, so planned architecture changes are invisible before code. Planned authorization must be represented separately from actual registry evidence, exactly as planned deletion authorization is distinct from Git D completion proof.",
     "observableOutcomes": [
-      "Plan Before Code can authorize an explicitly declared planned deletion when the exact static route is forbidden by an active Product Owner instruction and the file is inside the planned transaction.",
-      "Planned deletion authority is represented separately from Git tombstone evidence and never appears as a completed tombstone.",
-      "Actual-diff architecture resolution does not use planned intent as completion evidence; until Git D exists the live forbidden route remains subject to normal fail-closed enforcement.",
-      "Unrelated, non-forbidden, dynamic/wildcard, or undeclared paths cannot gain planned-deletion authorization."
+      "Plan Before Code includes explicit planned additions in projectedFiles even when they do not yet exist in the repository.",
+      "An exact planned canonical ownership declaration can resolve projected domain/authority only when the canonical domain registry is itself inside the planned transaction and the referenced domain/owner already exists.",
+      "Projected ownership is exposed separately from current path-derived ownership and never mutates or masquerades as the actual Atlas.",
+      "Actual-diff validation ignores projected ownership and requires the implemented domain registry/current Atlas to resolve the file."
     ],
     "unresolvedRisks": [
-      "Treating planned intent as completed deletion would create a false PASS.",
-      "A generic planned-deletion list could become an architecture bypass unless intersected with active PO forbidden static-route authority.",
-      "Using planned deletion authority during actual-diff validation could hide an implementation that never removed the forbidden route."
+      "Using expectedDomains as implicit ownership would make plan metadata a broad architecture bypass.",
+      "Allowing globs or unknown domains in projected ownership could authorize uncontrolled future files.",
+      "Applying projected ownership to actual-diff validation could hide a missing domain-foundations implementation."
     ],
     "scope": {
       "in": [
-        "Existing Plan Before Code planned-projection semantics.",
-        "Existing Semantic Execution Route / Atlas architecture resolution for PO-governed static forbidden routes.",
-        "Regression coverage distinguishing planned authorization from Git-proven tombstone completion."
+        "Existing Semantic Execution Route planned-file projection.",
+        "Existing Plan Before Code projectedFiles and architecture scope evaluation.",
+        "Exact planned canonical ownership declarations tied to the existing domain-foundations authority.",
+        "Adversarial regression proving projection-only authority cannot satisfy actual completion."
       ],
       "out": [
-        "Storefront shipping/payment implementation in PR #666.",
-        "New gate, registry, exception system, or canonical domain ownership for the forbidden legacy route.",
-        "Weakening Edit-Time, PO instruction enforcement, Truth Gate, or Git D completion proof."
+        "Shipping/payment product implementation in PR #666.",
+        "New gate, new architecture registry, or automatic domain ownership inference from expectedDomains.",
+        "Weakening actual Atlas validation, Edit-Time Guard, Truth Gate, or canonical domain registry requirements."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This is a critical phase-boundary defect in a fail-closed pre-execution gate. The highest practical fix is an explicit planned-deletion state derived from the existing plan plus active PO instruction, kept semantically distinct from Git tombstone proof and adversarially tested against false completion and unrelated deletions.",
+      "rationale": "This is a pre-execution architecture-proof gap. The highest practical correction is a phase-aware projected architecture overlay constrained by exact file paths, an already-existing domain/owner, and an explicitly planned canonical registry edit, while actual-diff remains grounded only in implemented Atlas evidence.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -122,25 +123,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "A declared planned deletion of src/app/szallitas-es-fizetes/page.tsx is authorized in planned projection only when PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE is active and forbids /szallitas-es-fizetes.",
-        "Planned authorization exposes distinct provenance/state and does not populate Git tombstone evidence.",
-        "The same path in actual-diff mode without Git D is not considered a completed instruction-governed tombstone.",
-        "An unrelated planned deletion or a dynamic/wildcard forbidden route remains unresolved.",
-        "When Git D exists, the existing tombstone path and completion semantics remain unchanged."
+        "A concrete planned addition listed in semanticExecutionRoute.plannedAdditions participates in projectedFiles before it exists.",
+        "A concrete planned ownership mapping resolves projected scope only if its domain exists, owner matches the domain authority, target file is inside the plan envelope, and quality/knowledge/domain-foundations.v1.json is planned for modification.",
+        "Current pathDerived ownership remains unchanged and projected ownership is reported separately.",
+        "Actual-diff scope uses actual Atlas ownership only and does not consume the projection overlay.",
+        "Unknown domains, wrong owners, wildcard paths, out-of-plan targets, and ownership declarations without a planned domain registry edit remain blocked."
       ],
       "invariants": [
-        "Planned intent is authorization, never completion evidence.",
-        "Git D remains mandatory for tombstone completion.",
-        "Only exact active forbidden static routes may be planned-deletion-authorized.",
-        "The planned path must be declared in the current plan transaction.",
-        "No canonical domain ownership is added to the forbidden legacy route."
+        "Projected architecture is authorization, never implemented architecture evidence.",
+        "Actual Atlas remains the canonical completion authority.",
+        "Projected ownership paths are exact concrete repository paths, never globs.",
+        "Domain and owner must already be canonical identities in the domain registry.",
+        "The canonical domain registry file must be part of the planned transaction before projection authority exists."
       ],
       "forbiddenStates": [
-        "planned-intent-counted-as-git-deletion",
-        "generic-planned-deletion-architecture-bypass",
-        "actual-diff-resolved-by-plan-intent-without-git-d",
-        "inactive-instruction-authorizes-planned-deletion",
-        "dynamic-route-mapped-as-static-planned-deletion"
+        "expected-domain-implies-ownership",
+        "glob-planned-ownership",
+        "unknown-domain-planned-ownership",
+        "projected-ownership-used-for-actual-diff",
+        "planned-addition-omitted-from-projected-scope"
       ]
     },
     "model": {
@@ -172,38 +173,39 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Plan-only work deadlocks because deletion proof is required before implementation authorization.",
-        "Planned deletion is mistakenly treated as completed tombstone.",
-        "An unrelated path gains deletion authorization from a broad matcher.",
-        "Actual implementation keeps the forbidden route but passes because the plan promised deletion."
+        "A valid architecture-changing task deadlocks because planned ownership cannot be represented before editing the registry.",
+        "A self-asserted domain in expectedDomains silently authorizes arbitrary paths.",
+        "A planned new file is absent from projectedFiles and escapes pre-execution architecture review.",
+        "Actual implementation omits the registry update but passes by reusing projected intent."
       ],
       "edgeCases": [
-        "Plan-only projection with active exact forbidden static route.",
-        "Same plan after implementation with real Git D.",
-        "Declared planned deletion unrelated to any PO instruction.",
-        "Inactive PO instruction.",
-        "Dynamic or wildcard forbidden route.",
-        "File declared for deletion but still live during actual-diff validation."
+        "Existing live file gains canonical ownership in the same transaction.",
+        "New file plus planned ownership before file creation.",
+        "Exact path declaration with unknown domain.",
+        "Exact path declaration with wrong owner.",
+        "Wildcard path declaration.",
+        "Registry file not planned.",
+        "Actual diff after code but registry update omitted."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-PHASE-AWARE-PLANNED-DELETION",
-        "summary": "Add explicit planned-deletion authorization to planned projection while preserving Git tombstone proof for actual completion.",
+        "id": "ALT-EXPLICIT-PROJECTED-OWNERSHIP",
+        "summary": "Add exact projected additions/ownership to the existing Semantic Execution plan model.",
         "disposition": "selected",
-        "reason": "Separates authorization from evidence without weakening fail-closed completion semantics."
+        "reason": "Preserves plan-before-code ordering while separating authorization from implementation evidence."
       },
       {
-        "id": "ALT-REQUIRE-GIT-D-BEFORE-PLAN",
-        "summary": "Keep current behavior and require deletion before Plan Before Code can pass.",
+        "id": "ALT-PREMERGE-DOMAIN-REGISTRY",
+        "summary": "Pre-merge the product-specific domain registry changes only to make the plan pass.",
         "disposition": "rejected",
-        "reason": "Violates plan-before-code ordering and makes valid deletion work impossible to authorize pre-execution."
+        "reason": "Would move product architecture implementation ahead of its own validated plan and hide the capability gap."
       },
       {
-        "id": "ALT-GENERIC-PLAN-DECLARATION-BYPASS",
-        "summary": "Treat any path named in the plan as architecture-resolved.",
+        "id": "ALT-INFER-FROM-EXPECTED-DOMAINS",
+        "summary": "Assign unresolved planned files from expectedDomains.",
         "disposition": "rejected",
-        "reason": "Would turn plan metadata into a broad architecture bypass."
+        "reason": "Ambiguous and unsafe; expected scope is not file ownership authority."
       }
     ],
     "specialistReviews": [
@@ -211,29 +213,29 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Authorization state and completion state must be distinct.",
-        "resolution": "Introduce planned-deletion provenance/state only for planned projection; retain Git tombstone semantics unchanged.",
+        "finding": "Projected authority and actual authority must remain distinct objects.",
+        "resolution": "Return projected ownership separately and use it only in planned-projection calculations.",
         "evidence": [
-          "scripts/shoperation-plan-before-code.mjs",
-          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+          "scripts/shoperation-plan-before-code.mjs"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A plan declaration alone is self-asserted and cannot prove deletion.",
-        "resolution": "Intersect planned declaration with active PO forbidden static-route authority, and never expose it as Git tombstone evidence.",
+        "finding": "Self-declared ownership can become a bypass.",
+        "resolution": "Require exact path, existing canonical domain+owner, target inside plan, and planned edit to quality/knowledge/domain-foundations.v1.json.",
         "evidence": [
-          "quality/knowledge/po-instructions.v1.json"
+          "quality/knowledge/domain-foundations.v1.json"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The fix must not reopen generic deleted-file architecture bypasses.",
-        "resolution": "Add negative controls for unrelated/deactivated/dynamic planned deletions and preserve existing tombstone tests.",
+        "finding": "Actual diff must fail if the promised registry change is not implemented.",
+        "resolution": "Actual architecture resolver receives no projected ownership and regression asserts unresolved actual state.",
         "evidence": [
           "tests/shoperation-semantic-execution-intelligence.test.ts"
         ]
@@ -242,8 +244,8 @@
         "role": "Runtime",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Actual diff must not inherit planned-only authorization after edits begin.",
-        "resolution": "Use phase-specific architecture resolution: planned authorization for projected scope, Git-evidence-only resolution for actual scope.",
+        "finding": "New files must participate in projected scope before creation.",
+        "resolution": "Add explicit plannedAdditions to execution-route projected matching and Plan Gate projectedFiles.",
         "evidence": [
           "scripts/shoperation-plan-before-code.mjs"
         ]
@@ -252,76 +254,76 @@
     "challenge": [
       {
         "id": "CH-1",
-        "scenario": "Plan-only #666 declares removal of /szallitas-es-fizetes before any Git D exists.",
-        "finding": "Current Plan Gate deadlocks on ARCHITECTURE_SCOPE_UNRESOLVED.",
-        "resolution": "Allow exact PO-governed planned deletion in planned projection.",
+        "scenario": "Existing /oldal/[slug] is planned to gain storefront ownership via domain-foundations edit.",
+        "finding": "Current registry cannot prove the future ownership.",
+        "resolution": "Use exact projected ownership only during planned projection.",
         "status": "resolved"
       },
       {
         "id": "CH-2",
-        "scenario": "The same route is still live after unrelated implementation edits.",
-        "finding": "Plan intent must not count as completed removal.",
-        "resolution": "Actual-diff architecture uses Git tombstones only; planned authorization is projection-only.",
+        "scenario": "New /szallitas file does not exist yet.",
+        "finding": "Current projectedFiles omits it.",
+        "resolution": "Explicit plannedAdditions become projected execution-route files.",
         "status": "resolved"
       },
       {
         "id": "CH-3",
-        "scenario": "A developer declares deletion of an unrelated unowned route.",
-        "finding": "Plan metadata could become a bypass.",
-        "resolution": "Require exact intersection with an active forbidden static route from durable PO authority.",
+        "scenario": "Plan names DOMAIN-STOREFRONT but no file mapping.",
+        "finding": "Expected scope alone is ambiguous.",
+        "resolution": "Do not infer ownership from expectedDomains; require exact path mapping.",
         "status": "resolved"
       },
       {
         "id": "CH-4",
-        "scenario": "The PO instruction is inactive.",
-        "finding": "Historical intent must not authorize new deletion work.",
-        "resolution": "Only lifecycle=active instructions participate.",
+        "scenario": "Plan maps a file to UNKNOWN-DOMAIN.",
+        "finding": "Could mint fake authority.",
+        "resolution": "Require domain to exist in current domainIndexDefinition.",
         "status": "resolved"
       },
       {
         "id": "CH-5",
-        "scenario": "Forbidden state is dynamic or wildcard route.",
-        "finding": "It cannot map safely to one filesystem page.",
-        "resolution": "Reuse staticRouteFile fail-closed rejection.",
+        "scenario": "Plan supplies wrong owner for a real domain.",
+        "finding": "Could split domain and authority truth.",
+        "resolution": "Owner must equal current canonical domain owner.",
         "status": "resolved"
       },
       {
         "id": "CH-6",
-        "scenario": "Planned path is not inside plannedFilePatterns / semantic mustEdit.",
-        "finding": "Out-of-transaction deletion could be silently authorized.",
-        "resolution": "Require planned declaration to be inside the current plan envelope and generated execution route.",
+        "scenario": "Plan maps src/app/** as projected ownership.",
+        "finding": "Broad future-file authority is unsafe.",
+        "resolution": "Reject wildcard/glob ownership paths.",
         "status": "resolved"
       },
       {
         "id": "CH-7",
-        "scenario": "Git D later appears for the exact route.",
-        "finding": "Planned state must converge to existing tombstone semantics without a second authority model.",
-        "resolution": "Git tombstone remains canonical completion evidence and supersedes planned-only state.",
+        "scenario": "Plan declares ownership but does not edit domain-foundations.",
+        "finding": "No implementation path exists for the claim.",
+        "resolution": "Projection authority requires domain-foundations inside plannedFilePatterns/semantic mustEdit.",
         "status": "resolved"
       },
       {
         "id": "CH-8",
-        "scenario": "Plan declares deletion but implementation instead edits the route and keeps it alive.",
-        "finding": "A false completion PASS would be catastrophic.",
-        "resolution": "Edit-Time PO forbidden-state enforcement and actual architecture resolution remain live-state/Git-evidence based; planned intent cannot satisfy them.",
+        "scenario": "Implementation edits target files but omits registry changes.",
+        "finding": "Projected intent must not produce completion PASS.",
+        "resolution": "Actual-diff resolver ignores projected ownership and stays unresolved until real Atlas reflects the registry edit.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run plan-only Plan Before Code on this Control Plane change before implementation.",
-      "Unit-test planned PO-governed static deletion authorization with no Git D and assert distinct planned state.",
-      "Negative-control unrelated, inactive, dynamic and actual-diff-without-Git-D cases.",
-      "Preserve existing Git-proven tombstone tests and require them to remain PASS.",
-      "Run exact-head Edit-Time, Incremental Replay, Quality, TypeScript, Production Build and Completion Truth; CLOSE→LEARN before merge.",
-      "After merge replay PR #666 plan-only unchanged in product intent and require Plan Before Code PASS before storefront implementation replay."
+      "Require this PR plan-only Plan Before Code PASS before implementation.",
+      "Add unit regressions for exact projected existing-file ownership and planned new-file projection.",
+      "Negative-control unknown domain, wrong owner, glob path, missing registry edit, and actual-diff without implemented ownership.",
+      "Preserve planned-deletion/Git-tombstone regressions from #678/#675.",
+      "Run exact-head Edit-Time, Incremental Replay, Quality, TypeScript, Production Build and Truth; CLOSE→LEARN before merge.",
+      "After merge replay #666 with plannedAdditions and exact planned ownership declarations; require plan-only PASS before product replay."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-PLANNED-DELETION-AUTHORIZATION",
+      "request": "PO-2026-10-02-PLANNED-ARCHITECTURE-PROJECTION",
       "authority": [
         "semantic-execution-route",
-        "po-instruction-authority",
-        "plan-before-code"
+        "plan-before-code",
+        "canonical-domain-registry"
       ],
       "mustEdit": [
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
@@ -331,7 +333,6 @@
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "quality/knowledge/po-instructions.v1.json",
         "quality/knowledge/domain-foundations.v1.json"
       ],
       "proof": [
@@ -342,22 +343,26 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-PLANNED-DELETION-AUTHORIZATION",
+    "sourceRef": "PO-2026-10-02-PLANNED-ARCHITECTURE-PROJECTION",
     "requirements": [
       {
-        "id": "REQ-PLANNED-DELETION-AUTHORIZATION",
-        "requirement": "Plan Before Code authorizes only exact active-PO-governed planned static route deletion without representing it as completed Git tombstone evidence.",
+        "id": "REQ-PLANNED-ARCHITECTURE-PROJECTION",
+        "requirement": "Plan Before Code projects only exact authorized planned additions and canonical ownership changes while preserving actual Atlas as completion authority.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "planned-deletion-authorization",
+          "breadth": "planned-architecture-projection",
           "strength": 2,
           "dimensions": [
             "scope",
             "authority",
+            "positive-state",
             "forbidden-state",
             "regression"
           ]
         },
+        "requiredCapabilities": [
+          "CAP-ATLAS"
+        ],
         "evidence": {
           "implementation": [
             "GUARD-PLAN-BEFORE-CODE",
@@ -370,27 +375,24 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PLANNED-AS-COMPLETED",
-            "statement": "Planned intent may not be reported as Git-proven deletion or satisfy actual-diff completion.",
+            "id": "NEG-PROJECTED-AS-ACTUAL",
+            "statement": "Projected ownership may not satisfy actual-diff architecture completion.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-GENERIC-PLANNED-BYPASS",
-            "statement": "Unrelated/inactive/dynamic planned deletions must remain unresolved.",
+            "id": "NEG-GENERIC-OWNERSHIP-BYPASS",
+            "statement": "Unknown/wrong/glob/out-of-plan ownership declarations must remain blocked.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           }
-        ],
-        "requiredCapabilities": [
-          "CAP-ATLAS"
         ]
       },
       {
-        "id": "REQ-PLANNED-DELETION-BUILD",
-        "requirement": "The phase-aware Semantic Execution/Plan Gate change passes exact-head typecheck and production build.",
+        "id": "REQ-PLANNED-ARCHITECTURE-BUILD",
+        "requirement": "The projected architecture capability passes exact-head typecheck and production build.",
         "claimScope": {
           "capability": "CAP-ATLAS",
           "breadth": "targeted-control-plane-type-build",
@@ -400,6 +402,9 @@
             "build"
           ]
         },
+        "requiredCapabilities": [
+          "CAP-ATLAS"
+        ],
         "evidence": {
           "implementation": [
             "GUARD-TYPECHECK",
@@ -412,32 +417,16 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PLANNED-DELETION-BUILD",
+            "id": "NEG-PLANNED-ARCHITECTURE-BUILD",
             "statement": "The correction must not introduce type or production build regressions.",
             "evidence": [
               "GUARD-TYPECHECK",
               "GUARD-PRODUCTION-BUILD"
             ]
           }
-        ],
-        "requiredCapabilities": [
-          "CAP-ATLAS"
         ]
       }
     ]
   },
-  "notes": "Targeted follow-up discovered by #666 plan-only replay after merged #675 and #677. The defect is phase semantics, not storefront scope: planning authorization currently requires completion evidence. No product code or generic architecture exception in this transaction. Canonical planned-projection on main 2860a9 derived no release subsystem classification, SQ-NK-012, guard digest aa79c504; critical completion claims bind explicitly to CAP-ATLAS. Truth exact-head ca71a28e reported OVERCLAIM only because REQ-PLANNED-DELETION-BUILD declared the abstract dimension regression while its exact producers canonically prove types and build. Claim dimensions reconciled to producer semantics; evidence set and implementation unchanged.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "47ca2c1e92d0d7b5037163f790337bff3cc9c33d",
-    "closedAt": "2026-10-02T04:20:08.418Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-PLANNED-DELETION-AUTHORIZATION",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Targeted follow-up discovered by #666 plan-only replay after #678. This transaction extends existing Semantic Execution / Plan Before Code only; no storefront product files and no parallel quality system."
 }

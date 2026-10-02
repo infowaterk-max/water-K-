@@ -662,7 +662,7 @@ function instructionRequiredChanges(atlas,instruction,{tombstones=[],plannedDele
     required:[...new Set([...forbiddenFiles,...forbiddenRouteTombstones,...plannedForbiddenRouteDeletions,...requiredRouteFiles])].sort(),
   };
 }
-export function buildExecutionRoute(atlas,patterns,{tombstones=[],plannedDeletions=[]}={}){
+export function buildExecutionRoute(atlas,patterns,{tombstones=[],plannedDeletions=[],plannedAdditions=[]}={}){
   const impacts=patterns.map(pattern=>impactForAtlasPattern(atlas,pattern));
   const tombstoneMatches=[...new Set(
     tombstones.filter(file=>patterns.some(pattern=>globToRegExp(pattern).test(file)))
@@ -670,8 +670,11 @@ export function buildExecutionRoute(atlas,patterns,{tombstones=[],plannedDeletio
   const plannedDeletionMatches=[...new Set(
     plannedDeletions.filter(file=>patterns.some(pattern=>globToRegExp(pattern).test(file)))
   )].sort();
+  const plannedAdditionMatches=[...new Set(
+    plannedAdditions.filter(file=>patterns.some(pattern=>globToRegExp(pattern).test(file)))
+  )].sort();
   const liveMatched=[...new Set(impacts.flatMap(x=>x.matchedFiles))].sort();
-  const matched=[...new Set([...liveMatched,...tombstoneMatches,...plannedDeletionMatches])].sort();
+  const matched=[...new Set([...liveMatched,...tombstoneMatches,...plannedDeletionMatches,...plannedAdditionMatches])].sort();
   const impactedReadOnly=[...new Set(impacts.flatMap(x=>x.consumers).filter(file=>!matched.includes(file)))].sort();
   const proof=[...new Set(impacts.flatMap(x=>x.tests))].sort();
   const authority=[...new Set([
@@ -700,6 +703,7 @@ export function buildExecutionRoute(atlas,patterns,{tombstones=[],plannedDeletio
     MUST_EDIT:matched,
     TOMBSTONES:tombstoneMatches,
     PLANNED_DELETIONS:plannedDeletionMatches,
+    PLANNED_ADDITIONS:plannedAdditionMatches,
     INSTRUCTION_REQUIRED:instructionRequired,
     INSTRUCTION_REQUIREMENTS:instructionRequirements,
     FORBIDDEN_ROUTE_TOMBSTONES:forbiddenRouteTombstones,
@@ -715,7 +719,22 @@ export function buildExecutionRoute(atlas,patterns,{tombstones=[],plannedDeletio
   };
 }
 
-export function resolveAtlasArchitectureForPath(atlas,file,{tombstones=[],plannedDeletions=[],executionRoute=null}={}){
+function resolvePlannedArchitectureAuthority(atlas,file,plannedOwnership=[]){
+  const registry='quality/knowledge/domain-foundations.v1.json';
+  const declarations=(plannedOwnership??[]).flatMap(item=>{
+    if(!item||item.path!==file||item.registry!==registry)return[];
+    const domain=String(item.domain??'').trim(),owner=String(item.owner??'').trim();
+    const canonical=atlas.domainIndexDefinition?.[domain]??null;
+    if(!canonical||canonical.owner!==owner)return[];
+    return[{path:file,domain,owner,registry}];
+  });
+  return{
+    domains:[...new Set(declarations.map(item=>item.domain))].sort(),
+    authorities:[...new Set(declarations.map(item=>item.owner))].sort(),
+    declarations,
+  };
+}
+export function resolveAtlasArchitectureForPath(atlas,file,{tombstones=[],plannedDeletions=[],plannedAdditions=[],plannedOwnership=[],executionRoute=null}={}){
   const node=(atlas.nodes??[]).find(item=>item.path===file);
   const classified=node??classifyAtlasPath(file);
   const domains=[...(classified.domains??[])].sort();
@@ -723,6 +742,8 @@ export function resolveAtlasArchitectureForPath(atlas,file,{tombstones=[],planne
   const route=classified.route??routeForFile(file);
   const gitDeleted=tombstones.includes(file);
   const plannedDeletion=!gitDeleted&&plannedDeletions.includes(file);
+  const plannedAddition=!node&&!gitDeleted&&plannedAdditions.includes(file);
+  const plannedArchitecture=resolvePlannedArchitectureAuthority(atlas,file,plannedOwnership);
   const tombstoneInstructionIds=(executionRoute?.INSTRUCTION_REQUIREMENTS??[])
     .filter(item=>(item.forbiddenRouteTombstones??[]).includes(file))
     .map(item=>item.instructionId)
@@ -737,13 +758,14 @@ export function resolveAtlasArchitectureForPath(atlas,file,{tombstones=[],planne
   return{
     path:file,
     pathDerived:{domains,authorities},
-    routeAuthority:route?{...route,state:gitDeleted?'deleted-tombstone':plannedDeletion?'planned-deletion':'current-or-planned'}:null,
+    ...(plannedArchitecture.domains.length?{plannedArchitectureAuthority:plannedArchitecture}:{}),
+    routeAuthority:route?{...route,state:gitDeleted?'deleted-tombstone':plannedDeletion?'planned-deletion':plannedAddition?'planned-addition':'current-or-planned'}:null,
     poInstructionAuthority:{
       instructionIds,
       governsDeletion:instructionGovernedTombstone,
       ...(instructionGovernedPlannedDeletion?{authorizesPlannedDeletion:true}:{}),
     },
-    resolved:Boolean(domains.length||instructionGovernedTombstone||instructionGovernedPlannedDeletion),
+    resolved:Boolean(domains.length||plannedArchitecture.domains.length||instructionGovernedTombstone||instructionGovernedPlannedDeletion),
   };
 }
 
