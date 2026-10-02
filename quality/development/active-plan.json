@@ -218,19 +218,22 @@
     },
     "alternatives": [
       {
-        "id": "ALT-1",
-        "option": "Remove sibling workflow evidence from Completion Contract and check it manually before merge.",
-        "rejectedBecause": "This recreates the proven false-closure gap: Completion Truth can become VERIFIED_DONE without the mandatory proof."
+        "id": "ALT-EXISTING-TRUTH-HANDOFF",
+        "summary": "Transport validated sibling-workflow proof into the existing Resumable Verification evidence manifest and let the existing Completion Truth decide closure.",
+        "disposition": "selected",
+        "reason": "Preserves one completion authority, avoids proof duplication and closes both the permanent-MISSING and false-closure failure modes."
       },
       {
-        "id": "ALT-2",
-        "option": "Create a new cross-workflow completion gate.",
-        "rejectedBecause": "This duplicates the existing Completion Truth authority and violates the one-authority architecture."
+        "id": "ALT-MANUAL-MERGE-CHECK",
+        "summary": "Remove external proof from Completion Contract and rely on a manual pre-merge check.",
+        "disposition": "rejected",
+        "reason": "The Brabus run already proved Completion Truth can become VERIFIED_DONE before the sibling proof finishes; manual policy is not machine-enforced completion truth."
       },
       {
-        "id": "ALT-3",
-        "option": "Run the entire Template Factory proof again inside normal CI.",
-        "rejectedBecause": "This duplicates expensive proof execution, increases runtime and creates two producers for one acceptance responsibility."
+        "id": "ALT-SECOND-CROSS-WORKFLOW-GATE",
+        "summary": "Create a dedicated cross-workflow completion gate beside Completion Truth.",
+        "disposition": "rejected",
+        "reason": "Would duplicate blocking responsibility and recreate the rule/gate ping-pong architecture the Control Plane is intended to eliminate."
       }
     ],
     "challenge": [
@@ -268,6 +271,27 @@
         "finding": "Old promotion credit could authorize physical evidence reuse under new semantics.",
         "resolution": "Include handoff implementation and CI wiring in verification-engine identity and regression-test the binding.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-6",
+        "scenario": "A required external guard is referenced but no explicit producer adapter exists.",
+        "finding": "Generic acceptance of arbitrary workflow artifacts would create an unbounded trust channel.",
+        "resolution": "Unsupported external guard IDs fail visible and require an explicit validator before they can contribute evidence.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-7",
+        "scenario": "Two external records for the same guard are available for one exact head.",
+        "finding": "Ambiguous evidence selection could hide a failed or contradictory producer run.",
+        "resolution": "Duplicate external guard evidence is rejected; one exact producer identity must be selected deterministically.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-8",
+        "scenario": "The external handoff code changes while an earlier resumable-verification promotion remains marked eligible.",
+        "finding": "Physical reuse could continue under verification semantics that were never shadow-proven.",
+        "resolution": "Bind the handoff module and CI wiring into verification-engine identity so semantic changes invalidate prior promotion evidence.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -281,6 +305,11 @@
       "Confirm isolated Release Risk stays within budget and no Builder/Template Factory product files are part of this foundation diff."
     ],
     "semanticExecutionRoute": {
+      "request": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
+      "authority": [
+        "quality-knowledge-system",
+        "release-infrastructure"
+      ],
       "mustEdit": [
         "scripts/shoperation-verification-checkpoint.mjs",
         "quality/knowledge/guard-registry.v1.json",
@@ -291,20 +320,17 @@
         "tests/shoperation-external-proof-handoff.test.ts",
         "tests/shoperation-resumable-verification.test.ts"
       ],
-      "forbidden": [
-        "src/lib/builder/**",
-        "src/components/**",
-        "src/app/**",
-        "scripts/template-factory-quality-gate.mjs"
+      "impactedReadOnly": [
+        "scripts/shoperation-truth-gate.mjs",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        "scripts/lib/shoperation-verification-reuse.mjs",
+        "scripts/release-risk-budget.mjs"
       ],
       "proof": [
         "tests/shoperation-external-proof-handoff.test.ts",
         "tests/shoperation-resumable-verification.test.ts"
       ],
-      "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
-      ]
+      "unknown": []
     },
     "reviews": [
       {
@@ -327,7 +353,55 @@
         "verdict": "PASS",
         "reason": "Closes the exact class of decision/provenance divergence exposed by the revalidation run."
       }
-    ]
+    ],
+    "specialistReviews": [
+      {
+        "role": "Architecture",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Completion Truth and Resumable Verification already own development-completion evidence aggregation.",
+        "resolution": "Keep the handoff as evidence transport only and do not introduce a new blocking owner.",
+        "evidence": [
+          "scripts/shoperation-truth-gate.mjs",
+          "scripts/shoperation-verification-checkpoint.mjs",
+          "quality/knowledge/guard-registry.v1.json"
+        ]
+      },
+      {
+        "role": "Data Integrity",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "A workflow-level SUCCESS is insufficient because stale or internally BLOCKed artifacts can coexist with wrapper success.",
+        "resolution": "Require exact-head producer identity plus machine-readable artifact contract/checksum/coverage and fail closed on any mismatch.",
+        "evidence": [
+          "scripts/shoperation-verification-checkpoint.mjs",
+          "tests/shoperation-resumable-verification.test.ts"
+        ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Cross-workflow transport touches release orchestration and can exceed risk budget when mixed with Builder/Factory product work.",
+        "resolution": "Isolate this foundation to quality/release infrastructure and keep the Brabus product revalidation in its own transaction.",
+        "evidence": [
+          "scripts/release-risk-budget.mjs",
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
+        "role": "Control Plane",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Removing sibling evidence from Completion Contract avoids deadlock but creates false completion; re-running the producer inside CI duplicates proof authority.",
+        "resolution": "Detect required non-local evidence from the Completion Contract, wait boundedly for the canonical producer, normalize evidence, then reuse existing Completion Truth.",
+        "evidence": [
+          "scripts/lib/shoperation-operational-intelligence.mjs",
+          "quality/development/active-plan.json"
+        ]
+      }
+    ],
+    "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
