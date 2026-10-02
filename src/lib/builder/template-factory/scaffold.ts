@@ -163,6 +163,11 @@ export type StorefrontTemplateFactoryBuild={
         genomeVersion:number;
         hash:string;
       }|null;
+      compiler:{
+        contract:string;
+        hash:string;
+        candidatePackageHash:string;
+      }|null;
       lineage:StorefrontTemplateProductionLineage|null;
     };
     inheritedPageTypes:readonly StorefrontBuilderPageType[];
@@ -563,6 +568,11 @@ export function compileStorefrontTemplateFactoryPackage(input:{
           contract:recipe.genome.contract,
           genomeVersion:recipe.genome.identity.genomeVersion,
           hash:recipe.genome.hash,
+        }:null,
+        compiler:recipe.compiler?{
+          contract:recipe.compiler.contract,
+          hash:recipe.compiler.hash,
+          candidatePackageHash:recipe.compiler.sources.candidatePackageHash,
         }:null,
         lineage:productionLineage?.lineage??null,
       },
