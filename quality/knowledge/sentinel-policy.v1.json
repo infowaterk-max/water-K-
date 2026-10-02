@@ -51,5 +51,21 @@
     "HEALTHY": "No evidence-backed intervention is currently indicated.",
     "REVIEW": "A pattern deserves review, but evidence is not yet strong enough for a control change.",
     "ACTION_REQUIRED": "Existing evidence shows a repeated or authoritative control problem that needs human-governed action."
+  },
+  "integrity": {
+    "enabled": true,
+    "probeContract": "shoporation.sentinel-integrity-report.v1",
+    "probePath": "artifacts/shoperation-sentinel/integrity-probe.json",
+    "structuredOnly": true,
+    "unknownVisible": true,
+    "classes": [
+      "authority",
+      "dependency",
+      "decision",
+      "provenance",
+      "coverage",
+      "proof-semantics",
+      "freshness"
+    ]
   }
 }

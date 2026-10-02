@@ -3,6 +3,11 @@ const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 const policy=readJson('quality/knowledge/sentinel-policy.v1.json');
 const snapshotPath=process.env.SHOPERATION_SENTINEL_SNAPSHOT||'artifacts/shoperation-sentinel/source-snapshot.json';
 const outputDir=process.env.SHOPERATION_SENTINEL_OUT_DIR||'artifacts/shoperation-sentinel';
+const integrityPath=process.env.SHOPERATION_SENTINEL_INTEGRITY_PROBE||`${outputDir}/integrity-probe.json`;
+let integrityProbe=null,integrityLoadError=null;
+if(existsSync(integrityPath)){
+  try{integrityProbe=readJson(integrityPath);}catch(error){integrityLoadError=error instanceof Error?error.message:String(error);}
+}else integrityLoadError='missing';
 if(policy.contract!=='shoporation.sentinel-policy.v1')throw new Error('SENTINEL_POLICY_CONTRACT_INVALID');
 if(!existsSync(snapshotPath))throw new Error('SENTINEL_SOURCE_SNAPSHOT_MISSING');
 const snapshot=readJson(snapshotPath);
@@ -64,6 +69,16 @@ const developmentFingerprints=fingerprintsFor(developmentFailureIntakeIssues);
 const unknownFingerprints=fingerprintsFor(unknownFailureIntakeIssues);
 const signals=[];
 const add=(code,severity,reason,evidence,recommendation)=>signals.push({code,severity,reason,evidence,recommendation});
+if(!integrityProbe){
+  add('SENTINEL_INTEGRITY_PROBE_MISSING','review','Sentinel integrity evidence is missing or unreadable.',{path:integrityPath,error:integrityLoadError},'Run or repair the existing Sentinel integrity probe; absence of integrity evidence is not a healthy state.');
+}else if(integrityProbe.contract!=='shoporation.sentinel-integrity-report.v1'){
+  add('SENTINEL_INTEGRITY_PROBE_INVALID','review','Sentinel integrity evidence uses an unexpected contract.',{path:integrityPath,contract:integrityProbe.contract??null},'Repair the integrity probe contract before treating the daily observation as healthy.');
+}else{
+  const actionFindings=(integrityProbe.findings||[]).filter(item=>item.severity==='action');
+  const reviewFindings=(integrityProbe.findings||[]).filter(item=>item.severity==='review');
+  if(integrityProbe.decision==='BLOCK'||actionFindings.length)add('SENTINEL_INTEGRITY_DIVERGENCE','action',`${actionFindings.length||integrityProbe.counts?.action||1} action-level Control Plane integrity divergence(s) detected.`,{decision:integrityProbe.decision,findings:actionFindings},'Inspect the structured divergence and strengthen the earliest existing authority or regression proof that can prevent the class from recurring.');
+  else if(integrityProbe.decision==='UNKNOWN'||integrityProbe.decision==='REVIEW'||reviewFindings.length)add('SENTINEL_INTEGRITY_REVIEW','review','Sentinel integrity evidence is incomplete or requires review.',{decision:integrityProbe.decision,findings:reviewFindings},'Resolve UNKNOWN or review-level integrity evidence before considering the observation fully healthy.');
+}
 if(deepAtlasIssues.length)add('SENTINEL_DEEP_ATLAS_ATTENTION','action','Deep Atlas has an open architecture-drift finding.',deepAtlasIssues.map(i=>({issue:i.number,title:i.title,updatedAt:i.updatedAt})),'Resolve the existing Deep Atlas finding before broadening architecture scope.');
 if(system24.filter(failed).length>=policy.thresholds.actionMainFailures24h)add('SENTINEL_MAIN_FAILURE_BURST_24H','action',`${system24.filter(failed).length} failing main/scheduled workflow runs were observed in the last 24 hours.`,system24.filter(failed).map(r=>({id:r.id,workflow:r.name,conclusion:r.conclusion,createdAt:r.createdAt})),'Freeze broad changes around the affected control path and isolate the first failing boundary.');
 for(const row of repeatedWorkflows)add('SENTINEL_REPEATED_MAIN_WORKFLOW_FAILURE','action',`${row.workflow} failed ${row.count} times on main/scheduled evidence in the last 7 days.`,row,'Inspect the repeated failure class and strengthen the earliest existing gate or regression test that can deterministically detect it.');
@@ -92,6 +107,7 @@ const report={
   trend:{direction:trend,failureDelta7d:delta},
   openEvidence:{failureIntakeIssues:failureIntakeIssues.length,canonicalFailureIntakeIssues:canonicalFailureIntakeIssues.length,developmentFailureIntakeIssues:developmentFailureIntakeIssues.length,unknownFailureIntakeIssues:unknownFailureIntakeIssues.length,fingerprints,developmentFingerprints,unknownFingerprints,deepAtlasAttentionIssues:deepAtlasIssues.length},
   repeatedWorkflows,
+  integrity:integrityProbe?{decision:integrityProbe.decision??'UNKNOWN',counts:integrityProbe.counts??null,categories:integrityProbe.categories??[],sourceCommit:integrityProbe.sourceCommit??null}:{decision:'UNKNOWN',counts:null,categories:['probe'],sourceCommit:null,error:integrityLoadError},
   signals,
   recommendations,
   operatorActionRequired:status==='ACTION_REQUIRED',
@@ -112,6 +128,7 @@ const md=[
   `Open development Failure Intake fingerprints: ${developmentFingerprints.length}`,
   `Open unknown-scope Failure Intake fingerprints: ${unknownFingerprints.length}`,
   `Deep Atlas attention: ${deepAtlasIssues.length}`,
+  `Integrity probe: ${report.integrity.decision}${report.integrity.counts?` · findings ${report.integrity.counts.findings}`:''}`,
   '',
   '## Signals',
   ...(signals.length?signals.map(s=>`- [${s.severity.toUpperCase()}] ${s.code}: ${s.reason}`):['- none']),

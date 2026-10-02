@@ -586,14 +586,25 @@
       "evidence": "artifacts/shoperation-sentinel/sentinel-report.json",
       "proofSemantics": {
         "capabilities": [
+          "CAP-QUALITY",
           "CAP-ATLAS"
         ],
         "scopeStrength": 2,
-        "scope": "failure-signal-classification",
+        "scope": "failure-trend-and-integrity-correlation",
         "dimensions": [
           "canonical-vs-development",
           "signal",
-          "sentinel"
+          "sentinel",
+          "status",
+          "truth",
+          "freshness",
+          "coverage",
+          "limitations",
+          "authority",
+          "dependency",
+          "claim-scope",
+          "evidence-scope",
+          "proven-scope"
         ]
       }
     }
