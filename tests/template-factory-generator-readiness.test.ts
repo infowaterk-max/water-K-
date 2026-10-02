@@ -16,8 +16,11 @@ describe('Template Generator Readiness v0.1',()=>{
       declared:true,
       ready:true,
       blueprintIdentity:'gaming.loot-vault@2',
+      template3AuthoringReady:false,
       issues:[],
     });
+    expect(build.report.generatorReadiness.productionMaturity.valid).toBe(true);
+    expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toContain('VX-SMART-INTENT');
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.generator).toEqual({implementation:'deferred',target:'template-compiler'});
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.composition.pageTypes).toEqual(STOREFRONT_PAGE_TYPES);
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.composition.viewports).toEqual(STOREFRONT_VIEWPORTS);
@@ -41,6 +44,13 @@ describe('Template Generator Readiness v0.1',()=>{
     const result=evaluateStorefrontTemplateGeneratorReadiness({blueprint:drift,recipe:LOOT_VAULT_V2_FACTORY_RECIPE,package:build.package});
     expect(result.ready).toBe(false);
     expect(result.issues.map(issue=>issue.code)).toContain('GENERATOR_PAGE_OWNERSHIP_DRIFT');
+  });
+
+  it('keeps structural generator readiness separate from Brabus Template #3 maturity',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    expect(build.report.generatorReadiness.ready).toBe(true);
+    expect(build.report.generatorReadiness.template3AuthoringReady).toBe(false);
+    expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds.length).toBeGreaterThan(0);
   });
 
   it('keeps undeclared recipes outside generator-ready status instead of inventing metadata',()=>{

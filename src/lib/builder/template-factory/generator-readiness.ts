@@ -6,6 +6,7 @@ import {
 } from '@/lib/builder/storefront-foundation';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import type {FeatureCode,PlanCode} from '@/lib/plans/catalog';
+import {evaluateStorefrontTemplateProductionMaturity,type StorefrontTemplateProductionMaturityResult} from '@/lib/builder/template-factory/production-maturity';
 import {
   evaluateStorefrontTemplateProductionContracts,
   type StorefrontTemplateProductionContractDeclaration,
@@ -57,6 +58,8 @@ export type StorefrontTemplateGeneratorReadinessResult={
   ready:boolean;
   blueprintIdentity:string|null;
   productionContracts:StorefrontTemplateProductionContractsResult;
+  productionMaturity:StorefrontTemplateProductionMaturityResult;
+  template3AuthoringReady:boolean;
   issues:readonly StorefrontTemplateGeneratorReadinessIssue[];
 };
 
@@ -81,8 +84,10 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
   recipe:GeneratorRecipeProjection;
   package:StorefrontInstallableTemplatePackage;
   productionContracts?:StorefrontTemplateProductionContractsResult;
+  productionMaturity?:StorefrontTemplateProductionMaturityResult;
 }):StorefrontTemplateGeneratorReadinessResult{
   const{blueprint,recipe}=input,pkg=input.package;
+  const productionMaturity=input.productionMaturity??evaluateStorefrontTemplateProductionMaturity();
   const productionContracts=input.productionContracts??evaluateStorefrontTemplateProductionContracts({
     declaration:blueprint?.productionContracts,
     recipe,
@@ -97,6 +102,8 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
       ready:false,
       blueprintIdentity:null,
       productionContracts,
+      productionMaturity,
+      template3AuthoringReady:false,
       issues:Object.freeze(issues),
     };
   }
@@ -151,6 +158,8 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     ready:issues.length===0,
     blueprintIdentity:identity,
     productionContracts,
+    productionMaturity,
+    template3AuthoringReady:issues.length===0&&productionMaturity.valid&&productionMaturity.template3AuthoringReady,
     issues:Object.freeze(issues),
   };
 }
