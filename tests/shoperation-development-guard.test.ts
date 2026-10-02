@@ -25,8 +25,9 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(runtime).toContain('export function resolveDevelopmentBase');
     expect(plan).toContain('getChangedFiles({baseSha:plan.changeBaseSha})');
     expect(edit).toContain('getChangedFiles({baseSha:plan.changeBaseSha})');
-    expect(preflight).toContain("import {resolveDevelopmentBase} from './lib/shoperation-development-runtime.mjs'");
-    expect(preflight).toContain('resolveDevelopmentBase({changeBaseSha:developmentPlan.changeBaseSha})');
+    expect(preflight).toContain("import {getChangedFiles} from './lib/shoperation-development-runtime.mjs'");
+    expect(preflight).toContain('getChangedFiles({baseSha:developmentPlan.changeBaseSha})');
+    expect(preflight).toContain('transaction.materialFiles??[]');
     expect(preflight).not.toContain("developmentPlan.changeBaseSha?.trim()||process.env.QUALITY_BASE_SHA");
   });
   it('keeps Git-proven deletions in the shared development transaction instead of dropping D status',()=>{
@@ -37,7 +38,13 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(runtime).toContain("'--name-status','--diff-filter=ACMRD'");
     expect(runtime).toContain('deletedFiles');
     expect(edit).toContain('deletedVerifiedChangeSet');
-    expect(edit).toContain('{tombstones:diff.deletedFiles??[]}');
+    expect(edit).toContain('{tombstones:diff.materialDeletedFiles??[]}');
+    const knowledge=readFileSync('scripts/shoperation-knowledge-preflight.mjs','utf8');
+    const risk=readFileSync('scripts/release-risk-budget.mjs','utf8');
+    const truth=readFileSync('scripts/shoperation-truth-gate.mjs','utf8');
+    expect(knowledge).toContain('transaction.materialDeletedFiles??[]');
+    expect(risk).toContain("'--diff-filter=ACMRD'");
+    expect(truth).toContain("'--diff-filter=ACMRD'");
   });
   it('prevents plan-only or metadata commits from shrinking the active development transaction',()=>{
     const runtime=readFileSync('scripts/lib/shoperation-development-runtime.mjs','utf8'),plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');

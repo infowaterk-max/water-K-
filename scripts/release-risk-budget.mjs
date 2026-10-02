@@ -89,7 +89,7 @@ try {
   mergeBase = git(['merge-base', releaseHead, base]);
 } catch {}
 
-const diff = git(['diff', '--name-only', '--diff-filter=ACMR', `${mergeBase}..${releaseHead}`]);
+const diff = git(['diff', '--name-only', '--diff-filter=ACMRD', `${mergeBase}..${releaseHead}`]);
 const changedFiles = diff ? diff.split('\n').filter(Boolean) : [];
 
 const classified = [];
