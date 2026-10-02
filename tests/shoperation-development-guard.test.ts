@@ -46,6 +46,13 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(risk).toContain("'--diff-filter=ACMRD'");
     expect(truth).toContain("'--diff-filter=ACMRD'");
   });
+  it('resolves pull-request head identity before generic GITHUB_SHA fallback',()=>{
+    const runtime=readFileSync('scripts/lib/shoperation-development-runtime.mjs','utf8');
+    expect(runtime).toContain('event?.pull_request?.head?.sha');
+    expect(runtime).toContain("resolution:'PULL_REQUEST_HEAD'");
+    expect(runtime).toContain('const headIdentity=resolveDevelopmentHead()');
+    expect(runtime.indexOf('process.env.SHOPERATION_REPLAY_HEAD')).toBeLessThan(runtime.indexOf('process.env.GITHUB_SHA'));
+  });
   it('prevents plan-only or metadata commits from shrinking the active development transaction',()=>{
     const runtime=readFileSync('scripts/lib/shoperation-development-runtime.mjs','utf8'),plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
     expect(runtime).toContain("git(['diff','--name-status','--diff-filter=ACMRD',base,head])");
