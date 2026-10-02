@@ -531,6 +531,22 @@ describe('dependency-aware resumable verification',()=>{
     expect(workflow).toContain("steps.verification-finalize.outcome == 'success' && steps.completion-truth.outcome == 'success'");
   });
 
+  it('binds required external exact-head proof into existing Completion Truth instead of creating a second gate',()=>{
+    const workflow=readFileSync('.github/workflows/ci.yml','utf8');
+    const checkpoint=readFileSync('scripts/shoperation-verification-checkpoint.mjs','utf8');
+    const registry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
+    expect(workflow).toContain('Detect required external Completion evidence');
+    expect(workflow).toContain('Resolve exact-head Template Factory proof run');
+    expect(workflow).toContain('Download exact-head Template Factory proof');
+    expect(workflow).toContain('Validate external Template Factory proof handoff');
+    expect(workflow).toContain('SHOPERATION_VERIFICATION_EXTERNAL_EVIDENCE');
+    expect(workflow).toContain('actions: read');
+    expect(checkpoint).toContain('mergeExternalCompletionEvidence');
+    expect(checkpoint).toContain('EXTERNAL_REQUIRED_EVIDENCE_MISSING');
+    expect(registry.verificationReuse.promotion.engineInputs).toContain('scripts/shoperation-external-proof-handoff.mjs');
+    expect(registry.guards.find((gate:any)=>gate.id==='GUARD-COMPLETION-TRUTH')?.verification?.semanticInputs).toContain('scripts/shoperation-external-proof-handoff.mjs');
+  });
+
   it('binds promotion identity to engine code, CI and canonical verification policy',()=>{
     const registry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
     expect(registry.verificationReuse.promotion.engineInputs).toEqual(expect.arrayContaining([

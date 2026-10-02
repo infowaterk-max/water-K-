@@ -16,6 +16,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   issues: write
 
 concurrency:
@@ -78,7 +79,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -243,6 +244,71 @@ jobs:
           SHOPERATION_ENVIRONMENT: ci
         run: node scripts/shoperation-command-diagnostic.mjs -- npm run build
 
+      - name: Detect required external Completion evidence
+        if: success() && (github.event_name == 'pull_request' || github.ref_name != 'main')
+        id: external-proof-requirements
+        env:
+          SHOPERATION_REPLAY_PLAN: artifacts/shoperation-development-guard/resumable-verification-plan.json
+        run: node scripts/shoperation-external-proof-handoff.mjs --requirements --check
+
+      - name: Resolve exact-head Template Factory proof run
+        if: steps.external-proof-requirements.outputs.template_factory_required == 'true'
+        id: external-template-factory-run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+            const {owner,repo}=context.repo;
+            const sha=context.payload.pull_request?.head?.sha??context.sha;
+            const workflowName='Template Factory Quality Gate v2';
+            for(let attempt=0;attempt<180;attempt+=1){
+              const response=await github.rest.actions.listWorkflowRunsForRepo({owner,repo,head_sha:sha,per_page:100});
+              const candidates=(response.data.workflow_runs??[])
+                .filter(run=>run.name===workflowName&&run.head_sha===sha)
+                .sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at));
+              const successful=candidates.find(run=>run.status==='completed'&&run.conclusion==='success');
+              if(successful){
+                core.setOutput('run_id',String(successful.id));
+                core.setOutput('conclusion',successful.conclusion);
+                core.setOutput('workflow_name',workflowName);
+                core.info(`Exact-head Template Factory proof resolved from run ${successful.id}.`);
+                return;
+              }
+              const active=candidates.some(run=>run.status==='queued'||run.status==='in_progress'||run.status==='waiting'||run.status==='requested'||run.status==='pending');
+              const terminal=candidates.filter(run=>run.status==='completed');
+              if(!active&&terminal.length){
+                const actual=terminal.map(run=>`${run.id}:${run.conclusion}`).join(',');
+                core.setFailed(`EXTERNAL_TEMPLATE_FACTORY_RUN_NOT_SUCCESS:${actual}`);
+                return;
+              }
+              if(attempt%12===0)core.info(`Waiting for exact-head Template Factory proof for ${sha}; candidates=${candidates.length}.`);
+              await sleep(5000);
+            }
+            core.setFailed('EXTERNAL_TEMPLATE_FACTORY_PROOF_TIMEOUT');
+
+      - name: Download exact-head Template Factory proof
+        if: steps.external-proof-requirements.outputs.template_factory_required == 'true' && steps.external-template-factory-run.outcome == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: template-factory-quality-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/external-template-factory
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.external-template-factory-run.outputs.run_id }}
+
+      - name: Validate external Template Factory proof handoff
+        if: steps.external-proof-requirements.outputs.template_factory_required == 'true'
+        id: external-template-factory-proof
+        env:
+          SHOPERATION_EXTERNAL_PROOF_MANIFEST: artifacts/external-template-factory/manifest.json
+          SHOPERATION_EXTERNAL_PROOF_OUTPUT: artifacts/shoperation-development-guard/external-proof-evidence.json
+          SHOPERATION_EXTERNAL_PROOF_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHOPERATION_EXTERNAL_PROOF_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          SHOPERATION_EXTERNAL_PROOF_RUN_ID: ${{ steps.external-template-factory-run.outputs.run_id }}
+          SHOPERATION_EXTERNAL_PROOF_WORKFLOW: ${{ steps.external-template-factory-run.outputs.workflow_name }}
+          SHOPERATION_EXTERNAL_PROOF_CONCLUSION: ${{ steps.external-template-factory-run.outputs.conclusion }}
+          SHOPERATION_TRUTH_STATE_VERSION: shoporation-ci.v1
+        run: node scripts/shoperation-external-proof-handoff.mjs --validate-template-factory --check
+
       - name: Reconcile Resumable Verification
         if: always() && (github.event_name == 'pull_request' || github.ref_name != 'main')
         id: verification-finalize
@@ -251,6 +317,7 @@ jobs:
           SHOPERATION_TRUTH_STATE_VERSION: shoporation-ci.v1
           SHOPERATION_VERIFICATION_ENVIRONMENT: ci
           SHOPERATION_TOOLCHAIN_ID: node24
+          SHOPERATION_VERIFICATION_EXTERNAL_EVIDENCE: artifacts/shoperation-development-guard/external-proof-evidence.json
           SHOPERATION_VERIFICATION_OUTCOMES_JSON: >-
             {"GUARD-KNOWLEDGE-PREFLIGHT":"${{ steps.knowledge.outcome }}","GUARD-PLAN-BEFORE-CODE":"${{ steps.development-plan.outcome }}","GUARD-EDIT-TIME":"${{ steps.edit-time-guard.outcome }}","GUARD-INCREMENTAL-REPLAY":"${{ steps.incremental-replay.outcome }}","GUARD-RELEASE-RISK":"${{ steps.release-risk.outcome }}","GUARD-CUSTOMER-BASELINE":"${{ steps.customer-baseline-guard.outcome }}","GUARD-MARKET-READY":"${{ steps.market-ready.outcome }}","GUARD-QUALITY-TESTS":"${{ steps.quality-tests.outcome }}","GUARD-TYPECHECK":"${{ steps.typecheck.outcome }}","GUARD-PRODUCTION-BUILD":"${{ steps.production-build.outcome }}"}
         run: node scripts/shoperation-verification-checkpoint.mjs --check
@@ -345,6 +412,7 @@ jobs:
           QUALITY_OUTCOME: ${{ steps.quality-tests.outcome }}
           TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
           BUILD_OUTCOME: ${{ steps.production-build.outcome }}
+          EXTERNAL_PROOF_OUTCOME: ${{ steps.external-template-factory-proof.outcome }}
           MANIFEST_OUTCOME: ${{ steps.release-manifest.outcome }}
           TRUTH_OUTCOME: ${{ steps.completion-truth.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -377,6 +445,7 @@ jobs:
           [ "$QUALITY_OUTCOME" != "failure" ] || codes="${codes}TEST_FAILED;"
           [ "$TYPECHECK_OUTCOME" != "failure" ] || codes="${codes}TYPECHECK_FAILED;"
           [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
+          [ "$EXTERNAL_PROOF_OUTCOME" != "failure" ] || codes="${codes}EXTERNAL_COMPLETION_PROOF_FAILED;"
           [ "$TRUTH_OUTCOME" != "failure" ] || codes="${codes}TRUTH_GATE_FAILED;"
           [ "$MANIFEST_OUTCOME" != "failure" ] || codes="${codes}RELEASE_MANIFEST_FAILED;"
           SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
