@@ -11,7 +11,7 @@ const COMPONENT_KEY=/^(?:support|system|commerce|guided|layout|content|marketing
 const git=(args,options={})=>execFileSync('git',args,{encoding:'utf8',maxBuffer:32*1024*1024,...options});
 const isText=file=>EXTS.has(path.extname(file).toLowerCase());
 const current=file=>{try{return existsSync(file)&&isText(file)?readFileSync(file,'utf8'):'';}catch{return'';}};
-const at=(ref,file)=>{try{return git(['show',`${ref}:${file}`]);}catch{return'';}};
+const at=(ref,file)=>{try{return git(['show',`${ref}:${file}`],{stdio:['ignore','pipe','ignore']});}catch{return'';}};
 const escapeRegExp=value=>value.replace(/[.*+?^$()|[\]{}\\]/g,'\\$&');
 
 const exportsOf=source=>new Set([
@@ -65,14 +65,39 @@ export function extractReferenceCandidatesFromLine(line,file){
   return out;
 }
 
+export function reconcileReferenceRelocations(candidates,addedCandidates){
+  const key=item=>`${item.kind}\0${item.value}`;
+  const additions=new Map();
+  for(const item of addedCandidates??[]){
+    const k=key(item),rows=additions.get(k)??[];
+    rows.push(item);additions.set(k,rows);
+  }
+  const remaining=[],relocations=[];
+  for(const candidate of candidates??[]){
+    const destinations=[...new Set((additions.get(key(candidate))??[])
+      .map(item=>item.originFile)
+      .filter(file=>file&&file!==candidate.originFile))].sort();
+    if(destinations.length){
+      relocations.push({
+        kind:candidate.kind,
+        value:candidate.value,
+        fromFile:candidate.originFile,
+        toFiles:destinations,
+      });
+    }else remaining.push(candidate);
+  }
+  return{remaining,relocations};
+}
+
 function diffData(base){
   let patch='',names='';
   try{patch=git(['diff','--find-renames','--unified=0','--no-color',base,'--']);}catch{}
   try{names=git(['diff','--find-renames','--name-status',base,'--']);}catch{}
-  const candidates=[],changed=[];let file='',hunk=0,removed=[],added=[];
+  const candidates=[],addedCandidates=[],changed=[];let file='',hunk=0,removed=[],added=[];
   const flush=()=>{
     const before=removed.flatMap(line=>extractReferenceCandidatesFromLine(line,file));
     const after=added.flatMap(line=>extractReferenceCandidatesFromLine(line,file));
+    addedCandidates.push(...after);
     for(const reference of before){
       candidates.push(reference);
       const replacement=after.find(item=>item.kind===reference.kind&&item.value!==reference.value);
@@ -100,15 +125,18 @@ function diffData(base){
     }
   }
   const movedByOld=new Map(files.filter(item=>item.status==='R'||item.status==='C').map(item=>[item.old,item.neu]));
+  const absentAtBase=new Set(files.filter(item=>['A','R','C'].includes(item.status)).map(item=>item.neu).filter(Boolean));
   for(const fileName of new Set(files.flatMap(item=>[item.old,item.neu]).filter(Boolean))){
     if(!isText(fileName))continue;
-    const before=at(base,fileName),relocatedTo=movedByOld.get(fileName),after=current(relocatedTo??fileName);if(!before)continue;
+    const before=absentAtBase.has(fileName)?'':at(base,fileName),relocatedTo=movedByOld.get(fileName),after=current(relocatedTo??fileName);if(!before)continue;
     for(const symbol of exportsRemovedAcrossPathChange(before,after))candidates.push({kind:'export-symbol',value:symbol,severity:'block',originFile:fileName,relocatedTo:relocatedTo??null});
   }
+  const relocation=reconcileReferenceRelocations(candidates,addedCandidates);
   const seen=new Set();
   return{
     files,
-    candidates:candidates.filter(candidate=>{
+    relocations:relocation.relocations,
+    candidates:relocation.remaining.filter(candidate=>{
       const key=`${candidate.kind}|${candidate.value}|${candidate.originFile}`;if(seen.has(key))return false;seen.add(key);
       const source=current(candidate.originFile);if(!source)return true;
       if(candidate.kind==='export-symbol')return!exportsOf(source).has(candidate.value);
@@ -187,7 +215,7 @@ export function evaluateReferenceSynchronization({base,head}){
     semanticGraph:{contract:atlas.semanticGraph?.contract??null,typeCheckerAvailable:atlas.semanticGraph?.typeCheckerAvailable===true},
     before:{changedFiles:diff.files.map(item=>item.old),candidateCount:diff.candidates.length,consumerHitCount:before.length},
     after:{changedFiles:diff.files.map(item=>item.neu).filter(Boolean),consumerHitCount:after.length},
-    removedReferences:diff.candidates,changedReferences:diff.changed,consumers,staleConsumers,reviewConsumers,updatedConsumers,
+    removedReferences:diff.candidates,relocatedReferences:diff.relocations??[],changedReferences:diff.changed,consumers,staleConsumers,reviewConsumers,updatedConsumers,
     decision:staleConsumers.length?'BLOCK':'PASS',
   };
 }
