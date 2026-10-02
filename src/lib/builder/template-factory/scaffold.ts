@@ -23,10 +23,7 @@ import {
 } from '@/lib/builder/template-factory/generator-readiness';
 import type {StorefrontTemplateGenome} from '@/lib/builder/template-factory/template-genome';
 import type {StorefrontTemplateProductOwnerIntent} from '@/lib/builder/template-factory/constraint-planner';
-import {
-  createStorefrontTemplateProductionLineage,
-  type StorefrontTemplateProductionLineage,
-} from '@/lib/builder/template-factory/production-lineage';
+import type {StorefrontTemplateProductionLineage} from '@/lib/builder/template-factory/production-lineage';
 import {
   setStorefrontGlobalStyleState,
   type StorefrontGlobalStyleState,
@@ -518,36 +515,20 @@ export function compileStorefrontTemplateFactoryPackage(input:{
     blueprint:recipe.blueprint,
     recipe,
     package:pkg,
+    lineageContext:{
+      factoryVersion:STOREFRONT_TEMPLATE_FACTORY_VERSION,
+      foundation:{
+        category:foundation.category,
+        templateKey:foundation.foundationTemplateKey,
+        templateVersion:foundation.foundationTemplateVersion,
+      },
+    },
   });
   const productionContracts=generatorReadiness.productionContracts;
-  const productionLineage=recipe.blueprint?createStorefrontTemplateProductionLineage({
-    factoryVersion:STOREFRONT_TEMPLATE_FACTORY_VERSION,
-    foundation:{
-      category:foundation.category,
-      templateKey:foundation.foundationTemplateKey,
-      templateVersion:foundation.foundationTemplateVersion,
-    },
-    recipe:{
-      category:recipe.category,
-      templateKey:recipe.templateKey,
-      templateVersion:recipe.templateVersion,
-      reference:{key:recipe.reference.key},
-      genome:recipe.genome,
-      productionIntent:recipe.productionIntent,
-    },
-    visualAuthority:productionContracts.visualAuthority,
-    constraintPlan:generatorReadiness.constraintPlanning.plan,
-    mediaPlan:generatorReadiness.mediaPlanning.plan,
-    package:pkg,
-  }):null;
+  const productionLineage=generatorReadiness.productionLineage;
   const issues=evaluateBuild({foundation,recipe,pkg,patchMisses,overridden});
   if(recipe.blueprint){
     issues.push(...generatorReadiness.issues);
-    if(productionLineage&&!productionLineage.valid){
-      for(const lineageIssue of productionLineage.issues){
-        issues.push(issue(lineageIssue.code,`provenance.lineage.${lineageIssue.path}`,lineageIssue.message));
-      }
-    }
     if(generatorReadiness.mediaPlanning.valid&&!generatorReadiness.mediaPlanning.technicalFulfilled){
       issues.push(issue(
         'FACTORY_SEMANTIC_MEDIA_COVERAGE',
