@@ -10,6 +10,7 @@ import {
 import {
   evaluateCandidateConsumers,
   extractReferenceCandidatesFromLine,
+  reconcileReferenceRelocations,
 } from '../scripts/lib/shoperation-reference-sync-runtime.mjs';
 
 describe('Semantic Execution Intelligence adversarial closure',()=>{
@@ -112,6 +113,35 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     const component=extractReferenceCandidatesFromLine("componentKey:'commerce.product-grid'",'src/lib/builder/page.ts');
     expect(display).toContainEqual(expect.objectContaining({kind:'display-text',value:'Termékfeltöltő Központ'}));
     expect(component).toContainEqual(expect.objectContaining({kind:'component-key',value:'commerce.product-grid'}));
+  });
+
+  it('treats an explicit typed diff-side move as relocation without suppressing genuine removals',()=>{
+    const moved:any={kind:'display-text',value:'Rendelés után',severity:'block',originFile:'src/app/old.tsx'};
+    const genuine:any={kind:'component-key',value:'commerce.legacy-card',severity:'block',originFile:'src/lib/provider.ts'};
+    const sameFile:any={kind:'display-text',value:'Ugyanott marad',severity:'block',originFile:'src/app/same.tsx'};
+    const crossKind:any={kind:'route-literal',value:'/szallitas',severity:'review',originFile:'src/app/routes.ts'};
+
+    const result=reconcileReferenceRelocations(
+      [moved,genuine,sameFile,crossKind],
+      [
+        {kind:'display-text',value:'Rendelés után',severity:'block',originFile:'src/components/new.tsx'},
+        {kind:'display-text',value:'Ugyanott marad',severity:'block',originFile:'src/app/same.tsx'},
+        {kind:'display-text',value:'/szallitas',severity:'block',originFile:'src/components/label.tsx'},
+      ] as any,
+    );
+
+    expect(result.relocations).toEqual([
+      {kind:'display-text',value:'Rendelés után',fromFile:'src/app/old.tsx',toFiles:['src/components/new.tsx']},
+    ]);
+    expect(result.remaining).toEqual(expect.arrayContaining([genuine,sameFile,crossKind]));
+    expect(result.remaining).not.toContain(moved);
+
+    const stale=evaluateCandidateConsumers(
+      result.remaining,
+      [],
+      [{file:'tests/legacy-consumer.test.ts',line:1,text:"expect(key).toBe('commerce.legacy-card')",source:'lexical'}] as any,
+    ).flatMap(item=>item.staleConsumers);
+    expect(stale).toContainEqual(expect.objectContaining({file:'tests/legacy-consumer.test.ts'}));
   });
 
   it('blocks stale cross-file display-text and component-key consumers while preserving semantic source evidence',()=>{
