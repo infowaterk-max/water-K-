@@ -741,7 +741,7 @@ export function resolveAtlasArchitectureForPath(atlas,file,{tombstones=[],planne
     poInstructionAuthority:{
       instructionIds,
       governsDeletion:instructionGovernedTombstone,
-      authorizesPlannedDeletion:instructionGovernedPlannedDeletion,
+      ...(instructionGovernedPlannedDeletion?{authorizesPlannedDeletion:true}:{}),
     },
     resolved:Boolean(domains.length||instructionGovernedTombstone||instructionGovernedPlannedDeletion),
   };
