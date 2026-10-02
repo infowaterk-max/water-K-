@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-PLANNED-DELETION-AUTHORIZATION",
   "task": "Semantic Execution Intelligence: authorize explicit PO-governed planned route deletion before code while preserving Git D as mandatory completion proof.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "aa79c504",
   "changeBaseSha": "2860a9bda9bc151d61fc18917021ea7414bc5acf",
   "plannedFilePatterns": [
@@ -426,5 +426,18 @@
       }
     ]
   },
-  "notes": "Targeted follow-up discovered by #666 plan-only replay after merged #675 and #677. The defect is phase semantics, not storefront scope: planning authorization currently requires completion evidence. No product code or generic architecture exception in this transaction. Canonical planned-projection on main 2860a9 derived no release subsystem classification, SQ-NK-012, guard digest aa79c504; critical completion claims bind explicitly to CAP-ATLAS. Truth exact-head ca71a28e reported OVERCLAIM only because REQ-PLANNED-DELETION-BUILD declared the abstract dimension regression while its exact producers canonically prove types and build. Claim dimensions reconciled to producer semantics; evidence set and implementation unchanged."
+  "notes": "Targeted follow-up discovered by #666 plan-only replay after merged #675 and #677. The defect is phase semantics, not storefront scope: planning authorization currently requires completion evidence. No product code or generic architecture exception in this transaction. Canonical planned-projection on main 2860a9 derived no release subsystem classification, SQ-NK-012, guard digest aa79c504; critical completion claims bind explicitly to CAP-ATLAS. Truth exact-head ca71a28e reported OVERCLAIM only because REQ-PLANNED-DELETION-BUILD declared the abstract dimension regression while its exact producers canonically prove types and build. Claim dimensions reconciled to producer semantics; evidence set and implementation unchanged.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "47ca2c1e92d0d7b5037163f790337bff3cc9c33d",
+    "closedAt": "2026-10-02T04:20:08.418Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-02-PLANNED-DELETION-AUTHORIZATION",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
