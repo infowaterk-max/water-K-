@@ -1,8 +1,8 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONSTRAINT-PLANNER-BRABUS-HARDENING",
-  "task": "Implement the canonical deterministic Constraint Planner that combines accepted Visual Authority, proven Template Genome, proven Template Type semantics and bounded Product Owner production intent into an explainable immutable production constraint plan without mutating Page Schema.",
-  "status": "closed",
+  "taskId": "DEV-MEDIA-PLANNER-COMPILER-BRABUS-HARDENING",
+  "task": "Evolve the existing Template Factory media manifest into a canonical Media Planner / Compiler that converts proven Constraint Plan semantic media requirements into immutable Asset Briefs, validates concrete manifest fulfillment, emits bounded repair actions, supports atomic media-state promotion, and preserves deterministic lineage without generating or selecting assets through a parallel authority.",
+  "status": "ready-for-implementation",
   "guardDigest": "caa987ff",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
@@ -14,6 +14,7 @@
     "src/lib/builder/template-factory/constraint-planner.ts",
     "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
     "src/lib/builder/template-factory/generator-readiness.ts",
+    "src/lib/builder/template-factory/media-planner.ts",
     "src/lib/builder/template-factory/production-contracts.ts",
     "src/lib/builder/template-factory/production-maturity.ts",
     "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
@@ -22,6 +23,7 @@
     "src/lib/builder/template-factory/template-type-system.ts",
     "tests/template-factory-constraint-planner.test.ts",
     "tests/template-factory-generator-readiness.test.ts",
+    "tests/template-factory-media-planner.test.ts",
     "tests/template-factory-production-maturity.test.ts",
     "tests/template-factory-template-genome.test.ts",
     "tests/template-factory-template-type-system.test.ts"
@@ -110,44 +112,47 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-CONSTRAINT-PLANNER-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-MEDIA-PLANNER-COMPILER-BRABUS-HARDENING",
     "riskTier": "critical",
-    "problemStatement": "Genome and Template Type semantics are now proven, but no canonical executable authority combines them with accepted Visual Authority and Product Owner intent into bounded deterministic production constraints. Without this planner, later Media Planner and Dynamic Compiler work would each invent their own interpretation rules and reintroduce manual template-local decisions.",
+    "problemStatement": "The Factory already has concrete media manifests, role/count/aspect constraints and asset states, while the proven Constraint Planner now emits semantic media roles and visual-language constraints. These layers are disconnected: concrete assets are authored manually and semantic intent is not compiled into immutable asset briefs, lineage, bounded repair or promotion semantics.",
     "observableOutcomes": [
-      "One versioned Constraint Planner compiles accepted Visual Authority + Template Genome + Template Type + bounded Product Owner production intent into an immutable deterministic constraint plan.",
-      "Product Owner intent can only narrow or prioritize semantic options already allowed by the selected Template Type and Genome; it cannot invent arbitrary layouts, media roles, component families or engine authorities.",
-      "The planner output contains explainable composition, density, navigation, interaction, content, commerce, media, component, engine, responsive and exclusion constraints plus source lineage and deterministic plan hash.",
-      "Generator Readiness fails closed when production intent is missing, references the wrong Visual Authority, requests unsupported semantics, or produces an invalid planner result.",
-      "The planner does not mutate Page Schema, choose concrete media, generate components or bypass canonical Builder operations.",
-      "Template #3 remains blocked by the remaining Media Planner, distinctness, lineage, dynamic compiler and VX intelligence gaps."
+      "Constraint Plan semantic media roles compile into deterministic immutable Asset Briefs with technical role, count, aspect ratio, page scope, art direction and lineage.",
+      "Existing Factory media manifest remains the concrete asset authority; the Media Planner validates it rather than replacing it.",
+      "Required semantic roles cannot disappear, bind to incompatible technical roles, or be satisfied by unrelated assets.",
+      "Media planning reports technical/internal-reference/ready fulfillment separately and emits bounded repair actions instead of arbitrary source-code mutation.",
+      "Asset state promotion is pure, atomic and fail-closed across planned → internal-reference → ready transitions.",
+      "Generator Readiness consumes Media Planner validity without making actual image generation a prerequisite or creating a new Control Plane gate.",
+      "Distinctness inputs are carried forward as exclusions/art-direction constraints, while similarity scoring remains the separate anti-clone wave."
     ],
     "unresolvedRisks": [
-      "If Product Owner intent is unbounded, the planner becomes a hidden freeform generator and defeats Type/Genome authority.",
-      "If planner output contains concrete component instances or page mutations, it prematurely becomes the Dynamic Compiler.",
-      "If plan identity is not deterministic, downstream lineage and evidence reuse cannot prove which constraints produced a package.",
-      "If accepted Visual Authority is represented twice, reference drift can create conflicting design owners."
+      "Semantic roles such as hero-scene and collector-product currently do not map to generic Factory roles such as hero and product.",
+      "If bindings live only on individual assets, missing future assets cannot be planned deterministically.",
+      "If Media Planner mutates page documents or generates files directly, it becomes a parallel compiler/Builder authority.",
+      "If internal-reference assets count as fully production-ready, Product Owner acceptance can be falsely green.",
+      "Media distinctness must not be falsely claimed before cross-template scoring exists."
     ],
     "scope": {
       "in": [
-        "Canonical versioned Product Owner production intent contract linked to the existing accepted visualAuthority reference key.",
-        "Deterministic constraint planning over proven Template Genome and Template Type System.",
-        "Bounded selection/priority rules for archetypes, semantic media roles, component families, density and canonical engine priorities.",
-        "Carrying existing type/genome navigation, interaction, content, commerce, responsive and exclusion semantics into explainable planner output.",
-        "Deterministic plan hash and source lineage.",
-        "Generator Readiness integration and adversarial planner proofs."
+        "Canonical versioned Media Plan / Asset Brief contract.",
+        "Explicit semantic-role bindings inside existing Factory media manifest.",
+        "Constraint Plan → Media Plan deterministic compilation.",
+        "Manifest/asset fulfillment validation and bounded repair diagnostics.",
+        "Pure atomic asset-state promotion semantics.",
+        "Media lineage hash/source binding.",
+        "Generator Readiness integration and maturity promotion with adversarial proof.",
+        "Loot Vault v2 only as existing accepted canary declaration."
       ],
       "out": [
-        "Page Schema mutation or component generation.",
-        "Concrete media generation/selection or asset promotion.",
-        "Cross-template distinctness scoring.",
-        "Dynamic production compiler activation.",
-        "Template #3 design or implementation.",
-        "New Control Plane gates or parallel completion systems."
+        "Actual image generation or external provider selection.",
+        "Template #3 media generation or authoring.",
+        "Cross-template similarity scoring / anti-clone verdict.",
+        "Dynamic Page Schema composition or section placement.",
+        "New Control Plane gates or media-specific completion authority."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Constraint Planner is the semantic bridge between design authorities and later compilation. It must be deterministic, immutable, fail-closed and authority-preserving because Media Planner and Dynamic Compiler will consume its output. The practical ceiling is exhaustive contract/invariant validation, bounded intent semantics, deterministic hashing, negative/adversarial proofs and Generator Readiness combination proof.",
+      "rationale": "Media planning becomes a compiler input upstream of dynamic production and directly influences template identity. The highest practical assurance is deterministic immutable briefs, explicit semantic bindings, fail-closed manifest validation, bounded repair outputs, pure state transitions, source lineage and adversarial tests while preserving the existing manifest as concrete asset authority.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -165,40 +170,40 @@
         "finite-state-exhaustion"
       ],
       "deferredTechniques": [
-        "media-asset-compilation",
+        "external-media-generation",
         "cross-template-similarity-scoring",
-        "page-schema-synthesis",
-        "dynamic-production-compiler"
+        "dynamic-page-composition"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Constraint Planner has one canonical versioned executable contract under builder-template-system.",
-        "Planner requires accepted Visual Authority, valid Genome, valid Template Type compatibility and explicit bounded Product Owner intent.",
-        "Product Owner selections must be subsets of the Type/Genome semantic intersection where applicable.",
-        "Planner output is deterministic and deeply immutable with a stable content hash and source lineage.",
-        "Planner output carries no concrete media src/referenceSrc, Page Schema nodes or arbitrary source-code instructions.",
-        "Generator Readiness cannot be ready when planner evidence is missing or invalid.",
-        "FACTORY-CONSTRAINT-PLANNER becomes PROVEN only with implementation plus adversarial executable tests.",
-        "Remaining Brabus blockers continue to block Template #3."
+        "One canonical versioned Media Planner compiles a valid Constraint Plan and semantic bindings into immutable deterministic Asset Briefs.",
+        "Every required semantic media role in the Constraint Plan has exactly one explicit binding.",
+        "Bindings remain inside the existing Factory media manifest and map semantic roles to technical role/count/aspect/page constraints.",
+        "Concrete assets may declare semanticRole and are validated against the binding that owns them.",
+        "Planner distinguishes structural validity, technical fulfillment and ready fulfillment.",
+        "Planner emits only bounded repair actions and never edits arbitrary source code or Page Schema.",
+        "Atomic promotion rejects illegal state jumps and invalid reference/local source evidence.",
+        "Generator Readiness fails closed on invalid Media Planning but does not require ready=true for every asset during pre-production.",
+        "FACTORY-MEDIA-PLANNER-COMPILER becomes PROVEN only after implementation + adversarial tests.",
+        "FACTORY-DISTINCTNESS-ANTI-CLONE remains EVOLVE and is not implicitly promoted."
       ],
       "invariants": [
-        "Existing visualAuthority manifest remains the only accepted visual reference authority.",
-        "Template Genome remains template identity/grammar authority.",
-        "Template Type System remains reusable type semantics authority.",
-        "Product Owner intent may narrow/priority-select only; it may not expand canonical semantic authority.",
-        "Constraint Planner plans constraints only and does not emit Builder mutations or compiled pages.",
-        "Commerce truth and Runtime behavior remain in shared platform authorities.",
-        "UNKNOWN, stale, conflicting or unsupported planner input never counts as ready."
+        "Factory media manifest remains concrete media authority.",
+        "Constraint Plan remains semantic production constraint authority.",
+        "Media Planner creates briefs/validation/repair lineage only; it does not become Page Schema or Runtime authority.",
+        "UNKNOWN semantic role, invalid binding or illegal promotion never passes.",
+        "Internal-reference is acceptable for bounded technical QA only, never equivalent to ready Product Owner media.",
+        "Concrete paths remain outside Genome and Constraint Plan."
       ],
       "forbiddenStates": [
-        "template-3-authoring",
-        "parallel-visual-authority",
-        "constraint-plan-page-schema-mutation",
-        "constraint-plan-concrete-media-src",
-        "unbounded-product-owner-freeform",
-        "unsupported-semantic-selection-pass",
-        "non-deterministic-plan-identity"
+        "template-3-media-authoring",
+        "parallel-media-manifest-authority",
+        "media-planner-page-schema-mutation",
+        "media-planner-arbitrary-source-edit",
+        "internal-reference-counted-as-ready",
+        "illegal-planned-to-ready-promotion",
+        "distinctness-falsely-proven"
       ]
     },
     "model": {
@@ -230,38 +235,39 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Product Owner intent references a stale or foreign Visual Authority and planner still emits a plan.",
-        "Intent requests an archetype/media role/component family outside the Type/Genome intersection.",
-        "Intent changes engine expectations beyond the canonical Template Type definition.",
-        "Identical semantic inputs in different set ordering produce different plan hashes.",
-        "Planner output starts containing concrete Page Schema nodes or media file paths.",
-        "Constraint Planner promotion accidentally clears unrelated Template #3 blockers."
+        "Constraint Plan requires hero-scene but manifest has only generic hero assets with no semantic binding.",
+        "Binding exists but concrete assets use a different technical role/aspect ratio.",
+        "A required semantic role has a binding but insufficient technical or ready assets.",
+        "Media asset is promoted directly from planned to ready without reference-stage evidence.",
+        "Media plan hash remains unchanged after art-direction or binding mutation.",
+        "Media Planner writes concrete media paths into Genome or Constraint Plan."
       ],
       "edgeCases": [
-        "Mixed-density Template Type may be narrowed to sparse/balanced/dense; a fixed-density type cannot be contradicted.",
-        "Intent arrays with duplicates or alternate ordering normalize deterministically.",
-        "A valid Type System definition may exist before a Factory foundation; planner validity alone does not imply package readiness.",
-        "A Genome may be richer than the selected type; planner uses semantic intersection for selectable composition/media/components while retaining Genome-owned exclusions and responsive grammar."
+        "Multiple concrete assets may satisfy one semantic brief while one asset may not satisfy multiple semantic roles implicitly.",
+        "Optional semantic roles may have bindings without becoming required by Product Owner intent.",
+        "A technical role may support multiple semantic roles only through separate explicit bindings and assets.",
+        "Internal-reference assets can satisfy technical QA counts but not ready fulfillment.",
+        "A ready asset must be package-owned/local and cannot rely only on referenceSrc."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-DETERMINISTIC-PLANNER",
-        "summary": "Compile a bounded immutable plan from existing authorities and explicit narrow PO intent.",
+        "id": "ALT-MEDIA-BINDING-BRIEFS",
+        "summary": "Compile semantic roles through explicit manifest bindings into Asset Briefs and validate existing assets.",
         "disposition": "selected",
-        "reason": "Preserves authority boundaries and creates a stable upstream contract for Media Planner and Dynamic Compiler."
+        "reason": "It bridges proven semantic constraints to the existing concrete manifest without hidden heuristics or a second asset authority."
       },
       {
-        "id": "ALT-RECIPE-HARDCODE",
-        "summary": "Continue encoding production choices directly in each Factory recipe.",
+        "id": "ALT-ROLE-NAME-HEURISTICS",
+        "summary": "Infer hero/product/editorial roles from semantic-role strings.",
         "disposition": "rejected",
-        "reason": "Would perpetuate template-local manual decisions and force Media/Compiler logic to infer intent from final implementation."
+        "reason": "String heuristics are brittle, non-explainable and would silently miscompile new template types."
       },
       {
-        "id": "ALT-FREEFORM-PO-PROMPT",
-        "summary": "Let Product Owner provide unrestricted textual generator instructions.",
+        "id": "ALT-GENERATOR-DIRECT",
+        "summary": "Let an image generator decide roles, placement and source files directly.",
         "disposition": "rejected",
-        "reason": "Would be non-deterministic, difficult to prove, and capable of bypassing Type/Genome/Builder constraints."
+        "reason": "This would bypass Constraint Planner, manifest authority and bounded production lineage."
       }
     ],
     "specialistReviews": [
@@ -269,126 +275,124 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Visual Authority manifest, Template Genome and Template Type System are already separate canonical inputs; planner should compose them rather than replace them.",
-        "resolution": "Planner consumes authorities by reference/value and emits only an immutable constraint artifact.",
+        "finding": "The correct owner path is Constraint Plan → Media Planner → existing Factory media manifest, not a new media subsystem beside the Factory.",
+        "resolution": "Keep bindings on the manifest and compile a read-only immutable Media Plan consumed by readiness/compiler layers.",
         "evidence": [
-          "src/lib/builder/template-factory/production-contracts.ts",
-          "src/lib/builder/template-factory/template-genome.ts",
-          "src/lib/builder/template-factory/template-type-system.ts"
+          "src/lib/builder/template-factory/constraint-planner.ts",
+          "src/lib/builder/template-factory/scaffold.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A stored planner artifact could become stale if source identities are not embedded and revalidated.",
-        "resolution": "Plan embeds visual reference, Genome hash/version, Type System contract/type and PO intent identity, then hashes normalized content deterministically.",
+        "finding": "Generic media roles alone cannot prove semantic intent; concrete assets can accidentally satisfy the wrong visual purpose.",
+        "resolution": "Require explicit semanticRole bindings and validate each attributed asset against role/aspect/page constraints.",
         "evidence": [
-          "src/lib/builder/template-factory/template-genome.ts",
-          "src/lib/builder/template-factory/generator-readiness.ts"
+          "src/lib/builder/template-factory/recipes/loot-vault-v2.ts"
         ]
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Planner constraints must guide composition without turning each template type into one fixed skeleton.",
-        "resolution": "PO intent selects from semantic intersections and carries type/genome grammar, but no exact section tree or concrete visual assets are emitted.",
+        "finding": "Asset briefs need enough art direction to preserve template identity but must not prescribe exact images and recreate clone skins.",
+        "resolution": "Carry type/genome media language, rules and exclusion signals, not concrete image content.",
         "evidence": [
-          "src/lib/builder/template-factory/template-type-system.ts",
-          "src/lib/builder/template-factory/recipes/loot-vault-v2.ts"
+          "src/lib/builder/template-factory/template-genome.ts",
+          "src/lib/builder/template-factory/template-type-system.ts"
         ]
       },
       {
         "role": "Runtime",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Planner must not become a runtime behavior or commerce authority.",
-        "resolution": "Engine IDs are expectations only and output contains no runtime mutations, commerce state, checkout logic or Page Schema nodes.",
+        "finding": "Media planning must not mutate runtime page documents or commerce state.",
+        "resolution": "Planner returns immutable briefs, fulfillment and repair diagnostics only; current Factory wiring remains authoritative.",
         "evidence": [
-          "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
+          "src/lib/builder/template-factory/scaffold.ts",
           "src/lib/builder/storefront-runtime.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-PLAN-1",
-        "scenario": "PO intent references a different visualAuthority key than the Blueprint.",
-        "finding": "A plan could be produced against the wrong approved design.",
-        "resolution": "Planner fails closed on visual reference mismatch.",
+        "id": "CH-MEDIA-1",
+        "scenario": "Required semantic role has no explicit binding.",
+        "finding": "Planner cannot deterministically convert semantic intent to technical production requirements.",
+        "resolution": "Block plan compilation with MEDIA_PLANNER_REQUIRED_BINDING_MISSING.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-2",
-        "scenario": "PO requests an archetype that exists in Type System but not in this Genome.",
-        "finding": "Type-level validity could overwrite template identity.",
-        "resolution": "Selectable archetypes are the Type/Genome intersection; out-of-intersection request blocks.",
+        "id": "CH-MEDIA-2",
+        "scenario": "Asset claims collector-product but uses editorial technical role.",
+        "finding": "Concrete fulfillment could satisfy the wrong production slot.",
+        "resolution": "Validate semanticRole asset role/aspect/page scope against its brief.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-3",
-        "scenario": "PO requests a semantic media role or component family outside the Type/Genome intersection.",
-        "finding": "Later Media/Compiler stages could silently broaden template identity.",
-        "resolution": "Planner validates required media and preferred component selections as subsets of the intersections.",
+        "id": "CH-MEDIA-3",
+        "scenario": "Only internal-reference assets satisfy a brief.",
+        "finding": "Technical QA may be possible but Product Owner readiness is not.",
+        "resolution": "Expose technicalFulfilled separately from readyFulfilled; never equate them.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-4",
-        "scenario": "PO attempts to prioritize E11 for a gaming type where E11 is not a type engine expectation.",
-        "finding": "Planner could invent unsupported engine requirements.",
-        "resolution": "Intent engine priorities must be subset of selected Type required/priority engine expectations.",
+        "id": "CH-MEDIA-4",
+        "scenario": "planned asset is promoted directly to ready.",
+        "finding": "Atomic promotion and evidence lineage are bypassed.",
+        "resolution": "State machine permits only planned→internal-reference and internal-reference→ready.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-5",
-        "scenario": "Fixed sparse luxury type receives explicit dense density intent.",
-        "finding": "PO preference would contradict reusable type semantics.",
-        "resolution": "Only mixed-density types permit narrowing; fixed-density conflicts block.",
+        "id": "CH-MEDIA-5",
+        "scenario": "Reference promotion lacks HTTPS reference source or ready promotion uses non-local src.",
+        "finding": "State labels could become cosmetic.",
+        "resolution": "Promotion validates evidence/source policy before returning a new manifest.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-6",
-        "scenario": "Semantically identical PO sets arrive in different array order or with duplicates.",
-        "finding": "Naive hashing would create non-deterministic lineage.",
-        "resolution": "Set-like intent fields normalize to sorted unique lists before plan hashing.",
+        "id": "CH-MEDIA-6",
+        "scenario": "Two bindings declare the same semantic role.",
+        "finding": "Compilation becomes order-dependent.",
+        "resolution": "Duplicate semantic roles block planning.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-7",
-        "scenario": "Planner output contains media URL/path or Page Schema node-like structures.",
-        "finding": "Planner would absorb Media Planner/Dynamic Compiler authority.",
-        "resolution": "Planner schema contains semantic constraints only and tests reject concrete-source contamination.",
+        "id": "CH-MEDIA-7",
+        "scenario": "Binding semantic role is outside Constraint Plan allowed roles.",
+        "finding": "Manifest can smuggle media identity not authorized by Type/Genome/PO constraints.",
+        "resolution": "Out-of-bounds bindings fail closed.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-8",
-        "scenario": "Constraint Planner becomes PROVEN while Media Planner/Distinctness/Compiler remain incomplete.",
-        "finding": "Template #3 might be accidentally unblocked.",
-        "resolution": "Maturity promotion is capability-specific; all remaining required blockers continue to block authoring.",
+        "id": "CH-MEDIA-8",
+        "scenario": "Art direction changes but hash/lineage remains stable.",
+        "finding": "Downstream compiler could reuse stale evidence.",
+        "resolution": "Deterministic hash covers constraint source and full Asset Brief content.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Unit/adversarial proof for deterministic normalization/hash, deep immutability and source lineage.",
-      "Fail-closed proof for missing intent, wrong visual reference, unsupported semantic selections, invalid engine priorities and density conflicts.",
-      "Boundary proof that planner output contains no concrete media paths or Page Schema/component instances.",
-      "Generator Readiness combination proof using Loot Vault v2 existing accepted Visual Authority, Genome and Type semantics.",
-      "Production maturity proof promotes only FACTORY-CONSTRAINT-PLANNER and keeps remaining Template #3 blockers.",
-      "Normal CI + exact-head Template Factory Quality Gate v2 + external proof handoff + Completion Truth + lifecycle closure."
+      "Unit/adversarial proof for deterministic Asset Brief compilation, binding uniqueness, semantic bounds and hash mutation.",
+      "Manifest fulfillment proof for technical vs ready counts, role/aspect/page mismatch and bounded repairs.",
+      "Atomic promotion state-machine proof for legal and illegal transitions/source evidence.",
+      "Generator Readiness combination proof using Loot Vault v2 existing accepted media and Constraint Plan.",
+      "Maturity proof promotes only Media Planner while leaving distinctness/dynamic compiler gaps intact.",
+      "Normal CI + exact-head Template Factory Quality Gate v2 + Completion Truth + lifecycle closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-CONSTRAINT-PLANNER-BRABUS-HARDENING",
+      "request": "PO-2026-10-02-MEDIA-PLANNER-COMPILER-BRABUS-HARDENING",
       "authority": [
         "builder-template-system"
       ],
       "mustEdit": [
-        "src/lib/builder/template-factory/constraint-planner.ts",
+        "src/lib/builder/template-factory/media-planner.ts",
         "src/lib/builder/template-factory/scaffold.ts",
         "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
         "src/lib/builder/template-factory/generator-readiness.ts",
         "src/lib/builder/template-factory/production-maturity.ts",
-        "tests/template-factory-constraint-planner.test.ts",
+        "tests/template-factory-media-planner.test.ts",
         "tests/template-factory-generator-readiness.test.ts",
         "tests/template-factory-production-maturity.test.ts"
       ],
@@ -396,12 +400,13 @@
         "src/lib/builder/template-factory/production-contracts.ts"
       ],
       "impactedReadOnly": [
+        "src/lib/builder/template-factory/constraint-planner.ts",
         "src/lib/builder/template-factory/template-genome.ts",
         "src/lib/builder/template-factory/template-type-system.ts",
-        "src/lib/builder/template-factory/engine-functional-proof-registry.ts"
+        "src/lib/builder/storefront-runtime.ts"
       ],
       "proof": [
-        "tests/template-factory-constraint-planner.test.ts",
+        "tests/template-factory-media-planner.test.ts",
         "tests/template-factory-generator-readiness.test.ts",
         "tests/template-factory-production-maturity.test.ts"
       ],
@@ -411,14 +416,14 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-CONSTRAINT-PLANNER-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-MEDIA-PLANNER-COMPILER-BRABUS-HARDENING",
     "requirements": [
       {
-        "id": "REQ-CONSTRAINT-PLANNER",
-        "requirement": "Canonical deterministic Constraint Planner compiles accepted Visual Authority, Genome, Template Type and bounded Product Owner intent into immutable explainable production constraints.",
+        "id": "REQ-MEDIA-PLANNER-COMPILER",
+        "requirement": "Canonical Media Planner compiles Constraint Plan semantic roles and existing manifest bindings into deterministic immutable Asset Briefs with lineage, fulfillment and bounded repair diagnostics.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "constraint-planner",
+          "breadth": "media-planner-compiler",
           "strength": 2,
           "dimensions": [
             "claim-scope",
@@ -440,8 +445,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PLANNER-AUTHORITY-EXPANSION",
-            "statement": "Planner does not create a second visual, runtime, commerce, Page Schema or media authority.",
+            "id": "NEG-MEDIA-PARALLEL-AUTHORITY",
+            "statement": "Media Planner does not replace Factory manifest, Page Schema, Runtime or Constraint Plan authority.",
             "evidence": [
               "GUARD-QUALITY-TESTS",
               "GUARD-TEMPLATE-FACTORY"
@@ -450,46 +455,11 @@
         ]
       },
       {
-        "id": "REQ-CONSTRAINT-PLANNER-FAIL-CLOSED",
-        "requirement": "Missing, stale, conflicting or unsupported planner inputs cannot satisfy Generator Readiness.",
+        "id": "REQ-MEDIA-FAIL-CLOSED",
+        "requirement": "Missing/out-of-bounds bindings, mismatched concrete assets and illegal media-state transitions fail closed and never produce valid planning or promotion.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "constraint-planner-integrity",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "truth",
-            "coverage",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-PLANNER-FALSE-READY",
-            "statement": "Invalid planner evidence cannot produce ready=true.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-CONSTRAINT-PLANNER-SEPARATION",
-        "requirement": "Constraint Planner completion must not promote Media Planner, Distinctness, Dynamic Compiler or Template #3 readiness.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "planner-capability-separation",
+          "breadth": "media-integrity",
           "strength": 2,
           "dimensions": [
             "status",
@@ -511,8 +481,43 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PLANNER-OVERCLAIM",
-            "statement": "Planner proof cannot stand in for downstream Brabus capabilities.",
+            "id": "NEG-MEDIA-FALSE-READY",
+            "statement": "Internal-reference or unrelated assets cannot be reported as ready semantic fulfillment.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-DISTINCTNESS-SEPARATION",
+        "requirement": "Media Planner carries distinctness constraints but cross-template anti-clone capability remains EVOLVE until dedicated executable similarity proof exists.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "capability-separation",
+          "strength": 2,
+          "dimensions": [
+            "status",
+            "classification",
+            "scope",
+            "limitations"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-DISTINCTNESS-FALSE-PROVEN",
+            "statement": "Media Planner completion cannot promote cross-template distinctness.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -521,18 +526,15 @@
       }
     ]
   },
-  "notes": "Third Brabus hardening wave. Template Genome and Template Type System are PROVEN and lifecycle-closed. Constraint Planner is the next upstream dependency before Media Planner and Dynamic Compiler. It must remain semantic/deterministic only; Template #3 remains forbidden. Canonical full-PR projection reconciled on exact Planner head: database-schema is transitively impacted, SQ-NK-014 applies, and guard digest is caa987ff.",
+  "notes": "Fourth Brabus hardening wave. Genome, Type System and Constraint Planner are PROVEN and lifecycle-closed. Media Planner/Compiler now bridges semantic constraints to the existing concrete Factory media manifest. Actual image generation and anti-clone scoring remain separate. Template #3 remains forbidden.",
   "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "45aaa948b8f8cded09388c56a061e1315b4a8d10",
-    "closedAt": "2026-10-02T13:47:38.819Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-CONSTRAINT-PLANNER-BRABUS-HARDENING",
+    "state": "EXECUTE",
+    "truthStatus": "UNVERIFIED",
+    "verifiedImplementationHead": null,
+    "closedAt": null,
+    "sourceRef": "PO-2026-10-02-MEDIA-PLANNER-COMPILER-BRABUS-HARDENING",
     "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+      "state": "pending"
     }
   }
 }
