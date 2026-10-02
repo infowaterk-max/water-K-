@@ -3,7 +3,7 @@
   "taskId": "DEV-VX-INHERITANCE-INTELLIGENCE-CORE-BRABUS-HARDENING",
   "task": "Evolve the existing responsive layout-depth authority into the canonical VX Inheritance Intelligence Core: exact base-plus-viewport provenance, redundant-override diagnostics and deterministic stale-safe bounded propagation using existing responsive setters/resetters, without restoring legacy cascade. Builder-facing adoption remains a separate follow-up change set.",
   "status": "ready-for-implementation",
-  "guardDigest": "79f20cf3",
+  "guardDigest": "94082bf1",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
     "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
@@ -551,7 +551,7 @@
       }
     ]
   },
-  "notes": "Eighth Brabus hardening wave. Factory Genome, Type System, Constraint Planner, Media Planner, deterministic lineage, anti-clone and Dynamic Production Compiler are PROVEN and lifecycle-closed. Dependency order for remaining VX blockers: Inheritance Intelligence → Visual Diff Intelligence → Publish Readiness → Smart Intent → Smart Auto-Fix. This wave handles only Inheritance Intelligence. Template #3 remains forbidden. Canonical Inheritance Intelligence projection reconciled: admin-operations/builder-template-system/shared-storefront/storefront-ui; domains ADMIN/BUILDER/QUALITY/STOREFRONT; authorities admin-operations/builder-template-system/quality-knowledge-system/shared-storefront; negative knowledge excludes SQ-NK-005 and SQ-NK-014; guard digest 79f20cf3. Release Risk Budget split applied: admin-operations UI adoption removed from #701 core slice after score 7/5 and subsystem 4/3 block. Core engine will be proven first; UI adoption is a separate release slice.",
+  "notes": "Eighth Brabus hardening wave. Factory Genome, Type System, Constraint Planner, Media Planner, deterministic lineage, anti-clone and Dynamic Production Compiler are PROVEN and lifecycle-closed. Dependency order for remaining VX blockers: Inheritance Intelligence → Visual Diff Intelligence → Publish Readiness → Smart Intent → Smart Auto-Fix. This wave handles only Inheritance Intelligence. Template #3 remains forbidden. Canonical Inheritance Intelligence projection reconciled: admin-operations/builder-template-system/shared-storefront/storefront-ui; domains ADMIN/BUILDER/QUALITY/STOREFRONT; authorities admin-operations/builder-template-system/quality-knowledge-system/shared-storefront; negative knowledge excludes SQ-NK-005 and SQ-NK-014; guard digest 79f20cf3. Release Risk Budget split applied: admin-operations UI adoption removed from #701 core slice after score 7/5 and subsystem 4/3 block. Core engine will be proven first; UI adoption is a separate release slice. Core-only canonical projection finalized: subsystems builder-template-system/shared-storefront/storefront-ui; guard digest 94082bf1.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
