@@ -459,6 +459,13 @@
         "finding": "Tests and artifacts can prove a synthetic merge commit while claiming exact branch-head provenance.",
         "resolution": "Existing CI checkout is pinned to pull_request.head.sha and Development Transaction head resolution fails closed on an invalid explicit head.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-18",
+        "scenario": "Reference Sync or Release Risk receives an explicit head/base but recomputes from checkout state or silently falls back when the explicit identity cannot resolve.",
+        "finding": "A proof can evaluate a different transaction than the one named in its evidence while remaining internally green.",
+        "resolution": "Reference Sync reads explicit base-to-head refs and verifies checkout identity for semantic Atlas consumers; Release Risk treats unresolved explicit base/head/merge-base as fatal.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -479,7 +486,8 @@
       "Exercise two same-rule review findings with one exact exception and prove only the matching fingerprint is exempt.",
       "Exercise Reference Sync coverage overflow and prove explicit BLOCK rather than truncation.",
       "Re-run exact-head #681 CI only after these truth-coherence regressions pass; keep PR draft and do not merge until lifecycle closure is coherent.",
-      "Prove CI checkout uses pull_request.head.sha for PR jobs and explicit Development Transaction head identity cannot silently fall back."
+      "Prove CI checkout uses pull_request.head.sha for PR jobs and explicit Development Transaction head identity cannot silently fall back.",
+      "Prove Reference Sync base-to-head identity and Release Risk explicit base/head/merge-base fail-closed behavior."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
@@ -713,6 +721,22 @@
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
+          },
+          {
+            "id": "NEG-SILENT-HEAD-REBIND",
+            "statement": "An explicit Development Transaction head never falls back to another commit, merge ref or worktree state.",
+            "evidence": [
+              "GUARD-EDIT-TIME",
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-REFERENCE-SYNC-WORKTREE-DRIFT",
+            "statement": "A/B Reference Sync evaluates the declared base-to-head pair and never substitutes an unrelated checkout/worktree state.",
+            "evidence": [
+              "GUARD-EDIT-TIME",
+              "GUARD-QUALITY-TESTS"
+            ]
           }
         ]
       },
@@ -745,6 +769,14 @@
           {
             "id": "NEG-DELETE-RISK-OMISSION",
             "statement": "A deleted material file cannot disappear from release risk or post-verification material-change detection.",
+            "evidence": [
+              "GUARD-RELEASE-RISK",
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-RELEASE-IDENTITY-FALLBACK",
+            "statement": "Release Risk never silently substitutes another base/head when an explicit release identity is unresolved.",
             "evidence": [
               "GUARD-RELEASE-RISK",
               "GUARD-QUALITY-TESTS"

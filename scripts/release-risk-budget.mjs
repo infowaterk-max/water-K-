@@ -50,7 +50,9 @@ function resolveBase() {
     try {
       git(['cat-file', '-e', `${explicitSha}^{commit}`]);
       return explicitSha;
-    } catch {}
+    } catch {
+      throw new Error(`RELEASE_RISK_EXPLICIT_BASE_UNRESOLVED:${explicitSha}`);
+    }
   }
 
   const explicitRef = process.env.RELEASE_BASE_REF?.trim();
@@ -58,7 +60,9 @@ function resolveBase() {
     try {
       git(['cat-file', '-e', `${explicitRef}^{commit}`]);
       return explicitRef;
-    } catch {}
+    } catch {
+      throw new Error(`RELEASE_RISK_EXPLICIT_BASE_REF_UNRESOLVED:${explicitRef}`);
+    }
   }
 
   for (const candidate of ['origin/main', 'main', 'HEAD^']) {
@@ -77,7 +81,9 @@ function resolveHead() {
     try {
       git(['cat-file', '-e', `${explicit}^{commit}`]);
       return explicit;
-    } catch {}
+    } catch {
+      throw new Error(`RELEASE_RISK_EXPLICIT_HEAD_UNRESOLVED:${explicit}`);
+    }
   }
   return git(['rev-parse', 'HEAD']);
 }
@@ -87,7 +93,9 @@ const releaseHead = resolveHead();
 let mergeBase = base;
 try {
   mergeBase = git(['merge-base', releaseHead, base]);
-} catch {}
+} catch {
+  throw new Error(`RELEASE_RISK_MERGE_BASE_UNRESOLVED:${base}:${releaseHead}`);
+}
 
 const diff = git(['diff', '--name-only', '--diff-filter=ACMRD', `${mergeBase}..${releaseHead}`]);
 const changedFiles = diff ? diff.split('\n').filter(Boolean) : [];

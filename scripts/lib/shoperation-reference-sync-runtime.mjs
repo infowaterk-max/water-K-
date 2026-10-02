@@ -91,10 +91,10 @@ export function reconcileReferenceRelocations(candidates,addedCandidates){
   return{remaining,relocations};
 }
 
-function diffData(base){
+function diffData(base,head){
   let patch='',names='';
-  try{patch=git(['diff','--find-renames','--unified=0','--no-color',base,'--']);}catch{}
-  try{names=git(['diff','--find-renames','--name-status',base,'--']);}catch{}
+  try{patch=git(['diff','--find-renames','--unified=0','--no-color',base,head,'--']);}catch{}
+  try{names=git(['diff','--find-renames','--name-status',base,head,'--']);}catch{}
   const candidates=[],addedCandidates=[],changed=[];let file='',hunk=0,removed=[],added=[];
   const flush=()=>{
     const before=removed.flatMap(line=>extractReferenceCandidatesFromLine(line,file));
@@ -130,14 +130,14 @@ function diffData(base){
   const absentAtBase=new Set(files.filter(item=>['A','R','C'].includes(item.status)).map(item=>item.neu).filter(Boolean));
   for(const fileName of new Set(files.flatMap(item=>[item.old,item.neu]).filter(Boolean))){
     if(!isText(fileName))continue;
-    const before=absentAtBase.has(fileName)?'':at(base,fileName),relocatedTo=movedByOld.get(fileName),after=current(relocatedTo??fileName);if(!before)continue;
+    const before=absentAtBase.has(fileName)?'':at(base,fileName),relocatedTo=movedByOld.get(fileName),after=at(head,relocatedTo??fileName);if(!before)continue;
     for(const symbol of exportsRemovedAcrossPathChange(before,after))candidates.push({kind:'export-symbol',value:symbol,severity:'block',originFile:fileName,relocatedTo:relocatedTo??null});
   }
   const relocation=reconcileReferenceRelocations(candidates,addedCandidates);
   const seen=new Set();
   const uniqueCandidates=relocation.remaining.filter(candidate=>{
     const key=`${candidate.kind}|${candidate.value}|${candidate.originFile}`;if(seen.has(key))return false;seen.add(key);
-    const source=current(candidate.originFile);if(!source)return true;
+    const source=at(head,candidate.originFile);if(!source)return true;
     if(candidate.kind==='export-symbol')return!exportsOf(source).has(candidate.value);
     if(candidate.kind==='css-class')return!new RegExp(`\\.${escapeRegExp(candidate.value)}(?![\\w-])`).test(source);
     return!source.includes(candidate.value);
@@ -207,16 +207,19 @@ export function evaluateCandidateConsumers(candidates,before,after){
 
 export function evaluateReferenceSynchronization({base,head}){
   if(!base)return{contract:'shoporation.reference-sync.v2',base,head,decision:'BLOCK',reason:'REFERENCE_SYNC_BASE_REQUIRED',staleConsumers:[],reviewConsumers:[],updatedConsumers:[]};
-  const diff=diffData(base),patterns=[...new Set(diff.candidates.map(item=>item.value))];
+  if(!head)return{contract:'shoporation.reference-sync.v2',base,head,decision:'BLOCK',reason:'REFERENCE_SYNC_HEAD_REQUIRED',staleConsumers:[],reviewConsumers:[],updatedConsumers:[]};
+  let resolvedHead='',checkoutHead='';try{resolvedHead=git(['rev-parse',head]).trim();checkoutHead=git(['rev-parse','HEAD']).trim();}catch{}
+  if(!resolvedHead||!checkoutHead||resolvedHead!==checkoutHead)return{contract:'shoporation.reference-sync.v2',base,head,decision:'BLOCK',reason:'REFERENCE_SYNC_CHECKOUT_HEAD_MISMATCH',identity:{resolvedHead:resolvedHead||null,checkoutHead:checkoutHead||null},staleConsumers:[],reviewConsumers:[],updatedConsumers:[]};
+  const diff=diffData(base,head),patterns=[...new Set(diff.candidates.map(item=>item.value))];
   const before=grep(patterns,base);
   const atlas=buildCodebaseAtlas();
-  const after=[...grep(patterns,null),...semanticConsumers(atlas,diff.candidates)];
+  const after=[...grep(patterns,head),...semanticConsumers(atlas,diff.candidates)];
   const consumers=evaluateCandidateConsumers(diff.candidates,before,after);
   const staleConsumers=consumers.flatMap(item=>item.staleConsumers.map(row=>({reference:item.candidate,...row})));
   const reviewConsumers=consumers.flatMap(item=>item.reviewConsumers.map(row=>({reference:item.candidate,...row})));
   const updatedConsumers=[...new Set(consumers.flatMap(item=>item.updatedConsumers))];
   return{
-    contract:'shoporation.reference-sync.v2',base,head,
+    contract:'shoporation.reference-sync.v2',base,head,identity:{resolvedHead,checkoutHead},
     semanticGraph:{contract:atlas.semanticGraph?.contract??null,typeCheckerAvailable:atlas.semanticGraph?.typeCheckerAvailable===true},
     before:{changedFiles:diff.files.map(item=>item.old),candidateCount:diff.candidateCoverage?.totalCandidateCount??diff.candidates.length,processedCandidateCount:diff.candidates.length,consumerHitCount:before.length},
     after:{changedFiles:diff.files.map(item=>item.neu).filter(Boolean),consumerHitCount:after.length},

@@ -45,6 +45,9 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(knowledge).toContain('transaction.materialDeletedFiles??[]');
     expect(risk).toContain("'--diff-filter=ACMRD'");
     expect(truth).toContain("'--diff-filter=ACMRD'");
+    expect(risk).toContain('RELEASE_RISK_EXPLICIT_BASE_UNRESOLVED');
+    expect(risk).toContain('RELEASE_RISK_EXPLICIT_HEAD_UNRESOLVED');
+    expect(risk).toContain('RELEASE_RISK_MERGE_BASE_UNRESOLVED');
   });
   it('resolves pull-request head identity before generic GITHUB_SHA fallback',()=>{
     const runtime=readFileSync('scripts/lib/shoperation-development-runtime.mjs','utf8');
@@ -69,7 +72,7 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(workflow).toContain('DEVELOPMENT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}');
   });
   it('wires development-time guards into PR CI while preserving post-merge replay and evidence',()=>{for(const file of ['.github/workflows/ci.yml','.github/workflows/template-factory-quality-gate.yml']){const workflow=readFileSync(file,'utf8');expect(workflow).toContain("Plan Before Code Gate\n        if: github.event_name == 'pull_request'");expect(workflow).toContain("Edit-Time Known Failure Guard\n        if: github.event_name == 'pull_request'");expect(workflow).toContain('Incremental Known Failure Replay');expect(workflow).toContain('shoperation-plan-before-code.mjs --check');expect(workflow).toContain('shoperation-edit-time-guard.mjs --check');expect(workflow).toContain('shoperation-incremental-replay.mjs --check');expect(workflow).toContain('INCREMENTAL_OUTCOME');expect(workflow).toContain('INCREMENTAL_REPLAY_FAILED');expect(workflow).toContain('Upload Development Guard evidence');}});
-  it('runs A/B Reference Sync before replay and catches stale source assertions plus deleted asset paths',()=>{const output=execFileSync(process.execPath,['scripts/lib/shoperation-reference-sync-runtime.mjs','--self-test'],{encoding:'utf8'});expect(output).toContain('Reference Sync self-test: PASS');expect(output).toContain('coverage-overflow=BLOCK');const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');expect(edit).toContain('evaluateReferenceSynchronization');expect(edit).toContain('DEV-BLOCK-REFERENCE-SYNC');expect(edit).toContain('DEV-REVIEW-REFERENCE-SYNC');expect(edit).toContain('reference-sync.json');expect(policy.generalRules.some(rule=>rule.includes('repository-wide Reference Sync closure'))).toBe(true);});
+  it('runs A/B Reference Sync before replay and catches stale source assertions plus deleted asset paths',()=>{const output=execFileSync(process.execPath,['scripts/lib/shoperation-reference-sync-runtime.mjs','--self-test'],{encoding:'utf8'});expect(output).toContain('Reference Sync self-test: PASS');expect(output).toContain('coverage-overflow=BLOCK');const refSource=readFileSync('scripts/lib/shoperation-reference-sync-runtime.mjs','utf8');expect(refSource).toContain('diffData(base,head)');expect(refSource).toContain('grep(patterns,head)');expect(refSource).toContain('REFERENCE_SYNC_CHECKOUT_HEAD_MISMATCH');const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');expect(edit).toContain('evaluateReferenceSynchronization');expect(edit).toContain('DEV-BLOCK-REFERENCE-SYNC');expect(edit).toContain('DEV-REVIEW-REFERENCE-SYNC');expect(edit).toContain('reference-sync.json');expect(policy.generalRules.some(rule=>rule.includes('repository-wide Reference Sync closure'))).toBe(true);});
   it('enforces durable PO instruction required edits in both plan and edit-time directions',()=>{
     const plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
     const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');
