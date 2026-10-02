@@ -292,6 +292,13 @@
         "finding": "Physical reuse could continue under verification semantics that were never shadow-proven.",
         "resolution": "Bind the handoff module and CI wiring into verification-engine identity so semantic changes invalidate prior promotion evidence.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-9",
+        "scenario": "Completion Contract uses intuitive dimension labels such as provenance/evidence that are not canonical dimensions declared by its evidence guards.",
+        "finding": "Sentinel correctly treats semantic synonyms as unproven rather than guessing equivalence, so a human-readable claim can still be machine-invalid.",
+        "resolution": "Bind Completion claimScope dimensions to the exact Guard Registry vocabulary currently proven by the referenced guards; semantic aliases do not count as proof.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -416,7 +423,7 @@
           "strength": 2,
           "dimensions": [
             "scope",
-            "evidence",
+            "evidence-scope",
             "limitations"
           ]
         },
@@ -451,7 +458,6 @@
           "dimensions": [
             "truth",
             "freshness",
-            "provenance",
             "coverage",
             "limitations"
           ]
@@ -485,9 +491,9 @@
           "breadth": "external-proof-truth-integration",
           "strength": 2,
           "dimensions": [
-            "evidence",
             "truth",
             "resumable",
+            "evidence-scope",
             "limitations"
           ]
         },
@@ -516,7 +522,7 @@
       }
     ]
   },
-  "notes": "Isolated foundation extracted from the Brabus revalidation after Release Risk correctly blocked the mixed 4-subsystem/7-point Development Transaction. This branch changes only quality/release evidence transport. It does not implement or modify any Builder, template, Runtime or Factory maturity capability.",
+  "notes": "Isolated foundation extracted from the Brabus revalidation after Release Risk correctly blocked the mixed 4-subsystem/7-point Development Transaction. This branch changes only quality/release evidence transport. It does not implement or modify any Builder, template, Runtime or Factory maturity capability. Exact-head Quality exposed two proof-model issues: the handoff regression searched a fail-closed code in the wrapper instead of its owning helper, and Sentinel rejected noncanonical Completion claim dimensions. Both are repaired at their actual semantic owner; Sentinel is not weakened.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
