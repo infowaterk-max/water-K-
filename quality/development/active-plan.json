@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-REFERENCE-RELOCATION-SEMANTICS",
   "task": "Reference Sync: distinguish typed references relocated into new/changed files from genuinely removed references while preserving stale-consumer blocking.",
   "status": "ready-for-implementation",
-  "guardDigest": "62903da6",
+  "guardDigest": "aa79c504",
   "changeBaseSha": "055a819a96bce7127f2fdf5258f4b85f47e84d74",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -11,15 +11,9 @@
     "scripts/lib/shoperation-reference-sync-runtime.d.mts",
     "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
-  "expectedSubsystems": [
-    "quality-knowledge-system"
-  ],
-  "expectedDomains": [
-    "DOMAIN-QUALITY"
-  ],
-  "expectedAuthorities": [
-    "quality-knowledge-system"
-  ],
+  "expectedSubsystems": [],
+  "expectedDomains": [],
+  "expectedAuthorities": [],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
@@ -293,6 +287,20 @@
         "finding": "Relocation provenance can be one-to-many.",
         "resolution": "Record all matching added current paths while suppressing only the removed-candidate classification.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-7",
+        "scenario": "A common customer-facing display string exists unchanged in unrelated runtime files while its owning presentation is moved.",
+        "finding": "Lexical equality alone does not prove those unrelated files consume the moved presentation authority; treating every peer as stale creates false required edits.",
+        "resolution": "Relocation is proven only by same-kind/value added-side diff evidence; unchanged lexical peers are not promoted into relocation authority and genuine source assertions remain covered by negative controls.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-8",
+        "scenario": "A moved typed reference is added in one changed file while a genuine old contract assertion remains unchanged elsewhere.",
+        "finding": "The relocation fix could incorrectly suppress the real stale assertion if it globally ignores the candidate after detecting one destination.",
+        "resolution": "Record relocation provenance separately from consumer evaluation and preserve blocking for contract kinds whose old identity remains genuinely removed rather than broadly suppressing repository hits.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -431,5 +439,5 @@
       }
     ]
   },
-  "notes": "Targeted Reference Sync capability correction proven by PR #666 exact-head replay. No storefront implementation or gate weakening in this transaction."
+  "notes": "Targeted Reference Sync capability correction proven by PR #666 exact-head replay. No storefront implementation or gate weakening in this transaction. Canonical plan-only projection on main 055a819a reported no domain/authority/subsystem ownership for the three planned quality-runtime/test files, negative knowledge SQ-NK-010/011/012/014/015, guard digest aa79c504, and critical challenge minimum 8; plan aligned to those repository-derived facts before implementation."
 }
