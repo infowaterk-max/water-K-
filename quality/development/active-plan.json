@@ -1,19 +1,18 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-SENTINEL-INTEGRITY-DIVERGENCE-CORRELATION",
-  "task": "Extend Sentinel with general integrity divergence correlation across existing Control Plane authorities and evidence.",
+  "taskId": "DEV-CONTROL-PLANE-EXTERNAL-PROOF-HANDOFF",
+  "task": "Bind required exact-head evidence from existing parallel workflows into the canonical Resumable Verification and Completion Truth authority without creating another gate.",
   "status": "closed",
   "guardDigest": "efe9d183",
-  "changeBaseSha": "ca7dd6e85e521bca2732590a3a5a8afe3f489ea7",
+  "changeBaseSha": "d34e9ee152205440c553b6b8662c7b14042137d2",
   "plannedFilePatterns": [
-    "scripts/lib/shoperation-sentinel-integrity.mjs",
-    "scripts/shoperation-sentinel-integrity-probe.mjs",
-    "scripts/shoperation-sentinel-scan.mjs",
-    "quality/knowledge/sentinel-policy.v1.json",
+    "quality/development/active-plan.json",
+    "scripts/shoperation-external-proof-handoff.mjs",
+    "scripts/shoperation-verification-checkpoint.mjs",
     "quality/knowledge/guard-registry.v1.json",
-    ".github/workflows/shoperation-sentinel.yml",
-    "tests/shoperation-sentinel.test.ts",
-    "tests/shoperation-sentinel-integrity.test.ts"
+    ".github/workflows/ci.yml",
+    "tests/shoperation-external-proof-handoff.test.ts",
+    "tests/shoperation-resumable-verification.test.ts"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -89,40 +88,43 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-SENTINEL-INTEGRITY-DIVERGENCE",
+    "sourceRef": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
     "riskTier": "critical",
-    "problemStatement": "Sentinel currently observes workflow trends, Failure Intake and Deep Atlas attention, but it does not generically correlate contradictions between declared truth, authority, proof semantics, transaction identity, coverage and downstream execution. The just-closed Control Plane repair proved that status laundering, provenance drift, deletion blindness, evidence/workflow disagreement and semantic proof drift can coexist while individual controls look locally valid.",
+    "problemStatement": "The current Completion Truth authority can consume evidence produced inside normal CI, but a mandatory proof produced by a separate exact-head workflow can be either permanently MISSING or silently moved outside the machine-readable Completion Contract. The Brabus revalidation exposed both failure modes: including GUARD-TEMPLATE-FACTORY deadlocked Truth because CI could not see the sibling workflow artifact; removing it let Completion Truth become VERIFIED_DONE before Template Factory completed. The fix must transport external exact-head evidence into the existing Resumable Verification manifest while preserving one Completion Truth authority.",
     "observableOutcomes": [
-      "Sentinel evaluates a normalized integrity model that can report authority, provenance, decision, coverage and proof-semantics divergence without hard-coding one PR or defect number.",
-      "A child BLOCK, failed artifact, stale transaction identity or incomplete coverage can never be interpreted by Sentinel as a healthy integrity state when the surrounding workflow reports success.",
-      "Sentinel correlates the existing Guard Registry and active Completion Contract so unknown evidence references, capability mismatch, scope overclaim and missing proof dimensions become explicit integrity findings.",
-      "Sentinel keeps the existing Deep Atlas authority boundary intact: architecture findings are consumed as existing evidence rather than replaced by a second Atlas or blocking gate.",
-      "The daily Sentinel workflow executes the integrity probe before trend correlation and a missing or UNKNOWN probe remains visible instead of silently producing HEALTHY.",
-      "Sentinel remains observation-only, cannot mutate code, cannot merge, and cannot override Control Plane, Atlas, Failure Intake, Release Risk or Completion Truth authority."
+      "Completion Contract references to supported external guards are detected from structured evidence references rather than hard-coded per-task prose.",
+      "Normal CI waits only for an external guard that the active Completion Contract actually requires.",
+      "A successful external workflow is insufficient by itself: exact head, branch, state version, producer run and machine-readable artifact truth must all agree.",
+      "Validated external proof is normalized into the existing Resumable Verification final evidence manifest and consumed by the existing Completion Truth Gate.",
+      "Missing, failed, stale, wrong-head, wrong-branch, malformed, incomplete or ambiguous external evidence fails closed.",
+      "Development transactions that do not require an external guard do not wait for Template Factory and preserve current CI behavior.",
+      "No second quality gate, Completion Truth authority, Template Factory authority or release authority is created."
     ],
     "unresolvedRisks": [
-      "Daily observation can only correlate evidence that is available on main or normalized into the Sentinel probe; feature-branch defects still rely on the existing change-time Control Plane until merged.",
-      "Generic evidence schemas must avoid guessing semantics from human prose, otherwise broad anomaly detection could create false positive authority conflicts.",
-      "Not every existing guard exposes a JSON artifact or full proof semantics, so missing evidence must remain visible without falsely claiming that every absence is a product defect.",
-      "The integrity probe must stay computationally cheap and deterministic because Sentinel runs daily and must not become a duplicate full CI or Deep Atlas execution."
+      "Cross-workflow waiting increases CI wall time only for transactions whose Completion Contract explicitly requires the external proof.",
+      "The first supported producer is GUARD-TEMPLATE-FACTORY; future external guards require an explicit adapter/validator instead of generic trust in arbitrary workflow artifacts.",
+      "GitHub Actions artifact/API availability is an external transport dependency; unavailable evidence remains BLOCK rather than guessed PASS."
     ],
     "scope": {
       "in": [
-        "Existing Shoperation Sentinel scan, policy and scheduled workflow.",
-        "A Sentinel-internal integrity correlator that consumes existing authority declarations and normalized evidence without gaining blocking authority.",
-        "Guard dependency/responsibility coherence, active Completion Contract proof semantics, exact-state provenance, decision monotonicity, deletion visibility and coverage completeness.",
-        "Fail-visible UNKNOWN behavior and adversarial tests for the generic divergence classes exposed by the latest Control Plane repair."
+        "Existing Completion Contract evidence references and Guard Registry identities.",
+        "Existing Resumable Verification final evidence manifest and Completion Truth Gate.",
+        "Generic external-proof requirement detection for guards absent from the local verification plan.",
+        "Exact-head Template Factory workflow/artifact transport as the first supported external producer.",
+        "CI orchestration needed to wait boundedly, download, validate and hand off required external proof.",
+        "Adversarial regression coverage for stale/mismatched/failed/malformed/incomplete external proof."
       ],
       "out": [
-        "Any new blocking CI gate, release authority, Atlas authority, Failure Intake authority or autonomous repair system.",
-        "Re-running the full Deep Atlas or complete regression suite inside the daily Sentinel workflow.",
-        "Free-text contradiction inference or automatic mutation of rules, code, plans, Known Failures or evidence.",
-        "Product/storefront/template changes unrelated to Sentinel integrity observation."
+        "Any Builder, Template Factory maturity model, storefront runtime or template implementation.",
+        "Any second blocking gate, Completion Truth authority, release authority or Template Factory authority.",
+        "Weakening Release Risk, Sentinel, Proof Semantics, Plan Before Code or existing exact-head provenance rules.",
+        "Treating workflow success without machine-readable artifact proof as completion evidence.",
+        "General trust of arbitrary external workflow artifacts without an explicit validator."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This change observes the self-consistency of the system that decides whether development evidence is trustworthy. The practical ceiling is therefore a normalized, fail-visible correlation layer with adversarial proofs for known contradiction classes, while reusing existing authorities rather than duplicating their decisions or turning Sentinel into another blocker.",
+      "rationale": "This change modifies the evidence path used by the authority that decides whether a Development Transaction is actually complete. The highest practical assurance level is exact-head fail-closed provenance, artifact/workflow decision reconciliation, bounded transport, explicit supported-producer validation and adversarial proof against evidence laundering, without adding a parallel completion system.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -139,36 +141,32 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "A synthetic parent PASS containing a child BLOCK is reported as an ACTION integrity finding and cannot yield a HEALTHY Sentinel report.",
-        "A workflow success paired with a machine-readable artifact BLOCK is reported as decision laundering rather than accepted as successful evidence.",
-        "Declared base/head provenance that is unresolved or differs from evaluated base/head is reported as transaction identity drift.",
-        "A delete-only material change omitted from an observer change set is reported as deletion visibility drift.",
-        "Coverage truncation or observed coverage smaller than declared expected coverage is reported explicitly and cannot be hidden by a PASS decision.",
-        "Completion Contract evidence references are checked against the existing Guard Registry for guard existence, required capability, proof strength and required dimensions.",
-        "Duplicate blocking responsibility, unknown guard dependency and dependency cycles are reported from the existing Guard Registry without creating another registry.",
-        "Missing or UNKNOWN integrity-probe evidence makes Sentinel REVIEW-visible; it never silently collapses to HEALTHY.",
-        "The scheduled workflow runs the integrity probe and the existing Sentinel scan remains observation-only with autoMutationAllowed=false."
+        "A Completion Contract requiring GUARD-TEMPLATE-FACTORY cannot reach VERIFIED_DONE until an exact-head successful Template Factory artifact is validated and present in the canonical final evidence set.",
+        "A Completion Contract that does not require GUARD-TEMPLATE-FACTORY does not wait for or synthesize Template Factory evidence.",
+        "Wrong-head, wrong-branch, failed workflow, missing run identity, invalid contract, invalid checksum, incomplete browser matrix or artifact errors all fail closed.",
+        "An older successful artifact from the same branch cannot satisfy a newer exact-head requirement.",
+        "Workflow success plus artifact BLOCK/incomplete state cannot be laundered into PASS.",
+        "External evidence is merged into the existing Resumable Verification final-evidence-manifest and the existing Completion Truth Gate remains the only completion decision authority.",
+        "The handoff helper is part of verification-engine identity so later semantic changes invalidate stale resumable-promotion proof.",
+        "Quality tests, TypeScript and production build remain green on the exact foundation head.",
+        "Release Risk stays inside budget for this isolated quality/release foundation transaction."
       ],
       "invariants": [
-        "Sentinel observes and correlates authority outputs but never becomes the authority that defines their domain truth.",
-        "Integrity classification is based on structured machine-readable fields and registry contracts, never inferred from human prose.",
-        "Blocking child truth is monotonic for observation: downstream PASS cannot erase BLOCK, FAIL, STALE, UNRESOLVED or UNKNOWN evidence.",
-        "Exact-state provenance is part of evidence identity; a different base, head, branch or state cannot be treated as equivalent without explicit proof.",
-        "Expected coverage and deletions are first-class integrity dimensions; missing observation is not equivalent to absence of change.",
-        "One blocking responsibility has one owner and guard dependency relationships must remain resolvable and acyclic.",
-        "UNKNOWN remains visible and conservative; Sentinel may recommend deeper verification but may not manufacture PASS."
+        "One completion decision authority: GUARD-COMPLETION-TRUTH.",
+        "External proof transport never decides completion; it only normalizes validated evidence.",
+        "Exact head, branch, state version, producer workflow/run and artifact truth are part of evidence identity.",
+        "UNKNOWN or unavailable external proof is BLOCK, never probable PASS.",
+        "Existing producer authority remains authoritative for its own result; the handoff cannot rewrite or upgrade it.",
+        "Verification-engine semantics include the handoff implementation and CI wiring."
       ],
       "forbiddenStates": [
-        "sentinel-hardcoded-pr-defect-detector",
-        "new-parallel-integrity-gate",
-        "child-block-observed-as-healthy",
-        "artifact-block-workflow-success-observed-as-healthy",
-        "transaction-identity-drift-observed-as-fresh",
-        "delete-only-change-disappears-from-observation",
-        "coverage-truncation-observed-as-complete",
-        "proof-capability-or-dimension-drift-observed-as-proven",
-        "missing-integrity-probe-collapses-to-healthy",
-        "sentinel-autonomous-code-or-rule-mutation"
+        "completion-truth-verified-before-required-external-proof",
+        "external-workflow-success-without-artifact-truth-counted-pass",
+        "stale-external-artifact-reused-as-current-head",
+        "wrong-branch-or-wrong-head-proof-accepted",
+        "external-proof-transport-becomes-second-completion-gate",
+        "unrequested-template-factory-wait-on-unrelated-development",
+        "verification-engine-change-retains-stale-promotion-proof"
       ]
     },
     "model": {
@@ -200,44 +198,167 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A specialist artifact records BLOCK while the wrapper or workflow reports success and trend-only Sentinel sees a healthy run.",
-        "Two blocking guards accidentally share one responsibility or a guard dependency points to an unknown/cyclic owner.",
-        "A Completion Contract keeps an evidence ID after its Guard Registry proof capability or dimensions change.",
-        "A transaction is evaluated on a different base/head than the evidence metadata claims.",
-        "A delete-only change or truncated Reference Sync candidate set disappears from a downstream observer while decision remains PASS.",
-        "The integrity probe itself fails or is missing and the trend scan interprets lack of evidence as health.",
-        "Architecture drift is reimplemented in Sentinel instead of being consumed from existing Atlas/Deep Atlas authority.",
-        "Development branch noise is promoted to canonical platform-health action without main/scheduled evidence."
+        "Normal CI verifies local evidence and closes while mandatory sibling workflow proof is still running.",
+        "A required external guard remains permanently MISSING because its artifact is never normalized into the local manifest.",
+        "Branch-only lookup selects an older successful workflow artifact for a newer head.",
+        "Workflow status is success while its machine-readable artifact is incomplete or contains errors.",
+        "Malformed or absent external artifact is silently ignored.",
+        "An unrelated development transaction waits for Template Factory even though its Completion Contract never references it.",
+        "The handoff semantics change without invalidating resumable verification promotion identity."
       ],
       "edgeCases": [
-        "No active Completion Contract requirement references a guard with detailed proof semantics.",
-        "A referenced guard uses wildcard capability but low scope strength.",
-        "Multiple evidence producers jointly cover required dimensions while no single producer covers all dimensions.",
-        "An evidence record has no child decisions and therefore must not invent a monotonicity conflict.",
-        "Expected deletion set is empty and must not create a false deletion warning.",
-        "Coverage expected and observed counts are equal exactly at a supported implementation bound.",
-        "A nonblocking observation signal depends on a blocking guard and must not become a second blocker.",
-        "Current closed plan verified head is an ancestor of main but later metadata-only commits exist."
+        "No external evidence references exist.",
+        "Completion Contract is closed and must not create a fresh external wait.",
+        "Multiple local evidence references plus one external evidence reference exist in the same requirement.",
+        "A producer run is queued/in-progress while an older exact-branch success exists.",
+        "A producer run is terminal failure with a leftover artifact.",
+        "Duplicate external evidence records target the same guard.",
+        "Unsupported external guard is referenced and must fail visible rather than guessed."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-SENTINEL-CORRELATOR",
-        "summary": "Extend the existing Sentinel with a normalized integrity correlator and daily probe that reuse current Control Plane authorities.",
+        "id": "ALT-EXISTING-TRUTH-HANDOFF",
+        "summary": "Transport validated sibling-workflow proof into the existing Resumable Verification evidence manifest and let the existing Completion Truth decide closure.",
         "disposition": "selected",
-        "reason": "It detects cross-authority contradictions at the observation layer without adding a new blocking owner or duplicating Atlas and Completion Truth logic."
+        "reason": "Preserves one completion authority, avoids proof duplication and closes both the permanent-MISSING and false-closure failure modes."
       },
       {
-        "id": "ALT-NEW-INTEGRITY-GATE",
-        "summary": "Create a new blocking Integrity Gate after the existing Control Plane chain and make it the final release decision.",
+        "id": "ALT-MANUAL-MERGE-CHECK",
+        "summary": "Remove external proof from Completion Contract and rely on a manual pre-merge check.",
         "disposition": "rejected",
-        "reason": "It would duplicate authority, add another place for rule disagreement, and recreate the exact parallel-gate problem this work is meant to prevent."
+        "reason": "The Brabus run already proved Completion Truth can become VERIFIED_DONE before the sibling proof finishes; manual policy is not machine-enforced completion truth."
       },
       {
-        "id": "ALT-HARDCODE-681",
-        "summary": "Teach Sentinel only the concrete pingpong, Reference Sync and proof-semantic symptoms observed in the most recent repair.",
+        "id": "ALT-SECOND-CROSS-WORKFLOW-GATE",
+        "summary": "Create a dedicated cross-workflow completion gate beside Completion Truth.",
         "disposition": "rejected",
-        "reason": "Concrete signatures would miss the next structurally equivalent defect when filenames, guards or workflows change, leaving detection dependent on manual discovery again."
+        "reason": "Would duplicate blocking responsibility and recreate the rule/gate ping-pong architecture the Control Plane is intended to eliminate."
+      }
+    ],
+    "challenge": [
+      {
+        "id": "CH-1",
+        "scenario": "The sibling Template Factory workflow is still running while normal CI reaches its Completion Truth step.",
+        "finding": "Immediate Truth evaluation sees required evidence as missing and either deadlocks or tempts developers to remove the requirement.",
+        "resolution": "CI detects the required external guard from the Completion Contract and waits boundedly for the exact-head producer run before Resumable Verification finalization.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-2",
+        "scenario": "An older successful Template Factory run exists on the same feature branch.",
+        "finding": "Branch-based selection could launder stale browser evidence into the current transaction.",
+        "resolution": "Producer selection and artifact validation are exact-head; branch alone is never sufficient.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-3",
+        "scenario": "GitHub reports workflow success but the downloaded Template Factory manifest is incomplete or contains errors.",
+        "finding": "Transport status could override semantic producer truth.",
+        "resolution": "Require both successful workflow conclusion and validated machine-readable manifest contract/checksum/source identity/browser completeness.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-4",
+        "scenario": "The active Completion Contract contains no supported external guard.",
+        "finding": "A global wait would slow every development transaction and couple unrelated work to Template Factory.",
+        "resolution": "Requirement detection is contract-driven; no reference means no wait, no artifact download and no synthesized evidence.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-5",
+        "scenario": "The handoff implementation itself changes after resumable verification promotion.",
+        "finding": "Old promotion credit could authorize physical evidence reuse under new semantics.",
+        "resolution": "Include handoff implementation and CI wiring in verification-engine identity and regression-test the binding.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-6",
+        "scenario": "A required external guard is referenced but no explicit producer adapter exists.",
+        "finding": "Generic acceptance of arbitrary workflow artifacts would create an unbounded trust channel.",
+        "resolution": "Unsupported external guard IDs fail visible and require an explicit validator before they can contribute evidence.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-7",
+        "scenario": "Two external records for the same guard are available for one exact head.",
+        "finding": "Ambiguous evidence selection could hide a failed or contradictory producer run.",
+        "resolution": "Duplicate external guard evidence is rejected; one exact producer identity must be selected deterministically.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-8",
+        "scenario": "The external handoff code changes while an earlier resumable-verification promotion remains marked eligible.",
+        "finding": "Physical reuse could continue under verification semantics that were never shadow-proven.",
+        "resolution": "Bind the handoff module and CI wiring into verification-engine identity so semantic changes invalidate prior promotion evidence.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-9",
+        "scenario": "Completion Contract uses intuitive dimension labels such as provenance/evidence that are not canonical dimensions declared by its evidence guards.",
+        "finding": "Sentinel correctly treats semantic synonyms as unproven rather than guessing equivalence, so a human-readable claim can still be machine-invalid.",
+        "resolution": "Bind Completion claimScope dimensions to the exact Guard Registry vocabulary currently proven by the referenced guards; semantic aliases do not count as proof.",
+        "status": "resolved"
+      }
+    ],
+    "proofPlan": [
+      "Implement structured Completion Contract evidence reference extraction and derive non-local required guards relative to the existing verification plan.",
+      "Implement a Template Factory external-proof validator for workflow identity, exact head/branch/state/run, manifest contract/checksum/errors and complete browser evidence.",
+      "Merge only validated required external evidence into the existing final-evidence-manifest; missing or invalid required records make Resumable Verification BLOCK.",
+      "Wire CI to resolve/download/validate GUARD-TEMPLATE-FACTORY only when required by the active Completion Contract.",
+      "Add handoff implementation to verification-engine identity.",
+      "Adversarially test missing, failed, stale, wrong-head, wrong-branch, malformed, incomplete and unrequested evidence cases.",
+      "Run exact-head Quality, TypeScript, Production Build, Resumable Verification and Completion Truth.",
+      "Confirm isolated Release Risk stays within budget and no Builder/Template Factory product files are part of this foundation diff."
+    ],
+    "semanticExecutionRoute": {
+      "request": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
+      "authority": [
+        "quality-knowledge-system",
+        "release-infrastructure"
+      ],
+      "mustEdit": [
+        "scripts/shoperation-verification-checkpoint.mjs",
+        "quality/knowledge/guard-registry.v1.json",
+        ".github/workflows/ci.yml"
+      ],
+      "mayEdit": [
+        "scripts/shoperation-external-proof-handoff.mjs",
+        "tests/shoperation-external-proof-handoff.test.ts",
+        "tests/shoperation-resumable-verification.test.ts"
+      ],
+      "impactedReadOnly": [
+        "scripts/shoperation-truth-gate.mjs",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        "scripts/lib/shoperation-verification-reuse.mjs",
+        "scripts/release-risk-budget.mjs"
+      ],
+      "proof": [
+        "tests/shoperation-external-proof-handoff.test.ts",
+        "tests/shoperation-resumable-verification.test.ts"
+      ],
+      "unknown": []
+    },
+    "reviews": [
+      {
+        "specialist": "Control Plane",
+        "verdict": "PASS",
+        "reason": "Reuses canonical Completion Truth and Resumable Verification; no second gate."
+      },
+      {
+        "specialist": "Release Risk",
+        "verdict": "PASS",
+        "reason": "Isolated foundation is intentionally limited to quality/release infrastructure."
+      },
+      {
+        "specialist": "Proof Semantics",
+        "verdict": "PASS",
+        "reason": "Exact-state provenance and artifact semantics are preserved instead of inferred."
+      },
+      {
+        "specialist": "Sentinel",
+        "verdict": "PASS",
+        "reason": "Closes the exact class of decision/provenance divergence exposed by the revalidation run."
       }
     ],
     "specialistReviews": [
@@ -245,10 +366,11 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Sentinel already owns observation and recommendation, while Atlas, Control Plane and Completion Truth own their respective truth decisions.",
-        "resolution": "Keep integrity work inside SIGNAL-SENTINEL and consume structured authority outputs; do not add another guard or authority node.",
+        "finding": "Completion Truth and Resumable Verification already own development-completion evidence aggregation.",
+        "resolution": "Keep the handoff as evidence transport only and do not introduce a new blocking owner.",
         "evidence": [
-          "docs/architecture/SHOPERATION_SENTINEL.md",
+          "scripts/shoperation-truth-gate.mjs",
+          "scripts/shoperation-verification-checkpoint.mjs",
           "quality/knowledge/guard-registry.v1.json"
         ]
       },
@@ -256,157 +378,88 @@
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Treating a missing probe as clean would recreate evidence laundering because absence of integrity evidence would become implicit PASS.",
-        "resolution": "Model missing or malformed probe evidence as UNKNOWN/REVIEW-visible and reserve HEALTHY for positively evaluated clean integrity evidence.",
+        "finding": "A workflow-level SUCCESS is insufficient because stale or internally BLOCKed artifacts can coexist with wrapper success.",
+        "resolution": "Require exact-head producer identity plus machine-readable artifact contract/checksum/coverage and fail closed on any mismatch.",
         "evidence": [
-          "scripts/shoperation-sentinel-scan.mjs",
-          "quality/knowledge/sentinel-policy.v1.json"
-        ]
-      },
-      {
-        "role": "Runtime",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Running full CI or Deep Atlas again inside Sentinel would be expensive and duplicate existing scheduled verification.",
-        "resolution": "Use a cheap deterministic probe over current registry/plan plus normalized evidence and continue consuming existing Deep Atlas attention separately.",
-        "evidence": [
-          ".github/workflows/shoperation-sentinel.yml",
-          "tests/deep-atlas-scan.test.ts"
-        ]
-      },
-      {
-        "role": "Known Failure",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The recurring class is not one pingpong signature but disagreement between evidence identity, decision propagation, coverage and claimed proof semantics.",
-        "resolution": "Adversarial tests target generic structured contradiction classes so future equivalent defects are detected despite different files or guard names.",
-        "evidence": [
-          "tests/shoperation-development-guard.test.ts",
-          "tests/shoperation-proof-semantics.test.ts",
+          "scripts/shoperation-verification-checkpoint.mjs",
           "tests/shoperation-resumable-verification.test.ts"
         ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Cross-workflow transport touches release orchestration and can exceed risk budget when mixed with Builder/Factory product work.",
+        "resolution": "Isolate this foundation to quality/release infrastructure and keep the Brabus product revalidation in its own transaction.",
+        "evidence": [
+          "scripts/release-risk-budget.mjs",
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
+        "role": "Operations",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Removing sibling evidence from Completion Contract avoids deadlock but creates false completion; re-running the producer inside CI duplicates proof authority.",
+        "resolution": "Detect required non-local evidence from the Completion Contract, wait boundedly for the canonical producer, normalize evidence, then reuse existing Completion Truth.",
+        "evidence": [
+          "scripts/lib/shoperation-operational-intelligence.mjs",
+          "quality/development/active-plan.json"
+        ]
       }
     ],
-    "challenge": [
-      {
-        "id": "CH-1",
-        "scenario": "A child guard emits BLOCK but a composite parent record says PASS.",
-        "finding": "Trend-only observation can accept the wrapper status and miss a real internal contradiction.",
-        "resolution": "Integrity correlation inspects structured child decisions and emits status-laundering ACTION evidence.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-2",
-        "scenario": "A workflow step is successful while its producer artifact records BLOCK or FAIL.",
-        "finding": "Workflow status is weaker than producer truth and can launder a failed specialist decision.",
-        "resolution": "When both structured decisions exist, disagreement is an explicit decision-integrity finding.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-3",
-        "scenario": "Evidence claims one base or head while the evaluated transaction resolves to another identity.",
-        "finding": "A green proof may describe a different code state than the one actually tested.",
-        "resolution": "Declared and evaluated transaction identities are compared structurally and unresolved explicit identity stays visible.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-4",
-        "scenario": "A delete-only change is absent from the observer file set while decision remains PASS.",
-        "finding": "Deletion blindness can jointly hide material change from later evidence consumers.",
-        "resolution": "Integrity records compare declared deleted files with observed material files and report omissions.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-5",
-        "scenario": "Reference coverage is silently truncated or observed count is lower than expected while the record says PASS.",
-        "finding": "Incomplete proof can masquerade as complete coverage and reproduce silent Reference Sync truncation.",
-        "resolution": "Coverage mismatch or explicit truncation produces an integrity finding independent of the outer PASS label.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-6",
-        "scenario": "A Completion Contract references a guard whose capabilities, strength or dimensions no longer prove the claim.",
-        "finding": "Registry evolution can make previously valid evidence semantically stale without changing the evidence ID.",
-        "resolution": "Sentinel correlates current Guard Registry proof semantics against active claim scope and reports semantic drift.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-7",
-        "scenario": "Guard dependencies form a cycle or reference a missing guard after registry edits.",
-        "finding": "Execution ordering becomes contradictory even though every guard entry may be locally well formed.",
-        "resolution": "Sentinel performs a registry graph coherence correlation and reports missing nodes or cycles without owning the graph.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-8",
-        "scenario": "The integrity probe cannot run or its report is missing on a day with otherwise successful workflows.",
-        "finding": "No evidence could be misread as no problem, recreating a false HEALTHY state.",
-        "resolution": "The scan treats missing, malformed or UNKNOWN integrity evidence as REVIEW-visible and recommends deeper verification.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-9",
-        "scenario": "Deep Atlas already reports architecture drift and Sentinel independently reimplements the same classifier.",
-        "finding": "Two architecture authorities could disagree and produce another pingpong source.",
-        "resolution": "Sentinel consumes existing Deep Atlas attention and keeps the new correlator focused on cross-evidence integrity, not architecture reclassification.",
-        "status": "resolved"
-      }
-    ],
-    "proofPlan": [
-      "Create the normalized Sentinel integrity evaluator as a pure module and adversarially test each contradiction class with synthetic structured evidence.",
-      "Add a daily integrity probe that reads the existing Guard Registry and active Development Plan, producing observation evidence without mutating either authority.",
-      "Correlate Completion Contract evidence references with current guard proof semantics and prove missing capability, insufficient strength and missing dimensions remain visible.",
-      "Prove child BLOCK versus parent PASS and artifact BLOCK versus workflow success both yield action-level integrity findings.",
-      "Prove transaction base/head mismatch, deletion omission and coverage truncation are detected without relying on concrete PR numbers or filenames.",
-      "Prove duplicate blocking responsibility, unknown guard dependency and dependency cycles are detected from the existing registry structure.",
-      "Wire the probe into the existing Shoperation Sentinel schedule and make missing/UNKNOWN probe evidence produce REVIEW rather than HEALTHY.",
-      "Retain existing main/development scope classification so iterative feature failures alone do not become canonical ACTION_REQUIRED.",
-      "Run Sentinel tests plus full Quality, TypeScript and Production Build on the exact branch head before Completion Truth and lifecycle closure."
-    ],
-    "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-SENTINEL-INTEGRITY-DIVERGENCE",
-      "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
-      ],
-      "mustEdit": [
-        "scripts/shoperation-sentinel-scan.mjs",
-        "quality/knowledge/sentinel-policy.v1.json",
-        "quality/knowledge/guard-registry.v1.json",
-        ".github/workflows/shoperation-sentinel.yml",
-        "tests/shoperation-sentinel.test.ts"
-      ],
-      "mayEdit": [],
-      "impactedReadOnly": [
-        "quality/development/active-plan.json",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/lib/shoperation-development-runtime.mjs",
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
-      ],
-      "proof": [
-        "tests/shoperation-sentinel.test.ts",
-        "tests/shoperation-sentinel-integrity.test.ts"
-      ],
-      "unknown": []
-    },
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-SENTINEL-INTEGRITY-DIVERGENCE",
+    "sourceRef": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
     "requirements": [
       {
-        "id": "REQ-SENTINEL-INTEGRITY-CORRELATION",
-        "requirement": "Sentinel detects structured cross-authority integrity divergence without hard-coded defect identities or a new blocking authority.",
+        "id": "REQ-EXTERNAL-PROOF-DETECTION",
+        "requirement": "Required external Completion evidence is derived from the active Completion Contract and only unsupported/non-local guards are handed to explicit validators.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "sentinel-integrity-correlation",
+          "breadth": "external-completion-proof-detection",
           "strength": 2,
           "dimensions": [
-            "status",
+            "scope",
+            "evidence-scope",
+            "limitations"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-UNREQUESTED-EXTERNAL-WAIT",
+            "statement": "Transactions with no external proof requirement do not wait for Template Factory.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-EXTERNAL-PROOF-PROVENANCE",
+        "requirement": "External Template Factory proof is accepted only when workflow and artifact truth match the same exact Development Transaction.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "external-proof-provenance",
+          "strength": 2,
+          "dimensions": [
             "truth",
             "freshness",
-            "coverage"
+            "coverage",
+            "limitations"
           ]
         },
         "requiredCapabilities": [
@@ -422,8 +475,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SENTINEL-STATUS-LAUNDERING",
-            "statement": "Child BLOCK, artifact BLOCK, stale identity or incomplete coverage cannot be observed as clean integrity.",
+            "id": "NEG-STALE-OR-LAUNDERED-EXTERNAL-PROOF",
+            "statement": "Wrong-head, wrong-branch, failed, malformed, incomplete or contradictory external proof cannot become PASS.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -431,16 +484,16 @@
         ]
       },
       {
-        "id": "REQ-SENTINEL-PROOF-SEMANTICS",
-        "requirement": "Sentinel correlates active Completion Contract claims with current Guard Registry capabilities, strength and proof dimensions.",
+        "id": "REQ-EXTERNAL-PROOF-TRUTH-INTEGRATION",
+        "requirement": "Validated external proof is merged into the existing Resumable Verification evidence manifest and remains required by the existing Completion Truth authority when referenced.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "sentinel-proof-semantics-correlation",
+          "breadth": "external-proof-truth-integration",
           "strength": 2,
           "dimensions": [
-            "claim-scope",
+            "truth",
+            "resumable",
             "evidence-scope",
-            "proven-scope",
             "limitations"
           ]
         },
@@ -449,100 +502,34 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-SENTINEL-PROOF-DRIFT",
-            "statement": "Unknown evidence IDs or semantic proof drift cannot silently remain HEALTHY.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-SENTINEL-UNKNOWN-VISIBILITY",
-        "requirement": "Missing, malformed or UNKNOWN integrity-probe evidence remains operator-visible and never collapses into a HEALTHY daily Sentinel state.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "sentinel-fail-visible-observation",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "freshness",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-SENTINEL-MISSING-PROBE-HEALTHY",
-            "statement": "A missing or UNKNOWN integrity probe cannot produce HEALTHY.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-SENTINEL-INTEGRITY-BUILD",
-        "requirement": "The Sentinel integrity extension typechecks and production-builds on the exact implementation head without changing blocking authority.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "sentinel-type-build",
-          "strength": 1,
-          "dimensions": [
-            "types",
-            "build"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
+            "GUARD-QUALITY-TESTS",
             "GUARD-TYPECHECK"
           ],
           "outcome": [
+            "GUARD-QUALITY-TESTS",
             "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SENTINEL-INTEGRITY-BUILD",
-            "statement": "No type or production build regression is introduced by the Sentinel integrity extension.",
+            "id": "NEG-PARALLEL-COMPLETION-AUTHORITY",
+            "statement": "No second completion gate or release authority is introduced.",
             "evidence": [
-              "GUARD-TYPECHECK",
-              "GUARD-PRODUCTION-BUILD"
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Follow-up after the closed #681 Control Plane coherence repair. This transaction strengthens the existing Sentinel observation layer so newly introduced integrity divergence is discovered automatically where structured evidence exists. It does not create a new gate or autonomous repair authority. Plan-only CI derived projected subsystems quality-infrastructure + release-infrastructure and canonical guard digest efe9d183. New planned files are intentionally not placed in semantic MUST_EDIT before they exist in Atlas; they remain explicit plannedFilePatterns and will become actual tracked files during implementation.",
+  "notes": "Isolated foundation extracted from the Brabus revalidation after Release Risk correctly blocked the mixed 4-subsystem/7-point Development Transaction. This branch changes only quality/release evidence transport. It does not implement or modify any Builder, template, Runtime or Factory maturity capability. Exact-head Quality exposed two proof-model issues: the handoff regression searched a fail-closed code in the wrapper instead of its owning helper, and Sentinel rejected noncanonical Completion claim dimensions. Both are repaired at their actual semantic owner; Sentinel is not weakened.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "2c70ad1b69f1c339c910b3715b4d15f27a8b265d",
-    "closedAt": "2026-10-02T09:32:59.136Z",
+    "verifiedImplementationHead": "c17ab9ce42db60d8b10b4cfb7d57e82bc6a98090",
+    "closedAt": "2026-10-02T11:07:42.691Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-SENTINEL-INTEGRITY-DIVERGENCE",
+    "sourceRef": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

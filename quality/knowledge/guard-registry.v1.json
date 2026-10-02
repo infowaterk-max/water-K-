@@ -231,7 +231,8 @@
         "semanticInputs": [
           "quality/development/active-plan.json",
           "scripts/shoperation-truth-gate.mjs",
-          "scripts/lib/shoperation-operational-intelligence.mjs"
+          "scripts/lib/shoperation-operational-intelligence.mjs",
+          "scripts/shoperation-external-proof-handoff.mjs"
         ],
         "configurationInputs": [
           ".github/workflows/ci.yml"
@@ -655,6 +656,7 @@
       "engineInputs": [
         "scripts/lib/shoperation-verification-reuse.mjs",
         "scripts/shoperation-incremental-replay.mjs",
+        "scripts/shoperation-external-proof-handoff.mjs",
         "scripts/shoperation-verification-checkpoint.mjs",
         "scripts/shoperation-truth-gate.mjs",
         "scripts/lib/shoperation-operational-intelligence.mjs",
