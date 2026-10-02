@@ -90,6 +90,30 @@ export function resolveDevelopmentBase({changeBaseSha=null}={}){
   for(const candidate of ['origin/main','main','HEAD^']){try{git(['cat-file','-e',`${candidate}^{commit}`]);return candidate;}catch{}}
   return null;
 }
+
+function gitCommitExists(sha){
+  try{execFileSync('git',['cat-file','-e',`${sha}^{commit}`],{stdio:'ignore'});return true;}catch{return false;}
+}
+function gitIsAncestor(base,head){
+  try{execFileSync('git',['merge-base','--is-ancestor',base,head],{stdio:'ignore'});return true;}catch{return false;}
+}
+export function resolveCanonicalDevelopmentTransactionIdentity({
+  plan,
+  eventBaseSha='',
+  eventHeadSha='',
+  commitExists=gitCommitExists,
+  isAncestor=gitIsAncestor,
+}={}){
+  const base=String(plan?.changeBaseSha??'').trim(),eventBase=String(eventBaseSha??'').trim(),head=String(eventHeadSha??'').trim();
+  if(!base)return{decision:'BLOCK',code:'CI_TRANSACTION_BASE_REQUIRED',base:null,head:head||null};
+  if(!head)return{decision:'BLOCK',code:'CI_TRANSACTION_HEAD_REQUIRED',base,head:null};
+  if(eventBase&&eventBase!==base)return{decision:'BLOCK',code:'CI_TRANSACTION_BASE_MISMATCH',base,head,eventBase};
+  if(!commitExists(base))return{decision:'BLOCK',code:'CI_TRANSACTION_BASE_UNRESOLVED',base,head,eventBase:eventBase||null};
+  if(!commitExists(head))return{decision:'BLOCK',code:'CI_TRANSACTION_HEAD_UNRESOLVED',base,head,eventBase:eventBase||null};
+  if(!isAncestor(base,head))return{decision:'BLOCK',code:'CI_TRANSACTION_ANCESTRY_INVALID',base,head,eventBase:eventBase||null};
+  return{decision:'PASS',code:null,base,head,eventBase:eventBase||null,authority:'quality/development/active-plan.json#changeBaseSha'};
+}
+
 export function parseChangedFileStatus(output){
   const changes=[];
   for(const line of String(output??'').split(/\r?\n/).filter(Boolean)){
@@ -149,6 +173,35 @@ export function runVitest(files){
 }
 export function ensureFile(file){if(!existsSync(file))throw new Error(`Required file missing: ${file}`);}
 
+
+
+if(process.argv.includes('--ci-transaction-self-test')){
+  const commitExists=sha=>sha==='base'||sha==='head',isAncestor=(base,head)=>base==='base'&&head==='head';
+  const pass=resolveCanonicalDevelopmentTransactionIdentity({plan:{changeBaseSha:'base'},eventBaseSha:'base',eventHeadSha:'head',commitExists,isAncestor});
+  const mismatch=resolveCanonicalDevelopmentTransactionIdentity({plan:{changeBaseSha:'base'},eventBaseSha:'other',eventHeadSha:'head',commitExists,isAncestor});
+  const ancestry=resolveCanonicalDevelopmentTransactionIdentity({plan:{changeBaseSha:'base'},eventHeadSha:'head',commitExists,isAncestor:()=>false});
+  const ok=pass.decision==='PASS'&&mismatch.code==='CI_TRANSACTION_BASE_MISMATCH'&&ancestry.code==='CI_TRANSACTION_ANCESTRY_INVALID';
+  console.log(`Development CI transaction self-test: ${ok?'PASS':'FAIL'}`);
+  if(!ok)process.exitCode=1;
+}
+
+if(process.argv.includes('--ci-transaction-env')){
+  const activePlan=readJson('quality/development/active-plan.json');
+  const identity=resolveCanonicalDevelopmentTransactionIdentity({
+    plan:activePlan,
+    eventBaseSha:process.env.CI_EVENT_BASE_SHA,
+    eventHeadSha:process.env.CI_EVENT_HEAD_SHA??process.env.GITHUB_SHA,
+  });
+  if(identity.decision!=='PASS'){
+    console.error(`${identity.code}: canonical Development Transaction identity is invalid; planBase=${identity.base??'null'} eventBase=${identity.eventBase??'null'} head=${identity.head??'null'}`);
+    process.exit(1);
+  }
+  for(const name of ['QUALITY_BASE_SHA','DEVELOPMENT_BASE_SHA','RELEASE_BASE_SHA'])console.log(`${name}=${identity.base}`);
+  for(const name of ['QUALITY_HEAD_SHA','DEVELOPMENT_HEAD_SHA','RELEASE_HEAD_SHA','SHOPERATION_REPLAY_HEAD'])console.log(`${name}=${identity.head}`);
+  console.log(`SHOPERATION_CANONICAL_BASE_SHA=${identity.base}`);
+  console.log(`SHOPERATION_CANONICAL_HEAD_SHA=${identity.head}`);
+  process.exit(0);
+}
 
 if(process.argv.includes('--exception-self-test')){
   const first={ruleId:'DEV-REVIEW-X',file:'src/a.ts',line:1,code:'x',message:'review'};
