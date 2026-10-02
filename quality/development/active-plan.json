@@ -3,7 +3,7 @@
   "taskId": "DEV-CROSS-TEMPLATE-DISTINCTNESS-BRABUS-HARDENING",
   "task": "Implement canonical executable cross-template distinctness / anti-clone intelligence over the source-controlled storefront template catalog, using explainable multi-axis package similarity plus Template Genome exclusion semantics, without introducing a subjective visual ranking or a parallel template authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "057ebf08",
+  "guardDigest": "1c170eef",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
     "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
@@ -35,7 +35,6 @@
   "expectedSubsystems": [
     "builder-template-system",
     "dependency-contract",
-    "release-infrastructure",
     "shared-storefront",
     "storefront-ui"
   ],
@@ -104,7 +103,6 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -193,7 +191,7 @@
         "Genome exclusions can target a reference identity and tighten the relevant axis budget; UNKNOWN exclusion targets do not silently pass.",
         "Generator Readiness is false when distinctness blocks in canonical Factory context.",
         "FACTORY-DISTINCTNESS-ANTI-CLONE becomes PROVEN only after executable implementation/tests.",
-        "FACTORY-DYNAMIC-PRODUCTION-COMPILER remains EVOLVE."
+        "FACTORY-DYNAMIC-PRODUCTION-COMPILER remains EVOLVE and must still appear in blockingCapabilityIds after anti-clone promotion, proving distinctness completion cannot unlock Template #3 or dynamic compilation by itself."
       ],
       "invariants": [
         "Shared Page Schema/component vocabulary is not itself clone evidence.",
@@ -533,7 +531,7 @@
       }
     ]
   },
-  "notes": "Sixth Brabus hardening wave. Genome, Type System, Constraint Planner, Media Planner and deterministic lineage are PROVEN and lifecycle-closed. This wave turns existing Visual DNA/exclusion conventions into executable catalog-wide anti-clone evidence. Template #3 remains forbidden.",
+  "notes": "Sixth Brabus hardening wave. Genome, Type System, Constraint Planner, Media Planner and deterministic lineage are PROVEN and lifecycle-closed. This wave turns existing Visual DNA/exclusion conventions into executable catalog-wide anti-clone evidence. Template #3 remains forbidden. Canonical anti-clone projection reconciled: release-infrastructure is outside scope; SQ-NK-005 does not apply; guard digest 1c170eef; downstream capability-separation acceptance is now explicitly falsifiable.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
