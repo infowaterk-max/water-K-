@@ -1,9 +1,9 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-DETERMINISTIC-PRODUCTION-LINEAGE-BRABUS-HARDENING",
-  "task": "Implement canonical deterministic end-to-end Template Factory production lineage that binds accepted Visual Authority, Template Genome, Template Type, Product Owner intent, Constraint Plan, Media Plan, Factory/foundation identity and the compiled package fingerprint into one immutable proof chain without becoming a second production or Page Schema authority.",
+  "task": "Implement one canonical deterministic production-lineage contract that binds the existing Template Factory recipe/foundation identity, accepted Visual Authority, Template Genome, Constraint Plan, Media Plan and compiled package identity into an immutable hash chain without creating a parallel production authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "1f7fdbbd",
+  "guardDigest": "afc442ca",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
     "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
@@ -32,9 +32,9 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "database-schema",
-    "dependency-contract",
-    "release-infrastructure",
+    "customer-account",
+    "inventory-fulfillment-authority",
+    "payment-checkout-order-authority",
     "shared-storefront",
     "storefront-ui"
   ],
@@ -103,60 +103,58 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-014"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-02-DETERMINISTIC-PRODUCTION-LINEAGE-BRABUS-HARDENING",
     "riskTier": "critical",
-    "problemStatement": "Genome, Template Type, Product Owner intent, Constraint Plan and Media Plan are now individually proven, while the Factory report still exposes only fragmented recipe/foundation/reference/Genome provenance. There is no single immutable chain proving that a compiled package is the output of those exact source authorities, so downstream compiler evidence could become stale or be mixed across source revisions.",
+    "problemStatement": "The Factory report already exposes recipe/foundation/reference/Genome provenance and the proven planning stack now emits deterministic Constraint Plan and Media Plan hashes, but there is no single immutable end-to-end production lineage that binds those inputs to the compiled package identity. Without that chain, later anti-clone and dynamic compiler proof cannot distinguish stale, cross-template or partially recomputed evidence reliably.",
     "observableOutcomes": [
-      "Every generator-declared Factory build receives one deterministic immutable Production Lineage record in the Factory report.",
-      "Lineage binds Factory/foundation identity, accepted Visual Authority, Genome hash, Template Type, Product Owner intent, Constraint Plan hash, Media Plan hash and a canonical compiled-package fingerprint.",
-      "Source-chain mismatches fail closed: foreign Constraint Plan, Media Plan, Genome hash, Visual Authority or package identity cannot produce a valid lineage.",
-      "Changing package content or any upstream source hash changes the lineage fingerprint/hash deterministically.",
-      "Lineage remains report/proof metadata only and is never injected into Page Schema or Runtime business truth.",
-      "Concrete media paths/content are not copied into the lineage; only Media Plan identity/hash is carried.",
-      "Generator/Factory build surfaces lineage validation failures while Dynamic Compiler and anti-clone remain separate capabilities."
+      "One versioned immutable lineage contract binds recipe, foundation, accepted Visual Authority, Genome, Constraint Plan, Media Plan and compiled package identity.",
+      "Lineage is deterministic: identical canonical inputs and package produce exactly the same lineage hash across runs.",
+      "Any semantic input or compiled package mutation changes the lineage hash.",
+      "Lineage validation fails closed on missing upstream hashes, template/version drift, stale Visual Authority, media/constraint source mismatch or package identity drift.",
+      "Factory report exposes the canonical lineage without writing it into every Page Schema document.",
+      "Generator Readiness can surface lineage validity while remaining separate from Product Owner visual acceptance.",
+      "No CI run id, timestamp or environment-specific value participates in lineage truth.",
+      "Anti-clone and Dynamic Compiler remain separate waves and consume lineage later instead of being implicitly promoted."
     ],
     "unresolvedRisks": [
-      "Hashing only source identities without the compiled package would not prove that the output actually corresponds to the declared inputs.",
-      "Hashing the full package but embedding it into lineage would duplicate Page Schema/content authority and inflate proof artifacts.",
-      "A lineage object created before Constraint/Media planning completes could certify partial or null upstream state.",
-      "If lineage is written into page metadata it will alter canonical package equality and repeat the earlier Genome metadata regression.",
-      "A deterministic hash is not sufficient unless validation recomputes package and lineage fingerprints from current evidence."
+      "Hashing only top-level identities would miss semantic package mutations.",
+      "Hashing the full Factory report would capture non-production counters/evidence and make lineage unstable.",
+      "Embedding lineage into Page Schema pages would recreate the Genome metadata regression and change canonical package equality.",
+      "If Constraint Plan and Media Plan are recomputed independently but their source relation is not checked, lineage could bless mismatched plans.",
+      "If concrete package hash is order-sensitive in semantically unordered structures, equivalent packages could receive different identities."
     ],
     "scope": {
       "in": [
-        "Canonical versioned immutable Production Lineage contract.",
-        "Deterministic canonical package fingerprint over the compiled installable package.",
-        "Ordered source-chain binding for Factory/foundation, Visual Authority, Genome, Template Type, Product Owner intent, Constraint Plan and Media Plan.",
-        "Fail-closed lineage creation/validation for source and output drift.",
-        "Factory report integration only.",
-        "Shared Factory authority registration.",
-        "Maturity promotion with adversarial executable proof."
+        "Canonical versioned production-lineage contract.",
+        "Deterministic canonical package identity/hash over the compiled installable package.",
+        "Binding of recipe/foundation/reference/Genome/Constraint Plan/Media Plan hashes.",
+        "Fail-closed lineage validation and source-chain consistency checks.",
+        "Factory report provenance integration only, not Page Schema mutation.",
+        "Generator Readiness lineage validation exposure.",
+        "Maturity promotion with executable adversarial proof."
       ],
       "out": [
-        "Page Schema or page.metadata lineage injection.",
-        "Runtime commerce/data lineage.",
-        "Actual media content duplication or media generation.",
-        "Cross-template similarity/anti-clone scoring.",
-        "Dynamic production compilation or template section generation.",
         "Template #3 authoring.",
-        "New Control Plane gate or independent truth authority."
+        "Cross-template distinctness scoring.",
+        "Dynamic production compiler implementation.",
+        "VX Smart Intent or Smart Auto-Fix.",
+        "CI/workflow run identity as production lineage input.",
+        "New Control Plane gates or separate lineage completion authority."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Production lineage becomes the evidence bridge between already-proven compiler inputs and compiled output. The highest practical assurance is a canonical immutable source chain plus recomputable package fingerprint and lineage hash, identity cross-checks, fail-closed validation and adversarial tamper tests, while keeping the lineage outside Page Schema and Runtime authorities.",
+      "rationale": "Production lineage becomes the identity spine consumed by later compiler and anti-clone evidence. Highest practical assurance requires deterministic canonical serialization, immutable source bindings, end-to-end source consistency checks, package-hash sensitivity, stale/cross-template rejection and adversarial replay, while keeping operational CI evidence outside production truth.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -176,40 +174,39 @@
       "deferredTechniques": [
         "cross-template-similarity-scoring",
         "dynamic-production-compilation",
-        "external-artifact-signing"
+        "vx-intent-operation-compilation"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "One canonical versioned Production Lineage contract exists under builder-template-system.",
-        "Lineage includes only stable source identities/hashes plus compiled package fingerprint, never a duplicate package body.",
-        "Package fingerprint is deterministic across structurally equal packages and changes on any material package mutation.",
-        "Lineage creation requires valid Constraint Plan and Media Plan and verifies their source-chain relationship.",
-        "Visual Authority, Genome, Template Type, Product Owner intent and package identity drift all fail closed.",
-        "Lineage hash is recomputable and tampering is rejected.",
-        "Factory report exposes valid lineage for Loot Vault without changing the compiled package bytes/structure.",
-        "No lineage contract/value appears inside any compiled page document.",
-        "FACTORY-DETERMINISTIC-LINEAGE becomes PROVEN only after executable implementation and adversarial tests.",
-        "FACTORY-DISTINCTNESS-ANTI-CLONE and FACTORY-DYNAMIC-PRODUCTION-COMPILER remain non-PROVEN."
+        "Production lineage has one canonical versioned contract under builder-template-system.",
+        "Lineage includes recipe identity, foundation identity, Visual Authority reference, Genome hash, Constraint Plan hash, Media Plan hash and compiled package hash.",
+        "Compiled package hash is deterministic and changes on meaningful package mutation.",
+        "Constraint Plan source Genome hash equals lineage Genome hash and Media Plan source Constraint Plan hash equals lineage Constraint Plan hash.",
+        "Lineage identity matches the target recipe and compiled package manifest template key/version.",
+        "Factory report exposes lineage while Page Schema and installable package shape remain unchanged.",
+        "Generator Readiness fails closed when lineage inputs are inconsistent for a declared Blueprint.",
+        "FACTORY-DETERMINISTIC-LINEAGE becomes PROVEN only after implementation plus adversarial executable tests.",
+        "FACTORY-DISTINCTNESS-ANTI-CLONE and FACTORY-DYNAMIC-PRODUCTION-COMPILER remain not promoted."
       ],
       "invariants": [
-        "Page Schema remains the page-content authority; Production Lineage is report evidence only.",
-        "Factory manifest/recipe remains concrete production input authority; lineage is derived, never authoring input.",
-        "Constraint Plan and Media Plan remain their existing semantic authorities.",
-        "Lineage carries hashes/identities, not concrete media paths or full page bodies.",
-        "UNKNOWN, missing or mismatched upstream evidence cannot produce valid lineage.",
-        "Template #3 remains blocked until all other mandatory Brabus capabilities are proven."
+        "Genome remains template identity/grammar authority.",
+        "Constraint Plan remains bounded semantic production constraint authority.",
+        "Media Plan remains semantic-to-concrete media planning authority.",
+        "Installable package remains Page Schema/package authority; lineage observes it and never mutates it.",
+        "Timestamp, CI run ID, branch or Vercel deployment ID are excluded from production lineage hash.",
+        "UNKNOWN or missing upstream hash never counts as valid lineage."
       ],
       "forbiddenStates": [
-        "lineage-in-page-metadata",
-        "lineage-as-runtime-business-truth",
-        "lineage-containing-concrete-media-paths",
-        "lineage-with-null-constraint-or-media-plan",
-        "stale-package-fingerprint-accepted",
-        "foreign-source-hash-accepted",
+        "template-3-authoring",
+        "lineage-written-into-every-page-schema",
+        "ci-run-id-in-production-lineage",
+        "timestamp-in-production-lineage",
+        "mismatched-media-plan-accepted",
+        "stale-constraint-plan-accepted",
+        "package-mutation-with-stable-lineage-hash",
         "anti-clone-falsely-proven",
-        "dynamic-compiler-falsely-proven",
-        "template-3-authoring"
+        "dynamic-compiler-falsely-proven"
       ]
     },
     "model": {
@@ -241,41 +238,39 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Compiled package changes while a stale lineage/package fingerprint is reused.",
-        "Media Plan from another Constraint Plan is combined with the current package.",
-        "Genome hash in lineage differs from the hash bound by the Constraint Plan.",
-        "Visual Authority reference in lineage differs from Constraint Plan or active recipe.",
-        "Package manifest identity differs from recipe/Constraint Plan identity.",
-        "Lineage is serialized into page documents and changes canonical package equality.",
-        "Lineage hash is trusted without recomputing the package fingerprint.",
-        "Concrete media source strings leak into lineage and duplicate media authority."
+        "Package content changes while lineage hash remains unchanged.",
+        "Media Plan points to a different Constraint Plan than the lineage chain.",
+        "Constraint Plan points to a different Genome hash than the lineage chain.",
+        "Recipe identity and compiled package manifest target different template versions.",
+        "Visual Authority reference used by Constraint Plan differs from active recipe/reference.",
+        "Lineage hash changes between identical runs because timestamps or runtime evidence leak into the contract."
       ],
       "edgeCases": [
-        "Object key insertion order differs while semantic package content is equal; canonical fingerprint must remain stable.",
-        "Page order or manifest pageTypes order is material because canonical package compilation treats ordering as part of output.",
-        "Optional blueprint absence must not invent a fake generator lineage; generator-declared production requires complete sources.",
-        "Media ready/internal-reference state can change package-adjacent production evidence without changing semantic Media Plan hash; compiled package fingerprint remains the output truth.",
-        "Lineage validation must distinguish source identity drift from output/package drift for actionable diagnostics."
+        "Object key ordering differences must not change package or lineage hash.",
+        "Array ordering that is canonical/meaningful must remain hash-significant.",
+        "An undeclared Blueprint/recipe may have no valid lineage and must remain generator-not-ready without invented hashes.",
+        "Internal-reference versus ready media can change package output and therefore package lineage only when the compiled package actually differs.",
+        "Existing exact package equality tests must remain unchanged because lineage lives in report provenance only."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-LINEAGE-REPORT-CHAIN",
-        "summary": "Derive immutable lineage in the Factory report from proven source hashes plus compiled package fingerprint.",
+        "id": "ALT-LINEAGE-SPINE",
+        "summary": "Create one read-only canonical lineage spine over proven upstream hashes and compiled package identity.",
         "disposition": "selected",
-        "reason": "It proves source-to-output correspondence without creating a second page/content authority."
+        "reason": "It closes the provenance chain without duplicating any planning or Page Schema authority."
       },
       {
-        "id": "ALT-PAGE-METADATA-LINEAGE",
-        "summary": "Write lineage fields into every compiled page document.",
+        "id": "ALT-HASH-WHOLE-REPORT",
+        "summary": "Hash the entire Factory report.",
         "disposition": "rejected",
-        "reason": "This would mutate canonical package equality and repeat the previously proven Genome metadata regression."
+        "reason": "Report contains diagnostics/counters/evidence that are not canonical production inputs and would make lineage unstable."
       },
       {
-        "id": "ALT-SOURCE-ONLY-LINEAGE",
-        "summary": "Record only Genome/Constraint/Media hashes without package fingerprint.",
+        "id": "ALT-EMBED-LINEAGE-PAGES",
+        "summary": "Write lineage metadata into each compiled page document.",
         "disposition": "rejected",
-        "reason": "It would prove declared inputs but not that the compiled package is the output of those inputs."
+        "reason": "This would mutate canonical Page Schema/package equality and repeat the previously caught Genome metadata regression."
       }
     ],
     "specialistReviews": [
@@ -283,21 +278,32 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The Factory report is the existing provenance surface and is the correct owner for end-to-end production lineage.",
-        "resolution": "Add one derived lineage contract to the report; do not place it in Page Schema, Runtime or recipe authoring state.",
+        "finding": "The proven upstream stack already emits deterministic hashes; lineage should compose those authorities rather than add another planner.",
+        "resolution": "Create a read-only production-lineage module and expose its result in Generator Readiness/Factory report only.",
         "evidence": [
-          "src/lib/builder/template-factory/scaffold.ts",
-          "src/lib/builder/template-factory/production-maturity.ts"
+          "src/lib/builder/template-factory/template-genome.ts",
+          "src/lib/builder/template-factory/constraint-planner.ts",
+          "src/lib/builder/template-factory/media-planner.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A lineage hash over source IDs alone could remain valid after compiled output drift.",
-        "resolution": "Compute and validate a canonical fingerprint of the complete installable package, then include only that fingerprint in lineage.",
+        "finding": "Top-level identity alone cannot prove the compiled package actually corresponds to upstream plans.",
+        "resolution": "Compute a deterministic compiled-package hash and include it in the lineage digest; adversarial package mutation must change the lineage.",
         "evidence": [
-          "src/lib/builder/storefront-template-installation.ts",
+          "src/lib/builder/template-factory/scaffold.ts"
+        ]
+      },
+      {
+        "role": "UX / Template",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Lineage metadata must not leak into Page Schema and trigger visual/canonical-package regressions.",
+        "resolution": "Expose lineage only in Factory report/Generator Readiness evidence surfaces.",
+        "evidence": [
+          "tests/template-factory-loot-vault-v2.test.ts",
           "src/lib/builder/template-factory/scaffold.ts"
         ]
       },
@@ -305,96 +311,81 @@
         "role": "Runtime",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Embedding provenance into pages would alter canonical package output and risk Runtime/UI regressions.",
-        "resolution": "Lineage exists only in Factory report/proof structures; add a regression assertion that compiled pages contain no lineage contract.",
+        "finding": "Operational CI/run metadata is useful evidence but is not deterministic production identity.",
+        "resolution": "Exclude run IDs, timestamps, branches and deployment URLs from production-lineage canonical input.",
         "evidence": [
-          "src/lib/builder/storefront-runtime.ts",
-          "tests/template-factory-template-genome.test.ts"
-        ]
-      },
-      {
-        "role": "UX / Template",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Lineage must preserve media/visual identity evidence without copying exact media sources into a new authority.",
-        "resolution": "Bind Visual Authority reference, Genome hash and Media Plan hash only; explicitly reject concrete media paths from lineage payload.",
-        "evidence": [
-          "src/lib/builder/template-factory/media-planner.ts",
-          "src/lib/builder/template-factory/template-genome.ts"
+          "scripts/shoperation-external-proof-handoff.mjs",
+          "src/lib/builder/template-factory/scaffold.ts"
         ]
       }
     ],
     "challenge": [
       {
         "id": "CH-LINEAGE-1",
-        "scenario": "The compiled package product page title is mutated after lineage creation while all source hashes stay unchanged.",
-        "finding": "A source-only lineage would still appear valid although the compiled output changed.",
-        "resolution": "Recompute package fingerprint during validation and block with a package-fingerprint mismatch.",
+        "scenario": "Two semantically identical package objects are created with different object-key insertion order.",
+        "finding": "Naive JSON.stringify hashing can generate different package identities.",
+        "resolution": "Use recursive canonical key ordering before deterministic digest.",
         "status": "resolved"
       },
       {
         "id": "CH-LINEAGE-2",
-        "scenario": "A valid Media Plan from another build references a different Constraint Plan hash but is paired with the current Constraint Plan.",
-        "finding": "Two individually valid proofs could be spliced into one false chain.",
-        "resolution": "Require mediaPlan.sources.constraintPlanHash to equal the exact Constraint Plan hash before lineage creation.",
+        "scenario": "A product page binding is changed after the upstream Genome/Constraint/Media plans remain identical.",
+        "finding": "Lineage could falsely report the same production output if package identity is omitted.",
+        "resolution": "Compiled package canonical hash is a mandatory lineage source and must change.",
         "status": "resolved"
       },
       {
         "id": "CH-LINEAGE-3",
-        "scenario": "The lineage Genome hash is changed to a foreign valid Genome while Constraint Plan still binds the original Genome hash.",
-        "finding": "Template identity evidence would split across two upstream authorities.",
-        "resolution": "Cross-check lineage Genome hash against Constraint Plan source Genome hash and reject drift.",
+        "scenario": "Media Plan source.constraintPlanHash references an older Constraint Plan while its own hash is otherwise valid.",
+        "finding": "Independent valid hashes could form a stale mixed chain.",
+        "resolution": "Lineage validation requires exact source-chain equality before hashing.",
         "status": "resolved"
       },
       {
         "id": "CH-LINEAGE-4",
-        "scenario": "The active recipe Visual Authority reference differs from the reference bound by the Constraint Plan.",
-        "finding": "The package could be claimed against an unapproved or stale visual target.",
-        "resolution": "Require exact reference equality across recipe/Visual Authority, Constraint Plan and lineage source.",
+        "scenario": "Constraint Plan sources.genomeHash differs from the active Template Genome hash.",
+        "finding": "A stale planner output could be attached to a newer template identity.",
+        "resolution": "Reject with explicit lineage Genome/Constraint source mismatch.",
         "status": "resolved"
       },
       {
         "id": "CH-LINEAGE-5",
-        "scenario": "Package manifest templateKey/version is changed after compilation but source plans still identify the original template.",
-        "finding": "Output identity would no longer correspond to the declared production chain.",
-        "resolution": "Validate package manifest category-independent template identity against Constraint Plan/recipe identity before fingerprint acceptance.",
+        "scenario": "Compiled package manifest templateVersion differs from recipe templateVersion.",
+        "finding": "Lineage could bind input version N to output version N-1.",
+        "resolution": "Recipe and package manifest identity must match exactly.",
         "status": "resolved"
       },
       {
         "id": "CH-LINEAGE-6",
-        "scenario": "A developer adds the Production Lineage object to every page.metadata.templateFactory block to make provenance visible.",
-        "finding": "Canonical package content changes and lineage becomes page-state authority, recreating the prior Genome metadata regression.",
-        "resolution": "Keep lineage exclusively in Factory report and assert serialized compiled pages contain no production-lineage contract marker.",
+        "scenario": "Developer adds generatedAt or CI run ID into the lineage input for observability.",
+        "finding": "Identical production inputs would produce different hashes across runs.",
+        "resolution": "Contract has no operational-time/run fields and tests assert deterministic repeatability.",
         "status": "resolved"
       },
       {
         "id": "CH-LINEAGE-7",
-        "scenario": "The same semantic package object is constructed with a different JavaScript object-key insertion order.",
-        "finding": "A naive JSON.stringify fingerprint could produce unstable evidence for semantically identical data.",
-        "resolution": "Use recursive canonical key sorting before hashing all object structures.",
+        "scenario": "Lineage is copied into every Page Schema metadata block.",
+        "finding": "Canonical package output changes despite lineage being evidence-only.",
+        "resolution": "Factory report owns lineage evidence; package/page documents remain byte-semantically unchanged.",
         "status": "resolved"
       },
       {
         "id": "CH-LINEAGE-8",
-        "scenario": "A concrete /storefront-demo/... media path is copied into lineage to improve traceability.",
-        "finding": "Lineage would duplicate concrete media ownership and become coupled to asset locations rather than Media Plan identity.",
-        "resolution": "Lineage stores only Media Plan contract/hash and rejects concrete media-source patterns in its own payload.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-LINEAGE-9",
-        "scenario": "Lineage is created when Constraint Plan or Media Plan is null because an upstream readiness failure occurred.",
-        "finding": "A partial production chain could be mistaken for complete proof.",
-        "resolution": "Return invalid lineage with explicit missing-source issue; never synthesize placeholder hashes.",
+        "scenario": "One required upstream plan is missing but other identities are present.",
+        "finding": "Partial provenance could be mistaken for a complete lineage.",
+        "resolution": "Declared generator-ready production requires Genome, valid Constraint Plan and valid Media Plan; missing source returns invalid lineage, never a partial PASS.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Adversarial unit proof covers canonical package fingerprint determinism, output mutation, source splicing, identity drift and lineage-hash tampering.",
-      "Factory integration proof confirms Loot Vault report carries valid end-to-end lineage while compiled package/pages remain unchanged and lineage-free.",
-      "Negative proof asserts lineage contains no concrete media source paths or page bodies.",
-      "Maturity proof promotes only deterministic lineage while anti-clone and dynamic compiler remain blockers.",
-      "Normal CI + exact-head Template Factory Quality Gate v2 + Completion Truth + lifecycle closure verify the wave."
+      "Determinism proof: identical inputs/package yield identical package hash and lineage hash across recomputation.",
+      "Canonical-order proof: object key insertion differences do not alter lineage identity.",
+      "Mutation proof: meaningful package/Genome/Constraint/Media source mutation changes or invalidates lineage.",
+      "Cross-source proof: stale Genome→Constraint or Constraint→Media links fail closed.",
+      "Generator Readiness proof: canonical Loot Vault lineage is valid and a mismatched lineage input blocks readiness.",
+      "Canonical package regression proof confirms report lineage does not alter compiled package/Page Schema.",
+      "Maturity proof promotes only deterministic lineage while anti-clone and dynamic compiler remain incomplete.",
+      "Normal CI + exact-head Template Factory Quality Gate v2 + Completion Truth + lifecycle closure."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-02-DETERMINISTIC-PRODUCTION-LINEAGE-BRABUS-HARDENING",
@@ -402,25 +393,25 @@
         "builder-template-system"
       ],
       "mustEdit": [
+        "src/lib/builder/template-factory/production-lineage.ts",
+        "src/lib/builder/template-factory/generator-readiness.ts",
         "src/lib/builder/template-factory/scaffold.ts",
         "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
-        "src/lib/builder/template-factory/production-lineage.ts",
         "src/lib/builder/template-factory/production-contracts.ts"
       ],
       "impactedReadOnly": [
-        "src/lib/builder/template-factory/generator-readiness.ts",
+        "src/lib/builder/template-factory/template-genome.ts",
         "src/lib/builder/template-factory/constraint-planner.ts",
         "src/lib/builder/template-factory/media-planner.ts",
-        "src/lib/builder/template-factory/template-genome.ts",
-        "src/lib/builder/template-factory/template-type-system.ts",
-        "src/lib/builder/storefront-template-installation.ts",
-        "src/lib/builder/storefront-runtime.ts"
+        "src/lib/builder/template-factory/recipes/loot-vault-v2.ts"
       ],
       "proof": [
         "tests/template-factory-production-lineage.test.ts",
-        "tests/template-factory-production-maturity.test.ts"
+        "tests/template-factory-generator-readiness.test.ts",
+        "tests/template-factory-production-maturity.test.ts",
+        "tests/template-factory-loot-vault-v2.test.ts"
       ],
       "unknown": []
     },
@@ -432,7 +423,7 @@
     "requirements": [
       {
         "id": "REQ-DETERMINISTIC-PRODUCTION-LINEAGE",
-        "requirement": "Every generator-declared Factory build exposes one canonical immutable end-to-end Production Lineage binding all proven compiler inputs to the compiled package fingerprint.",
+        "requirement": "Canonical deterministic production lineage binds recipe/foundation/reference/Genome/Constraint Plan/Media Plan and compiled package identity into one immutable validated hash chain.",
         "claimScope": {
           "capability": "CAP-QUALITY",
           "breadth": "production-lineage",
@@ -458,7 +449,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-LINEAGE-PARALLEL-AUTHORITY",
-            "statement": "Production Lineage remains derived Factory report evidence and never becomes Page Schema, Runtime, media or recipe authoring authority.",
+            "statement": "Lineage observes canonical production authorities and compiled output but does not mutate or replace them.",
             "evidence": [
               "GUARD-QUALITY-TESTS",
               "GUARD-TEMPLATE-FACTORY"
@@ -468,7 +459,7 @@
       },
       {
         "id": "REQ-LINEAGE-FAIL-CLOSED",
-        "requirement": "Source-chain drift, package-output drift, missing plans and tampered lineage hashes cannot validate or be reported as complete lineage.",
+        "requirement": "Missing, stale, cross-template or source-mismatched lineage inputs cannot produce a valid lineage or generator-ready result.",
         "claimScope": {
           "capability": "CAP-QUALITY",
           "breadth": "lineage-integrity",
@@ -493,8 +484,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-LINEAGE-STALE-PROOF",
-            "statement": "A stale or spliced source/output lineage cannot pass validation.",
+            "id": "NEG-LINEAGE-FALSE-PASS",
+            "statement": "Partial or stale lineage evidence cannot be treated as complete production truth.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -503,7 +494,7 @@
       },
       {
         "id": "REQ-LINEAGE-CAPABILITY-SEPARATION",
-        "requirement": "Deterministic lineage completion does not promote cross-template distinctness or Dynamic Production Compiler and does not authorize Template #3.",
+        "requirement": "Deterministic lineage completion does not promote cross-template anti-clone or the dynamic production compiler.",
         "claimScope": {
           "capability": "CAP-QUALITY",
           "breadth": "capability-separation",
@@ -529,7 +520,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-LINEAGE-FALSE-DOWNSTREAM-PROVEN",
-            "statement": "Lineage completion cannot falsely prove anti-clone or Dynamic Production Compiler capability.",
+            "statement": "Lineage completion cannot imply anti-clone or dynamic compilation is proven.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -538,7 +529,7 @@
       }
     ]
   },
-  "notes": "Fifth Brabus hardening wave. Genome, Template Type System, Constraint Planner and Media Planner/Compiler are PROVEN and lifecycle-closed. This wave creates derived end-to-end production evidence only; it must not mutate compiled Page Schema/package content. Anti-clone and Dynamic Production Compiler remain separate blockers. Template #3 remains forbidden. Canonical full-PR lineage projection reconciled: impacted subsystems are builder-template-system/database-schema/dependency-contract/release-infrastructure/shared-storefront/storefront-ui; SQ-NK-005 and SQ-NK-014 apply; guard digest 1f7fdbbd. New production-lineage.ts is a planned canonical extension under mayEdit until it exists; scaffold and maturity remain mandatory integration edits.",
+  "notes": "Fifth Brabus hardening wave. Genome, Type System, Constraint Planner and Media Planner are PROVEN and lifecycle-closed. This wave closes deterministic production lineage before anti-clone and dynamic compiler work. Template #3 remains forbidden.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
