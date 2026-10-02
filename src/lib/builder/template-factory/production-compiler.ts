@@ -70,9 +70,9 @@ function deriveCommerceReadiness(candidate:StorefrontInstallableTemplatePackage)
     });
     if(purchasable)pageTypes.push(page.pageType);
   }
-  return pageTypes.length?Object.freeze({
-    productCardPurchaseActions:Object.freeze({pageTypes:Object.freeze(pageTypes)}),
-  }):undefined;
+  if(!pageTypes.length)return undefined;
+  const purchaseActions=Object.freeze({pageTypes:Object.freeze(pageTypes)});
+  return Object.freeze({productCardPurchaseActions:purchaseActions});
 }
 
 function validateCandidate(input:{
