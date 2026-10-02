@@ -8,7 +8,8 @@
   "plannedFilePatterns": [
     "quality/knowledge/domain-foundations.v1.json",
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-    "tests/shoperation-semantic-execution-intelligence.test.ts"
+    "tests/shoperation-semantic-execution-intelligence.test.ts",
+    "src/app/fiokom/b2b/page.tsx"
   ],
   "expectedSubsystems": [],
   "expectedDomains": [
@@ -85,12 +86,14 @@
       "DOMAIN-QUALITY canonical ownership covers scripts/lib/shoperation-** in agreement with the existing Atlas quality-system surface rule.",
       "validateCodebaseAtlas hard-blocks a deliberately inconsistent materialized node with ATLAS_CLASSIFICATION_DIVERGENCE.",
       "validateCodebaseAtlas hard-blocks machine-readable active PO route conflicts where one active instruction requires a route that another active instruction forbids without explicit supersession.",
-      "The unchanged #666 plan-only replay no longer ping-pongs between contradictory classification paths."
+      "The unchanged #666 plan-only replay no longer ping-pongs between contradictory classification paths.",
+      "The B2B customer account page no longer imports a Builder manifest solely as a void runtime anchor; Builder compatibility remains proven by the manifest and its dedicated tests."
     ],
     "unresolvedRisks": [
       "Changing node materialization can alter domain/authority indexes across the repository, so exact-head Knowledge, Plan, Replay and Quality evidence must remain green.",
       "A generic conflict detector must not infer contradictions from human prose or labels; only structured route fields are safe for deterministic blocking.",
-      "Planned-addition projection remains a separate missing capability and must not be disguised as solved by classification coherence."
+      "Planned-addition projection remains a separate missing capability and must not be disguised as solved by classification coherence.",
+      "Removing the unused B2B Builder-manifest import must not alter B2B account runtime behavior or Builder Foundation compatibility."
     ],
     "scope": {
       "in": [
@@ -98,7 +101,8 @@
         "Existing validateCodebaseAtlas invoked by Knowledge Before Build and Plan Before Code.",
         "Structured active PO instruction route compatibility using affectedRoutes and forbiddenStates route entries.",
         "Adversarial regressions for materialized-node divergence and route-rule conflict.",
-        "Alignment of existing Atlas quality-system surface policy with existing DOMAIN-QUALITY canonical ownership for scripts/lib/shoperation-**."
+        "Alignment of existing Atlas quality-system surface policy with existing DOMAIN-QUALITY canonical ownership for scripts/lib/shoperation-**.",
+        "Removal of the gate-discovered dead Storefront→Builder manifest import from src/app/fiokom/b2b/page.tsx."
       ],
       "out": [
         "Any new quality gate, registry or blocking authority.",
@@ -132,7 +136,9 @@
         "resolveAtlasArchitectureForPath uses canonical path classification for architecture fields and does not let an inconsistent cached node become a second authority.",
         "classifyAtlasPath('scripts/lib/shoperation-codebase-atlas-runtime.mjs') resolves to DOMAIN-QUALITY/quality-knowledge-system, matching its existing quality-system surface classification.",
         "Two active PO instructions where one lists /example in affectedRoutes and another lists route:/example in forbiddenStates are rejected with ATLAS_PO_ROUTE_AUTHORITY_CONFLICT unless the conflicting instruction is inactive or explicitly superseded.",
-        "The current shipping/payment instruction remains valid and deletion/tombstone proof semantics are unchanged."
+        "The current shipping/payment instruction remains valid and deletion/tombstone proof semantics are unchanged.",
+        "src/app/storefront-preview/[token]/page.tsx resolves to DOMAIN-BUILDER because it is an immutable Builder/template preview surface.",
+        "src/app/fiokom/b2b/page.tsx has no runtime import of B2B_ACCOUNT_BUILDER_MANIFEST; the manifest remains independently defined and covered by Block 7 Builder compatibility tests."
       ],
       "invariants": [
         "There is one canonical path-classification function for route/domain/authority/truth materialization.",
@@ -140,7 +146,8 @@
         "Knowledge Before Build and Plan Before Code consume the same validateCodebaseAtlas coherence result.",
         "Structured conflict detection is fail-closed but does not parse human prose.",
         "No Product Owner or PR-specific file exception is introduced.",
-        "Existing quality-system surface classification for scripts/lib/shoperation-** and DOMAIN-QUALITY ownership must not contradict each other."
+        "Existing quality-system surface classification for scripts/lib/shoperation-** and DOMAIN-QUALITY ownership must not contradict each other.",
+        "Cross-domain execution allow rules are not added to preserve imports that have no runtime responsibility."
       ],
       "forbiddenStates": [
         "node-classifier-split-brain",
@@ -184,7 +191,8 @@
         "A resolver uses cached node ownership while impact analysis uses another classifier and the gates ping-pong.",
         "Two active structured PO instructions issue opposing route authority and both are individually valid.",
         "A validator fix is bypassed because a downstream helper recomputes domains independently.",
-        "A file is declared quality-system by Atlas surface policy but remains unowned by DOMAIN-QUALITY due registry pattern drift."
+        "A file is declared quality-system by Atlas surface policy but remains unowned by DOMAIN-QUALITY due registry pattern drift.",
+        "A dead compatibility-anchor import is normalized as an allowed architecture edge instead of being removed."
       ],
       "edgeCases": [
         "Public page receiving storefront fallback.",
@@ -194,7 +202,8 @@
         "Deleted/planned-deletion route where ownership and deletion proof remain separate.",
         "Inactive or superseded PO instruction containing a conflicting route.",
         "Same active instruction accidentally requiring and forbidding the same route.",
-        "Quality helper under scripts/lib/shoperation-**."
+        "Quality helper under scripts/lib/shoperation-**.",
+        "Builder manifest exists for compatibility metadata but is not required by the customer runtime page."
       ]
     },
     "alternatives": [
@@ -317,6 +326,20 @@
         "finding": "If any path still diverges, the same pingpong class remains alive.",
         "resolution": "Use unchanged #666 plan-only replay as post-merge regression evidence before product implementation resumes.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-9",
+        "scenario": "Knowledge preflight classifies src/app/fiokom/b2b/page.tsx → src/lib/commerce/b2b-account-builder.ts as missing Storefront→Builder authority edge.",
+        "finding": "The imported manifest is consumed only via void and defineStorefrontBuilderComponent has no registration side effect, so the runtime edge has no product responsibility.",
+        "resolution": "Amend the active implementation envelope and remove the dead import instead of adding an execution allow exception.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-10",
+        "scenario": "src/app/storefront-preview/[token]/page.tsx imports Builder preview demo contracts but fallback classifies the page as Storefront.",
+        "finding": "The domain registry names storefront-template-preview but omits storefront-preview even though both are Builder preview execution surfaces.",
+        "resolution": "Add src/app/storefront-preview/** to existing DOMAIN-BUILDER canonicalPaths so specific Builder ownership suppresses generic Storefront fallback.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -324,6 +347,8 @@
       "Materialize route/subsystem/surface/domain/authority/truth classification from classifyAtlasPath in buildCodebaseAtlas.",
       "Align DOMAIN-QUALITY canonicalPaths with the existing quality-system surface rule for scripts/lib/shoperation-**.",
       "Make impact fallback and architecture resolver consume canonical classifyAtlasPath semantics.",
+      "Remove the side-effect-free B2B manifest anchor import rather than adding a cross-domain allow rule.",
+      "Add src/app/storefront-preview/** to existing DOMAIN-BUILDER canonical ownership and require Knowledge preflight to show no missing Storefront→Builder edges.",
       "Extend validateCodebaseAtlas with field-level ATLAS_CLASSIFICATION_DIVERGENCE and structured ATLAS_PO_ROUTE_AUTHORITY_CONFLICT checks.",
       "Add adversarial tests that intentionally inject inconsistent nodes and conflicting active PO route rules, plus negative inactive/superseded controls.",
       "Run exact-head Knowledge, Plan, Edit-Time, Incremental Replay, Quality, TypeScript, Production Build and Truth; CLOSE→LEARN.",
@@ -340,7 +365,8 @@
       "mustEdit": [
         "quality/knowledge/domain-foundations.v1.json",
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "src/app/fiokom/b2b/page.tsx"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -484,5 +510,5 @@
       }
     ]
   },
-  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented. Broadened before implementation after Product Owner review: recurring pingpong is treated as Atlas rule-coherence failure, not a #666-specific resolver symptom. No new gate; existing validateCodebaseAtlas/Knowledge/Plan authority is strengthened. Canonical planned projection on 8c290f6 derived DOMAIN-QUALITY / quality-knowledge-system, full active negative-knowledge set SQ-NK-001/002/004/006/007/008/009/012 and guard digest aa79c504; reconciled without changing coherence scope. Additional registry-coherence evidence: codebase-atlas-policy.v2 quality-system surface already covers scripts/lib/shoperation-**, while DOMAIN-QUALITY canonicalPaths does not. Existing DOMAIN-QUALITY is extended to the same helper namespace; no new authority is created. Projected scope restored to the previously Plan-PASS shape for these three files. Canonical projection on 6455ea27 confirms DOMAIN-QUALITY / quality-knowledge-system, no release-subsystem classification, SQ-NK-012 only, and guard digest aa79c504. Reconciled exactly; three-file coherence transaction unchanged."
+  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented. Broadened before implementation after Product Owner review: recurring pingpong is treated as Atlas rule-coherence failure, not a #666-specific resolver symptom. No new gate; existing validateCodebaseAtlas/Knowledge/Plan authority is strengthened. Canonical planned projection on 8c290f6 derived DOMAIN-QUALITY / quality-knowledge-system, full active negative-knowledge set SQ-NK-001/002/004/006/007/008/009/012 and guard digest aa79c504; reconciled without changing coherence scope. Additional registry-coherence evidence: codebase-atlas-policy.v2 quality-system surface already covers scripts/lib/shoperation-**, while DOMAIN-QUALITY canonicalPaths does not. Existing DOMAIN-QUALITY is extended to the same helper namespace; no new authority is created. Projected scope restored to the previously Plan-PASS shape for these three files. Canonical projection on 6455ea27 confirms DOMAIN-QUALITY / quality-knowledge-system, no release-subsystem classification, SQ-NK-012 only, and guard digest aa79c504. Reconciled exactly; three-file coherence transaction unchanged. During exact-head Knowledge verification of the canonicalization implementation, the strengthened Atlas exposed two real pre-existing authority drifts. Recovery envelope amended: classify storefront-preview as the already-declared Builder preview surface; remove the side-effect-free B2B manifest anchor instead of whitelisting a dead dependency. This is a gate-discovered scope expansion, not a permissive exception."
 }
