@@ -3,6 +3,7 @@ import {mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe,expect,it} from 'vitest';
+import {execFileSync} from 'node:child_process';
 import {
   canonicalizeVerificationEngineInput,
   checkpointChecksum,
@@ -496,6 +497,14 @@ describe('dependency-aware resumable verification',()=>{
     }
   });
 
+  it('fails closed when workflow outcome disagrees with the producer artifact or exact head',()=>{
+    const output=execFileSync(process.execPath,['scripts/shoperation-verification-checkpoint.mjs','--producer-decision-self-test'],{encoding:'utf8'});
+    expect(output).toContain('Producer decision self-test: PASS');
+    const source=readFileSync('scripts/shoperation-verification-checkpoint.mjs','utf8');
+    expect(source).toContain('PRODUCER_ARTIFACT_BLOCKED_WHILE_WORKFLOW_SUCCESS');
+    expect(source).toContain('PRODUCER_ARTIFACT_HEAD_MISMATCH');
+    expect(source).toContain("reconciled[gateId]='failure'");
+  });
   it('truth-seals before checkpoint persistence in CI',()=>{
     const workflow=readFileSync('.github/workflows/ci.yml','utf8');
     const reconcile=workflow.indexOf('- name: Reconcile Resumable Verification');

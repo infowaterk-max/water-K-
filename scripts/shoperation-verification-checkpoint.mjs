@@ -7,6 +7,52 @@ const manifestPath='artifacts/shoperation-development-guard/final-evidence-manif
 const summaryPath='artifacts/shoperation-development-guard/resumable-verification-summary.md';
 const env=name=>String(process.env[name]??'').trim();
 
+const PRODUCER_ARTIFACTS={
+  'GUARD-KNOWLEDGE-PREFLIGHT':{path:'artifacts/shoperation-quality/knowledge-preflight.json',headField:'sourceCommit'},
+  'GUARD-PLAN-BEFORE-CODE':{path:'artifacts/shoperation-development-guard/plan-before-code.json',headField:'head'},
+  'GUARD-EDIT-TIME':{path:'artifacts/shoperation-development-guard/edit-time-guard.json',headField:'head'},
+  'GUARD-INCREMENTAL-REPLAY':{path:'artifacts/shoperation-development-guard/incremental-replay.json',headField:null},
+  'GUARD-RELEASE-RISK':{path:'artifacts/release-risk-budget.json',headField:'head'},
+};
+const PASS_OUTCOMES=new Set(['success','pass','passed','succeeded','ok','green']);
+const FAIL_OUTCOMES=new Set(['failure','failed','error','cancelled','canceled','timed_out','action_required']);
+const normalize=value=>String(value??'').trim().toLowerCase().replaceAll(' ','_');
+export function reconcileProducerDecisions({outcomes={},sourceRevision='',artifactRecords={}}={}){
+  const reconciled={...outcomes},checks=[],mismatches=[];
+  for(const [gateId,config] of Object.entries(PRODUCER_ARTIFACTS)){
+    const workflowRaw=outcomes[gateId],workflow=normalize(workflowRaw),workflowPass=PASS_OUTCOMES.has(workflow),workflowFail=FAIL_OUTCOMES.has(workflow);
+    const record=artifactRecords[gateId]??null,artifactDecision=String(record?.decision??'').trim().toUpperCase();
+    const artifactPass=artifactDecision==='PASS',artifactBlock=artifactDecision==='BLOCK';
+    const artifactHead=config.headField?String(record?.[config.headField]??'').trim():null;
+    const exactHead=!config.headField||Boolean(artifactHead&&sourceRevision&&artifactHead===sourceRevision);
+    const available=Boolean(record),decisionKnown=artifactPass||artifactBlock;
+    let code=null;
+    if(workflowPass&&!available)code='PRODUCER_ARTIFACT_MISSING';
+    else if(workflowPass&&!decisionKnown)code='PRODUCER_ARTIFACT_DECISION_UNKNOWN';
+    else if(workflowPass&&!artifactPass)code='PRODUCER_ARTIFACT_BLOCKED_WHILE_WORKFLOW_SUCCESS';
+    else if(workflowPass&&!exactHead)code='PRODUCER_ARTIFACT_HEAD_MISMATCH';
+    else if(workflowFail&&artifactPass)code='PRODUCER_ARTIFACT_PASS_WHILE_WORKFLOW_FAILED';
+    const check={gateId,path:config.path,workflow:workflowRaw??null,artifactDecision:artifactDecision||null,artifactHead,sourceRevision,available,exactHead,decision:code?'BLOCK':'PASS',code};
+    checks.push(check);
+    if(code){mismatches.push(check);reconciled[gateId]='failure';}
+  }
+  return{outcomes:reconciled,checks,mismatches,decision:mismatches.length?'BLOCK':'PASS'};
+}
+function loadProducerArtifacts(){
+  const records={};
+  for(const [gateId,config] of Object.entries(PRODUCER_ARTIFACTS))if(existsSync(config.path))try{records[gateId]=JSON.parse(readFileSync(config.path,'utf8'));}catch{records[gateId]={decision:'UNREADABLE'};}
+  return records;
+}
+if(process.argv.includes('--producer-decision-self-test')){
+  const pass=reconcileProducerDecisions({outcomes:{'GUARD-EDIT-TIME':'success'},sourceRevision:'head-1',artifactRecords:{'GUARD-EDIT-TIME':{decision:'PASS',head:'head-1'}}});
+  const blocked=reconcileProducerDecisions({outcomes:{'GUARD-EDIT-TIME':'success'},sourceRevision:'head-1',artifactRecords:{'GUARD-EDIT-TIME':{decision:'BLOCK',head:'head-1'}}});
+  const stale=reconcileProducerDecisions({outcomes:{'GUARD-EDIT-TIME':'success'},sourceRevision:'head-1',artifactRecords:{'GUARD-EDIT-TIME':{decision:'PASS',head:'older'}}});
+  const ok=pass.decision==='PASS'&&blocked.decision==='BLOCK'&&blocked.outcomes['GUARD-EDIT-TIME']==='failure'&&stale.mismatches.some(item=>item.code==='PRODUCER_ARTIFACT_HEAD_MISMATCH');
+  console.log(`Producer decision self-test: ${ok?'PASS':'FAIL'}`);
+  if(!ok)process.exitCode=1;
+  process.exit();
+}
+
 if(!existsSync(planPath))throw new Error('RESUMABLE_VERIFICATION_PLAN_MISSING:'+planPath);
 const plan=JSON.parse(readFileSync(planPath,'utf8'));
 let outcomes={};
@@ -17,7 +63,12 @@ const loaded=loadCheckpoint(checkpointPath);
 const priorCheckpoint=loaded.checkpoint;
 const runId=[env('GITHUB_RUN_ID'),env('GITHUB_RUN_ATTEMPT')].filter(Boolean).join('-')||'local';
 const stateVersion=env('SHOPERATION_TRUTH_STATE_VERSION')||'shoporation-ci.v1';
-const final=finalizeVerification({plan,outcomes,priorCheckpoint,runId,stateVersion});
+const producerReconciliation=reconcileProducerDecisions({outcomes,sourceRevision:plan.sourceRevision,artifactRecords:loadProducerArtifacts()});
+const final=finalizeVerification({plan,outcomes:producerReconciliation.outcomes,priorCheckpoint,runId,stateVersion});
+final.manifest.producerDecisionChecks=producerReconciliation.checks;
+final.manifest.producerDecisionMismatches=producerReconciliation.mismatches;
+final.checkpoint.producerDecisionMismatches=producerReconciliation.mismatches;
+
 
 atomicWriteJson(manifestPath,final.manifest);
 if(final.checkpoint.complete)atomicWriteJson(checkpointPath,final.checkpoint);
@@ -55,6 +106,7 @@ const lines=[
   '## Verification comparison',
   '- Compared gates: '+final.manifest.comparison.compared,
   '- Discrepancies: '+final.manifest.comparison.discrepancies.length,
+  '- Producer decision mismatches: '+producerReconciliation.mismatches.length,
   '- Decision: **'+final.manifest.comparison.decision+'**',
   '- Final confidence: **'+final.manifest.finalConfidence+'**',
   '',
