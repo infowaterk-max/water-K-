@@ -1,8 +1,8 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-DETERMINISTIC-PRODUCTION-LINEAGE-BRABUS-HARDENING",
-  "task": "Implement one canonical deterministic production-lineage contract that binds the existing Template Factory recipe/foundation identity, accepted Visual Authority, Template Genome, Constraint Plan, Media Plan and compiled package identity into an immutable hash chain without creating a parallel production authority.",
-  "status": "closed",
+  "taskId": "DEV-CROSS-TEMPLATE-DISTINCTNESS-BRABUS-HARDENING",
+  "task": "Implement canonical executable cross-template distinctness / anti-clone intelligence over the source-controlled storefront template catalog, using explainable multi-axis package similarity plus Template Genome exclusion semantics, without introducing a subjective visual ranking or a parallel template authority.",
+  "status": "ready-for-implementation",
   "guardDigest": "057ebf08",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
@@ -20,6 +20,7 @@
     "src/lib/builder/template-factory/production-maturity.ts",
     "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
     "src/lib/builder/template-factory/scaffold.ts",
+    "src/lib/builder/template-factory/template-distinctness.ts",
     "src/lib/builder/template-factory/template-genome.ts",
     "src/lib/builder/template-factory/template-type-system.ts",
     "tests/template-factory-constraint-planner.test.ts",
@@ -27,6 +28,7 @@
     "tests/template-factory-media-planner.test.ts",
     "tests/template-factory-production-lineage.test.ts",
     "tests/template-factory-production-maturity.test.ts",
+    "tests/template-factory-template-distinctness.test.ts",
     "tests/template-factory-template-genome.test.ts",
     "tests/template-factory-template-type-system.test.ts"
   ],
@@ -113,48 +115,50 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-DETERMINISTIC-PRODUCTION-LINEAGE-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-CROSS-TEMPLATE-DISTINCTNESS-BRABUS-HARDENING",
     "riskTier": "critical",
-    "problemStatement": "The Factory report already exposes recipe/foundation/reference/Genome provenance and the proven planning stack now emits deterministic Constraint Plan and Media Plan hashes, but there is no single immutable end-to-end production lineage that binds those inputs to the compiled package identity. Without that chain, later anti-clone and dynamic compiler proof cannot distinguish stale, cross-template or partially recomputed evidence reliably.",
+    "problemStatement": "Visual DNA and Genome exclusion conventions already describe intended separation, and the repository has a canonical source-controlled catalog of real installable template packages, but no executable multi-axis similarity budget automatically detects repaint clones, repeated section rhythm, copied shape/media language or interaction/composition reuse before a new template enters production.",
     "observableOutcomes": [
-      "One versioned immutable lineage contract binds recipe, foundation, accepted Visual Authority, Genome, Constraint Plan, Media Plan and compiled package identity.",
-      "Lineage is deterministic: identical canonical inputs and package produce exactly the same lineage hash across runs.",
-      "Any semantic input or compiled package mutation changes the lineage hash.",
-      "Lineage validation fails closed on missing upstream hashes, template/version drift, stale Visual Authority, media/constraint source mismatch or package identity drift.",
-      "Factory report exposes the canonical lineage without writing it into every Page Schema document.",
-      "Generator Readiness can surface lineage validity while remaining separate from Product Owner visual acceptance.",
-      "No CI run id, timestamp or environment-specific value participates in lineage truth.",
-      "Anti-clone and Dynamic Compiler remain separate waves and consume lineage later instead of being implicitly promoted."
+      "A deterministic distinctness profiler derives comparable signatures from candidate and reference installable packages without screenshots, embeddings or subjective model judgment.",
+      "The profiler evaluates composition, section rhythm, typography, spacing, density, shape, media language and interaction as separate explainable axes.",
+      "Candidate packages are automatically compared against every other source-controlled STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES entry; same templateKey history is excluded.",
+      "A weighted overall similarity budget and critical-axis cluster budget fail closed on clone-like convergence while tolerating shared runtime/component grammar.",
+      "Template Genome exclusion identities/similarities are bound as hard semantic guardrails against named references such as Playroom.",
+      "Generator Readiness consumes distinctness validity for real Factory builds without changing Page Schema or Runtime truth.",
+      "Result evidence identifies the nearest references and the exact axes that exceed budget so later bounded repair can act on ordinary Builder/Factory inputs.",
+      "No external screenshot scorer, AI embedding, popularity score or subjective best/worst ranking becomes production authority."
     ],
     "unresolvedRisks": [
-      "Hashing only top-level identities would miss semantic package mutations.",
-      "Hashing the full Factory report would capture non-production counters/evidence and make lineage unstable.",
-      "Embedding lineage into Page Schema pages would recreate the Genome metadata regression and change canonical package equality.",
-      "If Constraint Plan and Media Plan are recomputed independently but their source relation is not checked, lineage could bless mismatched plans.",
-      "If concrete package hash is order-sensitive in semantically unordered structures, equivalent packages could receive different identities."
+      "Shared component registry naturally creates structural overlap and must not itself be classified as cloning.",
+      "Text-copy tokens could overfit language/brand names instead of visual grammar.",
+      "A simple average can hide three critically cloned axes behind unrelated low-similarity axes.",
+      "Package-only legacy references lack Brabus Genome semantics, so candidate Genome exclusions must complement rather than replace objective package profiling.",
+      "Importing the global catalog must not create a Factory/catalog circular dependency.",
+      "Similarity thresholds chosen without adversarial clone/near-clone fixtures could be arbitrary."
     ],
     "scope": {
       "in": [
-        "Canonical versioned production-lineage contract.",
-        "Deterministic canonical package identity/hash over the compiled installable package.",
-        "Binding of recipe/foundation/reference/Genome/Constraint Plan/Media Plan hashes.",
-        "Fail-closed lineage validation and source-chain consistency checks.",
-        "Factory report provenance integration only, not Page Schema mutation.",
-        "Generator Readiness lineage validation exposure.",
-        "Maturity promotion with executable adversarial proof."
+        "Canonical deterministic eight-axis package distinctness profile.",
+        "Catalog-wide candidate versus all-other-template comparison using STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.",
+        "Weighted overall budget plus critical-axis cluster rule.",
+        "Genome exclusion-to-reference semantic guardrails.",
+        "Explainable nearest-reference evidence and bounded repair hints.",
+        "Generator Readiness integration.",
+        "Maturity promotion with adversarial exact-clone, repaint-clone, partial-clone and legitimate-shared-grammar proof."
       ],
       "out": [
         "Template #3 authoring.",
-        "Cross-template distinctness scoring.",
+        "Computer-vision screenshot similarity.",
+        "AI embeddings or subjective aesthetic scoring.",
+        "Automatic source-code rewrite.",
         "Dynamic production compiler implementation.",
         "VX Smart Intent or Smart Auto-Fix.",
-        "CI/workflow run identity as production lineage input.",
-        "New Control Plane gates or separate lineage completion authority."
+        "New Control Plane gate or separate visual acceptance authority."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Production lineage becomes the identity spine consumed by later compiler and anti-clone evidence. Highest practical assurance requires deterministic canonical serialization, immutable source bindings, end-to-end source consistency checks, package-hash sensitivity, stale/cross-template rejection and adversarial replay, while keeping operational CI evidence outside production truth.",
+      "rationale": "Anti-clone becomes a mandatory precondition for new template production. Highest practical assurance is deterministic package-derived profiling across the full real catalog, independent axis evidence, adversarial clone fixtures, explicit thresholds and Genome exclusion semantics while keeping Product Owner visual approval as a separate authority.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -172,40 +176,41 @@
         "finite-state-exhaustion"
       ],
       "deferredTechniques": [
-        "cross-template-similarity-scoring",
+        "computer-vision-similarity",
+        "embedding-similarity",
         "dynamic-production-compilation",
-        "vx-intent-operation-compilation"
+        "vx-auto-repair"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Production lineage has one canonical versioned contract under builder-template-system.",
-        "Lineage includes recipe identity, foundation identity, Visual Authority reference, Genome hash, Constraint Plan hash, Media Plan hash and compiled package hash.",
-        "Compiled package hash is deterministic and changes on meaningful package mutation.",
-        "Constraint Plan source Genome hash equals lineage Genome hash and Media Plan source Constraint Plan hash equals lineage Constraint Plan hash.",
-        "Lineage identity matches the target recipe and compiled package manifest template key/version.",
-        "Factory report exposes lineage while Page Schema and installable package shape remain unchanged.",
-        "Generator Readiness fails closed when lineage inputs are inconsistent for a declared Blueprint.",
-        "FACTORY-DETERMINISTIC-LINEAGE becomes PROVEN only after implementation plus adversarial executable tests.",
-        "FACTORY-DISTINCTNESS-ANTI-CLONE and FACTORY-DYNAMIC-PRODUCTION-COMPILER remain not promoted."
+        "One versioned distinctness contract profiles exactly eight mandatory axes: composition, sectionRhythm, typography, spacing, density, shape, mediaLanguage and interaction.",
+        "All axis values are derived from canonical package structure/configuration; concrete media source paths are never used as similarity evidence.",
+        "Candidate compares against every other real implemented catalog package, excluding same templateKey history.",
+        "Each comparison reports per-axis similarity, weighted overall similarity, critical-axis exceedances and pass/block reason.",
+        "Exact clone and style-only/repaint clone adversarial fixtures block.",
+        "Legitimate templates sharing the same Page Schema/component registry do not block solely because of shared primitives.",
+        "Genome exclusions can target a reference identity and tighten the relevant axis budget; UNKNOWN exclusion targets do not silently pass.",
+        "Generator Readiness is false when distinctness blocks in canonical Factory context.",
+        "FACTORY-DISTINCTNESS-ANTI-CLONE becomes PROVEN only after executable implementation/tests.",
+        "FACTORY-DYNAMIC-PRODUCTION-COMPILER remains EVOLVE."
       ],
       "invariants": [
-        "Genome remains template identity/grammar authority.",
-        "Constraint Plan remains bounded semantic production constraint authority.",
-        "Media Plan remains semantic-to-concrete media planning authority.",
-        "Installable package remains Page Schema/package authority; lineage observes it and never mutates it.",
-        "Timestamp, CI run ID, branch or Vercel deployment ID are excluded from production lineage hash.",
-        "UNKNOWN or missing upstream hash never counts as valid lineage."
+        "Shared Page Schema/component vocabulary is not itself clone evidence.",
+        "Same templateKey versions are lineage/evolution and are excluded from cross-template clone comparison.",
+        "Similarity evidence excludes timestamps, CI IDs and concrete media file paths.",
+        "Product Owner approval remains visual authority; distinctness only enforces anti-clone constraints.",
+        "UNKNOWN/empty corpus for a generator-ready Factory candidate never counts as distinctness PASS.",
+        "Distinctness result never mutates candidate/reference packages."
       ],
       "forbiddenStates": [
         "template-3-authoring",
-        "lineage-written-into-every-page-schema",
-        "ci-run-id-in-production-lineage",
-        "timestamp-in-production-lineage",
-        "mismatched-media-plan-accepted",
-        "stale-constraint-plan-accepted",
-        "package-mutation-with-stable-lineage-hash",
-        "anti-clone-falsely-proven",
+        "subjective-aesthetic-ranking",
+        "ai-embedding-production-authority",
+        "same-template-version-self-comparison",
+        "concrete-media-path-similarity",
+        "shared-component-use-alone-causes-block",
+        "empty-corpus-counted-as-pass",
         "dynamic-compiler-falsely-proven"
       ]
     },
@@ -238,39 +243,39 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Package content changes while lineage hash remains unchanged.",
-        "Media Plan points to a different Constraint Plan than the lineage chain.",
-        "Constraint Plan points to a different Genome hash than the lineage chain.",
-        "Recipe identity and compiled package manifest target different template versions.",
-        "Visual Authority reference used by Constraint Plan differs from active recipe/reference.",
-        "Lineage hash changes between identical runs because timestamps or runtime evidence leak into the contract."
+        "Exact clone receives PASS because only color/media source paths differ.",
+        "A repaint clone hides high composition/rhythm/shape similarity behind low copy-token similarity.",
+        "Shared header/footer/component primitives make unrelated templates falsely block.",
+        "Candidate compares against its own previous version and is incorrectly classified as a clone.",
+        "Genome says avoid Playroom rhythm but high Playroom rhythm similarity does not tighten the verdict.",
+        "Catalog is empty or filtered to zero references and distinctness returns PASS."
       ],
       "edgeCases": [
-        "Object key ordering differences must not change package or lineage hash.",
-        "Array ordering that is canonical/meaningful must remain hash-significant.",
-        "An undeclared Blueprint/recipe may have no valid lineage and must remain generator-not-ready without invented hashes.",
-        "Internal-reference versus ready media can change package output and therefore package lineage only when the compiled package actually differs.",
-        "Existing exact package equality tests must remain unchanged because lineage lives in report provenance only."
+        "Reference package lacks Brabus Genome but remains comparable through package-derived profile.",
+        "Candidate introduces a new component unknown to older templates; unknown tokens increase distinctness but do not erase cloned critical axes.",
+        "Two templates share typography but differ strongly in composition/media/interaction and should remain allowed.",
+        "A clone changes brand copy, colors and image filenames only; path/copy noise must not rescue it.",
+        "A candidate in a one-template repository still fails corpus completeness rather than fabricating reference evidence."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-LINEAGE-SPINE",
-        "summary": "Create one read-only canonical lineage spine over proven upstream hashes and compiled package identity.",
+        "id": "ALT-PACKAGE-CATALOG-MULTI-AXIS",
+        "summary": "Derive deterministic package signatures and compare against the canonical implemented-template catalog.",
         "disposition": "selected",
-        "reason": "It closes the provenance chain without duplicating any planning or Page Schema authority."
+        "reason": "Works for both legacy and Brabus templates without inventing retrospective Genomes or relying on screenshots/AI."
       },
       {
-        "id": "ALT-HASH-WHOLE-REPORT",
-        "summary": "Hash the entire Factory report.",
+        "id": "ALT-GENOME-ONLY",
+        "summary": "Compare only Brabus Template Genomes.",
         "disposition": "rejected",
-        "reason": "Report contains diagnostics/counters/evidence that are not canonical production inputs and would make lineage unstable."
+        "reason": "Most existing catalog templates do not yet have canonical Genomes, so Template #3 could clone legacy packages undetected."
       },
       {
-        "id": "ALT-EMBED-LINEAGE-PAGES",
-        "summary": "Write lineage metadata into each compiled page document.",
+        "id": "ALT-SCREENSHOT-CV",
+        "summary": "Use image/embedding similarity over browser screenshots.",
         "disposition": "rejected",
-        "reason": "This would mutate canonical Page Schema/package equality and repeat the previously caught Genome metadata regression."
+        "reason": "Would introduce a new probabilistic visual authority and operational complexity before deterministic structural/style evidence is exhausted."
       }
     ],
     "specialistReviews": [
@@ -278,140 +283,139 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The proven upstream stack already emits deterministic hashes; lineage should compose those authorities rather than add another planner.",
-        "resolution": "Create a read-only production-lineage module and expose its result in Generator Readiness/Factory report only.",
+        "finding": "STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES is the existing real package corpus; distinctness should consume it rather than maintain a duplicate reference registry.",
+        "resolution": "Import catalog read-only, exclude same templateKey, and keep the profiler inside builder-template-system.",
         "evidence": [
-          "src/lib/builder/template-factory/template-genome.ts",
-          "src/lib/builder/template-factory/constraint-planner.ts",
-          "src/lib/builder/template-factory/media-planner.ts"
+          "src/lib/builder/storefront-template-catalog.ts",
+          "src/lib/builder/template-factory/production-maturity.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Top-level identity alone cannot prove the compiled package actually corresponds to upstream plans.",
-        "resolution": "Compute a deterministic compiled-package hash and include it in the lineage digest; adversarial package mutation must change the lineage.",
+        "finding": "A single similarity average can hide clone-like convergence on composition/rhythm/shape.",
+        "resolution": "Use independent axis scores plus a critical-axis cluster blocker in addition to weighted overall similarity.",
         "evidence": [
-          "src/lib/builder/template-factory/scaffold.ts"
+          "src/lib/builder/templates/playroom.ts",
+          "src/lib/builder/templates/loot-vault.ts"
         ]
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Lineage metadata must not leak into Page Schema and trigger visual/canonical-package regressions.",
-        "resolution": "Expose lineage only in Factory report/Generator Readiness evidence surfaces.",
+        "finding": "Shared components and checkout/account shells are expected across templates and must not create false clone verdicts.",
+        "resolution": "Profile normalized visual grammar/configuration and home/body rhythm while down-weighting shared shell primitives.",
         "evidence": [
-          "tests/template-factory-loot-vault-v2.test.ts",
-          "src/lib/builder/template-factory/scaffold.ts"
+          "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "src/lib/builder/template-factory/recipes/loot-vault-v2.ts"
         ]
       },
       {
         "role": "Runtime",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Operational CI/run metadata is useful evidence but is not deterministic production identity.",
-        "resolution": "Exclude run IDs, timestamps, branches and deployment URLs from production-lineage canonical input.",
+        "finding": "Distinctness cannot mutate package/runtime truth or use concrete media paths as evidence.",
+        "resolution": "Pure profiler/evaluator returns immutable evidence and repair hints only; Runtime/Page Schema remain untouched.",
         "evidence": [
-          "scripts/shoperation-external-proof-handoff.mjs",
-          "src/lib/builder/template-factory/scaffold.ts"
+          "src/lib/builder/storefront-template-catalog.ts",
+          "src/lib/builder/storefront-runtime.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-LINEAGE-1",
-        "scenario": "Two semantically identical package objects are created with different object-key insertion order.",
-        "finding": "Naive JSON.stringify hashing can generate different package identities.",
-        "resolution": "Use recursive canonical key ordering before deterministic digest.",
+        "id": "CH-DIST-1",
+        "scenario": "Candidate package is byte-semantic clone of Playroom with only templateKey/version changed.",
+        "finding": "Exact structural/style clone must block independent of identity.",
+        "resolution": "Package-derived eight-axis profile produces high overall and critical-axis similarity; comparison blocks.",
         "status": "resolved"
       },
       {
-        "id": "CH-LINEAGE-2",
-        "scenario": "A product page binding is changed after the upstream Genome/Constraint/Media plans remain identical.",
-        "finding": "Lineage could falsely report the same production output if package identity is omitted.",
-        "resolution": "Compiled package canonical hash is a mandatory lineage source and must change.",
+        "id": "CH-DIST-2",
+        "scenario": "Candidate clones Playroom layout/spacing/shape but changes colors, brand copy and image filenames.",
+        "finding": "A repaint clone must not escape via non-visual token noise.",
+        "resolution": "Exclude concrete media paths and generic copy from core axes; critical composition/rhythm/spacing/shape cluster blocks.",
         "status": "resolved"
       },
       {
-        "id": "CH-LINEAGE-3",
-        "scenario": "Media Plan source.constraintPlanHash references an older Constraint Plan while its own hash is otherwise valid.",
-        "finding": "Independent valid hashes could form a stale mixed chain.",
-        "resolution": "Lineage validation requires exact source-chain equality before hashing.",
+        "id": "CH-DIST-3",
+        "scenario": "Candidate and reference both use system.commerce-header, layout.section and commerce.product-grid.",
+        "finding": "Shared canonical primitives are legitimate reuse.",
+        "resolution": "Common primitive keys are normalized/down-weighted; similarity depends on sequence/configuration/style grammar rather than mere component presence.",
         "status": "resolved"
       },
       {
-        "id": "CH-LINEAGE-4",
-        "scenario": "Constraint Plan sources.genomeHash differs from the active Template Genome hash.",
-        "finding": "A stale planner output could be attached to a newer template identity.",
-        "resolution": "Reject with explicit lineage Genome/Constraint source mismatch.",
+        "id": "CH-DIST-4",
+        "scenario": "Loot Vault v2 is compared to legacy Loot Vault v1.",
+        "finding": "Evolution of the same template identity must not be classified as cross-template cloning.",
+        "resolution": "Exclude all references with candidate templateKey regardless of version.",
         "status": "resolved"
       },
       {
-        "id": "CH-LINEAGE-5",
-        "scenario": "Compiled package manifest templateVersion differs from recipe templateVersion.",
-        "finding": "Lineage could bind input version N to output version N-1.",
-        "resolution": "Recipe and package manifest identity must match exactly.",
+        "id": "CH-DIST-5",
+        "scenario": "Genome exclusion names Playroom rhythm/media language while corresponding package axes exceed normal warning budget.",
+        "finding": "Declared semantic exclusion should tighten rather than merely annotate evidence.",
+        "resolution": "Reference-targeted Genome exclusions create a hard violation when targeted critical axes exceed exclusion threshold.",
         "status": "resolved"
       },
       {
-        "id": "CH-LINEAGE-6",
-        "scenario": "Developer adds generatedAt or CI run ID into the lineage input for observability.",
-        "finding": "Identical production inputs would produce different hashes across runs.",
-        "resolution": "Contract has no operational-time/run fields and tests assert deterministic repeatability.",
+        "id": "CH-DIST-6",
+        "scenario": "Candidate shares typography with a reference but composition, rhythm, shape, media and interaction are distinct.",
+        "finding": "Single-axis similarity is not enough to call a clone.",
+        "resolution": "Block requires overall budget or multi-critical-axis cluster, not one ordinary high axis.",
         "status": "resolved"
       },
       {
-        "id": "CH-LINEAGE-7",
-        "scenario": "Lineage is copied into every Page Schema metadata block.",
-        "finding": "Canonical package output changes despite lineage being evidence-only.",
-        "resolution": "Factory report owns lineage evidence; package/page documents remain byte-semantically unchanged.",
+        "id": "CH-DIST-7",
+        "scenario": "Implemented-template catalog yields zero non-self references.",
+        "finding": "No evidence exists to prove cross-template distinctness.",
+        "resolution": "Return DISTINCTNESS_REFERENCE_CORPUS_EMPTY and fail closed.",
         "status": "resolved"
       },
       {
-        "id": "CH-LINEAGE-8",
-        "scenario": "One required upstream plan is missing but other identities are present.",
-        "finding": "Partial provenance could be mistaken for a complete lineage.",
-        "resolution": "Declared generator-ready production requires Genome, valid Constraint Plan and valid Media Plan; missing source returns invalid lineage, never a partial PASS.",
+        "id": "CH-DIST-8",
+        "scenario": "Candidate changes nested style object key insertion order only.",
+        "finding": "Equivalent package should not produce different profile or verdict.",
+        "resolution": "Profile collection and token sets are canonical-order/unique-sorted before scoring.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Determinism proof: identical inputs/package yield identical package hash and lineage hash across recomputation.",
-      "Canonical-order proof: object key insertion differences do not alter lineage identity.",
-      "Mutation proof: meaningful package/Genome/Constraint/Media source mutation changes or invalidates lineage.",
-      "Cross-source proof: stale Genome→Constraint or Constraint→Media links fail closed.",
-      "Generator Readiness proof: canonical Loot Vault lineage is valid and a mismatched lineage input blocks readiness.",
-      "Canonical package regression proof confirms report lineage does not alter compiled package/Page Schema.",
-      "Maturity proof promotes only deterministic lineage while anti-clone and dynamic compiler remain incomplete.",
+      "Exact-clone adversarial proof blocks a candidate cloned from a foreign catalog package.",
+      "Repaint-clone proof changes identity/color/copy/media paths but preserves visual grammar and still blocks.",
+      "Single-axis-overlap proof remains allowed when critical-axis cluster and overall budget stay below threshold.",
+      "Same-templateKey historical version exclusion proof prevents self-lineage false positives.",
+      "Catalog-wide canonical Loot Vault v2 proof remains distinct from every other implemented template, including Playroom.",
+      "Genome exclusion proof tightens Playroom-targeted rhythm/media rules.",
+      "Generator Readiness combination proof fails closed on blocking distinctness and exposes nearest references/axes.",
+      "Maturity proof promotes only anti-clone while Dynamic Production Compiler remains EVOLVE.",
       "Normal CI + exact-head Template Factory Quality Gate v2 + Completion Truth + lifecycle closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-DETERMINISTIC-PRODUCTION-LINEAGE-BRABUS-HARDENING",
+      "request": "PO-2026-10-02-CROSS-TEMPLATE-DISTINCTNESS-BRABUS-HARDENING",
       "authority": [
         "builder-template-system"
       ],
       "mustEdit": [
         "src/lib/builder/template-factory/generator-readiness.ts",
-        "src/lib/builder/template-factory/scaffold.ts",
         "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
-        "src/lib/builder/template-factory/production-lineage.ts",
+        "src/lib/builder/template-factory/template-distinctness.ts",
         "src/lib/builder/template-factory/production-contracts.ts"
       ],
       "impactedReadOnly": [
+        "src/lib/builder/storefront-template-catalog.ts",
         "src/lib/builder/template-factory/template-genome.ts",
-        "src/lib/builder/template-factory/constraint-planner.ts",
-        "src/lib/builder/template-factory/media-planner.ts",
-        "src/lib/builder/template-factory/recipes/loot-vault-v2.ts"
+        "src/lib/builder/template-factory/production-lineage.ts",
+        "src/lib/builder/templates/gaming/playroom/v20/index.ts"
       ],
       "proof": [
-        "tests/template-factory-production-lineage.test.ts",
+        "tests/template-factory-template-distinctness.test.ts",
         "tests/template-factory-generator-readiness.test.ts",
-        "tests/template-factory-production-maturity.test.ts",
-        "tests/template-factory-loot-vault-v2.test.ts"
+        "tests/template-factory-production-maturity.test.ts"
       ],
       "unknown": []
     },
@@ -419,14 +423,14 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-DETERMINISTIC-PRODUCTION-LINEAGE-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-02-CROSS-TEMPLATE-DISTINCTNESS-BRABUS-HARDENING",
     "requirements": [
       {
-        "id": "REQ-DETERMINISTIC-PRODUCTION-LINEAGE",
-        "requirement": "Canonical deterministic production lineage binds recipe/foundation/reference/Genome/Constraint Plan/Media Plan and compiled package identity into one immutable validated hash chain.",
+        "id": "REQ-CROSS-TEMPLATE-DISTINCTNESS",
+        "requirement": "Canonical deterministic anti-clone engine compares each candidate against every other real implemented template across eight explainable visual-grammar axes with explicit budgets.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "production-lineage",
+          "breadth": "cross-template-distinctness",
           "strength": 2,
           "dimensions": [
             "claim-scope",
@@ -448,8 +452,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-LINEAGE-PARALLEL-AUTHORITY",
-            "statement": "Lineage observes canonical production authorities and compiled output but does not mutate or replace them.",
+            "id": "NEG-DISTINCTNESS-SUBJECTIVE-AUTHORITY",
+            "statement": "Anti-clone uses deterministic package evidence and Genome exclusions, not subjective/AI visual ranking.",
             "evidence": [
               "GUARD-QUALITY-TESTS",
               "GUARD-TEMPLATE-FACTORY"
@@ -458,11 +462,11 @@
         ]
       },
       {
-        "id": "REQ-LINEAGE-FAIL-CLOSED",
-        "requirement": "Missing, stale, cross-template or source-mismatched lineage inputs cannot produce a valid lineage or generator-ready result.",
+        "id": "REQ-DISTINCTNESS-FAIL-CLOSED",
+        "requirement": "Exact/repaint/multi-critical-axis clones and empty reference corpora cannot produce distinctness PASS or generator-ready Factory status.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "lineage-integrity",
+          "breadth": "distinctness-integrity",
           "strength": 2,
           "dimensions": [
             "status",
@@ -484,8 +488,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-LINEAGE-FALSE-PASS",
-            "statement": "Partial or stale lineage evidence cannot be treated as complete production truth.",
+            "id": "NEG-DISTINCTNESS-FALSE-PASS",
+            "statement": "Clone-like convergence cannot be hidden by color/copy/path-only changes.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -493,8 +497,8 @@
         ]
       },
       {
-        "id": "REQ-LINEAGE-CAPABILITY-SEPARATION",
-        "requirement": "Deterministic lineage completion does not promote cross-template anti-clone or the dynamic production compiler.",
+        "id": "REQ-DYNAMIC-COMPILER-SEPARATION",
+        "requirement": "Anti-clone completion does not promote the Dynamic Production Compiler or VX Smart systems.",
         "claimScope": {
           "capability": "CAP-QUALITY",
           "breadth": "capability-separation",
@@ -519,8 +523,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-LINEAGE-FALSE-DOWNSTREAM-PROVEN",
-            "statement": "Lineage completion cannot imply anti-clone or dynamic compilation is proven.",
+            "id": "NEG-DISTINCTNESS-FALSE-DOWNSTREAM-PROVEN",
+            "statement": "Distinctness completion cannot imply dynamic compilation or Smart Intent/Auto-Fix is proven.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -529,18 +533,15 @@
       }
     ]
   },
-  "notes": "Fifth Brabus hardening wave. Genome, Type System, Constraint Planner and Media Planner are PROVEN and lifecycle-closed. This wave closes deterministic production lineage before anti-clone and dynamic compiler work. Template #3 remains forbidden. Canonical lineage projected scope reconciled: builder-template-system/dependency-contract/release-infrastructure/shared-storefront/storefront-ui; SQ-NK-005 applies; guard digest 057ebf08. New production-lineage.ts remains planned/may-edit until the canonical file exists.",
+  "notes": "Sixth Brabus hardening wave. Genome, Type System, Constraint Planner, Media Planner and deterministic lineage are PROVEN and lifecycle-closed. This wave turns existing Visual DNA/exclusion conventions into executable catalog-wide anti-clone evidence. Template #3 remains forbidden.",
   "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "c8091f20443bcb8636895dc7ff52e7f4d319435f",
-    "closedAt": "2026-10-02T16:03:38.914Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-DETERMINISTIC-PRODUCTION-LINEAGE-BRABUS-HARDENING",
+    "state": "EXECUTE",
+    "truthStatus": "UNVERIFIED",
+    "verifiedImplementationHead": null,
+    "closedAt": null,
+    "sourceRef": "PO-2026-10-02-CROSS-TEMPLATE-DISTINCTNESS-BRABUS-HARDENING",
     "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+      "state": "pending"
     }
   }
 }
