@@ -15,6 +15,28 @@ describe('Control Plane Proof Semantics adversarial regressions',()=>{
     const policy=json('quality/knowledge/development-guard-policy.v1.json');
     const guards=json('quality/knowledge/guard-registry.v1.json');
     const poisoned=structuredClone(plan);
+    poisoned.operationalIntelligence.riskTier='critical';
+    poisoned.operationalIntelligence.alternatives=[
+      {id:'ALT-POISON-1',summary:'x',reason:'x',disposition:'selected'},
+      {id:'ALT-POISON-2',summary:'x',reason:'x',disposition:'rejected'},
+      {id:'ALT-POISON-3',summary:'x',reason:'x',disposition:'rejected'},
+    ];
+    const specialistRole=policy.operationalIntelligence.specialistRoles[0];
+    poisoned.operationalIntelligence.specialistReviews=Array.from({length:4},(_,index)=>({
+      role:specialistRole,
+      mode:index===0?'dissent':'review',
+      verdict:'pass',
+      finding:'x',
+      resolution:'x',
+      evidence:[],
+    }));
+    poisoned.operationalIntelligence.challenge=Array.from({length:8},(_,index)=>({
+      id:`CH-POISON-${index+1}`,
+      scenario:'x',
+      finding:'x',
+      resolution:'x',
+      status:'resolved',
+    }));
     poisoned.operationalIntelligence.problemStatement='x';
     poisoned.operationalIntelligence.observableOutcomes=['x'];
     poisoned.operationalIntelligence.unresolvedRisks=['x'];
@@ -22,9 +44,6 @@ describe('Control Plane Proof Semantics adversarial regressions',()=>{
     poisoned.operationalIntelligence.definition.acceptanceCriteria=poisoned.operationalIntelligence.definition.acceptanceCriteria.map(()=> 'x');
     poisoned.operationalIntelligence.definition.invariants=poisoned.operationalIntelligence.definition.invariants.map(()=> 'x');
     poisoned.operationalIntelligence.definition.forbiddenStates=poisoned.operationalIntelligence.definition.forbiddenStates.map(()=> 'x');
-    poisoned.operationalIntelligence.alternatives=poisoned.operationalIntelligence.alternatives.map((item:any)=>({...item,summary:'x',reason:'x'}));
-    poisoned.operationalIntelligence.specialistReviews=poisoned.operationalIntelligence.specialistReviews.map((item:any)=>({...item,finding:'x',resolution:'x',evidence:[]}));
-    poisoned.operationalIntelligence.challenge=poisoned.operationalIntelligence.challenge.map((item:any)=>({...item,scenario:'x',finding:'x',resolution:'x'}));
     poisoned.operationalIntelligence.proofPlan=poisoned.operationalIntelligence.proofPlan.map(()=> 'x');
     poisoned.completionContract.requirements=poisoned.completionContract.requirements.map((item:any)=>({
       ...item,

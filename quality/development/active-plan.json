@@ -3,13 +3,12 @@
   "taskId": "DEV-CONTROL-PLANE-ATLAS-RULE-COHERENCE",
   "task": "Control Plane truth coherence: preserve the #681 canonical Atlas repair while enforcing one fail-closed development transaction and monotonic evidence chain so no child BLOCK, deletion, stale identity or unresolved coverage can be normalized into PASS.",
   "status": "ready-for-implementation",
-  "guardDigest": "d8754d0e",
-  "changeBaseSha": "7ec2cb968b023da7cac3bf684e7ee4bb00f1be06",
+  "guardDigest": "efe9d183",
+  "changeBaseSha": "6b5f67d903da27b586175e462c695386ac0f2940",
   "plannedFilePatterns": [
     "quality/knowledge/domain-foundations.v1.json",
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
     "tests/shoperation-semantic-execution-intelligence.test.ts",
-    "src/app/fiokom/b2b/page.tsx",
     "scripts/lib/shoperation-development-runtime.mjs",
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/shoperation-edit-time-guard.mjs",
@@ -20,24 +19,19 @@
     "scripts/shoperation-verification-checkpoint.mjs",
     "tests/shoperation-development-guard.test.ts",
     "tests/shoperation-resumable-verification.test.ts",
-    "tests/shoperation-proof-semantics.test.ts",
     ".github/workflows/ci.yml"
   ],
   "expectedSubsystems": [
-    "customer-account",
     "quality-infrastructure",
-    "release-infrastructure",
-    "storefront-ui"
+    "release-infrastructure"
   ],
   "expectedDomains": [
     "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
     "quality-knowledge-system",
-    "release-infrastructure",
-    "shared-storefront"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -92,12 +86,9 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-008",
     "SQ-NK-010",
     "SQ-NK-012"
   ],
@@ -115,7 +106,6 @@
       "validateCodebaseAtlas hard-blocks a deliberately inconsistent materialized node with ATLAS_CLASSIFICATION_DIVERGENCE.",
       "validateCodebaseAtlas hard-blocks machine-readable active PO route conflicts where one active instruction requires a route that another active instruction forbids without explicit supersession.",
       "The unchanged #666 plan-only replay no longer ping-pongs between contradictory classification paths.",
-      "The B2B customer account page no longer imports a Builder manifest solely as a void runtime anchor; Builder compatibility remains proven by the manifest and its dedicated tests.",
       "A child BLOCK from Reference Sync, Implementation Sync, PO instruction state or any composite guard propagates monotonically to the parent gate, resumable evidence manifest and Completion Truth; BLOCK cannot become PASS by interpretation.",
       "Plan Before Code and Edit-Time consume one canonical material development diff that excludes only declared development metadata and includes A/C/M/R/D state consistently.",
       "A declared changeBaseSha is transaction identity: if it cannot be resolved, Knowledge, Plan and Edit-Time fail closed instead of silently selecting another base.",
@@ -128,7 +118,6 @@
       "Changing node materialization can alter domain/authority indexes across the repository, so exact-head Knowledge, Plan, Replay and Quality evidence must remain green.",
       "A generic conflict detector must not infer contradictions from human prose or labels; only structured route fields are safe for deterministic blocking.",
       "Planned-addition projection remains a separate missing capability and must not be disguised as solved by classification coherence.",
-      "Removing the unused B2B Builder-manifest import must not alter B2B account runtime behavior or Builder Foundation compatibility.",
       "Tightening transaction identity may expose old branches whose active plan references an unavailable base; those states must be repaired explicitly rather than recovered by fallback.",
       "Making deletion semantics uniform may widen legitimate release/knowledge impact and reveal previously hidden scope that requires plan reconciliation.",
       "Artifact/outcome cross-checking must distinguish JSON producer evidence from gates whose canonical evidence is a command/test result rather than a JSON decision file."
@@ -151,7 +140,8 @@
         "Any new quality gate, registry or blocking authority.",
         "Storefront shipping/payment implementation in PR #666.",
         "Free-text semantic contradiction inference.",
-        "Planned additions/ownership overlay from PR #679."
+        "Planned additions/ownership overlay from PR #679.",
+        "B2B dead-anchor removal and src/app/fiokom/** Storefront ownership are prerequisite #683, already VERIFIED and lifecycle-closed."
       ]
     },
     "assuranceCeiling": {
@@ -402,7 +392,7 @@
         "id": "CH-9",
         "scenario": "Knowledge preflight classifies src/app/fiokom/b2b/page.tsx → src/lib/commerce/b2b-account-builder.ts as missing Storefront→Builder authority edge.",
         "finding": "The imported manifest is consumed only via void and defineStorefrontBuilderComponent has no registration side effect, so the runtime edge has no product responsibility.",
-        "resolution": "Amend the active implementation envelope and remove the dead import instead of adding an execution allow exception.",
+        "resolution": "Resolved in prerequisite #683: the dead B2B Builder-manifest anchor was removed and src/app/fiokom/** was bound explicitly to existing DOMAIN-STOREFRONT authority before this Control Plane transaction.",
         "status": "resolved"
       },
       {
@@ -467,14 +457,21 @@
         "finding": "A proof can evaluate a different transaction than the one named in its evidence while remaining internally green.",
         "resolution": "Reference Sync reads explicit base-to-head refs and verifies checkout identity for semantic Atlas consumers; Release Risk treats unresolved explicit base/head/merge-base as fatal.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-19",
+        "scenario": "The Control Plane hardening and unrelated B2B cleanup coexist in one release transaction and exceed Release Risk Budget at 6/5.",
+        "finding": "Keeping customer-account together with quality/release infrastructure couples independent risk domains and forces an otherwise unnecessary budget violation.",
+        "resolution": "#683 is a verified, lifecycle-closed prerequisite; #681 is stacked on it so the current release transaction contains only quality-infrastructure and release-infrastructure changes.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
+      "Use closed prerequisite #683 (6b5f67d9; verified implementation 0ae62d02) as the Development Transaction base; do not re-own its B2B/customer-account change.",
       "Re-run Plan Before Code on the broadened #681 plan before implementation.",
       "Materialize route/subsystem/surface/domain/authority/truth classification from classifyAtlasPath in buildCodebaseAtlas.",
       "Align DOMAIN-QUALITY canonicalPaths with the existing quality-system surface rule for scripts/lib/shoperation-**.",
       "Make impact fallback and architecture resolver consume canonical classifyAtlasPath semantics.",
-      "Remove the side-effect-free B2B manifest anchor import rather than adding a cross-domain allow rule.",
       "Add src/app/storefront-preview/** to existing DOMAIN-BUILDER canonical ownership and require Knowledge preflight to show no missing Storefront→Builder edges.",
       "Extend validateCodebaseAtlas with field-level ATLAS_CLASSIFICATION_DIVERGENCE and structured ATLAS_PO_ROUTE_AUTHORITY_CONFLICT checks.",
       "Add adversarial tests that intentionally inject inconsistent nodes and conflicting active PO route rules, plus negative inactive/superseded controls.",
@@ -501,14 +498,15 @@
       "mustEdit": [
         "quality/knowledge/domain-foundations.v1.json",
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "tests/shoperation-semantic-execution-intelligence.test.ts",
-        "src/app/fiokom/b2b/page.tsx"
+        "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
         "quality/knowledge/architecture-constitution.v1.json",
         "quality/knowledge/po-instructions.v1.json",
-        "quality/knowledge/codebase-atlas-policy.v2.json"
+        "quality/knowledge/codebase-atlas-policy.v2.json",
+        "src/app/fiokom/b2b/page.tsx",
+        "src/lib/commerce/b2b-account-builder.ts"
       ],
       "proof": [
         "tests/shoperation-semantic-execution-intelligence.test.ts"
@@ -793,5 +791,5 @@
       }
     ]
   },
-  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented. Broadened before implementation after Product Owner review: recurring pingpong is treated as Atlas rule-coherence failure, not a #666-specific resolver symptom. No new gate; existing validateCodebaseAtlas/Knowledge/Plan authority is strengthened. Canonical planned projection on 8c290f6 derived DOMAIN-QUALITY / quality-knowledge-system, full active negative-knowledge set SQ-NK-001/002/004/006/007/008/009/012 and guard digest aa79c504; reconciled without changing coherence scope. Additional registry-coherence evidence: codebase-atlas-policy.v2 quality-system surface already covers scripts/lib/shoperation-**, while DOMAIN-QUALITY canonicalPaths does not. Existing DOMAIN-QUALITY is extended to the same helper namespace; no new authority is created. Projected scope restored to the previously Plan-PASS shape for these three files. Canonical projection on 6455ea27 confirms DOMAIN-QUALITY / quality-knowledge-system, no release-subsystem classification, SQ-NK-012 only, and guard digest aa79c504. Reconciled exactly; three-file coherence transaction unchanged. During exact-head Knowledge verification of the canonicalization implementation, the strengthened Atlas exposed two real pre-existing authority drifts. Recovery envelope amended: classify storefront-preview as the already-declared Builder preview surface; remove the side-effect-free B2B manifest anchor instead of whitelisting a dead dependency. This is a gate-discovered scope expansion, not a permissive exception. After gate-discovered B2B runtime cleanup entered the transaction, canonical actual/projection scope expanded deterministically to DOMAIN-QUALITY + DOMAIN-STOREFRONT, quality-knowledge-system + shared-storefront, customer-account + storefront-ui, negative knowledge SQ-NK-001/006/008/012 and digest d1c54c47. Plan reconciled to exact derived scope. Truth exact-head 2e100c5f identified one semantic evidence-mapping overclaim: REQ-PO-ROUTE-RULE-COHERENCE asserts authority, while its mapping omitted GUARD-PLAN-BEFORE-CODE, the canonical producer that proves the authority dimension and executes the same Atlas validation. Mapping corrected without reducing claim strength or changing validator behavior. Scope broadened after exact-head #681 exposed Control Plane status laundering: implementationSync=BLOCK coexisted with Edit-Time PASS, followed by Resumable Verification PASS and Completion Truth VERIFIED_DONE. Product Owner directed a full rule-ecosystem audit rather than another local patch. Existing #681 remains the single draft transaction; no new gate is introduced. The repair now closes monotonic decision propagation, transaction identity, deletion semantics, exception scope, Reference Sync coverage and producer-artifact reconciliation before lifecycle closure. Exact-head Plan replay on 7d36400d proved the broadened transaction also activates quality-infrastructure. Expected subsystem closure and guard digest are reconciled to the machine-derived projection; Control Plane truth/transaction claims are bound to canonical CAP-QUALITY instead of capability-less assertions."
+  "notes": "Targeted follow-up from #666 after merged #680. Fixes resolver consumption of path-derived fallback; no product scope or parallel quality mechanism. Canonical projection on 0b7fb4 derived subsystem impact [shared-storefront,storefront-ui], full active negative-knowledge set and guard digest f8395e8f. DOMAIN-STOREFRONT boundary documentation added as a real must-edit authority contract so expected DOMAIN-QUALITY/quality-knowledge-system are durable rather than invented. Broadened before implementation after Product Owner review: recurring pingpong is treated as Atlas rule-coherence failure, not a #666-specific resolver symptom. No new gate; existing validateCodebaseAtlas/Knowledge/Plan authority is strengthened. Canonical planned projection on 8c290f6 derived DOMAIN-QUALITY / quality-knowledge-system, full active negative-knowledge set SQ-NK-001/002/004/006/007/008/009/012 and guard digest aa79c504; reconciled without changing coherence scope. Additional registry-coherence evidence: codebase-atlas-policy.v2 quality-system surface already covers scripts/lib/shoperation-**, while DOMAIN-QUALITY canonicalPaths does not. Existing DOMAIN-QUALITY is extended to the same helper namespace; no new authority is created. Projected scope restored to the previously Plan-PASS shape for these three files. Canonical projection on 6455ea27 confirms DOMAIN-QUALITY / quality-knowledge-system, no release-subsystem classification, SQ-NK-012 only, and guard digest aa79c504. Reconciled exactly; three-file coherence transaction unchanged. During exact-head Knowledge verification of the canonicalization implementation, the strengthened Atlas exposed two real pre-existing authority drifts. Recovery envelope amended: classify storefront-preview as the already-declared Builder preview surface; remove the side-effect-free B2B manifest anchor instead of whitelisting a dead dependency. This is a gate-discovered scope expansion, not a permissive exception. After gate-discovered B2B runtime cleanup entered the transaction, canonical actual/projection scope expanded deterministically to DOMAIN-QUALITY + DOMAIN-STOREFRONT, quality-knowledge-system + shared-storefront, customer-account + storefront-ui, negative knowledge SQ-NK-001/006/008/012 and digest d1c54c47. Plan reconciled to exact derived scope. Truth exact-head 2e100c5f identified one semantic evidence-mapping overclaim: REQ-PO-ROUTE-RULE-COHERENCE asserts authority, while its mapping omitted GUARD-PLAN-BEFORE-CODE, the canonical producer that proves the authority dimension and executes the same Atlas validation. Mapping corrected without reducing claim strength or changing validator behavior. Scope broadened after exact-head #681 exposed Control Plane status laundering: implementationSync=BLOCK coexisted with Edit-Time PASS, followed by Resumable Verification PASS and Completion Truth VERIFIED_DONE. Product Owner directed a full rule-ecosystem audit rather than another local patch. Existing #681 remains the single draft transaction; no new gate is introduced. The repair now closes monotonic decision propagation, transaction identity, deletion semantics, exception scope, Reference Sync coverage and producer-artifact reconciliation before lifecycle closure. Exact-head Plan replay on 7d36400d proved the broadened transaction also activates quality-infrastructure. Expected subsystem closure and guard digest are reconciled to the machine-derived projection; Control Plane truth/transaction claims are bound to canonical CAP-QUALITY instead of capability-less assertions. Stacked on verified prerequisite #683 closure 6b5f67d903da27b586175e462c695386ac0f2940 (verified implementation 0ae62d0208ccade084dabbac1d61abb0642426d5). B2B/customer-account cleanup and fiokom Storefront ownership are inherited base state, not #681 release scope. Canonical expected scope is reduced to quality-infrastructure + release-infrastructure with DOMAIN-QUALITY + DOMAIN-RELEASE; guard digest efe9d183."
 }

@@ -321,7 +321,8 @@
         "Responsive behavior follows canonical viewport/workspace authority rather than host heuristics.",
         "Template presentation may vary while business capability authority remains shared.",
         "Storefront-prefixed shared runtime modules remain storefront authority even when physically located under builder component/lib directories.",
-        "Otherwise-unowned shopper-facing App Router page modules and the public sitemap metadata fall back to Storefront presentation authority; any explicit canonical domain match takes precedence."
+        "Otherwise-unowned shopper-facing App Router page modules and the public sitemap metadata fall back to Storefront presentation authority; any explicit canonical domain match takes precedence.",
+        "Public customer-account App Router pages under src/app/fiokom/** are Storefront presentation authority; customer identity, membership and commerce truth remain owned by their canonical domain authorities."
       ],
       "principles": [
         "ARCH-001",
@@ -334,7 +335,8 @@
         "src/components/storefront/**",
         "src/lib/builder/storefront-**",
         "src/components/account/storefront-account-shell.tsx",
-        "src/components/builder/storefront-**"
+        "src/components/builder/storefront-**",
+        "src/app/fiokom/**"
       ],
       "evidenceObligations": [
         "responsive isolation proof",
