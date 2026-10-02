@@ -1,10 +1,13 @@
 import {appendFileSync,existsSync,readFileSync,writeFileSync} from 'node:fs';
 import {atomicWriteJson,checkpointChecksum,finalizeVerification,loadCheckpoint} from './lib/shoperation-verification-reuse.mjs';
+import {completionEvidenceGuardIds,mergeExternalCompletionEvidence,EXTERNAL_PROOF_EVIDENCE_CONTRACT} from './shoperation-external-proof-handoff.mjs';
 
 const planPath=process.env.SHOPERATION_REPLAY_PLAN||'artifacts/shoperation-development-guard/resumable-verification-plan.json';
 const checkpointPath=process.env.SHOPERATION_REPLAY_CHECKPOINT||'artifacts/shoperation-verification-cache/checkpoint.json';
 const manifestPath='artifacts/shoperation-development-guard/final-evidence-manifest.json';
 const summaryPath='artifacts/shoperation-development-guard/resumable-verification-summary.md';
+const activePlanPath=process.env.SHOPERATION_ACTIVE_PLAN||'quality/development/active-plan.json';
+const externalEvidencePath=process.env.SHOPERATION_VERIFICATION_EXTERNAL_EVIDENCE||'artifacts/shoperation-development-guard/external-proof-evidence.json';
 const env=name=>String(process.env[name]??'').trim();
 
 const PRODUCER_ARTIFACTS={
@@ -65,6 +68,41 @@ const runId=[env('GITHUB_RUN_ID'),env('GITHUB_RUN_ATTEMPT')].filter(Boolean).joi
 const stateVersion=env('SHOPERATION_TRUTH_STATE_VERSION')||'shoporation-ci.v1';
 const producerReconciliation=reconcileProducerDecisions({outcomes,sourceRevision:plan.sourceRevision,artifactRecords:loadProducerArtifacts()});
 const final=finalizeVerification({plan,outcomes:producerReconciliation.outcomes,priorCheckpoint,runId,stateVersion});
+const activePlan=existsSync(activePlanPath)?JSON.parse(readFileSync(activePlanPath,'utf8')):{status:'unknown',completionContract:{requirements:[]}};
+let externalEnvelope=null,externalRecords=[];
+if(existsSync(externalEvidencePath)){
+  try{
+    externalEnvelope=JSON.parse(readFileSync(externalEvidencePath,'utf8'));
+    if(externalEnvelope?.contract===EXTERNAL_PROOF_EVIDENCE_CONTRACT&&Array.isArray(externalEnvelope?.evidence))externalRecords=externalEnvelope.evidence;
+    else externalEnvelope={contract:externalEnvelope?.contract??null,decision:'BLOCK',issues:[{code:'EXTERNAL_EVIDENCE_ENVELOPE_INVALID'}],evidence:[]};
+  }catch(error){externalEnvelope={contract:'unreadable',decision:'BLOCK',issues:[{code:'EXTERNAL_EVIDENCE_ENVELOPE_UNREADABLE',error:String(error)}],evidence:[]};}
+}
+const currentExactState={head:plan.sourceRevision,branch:plan.branch,stateVersion};
+const externalMerge=mergeExternalCompletionEvidence({
+  truthEvidence:final.manifest.truthEvidence,
+  externalEvidence:externalRecords,
+  requiredIds:completionEvidenceGuardIds(activePlan),
+  currentExactState,
+});
+if(externalEnvelope?.decision==='BLOCK')externalMerge.issues.push(...(externalEnvelope.issues??[{code:'EXTERNAL_EVIDENCE_ENVELOPE_BLOCK'}]));
+final.manifest.truthEvidence=externalMerge.truthEvidence;
+final.manifest.externalCompletionEvidence={
+  contract:EXTERNAL_PROOF_EVIDENCE_CONTRACT,
+  decision:externalMerge.issues.length?'BLOCK':'PASS',
+  requiredExternal:externalMerge.requiredExternal,
+  sourcePath:existsSync(externalEvidencePath)?externalEvidencePath:null,
+  records:externalRecords,
+  issues:externalMerge.issues,
+};
+final.checkpoint.externalCompletionEvidence=final.manifest.externalCompletionEvidence;
+if(externalMerge.issues.length){
+  for(const issue of externalMerge.issues)final.manifest.comparison.discrepancies.push({gateId:issue.guardId??'EXTERNAL-PROOF',...issue});
+  final.manifest.comparison.decision='BLOCK';
+  final.manifest.finalConfidence='BLOCK';
+  final.manifest.decision='BLOCK';
+  final.checkpoint.complete=false;
+  final.decision='BLOCK';
+}
 final.manifest.producerDecisionChecks=producerReconciliation.checks;
 final.manifest.producerDecisionMismatches=producerReconciliation.mismatches;
 final.checkpoint.producerDecisionMismatches=producerReconciliation.mismatches;
@@ -108,6 +146,7 @@ const lines=[
   '- Compared gates: '+final.manifest.comparison.compared,
   '- Discrepancies: '+final.manifest.comparison.discrepancies.length,
   '- Producer decision mismatches: '+producerReconciliation.mismatches.length,
+  '- External completion evidence: '+final.manifest.externalCompletionEvidence.decision+' ('+final.manifest.externalCompletionEvidence.requiredExternal.join(', ')+')',
   '- Decision: **'+final.manifest.comparison.decision+'**',
   '- Final confidence: **'+final.manifest.finalConfidence+'**',
   '',
