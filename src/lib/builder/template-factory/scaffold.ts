@@ -466,11 +466,6 @@ export function compileStorefrontTemplateFactoryPackage(input:{
         targetTemplateKey:recipe.templateKey,
         targetTemplateVersion:recipe.templateVersion,
         ownership:recipe.pageOverrides?.[pageType]?'template':'category-foundation',
-        genome:recipe.genome?{
-          contract:recipe.genome.contract,
-          genomeVersion:recipe.genome.identity.genomeVersion,
-          hash:recipe.genome.hash,
-        }:null,
       },
     };
 
