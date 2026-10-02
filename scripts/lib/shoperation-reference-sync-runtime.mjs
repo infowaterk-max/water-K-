@@ -3,11 +3,13 @@ import {existsSync,readFileSync} from 'node:fs';
 import path from 'node:path';
 import {buildCodebaseAtlas} from './shoperation-codebase-atlas-runtime.mjs';
 
-const EXTS=new Set(['.ts','.tsx','.js','.jsx','.mjs','.cjs','.json','.css','.scss','.sql','.yml','.yaml','.md']);
+const EXTS=new Set(['.ts','.tsx','.js','.jsx','.mjs','.cjs','.json','.css','.scss','.sql','.yml','.yaml','.md','.sh']);
 const CODE_EXPR=/\.(?:ts|tsx|js|jsx|mjs|cjs)$/i;
 const MACHINE=/^(src|tests|scripts|quality|\.github|deploy|supabase)\//;
 const ASSET=/\.(?:webp|png|jpe?g|gif|svg|avif|ico|pdf)$/i;
 const COMPONENT_KEY=/^(?:support|system|commerce|guided|layout|content|marketing|configurator|composer|compatibility|context|retention)\.[\w.-]+$/i;
+const REFERENCE_CANDIDATE_LIMIT=1000;
+export function boundReferenceCandidates(candidates,limit=REFERENCE_CANDIDATE_LIMIT){const total=(candidates??[]).length,processed=(candidates??[]).slice(0,limit),overflow=Math.max(0,total-processed.length);return{candidates:processed,coverage:{limit,totalCandidateCount:total,processedCandidateCount:processed.length,overflow,decision:overflow?'BLOCK':'PASS'}};}
 const git=(args,options={})=>execFileSync('git',args,{encoding:'utf8',maxBuffer:32*1024*1024,...options});
 const isText=file=>EXTS.has(path.extname(file).toLowerCase());
 const current=file=>{try{return existsSync(file)&&isText(file)?readFileSync(file,'utf8'):'';}catch{return'';}};
@@ -133,16 +135,19 @@ function diffData(base){
   }
   const relocation=reconcileReferenceRelocations(candidates,addedCandidates);
   const seen=new Set();
+  const uniqueCandidates=relocation.remaining.filter(candidate=>{
+    const key=`${candidate.kind}|${candidate.value}|${candidate.originFile}`;if(seen.has(key))return false;seen.add(key);
+    const source=current(candidate.originFile);if(!source)return true;
+    if(candidate.kind==='export-symbol')return!exportsOf(source).has(candidate.value);
+    if(candidate.kind==='css-class')return!new RegExp(`\\.${escapeRegExp(candidate.value)}(?![\\w-])`).test(source);
+    return!source.includes(candidate.value);
+  });
+  const bounded=boundReferenceCandidates(uniqueCandidates);
   return{
     files,
     relocations:relocation.relocations,
-    candidates:relocation.remaining.filter(candidate=>{
-      const key=`${candidate.kind}|${candidate.value}|${candidate.originFile}`;if(seen.has(key))return false;seen.add(key);
-      const source=current(candidate.originFile);if(!source)return true;
-      if(candidate.kind==='export-symbol')return!exportsOf(source).has(candidate.value);
-      if(candidate.kind==='css-class')return!new RegExp(`\\.${escapeRegExp(candidate.value)}(?![\\w-])`).test(source);
-      return!source.includes(candidate.value);
-    }).slice(0,1000),
+    candidates:bounded.candidates,
+    candidateCoverage:bounded.coverage,
     changed,
   };
 }
@@ -213,10 +218,11 @@ export function evaluateReferenceSynchronization({base,head}){
   return{
     contract:'shoporation.reference-sync.v2',base,head,
     semanticGraph:{contract:atlas.semanticGraph?.contract??null,typeCheckerAvailable:atlas.semanticGraph?.typeCheckerAvailable===true},
-    before:{changedFiles:diff.files.map(item=>item.old),candidateCount:diff.candidates.length,consumerHitCount:before.length},
+    before:{changedFiles:diff.files.map(item=>item.old),candidateCount:diff.candidateCoverage?.totalCandidateCount??diff.candidates.length,processedCandidateCount:diff.candidates.length,consumerHitCount:before.length},
     after:{changedFiles:diff.files.map(item=>item.neu).filter(Boolean),consumerHitCount:after.length},
+    coverage:diff.candidateCoverage??{limit:REFERENCE_CANDIDATE_LIMIT,totalCandidateCount:diff.candidates.length,processedCandidateCount:diff.candidates.length,overflow:0,decision:'PASS'},
     removedReferences:diff.candidates,relocatedReferences:diff.relocations??[],changedReferences:diff.changed,consumers,staleConsumers,reviewConsumers,updatedConsumers,
-    decision:staleConsumers.length?'BLOCK':'PASS',
+    decision:(staleConsumers.length||(diff.candidateCoverage?.overflow??0)>0)?'BLOCK':'PASS',
   };
 }
 
@@ -240,5 +246,7 @@ if(process.argv.includes('--self-test')){
   if(exportsRemovedAcrossPathChange(before,unchanged).length!==0)throw new Error('REFERENCE_SYNC_RENAME_UNCHANGED_EXPORT_FALSE_POSITIVE');
   const movedRemoved=exportsRemovedAcrossPathChange(before,renamed);
   if(!movedRemoved.includes('startPlatformPilotAcceptanceAction')||movedRemoved.includes('KEEP_ME'))throw new Error('REFERENCE_SYNC_RENAME_REMOVED_EXPORT_FALSE_NEGATIVE');
-  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS');
+  const overflowProbe=boundReferenceCandidates(Array.from({length:1001},(_,index)=>({kind:'route-literal',value:'/r'+index,originFile:'src/x.ts'})));
+  if(overflowProbe.coverage.decision!=='BLOCK'||overflowProbe.coverage.overflow!==1||overflowProbe.candidates.length!==1000)throw new Error('REFERENCE_SYNC_OVERFLOW_FAIL_OPEN');
+  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS; coverage-overflow=BLOCK');
 }

@@ -34,6 +34,8 @@ export function isDevelopmentMetadataFile(file){return DEVELOPMENT_METADATA_FILE
 const BLOCKING_GATE_DECISIONS=new Set(['BLOCK','FAIL','FAILED','FAILURE','STALE','CONFLICT','UNRESOLVED','UNKNOWN']);
 export function isBlockingGateDecision(value){return BLOCKING_GATE_DECISIONS.has(String(value??'').trim().toUpperCase());}
 export function aggregateGateDecision({localBlocking=false,childDecisions=[]}={}){return localBlocking||childDecisions.some(isBlockingGateDecision)?'BLOCK':'PASS';}
+export function guardFindingFingerprint(finding){return stableDigest({ruleId:finding?.ruleId??null,file:finding?.file??null,line:Number(finding?.line??0),code:finding?.code??'',message:finding?.message??''});}
+export function matchGuardException(finding,exceptions=[]){const findingFingerprint=guardFindingFingerprint(finding);const exception=(exceptions??[]).find(item=>item?.ruleId===finding?.ruleId&&item?.file===finding?.file&&item?.findingFingerprint===findingFingerprint)??null;return{findingFingerprint,exception};}
 
 export function parseTemplateFactoryFailures(){
   const source=readFileSync('src/lib/builder/template-factory/knowledge-registry.ts','utf8');
@@ -138,6 +140,17 @@ export function runVitest(files){
 }
 export function ensureFile(file){if(!existsSync(file))throw new Error(`Required file missing: ${file}`);}
 
+
+if(process.argv.includes('--exception-self-test')){
+  const first={ruleId:'DEV-REVIEW-X',file:'src/a.ts',line:1,code:'x',message:'review'};
+  const second={...first,file:'src/b.ts'};
+  const fp=guardFindingFingerprint(first);
+  const exact=matchGuardException(first,[{ruleId:first.ruleId,file:first.file,findingFingerprint:fp,reason:'intentional'}]);
+  const unrelated=matchGuardException(second,[{ruleId:first.ruleId,file:first.file,findingFingerprint:fp,reason:'intentional'}]);
+  const ok=exact.exception?.reason==='intentional'&&unrelated.exception===null&&exact.findingFingerprint!==unrelated.findingFingerprint;
+  console.log(`Development exception self-test: ${ok?'PASS':'FAIL'}`);
+  if(!ok)process.exitCode=1;
+}
 
 if(process.argv.includes('--decision-self-test')){
   const ok=aggregateGateDecision({childDecisions:['PASS','PASS']})==='PASS'

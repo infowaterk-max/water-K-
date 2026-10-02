@@ -61,7 +61,7 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(plan).not.toContain("getChangedFiles()");
   });
   it('wires development-time guards into PR CI while preserving post-merge replay and evidence',()=>{for(const file of ['.github/workflows/ci.yml','.github/workflows/template-factory-quality-gate.yml']){const workflow=readFileSync(file,'utf8');expect(workflow).toContain("Plan Before Code Gate\n        if: github.event_name == 'pull_request'");expect(workflow).toContain("Edit-Time Known Failure Guard\n        if: github.event_name == 'pull_request'");expect(workflow).toContain('Incremental Known Failure Replay');expect(workflow).toContain('shoperation-plan-before-code.mjs --check');expect(workflow).toContain('shoperation-edit-time-guard.mjs --check');expect(workflow).toContain('shoperation-incremental-replay.mjs --check');expect(workflow).toContain('INCREMENTAL_OUTCOME');expect(workflow).toContain('INCREMENTAL_REPLAY_FAILED');expect(workflow).toContain('Upload Development Guard evidence');}});
-  it('runs A/B Reference Sync before replay and catches stale source assertions plus deleted asset paths',()=>{const output=execFileSync(process.execPath,['scripts/lib/shoperation-reference-sync-runtime.mjs','--self-test'],{encoding:'utf8'});expect(output).toContain('Reference Sync self-test: PASS');const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');expect(edit).toContain('evaluateReferenceSynchronization');expect(edit).toContain('DEV-BLOCK-REFERENCE-SYNC');expect(edit).toContain('DEV-REVIEW-REFERENCE-SYNC');expect(edit).toContain('reference-sync.json');expect(policy.generalRules.some(rule=>rule.includes('repository-wide Reference Sync closure'))).toBe(true);});
+  it('runs A/B Reference Sync before replay and catches stale source assertions plus deleted asset paths',()=>{const output=execFileSync(process.execPath,['scripts/lib/shoperation-reference-sync-runtime.mjs','--self-test'],{encoding:'utf8'});expect(output).toContain('Reference Sync self-test: PASS');expect(output).toContain('coverage-overflow=BLOCK');const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');expect(edit).toContain('evaluateReferenceSynchronization');expect(edit).toContain('DEV-BLOCK-REFERENCE-SYNC');expect(edit).toContain('DEV-REVIEW-REFERENCE-SYNC');expect(edit).toContain('reference-sync.json');expect(policy.generalRules.some(rule=>rule.includes('repository-wide Reference Sync closure'))).toBe(true);});
   it('enforces durable PO instruction required edits in both plan and edit-time directions',()=>{
     const plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
     const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');
@@ -70,6 +70,15 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(edit).toContain('buildExecutionRoute');
     expect(edit).toContain('instructionRequired');
     expect(edit).toContain('requiredChangeSet=[...new Set([...declaredSemanticRequired,...instructionRequired,...referenceRequired])]');
+  });
+  it('binds review exceptions to one exact finding fingerprint instead of a whole rule',()=>{
+    const output=execFileSync(process.execPath,['scripts/lib/shoperation-development-runtime.mjs','--exception-self-test'],{encoding:'utf8'});
+    expect(output).toContain('Development exception self-test: PASS');
+    const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');
+    const plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
+    expect(edit).toContain('matchGuardException(finding,exceptionList)');
+    expect(edit).not.toContain('exceptions.get(rule.id)');
+    expect(plan).toContain("required:['ruleId','file','findingFingerprint','reason']");
   });
   it('keeps composite Edit-Time decisions monotonic and excludes plan metadata from material implementation scope',()=>{
     const output=execFileSync(process.execPath,['scripts/lib/shoperation-development-runtime.mjs','--decision-self-test'],{encoding:'utf8'});

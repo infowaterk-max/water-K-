@@ -1,9 +1,9 @@
 import {execFileSync} from 'node:child_process';
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
-import {aggregateGateDecision,getChangedFiles,globToRegExp,guardPolicy} from './lib/shoperation-development-runtime.mjs';
+import {aggregateGateDecision,getChangedFiles,globToRegExp,guardPolicy,matchGuardException} from './lib/shoperation-development-runtime.mjs';
 import {evaluateReferenceSynchronization} from './lib/shoperation-reference-sync-runtime.mjs';
 import {buildCodebaseAtlas,buildExecutionRoute,evaluatePoInstructionStates} from './lib/shoperation-codebase-atlas-runtime.mjs';
-const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8')),diff=getChangedFiles({baseSha:plan.changeBaseSha}),exceptions=new Map((plan.exceptions??[]).map(x=>[x.ruleId,x])),git=args=>execFileSync('git',args,{encoding:'utf8'});
+const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8')),diff=getChangedFiles({baseSha:plan.changeBaseSha}),exceptionList=[...(plan.exceptions??[])],git=args=>execFileSync('git',args,{encoding:'utf8'});
 let patch='';if(diff.base){try{patch=git(['diff','--unified=0','--no-color',diff.base,diff.head,'--']);}catch{}}if(!patch){try{patch=git(['diff','--unified=0','--no-color','--']);}catch{}}
 const findings=[];let currentFile=null,newLine=0;
 const declaredSemanticRequired=[...(plan.operationalIntelligence?.semanticExecutionRoute?.mustEdit??[])];
@@ -12,7 +12,7 @@ const actualOutsidePlanned=(diff.materialFiles??[]).filter(file=>!planMatchers.s
 const actualChanged=new Set(diff.materialFiles??[]);
 if(diff.baseResolution==='UNRESOLVED'||!diff.base)findings.push({ruleId:'DEV-BLOCK-TRANSACTION-BASE-UNRESOLVED',severity:'block',title:'Development Transaction base is unresolved',file:'quality/development/active-plan.json',line:0,code:String(diff.requestedBase??plan.changeBaseSha??''),failureIds:['SQ-KF-022'],message:'Development Transaction: declared changeBaseSha cannot be resolved; silent fallback is forbidden.',exception:null});
 
-for(const line of patch.split(/\r?\n/)){if(line.startsWith('+++ b/')){currentFile=line.slice(6);continue;}const hunk=line.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/);if(hunk){newLine=Number(hunk[1]);continue;}if(!currentFile)continue;if(line.startsWith('+')&&!line.startsWith('+++')){const added=line.slice(1);for(const rule of guardPolicy.editRules){if(!rule.filePatterns.map(globToRegExp).some(m=>m.test(currentFile)))continue;if(new RegExp(rule.pattern).test(added))findings.push({ruleId:rule.id,severity:rule.severity,title:rule.title,file:currentFile,line:newLine,code:added.trim().slice(0,300),failureIds:rule.failureIds,message:rule.message,exception:exceptions.get(rule.id)??null});}newLine+=1;}else if(!line.startsWith('-'))newLine+=1;}
+for(const line of patch.split(/\r?\n/)){if(line.startsWith('+++ b/')){currentFile=line.slice(6);continue;}const hunk=line.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/);if(hunk){newLine=Number(hunk[1]);continue;}if(!currentFile)continue;if(line.startsWith('+')&&!line.startsWith('+++')){const added=line.slice(1);for(const rule of guardPolicy.editRules){if(!rule.filePatterns.map(globToRegExp).some(m=>m.test(currentFile)))continue;if(new RegExp(rule.pattern).test(added))findings.push({ruleId:rule.id,severity:rule.severity,title:rule.title,file:currentFile,line:newLine,code:added.trim().slice(0,300),failureIds:rule.failureIds,message:rule.message,exception:null});}newLine+=1;}else if(!line.startsWith('-'))newLine+=1;}
 const referenceSync=evaluateReferenceSynchronization({base:diff.base,head:diff.head});
 const atlas=buildCodebaseAtlas();
 const currentExecutionRoute=buildExecutionRoute(atlas,plan.plannedFilePatterns??[],{tombstones:diff.materialDeletedFiles??[]});
@@ -31,7 +31,7 @@ for(const violation of poInstructionState.violations??[])findings.push({
   exception:null,
 });
 for(const item of referenceSync.staleConsumers??[])findings.push({ruleId:'DEV-BLOCK-REFERENCE-SYNC',severity:'block',title:'Stale consumer survived a removed or changed contract',file:item.file,line:item.line,code:item.text?.trim().slice(0,300)??'',failureIds:['SQ-KF-022'],message:`Reference Sync: ${item.reference.kind} "${item.reference.value}" changed in ${item.reference.originFile}, but a stale machine consumer remains.`,exception:null});
-for(const item of referenceSync.reviewConsumers??[])findings.push({ruleId:'DEV-REVIEW-REFERENCE-SYNC',severity:'review',title:'Changed contract still has an ambiguous consumer',file:item.file,line:item.line,code:item.text?.trim().slice(0,300)??'',failureIds:['SQ-KF-022'],message:`Reference Sync review: ${item.reference.kind} "${item.reference.value}" changed in ${item.reference.originFile}; confirm this remaining consumer is intentional.`,exception:exceptions.get('DEV-REVIEW-REFERENCE-SYNC')??null});
+for(const item of referenceSync.reviewConsumers??[])findings.push({ruleId:'DEV-REVIEW-REFERENCE-SYNC',severity:'review',title:'Changed contract still has an ambiguous consumer',file:item.file,line:item.line,code:item.text?.trim().slice(0,300)??'',failureIds:['SQ-KF-022'],message:`Reference Sync review: ${item.reference.kind} "${item.reference.value}" changed in ${item.reference.originFile}; confirm this remaining consumer is intentional.`,exception:null});
 const referenceRequired=[...new Set((referenceSync.staleConsumers??[]).map(item=>item.file).filter(Boolean))];
 const requiredChangeSet=[...new Set([...declaredSemanticRequired,...instructionRequired,...referenceRequired])].sort();
 const missingRequired=requiredChangeSet.filter(file=>!actualChanged.has(file));
@@ -47,6 +47,7 @@ for(const file of missingRequired)findings.push({
   message:`Implementation Sync: required target "${file}" is absent from the actual verified change set. Sources: ${declaredSemanticRequired.includes(file)?'semantic-route':''}${declaredSemanticRequired.includes(file)&&referenceRequired.includes(file)?'+':''}${referenceRequired.includes(file)?'reference-sync':''}.`,
   exception:null,
 });
+for(const finding of findings){const matched=matchGuardException(finding,exceptionList);finding.findingFingerprint=matched.findingFingerprint;finding.exception=matched.exception;}
 const blocking=findings.filter(f=>f.severity==='block'||(f.severity==='review'&&!f.exception));
 const referenceFindingDecision=blocking.some(f=>f.ruleId==='DEV-BLOCK-REFERENCE-SYNC'||f.ruleId==='DEV-REVIEW-REFERENCE-SYNC')?'BLOCK':'PASS';
 referenceSync.decision=aggregateGateDecision({childDecisions:[referenceSync.decision,referenceFindingDecision]});
