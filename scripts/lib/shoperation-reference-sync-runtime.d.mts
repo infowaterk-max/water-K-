@@ -14,6 +14,13 @@ export type ReferenceConsumer={
 };
 export function exportsRemovedAcrossPathChange(beforeSource:string,afterSource:string):string[];
 export function extractReferenceCandidatesFromLine(line:string,file:string):ReferenceCandidate[];
+export function reconcileReferenceRelocations(
+  candidates:ReferenceCandidate[],
+  addedCandidates:ReferenceCandidate[]
+):{
+  remaining:ReferenceCandidate[];
+  relocations:Array<{kind:string;value:string;fromFile:string;toFiles:string[]}>;
+};
 export function evaluateCandidateConsumers(
   candidates:ReferenceCandidate[],
   beforeConsumers:ReferenceConsumer[],
@@ -27,5 +34,6 @@ export function evaluateCandidateConsumers(
 export function evaluateReferenceSynchronization(input:{base:string;head:string}):{
   staleConsumers:ReferenceConsumer[];
   reviewConsumers:ReferenceConsumer[];
+  relocatedReferences?:Array<{kind:string;value:string;fromFile:string;toFiles:string[]}>;
   [key:string]:unknown;
 };
