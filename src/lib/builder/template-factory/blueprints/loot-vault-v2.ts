@@ -3,6 +3,7 @@ import {
   STOREFRONT_TEMPLATE_GENERATOR_BLUEPRINT_VERSION,
   type StorefrontTemplateGeneratorBlueprint,
 } from '@/lib/builder/template-factory/generator-readiness';
+import {STOREFRONT_TEMPLATE_PRODUCTION_COMPILER_VERSION} from '@/lib/builder/template-factory/production-compiler-contract';
 import {
   STOREFRONT_TEMPLATE_FILE_OWNERSHIP_CONTRACT_VERSION,
   STOREFRONT_TEMPLATE_VISUAL_AUTHORITY_VERSION,
@@ -50,7 +51,8 @@ export const LOOT_VAULT_V2_GENERATOR_BLUEPRINT:StorefrontTemplateGeneratorBluepr
     }),
   }),
   generator:Object.freeze({
-    implementation:'deferred',
+    implementation:'dynamic-production-compiler',
     target:'template-compiler',
+    compilerContract:STOREFRONT_TEMPLATE_PRODUCTION_COMPILER_VERSION,
   }),
 });
