@@ -11,10 +11,16 @@ const run=(snapshot:unknown)=>{
   const snapshotPath=path.join(dir,'snapshot.json');
   const out=path.join(dir,'out');
   writeFileSync(snapshotPath,JSON.stringify(snapshot));
+  const integrityPath=path.join(dir,'integrity.json');
+  writeFileSync(integrityPath,JSON.stringify({
+    contract:'shoporation.sentinel-integrity-report.v1',sourceCommit:'abc1234',generatedAt:'2026-09-28T12:00:00.000Z',
+    decision:'PASS',authority:false,blocking:false,autoMutationAllowed:false,
+    counts:{findings:0,action:0,review:0},categories:[],findings:[],
+  }));
   const result=spawnSync(process.execPath,['scripts/shoperation-sentinel-scan.mjs'],{
     cwd:root,
     encoding:'utf8',
-    env:{...process.env,SHOPERATION_SENTINEL_SNAPSHOT:snapshotPath,SHOPERATION_SENTINEL_OUT_DIR:out},
+    env:{...process.env,SHOPERATION_SENTINEL_SNAPSHOT:snapshotPath,SHOPERATION_SENTINEL_OUT_DIR:out,SHOPERATION_SENTINEL_INTEGRITY_PROBE:integrityPath},
   });
   const report=result.status===0?JSON.parse(readFileSync(path.join(out,'sentinel-report.json'),'utf8')):null;
   rmSync(dir,{recursive:true,force:true});
@@ -36,6 +42,8 @@ describe('Shoperation Sentinel',()=>{
     const registry=JSON.parse(read('quality/knowledge/guard-registry.v1.json'));
     const signal=registry.guards.find((x:{id:string})=>x.id==='SIGNAL-SENTINEL');
     expect(workflow).toContain("cron: '17 4 * * *'");
+    expect(workflow).toContain('Collect latest main Control Plane evidence');
+    expect(workflow).toContain('Sentinel integrity probe');
     expect(workflow).toContain('Sync Sentinel attention issue');
     expect(workflow).toContain('compareCommits');
     expect(workflow).toContain("sourceScope=comparison.data.merge_base_commit?.sha===sourceCommit?'canonical':'development'");
@@ -120,6 +128,46 @@ describe('Shoperation Sentinel',()=>{
     const{report}=run(base({openIssues:[{number:9,title:'drift',body:'<!-- shoperation-deep-atlas-scan -->',updatedAt:'2026-09-28T10:00:00.000Z'}]}));
     expect(report.status).toBe('ACTION_REQUIRED');
     expect(report.signals.some((x:{code:string})=>x.code==='SENTINEL_DEEP_ATLAS_ATTENTION')).toBe(true);
+  });
+
+  it('does not collapse missing integrity evidence into HEALTHY',()=>{
+    const dir=mkdtempSync(path.join(tmpdir(),'sentinel-missing-integrity-'));
+    const snapshotPath=path.join(dir,'snapshot.json'),out=path.join(dir,'out');
+    writeFileSync(snapshotPath,JSON.stringify(base()));
+    const missing=path.join(dir,'missing-integrity.json');
+    const result=spawnSync(process.execPath,['scripts/shoperation-sentinel-scan.mjs'],{
+      cwd:root,encoding:'utf8',
+      env:{...process.env,SHOPERATION_SENTINEL_SNAPSHOT:snapshotPath,SHOPERATION_SENTINEL_OUT_DIR:out,SHOPERATION_SENTINEL_INTEGRITY_PROBE:missing},
+    });
+    const report=JSON.parse(readFileSync(path.join(out,'sentinel-report.json'),'utf8'));
+    rmSync(dir,{recursive:true,force:true});
+    expect(result.status).toBe(0);
+    expect(report.status).toBe('REVIEW');
+    expect(report.integrity.decision).toBe('UNKNOWN');
+    expect(report.signals.some((x:{code:string})=>x.code==='SENTINEL_INTEGRITY_PROBE_MISSING')).toBe(true);
+  });
+
+  it('promotes action-level integrity divergence to ACTION_REQUIRED without making Sentinel a gate',()=>{
+    const dir=mkdtempSync(path.join(tmpdir(),'sentinel-integrity-block-'));
+    const snapshotPath=path.join(dir,'snapshot.json'),integrityPath=path.join(dir,'integrity.json'),out=path.join(dir,'out');
+    writeFileSync(snapshotPath,JSON.stringify(base()));
+    writeFileSync(integrityPath,JSON.stringify({
+      contract:'shoporation.sentinel-integrity-report.v1',sourceCommit:'abc1234',generatedAt:'2026-09-28T12:00:00.000Z',
+      decision:'BLOCK',authority:false,blocking:false,autoMutationAllowed:false,
+      counts:{findings:1,action:1,review:0},categories:['decision'],
+      findings:[{code:'SENTINEL_INTEGRITY_STATUS_LAUNDERING',category:'decision',severity:'action',reason:'child block',evidence:{}}],
+    }));
+    const result=spawnSync(process.execPath,['scripts/shoperation-sentinel-scan.mjs'],{
+      cwd:root,encoding:'utf8',
+      env:{...process.env,SHOPERATION_SENTINEL_SNAPSHOT:snapshotPath,SHOPERATION_SENTINEL_OUT_DIR:out,SHOPERATION_SENTINEL_INTEGRITY_PROBE:integrityPath},
+    });
+    const report=JSON.parse(readFileSync(path.join(out,'sentinel-report.json'),'utf8'));
+    rmSync(dir,{recursive:true,force:true});
+    expect(result.status).toBe(0);
+    expect(report.status).toBe('ACTION_REQUIRED');
+    expect(report.blocking).toBe(false);
+    expect(report.authority).toBe(false);
+    expect(report.signals.some((x:{code:string})=>x.code==='SENTINEL_INTEGRITY_DIVERGENCE')).toBe(true);
   });
 
   it('records the accepted component in the canonical roadmap',()=>{

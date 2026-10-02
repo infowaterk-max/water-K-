@@ -79,6 +79,40 @@ jobs:
               core.setFailed('SENTINEL_SOURCE_COLLECTION_FAILED');
             }
 
+      - name: Collect latest main Control Plane evidence
+        id: control_plane_evidence
+        continue-on-error: true
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          dir="artifacts/shoperation-sentinel/control_plane_evidence"
+          mkdir -p "$dir"
+          trap 'printf "%s\n" "{\"contract\":\"shoporation.command-diagnostic.v1\",\"code\":\"SENTINEL_CONTROL_PLANE_EVIDENCE_COLLECTION_FAILED\",\"decision\":\"BLOCK\"}" > "$dir/collection-failure.json"' ERR
+          run_id="$(gh run list --workflow=ci.yml --branch=main --status=completed --limit=1 --json databaseId --jq '.[0].databaseId // empty' 2>/dev/null || true)"
+          if [ -z "$run_id" ]; then
+            printf "%s\n" '{"contract":"shoporation.sentinel-control_plane_evidence.v1","state":"UNKNOWN","reason":"NO_COMPLETED_MAIN_CI_RUN"}' > "$dir/collection.json"
+            exit 0
+          fi
+          gh run view "$run_id" --json databaseId,headSha,conclusion,status,event,headBranch > "$dir/run.json"
+          gh run download "$run_id" --pattern 'shoperation-development-guard-*' --dir "$dir" || true
+          gh run download "$run_id" --pattern 'shoperation-quality-knowledge-*' --dir "$dir" || true
+          gh run download "$run_id" --name release-risk-budget --dir "$dir" || true
+
+      - name: Sentinel integrity probe
+        id: integrity
+        if: steps.snapshot.outcome == 'success'
+        continue-on-error: true
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: SENTINEL_INTEGRITY_PROBE_EXECUTION_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: sentinel-integrity
+          SHOPERATION_DIAGNOSTIC_EXPECTED: Sentinel integrity probe emits structured observation evidence
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-sentinel/integrity-diagnostic.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_ENVIRONMENT: scheduled-quality
+          SHOPERATION_SENTINEL_CONTROL_PLANE_EVIDENCE_DIR: artifacts/shoperation-sentinel/control_plane_evidence
+        run: node scripts/shoperation-command-diagnostic.mjs -- node scripts/shoperation-sentinel-integrity-probe.mjs
+
       - name: Sentinel Deep Scan
         id: sentinel
         if: steps.snapshot.outcome == 'success'
@@ -107,10 +141,12 @@ jobs:
           retention-days: 90
 
       - name: Create Sentinel execution failure intake
-        if: always() && (steps.snapshot.outcome == 'failure' || steps.sentinel.outcome == 'failure')
+        if: always() && (steps.snapshot.outcome == 'failure' || steps.control_plane_evidence.outcome == 'failure' || steps.integrity.outcome == 'failure' || steps.sentinel.outcome == 'failure')
         shell: bash
         env:
           SNAPSHOT_OUTCOME: ${{ steps.snapshot.outcome }}
+          CONTROL_PLANE_EVIDENCE_OUTCOME: ${{ steps.control_plane_evidence.outcome }}
+          INTEGRITY_OUTCOME: ${{ steps.integrity.outcome }}
           SCAN_OUTCOME: ${{ steps.sentinel.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
           SHOPERATION_FAILURE_SOURCE: sentinel
@@ -124,6 +160,16 @@ jobs:
             codes="${codes}SENTINEL_SOURCE_COLLECTION_FAILED;"
             specs="SENTINEL_SOURCE_COLLECTION_FAILED=artifacts/shoperation-sentinel/source-failure.json"
           fi
+          if [ "$CONTROL_PLANE_EVIDENCE_OUTCOME" = "failure" ]; then
+            codes="${codes}SENTINEL_CONTROL_PLANE_EVIDENCE_COLLECTION_FAILED;"
+            if [ -n "$specs" ]; then specs="${specs};"; fi
+            specs="${specs}SENTINEL_CONTROL_PLANE_EVIDENCE_COLLECTION_FAILED=artifacts/shoperation-sentinel/control_plane_evidence/collection-failure.json"
+          fi
+          if [ "$INTEGRITY_OUTCOME" = "failure" ]; then
+            codes="${codes}SENTINEL_INTEGRITY_PROBE_EXECUTION_FAILED;"
+            if [ -n "$specs" ]; then specs="${specs};"; fi
+            specs="${specs}SENTINEL_INTEGRITY_PROBE_EXECUTION_FAILED=artifacts/shoperation-sentinel/integrity-diagnostic.json"
+          fi
           if [ "$SCAN_OUTCOME" = "failure" ]; then
             codes="${codes}SENTINEL_SCAN_EXECUTION_FAILED;"
             if [ -n "$specs" ]; then specs="${specs};"; fi
@@ -132,7 +178,7 @@ jobs:
           SHOPERATION_DIAGNOSTIC_ARTIFACTS="$specs" SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
 
       - name: Upload Sentinel execution failure intake
-        if: always() && (steps.snapshot.outcome == 'failure' || steps.sentinel.outcome == 'failure')
+        if: always() && (steps.snapshot.outcome == 'failure' || steps.control_plane_evidence.outcome == 'failure' || steps.integrity.outcome == 'failure' || steps.sentinel.outcome == 'failure')
         uses: actions/upload-artifact@v4
         with:
           name: shoperation-sentinel-failure-intake-${{ github.sha }}
@@ -177,6 +223,8 @@ jobs:
             Open Failure Intake fingerprints: **${report.openEvidence.fingerprints.length}**
 
             Deep Atlas attention issues: **${report.openEvidence.deepAtlasAttentionIssues}**
+
+            Integrity probe: **${report.integrity?.decision||'UNKNOWN'}** · findings **${report.integrity?.counts?.findings??'unknown'}**
 
             Signals:
             ${report.signals.length?report.signals.map(s=>`- \`${s.code}\`: ${s.reason}`).join('\n'):'- none'}
