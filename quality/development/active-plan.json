@@ -6,16 +6,20 @@
   "guardDigest": "f8395e8f",
   "changeBaseSha": "6ddc62fbac729d593cda0c7fcbbf386062a89b45",
   "plannedFilePatterns": [
+    "quality/knowledge/domain-foundations.v1.json",
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-    "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
     "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
   "expectedSubsystems": [
     "shared-storefront",
     "storefront-ui"
   ],
-  "expectedDomains": [],
-  "expectedAuthorities": [],
+  "expectedDomains": [
+    "DOMAIN-QUALITY"
+  ],
+  "expectedAuthorities": [
+    "quality-knowledge-system"
+  ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
@@ -106,16 +110,29 @@
       ]
     },
     "assuranceCeiling": {
-      "level": "high-assurance-targeted",
-      "rationale": "A foundational pre-execution authority classifier must resolve public presentation surfaces deterministically while preserving specific authority precedence; negative controls are required before replaying #666."
+      "level": "critical-practical",
+      "rationale": "A foundational pre-execution authority classifier must resolve public presentation surfaces deterministically while preserving specific authority precedence; negative controls are required before replaying #666.",
+      "selectedTechniques": [
+        "explicit-specification",
+        "invariants",
+        "state-model",
+        "adversarial-scenarios",
+        "boundary-cases",
+        "pairwise-interactions",
+        "threat-failure-model",
+        "finite-state-exhaustion",
+        "what-if-matrix",
+        "fault-injection"
+      ],
+      "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "classifyAtlasPath('src/app/oldal/[slug]/page.tsx') includes only DOMAIN-STOREFRONT when no explicit canonical domain path matches.",
-        "classifyAtlasPath('src/app/sitemap.ts') includes DOMAIN-STOREFRONT.",
-        "classifyAtlasPath('src/app/admin/orders/page.tsx') remains DOMAIN-ADMIN and does not gain DOMAIN-STOREFRONT.",
-        "classifyAtlasPath('src/app/storefront-template-preview/page.tsx') remains DOMAIN-BUILDER and does not gain DOMAIN-STOREFRONT.",
-        "src/app/api/** route handlers do not receive storefront fallback."
+        "For an otherwise-unowned shopper-facing dynamic page such as src/app/oldal/[slug]/page.tsx, classifyAtlasPath must return DOMAIN-STOREFRONT/shared-storefront and a page route while preserving the absence of any business-truth ownership.",
+        "For src/app/sitemap.ts with no stronger canonical domain match, classifyAtlasPath must return DOMAIN-STOREFRONT/shared-storefront so public navigation metadata has deterministic presentation authority.",
+        "For src/app/admin/orders/page.tsx with an explicit DOMAIN-ADMIN match, classifyAtlasPath must return DOMAIN-ADMIN/admin-operations without adding DOMAIN-STOREFRONT.",
+        "For src/app/storefront-template-preview/page.tsx with an explicit DOMAIN-BUILDER match, classifyAtlasPath must retain DOMAIN-BUILDER/builder-template-system without storefront fallback.",
+        "For src/app/api/orders/route.ts, storefront presentation fallback must not apply and the existing explicit API/business authority remains unchanged."
       ],
       "invariants": [
         "Explicit canonical domain matches always take precedence over storefront fallback.",
@@ -296,8 +313,9 @@
     ],
     "proofPlan": [
       "Plan-only Plan Before Code PASS before implementation.",
-      "Unit-test generic public page and sitemap fallback.",
-      "Negative-test admin, builder preview and API route precedence.",
+      "Document storefront fallback precedence in the existing DOMAIN-STOREFRONT boundary rules.",
+      "Implement fallback only after canonical domain matching returns empty.",
+      "Unit-test generic public page and sitemap fallback plus admin/builder/API negative controls.",
       "Run exact-head Edit-Time, Incremental Replay, Quality, TypeScript, Production Build and Truth; CLOSE→LEARN before merge.",
       "After merge replay #666 plan-only without changing product intent."
     ],
@@ -308,14 +326,12 @@
         "atlas-domain-classification"
       ],
       "mustEdit": [
+        "quality/knowledge/domain-foundations.v1.json",
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "mayEdit": [],
-      "impactedReadOnly": [
-        "quality/knowledge/domain-foundations.v1.json"
-      ],
+      "impactedReadOnly": [],
       "proof": [
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
@@ -400,5 +416,5 @@
       }
     ]
   },
-  "notes": "Targeted foundational follow-up from #666 planned projection after #678. Resolves path-derived storefront presentation ownership without PR-specific exceptions or canonical authority overrides. Canonical plan-only projection on 792b84d derived domains=[], authorities=[], subsystems=[shared-storefront,storefront-ui], negative knowledge SQ-NK-001/002/004/006/007/008/009/012 and guard digest f8395e8f. Canonical critical operational metadata restored; engineering scope unchanged."
+  "notes": "Targeted foundational follow-up from #666 planned projection after #678. Resolves path-derived storefront presentation ownership without PR-specific exceptions or canonical authority overrides. Canonical plan-only projection on 792b84d derived domains=[], authorities=[], subsystems=[shared-storefront,storefront-ui], negative knowledge SQ-NK-001/002/004/006/007/008/009/012 and guard digest f8395e8f. Canonical critical operational metadata restored; engineering scope unchanged. Plan quality refinement: DOMAIN-STOREFRONT boundary contract is now an explicit must-edit so the classifier behavior and durable authority documentation remain synchronized; unchanged .d.mts removed because public types do not change. Critical assurance technique set made explicit."
 }
