@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-SENTINEL-INTEGRITY-DIVERGENCE-CORRELATION",
   "task": "Extend Sentinel with general integrity divergence correlation across existing Control Plane authorities and evidence.",
-  "status": "closed",
+  "status": "ready-for-implementation",
   "guardDigest": "efe9d183",
   "changeBaseSha": "ca7dd6e85e521bca2732590a3a5a8afe3f489ea7",
   "plannedFilePatterns": [
@@ -535,18 +535,5 @@
       }
     ]
   },
-  "notes": "Follow-up after the closed #681 Control Plane coherence repair. This transaction strengthens the existing Sentinel observation layer so newly introduced integrity divergence is discovered automatically where structured evidence exists. It does not create a new gate or autonomous repair authority. Plan-only CI derived projected subsystems quality-infrastructure + release-infrastructure and canonical guard digest efe9d183. New planned files are intentionally not placed in semantic MUST_EDIT before they exist in Atlas; they remain explicit plannedFilePatterns and will become actual tracked files during implementation.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "fa97515ac46f040e3be82923544b4ace712cb1ef",
-    "closedAt": "2026-10-02T09:25:24.677Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-SENTINEL-INTEGRITY-DIVERGENCE",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Follow-up after the closed #681 Control Plane coherence repair. This transaction strengthens the existing Sentinel observation layer so newly introduced integrity divergence is discovered automatically where structured evidence exists. It does not create a new gate or autonomous repair authority. Plan-only CI derived projected subsystems quality-infrastructure + release-infrastructure and canonical guard digest efe9d183. New planned files are intentionally not placed in semantic MUST_EDIT before they exist in Atlas; they remain explicit plannedFilePatterns and will become actual tracked files during implementation."
 }
