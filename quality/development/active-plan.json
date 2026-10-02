@@ -3,7 +3,7 @@
   "taskId": "DEV-VX-VISUAL-DIFF-INTELLIGENCE-CORE-BRABUS-HARDENING",
   "task": "Evolve the existing exact-head Template Factory visual evidence into the canonical VX Visual Diff Intelligence Core: consume the existing quality-evidence case contract, validate evidence provenance and 14x3 completeness, classify structured runtime drift separately from unlocalized pixel drift, and produce deterministic reusable diagnostics without changing screenshot capture, Page Schema, Runtime or Builder mutations.",
   "status": "ready-for-implementation",
-  "guardDigest": "94082bf1",
+  "guardDigest": "bb25917e",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
     "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
@@ -11,6 +11,7 @@
     "quality/knowledge/guard-registry.v1.json",
     "scripts/template-factory-quality-gate.mjs",
     "src/app/api/visual-fidelity/templates/route.ts",
+    "src/lib/builder/storefront-page-fingerprint.ts",
     "src/lib/builder/storefront-responsive-layout-depth.ts",
     "src/lib/builder/storefront-visual-diff-intelligence.ts",
     "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts",
@@ -42,6 +43,8 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
+    "database-schema",
+    "quality-knowledge-system",
     "shared-storefront",
     "storefront-ui"
   ],
@@ -112,12 +115,16 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012"
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -558,7 +565,7 @@
       }
     ]
   },
-  "notes": "Ninth Brabus hardening wave. Inheritance Intelligence Core is PROVEN and lifecycle-closed. Remaining dependency order: Visual Diff Intelligence Core → Publish Readiness → Smart Intent → Smart Auto-Fix. This wave is core-only and does not add Builder UI or repair actions. Template #3 remains forbidden.",
+  "notes": "Ninth Brabus hardening wave. Inheritance Intelligence Core is PROVEN and lifecycle-closed. Remaining dependency order: Visual Diff Intelligence Core → Publish Readiness → Smart Intent → Smart Auto-Fix. This wave is core-only and does not add Builder UI or repair actions. Template #3 remains forbidden. Canonical Visual Diff Core projection reconciled: include storefront-page-fingerprint authority; subsystem scope builder-template-system/database-schema/quality-knowledge-system/shared-storefront/storefront-ui; negative knowledge SQ-NK-005/011/014/015 apply; guard digest bb25917e.",
   "lifecycle": {
     "state": "EXECUTE",
     "truthStatus": "UNVERIFIED",
