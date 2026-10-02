@@ -100,11 +100,11 @@ export function buildExecutionRoute(atlas:CodebaseAtlas,patterns:string[],option
   decision:'PASS'|'BLOCK';
   [key:string]:unknown;
 };
-export function resolveAtlasArchitectureForPath(atlas:CodebaseAtlas,file:string,options?:{tombstones?:string[];executionRoute?:Record<string,any>|null}):{
+export function resolveAtlasArchitectureForPath(atlas:CodebaseAtlas,file:string,options?:{tombstones?:string[];plannedDeletions?:string[];executionRoute?:Record<string,any>|null}):{
   path:string;
   pathDerived:{domains:string[];authorities:string[]};
   routeAuthority:{path:string;kind:string;state:string}|null;
-  poInstructionAuthority:{instructionIds:string[];governsDeletion:boolean};
+  poInstructionAuthority:{instructionIds:string[];governsDeletion:boolean;authorizesPlannedDeletion?:boolean};
   resolved:boolean;
 };
 export function applicablePoInstructions(atlas:CodebaseAtlas,files:string[]):Array<Record<string,unknown>>;
