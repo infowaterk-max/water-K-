@@ -5,8 +5,10 @@ import {
   augmentStorefrontTemplateDemoContent,
   evaluateStorefrontTemplateRouteIntegrity,
   getStorefrontTemplateDemoContent,
+  rewriteStorefrontTemplatePreviewBindingContext,
 } from '@/lib/builder/storefront-template-route-integrity';
 import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/playroom/v20';
 
 describe('Template Route Integrity + Demo Content Foundation',()=>{
   it('auto-materializes editable draft fixtures for dynamic content links with an explicit warning contract',()=>{
@@ -17,6 +19,18 @@ describe('Template Route Integrity + Demo Content Foundation',()=>{
     expect(shipping?.payload).toMatchObject({kind:'page',slug:'szallitas',status:'draft',demo:true,demoNotice:STOREFRONT_DEMO_CONTENT_NOTICE});
     expect(String(shipping?.payload.body)).toContain('Szállítási lehetőségek');
     expect(String(shipping?.payload.body)).not.toContain(STOREFRONT_DEMO_CONTENT_NOTICE);
+  });
+
+  it('materializes canonical top-level shipping and payment demo fixtures and rewrites them into legal-page previews',()=>{
+    const template=augmentStorefrontTemplateDemoContent(PLAYROOM_V20_TEMPLATE_PACKAGE);
+    expect(getStorefrontTemplateDemoContent(template,'szallitas')?.payload).toMatchObject({kind:'page',slug:'szallitas',demo:true,demoNotice:STOREFRONT_DEMO_CONTENT_NOTICE});
+    expect(getStorefrontTemplateDemoContent(template,'fizetes')?.payload).toMatchObject({kind:'page',slug:'fizetes',demo:true,demoNotice:STOREFRONT_DEMO_CONTENT_NOTICE});
+    const rewritten=rewriteStorefrontTemplatePreviewBindingContext(
+      {shippingHref:'/szallitas',paymentHref:'/fizetes'},
+      {templateKey:'gaming.playroom',templateVersion:20,viewport:'mobile'},
+    ) as {shippingHref:string;paymentHref:string};
+    expect(rewritten.shippingHref).toBe('/storefront-template-preview?template=gaming.playroom&version=20&page=legal&viewport=mobile&demoContent=szallitas');
+    expect(rewritten.paymentHref).toBe('/storefront-template-preview?template=gaming.playroom&version=20&page=legal&viewport=mobile&demoContent=fizetes');
   });
 
   it('keeps all implemented catalog packages route-integrity clean after shared augmentation',()=>{
