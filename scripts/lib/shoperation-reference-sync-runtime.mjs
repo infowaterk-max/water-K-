@@ -243,7 +243,7 @@ function tombstoneEvidence(row,candidate){
   const source=current(row.file);
   const lines=source.split(/\r?\n/),index=Math.max(0,(row.line||1)-1);
   const context=lines.slice(Math.max(0,index-8),Math.min(lines.length,index+9)).join('\n');
-  return/\b(?:deleted|deletedRoute|tombstone|plannedDeletion|plannedDeletions|forbiddenRoute|forbiddenStates|self-test)\b/i.test(context);
+  return/\b(?:deleted|deletedRoute|tombstone|plannedDeletion|plannedDeletions|forbiddenRoute|forbiddenStates|INSTRUCTION_REQUIRED|INSTRUCTION_REQUIREMENTS|PO_INSTRUCTIONS|self-test)\b/i.test(context);
 }
 function classification(row,candidate){
   if(row.file===candidate.originFile||negative(row))return'ignored';
