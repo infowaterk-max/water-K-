@@ -59,6 +59,7 @@ export type StorefrontSmartAutoFixPlan={
     findingState:StorefrontPublishReadinessFinding['state'];
     code:string|null;
     evidenceSource:string;
+    evidenceAuthority:string;
     repairability:StorefrontPublishReadinessFinding['repairability'];
     location:{
       pageKey?:string;
@@ -112,6 +113,7 @@ function sourceSnapshot(document:StorefrontPageDocument,fingerprint:string,findi
     findingState:finding.state,
     code:finding.evidence.code??null,
     evidenceSource:finding.evidence.source,
+    evidenceAuthority:finding.evidence.authority,
     repairability:finding.repairability,
     location:{
       ...(finding.location.pageKey?{pageKey:finding.location.pageKey}:{}),
@@ -174,7 +176,7 @@ function designGuardMode(document:StorefrontPageDocument){
 function validateReadyPlanShape(plan:StorefrontSmartAutoFixPlan){
   if(plan.status!=='READY'||!plan.repairKey||!plan.operations.length)throw new Error('SMART_AUTOFIX_PLAN_NOT_READY');
   if(plan.repairKey==='responsive-redundant-reset'){
-    if(plan.source.code!=='RESPONSIVE_INHERITANCE_REDUNDANT_OVERRIDE'||plan.source.evidenceSource!=='storefront-responsive-inheritance')throw new Error('SMART_AUTOFIX_REGISTRY_BINDING_INVALID');
+    if(plan.source.code!=='RESPONSIVE_INHERITANCE_REDUNDANT_OVERRIDE'||plan.source.evidenceSource!=='storefront-responsive-inheritance'||plan.source.evidenceAuthority!=='builder-template-system')throw new Error('SMART_AUTOFIX_REGISTRY_BINDING_INVALID');
     if(plan.operations.length!==1||plan.operations[0].kind!=='reset-responsive-dimension')throw new Error('SMART_AUTOFIX_OPERATION_SHAPE_INVALID');
     const operation=plan.operations[0];
     if(
@@ -185,7 +187,7 @@ function validateReadyPlanShape(plan:StorefrontSmartAutoFixPlan){
     return;
   }
   if(plan.repairKey==='design-guard-warn'){
-    if(plan.source.code!=='PUBLISH_READINESS_DESIGN_GUARD_OFF'||plan.source.evidenceSource!=='storefront-fidelity-design-guard')throw new Error('SMART_AUTOFIX_REGISTRY_BINDING_INVALID');
+    if(plan.source.code!=='PUBLISH_READINESS_DESIGN_GUARD_OFF'||plan.source.evidenceSource!=='storefront-fidelity-design-guard'||plan.source.evidenceAuthority!=='builder-template-system'||plan.source.location.path!=='metadata.fidelity.designGuard')throw new Error('SMART_AUTOFIX_REGISTRY_BINDING_INVALID');
     if(plan.operations.length!==1||plan.operations[0].kind!=='set-design-guard'||plan.operations[0].mode!=='warn')throw new Error('SMART_AUTOFIX_OPERATION_SHAPE_INVALID');
     return;
   }
@@ -236,8 +238,14 @@ export async function planStorefrontSmartAutoFix(input:{
   const fingerprint=await fingerprintStorefrontPageDocument(input.document);
   const source=sourceSnapshot(input.document,fingerprint,input.finding);
 
-  if(source.location.pageKey&&source.location.pageKey!==input.document.pageKey){
+  if(
+    (source.location.pageKey&&source.location.pageKey!==input.document.pageKey)
+    ||(source.location.pageType&&source.location.pageType!==input.document.pageType)
+  ){
     return nonReady({status:'MANUAL',source,code:'SMART_AUTOFIX_CROSS_PAGE_MANUAL',reason:'A diagnosztika másik oldalhoz tartozik; az aktív oldal nem módosítható helyette.'});
+  }
+  if(source.evidenceAuthority!=='builder-template-system'){
+    return nonReady({status:'MANUAL',source,code:'SMART_AUTOFIX_FOREIGN_AUTHORITY_MANUAL',reason:'Külső authority findingja nem ad automatikus Page Schema javítási jogosultságot.'});
   }
   if(input.finding.state==='UNKNOWN'){
     return nonReady({status:'UNKNOWN',source,code:'SMART_AUTOFIX_EVIDENCE_UNKNOWN',reason:'Nem igazolt diagnosztikából nem készül automatikus javítás.'});
@@ -284,6 +292,9 @@ export async function planStorefrontSmartAutoFix(input:{
   }
 
   if(source.code==='PUBLISH_READINESS_DESIGN_GUARD_OFF'&&source.evidenceSource==='storefront-fidelity-design-guard'){
+    if(source.location.path!=='metadata.fidelity.designGuard'){
+      return nonReady({status:'BLOCK',source,code:'SMART_AUTOFIX_LOCALIZATION_INVALID',reason:'A Design Guard finding lokalizációja nem a canonical fidelity metadata authorityre mutat.'});
+    }
     if(designGuardMode(input.document)!=='off'){
       return nonReady({status:'BLOCK',source,code:'SMART_AUTOFIX_SOURCE_STALE',reason:'A Design Guard már nincs kikapcsolva; a previewelt javítás elavult.'});
     }
@@ -325,9 +336,9 @@ export async function applyStorefrontSmartAutoFixPlan(input:{
   if(hash!==planHash(withoutHash))throw new Error('SMART_AUTOFIX_PLAN_HASH_INVALID');
   validateReadyPlanShape(input.plan);
   if(input.document.pageKey!==input.plan.source.pageKey)throw new Error('SMART_AUTOFIX_PLAN_PAGE_MISMATCH');
+  assertSourceCurrent(input.document,input.plan);
   const fingerprint=await fingerprintStorefrontPageDocument(input.document);
   if(fingerprint!==input.plan.source.fingerprint)throw new Error('SMART_AUTOFIX_PLAN_STALE');
-  assertSourceCurrent(input.document,input.plan);
 
   let next=clone(input.document);
   for(const operation of input.plan.operations)next=applyOperation(next,operation);
