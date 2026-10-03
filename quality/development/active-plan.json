@@ -10,12 +10,15 @@
     "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
     "tests/template-factory-engine-brabus-revalidation.test.ts",
     "tests/template-factory-production-maturity.test.ts",
-    "tests/template-factory-generator-readiness.test.ts"
+    "tests/template-factory-generator-readiness.test.ts",
+    "scripts/template-factory-quality-gate.mjs",
+    "tests/storefront-template-quality-gate-v2.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
     "shared-storefront",
-    "storefront-ui"
+    "storefront-ui",
+    "quality-infrastructure"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER"
@@ -92,7 +95,7 @@
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-03-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
     "riskTier": "critical",
-    "problemStatement": "The current production maturity catalog still blocks Template #3 because E1-E11 and E13 are all EVOLVE in the dedicated Brabus revalidation registry. Every engine already has canonical implementation and retained proof, so the missing capability is not another engine layer but fresh current-stack adversarial proof. This wave must prove each engine independently against its registered invariants, preserve its existing authority and mutation boundary, and promote only the engines that pass. A failure must identify the exact engine and trigger a separate targeted implementation fix rather than broadening this proof-only wave across multiple commerce/content/checkout authorities.",
+    "problemStatement": "The current production maturity catalog still blocks Template #3 because E1-E11 and E13 are all EVOLVE in the dedicated Brabus revalidation registry. Every engine already has canonical implementation and retained proof, so the missing capability is not another engine layer but fresh current-stack adversarial proof. This wave must prove each engine independently against its registered invariants, preserve its existing authority and mutation boundary, and promote only the engines that pass. A failure must identify the exact engine and trigger a separate targeted implementation fix rather than broadening this proof-only wave across multiple commerce/content/checkout authorities. During exact-head closure proof, the canonical Template Factory pull-request workflow returned SUCCESS while its own manifest marked gaming.playroom browserMatrixComplete=false (18/42 canary cases, no reusable previous full proof). The external completion handoff correctly rejected that artifact. This proves a gap inside the existing Template Factory gate: PR acceptance fallback can emit regression-signal canary evidence yet still exit success. The repair must align the existing gate with its declared 14x3 PR acceptance contract, not weaken external completion evidence.",
     "observableOutcomes": [
       "A dedicated Brabus revalidation proof exercises E1-E11 adversarially through their existing public authorities without production mutation.",
       "E13 remains on the existing exact-head browser/network checkout proof path and is never replaced by a synthetic unit-only proof.",
@@ -104,7 +107,11 @@
       "E13 exact-head proof preserves authoritative quote, shared runtime and guided checkout behavior without production side effects.",
       "No engine source file is changed in the initial proof-first transaction.",
       "If any engine fails revalidation, its state remains EVOLVE/RETHINK and the failure is split into a targeted engine repair wave before revalidation resumes.",
-      "Technical production maturity may become Template3AuthoringReady only when every engine row is PROVEN, but actual Template #3 authoring remains forbidden until the separate final end-to-end Brabus rehearsal passes."
+      "Technical production maturity may become Template3AuthoringReady only when every engine row is PROVEN, but actual Template #3 authoring remains forbidden until the separate final end-to-end Brabus rehearsal passes.",
+      "When a pull-request exact-head run has no reusable complete proof for a non-factory template, fallback selection is full rather than canary.",
+      "Push-only regression runs may retain default canary fallback when no full prior proof exists.",
+      "A pull-request Template Factory run fails closed if any selected acceptance proof remains browserMatrixComplete=false or browserMatrixPassed=false.",
+      "The external proof handoff contract remains unchanged and continues to require complete exact-head acceptance evidence."
     ],
     "unresolvedRisks": [
       "A retained regression test may be mistaken for fresh Brabus revalidation.",
@@ -115,7 +122,9 @@
       "E11 may silently recompute server-owned price/tax/stock data.",
       "E13 may be falsely promoted from unit evidence without the exact-head browser/network journey.",
       "Registry promotion may mark all engines PROVEN even when one proof producer is absent.",
-      "Template #3 authoring may start immediately after technical maturity without the separate final rehearsal."
+      "Template #3 authoring may start immediately after technical maturity without the separate final rehearsal.",
+      "A future scope-selection change could accidentally reintroduce canary-only PR acceptance.",
+      "Making every push run full would unnecessarily increase proof cost; the correction must distinguish PR acceptance from push regression signaling."
     ],
     "scope": {
       "in": [
@@ -124,7 +133,9 @@
         "Determinism, malformed-state, stale-state, authority-boundary and no-production-mutation proof where applicable.",
         "Exact-head E13 browser/network proof linkage through the existing Template Factory handoff authority.",
         "Revalidation registry promotion only for freshly proven engines.",
-        "Production maturity and Generator Readiness regression proof for the resulting engine blocker set."
+        "Production maturity and Generator Readiness regression proof for the resulting engine blocker set.",
+        "Repair the existing Template Factory PR fallback so missing reusable proof triggers a full browser matrix.",
+        "Fail closed at the existing Template Factory gate when PR acceptanceProofs are incomplete."
       ],
       "out": [
         "New parallel engine implementations or duplicate commerce/content/checkout authorities.",
@@ -132,7 +143,9 @@
         "Weakening release risk, knowledge, Template Factory or Completion Truth gates.",
         "Replacing E13 browser proof with synthetic unit evidence.",
         "Production database, payment, order, inventory or customer mutation.",
-        "Template #3 authoring before the final end-to-end Brabus rehearsal."
+        "Template #3 authoring before the final end-to-end Brabus rehearsal.",
+        "Weakening external proof handoff completeness requirements.",
+        "Forcing all push regression runs to execute full 14x3 matrices."
       ]
     },
     "assuranceCeiling": {
@@ -183,7 +196,11 @@
         "E13 is PROVEN only with the existing exact-head browser/network checkout proof that shows shared runtime, authoritative quote, guided checkout and no production side effect.",
         "Any failed engine remains non-PROVEN and identifies a targeted follow-up repair; the registry cannot bulk-promote around a failing proof.",
         "Production maturity removes only engine blockers whose proof passed.",
-        "Template #3 authoring remains separately forbidden until the final end-to-end Brabus rehearsal passes."
+        "Template #3 authoring remains separately forbidden until the final end-to-end Brabus rehearsal passes.",
+        "On GITHUB_EVENT_NAME=pull_request with no reusable prior proof, non-factory templates select mode=full and all canonical page types.",
+        "On non-PR push fallback with no reusable prior proof, non-factory templates may remain mode=canary.",
+        "A PR manifest containing any acceptance proof with browserMatrixComplete=false or browserMatrixPassed=false makes the Template Factory gate fail.",
+        "The correction is covered by the existing Template Factory gate regression test and by this PR's next exact-head workflow, which must produce complete Playroom and Loot Vault acceptance evidence."
       ],
       "invariants": [
         "Retained proof is not fresh Brabus proof.",
@@ -193,7 +210,9 @@
         "No revalidation proof mutates production state.",
         "E13 requires browser/network exact-head evidence.",
         "PROVEN requires executable evidence.",
-        "Template #3 final rehearsal remains mandatory after technical maturity."
+        "Template #3 final rehearsal remains mandatory after technical maturity.",
+        "Canary browser evidence is a regression signal, never sufficient PR acceptance evidence.",
+        "External completion handoff completeness is not weakened to compensate for incomplete upstream evidence."
       ],
       "forbiddenStates": [
         "bulk-proven-with-missing-engine-proof",
@@ -204,7 +223,9 @@
         "malformed-input-treated-as-valid",
         "unknown-treated-as-compatible",
         "silent-replacement-or-quantity-adjustment",
-        "template-3-authoring-before-final-rehearsal"
+        "template-3-authoring-before-final-rehearsal",
+        "pull-request-workflow-success-with-incomplete-browser-matrix",
+        "external-handoff-accepts-canary-as-complete"
       ]
     },
     "model": {
@@ -375,6 +396,13 @@
         "finding": "A PASS with hidden mutation would violate the registered no-production-mutation/read-model boundary and could make repeated proof order-dependent.",
         "resolution": "Adversarial tests snapshot/freeze relevant inputs and assert immutability or stable replay; any mutation leaves the engine non-PROVEN and triggers a targeted repair wave.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-ER-9",
+        "scenario": "A PR changes only engine registry/tests, there is no reusable complete Playroom checkpoint, and fallback scope selection chooses six canary pages.",
+        "finding": "The browser runner may report no case errors and exit zero even though acceptanceProof.browserMatrixComplete=false (18/42), producing a workflow SUCCESS that cannot satisfy Completion Truth.",
+        "resolution": "On pull_request fallback, select full pages for every template lacking reusable complete proof and add a final fail-closed PR acceptance check over acceptanceProofs. Preserve canary fallback only for non-PR regression runs.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -385,7 +413,9 @@
       "Mutation-boundary assertions prove no production side effects and no authority relocation.",
       "Production maturity and Generator Readiness tests prove only freshly proven engine blockers are cleared.",
       "If any engine test fails, stop registry promotion for that engine and open a targeted repair wave rather than editing all engines here.",
-      "Full Quality tests, TypeScript, Production Build, exact-head Template Factory proof, Completion Truth and lifecycle closure."
+      "Full Quality tests, TypeScript, Production Build, exact-head Template Factory proof, Completion Truth and lifecycle closure.",
+      "Template Factory gate regression locks PR fallback=full and push fallback=canary semantics without changing the external handoff validator.",
+      "The next exact-head PR Template Factory artifact must show gaming.playroom and gaming.loot-vault browserMatrixComplete=true and browserMatrixPassed=true before Completion Truth can proceed."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-03-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
@@ -399,7 +429,9 @@
         "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
         "tests/template-factory-engine-brabus-revalidation.test.ts",
         "tests/template-factory-production-maturity.test.ts",
-        "tests/template-factory-generator-readiness.test.ts"
+        "tests/template-factory-generator-readiness.test.ts",
+        "scripts/template-factory-quality-gate.mjs",
+        "tests/storefront-template-quality-gate-v2.test.ts"
       ],
       "impactedReadOnly": [
         "src/lib/builder/storefront-runtime.ts",
@@ -537,8 +569,46 @@
             ]
           }
         ]
+      },
+      {
+        "id": "REQ-ENGINE-BRABUS-TF-PR-ACCEPTANCE",
+        "requirement": "Template Factory pull-request acceptance must fail closed unless every selected template has complete passing browser evidence; canary-only evidence remains a regression signal and cannot satisfy external Completion Truth.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "template-factory-pr-acceptance-semantics",
+          "strength": 2,
+          "dimensions": [
+            "behavioral-proof",
+            "coverage",
+            "freshness",
+            "limitations"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-TYPECHECK"
+          ],
+          "outcome": [
+            "GUARD-TEMPLATE-FACTORY",
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-TF-CANARY-AS-PR-ACCEPTANCE",
+            "statement": "A pull-request Template Factory workflow cannot succeed with browserMatrixComplete=false for any selected acceptance proof.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS",
+              "GUARD-TEMPLATE-FACTORY"
+            ]
+          }
+        ]
       }
     ]
   },
-  "notes": "Fourteenth Brabus hardening wave. Parent #790 / VX Smart Auto-Fix is lifecycle-closed at 859519dd062bb0108f475851c1de4542f16326c6 with verified implementation head 80db31357df898bd9dd8b31f53699530f3a51b84. This transaction is proof-first: engine implementation files are read-only unless a concrete revalidation failure proves a deficiency, in which case the repair is split into a targeted follow-up transaction rather than silently expanding this wave. Initial Plan gate reconciliation: proof files live in proof/mayEdit rather than semantic mustEdit; registry dependency projection expands expected subsystems to builder-template-system + shared-storefront + storefront-ui; guardDigest refreshed to 0f3eadb0; critical assurance adds what-if-matrix and CH-ER-8 mutation-boundary challenge. Proof-first sequencing correction: engine-functional-proof-registry.ts is mayEdit rather than mustEdit so executable adversarial proof can run against EVOLVE rows before any PROVEN promotion commit; promotion is allowed only after proof passes. Critical semantic route resolved after proof file creation: the generated Atlas route now classifies tests/template-factory-engine-brabus-revalidation.test.ts as MUST_EDIT, so proof-first execution has a concrete mandatory target without forcing premature registry promotion. Reference Sync fingerprint 3b038645 is acknowledged exactly for generator-readiness' undeclared Blueprint return path. That branch must remain template3AuthoringReady:false even though declared generator candidates now clear all technical engine maturity blockers."
+  "notes": "Fourteenth Brabus hardening wave. Parent #790 / VX Smart Auto-Fix is lifecycle-closed at 859519dd062bb0108f475851c1de4542f16326c6 with verified implementation head 80db31357df898bd9dd8b31f53699530f3a51b84. This transaction is proof-first: engine implementation files are read-only unless a concrete revalidation failure proves a deficiency, in which case the repair is split into a targeted follow-up transaction rather than silently expanding this wave. Initial Plan gate reconciliation: proof files live in proof/mayEdit rather than semantic mustEdit; registry dependency projection expands expected subsystems to builder-template-system + shared-storefront + storefront-ui; guardDigest refreshed to 0f3eadb0; critical assurance adds what-if-matrix and CH-ER-8 mutation-boundary challenge. Proof-first sequencing correction: engine-functional-proof-registry.ts is mayEdit rather than mustEdit so executable adversarial proof can run against EVOLVE rows before any PROVEN promotion commit; promotion is allowed only after proof passes. Critical semantic route resolved after proof file creation: the generated Atlas route now classifies tests/template-factory-engine-brabus-revalidation.test.ts as MUST_EDIT, so proof-first execution has a concrete mandatory target without forcing premature registry promotion. Reference Sync fingerprint 3b038645 is acknowledged exactly for generator-readiness' undeclared Blueprint return path. That branch must remain template3AuthoringReady:false even though declared generator candidates now clear all technical engine maturity blockers. Concrete Control Plane deficiency proven on c3b491b033f26cb862e64da210d86994d1598112: Template Factory PR run 37102297913 concluded SUCCESS while its manifest carried gaming.playroom browserMatrixComplete=false/browserMatrixPassed=false (18/42 canary cases, previousEvidence missing). External proof handoff correctly blocked. Scope is minimally expanded to repair the existing Template Factory PR acceptance fallback and fail-closed completeness check; external handoff semantics remain unchanged."
 }
