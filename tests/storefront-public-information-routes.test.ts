@@ -2,6 +2,8 @@ import fs from'node:fs';
 import{describe,expect,it}from'vitest';
 
 const page=fs.readFileSync('src/app/oldal/[slug]/page.tsx','utf8');
+const shippingPage=fs.readFileSync('src/app/szallitas/page.tsx','utf8');
+const paymentPage=fs.readFileSync('src/app/fizetes/page.tsx','utf8');
 const faqPage=fs.readFileSync('src/app/gyik/page.tsx','utf8');
 const shell=fs.readFileSync('src/components/content/storefront-content-shell.tsx','utf8');
 const source=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','utf8');
@@ -15,7 +17,9 @@ describe('storefront public information route integrity',()=>{
   expect(page).toMatch(/fizetes:\{title:'Fizetés'/);
   expect(page).toMatch(/visszakuldes:\{title:'Visszaküldés'/);
   expect(page).toMatch(/if\(!SYSTEM_INFO\[slug\]\)notFound\(\)/);
-  expect(page).toMatch(/getCommerceSettings\(\)/);
+  expect(page).toMatch(/permanentRedirect\(`\/\$\{slug\}`\)/);
+  expect(shippingPage).toMatch(/getCommerceSettings\(\)/);
+  expect(paymentPage).toMatch(/getCommerceSettings\(\)/);
  });
  it('wraps public information pages in the active storefront template shell',()=>{
   expect(page).toMatch(/StorefrontContentShell/);
@@ -32,22 +36,22 @@ describe('storefront public information route integrity',()=>{
   expect(css).toMatch(/--shoporation-color-background/);
  });
  it('does not hardcode shipping providers into the public shipping fallback',()=>{
-  expect(page).toMatch(/settings\.shippingOptions\.map/);
-  expect(page).toMatch(/settings\.freeShippingThreshold/);
-  expect(page).toMatch(/systemInfoStack/);
-  expect(page).toMatch(/Hogyan működik\?/);
-  expect(page).toMatch(/Rendelés után/);
+  expect(shippingPage).toMatch(/settings\.shippingOptions\.map/);
+  expect(shippingPage).toMatch(/settings\.freeShippingThreshold/);
+  expect(shippingPage).toMatch(/systemInfoStack/);
+  expect(shippingPage).toMatch(/Hogyan működik\?/);
+  expect(shippingPage).toMatch(/Rendelés után/);
   expect(css).toMatch(/\.systemInfoPage \.systemInfoStack\{display:grid;gap:/);
-  expect(page).not.toMatch(/GLS|Foxpost|MPL|DPD/);
+  expect(shippingPage).not.toMatch(/GLS|Foxpost|MPL|DPD/);
  });
  it('renders payment information from active tenant methods with the same system-page rhythm',()=>{
-  expect(page).toMatch(/settings\.paymentOptions\.map/);
-  expect(page).toMatch(/option\.flow==='bank_transfer'/);
-  expect(page).toMatch(/Fizetési mód kiválasztása/);
-  expect(page).toMatch(/Végösszeg ellenőrzése/);
-  expect(page).toMatch(/Visszaigazolás/);
-  expect(page).toMatch(/Vissza a webáruházba/);
-  expect(page).not.toMatch(/SimplePay|Barion|Stripe|PayPal/);
+  expect(paymentPage).toMatch(/settings\.paymentOptions\.map/);
+  expect(paymentPage).toMatch(/option\.flow==='bank_transfer'/);
+  expect(paymentPage).toMatch(/Fizetési mód kiválasztása/);
+  expect(paymentPage).toMatch(/Végösszeg ellenőrzése/);
+  expect(paymentPage).toMatch(/Visszaigazolás/);
+  expect(paymentPage).toMatch(/Vissza a webáruházba/);
+  expect(paymentPage).not.toMatch(/SimplePay|Barion|Stripe|PayPal/);
  });
  it('uses a representative preview-only commerce fixture instead of testing only empty states',()=>{
   expect(commerceSettings).toMatch(/instance\.storefront\.acceptance==='digital-commerce-guest-matrix'/);
@@ -84,8 +88,8 @@ describe('storefront public information route integrity',()=>{
   expect(faqPage).toMatch(/Vásárlás és rendelési folyamat/);
   expect(faqPage).toMatch(/Aktív lehetőségek és díjak/);
   expect(faqPage).toMatch(/Fiók és ügyintézés/);
-  expect(faqPage).toMatch(/href="\/oldal\/szallitas"/);
-  expect(faqPage).toMatch(/href="\/oldal\/fizetes"/);
+  expect(faqPage).toMatch(/href="\/szallitas"/);
+  expect(faqPage).toMatch(/href="\/fizetes"/);
   expect(faqPage).toMatch(/href="\/oldal\/visszakuldes"/);
   expect(css).toMatch(/Shared FAQ system surface/);
   expect(css).toMatch(/\.storefrontContentShell \.faqPage \.faqGroups\{display:grid;gap:/);

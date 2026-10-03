@@ -116,6 +116,8 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain("manifest.qualityCandidate?'&qualityCandidate=1'");
     expect(runner).toContain('manifest.factoryCandidate||manifest.qualityCandidate');
     expect(runner).toContain('CANDIDATE_SHOWROOM_PLACEHOLDER_WARNING_PRESENT');
+    expect(runner).toContain('&page=legal&viewport=mobile&demoContent=szallitas');
+    expect(runner).not.toContain('&page=content&viewport=mobile&demoContent=szallitas');
   });
 
   it('requires complete browser evidence for pull-request acceptance while preserving push canary regression fallback',()=>{

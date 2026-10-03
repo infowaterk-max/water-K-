@@ -6,7 +6,7 @@ import {
 } from '@/lib/builder/template-factory/generator-readiness';
 import {LOOT_VAULT_V2_GENERATOR_BLUEPRINT} from '@/lib/builder/template-factory/blueprints/loot-vault-v2';
 import {LOOT_VAULT_V2_FACTORY_RECIPE,LOOT_VAULT_V2_PRODUCTION_COMPILATION} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
-import {buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory/recipe-registry';
+import {STOREFRONT_TEMPLATE_FACTORY_RECIPES,buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory/recipe-registry';
 import {STOREFRONT_PAGE_TYPES,STOREFRONT_VIEWPORTS} from '@/lib/builder/storefront-foundation';
 import {defineStorefrontTemplateGenome} from '@/lib/builder/template-factory/template-genome';
 import type {StorefrontTemplateFactoryMediaAsset} from '@/lib/builder/template-factory/scaffold';
@@ -37,7 +37,8 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(build.report.generatorReadiness.productionLineage?.valid).toBe(true);
     expect(build.report.generatorReadiness.productionLineage?.lineage?.hash).toBe(build.report.provenance.lineage?.hash);
     expect(build.report.generatorReadiness.distinctness.valid).toBe(true);
-    expect(build.report.generatorReadiness.distinctness.corpusSize).toBeGreaterThan(20);
+    expect(build.report.generatorReadiness.distinctness.corpusSize).toBe(1);
+    expect(build.report.generatorReadiness.distinctness.comparisons.map(row=>row.reference.templateKey)).toEqual(['gaming.playroom']);
     expect(build.report.generatorReadiness.distinctness.comparisons.some(row=>row.reference.templateKey==='gaming.loot-vault')).toBe(false);
     expect(build.report.generatorReadiness.productionCompiler).toMatchObject({required:true,valid:true,issues:[]});
     expect(build.report.provenance.compiler?.hash).toBe(LOOT_VAULT_V2_PRODUCTION_COMPILATION.program?.hash);
@@ -126,6 +127,15 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toEqual([]);
     expect(build.report.generatorReadiness.productionMaturity.capabilities.filter(item=>item.id.startsWith('ENGINE-')&&item.id.endsWith('-BRABUS-REVALIDATION')).every(item=>item.state==='PROVEN')).toBe(true);
     expect(build.report.generatorReadiness.productionMaturity.capabilities.find(item=>item.id==='VX-SMART-AUTOFIX')?.state).toBe('PROVEN');
+  });
+
+  it('keeps the final Brabus rehearsal proof-only and does not create Template #3 authority',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    expect(STOREFRONT_TEMPLATE_FACTORY_RECIPES.map(recipe=>recipe.templateKey)).toEqual(['gaming.loot-vault']);
+    expect(build.report.generatorReadiness.template3AuthoringReady).toBe(true);
+    expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toEqual([]);
+    expect(build.package.manifest.templateKey).toBe('gaming.loot-vault');
+    expect(build.package.manifest.templateVersion).toBe(2);
   });
 
   it('fails closed when a generator-ready recipe omits its Template Genome',()=>{

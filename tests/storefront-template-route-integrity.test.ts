@@ -5,8 +5,10 @@ import {
   augmentStorefrontTemplateDemoContent,
   evaluateStorefrontTemplateRouteIntegrity,
   getStorefrontTemplateDemoContent,
+  rewriteStorefrontTemplatePreviewBindingContext,
 } from '@/lib/builder/storefront-template-route-integrity';
 import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/playroom/v20';
 
 describe('Template Route Integrity + Demo Content Foundation',()=>{
   it('auto-materializes editable draft fixtures for dynamic content links with an explicit warning contract',()=>{
@@ -19,11 +21,42 @@ describe('Template Route Integrity + Demo Content Foundation',()=>{
     expect(String(shipping?.payload.body)).not.toContain(STOREFRONT_DEMO_CONTENT_NOTICE);
   });
 
+  it('materializes canonical top-level shipping and payment demo fixtures and rewrites them into legal-page previews',()=>{
+    const template=augmentStorefrontTemplateDemoContent(PLAYROOM_V20_TEMPLATE_PACKAGE);
+    expect(getStorefrontTemplateDemoContent(template,'szallitas')?.payload).toMatchObject({kind:'page',slug:'szallitas',demo:true,demoNotice:STOREFRONT_DEMO_CONTENT_NOTICE});
+    expect(getStorefrontTemplateDemoContent(template,'fizetes')?.payload).toMatchObject({kind:'page',slug:'fizetes',demo:true,demoNotice:STOREFRONT_DEMO_CONTENT_NOTICE});
+    const rewritten=rewriteStorefrontTemplatePreviewBindingContext(
+      {shippingHref:'/szallitas',paymentHref:'/fizetes'},
+      {templateKey:'gaming.playroom',templateVersion:20,viewport:'mobile'},
+    ) as {shippingHref:string;paymentHref:string};
+    expect(rewritten.shippingHref).toBe('/storefront-template-preview?template=gaming.playroom&version=20&page=legal&viewport=mobile&demoContent=szallitas');
+    expect(rewritten.paymentHref).toBe('/storefront-template-preview?template=gaming.playroom&version=20&page=legal&viewport=mobile&demoContent=fizetes');
+  });
+
   it('keeps all implemented catalog packages route-integrity clean after shared augmentation',()=>{
     for(const template of STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES){
       const issues=evaluateStorefrontTemplateRouteIntegrity(template);
       expect(issues,template.manifest.templateKey+'@'+template.manifest.templateVersion).toEqual([]);
     }
+  });
+
+  it('exposes only Product Owner accepted canonical template authorities and rejects legacy packages',()=>{
+    const identities=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES
+      .map(template=>`${template.manifest.templateKey}@${template.manifest.templateVersion}`)
+      .sort();
+    expect(identities).toEqual(['gaming.loot-vault@2','gaming.playroom@20']);
+    expect(getStorefrontTemplatePackage('gaming.loot-vault',1)).toBeUndefined();
+    expect(getStorefrontTemplatePackage('gaming.loot-vault',2)?.manifest.templateVersion).toBe(2);
+    expect(getStorefrontTemplatePackage('gaming.playroom',20)?.manifest.templateVersion).toBe(20);
+
+    const legacyKeys=[
+      'outdoor.alpine-lodge','beauty.beauty-lab','tech.creator-station','beauty.derma-studio',
+      'fashion.editorial-atelier','home.gallery-edit','jewelry.heritage-atelier','food.market-pantry',
+      'jewelry.modern-luxe','fashion.monarche','pet.my-pack','sport.performance-lab','gaming.rig-forge',
+      'beauty.ritual-house','tech.spec-lab','sport.sport-hub','jewelry.statement-lab','fashion.street-drop',
+      'food.table-gift','tech.tech-deck','industrial.tool-depot','sport.trail-expedition',
+    ];
+    for(const templateKey of legacyKeys)expect(getStorefrontTemplatePackage(templateKey),templateKey).toBeUndefined();
   });
 
   it('keeps only the current Playroom v20 resolver authority route-integrity clean',()=>{

@@ -9,7 +9,7 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
   const fallback=process.env.NEXT_PUBLIC_SITE_URL?.trim()||(deploymentHost?`https://${deploymentHost}`:'http://localhost:3000');
   const base=(instance?.brand.publicSiteUrl?.trim()||fallback).replace(/\/$/,'');
   const now=new Date();
-  const staticRoutes=['','/webaruhaz','/blog','/szallitas-es-fizetes','/gyik','/kapcsolat','/aszf','/adatvedelem'];
+  const staticRoutes=['','/webaruhaz','/blog','/szallitas','/fizetes','/gyik','/kapcsolat','/aszf','/adatvedelem'];
   const [products,blog,landing]=await Promise.all([getProducts(),getPublicContent('blog'),getPublicContent('landing')]);
   return [
     ...staticRoutes.map((path,index)=>({url:`${base}${path}`,lastModified:now,changeFrequency:index===0?'weekly' as const:'monthly' as const,priority:index===0?1:index===1?0.9:0.5})),

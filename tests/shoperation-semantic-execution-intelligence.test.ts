@@ -344,7 +344,7 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     expect(stale).toContainEqual(expect.objectContaining({file:'tests/legacy-consumer.test.ts'}));
   });
 
-  it('blocks stale cross-file display-text and component-key consumers while preserving semantic source evidence',()=>{
+  it('treats display text as non-global identity while still blocking stale component-key consumers',()=>{
     const candidates:any[]=[
       {kind:'display-text',value:'Termékfeltöltő Központ',severity:'block',originFile:'src/app/admin/page.tsx'},
       {kind:'component-key',value:'commerce.product-grid',severity:'block',originFile:'src/lib/builder/registry.ts'},
@@ -354,7 +354,7 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
       {file:'src/lib/builder/schema-consumer.ts',line:0,text:'[semantic:component-key] commerce.product-grid',source:'semantic'},
     ];
     const stale=evaluateCandidateConsumers(candidates,[],after).flatMap(item=>item.staleConsumers);
-    expect(stale).toContainEqual(expect.objectContaining({file:'tests/admin-title.test.ts'}));
+    expect(stale).not.toContainEqual(expect.objectContaining({file:'tests/admin-title.test.ts'}));
     expect(stale).toContainEqual(expect.objectContaining({file:'src/lib/builder/schema-consumer.ts',source:'semantic'}));
   });
 
@@ -398,12 +398,12 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
 
     const shippingRoute=buildExecutionRoute(atlas,['src/lib/builder/storefront-template-route-integrity.ts']);
     expect(shippingRoute.PO_INSTRUCTIONS).toContain('PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE');
+    expect(shippingRoute.MUST_EDIT).toContain('src/lib/builder/storefront-template-route-integrity.ts');
     expect(shippingRoute.INSTRUCTION_REQUIRED).toEqual(expect.arrayContaining([
-      'src/lib/builder/storefront-template-route-integrity.ts',
-      'src/app/szallitas-es-fizetes/page.tsx',
       'src/app/szallitas/page.tsx',
       'src/app/fizetes/page.tsx',
     ]));
+    expect(shippingRoute.INSTRUCTION_REQUIRED).not.toContain('src/app/szallitas-es-fizetes/page.tsx');
     expect(shippingRoute.INSTRUCTION_REQUIREMENTS.find((item:any)=>item.instructionId==='PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE')).toEqual(expect.objectContaining({
       requiredRouteFiles:expect.arrayContaining(['src/app/szallitas/page.tsx','src/app/fizetes/page.tsx']),
     }));

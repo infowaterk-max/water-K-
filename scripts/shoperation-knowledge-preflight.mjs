@@ -2,7 +2,7 @@ import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,readdirSync,writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {getChangedFiles} from './lib/shoperation-development-runtime.mjs';
-import {releaseClosureForAtlasPatterns} from './lib/shoperation-codebase-atlas-runtime.mjs';
+import {buildExecutionRoute,releaseClosureForAtlasPatterns,resolveAtlasArchitectureForPath} from './lib/shoperation-codebase-atlas-runtime.mjs';
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 execFileSync(process.execPath,['scripts/shoperation-support-history-backfill.mjs','--check'],{stdio:'inherit',env:process.env});
 execFileSync(process.execPath,['scripts/shoperation-codebase-atlas.mjs','--check'],{stdio:'inherit',env:process.env});
@@ -22,12 +22,15 @@ const transactionIdentityIssues=[];
 if(!base||transaction.baseResolution==='UNRESOLVED')transactionIdentityIssues.push({code:'SQ_DEVELOPMENT_TRANSACTION_BASE_UNRESOLVED',requestedBase:transaction.requestedBase??developmentPlan.changeBaseSha??null});
 if(!head||transaction.headResolution==='UNRESOLVED_EXPLICIT')transactionIdentityIssues.push({code:'SQ_DEVELOPMENT_TRANSACTION_HEAD_UNRESOLVED',requestedHead:transaction.requestedHead??null,headSource:transaction.headSource??null});
 const atlasNodeByPath=new Map(codebaseAtlas.nodes.map(node=>[node.path,node]));
+const declaredPlannedDeletions=[...new Set(developmentPlan.operationalIntelligence?.semanticExecutionRoute?.plannedDeletions??[])].sort();
+const changeExecutionRoute=buildExecutionRoute(codebaseAtlas,developmentPlan.plannedFilePatterns??changedFiles,{tombstones:deletedFiles,plannedDeletions:declaredPlannedDeletions});
+const architectureFor=file=>resolveAtlasArchitectureForPath(codebaseAtlas,file,{tombstones:deletedFiles,plannedDeletions:declaredPlannedDeletions,executionRoute:changeExecutionRoute});
 const changeImpactClosure=releaseClosureForAtlasPatterns(codebaseAtlas,changedFiles);
-const directDomains=[...new Set(changedFiles.flatMap(file=>atlasNodeByPath.get(file)?.domains??[]))].sort();
+const directDomains=[...new Set(changedFiles.flatMap(file=>architectureFor(file).pathDerived.domains))].sort();
 const directAuthorities=[...new Set(directDomains.map(id=>codebaseAtlas.domainIndexDefinition?.[id]?.owner).filter(Boolean))].sort();
 const domainUnresolvedFiles=changedFiles.filter(file=>{
   if(knowledgePrefixes.some(prefix=>file.startsWith(prefix))||neutral.some(matcher=>matcher.test(file)))return false;
-  return !(atlasNodeByPath.get(file)?.domains?.length);
+  return !architectureFor(file).resolved;
 });
 const direct=new Set(),unresolvedFiles=[];let knowledgeInfrastructureChanged=false;
 for(const file of changedFiles){if(knowledgePrefixes.some(prefix=>file.startsWith(prefix))){knowledgeInfrastructureChanged=true;continue;}if(neutral.some(matcher=>matcher.test(file)))continue;const hits=matchers.filter(item=>item.matchers.some(matcher=>matcher.test(file)));if(!hits.length)unresolvedFiles.push(file);for(const hit of hits)direct.add(hit.name);}

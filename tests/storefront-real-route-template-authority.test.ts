@@ -23,7 +23,8 @@ describe('storefront real-route template authority',()=>{
   ['src/app/aszf/page.tsx','legal'],
   ['src/app/adatvedelem/page.tsx','legal'],
   ['src/app/impresszum/page.tsx','legal'],
-  ['src/app/szallitas-es-fizetes/page.tsx','legal'],
+  ['src/app/szallitas/page.tsx','legal'],
+  ['src/app/fizetes/page.tsx','legal'],
   ['src/app/not-found.tsx','not-found'],
  ])('%s selects its own Page Schema authority',(path,pageKey)=>expect(read(path)).toContain(`pageKey="${pageKey}"`));
 });

@@ -5,32 +5,10 @@ import {augmentStorefrontTemplateDemoContent,evaluateStorefrontTemplateRouteInte
 import {STOREFRONT_TEMPLATE_QUALITY_MANIFESTS,assertStorefrontTemplateQualityGate} from '@/lib/builder/storefront-template-quality-gate';
 import {materializeStorefrontTemplateResponsiveStyles} from '@/lib/builder/storefront-responsive-isolation';
 import {assertStorefrontCookieConsentPreset} from '@/lib/builder/storefront-cookie-consent-presets';
-import {ALPINE_LODGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/alpine-lodge';
-import {BEAUTY_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/beauty-lab-canonical-v2';
-import {CREATOR_STATION_TEMPLATE_PACKAGE} from '@/lib/builder/templates/creator-station';
-import {DERMA_STUDIO_TEMPLATE_PACKAGE} from '@/lib/builder/templates/derma-studio';
-import {EDITORIAL_ATELIER_TEMPLATE_PACKAGE} from '@/lib/builder/templates/editorial-atelier';
-import {GALLERY_EDIT_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gallery-edit';
-import {HERITAGE_ATELIER_TEMPLATE_PACKAGE} from '@/lib/builder/templates/heritage-atelier';
-import {LOOT_VAULT_TEMPLATE_PACKAGE} from '@/lib/builder/templates/loot-vault';
-import {MARKET_PANTRY_TEMPLATE_PACKAGE} from '@/lib/builder/templates/market-pantry';
-import {MODERN_LUXE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/modern-luxe';
-import {MONARCHE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/monarche';
-import {MY_PACK_TEMPLATE_PACKAGE} from '@/lib/builder/templates/my-pack';
-import {PERFORMANCE_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/performance-lab';
+import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loot-vault/v2';
 import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/playroom/v20';
-import {RIG_FORGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/rig-forge';
-import {RITUAL_HOUSE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/ritual-house';
-import {SPEC_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/spec-lab';
-import {SPORT_HUB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/sport-hub';
-import {STATEMENT_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/statement-lab';
-import {STREET_DROP_TEMPLATE_PACKAGE} from '@/lib/builder/templates/street-drop';
-import {TABLE_GIFT_TEMPLATE_PACKAGE} from '@/lib/builder/templates/table-gift';
-import {TECH_DECK_TEMPLATE_PACKAGE} from '@/lib/builder/templates/tech-deck';
-import {TOOL_DEPOT_TEMPLATE_PACKAGE} from '@/lib/builder/templates/tool-depot';
-import {TRAIL_EXPEDITION_TEMPLATE_PACKAGE} from '@/lib/builder/templates/trail-expedition';
 
-export const STOREFRONT_TEMPLATE_CATALOG_VERSION='shoporation.storefront-template-catalog.block21.v2' as const;
+export const STOREFRONT_TEMPLATE_CATALOG_VERSION='shoporation.storefront-template-catalog.canonical-v3' as const;
 export const STOREFRONT_TEMPLATE_LAUNCH_TARGET=42 as const;
 
 function normalizeLegacyTemplatePage(page:StorefrontPageDocument):StorefrontPageDocument{
@@ -94,46 +72,21 @@ function normalizeImplementedTemplatePackage(template:StorefrontInstallableTempl
 }
 
 /**
- * Only concrete source-controlled packages may enter this catalog. The accepted
- * 42-template launch target is tracked separately so missing packages can never
- * be silently fabricated to satisfy cardinality.
+ * Active template authority.
  *
- * Legacy source packages are normalized at this single catalog boundary before
- * preview or installation. The runtime validator remains fail-closed; this
- * compatibility bridge only repairs known historical contract drift (duplicate
- * node ids and legacy binding shapes) without creating a second schema authority.
+ * Only Product Owner accepted, current canonical packages may enter this catalog.
+ * Historical/legacy template implementations are intentionally excluded from runtime,
+ * preview, installation, AI selection and active portfolio semantics. Their presence
+ * elsewhere in Git is source history only and must not make them resolvable.
  */
 export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemplatePackage[]=[
-  ALPINE_LODGE_TEMPLATE_PACKAGE,
-  BEAUTY_LAB_TEMPLATE_PACKAGE,
-  CREATOR_STATION_TEMPLATE_PACKAGE,
-  DERMA_STUDIO_TEMPLATE_PACKAGE,
-  EDITORIAL_ATELIER_TEMPLATE_PACKAGE,
-  GALLERY_EDIT_TEMPLATE_PACKAGE,
-  HERITAGE_ATELIER_TEMPLATE_PACKAGE,
-  LOOT_VAULT_TEMPLATE_PACKAGE,
-  MARKET_PANTRY_TEMPLATE_PACKAGE,
-  MODERN_LUXE_TEMPLATE_PACKAGE,
-  MONARCHE_TEMPLATE_PACKAGE,
-  MY_PACK_TEMPLATE_PACKAGE,
-  PERFORMANCE_LAB_TEMPLATE_PACKAGE,
   PLAYROOM_V20_TEMPLATE_PACKAGE,
-  RIG_FORGE_TEMPLATE_PACKAGE,
-  RITUAL_HOUSE_TEMPLATE_PACKAGE,
-  SPEC_LAB_TEMPLATE_PACKAGE,
-  SPORT_HUB_TEMPLATE_PACKAGE,
-  STATEMENT_LAB_TEMPLATE_PACKAGE,
-  STREET_DROP_TEMPLATE_PACKAGE,
-  TABLE_GIFT_TEMPLATE_PACKAGE,
-  TECH_DECK_TEMPLATE_PACKAGE,
-  TOOL_DEPOT_TEMPLATE_PACKAGE,
-  TRAIL_EXPEDITION_TEMPLATE_PACKAGE,
+  LOOT_VAULT_V2_TEMPLATE_PACKAGE,
 ].map(normalizeImplementedTemplatePackage);
 
-// Historical Playroom packages are source-history only. The active resolver exposes
-// one complete Playroom authority: gaming.playroom@20. When a future v21 becomes
-// canonical, v20 may move to an explicit migration/archive boundary, but versions
-// are never composed together at runtime.
+// Active resolution is deliberately identical to the canonical catalog. Legacy
+// packages cannot be resolved by key/version and therefore cannot leak into
+// storefront install, preview, Builder or AI-generation flows.
 const STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemplatePackage[]=[
   ...STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,
 ];
