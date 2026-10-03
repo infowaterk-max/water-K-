@@ -79,5 +79,10 @@ describe('Visual Builder v3 product completion',()=>{
     expect(source).toContain('Smart Intent');
     expect(source).toContain('onClick={planSmartIntent}>Értelmezés');
     expect(source).toContain("smartIntentPlan?.status!=='READY'");
+    expect(source).toContain("from '@/lib/builder/storefront-smart-autofix'");
+    expect(source).toContain('category.findings.map(finding=>');
+    expect(source).toContain('onClick={()=>planAutoFix(finding)}>Javítási terv');
+    expect(source).toContain("activeRepair?.status!=='READY'");
+    expect(source).toContain('applyStorefrontSmartAutoFixPlan({document,plan:autoFixPlan,registry:componentRegistry,capability})');
   });
 });
