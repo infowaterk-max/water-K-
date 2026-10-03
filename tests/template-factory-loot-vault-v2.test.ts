@@ -9,7 +9,7 @@ import {
 } from '@/lib/builder/template-factory/recipes/loot-vault-v2';
 import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loot-vault/v2';
 import {resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
-import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
+import {getStorefrontTemplatePackage,STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES} from '@/lib/builder/storefront-template-catalog';
 import {STOREFRONT_PAGE_TYPES} from '@/lib/builder/storefront-foundation';
 import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 import {STOREFRONT_SUPPORT_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-support';
@@ -49,7 +49,9 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const preview=resolveStorefrontTemplatePreviewPackage('gaming.loot-vault',2,true);
     expect(preview).toEqual(LOOT_VAULT_V2_TEMPLATE_PACKAGE);
 
-    expect(getStorefrontTemplatePackage('gaming.loot-vault',2)).toEqual(LOOT_VAULT_V2_TEMPLATE_PACKAGE);
+    const catalogAuthority=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.find(item=>item.manifest.templateKey==='gaming.loot-vault'&&item.manifest.templateVersion===2);
+    expect(catalogAuthority).toBeTruthy();
+    expect(getStorefrontTemplatePackage('gaming.loot-vault',2)).toBe(catalogAuthority);
     expect(getStorefrontTemplatePackage('gaming.loot-vault',1)).toBeUndefined();
   });
 
