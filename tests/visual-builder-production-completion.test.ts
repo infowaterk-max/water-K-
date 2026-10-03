@@ -75,5 +75,9 @@ describe('Visual Builder v3 product completion',()=>{
     expect(source).toContain('readiness.categories.map');
     expect(source).toContain('category.label');
     expect(source).toContain("readiness.decision!=='PASS'");
+    expect(source).toContain("from '@/lib/builder/storefront-smart-intent'");
+    expect(source).toContain('Smart Intent');
+    expect(source).toContain('onClick={planSmartIntent}>Értelmezés');
+    expect(source).toContain("smartIntentPlan?.status!=='READY'");
   });
 });
