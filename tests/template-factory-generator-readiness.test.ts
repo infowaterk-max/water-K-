@@ -43,7 +43,8 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(build.report.provenance.compiler?.hash).toBe(LOOT_VAULT_V2_PRODUCTION_COMPILATION.program?.hash);
 
     expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).not.toContain('FACTORY-CONSTRAINT-PLANNER');
-    expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toContain('VX-SMART-INTENT');
+    expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).not.toContain('VX-SMART-INTENT');
+    expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toContain('VX-SMART-AUTOFIX');
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.generator).toEqual({implementation:'dynamic-production-compiler',target:'template-compiler',compilerContract:STOREFRONT_TEMPLATE_PRODUCTION_COMPILER_VERSION});
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.composition.pageTypes).toEqual(STOREFRONT_PAGE_TYPES);
     expect(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.composition.viewports).toEqual(STOREFRONT_VIEWPORTS);

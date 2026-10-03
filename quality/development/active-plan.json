@@ -1,31 +1,37 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
-  "task": "Adopt the proven VX Publish Readiness Core in the active StorefrontVisualBuilderV3, enforce PASS-only publish enablement so UNKNOWN never behaves as PASS, preserve source/reason/localization/repairability presentation, and promote VX-PUBLISH-READINESS only after active-route executable proof.",
+  "taskId": "DEV-VX-SMART-INTENT-BRABUS-HARDENING",
+  "task": "Implement and adopt canonical VX Smart Intent: a deterministic, bounded merchant-intent compiler that translates contextual Hungarian/English editing intent into previewable existing Builder/responsive/typography/global-token operations, applies them only after explicit user action through ordinary undoable Page Schema history, and fails closed on ambiguous, stale or unsupported intent.",
   "status": "closed",
-  "guardDigest": "ba1a39f8",
-  "changeBaseSha": "a04d797f49bd8695d101d64ac7694773a984b184",
+  "guardDigest": "80bae5fe",
+  "changeBaseSha": "e63e7eee5a2180b958f6c3e288de45aa504f8cd8",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
+    "src/lib/builder/storefront-smart-intent.ts",
     "src/components/admin/storefront-visual-builder-v3.tsx",
     "src/lib/builder/template-factory/production-maturity.ts",
-    "tests/visual-builder-v3-ui.test.ts",
+    "tests/storefront-smart-intent.test.ts",
+    "tests/visual-builder-v3-smart-intent.test.ts",
+    "tests/visual-builder-production-completion.test.ts",
     "tests/template-factory-production-maturity.test.ts",
-    "tests/visual-builder-production-completion.test.ts"
+    "tests/template-factory-generator-readiness.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
     "builder-template-system",
+    "database-schema",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-ADMIN",
-    "DOMAIN-BUILDER"
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "admin-operations",
-    "builder-template-system"
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -33,7 +39,9 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -42,9 +50,11 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-022",
+    "SQ-KF-023",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -77,142 +87,154 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012"
+    "SQ-NK-012",
+    "SQ-NK-014"
   ],
   "exceptions": [
     {
       "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
       "file": "src/components/admin/storefront-visual-builder-production.tsx",
-      "findingFingerprint": "fba59413",
-      "reason": "Intentional inactive legacy consumer. The canonical admin Builder route renders StorefrontVisualBuilderV3; this production component is not the adoption target and retaining its local presentation helper does not consume or redefine the new Publish Readiness contract."
-    },
-    {
-      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
-      "file": "src/components/admin/storefront-visual-builder.tsx",
-      "findingFingerprint": "178d5296",
-      "reason": "Intentional inactive legacy consumer. The canonical admin Builder route renders StorefrontVisualBuilderV3; this older component is not the adoption target and its local status label helper is unrelated to active Publish Readiness authority."
-    },
-    {
-      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
-      "file": "src/components/admin/storefront-visual-builder-production.tsx",
-      "findingFingerprint": "9f696176",
-      "reason": "Intentional inactive legacy consumer. The canonical V3 surface removed its Fidelity-only readiness derivation, while this inactive production component retains its own legacy helper without participating in the active route or canonical Publish Readiness decision."
-    },
-    {
-      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
-      "file": "src/components/admin/storefront-visual-builder.tsx",
-      "findingFingerprint": "297e4c67",
-      "reason": "Intentional inactive legacy consumer. The canonical V3 surface removed its Fidelity-only readiness derivation; this older Builder file is not rendered by the active route and does not need to be mutated merely to silence lexical similarity."
+      "findingFingerprint": "f02cd6dc",
+      "reason": "Intentional inactive legacy consumer. The active admin Builder route renders StorefrontVisualBuilderV3, where commitDocument additionally invalidates the transient Smart Intent plan before ordinary history continues. The legacy production component is not an active Smart Intent surface and must not be mutated solely to mirror this V3-only ephemeral UI-state invalidation."
     }
   ],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-VX-SMART-INTENT-BRABUS-HARDENING",
     "riskTier": "critical",
-    "problemStatement": "The Publish Readiness Core is lifecycle-closed and proven, but the active StorefrontVisualBuilderV3 still uses a local Fidelity-only checklist. A preserved WIP adoption patch proved directionally useful but has a critical fail-closed defect: it allows publish while the canonical readiness decision is UNKNOWN. This wave must replace the active checklist with the canonical Core, present explainable evidence, and permit publish only when the aggregate decision is PASS. It must not create evidence producers, duplicate source authorities, change publish persistence, or infer repairs from pixel evidence.",
+    "problemStatement": "VX Smart Intent is the next mandatory Brabus blocker after lifecycle-closed Publish Readiness. The existing Block 23 AI storefront generator chooses templates and copy for a full draft, but it is not an in-Builder intent compiler. Smart Intent must operate inside the active Builder and translate bounded contextual requests such as making an image larger, adding whitespace, emphasizing a title, hiding an element on mobile or resetting an override into existing canonical Builder authorities. It must not generate source code, invent schema fields, act from diagnostics, auto-publish, or become Smart Auto-Fix.",
     "observableOutcomes": [
-      "The active admin Builder route continues to render StorefrontVisualBuilderV3 and that component consumes inspectStorefrontPublishReadiness.",
-      "The previous local Fidelity-only readiness array/status logic is removed from V3.",
-      "PASS, BLOCK and UNKNOWN are visibly distinct in the publish drawer.",
-      "Each displayed non-clean category exposes the Core-provided reason, authority/source, repairability and available localization.",
-      "Publish is enabled only when the canonical readiness decision is PASS, the draft is saved, and no busy state applies.",
-      "UNKNOWN blocks publish exactly like an unresolved proof state, without being relabeled as an error or PASS.",
-      "The UI does not generate repairs, mutate Page Schema from diagnostics, or convert pixel drift into a causal fix.",
-      "VX-PUBLISH-READINESS becomes PROVEN only after active V3 adoption and executable proof; Smart Intent and Smart Auto-Fix remain non-PROVEN.",
-      "Template #3 remains blocked because Smart Intent and Smart Auto-Fix remain mandatory unresolved capabilities."
+      "One canonical Smart Intent Core accepts contextual merchant text plus selected node/current viewport and returns deterministic READY/BLOCK/UNKNOWN plans.",
+      "The parser supports bounded Hungarian and English intent families for layout width, spacing/token density, typography emphasis, visibility and responsive reset.",
+      "Unrecognized, contradictory or multi-action ambiguous text returns UNKNOWN with zero operations rather than guessing.",
+      "Every READY operation names its existing source authority and explanation; no Smart Intent-specific Page Schema mutation primitive is introduced.",
+      "Width intent uses the existing 12-column authority and, for a two-child 12-column pair, preserves the total by complementing the sibling (for example 6/12 + 6/12 becomes 8/12 + 4/12).",
+      "Spacing intent uses existing responsive grid/stack gap tokens or explicit global spacingScale tokens; arbitrary CSS is never emitted.",
+      "Typography intent uses the existing sanitized responsive typography authority and bounded token/size ranges.",
+      "Visibility/reset intent uses the proven responsive layout-depth authority and explicit viewport context.",
+      "Plans bind to the source page fingerprint; applying a stale plan fails closed.",
+      "Applying a plan reuses existing canonical setters, validates the resulting Page Schema, and never publishes or persists by itself.",
+      "Active StorefrontVisualBuilderV3 exposes plan/preview/apply controls; apply commits exactly one ordinary Builder history entry, preserving undo/redo.",
+      "Smart Intent never derives mutations from Publish Readiness, Visual Diff or diagnostics; that diagnostics-to-repair boundary remains reserved for Smart Auto-Fix.",
+      "VX-SMART-INTENT becomes PROVEN only after Core plus active V3 adoption and executable adversarial proof; VX-SMART-AUTOFIX remains NOT_IMPLEMENTED."
     ],
     "unresolvedRisks": [
-      "UI may display UNKNOWN but still leave the publish button enabled.",
-      "The active route could still render an older Builder component while tests inspect V3 only.",
-      "Presentation code could reconstruct a second readiness algorithm instead of consuming Core category states.",
-      "Warnings could be promoted to blockers or errors could be visually downgraded.",
-      "Pixel-only visual drift could be presented as a structured repair recommendation.",
-      "Maturity could be promoted from Core proof alone without proving active V3 adoption.",
-      "External evidence acquisition remains upstream; pages lacking required evidence must stay UNKNOWN and cannot publish."
+      "A vague phrase such as 'make it bigger' could be misclassified between width and typography.",
+      "A request mentioning multiple independent edits could silently generate a partial plan.",
+      "A width increase could break a balanced two-column row if the companion is not adjusted.",
+      "Spacing could be implemented as arbitrary CSS instead of the existing spacing token authority.",
+      "Typography scaling could bypass sanitizer bounds or overwrite unrelated typography settings.",
+      "Viewport language could be ignored, causing a mobile request to mutate desktop state.",
+      "A plan could be applied after the document changed, producing stale or surprising mutations.",
+      "V3 could apply Smart Intent directly without ordinary history, breaking undo/redo.",
+      "Smart Intent could accidentally consume diagnostics and become an undeclared Auto-Fix system.",
+      "The existing Block 23 AI generator could be mistaken for Smart Intent authority or modified unnecessarily."
     ],
     "scope": {
       "in": [
-        "Active StorefrontVisualBuilderV3 consumption of the proven storefront-publish-readiness Core.",
-        "PASS/BLOCK/UNKNOWN category presentation using Core outputs.",
-        "PASS-only publish enablement.",
-        "Explainable finding detail: reason, source authority, repairability and localization.",
-        "Active-route source proof that page.tsx renders V3 rather than legacy Builder surfaces.",
-        "Maturity promotion for VX-PUBLISH-READINESS only after executable UI adoption proof.",
-        "Regression proof that Smart Intent, Smart Auto-Fix and Template #3 remain blocked."
+        "Deterministic contextual intent parsing for bounded Hungarian and English editing phrases.",
+        "Intent families: layout width, whitespace/spacing, typography emphasis, viewport visibility, responsive reset, explicit global spacing density.",
+        "Existing 12-column grid balancing for canonical two-child pairs.",
+        "Source-page fingerprint provenance and stale-plan rejection.",
+        "Read-only plan/preview contract with explainable operation authority and affected node/viewport metadata.",
+        "Explicit apply through existing responsive layout-depth, fidelity typography, global styles and Page Schema validation authorities.",
+        "Active V3 plan/preview/apply UI using one ordinary history commit.",
+        "Adversarial tests for ambiguity, contradictions, bounds, stale fingerprint, pair balancing, viewport targeting, unsupported component and diagnostics separation.",
+        "Maturity promotion only with active V3 executable evidence."
       ],
       "out": [
-        "New visual, route, media, commerce or accessibility evidence producers.",
-        "Fetching CI artifacts from GitHub at runtime.",
-        "Changing screenshot/golden authority or thresholds.",
-        "Changing publishCurrentStorefrontPage or persistence semantics.",
-        "Page Schema mutation or Auto-Fix generation.",
-        "Smart Intent implementation.",
-        "Smart Auto-Fix implementation.",
-        "Control Plane or policy changes.",
+        "General-purpose natural-language AI or external model invocation.",
+        "Block 23 AI storefront generator redesign.",
+        "Arbitrary source-code, HTML, CSS, JavaScript or JSON generation.",
+        "Direct save, publish, persistence or commerce mutation.",
+        "Diagnostics-driven mutation generation, Smart Auto-Fix or automatic repair.",
+        "Pixel-diff causality or repair inference.",
+        "New responsive, typography, token, Page Schema or Runtime authority.",
+        "Control Plane, guard or policy changes.",
         "Template #3 authoring."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This is the user-visible gate immediately adjacent to publishing. A false PASS or UNKNOWN-as-PASS would bypass the evidence contract. Highest practical assurance is active-route proof, fail-closed state-machine verification, source-level no-parallel-checklist checks, maturity separation and exact-head build/browser quality evidence without adding a new evidence authority.",
+      "rationale": "Smart Intent converts human language into schema mutations, so false interpretation is more dangerous than a missed convenience. The highest practical assurance is a finite bounded grammar with contextual disambiguation, explicit UNKNOWN/BLOCK states, source fingerprint freshness, canonical-operation-only compilation, adversarial phrase matrices, final schema validation and active UI proof. A general probabilistic language model is deliberately outside this capability because deterministic fail-closed behavior is required before Smart Auto-Fix.",
       "selectedTechniques": [
         "explicit-specification",
-        "invariants",
-        "state-model",
+        "finite-state-model",
+        "bounded-grammar",
         "dependency-graph",
         "evidence-provenance",
+        "stale-state-guard",
         "what-if-matrix",
         "adversarial-scenarios",
         "negative-tests",
         "boundary-cases",
         "pairwise-interactions",
-        "threat-failure-model",
         "fault-injection",
+        "determinism-proof",
+        "immutability-proof",
         "combination-proof",
+        "invariants",
+        "state-model",
+        "threat-failure-model",
         "finite-state-exhaustion"
       ],
       "deferredTechniques": [
-        "runtime-ci-artifact-fetching",
-        "new-evidence-producer",
-        "automatic-repair-planning",
-        "computer-vision-causality"
+        "general-llm-intent-parsing",
+        "diagnostics-to-repair",
+        "automatic-fix-selection",
+        "source-code-generation",
+        "pixel-causality"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "The active Builder route imports/renders StorefrontVisualBuilderV3 and not StorefrontVisualBuilderProduction.",
-        "V3 imports and invokes inspectStorefrontPublishReadiness rather than rebuilding readiness categories locally.",
-        "V3 no longer contains the previous viewportStatus/readiness array/statusFromIssues checklist implementation.",
-        "The publish drawer renders Core category state and explainable finding details including authority/source and repairability.",
-        "The publish button is disabled whenever readiness.decision is BLOCK or UNKNOWN; only PASS may proceed.",
-        "Dirty/no-draft/busy conditions continue to block publish independently of readiness.",
-        "The V3 adoption does not pass invented external evidence or downgrade missing evidence; absent upstream proof remains UNKNOWN.",
-        "No pixel mismatch/hotspot is converted in V3 into a causal diagnosis, repair command or Builder mutation.",
-        "Production maturity promotes VX-PUBLISH-READINESS to PROVEN with canonical Core + active V3 + executable test evidence.",
-        "VX-SMART-INTENT and VX-SMART-AUTOFIX remain NOT_IMPLEMENTED and Template #3 remains not ready.",
-        "Release Risk stays within policy for this stacked transaction."
+        "Smart Intent Core has a versioned contract and produces only READY, BLOCK or UNKNOWN plans.",
+        "UNKNOWN and BLOCK contain zero executable operations and cannot be applied.",
+        "Equivalent normalized phrase/context/document inputs produce deep-equal plans apart from the cryptographic source fingerprint.",
+        "Ambiguous family matches, contradictory direction words and multi-action requests fail closed instead of selecting the first match.",
+        "Viewport terms in the phrase override current viewport only when exactly one supported viewport is explicit.",
+        "Width changes stay within 1..12; a balanced two-child 12-column pair remains exactly 12 columns after resize.",
+        "Spacing changes use only STOREFRONT_RESPONSIVE_LAYOUT_SPACING or STOREFRONT_GLOBAL_SPACING_SCALES values.",
+        "Typography changes use setStorefrontNodeTypography-compatible sanitized values and preserve unrelated typography fields.",
+        "Responsive reset uses resetStorefrontResponsiveLayoutDepth and visibility uses setStorefrontResponsiveVisibility.",
+        "Global spacing uses get/setStorefrontGlobalStyleState and never writes raw metadata directly.",
+        "Apply rejects a source fingerprint mismatch before any operation executes.",
+        "Final apply validates the page with validateStorefrontPageDocument; invalid output throws and no partial document is returned.",
+        "V3 exposes a merchant-facing Smart Intent field with separate plan and apply actions; it does not apply on typing or on plan generation.",
+        "V3 apply uses commitDocument exactly once for a READY plan, making the change an ordinary undoable history entry.",
+        "V3 does not call the Block 23 AI generator, Publish Readiness diagnostics or Visual Diff to synthesize Smart Intent operations.",
+        "Production maturity promotes only VX-SMART-INTENT; VX-SMART-AUTOFIX remains NOT_IMPLEMENTED and Template #3 remains blocked."
       ],
       "invariants": [
-        "UNKNOWN is a non-publishable state.",
-        "BLOCK dominates UNKNOWN and UNKNOWN dominates PASS inside the Core; V3 consumes, not redefines, that order.",
-        "Warnings remain source-authority warnings and do not become blockers unless the Core category state is BLOCK.",
-        "Readiness UI does not own publish persistence or domain truth.",
-        "External evidence acquisition is upstream; missing evidence cannot be fabricated in UI.",
-        "Full capability promotion requires both Core proof and active V3 adoption proof."
+        "Merchant intent is not mutation authority; only compiled canonical operations are.",
+        "No plan is executable unless its status is READY.",
+        "UNKNOWN never degrades to READY because a target node happens to support one interpretation.",
+        "One intent request represents one semantic edit family; independent multi-action requests are rejected.",
+        "Current Page Schema, component registry and capability context remain authoritative.",
+        "Responsive inheritance is base plus explicit exact-viewport override; Smart Intent does not revive legacy breakpoint cascade.",
+        "Smart Intent is user-driven and never diagnostics-driven.",
+        "Every apply is stale-safe, schema-valid and ordinary-history compatible.",
+        "Smart Intent does not publish, persist or modify business data."
       ],
       "forbiddenStates": [
-        "unknown-publish-enabled",
-        "v3-parallel-readiness-checklist",
-        "legacy-builder-active-route",
-        "pixel-drift-to-ui-repair",
-        "ui-fabricates-external-evidence",
-        "core-only-full-capability-promotion",
-        "smart-intent-falsely-proven",
+        "ambiguous-intent-guessed-ready",
+        "unknown-intent-has-operations",
+        "block-intent-has-operations",
+        "stale-plan-applied",
+        "grid-pair-total-exceeds-twelve",
+        "raw-css-generated",
+        "unsupported-typography-mutated",
+        "wrong-viewport-mutated",
+        "diagnostic-generated-intent-operation",
+        "pixel-drift-generated-intent-operation",
+        "direct-publish-or-save",
+        "v3-bypasses-history",
         "smart-autofix-falsely-proven",
         "template-3-authoring"
       ]
@@ -246,42 +268,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Canonical decision is UNKNOWN but publish remains clickable.",
-        "V3 shows PASS because it independently recomputes only Fidelity checks.",
-        "A BLOCK category is rendered as a warning due presentation-only mapping.",
-        "The route test checks V3 source but the actual admin route still renders a legacy component.",
-        "Maturity becomes PROVEN without an active V3 implementation/test evidence row.",
-        "A visual pixel drift finding is rendered with an invented automatic repair instruction."
+        "Selected image receives typography scaling from the word 'bigger' despite image context.",
+        "Phrase says 'larger and add more space' and compiler silently applies only width.",
+        "A 6/12 image becomes 8/12 while its 6/12 sibling remains 6/12.",
+        "Spacing intent writes padding/margin CSS strings outside token authority.",
+        "Mobile visibility request mutates desktop because current viewport differs from explicit phrase viewport.",
+        "A plan compiled on revision A applies to revision B without fingerprint rejection.",
+        "Typography intent replaces text alignment, weight or wrap settings that were not requested.",
+        "V3 applies the plan while planning, creating an unreviewed mutation.",
+        "Readiness BLOCK finding causes Smart Intent to generate a repair, collapsing Smart Intent into Auto-Fix.",
+        "Maturity is promoted from Core-only proof while active V3 has no usable Smart Intent surface."
       ],
       "edgeCases": [
-        "PASS decision with warning-only findings.",
-        "BLOCK and UNKNOWN findings coexist.",
-        "UNKNOWN only, with zero blockers.",
-        "Dirty draft while readiness would otherwise PASS.",
-        "No draft revision while readiness would otherwise PASS.",
-        "Category with no findings but valid evidence.",
-        "Finding localized only by path/href and not nodeId.",
-        "Manual-review visual finding with no causal repairability."
+        "Selected heading with phrase 'make it bigger' resolves to typography because component context is unambiguous.",
+        "Selected image/media node with phrase 'make it bigger' resolves to grid width.",
+        "Selected generic container with phrase 'make it bigger' remains UNKNOWN unless width language is explicit.",
+        "Two supported viewport words in one phrase produce UNKNOWN.",
+        "Already-maximum width or spacing returns BLOCK with no operations.",
+        "Global spacing phrase on any selection changes spacingScale but no component-local style.",
+        "Whitespace phrase on non-container child targets its immediate grid/stack parent only.",
+        "Typography node has fluidSize rather than fontSizeRem.",
+        "Responsive reset on a viewport with no overrides is BLOCK/no-op.",
+        "Phrase uses accents, punctuation or mixed case but normalizes deterministically."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-V3-CANONICAL-READINESS",
-        "summary": "Replace the active V3 checklist with direct consumption of the proven Core and enforce PASS-only publish.",
+        "id": "ALT-SMART-INTENT-DETERMINISTIC-COMPILER",
+        "summary": "Build a bounded contextual parser/compiler over existing canonical Builder operations and adopt it in V3.",
         "disposition": "selected",
-        "reason": "Completes user-visible adoption without duplicating evidence authority."
+        "reason": "Provides user-level intent without probabilistic mutation authority or a parallel schema system."
       },
       {
-        "id": "ALT-V3-KEEP-LOCAL-CHECKLIST",
-        "summary": "Keep the Fidelity-only checklist and add more conditions.",
+        "id": "ALT-SMART-INTENT-REUSE-BLOCK23-AI",
+        "summary": "Send every in-Builder edit request through the existing AI storefront generator.",
         "disposition": "rejected",
-        "reason": "Would preserve a parallel readiness authority and cannot express provenance or UNKNOWN correctly."
+        "reason": "Block 23 owns full draft template/copy generation, not contextual element operations, and would broaden authority/risk unnecessarily."
       },
       {
-        "id": "ALT-V3-FETCH-CI-EVIDENCE",
-        "summary": "Make the admin UI fetch GitHub Actions evidence directly.",
+        "id": "ALT-SMART-INTENT-DIRECT-JSON",
+        "summary": "Translate text into arbitrary Page Schema/JSON patches.",
         "disposition": "rejected",
-        "reason": "Would add external runtime coupling and a new evidence transport concern not required for this capability; missing upstream evidence must remain UNKNOWN."
+        "reason": "Would bypass canonical setters, validation, responsive inheritance and guarded freedom."
       }
     ],
     "specialistReviews": [
@@ -289,128 +317,146 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The Core is already the canonical decision authority; V3 must be a presentation consumer only.",
-        "resolution": "Import the Core result and remove local readiness derivation.",
+        "finding": "Existing Builder, responsive, typography and global-style authorities are sufficient; Smart Intent should only compile to them.",
+        "resolution": "Implement one pure planner/apply adapter and no new mutation primitive.",
         "evidence": [
-          "src/app/admin/tartalom/builder/page.tsx",
-          "src/components/admin/storefront-visual-builder-v3.tsx",
-          "src/lib/builder/storefront-publish-readiness.ts"
+          "src/lib/builder/storefront-visual-builder.ts",
+          "src/lib/builder/storefront-responsive-layout-depth.ts",
+          "src/lib/builder/storefront-fidelity-builder-operations.ts",
+          "src/lib/builder/storefront-global-styles.ts"
         ]
       },
       {
-        "role": "Runtime",
+        "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "The preserved WIP patch allows publish on UNKNOWN because it checks blockers only.",
-        "resolution": "Gate the action on readiness.decision==='PASS' in addition to existing busy/dirty/draft guards.",
+        "finding": "Natural language can be ambiguous and stale plans can mutate the wrong document state.",
+        "resolution": "Finite grammar, UNKNOWN on ambiguity, source fingerprint binding and final Page Schema validation are mandatory.",
         "evidence": [
-          "src/components/admin/storefront-visual-builder-v3.tsx",
-          "src/lib/builder/storefront-publish-readiness.ts",
-          "tests/storefront-publish-readiness.test.ts"
+          "src/lib/builder/storefront-page-fingerprint.ts",
+          "src/lib/builder/storefront-runtime.ts"
         ]
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Tri-state readiness must stay understandable without turning UNKNOWN into an error.",
-        "resolution": "Render explicit PASS/BLOCK/UNKNOWN labels and Core reason/source/repairability details.",
+        "finding": "Intent must feel direct but must not mutate while typing or hide what will change.",
+        "resolution": "V3 provides explicit plan then apply, displays interpretation/affected operations, and commits once through existing history.",
         "evidence": [
           "src/components/admin/storefront-visual-builder-v3.tsx",
-          "src/lib/builder/storefront-publish-readiness.ts"
+          "src/lib/builder/storefront-visual-builder.ts"
         ]
       },
       {
         "role": "Release",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "As a stacked transaction against the closed Core branch, expected material risk is admin-operations + builder-template-system only.",
-        "resolution": "Keep scope to V3, maturity and tests; split again if additional substantive subsystem changes become necessary.",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Using diagnostics to choose edits would prematurely implement Smart Auto-Fix.",
+        "resolution": "Smart Intent may display no diagnostic-derived repair path; operation generation depends only on user phrase, document, selection and viewport.",
         "evidence": [
-          "deploy/release-risk-policy.json",
-          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/lib/builder/storefront-publish-readiness.ts",
+          "src/lib/builder/storefront-visual-diff-intelligence.ts",
           "src/lib/builder/template-factory/production-maturity.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-V3-1",
-        "scenario": "No external Visual Diff/media/commerce evidence exists.",
-        "finding": "Core decision is UNKNOWN.",
-        "resolution": "V3 displays UNKNOWN and disables publish.",
+        "id": "CH-SI-1",
+        "scenario": "Selected image says 'make it bigger'.",
+        "finding": "Context can safely disambiguate bigger as width.",
+        "resolution": "Compile bounded width increase on current/explicit viewport.",
         "status": "resolved"
       },
       {
-        "id": "CH-V3-2",
-        "scenario": "There are no BLOCK findings but one UNKNOWN category.",
-        "finding": "Blocker count alone is insufficient.",
-        "resolution": "Button gating uses aggregate decision PASS, not blockers===0.",
+        "id": "CH-SI-2",
+        "scenario": "Selected heading says 'make it bigger'.",
+        "finding": "Context can safely disambiguate bigger as typography.",
+        "resolution": "Compile bounded typography emphasis, not width.",
         "status": "resolved"
       },
       {
-        "id": "CH-V3-3",
-        "scenario": "Core returns PASS with advisory warnings.",
-        "finding": "Warnings should not prevent publish.",
-        "resolution": "PASS decision remains publishable while warnings are displayed.",
+        "id": "CH-SI-3",
+        "scenario": "Generic container says only 'make it bigger'.",
+        "finding": "Width versus typography/spacing is ambiguous.",
+        "resolution": "Return UNKNOWN with zero operations.",
         "status": "resolved"
       },
       {
-        "id": "CH-V3-4",
-        "scenario": "A pixel-only visual finding is manual-review.",
-        "finding": "UI may be tempted to show a direct fix.",
-        "resolution": "Display Core repairability only; no generated repair action.",
+        "id": "CH-SI-4",
+        "scenario": "Phrase requests width and whitespace together.",
+        "finding": "One request contains independent edit families.",
+        "resolution": "Return UNKNOWN; require separate intents.",
         "status": "resolved"
       },
       {
-        "id": "CH-V3-5",
-        "scenario": "Legacy component still contains old checklist helpers.",
-        "finding": "Inactive source must not be mistaken for active authority.",
-        "resolution": "Executable route-source proof targets page.tsx → StorefrontVisualBuilderV3.",
+        "id": "CH-SI-5",
+        "scenario": "6/12 image + 6/12 text pair receives 'wider'.",
+        "finding": "Naive target-only resize breaks the intended 12-column composition.",
+        "resolution": "Plan 8/12 target + 4/12 companion in one atomic plan.",
         "status": "resolved"
       },
       {
-        "id": "CH-V3-6",
-        "scenario": "Maturity promotion happens with Core evidence but no V3 test.",
-        "finding": "Capability claim would be broader than proof.",
-        "resolution": "PROVEN evidence requires Core implementation plus active V3 implementation and executable adoption test.",
+        "id": "CH-SI-6",
+        "scenario": "Plan source document changes before apply.",
+        "finding": "Operations may no longer describe the visible state.",
+        "resolution": "Fingerprint mismatch blocks apply before the first operation.",
         "status": "resolved"
       },
       {
-        "id": "CH-V3-7",
-        "scenario": "Core category findings arrive in a different order while category state is unchanged.",
-        "finding": "Presentation must not infer a different decision from finding order or choose a lower-severity lead finding first.",
-        "resolution": "V3 displays the Core category state as authority and selects explanatory lead evidence with BLOCK before UNKNOWN before advisory findings, without recomputing category truth.",
+        "id": "CH-SI-7",
+        "scenario": "Phrase explicitly says mobile while Builder currently shows desktop.",
+        "finding": "Current viewport must not override explicit merchant intent.",
+        "resolution": "Exactly one explicit viewport term wins; multiple viewport terms return UNKNOWN.",
         "status": "resolved"
       },
       {
-        "id": "CH-V3-8",
-        "scenario": "Readiness decision is PASS with warnings, but the draft is dirty or no saved draft revision exists.",
-        "finding": "Canonical readiness PASS cannot bypass existing draft-state preconditions for the publish action.",
-        "resolution": "Publish remains disabled unless decision is PASS AND busy=false AND dirty=false AND draftRevision is present.",
+        "id": "CH-SI-8",
+        "scenario": "Publish Readiness reports a visual blocker while user entered an unrelated intent.",
+        "finding": "Diagnostics-to-repair is Smart Auto-Fix territory.",
+        "resolution": "Ignore diagnostics for planning; only explicit user intent compiles.",
         "status": "resolved"
       },
       {
-        "id": "CH-V3-9",
-        "scenario": "A legacy product-completion test still requires literal labels from the removed local readiness checklist.",
-        "finding": "The test would force the active V3 back toward a parallel presentation authority instead of validating canonical Core adoption.",
-        "resolution": "Update the regression to prove canonical Core import/invocation, canonical category rendering and PASS-only publish gating while retaining the broader workspace checks.",
+        "id": "CH-SI-9",
+        "scenario": "Selected node has unsupported typography component.",
+        "finding": "Applying typography would bypass component authority.",
+        "resolution": "Return BLOCK with zero operations.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-SI-10",
+        "scenario": "Whitespace is already at maximum token.",
+        "finding": "No-op must not be reported as READY.",
+        "resolution": "Return BLOCK/no-op with explainable reason.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-SI-11",
+        "scenario": "Generator Readiness regression still expects VX-SMART-INTENT in the blocking capability list after this wave promotes it.",
+        "finding": "That assertion encodes pre-wave maturity and would force a false blocker after executable Smart Intent proof exists.",
+        "resolution": "Update only the stale blocker expectation: Smart Intent must be absent, Smart Auto-Fix must remain present, and Template #3 must still be blocked.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Plan Before Code and Release Risk projection on the stacked base.",
-      "Source proof that active page.tsx renders V3, not legacy production Builder.",
-      "UI source proof that old local readiness checklist is absent.",
-      "Adversarial UI proof that UNKNOWN disables publish and PASS can remain publishable with warnings.",
-      "Executable/source proof must show each non-clean V3 readiness category renders the Core-provided state plus finding reason, authority/source, repairability and any available page/viewport/node/path/href localization; removal of any one field must make the adoption regression test fail.",
-      "Source boundary proof that V3 does not fabricate external evidence or generate diagnostic mutations.",
-      "Maturity proof promotes only VX-PUBLISH-READINESS and leaves Smart Intent/Auto-Fix non-PROVEN.",
-      "Incremental Known Failure replay, Quality tests, TypeScript, production build, exact-head Template Factory proof, Completion Truth and lifecycle closure.",
-      "Product-completion regression proof must assert the active V3 publish surface consumes the canonical readiness contract/categories rather than requiring the removed hardcoded Fidelity-only checklist labels."
+      "Plan Before Code projected-scope and risk-budget proof before implementation.",
+      "Core parser matrix proves Hungarian/English normalization, context disambiguation, contradictions and independent multi-action rejection.",
+      "12-column adversarial proof verifies 6+6 to 8+4 pair balancing and all width bounds.",
+      "Token proof verifies spacing/global density outputs are members of existing canonical token sets only.",
+      "Typography proof verifies sanitized bounded changes preserve unrelated fields and support fluid typography.",
+      "Viewport proof verifies explicit mobile/tablet/desktop targeting and ambiguous multi-viewport UNKNOWN.",
+      "Freshness proof compiles a plan, mutates the source document independently, and proves apply rejects the stale fingerprint.",
+      "Authority-boundary proof scans Smart Intent Core/V3 for no AI gateway, publish, persistence, Publish Readiness repair, Visual Diff mutation or raw CSS/JSON patch authority.",
+      "Apply proof validates final document through validateStorefrontPageDocument and proves source input immutability.",
+      "Active V3 proof verifies separate plan/apply controls, READY-only apply and exactly one commitDocument call for application.",
+      "Maturity proof promotes only VX-SMART-INTENT and leaves VX-SMART-AUTOFIX non-PROVEN and Template #3 blocked.",
+      "Incremental replay, full Quality tests, TypeScript, production build, exact-head Template Factory proof, Completion Truth and lifecycle closure.",
+      "Generator Readiness regression must stop treating VX-SMART-INTENT as a blocker once the maturity catalog proves it, while VX-SMART-AUTOFIX remains the only mandatory VX blocker and Template #3 remains closed."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-03-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
+      "request": "PO-2026-10-03-VX-SMART-INTENT-BRABUS-HARDENING",
       "authority": [
         "builder-template-system",
         "admin-operations"
@@ -420,20 +466,32 @@
         "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
-        "tests/visual-builder-v3-ui.test.ts",
+        "src/lib/builder/storefront-smart-intent.ts",
+        "tests/storefront-smart-intent.test.ts",
+        "tests/visual-builder-v3-smart-intent.test.ts",
+        "tests/visual-builder-production-completion.test.ts",
         "tests/template-factory-production-maturity.test.ts",
-        "tests/visual-builder-production-completion.test.ts"
+        "tests/template-factory-generator-readiness.test.ts"
       ],
       "impactedReadOnly": [
-        "src/app/admin/tartalom/builder/page.tsx",
+        "src/lib/builder/storefront-visual-builder.ts",
+        "src/lib/builder/storefront-responsive-layout-depth.ts",
+        "src/lib/builder/storefront-fidelity-builder-operations.ts",
+        "src/lib/builder/storefront-fidelity-typography.ts",
+        "src/lib/builder/storefront-global-styles.ts",
+        "src/lib/builder/storefront-page-fingerprint.ts",
+        "src/lib/builder/storefront-runtime.ts",
         "src/lib/builder/storefront-publish-readiness.ts",
-        "src/lib/builder/storefront-fidelity-inspector.ts",
-        "src/lib/builder/storefront-visual-diff-intelligence.ts"
+        "src/lib/builder/storefront-visual-diff-intelligence.ts",
+        "src/lib/builder/storefront-ai-generator.ts",
+        "src/lib/builder/storefront-ai-generator-server.ts"
       ],
       "proof": [
-        "tests/visual-builder-v3-ui.test.ts",
+        "tests/storefront-smart-intent.test.ts",
+        "tests/visual-builder-v3-smart-intent.test.ts",
+        "tests/visual-builder-production-completion.test.ts",
         "tests/template-factory-production-maturity.test.ts",
-        "tests/visual-builder-production-completion.test.ts"
+        "tests/template-factory-generator-readiness.test.ts"
       ],
       "unknown": []
     },
@@ -441,14 +499,89 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-VX-SMART-INTENT-BRABUS-HARDENING",
     "requirements": [
       {
-        "id": "REQ-VX-PUBLISH-READINESS-ACTIVE-V3",
-        "requirement": "The active StorefrontVisualBuilderV3 consumes the canonical Publish Readiness Core and replaces the previous local checklist.",
+        "id": "REQ-VX-SMART-INTENT-CANONICAL-COMPILER",
+        "requirement": "Smart Intent deterministically converts bounded contextual merchant intent into explainable existing canonical Builder operations with UNKNOWN/BLOCK fail-closed semantics and no parallel mutation authority.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "vx-publish-readiness-active-v3",
+          "breadth": "vx-smart-intent-canonical-compiler",
+          "strength": 2,
+          "dimensions": [
+            "status",
+            "behavioral-proof",
+            "coverage",
+            "limitations",
+            "scope"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-TYPECHECK"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-SMART-INTENT-GUESSING",
+            "statement": "Ambiguous, contradictory or unsupported intent cannot produce executable operations.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-VX-SMART-INTENT-STALE-SAFE-APPLY",
+        "requirement": "Smart Intent plans bind to source fingerprint and apply only through existing canonical setters followed by Page Schema validation; stale, invalid or non-READY plans cannot mutate.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "vx-smart-intent-stale-safe-apply",
+          "strength": 2,
+          "dimensions": [
+            "status",
+            "behavioral-proof",
+            "freshness",
+            "limitations"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-TYPECHECK"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-SMART-INTENT-STALE-APPLY",
+            "statement": "A plan compiled from a different page fingerprint cannot apply.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-VX-SMART-INTENT-ACTIVE-V3",
+        "requirement": "The active V3 exposes explicit Smart Intent planning and READY-only apply, and application enters ordinary Builder undo/redo history as one atomic document commit.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "vx-smart-intent-active-v3",
           "strength": 2,
           "dimensions": [
             "status",
@@ -472,8 +605,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-V3-PARALLEL-READINESS",
-            "statement": "Active V3 cannot retain or recreate a separate Fidelity-only publish checklist.",
+            "id": "NEG-SMART-INTENT-V3-DIRECT-MUTATION",
+            "statement": "V3 cannot auto-apply intent while typing/planning or bypass ordinary history.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -481,46 +614,11 @@
         ]
       },
       {
-        "id": "REQ-VX-PUBLISH-READINESS-FAIL-CLOSED-UI",
-        "requirement": "V3 permits publish only when the canonical readiness decision is PASS; BLOCK and UNKNOWN both remain non-publishable.",
+        "id": "REQ-VX-SMART-INTENT-CAPABILITY-SEPARATION",
+        "requirement": "Smart Intent completion does not implement or promote Smart Auto-Fix and does not authorize Template #3.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "publish-readiness-ui-state-machine",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "behavioral-proof",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-V3-UNKNOWN-PUBLISH",
-            "statement": "UNKNOWN can never enable the publish action.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-VX-PUBLISH-READINESS-PROMOTION",
-        "requirement": "VX-PUBLISH-READINESS is promoted only with Core plus active V3 executable evidence, while Smart Intent and Smart Auto-Fix remain non-PROVEN and Template #3 remains blocked.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "publish-readiness-maturity-promotion",
+          "breadth": "vx-smart-intent-capability-separation",
           "strength": 2,
           "dimensions": [
             "proven-scope",
@@ -542,8 +640,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-V3-FALSE-NEXT-PROMOTION",
-            "statement": "Publish Readiness completion cannot promote Smart Intent, Smart Auto-Fix or Template #3 readiness.",
+            "id": "NEG-SMART-INTENT-FALSE-AUTOFIX",
+            "statement": "Diagnostics or pixel evidence cannot generate Smart Intent repairs, and VX-SMART-AUTOFIX remains non-PROVEN.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -552,14 +650,14 @@
       }
     ]
   },
-  "notes": "Eleventh Brabus hardening wave. The Publish Readiness Core is lifecycle-closed on parent HEAD a04d797f49bd8695d101d64ac7694773a984b184. This stacked wave exists because the combined Core+Admin change exceeded the main-branch Release Risk Budget; against the closed Core base, projected substantive risk is V3 admin adoption plus maturity metadata only. The preserved earlier WIP patch is not accepted as-is because it allowed publish on UNKNOWN. Template #3 remains forbidden until Smart Intent and Smart Auto-Fix are also PROVEN. Reference Sync review fingerprints fba59413/178d5296/9f696176/297e4c67 are explicitly acknowledged for two inactive legacy Builder files; active-route proof remains page.tsx -> StorefrontVisualBuilderV3. Sentinel proof-semantics reconciliation: completion claim dimensions now use only dimensions actually declared by the referenced executable guards; no guard capability or Sentinel rule was weakened.",
+  "notes": "Twelfth Brabus hardening wave. Publish Readiness is lifecycle-closed and PROVEN on parent e63e7eee5a2180b958f6c3e288de45aa504f8cd8. Smart Intent is intentionally distinct from Block 23 AI storefront generation and from future Smart Auto-Fix. Guarded Freedom remains authoritative: user intent compiles only to bounded existing operations; no arbitrary source code or schema patching. Template #3 remains forbidden until Smart Auto-Fix is also PROVEN. Plan-gate reconciliation adds database-schema only as scoped negative knowledge because persistence/database language appears in the safety boundary; this wave still declares no migration/schema mutation. The new Smart Intent module is a planned creation and therefore mayEdit rather than an existing-file mustEdit route. Actual-diff dependency reconciliation: canonical Smart Intent imports and validates shared Storefront Runtime/Page Schema authorities, therefore DOMAIN-STOREFRONT and shared-storefront are explicit expected dependency scopes; no new Storefront authority is introduced. Reference Sync fingerprint f02cd6dc is an exact exception for the inactive legacy production Builder's unchanged commitDocument expression; the active V3-only Smart Intent transient-plan invalidation is intentionally not propagated to an inactive consumer. Quality root-cause reconciliation: responsive reset must detect absence of all four direct override dimensions before planning; Generator Readiness has one stale pre-wave Smart Intent blocker assertion that must be updated without changing the readiness authority.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "ad8a71132306f8d996d13feeeea146587d6ccd7c",
-    "closedAt": "2026-10-03T04:19:22.307Z",
+    "verifiedImplementationHead": "94c71621438f31de98b8da126d7e5f6ebd0f5d8b",
+    "closedAt": "2026-10-03T04:59:45.512Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-VX-SMART-INTENT-BRABUS-HARDENING",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
