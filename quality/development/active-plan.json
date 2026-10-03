@@ -3,7 +3,7 @@
   "taskId": "DEV-LEGACY-TEMPLATE-RETIREMENT",
   "task": "Retire legacy template implementations from active canonical authority while preserving only Playroom v20 and Loot Vault v2; leave historical sources inert for later deletion and do not alter Template #3 authoring.",
   "status": "ready-for-implementation",
-  "guardDigest": "5629f201",
+  "guardDigest": "0f3eadb0",
   "changeBaseSha": "30c3efa28b0d0d85e43ea87a1233f0fc290bf1c7",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -14,17 +14,31 @@
     "tests/special-commerce-wave7-template2-adoption.test.ts",
     "tests/template-factory-template-distinctness.test.ts",
     "tests/storefront-template-route-integrity.test.ts",
-    "tests/template-factory-loot-vault-v2.test.ts"
+    "tests/template-factory-loot-vault-v2.test.ts",
+    "src/app/oldal/[slug]/page.tsx",
+    "src/app/szallitas/page.tsx",
+    "src/app/fizetes/page.tsx",
+    "src/app/szallitas-es-fizetes/page.tsx",
+    "src/app/sitemap.ts",
+    "src/app/gyik/page.tsx",
+    "src/lib/builder/storefront-template-route-integrity.ts",
+    "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+    "tests/storefront-public-information-routes.test.ts",
+    "tests/storefront-real-route-template-authority.test.ts",
+    "tests/customer-order-service-ux.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "shared-storefront"
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER"
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "builder-template-system"
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -70,7 +84,9 @@
     "TF-KF-024",
     "TF-KF-025"
   ],
-  "acknowledgedPoInstructionIds": [],
+  "acknowledgedPoInstructionIds": [
+    "PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE"
+  ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
     "SQ-NK-002",
@@ -118,14 +134,20 @@
         "AI template selection and Special Commerce inventory inherit the reduced canonical catalog without a parallel legacy list.",
         "Template distinctness uses only canonical foreign templates and excludes same-template identity from clone comparison.",
         "No Template #3 implementation, Visual First artifact or authoring branch content is modified by this transaction.",
-        "Historical legacy source files remain inert and available only for later evidence-guided physical deletion."
+        "Historical legacy source files remain inert and available only for later evidence-guided physical deletion.",
+        "The forbidden combined /szallitas-es-fizetes route no longer exists as a public page authority.",
+        "Independent /szallitas and /fizetes public routes exist, are sitemap-visible and resolve through the active storefront Page Schema shell.",
+        "Loot Vault v2 mobile/header/footer/CTA navigation uses separate shipping and payment destinations instead of the forbidden combined route.",
+        "Legacy /oldal/szallitas and /oldal/fizetes entrypoints remain backward-compatible aliases that converge on the canonical top-level routes."
       ],
       "invariants": [
         "There is one active template catalog and resolver authority; retirement does not create a second registry.",
         "Playroom v20 and Loot Vault v2 remain installable, previewable and addressable through their canonical package entrypoints.",
         "A legacy accepted or reaccepted implementation cannot become visual authority merely because its source remains in Git.",
         "Approved generated visual references are not deleted or replaced in this inactivation transaction.",
-        "Shared Page Schema, Runtime, commerce engines, Template Factory and VX authorities are not weakened to make retirement pass."
+        "Shared Page Schema, Runtime, commerce engines, Template Factory and VX authorities are not weakened to make retirement pass.",
+        "Shipping and payment remain separate public information authorities in every active canonical template and shared route registry.",
+        "Merchant-facing route compatibility may redirect old aliases but may not restore the forbidden combined route."
       ],
       "forbiddenStates": [
         "legacy-template-key-resolves-active-package",
@@ -134,7 +156,10 @@
         "playroom-v20-or-loot-vault-v2-becomes-unresolvable",
         "parallel-template-catalog-created",
         "template-3-authoring-contaminated",
-        "approved-visual-reference-deleted"
+        "approved-visual-reference-deleted",
+        "combined-shipping-payment-route-remains-public",
+        "canonical-navigation-points-to-oldal-shipping-payment-aliases",
+        "loot-vault-v2-retains-combined-shipping-payment-link"
       ]
     },
     "model": {
@@ -172,13 +197,18 @@
         "Distinctness loses all foreign corpus evidence instead of retaining Playroom as a canonical comparison.",
         "Physical deletion removes an approved visual reference before reference inventory is proven.",
         "The retirement transaction touches Template #3 and obscures whether the new production system passes its first real authoring test.",
-        "A retained Loot Vault v2 regression still asserts the pre-retirement catalog state and blocks intentional canonical v2 activation."
+        "A retained Loot Vault v2 regression still asserts the pre-retirement catalog state and blocks intentional canonical v2 activation.",
+        "A previously recorded Product Owner instruction remains acknowledged but unimplemented in the actual shared route authority.",
+        "The forbidden combined route is deleted without providing canonical top-level shipping and payment replacements.",
+        "Loot Vault v2 package navigation remains internally consistent but points at a route that the shared authority has retired."
       ],
       "edgeCases": [
         "A stale persisted legacy page key may still request preview styling even though its template package is no longer resolvable.",
         "Special Commerce code derives its inventory dynamically and therefore should contract automatically rather than receive a second hard-coded list.",
         "Loot Vault v2 shares the same templateKey as v1, so version-specific resolver behavior must fail closed for v1 and succeed for v2.",
-        "Same-key Loot Vault v2 must be excluded from its own distinctness corpus while Playroom v20 remains a foreign canonical reference."
+        "Same-key Loot Vault v2 must be excluded from its own distinctness corpus while Playroom v20 remains a foreign canonical reference.",
+        "Historical /oldal/szallitas and /oldal/fizetes links need compatibility without remaining canonical navigation targets.",
+        "Deleting the combined route must be represented as an instruction-governed tombstone rather than an unexplained missing page."
       ]
     },
     "alternatives": [
@@ -235,6 +265,19 @@
           "tests/template-factory-template-distinctness.test.ts",
           "src/lib/builder/template-factory/generator-readiness.ts"
         ]
+      },
+      {
+        "role": "Runtime",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "The shared storefront still has a concrete page module, sitemap entry and route-registry entry for the forbidden combined shipping/payment route.",
+        "resolution": "Treat the combined page as a planned deletion governed by PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE and add independent canonical route modules before removing it.",
+        "evidence": [
+          "src/app/szallitas-es-fizetes/page.tsx",
+          "src/app/sitemap.ts",
+          "src/lib/builder/storefront-template-route-integrity.ts",
+          "quality/knowledge/po-instructions.v1.json"
+        ]
       }
     ],
     "challenge": [
@@ -286,6 +329,13 @@
         "finding": "Leaving the assertion unchanged would make the proof suite enforce a superseded lifecycle boundary and prevent the requested retirement state.",
         "resolution": "Update only the lifecycle expectation: v2 must resolve canonically and v1 must fail closed; retain all Factory readiness, media and Page Schema assertions unchanged.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-08",
+        "scenario": "The retirement touches a Loot Vault v2 regression governed by an active Product Owner instruction that requires separate shipping and payment public routes.",
+        "finding": "Repository reality still exposes /szallitas-es-fizetes in the shared route registry, sitemap, live page and Loot Vault v2 package, so acknowledgment without remediation would preserve a known authority conflict.",
+        "resolution": "Expand the transaction before further code edits: tombstone the forbidden combined route, add /szallitas and /fizetes authorities, converge legacy aliases, update the shared registry/sitemap and repair Loot Vault v2 navigation.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -293,12 +343,15 @@
       "Run typecheck and production build so removed imports and canonical Loot Vault v2 design-token export are compile-proven.",
       "Run the existing Template Factory quality path to ensure canonical Loot Vault v2 remains generator-ready with the reduced distinctness corpus.",
       "Run Release Risk and Completion Truth on the exact branch head before lifecycle closure.",
-      "Verify the branch diff contains no Template #3 authoring files and no physical deletion of accepted visual reference assets."
+      "Verify the branch diff contains no Template #3 authoring files and no physical deletion of accepted visual reference assets.",
+      "Run the active Product Owner instruction state check and require zero forbidden /szallitas-es-fizetes occurrences in scoped canonical route authority.",
+      "Prove /szallitas and /fizetes route modules, sitemap entries and Loot Vault v2 navigation converge on the same shared storefront presentation authority."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-03-LEGACY-TEMPLATE-RETIREMENT",
       "authority": [
-        "builder-template-system"
+        "builder-template-system",
+        "shared-storefront"
       ],
       "mustEdit": [
         "src/lib/builder/storefront-template-catalog.ts",
@@ -308,7 +361,18 @@
         "tests/special-commerce-wave7-template2-adoption.test.ts",
         "tests/template-factory-template-distinctness.test.ts",
         "tests/storefront-template-route-integrity.test.ts",
-        "tests/template-factory-loot-vault-v2.test.ts"
+        "tests/template-factory-loot-vault-v2.test.ts",
+        "src/app/oldal/[slug]/page.tsx",
+        "src/app/szallitas/page.tsx",
+        "src/app/fizetes/page.tsx",
+        "src/app/szallitas-es-fizetes/page.tsx",
+        "src/app/sitemap.ts",
+        "src/app/gyik/page.tsx",
+        "src/lib/builder/storefront-template-route-integrity.ts",
+        "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+        "tests/storefront-public-information-routes.test.ts",
+        "tests/storefront-real-route-template-authority.test.ts",
+        "tests/customer-order-service-ux.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -321,10 +385,15 @@
         "tests/special-commerce-wave7-template-quality.test.ts",
         "tests/special-commerce-wave7-template2-adoption.test.ts",
         "tests/template-factory-template-distinctness.test.ts",
-        "tests/template-factory-loot-vault-v2.test.ts"
+        "tests/template-factory-loot-vault-v2.test.ts",
+        "tests/storefront-public-information-routes.test.ts",
+        "tests/storefront-real-route-template-authority.test.ts",
+        "tests/customer-order-service-ux.test.ts"
       ],
       "unknown": [],
-      "plannedDeletions": []
+      "plannedDeletions": [
+        "src/app/szallitas-es-fizetes/page.tsx"
+      ]
     },
     "executionAuthorized": true
   },
@@ -399,8 +468,33 @@
             ]
           }
         ]
+      },
+      {
+        "id": "REQ-RETIRE-SHIPPING-PAYMENT-AUTHORITY",
+        "requirement": "Shipping and payment must be separate canonical public route authorities, with the forbidden combined route removed and active template navigation converged on /szallitas and /fizetes.",
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-TYPECHECK",
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-RETIRE-COMBINED-SHIPPING-PAYMENT",
+            "statement": "No active shared route, sitemap entry or canonical Loot Vault v2 navigation may expose /szallitas-es-fizetes.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS",
+              "GUARD-PRODUCTION-BUILD"
+            ]
+          }
+        ]
       }
     ]
   },
-  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence."
+  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation."
 }
