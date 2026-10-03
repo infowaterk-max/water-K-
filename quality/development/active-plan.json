@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
   "task": "Adopt the proven VX Publish Readiness Core in the active StorefrontVisualBuilderV3, enforce PASS-only publish enablement so UNKNOWN never behaves as PASS, preserve source/reason/localization/repairability presentation, and promote VX-PUBLISH-READINESS only after active-route executable proof.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "ba1a39f8",
   "changeBaseSha": "a04d797f49bd8695d101d64ac7694773a984b184",
   "plannedFilePatterns": [
@@ -552,5 +552,18 @@
       }
     ]
   },
-  "notes": "Eleventh Brabus hardening wave. The Publish Readiness Core is lifecycle-closed on parent HEAD a04d797f49bd8695d101d64ac7694773a984b184. This stacked wave exists because the combined Core+Admin change exceeded the main-branch Release Risk Budget; against the closed Core base, projected substantive risk is V3 admin adoption plus maturity metadata only. The preserved earlier WIP patch is not accepted as-is because it allowed publish on UNKNOWN. Template #3 remains forbidden until Smart Intent and Smart Auto-Fix are also PROVEN. Reference Sync review fingerprints fba59413/178d5296/9f696176/297e4c67 are explicitly acknowledged for two inactive legacy Builder files; active-route proof remains page.tsx -> StorefrontVisualBuilderV3. Sentinel proof-semantics reconciliation: completion claim dimensions now use only dimensions actually declared by the referenced executable guards; no guard capability or Sentinel rule was weakened."
+  "notes": "Eleventh Brabus hardening wave. The Publish Readiness Core is lifecycle-closed on parent HEAD a04d797f49bd8695d101d64ac7694773a984b184. This stacked wave exists because the combined Core+Admin change exceeded the main-branch Release Risk Budget; against the closed Core base, projected substantive risk is V3 admin adoption plus maturity metadata only. The preserved earlier WIP patch is not accepted as-is because it allowed publish on UNKNOWN. Template #3 remains forbidden until Smart Intent and Smart Auto-Fix are also PROVEN. Reference Sync review fingerprints fba59413/178d5296/9f696176/297e4c67 are explicitly acknowledged for two inactive legacy Builder files; active-route proof remains page.tsx -> StorefrontVisualBuilderV3. Sentinel proof-semantics reconciliation: completion claim dimensions now use only dimensions actually declared by the referenced executable guards; no guard capability or Sentinel rule was weakened.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "ad8a71132306f8d996d13feeeea146587d6ccd7c",
+    "closedAt": "2026-10-03T04:19:22.307Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
