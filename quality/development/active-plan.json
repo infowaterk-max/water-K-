@@ -127,7 +127,32 @@
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [],
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder-production.tsx",
+      "findingFingerprint": "fba59413",
+      "reason": "Intentional legacy-only consumer: the active admin Builder route renders StorefrontVisualBuilderV3. This exception acknowledges only the unchanged legacy checklist helper and does not authorize legacy Publish Readiness as current authority."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder-production.tsx",
+      "findingFingerprint": "9f696176",
+      "reason": "Intentional legacy-only consumer: the active admin Builder route renders StorefrontVisualBuilderV3. This exception acknowledges only the unchanged legacy checklist helper and does not authorize legacy Publish Readiness as current authority."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder.tsx",
+      "findingFingerprint": "178d5296",
+      "reason": "Intentional legacy-only consumer: the active admin Builder route renders StorefrontVisualBuilderV3. This exception acknowledges only the unchanged legacy checklist helper and does not authorize legacy Publish Readiness as current authority."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder.tsx",
+      "findingFingerprint": "297e4c67",
+      "reason": "Intentional legacy-only consumer: the active admin Builder route renders StorefrontVisualBuilderV3. This exception acknowledges only the unchanged legacy checklist helper and does not authorize legacy Publish Readiness as current authority."
+    }
+  ],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-BRABUS-HARDENING",
@@ -470,16 +495,17 @@
         "tests/visual-builder-v3-ui.test.ts"
       ],
       "impactedReadOnly": [
-        "src/components/admin/storefront-visual-builder-production.tsx",
         "src/app/admin/tartalom/builder/page.tsx",
-        "src/lib/builder/storefront-fidelity-inspector.ts",
+        "src/components/admin/storefront-visual-builder-production.tsx",
+        "src/components/admin/storefront-visual-builder.tsx",
         "src/lib/builder/storefront-fidelity-diagnostics.ts",
+        "src/lib/builder/storefront-fidelity-inspector.ts",
         "src/lib/builder/storefront-performance-contract.ts",
         "src/lib/builder/storefront-responsive-layout-depth.ts",
-        "src/lib/builder/storefront-visual-diff-intelligence.ts",
         "src/lib/builder/storefront-template-route-integrity.ts",
-        "src/lib/builder/template-factory/media-planner.ts",
-        "src/lib/builder/template-factory/generator-readiness.ts"
+        "src/lib/builder/storefront-visual-diff-intelligence.ts",
+        "src/lib/builder/template-factory/generator-readiness.ts",
+        "src/lib/builder/template-factory/media-planner.ts"
       ],
       "proof": [
         "tests/storefront-publish-readiness.test.ts",
@@ -639,5 +665,5 @@
       }
     ]
   },
-  "notes": "Tenth Brabus hardening wave. Canonical CI transaction base is the PR event base/main merge base, so the plan envelope retains the already-verified cumulative branch file set plus the new Publish Readiness Core/V3 adoption files; this does not reopen closed capabilities. Inheritance Intelligence and Visual Diff Intelligence remain PROVEN and lifecycle-closed. Active route audit proved StorefrontVisualBuilderV3 is the live Builder surface; the older storefront-visual-builder-production.tsx readiness checklist is read-only legacy evidence. Release Risk must remain within the already-green cumulative branch budget; if the new V3 material change adds a forbidden subsystem/risk expansion, the wave must split. Dependency order remains Publish Readiness → Smart Intent → Smart Auto-Fix. Template #3 remains forbidden."
+  "notes": "Tenth Brabus hardening wave. Canonical CI transaction base is the PR event base/main merge base, so the plan envelope retains the already-verified cumulative branch file set plus the new Publish Readiness Core/V3 adoption files; this does not reopen closed capabilities. Inheritance Intelligence and Visual Diff Intelligence remain PROVEN and lifecycle-closed. Active route audit proved StorefrontVisualBuilderV3 is the live Builder surface; the older storefront-visual-builder-production.tsx readiness checklist is read-only legacy evidence. Release Risk must remain within the already-green cumulative branch budget; if the new V3 material change adds a forbidden subsystem/risk expansion, the wave must split. Dependency order remains Publish Readiness → Smart Intent → Smart Auto-Fix. Template #3 remains forbidden. Exact-fingerprint Reference Sync review exceptions acknowledge unchanged helper copies in the two inactive legacy Builder components only; active-route authority remains StorefrontVisualBuilderV3."
 }
