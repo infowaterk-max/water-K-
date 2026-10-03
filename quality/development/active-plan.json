@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-VX-PUBLISH-READINESS-CORE-BRABUS-HARDENING",
   "task": "Harden the canonical VX Publish Readiness Core as a read-only evidence-backed decision contract over existing responsive/inheritance, visual-diff, fidelity, media, link, commerce, required-content, performance and page/route authorities, with fail-closed PASS/BLOCK/UNKNOWN semantics. Active Builder V3 adoption is explicitly split to a later release-budgeted wave.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "8a9bf46e",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
@@ -618,5 +618,18 @@
       }
     ]
   },
-  "notes": "Tenth Brabus hardening is release-split by measured gate evidence. Combined Core + active V3 adoption produced Release Risk 7/5 and 4/3 subsystems. #701 now carries the Core-only Publish Readiness proof within the prior cumulative budget; the exact pre-split UI work is preserved at feature/vx-publish-readiness-v3-adoption-wip. VX-PUBLISH-READINESS remains non-PROVEN in this wave. Inheritance Intelligence and Visual Diff Intelligence remain PROVEN and lifecycle-closed. Smart Intent and Smart Auto-Fix remain blocked. Template #3 remains forbidden. Plan scope explicitly includes release-infrastructure because the task itself declares a release-budgeted split; this is intent scope only and does not weaken or alter the measured Release Risk Budget."
+  "notes": "Tenth Brabus hardening is release-split by measured gate evidence. Combined Core + active V3 adoption produced Release Risk 7/5 and 4/3 subsystems. #701 now carries the Core-only Publish Readiness proof within the prior cumulative budget; the exact pre-split UI work is preserved at feature/vx-publish-readiness-v3-adoption-wip. VX-PUBLISH-READINESS remains non-PROVEN in this wave. Inheritance Intelligence and Visual Diff Intelligence remain PROVEN and lifecycle-closed. Smart Intent and Smart Auto-Fix remain blocked. Template #3 remains forbidden. Plan scope explicitly includes release-infrastructure because the task itself declares a release-budgeted split; this is intent scope only and does not weaken or alter the measured Release Risk Budget.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "005320d408636112f7c85599d207023e6f6e717f",
+    "closedAt": "2026-10-03T03:50:15.650Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-CORE-BRABUS-HARDENING",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
