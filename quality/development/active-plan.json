@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE",
   "task": "Repair the existing Plan Before Code gate so a critical proof-only transaction whose projected files are exclusively neutral/test or knowledge-infrastructure paths may truthfully declare an empty domain/authority projection, while preserving exact scope drift detection whenever any architecture-bearing projected file exists.",
   "status": "ready-for-implementation",
-  "guardDigest": "94082bf1",
+  "guardDigest": "62903da6",
   "changeBaseSha": "8e50fbdea0f2b12c0bcf626862062b6316c915b3",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -11,7 +11,7 @@
     "tests/shoperation-change-impact-atlas.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedDomains": [
     "DOMAIN-QUALITY"
@@ -72,16 +72,11 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-004",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012"
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -403,5 +398,5 @@
       }
     ]
   },
-  "notes": "Targeted prerequisite proven necessary by #795 Plan Before Code on head 6f45f9f55c0e669002c6c5c4d0c5a21e38ef4e67: projectedDomains=[] and projectedAuthorities=[] were exact, but unconditional non-empty requirements made the proof-only critical transaction unsatisfiable without false metadata. Control Plane remains otherwise frozen."
+  "notes": "Targeted prerequisite proven necessary by #795 Plan Before Code on head 6f45f9f55c0e669002c6c5c4d0c5a21e38ef4e67: projectedDomains=[] and projectedAuthorities=[] were exact, but unconditional non-empty requirements made the proof-only critical transaction unsatisfiable without false metadata. Control Plane remains otherwise frozen. Plan projection reconciled to measured quality-only scope: subsystem=quality-knowledge-system, negative knowledge SQ-NK-010/011/012/014/015, guardDigest=62903da6."
 }
