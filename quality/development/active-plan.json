@@ -27,7 +27,9 @@
     "tests/storefront-real-route-template-authority.test.ts",
     "tests/customer-order-service-ux.test.ts",
     "scripts/shoperation-knowledge-preflight.mjs",
-    "tests/shoperation-change-impact-atlas.test.ts"
+    "tests/shoperation-change-impact-atlas.test.ts",
+    "scripts/lib/shoperation-reference-sync-runtime.mjs",
+    "tests/shoperation-development-guard.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -151,7 +153,9 @@
         "Loot Vault v2 mobile/header/footer/CTA navigation uses separate shipping and payment destinations instead of the forbidden combined route.",
         "Legacy /oldal/szallitas and /oldal/fizetes entrypoints remain backward-compatible aliases that converge on the canonical top-level routes.",
         "Knowledge Before Build resolves instruction-governed deleted route files through the same Atlas architecture resolver as Plan Before Code.",
-        "Knowledge infrastructure change triggers the full 49-failure replay set without weakening tombstone or domain-integrity checks."
+        "Knowledge infrastructure change triggers the full 49-failure replay set without weakening tombstone or domain-integrity checks.",
+        "Whole-file Next route deletion does not promote generic display text, generic implementation expressions or framework page exports into global stale-reference contracts.",
+        "Deleted route/file identity remains fail-closed: stale route literals and actual file-path consumers still block unless classified as explicit instruction/tombstone evidence."
       ],
       "invariants": [
         "There is one active template catalog and resolver authority; retirement does not create a second registry.",
@@ -161,7 +165,8 @@
         "Shared Page Schema, Runtime, commerce engines, Template Factory and VX authorities are not weakened to make retirement pass.",
         "Shipping and payment remain separate public information authorities in every active canonical template and shared route registry.",
         "Merchant-facing route compatibility may redirect old aliases but may not restore the forbidden combined route.",
-        "Knowledge Preflight may not treat a Git-proven, instruction-governed route tombstone as an unresolved architecture file when the canonical Atlas resolver can classify it."
+        "Knowledge Preflight may not treat a Git-proven, instruction-governed route tombstone as an unresolved architecture file when the canonical Atlas resolver can classify it.",
+        "Reference Sync narrowing must reduce false positives without allowing live route/file identity consumers to pass."
       ],
       "forbiddenStates": [
         "legacy-template-key-resolves-active-package",
@@ -305,6 +310,18 @@
           "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
           "tests/shoperation-semantic-execution-intelligence.test.ts"
         ]
+      },
+      {
+        "role": "Edit-Time Guard",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Whole-file route deletion currently over-approximates contract identity and turns common UI text plus framework exports into required repository-wide edits.",
+        "resolution": "Narrow candidate generation/classification at the existing Reference Sync runtime rather than adding exceptions or a parallel guard.",
+        "evidence": [
+          "scripts/lib/shoperation-reference-sync-runtime.mjs",
+          "scripts/shoperation-edit-time-guard.mjs",
+          "tests/shoperation-development-guard.test.ts"
+        ]
       }
     ],
     "challenge": [
@@ -370,6 +387,13 @@
         "finding": "This creates a false BLOCK before Plan Before Code even though the canonical Atlas resolver can derive DOMAIN-STOREFRONT and shared-storefront authority for the tombstone.",
         "resolution": "Reuse the existing tombstone-aware resolveAtlasArchitectureForPath path in Knowledge Preflight for direct domain and unresolved-file evaluation; add a regression that pins this integration.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-10",
+        "scenario": "Deleting a Next.js route page causes Reference Sync to treat every removed display string, generic page export and incidental implementation expression as a repository-wide contract.",
+        "finding": "The current guard emits false stale-consumer blocks for unrelated generateMetadata exports and ordinary copy such as 'Rendelési folyamat', obscuring the real route/file identity consumers.",
+        "resolution": "Keep fail-closed checks for route/file/asset/component/config/data identity, but suppress generic display-text, implementation-expression and framework page-export candidates originating from a fully deleted Next route file. Preserve evidence-aware treatment for PO-instruction and tombstone regression fixtures.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -408,7 +432,9 @@
         "tests/storefront-real-route-template-authority.test.ts",
         "tests/customer-order-service-ux.test.ts",
         "scripts/shoperation-knowledge-preflight.mjs",
-        "tests/shoperation-change-impact-atlas.test.ts"
+        "tests/shoperation-change-impact-atlas.test.ts",
+        "scripts/lib/shoperation-reference-sync-runtime.mjs",
+        "tests/shoperation-development-guard.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -425,7 +451,8 @@
         "tests/storefront-public-information-routes.test.ts",
         "tests/storefront-real-route-template-authority.test.ts",
         "tests/customer-order-service-ux.test.ts",
-        "tests/shoperation-change-impact-atlas.test.ts"
+        "tests/shoperation-change-impact-atlas.test.ts",
+        "tests/shoperation-development-guard.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [
@@ -554,8 +581,40 @@
             ]
           }
         ]
+      },
+      {
+        "id": "REQ-RETIRE-REFERENCE-SYNC-SEMANTICS",
+        "requirement": "Reference Sync must distinguish deleted-route identity from incidental route-page copy/framework exports so the Edit-Time Guard blocks true stale machine consumers without requiring unrelated files to change.",
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-INCREMENTAL-REPLAY"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-RETIRE-REFERENCE-FALSE-BLOCK",
+            "statement": "Deleting a Next route page must not make unrelated generateMetadata exports or ordinary duplicated display copy mandatory edits.",
+            "evidence": [
+              "GUARD-EDIT-TIME",
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-RETIRE-REFERENCE-FALSE-PASS",
+            "statement": "A real live /szallitas-es-fizetes route or deleted-file consumer must still block.",
+            "evidence": [
+              "GUARD-EDIT-TIME",
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
       }
     ]
   },
-  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation. Knowledge Before Build exposed an existing integration gap: deleted routes were looked up only in live Atlas nodes. Scope now includes a minimal tombstone-aware Knowledge Preflight convergence using the existing Atlas resolver. Because this changes knowledge infrastructure, the expected failure set expands to the canonical full replay of 49 failures and adds DOMAIN-QUALITY authority."
+  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation. Knowledge Before Build exposed an existing integration gap: deleted routes were looked up only in live Atlas nodes. Scope now includes a minimal tombstone-aware Knowledge Preflight convergence using the existing Atlas resolver. Because this changes knowledge infrastructure, the expected failure set expands to the canonical full replay of 49 failures and adds DOMAIN-QUALITY authority. Edit-Time Guard exposed a proven Reference Sync overreach on whole-file Next route deletion. Plan now includes a narrow existing-runtime semantic fix plus regression coverage; full 49-failure replay and guard digest remain unchanged because this is already knowledge infrastructure."
 }
