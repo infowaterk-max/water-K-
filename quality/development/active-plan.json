@@ -118,7 +118,7 @@
     "definition": {
       "acceptanceCriteria": [
         "SPORT HUB is implemented as one self-contained canonical sport.sport-hub@1 package using the current package/runtime technology rather than the historical legacy source file.",
-        "The package contains exactly the canonical 14 page types in canonical order: home, catalog, product, search, cart, checkout, account, content, blog-index, blog-article, faq, contact, legal and not-found.",
+        "The implementation contains exactly the canonical 14 page types in repository-authoritative order: home, catalog, product, cart, checkout, account, search, content, blog-index, blog-article, faq, contact, legal and not-found.",
         "Each implemented page reproduces the already Product Owner approved SPORT HUB visual reference instead of introducing a new visual concept.",
         "Header, footer, design tokens and recurring SPORT HUB shell language remain canonical and consistent across all 14 pages.",
         "Desktop, Tablet and Mobile state are explicit through the shared responsive authority; mobile-specific interaction changes are preserved where the approved design requires them.",
