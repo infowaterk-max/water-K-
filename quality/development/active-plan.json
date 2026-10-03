@@ -13,7 +13,8 @@
     "tests/storefront-smart-intent.test.ts",
     "tests/visual-builder-v3-smart-intent.test.ts",
     "tests/visual-builder-production-completion.test.ts",
-    "tests/template-factory-production-maturity.test.ts"
+    "tests/template-factory-production-maturity.test.ts",
+    "tests/template-factory-generator-readiness.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -430,6 +431,13 @@
         "finding": "No-op must not be reported as READY.",
         "resolution": "Return BLOCK/no-op with explainable reason.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-SI-11",
+        "scenario": "Generator Readiness regression still expects VX-SMART-INTENT in the blocking capability list after this wave promotes it.",
+        "finding": "That assertion encodes pre-wave maturity and would force a false blocker after executable Smart Intent proof exists.",
+        "resolution": "Update only the stale blocker expectation: Smart Intent must be absent, Smart Auto-Fix must remain present, and Template #3 must still be blocked.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -444,7 +452,8 @@
       "Apply proof validates final document through validateStorefrontPageDocument and proves source input immutability.",
       "Active V3 proof verifies separate plan/apply controls, READY-only apply and exactly one commitDocument call for application.",
       "Maturity proof promotes only VX-SMART-INTENT and leaves VX-SMART-AUTOFIX non-PROVEN and Template #3 blocked.",
-      "Incremental replay, full Quality tests, TypeScript, production build, exact-head Template Factory proof, Completion Truth and lifecycle closure."
+      "Incremental replay, full Quality tests, TypeScript, production build, exact-head Template Factory proof, Completion Truth and lifecycle closure.",
+      "Generator Readiness regression must stop treating VX-SMART-INTENT as a blocker once the maturity catalog proves it, while VX-SMART-AUTOFIX remains the only mandatory VX blocker and Template #3 remains closed."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-03-VX-SMART-INTENT-BRABUS-HARDENING",
@@ -461,7 +470,8 @@
         "tests/storefront-smart-intent.test.ts",
         "tests/visual-builder-v3-smart-intent.test.ts",
         "tests/visual-builder-production-completion.test.ts",
-        "tests/template-factory-production-maturity.test.ts"
+        "tests/template-factory-production-maturity.test.ts",
+        "tests/template-factory-generator-readiness.test.ts"
       ],
       "impactedReadOnly": [
         "src/lib/builder/storefront-visual-builder.ts",
@@ -480,7 +490,8 @@
         "tests/storefront-smart-intent.test.ts",
         "tests/visual-builder-v3-smart-intent.test.ts",
         "tests/visual-builder-production-completion.test.ts",
-        "tests/template-factory-production-maturity.test.ts"
+        "tests/template-factory-production-maturity.test.ts",
+        "tests/template-factory-generator-readiness.test.ts"
       ],
       "unknown": []
     },
@@ -639,5 +650,5 @@
       }
     ]
   },
-  "notes": "Twelfth Brabus hardening wave. Publish Readiness is lifecycle-closed and PROVEN on parent e63e7eee5a2180b958f6c3e288de45aa504f8cd8. Smart Intent is intentionally distinct from Block 23 AI storefront generation and from future Smart Auto-Fix. Guarded Freedom remains authoritative: user intent compiles only to bounded existing operations; no arbitrary source code or schema patching. Template #3 remains forbidden until Smart Auto-Fix is also PROVEN. Plan-gate reconciliation adds database-schema only as scoped negative knowledge because persistence/database language appears in the safety boundary; this wave still declares no migration/schema mutation. The new Smart Intent module is a planned creation and therefore mayEdit rather than an existing-file mustEdit route. Actual-diff dependency reconciliation: canonical Smart Intent imports and validates shared Storefront Runtime/Page Schema authorities, therefore DOMAIN-STOREFRONT and shared-storefront are explicit expected dependency scopes; no new Storefront authority is introduced. Reference Sync fingerprint f02cd6dc is an exact exception for the inactive legacy production Builder's unchanged commitDocument expression; the active V3-only Smart Intent transient-plan invalidation is intentionally not propagated to an inactive consumer."
+  "notes": "Twelfth Brabus hardening wave. Publish Readiness is lifecycle-closed and PROVEN on parent e63e7eee5a2180b958f6c3e288de45aa504f8cd8. Smart Intent is intentionally distinct from Block 23 AI storefront generation and from future Smart Auto-Fix. Guarded Freedom remains authoritative: user intent compiles only to bounded existing operations; no arbitrary source code or schema patching. Template #3 remains forbidden until Smart Auto-Fix is also PROVEN. Plan-gate reconciliation adds database-schema only as scoped negative knowledge because persistence/database language appears in the safety boundary; this wave still declares no migration/schema mutation. The new Smart Intent module is a planned creation and therefore mayEdit rather than an existing-file mustEdit route. Actual-diff dependency reconciliation: canonical Smart Intent imports and validates shared Storefront Runtime/Page Schema authorities, therefore DOMAIN-STOREFRONT and shared-storefront are explicit expected dependency scopes; no new Storefront authority is introduced. Reference Sync fingerprint f02cd6dc is an exact exception for the inactive legacy production Builder's unchanged commitDocument expression; the active V3-only Smart Intent transient-plan invalidation is intentionally not propagated to an inactive consumer. Quality root-cause reconciliation: responsive reset must detect absence of all four direct override dimensions before planning; Generator Readiness has one stale pre-wave Smart Intent blocker assertion that must be updated without changing the readiness authority."
 }
