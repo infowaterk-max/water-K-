@@ -1,22 +1,61 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-PRODUCTION-BRABUS-FINAL-REHEARSAL",
-  "task": "Run the final end-to-end Brabus rehearsal on the existing canonical Loot Vault v2 Factory candidate through the real Template Production and VX authorities, prove technical readiness and fail-closed boundaries without creating Template #3 or mutating production state, then close the rehearsal lifecycle before Template #3 authoring begins.",
+  "taskId": "DEV-LEGACY-TEMPLATE-RETIREMENT",
+  "task": "Retire legacy template implementations from active canonical authority while preserving only Playroom v20 and Loot Vault v2; leave historical sources inert for later deletion and do not alter Template #3 authoring.",
   "status": "closed",
-  "guardDigest": "b16be9a8",
-  "changeBaseSha": "522e74ec5a9bd3cd313d245edb64b804b7a60734",
+  "guardDigest": "94082bf1",
+  "changeBaseSha": "30c3efa28b0d0d85e43ea87a1233f0fc290bf1c7",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "tests/template-factory-brabus-final-rehearsal.test.ts",
-    "tests/template-factory-generator-readiness.test.ts"
+    "src/lib/builder/storefront-template-catalog.ts",
+    "src/lib/builder/storefront-template-preview-demo.ts",
+    "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
+    "tests/special-commerce-wave7-template-quality.test.ts",
+    "tests/special-commerce-wave7-template2-adoption.test.ts",
+    "tests/template-factory-template-distinctness.test.ts",
+    "tests/storefront-template-route-integrity.test.ts",
+    "tests/template-factory-loot-vault-v2.test.ts",
+    "src/app/oldal/[slug]/page.tsx",
+    "src/app/szallitas/page.tsx",
+    "src/app/fizetes/page.tsx",
+    "src/app/szallitas-es-fizetes/page.tsx",
+    "src/app/sitemap.ts",
+    "src/app/gyik/page.tsx",
+    "src/lib/builder/storefront-template-route-integrity.ts",
+    "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+    "tests/storefront-public-information-routes.test.ts",
+    "tests/storefront-real-route-template-authority.test.ts",
+    "tests/customer-order-service-ux.test.ts",
+    "scripts/shoperation-knowledge-preflight.mjs",
+    "tests/shoperation-change-impact-atlas.test.ts",
+    "scripts/lib/shoperation-reference-sync-runtime.mjs",
+    "tests/shoperation-development-guard.test.ts",
+    "src/app/kapcsolat/page.tsx",
+    "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+    "tests/shoperation-semantic-execution-intelligence.test.ts",
+    "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
+    "tests/storefront-beauty-lab-reference-v2.test.ts",
+    "tests/storefront-cart-presentation-contract.test.ts",
+    "tests/template-factory-generator-readiness.test.ts",
+    "src/lib/builder/storefront-template-runtime-normalization.ts",
+    "scripts/template-factory-quality-gate.mjs",
+    "tests/storefront-template-quality-gate-v2.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "release-infrastructure",
+    "shared-storefront",
+    "storefront-ui"
+  ],
+  "expectedDomains": [
+    "DOMAIN-BUILDER",
+    "DOMAIN-QUALITY",
+    "DOMAIN-STOREFRONT"
+  ],
+  "expectedAuthorities": [
+    "builder-template-system",
+    "quality-knowledge-system",
     "shared-storefront"
   ],
-  "expectedDomains": [],
-  "expectedAuthorities": [],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
@@ -38,7 +77,10 @@
     "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -65,13 +107,14 @@
     "TF-KF-024",
     "TF-KF-025"
   ],
-  "acknowledgedPoInstructionIds": [],
+  "acknowledgedPoInstructionIds": [
+    "PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE"
+  ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -82,124 +125,89 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-TEMPLATE-PRODUCTION-BRABUS-FINAL-REHEARSAL",
-    "riskTier": "critical",
-    "problemStatement": "All mandatory Template Factory, VX Builder and shared engine capabilities are now lifecycle-closed and technically PROVEN, and declared generator candidates report template3AuthoringReady=true. Product Owner process authority still forbids Template #3 until one final end-to-end Brabus rehearsal proves that these capabilities compose correctly on a real canonical Factory candidate. The rehearsal must not create another quality framework, invent a synthetic template, or use mocks in place of the canonical Loot Vault v2 package and VX APIs. It must exercise the existing authorities together, preserve fail-closed semantics, and rely on the normal exact-head Template Factory/E13 and Completion Truth evidence for browser/network closure.",
-    "observableOutcomes": [
-      "The canonical registered gaming.loot-vault Factory candidate is generator-ready with valid production contracts, Genome, type compatibility, Constraint Plan, Media Plan, production lineage, distinctness and dynamic production compiler evidence.",
-      "The rehearsal materializes exactly the canonical 14 page types with Desktop, Tablet and Mobile responsive authority and does not introduce a third Factory recipe or Template #3 implementation.",
-      "The actual Loot Vault home document validates through the shared Visual Builder component registry without replacing Page Schema authority.",
-      "Smart Intent plans and applies a bounded typography change on the real loot-vault-loot-v2-hero-title node, returns READY, preserves Page Schema validity, and rejects stale replay after the document changes.",
-      "Publish Readiness consumes the real rehearsal document and remains fail-closed for missing external/visual evidence rather than manufacturing PASS.",
-      "A real PUBLISH_READINESS_DESIGN_GUARD_OFF finding is produced from the document, Smart Auto-Fix creates an explicit READY safe-registry repair, apply changes only Design Guard to warn, and the targeted finding disappears.",
-      "Smart Auto-Fix never uses missing external/visual evidence to invent a schema repair.",
-      "Production maturity remains valid with an empty technical blocker list and every E1-E11/E13 Brabus revalidation capability PROVEN.",
-      "E13 remains bound to the canonical exact-head browser/network handoff proof, not to the rehearsal unit process.",
-      "The normal pull-request Template Factory exact-head proof must pass the full acceptance matrix and E13 journey before Completion Truth can verify this rehearsal.",
-      "No save, publish, database, payment, order, customer, inventory or production mutation authority is invoked by the rehearsal.",
-      "Lifecycle closure of this rehearsal, not technical readiness alone, is the final Product Owner prerequisite before a separate Template #3 authoring wave may start."
-    ],
-    "unresolvedRisks": [
-      "Individually PROVEN capabilities may fail when composed on one real Factory document.",
-      "A synthetic fixture could hide package or registry drift and create a false rehearsal PASS.",
-      "Smart Intent could produce an invalid result on a complex canonical template node despite isolated tests.",
-      "Publish Readiness could be misread as PASS when external evidence is absent.",
-      "Auto-Fix could repair a forged finding rather than one emitted by current Publish Readiness.",
-      "The rehearsal could mutate the canonical package object or cross persistence/publish boundaries.",
-      "Technical template3AuthoringReady could be mistaken for completion of the separate Product Owner rehearsal.",
-      "A unit-only E13 assertion could accidentally substitute for the exact-head browser/network proof.",
-      "Adding a rehearsal status to production code would create a new parallel gate rather than a one-time proof transaction."
-    ],
-    "scope": {
-      "in": [
-        "One end-to-end proof over the existing registered Loot Vault v2 Factory candidate.",
-        "Canonical Generator Readiness, production contracts, Genome, Type System, Constraint Planner, Media Planner, lineage, distinctness and Dynamic Production Compiler outputs.",
-        "Canonical 14-page package and Desktop/Tablet/Mobile authority verification.",
-        "Real Loot Vault home Page Schema validation through the shared Visual Builder component registry.",
-        "Real-node Smart Intent planning/apply and stale-plan rejection.",
-        "Publish Readiness fail-closed behavior with missing external evidence.",
-        "Real Publish Readiness Design Guard finding through Smart Auto-Fix plan/apply/postcondition.",
-        "Production maturity and E1-E11/E13 Brabus proof registry verification.",
-        "Explicit proof that no Template #3 recipe/package is created by the rehearsal.",
-        "Normal exact-head Template Factory/E13 workflow, Completion Truth and lifecycle closure."
-      ],
-      "out": [
-        "Creating or implementing Template #3.",
-        "New production capability, schema, engine, Builder authority, readiness authority or quality framework.",
-        "Changing Loot Vault visual design, accepted visual authority, media, recipe or canonical package.",
-        "Production save/publish/database/payment/order/customer/inventory mutation.",
-        "Replacing E13 browser/network evidence with unit evidence.",
-        "Weakening any existing Control Plane, Template Factory or external proof requirement."
-      ]
-    },
+    "sourceRef": "PO-2026-10-03-LEGACY-TEMPLATE-RETIREMENT",
+    "riskTier": "high",
     "assuranceCeiling": {
-      "level": "critical-practical",
-      "rationale": "This is the final prerequisite before Template #3 authoring, so false PASS has high downstream cost. The highest practical assurance is a proof-only transaction that composes canonical production authorities on a real candidate, uses real emitted diagnostics rather than fabricated repair inputs, checks stale/fail-closed behavior, proves input immutability and absence of Template #3 creation, and still requires exact-head browser/E13, Completion Truth and lifecycle closure.",
+      "level": "strong-behavioral-proof",
+      "rationale": "The change removes legacy template implementations from active authority surfaces that feed installation, preview, AI selection, Special Commerce inventory and distinctness. Strong behavioral proof is warranted because a false retirement could either keep legacy authority alive or accidentally remove the two accepted canonical templates; physical source deletion is deliberately deferred until active reachability is proven absent.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "dependency-graph",
-        "evidence-provenance",
         "what-if-matrix",
         "adversarial-scenarios",
-        "negative-tests",
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
         "fault-injection",
         "determinism-proof",
-        "immutability-proof",
-        "authority-boundary-proof",
-        "exact-head-browser-proof",
-        "finite-state-exhaustion"
+        "authority-boundary-proof"
       ],
       "deferredTechniques": [
-        "new-template-authoring",
-        "production-side-effect-testing",
-        "new-quality-gate",
-        "synthetic-e13-substitute",
-        "visual-redesign",
-        "engine-rewrite-without-rehearsal-failure"
+        "physical-legacy-source-deletion",
+        "approved-reference-image-migration",
+        "template-3-authoring"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault') is generator-ready and its production maturity is valid with template3AuthoringReady=true.",
-        "Generator Readiness proves production contracts, Genome, type system/compatibility, Constraint Plan, Media Plan, lineage, distinctness and production compiler valid in the same build.",
-        "The package contains exactly the canonical 14 page types and declares all three responsive authorities.",
-        "No Factory recipe other than the existing Loot Vault v2 recipe is introduced by this rehearsal.",
-        "The real Loot Vault home Page Schema validates through createStorefrontVisualBuilderComponentRegistry with a capability context sufficient for the package.",
-        "Smart Intent on loot-vault-loot-v2-hero-title with a bounded mobile typography request is READY, applies through the canonical setter, keeps the document valid, and replay against the changed document throws SMART_INTENT_PLAN_STALE.",
-        "Publish Readiness without required external visual/route evidence does not return a false overall PASS.",
-        "Design Guard off creates a current PUBLISH_READINESS_DESIGN_GUARD_OFF finding from inspectStorefrontPublishReadiness.",
-        "Smart Auto-Fix plans READY only from that emitted Design Guard finding, applies through the canonical safe rule, leaves the source input immutable, and removes that exact finding from the re-inspected document.",
-        "No visual/pixel UNKNOWN or absent external evidence is converted into an Auto-Fix operation.",
-        "evaluateStorefrontTemplateProductionMaturity returns valid=true, template3AuthoringReady=true and no blocking capability ids; every engine Brabus revalidation row is PROVEN.",
-        "E13 current proofProducer remains scripts/template-factory-product-owner-handoff.mjs#proveSharedE13FunctionalEngine with browserRequired/networkRequired true.",
-        "The exact-head pull-request Template Factory workflow passes full browser acceptance and E13 proof for the rehearsal HEAD.",
-        "Completion Truth verifies the rehearsal implementation HEAD and lifecycle closure succeeds on a subsequent closure HEAD.",
-        "Template #3 authoring does not start inside this transaction."
+        "The active template resolver exposes exactly gaming.playroom@20 and gaming.loot-vault@2.",
+        "Loot Vault v1 and every other legacy template key in the former active 24-package catalog resolve to no active package.",
+        "The preview theme authority imports and registers only canonical Playroom v20 and Loot Vault v2 design tokens.",
+        "AI template selection and Special Commerce inventory inherit the reduced canonical catalog without a parallel legacy list.",
+        "Template distinctness uses only canonical foreign templates and excludes same-template identity from clone comparison.",
+        "No Template #3 implementation, Visual First artifact or authoring branch content is modified by this transaction.",
+        "Historical legacy source files remain inert and available only for later evidence-guided physical deletion.",
+        "The forbidden combined /szallitas-es-fizetes route no longer exists as a public page authority.",
+        "Independent /szallitas and /fizetes public routes exist, are sitemap-visible and resolve through the active storefront Page Schema shell.",
+        "Loot Vault v2 mobile/header/footer/CTA navigation uses separate shipping and payment destinations instead of the forbidden combined route.",
+        "Legacy /oldal/szallitas and /oldal/fizetes entrypoints remain backward-compatible aliases that converge on the canonical top-level routes.",
+        "Knowledge Before Build resolves instruction-governed deleted route files through the same Atlas architecture resolver as Plan Before Code.",
+        "Knowledge infrastructure change triggers the full 49-failure replay set without weakening tombstone or domain-integrity checks.",
+        "Whole-file Next route deletion does not promote generic display text, generic implementation expressions or framework page exports into global stale-reference contracts.",
+        "Deleted route/file identity remains fail-closed: stale route literals and actual file-path consumers still block unless classified as explicit instruction/tombstone evidence.",
+        "Reference Sync blocks the real stale /szallitas-es-fizetes Contact link until it is changed.",
+        "Deleting a page does not mark unrelated identical display text or same-named exports in other modules as stale consumers.",
+        "A true cross-file export consumer importing the deleted/changed origin module remains blocking.",
+        "PO-instruction and tombstone regression references to the forbidden route/path remain recognized as evidence rather than required implementation edits.",
+        "Playroom v20 canonical navigation uses /szallitas and /fizetes directly; legacy /oldal aliases remain compatibility-only.",
+        "Unchanged legacy template source files outside the active catalog cannot block canonical route retirement merely because they retain historical route literals.",
+        "Beauty Lab remains available only as inert source-history/reference evidence and is unresolved by the active storefront catalog.",
+        "Loot Vault generator distinctness compares against exactly the one other active canonical template, Playroom v20.",
+        "Semantic Execution regressions distinguish lexical display-text coincidence from component-key dependency identity.",
+        "The shipping/payment PO instruction requires only live canonical route files after the combined-route tombstone.",
+        "Every active canonical template receives the shared customer-task empty-cart continuation action 'Vásárlás folytatása' -> /webaruhaz through runtime normalization.",
+        "A modified test file cannot become the origin of production component-key, display-text or implementation-expression stale-consumer requirements.",
+        "Production-origin component keys and other high-signal identities must still detect stale test consumers.",
+        "Deleting or renaming a test file itself remains reference-checked through file-path identity.",
+        "Canonical /szallitas and /fizetes links materialize their page-specific demo content fixtures without restoring /oldal aliases as active navigation.",
+        "Preview rewriting maps canonical /szallitas and /fizetes to the legal page family with the matching demoContent slug.",
+        "Template Factory mobile-menu proof uses the canonical legal-page shipping demo preview and preserves demo-warning assertions."
       ],
       "invariants": [
-        "The rehearsal consumes existing authorities; it does not become a new authority.",
-        "Canonical Loot Vault package and input documents are not mutated in place.",
-        "Technical readiness is necessary but not sufficient until this rehearsal lifecycle closes.",
-        "Missing external evidence remains UNKNOWN/BLOCK according to current Publish Readiness semantics.",
-        "Auto-Fix receives only a finding emitted from the current rehearsal document.",
-        "E13 remains browser/network exact-head proof.",
-        "No Template #3 artifact is created before rehearsal closure."
+        "There is one active template catalog and resolver authority; retirement does not create a second registry.",
+        "Playroom v20 and Loot Vault v2 remain installable, previewable and addressable through their canonical package entrypoints.",
+        "A legacy accepted or reaccepted implementation cannot become visual authority merely because its source remains in Git.",
+        "Approved generated visual references are not deleted or replaced in this inactivation transaction.",
+        "Shared Page Schema, Runtime, commerce engines, Template Factory and VX authorities are not weakened to make retirement pass.",
+        "Shipping and payment remain separate public information authorities in every active canonical template and shared route registry.",
+        "Merchant-facing route compatibility may redirect old aliases but may not restore the forbidden combined route.",
+        "Knowledge Preflight may not treat a Git-proven, instruction-governed route tombstone as an unresolved architecture file when the canonical Atlas resolver can classify it.",
+        "Reference Sync narrowing must reduce false positives without allowing live route/file identity consumers to pass.",
+        "A template file edited in the current transaction remains subject to full Reference Sync even if it is not yet in the active catalog.",
+        "Reference Sync authority direction is implementation-to-proof: tests consume contracts but do not originate production identity from their internal assertions or fixtures."
       ],
       "forbiddenStates": [
-        "synthetic-package-substitutes-canonical-candidate",
-        "publish-readiness-missing-evidence-false-pass",
-        "autofix-fabricated-finding-used-as-rehearsal-proof",
-        "smart-intent-invalid-schema-result",
-        "stale-smart-intent-plan-reapplied",
-        "unit-only-e13-counts-as-final-proof",
-        "production-mutation-from-rehearsal",
-        "template-3-created-inside-rehearsal",
-        "template-3-authoring-before-rehearsal-lifecycle-closure"
+        "legacy-template-key-resolves-active-package",
+        "legacy-preview-theme-import-remains-active",
+        "loot-vault-v1-remains-active-authority",
+        "playroom-v20-or-loot-vault-v2-becomes-unresolvable",
+        "parallel-template-catalog-created",
+        "template-3-authoring-contaminated",
+        "approved-visual-reference-deleted",
+        "combined-shipping-payment-route-remains-public",
+        "canonical-navigation-points-to-oldal-shipping-payment-aliases",
+        "loot-vault-v2-retains-combined-shipping-payment-link"
       ]
     },
     "model": {
@@ -231,51 +239,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Factory candidate says ready while one underlying production planner result is invalid.",
-        "Canonical package loses a page or responsive authority but top-level readiness stays green.",
-        "Smart Intent succeeds on isolated fixtures but fails or corrupts a real Loot Vault node.",
-        "Readiness treats missing browser/visual evidence as PASS.",
-        "Auto-Fix is fed a hand-built finding that bypasses current diagnostic authority.",
-        "Auto-Fix changes unrelated fidelity metadata or mutates the source document.",
-        "Engine maturity is green but E13 browser binding has drifted.",
-        "A third recipe/package is introduced while the rehearsal is supposed to remain proof-only.",
-        "Completion Truth passes without the exact-head Template Factory external evidence.",
-        "Technical readiness is used to begin Template #3 before lifecycle closure."
+        "The catalog shrinks but a preview or AI path directly imports legacy template authority and keeps it operational.",
+        "Loot Vault v2 is omitted while legacy Loot Vault v1 remains the resolvable package.",
+        "Tests are rewritten to accept two entries while runtime resolver still exposes legacy keys.",
+        "Distinctness loses all foreign corpus evidence instead of retaining Playroom as a canonical comparison.",
+        "Physical deletion removes an approved visual reference before reference inventory is proven.",
+        "The retirement transaction touches Template #3 and obscures whether the new production system passes its first real authoring test.",
+        "A retained Loot Vault v2 regression still asserts the pre-retirement catalog state and blocks intentional canonical v2 activation.",
+        "A previously recorded Product Owner instruction remains acknowledged but unimplemented in the actual shared route authority.",
+        "The forbidden combined route is deleted without providing canonical top-level shipping and payment replacements.",
+        "Loot Vault v2 package navigation remains internally consistent but points at a route that the shared authority has retired."
       ],
       "edgeCases": [
-        "Real heading uses legacy-looking inline style while canonical typography authority still supports a bounded responsive override.",
-        "Publish Readiness reports several UNKNOWN categories alongside the Design Guard structured finding.",
-        "Auto-Fix target finding is resolved while unrelated UNKNOWN findings intentionally remain.",
-        "Smart Intent changes only responsive typography and the same old plan is replayed.",
-        "Loot Vault Factory build is repeated twice and must remain deterministic.",
-        "All 12 engine rows are PROVEN but E13 proof class is still browser-journey rather than deterministic-runtime.",
-        "Recipe registry contains exactly one current Factory recipe throughout rehearsal."
+        "A stale persisted legacy page key may still request preview styling even though its template package is no longer resolvable.",
+        "Special Commerce code derives its inventory dynamically and therefore should contract automatically rather than receive a second hard-coded list.",
+        "Loot Vault v2 shares the same templateKey as v1, so version-specific resolver behavior must fail closed for v1 and succeed for v2.",
+        "Same-key Loot Vault v2 must be excluded from its own distinctness corpus while Playroom v20 remains a foreign canonical reference.",
+        "Historical /oldal/szallitas and /oldal/fizetes links need compatibility without remaining canonical navigation targets.",
+        "Deleting the combined route must be represented as an instruction-governed tombstone rather than an unexplained missing page."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-REHEARSAL-REAL-CANDIDATE",
-        "summary": "Exercise the full existing production/VX chain on canonical Loot Vault v2 and rely on normal exact-head browser/E13 closure.",
+        "id": "ALT-RETIRE-INACTIVATE-FIRST",
+        "summary": "Remove legacy templates from active catalog, resolver, preview and derived authority surfaces while leaving source files inert.",
         "disposition": "selected",
-        "reason": "Proves cross-capability composition without authoring a new template or introducing a parallel proof authority."
+        "reason": "This directly prevents interference with future authoring while preserving historical evidence until every deletion dependency and accepted visual reference is inventoried."
       },
       {
-        "id": "ALT-REHEARSAL-SYNTHETIC-FIXTURE",
-        "summary": "Build a small artificial document that is easier to drive through all APIs.",
+        "id": "ALT-RETIRE-HARD-DELETE-NOW",
+        "summary": "Delete every legacy template source, test and media artifact in one transaction.",
         "disposition": "rejected",
-        "reason": "Could hide real Factory package, component registry and complex Page Schema integration failures."
+        "reason": "Direct deletion has a wider dependency blast radius and risks deleting the only surviving accepted visual reference or historical proof before those assets are classified."
       },
       {
-        "id": "ALT-REHEARSAL-TEMPLATE3-AS-TEST",
-        "summary": "Begin Template #3 and treat successful authoring as the rehearsal.",
+        "id": "ALT-RETIRE-LEAVE-CATALOG-AS-IS",
+        "summary": "Keep all legacy packages active and rely on developers to ignore them during future Template Factory work.",
         "disposition": "rejected",
-        "reason": "Violates the explicit ordering rule and makes failure recovery contaminate the first new template."
-      },
-      {
-        "id": "ALT-REHEARSAL-NEW-PERSISTENT-GATE",
-        "summary": "Add a permanent rehearsal flag or second readiness engine to production code.",
-        "disposition": "rejected",
-        "reason": "The existing lifecycle, Completion Truth and Template Factory authorities already provide durable evidence; another gate would duplicate authority without proven need."
+        "reason": "The active catalog feeds preview, AI, Special Commerce and distinctness, so human convention cannot prevent legacy implementations from influencing later production."
       }
     ],
     "specialistReviews": [
@@ -283,313 +284,551 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The existing Loot Vault v2 registered Factory candidate already traverses all production compiler authorities and is the correct integration subject.",
-        "resolution": "Use the registered candidate and canonical package directly; add no rehearsal runtime or second readiness registry.",
+        "finding": "The active 24-package catalog is the central runtime selection surface, and derived consumers should contract by consuming the same reduced canonical authority.",
+        "resolution": "Preserve one catalog/resolver and remove legacy packages there rather than introducing a separate active-template registry.",
         "evidence": [
-          "src/lib/builder/template-factory/recipe-registry.ts",
-          "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
-          "src/lib/builder/template-factory/generator-readiness.ts"
+          "src/lib/builder/storefront-template-catalog.ts",
+          "src/lib/builder/storefront-special-commerce-template2-adoption.ts",
+          "src/lib/builder/storefront-ai-generator-server.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A fabricated readiness finding or mutable fixture could let Smart Auto-Fix appear integrated without proving diagnostic provenance.",
-        "resolution": "Generate the Design Guard finding through inspectStorefrontPublishReadiness on the current real document, snapshot inputs, and verify postcondition by reinspection.",
+        "finding": "Removing legacy packages from the catalog alone is insufficient because preview themes previously imported legacy design-token modules directly.",
+        "resolution": "Treat direct preview imports as an authority bypass and reduce PREVIEW_THEME_BY_TEMPLATE to Playroom v20 and canonical Loot Vault v2 tokens.",
         "evidence": [
-          "src/lib/builder/storefront-publish-readiness.ts",
-          "src/lib/builder/storefront-smart-autofix.ts",
-          "src/lib/builder/storefront-page-fingerprint.ts"
+          "src/lib/builder/storefront-template-preview-demo.ts",
+          "src/lib/builder/templates/gaming/loot-vault/v2/index.ts"
+        ]
+      },
+      {
+        "role": "UX / Template",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Legacy visually rejected implementations must not remain reference material for future clone avoidance or be mistaken for Product Owner-approved visual direction.",
+        "resolution": "Use only the two accepted canonical templates as the active distinctness corpus and preserve old sources only as inert history until approved reference images are inventoried.",
+        "evidence": [
+          "tests/template-factory-template-distinctness.test.ts",
+          "src/lib/builder/template-factory/generator-readiness.ts"
+        ]
+      },
+      {
+        "role": "Runtime",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "The shared storefront still has a concrete page module, sitemap entry and route-registry entry for the forbidden combined shipping/payment route.",
+        "resolution": "Treat the combined page as a planned deletion governed by PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE and add independent canonical route modules before removing it.",
+        "evidence": [
+          "src/app/szallitas-es-fizetes/page.tsx",
+          "src/app/sitemap.ts",
+          "src/lib/builder/storefront-template-route-integrity.ts",
+          "quality/knowledge/po-instructions.v1.json"
+        ]
+      },
+      {
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Knowledge Preflight and Plan Before Code disagree on deleted-route architecture because only the latter uses the shared tombstone-aware Atlas resolver.",
+        "resolution": "Converge both gates on the existing resolver rather than adding a deletion exception or parallel tombstone registry.",
+        "evidence": [
+          "scripts/shoperation-knowledge-preflight.mjs",
+          "scripts/shoperation-plan-before-code.mjs",
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+          "tests/shoperation-semantic-execution-intelligence.test.ts"
+        ]
+      },
+      {
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Whole-file route deletion currently over-approximates contract identity and turns common UI text plus framework exports into required repository-wide edits.",
+        "resolution": "Narrow candidate generation/classification at the existing Reference Sync runtime rather than adding exceptions or a parallel guard.",
+        "evidence": [
+          "scripts/lib/shoperation-reference-sync-runtime.mjs",
+          "scripts/shoperation-edit-time-guard.mjs",
+          "tests/shoperation-development-guard.test.ts"
+        ]
+      },
+      {
+        "role": "Data Integrity",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "A lexical same-value match is insufficient to prove dependency identity for generic display text or common exported symbol names when the origin file is deleted.",
+        "resolution": "Use origin-sensitive semantics for deleted exports and preserve tombstone evidence rather than mutating unrelated same-name consumers.",
+        "evidence": [
+          "scripts/lib/shoperation-reference-sync-runtime.mjs",
+          "scripts/shoperation-edit-time-guard.mjs",
+          "tests/shoperation-development-guard.test.ts",
+          "src/app/kapcsolat/page.tsx"
+        ]
+      },
+      {
+        "role": "Architecture",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Runtime authority and edit-time authority must agree on which template packages are active; otherwise catalog retirement is incomplete.",
+        "resolution": "Reference Sync reads the existing active catalog imports rather than creating a second retirement registry. Changed template files never receive source-history exemption.",
+        "evidence": [
+          "src/lib/builder/storefront-template-catalog.ts",
+          "src/lib/builder/templates/gaming/playroom/v20/index.ts",
+          "scripts/lib/shoperation-reference-sync-runtime.mjs"
+        ]
+      },
+      {
+        "role": "Runtime",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "The active Loot Vault package exposes a valid but noncanonical empty-cart CTA through runtime normalization.",
+        "resolution": "Repair the shared runtime normalizer rather than weakening the portfolio contract or patching only Loot Vault.",
+        "evidence": [
+          "src/lib/builder/storefront-template-runtime-normalization.ts",
+          "tests/storefront-cart-presentation-contract.test.ts"
+        ]
+      },
+      {
+        "role": "Architecture",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Reference dependency direction must flow implementation authority → tests, never test implementation detail → production authority.",
+        "resolution": "Treat tests as evidence/consumer nodes unless the changed identity is the test file path itself.",
+        "evidence": [
+          "scripts/lib/shoperation-reference-sync-runtime.mjs",
+          "tests/shoperation-development-guard.test.ts"
         ]
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A final rehearsal that never edits a real template node would not prove VX usability on compiled production content.",
-        "resolution": "Run bounded Smart Intent against the canonical Loot Vault hero heading and validate the resulting real Page Schema without changing accepted visual authority files.",
+        "finding": "The mobile-menu browser case must continue proving demo-content warning semantics while following the canonical top-level information-route model.",
+        "resolution": "Preserve demo warning assertions and change only the route/demo-content resolution to canonical /szallitas semantics.",
         "evidence": [
-          "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
-          "src/lib/builder/storefront-smart-intent.ts"
-        ]
-      },
-      {
-        "role": "Release",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The rehearsal should have essentially test-only release risk and must still use the normal exact-head Template Factory/E13 external evidence path.",
-        "resolution": "Keep product code read-only unless a concrete rehearsal failure proves a deficiency; require Release Risk, full workflow proof, Completion Truth and lifecycle closure.",
-        "evidence": [
-          "deploy/release-risk-policy.json",
-          ".github/workflows/template-factory-quality-gate.yml",
-          "scripts/shoperation-external-proof-handoff.mjs"
+          "src/lib/builder/storefront-template-route-integrity.ts",
+          "scripts/template-factory-quality-gate.mjs",
+          "tests/storefront-template-route-integrity.test.ts",
+          "tests/storefront-template-quality-gate-v2.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-FR-1",
-        "scenario": "Generator Readiness returns ready=true but one nested planner result is ignored.",
-        "finding": "Top-level readiness alone would under-prove the integrated production chain.",
-        "resolution": "Assert each nested production contract, genome/type, constraint/media, lineage, distinctness and compiler result explicitly.",
+        "id": "CH-RETIRE-01",
+        "scenario": "The active catalog is reduced but a legacy key can still be resolved by a hidden secondary resolver.",
+        "finding": "That would make the inactivation cosmetic and violate single-authority semantics.",
+        "resolution": "Regression-test explicit legacy keys against getStorefrontTemplatePackage and require undefined for every retired key.",
         "status": "resolved"
       },
       {
-        "id": "CH-FR-2",
-        "scenario": "A synthetic page passes VX operations while the canonical Loot Vault page would fail registry validation.",
-        "finding": "Fixture substitution could hide real component/package integration drift.",
-        "resolution": "Clone the actual canonical Loot Vault home page from the registered build and use the shared Visual Builder registry.",
+        "id": "CH-RETIRE-02",
+        "scenario": "The preview UI retains legacy design-token imports independently of package resolution.",
+        "finding": "A retired template could continue influencing presentation and future visual work through a bypass.",
+        "resolution": "Remove legacy preview imports and map only canonical Playroom v20 and Loot Vault v2 themes.",
         "status": "resolved"
       },
       {
-        "id": "CH-FR-3",
-        "scenario": "Smart Intent plan is READY, applies, then the old plan is replayed after the document changed.",
-        "finding": "A stale plan must not be accepted during final composition proof.",
-        "resolution": "Require SMART_INTENT_PLAN_STALE on replay and no second mutation.",
+        "id": "CH-RETIRE-03",
+        "scenario": "Loot Vault v1 remains active because its templateKey matches canonical Loot Vault v2.",
+        "finding": "Key-only reasoning could hide a version-authority collision.",
+        "resolution": "Make v2 the sole catalog entry and explicitly prove v1 is unresolved while v2 resolves.",
         "status": "resolved"
       },
       {
-        "id": "CH-FR-4",
-        "scenario": "External visual or route evidence is absent during local rehearsal.",
-        "finding": "Readiness could falsely collapse UNKNOWN into PASS.",
-        "resolution": "Assert the current readiness decision/categories remain fail-closed and do not claim full publishability from local evidence.",
+        "id": "CH-RETIRE-04",
+        "scenario": "Distinctness loses its foreign comparison set after legacy templates are removed.",
+        "finding": "An empty corpus would create a false or blocked anti-clone result.",
+        "resolution": "Retain Playroom v20 as the canonical foreign corpus for Loot Vault v2 and assert corpusSize equals one.",
         "status": "resolved"
       },
       {
-        "id": "CH-FR-5",
-        "scenario": "Auto-Fix receives a manually constructed Design Guard finding.",
-        "finding": "That would bypass the provenance relationship the rehearsal is meant to prove.",
-        "resolution": "Use only the exact finding returned by inspectStorefrontPublishReadiness after canonical Design Guard is set off.",
+        "id": "CH-RETIRE-05",
+        "scenario": "Special Commerce or AI receives a hand-maintained replacement list that later drifts from the catalog.",
+        "finding": "A second list would recreate the duplicate-authority problem retirement is intended to remove.",
+        "resolution": "Leave those consumers catalog-derived and prove their inventory contracts follow the canonical catalog count.",
         "status": "resolved"
       },
       {
-        "id": "CH-FR-6",
-        "scenario": "Design Guard Auto-Fix succeeds while unrelated UNKNOWN readiness categories remain.",
-        "finding": "Targeted safe repair must not fabricate global readiness.",
-        "resolution": "Require the target finding to disappear but allow unrelated fail-closed categories to remain unchanged.",
+        "id": "CH-RETIRE-06",
+        "scenario": "Physical deletion is performed before accepted generated visual references are separated from legacy implementation media.",
+        "finding": "That could destroy the only trustworthy visual authority for future rebuilds.",
+        "resolution": "Defer physical deletion; first prove runtime inactivation, then inventory and preserve PO-approved reference images in a separate transaction.",
         "status": "resolved"
       },
       {
-        "id": "CH-FR-7",
-        "scenario": "All engine rows are PROVEN but E13 proof binding is replaced with a unit-test producer.",
-        "finding": "The final rehearsal would lose checkout browser/network assurance.",
-        "resolution": "Assert E13 browserRequired/networkRequired and exact canonical handoff producer, then rely on the PR Template Factory E13 proof.",
+        "id": "CH-RETIRE-07",
+        "scenario": "A historical Loot Vault v2 test still requires v2 to remain outside the production resolver while the new Product Owner instruction explicitly promotes v2 to canonical active authority.",
+        "finding": "Leaving the assertion unchanged would make the proof suite enforce a superseded lifecycle boundary and prevent the requested retirement state.",
+        "resolution": "Update only the lifecycle expectation: v2 must resolve canonically and v1 must fail closed; retain all Factory readiness, media and Page Schema assertions unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-FR-8",
-        "scenario": "The rehearsal adds a new recipe/package named as Template #3.",
-        "finding": "The proof transaction would silently start authoring before its own closure.",
-        "resolution": "Assert recipe registry remains the existing Loot Vault-only Factory recipe set and keep all Template #3 implementation files out of scope.",
+        "id": "CH-RETIRE-08",
+        "scenario": "The retirement touches a Loot Vault v2 regression governed by an active Product Owner instruction that requires separate shipping and payment public routes.",
+        "finding": "Repository reality still exposes /szallitas-es-fizetes in the shared route registry, sitemap, live page and Loot Vault v2 package, so acknowledgment without remediation would preserve a known authority conflict.",
+        "resolution": "Expand the transaction before further code edits: tombstone the forbidden combined route, add /szallitas and /fizetes authorities, converge legacy aliases, update the shared registry/sitemap and repair Loot Vault v2 navigation.",
         "status": "resolved"
       },
       {
-        "id": "CH-FR-9",
-        "scenario": "The test mutates the exported canonical package/document in place.",
-        "finding": "Later assertions could pass against contaminated shared state and make ordering significant.",
-        "resolution": "Use structured clones for document operations and compare canonical package identity/hash before and after rehearsal.",
+        "id": "CH-RETIRE-09",
+        "scenario": "A Product Owner-governed route deletion is correctly represented as an Atlas tombstone, but Knowledge Before Build classifies only live Atlas nodes and therefore flags the deleted route as domain-unresolved.",
+        "finding": "This creates a false BLOCK before Plan Before Code even though the canonical Atlas resolver can derive DOMAIN-STOREFRONT and shared-storefront authority for the tombstone.",
+        "resolution": "Reuse the existing tombstone-aware resolveAtlasArchitectureForPath path in Knowledge Preflight for direct domain and unresolved-file evaluation; add a regression that pins this integration.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-10",
+        "scenario": "Deleting a Next.js route page causes Reference Sync to treat every removed display string, generic page export and incidental implementation expression as a repository-wide contract.",
+        "finding": "The current guard emits false stale-consumer blocks for unrelated generateMetadata exports and ordinary copy such as 'Rendelési folyamat', obscuring the real route/file identity consumers.",
+        "resolution": "Keep fail-closed checks for route/file/asset/component/config/data identity, but suppress generic display-text, implementation-expression and framework page-export candidates originating from a fully deleted Next route file. Preserve evidence-aware treatment for PO-instruction and tombstone regression fixtures.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-11",
+        "scenario": "Reference Sync treats all text and exported symbol names removed with a deleted page as repository-wide identities, producing unrelated stale consumers such as other pages' generateMetadata exports and generic 'Szállítás és fizetés' copy.",
+        "finding": "The guard correctly found one real stale route in the Contact page, but 100+ additional findings are identity collisions rather than dependencies. Accepting them would force unrelated files into Implementation Sync and make safe route deletion practically impossible.",
+        "resolution": "Preserve exact route/path/asset/component identities fail-closed, suppress ordinary display-text and implementation-expression candidates originating only from full-file deletion, scope export-symbol consumers to imports of the originating module, and classify explicit tombstone/forbidden-route test and PO-instruction references as evidence. Fix the real Contact route consumer separately.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-12",
+        "scenario": "The shared canonical routes are separated, but Playroom v20—the other active canonical template—still links to legacy /oldal/szallitas and /oldal/fizetes compatibility aliases.",
+        "finding": "Leaving the active canonical template on aliases violates the plan invariant that compatibility aliases must not remain canonical navigation targets.",
+        "resolution": "Rewrite only Playroom v20 canonical package navigation from /oldal/szallitas and /oldal/fizetes to /szallitas and /fizetes. Legacy Playroom reference source files remain inert and are not promoted back into authority.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-13",
+        "scenario": "Reference Sync finds legacy template source files that still contain compatibility-alias routes even though those template implementations were removed from the active catalog and are not changed by this transaction.",
+        "finding": "Treating catalog-retired source history as an active machine consumer lets the very legacy templates being retired continue to block current canonical authority changes.",
+        "resolution": "Derive active template roots from the single storefront-template-catalog authority. Unchanged template source files outside those active roots are evidence/source-history, not required edits; any template source edited in the current transaction remains fully checked.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-14",
+        "scenario": "The full Quality suite still contains retirement-predecessor assertions that require Beauty Lab to remain an active catalog package and require Loot Vault distinctness to compare against the former 20+ active legacy corpus.",
+        "finding": "Those assertions directly contradict the selected single-authority retirement model, where only Playroom v20 and Loot Vault v2 remain active and the foreign canonical distinctness corpus is exactly one package.",
+        "resolution": "Update the regression authority to test Beauty Lab as inert historical/reference source without catalog resolution and pin Loot Vault distinctness to the active one-template foreign corpus.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-15",
+        "scenario": "Full Quality still asserts lexical cross-file display text as a dependency and expects the deleted combined shipping/payment page inside live instruction-required files.",
+        "finding": "Both assertions predate the proven Reference Sync identity correction and the completed combined-route tombstone.",
+        "resolution": "Keep component-key stale consumers blocking, treat unbound display-text matches as non-identity, and require only the live /szallitas and /fizetes route files from the active instruction while separately proving the forbidden combined route is absent.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-16",
+        "scenario": "Loot Vault v2 enters the active production catalog with a template-specific empty-cart CTA label even though the existing portfolio-wide customer-task cart contract requires one shared continuation action.",
+        "finding": "The generic cart normalizer only fills emptyCtaLabel/emptyCtaHref when missing, allowing a template-specific non-empty value to bypass the shared cart presentation authority.",
+        "resolution": "Make the shared cart normalizer authoritative for the empty-cart continuation action: always normalize to 'Vásárlás folytatása' and '/webaruhaz'. Preserve template visual identity outside shared commerce-task semantics.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-16",
+        "scenario": "Reference Sync treats identifiers removed from modified test files as if the test were the production contract origin, causing unrelated runtime and dozens of other tests to become stale consumers.",
+        "finding": "This reverses authority direction: tests are proof/consumers of implementation contracts, not providers of production component keys, implementation expressions or UI identities.",
+        "resolution": "Filter non-file identity candidates originating from tests before repository-wide consumer reconciliation. Preserve test files as consumers, and preserve test file-path identity so workflow/package references to a deleted test still fail closed.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-17",
+        "scenario": "After canonical shipping/payment navigation moved from /oldal/szallitas and /oldal/fizetes to top-level /szallitas and /fizetes, the shared demo-content augmentor no longer materializes those informational fixtures while the browser proof still requests the old content-page preview shape.",
+        "finding": "The public route authority is correct, but the preview/demo-content and Template Factory browser-proof authorities are stale relative to it; Playroom v20 mobile proof reaches notFound before the runtime root renders.",
+        "resolution": "Extend the existing demo-content route integrity logic to recognize canonical top-level shipping/payment information routes, rewrite their preview as legal-page demo content, and update the existing mobile-menu browser proof to the same canonical QA URL. Do not restore /oldal shipping/payment as active authority.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Plan Before Code must validate the proof-only file envelope, critical semantic route and current known-failure scope before rehearsal implementation.",
-      "A dedicated final rehearsal test composes the registered Loot Vault v2 Factory candidate and asserts every nested Generator Readiness authority in one execution.",
-      "The same proof uses the actual Loot Vault home Page Schema and shared component registry for Smart Intent and Smart Auto-Fix operations.",
-      "Smart Intent proof includes READY plan/apply, resulting schema validation, input immutability and stale-plan rejection.",
-      "Publish Readiness proof includes missing-external-evidence fail-closed state plus a real emitted Design Guard finding.",
-      "Auto-Fix proof consumes that current emitted finding, applies only the canonical safe rule, preserves input immutability and proves targeted postcondition by reinspection.",
-      "Maturity proof asserts all required capabilities and all E1-E11/E13 revalidation rows remain PROVEN while E13 stays browser/network-bound.",
-      "Generator readiness regression asserts the rehearsal does not introduce a third Factory recipe or Template #3 package.",
-      "Full Quality, TypeScript and Production Build must pass on the exact implementation head.",
-      "Pull-request Template Factory must pass exact-head full browser acceptance and E13 proof, followed by external handoff, Completion Truth and lifecycle closure."
+      "Run targeted catalog, route-integrity, Special Commerce and distinctness tests against the reduced canonical authority.",
+      "Run typecheck and production build so removed imports and canonical Loot Vault v2 design-token export are compile-proven.",
+      "Run the existing Template Factory quality path to ensure canonical Loot Vault v2 remains generator-ready with the reduced distinctness corpus.",
+      "Run Release Risk and Completion Truth on the exact branch head before lifecycle closure.",
+      "Verify the branch diff contains no Template #3 authoring files and no physical deletion of accepted visual reference assets.",
+      "Run the active Product Owner instruction state check and require zero forbidden /szallitas-es-fizetes occurrences in scoped canonical route authority.",
+      "Prove /szallitas and /fizetes route modules, sitemap entries and Loot Vault v2 navigation converge on the same shared storefront presentation authority."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-03-TEMPLATE-PRODUCTION-BRABUS-FINAL-REHEARSAL",
+      "request": "PO-2026-10-03-LEGACY-TEMPLATE-RETIREMENT",
       "authority": [
-        "builder-template-system"
+        "builder-template-system",
+        "shared-storefront"
       ],
       "mustEdit": [
-        "tests/template-factory-generator-readiness.test.ts"
+        "src/lib/builder/storefront-template-catalog.ts",
+        "src/lib/builder/storefront-template-preview-demo.ts",
+        "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
+        "tests/special-commerce-wave7-template-quality.test.ts",
+        "tests/special-commerce-wave7-template2-adoption.test.ts",
+        "tests/template-factory-template-distinctness.test.ts",
+        "tests/storefront-template-route-integrity.test.ts",
+        "tests/template-factory-loot-vault-v2.test.ts",
+        "src/app/oldal/[slug]/page.tsx",
+        "src/app/szallitas/page.tsx",
+        "src/app/fizetes/page.tsx",
+        "src/app/szallitas-es-fizetes/page.tsx",
+        "src/app/sitemap.ts",
+        "src/app/gyik/page.tsx",
+        "src/lib/builder/storefront-template-route-integrity.ts",
+        "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+        "tests/storefront-public-information-routes.test.ts",
+        "tests/storefront-real-route-template-authority.test.ts",
+        "tests/customer-order-service-ux.test.ts",
+        "scripts/shoperation-knowledge-preflight.mjs",
+        "tests/shoperation-change-impact-atlas.test.ts",
+        "scripts/lib/shoperation-reference-sync-runtime.mjs",
+        "tests/shoperation-development-guard.test.ts",
+        "src/app/kapcsolat/page.tsx",
+        "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
+        "tests/storefront-beauty-lab-reference-v2.test.ts",
+        "tests/template-factory-generator-readiness.test.ts",
+        "src/lib/builder/storefront-template-runtime-normalization.ts",
+        "scripts/template-factory-quality-gate.mjs"
       ],
-      "mayEdit": [
-        "tests/template-factory-brabus-final-rehearsal.test.ts"
-      ],
+      "mayEdit": [],
       "impactedReadOnly": [
-        "src/lib/builder/template-factory/recipe-registry.ts",
-        "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
-        "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts",
-        "src/lib/builder/template-factory/generator-readiness.ts",
-        "src/lib/builder/template-factory/production-maturity.ts",
-        "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
-        "src/lib/builder/storefront-builder-registry.ts",
-        "src/lib/builder/storefront-publish-readiness.ts",
-        "src/lib/builder/storefront-smart-intent.ts",
-        "src/lib/builder/storefront-smart-autofix.ts",
-        "src/lib/builder/storefront-fidelity-builder-operations.ts"
+        "src/lib/builder/storefront-special-commerce-template2-adoption.ts",
+        "src/lib/builder/storefront-ai-generator-server.ts",
+        "src/lib/builder/template-factory/generator-readiness.ts"
       ],
       "proof": [
-        "tests/template-factory-brabus-final-rehearsal.test.ts",
-        "tests/template-factory-generator-readiness.test.ts"
+        "tests/storefront-template-route-integrity.test.ts",
+        "tests/special-commerce-wave7-template-quality.test.ts",
+        "tests/special-commerce-wave7-template2-adoption.test.ts",
+        "tests/template-factory-template-distinctness.test.ts",
+        "tests/template-factory-loot-vault-v2.test.ts",
+        "tests/storefront-public-information-routes.test.ts",
+        "tests/storefront-real-route-template-authority.test.ts",
+        "tests/customer-order-service-ux.test.ts",
+        "tests/shoperation-change-impact-atlas.test.ts",
+        "tests/shoperation-development-guard.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
+        "tests/storefront-beauty-lab-reference-v2.test.ts",
+        "tests/storefront-cart-presentation-contract.test.ts",
+        "tests/template-factory-generator-readiness.test.ts",
+        "tests/storefront-template-quality-gate-v2.test.ts"
       ],
-      "unknown": []
+      "unknown": [],
+      "plannedDeletions": [
+        "src/app/szallitas-es-fizetes/page.tsx"
+      ]
     },
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-TEMPLATE-PRODUCTION-BRABUS-FINAL-REHEARSAL",
+    "sourceRef": "PO-2026-10-03-LEGACY-TEMPLATE-RETIREMENT",
     "requirements": [
       {
-        "id": "REQ-BRABUS-FINAL-PRODUCTION-CHAIN",
-        "requirement": "The existing Loot Vault v2 candidate must prove the complete Template Production chain in one current-stack rehearsal without synthetic package substitution.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "template-production-final-rehearsal",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "behavioral-proof",
-            "coverage",
-            "freshness",
-            "scope"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
+        "id": "REQ-RETIRE-ACTIVE-AUTHORITY",
+        "requirement": "Only Playroom v20 and Loot Vault v2 may remain active, resolvable template package authorities.",
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
+            "GUARD-PLAN-BEFORE-CODE"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS",
-            "GUARD-PRODUCTION-BUILD",
+            "GUARD-TYPECHECK"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-RETIRE-LEGACY-RESOLVER",
+            "statement": "No retired template key or Loot Vault v1 may resolve as an active package.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-RETIRE-NO-BYPASS",
+        "requirement": "Preview, derived inventory and distinctness paths must not preserve a parallel legacy template authority.",
+        "evidence": {
+          "implementation": [
+            "GUARD-EDIT-TIME"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-RETIRE-PREVIEW-BYPASS",
+            "statement": "Legacy design-token modules must not remain registered in the active preview theme authority.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS",
+              "GUARD-TYPECHECK"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-RETIRE-SAFE-BOUNDARY",
+        "requirement": "The retirement must leave Template #3 authoring untouched and defer physical legacy deletion until accepted visual references are inventoried.",
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-RELEASE-RISK",
             "GUARD-TEMPLATE-FACTORY"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-BRABUS-SYNTHETIC-SUBSTITUTE",
-            "statement": "A synthetic template or package cannot substitute for the registered canonical candidate.",
+            "id": "NEG-RETIRE-TEMPLATE3-CONTAMINATION",
+            "statement": "No Template #3 authoring artifact or accepted visual reference may be deleted or modified.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-BRABUS-FINAL-VX-COMPOSITION",
-        "requirement": "Real Page Schema Smart Intent, Publish Readiness and Smart Auto-Fix must compose safely with stale, provenance and fail-closed behavior preserved.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "vx-final-composition",
-          "strength": 2,
-          "dimensions": [
-            "behavioral-proof",
-            "freshness",
-            "coverage",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-BRABUS-READINESS-FALSE-PASS",
-            "statement": "Missing external/visual evidence cannot become a false publish PASS.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-BRABUS-AUTOFIX-FORGED",
-            "statement": "Final Auto-Fix proof cannot use a hand-built finding instead of current Publish Readiness evidence.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-BRABUS-FINAL-ENGINE-AND-E13",
-        "requirement": "All engine Brabus rows remain PROVEN and E13 remains bound to exact-head browser/network Template Factory proof during rehearsal closure.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "engine-e13-final-rehearsal",
-          "strength": 2,
-          "dimensions": [
-            "proven-scope",
-            "behavioral-proof",
-            "freshness",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-TEMPLATE-FACTORY",
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-BRABUS-E13-UNIT-SUBSTITUTE",
-            "statement": "Unit evidence cannot replace E13 exact-head browser/network proof.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS",
+              "GUARD-RELEASE-RISK",
               "GUARD-TEMPLATE-FACTORY"
             ]
           }
         ]
       },
       {
-        "id": "REQ-BRABUS-FINAL-TEMPLATE3-BOUNDARY",
-        "requirement": "This rehearsal must create no Template #3 artifact; Template #3 authoring may begin only in a separate transaction after this rehearsal lifecycle is VERIFIED and closed.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "template3-authoring-boundary",
-          "strength": 2,
-          "dimensions": [
-            "scope",
-            "limitations",
-            "freshness"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
+        "id": "REQ-RETIRE-SHIPPING-PAYMENT-AUTHORITY",
+        "requirement": "Shipping and payment must be separate canonical public route authorities, with the forbidden combined route removed and active template navigation converged on /szallitas and /fizetes.",
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS",
-            "GUARD-TEMPLATE-FACTORY"
+            "GUARD-TYPECHECK",
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-BRABUS-TEMPLATE3-IN-REHEARSAL",
-            "statement": "No Template #3 recipe, package or authoring implementation may be introduced before rehearsal lifecycle closure.",
+            "id": "NEG-RETIRE-COMBINED-SHIPPING-PAYMENT",
+            "statement": "No active shared route, sitemap entry or canonical Loot Vault v2 navigation may expose /szallitas-es-fizetes.",
             "evidence": [
+              "GUARD-QUALITY-TESTS",
+              "GUARD-PRODUCTION-BUILD"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-RETIRE-TOMBSTONE-KNOWLEDGE",
+        "requirement": "Knowledge Before Build must classify deleted instruction-governed routes through canonical tombstone-aware Atlas architecture instead of blocking them as unresolved live files.",
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME"
+          ],
+          "outcome": [
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-RETIRE-TOMBSTONE-UNRESOLVED",
+            "statement": "A deleted /szallitas-es-fizetes route governed by the active PO instruction must not produce SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED.",
+            "evidence": [
+              "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-RETIRE-REFERENCE-SYNC-SEMANTICS",
+        "requirement": "Reference Sync must distinguish deleted-route identity from incidental route-page copy/framework exports so the Edit-Time Guard blocks true stale machine consumers without requiring unrelated files to change.",
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-INCREMENTAL-REPLAY"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-RETIRE-REFERENCE-FALSE-BLOCK",
+            "statement": "Deleting a Next route page must not make unrelated generateMetadata exports or ordinary duplicated display copy mandatory edits.",
+            "evidence": [
+              "GUARD-EDIT-TIME",
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-RETIRE-REFERENCE-FALSE-PASS",
+            "statement": "A real live /szallitas-es-fizetes route or deleted-file consumer must still block.",
+            "evidence": [
+              "GUARD-EDIT-TIME",
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-RETIRE-REFERENCE-IDENTITY",
+        "requirement": "Reference Sync must distinguish real dependency identity from lexical collisions during the combined-route tombstone, while still blocking genuine stale route/path/export consumers.",
+        "evidence": {
+          "implementation": [
+            "GUARD-EDIT-TIME"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-INCREMENTAL-REPLAY"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-RETIRE-REFERENCE-FALSE-POSITIVE",
+            "statement": "Unrelated display text or same-name exports may not be promoted to required implementation edits solely because a page containing the same token was deleted.",
+            "evidence": [
+              "GUARD-EDIT-TIME",
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-RETIRE-REFERENCE-FALSE-NEGATIVE",
+            "statement": "Real stale route/path consumers and true imports from a deleted export origin must remain blocking.",
+            "evidence": [
+              "GUARD-EDIT-TIME",
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-RETIRE-LEGACY-SOURCE-HISTORY",
+        "requirement": "Reference Sync must align template-consumer authority with the active storefront catalog so inert legacy source history cannot interfere with canonical template/runtime changes.",
+        "evidence": {
+          "implementation": [
+            "GUARD-EDIT-TIME"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-INCREMENTAL-REPLAY"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-RETIRE-INERT-LEGACY-BLOCK",
+            "statement": "An unchanged catalog-retired template source must not become a required implementation edit solely due to a canonical route change.",
+            "evidence": [
+              "GUARD-EDIT-TIME"
+            ]
+          },
+          {
+            "id": "NEG-RETIRE-ACTIVE-TEMPLATE-BYPASS",
+            "statement": "Active catalog templates and template files changed by the current transaction must remain fully reference-checked.",
+            "evidence": [
+              "GUARD-EDIT-TIME",
               "GUARD-QUALITY-TESTS"
             ]
           }
@@ -597,14 +836,14 @@
       }
     ]
   },
-  "notes": "Fifteenth and final pre-Template-3 Brabus proof wave. Parent #791 / Engine Brabus revalidation is lifecycle-closed at 8e50fbdea0f2b12c0bcf626862062b6316c915b3 with verified implementation head 6a283d4c58fbc1f3446177a92506cfba85dd8f22. This is a one-time proof transaction over existing authorities, not a new persistent quality gate. Product code remains read-only unless the rehearsal proves a concrete deficiency. Initial #795 Plan Before Code reconciliation uses the measured planned projection: tests/quality-only planning has no canonical domain/authority owner, but impacts builder-template-system + release-infrastructure + shared-storefront; projected Known Failure and Negative Knowledge sets plus guardDigest are aligned exactly to the gate report without weakening any proof requirement. Prerequisite #798 is lifecycle-closed at 522e74ec5a9bd3cd313d245edb64b804b7a60734; final rehearsal transaction is rebased onto that closure head so its diff contains rehearsal work only and inherits the truthful neutral critical Plan scope fix without carrying Control Plane changes inside #795.",
+  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation. Knowledge Before Build exposed an existing integration gap: deleted routes were looked up only in live Atlas nodes. Scope now includes a minimal tombstone-aware Knowledge Preflight convergence using the existing Atlas resolver. Because this changes knowledge infrastructure, the expected failure set expands to the canonical full replay of 49 failures and adds DOMAIN-QUALITY authority. Edit-Time Guard exposed a proven Reference Sync overreach on whole-file Next route deletion. Plan now includes a narrow existing-runtime semantic fix plus regression coverage; full 49-failure replay and guard digest remain unchanged because this is already knowledge infrastructure. Edit-Time Guard then proved one real stale Contact route plus a reference-identity false-positive class for deleted-file display text and generic export names. Scope now includes a minimal Reference Sync semantic correction and its regression coverage; subsystem set, full 49-failure replay and guard digest remain unchanged. Plan schema normalized specialist review labels to the canonical role set; review findings and resolutions are unchanged. Duplicate challenge identifier normalized without changing evidence. Edit-Time route review exposed that active Playroom v20 still used the compatibility aliases. Scope now includes only its canonical package so both active templates converge on /szallitas and /fizetes; historical Playroom reference sources remain inert. Reference Sync scope is further aligned with the active template catalog: unchanged catalog-retired template sources are source-history evidence, while active or currently edited template sources remain fail-closed. Full Quality verification exposed superseded pre-retirement assertions in Beauty Lab catalog tests, generator distinctness corpus expectations, and semantic execution/reference-sync tests. These tests are now explicitly in scope so they can be realigned to the already-selected retirement authority without weakening runtime proof. Full Quality isolated one genuine runtime contract defect: Loot Vault v2 retained a template-specific empty-cart CTA because generic cart normalization only supplied defaults. The shared cart normalization file is now explicitly in scope; the existing portfolio-wide cart contract remains authoritative. Full-quality retirement test rewrites exposed a reverse-authority Reference Sync bug: deleted test implementation details were treated as production contract origins. Scope remains within the already-planned Reference Sync runtime and regression authority; no new subsystem or guard is introduced. Edit-Time proof confirmed Reference Sync PASS with zero stale/review findings after test-origin correction. The only remaining blocker was a plan-classification error: storefront-cart-presentation-contract is regression proof for the shared normalization change, not a required edited target; it is retained in planned/proof scope and removed from mustEdit. Exact-head 14x3 browser proof exposed a stale preview/demo-content assumption after shipping/payment route separation. Scope now includes the existing Template Factory quality runner and its regression test so browser proof follows canonical top-level informational route semantics while retaining demo warning and mobile-menu checks.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "2033792d7b4658e92fb9dd26c0d2df976bc330f2",
-    "closedAt": "2026-10-03T07:38:43.176Z",
+    "verifiedImplementationHead": "c7bd954090cc9a59a7186a160c064427ed3c0517",
+    "closedAt": "2026-10-03T09:40:33.059Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-03-TEMPLATE-PRODUCTION-BRABUS-FINAL-REHEARSAL",
+    "sourceRef": "PO-2026-10-03-LEGACY-TEMPLATE-RETIREMENT",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

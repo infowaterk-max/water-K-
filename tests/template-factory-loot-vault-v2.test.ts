@@ -9,7 +9,7 @@ import {
 } from '@/lib/builder/template-factory/recipes/loot-vault-v2';
 import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loot-vault/v2';
 import {resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
-import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
+import {getStorefrontTemplatePackage,STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES} from '@/lib/builder/storefront-template-catalog';
 import {STOREFRONT_PAGE_TYPES} from '@/lib/builder/storefront-foundation';
 import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 import {STOREFRONT_SUPPORT_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-support';
@@ -37,7 +37,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(JSON.stringify(article)).toContain('"componentKey":"story.hero"');
   });
 
-  it('is Product Owner preview-ready without implying acceptance or production catalog activation',()=>{
+  it('is Product Owner preview-ready and resolves only the canonical v2 production catalog authority',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
     expect(build.report.issues).toEqual([]);
     expect(build.report.technicalReady).toBe(true);
@@ -49,13 +49,15 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const preview=resolveStorefrontTemplatePreviewPackage('gaming.loot-vault',2,true);
     expect(preview).toEqual(LOOT_VAULT_V2_TEMPLATE_PACKAGE);
 
-    expect(getStorefrontTemplatePackage('gaming.loot-vault',2)).toBeUndefined();
-    expect(getStorefrontTemplatePackage('gaming.loot-vault',1)?.manifest.templateVersion).toBe(1);
+    const catalogAuthority=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.find(item=>item.manifest.templateKey==='gaming.loot-vault'&&item.manifest.templateVersion===2);
+    expect(catalogAuthority).toBeTruthy();
+    expect(getStorefrontTemplatePackage('gaming.loot-vault',2)).toBe(catalogAuthority);
+    expect(getStorefrontTemplatePackage('gaming.loot-vault',1)).toBeUndefined();
   });
 
   it('requires complete shopper navigation in preview, especially on mobile',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
-    const required=['/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum'];
+    const required=['/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas','/fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum'];
     for(const page of build.package.pages){
       const nodes=walk(page.sections);
       const header=nodes.find(node=>node.componentKey==='system.commerce-header');
@@ -64,7 +66,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
       expect(menu.map(item=>item.href), page.pageType).toEqual(required);
       const footer=nodes.find(node=>node.componentKey==='editorial.footer');
       const footerRoutes=((footer?.config.columns??[]) as {items?:{href?:string}[]}[]).flatMap(column=>column.items??[]).map(item=>item.href);
-      for(const href of ['/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/fiokom','/aszf','/adatvedelem','/impresszum'])expect(footerRoutes).toContain(href);
+      for(const href of ['/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas','/fizetes','/oldal/visszakuldes','/fiokom','/aszf','/adatvedelem','/impresszum'])expect(footerRoutes).toContain(href);
     }
   });
 

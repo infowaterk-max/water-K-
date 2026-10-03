@@ -21,7 +21,9 @@ describe('customer order service UX',()=>{
 
   test('confirmation and buying information use customer-facing wording',()=>{
     const confirmation=read('src/app/rendeles-sikeres/page.tsx');
-    const info=read('src/app/szallitas-es-fizetes/page.tsx');
+    const shipping=read('src/app/szallitas/page.tsx');
+    const payment=read('src/app/fizetes/page.tsx');
+    const info=shipping+payment;
     expect(confirmation).toContain('orderStatusLabel(order.status)');
     expect(info).toContain('A véglegesítés előtt újra ellenőrizzük');
     expect(info).not.toContain('A szerver újraellenőrzi');

@@ -211,8 +211,8 @@ function normalizeCartNode(node:StorefrontComponentNode):StorefrontComponentNode
 
   const config=sanitizeCartConfig(node.config);
   if(node.componentKey==='commerce.cart-summary'){
-    config.emptyCtaLabel=typeof config.emptyCtaLabel==='string'&&config.emptyCtaLabel.trim()?config.emptyCtaLabel:'Vásárlás folytatása';
-    config.emptyCtaHref=typeof config.emptyCtaHref==='string'&&config.emptyCtaHref.trim()?config.emptyCtaHref:'/webaruhaz';
+    config.emptyCtaLabel='Vásárlás folytatása';
+    config.emptyCtaHref='/webaruhaz';
     config.showQuantityControls=true;
     config.showRemoveControl=true;
     config.showCouponEntry=true;

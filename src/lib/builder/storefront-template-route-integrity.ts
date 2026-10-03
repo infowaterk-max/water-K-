@@ -7,7 +7,7 @@ export const STOREFRONT_ROUTE_INTEGRITY_VERSION='shoporation.storefront-route-in
 export const STOREFRONT_DEMO_CONTENT_NOTICE='Minta tartalom – ez az oldal előre generált szöveget tartalmaz, és nem tekinthető a webshop valós működésének vagy feltételeinek. Ellenőrizd és igazítsd a saját működésedhez publikálás előtt.' as const;
 
 export const STOREFRONT_REQUIRED_MOBILE_NAVIGATION_ROUTES=Object.freeze([
-  '/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum',
+  '/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas','/fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum',
 ] as const);
 export const STOREFRONT_REQUIRED_ACCOUNT_CAPABILITY_ROUTES=Object.freeze(
   CANONICAL_ACCOUNT_CAPABILITIES.filter(item=>!item.optional).map(item=>item.href),
@@ -25,7 +25,7 @@ export type StorefrontRouteIntegrityIssue={
 
 const PLATFORM_EXACT_ROUTES=new Set([
   '/','/webaruhaz','/kosar','/penztar','/fiokom','/gyik','/kapcsolat','/blog',
-  '/szallitas-es-fizetes','/aszf','/adatvedelem','/impresszum','/digitalis-hozzaferes',
+  '/szallitas','/fizetes','/aszf','/adatvedelem','/impresszum','/digitalis-hozzaferes',
   '/rendeles-sikeres','/hamarosan','/kereses','/kedvencek',
 ]);
 const PLATFORM_PREFIX_ROUTES=['/fiokom/','/termek/'] as const;
@@ -92,6 +92,11 @@ const STANDARD_DEMO_PAGES:Readonly<Record<string,DemoContentPayload>>=Object.fre
   karrier:standardPage('karrier','Karrier','Mintaoldal álláslehetőségek és jelentkezési információk számára.','Csatlakozz hozzánk\nMutasd be a vállalkozást mint munkahelyet és az aktuális lehetőségeket.\n\nJelentkezés\nAdd meg a valódi jelentkezési csatornát és az adatkezelési tájékoztatásra mutató hivatkozást.'),
 });
 
+const CANONICAL_INFORMATION_DEMO_ROUTES:ReadonlyMap<string,string>=new Map([
+  ['/szallitas','szallitas'],
+  ['/fizetes','fizetes'],
+]);
+
 function genericContent(slug:string,title:string,kind:'page'|'blog'):DemoContentPayload{
   const safeTitle=title&&title!==slug?title:humanize(slug);
   return{
@@ -114,8 +119,10 @@ export function augmentStorefrontTemplateDemoContent(template:StorefrontInstalla
   const links=listStorefrontTemplateLinks(template);
   for(const link of links){
     let kind:'page'|'blog'|null=null,slug='';
-    if(link.href.startsWith('/oldal/')){kind='page';slug=link.href.split(/[?#]/)[0]!.slice('/oldal/'.length);}
-    else if(link.href.startsWith('/blog/')){kind='blog';slug=link.href.split(/[?#]/)[0]!.slice('/blog/'.length);}
+    const pathname=link.href.split(/[?#]/)[0]!;
+    if(pathname.startsWith('/oldal/')){kind='page';slug=pathname.slice('/oldal/'.length);}
+    else if(pathname.startsWith('/blog/')){kind='blog';slug=pathname.slice('/blog/'.length);}
+    else{const canonicalInfoSlug=CANONICAL_INFORMATION_DEMO_ROUTES.get(pathname);if(canonicalInfoSlug){kind='page';slug=canonicalInfoSlug;}}
     if(!kind||!slug||existing.has(slug))continue;
     const payload=kind==='page'?(STANDARD_DEMO_PAGES[slug]??genericContent(slug,link.label,'page')):genericContent(slug,link.label,'blog');
     fixtures.push({entityType:'content',entityKey:`${kind}-${slug}`,payload});
@@ -167,7 +174,7 @@ const previewPageForPath=(pathname:string):string|null=>{
   if(pathname.startsWith('/oldal/'))return'content';
   if(pathname==='/gyik')return'faq';
   if(pathname==='/kapcsolat')return'contact';
-  if(['/aszf','/adatvedelem','/impresszum','/szallitas-es-fizetes'].includes(pathname))return'legal';
+  if(['/aszf','/adatvedelem','/impresszum','/szallitas','/fizetes'].includes(pathname))return'legal';
   return null;
 };
 
@@ -184,8 +191,9 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
     viewport:input.viewport,
   });
   if(input.factoryCandidate)params.set('factory','1');
-  if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')){
-    const slug=url.pathname.split('/').filter(Boolean).at(-1);
+  const canonicalInfoSlug=CANONICAL_INFORMATION_DEMO_ROUTES.get(url.pathname);
+  if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')||canonicalInfoSlug){
+    const slug=canonicalInfoSlug??url.pathname.split('/').filter(Boolean).at(-1);
     if(slug)params.set('demoContent',slug);
   }
   for(const[key,value]of url.searchParams)params.append(key,value);
@@ -384,7 +392,8 @@ export const STOREFRONT_TEMPLATE_SHOWROOM_SURFACES:readonly StorefrontShowroomSu
   {id:'wishlist',label:'Kedvencek',route:'/kedvencek',pageType:'account',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
   {id:'downloads',label:'Letöltéseim',route:'/fiokom/letoltesek',pageType:'account',reachability:'shopper-journey',navigationRequired:false,engines:['E1']},
   {id:'about',label:'Rólunk',route:'/oldal/rolunk',pageType:'content',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E10']},
-  {id:'shipping-payment',label:'Szállítás és fizetés',route:'/szallitas-es-fizetes',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
+  {id:'shipping',label:'Szállítás',route:'/szallitas',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
+  {id:'payment',label:'Fizetés',route:'/fizetes',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
   {id:'returns',label:'Visszaküldés',route:'/oldal/visszakuldes',pageType:'content',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
   {id:'faq',label:'GYIK',route:'/gyik',pageType:'faq',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
   {id:'contact',label:'Kapcsolat',route:'/kapcsolat',pageType:'contact',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},

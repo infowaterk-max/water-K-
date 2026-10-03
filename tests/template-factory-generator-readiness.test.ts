@@ -37,7 +37,8 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(build.report.generatorReadiness.productionLineage?.valid).toBe(true);
     expect(build.report.generatorReadiness.productionLineage?.lineage?.hash).toBe(build.report.provenance.lineage?.hash);
     expect(build.report.generatorReadiness.distinctness.valid).toBe(true);
-    expect(build.report.generatorReadiness.distinctness.corpusSize).toBeGreaterThan(20);
+    expect(build.report.generatorReadiness.distinctness.corpusSize).toBe(1);
+    expect(build.report.generatorReadiness.distinctness.comparisons.map(row=>row.reference.templateKey)).toEqual(['gaming.playroom']);
     expect(build.report.generatorReadiness.distinctness.comparisons.some(row=>row.reference.templateKey==='gaming.loot-vault')).toBe(false);
     expect(build.report.generatorReadiness.productionCompiler).toMatchObject({required:true,valid:true,issues:[]});
     expect(build.report.provenance.compiler?.hash).toBe(LOOT_VAULT_V2_PRODUCTION_COMPILATION.program?.hash);

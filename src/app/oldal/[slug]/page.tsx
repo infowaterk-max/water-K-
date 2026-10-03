@@ -1,6 +1,6 @@
 import type{Metadata}from'next';
 import Link from'next/link';
-import{notFound}from'next/navigation';
+import{notFound,permanentRedirect}from'next/navigation';
 import{getPublicPageBySlug}from'@/lib/content/server';
 import{getCurrentWebshopInstance}from'@/lib/instances/access';
 import{getCommerceSettings}from'@/lib/commerce/settings';
@@ -27,7 +27,9 @@ const EDITORIAL_INFO:Record<string,{title:string;lead:string;body:string}>={
 };
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
- const{slug}=await params,item=await getPublicPageBySlug(slug);
+ const{slug}=await params;
+ if(slug==='szallitas'||slug==='fizetes')return{title:SYSTEM_INFO[slug]!.title,description:SYSTEM_INFO[slug]!.description,alternates:{canonical:`/${slug}`}};
+ const item=await getPublicPageBySlug(slug);
  if(item)return{title:item.seoTitle??item.title,description:item.seoDescription??item.excerpt??undefined,alternates:{canonical:`/oldal/${item.slug}`},openGraph:{type:'website',title:item.seoTitle??item.title,description:item.seoDescription??item.excerpt??undefined,url:`/oldal/${item.slug}`}};
  const system=SYSTEM_INFO[slug];
  return system?{title:system.title,description:system.description,alternates:{canonical:`/oldal/${slug}`}}:{};
@@ -44,7 +46,7 @@ function SystemInfoPage({slug,brand,settings}:{slug:string;brand:string;settings
       <section className="featurePanel systemInfoGuide"><span className="eyebrow">Hogyan működik?</span><h2>A végleges lehetőséget mindig a pénztár mutatja.</h2><div className="cards"><article className="card"><span className="badge">1</span><h3>Rendelési adatok</h3><p className="muted">Add meg pontosan a kézbesítéshez szükséges adatokat.</p></article><article className="card"><span className="badge">2</span><h3>Elérhető módok</h3><p className="muted">A pénztár csak az adott rendeléshez használható, aktív szállítási módokat kínálja fel.</p></article><article className="card"><span className="badge">3</span><h3>Díj ellenőrzése</h3><p className="muted">A végleges szállítási díjat még a rendelés elküldése előtt látod.</p></article></div></section>
       <section className="card"><h2>Rendelés után</h2><p className="muted">A kiválasztott szállítási mód a rendelési adatok között is megjelenik. Ha az adott szolgáltató nyomkövetési adatot biztosít, azt a fiókod rendelési nézetében érheted el.</p></section>
     </div>
-    <div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/webaruhaz">Vissza a webáruházba</Link><Link className="btn btnGhost" href="/oldal/fizetes">Fizetési információk</Link></div>
+    <div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/webaruhaz">Vissza a webáruházba</Link><Link className="btn btnGhost" href="/fizetes">Fizetési információk</Link></div>
   </div></main>;
  }
  if(slug==='fizetes'){
@@ -55,7 +57,7 @@ function SystemInfoPage({slug,brand,settings}:{slug:string;brand:string;settings
       <section className="featurePanel systemInfoGuide"><span className="eyebrow">Hogyan működik?</span><h2>A pénztár mindig az aktív lehetőségeket mutatja.</h2><div className="cards"><article className="card"><span className="badge">1</span><h3>Fizetési mód kiválasztása</h3><p className="muted">A rendelésnél válassz a webshophoz ténylegesen engedélyezett fizetési módok közül.</p></article><article className="card"><span className="badge">2</span><h3>Végösszeg ellenőrzése</h3><p className="muted">A fizetés előtt ellenőrizheted a rendelés végleges összegét és a kapcsolódó díjakat.</p></article><article className="card"><span className="badge">3</span><h3>Visszaigazolás</h3><p className="muted">A rendelés elküldése után a kiválasztott fizetési módnak megfelelő következő lépést és visszaigazolást kapod.</p></article></div></section>
       <section className="card"><h2>Rendelés után</h2><p className="muted">A kiválasztott fizetési mód a rendelés adatai között is megjelenik. A fizetés állapotát és a rendeléshez tartozó dokumentumokat a fiókodban követheted, amikor azok elérhetővé válnak.</p></section>
     </div>
-    <div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/webaruhaz">Vissza a webáruházba</Link><Link className="btn btnGhost" href="/oldal/szallitas">Szállítási információk</Link></div>
+    <div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/webaruhaz">Vissza a webáruházba</Link><Link className="btn btnGhost" href="/szallitas">Szállítási információk</Link></div>
   </div></main>;
  }
  if(slug==='visszakuldes')return <main className="section contentPage systemInfoPage" data-system-info-page="returns"><div className="shell">
@@ -74,7 +76,9 @@ function SystemInfoPage({slug,brand,settings}:{slug:string;brand:string;settings
 }
 
 export default async function Page({params}:{params:Promise<{slug:string}>}){
- const{slug}=await params,item=await getPublicPageBySlug(slug);
+ const{slug}=await params;
+ if(slug==='szallitas'||slug==='fizetes')permanentRedirect(`/${slug}`);
+ const item=await getPublicPageBySlug(slug);
  const instance=await getCurrentWebshopInstance(),base=(instance?.brand.publicSiteUrl??process.env.NEXT_PUBLIC_SITE_URL??'http://localhost:3000').replace(/\/$/,''),brandName=instance?.brand.name??'Webáruház';
  if(!item){
   if(!SYSTEM_INFO[slug])notFound();

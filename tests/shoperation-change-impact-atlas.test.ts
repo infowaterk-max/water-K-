@@ -14,6 +14,9 @@ describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
     expect(preflight).toContain("contract:'shoporation.change-impact.v1'");
     expect(preflight).toContain('directDomains');
     expect(preflight).toContain('directAuthorities');
+    expect(preflight).toContain('resolveAtlasArchitectureForPath');
+    expect(preflight).toContain('tombstones:deletedFiles');
+    expect(preflight).toContain('changeExecutionRoute');
     expect(preflight).toContain('SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED');
     expect(preflight).toContain("artifacts/shoperation-quality/change-impact.json");
   });
