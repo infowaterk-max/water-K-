@@ -10,7 +10,8 @@
     "src/components/admin/storefront-visual-builder-v3.tsx",
     "src/lib/builder/template-factory/production-maturity.ts",
     "tests/visual-builder-v3-ui.test.ts",
-    "tests/template-factory-production-maturity.test.ts"
+    "tests/template-factory-production-maturity.test.ts",
+    "tests/visual-builder-production-completion.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -388,6 +389,13 @@
         "finding": "Canonical readiness PASS cannot bypass existing draft-state preconditions for the publish action.",
         "resolution": "Publish remains disabled unless decision is PASS AND busy=false AND dirty=false AND draftRevision is present.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-V3-9",
+        "scenario": "A legacy product-completion test still requires literal labels from the removed local readiness checklist.",
+        "finding": "The test would force the active V3 back toward a parallel presentation authority instead of validating canonical Core adoption.",
+        "resolution": "Update the regression to prove canonical Core import/invocation, canonical category rendering and PASS-only publish gating while retaining the broader workspace checks.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -398,7 +406,8 @@
       "Executable/source proof must show each non-clean V3 readiness category renders the Core-provided state plus finding reason, authority/source, repairability and any available page/viewport/node/path/href localization; removal of any one field must make the adoption regression test fail.",
       "Source boundary proof that V3 does not fabricate external evidence or generate diagnostic mutations.",
       "Maturity proof promotes only VX-PUBLISH-READINESS and leaves Smart Intent/Auto-Fix non-PROVEN.",
-      "Incremental Known Failure replay, Quality tests, TypeScript, production build, exact-head Template Factory proof, Completion Truth and lifecycle closure."
+      "Incremental Known Failure replay, Quality tests, TypeScript, production build, exact-head Template Factory proof, Completion Truth and lifecycle closure.",
+      "Product-completion regression proof must assert the active V3 publish surface consumes the canonical readiness contract/categories rather than requiring the removed hardcoded Fidelity-only checklist labels."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-03-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
@@ -412,7 +421,8 @@
       ],
       "mayEdit": [
         "tests/visual-builder-v3-ui.test.ts",
-        "tests/template-factory-production-maturity.test.ts"
+        "tests/template-factory-production-maturity.test.ts",
+        "tests/visual-builder-production-completion.test.ts"
       ],
       "impactedReadOnly": [
         "src/app/admin/tartalom/builder/page.tsx",
@@ -422,7 +432,8 @@
       ],
       "proof": [
         "tests/visual-builder-v3-ui.test.ts",
-        "tests/template-factory-production-maturity.test.ts"
+        "tests/template-factory-production-maturity.test.ts",
+        "tests/visual-builder-production-completion.test.ts"
       ],
       "unknown": []
     },
@@ -440,9 +451,10 @@
           "breadth": "vx-publish-readiness-active-v3",
           "strength": 2,
           "dimensions": [
-            "implementation-scope",
-            "user-visible-adoption",
-            "authority-boundary"
+            "status",
+            "behavioral-proof",
+            "coverage",
+            "limitations"
           ]
         },
         "requiredCapabilities": [
@@ -477,7 +489,7 @@
           "strength": 2,
           "dimensions": [
             "status",
-            "decision",
+            "behavioral-proof",
             "limitations"
           ]
         },
@@ -512,8 +524,8 @@
           "strength": 2,
           "dimensions": [
             "proven-scope",
-            "limitations",
-            "dependency-order"
+            "scope",
+            "limitations"
           ]
         },
         "requiredCapabilities": [
@@ -540,5 +552,5 @@
       }
     ]
   },
-  "notes": "Eleventh Brabus hardening wave. The Publish Readiness Core is lifecycle-closed on parent HEAD a04d797f49bd8695d101d64ac7694773a984b184. This stacked wave exists because the combined Core+Admin change exceeded the main-branch Release Risk Budget; against the closed Core base, projected substantive risk is V3 admin adoption plus maturity metadata only. The preserved earlier WIP patch is not accepted as-is because it allowed publish on UNKNOWN. Template #3 remains forbidden until Smart Intent and Smart Auto-Fix are also PROVEN. Reference Sync review fingerprints fba59413/178d5296/9f696176/297e4c67 are explicitly acknowledged for two inactive legacy Builder files; active-route proof remains page.tsx -> StorefrontVisualBuilderV3."
+  "notes": "Eleventh Brabus hardening wave. The Publish Readiness Core is lifecycle-closed on parent HEAD a04d797f49bd8695d101d64ac7694773a984b184. This stacked wave exists because the combined Core+Admin change exceeded the main-branch Release Risk Budget; against the closed Core base, projected substantive risk is V3 admin adoption plus maturity metadata only. The preserved earlier WIP patch is not accepted as-is because it allowed publish on UNKNOWN. Template #3 remains forbidden until Smart Intent and Smart Auto-Fix are also PROVEN. Reference Sync review fingerprints fba59413/178d5296/9f696176/297e4c67 are explicitly acknowledged for two inactive legacy Builder files; active-route proof remains page.tsx -> StorefrontVisualBuilderV3. Sentinel proof-semantics reconciliation: completion claim dimensions now use only dimensions actually declared by the referenced executable guards; no guard capability or Sentinel rule was weakened."
 }
