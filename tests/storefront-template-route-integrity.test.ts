@@ -26,6 +26,25 @@ describe('Template Route Integrity + Demo Content Foundation',()=>{
     }
   });
 
+  it('exposes only Product Owner accepted canonical template authorities and rejects legacy packages',()=>{
+    const identities=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES
+      .map(template=>`${template.manifest.templateKey}@${template.manifest.templateVersion}`)
+      .sort();
+    expect(identities).toEqual(['gaming.loot-vault@2','gaming.playroom@20']);
+    expect(getStorefrontTemplatePackage('gaming.loot-vault',1)).toBeUndefined();
+    expect(getStorefrontTemplatePackage('gaming.loot-vault',2)?.manifest.templateVersion).toBe(2);
+    expect(getStorefrontTemplatePackage('gaming.playroom',20)?.manifest.templateVersion).toBe(20);
+
+    const legacyKeys=[
+      'outdoor.alpine-lodge','beauty.beauty-lab','tech.creator-station','beauty.derma-studio',
+      'fashion.editorial-atelier','home.gallery-edit','jewelry.heritage-atelier','food.market-pantry',
+      'jewelry.modern-luxe','fashion.monarche','pet.my-pack','sport.performance-lab','gaming.rig-forge',
+      'beauty.ritual-house','tech.spec-lab','sport.sport-hub','jewelry.statement-lab','fashion.street-drop',
+      'food.table-gift','tech.tech-deck','industrial.tool-depot','sport.trail-expedition',
+    ];
+    for(const templateKey of legacyKeys)expect(getStorefrontTemplatePackage(templateKey),templateKey).toBeUndefined();
+  });
+
   it('keeps only the current Playroom v20 resolver authority route-integrity clean',()=>{
     expect(getStorefrontTemplatePackage('gaming.playroom',19)).toBeUndefined();
     const template=getStorefrontTemplatePackage('gaming.playroom',20);
