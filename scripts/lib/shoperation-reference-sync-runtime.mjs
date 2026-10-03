@@ -30,6 +30,14 @@ const routeForFile=file=>{
   return match?'/'+match[1].split('/').filter(segment=>segment&&!/^\(.*\)$/.test(segment)&&!segment.startsWith('@')).join('/'):null;
 };
 
+const DELETED_ROUTE_GLOBAL_REFERENCE_KINDS=new Set([
+  'file-path','asset-path','route-literal','component-key','registry-key','config-key','route-key','schema-field','data-attribute','css-variable','css-class',
+]);
+export function filterDeletedRouteReferenceCandidates(candidates,deletedFiles=[]){
+  const deletedRoutes=new Set((deletedFiles??[]).filter(file=>Boolean(routeForFile(file))));
+  return (candidates??[]).filter(candidate=>!deletedRoutes.has(candidate.originFile)||DELETED_ROUTE_GLOBAL_REFERENCE_KINDS.has(candidate.kind));
+}
+
 function implementationExpression(line){
   const value=line.trim().replace(/[;,]\s*$/,'');
   const bareObjectKey=/^(?:['"`][^'"`]+['"`]|[A-Za-z_$][\w$-]*)\s*:\s*\{$/;
@@ -134,7 +142,9 @@ function diffData(base,head){
     const before=absentAtBase.has(fileName)?'':at(base,fileName),relocatedTo=movedByOld.get(fileName),after=at(head,relocatedTo??fileName);if(!before)continue;
     for(const symbol of exportsRemovedAcrossPathChange(before,after))candidates.push({kind:'export-symbol',value:symbol,severity:'block',originFile:fileName,relocatedTo:relocatedTo??null});
   }
-  const relocation=reconcileReferenceRelocations(candidates,addedCandidates);
+  const deletedFiles=files.filter(item=>item.status==='D').map(item=>item.old);
+  const highSignalCandidates=filterDeletedRouteReferenceCandidates(candidates,deletedFiles);
+  const relocation=reconcileReferenceRelocations(highSignalCandidates,addedCandidates);
   const seen=new Set();
   const uniqueCandidates=relocation.remaining.filter(candidate=>{
     const key=`${candidate.kind}|${candidate.value}|${candidate.originFile}`;if(seen.has(key))return false;seen.add(key);
@@ -186,6 +196,8 @@ const matches=(row,candidate)=>candidate.kind==='export-symbol'?new RegExp(`\\b$
 function classification(row,candidate){
   if(row.file===candidate.originFile||negative(row))return'ignored';
   if(row.file==='AGENTS.md'||row.file.startsWith('docs/')||row.file.endsWith('.md'))return'evidence';
+  if(row.file==='quality/knowledge/po-instructions.v1.json')return'evidence';
+  if(row.file.startsWith('tests/')&&['file-path','route-literal','route-key'].includes(candidate.kind)&&/\b(?:deleted|tombstone|plannedDeletion|plannedDeletions|forbiddenRoute|forbiddenStates)\b/i.test(row.text))return'evidence';
   if(candidate.severity==='review')return'review';
   if(candidate.kind==='implementation-expression')return/^(tests|scripts|quality|\.github)\//.test(row.file)?'block':'review';
   return MACHINE.test(row.file)?'block':'review';
@@ -256,5 +268,25 @@ if(process.argv.includes('--self-test')){
   if(!substantiveCandidates.some(item=>item.kind==='implementation-expression'))throw new Error('REFERENCE_SYNC_HIGH_SIGNAL_EXPRESSION_FALSE_NEGATIVE');
   const overflowProbe=boundReferenceCandidates(Array.from({length:1001},(_,index)=>({kind:'route-literal',value:'/r'+index,originFile:'src/x.ts'})));
   if(overflowProbe.coverage.decision!=='BLOCK'||overflowProbe.coverage.overflow!==1||overflowProbe.candidates.length!==1000)throw new Error('REFERENCE_SYNC_OVERFLOW_FAIL_OPEN');
-  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS; bare-object-key=IGNORED; coverage-overflow=BLOCK');
+  const deletedRoute='src/app/szallitas-es-fizetes/page.tsx';
+  const deletedRouteCandidates=filterDeletedRouteReferenceCandidates([
+    {kind:'display-text',value:'Szállítás és fizetés',originFile:deletedRoute},
+    {kind:'implementation-expression',value:'export default async function ShippingPaymentPage()',originFile:deletedRoute},
+    {kind:'export-symbol',value:'generateMetadata',originFile:deletedRoute},
+    {kind:'route-literal',value:'/szallitas-es-fizetes',severity:'review',originFile:deletedRoute},
+    {kind:'file-path',value:deletedRoute,severity:'block',originFile:deletedRoute},
+  ],[deletedRoute]);
+  if(deletedRouteCandidates.some(item=>['display-text','implementation-expression','export-symbol'].includes(item.kind)))throw new Error('REFERENCE_SYNC_DELETED_ROUTE_GENERIC_FALSE_POSITIVE');
+  if(!deletedRouteCandidates.some(item=>item.kind==='route-literal')||!deletedRouteCandidates.some(item=>item.kind==='file-path'))throw new Error('REFERENCE_SYNC_DELETED_ROUTE_IDENTITY_FALSE_NEGATIVE');
+  const evidenceProbe=evaluateCandidateConsumers(
+    [{kind:'file-path',value:deletedRoute,severity:'block',originFile:deletedRoute}],
+    [],
+    [
+      {file:'quality/knowledge/po-instructions.v1.json',line:1,text:`"src/app/szallitas-es-fizetes/page.tsx"`},
+      {file:'tests/example.test.ts',line:2,text:`const deleted='src/app/szallitas-es-fizetes/page.tsx';`},
+      {file:'src/live-consumer.ts',line:3,text:`const source='src/app/szallitas-es-fizetes/page.tsx';`},
+    ],
+  )[0];
+  if(evidenceProbe.evidenceConsumers.length!==2||evidenceProbe.staleConsumers.length!==1||evidenceProbe.staleConsumers[0]?.file!=='src/live-consumer.ts')throw new Error('REFERENCE_SYNC_TOMBSTONE_EVIDENCE_CLASSIFICATION_FAILED');
+  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS; deleted-route-generic=IGNORED; tombstone-evidence=PASS; coverage-overflow=BLOCK');
 }
