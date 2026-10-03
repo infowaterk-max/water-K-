@@ -1,6 +1,7 @@
 import {describe,expect,it} from 'vitest';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
+import {BEAUTY_LAB_TEMPLATE_PACKAGE as BEAUTY_LAB_REFERENCE_V2_PACKAGE} from '@/lib/builder/templates/beauty-lab-reference-v2';
 import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-template-preview-canonical';
 
 const flatten=(page:StorefrontPageDocument)=>{
@@ -15,9 +16,13 @@ const node=(page:StorefrontPageDocument,id:string)=>{
   return found;
 };
 
-describe('Beauty Lab reference-v2 catalog package',()=>{
-  const template=getStorefrontTemplatePackage('beauty.beauty-lab');
-  if(!template)throw new Error('BEAUTY_LAB_CATALOG_PACKAGE_MISSING');
+describe('Beauty Lab reference-v2 retired source history',()=>{
+  const template=BEAUTY_LAB_REFERENCE_V2_PACKAGE;
+
+  it('stays outside active runtime catalog authority while preserving historical reference source',()=>{
+    expect(getStorefrontTemplatePackage('beauty.beauty-lab')).toBeUndefined();
+    expect(template.manifest.templateKey).toBe('beauty.beauty-lab');
+  });
   const home=template.pages.find(page=>page.pageType==='home');
   const product=template.pages.find(page=>page.pageType==='product');
   if(!home||!product)throw new Error('BEAUTY_LAB_REFERENCE_PAGES_MISSING');
