@@ -24,11 +24,13 @@
   ],
   "expectedDomains": [
     "DOMAIN-ADMIN",
-    "DOMAIN-BUILDER"
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "admin-operations",
-    "builder-template-system"
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -630,5 +632,5 @@
       }
     ]
   },
-  "notes": "Twelfth Brabus hardening wave. Publish Readiness is lifecycle-closed and PROVEN on parent e63e7eee5a2180b958f6c3e288de45aa504f8cd8. Smart Intent is intentionally distinct from Block 23 AI storefront generation and from future Smart Auto-Fix. Guarded Freedom remains authoritative: user intent compiles only to bounded existing operations; no arbitrary source code or schema patching. Template #3 remains forbidden until Smart Auto-Fix is also PROVEN. Plan-gate reconciliation adds database-schema only as scoped negative knowledge because persistence/database language appears in the safety boundary; this wave still declares no migration/schema mutation. The new Smart Intent module is a planned creation and therefore mayEdit rather than an existing-file mustEdit route."
+  "notes": "Twelfth Brabus hardening wave. Publish Readiness is lifecycle-closed and PROVEN on parent e63e7eee5a2180b958f6c3e288de45aa504f8cd8. Smart Intent is intentionally distinct from Block 23 AI storefront generation and from future Smart Auto-Fix. Guarded Freedom remains authoritative: user intent compiles only to bounded existing operations; no arbitrary source code or schema patching. Template #3 remains forbidden until Smart Auto-Fix is also PROVEN. Plan-gate reconciliation adds database-schema only as scoped negative knowledge because persistence/database language appears in the safety boundary; this wave still declares no migration/schema mutation. The new Smart Intent module is a planned creation and therefore mayEdit rather than an existing-file mustEdit route. Actual-diff dependency reconciliation: canonical Smart Intent imports and validates shared Storefront Runtime/Page Schema authorities, therefore DOMAIN-STOREFRONT and shared-storefront are explicit expected dependency scopes; no new Storefront authority is introduced."
 }
