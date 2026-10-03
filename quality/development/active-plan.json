@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-TEMPLATE-PRODUCTION-BRABUS-FINAL-REHEARSAL",
   "task": "Run the final end-to-end Brabus rehearsal on the existing canonical Loot Vault v2 Factory candidate through the real Template Production and VX authorities, prove technical readiness and fail-closed boundaries without creating Template #3 or mutating production state, then close the rehearsal lifecycle before Template #3 authoring begins.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "b16be9a8",
   "changeBaseSha": "522e74ec5a9bd3cd313d245edb64b804b7a60734",
   "plannedFilePatterns": [
@@ -597,5 +597,18 @@
       }
     ]
   },
-  "notes": "Fifteenth and final pre-Template-3 Brabus proof wave. Parent #791 / Engine Brabus revalidation is lifecycle-closed at 8e50fbdea0f2b12c0bcf626862062b6316c915b3 with verified implementation head 6a283d4c58fbc1f3446177a92506cfba85dd8f22. This is a one-time proof transaction over existing authorities, not a new persistent quality gate. Product code remains read-only unless the rehearsal proves a concrete deficiency. Initial #795 Plan Before Code reconciliation uses the measured planned projection: tests/quality-only planning has no canonical domain/authority owner, but impacts builder-template-system + release-infrastructure + shared-storefront; projected Known Failure and Negative Knowledge sets plus guardDigest are aligned exactly to the gate report without weakening any proof requirement. Prerequisite #798 is lifecycle-closed at 522e74ec5a9bd3cd313d245edb64b804b7a60734; final rehearsal transaction is rebased onto that closure head so its diff contains rehearsal work only and inherits the truthful neutral critical Plan scope fix without carrying Control Plane changes inside #795."
+  "notes": "Fifteenth and final pre-Template-3 Brabus proof wave. Parent #791 / Engine Brabus revalidation is lifecycle-closed at 8e50fbdea0f2b12c0bcf626862062b6316c915b3 with verified implementation head 6a283d4c58fbc1f3446177a92506cfba85dd8f22. This is a one-time proof transaction over existing authorities, not a new persistent quality gate. Product code remains read-only unless the rehearsal proves a concrete deficiency. Initial #795 Plan Before Code reconciliation uses the measured planned projection: tests/quality-only planning has no canonical domain/authority owner, but impacts builder-template-system + release-infrastructure + shared-storefront; projected Known Failure and Negative Knowledge sets plus guardDigest are aligned exactly to the gate report without weakening any proof requirement. Prerequisite #798 is lifecycle-closed at 522e74ec5a9bd3cd313d245edb64b804b7a60734; final rehearsal transaction is rebased onto that closure head so its diff contains rehearsal work only and inherits the truthful neutral critical Plan scope fix without carrying Control Plane changes inside #795.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "2033792d7b4658e92fb9dd26c0d2df976bc330f2",
+    "closedAt": "2026-10-03T07:38:43.176Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-03-TEMPLATE-PRODUCTION-BRABUS-FINAL-REHEARSAL",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
