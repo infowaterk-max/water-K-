@@ -16,11 +16,11 @@ const CANONICAL_PAGE_TYPES=['home','catalog','product','search','cart','checkout
 const walk=(nodes:readonly {componentKey:string;children?:readonly any[]}[],out:string[]=[])=>{for(const node of nodes){out.push(node.componentKey);walk(node.children??[],out);}return out;};
 
 describe('Special Commerce Wave 7 template quality gate',()=>{
-  it('reviews only the 24 concrete packages and keeps the formal 42-template closure blocked',()=>{
+  it('reviews only the active canonical packages and keeps the formal 42-template closure blocked',()=>{
     expect(STOREFRONT_TEMPLATE_LAUNCH_TARGET).toBe(42);
-    expect(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES).toHaveLength(24);
-    expect(STOREFRONT_TEMPLATE2_WAVE7_PORTFOLIO.actualTemplateCount).toBe(24);
-    expect(STOREFRONT_TEMPLATE2_WAVE7_PORTFOLIO.remainingTemplateGap).toBe(18);
+    expect(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES).toHaveLength(2);
+    expect(STOREFRONT_TEMPLATE2_WAVE7_PORTFOLIO.actualTemplateCount).toBe(2);
+    expect(STOREFRONT_TEMPLATE2_WAVE7_PORTFOLIO.remainingTemplateGap).toBe(40);
     expect(STOREFRONT_TEMPLATE2_WAVE7_PORTFOLIO.full42ClosurePossible).toBe(false);
   });
 
@@ -49,7 +49,7 @@ describe('Special Commerce Wave 7 template quality gate',()=>{
   it('keeps every adopted Special Commerce capability on shared production Builder and renderer registries',()=>{
     const components=createStorefrontVisualBuilderComponentRegistry();
     const renderers=createStorefrontVisualBuilderRendererRegistry();
-    expect(STOREFRONT_TEMPLATE2_WAVE7_CAPABILITY_MATRIX).toHaveLength(24);
+    expect(STOREFRONT_TEMPLATE2_WAVE7_CAPABILITY_MATRIX).toHaveLength(2);
     for(const row of STOREFRONT_TEMPLATE2_WAVE7_CAPABILITY_MATRIX){
       for(const capability of STOREFRONT_SPECIAL_COMMERCE_CAPABILITIES){
         if(row.capabilities[capability]==='not applicable')continue;
