@@ -1,6 +1,6 @@
 import type{Metadata}from'next';
 import Link from'next/link';
-import{notFound}from'next/navigation';
+import{notFound,permanentRedirect}from'next/navigation';
 import{getPublicPageBySlug}from'@/lib/content/server';
 import{getCurrentWebshopInstance}from'@/lib/instances/access';
 import{getCommerceSettings}from'@/lib/commerce/settings';
@@ -27,7 +27,9 @@ const EDITORIAL_INFO:Record<string,{title:string;lead:string;body:string}>={
 };
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
- const{slug}=await params,item=await getPublicPageBySlug(slug);
+ const{slug}=await params;
+ if(slug==='szallitas'||slug==='fizetes')return{title:SYSTEM_INFO[slug]!.title,description:SYSTEM_INFO[slug]!.description,alternates:{canonical:`/${slug}`}};
+ const item=await getPublicPageBySlug(slug);
  if(item)return{title:item.seoTitle??item.title,description:item.seoDescription??item.excerpt??undefined,alternates:{canonical:`/oldal/${item.slug}`},openGraph:{type:'website',title:item.seoTitle??item.title,description:item.seoDescription??item.excerpt??undefined,url:`/oldal/${item.slug}`}};
  const system=SYSTEM_INFO[slug];
  return system?{title:system.title,description:system.description,alternates:{canonical:`/oldal/${slug}`}}:{};
@@ -74,7 +76,9 @@ function SystemInfoPage({slug,brand,settings}:{slug:string;brand:string;settings
 }
 
 export default async function Page({params}:{params:Promise<{slug:string}>}){
- const{slug}=await params,item=await getPublicPageBySlug(slug);
+ const{slug}=await params;
+ if(slug==='szallitas'||slug==='fizetes')permanentRedirect(`/${slug}`);
+ const item=await getPublicPageBySlug(slug);
  const instance=await getCurrentWebshopInstance(),base=(instance?.brand.publicSiteUrl??process.env.NEXT_PUBLIC_SITE_URL??'http://localhost:3000').replace(/\/$/,''),brandName=instance?.brand.name??'Webáruház';
  if(!item){
   if(!SYSTEM_INFO[slug])notFound();
