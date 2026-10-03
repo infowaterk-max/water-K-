@@ -3,12 +3,14 @@ import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefron
 
 import {PLAYROOM_V20_DESIGN_TOKENS} from '@/lib/builder/templates/gaming/playroom/v20';
 import {LOOT_VAULT_V2_DESIGN_TOKENS} from '@/lib/builder/templates/gaming/loot-vault/v2';
+import {SPORT_HUB_V1_DESIGN_TOKENS} from '@/lib/builder/templates/sport/sport-hub/v1';
 
 export const STOREFRONT_TEMPLATE_PREVIEW_DEMO_VERSION='shoporation.storefront-template-preview-demo.v4' as const;
 
 const PREVIEW_THEME_BY_TEMPLATE:Record<string,Readonly<Record<string,string>>>=Object.freeze({
   'gaming.playroom':PLAYROOM_V20_DESIGN_TOKENS,
   'gaming.loot-vault':LOOT_VAULT_V2_DESIGN_TOKENS,
+  'sport.sport-hub':SPORT_HUB_V1_DESIGN_TOKENS,
 });
 
 const CATEGORY_LABELS:Record<string,string>={

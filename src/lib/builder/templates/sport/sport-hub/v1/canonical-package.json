@@ -13386,7 +13386,25 @@
         "kind": "page",
         "slug": "szallitas",
         "title": "Szállítási információk",
-        "demo": true
+        "demo": true,
+        "excerpt": "Átvételi lehetőségek, kézbesítési folyamat és a rendelés követésének legfontosabb tudnivalói.",
+        "body": "SZÁLLÍTÁSI LEHETŐSÉGEK\nA rendelésnél a pénztárban megjelenő, ténylegesen elérhető szállítási módok közül választhatsz. A pontos díj és a várható kézbesítési idő minden esetben a választott mód mellett jelenik meg.\n\nRENDELÉSKÖVETÉS\nFeladás után a rendelés állapota a fiókban követhető. Amennyiben a választott szolgáltató nyomkövetést biztosít, annak hivatkozása is a rendeléshez kapcsolódik.\n\nÁTVÉTEL ÉS SEGÍTSÉG\nHa a csomag átvételével kapcsolatban kérdésed van, a Kapcsolat oldalon a „Rendelés és szállítás” témát választva tudsz segítséget kérni.",
+        "status": "draft",
+        "showroomReady": true
+      }
+    },
+    {
+      "entityType": "content",
+      "entityKey": "page-fizetes",
+      "payload": {
+        "kind": "page",
+        "slug": "fizetes",
+        "title": "Fizetési információk",
+        "excerpt": "Biztonságos fizetés a webshopban ténylegesen aktivált fizetési módokkal.",
+        "body": "FIZETÉSI MÓDOK\nA pénztár kizárólag az adott webshopban ténylegesen aktivált fizetési lehetőségeket mutatja. A kiválasztott mód a rendelés összesítésében is megjelenik a véglegesítés előtt.\n\nBIZTONSÁGOS FOLYAMAT\nA fizetés a Shoperation közös checkout folyamatán keresztül történik; a SPORT HUB sablon nem tart fenn külön fizetési motort vagy külön tranzakciós állapotot.\n\nSIKERTELEN FIZETÉS\nHa a fizetés nem fejeződik be, a rendelés nem jelenhet meg sikeresként. A következő teendőt a pénztár aktuális állapota jelzi.",
+        "status": "draft",
+        "demo": true,
+        "showroomReady": true
       }
     }
   ]
