@@ -5,6 +5,8 @@ import {
   SHARED_STOREFRONT_ENGINE_IDS,
   STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY,
   STOREFRONT_ENGINE_BRABUS_REVALIDATION,
+  STOREFRONT_ENGINE_BRABUS_REVALIDATION_TEST_PRODUCER,
+  STOREFRONT_E13_BRABUS_REVALIDATION_PRODUCER,
   validateStorefrontEngineFunctionalProofRegistry,
 } from '@/lib/builder/template-factory/engine-functional-proof-registry';
 import {
@@ -228,6 +230,9 @@ describe('Template Engine Brabus current-stack revalidation',()=>{
     expect(STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY.map(item=>item.engineId)).toEqual(SHARED_STOREFRONT_ENGINE_IDS);
     expect(SHARED_STOREFRONT_ENGINE_IDS).not.toContain('E12');
     expect(STOREFRONT_ENGINE_BRABUS_REVALIDATION.map(item=>item.engineId)).toEqual(SHARED_STOREFRONT_ENGINE_IDS);
+    expect(STOREFRONT_ENGINE_BRABUS_REVALIDATION.every(item=>item.state==='PROVEN'&&Boolean(item.proofProducer))).toBe(true);
+    expect(STOREFRONT_ENGINE_BRABUS_REVALIDATION.filter(item=>item.engineId!=='E13').every(item=>item.proofProducer===STOREFRONT_ENGINE_BRABUS_REVALIDATION_TEST_PRODUCER&&item.proofProducer!==item.retainedProofProducer)).toBe(true);
+    expect(STOREFRONT_ENGINE_BRABUS_REVALIDATION.find(item=>item.engineId==='E13')?.proofProducer).toBe(STOREFRONT_E13_BRABUS_REVALIDATION_PRODUCER);
     expect(STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY.every(item=>item.productionMutationAllowed===false)).toBe(true);
   });
 
