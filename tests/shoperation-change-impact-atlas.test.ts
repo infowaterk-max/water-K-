@@ -1,4 +1,5 @@
 import {readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
 import {beforeAll,describe,expect,it} from 'vitest';
 import {buildCodebaseAtlas,impactForAtlasPattern,reconcileAuthorityDependencies} from '../scripts/lib/shoperation-codebase-atlas-runtime.mjs';
 
