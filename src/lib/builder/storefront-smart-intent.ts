@@ -20,6 +20,7 @@ import {
 } from '@/lib/builder/storefront-fidelity-typography';
 import {
   inspectStorefrontResponsiveContainerLayout,
+  inspectStorefrontResponsiveInheritance,
   inspectStorefrontResponsiveLayoutDepth,
   resetStorefrontResponsiveLayoutDepth,
   setStorefrontResponsiveGridContainerLayout,
@@ -430,6 +431,16 @@ export async function planStorefrontSmartIntent(input:{
   }
 
   if(family==='responsive-reset'){
+    const inheritance=inspectStorefrontResponsiveInheritance(input.document,input.nodeId).viewports[viewport];
+    const hasDirectOverride=
+      inheritance.visibility.direct!==null
+      ||Object.keys(inheritance.gridPlacement.direct).length>0
+      ||Object.keys(inheritance.container.direct).length>0
+      ||inheritance.childOrder.direct!==null;
+    if(!hasDirectOverride)return failedPlan({
+      status:'BLOCK',family,source:contextualSource,code:'SMART_INTENT_RESET_NOOP',
+      reason:'Ezen a viewporton nincs visszaállítható explicit layout override.',
+    });
     operations.push({
       id:operationId(0),kind:'responsive-reset',authority:'storefront-responsive-layout-depth',
       nodeId:input.nodeId,viewport,
