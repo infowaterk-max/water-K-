@@ -174,7 +174,10 @@
         "Loot Vault generator distinctness compares against exactly the one other active canonical template, Playroom v20.",
         "Semantic Execution regressions distinguish lexical display-text coincidence from component-key dependency identity.",
         "The shipping/payment PO instruction requires only live canonical route files after the combined-route tombstone.",
-        "Every active canonical template receives the shared customer-task empty-cart continuation action 'Vásárlás folytatása' -> /webaruhaz through runtime normalization."
+        "Every active canonical template receives the shared customer-task empty-cart continuation action 'Vásárlás folytatása' -> /webaruhaz through runtime normalization.",
+        "A modified test file cannot become the origin of production component-key, display-text or implementation-expression stale-consumer requirements.",
+        "Production-origin component keys and other high-signal identities must still detect stale test consumers.",
+        "Deleting or renaming a test file itself remains reference-checked through file-path identity."
       ],
       "invariants": [
         "There is one active template catalog and resolver authority; retirement does not create a second registry.",
@@ -186,7 +189,8 @@
         "Merchant-facing route compatibility may redirect old aliases but may not restore the forbidden combined route.",
         "Knowledge Preflight may not treat a Git-proven, instruction-governed route tombstone as an unresolved architecture file when the canonical Atlas resolver can classify it.",
         "Reference Sync narrowing must reduce false positives without allowing live route/file identity consumers to pass.",
-        "A template file edited in the current transaction remains subject to full Reference Sync even if it is not yet in the active catalog."
+        "A template file edited in the current transaction remains subject to full Reference Sync even if it is not yet in the active catalog.",
+        "Reference Sync authority direction is implementation-to-proof: tests consume contracts but do not originate production identity from their internal assertions or fixtures."
       ],
       "forbiddenStates": [
         "legacy-template-key-resolves-active-package",
@@ -378,6 +382,17 @@
           "src/lib/builder/storefront-template-runtime-normalization.ts",
           "tests/storefront-cart-presentation-contract.test.ts"
         ]
+      },
+      {
+        "role": "Architecture",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Reference dependency direction must flow implementation authority → tests, never test implementation detail → production authority.",
+        "resolution": "Treat tests as evidence/consumer nodes unless the changed identity is the test file path itself.",
+        "evidence": [
+          "scripts/lib/shoperation-reference-sync-runtime.mjs",
+          "tests/shoperation-development-guard.test.ts"
+        ]
       }
     ],
     "challenge": [
@@ -491,6 +506,13 @@
         "scenario": "Loot Vault v2 enters the active production catalog with a template-specific empty-cart CTA label even though the existing portfolio-wide customer-task cart contract requires one shared continuation action.",
         "finding": "The generic cart normalizer only fills emptyCtaLabel/emptyCtaHref when missing, allowing a template-specific non-empty value to bypass the shared cart presentation authority.",
         "resolution": "Make the shared cart normalizer authoritative for the empty-cart continuation action: always normalize to 'Vásárlás folytatása' and '/webaruhaz'. Preserve template visual identity outside shared commerce-task semantics.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-16",
+        "scenario": "Reference Sync treats identifiers removed from modified test files as if the test were the production contract origin, causing unrelated runtime and dozens of other tests to become stale consumers.",
+        "finding": "This reverses authority direction: tests are proof/consumers of implementation contracts, not providers of production component keys, implementation expressions or UI identities.",
+        "resolution": "Filter non-file identity candidates originating from tests before repository-wide consumer reconciliation. Preserve test files as consumers, and preserve test file-path identity so workflow/package references to a deleted test still fail closed.",
         "status": "resolved"
       }
     ],
@@ -788,5 +810,5 @@
       }
     ]
   },
-  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation. Knowledge Before Build exposed an existing integration gap: deleted routes were looked up only in live Atlas nodes. Scope now includes a minimal tombstone-aware Knowledge Preflight convergence using the existing Atlas resolver. Because this changes knowledge infrastructure, the expected failure set expands to the canonical full replay of 49 failures and adds DOMAIN-QUALITY authority. Edit-Time Guard exposed a proven Reference Sync overreach on whole-file Next route deletion. Plan now includes a narrow existing-runtime semantic fix plus regression coverage; full 49-failure replay and guard digest remain unchanged because this is already knowledge infrastructure. Edit-Time Guard then proved one real stale Contact route plus a reference-identity false-positive class for deleted-file display text and generic export names. Scope now includes a minimal Reference Sync semantic correction and its regression coverage; subsystem set, full 49-failure replay and guard digest remain unchanged. Plan schema normalized specialist review labels to the canonical role set; review findings and resolutions are unchanged. Duplicate challenge identifier normalized without changing evidence. Edit-Time route review exposed that active Playroom v20 still used the compatibility aliases. Scope now includes only its canonical package so both active templates converge on /szallitas and /fizetes; historical Playroom reference sources remain inert. Reference Sync scope is further aligned with the active template catalog: unchanged catalog-retired template sources are source-history evidence, while active or currently edited template sources remain fail-closed. Full Quality verification exposed superseded pre-retirement assertions in Beauty Lab catalog tests, generator distinctness corpus expectations, and semantic execution/reference-sync tests. These tests are now explicitly in scope so they can be realigned to the already-selected retirement authority without weakening runtime proof. Full Quality isolated one genuine runtime contract defect: Loot Vault v2 retained a template-specific empty-cart CTA because generic cart normalization only supplied defaults. The shared cart normalization file is now explicitly in scope; the existing portfolio-wide cart contract remains authoritative."
+  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation. Knowledge Before Build exposed an existing integration gap: deleted routes were looked up only in live Atlas nodes. Scope now includes a minimal tombstone-aware Knowledge Preflight convergence using the existing Atlas resolver. Because this changes knowledge infrastructure, the expected failure set expands to the canonical full replay of 49 failures and adds DOMAIN-QUALITY authority. Edit-Time Guard exposed a proven Reference Sync overreach on whole-file Next route deletion. Plan now includes a narrow existing-runtime semantic fix plus regression coverage; full 49-failure replay and guard digest remain unchanged because this is already knowledge infrastructure. Edit-Time Guard then proved one real stale Contact route plus a reference-identity false-positive class for deleted-file display text and generic export names. Scope now includes a minimal Reference Sync semantic correction and its regression coverage; subsystem set, full 49-failure replay and guard digest remain unchanged. Plan schema normalized specialist review labels to the canonical role set; review findings and resolutions are unchanged. Duplicate challenge identifier normalized without changing evidence. Edit-Time route review exposed that active Playroom v20 still used the compatibility aliases. Scope now includes only its canonical package so both active templates converge on /szallitas and /fizetes; historical Playroom reference sources remain inert. Reference Sync scope is further aligned with the active template catalog: unchanged catalog-retired template sources are source-history evidence, while active or currently edited template sources remain fail-closed. Full Quality verification exposed superseded pre-retirement assertions in Beauty Lab catalog tests, generator distinctness corpus expectations, and semantic execution/reference-sync tests. These tests are now explicitly in scope so they can be realigned to the already-selected retirement authority without weakening runtime proof. Full Quality isolated one genuine runtime contract defect: Loot Vault v2 retained a template-specific empty-cart CTA because generic cart normalization only supplied defaults. The shared cart normalization file is now explicitly in scope; the existing portfolio-wide cart contract remains authoritative. Full-quality retirement test rewrites exposed a reverse-authority Reference Sync bug: deleted test implementation details were treated as production contract origins. Scope remains within the already-planned Reference Sync runtime and regression authority; no new subsystem or guard is introduced."
 }
