@@ -219,6 +219,25 @@ function semanticConsumers(atlas,candidates){
 
 const negative=row=>/\.not\.(?:toContain|toMatch|toEqual)|forbiddenApproaches/.test(row.text)||/^\s*(?:\/\/|\/\*|\*|#)/.test(row.text);
 const matches=(row,candidate)=>candidate.kind==='export-symbol'?new RegExp(`\\b${escapeRegExp(candidate.value)}\\b`).test(row.text):candidate.kind==='css-class'?(row.text.includes('.'+candidate.value)||row.text.includes(candidate.value)):row.text.includes(candidate.value);
+let referenceSyncChangedFiles=new Set();
+let activeTemplateRootsCache=null;
+function activeTemplateSourceRoots(){
+  if(activeTemplateRootsCache)return activeTemplateRootsCache;
+  const catalog=current('src/lib/builder/storefront-template-catalog.ts');
+  const roots=[...catalog.matchAll(/from\s+['"`]@\/lib\/builder\/templates\/([^'"`]+)['"`]/g)]
+    .map(match=>'src/lib/builder/templates/'+match[1].replace(/\/$/,''));
+  activeTemplateRootsCache=[...new Set(roots)].sort();
+  return activeTemplateRootsCache;
+}
+function activeTemplateRootContains(file,root){
+  return file===root||file===root+'.ts'||file===root+'.tsx'||file===root+'.js'||file===root+'.jsx'||file.startsWith(root+'/');
+}
+function isRetiredTemplateSourceHistory(file){
+  if(!file.startsWith('src/lib/builder/templates/'))return false;
+  if(referenceSyncChangedFiles.has(file))return false;
+  return!activeTemplateSourceRoots().some(root=>activeTemplateRootContains(file,root));
+}
+
 function tombstoneEvidence(row,candidate){
   if(!/^(?:tests|scripts)\//.test(row.file)||!['file-path','route-literal','route-key'].includes(candidate.kind))return false;
   const source=current(row.file);
@@ -229,6 +248,7 @@ function tombstoneEvidence(row,candidate){
 function classification(row,candidate){
   if(row.file===candidate.originFile||negative(row))return'ignored';
   if(row.file==='AGENTS.md'||row.file.startsWith('docs/')||row.file.endsWith('.md'))return'evidence';
+  if(isRetiredTemplateSourceHistory(row.file))return'evidence';
   if(row.file==='quality/knowledge/po-instructions.v1.json')return'evidence';
   if(tombstoneEvidence(row,candidate))return'evidence';
   if(candidate.kind==='display-text')return'ignored';
@@ -259,6 +279,8 @@ export function evaluateReferenceSynchronization({base,head}){
   let resolvedHead='',checkoutHead='';try{resolvedHead=git(['rev-parse',head]).trim();checkoutHead=git(['rev-parse','HEAD']).trim();}catch{}
   if(!resolvedHead||!checkoutHead||resolvedHead!==checkoutHead)return{contract:'shoporation.reference-sync.v2',base,head,decision:'BLOCK',reason:'REFERENCE_SYNC_CHECKOUT_HEAD_MISMATCH',identity:{resolvedHead:resolvedHead||null,checkoutHead:checkoutHead||null},staleConsumers:[],reviewConsumers:[],updatedConsumers:[]};
   const diff=diffData(base,head),patterns=[...new Set(diff.candidates.map(item=>item.value))];
+  referenceSyncChangedFiles=new Set(diff.files.flatMap(item=>[item.old,item.neu]).filter(Boolean));
+  activeTemplateRootsCache=null;
   const before=grep(patterns,base);
   const atlas=buildCodebaseAtlas();
   const after=[...grep(patterns,head),...semanticConsumers(atlas,diff.candidates)];
@@ -341,5 +363,21 @@ if(process.argv.includes('--self-test')){
     [{file:'src/consumer.ts',line:1,text:"const href='/__reference-sync-definitely-missing__';"}],
   )[0];
   if(missingRouteProbe?.reviewConsumers?.length!==1)throw new Error('REFERENCE_SYNC_MISSING_ROUTE_FALSE_NEGATIVE');
-  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS; deleted-route-generic=IGNORED; display-text=NON_IDENTITY; served-route=COMPATIBLE; tombstone-evidence=PASS; coverage-overflow=BLOCK');
+  const savedChangedFiles=referenceSyncChangedFiles;
+  referenceSyncChangedFiles=new Set();
+  const legacyTemplateProbe=evaluateCandidateConsumers(
+    [{kind:'route-literal',value:'/oldal/szallitas',severity:'review',originFile:'src/origin.tsx'}],
+    [],
+    [{file:'src/lib/builder/templates/legacy-example.ts',line:1,text:"const href='/oldal/szallitas';"}],
+  )[0];
+  referenceSyncChangedFiles=new Set(['src/lib/builder/templates/legacy-example.ts']);
+  const changedLegacyProbe=evaluateCandidateConsumers(
+    [{kind:'route-literal',value:'/__reference-sync-definitely-missing__',severity:'review',originFile:'src/origin.tsx'}],
+    [],
+    [{file:'src/lib/builder/templates/legacy-example.ts',line:1,text:"const href='/__reference-sync-definitely-missing__';"}],
+  )[0];
+  referenceSyncChangedFiles=savedChangedFiles;
+  if(legacyTemplateProbe?.reviewConsumers?.length||legacyTemplateProbe?.staleConsumers?.length||legacyTemplateProbe?.evidenceConsumers?.length!==1)throw new Error('REFERENCE_SYNC_RETIRED_TEMPLATE_HISTORY_FALSE_BLOCK');
+  if(changedLegacyProbe?.reviewConsumers?.length!==1)throw new Error('REFERENCE_SYNC_CHANGED_RETIRED_TEMPLATE_FALSE_PASS');
+  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS; deleted-route-generic=IGNORED; display-text=NON_IDENTITY; served-route=COMPATIBLE; legacy-template-source=EVIDENCE; changed-legacy=CHECKED; tombstone-evidence=PASS; coverage-overflow=BLOCK');
 }
