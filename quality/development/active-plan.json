@@ -83,7 +83,32 @@
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [],
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder-production.tsx",
+      "findingFingerprint": "fba59413",
+      "reason": "Intentional inactive legacy consumer. The canonical admin Builder route renders StorefrontVisualBuilderV3; this production component is not the adoption target and retaining its local presentation helper does not consume or redefine the new Publish Readiness contract."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder.tsx",
+      "findingFingerprint": "178d5296",
+      "reason": "Intentional inactive legacy consumer. The canonical admin Builder route renders StorefrontVisualBuilderV3; this older component is not the adoption target and its local status label helper is unrelated to active Publish Readiness authority."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder-production.tsx",
+      "findingFingerprint": "9f696176",
+      "reason": "Intentional inactive legacy consumer. The canonical V3 surface removed its Fidelity-only readiness derivation, while this inactive production component retains its own legacy helper without participating in the active route or canonical Publish Readiness decision."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder.tsx",
+      "findingFingerprint": "297e4c67",
+      "reason": "Intentional inactive legacy consumer. The canonical V3 surface removed its Fidelity-only readiness derivation; this older Builder file is not rendered by the active route and does not need to be mutated merely to silence lexical similarity."
+    }
+  ],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
@@ -515,5 +540,5 @@
       }
     ]
   },
-  "notes": "Eleventh Brabus hardening wave. The Publish Readiness Core is lifecycle-closed on parent HEAD a04d797f49bd8695d101d64ac7694773a984b184. This stacked wave exists because the combined Core+Admin change exceeded the main-branch Release Risk Budget; against the closed Core base, projected substantive risk is V3 admin adoption plus maturity metadata only. The preserved earlier WIP patch is not accepted as-is because it allowed publish on UNKNOWN. Template #3 remains forbidden until Smart Intent and Smart Auto-Fix are also PROVEN."
+  "notes": "Eleventh Brabus hardening wave. The Publish Readiness Core is lifecycle-closed on parent HEAD a04d797f49bd8695d101d64ac7694773a984b184. This stacked wave exists because the combined Core+Admin change exceeded the main-branch Release Risk Budget; against the closed Core base, projected substantive risk is V3 admin adoption plus maturity metadata only. The preserved earlier WIP patch is not accepted as-is because it allowed publish on UNKNOWN. Template #3 remains forbidden until Smart Intent and Smart Auto-Fix are also PROVEN. Reference Sync review fingerprints fba59413/178d5296/9f696176/297e4c67 are explicitly acknowledged for two inactive legacy Builder files; active-route proof remains page.tsx -> StorefrontVisualBuilderV3."
 }
