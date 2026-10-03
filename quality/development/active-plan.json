@@ -1,32 +1,37 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-PRODUCTION-BRABUS-FINAL-REHEARSAL",
-  "task": "Run the final end-to-end Brabus rehearsal on the existing canonical Loot Vault v2 Factory candidate through the real Template Production and VX authorities, prove technical readiness and fail-closed boundaries without creating Template #3 or mutating production state, then close the rehearsal lifecycle before Template #3 authoring begins.",
-  "status": "closed",
-  "guardDigest": "b16be9a8",
-  "changeBaseSha": "522e74ec5a9bd3cd313d245edb64b804b7a60734",
+  "taskId": "DEV-LEGACY-TEMPLATE-RETIREMENT",
+  "task": "Retire legacy template implementations from active canonical authority while preserving only Playroom v20 and Loot Vault v2; leave historical sources inert for later deletion and do not alter Template #3 authoring.",
+  "status": "ready-for-implementation",
+  "guardDigest": "5629f201",
+  "changeBaseSha": "30c3efa28b0d0d85e43ea87a1233f0fc290bf1c7",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "tests/template-factory-brabus-final-rehearsal.test.ts",
-    "tests/template-factory-generator-readiness.test.ts"
+    "src/lib/builder/storefront-template-catalog.ts",
+    "src/lib/builder/storefront-template-preview-demo.ts",
+    "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
+    "tests/special-commerce-wave7-template-quality.test.ts",
+    "tests/special-commerce-wave7-template2-adoption.test.ts",
+    "tests/template-factory-template-distinctness.test.ts",
+    "tests/storefront-template-route-integrity.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "release-infrastructure",
     "shared-storefront"
   ],
-  "expectedDomains": [],
-  "expectedAuthorities": [],
+  "expectedDomains": [
+    "DOMAIN-BUILDER"
+  ],
+  "expectedAuthorities": [
+    "builder-template-system"
+  ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -35,7 +40,6 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-022",
@@ -71,7 +75,6 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -82,124 +85,55 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-TEMPLATE-PRODUCTION-BRABUS-FINAL-REHEARSAL",
-    "riskTier": "critical",
-    "problemStatement": "All mandatory Template Factory, VX Builder and shared engine capabilities are now lifecycle-closed and technically PROVEN, and declared generator candidates report template3AuthoringReady=true. Product Owner process authority still forbids Template #3 until one final end-to-end Brabus rehearsal proves that these capabilities compose correctly on a real canonical Factory candidate. The rehearsal must not create another quality framework, invent a synthetic template, or use mocks in place of the canonical Loot Vault v2 package and VX APIs. It must exercise the existing authorities together, preserve fail-closed semantics, and rely on the normal exact-head Template Factory/E13 and Completion Truth evidence for browser/network closure.",
-    "observableOutcomes": [
-      "The canonical registered gaming.loot-vault Factory candidate is generator-ready with valid production contracts, Genome, type compatibility, Constraint Plan, Media Plan, production lineage, distinctness and dynamic production compiler evidence.",
-      "The rehearsal materializes exactly the canonical 14 page types with Desktop, Tablet and Mobile responsive authority and does not introduce a third Factory recipe or Template #3 implementation.",
-      "The actual Loot Vault home document validates through the shared Visual Builder component registry without replacing Page Schema authority.",
-      "Smart Intent plans and applies a bounded typography change on the real loot-vault-loot-v2-hero-title node, returns READY, preserves Page Schema validity, and rejects stale replay after the document changes.",
-      "Publish Readiness consumes the real rehearsal document and remains fail-closed for missing external/visual evidence rather than manufacturing PASS.",
-      "A real PUBLISH_READINESS_DESIGN_GUARD_OFF finding is produced from the document, Smart Auto-Fix creates an explicit READY safe-registry repair, apply changes only Design Guard to warn, and the targeted finding disappears.",
-      "Smart Auto-Fix never uses missing external/visual evidence to invent a schema repair.",
-      "Production maturity remains valid with an empty technical blocker list and every E1-E11/E13 Brabus revalidation capability PROVEN.",
-      "E13 remains bound to the canonical exact-head browser/network handoff proof, not to the rehearsal unit process.",
-      "The normal pull-request Template Factory exact-head proof must pass the full acceptance matrix and E13 journey before Completion Truth can verify this rehearsal.",
-      "No save, publish, database, payment, order, customer, inventory or production mutation authority is invoked by the rehearsal.",
-      "Lifecycle closure of this rehearsal, not technical readiness alone, is the final Product Owner prerequisite before a separate Template #3 authoring wave may start."
-    ],
-    "unresolvedRisks": [
-      "Individually PROVEN capabilities may fail when composed on one real Factory document.",
-      "A synthetic fixture could hide package or registry drift and create a false rehearsal PASS.",
-      "Smart Intent could produce an invalid result on a complex canonical template node despite isolated tests.",
-      "Publish Readiness could be misread as PASS when external evidence is absent.",
-      "Auto-Fix could repair a forged finding rather than one emitted by current Publish Readiness.",
-      "The rehearsal could mutate the canonical package object or cross persistence/publish boundaries.",
-      "Technical template3AuthoringReady could be mistaken for completion of the separate Product Owner rehearsal.",
-      "A unit-only E13 assertion could accidentally substitute for the exact-head browser/network proof.",
-      "Adding a rehearsal status to production code would create a new parallel gate rather than a one-time proof transaction."
-    ],
-    "scope": {
-      "in": [
-        "One end-to-end proof over the existing registered Loot Vault v2 Factory candidate.",
-        "Canonical Generator Readiness, production contracts, Genome, Type System, Constraint Planner, Media Planner, lineage, distinctness and Dynamic Production Compiler outputs.",
-        "Canonical 14-page package and Desktop/Tablet/Mobile authority verification.",
-        "Real Loot Vault home Page Schema validation through the shared Visual Builder component registry.",
-        "Real-node Smart Intent planning/apply and stale-plan rejection.",
-        "Publish Readiness fail-closed behavior with missing external evidence.",
-        "Real Publish Readiness Design Guard finding through Smart Auto-Fix plan/apply/postcondition.",
-        "Production maturity and E1-E11/E13 Brabus proof registry verification.",
-        "Explicit proof that no Template #3 recipe/package is created by the rehearsal.",
-        "Normal exact-head Template Factory/E13 workflow, Completion Truth and lifecycle closure."
-      ],
-      "out": [
-        "Creating or implementing Template #3.",
-        "New production capability, schema, engine, Builder authority, readiness authority or quality framework.",
-        "Changing Loot Vault visual design, accepted visual authority, media, recipe or canonical package.",
-        "Production save/publish/database/payment/order/customer/inventory mutation.",
-        "Replacing E13 browser/network evidence with unit evidence.",
-        "Weakening any existing Control Plane, Template Factory or external proof requirement."
-      ]
-    },
+    "sourceRef": "PO-2026-10-03-LEGACY-TEMPLATE-RETIREMENT",
+    "riskTier": "high",
     "assuranceCeiling": {
-      "level": "critical-practical",
-      "rationale": "This is the final prerequisite before Template #3 authoring, so false PASS has high downstream cost. The highest practical assurance is a proof-only transaction that composes canonical production authorities on a real candidate, uses real emitted diagnostics rather than fabricated repair inputs, checks stale/fail-closed behavior, proves input immutability and absence of Template #3 creation, and still requires exact-head browser/E13, Completion Truth and lifecycle closure.",
+      "level": "strong-behavioral-proof",
+      "rationale": "The change removes legacy template implementations from active authority surfaces that feed installation, preview, AI selection, Special Commerce inventory and distinctness. Strong behavioral proof is warranted because a false retirement could either keep legacy authority alive or accidentally remove the two accepted canonical templates; physical source deletion is deliberately deferred until active reachability is proven absent.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "dependency-graph",
-        "evidence-provenance",
         "what-if-matrix",
         "adversarial-scenarios",
-        "negative-tests",
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
         "fault-injection",
         "determinism-proof",
-        "immutability-proof",
-        "authority-boundary-proof",
-        "exact-head-browser-proof",
-        "finite-state-exhaustion"
+        "authority-boundary-proof"
       ],
       "deferredTechniques": [
-        "new-template-authoring",
-        "production-side-effect-testing",
-        "new-quality-gate",
-        "synthetic-e13-substitute",
-        "visual-redesign",
-        "engine-rewrite-without-rehearsal-failure"
+        "physical-legacy-source-deletion",
+        "approved-reference-image-migration",
+        "template-3-authoring"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault') is generator-ready and its production maturity is valid with template3AuthoringReady=true.",
-        "Generator Readiness proves production contracts, Genome, type system/compatibility, Constraint Plan, Media Plan, lineage, distinctness and production compiler valid in the same build.",
-        "The package contains exactly the canonical 14 page types and declares all three responsive authorities.",
-        "No Factory recipe other than the existing Loot Vault v2 recipe is introduced by this rehearsal.",
-        "The real Loot Vault home Page Schema validates through createStorefrontVisualBuilderComponentRegistry with a capability context sufficient for the package.",
-        "Smart Intent on loot-vault-loot-v2-hero-title with a bounded mobile typography request is READY, applies through the canonical setter, keeps the document valid, and replay against the changed document throws SMART_INTENT_PLAN_STALE.",
-        "Publish Readiness without required external visual/route evidence does not return a false overall PASS.",
-        "Design Guard off creates a current PUBLISH_READINESS_DESIGN_GUARD_OFF finding from inspectStorefrontPublishReadiness.",
-        "Smart Auto-Fix plans READY only from that emitted Design Guard finding, applies through the canonical safe rule, leaves the source input immutable, and removes that exact finding from the re-inspected document.",
-        "No visual/pixel UNKNOWN or absent external evidence is converted into an Auto-Fix operation.",
-        "evaluateStorefrontTemplateProductionMaturity returns valid=true, template3AuthoringReady=true and no blocking capability ids; every engine Brabus revalidation row is PROVEN.",
-        "E13 current proofProducer remains scripts/template-factory-product-owner-handoff.mjs#proveSharedE13FunctionalEngine with browserRequired/networkRequired true.",
-        "The exact-head pull-request Template Factory workflow passes full browser acceptance and E13 proof for the rehearsal HEAD.",
-        "Completion Truth verifies the rehearsal implementation HEAD and lifecycle closure succeeds on a subsequent closure HEAD.",
-        "Template #3 authoring does not start inside this transaction."
+        "The active template resolver exposes exactly gaming.playroom@20 and gaming.loot-vault@2.",
+        "Loot Vault v1 and every other legacy template key in the former active 24-package catalog resolve to no active package.",
+        "The preview theme authority imports and registers only canonical Playroom v20 and Loot Vault v2 design tokens.",
+        "AI template selection and Special Commerce inventory inherit the reduced canonical catalog without a parallel legacy list.",
+        "Template distinctness uses only canonical foreign templates and excludes same-template identity from clone comparison.",
+        "No Template #3 implementation, Visual First artifact or authoring branch content is modified by this transaction.",
+        "Historical legacy source files remain inert and available only for later evidence-guided physical deletion."
       ],
       "invariants": [
-        "The rehearsal consumes existing authorities; it does not become a new authority.",
-        "Canonical Loot Vault package and input documents are not mutated in place.",
-        "Technical readiness is necessary but not sufficient until this rehearsal lifecycle closes.",
-        "Missing external evidence remains UNKNOWN/BLOCK according to current Publish Readiness semantics.",
-        "Auto-Fix receives only a finding emitted from the current rehearsal document.",
-        "E13 remains browser/network exact-head proof.",
-        "No Template #3 artifact is created before rehearsal closure."
+        "There is one active template catalog and resolver authority; retirement does not create a second registry.",
+        "Playroom v20 and Loot Vault v2 remain installable, previewable and addressable through their canonical package entrypoints.",
+        "A legacy accepted or reaccepted implementation cannot become visual authority merely because its source remains in Git.",
+        "Approved generated visual references are not deleted or replaced in this inactivation transaction.",
+        "Shared Page Schema, Runtime, commerce engines, Template Factory and VX authorities are not weakened to make retirement pass."
       ],
       "forbiddenStates": [
-        "synthetic-package-substitutes-canonical-candidate",
-        "publish-readiness-missing-evidence-false-pass",
-        "autofix-fabricated-finding-used-as-rehearsal-proof",
-        "smart-intent-invalid-schema-result",
-        "stale-smart-intent-plan-reapplied",
-        "unit-only-e13-counts-as-final-proof",
-        "production-mutation-from-rehearsal",
-        "template-3-created-inside-rehearsal",
-        "template-3-authoring-before-rehearsal-lifecycle-closure"
+        "legacy-template-key-resolves-active-package",
+        "legacy-preview-theme-import-remains-active",
+        "loot-vault-v1-remains-active-authority",
+        "playroom-v20-or-loot-vault-v2-becomes-unresolvable",
+        "parallel-template-catalog-created",
+        "template-3-authoring-contaminated",
+        "approved-visual-reference-deleted"
       ]
     },
     "model": {
@@ -231,51 +165,38 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Factory candidate says ready while one underlying production planner result is invalid.",
-        "Canonical package loses a page or responsive authority but top-level readiness stays green.",
-        "Smart Intent succeeds on isolated fixtures but fails or corrupts a real Loot Vault node.",
-        "Readiness treats missing browser/visual evidence as PASS.",
-        "Auto-Fix is fed a hand-built finding that bypasses current diagnostic authority.",
-        "Auto-Fix changes unrelated fidelity metadata or mutates the source document.",
-        "Engine maturity is green but E13 browser binding has drifted.",
-        "A third recipe/package is introduced while the rehearsal is supposed to remain proof-only.",
-        "Completion Truth passes without the exact-head Template Factory external evidence.",
-        "Technical readiness is used to begin Template #3 before lifecycle closure."
+        "The catalog shrinks but a preview or AI path directly imports legacy template authority and keeps it operational.",
+        "Loot Vault v2 is omitted while legacy Loot Vault v1 remains the resolvable package.",
+        "Tests are rewritten to accept two entries while runtime resolver still exposes legacy keys.",
+        "Distinctness loses all foreign corpus evidence instead of retaining Playroom as a canonical comparison.",
+        "Physical deletion removes an approved visual reference before reference inventory is proven.",
+        "The retirement transaction touches Template #3 and obscures whether the new production system passes its first real authoring test."
       ],
       "edgeCases": [
-        "Real heading uses legacy-looking inline style while canonical typography authority still supports a bounded responsive override.",
-        "Publish Readiness reports several UNKNOWN categories alongside the Design Guard structured finding.",
-        "Auto-Fix target finding is resolved while unrelated UNKNOWN findings intentionally remain.",
-        "Smart Intent changes only responsive typography and the same old plan is replayed.",
-        "Loot Vault Factory build is repeated twice and must remain deterministic.",
-        "All 12 engine rows are PROVEN but E13 proof class is still browser-journey rather than deterministic-runtime.",
-        "Recipe registry contains exactly one current Factory recipe throughout rehearsal."
+        "A stale persisted legacy page key may still request preview styling even though its template package is no longer resolvable.",
+        "Special Commerce code derives its inventory dynamically and therefore should contract automatically rather than receive a second hard-coded list.",
+        "Loot Vault v2 shares the same templateKey as v1, so version-specific resolver behavior must fail closed for v1 and succeed for v2.",
+        "Same-key Loot Vault v2 must be excluded from its own distinctness corpus while Playroom v20 remains a foreign canonical reference."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-REHEARSAL-REAL-CANDIDATE",
-        "summary": "Exercise the full existing production/VX chain on canonical Loot Vault v2 and rely on normal exact-head browser/E13 closure.",
+        "id": "ALT-RETIRE-INACTIVATE-FIRST",
+        "summary": "Remove legacy templates from active catalog, resolver, preview and derived authority surfaces while leaving source files inert.",
         "disposition": "selected",
-        "reason": "Proves cross-capability composition without authoring a new template or introducing a parallel proof authority."
+        "reason": "This directly prevents interference with future authoring while preserving historical evidence until every deletion dependency and accepted visual reference is inventoried."
       },
       {
-        "id": "ALT-REHEARSAL-SYNTHETIC-FIXTURE",
-        "summary": "Build a small artificial document that is easier to drive through all APIs.",
+        "id": "ALT-RETIRE-HARD-DELETE-NOW",
+        "summary": "Delete every legacy template source, test and media artifact in one transaction.",
         "disposition": "rejected",
-        "reason": "Could hide real Factory package, component registry and complex Page Schema integration failures."
+        "reason": "Direct deletion has a wider dependency blast radius and risks deleting the only surviving accepted visual reference or historical proof before those assets are classified."
       },
       {
-        "id": "ALT-REHEARSAL-TEMPLATE3-AS-TEST",
-        "summary": "Begin Template #3 and treat successful authoring as the rehearsal.",
+        "id": "ALT-RETIRE-LEAVE-CATALOG-AS-IS",
+        "summary": "Keep all legacy packages active and rely on developers to ignore them during future Template Factory work.",
         "disposition": "rejected",
-        "reason": "Violates the explicit ordering rule and makes failure recovery contaminate the first new template."
-      },
-      {
-        "id": "ALT-REHEARSAL-NEW-PERSISTENT-GATE",
-        "summary": "Add a permanent rehearsal flag or second readiness engine to production code.",
-        "disposition": "rejected",
-        "reason": "The existing lifecycle, Completion Truth and Template Factory authorities already provide durable evidence; another gate would duplicate authority without proven need."
+        "reason": "The active catalog feeds preview, AI, Special Commerce and distinctness, so human convention cannot prevent legacy implementations from influencing later production."
       }
     ],
     "specialistReviews": [
@@ -283,196 +204,139 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The existing Loot Vault v2 registered Factory candidate already traverses all production compiler authorities and is the correct integration subject.",
-        "resolution": "Use the registered candidate and canonical package directly; add no rehearsal runtime or second readiness registry.",
+        "finding": "The active 24-package catalog is the central runtime selection surface, and derived consumers should contract by consuming the same reduced canonical authority.",
+        "resolution": "Preserve one catalog/resolver and remove legacy packages there rather than introducing a separate active-template registry.",
         "evidence": [
-          "src/lib/builder/template-factory/recipe-registry.ts",
-          "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
-          "src/lib/builder/template-factory/generator-readiness.ts"
+          "src/lib/builder/storefront-template-catalog.ts",
+          "src/lib/builder/storefront-special-commerce-template2-adoption.ts",
+          "src/lib/builder/storefront-ai-generator-server.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A fabricated readiness finding or mutable fixture could let Smart Auto-Fix appear integrated without proving diagnostic provenance.",
-        "resolution": "Generate the Design Guard finding through inspectStorefrontPublishReadiness on the current real document, snapshot inputs, and verify postcondition by reinspection.",
+        "finding": "Removing legacy packages from the catalog alone is insufficient because preview themes previously imported legacy design-token modules directly.",
+        "resolution": "Treat direct preview imports as an authority bypass and reduce PREVIEW_THEME_BY_TEMPLATE to Playroom v20 and canonical Loot Vault v2 tokens.",
         "evidence": [
-          "src/lib/builder/storefront-publish-readiness.ts",
-          "src/lib/builder/storefront-smart-autofix.ts",
-          "src/lib/builder/storefront-page-fingerprint.ts"
+          "src/lib/builder/storefront-template-preview-demo.ts",
+          "src/lib/builder/templates/gaming/loot-vault/v2/index.ts"
         ]
       },
       {
         "role": "UX / Template",
         "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "A final rehearsal that never edits a real template node would not prove VX usability on compiled production content.",
-        "resolution": "Run bounded Smart Intent against the canonical Loot Vault hero heading and validate the resulting real Page Schema without changing accepted visual authority files.",
-        "evidence": [
-          "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
-          "src/lib/builder/storefront-smart-intent.ts"
-        ]
-      },
-      {
-        "role": "Release",
-        "mode": "review",
         "verdict": "pass",
-        "finding": "The rehearsal should have essentially test-only release risk and must still use the normal exact-head Template Factory/E13 external evidence path.",
-        "resolution": "Keep product code read-only unless a concrete rehearsal failure proves a deficiency; require Release Risk, full workflow proof, Completion Truth and lifecycle closure.",
+        "finding": "Legacy visually rejected implementations must not remain reference material for future clone avoidance or be mistaken for Product Owner-approved visual direction.",
+        "resolution": "Use only the two accepted canonical templates as the active distinctness corpus and preserve old sources only as inert history until approved reference images are inventoried.",
         "evidence": [
-          "deploy/release-risk-policy.json",
-          ".github/workflows/template-factory-quality-gate.yml",
-          "scripts/shoperation-external-proof-handoff.mjs"
+          "tests/template-factory-template-distinctness.test.ts",
+          "src/lib/builder/template-factory/generator-readiness.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-FR-1",
-        "scenario": "Generator Readiness returns ready=true but one nested planner result is ignored.",
-        "finding": "Top-level readiness alone would under-prove the integrated production chain.",
-        "resolution": "Assert each nested production contract, genome/type, constraint/media, lineage, distinctness and compiler result explicitly.",
+        "id": "CH-RETIRE-01",
+        "scenario": "The active catalog is reduced but a legacy key can still be resolved by a hidden secondary resolver.",
+        "finding": "That would make the inactivation cosmetic and violate single-authority semantics.",
+        "resolution": "Regression-test explicit legacy keys against getStorefrontTemplatePackage and require undefined for every retired key.",
         "status": "resolved"
       },
       {
-        "id": "CH-FR-2",
-        "scenario": "A synthetic page passes VX operations while the canonical Loot Vault page would fail registry validation.",
-        "finding": "Fixture substitution could hide real component/package integration drift.",
-        "resolution": "Clone the actual canonical Loot Vault home page from the registered build and use the shared Visual Builder registry.",
+        "id": "CH-RETIRE-02",
+        "scenario": "The preview UI retains legacy design-token imports independently of package resolution.",
+        "finding": "A retired template could continue influencing presentation and future visual work through a bypass.",
+        "resolution": "Remove legacy preview imports and map only canonical Playroom v20 and Loot Vault v2 themes.",
         "status": "resolved"
       },
       {
-        "id": "CH-FR-3",
-        "scenario": "Smart Intent plan is READY, applies, then the old plan is replayed after the document changed.",
-        "finding": "A stale plan must not be accepted during final composition proof.",
-        "resolution": "Require SMART_INTENT_PLAN_STALE on replay and no second mutation.",
+        "id": "CH-RETIRE-03",
+        "scenario": "Loot Vault v1 remains active because its templateKey matches canonical Loot Vault v2.",
+        "finding": "Key-only reasoning could hide a version-authority collision.",
+        "resolution": "Make v2 the sole catalog entry and explicitly prove v1 is unresolved while v2 resolves.",
         "status": "resolved"
       },
       {
-        "id": "CH-FR-4",
-        "scenario": "External visual or route evidence is absent during local rehearsal.",
-        "finding": "Readiness could falsely collapse UNKNOWN into PASS.",
-        "resolution": "Assert the current readiness decision/categories remain fail-closed and do not claim full publishability from local evidence.",
+        "id": "CH-RETIRE-04",
+        "scenario": "Distinctness loses its foreign comparison set after legacy templates are removed.",
+        "finding": "An empty corpus would create a false or blocked anti-clone result.",
+        "resolution": "Retain Playroom v20 as the canonical foreign corpus for Loot Vault v2 and assert corpusSize equals one.",
         "status": "resolved"
       },
       {
-        "id": "CH-FR-5",
-        "scenario": "Auto-Fix receives a manually constructed Design Guard finding.",
-        "finding": "That would bypass the provenance relationship the rehearsal is meant to prove.",
-        "resolution": "Use only the exact finding returned by inspectStorefrontPublishReadiness after canonical Design Guard is set off.",
+        "id": "CH-RETIRE-05",
+        "scenario": "Special Commerce or AI receives a hand-maintained replacement list that later drifts from the catalog.",
+        "finding": "A second list would recreate the duplicate-authority problem retirement is intended to remove.",
+        "resolution": "Leave those consumers catalog-derived and prove their inventory contracts follow the canonical catalog count.",
         "status": "resolved"
       },
       {
-        "id": "CH-FR-6",
-        "scenario": "Design Guard Auto-Fix succeeds while unrelated UNKNOWN readiness categories remain.",
-        "finding": "Targeted safe repair must not fabricate global readiness.",
-        "resolution": "Require the target finding to disappear but allow unrelated fail-closed categories to remain unchanged.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-FR-7",
-        "scenario": "All engine rows are PROVEN but E13 proof binding is replaced with a unit-test producer.",
-        "finding": "The final rehearsal would lose checkout browser/network assurance.",
-        "resolution": "Assert E13 browserRequired/networkRequired and exact canonical handoff producer, then rely on the PR Template Factory E13 proof.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-FR-8",
-        "scenario": "The rehearsal adds a new recipe/package named as Template #3.",
-        "finding": "The proof transaction would silently start authoring before its own closure.",
-        "resolution": "Assert recipe registry remains the existing Loot Vault-only Factory recipe set and keep all Template #3 implementation files out of scope.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-FR-9",
-        "scenario": "The test mutates the exported canonical package/document in place.",
-        "finding": "Later assertions could pass against contaminated shared state and make ordering significant.",
-        "resolution": "Use structured clones for document operations and compare canonical package identity/hash before and after rehearsal.",
+        "id": "CH-RETIRE-06",
+        "scenario": "Physical deletion is performed before accepted generated visual references are separated from legacy implementation media.",
+        "finding": "That could destroy the only trustworthy visual authority for future rebuilds.",
+        "resolution": "Defer physical deletion; first prove runtime inactivation, then inventory and preserve PO-approved reference images in a separate transaction.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Plan Before Code must validate the proof-only file envelope, critical semantic route and current known-failure scope before rehearsal implementation.",
-      "A dedicated final rehearsal test composes the registered Loot Vault v2 Factory candidate and asserts every nested Generator Readiness authority in one execution.",
-      "The same proof uses the actual Loot Vault home Page Schema and shared component registry for Smart Intent and Smart Auto-Fix operations.",
-      "Smart Intent proof includes READY plan/apply, resulting schema validation, input immutability and stale-plan rejection.",
-      "Publish Readiness proof includes missing-external-evidence fail-closed state plus a real emitted Design Guard finding.",
-      "Auto-Fix proof consumes that current emitted finding, applies only the canonical safe rule, preserves input immutability and proves targeted postcondition by reinspection.",
-      "Maturity proof asserts all required capabilities and all E1-E11/E13 revalidation rows remain PROVEN while E13 stays browser/network-bound.",
-      "Generator readiness regression asserts the rehearsal does not introduce a third Factory recipe or Template #3 package.",
-      "Full Quality, TypeScript and Production Build must pass on the exact implementation head.",
-      "Pull-request Template Factory must pass exact-head full browser acceptance and E13 proof, followed by external handoff, Completion Truth and lifecycle closure."
+      "Run targeted catalog, route-integrity, Special Commerce and distinctness tests against the reduced canonical authority.",
+      "Run typecheck and production build so removed imports and canonical Loot Vault v2 design-token export are compile-proven.",
+      "Run the existing Template Factory quality path to ensure canonical Loot Vault v2 remains generator-ready with the reduced distinctness corpus.",
+      "Run Release Risk and Completion Truth on the exact branch head before lifecycle closure.",
+      "Verify the branch diff contains no Template #3 authoring files and no physical deletion of accepted visual reference assets."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-03-TEMPLATE-PRODUCTION-BRABUS-FINAL-REHEARSAL",
+      "request": "PO-2026-10-03-LEGACY-TEMPLATE-RETIREMENT",
       "authority": [
         "builder-template-system"
       ],
       "mustEdit": [
-        "tests/template-factory-generator-readiness.test.ts"
+        "src/lib/builder/storefront-template-catalog.ts",
+        "src/lib/builder/storefront-template-preview-demo.ts",
+        "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
+        "tests/special-commerce-wave7-template-quality.test.ts",
+        "tests/special-commerce-wave7-template2-adoption.test.ts",
+        "tests/template-factory-template-distinctness.test.ts",
+        "tests/storefront-template-route-integrity.test.ts"
       ],
-      "mayEdit": [
-        "tests/template-factory-brabus-final-rehearsal.test.ts"
-      ],
+      "mayEdit": [],
       "impactedReadOnly": [
-        "src/lib/builder/template-factory/recipe-registry.ts",
-        "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
-        "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts",
-        "src/lib/builder/template-factory/generator-readiness.ts",
-        "src/lib/builder/template-factory/production-maturity.ts",
-        "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
-        "src/lib/builder/storefront-builder-registry.ts",
-        "src/lib/builder/storefront-publish-readiness.ts",
-        "src/lib/builder/storefront-smart-intent.ts",
-        "src/lib/builder/storefront-smart-autofix.ts",
-        "src/lib/builder/storefront-fidelity-builder-operations.ts"
+        "src/lib/builder/storefront-special-commerce-template2-adoption.ts",
+        "src/lib/builder/storefront-ai-generator-server.ts",
+        "src/lib/builder/template-factory/generator-readiness.ts"
       ],
       "proof": [
-        "tests/template-factory-brabus-final-rehearsal.test.ts",
-        "tests/template-factory-generator-readiness.test.ts"
+        "tests/storefront-template-route-integrity.test.ts",
+        "tests/special-commerce-wave7-template-quality.test.ts",
+        "tests/special-commerce-wave7-template2-adoption.test.ts",
+        "tests/template-factory-template-distinctness.test.ts"
       ],
-      "unknown": []
+      "unknown": [],
+      "plannedDeletions": []
     },
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-TEMPLATE-PRODUCTION-BRABUS-FINAL-REHEARSAL",
+    "sourceRef": "PO-2026-10-03-LEGACY-TEMPLATE-RETIREMENT",
     "requirements": [
       {
-        "id": "REQ-BRABUS-FINAL-PRODUCTION-CHAIN",
-        "requirement": "The existing Loot Vault v2 candidate must prove the complete Template Production chain in one current-stack rehearsal without synthetic package substitution.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "template-production-final-rehearsal",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "behavioral-proof",
-            "coverage",
-            "freshness",
-            "scope"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
+        "id": "REQ-RETIRE-ACTIVE-AUTHORITY",
+        "requirement": "Only Playroom v20 and Loot Vault v2 may remain active, resolvable template package authorities.",
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
+            "GUARD-PLAN-BEFORE-CODE"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS",
-            "GUARD-PRODUCTION-BUILD",
-            "GUARD-TEMPLATE-FACTORY"
+            "GUARD-TYPECHECK"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-BRABUS-SYNTHETIC-SUBSTITUTE",
-            "statement": "A synthetic template or package cannot substitute for the registered canonical candidate.",
+            "id": "NEG-RETIRE-LEGACY-RESOLVER",
+            "statement": "No retired template key or Loot Vault v1 may resolve as an active package.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -480,26 +344,11 @@
         ]
       },
       {
-        "id": "REQ-BRABUS-FINAL-VX-COMPOSITION",
-        "requirement": "Real Page Schema Smart Intent, Publish Readiness and Smart Auto-Fix must compose safely with stale, provenance and fail-closed behavior preserved.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "vx-final-composition",
-          "strength": 2,
-          "dimensions": [
-            "behavioral-proof",
-            "freshness",
-            "coverage",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
+        "id": "REQ-RETIRE-NO-BYPASS",
+        "requirement": "Preview, derived inventory and distinctness paths must not preserve a parallel legacy template authority.",
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
+            "GUARD-EDIT-TIME"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS",
@@ -508,107 +357,39 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-BRABUS-READINESS-FALSE-PASS",
-            "statement": "Missing external/visual evidence cannot become a false publish PASS.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-BRABUS-AUTOFIX-FORGED",
-            "statement": "Final Auto-Fix proof cannot use a hand-built finding instead of current Publish Readiness evidence.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-BRABUS-FINAL-ENGINE-AND-E13",
-        "requirement": "All engine Brabus rows remain PROVEN and E13 remains bound to exact-head browser/network Template Factory proof during rehearsal closure.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "engine-e13-final-rehearsal",
-          "strength": 2,
-          "dimensions": [
-            "proven-scope",
-            "behavioral-proof",
-            "freshness",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-TEMPLATE-FACTORY",
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-BRABUS-E13-UNIT-SUBSTITUTE",
-            "statement": "Unit evidence cannot replace E13 exact-head browser/network proof.",
+            "id": "NEG-RETIRE-PREVIEW-BYPASS",
+            "statement": "Legacy design-token modules must not remain registered in the active preview theme authority.",
             "evidence": [
               "GUARD-QUALITY-TESTS",
-              "GUARD-TEMPLATE-FACTORY"
+              "GUARD-TYPECHECK"
             ]
           }
         ]
       },
       {
-        "id": "REQ-BRABUS-FINAL-TEMPLATE3-BOUNDARY",
-        "requirement": "This rehearsal must create no Template #3 artifact; Template #3 authoring may begin only in a separate transaction after this rehearsal lifecycle is VERIFIED and closed.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "template3-authoring-boundary",
-          "strength": 2,
-          "dimensions": [
-            "scope",
-            "limitations",
-            "freshness"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
+        "id": "REQ-RETIRE-SAFE-BOUNDARY",
+        "requirement": "The retirement must leave Template #3 authoring untouched and defer physical legacy deletion until accepted visual references are inventoried.",
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-PLAN-BEFORE-CODE"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS",
+            "GUARD-RELEASE-RISK",
             "GUARD-TEMPLATE-FACTORY"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-BRABUS-TEMPLATE3-IN-REHEARSAL",
-            "statement": "No Template #3 recipe, package or authoring implementation may be introduced before rehearsal lifecycle closure.",
+            "id": "NEG-RETIRE-TEMPLATE3-CONTAMINATION",
+            "statement": "No Template #3 authoring artifact or accepted visual reference may be deleted or modified.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-RELEASE-RISK",
+              "GUARD-TEMPLATE-FACTORY"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Fifteenth and final pre-Template-3 Brabus proof wave. Parent #791 / Engine Brabus revalidation is lifecycle-closed at 8e50fbdea0f2b12c0bcf626862062b6316c915b3 with verified implementation head 6a283d4c58fbc1f3446177a92506cfba85dd8f22. This is a one-time proof transaction over existing authorities, not a new persistent quality gate. Product code remains read-only unless the rehearsal proves a concrete deficiency. Initial #795 Plan Before Code reconciliation uses the measured planned projection: tests/quality-only planning has no canonical domain/authority owner, but impacts builder-template-system + release-infrastructure + shared-storefront; projected Known Failure and Negative Knowledge sets plus guardDigest are aligned exactly to the gate report without weakening any proof requirement. Prerequisite #798 is lifecycle-closed at 522e74ec5a9bd3cd313d245edb64b804b7a60734; final rehearsal transaction is rebased onto that closure head so its diff contains rehearsal work only and inherits the truthful neutral critical Plan scope fix without carrying Control Plane changes inside #795.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "2033792d7b4658e92fb9dd26c0d2df976bc330f2",
-    "closedAt": "2026-10-03T07:38:43.176Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-03-TEMPLATE-PRODUCTION-BRABUS-FINAL-REHEARSAL",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred."
 }
