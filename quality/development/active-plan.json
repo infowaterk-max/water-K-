@@ -3,7 +3,7 @@
   "taskId": "DEV-VX-SMART-AUTOFIX-BRABUS-HARDENING",
   "task": "Implement and adopt canonical VX Smart Auto-Fix: classify Publish Readiness diagnostics through an explicit safe-repair registry, produce explainable preview-first stale-safe repair plans only for deterministically repairable findings, apply them through existing Builder authorities as one undoable document commit, and fail closed to MANUAL/BLOCK/UNKNOWN for every unsafe, stale, external, semantic or pixel-only diagnostic.",
   "status": "ready-for-implementation",
-  "guardDigest": "80bae5fe",
+  "guardDigest": "ba1a39f8",
   "changeBaseSha": "568e2d2c509bb58e5d00f07963bc3b2f187e7f01",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -19,19 +19,16 @@
   "expectedSubsystems": [
     "admin-operations",
     "builder-template-system",
-    "database-schema",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-ADMIN",
-    "DOMAIN-BUILDER",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
     "admin-operations",
-    "builder-template-system",
-    "shared-storefront"
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -39,9 +36,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -50,11 +45,9 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-022",
-    "SQ-KF-023",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -87,14 +80,12 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-014"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -355,9 +346,9 @@
     "challenge": [
       {
         "id": "CH-AF-1",
-        "scenario": "ACCESSIBILITY_IMAGE_ALT_MISSING is structured-diagnostic.",
-        "finding": "Alt text requires semantic knowledge.",
-        "resolution": "MANUAL, zero operations; registry has no semantic-content rule.",
+        "scenario": "Publish Readiness emits ACCESSIBILITY_IMAGE_ALT_MISSING for node hero-image with repairability=structured-diagnostic and an exact nodeId.",
+        "finding": "The diagnostic is structurally localized but there is no evidence-backed text value that can serve as a truthful alt attribute; generating one would fabricate semantic merchant content.",
+        "resolution": "The safe registry has no ACCESSIBILITY_IMAGE_ALT_MISSING executable rule. Planning returns MANUAL with zero operations, and tests assert that no config/text mutation is emitted.",
         "status": "resolved"
       },
       {
@@ -404,9 +395,9 @@
       },
       {
         "id": "CH-AF-8",
-        "scenario": "Design Guard is off when planned but warn when applied.",
-        "finding": "Repair became no-op/stale.",
-        "resolution": "Current authority precondition fails before mutation.",
+        "scenario": "A PUBLISH_READINESS_DESIGN_GUARD_OFF finding is previewed while mode=off, then another Builder action changes Design Guard to warn before Auto-Fix Apply.",
+        "finding": "The previewed repair is stale: applying the old plan would claim to repair a condition that no longer exists and could overwrite newer fidelity metadata.",
+        "resolution": "Apply revalidates the live Design Guard precondition before mutation. If mode is no longer off it throws SMART_AUTOFIX_SOURCE_STALE and returns no changed document.",
         "status": "resolved"
       },
       {
@@ -456,8 +447,7 @@
       "request": "PO-2026-10-03-VX-SMART-AUTOFIX-BRABUS-HARDENING",
       "authority": [
         "builder-template-system",
-        "admin-operations",
-        "shared-storefront"
+        "admin-operations"
       ],
       "mustEdit": [
         "src/components/admin/storefront-visual-builder-v3.tsx",
@@ -646,5 +636,5 @@
       }
     ]
   },
-  "notes": "Thirteenth Brabus hardening wave. Publish Readiness and Smart Intent are lifecycle-closed and PROVEN on parent 568e2d2c509bb58e5d00f07963bc3b2f187e7f01. Auto-Fix is deliberately narrower than 'repair every structured diagnostic': explicit safe registry membership is the repair authority. Template #3 remains forbidden until the final end-to-end Brabus rehearsal passes even if this wave clears the last maturity blocker."
+  "notes": "Thirteenth Brabus hardening wave. Publish Readiness and Smart Intent are lifecycle-closed and PROVEN on parent 568e2d2c509bb58e5d00f07963bc3b2f187e7f01. Auto-Fix is deliberately narrower than 'repair every structured diagnostic': explicit safe registry membership is the repair authority. Template #3 remains forbidden until the final end-to-end Brabus rehearsal passes even if this wave clears the last maturity blocker. Plan projection narrowed to the measured Auto-Fix transaction: DOMAIN-ADMIN + DOMAIN-BUILDER, admin/builder authorities, no database-schema subsystem. Two critical challenges were rewritten with exact diagnostic codes, mutation risk and executable fail-closed outcomes."
 }
