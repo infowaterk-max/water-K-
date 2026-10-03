@@ -30,6 +30,32 @@ const routeForFile=file=>{
   return match?'/'+match[1].split('/').filter(segment=>segment&&!/^\(.*\)$/.test(segment)&&!segment.startsWith('@')).join('/'):null;
 };
 
+function appRoutePattern(file){
+  const match=String(file??'').match(/^src\/app\/(.*\/)?(?:page|route)\.(?:ts|tsx|js|jsx)$/);
+  if(!match)return null;
+  const raw=String(match[1]??'').replace(/\/$/,'');
+  const parts=raw.split('/').filter(Boolean).filter(segment=>!/^\(.*\)$/.test(segment)&&!segment.startsWith('@'));
+  const pattern=parts.map(segment=>{
+    if(/^\[\[\.\.\.[^\]]+\]\]$/.test(segment))return'(?:/.*)?';
+    if(/^\[\.\.\.[^\]]+\]$/.test(segment))return'/.+';
+    if(/^\[[^\]]+\]$/.test(segment))return'/[^/]+';
+    return'/'+escapeRegExp(segment);
+  }).join('');
+  return new RegExp('^'+(pattern||'/')+'/?$');
+}
+let servedRoutePatternsCache=null;
+function servedRoutePatterns(){
+  if(servedRoutePatternsCache)return servedRoutePatternsCache;
+  let files='';
+  try{files=git(['ls-files','src/app']);}catch{}
+  servedRoutePatternsCache=files.split(/\r?\n/).filter(Boolean).map(appRoutePattern).filter(Boolean);
+  return servedRoutePatternsCache;
+}
+function routeLiteralStillServed(route){
+  const value=String(route??'').split('?')[0].split('#')[0]||'/';
+  return servedRoutePatterns().some(pattern=>pattern.test(value));
+}
+
 const DELETED_ROUTE_GLOBAL_REFERENCE_KINDS=new Set([
   'file-path','asset-path','route-literal','component-key','registry-key','config-key','route-key','schema-field','data-attribute','css-variable','css-class',
 ]);
@@ -193,11 +219,20 @@ function semanticConsumers(atlas,candidates){
 
 const negative=row=>/\.not\.(?:toContain|toMatch|toEqual)|forbiddenApproaches/.test(row.text)||/^\s*(?:\/\/|\/\*|\*|#)/.test(row.text);
 const matches=(row,candidate)=>candidate.kind==='export-symbol'?new RegExp(`\\b${escapeRegExp(candidate.value)}\\b`).test(row.text):candidate.kind==='css-class'?(row.text.includes('.'+candidate.value)||row.text.includes(candidate.value)):row.text.includes(candidate.value);
+function tombstoneEvidence(row,candidate){
+  if(!/^(?:tests|scripts)\//.test(row.file)||!['file-path','route-literal','route-key'].includes(candidate.kind))return false;
+  const source=current(row.file);
+  const lines=source.split(/\r?\n/),index=Math.max(0,(row.line||1)-1);
+  const context=lines.slice(Math.max(0,index-8),Math.min(lines.length,index+9)).join('\n');
+  return/\b(?:deleted|deletedRoute|tombstone|plannedDeletion|plannedDeletions|forbiddenRoute|forbiddenStates|self-test)\b/i.test(context);
+}
 function classification(row,candidate){
   if(row.file===candidate.originFile||negative(row))return'ignored';
   if(row.file==='AGENTS.md'||row.file.startsWith('docs/')||row.file.endsWith('.md'))return'evidence';
   if(row.file==='quality/knowledge/po-instructions.v1.json')return'evidence';
-  if(row.file.startsWith('tests/')&&['file-path','route-literal','route-key'].includes(candidate.kind)&&/\b(?:deleted|tombstone|plannedDeletion|plannedDeletions|forbiddenRoute|forbiddenStates)\b/i.test(row.text))return'evidence';
+  if(tombstoneEvidence(row,candidate))return'evidence';
+  if(candidate.kind==='display-text')return'ignored';
+  if(candidate.kind==='route-literal'&&routeLiteralStillServed(candidate.value))return'ignored';
   if(candidate.severity==='review')return'review';
   if(candidate.kind==='implementation-expression')return/^(tests|scripts|quality|\.github)\//.test(row.file)?'block':'review';
   return MACHINE.test(row.file)?'block':'review';
@@ -288,5 +323,23 @@ if(process.argv.includes('--self-test')){
     ],
   )[0];
   if(evidenceProbe.evidenceConsumers.length!==2||evidenceProbe.staleConsumers.length!==1||evidenceProbe.staleConsumers[0]?.file!=='src/live-consumer.ts')throw new Error('REFERENCE_SYNC_TOMBSTONE_EVIDENCE_CLASSIFICATION_FAILED');
-  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS; deleted-route-generic=IGNORED; tombstone-evidence=PASS; coverage-overflow=BLOCK');
+  const displayProbe=evaluateCandidateConsumers(
+    [{kind:'display-text',value:'Független felirat',severity:'block',originFile:'src/origin.tsx'}],
+    [],
+    [{file:'src/unrelated.tsx',line:1,text:'<span>Független felirat</span>'}],
+  )[0];
+  if(displayProbe?.staleConsumers?.length||displayProbe?.reviewConsumers?.length)throw new Error('REFERENCE_SYNC_DISPLAY_TEXT_IDENTITY_FALSE_POSITIVE');
+  const servedAliasProbe=evaluateCandidateConsumers(
+    [{kind:'route-literal',value:'/oldal/szallitas',severity:'review',originFile:'src/origin.tsx'}],
+    [],
+    [{file:'src/consumer.ts',line:1,text:"const href='/oldal/szallitas';"}],
+  )[0];
+  if(servedAliasProbe?.staleConsumers?.length||servedAliasProbe?.reviewConsumers?.length)throw new Error('REFERENCE_SYNC_SERVED_ROUTE_FALSE_POSITIVE');
+  const missingRouteProbe=evaluateCandidateConsumers(
+    [{kind:'route-literal',value:'/__reference-sync-definitely-missing__',severity:'review',originFile:'src/origin.tsx'}],
+    [],
+    [{file:'src/consumer.ts',line:1,text:"const href='/__reference-sync-definitely-missing__';"}],
+  )[0];
+  if(missingRouteProbe?.reviewConsumers?.length!==1)throw new Error('REFERENCE_SYNC_MISSING_ROUTE_FALSE_NEGATIVE');
+  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS; deleted-route-generic=IGNORED; display-text=NON_IDENTITY; served-route=COMPATIBLE; tombstone-evidence=PASS; coverage-overflow=BLOCK');
 }
