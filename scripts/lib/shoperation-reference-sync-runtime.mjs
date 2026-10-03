@@ -380,5 +380,5 @@ if(process.argv.includes('--self-test')){
   referenceSyncChangedFiles=savedChangedFiles;
   if(legacyTemplateProbe?.reviewConsumers?.length||legacyTemplateProbe?.staleConsumers?.length||legacyTemplateProbe?.evidenceConsumers?.length!==1)throw new Error('REFERENCE_SYNC_RETIRED_TEMPLATE_HISTORY_FALSE_BLOCK');
   if(changedLegacyProbe?.reviewConsumers?.length!==1)throw new Error('REFERENCE_SYNC_CHANGED_RETIRED_TEMPLATE_FALSE_PASS');
-  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS; deleted-route-generic=IGNORED; display-text=NON_IDENTITY; served-route=COMPATIBLE; legacy-template-source=EVIDENCE; changed-legacy=CHECKED; tombstone-evidence=PASS; coverage-overflow=BLOCK');
+  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS; bare-object-key=IGNORED; deleted-route-generic=IGNORED; display-text=NON_IDENTITY; served-route=COMPATIBLE; legacy-template-source=EVIDENCE; changed-legacy=CHECKED; tombstone-evidence=PASS; coverage-overflow=BLOCK');
 }
