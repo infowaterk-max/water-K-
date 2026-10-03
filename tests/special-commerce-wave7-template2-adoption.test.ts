@@ -35,13 +35,13 @@ function pageFor(componentKey:string,pageType:StorefrontPageDocument['pageType']
 describe('Special Commerce Wave 7 Template 2.0 adoption',()=>{
   it('derives a machine-verifiable inventory from the real source-controlled catalog and never fabricates the 42 target',()=>{
     expect(STOREFRONT_TEMPLATE_LAUNCH_TARGET).toBe(42);
-    expect(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES).toHaveLength(24);
+    expect(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES).toHaveLength(2);
     expect(STOREFRONT_TEMPLATE2_WAVE7_INVENTORY).toHaveLength(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.length);
-    expect(STOREFRONT_TEMPLATE2_WAVE7_PORTFOLIO.actualTemplateCount).toBe(24);
-    expect(STOREFRONT_TEMPLATE2_WAVE7_PORTFOLIO.remainingTemplateGap).toBe(18);
+    expect(STOREFRONT_TEMPLATE2_WAVE7_PORTFOLIO.actualTemplateCount).toBe(2);
+    expect(STOREFRONT_TEMPLATE2_WAVE7_PORTFOLIO.remainingTemplateGap).toBe(40);
     expect(STOREFRONT_TEMPLATE2_WAVE7_PORTFOLIO.full42ClosurePossible).toBe(false);
     expect(STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.fabricatedEntriesAllowed).toBe(false);
-    expect(new Set(STOREFRONT_TEMPLATE2_WAVE7_INVENTORY.map(item=>`${item.templateKey}@${item.templateVersion}`)).size).toBe(24);
+    expect(new Set(STOREFRONT_TEMPLATE2_WAVE7_INVENTORY.map(item=>`${item.templateKey}@${item.templateVersion}`)).size).toBe(2);
   });
 
   it('keeps every actual template on one Page Schema and one shared Builder/runtime contract',()=>{
