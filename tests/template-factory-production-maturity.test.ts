@@ -6,11 +6,12 @@ import {
 } from '@/lib/builder/template-factory/production-maturity';
 
 describe('Template Production Brabus maturity v1',()=>{
-  it('clears the mandatory capability blocker only after executable Smart Auto-Fix evidence is present',()=>{
+  it('clears the VX Smart Auto-Fix blocker without bypassing remaining Brabus engine revalidation',()=>{
     const result=evaluateStorefrontTemplateProductionMaturity();
     expect(result.valid).toBe(true);
-    expect(result.template3AuthoringReady).toBe(true);
-    expect(result.blockingCapabilityIds).toEqual([]);
+    expect(result.template3AuthoringReady).toBe(false);
+    expect(result.blockingCapabilityIds).not.toContain('VX-SMART-AUTOFIX');
+    expect(result.blockingCapabilityIds.some(id=>id.startsWith('ENGINE-')&&id.endsWith('-BRABUS-REVALIDATION'))).toBe(true);
     expect(result.capabilities.find(item=>item.id==='FACTORY-TEMPLATE-GENOME')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-TEMPLATE-TYPE-SYSTEM')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-CONSTRAINT-PLANNER')?.state).toBe('PROVEN');
