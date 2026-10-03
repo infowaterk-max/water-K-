@@ -1,5 +1,6 @@
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {materializeStorefrontTemplateResponsiveStyles} from '@/lib/builder/storefront-responsive-isolation';
+import {resolveStorefrontGlobalStyleCssVariables} from '@/lib/builder/storefront-global-styles';
 import snapshot from '@/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json';
 
 export const LOOT_VAULT_V2_TEMPLATE_VERSION=2 as const;
@@ -22,3 +23,7 @@ if(canonical.pages.some(page=>page.templateKey!=='gaming.loot-vault'||page.templ
 }
 
 export const LOOT_VAULT_V2_TEMPLATE_PACKAGE:StorefrontInstallableTemplatePackage=canonical;
+
+const themeSource=canonical.pages.find(page=>page.pageType==='home')??canonical.pages[0];
+if(!themeSource)throw new Error('LOOT_VAULT_V2_THEME_SOURCE_MISSING');
+export const LOOT_VAULT_V2_DESIGN_TOKENS=Object.freeze(resolveStorefrontGlobalStyleCssVariables(themeSource));
