@@ -64,6 +64,10 @@ export function filterDeletedRouteReferenceCandidates(candidates,deletedFiles=[]
   return (candidates??[]).filter(candidate=>!deletedRoutes.has(candidate.originFile)||DELETED_ROUTE_GLOBAL_REFERENCE_KINDS.has(candidate.kind));
 }
 
+export function filterTestOriginReferenceCandidates(candidates){
+  return(candidates??[]).filter(candidate=>!String(candidate.originFile??'').startsWith('tests/')||candidate.kind==='file-path');
+}
+
 function implementationExpression(line){
   const value=line.trim().replace(/[;,]\s*$/,'');
   const bareObjectKey=/^(?:['"`][^'"`]+['"`]|[A-Za-z_$][\w$-]*)\s*:\s*\{$/;
@@ -169,8 +173,9 @@ function diffData(base,head){
     for(const symbol of exportsRemovedAcrossPathChange(before,after))candidates.push({kind:'export-symbol',value:symbol,severity:'block',originFile:fileName,relocatedTo:relocatedTo??null});
   }
   const deletedFiles=files.filter(item=>item.status==='D').map(item=>item.old);
-  const highSignalCandidates=filterDeletedRouteReferenceCandidates(candidates,deletedFiles);
-  const relocation=reconcileReferenceRelocations(highSignalCandidates,addedCandidates);
+  const highSignalCandidates=filterTestOriginReferenceCandidates(filterDeletedRouteReferenceCandidates(candidates,deletedFiles));
+  const highSignalAddedCandidates=filterTestOriginReferenceCandidates(addedCandidates);
+  const relocation=reconcileReferenceRelocations(highSignalCandidates,highSignalAddedCandidates);
   const seen=new Set();
   const uniqueCandidates=relocation.remaining.filter(candidate=>{
     const key=`${candidate.kind}|${candidate.value}|${candidate.originFile}`;if(seen.has(key))return false;seen.add(key);
@@ -380,5 +385,14 @@ if(process.argv.includes('--self-test')){
   referenceSyncChangedFiles=savedChangedFiles;
   if(legacyTemplateProbe?.reviewConsumers?.length||legacyTemplateProbe?.staleConsumers?.length||legacyTemplateProbe?.evidenceConsumers?.length!==1)throw new Error('REFERENCE_SYNC_RETIRED_TEMPLATE_HISTORY_FALSE_BLOCK');
   if(changedLegacyProbe?.reviewConsumers?.length!==1)throw new Error('REFERENCE_SYNC_CHANGED_RETIRED_TEMPLATE_FALSE_PASS');
-  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS; bare-object-key=IGNORED; deleted-route-generic=IGNORED; display-text=NON_IDENTITY; served-route=COMPATIBLE; legacy-template-source=EVIDENCE; changed-legacy=CHECKED; tombstone-evidence=PASS; coverage-overflow=BLOCK');
+    const testOriginFiltered=filterTestOriginReferenceCandidates([
+    {kind:'component-key',value:'commerce.product-grid',severity:'block',originFile:'tests/example.test.ts'},
+    {kind:'implementation-expression',value:'const plan=planStorefrontTemplateInstallation({',severity:'block',originFile:'tests/example.test.ts'},
+    {kind:'file-path',value:'tests/example.test.ts',severity:'block',originFile:'tests/example.test.ts'},
+    {kind:'component-key',value:'commerce.product-grid',severity:'block',originFile:'src/provider.ts'},
+  ]);
+  if(testOriginFiltered.some(item=>item.originFile==='tests/example.test.ts'&&item.kind!=='file-path'))throw new Error('REFERENCE_SYNC_TEST_ORIGIN_REVERSE_AUTHORITY');
+  if(!testOriginFiltered.some(item=>item.originFile==='tests/example.test.ts'&&item.kind==='file-path'))throw new Error('REFERENCE_SYNC_TEST_FILE_PATH_FALSE_NEGATIVE');
+  if(!testOriginFiltered.some(item=>item.originFile==='src/provider.ts'&&item.kind==='component-key'))throw new Error('REFERENCE_SYNC_PRODUCTION_ORIGIN_FALSE_NEGATIVE');
+console.log('Reference Sync self-test: PASS; rename-export-identity=PASS; bare-object-key=IGNORED; deleted-route-generic=IGNORED; display-text=NON_IDENTITY; served-route=COMPATIBLE; legacy-template-source=EVIDENCE; changed-legacy=CHECKED; tombstone-evidence=PASS; test-origin=CONSUMER_ONLY; coverage-overflow=BLOCK');
 }
