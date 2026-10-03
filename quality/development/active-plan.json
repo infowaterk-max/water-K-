@@ -37,7 +37,9 @@
     "tests/storefront-beauty-lab-reference-v2.test.ts",
     "tests/storefront-cart-presentation-contract.test.ts",
     "tests/template-factory-generator-readiness.test.ts",
-    "src/lib/builder/storefront-template-runtime-normalization.ts"
+    "src/lib/builder/storefront-template-runtime-normalization.ts",
+    "scripts/template-factory-quality-gate.mjs",
+    "tests/storefront-template-quality-gate-v2.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -177,7 +179,10 @@
         "Every active canonical template receives the shared customer-task empty-cart continuation action 'Vásárlás folytatása' -> /webaruhaz through runtime normalization.",
         "A modified test file cannot become the origin of production component-key, display-text or implementation-expression stale-consumer requirements.",
         "Production-origin component keys and other high-signal identities must still detect stale test consumers.",
-        "Deleting or renaming a test file itself remains reference-checked through file-path identity."
+        "Deleting or renaming a test file itself remains reference-checked through file-path identity.",
+        "Canonical /szallitas and /fizetes links materialize their page-specific demo content fixtures without restoring /oldal aliases as active navigation.",
+        "Preview rewriting maps canonical /szallitas and /fizetes to the legal page family with the matching demoContent slug.",
+        "Template Factory mobile-menu proof uses the canonical legal-page shipping demo preview and preserves demo-warning assertions."
       ],
       "invariants": [
         "There is one active template catalog and resolver authority; retirement does not create a second registry.",
@@ -393,6 +398,19 @@
           "scripts/lib/shoperation-reference-sync-runtime.mjs",
           "tests/shoperation-development-guard.test.ts"
         ]
+      },
+      {
+        "role": "UX / Template",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "The mobile-menu browser case must continue proving demo-content warning semantics while following the canonical top-level information-route model.",
+        "resolution": "Preserve demo warning assertions and change only the route/demo-content resolution to canonical /szallitas semantics.",
+        "evidence": [
+          "src/lib/builder/storefront-template-route-integrity.ts",
+          "scripts/template-factory-quality-gate.mjs",
+          "tests/storefront-template-route-integrity.test.ts",
+          "tests/storefront-template-quality-gate-v2.test.ts"
+        ]
       }
     ],
     "challenge": [
@@ -514,6 +532,13 @@
         "finding": "This reverses authority direction: tests are proof/consumers of implementation contracts, not providers of production component keys, implementation expressions or UI identities.",
         "resolution": "Filter non-file identity candidates originating from tests before repository-wide consumer reconciliation. Preserve test files as consumers, and preserve test file-path identity so workflow/package references to a deleted test still fail closed.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-17",
+        "scenario": "After canonical shipping/payment navigation moved from /oldal/szallitas and /oldal/fizetes to top-level /szallitas and /fizetes, the shared demo-content augmentor no longer materializes those informational fixtures while the browser proof still requests the old content-page preview shape.",
+        "finding": "The public route authority is correct, but the preview/demo-content and Template Factory browser-proof authorities are stale relative to it; Playroom v20 mobile proof reaches notFound before the runtime root renders.",
+        "resolution": "Extend the existing demo-content route integrity logic to recognize canonical top-level shipping/payment information routes, rewrite their preview as legal-page demo content, and update the existing mobile-menu browser proof to the same canonical QA URL. Do not restore /oldal shipping/payment as active authority.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -561,7 +586,8 @@
         "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
         "tests/storefront-beauty-lab-reference-v2.test.ts",
         "tests/template-factory-generator-readiness.test.ts",
-        "src/lib/builder/storefront-template-runtime-normalization.ts"
+        "src/lib/builder/storefront-template-runtime-normalization.ts",
+        "scripts/template-factory-quality-gate.mjs"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -584,7 +610,8 @@
         "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
         "tests/storefront-beauty-lab-reference-v2.test.ts",
         "tests/storefront-cart-presentation-contract.test.ts",
-        "tests/template-factory-generator-readiness.test.ts"
+        "tests/template-factory-generator-readiness.test.ts",
+        "tests/storefront-template-quality-gate-v2.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [
@@ -809,5 +836,5 @@
       }
     ]
   },
-  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation. Knowledge Before Build exposed an existing integration gap: deleted routes were looked up only in live Atlas nodes. Scope now includes a minimal tombstone-aware Knowledge Preflight convergence using the existing Atlas resolver. Because this changes knowledge infrastructure, the expected failure set expands to the canonical full replay of 49 failures and adds DOMAIN-QUALITY authority. Edit-Time Guard exposed a proven Reference Sync overreach on whole-file Next route deletion. Plan now includes a narrow existing-runtime semantic fix plus regression coverage; full 49-failure replay and guard digest remain unchanged because this is already knowledge infrastructure. Edit-Time Guard then proved one real stale Contact route plus a reference-identity false-positive class for deleted-file display text and generic export names. Scope now includes a minimal Reference Sync semantic correction and its regression coverage; subsystem set, full 49-failure replay and guard digest remain unchanged. Plan schema normalized specialist review labels to the canonical role set; review findings and resolutions are unchanged. Duplicate challenge identifier normalized without changing evidence. Edit-Time route review exposed that active Playroom v20 still used the compatibility aliases. Scope now includes only its canonical package so both active templates converge on /szallitas and /fizetes; historical Playroom reference sources remain inert. Reference Sync scope is further aligned with the active template catalog: unchanged catalog-retired template sources are source-history evidence, while active or currently edited template sources remain fail-closed. Full Quality verification exposed superseded pre-retirement assertions in Beauty Lab catalog tests, generator distinctness corpus expectations, and semantic execution/reference-sync tests. These tests are now explicitly in scope so they can be realigned to the already-selected retirement authority without weakening runtime proof. Full Quality isolated one genuine runtime contract defect: Loot Vault v2 retained a template-specific empty-cart CTA because generic cart normalization only supplied defaults. The shared cart normalization file is now explicitly in scope; the existing portfolio-wide cart contract remains authoritative. Full-quality retirement test rewrites exposed a reverse-authority Reference Sync bug: deleted test implementation details were treated as production contract origins. Scope remains within the already-planned Reference Sync runtime and regression authority; no new subsystem or guard is introduced. Edit-Time proof confirmed Reference Sync PASS with zero stale/review findings after test-origin correction. The only remaining blocker was a plan-classification error: storefront-cart-presentation-contract is regression proof for the shared normalization change, not a required edited target; it is retained in planned/proof scope and removed from mustEdit."
+  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation. Knowledge Before Build exposed an existing integration gap: deleted routes were looked up only in live Atlas nodes. Scope now includes a minimal tombstone-aware Knowledge Preflight convergence using the existing Atlas resolver. Because this changes knowledge infrastructure, the expected failure set expands to the canonical full replay of 49 failures and adds DOMAIN-QUALITY authority. Edit-Time Guard exposed a proven Reference Sync overreach on whole-file Next route deletion. Plan now includes a narrow existing-runtime semantic fix plus regression coverage; full 49-failure replay and guard digest remain unchanged because this is already knowledge infrastructure. Edit-Time Guard then proved one real stale Contact route plus a reference-identity false-positive class for deleted-file display text and generic export names. Scope now includes a minimal Reference Sync semantic correction and its regression coverage; subsystem set, full 49-failure replay and guard digest remain unchanged. Plan schema normalized specialist review labels to the canonical role set; review findings and resolutions are unchanged. Duplicate challenge identifier normalized without changing evidence. Edit-Time route review exposed that active Playroom v20 still used the compatibility aliases. Scope now includes only its canonical package so both active templates converge on /szallitas and /fizetes; historical Playroom reference sources remain inert. Reference Sync scope is further aligned with the active template catalog: unchanged catalog-retired template sources are source-history evidence, while active or currently edited template sources remain fail-closed. Full Quality verification exposed superseded pre-retirement assertions in Beauty Lab catalog tests, generator distinctness corpus expectations, and semantic execution/reference-sync tests. These tests are now explicitly in scope so they can be realigned to the already-selected retirement authority without weakening runtime proof. Full Quality isolated one genuine runtime contract defect: Loot Vault v2 retained a template-specific empty-cart CTA because generic cart normalization only supplied defaults. The shared cart normalization file is now explicitly in scope; the existing portfolio-wide cart contract remains authoritative. Full-quality retirement test rewrites exposed a reverse-authority Reference Sync bug: deleted test implementation details were treated as production contract origins. Scope remains within the already-planned Reference Sync runtime and regression authority; no new subsystem or guard is introduced. Edit-Time proof confirmed Reference Sync PASS with zero stale/review findings after test-origin correction. The only remaining blocker was a plan-classification error: storefront-cart-presentation-contract is regression proof for the shared normalization change, not a required edited target; it is retained in planned/proof scope and removed from mustEdit. Exact-head 14x3 browser proof exposed a stale preview/demo-content assumption after shipping/payment route separation. Scope now includes the existing Template Factory quality runner and its regression test so browser proof follows canonical top-level informational route semantics while retaining demo warning and mobile-menu checks."
 }
