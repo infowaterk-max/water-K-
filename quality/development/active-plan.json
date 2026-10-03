@@ -13,7 +13,8 @@
     "tests/special-commerce-wave7-template-quality.test.ts",
     "tests/special-commerce-wave7-template2-adoption.test.ts",
     "tests/template-factory-template-distinctness.test.ts",
-    "tests/storefront-template-route-integrity.test.ts"
+    "tests/storefront-template-route-integrity.test.ts",
+    "tests/template-factory-loot-vault-v2.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -170,7 +171,8 @@
         "Tests are rewritten to accept two entries while runtime resolver still exposes legacy keys.",
         "Distinctness loses all foreign corpus evidence instead of retaining Playroom as a canonical comparison.",
         "Physical deletion removes an approved visual reference before reference inventory is proven.",
-        "The retirement transaction touches Template #3 and obscures whether the new production system passes its first real authoring test."
+        "The retirement transaction touches Template #3 and obscures whether the new production system passes its first real authoring test.",
+        "A retained Loot Vault v2 regression still asserts the pre-retirement catalog state and blocks intentional canonical v2 activation."
       ],
       "edgeCases": [
         "A stale persisted legacy page key may still request preview styling even though its template package is no longer resolvable.",
@@ -277,6 +279,13 @@
         "finding": "That could destroy the only trustworthy visual authority for future rebuilds.",
         "resolution": "Defer physical deletion; first prove runtime inactivation, then inventory and preserve PO-approved reference images in a separate transaction.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-07",
+        "scenario": "A historical Loot Vault v2 test still requires v2 to remain outside the production resolver while the new Product Owner instruction explicitly promotes v2 to canonical active authority.",
+        "finding": "Leaving the assertion unchanged would make the proof suite enforce a superseded lifecycle boundary and prevent the requested retirement state.",
+        "resolution": "Update only the lifecycle expectation: v2 must resolve canonically and v1 must fail closed; retain all Factory readiness, media and Page Schema assertions unchanged.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -298,7 +307,8 @@
         "tests/special-commerce-wave7-template-quality.test.ts",
         "tests/special-commerce-wave7-template2-adoption.test.ts",
         "tests/template-factory-template-distinctness.test.ts",
-        "tests/storefront-template-route-integrity.test.ts"
+        "tests/storefront-template-route-integrity.test.ts",
+        "tests/template-factory-loot-vault-v2.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -310,7 +320,8 @@
         "tests/storefront-template-route-integrity.test.ts",
         "tests/special-commerce-wave7-template-quality.test.ts",
         "tests/special-commerce-wave7-template2-adoption.test.ts",
-        "tests/template-factory-template-distinctness.test.ts"
+        "tests/template-factory-template-distinctness.test.ts",
+        "tests/template-factory-loot-vault-v2.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -391,5 +402,5 @@
       }
     ]
   },
-  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred."
+  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence."
 }
