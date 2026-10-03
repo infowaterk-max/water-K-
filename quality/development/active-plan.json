@@ -1,29 +1,23 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
-  "task": "Revalidate shared storefront engines E1-E11 and E13 against the current Mercedes-Maybach-Brabus stack with engine-specific adversarial proof, promote only engines whose required invariants are freshly proven, preserve each existing authority boundary, and keep Template #3 authoring forbidden until the separate final end-to-end Brabus rehearsal passes.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE",
+  "task": "Repair the existing Plan Before Code gate so a critical proof-only transaction whose projected files are exclusively neutral/test or knowledge-infrastructure paths may truthfully declare an empty domain/authority projection, while preserving exact scope drift detection whenever any architecture-bearing projected file exists.",
+  "status": "ready-for-implementation",
   "guardDigest": "94082bf1",
-  "changeBaseSha": "859519dd062bb0108f475851c1de4542f16326c6",
+  "changeBaseSha": "8e50fbdea0f2b12c0bcf626862062b6316c915b3",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
-    "tests/template-factory-engine-brabus-revalidation.test.ts",
-    "tests/template-factory-production-maturity.test.ts",
-    "tests/template-factory-generator-readiness.test.ts",
-    "scripts/template-factory-quality-gate.mjs",
-    "tests/storefront-template-quality-gate-v2.test.ts"
+    "scripts/shoperation-plan-before-code.mjs",
+    "tests/shoperation-change-impact-atlas.test.ts"
   ],
   "expectedSubsystems": [
-    "builder-template-system",
-    "shared-storefront",
-    "storefront-ui"
+    "quality-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "builder-template-system"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -89,80 +83,49 @@
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [
-    {
-      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
-      "file": "src/lib/builder/template-factory/generator-readiness.ts",
-      "findingFingerprint": "3b038645",
-      "reason": "Intentional fail-closed undeclared-Blueprint branch. template3AuthoringReady must remain false when no Generator Blueprint is declared; this consumer is independent of the now-PROVEN Brabus engine revalidation maturity for declared generator candidates."
-    }
-  ],
+  "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
+    "sourceRef": "PO-2026-10-03-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE",
     "riskTier": "critical",
-    "problemStatement": "The current production maturity catalog still blocks Template #3 because E1-E11 and E13 are all EVOLVE in the dedicated Brabus revalidation registry. Every engine already has canonical implementation and retained proof, so the missing capability is not another engine layer but fresh current-stack adversarial proof. This wave must prove each engine independently against its registered invariants, preserve its existing authority and mutation boundary, and promote only the engines that pass. A failure must identify the exact engine and trigger a separate targeted implementation fix rather than broadening this proof-only wave across multiple commerce/content/checkout authorities. During exact-head closure proof, the canonical Template Factory pull-request workflow returned SUCCESS while its own manifest marked gaming.playroom browserMatrixComplete=false (18/42 canary cases, no reusable previous full proof). The external completion handoff correctly rejected that artifact. This proves a gap inside the existing Template Factory gate: PR acceptance fallback can emit regression-signal canary evidence yet still exit success. The repair must align the existing gate with its declared 14x3 PR acceptance contract, not weaken external completion evidence.",
+    "problemStatement": "The final Brabus rehearsal proved a contradiction in the existing Plan Before Code gate. A critical proof-only plan can legitimately project only neutral test files, yielding projectedDomains=[] and projectedAuthorities=[], yet the gate unconditionally requires both declared arrays to be non-empty while also requiring exact equality with the empty projection. Such a transaction therefore cannot pass without falsely claiming an unrelated architecture domain. The repair must preserve the existing gate and exact drift checks, but make non-empty declaration mandatory only when the projection actually contains an architecture-bearing non-neutral file.",
     "observableOutcomes": [
-      "A dedicated Brabus revalidation proof exercises E1-E11 adversarially through their existing public authorities without production mutation.",
-      "E13 remains on the existing exact-head browser/network checkout proof path and is never replaced by a synthetic unit-only proof.",
-      "Each revalidation row is PROVEN only when its current-stack proof producer exists and the engine-specific required invariants are explicitly exercised.",
-      "Retained proof alone cannot change an EVOLVE row to PROVEN.",
-      "Deterministic engines prove repeatability under input reordering and fail closed on malformed, stale, ineligible or incompatible inputs as appropriate.",
-      "Content authority proves publication/provenance/unsafe-content boundaries without moving content ownership into the Builder.",
-      "Server-read-model engines prove server-authoritative snapshots and reject unsafe/tampered state instead of recomputing price, tax, stock or order constraints client-side.",
-      "E13 exact-head proof preserves authoritative quote, shared runtime and guided checkout behavior without production side effects.",
-      "No engine source file is changed in the initial proof-first transaction.",
-      "If any engine fails revalidation, its state remains EVOLVE/RETHINK and the failure is split into a targeted engine repair wave before revalidation resumes.",
-      "Technical production maturity may become Template3AuthoringReady only when every engine row is PROVEN, but actual Template #3 authoring remains forbidden until the separate final end-to-end Brabus rehearsal passes.",
-      "When a pull-request exact-head run has no reusable complete proof for a non-factory template, fallback selection is full rather than canary.",
-      "Push-only regression runs may retain default canary fallback when no full prior proof exists.",
-      "A pull-request Template Factory run fails closed if any selected acceptance proof remains browserMatrixComplete=false or browserMatrixPassed=false.",
-      "The external proof handoff contract remains unchanged and continues to require complete exact-head acceptance evidence."
+      "A critical plan with only neutral/test projected files may declare expectedDomains=[] and expectedAuthorities=[] without DEV_PLAN_EXPECTED_*_REQUIRED.",
+      "Exact projected-vs-declared domain and authority equality remains enforced.",
+      "A critical plan that projects any architecture-bearing non-neutral file still requires non-empty expectedDomains and expectedAuthorities.",
+      "Knowledge-infrastructure or neutral-only proof transactions are not forced to fabricate Builder, Storefront or other product authority ownership.",
+      "No Release Risk, Completion Truth, Atlas architecture resolution or external proof rule is weakened.",
+      "The final Brabus rehearsal can remain a proof-only transaction rather than adding fake product code solely to satisfy the planner."
     ],
     "unresolvedRisks": [
-      "A retained regression test may be mistaken for fresh Brabus revalidation.",
-      "One consolidated proof may accidentally hide an engine-specific missing invariant.",
-      "A deterministic engine may pass happy-path tests but fail under input reordering or malformed state.",
-      "A commerce read-model proof may accidentally mutate authoritative commerce state.",
-      "E10 may accept unverifiable provenance or unsafe content.",
-      "E11 may silently recompute server-owned price/tax/stock data.",
-      "E13 may be falsely promoted from unit evidence without the exact-head browser/network journey.",
-      "Registry promotion may mark all engines PROVEN even when one proof producer is absent.",
-      "Template #3 authoring may start immediately after technical maturity without the separate final rehearsal.",
-      "A future scope-selection change could accidentally reintroduce canary-only PR acceptance.",
-      "Making every push run full would unnecessarily increase proof cost; the correction must distinguish PR acceptance from push regression signaling."
+      "The relaxation could accidentally allow a real product-code plan to omit domain/authority declarations.",
+      "Knowledge infrastructure could be misclassified as neutral even when a canonical domain is projected.",
+      "The change could weaken exact scope drift checks instead of only changing the non-empty prerequisite.",
+      "A test-only plan could hide an unresolved architecture-bearing file through broad globbing."
     ],
     "scope": {
       "in": [
-        "Dedicated current-stack Brabus revalidation contract for E1-E11 and E13.",
-        "Engine-by-engine adversarial proof of the existing requiredInvariants registry.",
-        "Determinism, malformed-state, stale-state, authority-boundary and no-production-mutation proof where applicable.",
-        "Exact-head E13 browser/network proof linkage through the existing Template Factory handoff authority.",
-        "Revalidation registry promotion only for freshly proven engines.",
-        "Production maturity and Generator Readiness regression proof for the resulting engine blocker set.",
-        "Repair the existing Template Factory PR fallback so missing reusable proof triggers a full browser matrix.",
-        "Fail closed at the existing Template Factory gate when PR acceptanceProofs are incomplete."
+        "Conditional non-empty expectedDomains/expectedAuthorities validation in the existing Plan Before Code gate.",
+        "Use the gate's existing isNeutralFile and knowledgeInfrastructurePrefixes semantics to distinguish proof-only from architecture-bearing projections.",
+        "Regression tests for neutral/test-only critical plans and architecture-bearing critical plans."
       ],
       "out": [
-        "New parallel engine implementations or duplicate commerce/content/checkout authorities.",
-        "Changing engine product code before a revalidation test demonstrates a concrete deficiency.",
-        "Weakening release risk, knowledge, Template Factory or Completion Truth gates.",
-        "Replacing E13 browser proof with synthetic unit evidence.",
-        "Production database, payment, order, inventory or customer mutation.",
-        "Template #3 authoring before the final end-to-end Brabus rehearsal.",
-        "Weakening external proof handoff completeness requirements.",
-        "Forcing all push regression runs to execute full 14x3 matrices."
+        "New standalone planning gate.",
+        "Changes to Release Risk Budget thresholds or subsystem policy.",
+        "Changes to Atlas domain ownership.",
+        "Changes to Completion Truth or Template Factory evidence requirements.",
+        "Any Template #3 or rehearsal product implementation."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "These proof rows gate the final technical readiness of Template Production. Highest practical assurance is fresh executable engine-specific adversarial evidence, deterministic replay, malformed/stale/fail-closed cases, explicit authority and no-mutation boundaries, exact-head browser proof for E13, and fail-closed registry promotion. Existing retained proof is useful baseline knowledge but is not itself sufficient for Brabus promotion.",
+      "rationale": "This change affects the planner that authorizes critical development transactions. The highest practical assurance is a minimal conditional around the existing requirement, exact drift checks left unchanged, explicit adversarial tests proving neutral-only allowance and product-code fail-closed behavior, and full existing quality/type/build verification.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
         "dependency-graph",
-        "evidence-provenance",
+        "what-if-matrix",
         "adversarial-scenarios",
         "negative-tests",
         "boundary-cases",
@@ -170,68 +133,36 @@
         "threat-failure-model",
         "fault-injection",
         "determinism-proof",
-        "mutation-boundary-proof",
-        "exact-head-browser-proof",
-        "finite-state-exhaustion",
-        "what-if-matrix"
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": [
-        "engine-rewrite-without-failure-proof",
-        "new-commerce-authority",
-        "new-content-authority",
-        "synthetic-e13-unit-substitute",
-        "production-side-effect-testing",
-        "template-3-authoring"
+        "new-planning-gate",
+        "domain-taxonomy-redesign",
+        "release-risk-policy-redesign"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "The revalidation registry retains exactly E1-E11 and E13 and no reserved E12 row is introduced.",
-        "Every PROVEN revalidation row has a non-null proofProducer distinct from the fact of retained proof.",
-        "E1 proves canonical Page Schema/runtime validation, binding resolution, responsive behavior and registry authority under invalid and valid inputs.",
-        "E2 proves deterministic explainable discovery, ineligible exclusion and no commerce mutation under candidate/input reordering.",
-        "E3 proves deterministic guidance, evidence explanation, invalid selection rejection and template-switch authority preservation.",
-        "E4 proves real-catalog-line composition, atomic intent, server revalidation and no silent replacement.",
-        "E5 proves slot validation, compatibility fail-closed, server revalidation and no silent replacement.",
-        "E6 proves structured evidence, explainability, UNKNOWN not compatible and malformed-rule fail-closed behavior.",
-        "E7 proves shared structured registry, unit normalization, comparison determinism and no commerce mutation.",
-        "E8 proves customer-context separation, soft ranking rather than hard lock, cart preservation and server persistence authority.",
-        "E9 proves server retention evidence, current-commerce revalidation, no invented subscription and no silent quantity adjustment.",
-        "E10 proves publication lifecycle, provenance fail-closed, unsafe-content rejection and template-switch content preservation.",
-        "E11 proves server-authoritative snapshot usage, no client recomputation of price/tax/stock, MOQ/order-multiple preservation and unsafe snapshot fail-closed.",
-        "E13 is PROVEN only with the existing exact-head browser/network checkout proof that shows shared runtime, authoritative quote, guided checkout and no production side effect.",
-        "Any failed engine remains non-PROVEN and identifies a targeted follow-up repair; the registry cannot bulk-promote around a failing proof.",
-        "Production maturity removes only engine blockers whose proof passed.",
-        "Template #3 authoring remains separately forbidden until the final end-to-end Brabus rehearsal passes.",
-        "On GITHUB_EVENT_NAME=pull_request with no reusable prior proof, non-factory templates select mode=full and all canonical page types.",
-        "On non-PR push fallback with no reusable prior proof, non-factory templates may remain mode=canary.",
-        "A PR manifest containing any acceptance proof with browserMatrixComplete=false or browserMatrixPassed=false makes the Template Factory gate fail.",
-        "The correction is covered by the existing Template Factory gate regression test and by this PR's next exact-head workflow, which must produce complete Playroom and Loot Vault acceptance evidence."
+        "The gate computes whether projectedFiles contain at least one architecture-bearing file using existing neutral/knowledge-infrastructure semantics.",
+        "DEV_PLAN_EXPECTED_DOMAINS_REQUIRED is emitted only when an architecture-bearing projected file exists and expectedDomains is empty.",
+        "DEV_PLAN_EXPECTED_AUTHORITIES_REQUIRED is emitted only when an architecture-bearing projected file exists and expectedAuthorities is empty.",
+        "DEV_PLAN_DOMAIN_SCOPE_DRIFT and DEV_PLAN_AUTHORITY_SCOPE_DRIFT remain unconditional exact-equality checks.",
+        "A synthetic critical neutral/test-only projection with empty expected arrays passes the non-empty prerequisite.",
+        "A synthetic critical product-code projection with empty expected arrays remains blocked.",
+        "The fix does not alter subsystem, Known Failure, Negative Knowledge, PO instruction, Release Risk or Completion Truth logic."
       ],
       "invariants": [
-        "Retained proof is not fresh Brabus proof.",
-        "One engine failure cannot be hidden by other engine passes.",
-        "Proof cannot create a new engine authority.",
-        "Commerce/content/checkout ownership remains with the registered authority.",
-        "No revalidation proof mutates production state.",
-        "E13 requires browser/network exact-head evidence.",
-        "PROVEN requires executable evidence.",
-        "Template #3 final rehearsal remains mandatory after technical maturity.",
-        "Canary browser evidence is a regression signal, never sufficient PR acceptance evidence.",
-        "External completion handoff completeness is not weakened to compensate for incomplete upstream evidence."
+        "No fabricated architecture ownership is required for neutral-only proof transactions.",
+        "Architecture-bearing transactions still declare explicit domain and authority ownership.",
+        "Exact scope drift remains fail-closed.",
+        "No other gate semantics change."
       ],
       "forbiddenStates": [
-        "bulk-proven-with-missing-engine-proof",
-        "retained-proof-counts-as-revalidation",
-        "e13-proven-by-unit-only-test",
-        "commerce-read-model-mutates-order-or-price",
-        "content-authority-moved-into-builder",
-        "malformed-input-treated-as-valid",
-        "unknown-treated-as-compatible",
-        "silent-replacement-or-quantity-adjustment",
-        "template-3-authoring-before-final-rehearsal",
-        "pull-request-workflow-success-with-incomplete-browser-matrix",
-        "external-handoff-accepts-canary-as-complete"
+        "product-code-critical-plan-with-empty-domain-authority-passes",
+        "neutral-proof-forced-to-fabricate-domain",
+        "scope-drift-check-disabled",
+        "release-risk-threshold-weakened",
+        "new-parallel-planning-gate"
       ]
     },
     "model": {
@@ -263,84 +194,79 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A proof file merely checks version constants and never exercises the registered invariant.",
-        "One test loops engines generically and falsely treats shared PASS as engine-specific proof.",
-        "Candidate order changes ranking output for a deterministic engine.",
-        "Malformed compatibility/configuration data is accepted as valid.",
-        "A B2B read model recomputes a server-owned commercial value.",
-        "Unsafe editorial markup or unverifiable provenance reaches the public read model.",
-        "E13 is marked PROVEN before exact-head checkout proof exists.",
-        "Registry state changes to PROVEN while proofProducer remains null.",
-        "Technical readiness is misinterpreted as authorization to build Template #3."
+        "A neutral-only critical plan remains impossible because the unconditional non-empty checks survive.",
+        "A real source file is treated as neutral and bypasses required ownership declaration.",
+        "The fix skips exact equality and allows declared scope to diverge from Atlas projection.",
+        "The regression test only checks source strings and never exercises the decision predicate."
       ],
       "edgeCases": [
-        "Identical deterministic candidates supplied in reversed order.",
-        "Empty or malformed engine input that previously never reached a happy-path test.",
-        "Stale server snapshot or missing authoritative field.",
-        "Unknown compatibility result alongside otherwise valid data.",
-        "Valid content mixed with one unsafe relation or provenance claim.",
-        "E13 exact-head browser proof succeeds while a unit-only registry assertion also exists.",
-        "Eleven engines pass and one engine fails."
+        "Projected files contain only tests.",
+        "Projected files contain only knowledge-infrastructure scripts.",
+        "Projected files mix a neutral test with a Builder source file.",
+        "Projected files are neutral while actual diff currently contains only active-plan metadata.",
+        "Expected arrays are empty and projected domains are empty.",
+        "Expected arrays are empty while projected domains are non-empty."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-ENGINE-REVALIDATE-PROOF-FIRST",
-        "summary": "Fresh engine-specific adversarial proof over existing authorities; repair only engines that demonstrate a concrete deficiency.",
+        "id": "ALT-NEUTRAL-CONDITIONAL-REQUIREMENT",
+        "summary": "Require non-empty domain/authority declarations only when architecture-bearing projected files exist.",
         "disposition": "selected",
-        "reason": "Maximizes evidence while minimizing unnecessary cross-authority implementation change and release risk."
+        "reason": "Preserves exact ownership enforcement while allowing truthful proof-only critical transactions."
       },
       {
-        "id": "ALT-ENGINE-BULK-PROMOTE-RETAINED",
-        "summary": "Mark EVOLVE rows PROVEN because retained engine tests already pass.",
+        "id": "ALT-FAKE-BUILDER-DOMAIN",
+        "summary": "Declare DOMAIN-BUILDER/builder-template-system for a test-only rehearsal.",
         "disposition": "rejected",
-        "reason": "Would collapse historical proof and current Brabus revalidation into the same claim and permit false readiness."
+        "reason": "Would deliberately make plan metadata false and undermine the authority graph."
       },
       {
-        "id": "ALT-ENGINE-REWRITE-ALL",
-        "summary": "Rewrite or harden every engine before testing.",
+        "id": "ALT-ADD-DUMMY-PRODUCT-FILE",
+        "summary": "Add or touch Builder code solely to create a non-empty projection.",
         "disposition": "rejected",
-        "reason": "Creates unnecessary multi-authority change, exceeds practical release-risk discipline and may introduce regressions without evidence of deficiency."
+        "reason": "Would pollute release scope and create meaningless implementation change."
       }
     ],
     "specialistReviews": [
       {
         "role": "Architecture",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The functional registry is already the canonical engine map and should remain the only maturity linkage.",
-        "resolution": "Extend only the Brabus revalidation evidence rows; do not create a second engine registry.",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Critical plans normally must declare authority ownership; allowing empty arrays must not become a general bypass.",
+        "resolution": "Condition the prerequisite on architecture-bearing projected files and retain unconditional exact drift comparison.",
         "evidence": [
-          "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
-          "src/lib/builder/template-factory/production-maturity.ts"
+          "scripts/shoperation-plan-before-code.mjs",
+          "quality/knowledge/domain-foundations.v1.json"
         ]
       },
       {
         "role": "Data Integrity",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Retained proof and new revalidation proof can point at similar code paths and accidentally double-count evidence.",
-        "resolution": "Require dedicated revalidation assertions for every registered invariant and keep retainedProofProducer separate from current proofProducer.",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The observed contradiction is deterministic: empty Atlas projection plus unconditional non-empty declaration cannot both be satisfied truthfully.",
+        "resolution": "Use the same neutral/knowledge-infrastructure classification already trusted by unresolved-scope logic.",
         "evidence": [
-          "src/lib/builder/template-factory/engine-functional-proof-registry.ts"
+          "scripts/shoperation-plan-before-code.mjs",
+          "scripts/lib/shoperation-development-runtime.mjs"
         ]
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "pass",
-        "finding": "This wave changes no storefront presentation; its only UX effect is whether Template Production can progress.",
-        "resolution": "Keep Template #3 authoring process-blocked until the later end-to-end rehearsal despite technical maturity.",
+        "finding": "The fix should not touch storefront or template runtime behavior.",
+        "resolution": "Restrict implementation to the existing planner and its regression test.",
         "evidence": [
-          "src/lib/builder/template-factory/production-maturity.ts"
+          "tests/shoperation-change-impact-atlas.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Changing multiple engine implementations in one PR would exceed the intended proof-only release envelope.",
-        "resolution": "Initial wave edits only Builder registry/maturity plus tests. Any failing engine gets a separate targeted repair transaction before revalidation resumes.",
+        "verdict": "pass",
+        "finding": "The prerequisite must remain separate from #795 so rehearsal scope is not mixed with Control Plane infrastructure.",
+        "resolution": "Use a dedicated stacked prerequisite branch and retarget/rebase the rehearsal only after lifecycle closure.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -348,116 +274,88 @@
     ],
     "challenge": [
       {
-        "id": "CH-ER-1",
-        "scenario": "All retained proof suites are green.",
-        "finding": "Historical PASS does not prove current Brabus adversarial invariants.",
-        "resolution": "Rows remain EVOLVE until dedicated current revalidation evidence passes.",
+        "id": "CH-NP-1",
+        "scenario": "Critical plan projects only tests and expected domain/authority arrays are empty.",
+        "finding": "Current gate emits REQUIRED despite zero projected architecture ownership.",
+        "resolution": "After fix, non-empty prerequisite is skipped but exact empty==empty drift checks still run.",
         "status": "resolved"
       },
       {
-        "id": "CH-ER-2",
-        "scenario": "Eleven engines pass and E6 fails malformed-rule handling.",
-        "finding": "Bulk promotion would hide one unsafe engine.",
-        "resolution": "E6 remains non-PROVEN and blocks Template #3 while the eleven proven rows may retain their evidence.",
+        "id": "CH-NP-2",
+        "scenario": "Critical plan projects src/lib/builder/storefront-runtime.ts with empty declarations.",
+        "finding": "This must never gain the neutral-only exception.",
+        "resolution": "Architecture-bearing predicate is true and both REQUIRED findings remain.",
         "status": "resolved"
       },
       {
-        "id": "CH-ER-3",
-        "scenario": "E2 produces the same set but different order when candidates are reversed.",
-        "finding": "Determinism claim is false.",
-        "resolution": "Revalidation fails and no registry promotion occurs for E2.",
+        "id": "CH-NP-3",
+        "scenario": "Critical plan mixes one test and one Builder source file.",
+        "finding": "Presence of any architecture-bearing file must preserve strict declaration.",
+        "resolution": "Predicate is true for the mixed projection; empty declarations block.",
         "status": "resolved"
       },
       {
-        "id": "CH-ER-4",
-        "scenario": "E10 contains one unverifiable provenance relation among valid content.",
-        "finding": "Partial validity cannot override provenance failure.",
-        "resolution": "Public/read-model proof must fail closed.",
+        "id": "CH-NP-4",
+        "scenario": "Expected domain is fabricated while projection is empty.",
+        "finding": "Skipping the REQUIRED check alone must not allow false metadata.",
+        "resolution": "Unconditional DOMAIN_SCOPE_DRIFT/AUTHORITY_SCOPE_DRIFT still blocks.",
         "status": "resolved"
       },
       {
-        "id": "CH-ER-5",
-        "scenario": "E11 snapshot omits or tampers a server-owned commercial field.",
-        "finding": "Client recomputation would cross authority.",
-        "resolution": "Reject unsafe snapshot; never fill price/tax/stock locally.",
+        "id": "CH-NP-5",
+        "scenario": "Only a knowledge-infrastructure script is planned.",
+        "finding": "It may be architecturally classified but also belongs to the planner's special infrastructure set.",
+        "resolution": "The non-empty prerequisite uses existing special classification while exact projected ownership equality remains authoritative.",
         "status": "resolved"
       },
       {
-        "id": "CH-ER-6",
-        "scenario": "Unit tests for E13 are green but no exact-head browser handoff exists.",
-        "finding": "Checkout browser/network semantics are unproven.",
-        "resolution": "E13 remains EVOLVE until GUARD-TEMPLATE-FACTORY exact-head browser proof passes.",
+        "id": "CH-NP-6",
+        "scenario": "Broad test glob accidentally captures a non-neutral source path.",
+        "finding": "A bypass based on glob text rather than resolved projected files would be unsafe.",
+        "resolution": "Evaluate the actual projectedFiles list item-by-item using canonical predicates.",
         "status": "resolved"
       },
       {
-        "id": "CH-ER-7",
-        "scenario": "All engine rows become technically PROVEN.",
-        "finding": "This does not satisfy the separate full-system Brabus rehearsal.",
-        "resolution": "Template #3 authoring stays process-blocked until the next rehearsal wave closes.",
+        "id": "CH-NP-7",
+        "scenario": "The fix changes release risk or truth behavior indirectly.",
+        "finding": "A planner repair must not weaken downstream assurance.",
+        "resolution": "No downstream gate file or policy is modified; full quality/build proof remains required.",
         "status": "resolved"
       },
       {
-        "id": "CH-ER-8",
-        "scenario": "A revalidation proof passes functionally but mutates its input object, cart-like state, catalog fixture or story fixture during evaluation.",
-        "finding": "A PASS with hidden mutation would violate the registered no-production-mutation/read-model boundary and could make repeated proof order-dependent.",
-        "resolution": "Adversarial tests snapshot/freeze relevant inputs and assert immutability or stable replay; any mutation leaves the engine non-PROVEN and triggers a targeted repair wave.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ER-9",
-        "scenario": "A PR changes only engine registry/tests, there is no reusable complete Playroom checkpoint, and fallback scope selection chooses six canary pages.",
-        "finding": "The browser runner may report no case errors and exit zero even though acceptanceProof.browserMatrixComplete=false (18/42), producing a workflow SUCCESS that cannot satisfy Completion Truth.",
-        "resolution": "On pull_request fallback, select full pages for every template lacking reusable complete proof and add a final fail-closed PR acceptance check over acceptanceProofs. Preserve canary fallback only for non-PR regression runs.",
+        "id": "CH-NP-8",
+        "scenario": "Final Brabus rehearsal retries after prerequisite closure.",
+        "finding": "It must pass Plan only because its projection is honestly neutral, not because Builder ownership was fabricated.",
+        "resolution": "Retarget rehearsal to the closed prerequisite and declare empty domain/authority projection with measured subsystems.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Plan Before Code and Release Risk proof for a proof-only Builder transaction.",
-      "Dedicated E1-E11 adversarial revalidation test file with explicit engine-labelled cases and registered-invariant coverage.",
-      "Registry test proves PROVEN requires current proofProducer and cannot rely on retainedProofProducer alone.",
-      "E13 registry linkage plus exact-head Template Factory browser/network evidence; no unit-only substitution.",
-      "Mutation-boundary assertions prove no production side effects and no authority relocation.",
-      "Production maturity and Generator Readiness tests prove only freshly proven engine blockers are cleared.",
-      "If any engine test fails, stop registry promotion for that engine and open a targeted repair wave rather than editing all engines here.",
-      "Full Quality tests, TypeScript, Production Build, exact-head Template Factory proof, Completion Truth and lifecycle closure.",
-      "Template Factory gate regression locks PR fallback=full and push fallback=canary semantics without changing the external handoff validator.",
-      "The next exact-head PR Template Factory artifact must show gaming.playroom and gaming.loot-vault browserMatrixComplete=true and browserMatrixPassed=true before Completion Truth can proceed."
+      "Plan Before Code on this prerequisite validates its own Quality-domain scope before code change.",
+      "Regression test asserts the planner contains an explicit architecture-bearing projection predicate rather than removing REQUIRED findings.",
+      "Adversarial regression proves neutral-only empty ownership is allowed while mixed/product-code empty ownership remains blocked.",
+      "Source scan proves exact DOMAIN_SCOPE_DRIFT and AUTHORITY_SCOPE_DRIFT comparisons remain unconditional.",
+      "Incremental replay, Release Risk, full Quality tests, TypeScript, Production Build and Completion Truth run normally.",
+      "After lifecycle closure, #795 is rebased/retargeted onto this prerequisite and reruns its original Plan gates."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-03-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
+      "request": "PO-2026-10-03-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE",
       "authority": [
-        "builder-template-system"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        "tests/template-factory-engine-brabus-revalidation.test.ts"
+        "scripts/shoperation-plan-before-code.mjs"
       ],
       "mayEdit": [
-        "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
-        "tests/template-factory-engine-brabus-revalidation.test.ts",
-        "tests/template-factory-production-maturity.test.ts",
-        "tests/template-factory-generator-readiness.test.ts",
-        "scripts/template-factory-quality-gate.mjs",
-        "tests/storefront-template-quality-gate-v2.test.ts"
+        "tests/shoperation-change-impact-atlas.test.ts"
       ],
       "impactedReadOnly": [
-        "src/lib/builder/storefront-runtime.ts",
-        "src/lib/commerce/product-discovery.ts",
-        "src/lib/commerce/guided-finder.ts",
-        "src/lib/commerce/multi-product-composer.ts",
-        "src/lib/commerce/product-configurator.ts",
-        "src/lib/commerce/compatibility-engine.ts",
-        "src/lib/commerce/structured-product.ts",
-        "src/lib/commerce/context-profile.ts",
-        "src/lib/commerce/retention-reorder.ts",
-        "src/lib/content/story-engine.ts",
-        "src/lib/commerce/professional-b2b.ts",
-        "src/components/checkout/checkout-form.tsx",
-        "scripts/template-factory-product-owner-handoff.mjs"
+        "scripts/lib/shoperation-development-runtime.mjs",
+        "quality/knowledge/domain-foundations.v1.json",
+        "deploy/release-risk-policy.json"
       ],
       "proof": [
-        "tests/template-factory-engine-brabus-revalidation.test.ts",
-        "tests/template-factory-production-maturity.test.ts",
-        "tests/template-factory-generator-readiness.test.ts"
+        "tests/shoperation-change-impact-atlas.test.ts"
       ],
       "unknown": []
     },
@@ -465,91 +363,17 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
+    "sourceRef": "PO-2026-10-03-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE",
     "requirements": [
       {
-        "id": "REQ-ENGINE-BRABUS-FRESH-PROOF",
-        "requirement": "Every E1-E11/E13 PROVEN revalidation row is backed by fresh current-stack executable evidence for its registered invariants; retained proof alone cannot promote a row.",
+        "id": "REQ-NEUTRAL-CRITICAL-PLAN-TRUTHFUL-SCOPE",
+        "requirement": "Critical proof-only plans with exclusively neutral or knowledge-infrastructure projections can truthfully use empty domain/authority declarations without bypassing exact scope drift checks.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "template-engine-brabus-revalidation",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "behavioral-proof",
-            "coverage",
-            "freshness",
-            "scope"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-PRODUCTION-BUILD",
-            "GUARD-TEMPLATE-FACTORY"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-ENGINE-RETAINED-AS-FRESH",
-            "statement": "Retained proof cannot substitute for current Brabus revalidation.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-ENGINE-BRABUS-AUTHORITY-BOUNDARY",
-        "requirement": "Revalidation preserves registered engine authorities and proves fail-closed/no-production-mutation behavior without introducing parallel engine implementations.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "engine-authority-boundaries",
+          "breadth": "plan-before-code-neutral-critical-scope",
           "strength": 2,
           "dimensions": [
             "behavioral-proof",
-            "limitations",
-            "scope"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-ENGINE-AUTHORITY-CROSSING",
-            "statement": "Proof cannot mutate production state or move commerce/content/checkout truth into Builder authority.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-ENGINE-BRABUS-TEMPLATE3-BOUNDARY",
-        "requirement": "Technical maturity clears engine blockers only for passed proofs; Template #3 authoring remains separately prohibited until the final end-to-end Brabus rehearsal closes.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "template3-engine-maturity-boundary",
-          "strength": 2,
-          "dimensions": [
-            "proven-scope",
             "scope",
             "limitations"
           ]
@@ -559,75 +383,25 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TEMPLATE-FACTORY"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-ENGINE-TEMPLATE3-EARLY",
-            "statement": "Engine technical maturity alone cannot authorize Template #3 authoring.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-ENGINE-BRABUS-TF-PR-ACCEPTANCE",
-        "requirement": "Template Factory pull-request acceptance must fail closed unless every selected template has complete passing browser evidence; canary-only evidence remains a regression signal and cannot satisfy external Completion Truth.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "template-factory-pr-acceptance-semantics",
-          "strength": 2,
-          "dimensions": [
-            "behavioral-proof",
-            "coverage",
-            "freshness",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
             "GUARD-QUALITY-TESTS",
             "GUARD-TYPECHECK"
           ],
           "outcome": [
-            "GUARD-TEMPLATE-FACTORY",
+            "GUARD-QUALITY-TESTS",
             "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-TF-CANARY-AS-PR-ACCEPTANCE",
-            "statement": "A pull-request Template Factory workflow cannot succeed with browserMatrixComplete=false for any selected acceptance proof.",
+            "id": "NEG-PRODUCT-EMPTY-OWNERSHIP",
+            "statement": "Architecture-bearing critical plans cannot pass with empty expectedDomains/expectedAuthorities.",
             "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-TEMPLATE-FACTORY"
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Fourteenth Brabus hardening wave. Parent #790 / VX Smart Auto-Fix is lifecycle-closed at 859519dd062bb0108f475851c1de4542f16326c6 with verified implementation head 80db31357df898bd9dd8b31f53699530f3a51b84. This transaction is proof-first: engine implementation files are read-only unless a concrete revalidation failure proves a deficiency, in which case the repair is split into a targeted follow-up transaction rather than silently expanding this wave. Initial Plan gate reconciliation: proof files live in proof/mayEdit rather than semantic mustEdit; registry dependency projection expands expected subsystems to builder-template-system + shared-storefront + storefront-ui; guardDigest refreshed to 0f3eadb0; critical assurance adds what-if-matrix and CH-ER-8 mutation-boundary challenge. Proof-first sequencing correction: engine-functional-proof-registry.ts is mayEdit rather than mustEdit so executable adversarial proof can run against EVOLVE rows before any PROVEN promotion commit; promotion is allowed only after proof passes. Critical semantic route resolved after proof file creation: the generated Atlas route now classifies tests/template-factory-engine-brabus-revalidation.test.ts as MUST_EDIT, so proof-first execution has a concrete mandatory target without forcing premature registry promotion. Reference Sync fingerprint 3b038645 is acknowledged exactly for generator-readiness' undeclared Blueprint return path. That branch must remain template3AuthoringReady:false even though declared generator candidates now clear all technical engine maturity blockers. Concrete Control Plane deficiency proven on c3b491b033f26cb862e64da210d86994d1598112: Template Factory PR run 37102297913 concluded SUCCESS while its manifest carried gaming.playroom browserMatrixComplete=false/browserMatrixPassed=false (18/42 canary cases, previousEvidence missing). External proof handoff correctly blocked. Scope is minimally expanded to repair the existing Template Factory PR acceptance fallback and fail-closed completeness check; external handoff semantics remain unchanged. Template Factory acceptance-gap plan reconciliation: knowledge infrastructure remains outside release subsystem counting, guardDigest refreshed to 94082bf1, and the additional SQ-KF quality-infrastructure failure scope is explicitly acknowledged.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "6a283d4c58fbc1f3446177a92506cfba85dd8f22",
-    "closedAt": "2026-10-03T06:33:28.794Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-03-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Targeted prerequisite proven necessary by #795 Plan Before Code on head 6f45f9f55c0e669002c6c5c4d0c5a21e38ef4e67: projectedDomains=[] and projectedAuthorities=[] were exact, but unconditional non-empty requirements made the proof-only critical transaction unsatisfiable without false metadata. Control Plane remains otherwise frozen."
 }
