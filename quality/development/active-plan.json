@@ -80,7 +80,14 @@
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [],
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/lib/builder/template-factory/generator-readiness.ts",
+      "findingFingerprint": "3b038645",
+      "reason": "Intentional fail-closed undeclared-Blueprint branch. template3AuthoringReady must remain false when no Generator Blueprint is declared; this consumer is independent of the now-PROVEN Brabus engine revalidation maturity for declared generator candidates."
+    }
+  ],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-03-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
@@ -533,5 +540,5 @@
       }
     ]
   },
-  "notes": "Fourteenth Brabus hardening wave. Parent #790 / VX Smart Auto-Fix is lifecycle-closed at 859519dd062bb0108f475851c1de4542f16326c6 with verified implementation head 80db31357df898bd9dd8b31f53699530f3a51b84. This transaction is proof-first: engine implementation files are read-only unless a concrete revalidation failure proves a deficiency, in which case the repair is split into a targeted follow-up transaction rather than silently expanding this wave. Initial Plan gate reconciliation: proof files live in proof/mayEdit rather than semantic mustEdit; registry dependency projection expands expected subsystems to builder-template-system + shared-storefront + storefront-ui; guardDigest refreshed to 0f3eadb0; critical assurance adds what-if-matrix and CH-ER-8 mutation-boundary challenge. Proof-first sequencing correction: engine-functional-proof-registry.ts is mayEdit rather than mustEdit so executable adversarial proof can run against EVOLVE rows before any PROVEN promotion commit; promotion is allowed only after proof passes. Critical semantic route resolved after proof file creation: the generated Atlas route now classifies tests/template-factory-engine-brabus-revalidation.test.ts as MUST_EDIT, so proof-first execution has a concrete mandatory target without forcing premature registry promotion."
+  "notes": "Fourteenth Brabus hardening wave. Parent #790 / VX Smart Auto-Fix is lifecycle-closed at 859519dd062bb0108f475851c1de4542f16326c6 with verified implementation head 80db31357df898bd9dd8b31f53699530f3a51b84. This transaction is proof-first: engine implementation files are read-only unless a concrete revalidation failure proves a deficiency, in which case the repair is split into a targeted follow-up transaction rather than silently expanding this wave. Initial Plan gate reconciliation: proof files live in proof/mayEdit rather than semantic mustEdit; registry dependency projection expands expected subsystems to builder-template-system + shared-storefront + storefront-ui; guardDigest refreshed to 0f3eadb0; critical assurance adds what-if-matrix and CH-ER-8 mutation-boundary challenge. Proof-first sequencing correction: engine-functional-proof-registry.ts is mayEdit rather than mustEdit so executable adversarial proof can run against EVOLVE rows before any PROVEN promotion commit; promotion is allowed only after proof passes. Critical semantic route resolved after proof file creation: the generated Atlas route now classifies tests/template-factory-engine-brabus-revalidation.test.ts as MUST_EDIT, so proof-first execution has a concrete mandatory target without forcing premature registry promotion. Reference Sync fingerprint 3b038645 is acknowledged exactly for generator-readiness' undeclared Blueprint return path. That branch must remain template3AuthoringReady:false even though declared generator candidates now clear all technical engine maturity blockers."
 }
