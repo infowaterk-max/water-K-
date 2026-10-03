@@ -46,7 +46,7 @@ function SystemInfoPage({slug,brand,settings}:{slug:string;brand:string;settings
       <section className="featurePanel systemInfoGuide"><span className="eyebrow">Hogyan működik?</span><h2>A végleges lehetőséget mindig a pénztár mutatja.</h2><div className="cards"><article className="card"><span className="badge">1</span><h3>Rendelési adatok</h3><p className="muted">Add meg pontosan a kézbesítéshez szükséges adatokat.</p></article><article className="card"><span className="badge">2</span><h3>Elérhető módok</h3><p className="muted">A pénztár csak az adott rendeléshez használható, aktív szállítási módokat kínálja fel.</p></article><article className="card"><span className="badge">3</span><h3>Díj ellenőrzése</h3><p className="muted">A végleges szállítási díjat még a rendelés elküldése előtt látod.</p></article></div></section>
       <section className="card"><h2>Rendelés után</h2><p className="muted">A kiválasztott szállítási mód a rendelési adatok között is megjelenik. Ha az adott szolgáltató nyomkövetési adatot biztosít, azt a fiókod rendelési nézetében érheted el.</p></section>
     </div>
-    <div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/webaruhaz">Vissza a webáruházba</Link><Link className="btn btnGhost" href="/oldal/fizetes">Fizetési információk</Link></div>
+    <div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/webaruhaz">Vissza a webáruházba</Link><Link className="btn btnGhost" href="/fizetes">Fizetési információk</Link></div>
   </div></main>;
  }
  if(slug==='fizetes'){
@@ -57,7 +57,7 @@ function SystemInfoPage({slug,brand,settings}:{slug:string;brand:string;settings
       <section className="featurePanel systemInfoGuide"><span className="eyebrow">Hogyan működik?</span><h2>A pénztár mindig az aktív lehetőségeket mutatja.</h2><div className="cards"><article className="card"><span className="badge">1</span><h3>Fizetési mód kiválasztása</h3><p className="muted">A rendelésnél válassz a webshophoz ténylegesen engedélyezett fizetési módok közül.</p></article><article className="card"><span className="badge">2</span><h3>Végösszeg ellenőrzése</h3><p className="muted">A fizetés előtt ellenőrizheted a rendelés végleges összegét és a kapcsolódó díjakat.</p></article><article className="card"><span className="badge">3</span><h3>Visszaigazolás</h3><p className="muted">A rendelés elküldése után a kiválasztott fizetési módnak megfelelő következő lépést és visszaigazolást kapod.</p></article></div></section>
       <section className="card"><h2>Rendelés után</h2><p className="muted">A kiválasztott fizetési mód a rendelés adatai között is megjelenik. A fizetés állapotát és a rendeléshez tartozó dokumentumokat a fiókodban követheted, amikor azok elérhetővé válnak.</p></section>
     </div>
-    <div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/webaruhaz">Vissza a webáruházba</Link><Link className="btn btnGhost" href="/oldal/szallitas">Szállítási információk</Link></div>
+    <div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/webaruhaz">Vissza a webáruházba</Link><Link className="btn btnGhost" href="/szallitas">Szállítási információk</Link></div>
   </div></main>;
  }
  if(slug==='visszakuldes')return <main className="section contentPage systemInfoPage" data-system-info-page="returns"><div className="shell">
