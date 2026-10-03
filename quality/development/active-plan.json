@@ -24,11 +24,13 @@
   ],
   "expectedDomains": [
     "DOMAIN-ADMIN",
-    "DOMAIN-BUILDER"
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "admin-operations",
-    "builder-template-system"
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -447,7 +449,8 @@
       "request": "PO-2026-10-03-VX-SMART-AUTOFIX-BRABUS-HARDENING",
       "authority": [
         "builder-template-system",
-        "admin-operations"
+        "admin-operations",
+        "shared-storefront"
       ],
       "mustEdit": [
         "src/components/admin/storefront-visual-builder-v3.tsx",
@@ -636,5 +639,5 @@
       }
     ]
   },
-  "notes": "Thirteenth Brabus hardening wave. Publish Readiness and Smart Intent are lifecycle-closed and PROVEN on parent 568e2d2c509bb58e5d00f07963bc3b2f187e7f01. Auto-Fix is deliberately narrower than 'repair every structured diagnostic': explicit safe registry membership is the repair authority. Template #3 remains forbidden until the final end-to-end Brabus rehearsal passes even if this wave clears the last maturity blocker. Plan projection narrowed to the measured Auto-Fix transaction: DOMAIN-ADMIN + DOMAIN-BUILDER, admin/builder authorities, no database-schema subsystem. Two critical challenges were rewritten with exact diagnostic codes, mutation risk and executable fail-closed outcomes."
+  "notes": "Thirteenth Brabus hardening wave. Publish Readiness and Smart Intent are lifecycle-closed and PROVEN on parent 568e2d2c509bb58e5d00f07963bc3b2f187e7f01. Auto-Fix is deliberately narrower than 'repair every structured diagnostic': explicit safe registry membership is the repair authority. Template #3 remains forbidden until the final end-to-end Brabus rehearsal passes even if this wave clears the last maturity blocker. Plan projection narrowed to the measured Auto-Fix transaction: DOMAIN-ADMIN + DOMAIN-BUILDER, admin/builder authorities, no database-schema subsystem. Two critical challenges were rewritten with exact diagnostic codes, mutation risk and executable fail-closed outcomes. After the Core file entered the actual diff, Atlas correctly resolved its canonical Page Schema/runtime validation dependency as DOMAIN-STOREFRONT/shared-storefront. This is consumption of existing authority, not a new storefront authority; database-schema remains out of scope."
 }
