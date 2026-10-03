@@ -36,7 +36,8 @@
     "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
     "tests/storefront-beauty-lab-reference-v2.test.ts",
     "tests/storefront-cart-presentation-contract.test.ts",
-    "tests/template-factory-generator-readiness.test.ts"
+    "tests/template-factory-generator-readiness.test.ts",
+    "src/lib/builder/storefront-template-runtime-normalization.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -172,7 +173,8 @@
         "Beauty Lab remains available only as inert source-history/reference evidence and is unresolved by the active storefront catalog.",
         "Loot Vault generator distinctness compares against exactly the one other active canonical template, Playroom v20.",
         "Semantic Execution regressions distinguish lexical display-text coincidence from component-key dependency identity.",
-        "The shipping/payment PO instruction requires only live canonical route files after the combined-route tombstone."
+        "The shipping/payment PO instruction requires only live canonical route files after the combined-route tombstone.",
+        "Every active canonical template receives the shared customer-task empty-cart continuation action 'Vásárlás folytatása' -> /webaruhaz through runtime normalization."
       ],
       "invariants": [
         "There is one active template catalog and resolver authority; retirement does not create a second registry.",
@@ -365,6 +367,17 @@
           "src/lib/builder/templates/gaming/playroom/v20/index.ts",
           "scripts/lib/shoperation-reference-sync-runtime.mjs"
         ]
+      },
+      {
+        "role": "Runtime",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "The active Loot Vault package exposes a valid but noncanonical empty-cart CTA through runtime normalization.",
+        "resolution": "Repair the shared runtime normalizer rather than weakening the portfolio contract or patching only Loot Vault.",
+        "evidence": [
+          "src/lib/builder/storefront-template-runtime-normalization.ts",
+          "tests/storefront-cart-presentation-contract.test.ts"
+        ]
       }
     ],
     "challenge": [
@@ -472,6 +485,13 @@
         "finding": "Both assertions predate the proven Reference Sync identity correction and the completed combined-route tombstone.",
         "resolution": "Keep component-key stale consumers blocking, treat unbound display-text matches as non-identity, and require only the live /szallitas and /fizetes route files from the active instruction while separately proving the forbidden combined route is absent.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-16",
+        "scenario": "Loot Vault v2 enters the active production catalog with a template-specific empty-cart CTA label even though the existing portfolio-wide customer-task cart contract requires one shared continuation action.",
+        "finding": "The generic cart normalizer only fills emptyCtaLabel/emptyCtaHref when missing, allowing a template-specific non-empty value to bypass the shared cart presentation authority.",
+        "resolution": "Make the shared cart normalizer authoritative for the empty-cart continuation action: always normalize to 'Vásárlás folytatása' and '/webaruhaz'. Preserve template visual identity outside shared commerce-task semantics.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -519,7 +539,8 @@
         "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
         "tests/storefront-beauty-lab-reference-v2.test.ts",
         "tests/template-factory-generator-readiness.test.ts",
-        "tests/storefront-cart-presentation-contract.test.ts"
+        "tests/storefront-cart-presentation-contract.test.ts",
+        "src/lib/builder/storefront-template-runtime-normalization.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -767,5 +788,5 @@
       }
     ]
   },
-  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation. Knowledge Before Build exposed an existing integration gap: deleted routes were looked up only in live Atlas nodes. Scope now includes a minimal tombstone-aware Knowledge Preflight convergence using the existing Atlas resolver. Because this changes knowledge infrastructure, the expected failure set expands to the canonical full replay of 49 failures and adds DOMAIN-QUALITY authority. Edit-Time Guard exposed a proven Reference Sync overreach on whole-file Next route deletion. Plan now includes a narrow existing-runtime semantic fix plus regression coverage; full 49-failure replay and guard digest remain unchanged because this is already knowledge infrastructure. Edit-Time Guard then proved one real stale Contact route plus a reference-identity false-positive class for deleted-file display text and generic export names. Scope now includes a minimal Reference Sync semantic correction and its regression coverage; subsystem set, full 49-failure replay and guard digest remain unchanged. Plan schema normalized specialist review labels to the canonical role set; review findings and resolutions are unchanged. Duplicate challenge identifier normalized without changing evidence. Edit-Time route review exposed that active Playroom v20 still used the compatibility aliases. Scope now includes only its canonical package so both active templates converge on /szallitas and /fizetes; historical Playroom reference sources remain inert. Reference Sync scope is further aligned with the active template catalog: unchanged catalog-retired template sources are source-history evidence, while active or currently edited template sources remain fail-closed. Full Quality verification exposed superseded pre-retirement assertions in Beauty Lab catalog tests, generator distinctness corpus expectations, and semantic execution/reference-sync tests. These tests are now explicitly in scope so they can be realigned to the already-selected retirement authority without weakening runtime proof."
+  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation. Knowledge Before Build exposed an existing integration gap: deleted routes were looked up only in live Atlas nodes. Scope now includes a minimal tombstone-aware Knowledge Preflight convergence using the existing Atlas resolver. Because this changes knowledge infrastructure, the expected failure set expands to the canonical full replay of 49 failures and adds DOMAIN-QUALITY authority. Edit-Time Guard exposed a proven Reference Sync overreach on whole-file Next route deletion. Plan now includes a narrow existing-runtime semantic fix plus regression coverage; full 49-failure replay and guard digest remain unchanged because this is already knowledge infrastructure. Edit-Time Guard then proved one real stale Contact route plus a reference-identity false-positive class for deleted-file display text and generic export names. Scope now includes a minimal Reference Sync semantic correction and its regression coverage; subsystem set, full 49-failure replay and guard digest remain unchanged. Plan schema normalized specialist review labels to the canonical role set; review findings and resolutions are unchanged. Duplicate challenge identifier normalized without changing evidence. Edit-Time route review exposed that active Playroom v20 still used the compatibility aliases. Scope now includes only its canonical package so both active templates converge on /szallitas and /fizetes; historical Playroom reference sources remain inert. Reference Sync scope is further aligned with the active template catalog: unchanged catalog-retired template sources are source-history evidence, while active or currently edited template sources remain fail-closed. Full Quality verification exposed superseded pre-retirement assertions in Beauty Lab catalog tests, generator distinctness corpus expectations, and semantic execution/reference-sync tests. These tests are now explicitly in scope so they can be realigned to the already-selected retirement authority without weakening runtime proof. Full Quality isolated one genuine runtime contract defect: Loot Vault v2 retained a template-specific empty-cart CTA because generic cart normalization only supplied defaults. The shared cart normalization file is now explicitly in scope; the existing portfolio-wide cart contract remains authoritative."
 }
