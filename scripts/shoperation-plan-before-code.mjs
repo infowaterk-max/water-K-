@@ -3,6 +3,25 @@ import {getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolve
 import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,classifyAtlasPath,resolveAtlasArchitectureForPath,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
 import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
 
+const isKnowledgeInfrastructureFile=file=>scopePolicy.knowledgeInfrastructurePrefixes.some(prefix=>file.startsWith(prefix));
+const isArchitectureBearingProjectedFile=file=>!isNeutralFile(file)&&!isKnowledgeInfrastructureFile(file);
+const requiresExpectedArchitectureScope=files=>files.some(isArchitectureBearingProjectedFile);
+
+if(process.argv.includes('--architecture-scope-self-test')){
+  const cases=[
+    {name:'neutral-only',files:['tests/proof-only.test.ts'],expected:false},
+    {name:'knowledge-infrastructure-only',files:['scripts/shoperation-plan-before-code.mjs'],expected:false},
+    {name:'product-code',files:['src/lib/builder/storefront-runtime.ts'],expected:true},
+    {name:'mixed',files:['tests/proof-only.test.ts','src/lib/builder/storefront-runtime.ts'],expected:true},
+  ];
+  for(const item of cases){
+    const actual=requiresExpectedArchitectureScope(item.files);
+    if(actual!==item.expected)throw new Error(`PLAN_ARCHITECTURE_SCOPE_SELF_TEST_FAILED:${item.name}:${actual}`);
+  }
+  console.log('Plan architecture-scope self-test: PASS');
+  process.exit(0);
+}
+
 const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
 const guardRegistry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
 const diff=getChangedFiles({baseSha:plan.changeBaseSha});
@@ -81,8 +100,9 @@ if(projectedUnresolved.length)issues.push({code:'DEV_PLAN_ARCHITECTURE_SCOPE_UNR
 
 const expectedDomains=[...(plan.expectedDomains??[])].sort();
 const expectedAuthorities=[...(plan.expectedAuthorities??[])].sort();
-if(!expectedDomains.length)issues.push({code:'DEV_PLAN_EXPECTED_DOMAINS_REQUIRED'});
-if(!expectedAuthorities.length)issues.push({code:'DEV_PLAN_EXPECTED_AUTHORITIES_REQUIRED'});
+const architectureScopeRequired=requiresExpectedArchitectureScope(projectedFiles);
+if(architectureScopeRequired&&!expectedDomains.length)issues.push({code:'DEV_PLAN_EXPECTED_DOMAINS_REQUIRED'});
+if(architectureScopeRequired&&!expectedAuthorities.length)issues.push({code:'DEV_PLAN_EXPECTED_AUTHORITIES_REQUIRED'});
 
 if(JSON.stringify(projectedDomains)!==JSON.stringify(expectedDomains))issues.push({code:'DEV_PLAN_DOMAIN_SCOPE_DRIFT',expected:expectedDomains,actual:projectedDomains,mode:'planned-projection'});
 if(JSON.stringify(projectedAuthorities)!==JSON.stringify(expectedAuthorities))issues.push({code:'DEV_PLAN_AUTHORITY_SCOPE_DRIFT',expected:expectedAuthorities,actual:projectedAuthorities,mode:'planned-projection'});
