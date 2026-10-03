@@ -92,6 +92,11 @@ const STANDARD_DEMO_PAGES:Readonly<Record<string,DemoContentPayload>>=Object.fre
   karrier:standardPage('karrier','Karrier','Mintaoldal álláslehetőségek és jelentkezési információk számára.','Csatlakozz hozzánk\nMutasd be a vállalkozást mint munkahelyet és az aktuális lehetőségeket.\n\nJelentkezés\nAdd meg a valódi jelentkezési csatornát és az adatkezelési tájékoztatásra mutató hivatkozást.'),
 });
 
+const CANONICAL_INFORMATION_DEMO_ROUTES:ReadonlyMap<string,string>=new Map([
+  ['/szallitas','szallitas'],
+  ['/fizetes','fizetes'],
+]);
+
 function genericContent(slug:string,title:string,kind:'page'|'blog'):DemoContentPayload{
   const safeTitle=title&&title!==slug?title:humanize(slug);
   return{
@@ -114,8 +119,10 @@ export function augmentStorefrontTemplateDemoContent(template:StorefrontInstalla
   const links=listStorefrontTemplateLinks(template);
   for(const link of links){
     let kind:'page'|'blog'|null=null,slug='';
-    if(link.href.startsWith('/oldal/')){kind='page';slug=link.href.split(/[?#]/)[0]!.slice('/oldal/'.length);}
-    else if(link.href.startsWith('/blog/')){kind='blog';slug=link.href.split(/[?#]/)[0]!.slice('/blog/'.length);}
+    const pathname=link.href.split(/[?#]/)[0]!;
+    if(pathname.startsWith('/oldal/')){kind='page';slug=pathname.slice('/oldal/'.length);}
+    else if(pathname.startsWith('/blog/')){kind='blog';slug=pathname.slice('/blog/'.length);}
+    else{const canonicalInfoSlug=CANONICAL_INFORMATION_DEMO_ROUTES.get(pathname);if(canonicalInfoSlug){kind='page';slug=canonicalInfoSlug;}}
     if(!kind||!slug||existing.has(slug))continue;
     const payload=kind==='page'?(STANDARD_DEMO_PAGES[slug]??genericContent(slug,link.label,'page')):genericContent(slug,link.label,'blog');
     fixtures.push({entityType:'content',entityKey:`${kind}-${slug}`,payload});
@@ -184,8 +191,9 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
     viewport:input.viewport,
   });
   if(input.factoryCandidate)params.set('factory','1');
-  if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')){
-    const slug=url.pathname.split('/').filter(Boolean).at(-1);
+  const canonicalInfoSlug=CANONICAL_INFORMATION_DEMO_ROUTES.get(url.pathname);
+  if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')||canonicalInfoSlug){
+    const slug=canonicalInfoSlug??url.pathname.split('/').filter(Boolean).at(-1);
     if(slug)params.set('demoContent',slug);
   }
   for(const[key,value]of url.searchParams)params.append(key,value);
