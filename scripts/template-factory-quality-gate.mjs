@@ -595,7 +595,7 @@ try{
 
     if(manifest.browser.requireMobileMenu){
       const candidateQuery=manifest.factoryCandidate?'&factory=1':manifest.qualityCandidate?'&qualityCandidate=1':'';
-      const demoUrl=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=content&viewport=mobile&demoContent=szallitas${candidateQuery}`;
+      const demoUrl=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=legal&viewport=mobile&demoContent=szallitas${candidateQuery}`;
       const page=await browser.newPage({viewport:viewportProfiles.mobile,deviceScaleFactor:1});
       const name=`${safeName(manifest.templateKey)}-v${manifest.templateVersion}-demo-szallitas-mobile`;
       try{
@@ -618,7 +618,7 @@ try{
         for(const error of caseErrors)errors.push({case:name,error});
         const pathOut=path.join(outputDir,`${name}.png`);
         await page.screenshot({path:pathOut,fullPage:true,animations:'disabled'});
-        cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType:'content-demo',viewport:'mobile',url:demoUrl,screenshotPath:pathOut,errors:caseErrors,warnings:[],evidenceExecution:'RERUN',sourceCommit:headSha==='HEAD'?null:headSha,originSourceCommit:headSha==='HEAD'?null:headSha,originRunId:currentRunId,pageFingerprint:manifest.pageFingerprints?.content??null});
+        cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType:'legal-demo',viewport:'mobile',url:demoUrl,screenshotPath:pathOut,errors:caseErrors,warnings:[],evidenceExecution:'RERUN',sourceCommit:headSha==='HEAD'?null:headSha,originSourceCommit:headSha==='HEAD'?null:headSha,originRunId:currentRunId,pageFingerprint:manifest.pageFingerprints?.content??null});
       }catch(error){
         errors.push({case:name,error:error instanceof Error?error.message:String(error)});
       }finally{await page.close();}
