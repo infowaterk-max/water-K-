@@ -3,7 +3,7 @@
   "taskId": "DEV-VX-SMART-INTENT-BRABUS-HARDENING",
   "task": "Implement and adopt canonical VX Smart Intent: a deterministic, bounded merchant-intent compiler that translates contextual Hungarian/English editing intent into previewable existing Builder/responsive/typography/global-token operations, applies them only after explicit user action through ordinary undoable Page Schema history, and fails closed on ambiguous, stale or unsupported intent.",
   "status": "ready-for-implementation",
-  "guardDigest": "ba1a39f8",
+  "guardDigest": "80bae5fe",
   "changeBaseSha": "e63e7eee5a2180b958f6c3e288de45aa504f8cd8",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -18,6 +18,7 @@
   "expectedSubsystems": [
     "admin-operations",
     "builder-template-system",
+    "database-schema",
     "shared-storefront",
     "storefront-ui"
   ],
@@ -35,7 +36,9 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -44,9 +47,11 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-022",
+    "SQ-KF-023",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -79,12 +84,14 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012"
+    "SQ-NK-012",
+    "SQ-NK-014"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -161,7 +168,11 @@
         "fault-injection",
         "determinism-proof",
         "immutability-proof",
-        "combination-proof"
+        "combination-proof",
+        "invariants",
+        "state-model",
+        "threat-failure-model",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": [
         "general-llm-intent-parsing",
@@ -306,7 +317,7 @@
         ]
       },
       {
-        "role": "Safety / Data Integrity",
+        "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "Natural language can be ambiguous and stale plans can mutate the wrong document state.",
@@ -317,7 +328,7 @@
         ]
       },
       {
-        "role": "UX / Builder",
+        "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
         "finding": "Intent must feel direct but must not mutate while typing or hide what will change.",
@@ -328,7 +339,7 @@
         ]
       },
       {
-        "role": "Capability Boundary",
+        "role": "Release",
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "Using diagnostics to choose edits would prematurely implement Smart Auto-Fix.",
@@ -433,11 +444,11 @@
         "admin-operations"
       ],
       "mustEdit": [
-        "src/lib/builder/storefront-smart-intent.ts",
         "src/components/admin/storefront-visual-builder-v3.tsx",
         "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
+        "src/lib/builder/storefront-smart-intent.ts",
         "tests/storefront-smart-intent.test.ts",
         "tests/visual-builder-v3-smart-intent.test.ts",
         "tests/visual-builder-production-completion.test.ts",
@@ -619,5 +630,5 @@
       }
     ]
   },
-  "notes": "Twelfth Brabus hardening wave. Publish Readiness is lifecycle-closed and PROVEN on parent e63e7eee5a2180b958f6c3e288de45aa504f8cd8. Smart Intent is intentionally distinct from Block 23 AI storefront generation and from future Smart Auto-Fix. Guarded Freedom remains authoritative: user intent compiles only to bounded existing operations; no arbitrary source code or schema patching. Template #3 remains forbidden until Smart Auto-Fix is also PROVEN."
+  "notes": "Twelfth Brabus hardening wave. Publish Readiness is lifecycle-closed and PROVEN on parent e63e7eee5a2180b958f6c3e288de45aa504f8cd8. Smart Intent is intentionally distinct from Block 23 AI storefront generation and from future Smart Auto-Fix. Guarded Freedom remains authoritative: user intent compiles only to bounded existing operations; no arbitrary source code or schema patching. Template #3 remains forbidden until Smart Auto-Fix is also PROVEN. Plan-gate reconciliation adds database-schema only as scoped negative knowledge because persistence/database language appears in the safety boundary; this wave still declares no migration/schema mutation. The new Smart Intent module is a planned creation and therefore mayEdit rather than an existing-file mustEdit route."
 }
