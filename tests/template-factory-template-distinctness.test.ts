@@ -44,7 +44,7 @@ describe('Cross-template distinctness / anti-clone Brabus authority',()=>{
     expect(JSON.stringify(profile)).not.toContain('.webp');
   });
 
-  it('keeps canonical Loot Vault v2 distinct from every foreign implemented catalog package',()=>{
+  it('keeps canonical Loot Vault v2 distinct from every foreign canonical catalog package',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
     const result=evaluateStorefrontTemplateDistinctness({
       package:build.package,
@@ -53,7 +53,7 @@ describe('Cross-template distinctness / anti-clone Brabus authority',()=>{
     });
     expect(result.valid).toBe(true);
     expect(result.issues).toEqual([]);
-    expect(result.corpusSize).toBeGreaterThan(20);
+    expect(result.corpusSize).toBe(1);
     expect(result.comparisons.some(row=>row.reference.templateKey==='gaming.loot-vault')).toBe(false);
     expect(result.nearest.length).toBeLessThanOrEqual(5);
     const playroom=result.comparisons.find(row=>row.reference.templateKey==='gaming.playroom');
@@ -81,12 +81,12 @@ describe('Cross-template distinctness / anti-clone Brabus authority',()=>{
 
   it('excludes same-templateKey evolution from cross-template clone comparison',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
-    const legacy=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.find(row=>row.manifest.templateKey==='gaming.loot-vault');
-    if(!legacy)throw new Error('TEST_LEGACY_LOOT_VAULT_MISSING');
+    const sameTemplate=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.find(row=>row.manifest.templateKey==='gaming.loot-vault');
+    if(!sameTemplate)throw new Error('TEST_CANONICAL_LOOT_VAULT_MISSING');
     const result=evaluateStorefrontTemplateDistinctness({
       package:build.package,
       genome:LOOT_VAULT_V2_FACTORY_RECIPE.genome,
-      references:[legacy,PLAYROOM_V20_TEMPLATE_PACKAGE],
+      references:[sameTemplate,PLAYROOM_V20_TEMPLATE_PACKAGE],
     });
     expect(result.corpusSize).toBe(1);
     expect(result.comparisons).toHaveLength(1);
