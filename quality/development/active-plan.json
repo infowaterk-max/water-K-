@@ -1,63 +1,31 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-VX-PUBLISH-READINESS-CORE-BRABUS-HARDENING",
-  "task": "Harden the canonical VX Publish Readiness Core as a read-only evidence-backed decision contract over existing responsive/inheritance, visual-diff, fidelity, media, link, commerce, required-content, performance and page/route authorities, with fail-closed PASS/BLOCK/UNKNOWN semantics. Active Builder V3 adoption is explicitly split to a later release-budgeted wave.",
+  "taskId": "DEV-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
+  "task": "Adopt the proven VX Publish Readiness Core in the active StorefrontVisualBuilderV3, enforce PASS-only publish enablement so UNKNOWN never behaves as PASS, preserve source/reason/localization/repairability presentation, and promote VX-PUBLISH-READINESS only after active-route executable proof.",
   "status": "closed",
-  "guardDigest": "8a9bf46e",
-  "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
+  "guardDigest": "ba1a39f8",
+  "changeBaseSha": "a04d797f49bd8695d101d64ac7694773a984b184",
   "plannedFilePatterns": [
-    "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
     "quality/development/active-plan.json",
-    "quality/knowledge/guard-registry.v1.json",
-    "scripts/template-factory-quality-gate.mjs",
-    "src/app/api/visual-fidelity/templates/route.ts",
-    "src/lib/builder/storefront-page-fingerprint.ts",
-    "src/lib/builder/storefront-responsive-layout-depth.ts",
-    "src/lib/builder/storefront-visual-diff-intelligence.ts",
-    "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts",
-    "src/lib/builder/template-factory/constraint-planner.ts",
-    "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
-    "src/lib/builder/template-factory/generator-readiness.ts",
-    "src/lib/builder/template-factory/media-planner.ts",
-    "src/lib/builder/template-factory/production-compiler-contract.ts",
-    "src/lib/builder/template-factory/production-compiler.ts",
-    "src/lib/builder/template-factory/production-contracts.ts",
-    "src/lib/builder/template-factory/production-lineage.ts",
+    "src/components/admin/storefront-visual-builder-v3.tsx",
     "src/lib/builder/template-factory/production-maturity.ts",
-    "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
-    "src/lib/builder/template-factory/scaffold.ts",
-    "src/lib/builder/template-factory/template-distinctness.ts",
-    "src/lib/builder/template-factory/template-genome.ts",
-    "src/lib/builder/template-factory/template-type-system.ts",
-    "tests/storefront-responsive-layout-depth.test.ts",
-    "tests/storefront-visual-diff-intelligence.test.ts",
-    "tests/template-factory-constraint-planner.test.ts",
-    "tests/template-factory-generator-readiness.test.ts",
-    "tests/template-factory-media-planner.test.ts",
-    "tests/template-factory-production-compiler.test.ts",
-    "tests/template-factory-production-lineage.test.ts",
+    "tests/visual-builder-v3-ui.test.ts",
     "tests/template-factory-production-maturity.test.ts",
-    "tests/template-factory-template-distinctness.test.ts",
-    "tests/template-factory-template-genome.test.ts",
-    "tests/template-factory-template-type-system.test.ts",
-    "src/lib/builder/storefront-publish-readiness.ts",
-    "tests/storefront-publish-readiness.test.ts"
+    "tests/visual-builder-production-completion.test.ts"
   ],
   "expectedSubsystems": [
+    "admin-operations",
     "builder-template-system",
-    "release-infrastructure",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
-    "DOMAIN-QUALITY",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-ADMIN",
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
-    "quality-knowledge-system",
-    "shared-storefront"
+    "admin-operations",
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -65,10 +33,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -77,13 +42,9 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -116,7 +77,6 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -129,79 +89,77 @@
       "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
       "file": "src/components/admin/storefront-visual-builder-production.tsx",
       "findingFingerprint": "fba59413",
-      "reason": "Intentional legacy-only consumer: the active admin Builder route renders StorefrontVisualBuilderV3. This exception acknowledges only the unchanged legacy checklist helper and does not authorize legacy Publish Readiness as current authority."
-    },
-    {
-      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
-      "file": "src/components/admin/storefront-visual-builder-production.tsx",
-      "findingFingerprint": "9f696176",
-      "reason": "Intentional legacy-only consumer: the active admin Builder route renders StorefrontVisualBuilderV3. This exception acknowledges only the unchanged legacy checklist helper and does not authorize legacy Publish Readiness as current authority."
+      "reason": "Intentional inactive legacy consumer. The canonical admin Builder route renders StorefrontVisualBuilderV3; this production component is not the adoption target and retaining its local presentation helper does not consume or redefine the new Publish Readiness contract."
     },
     {
       "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
       "file": "src/components/admin/storefront-visual-builder.tsx",
       "findingFingerprint": "178d5296",
-      "reason": "Intentional legacy-only consumer: the active admin Builder route renders StorefrontVisualBuilderV3. This exception acknowledges only the unchanged legacy checklist helper and does not authorize legacy Publish Readiness as current authority."
+      "reason": "Intentional inactive legacy consumer. The canonical admin Builder route renders StorefrontVisualBuilderV3; this older component is not the adoption target and its local status label helper is unrelated to active Publish Readiness authority."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder-production.tsx",
+      "findingFingerprint": "9f696176",
+      "reason": "Intentional inactive legacy consumer. The canonical V3 surface removed its Fidelity-only readiness derivation, while this inactive production component retains its own legacy helper without participating in the active route or canonical Publish Readiness decision."
     },
     {
       "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
       "file": "src/components/admin/storefront-visual-builder.tsx",
       "findingFingerprint": "297e4c67",
-      "reason": "Intentional legacy-only consumer: the active admin Builder route renders StorefrontVisualBuilderV3. This exception acknowledges only the unchanged legacy checklist helper and does not authorize legacy Publish Readiness as current authority."
+      "reason": "Intentional inactive legacy consumer. The canonical V3 surface removed its Fidelity-only readiness derivation; this older Builder file is not rendered by the active route and does not need to be mutated merely to silence lexical similarity."
     }
   ],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-CORE-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
     "riskTier": "critical",
-    "problemStatement": "The repository needs one canonical Publish Readiness Core that composes existing readiness authorities without becoming a second quality system. The combined Core + active Builder V3 adoption exceeded the Release Risk Budget at 7/5 points across 4/3 subsystems, so this wave is intentionally split: this transaction proves the Core only. Missing authority evidence must remain UNKNOWN, pixel drift must remain non-causal, and no publishing or Page Schema mutation is allowed.",
+    "problemStatement": "The Publish Readiness Core is lifecycle-closed and proven, but the active StorefrontVisualBuilderV3 still uses a local Fidelity-only checklist. A preserved WIP adoption patch proved directionally useful but has a critical fail-closed defect: it allows publish while the canonical readiness decision is UNKNOWN. This wave must replace the active checklist with the canonical Core, present explainable evidence, and permit publish only when the aggregate decision is PASS. It must not create evidence producers, duplicate source authorities, change publish persistence, or infer repairs from pixel evidence.",
     "observableOutcomes": [
-      "One canonical Publish Readiness contract emits deterministic PASS/BLOCK/UNKNOWN findings and an aggregate decision without becoming a second domain authority.",
-      "Every finding carries authority/source, severity, explainable reason, repairability and page/viewport/node/path localization wherever the source authority exposes it.",
-      "Current-page Fidelity accessibility/layout/performance evidence is consumed rather than reimplemented.",
-      "Responsive inheritance diagnostics are consumed read-only and remain localized to node/viewport/dimension.",
-      "Visual Diff manifest intelligence is consumed with its exact-head provenance and structured-vs-unlocalized causality boundary intact.",
-      "Canonical page inventory, template route integrity and showroom/page-route completeness evidence fail closed when absent or incomplete.",
-      "Media and commerce readiness consume existing Template Factory/Storefront evidence instead of inventing new business truth.",
-      "The Publish Readiness contract never invokes publish actions and never mutates Builder Page Schema.",
-      "The Core is independently executable and reusable, while active Builder V3 adoption remains explicitly pending and prevents full VX-PUBLISH-READINESS promotion."
+      "The active admin Builder route continues to render StorefrontVisualBuilderV3 and that component consumes inspectStorefrontPublishReadiness.",
+      "The previous local Fidelity-only readiness array/status logic is removed from V3.",
+      "PASS, BLOCK and UNKNOWN are visibly distinct in the publish drawer.",
+      "Each displayed non-clean category exposes the Core-provided reason, authority/source, repairability and available localization.",
+      "Publish is enabled only when the canonical readiness decision is PASS, the draft is saved, and no busy state applies.",
+      "UNKNOWN blocks publish exactly like an unresolved proof state, without being relabeled as an error or PASS.",
+      "The UI does not generate repairs, mutate Page Schema from diagnostics, or convert pixel drift into a causal fix.",
+      "VX-PUBLISH-READINESS becomes PROVEN only after active V3 adoption and executable proof; Smart Intent and Smart Auto-Fix remain non-PROVEN.",
+      "Template #3 remains blocked because Smart Intent and Smart Auto-Fix remain mandatory unresolved capabilities."
     ],
     "unresolvedRisks": [
-      "A missing template-level evidence source could be mislabeled as clean because current-page Fidelity is green.",
-      "Warnings from non-blocking authorities could accidentally become blockers or, inversely, errors could be downgraded to advisory status.",
-      "Pixel-only visual drift could be converted into a causal diagnosis or repair suggestion.",
-      "Page inventory can contain all 14 page types while some belong to another template/version or lack a draft revision.",
-      "Current-page link checks validate URL shape but cannot prove canonical shopper-route reachability without route-integrity evidence.",
-      "Commerce capability presence in binding context could be mistaken for executable commerce readiness.",
-      "Media alt checks alone could be mistaken for media production readiness while planned/internal-reference assets remain unresolved.",
-      "A PASS aggregate could be emitted when any required category is UNKNOWN.",
-      "A later UI-adoption wave must not reintroduce a parallel checklist or overclaim full capability before active V3 consumption is proven."
+      "UI may display UNKNOWN but still leave the publish button enabled.",
+      "The active route could still render an older Builder component while tests inspect V3 only.",
+      "Presentation code could reconstruct a second readiness algorithm instead of consuming Core category states.",
+      "Warnings could be promoted to blockers or errors could be visually downgraded.",
+      "Pixel-only visual drift could be presented as a structured repair recommendation.",
+      "Maturity could be promoted from Core proof alone without proving active V3 adoption.",
+      "External evidence acquisition remains upstream; pages lacking required evidence must stay UNKNOWN and cannot publish."
     ],
     "scope": {
       "in": [
-        "Pure deterministic Publish Readiness decision contract over existing Builder/Fidelity/Inheritance/Visual Diff/Template Factory evidence.",
-        "PASS/BLOCK/UNKNOWN semantics with UNKNOWN fail-closed at aggregate level.",
-        "Finding provenance, source authority, severity, localization, explanation and repairability metadata.",
-        "Canonical nine-category coverage: responsive/inheritance, visual drift, accessibility, media, links, commerce, required content, performance, page/route completeness.",
-        "Adversarial tests for missing/stale/mixed evidence, error/warning precedence, visual causality boundary and deterministic output.",
-        "Maturity promotion only after active UI adoption and executable proof.",
-        "Release-split boundary: Core contract and adversarial proof only; active V3 presentation adoption is deferred."
+        "Active StorefrontVisualBuilderV3 consumption of the proven storefront-publish-readiness Core.",
+        "PASS/BLOCK/UNKNOWN category presentation using Core outputs.",
+        "PASS-only publish enablement.",
+        "Explainable finding detail: reason, source authority, repairability and localization.",
+        "Active-route source proof that page.tsx renders V3 rather than legacy Builder surfaces.",
+        "Maturity promotion for VX-PUBLISH-READINESS only after executable UI adoption proof.",
+        "Regression proof that Smart Intent, Smart Auto-Fix and Template #3 remain blocked."
       ],
       "out": [
-        "Publishing or changing publish persistence/action authority.",
-        "Page Schema mutation or repair operations.",
-        "Smart Intent or natural-language intent parsing.",
-        "Smart Auto-Fix or automatic mutation generation.",
-        "New screenshot capture, golden comparison or visual baseline authority.",
-        "Changing Fidelity, Visual Diff, responsive inheritance, route-integrity or Template Factory source authorities to make readiness pass.",
-        "Control Plane, guard, policy or Known Failure changes without a newly proven deficiency.",
-        "Template #3 authoring.",
-        "Active StorefrontVisualBuilderV3 adoption in this release transaction."
+        "New visual, route, media, commerce or accessibility evidence producers.",
+        "Fetching CI artifacts from GitHub at runtime.",
+        "Changing screenshot/golden authority or thresholds.",
+        "Changing publishCurrentStorefrontPage or persistence semantics.",
+        "Page Schema mutation or Auto-Fix generation.",
+        "Smart Intent implementation.",
+        "Smart Auto-Fix implementation.",
+        "Control Plane or policy changes.",
+        "Template #3 authoring."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Publish readiness is a release-adjacent decision surface that composes heterogeneous authorities and can create false confidence if evidence is missing, stale or over-interpreted. The highest practically justified level is a pure fail-closed evidence aggregator with explicit authority provenance, finite state semantics, dependency closure, adversarial evidence injection and active-UI adoption proof. Formal verification of browser/application behavior is not justified because the underlying evidence producers remain executable runtime authorities.",
+      "rationale": "This is the user-visible gate immediately adjacent to publishing. A false PASS or UNKNOWN-as-PASS would bypass the evidence contract. Highest practical assurance is active-route proof, fail-closed state-machine verification, source-level no-parallel-checklist checks, maturity separation and exact-head build/browser quality evidence without adding a new evidence authority.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -219,49 +177,41 @@
         "finite-state-exhaustion"
       ],
       "deferredTechniques": [
-        "formal-proof-of-browser-runtime",
-        "new-live-browser-capture-authority",
-        "computer-vision-causality",
+        "runtime-ci-artifact-fetching",
+        "new-evidence-producer",
         "automatic-repair-planning",
-        "publish-mutation-gating",
-        "page-schema-mutation"
+        "computer-vision-causality"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "The readiness aggregate can only be PASS when every required category is proven and no blocking finding exists; any required missing/unverifiable evidence yields UNKNOWN.",
-        "Fidelity diagnostics retain original codes, severity, node/component identity and viewport where available.",
-        "Responsive inheritance findings consume existing inspection output and do not call propagation/apply APIs.",
-        "Visual Diff findings preserve exact-head/template/version provenance, page/viewport localization, evidence class and repairability; pixel-only drift remains manual-review with no structured cause.",
-        "Accessibility, media, links, commerce, required-content, performance and page/route completeness are represented as distinct categories with named source authorities.",
-        "Canonical page completeness validates all 14 page types exactly once for the active template identity and cannot treat foreign/stale page rows as satisfying coverage.",
-        "Template-level evidence that is unavailable in the Builder runtime remains explicit UNKNOWN rather than being inferred from local page state.",
-        "No readiness module imports publish actions, persistence mutations, Builder mutation application or screenshot/golden capture code.",
-        "Equivalent normalized evidence produces deep-equal readiness output regardless of finding input order.",
-        "Release Risk Budget remains within policy for the wave or the UI adoption is split before implementation proceeds.",
-        "This Core-only wave must leave VX-PUBLISH-READINESS non-PROVEN because active Builder V3 adoption is intentionally deferred by Release Risk Budget."
+        "The active Builder route imports/renders StorefrontVisualBuilderV3 and not StorefrontVisualBuilderProduction.",
+        "V3 imports and invokes inspectStorefrontPublishReadiness rather than rebuilding readiness categories locally.",
+        "V3 no longer contains the previous viewportStatus/readiness array/statusFromIssues checklist implementation.",
+        "The publish drawer renders Core category state and explainable finding details including authority/source and repairability.",
+        "The publish button is disabled whenever readiness.decision is BLOCK or UNKNOWN; only PASS may proceed.",
+        "Dirty/no-draft/busy conditions continue to block publish independently of readiness.",
+        "The V3 adoption does not pass invented external evidence or downgrade missing evidence; absent upstream proof remains UNKNOWN.",
+        "No pixel mismatch/hotspot is converted in V3 into a causal diagnosis, repair command or Builder mutation.",
+        "Production maturity promotes VX-PUBLISH-READINESS to PROVEN with canonical Core + active V3 + executable test evidence.",
+        "VX-SMART-INTENT and VX-SMART-AUTOFIX remain NOT_IMPLEMENTED and Template #3 remains not ready.",
+        "Release Risk stays within policy for this stacked transaction."
       ],
       "invariants": [
-        "Readiness composes evidence; it does not own the underlying accessibility, responsive, visual, route, commerce, media, content or performance truth.",
-        "UNKNOWN is never equivalent to PASS.",
-        "BLOCK dominates UNKNOWN; UNKNOWN dominates PASS at aggregate level.",
-        "A warning may remain non-blocking only when its source authority classifies it as non-error and its evidence is present.",
-        "Pixel evidence alone cannot claim a causal Page Schema defect or repair operation.",
-        "Readiness does not publish, save, mutate, persist, capture screenshots or promote golden baselines.",
-        "Template/page/source identity must be preserved across every template-level evidence input.",
-        "Core proof does not imply active UI adoption or full Publish Readiness capability completion."
+        "UNKNOWN is a non-publishable state.",
+        "BLOCK dominates UNKNOWN and UNKNOWN dominates PASS inside the Core; V3 consumes, not redefines, that order.",
+        "Warnings remain source-authority warnings and do not become blockers unless the Core category state is BLOCK.",
+        "Readiness UI does not own publish persistence or domain truth.",
+        "External evidence acquisition is upstream; missing evidence cannot be fabricated in UI.",
+        "Full capability promotion requires both Core proof and active V3 adoption proof."
       ],
       "forbiddenStates": [
-        "unknown-evidence-counted-pass",
-        "partial-category-set-counted-pass",
-        "pixel-drift-generates-causal-repair",
-        "foreign-template-page-satisfies-completeness",
-        "stale-visual-evidence-counted-current",
-        "link-shape-check-counted-route-reachability",
-        "alt-text-check-counted-media-production-ready",
-        "binding-context-counted-commerce-proof",
-        "legacy-production-builder-only-adoption",
-        "readiness-core-publishes-or-mutates",
+        "unknown-publish-enabled",
+        "v3-parallel-readiness-checklist",
+        "legacy-builder-active-route",
+        "pixel-drift-to-ui-repair",
+        "ui-fabricates-external-evidence",
+        "core-only-full-capability-promotion",
         "smart-intent-falsely-proven",
         "smart-autofix-falsely-proven",
         "template-3-authoring"
@@ -296,48 +246,42 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Current page has no Fidelity errors, but visual exact-head evidence is absent and readiness reports PASS.",
-        "One visual pixel hotspot is labeled as an overflow repair without structured Runtime evidence.",
-        "Fourteen stored page rows exist but one page belongs to a different template version and completeness still passes.",
-        "A hard performance issue appears as a warning because the UI maps only presentation status labels.",
-        "A safe-looking href passes syntax validation while route-integrity evidence is missing and link readiness still passes.",
-        "Media has valid alt text but Template Factory media evidence reports planned assets; readiness incorrectly passes media.",
-        "Commerce components render but engine/showroom proof is unavailable; readiness incorrectly passes commerce.",
-        "A new unknown evidence state is dropped by aggregation and produces a false clean summary.",
-        "A blocking category and an unknown category coexist but aggregate precedence incorrectly returns UNKNOWN instead of BLOCK.",
-        "Core-only proof is incorrectly used to promote the full VX-PUBLISH-READINESS capability before V3 adoption."
+        "Canonical decision is UNKNOWN but publish remains clickable.",
+        "V3 shows PASS because it independently recomputes only Fidelity checks.",
+        "A BLOCK category is rendered as a warning due presentation-only mapping.",
+        "The route test checks V3 source but the actual admin route still renders a legacy component.",
+        "Maturity becomes PROVEN without an active V3 implementation/test evidence row.",
+        "A visual pixel drift finding is rendered with an invented automatic repair instruction."
       ],
       "edgeCases": [
-        "No draft revision while all document diagnostics are otherwise clean.",
-        "Fidelity warning-only accessibility issues with no errors.",
-        "Visual evidence has bounded nonzero mismatch but remains within accepted thresholds.",
-        "Visual manifest is valid but contains an unclassified warning.",
-        "Inheritance has redundant override warnings on multiple viewports.",
-        "Page inventory contains duplicate page types or unknown page types.",
-        "Template-level evidence is supplied for the correct template key but wrong version.",
-        "A current page has no image nodes while template-level media evidence is unavailable.",
-        "Route-integrity issue localizes only to config path/href rather than nodeId.",
-        "Input evidence collections arrive in different order."
+        "PASS decision with warning-only findings.",
+        "BLOCK and UNKNOWN findings coexist.",
+        "UNKNOWN only, with zero blockers.",
+        "Dirty draft while readiness would otherwise PASS.",
+        "No draft revision while readiness would otherwise PASS.",
+        "Category with no findings but valid evidence.",
+        "Finding localized only by path/href and not nodeId.",
+        "Manual-review visual finding with no causal repairability."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-PUBLISH-READINESS-CANONICAL-AGGREGATOR",
-        "summary": "Create one pure readiness Core that consumes existing authorities, then adopt it in active Builder V3 in a separate release-budgeted wave.",
+        "id": "ALT-V3-CANONICAL-READINESS",
+        "summary": "Replace the active V3 checklist with direct consumption of the proven Core and enforce PASS-only publish.",
         "disposition": "selected",
-        "reason": "Preserves authority ownership and satisfies the proven Release Risk split without weakening gates."
+        "reason": "Completes user-visible adoption without duplicating evidence authority."
       },
       {
-        "id": "ALT-PUBLISH-READINESS-EXPAND-UI-CHECKLIST",
-        "summary": "Keep adding conditions directly to the Builder publish drawer.",
+        "id": "ALT-V3-KEEP-LOCAL-CHECKLIST",
+        "summary": "Keep the Fidelity-only checklist and add more conditions.",
         "disposition": "rejected",
-        "reason": "Would leave no reusable evidence contract, duplicate semantics and make provenance/UNKNOWN behavior fragile."
+        "reason": "Would preserve a parallel readiness authority and cannot express provenance or UNKNOWN correctly."
       },
       {
-        "id": "ALT-PUBLISH-READINESS-NEW-MEGA-GATE",
-        "summary": "Create a new independent gate that rechecks visual, route, media and commerce behavior itself.",
+        "id": "ALT-V3-FETCH-CI-EVIDENCE",
+        "summary": "Make the admin UI fetch GitHub Actions evidence directly.",
         "disposition": "rejected",
-        "reason": "Would violate the single-authority model and duplicate already PROVEN evidence producers."
+        "reason": "Would add external runtime coupling and a new evidence transport concern not required for this capability; missing upstream evidence must remain UNKNOWN."
       }
     ],
     "specialistReviews": [
@@ -345,162 +289,151 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Existing Fidelity, inheritance, visual-diff, route/showroom and Template Factory engines already own the relevant evidence; readiness should only normalize their decisions.",
-        "resolution": "Implement a pure adapter/aggregator with explicit source authority identifiers and no source-authority rewrites.",
+        "finding": "The Core is already the canonical decision authority; V3 must be a presentation consumer only.",
+        "resolution": "Import the Core result and remove local readiness derivation.",
         "evidence": [
-          "src/lib/builder/storefront-fidelity-inspector.ts",
-          "src/lib/builder/storefront-responsive-layout-depth.ts",
-          "src/lib/builder/storefront-visual-diff-intelligence.ts",
-          "src/lib/builder/storefront-template-route-integrity.ts"
+          "src/app/admin/tartalom/builder/page.tsx",
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/lib/builder/storefront-publish-readiness.ts"
         ]
       },
       {
-        "role": "Data Integrity",
+        "role": "Runtime",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "The active Builder does not currently possess all exact-head/template-level evidence, so a local clean document cannot prove template readiness.",
-        "resolution": "Required but unavailable evidence is represented as UNKNOWN and prevents aggregate PASS; no fallback inference is permitted.",
+        "finding": "The preserved WIP patch allows publish on UNKNOWN because it checks blockers only.",
+        "resolution": "Gate the action on readiness.decision==='PASS' in addition to existing busy/dirty/draft guards.",
         "evidence": [
           "src/components/admin/storefront-visual-builder-v3.tsx",
-          "src/lib/builder/storefront-visual-diff-intelligence.ts"
-        ]
-      },
-      {
-        "role": "Release",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Measured combined Core + active Admin UI change is 7/5 points across 4/3 subsystems.",
-        "resolution": "Split now: prove the Core on #701 within the existing 5/5 cumulative budget; preserve the V3 adoption patch separately and do not promote the full capability until that wave passes.",
-        "evidence": [
-          "deploy/release-risk-policy.json"
+          "src/lib/builder/storefront-publish-readiness.ts",
+          "tests/storefront-publish-readiness.test.ts"
         ]
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "UI adoption is required for the full capability but is outside this release transaction after the measured risk overflow.",
-        "resolution": "Keep UI semantics specified and preserved in the WIP branch; this Core wave proves only the reusable decision contract.",
+        "finding": "Tri-state readiness must stay understandable without turning UNKNOWN into an error.",
+        "resolution": "Render explicit PASS/BLOCK/UNKNOWN labels and Core reason/source/repairability details.",
         "evidence": [
           "src/components/admin/storefront-visual-builder-v3.tsx",
-          "src/lib/builder/storefront-visual-diff-intelligence.ts"
+          "src/lib/builder/storefront-publish-readiness.ts"
+        ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "As a stacked transaction against the closed Core branch, expected material risk is admin-operations + builder-template-system only.",
+        "resolution": "Keep scope to V3, maturity and tests; split again if additional substantive subsystem changes become necessary.",
+        "evidence": [
+          "deploy/release-risk-policy.json",
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/lib/builder/template-factory/production-maturity.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-PUB-1",
-        "scenario": "All current-page Fidelity checks pass but visual evidence is absent.",
-        "finding": "Local diagnostics cannot prove exact-head visual readiness.",
-        "resolution": "Visual category is UNKNOWN and aggregate is UNKNOWN.",
+        "id": "CH-V3-1",
+        "scenario": "No external Visual Diff/media/commerce evidence exists.",
+        "finding": "Core decision is UNKNOWN.",
+        "resolution": "V3 displays UNKNOWN and disables publish.",
         "status": "resolved"
       },
       {
-        "id": "CH-PUB-2",
-        "scenario": "Pixel diff fails with no structured runtime issue.",
-        "finding": "Pixels prove drift, not cause.",
-        "resolution": "BLOCK visual drift with manual-review repairability and no causal repair.",
+        "id": "CH-V3-2",
+        "scenario": "There are no BLOCK findings but one UNKNOWN category.",
+        "finding": "Blocker count alone is insufficient.",
+        "resolution": "Button gating uses aggregate decision PASS, not blockers===0.",
         "status": "resolved"
       },
       {
-        "id": "CH-PUB-3",
-        "scenario": "A canonical page type is missing or duplicated in page inventory.",
-        "finding": "Page completeness is not proven.",
-        "resolution": "BLOCK page/route completeness with explicit page-type evidence.",
+        "id": "CH-V3-3",
+        "scenario": "Core returns PASS with advisory warnings.",
+        "finding": "Warnings should not prevent publish.",
+        "resolution": "PASS decision remains publishable while warnings are displayed.",
         "status": "resolved"
       },
       {
-        "id": "CH-PUB-4",
-        "scenario": "All 14 page types exist but one has foreign template/version identity.",
-        "finding": "Cardinality alone can hide mixed presentation authority.",
-        "resolution": "Foreign identity cannot satisfy completeness and produces BLOCK.",
+        "id": "CH-V3-4",
+        "scenario": "A pixel-only visual finding is manual-review.",
+        "finding": "UI may be tempted to show a direct fix.",
+        "resolution": "Display Core repairability only; no generated repair action.",
         "status": "resolved"
       },
       {
-        "id": "CH-PUB-5",
-        "scenario": "Link syntax is valid but template route-integrity evidence is absent.",
-        "finding": "Safe URL syntax is weaker than reachable canonical route proof.",
-        "resolution": "Links retain local evidence but route reachability remains UNKNOWN; aggregate cannot PASS.",
+        "id": "CH-V3-5",
+        "scenario": "Legacy component still contains old checklist helpers.",
+        "finding": "Inactive source must not be mistaken for active authority.",
+        "resolution": "Executable route-source proof targets page.tsx → StorefrontVisualBuilderV3.",
         "status": "resolved"
       },
       {
-        "id": "CH-PUB-6",
-        "scenario": "Image alt diagnostics are clean while media planning reports unresolved planned/internal-reference assets.",
-        "finding": "Accessibility media checks are not production media readiness.",
-        "resolution": "Media category consumes explicit media authority; unresolved states BLOCK/UNKNOWN according to source evidence.",
+        "id": "CH-V3-6",
+        "scenario": "Maturity promotion happens with Core evidence but no V3 test.",
+        "finding": "Capability claim would be broader than proof.",
+        "resolution": "PROVEN evidence requires Core implementation plus active V3 implementation and executable adoption test.",
         "status": "resolved"
       },
       {
-        "id": "CH-PUB-7",
-        "scenario": "Commerce components are present but executable engine/showroom evidence is absent.",
-        "finding": "Presentation presence is not commerce readiness.",
-        "resolution": "Commerce category remains UNKNOWN until canonical commerce/showroom evidence is supplied.",
+        "id": "CH-V3-7",
+        "scenario": "Core category findings arrive in a different order while category state is unchanged.",
+        "finding": "Presentation must not infer a different decision from finding order or choose a lower-severity lead finding first.",
+        "resolution": "V3 displays the Core category state as authority and selects explanatory lead evidence with BLOCK before UNKNOWN before advisory findings, without recomputing category truth.",
         "status": "resolved"
       },
       {
-        "id": "CH-PUB-8",
-        "scenario": "A BLOCK finding and UNKNOWN finding coexist.",
-        "finding": "Unknown must not mask a known blocker.",
-        "resolution": "Aggregate precedence is BLOCK > UNKNOWN > PASS.",
+        "id": "CH-V3-8",
+        "scenario": "Readiness decision is PASS with warnings, but the draft is dirty or no saved draft revision exists.",
+        "finding": "Canonical readiness PASS cannot bypass existing draft-state preconditions for the publish action.",
+        "resolution": "Publish remains disabled unless decision is PASS AND busy=false AND dirty=false AND draftRevision is present.",
         "status": "resolved"
       },
       {
-        "id": "CH-PUB-9",
-        "scenario": "Evidence lists arrive in different order.",
-        "finding": "UI and truth status must not depend on enumeration order.",
-        "resolution": "Normalize/sort findings deterministically before summary.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-PUB-SPLIT-1",
-        "scenario": "The Core passes all adversarial proofs while active V3 still uses its old local checklist.",
-        "finding": "Core correctness is not equivalent to user-visible adoption.",
-        "resolution": "Keep full VX-PUBLISH-READINESS non-PROVEN and require a separate V3-adoption wave.",
+        "id": "CH-V3-9",
+        "scenario": "A legacy product-completion test still requires literal labels from the removed local readiness checklist.",
+        "finding": "The test would force the active V3 back toward a parallel presentation authority instead of validating canonical Core adoption.",
+        "resolution": "Update the regression to prove canonical Core import/invocation, canonical category rendering and PASS-only publish gating while retaining the broader workspace checks.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Plan Before Code projected-scope proof and exact release-risk projection before implementation.",
-      "Core adversarial state-machine proof for PASS/BLOCK/UNKNOWN precedence and required-category completeness.",
-      "Authority mapping proof that each canonical readiness category names and preserves its existing source contract.",
-      "Localization proof for page/viewport/node/component/path/href fields when available.",
-      "Visual causality proof: pixel-only drift remains manual-review and cannot become a structured repair.",
-      "Page inventory adversarial proof for missing, duplicate, foreign-template and foreign-version rows.",
-      "Missing-evidence proof for visual, route, media and commerce categories: UNKNOWN never PASS.",
-      "Determinism/immutability proof across reordered equivalent evidence.",
-      "Source-code boundary proof forbidding publish/persistence/Builder mutation/screenshot capture imports from readiness Core.",
-      "Incremental Known Failure replay, targeted quality tests, full quality tests, TypeScript, production build, exact-head Template Factory Quality Gate v2, Completion Truth and lifecycle closure.",
-      "Capability-separation proof: Core success must not promote full VX-PUBLISH-READINESS, Smart Intent, Smart Auto-Fix or Template #3.",
-      "After Core lifecycle closure, resume the preserved V3-adoption change only in a separate release-budgeted transaction."
+      "Plan Before Code and Release Risk projection on the stacked base.",
+      "Source proof that active page.tsx renders V3, not legacy production Builder.",
+      "UI source proof that old local readiness checklist is absent.",
+      "Adversarial UI proof that UNKNOWN disables publish and PASS can remain publishable with warnings.",
+      "Executable/source proof must show each non-clean V3 readiness category renders the Core-provided state plus finding reason, authority/source, repairability and any available page/viewport/node/path/href localization; removal of any one field must make the adoption regression test fail.",
+      "Source boundary proof that V3 does not fabricate external evidence or generate diagnostic mutations.",
+      "Maturity proof promotes only VX-PUBLISH-READINESS and leaves Smart Intent/Auto-Fix non-PROVEN.",
+      "Incremental Known Failure replay, Quality tests, TypeScript, production build, exact-head Template Factory proof, Completion Truth and lifecycle closure.",
+      "Product-completion regression proof must assert the active V3 publish surface consumes the canonical readiness contract/categories rather than requiring the removed hardcoded Fidelity-only checklist labels."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-03-VX-PUBLISH-READINESS-CORE-BRABUS-HARDENING",
+      "request": "PO-2026-10-03-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
       "authority": [
-        "builder-template-system"
+        "builder-template-system",
+        "admin-operations"
       ],
       "mustEdit": [
-        "src/lib/builder/storefront-publish-readiness.ts"
+        "src/components/admin/storefront-visual-builder-v3.tsx",
+        "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
-        "tests/storefront-publish-readiness.test.ts"
+        "tests/visual-builder-v3-ui.test.ts",
+        "tests/template-factory-production-maturity.test.ts",
+        "tests/visual-builder-production-completion.test.ts"
       ],
       "impactedReadOnly": [
         "src/app/admin/tartalom/builder/page.tsx",
-        "src/components/admin/storefront-visual-builder-v3.tsx",
-        "src/components/admin/storefront-visual-builder-production.tsx",
-        "src/components/admin/storefront-visual-builder.tsx",
-        "src/lib/builder/storefront-fidelity-diagnostics.ts",
+        "src/lib/builder/storefront-publish-readiness.ts",
         "src/lib/builder/storefront-fidelity-inspector.ts",
-        "src/lib/builder/storefront-performance-contract.ts",
-        "src/lib/builder/storefront-responsive-layout-depth.ts",
-        "src/lib/builder/storefront-template-route-integrity.ts",
-        "src/lib/builder/storefront-visual-diff-intelligence.ts",
-        "src/lib/builder/template-factory/generator-readiness.ts",
-        "src/lib/builder/template-factory/media-planner.ts",
-        "src/lib/builder/template-factory/production-maturity.ts"
+        "src/lib/builder/storefront-visual-diff-intelligence.ts"
       ],
       "proof": [
-        "tests/storefront-publish-readiness.test.ts"
+        "tests/visual-builder-v3-ui.test.ts",
+        "tests/template-factory-production-maturity.test.ts",
+        "tests/visual-builder-production-completion.test.ts"
       ],
       "unknown": []
     },
@@ -508,19 +441,19 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-CORE-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
     "requirements": [
       {
-        "id": "REQ-VX-PUBLISH-READINESS-TRISTATE",
-        "requirement": "Canonical Publish Readiness aggregates all required evidence categories with authority provenance and fail-closed PASS/BLOCK/UNKNOWN semantics; UNKNOWN can never satisfy readiness.",
+        "id": "REQ-VX-PUBLISH-READINESS-ACTIVE-V3",
+        "requirement": "The active StorefrontVisualBuilderV3 consumes the canonical Publish Readiness Core and replaces the previous local checklist.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "vx-publish-readiness-decision-contract",
+          "breadth": "vx-publish-readiness-active-v3",
           "strength": 2,
           "dimensions": [
-            "claim-scope",
-            "evidence-scope",
-            "proven-scope",
+            "status",
+            "behavioral-proof",
+            "coverage",
             "limitations"
           ]
         },
@@ -533,83 +466,84 @@
             "GUARD-TYPECHECK"
           ],
           "outcome": [
+            "GUARD-PRODUCTION-BUILD",
+            "GUARD-TEMPLATE-FACTORY"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-V3-PARALLEL-READINESS",
+            "statement": "Active V3 cannot retain or recreate a separate Fidelity-only publish checklist.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-VX-PUBLISH-READINESS-FAIL-CLOSED-UI",
+        "requirement": "V3 permits publish only when the canonical readiness decision is PASS; BLOCK and UNKNOWN both remain non-publishable.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "publish-readiness-ui-state-machine",
+          "strength": 2,
+          "dimensions": [
+            "status",
+            "behavioral-proof",
+            "limitations"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-V3-UNKNOWN-PUBLISH",
+            "statement": "UNKNOWN can never enable the publish action.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-VX-PUBLISH-READINESS-PROMOTION",
+        "requirement": "VX-PUBLISH-READINESS is promoted only with Core plus active V3 executable evidence, while Smart Intent and Smart Auto-Fix remain non-PROVEN and Template #3 remains blocked.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "publish-readiness-maturity-promotion",
+          "strength": 2,
+          "dimensions": [
+            "proven-scope",
+            "scope",
+            "limitations"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
             "GUARD-QUALITY-TESTS",
             "GUARD-TEMPLATE-FACTORY"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PUBLISH-READINESS-FALSE-PASS",
-            "statement": "Missing, stale, partial or foreign authority evidence cannot be converted to PASS.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-VX-PUBLISH-READINESS-AUTHORITY-BOUNDARY",
-        "requirement": "Publish Readiness remains a read-only evidence decision contract: it does not publish, mutate Page Schema, duplicate source authorities or infer repairs from pixel evidence.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "publish-readiness-authority-boundary",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "classification",
-            "scope",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-PUBLISH-READINESS-PARALLEL-AUTHORITY",
-            "statement": "Readiness cannot become a second visual/route/commerce/media authority or invoke publish/mutation paths.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-VX-PUBLISH-READINESS-CAPABILITY-SEPARATION",
-        "requirement": "Publish Readiness Core completion does not promote the full VX-PUBLISH-READINESS capability, Smart Intent, Smart Auto-Fix or authorize Template #3; active V3 adoption remains a required separate wave.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "capability-separation",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "scope",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-PUBLISH-READINESS-CORE-FALSE-PROMOTION",
-            "statement": "Core-only proof cannot be reported as full Publish Readiness capability completion before active V3 adoption.",
+            "id": "NEG-V3-FALSE-NEXT-PROMOTION",
+            "statement": "Publish Readiness completion cannot promote Smart Intent, Smart Auto-Fix or Template #3 readiness.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -618,14 +552,14 @@
       }
     ]
   },
-  "notes": "Tenth Brabus hardening is release-split by measured gate evidence. Combined Core + active V3 adoption produced Release Risk 7/5 and 4/3 subsystems. #701 now carries the Core-only Publish Readiness proof within the prior cumulative budget; the exact pre-split UI work is preserved at feature/vx-publish-readiness-v3-adoption-wip. VX-PUBLISH-READINESS remains non-PROVEN in this wave. Inheritance Intelligence and Visual Diff Intelligence remain PROVEN and lifecycle-closed. Smart Intent and Smart Auto-Fix remain blocked. Template #3 remains forbidden. Plan scope explicitly includes release-infrastructure because the task itself declares a release-budgeted split; this is intent scope only and does not weaken or alter the measured Release Risk Budget.",
+  "notes": "Eleventh Brabus hardening wave. The Publish Readiness Core is lifecycle-closed on parent HEAD a04d797f49bd8695d101d64ac7694773a984b184. This stacked wave exists because the combined Core+Admin change exceeded the main-branch Release Risk Budget; against the closed Core base, projected substantive risk is V3 admin adoption plus maturity metadata only. The preserved earlier WIP patch is not accepted as-is because it allowed publish on UNKNOWN. Template #3 remains forbidden until Smart Intent and Smart Auto-Fix are also PROVEN. Reference Sync review fingerprints fba59413/178d5296/9f696176/297e4c67 are explicitly acknowledged for two inactive legacy Builder files; active-route proof remains page.tsx -> StorefrontVisualBuilderV3. Sentinel proof-semantics reconciliation: completion claim dimensions now use only dimensions actually declared by the referenced executable guards; no guard capability or Sentinel rule was weakened.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "005320d408636112f7c85599d207023e6f6e717f",
-    "closedAt": "2026-10-03T03:50:15.650Z",
+    "verifiedImplementationHead": "ad8a71132306f8d996d13feeeea146587d6ccd7c",
+    "closedAt": "2026-10-03T04:19:22.307Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-CORE-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-V3-ADOPTION-BRABUS-HARDENING",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
