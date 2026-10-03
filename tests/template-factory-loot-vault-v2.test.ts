@@ -55,7 +55,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
 
   it('requires complete shopper navigation in preview, especially on mobile',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
-    const required=['/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum'];
+    const required=['/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas','/fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum'];
     for(const page of build.package.pages){
       const nodes=walk(page.sections);
       const header=nodes.find(node=>node.componentKey==='system.commerce-header');
@@ -64,7 +64,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
       expect(menu.map(item=>item.href), page.pageType).toEqual(required);
       const footer=nodes.find(node=>node.componentKey==='editorial.footer');
       const footerRoutes=((footer?.config.columns??[]) as {items?:{href?:string}[]}[]).flatMap(column=>column.items??[]).map(item=>item.href);
-      for(const href of ['/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/fiokom','/aszf','/adatvedelem','/impresszum'])expect(footerRoutes).toContain(href);
+      for(const href of ['/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas','/fizetes','/oldal/visszakuldes','/fiokom','/aszf','/adatvedelem','/impresszum'])expect(footerRoutes).toContain(href);
     }
   });
 
