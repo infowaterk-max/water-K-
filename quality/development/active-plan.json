@@ -1,18 +1,49 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-VX-PUBLISH-READINESS-BRABUS-HARDENING",
-  "task": "Harden VX Publish Readiness as an evidence-backed Builder decision contract that aggregates existing responsive/inheritance, visual-diff, fidelity, media, link, commerce, content, performance and page/route authorities into fail-closed PASS/BLOCK/UNKNOWN findings without publishing or mutating Page Schema.",
+  "task": "Harden VX Publish Readiness as an evidence-backed Builder decision contract that aggregates existing responsive/inheritance, visual-diff, fidelity, media, link, commerce, content, performance and page/route authorities into fail-closed PASS/BLOCK/UNKNOWN findings without performing publish or authoring mutations.",
   "status": "ready-for-implementation",
-  "guardDigest": "ba1a39f8",
-  "changeBaseSha": "b90491189cea688963b74c7f5ad4507fa72af62c",
+  "guardDigest": "79f20cf3",
+  "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
+    "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
     "quality/development/active-plan.json",
+    "quality/knowledge/guard-registry.v1.json",
+    "scripts/template-factory-quality-gate.mjs",
+    "src/app/api/visual-fidelity/templates/route.ts",
+    "src/lib/builder/storefront-page-fingerprint.ts",
+    "src/lib/builder/storefront-responsive-layout-depth.ts",
+    "src/lib/builder/storefront-visual-diff-intelligence.ts",
+    "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts",
+    "src/lib/builder/template-factory/constraint-planner.ts",
+    "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
+    "src/lib/builder/template-factory/generator-readiness.ts",
+    "src/lib/builder/template-factory/media-planner.ts",
+    "src/lib/builder/template-factory/production-compiler-contract.ts",
+    "src/lib/builder/template-factory/production-compiler.ts",
+    "src/lib/builder/template-factory/production-contracts.ts",
+    "src/lib/builder/template-factory/production-lineage.ts",
+    "src/lib/builder/template-factory/production-maturity.ts",
+    "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
+    "src/lib/builder/template-factory/scaffold.ts",
+    "src/lib/builder/template-factory/template-distinctness.ts",
+    "src/lib/builder/template-factory/template-genome.ts",
+    "src/lib/builder/template-factory/template-type-system.ts",
+    "tests/storefront-responsive-layout-depth.test.ts",
+    "tests/storefront-visual-diff-intelligence.test.ts",
+    "tests/template-factory-constraint-planner.test.ts",
+    "tests/template-factory-generator-readiness.test.ts",
+    "tests/template-factory-media-planner.test.ts",
+    "tests/template-factory-production-compiler.test.ts",
+    "tests/template-factory-production-lineage.test.ts",
+    "tests/template-factory-production-maturity.test.ts",
+    "tests/template-factory-template-distinctness.test.ts",
+    "tests/template-factory-template-genome.test.ts",
+    "tests/template-factory-template-type-system.test.ts",
     "src/lib/builder/storefront-publish-readiness.ts",
     "src/components/admin/storefront-visual-builder-v3.tsx",
-    "src/lib/builder/template-factory/production-maturity.ts",
     "tests/storefront-publish-readiness.test.ts",
-    "tests/visual-builder-v3-ui.test.ts",
-    "tests/template-factory-production-maturity.test.ts"
+    "tests/visual-builder-v3-ui.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -23,11 +54,13 @@
   "expectedDomains": [
     "DOMAIN-ADMIN",
     "DOMAIN-BUILDER",
+    "DOMAIN-QUALITY",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "admin-operations",
     "builder-template-system",
+    "quality-knowledge-system",
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
@@ -36,7 +69,10 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -45,9 +81,13 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -599,5 +639,5 @@
       }
     ]
   },
-  "notes": "Tenth Brabus hardening wave. Inheritance Intelligence and Visual Diff Intelligence are PROVEN and lifecycle-closed. Active route audit proved StorefrontVisualBuilderV3 is the live Builder surface; the older storefront-visual-builder-production.tsx readiness checklist is read-only legacy evidence for this wave. Projected Release Risk is 4/5 across builder-template-system + admin-operations, so no split is required unless the material change set expands. Dependency order remains Publish Readiness → Smart Intent → Smart Auto-Fix. Template #3 remains forbidden."
+  "notes": "Tenth Brabus hardening wave. Canonical CI transaction base is the PR event base/main merge base, so the plan envelope retains the already-verified cumulative branch file set plus the new Publish Readiness Core/V3 adoption files; this does not reopen closed capabilities. Inheritance Intelligence and Visual Diff Intelligence remain PROVEN and lifecycle-closed. Active route audit proved StorefrontVisualBuilderV3 is the live Builder surface; the older storefront-visual-builder-production.tsx readiness checklist is read-only legacy evidence. Release Risk must remain within the already-green cumulative branch budget; if the new V3 material change adds a forbidden subsystem/risk expansion, the wave must split. Dependency order remains Publish Readiness → Smart Intent → Smart Auto-Fix. Template #3 remains forbidden."
 }
