@@ -89,14 +89,7 @@
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [
-    {
-      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
-      "file": "src/lib/builder/template-factory/generator-readiness.ts",
-      "findingFingerprint": "3b038645",
-      "reason": "Intentional fail-closed undeclared-Blueprint branch. template3AuthoringReady must remain false when no Generator Blueprint is declared, even though the canonical declared production maturity catalog now technically clears VX-SMART-AUTOFIX. This consumer expresses absence-of-declaration, not the pre-wave Smart Auto-Fix blocker state."
-    }
-  ],
+  "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-03-VX-SMART-AUTOFIX-BRABUS-HARDENING",
@@ -646,5 +639,5 @@
       }
     ]
   },
-  "notes": "Thirteenth Brabus hardening wave. Publish Readiness and Smart Intent are lifecycle-closed and PROVEN on parent 568e2d2c509bb58e5d00f07963bc3b2f187e7f01. Auto-Fix is deliberately narrower than 'repair every structured diagnostic': explicit safe registry membership is the repair authority. Template #3 remains forbidden until the final end-to-end Brabus rehearsal passes even if this wave clears the last maturity blocker. Plan projection narrowed to the measured Auto-Fix transaction: DOMAIN-ADMIN + DOMAIN-BUILDER, admin/builder authorities, no database-schema subsystem. Two critical challenges were rewritten with exact diagnostic codes, mutation risk and executable fail-closed outcomes. After the Core file entered the actual diff, Atlas correctly resolved its canonical Page Schema/runtime validation dependency as DOMAIN-STOREFRONT/shared-storefront. This is consumption of existing authority, not a new storefront authority; database-schema remains out of scope. Reference Sync fingerprint 3b038645 is an exact exception for generator-readiness' undeclared Blueprint return path: template3AuthoringReady:false remains intentionally fail-closed when no Blueprint is declared and is independent of the now-PROVEN Smart Auto-Fix maturity row."
+  "notes": "Thirteenth Brabus hardening wave. Publish Readiness and Smart Intent are lifecycle-closed and PROVEN on parent 568e2d2c509bb58e5d00f07963bc3b2f187e7f01. Auto-Fix is deliberately narrower than 'repair every structured diagnostic': explicit safe registry membership is the repair authority. Template #3 remains forbidden until the final end-to-end Brabus rehearsal passes even if this wave clears the last maturity blocker. Plan projection narrowed to the measured Auto-Fix transaction: DOMAIN-ADMIN + DOMAIN-BUILDER, admin/builder authorities, no database-schema subsystem. Two critical challenges were rewritten with exact diagnostic codes, mutation risk and executable fail-closed outcomes. After the Core file entered the actual diff, Atlas correctly resolved its canonical Page Schema/runtime validation dependency as DOMAIN-STOREFRONT/shared-storefront. This is consumption of existing authority, not a new storefront authority; database-schema remains out of scope. Reference Sync fingerprint 3b038645 is an exact exception for generator-readiness' undeclared Blueprint return path: template3AuthoringReady:false remains intentionally fail-closed when no Blueprint is declared and is independent of the now-PROVEN Smart Auto-Fix maturity row. Quality root-cause reconciliation: Smart Auto-Fix is the final mandatory VX blocker, not the final global Template #3 blocker. Engine Brabus revalidation entries remain EVOLVE, so tests must remove VX-SMART-AUTOFIX from blockers without asserting template3AuthoringReady=true. The temporary Reference Sync exception for template3AuthoringReady:false is removed because the fail-closed false expectation is intentionally retained."
 }
