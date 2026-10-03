@@ -31,7 +31,12 @@
     "scripts/lib/shoperation-reference-sync-runtime.mjs",
     "tests/shoperation-development-guard.test.ts",
     "src/app/kapcsolat/page.tsx",
-    "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json"
+    "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+    "tests/shoperation-semantic-execution-intelligence.test.ts",
+    "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
+    "tests/storefront-beauty-lab-reference-v2.test.ts",
+    "tests/storefront-cart-presentation-contract.test.ts",
+    "tests/template-factory-generator-readiness.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -163,7 +168,11 @@
         "A true cross-file export consumer importing the deleted/changed origin module remains blocking.",
         "PO-instruction and tombstone regression references to the forbidden route/path remain recognized as evidence rather than required implementation edits.",
         "Playroom v20 canonical navigation uses /szallitas and /fizetes directly; legacy /oldal aliases remain compatibility-only.",
-        "Unchanged legacy template source files outside the active catalog cannot block canonical route retirement merely because they retain historical route literals."
+        "Unchanged legacy template source files outside the active catalog cannot block canonical route retirement merely because they retain historical route literals.",
+        "Beauty Lab remains available only as inert source-history/reference evidence and is unresolved by the active storefront catalog.",
+        "Loot Vault generator distinctness compares against exactly the one other active canonical template, Playroom v20.",
+        "Semantic Execution regressions distinguish lexical display-text coincidence from component-key dependency identity.",
+        "The shipping/payment PO instruction requires only live canonical route files after the combined-route tombstone."
       ],
       "invariants": [
         "There is one active template catalog and resolver authority; retirement does not create a second registry.",
@@ -449,6 +458,20 @@
         "finding": "Treating catalog-retired source history as an active machine consumer lets the very legacy templates being retired continue to block current canonical authority changes.",
         "resolution": "Derive active template roots from the single storefront-template-catalog authority. Unchanged template source files outside those active roots are evidence/source-history, not required edits; any template source edited in the current transaction remains fully checked.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-14",
+        "scenario": "The full Quality suite still contains retirement-predecessor assertions that require Beauty Lab to remain an active catalog package and require Loot Vault distinctness to compare against the former 20+ active legacy corpus.",
+        "finding": "Those assertions directly contradict the selected single-authority retirement model, where only Playroom v20 and Loot Vault v2 remain active and the foreign canonical distinctness corpus is exactly one package.",
+        "resolution": "Update the regression authority to test Beauty Lab as inert historical/reference source without catalog resolution and pin Loot Vault distinctness to the active one-template foreign corpus.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-15",
+        "scenario": "Full Quality still asserts lexical cross-file display text as a dependency and expects the deleted combined shipping/payment page inside live instruction-required files.",
+        "finding": "Both assertions predate the proven Reference Sync identity correction and the completed combined-route tombstone.",
+        "resolution": "Keep component-key stale consumers blocking, treat unbound display-text matches as non-identity, and require only the live /szallitas and /fizetes route files from the active instruction while separately proving the forbidden combined route is absent.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -491,7 +514,11 @@
         "scripts/lib/shoperation-reference-sync-runtime.mjs",
         "tests/shoperation-development-guard.test.ts",
         "src/app/kapcsolat/page.tsx",
-        "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json"
+        "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
+        "tests/storefront-beauty-lab-reference-v2.test.ts",
+        "tests/template-factory-generator-readiness.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -509,7 +536,12 @@
         "tests/storefront-real-route-template-authority.test.ts",
         "tests/customer-order-service-ux.test.ts",
         "tests/shoperation-change-impact-atlas.test.ts",
-        "tests/shoperation-development-guard.test.ts"
+        "tests/shoperation-development-guard.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
+        "tests/storefront-beauty-lab-reference-v2.test.ts",
+        "tests/storefront-cart-presentation-contract.test.ts",
+        "tests/template-factory-generator-readiness.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [
@@ -734,5 +766,5 @@
       }
     ]
   },
-  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation. Knowledge Before Build exposed an existing integration gap: deleted routes were looked up only in live Atlas nodes. Scope now includes a minimal tombstone-aware Knowledge Preflight convergence using the existing Atlas resolver. Because this changes knowledge infrastructure, the expected failure set expands to the canonical full replay of 49 failures and adds DOMAIN-QUALITY authority. Edit-Time Guard exposed a proven Reference Sync overreach on whole-file Next route deletion. Plan now includes a narrow existing-runtime semantic fix plus regression coverage; full 49-failure replay and guard digest remain unchanged because this is already knowledge infrastructure. Edit-Time Guard then proved one real stale Contact route plus a reference-identity false-positive class for deleted-file display text and generic export names. Scope now includes a minimal Reference Sync semantic correction and its regression coverage; subsystem set, full 49-failure replay and guard digest remain unchanged. Plan schema normalized specialist review labels to the canonical role set; review findings and resolutions are unchanged. Duplicate challenge identifier normalized without changing evidence. Edit-Time route review exposed that active Playroom v20 still used the compatibility aliases. Scope now includes only its canonical package so both active templates converge on /szallitas and /fizetes; historical Playroom reference sources remain inert. Reference Sync scope is further aligned with the active template catalog: unchanged catalog-retired template sources are source-history evidence, while active or currently edited template sources remain fail-closed."
+  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation. Knowledge Before Build exposed an existing integration gap: deleted routes were looked up only in live Atlas nodes. Scope now includes a minimal tombstone-aware Knowledge Preflight convergence using the existing Atlas resolver. Because this changes knowledge infrastructure, the expected failure set expands to the canonical full replay of 49 failures and adds DOMAIN-QUALITY authority. Edit-Time Guard exposed a proven Reference Sync overreach on whole-file Next route deletion. Plan now includes a narrow existing-runtime semantic fix plus regression coverage; full 49-failure replay and guard digest remain unchanged because this is already knowledge infrastructure. Edit-Time Guard then proved one real stale Contact route plus a reference-identity false-positive class for deleted-file display text and generic export names. Scope now includes a minimal Reference Sync semantic correction and its regression coverage; subsystem set, full 49-failure replay and guard digest remain unchanged. Plan schema normalized specialist review labels to the canonical role set; review findings and resolutions are unchanged. Duplicate challenge identifier normalized without changing evidence. Edit-Time route review exposed that active Playroom v20 still used the compatibility aliases. Scope now includes only its canonical package so both active templates converge on /szallitas and /fizetes; historical Playroom reference sources remain inert. Reference Sync scope is further aligned with the active template catalog: unchanged catalog-retired template sources are source-history evidence, while active or currently edited template sources remain fail-closed. Full Quality verification exposed superseded pre-retirement assertions in Beauty Lab catalog tests, generator distinctness corpus expectations, and semantic execution/reference-sync tests. These tests are now explicitly in scope so they can be realigned to the already-selected retirement authority without weakening runtime proof."
 }
