@@ -1,17 +1,17 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-VX-SMART-INTENT-BRABUS-HARDENING",
-  "task": "Implement and adopt canonical VX Smart Intent: a deterministic, bounded merchant-intent compiler that translates contextual Hungarian/English editing intent into previewable existing Builder/responsive/typography/global-token operations, applies them only after explicit user action through ordinary undoable Page Schema history, and fails closed on ambiguous, stale or unsupported intent.",
+  "taskId": "DEV-VX-SMART-AUTOFIX-BRABUS-HARDENING",
+  "task": "Implement and adopt canonical VX Smart Auto-Fix: classify Publish Readiness diagnostics through an explicit safe-repair registry, produce explainable preview-first stale-safe repair plans only for deterministically repairable findings, apply them through existing Builder authorities as one undoable document commit, and fail closed to MANUAL/BLOCK/UNKNOWN for every unsafe, stale, external, semantic or pixel-only diagnostic.",
   "status": "closed",
-  "guardDigest": "80bae5fe",
-  "changeBaseSha": "e63e7eee5a2180b958f6c3e288de45aa504f8cd8",
+  "guardDigest": "ba1a39f8",
+  "changeBaseSha": "568e2d2c509bb58e5d00f07963bc3b2f187e7f01",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "src/lib/builder/storefront-smart-intent.ts",
+    "src/lib/builder/storefront-smart-autofix.ts",
     "src/components/admin/storefront-visual-builder-v3.tsx",
     "src/lib/builder/template-factory/production-maturity.ts",
-    "tests/storefront-smart-intent.test.ts",
-    "tests/visual-builder-v3-smart-intent.test.ts",
+    "tests/storefront-smart-autofix.test.ts",
+    "tests/visual-builder-v3-smart-autofix.test.ts",
     "tests/visual-builder-production-completion.test.ts",
     "tests/template-factory-production-maturity.test.ts",
     "tests/template-factory-generator-readiness.test.ts"
@@ -19,7 +19,6 @@
   "expectedSubsystems": [
     "admin-operations",
     "builder-template-system",
-    "database-schema",
     "shared-storefront",
     "storefront-ui"
   ],
@@ -39,9 +38,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -50,11 +47,9 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-022",
-    "SQ-KF-023",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -87,86 +82,77 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-014"
+    "SQ-NK-012"
   ],
-  "exceptions": [
-    {
-      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
-      "file": "src/components/admin/storefront-visual-builder-production.tsx",
-      "findingFingerprint": "f02cd6dc",
-      "reason": "Intentional inactive legacy consumer. The active admin Builder route renders StorefrontVisualBuilderV3, where commitDocument additionally invalidates the transient Smart Intent plan before ordinary history continues. The legacy production component is not an active Smart Intent surface and must not be mutated solely to mirror this V3-only ephemeral UI-state invalidation."
-    }
-  ],
+  "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-VX-SMART-INTENT-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-VX-SMART-AUTOFIX-BRABUS-HARDENING",
     "riskTier": "critical",
-    "problemStatement": "VX Smart Intent is the next mandatory Brabus blocker after lifecycle-closed Publish Readiness. The existing Block 23 AI storefront generator chooses templates and copy for a full draft, but it is not an in-Builder intent compiler. Smart Intent must operate inside the active Builder and translate bounded contextual requests such as making an image larger, adding whitespace, emphasizing a title, hiding an element on mobile or resetting an override into existing canonical Builder authorities. It must not generate source code, invent schema fields, act from diagnostics, auto-publish, or become Smart Auto-Fix.",
+    "problemStatement": "VX Smart Auto-Fix is the final mandatory VX blocker after lifecycle-closed Publish Readiness and Smart Intent. Publish Readiness intentionally marks many findings as structured diagnostics, but structure alone is not proof that an automatic repair is semantically safe. Auto-Fix must therefore introduce no heuristic repair authority: it must classify each selected readiness finding, verify it against the current source authority, and emit an executable repair only when an explicit allowlisted rule proves a deterministic canonical schema operation. The initial safe registry covers redundant responsive inheritance overrides with dimension-local reset and Design Guard disabled with canonical warn-mode restoration. Semantic content, links, media, commerce, page completeness, unknown external evidence and pixel-only drift remain manual/non-automatic.",
     "observableOutcomes": [
-      "One canonical Smart Intent Core accepts contextual merchant text plus selected node/current viewport and returns deterministic READY/BLOCK/UNKNOWN plans.",
-      "The parser supports bounded Hungarian and English intent families for layout width, spacing/token density, typography emphasis, visibility and responsive reset.",
-      "Unrecognized, contradictory or multi-action ambiguous text returns UNKNOWN with zero operations rather than guessing.",
-      "Every READY operation names its existing source authority and explanation; no Smart Intent-specific Page Schema mutation primitive is introduced.",
-      "Width intent uses the existing 12-column authority and, for a two-child 12-column pair, preserves the total by complementing the sibling (for example 6/12 + 6/12 becomes 8/12 + 4/12).",
-      "Spacing intent uses existing responsive grid/stack gap tokens or explicit global spacingScale tokens; arbitrary CSS is never emitted.",
-      "Typography intent uses the existing sanitized responsive typography authority and bounded token/size ranges.",
-      "Visibility/reset intent uses the proven responsive layout-depth authority and explicit viewport context.",
-      "Plans bind to the source page fingerprint; applying a stale plan fails closed.",
-      "Applying a plan reuses existing canonical setters, validates the resulting Page Schema, and never publishes or persists by itself.",
-      "Active StorefrontVisualBuilderV3 exposes plan/preview/apply controls; apply commits exactly one ordinary Builder history entry, preserving undo/redo.",
-      "Smart Intent never derives mutations from Publish Readiness, Visual Diff or diagnostics; that diagnostics-to-repair boundary remains reserved for Smart Auto-Fix.",
-      "VX-SMART-INTENT becomes PROVEN only after Core plus active V3 adoption and executable adversarial proof; VX-SMART-AUTOFIX remains NOT_IMPLEMENTED."
+      "One canonical Smart Auto-Fix Core accepts the current Page Schema plus a selected Publish Readiness finding and returns READY, MANUAL, BLOCK or UNKNOWN.",
+      "READY is possible only through an explicit safe-repair registry entry that matches finding code, evidence source, repairability, localization and current authority state.",
+      "RESPONSIVE_INHERITANCE_REDUNDANT_OVERRIDE plans reset exactly the localized visibility, grid-placement, container or child-order dimension through existing responsive authorities rather than resetting unrelated dimensions.",
+      "PUBLISH_READINESS_DESIGN_GUARD_OFF plans restore the existing Design Guard to canonical warn mode through setStorefrontDesignGuardMode.",
+      "Missing alt text, heading semantics, unsafe links, commerce/media/page completeness, draft persistence actions, unknown diagnostic codes and unlocalized external findings never generate schema repairs automatically.",
+      "Pixel-only or visual-unlocalized drift always returns MANUAL with zero operations even when the overall readiness decision is BLOCK.",
+      "Each READY plan binds finding identity, source page fingerprint, exact authority state and an integrity hash; stale or tampered plans fail before mutation.",
+      "Apply executes on a clone through existing canonical setters, validates Page Schema, proves the targeted diagnostic postcondition is resolved, and returns no partial output on failure.",
+      "Active StorefrontVisualBuilderV3 exposes per-finding Auto-Fix planning and a separate READY-only apply action inside readiness review.",
+      "V3 Auto-Fix application enters ordinary Builder undo/redo history with exactly one commitDocument call and never saves, publishes or persists by itself.",
+      "Auto-Fix does not call Smart Intent natural-language parsing, an AI gateway, or Visual Diff pixel data to invent a repair.",
+      "VX-SMART-AUTOFIX becomes PROVEN only after Core plus active V3 adoption and adversarial executable proof.",
+      "After promotion, all mandatory Template #3 maturity blockers are PROVEN, but Template #3 authoring remains forbidden until the separate final end-to-end Brabus rehearsal passes."
     ],
     "unresolvedRisks": [
-      "A vague phrase such as 'make it bigger' could be misclassified between width and typography.",
-      "A request mentioning multiple independent edits could silently generate a partial plan.",
-      "A width increase could break a balanced two-column row if the companion is not adjusted.",
-      "Spacing could be implemented as arbitrary CSS instead of the existing spacing token authority.",
-      "Typography scaling could bypass sanitizer bounds or overwrite unrelated typography settings.",
-      "Viewport language could be ignored, causing a mobile request to mutate desktop state.",
-      "A plan could be applied after the document changed, producing stale or surprising mutations.",
-      "V3 could apply Smart Intent directly without ordinary history, breaking undo/redo.",
-      "Smart Intent could accidentally consume diagnostics and become an undeclared Auto-Fix system.",
-      "The existing Block 23 AI generator could be mistaken for Smart Intent authority or modified unnecessarily."
+      "A structured diagnostic may be mistaken for an automatically safe repair.",
+      "A readiness finding may be stale even though its deterministic id still exists in UI state.",
+      "A broad responsive reset could erase unrelated explicit overrides.",
+      "Auto-Fix could silently repair a semantic accessibility issue by inventing text or URLs.",
+      "Pixel mismatch or hotspot evidence could be treated as a causal schema diagnosis.",
+      "An external/template-level finding localized to another page could mutate the active page.",
+      "A plan could be tampered after preview or applied after the document changed.",
+      "A canonical operation could resolve one diagnostic while creating a new fatal Page Schema violation.",
+      "V3 could auto-apply on plan generation or bypass Builder history.",
+      "Maturity could be promoted while the active UI has no usable preview/apply adoption."
     ],
     "scope": {
       "in": [
-        "Deterministic contextual intent parsing for bounded Hungarian and English editing phrases.",
-        "Intent families: layout width, whitespace/spacing, typography emphasis, viewport visibility, responsive reset, explicit global spacing density.",
-        "Existing 12-column grid balancing for canonical two-child pairs.",
-        "Source-page fingerprint provenance and stale-plan rejection.",
-        "Read-only plan/preview contract with explainable operation authority and affected node/viewport metadata.",
-        "Explicit apply through existing responsive layout-depth, fidelity typography, global styles and Page Schema validation authorities.",
-        "Active V3 plan/preview/apply UI using one ordinary history commit.",
-        "Adversarial tests for ambiguity, contradictions, bounds, stale fingerprint, pair balancing, viewport targeting, unsupported component and diagnostics separation.",
-        "Maturity promotion only with active V3 executable evidence."
+        "Versioned Smart Auto-Fix plan/apply contract over Publish Readiness findings.",
+        "Explicit safe-repair registry with source/code/localization/current-state verification.",
+        "Dimension-local repair of proven redundant responsive inheritance overrides.",
+        "Canonical Design Guard off -> warn repair.",
+        "Explicit MANUAL classification for semantic, external, unsupported and pixel-only diagnostics.",
+        "Source page fingerprint plus deterministic plan hash and tamper/stale rejection.",
+        "Preview-first apply through existing responsive/fidelity authorities and final Page Schema validation.",
+        "Postcondition verification that the targeted safe diagnostic is resolved after apply.",
+        "Active V3 per-finding plan/preview/apply adoption with ordinary history.",
+        "Maturity promotion and Template #3 blocker-list regression proof."
       ],
       "out": [
-        "General-purpose natural-language AI or external model invocation.",
-        "Block 23 AI storefront generator redesign.",
-        "Arbitrary source-code, HTML, CSS, JavaScript or JSON generation.",
-        "Direct save, publish, persistence or commerce mutation.",
-        "Diagnostics-driven mutation generation, Smart Auto-Fix or automatic repair.",
-        "Pixel-diff causality or repair inference.",
-        "New responsive, typography, token, Page Schema or Runtime authority.",
-        "Control Plane, guard or policy changes.",
-        "Template #3 authoring."
+        "Automatic copy, alt-text, heading, link, route, product, commerce or media invention.",
+        "Automatic page creation, draft save, persistence, publish or rollback.",
+        "Pixel-diff-to-schema causality, hotspot repair or screenshot authority.",
+        "General AI/LLM repair selection or Smart Intent text parsing.",
+        "New Page Schema, responsive, fidelity, readiness, visual-diff or persistence authority.",
+        "Batch repair-all orchestration in the first Brabus capability.",
+        "Control Plane/guard/policy changes unless this wave independently proves a persistent authority deficiency.",
+        "Template #3 authoring before final end-to-end Brabus rehearsal."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Smart Intent converts human language into schema mutations, so false interpretation is more dangerous than a missed convenience. The highest practical assurance is a finite bounded grammar with contextual disambiguation, explicit UNKNOWN/BLOCK states, source fingerprint freshness, canonical-operation-only compilation, adversarial phrase matrices, final schema validation and active UI proof. A general probabilistic language model is deliberately outside this capability because deterministic fail-closed behavior is required before Smart Auto-Fix.",
+      "rationale": "Auto-Fix sits directly between diagnostics and schema mutation, so false repair is worse than an unsupported manual finding. Highest practical assurance is an explicit finite repair registry, exact source-code/evidence matching, localized current-state verification, source fingerprint and plan-hash freshness, dimension-local canonical setters, preview-before-apply, final schema validation, postcondition proof and active UI adoption. Unsupported findings fail closed rather than using heuristic inference.",
       "selectedTechniques": [
         "explicit-specification",
-        "finite-state-model",
-        "bounded-grammar",
+        "invariants",
+        "state-model",
         "dependency-graph",
         "evidence-provenance",
         "stale-state-guard",
@@ -175,68 +161,67 @@
         "negative-tests",
         "boundary-cases",
         "pairwise-interactions",
+        "threat-failure-model",
         "fault-injection",
         "determinism-proof",
         "immutability-proof",
         "combination-proof",
-        "invariants",
-        "state-model",
-        "threat-failure-model",
         "finite-state-exhaustion"
       ],
       "deferredTechniques": [
-        "general-llm-intent-parsing",
-        "diagnostics-to-repair",
-        "automatic-fix-selection",
-        "source-code-generation",
-        "pixel-causality"
+        "general-llm-repair-selection",
+        "semantic-content-generation",
+        "automatic-route-invention",
+        "pixel-causality",
+        "batch-repair-all",
+        "cross-page-autonomous-mutation"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Smart Intent Core has a versioned contract and produces only READY, BLOCK or UNKNOWN plans.",
-        "UNKNOWN and BLOCK contain zero executable operations and cannot be applied.",
-        "Equivalent normalized phrase/context/document inputs produce deep-equal plans apart from the cryptographic source fingerprint.",
-        "Ambiguous family matches, contradictory direction words and multi-action requests fail closed instead of selecting the first match.",
-        "Viewport terms in the phrase override current viewport only when exactly one supported viewport is explicit.",
-        "Width changes stay within 1..12; a balanced two-child 12-column pair remains exactly 12 columns after resize.",
-        "Spacing changes use only STOREFRONT_RESPONSIVE_LAYOUT_SPACING or STOREFRONT_GLOBAL_SPACING_SCALES values.",
-        "Typography changes use setStorefrontNodeTypography-compatible sanitized values and preserve unrelated typography fields.",
-        "Responsive reset uses resetStorefrontResponsiveLayoutDepth and visibility uses setStorefrontResponsiveVisibility.",
-        "Global spacing uses get/setStorefrontGlobalStyleState and never writes raw metadata directly.",
-        "Apply rejects a source fingerprint mismatch before any operation executes.",
-        "Final apply validates the page with validateStorefrontPageDocument; invalid output throws and no partial document is returned.",
-        "V3 exposes a merchant-facing Smart Intent field with separate plan and apply actions; it does not apply on typing or on plan generation.",
-        "V3 apply uses commitDocument exactly once for a READY plan, making the change an ordinary undoable history entry.",
-        "V3 does not call the Block 23 AI generator, Publish Readiness diagnostics or Visual Diff to synthesize Smart Intent operations.",
-        "Production maturity promotes only VX-SMART-INTENT; VX-SMART-AUTOFIX remains NOT_IMPLEMENTED and Template #3 remains blocked."
+        "Smart Auto-Fix Core exposes a versioned READY/MANUAL/BLOCK/UNKNOWN plan contract.",
+        "Every non-READY plan has zero executable operations.",
+        "A READY plan requires a registry rule whose expected finding code, source authority, repairability and localization all match.",
+        "Redundant responsive inheritance repair resets only the exact finding.location.path dimension and leaves sibling dimensions untouched.",
+        "The responsive repair is rejected if the current inheritance authority no longer contains the matching safeReset diagnostic.",
+        "Design Guard repair is READY only while the current mode is off and applies canonical warn mode without replacing unrelated fidelity metadata.",
+        "Pixel-only and structuredCause=false Visual Diff findings are always MANUAL and cannot enter the repair registry.",
+        "Structured accessibility/link/media/commerce findings without an explicit safe rule remain MANUAL; repairability=structured-diagnostic alone is insufficient.",
+        "Plan hash changes if any operation, finding binding, authority, fingerprint or repair explanation changes.",
+        "Apply rejects invalid plan contract, non-READY status, tampered hash, stale page fingerprint, page mismatch or stale authority state before returning a changed document.",
+        "Apply clones input, uses existing canonical setters, validates resulting Page Schema and proves the targeted diagnostic postcondition is gone.",
+        "V3 exposes separate Auto-Fix plan and apply controls on a selected readiness finding and never auto-applies from rendering or planning.",
+        "V3 apply calls commitDocument exactly once for a successful READY repair.",
+        "Core and V3 contain no AI gateway, save/publish/persistence authority or pixel-to-repair implementation.",
+        "Production maturity promotes VX-SMART-AUTOFIX only with Core + active V3 executable evidence.",
+        "Template #3 maturity may become technically ready only if every required capability is PROVEN; actual Template #3 authoring remains separately gated by final Brabus rehearsal."
       ],
       "invariants": [
-        "Merchant intent is not mutation authority; only compiled canonical operations are.",
-        "No plan is executable unless its status is READY.",
-        "UNKNOWN never degrades to READY because a target node happens to support one interpretation.",
-        "One intent request represents one semantic edit family; independent multi-action requests are rejected.",
-        "Current Page Schema, component registry and capability context remain authoritative.",
-        "Responsive inheritance is base plus explicit exact-viewport override; Smart Intent does not revive legacy breakpoint cascade.",
-        "Smart Intent is user-driven and never diagnostics-driven.",
-        "Every apply is stale-safe, schema-valid and ordinary-history compatible.",
-        "Smart Intent does not publish, persist or modify business data."
+        "Diagnostic structure is not repair authority.",
+        "Only explicit safe registry entries may produce operations.",
+        "Manual-review and visual-unlocalized findings never produce operations.",
+        "One repair plan targets exactly one readiness finding.",
+        "Responsive repair is dimension-local and exact-viewport only.",
+        "No repair invents merchant/business/semantic content.",
+        "READY plans are fingerprint-bound and hash-bound.",
+        "Apply is atomic, schema-valid, postcondition-proven and persistence-free.",
+        "Active UI always separates planning from application.",
+        "Final end-to-end rehearsal remains mandatory before Template #3 authoring."
       ],
       "forbiddenStates": [
-        "ambiguous-intent-guessed-ready",
-        "unknown-intent-has-operations",
-        "block-intent-has-operations",
-        "stale-plan-applied",
-        "grid-pair-total-exceeds-twelve",
-        "raw-css-generated",
-        "unsupported-typography-mutated",
-        "wrong-viewport-mutated",
-        "diagnostic-generated-intent-operation",
-        "pixel-drift-generated-intent-operation",
-        "direct-publish-or-save",
+        "structured-diagnostic-implies-autofix",
+        "pixel-drift-generates-operation",
+        "manual-finding-has-operation",
+        "stale-finding-repaired",
+        "tampered-plan-applied",
+        "broad-responsive-reset-erases-unrelated-dimension",
+        "semantic-content-invented",
+        "external-other-page-mutates-active-page",
+        "autofix-saves-or-publishes",
+        "v3-auto-applies-on-plan",
         "v3-bypasses-history",
-        "smart-autofix-falsely-proven",
-        "template-3-authoring"
+        "autofix-proven-without-active-ui",
+        "template-3-authoring-before-final-rehearsal"
       ]
     },
     "model": {
@@ -268,48 +253,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Selected image receives typography scaling from the word 'bigger' despite image context.",
-        "Phrase says 'larger and add more space' and compiler silently applies only width.",
-        "A 6/12 image becomes 8/12 while its 6/12 sibling remains 6/12.",
-        "Spacing intent writes padding/margin CSS strings outside token authority.",
-        "Mobile visibility request mutates desktop because current viewport differs from explicit phrase viewport.",
-        "A plan compiled on revision A applies to revision B without fingerprint rejection.",
-        "Typography intent replaces text alignment, weight or wrap settings that were not requested.",
-        "V3 applies the plan while planning, creating an unreviewed mutation.",
-        "Readiness BLOCK finding causes Smart Intent to generate a repair, collapsing Smart Intent into Auto-Fix.",
-        "Maturity is promoted from Core-only proof while active V3 has no usable Smart Intent surface."
+        "Missing alt text receives fabricated alt copy because readiness says structured-diagnostic.",
+        "Unlocalized pixel drift produces a guessed width/spacing mutation.",
+        "Responsive redundant visibility finding resets grid/container/child-order as collateral damage.",
+        "Finding disappeared after another edit but stale UI repair still applies.",
+        "Plan operation is edited after preview and hash is not revalidated.",
+        "Design Guard warn repair overwrites preset/protected-node fidelity metadata.",
+        "A finding points to another page but active page is mutated.",
+        "Repair resolves target symptom but creates a fatal Page Schema violation.",
+        "V3 runs apply immediately after planning without user confirmation.",
+        "Capability is marked PROVEN while Auto-Fix UI is not present on the active V3 route."
       ],
       "edgeCases": [
-        "Selected heading with phrase 'make it bigger' resolves to typography because component context is unambiguous.",
-        "Selected image/media node with phrase 'make it bigger' resolves to grid width.",
-        "Selected generic container with phrase 'make it bigger' remains UNKNOWN unless width language is explicit.",
-        "Two supported viewport words in one phrase produce UNKNOWN.",
-        "Already-maximum width or spacing returns BLOCK with no operations.",
-        "Global spacing phrase on any selection changes spacingScale but no component-local style.",
-        "Whitespace phrase on non-container child targets its immediate grid/stack parent only.",
-        "Typography node has fluidSize rather than fontSizeRem.",
-        "Responsive reset on a viewport with no overrides is BLOCK/no-op.",
-        "Phrase uses accents, punctuation or mixed case but normalizes deterministically."
+        "Redundant override warning exists for only one of four inheritance dimensions.",
+        "Two redundant dimensions exist on the same node but one finding is selected.",
+        "Selected finding is warning/PASS state but is safely repairable.",
+        "Design Guard already changed from off to warn between plan and apply.",
+        "Finding code is known but evidence source is unexpected.",
+        "Finding has structured-diagnostic repairability but no localization nodeId or viewport.",
+        "Visual Diff diagnostic claims structured cause but no explicit safe repair registry entry exists.",
+        "Current Page Schema fingerprint changes only in an unrelated node after plan.",
+        "Canonical repair operation becomes a no-op before apply.",
+        "Unsupported external evidence remains explainable MANUAL rather than UNKNOWN when source/code are known."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-SMART-INTENT-DETERMINISTIC-COMPILER",
-        "summary": "Build a bounded contextual parser/compiler over existing canonical Builder operations and adopt it in V3.",
+        "id": "ALT-AUTOFIX-SAFE-REGISTRY",
+        "summary": "Explicit allowlisted repair registry verified against current authority state and applied through existing setters.",
         "disposition": "selected",
-        "reason": "Provides user-level intent without probabilistic mutation authority or a parallel schema system."
+        "reason": "Makes automated mutation evidence-backed and fail-closed without inventing a second diagnostic or schema authority."
       },
       {
-        "id": "ALT-SMART-INTENT-REUSE-BLOCK23-AI",
-        "summary": "Send every in-Builder edit request through the existing AI storefront generator.",
+        "id": "ALT-AUTOFIX-ALL-STRUCTURED",
+        "summary": "Automatically repair every readiness finding marked structured-diagnostic.",
         "disposition": "rejected",
-        "reason": "Block 23 owns full draft template/copy generation, not contextual element operations, and would broaden authority/risk unnecessarily."
+        "reason": "Structured localization does not prove semantic repair safety; it would fabricate content/links or overreach external authorities."
       },
       {
-        "id": "ALT-SMART-INTENT-DIRECT-JSON",
-        "summary": "Translate text into arbitrary Page Schema/JSON patches.",
+        "id": "ALT-AUTOFIX-AI",
+        "summary": "Use a model to infer fixes from readiness text or visual mismatch.",
         "disposition": "rejected",
-        "reason": "Would bypass canonical setters, validation, responsive inheritance and guarded freedom."
+        "reason": "Would make mutation probabilistic, blur Smart Intent/Auto-Fix boundaries and violate pixel-drift non-causality."
       }
     ],
     "specialistReviews": [
@@ -317,22 +302,22 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Existing Builder, responsive, typography and global-style authorities are sufficient; Smart Intent should only compile to them.",
-        "resolution": "Implement one pure planner/apply adapter and no new mutation primitive.",
+        "finding": "Publish Readiness already provides canonical evidence identity; Auto-Fix should be a repair planner/adapter, not a second diagnostic engine.",
+        "resolution": "Consume StorefrontPublishReadinessFinding and verify against source authorities before planning.",
         "evidence": [
-          "src/lib/builder/storefront-visual-builder.ts",
+          "src/lib/builder/storefront-publish-readiness.ts",
           "src/lib/builder/storefront-responsive-layout-depth.ts",
-          "src/lib/builder/storefront-fidelity-builder-operations.ts",
-          "src/lib/builder/storefront-global-styles.ts"
+          "src/lib/builder/storefront-fidelity-builder-operations.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Natural language can be ambiguous and stale plans can mutate the wrong document state.",
-        "resolution": "Finite grammar, UNKNOWN on ambiguity, source fingerprint binding and final Page Schema validation are mandatory.",
+        "finding": "Repairability metadata is broader than safe automatic repair and stale diagnostics can mutate the wrong state.",
+        "resolution": "Require explicit registry membership, current-authority revalidation, page fingerprint, plan hash, schema validation and postcondition proof.",
         "evidence": [
+          "src/lib/builder/storefront-publish-readiness.ts",
           "src/lib/builder/storefront-page-fingerprint.ts",
           "src/lib/builder/storefront-runtime.ts"
         ]
@@ -341,8 +326,8 @@
         "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Intent must feel direct but must not mutate while typing or hide what will change.",
-        "resolution": "V3 provides explicit plan then apply, displays interpretation/affected operations, and commits once through existing history.",
+        "finding": "Auto-Fix must remain understandable and reversible instead of becoming invisible automation.",
+        "resolution": "V3 shows selected finding, repair explanation/operations, separate plan and READY-only apply; apply is one ordinary history entry.",
         "evidence": [
           "src/components/admin/storefront-visual-builder-v3.tsx",
           "src/lib/builder/storefront-visual-builder.ts"
@@ -350,145 +335,149 @@
       },
       {
         "role": "Release",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Using diagnostics to choose edits would prematurely implement Smart Auto-Fix.",
-        "resolution": "Smart Intent may display no diagnostic-derived repair path; operation generation depends only on user phrase, document, selection and viewport.",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Core + V3 adoption is expected to remain within the same builder/admin transaction envelope, but prior combined waves proved release budget must decide rather than assumption.",
+        "resolution": "Run Release Risk after Plan/Edit/Replay; split Core and UI if budget blocks.",
         "evidence": [
-          "src/lib/builder/storefront-publish-readiness.ts",
-          "src/lib/builder/storefront-visual-diff-intelligence.ts",
+          "deploy/release-risk-policy.json",
           "src/lib/builder/template-factory/production-maturity.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-SI-1",
-        "scenario": "Selected image says 'make it bigger'.",
-        "finding": "Context can safely disambiguate bigger as width.",
-        "resolution": "Compile bounded width increase on current/explicit viewport.",
+        "id": "CH-AF-1",
+        "scenario": "Publish Readiness emits ACCESSIBILITY_IMAGE_ALT_MISSING for node hero-image with repairability=structured-diagnostic and an exact nodeId.",
+        "finding": "The diagnostic is structurally localized but there is no evidence-backed text value that can serve as a truthful alt attribute; generating one would fabricate semantic merchant content.",
+        "resolution": "The safe registry has no ACCESSIBILITY_IMAGE_ALT_MISSING executable rule. Planning returns MANUAL with zero operations, and tests assert that no config/text mutation is emitted.",
         "status": "resolved"
       },
       {
-        "id": "CH-SI-2",
-        "scenario": "Selected heading says 'make it bigger'.",
-        "finding": "Context can safely disambiguate bigger as typography.",
-        "resolution": "Compile bounded typography emphasis, not width.",
+        "id": "CH-AF-2",
+        "scenario": "Visual pixel drift blocks mobile.",
+        "finding": "Pixel evidence is non-causal.",
+        "resolution": "MANUAL regardless of mismatch ratio/hotspot; zero operations.",
         "status": "resolved"
       },
       {
-        "id": "CH-SI-3",
-        "scenario": "Generic container says only 'make it bigger'.",
-        "finding": "Width versus typography/spacing is ambiguous.",
-        "resolution": "Return UNKNOWN with zero operations.",
+        "id": "CH-AF-3",
+        "scenario": "Redundant mobile visibility override is selected.",
+        "finding": "safeReset is source-authority proof.",
+        "resolution": "READY with visibility-only reset at the exact node/viewport.",
         "status": "resolved"
       },
       {
-        "id": "CH-SI-4",
-        "scenario": "Phrase requests width and whitespace together.",
-        "finding": "One request contains independent edit families.",
-        "resolution": "Return UNKNOWN; require separate intents.",
+        "id": "CH-AF-4",
+        "scenario": "Same node also has explicit grid/container overrides.",
+        "finding": "A broad reset would cause collateral mutation.",
+        "resolution": "Operation resets only finding.location.path dimension; other direct overrides must remain byte-equivalent.",
         "status": "resolved"
       },
       {
-        "id": "CH-SI-5",
-        "scenario": "6/12 image + 6/12 text pair receives 'wider'.",
-        "finding": "Naive target-only resize breaks the intended 12-column composition.",
-        "resolution": "Plan 8/12 target + 4/12 companion in one atomic plan.",
+        "id": "CH-AF-5",
+        "scenario": "Finding was generated before user manually fixed it.",
+        "finding": "Readiness object is stale.",
+        "resolution": "Planner revalidates current source diagnostic and returns BLOCK when no longer present.",
         "status": "resolved"
       },
       {
-        "id": "CH-SI-6",
-        "scenario": "Plan source document changes before apply.",
-        "finding": "Operations may no longer describe the visible state.",
-        "resolution": "Fingerprint mismatch blocks apply before the first operation.",
+        "id": "CH-AF-6",
+        "scenario": "Document changes after preview.",
+        "finding": "Repair plan source no longer exact.",
+        "resolution": "Fingerprint mismatch rejects apply before any operation.",
         "status": "resolved"
       },
       {
-        "id": "CH-SI-7",
-        "scenario": "Phrase explicitly says mobile while Builder currently shows desktop.",
-        "finding": "Current viewport must not override explicit merchant intent.",
-        "resolution": "Exactly one explicit viewport term wins; multiple viewport terms return UNKNOWN.",
+        "id": "CH-AF-7",
+        "scenario": "Plan operation/hash is tampered.",
+        "finding": "Preview no longer represents apply.",
+        "resolution": "Deterministic plan hash mismatch rejects apply.",
         "status": "resolved"
       },
       {
-        "id": "CH-SI-8",
-        "scenario": "Publish Readiness reports a visual blocker while user entered an unrelated intent.",
-        "finding": "Diagnostics-to-repair is Smart Auto-Fix territory.",
-        "resolution": "Ignore diagnostics for planning; only explicit user intent compiles.",
+        "id": "CH-AF-8",
+        "scenario": "A PUBLISH_READINESS_DESIGN_GUARD_OFF finding is previewed while mode=off, then another Builder action changes Design Guard to warn before Auto-Fix Apply.",
+        "finding": "The previewed repair is stale: applying the old plan would claim to repair a condition that no longer exists and could overwrite newer fidelity metadata.",
+        "resolution": "Apply revalidates the live Design Guard precondition before mutation. If mode is no longer off it throws SMART_AUTOFIX_SOURCE_STALE and returns no changed document.",
         "status": "resolved"
       },
       {
-        "id": "CH-SI-9",
-        "scenario": "Selected node has unsupported typography component.",
-        "finding": "Applying typography would bypass component authority.",
-        "resolution": "Return BLOCK with zero operations.",
+        "id": "CH-AF-9",
+        "scenario": "Known diagnostic code arrives from an unexpected evidence source.",
+        "finding": "Code collision cannot confer repair authority.",
+        "resolution": "Source+code registry key must both match or result is MANUAL/BLOCK.",
         "status": "resolved"
       },
       {
-        "id": "CH-SI-10",
-        "scenario": "Whitespace is already at maximum token.",
-        "finding": "No-op must not be reported as READY.",
-        "resolution": "Return BLOCK/no-op with explainable reason.",
+        "id": "CH-AF-10",
+        "scenario": "External route/media/commerce issue has a path.",
+        "finding": "Localization does not imply active-page schema ownership.",
+        "resolution": "No registry entry; MANUAL and no mutation.",
         "status": "resolved"
       },
       {
-        "id": "CH-SI-11",
-        "scenario": "Generator Readiness regression still expects VX-SMART-INTENT in the blocking capability list after this wave promotes it.",
-        "finding": "That assertion encodes pre-wave maturity and would force a false blocker after executable Smart Intent proof exists.",
-        "resolution": "Update only the stale blocker expectation: Smart Intent must be absent, Smart Auto-Fix must remain present, and Template #3 must still be blocked.",
+        "id": "CH-AF-11",
+        "scenario": "Canonical setter output violates Page Schema due unrelated state.",
+        "finding": "Repair cannot return partial invalid output.",
+        "resolution": "Apply works on clone and fails before returning changed document.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-AF-12",
+        "scenario": "All maturity capabilities become PROVEN after this wave.",
+        "finding": "Technical maturity alone must not start Template #3.",
+        "resolution": "Keep authoring explicitly blocked until a separate full end-to-end Brabus rehearsal passes.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Plan Before Code projected-scope and risk-budget proof before implementation.",
-      "Core parser matrix proves Hungarian/English normalization, context disambiguation, contradictions and independent multi-action rejection.",
-      "12-column adversarial proof verifies 6+6 to 8+4 pair balancing and all width bounds.",
-      "Token proof verifies spacing/global density outputs are members of existing canonical token sets only.",
-      "Typography proof verifies sanitized bounded changes preserve unrelated fields and support fluid typography.",
-      "Viewport proof verifies explicit mobile/tablet/desktop targeting and ambiguous multi-viewport UNKNOWN.",
-      "Freshness proof compiles a plan, mutates the source document independently, and proves apply rejects the stale fingerprint.",
-      "Authority-boundary proof scans Smart Intent Core/V3 for no AI gateway, publish, persistence, Publish Readiness repair, Visual Diff mutation or raw CSS/JSON patch authority.",
-      "Apply proof validates final document through validateStorefrontPageDocument and proves source input immutability.",
-      "Active V3 proof verifies separate plan/apply controls, READY-only apply and exactly one commitDocument call for application.",
-      "Maturity proof promotes only VX-SMART-INTENT and leaves VX-SMART-AUTOFIX non-PROVEN and Template #3 blocked.",
-      "Incremental replay, full Quality tests, TypeScript, production build, exact-head Template Factory proof, Completion Truth and lifecycle closure.",
-      "Generator Readiness regression must stop treating VX-SMART-INTENT as a blocker once the maturity catalog proves it, while VX-SMART-AUTOFIX remains the only mandatory VX blocker and Template #3 remains closed."
+      "Plan Before Code projected-scope and Release Risk proof before substantive implementation.",
+      "Safe-registry matrix proves source+code+repairability+localization are all required for READY.",
+      "Responsive adversarial matrix proves visibility/grid-placement/container/child-order repairs are exact-dimension and preserve all unrelated state.",
+      "Design Guard proof verifies off->warn preserves edit mode, preset id, baseline version and protected node ids.",
+      "Unsafe diagnostic matrix proves accessibility content, link, media, commerce, page completeness, visual pixel and unknown external findings are MANUAL/UNKNOWN with zero operations.",
+      "Freshness proof verifies stale page fingerprint and stale source diagnostic both block apply/planning.",
+      "Integrity proof tampers operation/finding binding/hash and proves apply rejection.",
+      "Atomic apply proof verifies input immutability, canonical setter use, Page Schema validation and targeted postcondition resolution.",
+      "Authority-boundary scan proves no AI gateway, Smart Intent parser, save/publish/persistence or pixel-to-repair logic.",
+      "Active V3 proof verifies per-finding plan, visible explanation, READY-only apply and exactly one history commit.",
+      "Maturity proof promotes only VX-SMART-AUTOFIX and preserves the separate final-rehearsal prohibition on Template #3 authoring.",
+      "Incremental replay, full Quality tests, TypeScript, production build, exact-head Template Factory proof, Completion Truth and lifecycle closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-03-VX-SMART-INTENT-BRABUS-HARDENING",
+      "request": "PO-2026-10-03-VX-SMART-AUTOFIX-BRABUS-HARDENING",
       "authority": [
         "builder-template-system",
-        "admin-operations"
+        "admin-operations",
+        "shared-storefront"
       ],
       "mustEdit": [
         "src/components/admin/storefront-visual-builder-v3.tsx",
         "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
-        "src/lib/builder/storefront-smart-intent.ts",
-        "tests/storefront-smart-intent.test.ts",
-        "tests/visual-builder-v3-smart-intent.test.ts",
+        "src/lib/builder/storefront-smart-autofix.ts",
+        "tests/storefront-smart-autofix.test.ts",
+        "tests/visual-builder-v3-smart-autofix.test.ts",
         "tests/visual-builder-production-completion.test.ts",
         "tests/template-factory-production-maturity.test.ts",
         "tests/template-factory-generator-readiness.test.ts"
       ],
       "impactedReadOnly": [
-        "src/lib/builder/storefront-visual-builder.ts",
+        "src/lib/builder/storefront-publish-readiness.ts",
         "src/lib/builder/storefront-responsive-layout-depth.ts",
         "src/lib/builder/storefront-fidelity-builder-operations.ts",
-        "src/lib/builder/storefront-fidelity-typography.ts",
-        "src/lib/builder/storefront-global-styles.ts",
+        "src/lib/builder/storefront-fidelity-engine.ts",
         "src/lib/builder/storefront-page-fingerprint.ts",
         "src/lib/builder/storefront-runtime.ts",
-        "src/lib/builder/storefront-publish-readiness.ts",
         "src/lib/builder/storefront-visual-diff-intelligence.ts",
-        "src/lib/builder/storefront-ai-generator.ts",
-        "src/lib/builder/storefront-ai-generator-server.ts"
+        "src/lib/builder/storefront-smart-intent.ts",
+        "src/lib/builder/storefront-visual-builder.ts"
       ],
       "proof": [
-        "tests/storefront-smart-intent.test.ts",
-        "tests/visual-builder-v3-smart-intent.test.ts",
+        "tests/storefront-smart-autofix.test.ts",
+        "tests/visual-builder-v3-smart-autofix.test.ts",
         "tests/visual-builder-production-completion.test.ts",
         "tests/template-factory-production-maturity.test.ts",
         "tests/template-factory-generator-readiness.test.ts"
@@ -499,14 +488,14 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-VX-SMART-INTENT-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-VX-SMART-AUTOFIX-BRABUS-HARDENING",
     "requirements": [
       {
-        "id": "REQ-VX-SMART-INTENT-CANONICAL-COMPILER",
-        "requirement": "Smart Intent deterministically converts bounded contextual merchant intent into explainable existing canonical Builder operations with UNKNOWN/BLOCK fail-closed semantics and no parallel mutation authority.",
+        "id": "REQ-VX-SMART-AUTOFIX-SAFE-REGISTRY",
+        "requirement": "Smart Auto-Fix produces executable repairs only from explicit source-verified safe registry entries; unsupported, semantic and pixel-only findings remain non-executable.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "vx-smart-intent-canonical-compiler",
+          "breadth": "vx-smart-autofix-safe-registry",
           "strength": 2,
           "dimensions": [
             "status",
@@ -531,8 +520,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SMART-INTENT-GUESSING",
-            "statement": "Ambiguous, contradictory or unsupported intent cannot produce executable operations.",
+            "id": "NEG-AUTOFIX-UNSAFE-INFERENCE",
+            "statement": "Structured or visual evidence alone cannot authorize a repair.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -540,11 +529,11 @@
         ]
       },
       {
-        "id": "REQ-VX-SMART-INTENT-STALE-SAFE-APPLY",
-        "requirement": "Smart Intent plans bind to source fingerprint and apply only through existing canonical setters followed by Page Schema validation; stale, invalid or non-READY plans cannot mutate.",
+        "id": "REQ-VX-SMART-AUTOFIX-ATOMIC-APPLY",
+        "requirement": "READY repair plans are fingerprint/hash bound, use existing canonical setters, validate Page Schema and prove the targeted postcondition before returning an atomic changed document.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "vx-smart-intent-stale-safe-apply",
+          "breadth": "vx-smart-autofix-atomic-apply",
           "strength": 2,
           "dimensions": [
             "status",
@@ -568,8 +557,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SMART-INTENT-STALE-APPLY",
-            "statement": "A plan compiled from a different page fingerprint cannot apply.",
+            "id": "NEG-AUTOFIX-STALE-TAMPERED",
+            "statement": "Stale or tampered repair plans cannot apply.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -577,11 +566,11 @@
         ]
       },
       {
-        "id": "REQ-VX-SMART-INTENT-ACTIVE-V3",
-        "requirement": "The active V3 exposes explicit Smart Intent planning and READY-only apply, and application enters ordinary Builder undo/redo history as one atomic document commit.",
+        "id": "REQ-VX-SMART-AUTOFIX-ACTIVE-V3",
+        "requirement": "Active V3 exposes preview-first per-finding Auto-Fix with READY-only apply and one ordinary Builder history commit.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "vx-smart-intent-active-v3",
+          "breadth": "vx-smart-autofix-active-v3",
           "strength": 2,
           "dimensions": [
             "status",
@@ -605,8 +594,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SMART-INTENT-V3-DIRECT-MUTATION",
-            "statement": "V3 cannot auto-apply intent while typing/planning or bypass ordinary history.",
+            "id": "NEG-AUTOFIX-V3-AUTOAPPLY",
+            "statement": "V3 cannot auto-apply repair during rendering/planning or bypass ordinary history.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -614,11 +603,11 @@
         ]
       },
       {
-        "id": "REQ-VX-SMART-INTENT-CAPABILITY-SEPARATION",
-        "requirement": "Smart Intent completion does not implement or promote Smart Auto-Fix and does not authorize Template #3.",
+        "id": "REQ-VX-SMART-AUTOFIX-MATURITY",
+        "requirement": "VX-SMART-AUTOFIX is promoted only after Core and active V3 proof; technical capability completion does not bypass the separately required final end-to-end Brabus rehearsal before Template #3 authoring.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "vx-smart-intent-capability-separation",
+          "breadth": "vx-smart-autofix-maturity",
           "strength": 2,
           "dimensions": [
             "proven-scope",
@@ -640,8 +629,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SMART-INTENT-FALSE-AUTOFIX",
-            "statement": "Diagnostics or pixel evidence cannot generate Smart Intent repairs, and VX-SMART-AUTOFIX remains non-PROVEN.",
+            "id": "NEG-AUTOFIX-TEMPLATE3-EARLY",
+            "statement": "Auto-Fix maturity promotion alone cannot start Template #3 authoring.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -650,14 +639,14 @@
       }
     ]
   },
-  "notes": "Twelfth Brabus hardening wave. Publish Readiness is lifecycle-closed and PROVEN on parent e63e7eee5a2180b958f6c3e288de45aa504f8cd8. Smart Intent is intentionally distinct from Block 23 AI storefront generation and from future Smart Auto-Fix. Guarded Freedom remains authoritative: user intent compiles only to bounded existing operations; no arbitrary source code or schema patching. Template #3 remains forbidden until Smart Auto-Fix is also PROVEN. Plan-gate reconciliation adds database-schema only as scoped negative knowledge because persistence/database language appears in the safety boundary; this wave still declares no migration/schema mutation. The new Smart Intent module is a planned creation and therefore mayEdit rather than an existing-file mustEdit route. Actual-diff dependency reconciliation: canonical Smart Intent imports and validates shared Storefront Runtime/Page Schema authorities, therefore DOMAIN-STOREFRONT and shared-storefront are explicit expected dependency scopes; no new Storefront authority is introduced. Reference Sync fingerprint f02cd6dc is an exact exception for the inactive legacy production Builder's unchanged commitDocument expression; the active V3-only Smart Intent transient-plan invalidation is intentionally not propagated to an inactive consumer. Quality root-cause reconciliation: responsive reset must detect absence of all four direct override dimensions before planning; Generator Readiness has one stale pre-wave Smart Intent blocker assertion that must be updated without changing the readiness authority.",
+  "notes": "Thirteenth Brabus hardening wave. Publish Readiness and Smart Intent are lifecycle-closed and PROVEN on parent 568e2d2c509bb58e5d00f07963bc3b2f187e7f01. Auto-Fix is deliberately narrower than 'repair every structured diagnostic': explicit safe registry membership is the repair authority. Template #3 remains forbidden until the final end-to-end Brabus rehearsal passes even if this wave clears the last maturity blocker. Plan projection narrowed to the measured Auto-Fix transaction: DOMAIN-ADMIN + DOMAIN-BUILDER, admin/builder authorities, no database-schema subsystem. Two critical challenges were rewritten with exact diagnostic codes, mutation risk and executable fail-closed outcomes. After the Core file entered the actual diff, Atlas correctly resolved its canonical Page Schema/runtime validation dependency as DOMAIN-STOREFRONT/shared-storefront. This is consumption of existing authority, not a new storefront authority; database-schema remains out of scope. Reference Sync fingerprint 3b038645 is an exact exception for generator-readiness' undeclared Blueprint return path: template3AuthoringReady:false remains intentionally fail-closed when no Blueprint is declared and is independent of the now-PROVEN Smart Auto-Fix maturity row. Quality root-cause reconciliation: Smart Auto-Fix is the final mandatory VX blocker, not the final global Template #3 blocker. Engine Brabus revalidation entries remain EVOLVE, so tests must remove VX-SMART-AUTOFIX from blockers without asserting template3AuthoringReady=true. The temporary Reference Sync exception for template3AuthoringReady:false is removed because the fail-closed false expectation is intentionally retained.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "94c71621438f31de98b8da126d7e5f6ebd0f5d8b",
-    "closedAt": "2026-10-03T04:59:45.512Z",
+    "verifiedImplementationHead": "80db31357df898bd9dd8b31f53699530f3a51b84",
+    "closedAt": "2026-10-03T05:34:22.713Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-03-VX-SMART-INTENT-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-VX-SMART-AUTOFIX-BRABUS-HARDENING",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
