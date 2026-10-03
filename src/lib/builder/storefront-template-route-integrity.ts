@@ -7,7 +7,7 @@ export const STOREFRONT_ROUTE_INTEGRITY_VERSION='shoporation.storefront-route-in
 export const STOREFRONT_DEMO_CONTENT_NOTICE='Minta tartalom – ez az oldal előre generált szöveget tartalmaz, és nem tekinthető a webshop valós működésének vagy feltételeinek. Ellenőrizd és igazítsd a saját működésedhez publikálás előtt.' as const;
 
 export const STOREFRONT_REQUIRED_MOBILE_NAVIGATION_ROUTES=Object.freeze([
-  '/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum',
+  '/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas','/fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum',
 ] as const);
 export const STOREFRONT_REQUIRED_ACCOUNT_CAPABILITY_ROUTES=Object.freeze(
   CANONICAL_ACCOUNT_CAPABILITIES.filter(item=>!item.optional).map(item=>item.href),
@@ -25,7 +25,7 @@ export type StorefrontRouteIntegrityIssue={
 
 const PLATFORM_EXACT_ROUTES=new Set([
   '/','/webaruhaz','/kosar','/penztar','/fiokom','/gyik','/kapcsolat','/blog',
-  '/szallitas-es-fizetes','/aszf','/adatvedelem','/impresszum','/digitalis-hozzaferes',
+  '/szallitas','/fizetes','/aszf','/adatvedelem','/impresszum','/digitalis-hozzaferes',
   '/rendeles-sikeres','/hamarosan','/kereses','/kedvencek',
 ]);
 const PLATFORM_PREFIX_ROUTES=['/fiokom/','/termek/'] as const;
