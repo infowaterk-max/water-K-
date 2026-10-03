@@ -1,58 +1,14 @@
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 
-import {ALPINE_LODGE_DESIGN_TOKENS} from '@/lib/builder/templates/alpine-lodge';
-import {BEAUTY_LAB_DESIGN_TOKENS} from '@/lib/builder/templates/beauty-lab';
-import {CREATOR_STATION_DESIGN_TOKENS} from '@/lib/builder/templates/creator-station';
-import {DERMA_STUDIO_DESIGN_TOKENS} from '@/lib/builder/templates/derma-studio';
-import {EDITORIAL_ATELIER_DESIGN_TOKENS} from '@/lib/builder/templates/editorial-atelier';
-import {GALLERY_EDIT_DESIGN_TOKENS} from '@/lib/builder/templates/gallery-edit';
-import {HERITAGE_ATELIER_DESIGN_TOKENS} from '@/lib/builder/templates/heritage-atelier';
-import {LOOT_VAULT_DESIGN_TOKENS} from '@/lib/builder/templates/loot-vault';
-import {MARKET_PANTRY_DESIGN_TOKENS} from '@/lib/builder/templates/market-pantry';
-import {MODERN_LUXE_DESIGN_TOKENS} from '@/lib/builder/templates/modern-luxe';
-import {MONARCHE_DESIGN_TOKENS} from '@/lib/builder/templates/monarche';
-import {MY_PACK_DESIGN_TOKENS} from '@/lib/builder/templates/my-pack';
-import {PERFORMANCE_LAB_DESIGN_TOKENS} from '@/lib/builder/templates/performance-lab';
 import {PLAYROOM_V20_DESIGN_TOKENS} from '@/lib/builder/templates/gaming/playroom/v20';
-import {RIG_FORGE_DESIGN_TOKENS} from '@/lib/builder/templates/rig-forge';
-import {RITUAL_HOUSE_DESIGN_TOKENS} from '@/lib/builder/templates/ritual-house';
-import {SPEC_LAB_DESIGN_TOKENS} from '@/lib/builder/templates/spec-lab';
-import {SPORT_HUB_DESIGN_TOKENS} from '@/lib/builder/templates/sport-hub';
-import {STATEMENT_LAB_DESIGN_TOKENS} from '@/lib/builder/templates/statement-lab';
-import {STREET_DROP_DESIGN_TOKENS} from '@/lib/builder/templates/street-drop';
-import {TABLE_GIFT_DESIGN_TOKENS} from '@/lib/builder/templates/table-gift';
-import {TECH_DECK_DESIGN_TOKENS} from '@/lib/builder/templates/tech-deck';
-import {TOOL_DEPOT_DESIGN_TOKENS} from '@/lib/builder/templates/tool-depot';
-import {TRAIL_EXPEDITION_DESIGN_TOKENS} from '@/lib/builder/templates/trail-expedition';
+import {LOOT_VAULT_V2_DESIGN_TOKENS} from '@/lib/builder/templates/gaming/loot-vault/v2';
 
-export const STOREFRONT_TEMPLATE_PREVIEW_DEMO_VERSION='shoporation.storefront-template-preview-demo.v3' as const;
+export const STOREFRONT_TEMPLATE_PREVIEW_DEMO_VERSION='shoporation.storefront-template-preview-demo.v4' as const;
 
 const PREVIEW_THEME_BY_TEMPLATE:Record<string,Readonly<Record<string,string>>>=Object.freeze({
-  'outdoor.alpine-lodge':ALPINE_LODGE_DESIGN_TOKENS,
-  'beauty.beauty-lab':BEAUTY_LAB_DESIGN_TOKENS,
-  'tech.creator-station':CREATOR_STATION_DESIGN_TOKENS,
-  'beauty.derma-studio':DERMA_STUDIO_DESIGN_TOKENS,
-  'fashion.editorial-atelier':EDITORIAL_ATELIER_DESIGN_TOKENS,
-  'home.gallery-edit':GALLERY_EDIT_DESIGN_TOKENS,
-  'jewelry.heritage-atelier':HERITAGE_ATELIER_DESIGN_TOKENS,
-  'gaming.loot-vault':LOOT_VAULT_DESIGN_TOKENS,
-  'food.market-pantry':MARKET_PANTRY_DESIGN_TOKENS,
-  'jewelry.modern-luxe':MODERN_LUXE_DESIGN_TOKENS,
-  'fashion.monarche':MONARCHE_DESIGN_TOKENS,
-  'pet.my-pack':MY_PACK_DESIGN_TOKENS,
-  'sport.performance-lab':PERFORMANCE_LAB_DESIGN_TOKENS,
   'gaming.playroom':PLAYROOM_V20_DESIGN_TOKENS,
-  'gaming.rig-forge':RIG_FORGE_DESIGN_TOKENS,
-  'beauty.ritual-house':RITUAL_HOUSE_DESIGN_TOKENS,
-  'tech.spec-lab':SPEC_LAB_DESIGN_TOKENS,
-  'sport.sport-hub':SPORT_HUB_DESIGN_TOKENS,
-  'jewelry.statement-lab':STATEMENT_LAB_DESIGN_TOKENS,
-  'fashion.street-drop':STREET_DROP_DESIGN_TOKENS,
-  'food.table-gift':TABLE_GIFT_DESIGN_TOKENS,
-  'tech.tech-deck':TECH_DECK_DESIGN_TOKENS,
-  'industrial.tool-depot':TOOL_DEPOT_DESIGN_TOKENS,
-  'sport.trail-expedition':TRAIL_EXPEDITION_DESIGN_TOKENS,
+  'gaming.loot-vault':LOOT_VAULT_V2_DESIGN_TOKENS,
 });
 
 const CATEGORY_LABELS:Record<string,string>={
