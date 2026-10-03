@@ -2,6 +2,14 @@
 
 These instructions apply to every coding agent working in this repository.
 
+## CONTEXT BOOTSTRAP
+
+Before planning serious work, read `docs/HANDOVER.md` when it exists.
+
+Treat the handover as orientation, not as evidence or authority over the current repository. Verify the exact branch/HEAD, current code, `quality/development/active-plan.json`, canonical PO instructions, generated evidence and CI before acting. If the handover conflicts with executable code or canonical machine-readable authority, the current verified authority wins and the stale handover statement must be called out.
+
+Do not copy old chat assumptions into implementation merely because they appear in the handover. Promote durable Product Owner decisions into the existing authority/PO-instruction system when the task requires them to become machine-enforced.
+
 ## BEFORE THE FIRST IMPLEMENTATION EDIT
 
 Do not start coding from memory alone.
