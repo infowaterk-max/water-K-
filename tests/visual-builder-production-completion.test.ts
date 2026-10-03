@@ -70,6 +70,10 @@ describe('Visual Builder v3 product completion',()=>{
     expect(source).toContain('StorefrontSavedBlocksPanel');
     expect(source).toContain('StorefrontFidelitySettings');
     expect(source).toContain('Közzététel előtti ellenőrzés');
-    for(const check of ['Akadálymentesség','Képek','Linkek','Kötelező tartalmak','Teljesítmény','Design Guard'])expect(source).toContain(check);
+    expect(source).toContain("from '@/lib/builder/storefront-publish-readiness'");
+    expect(source).toContain('inspectStorefrontPublishReadiness({document,pages,draft:{dirty,draftRevision}})');
+    expect(source).toContain('readiness.categories.map');
+    expect(source).toContain('category.label');
+    expect(source).toContain("readiness.decision!=='PASS'");
   });
 });
