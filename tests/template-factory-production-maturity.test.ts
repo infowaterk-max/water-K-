@@ -6,25 +6,11 @@ import {
 } from '@/lib/builder/template-factory/production-maturity';
 
 describe('Template Production Brabus maturity v1',()=>{
-  it('blocks Template #3 while mandatory Brabus gaps remain',()=>{
+  it('clears the mandatory capability blocker only after executable Smart Auto-Fix evidence is present',()=>{
     const result=evaluateStorefrontTemplateProductionMaturity();
     expect(result.valid).toBe(true);
-    expect(result.template3AuthoringReady).toBe(false);
-    expect(result.blockingCapabilityIds).toEqual(expect.arrayContaining([
-      'VX-SMART-AUTOFIX',
-    ]));
-    expect(result.blockingCapabilityIds).not.toContain('FACTORY-TEMPLATE-GENOME');
-    expect(result.blockingCapabilityIds).not.toContain('FACTORY-TEMPLATE-TYPE-SYSTEM');
-    expect(result.blockingCapabilityIds).not.toContain('FACTORY-CONSTRAINT-PLANNER');
-    expect(result.blockingCapabilityIds).not.toContain('FACTORY-MEDIA-PLANNER-COMPILER');
-    expect(result.blockingCapabilityIds).not.toContain('FACTORY-DETERMINISTIC-LINEAGE');
-    expect(result.blockingCapabilityIds).not.toContain('FACTORY-DISTINCTNESS-ANTI-CLONE');
-    expect(result.blockingCapabilityIds).not.toContain('FACTORY-DYNAMIC-PRODUCTION-COMPILER');
-    expect(result.blockingCapabilityIds).toEqual(expect.arrayContaining([
-      'VX-SMART-AUTOFIX',
-    ]));
-    expect(result.blockingCapabilityIds).not.toContain('VX-SMART-INTENT');
-    expect(result.blockingCapabilityIds).not.toContain('VX-PUBLISH-READINESS');
+    expect(result.template3AuthoringReady).toBe(true);
+    expect(result.blockingCapabilityIds).toEqual([]);
     expect(result.capabilities.find(item=>item.id==='FACTORY-TEMPLATE-GENOME')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-TEMPLATE-TYPE-SYSTEM')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-CONSTRAINT-PLANNER')?.state).toBe('PROVEN');
@@ -32,13 +18,15 @@ describe('Template Production Brabus maturity v1',()=>{
     expect(result.capabilities.find(item=>item.id==='FACTORY-DETERMINISTIC-LINEAGE')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-DISTINCTNESS-ANTI-CLONE')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-DYNAMIC-PRODUCTION-COMPILER')?.state).toBe('PROVEN');
-    expect(result.blockingCapabilityIds).not.toContain('VX-INHERITANCE-INTELLIGENCE');
-    expect(result.blockingCapabilityIds).not.toContain('VX-VISUAL-DIFF-INTELLIGENCE');
     expect(result.capabilities.find(item=>item.id==='VX-PUBLISH-READINESS')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='VX-INHERITANCE-INTELLIGENCE')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='VX-VISUAL-DIFF-INTELLIGENCE')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='VX-SMART-INTENT')?.state).toBe('PROVEN');
-    expect(result.capabilities.find(item=>item.id==='VX-SMART-AUTOFIX')?.state).toBe('NOT_IMPLEMENTED');
+    const autoFix=result.capabilities.find(item=>item.id==='VX-SMART-AUTOFIX');
+    expect(autoFix?.state).toBe('PROVEN');
+    expect(autoFix?.evidence.some(item=>item.kind==='implementation'&&item.path==='src/lib/builder/storefront-smart-autofix.ts')).toBe(true);
+    expect(autoFix?.evidence.some(item=>item.kind==='test'&&item.path==='tests/storefront-smart-autofix.test.ts')).toBe(true);
+    expect(autoFix?.nextAction).toContain('final end-to-end Brabus rehearsal');
   });
 
   it('rejects documentation-only PROVEN claims',()=>{
