@@ -11,6 +11,7 @@
     "public/storefront-demo/sport-hub-v1/**",
     "src/lib/builder/storefront-template-catalog.ts",
     "src/lib/builder/storefront-template-preview-demo.ts",
+    "src/lib/builder/storefront-template-quality-candidates.ts",
     "src/lib/builder/storefront-template-quality-gate.ts",
     "tests/storefront-sport-hub-v1.test.ts",
     "tests/storefront-template-preview-runtime.test.ts",
@@ -325,6 +326,7 @@
       "mayEdit": [
         "src/lib/builder/storefront-template-catalog.ts",
         "src/lib/builder/storefront-template-preview-demo.ts",
+        "src/lib/builder/storefront-template-quality-candidates.ts",
         "src/lib/builder/storefront-template-quality-gate.ts",
         "public/storefront-demo/sport-hub-v1/**"
       ],
