@@ -21,6 +21,10 @@ import {
   type StorefrontTemplateGeneratorBlueprint,
   type StorefrontTemplateGeneratorReadinessResult,
 } from '@/lib/builder/template-factory/generator-readiness';
+import type {StorefrontTemplateGenome} from '@/lib/builder/template-factory/template-genome';
+import type {StorefrontTemplateProductOwnerIntent} from '@/lib/builder/template-factory/constraint-planner';
+import type {StorefrontTemplateProductionLineage} from '@/lib/builder/template-factory/production-lineage';
+import type {StorefrontTemplateProductionCompilerProgram} from '@/lib/builder/template-factory/production-compiler-contract';
 import {
   setStorefrontGlobalStyleState,
   type StorefrontGlobalStyleState,
@@ -41,6 +45,7 @@ export type StorefrontTemplateFactoryMediaAsset={
   key:string;
   state:'planned'|'internal-reference'|'ready';
   role:StorefrontTemplateFactoryMediaRole;
+  semanticRole?:string;
   src:string;
   referenceSrc?:string;
   alt:string;
@@ -53,11 +58,20 @@ export type StorefrontTemplateFactoryMediaRequirement={
   minCount:number;
   aspectRatio:StorefrontTemplateFactoryMediaAspectRatio;
 };
+export type StorefrontTemplateFactorySemanticMediaBinding={
+  semanticRole:string;
+  technicalRole:StorefrontTemplateFactoryMediaRole;
+  minCount:number;
+  aspectRatio:StorefrontTemplateFactoryMediaAspectRatio;
+  pageTypes:readonly StorefrontBuilderPageType[];
+  representative:true;
+};
 export type StorefrontTemplateFactoryMediaManifest={
   assets:readonly StorefrontTemplateFactoryMediaAsset[];
   requiredRoles:readonly StorefrontTemplateFactoryMediaRole[];
   inheritedFallbackSrc?:string;
   requirements?:readonly StorefrontTemplateFactoryMediaRequirement[];
+  semanticBindings?:readonly StorefrontTemplateFactorySemanticMediaBinding[];
   minimumRepresentativeMedia:number;
   forbidPlaceholderSvg:boolean;
 };
@@ -90,6 +104,9 @@ export type StorefrontTemplateFactoryCommerceReadiness={
 
 export type StorefrontTemplateFactoryRecipe={
   blueprint?:StorefrontTemplateGeneratorBlueprint;
+  compiler?:StorefrontTemplateProductionCompilerProgram;
+  genome?:StorefrontTemplateGenome;
+  productionIntent?:StorefrontTemplateProductOwnerIntent;
   category:string;
   templateKey:string;
   displayName:string;
@@ -141,6 +158,17 @@ export type StorefrontTemplateFactoryBuild={
       foundationTemplateKey:string;
       foundationTemplateVersion:number;
       referenceKey:string;
+      genome:{
+        contract:string;
+        genomeVersion:number;
+        hash:string;
+      }|null;
+      compiler:{
+        contract:string;
+        hash:string;
+        candidatePackageHash:string;
+      }|null;
+      lineage:StorefrontTemplateProductionLineage|null;
     };
     inheritedPageTypes:readonly StorefrontBuilderPageType[];
     overriddenPageTypes:readonly StorefrontBuilderPageType[];
@@ -494,10 +522,34 @@ export function compileStorefrontTemplateFactoryPackage(input:{
     blueprint:recipe.blueprint,
     recipe,
     package:pkg,
+    lineageContext:{
+      factoryVersion:STOREFRONT_TEMPLATE_FACTORY_VERSION,
+      foundation:{
+        category:foundation.category,
+        templateKey:foundation.foundationTemplateKey,
+        templateVersion:foundation.foundationTemplateVersion,
+      },
+    },
   });
   const productionContracts=generatorReadiness.productionContracts;
+  const productionLineage=generatorReadiness.productionLineage;
   const issues=evaluateBuild({foundation,recipe,pkg,patchMisses,overridden});
-  if(recipe.blueprint)issues.push(...generatorReadiness.issues);
+  if(recipe.blueprint){
+    issues.push(...generatorReadiness.issues);
+    if(generatorReadiness.mediaPlanning.valid&&!generatorReadiness.mediaPlanning.technicalFulfilled){
+      issues.push(issue(
+        'FACTORY_SEMANTIC_MEDIA_COVERAGE',
+        'media.semanticBindings',
+        'Required semantic Asset Briefs need enough internal-reference or ready assets before technical Factory readiness.',
+      ));
+    }else if(generatorReadiness.mediaPlanning.valid&&!generatorReadiness.mediaPlanning.readyFulfilled){
+      issues.push(issue(
+        'FACTORY_MEDIA_FINALIZATION_REQUIRED',
+        'media.semanticBindings',
+        'Required semantic Asset Briefs must be fulfilled by package-owned ready media before Product Owner preview.',
+      ));
+    }
+  }
   return{
     package:pkg,
     report:{
@@ -512,6 +564,17 @@ export function compileStorefrontTemplateFactoryPackage(input:{
         foundationTemplateKey:foundation.foundationTemplateKey,
         foundationTemplateVersion:foundation.foundationTemplateVersion,
         referenceKey:recipe.reference.key,
+        genome:recipe.genome?{
+          contract:recipe.genome.contract,
+          genomeVersion:recipe.genome.identity.genomeVersion,
+          hash:recipe.genome.hash,
+        }:null,
+        compiler:recipe.compiler?{
+          contract:recipe.compiler.contract,
+          hash:recipe.compiler.hash,
+          candidatePackageHash:recipe.compiler.sources.candidatePackageHash,
+        }:null,
+        lineage:productionLineage?.lineage??null,
       },
       inheritedPageTypes:Object.freeze([...inherited]),
       overriddenPageTypes:Object.freeze([...overridden]),

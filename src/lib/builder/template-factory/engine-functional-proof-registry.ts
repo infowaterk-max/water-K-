@@ -18,6 +18,16 @@ export const SHARED_E13_FUNCTIONAL_PROOF_CONTRACT='shoporation.shared-engine-fun
 export const SHARED_STOREFRONT_ENGINE_IDS=Object.freeze(['E1','E2','E3','E4','E5','E6','E7','E8','E9','E10','E11','E13'] as const);
 export const RESERVED_STOREFRONT_ENGINE_IDS=Object.freeze(['E12'] as const);
 export type StorefrontEngineId=(typeof SHARED_STOREFRONT_ENGINE_IDS)[number];
+export const STOREFRONT_ENGINE_BRABUS_REVALIDATION_VERSION='shoporation.storefront-engine-brabus-revalidation.v1' as const;
+export type StorefrontEngineBrabusRevalidationState='PROVEN'|'EVOLVE'|'RETHINK';
+export type StorefrontEngineBrabusRevalidation={
+  contract:typeof STOREFRONT_ENGINE_BRABUS_REVALIDATION_VERSION;
+  engineId:StorefrontEngineId;
+  state:StorefrontEngineBrabusRevalidationState;
+  requiredForTemplate3:true;
+  retainedProofProducer:string;
+  proofProducer:string|null;
+};
 export type StorefrontEngineProofClass='structural-runtime'|'deterministic-runtime'|'content-authority'|'server-read-model'|'browser-journey';
 
 export type StorefrontEngineFunctionalProofDefinition={
@@ -123,6 +133,21 @@ export function getStorefrontEngineFunctionalProofDefinition(engineId:string){
   return STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY.find(item=>item.engineId===engineId)??null;
 }
 
+export const STOREFRONT_ENGINE_BRABUS_REVALIDATION:readonly StorefrontEngineBrabusRevalidation[]=Object.freeze(
+  STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY.map(entry=>Object.freeze({
+    contract:STOREFRONT_ENGINE_BRABUS_REVALIDATION_VERSION,
+    engineId:entry.engineId,
+    state:'EVOLVE' as const,
+    requiredForTemplate3:true as const,
+    retainedProofProducer:entry.proofProducer,
+    proofProducer:null,
+  })),
+);
+export function getStorefrontEngineBrabusRevalidation(engineId:string){
+  return STOREFRONT_ENGINE_BRABUS_REVALIDATION.find(item=>item.engineId===engineId)??null;
+}
+
+
 export function parseStorefrontEngineBinding(binding:unknown):readonly string[]{
   if(typeof binding!=='string'||!binding.trim())return Object.freeze([]);
   return Object.freeze([...new Set(binding.match(/\bE\d{1,2}\b/g)??[])]);
@@ -160,6 +185,11 @@ export function validateStorefrontEngineFunctionalProofRegistry(
     if(entry.engineId==='E13'&&entry.proofContract!==SHARED_E13_FUNCTIONAL_PROOF_CONTRACT)issues.push('ENGINE_FUNCTIONAL_PROOF_E13_CONTRACT_DRIFT');
   }
   for(const id of SHARED_STOREFRONT_ENGINE_IDS)if(!ids.has(id))issues.push(`ENGINE_FUNCTIONAL_PROOF_REQUIRED_ENGINE_MISSING:${id}`);
+  for(const revalidation of STOREFRONT_ENGINE_BRABUS_REVALIDATION){
+    if(!ids.has(revalidation.engineId))issues.push(`ENGINE_BRABUS_REVALIDATION_UNKNOWN_ENGINE:${revalidation.engineId}`);
+    if(revalidation.contract!==STOREFRONT_ENGINE_BRABUS_REVALIDATION_VERSION)issues.push(`ENGINE_BRABUS_REVALIDATION_CONTRACT_DRIFT:${revalidation.engineId}`);
+    if(revalidation.state==='PROVEN'&&!revalidation.proofProducer)issues.push(`ENGINE_BRABUS_REVALIDATION_PROOF_REQUIRED:${revalidation.engineId}`);
+  }
   return Object.freeze({
     contract:STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY_VERSION,
     engineIds:Object.freeze([...ids]),

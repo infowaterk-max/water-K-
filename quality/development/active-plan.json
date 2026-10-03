@@ -1,30 +1,63 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-EXTERNAL-PROOF-HANDOFF",
-  "task": "Bind required exact-head evidence from existing parallel workflows into the canonical Resumable Verification and Completion Truth authority without creating another gate.",
+  "taskId": "DEV-VX-PUBLISH-READINESS-CORE-BRABUS-HARDENING",
+  "task": "Harden the canonical VX Publish Readiness Core as a read-only evidence-backed decision contract over existing responsive/inheritance, visual-diff, fidelity, media, link, commerce, required-content, performance and page/route authorities, with fail-closed PASS/BLOCK/UNKNOWN semantics. Active Builder V3 adoption is explicitly split to a later release-budgeted wave.",
   "status": "closed",
-  "guardDigest": "efe9d183",
-  "changeBaseSha": "d34e9ee152205440c553b6b8662c7b14042137d2",
+  "guardDigest": "8a9bf46e",
+  "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
+    "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
     "quality/development/active-plan.json",
-    "scripts/shoperation-external-proof-handoff.mjs",
-    "scripts/shoperation-verification-checkpoint.mjs",
     "quality/knowledge/guard-registry.v1.json",
-    ".github/workflows/ci.yml",
-    "tests/shoperation-external-proof-handoff.test.ts",
-    "tests/shoperation-resumable-verification.test.ts"
+    "scripts/template-factory-quality-gate.mjs",
+    "src/app/api/visual-fidelity/templates/route.ts",
+    "src/lib/builder/storefront-page-fingerprint.ts",
+    "src/lib/builder/storefront-responsive-layout-depth.ts",
+    "src/lib/builder/storefront-visual-diff-intelligence.ts",
+    "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts",
+    "src/lib/builder/template-factory/constraint-planner.ts",
+    "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
+    "src/lib/builder/template-factory/generator-readiness.ts",
+    "src/lib/builder/template-factory/media-planner.ts",
+    "src/lib/builder/template-factory/production-compiler-contract.ts",
+    "src/lib/builder/template-factory/production-compiler.ts",
+    "src/lib/builder/template-factory/production-contracts.ts",
+    "src/lib/builder/template-factory/production-lineage.ts",
+    "src/lib/builder/template-factory/production-maturity.ts",
+    "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
+    "src/lib/builder/template-factory/scaffold.ts",
+    "src/lib/builder/template-factory/template-distinctness.ts",
+    "src/lib/builder/template-factory/template-genome.ts",
+    "src/lib/builder/template-factory/template-type-system.ts",
+    "tests/storefront-responsive-layout-depth.test.ts",
+    "tests/storefront-visual-diff-intelligence.test.ts",
+    "tests/template-factory-constraint-planner.test.ts",
+    "tests/template-factory-generator-readiness.test.ts",
+    "tests/template-factory-media-planner.test.ts",
+    "tests/template-factory-production-compiler.test.ts",
+    "tests/template-factory-production-lineage.test.ts",
+    "tests/template-factory-production-maturity.test.ts",
+    "tests/template-factory-template-distinctness.test.ts",
+    "tests/template-factory-template-genome.test.ts",
+    "tests/template-factory-template-type-system.test.ts",
+    "src/lib/builder/storefront-publish-readiness.ts",
+    "tests/storefront-publish-readiness.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
-    "release-infrastructure"
+    "builder-template-system",
+    "release-infrastructure",
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
+    "DOMAIN-BUILDER",
     "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
+    "builder-template-system",
     "quality-knowledge-system",
-    "release-infrastructure"
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -79,94 +112,159 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
+    "SQ-NK-004",
     "SQ-NK-005",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [],
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder-production.tsx",
+      "findingFingerprint": "fba59413",
+      "reason": "Intentional legacy-only consumer: the active admin Builder route renders StorefrontVisualBuilderV3. This exception acknowledges only the unchanged legacy checklist helper and does not authorize legacy Publish Readiness as current authority."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder-production.tsx",
+      "findingFingerprint": "9f696176",
+      "reason": "Intentional legacy-only consumer: the active admin Builder route renders StorefrontVisualBuilderV3. This exception acknowledges only the unchanged legacy checklist helper and does not authorize legacy Publish Readiness as current authority."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder.tsx",
+      "findingFingerprint": "178d5296",
+      "reason": "Intentional legacy-only consumer: the active admin Builder route renders StorefrontVisualBuilderV3. This exception acknowledges only the unchanged legacy checklist helper and does not authorize legacy Publish Readiness as current authority."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder.tsx",
+      "findingFingerprint": "297e4c67",
+      "reason": "Intentional legacy-only consumer: the active admin Builder route renders StorefrontVisualBuilderV3. This exception acknowledges only the unchanged legacy checklist helper and does not authorize legacy Publish Readiness as current authority."
+    }
+  ],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
+    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-CORE-BRABUS-HARDENING",
     "riskTier": "critical",
-    "problemStatement": "The current Completion Truth authority can consume evidence produced inside normal CI, but a mandatory proof produced by a separate exact-head workflow can be either permanently MISSING or silently moved outside the machine-readable Completion Contract. The Brabus revalidation exposed both failure modes: including GUARD-TEMPLATE-FACTORY deadlocked Truth because CI could not see the sibling workflow artifact; removing it let Completion Truth become VERIFIED_DONE before Template Factory completed. The fix must transport external exact-head evidence into the existing Resumable Verification manifest while preserving one Completion Truth authority.",
+    "problemStatement": "The repository needs one canonical Publish Readiness Core that composes existing readiness authorities without becoming a second quality system. The combined Core + active Builder V3 adoption exceeded the Release Risk Budget at 7/5 points across 4/3 subsystems, so this wave is intentionally split: this transaction proves the Core only. Missing authority evidence must remain UNKNOWN, pixel drift must remain non-causal, and no publishing or Page Schema mutation is allowed.",
     "observableOutcomes": [
-      "Completion Contract references to supported external guards are detected from structured evidence references rather than hard-coded per-task prose.",
-      "Normal CI waits only for an external guard that the active Completion Contract actually requires.",
-      "A successful external workflow is insufficient by itself: exact head, branch, state version, producer run and machine-readable artifact truth must all agree.",
-      "Validated external proof is normalized into the existing Resumable Verification final evidence manifest and consumed by the existing Completion Truth Gate.",
-      "Missing, failed, stale, wrong-head, wrong-branch, malformed, incomplete or ambiguous external evidence fails closed.",
-      "Development transactions that do not require an external guard do not wait for Template Factory and preserve current CI behavior.",
-      "No second quality gate, Completion Truth authority, Template Factory authority or release authority is created."
+      "One canonical Publish Readiness contract emits deterministic PASS/BLOCK/UNKNOWN findings and an aggregate decision without becoming a second domain authority.",
+      "Every finding carries authority/source, severity, explainable reason, repairability and page/viewport/node/path localization wherever the source authority exposes it.",
+      "Current-page Fidelity accessibility/layout/performance evidence is consumed rather than reimplemented.",
+      "Responsive inheritance diagnostics are consumed read-only and remain localized to node/viewport/dimension.",
+      "Visual Diff manifest intelligence is consumed with its exact-head provenance and structured-vs-unlocalized causality boundary intact.",
+      "Canonical page inventory, template route integrity and showroom/page-route completeness evidence fail closed when absent or incomplete.",
+      "Media and commerce readiness consume existing Template Factory/Storefront evidence instead of inventing new business truth.",
+      "The Publish Readiness contract never invokes publish actions and never mutates Builder Page Schema.",
+      "The Core is independently executable and reusable, while active Builder V3 adoption remains explicitly pending and prevents full VX-PUBLISH-READINESS promotion."
     ],
     "unresolvedRisks": [
-      "Cross-workflow waiting increases CI wall time only for transactions whose Completion Contract explicitly requires the external proof.",
-      "The first supported producer is GUARD-TEMPLATE-FACTORY; future external guards require an explicit adapter/validator instead of generic trust in arbitrary workflow artifacts.",
-      "GitHub Actions artifact/API availability is an external transport dependency; unavailable evidence remains BLOCK rather than guessed PASS."
+      "A missing template-level evidence source could be mislabeled as clean because current-page Fidelity is green.",
+      "Warnings from non-blocking authorities could accidentally become blockers or, inversely, errors could be downgraded to advisory status.",
+      "Pixel-only visual drift could be converted into a causal diagnosis or repair suggestion.",
+      "Page inventory can contain all 14 page types while some belong to another template/version or lack a draft revision.",
+      "Current-page link checks validate URL shape but cannot prove canonical shopper-route reachability without route-integrity evidence.",
+      "Commerce capability presence in binding context could be mistaken for executable commerce readiness.",
+      "Media alt checks alone could be mistaken for media production readiness while planned/internal-reference assets remain unresolved.",
+      "A PASS aggregate could be emitted when any required category is UNKNOWN.",
+      "A later UI-adoption wave must not reintroduce a parallel checklist or overclaim full capability before active V3 consumption is proven."
     ],
     "scope": {
       "in": [
-        "Existing Completion Contract evidence references and Guard Registry identities.",
-        "Existing Resumable Verification final evidence manifest and Completion Truth Gate.",
-        "Generic external-proof requirement detection for guards absent from the local verification plan.",
-        "Exact-head Template Factory workflow/artifact transport as the first supported external producer.",
-        "CI orchestration needed to wait boundedly, download, validate and hand off required external proof.",
-        "Adversarial regression coverage for stale/mismatched/failed/malformed/incomplete external proof."
+        "Pure deterministic Publish Readiness decision contract over existing Builder/Fidelity/Inheritance/Visual Diff/Template Factory evidence.",
+        "PASS/BLOCK/UNKNOWN semantics with UNKNOWN fail-closed at aggregate level.",
+        "Finding provenance, source authority, severity, localization, explanation and repairability metadata.",
+        "Canonical nine-category coverage: responsive/inheritance, visual drift, accessibility, media, links, commerce, required content, performance, page/route completeness.",
+        "Adversarial tests for missing/stale/mixed evidence, error/warning precedence, visual causality boundary and deterministic output.",
+        "Maturity promotion only after active UI adoption and executable proof.",
+        "Release-split boundary: Core contract and adversarial proof only; active V3 presentation adoption is deferred."
       ],
       "out": [
-        "Any Builder, Template Factory maturity model, storefront runtime or template implementation.",
-        "Any second blocking gate, Completion Truth authority, release authority or Template Factory authority.",
-        "Weakening Release Risk, Sentinel, Proof Semantics, Plan Before Code or existing exact-head provenance rules.",
-        "Treating workflow success without machine-readable artifact proof as completion evidence.",
-        "General trust of arbitrary external workflow artifacts without an explicit validator."
+        "Publishing or changing publish persistence/action authority.",
+        "Page Schema mutation or repair operations.",
+        "Smart Intent or natural-language intent parsing.",
+        "Smart Auto-Fix or automatic mutation generation.",
+        "New screenshot capture, golden comparison or visual baseline authority.",
+        "Changing Fidelity, Visual Diff, responsive inheritance, route-integrity or Template Factory source authorities to make readiness pass.",
+        "Control Plane, guard, policy or Known Failure changes without a newly proven deficiency.",
+        "Template #3 authoring.",
+        "Active StorefrontVisualBuilderV3 adoption in this release transaction."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This change modifies the evidence path used by the authority that decides whether a Development Transaction is actually complete. The highest practical assurance level is exact-head fail-closed provenance, artifact/workflow decision reconciliation, bounded transport, explicit supported-producer validation and adversarial proof against evidence laundering, without adding a parallel completion system.",
+      "rationale": "Publish readiness is a release-adjacent decision surface that composes heterogeneous authorities and can create false confidence if evidence is missing, stale or over-interpreted. The highest practically justified level is a pure fail-closed evidence aggregator with explicit authority provenance, finite state semantics, dependency closure, adversarial evidence injection and active-UI adoption proof. Formal verification of browser/application behavior is not justified because the underlying evidence producers remain executable runtime authorities.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
+        "dependency-graph",
+        "evidence-provenance",
         "what-if-matrix",
         "adversarial-scenarios",
+        "negative-tests",
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
         "fault-injection",
+        "combination-proof",
         "finite-state-exhaustion"
       ],
-      "deferredTechniques": []
+      "deferredTechniques": [
+        "formal-proof-of-browser-runtime",
+        "new-live-browser-capture-authority",
+        "computer-vision-causality",
+        "automatic-repair-planning",
+        "publish-mutation-gating",
+        "page-schema-mutation"
+      ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "A Completion Contract requiring GUARD-TEMPLATE-FACTORY cannot reach VERIFIED_DONE until an exact-head successful Template Factory artifact is validated and present in the canonical final evidence set.",
-        "A Completion Contract that does not require GUARD-TEMPLATE-FACTORY does not wait for or synthesize Template Factory evidence.",
-        "Wrong-head, wrong-branch, failed workflow, missing run identity, invalid contract, invalid checksum, incomplete browser matrix or artifact errors all fail closed.",
-        "An older successful artifact from the same branch cannot satisfy a newer exact-head requirement.",
-        "Workflow success plus artifact BLOCK/incomplete state cannot be laundered into PASS.",
-        "External evidence is merged into the existing Resumable Verification final-evidence-manifest and the existing Completion Truth Gate remains the only completion decision authority.",
-        "The handoff helper is part of verification-engine identity so later semantic changes invalidate stale resumable-promotion proof.",
-        "Quality tests, TypeScript and production build remain green on the exact foundation head.",
-        "Release Risk stays inside budget for this isolated quality/release foundation transaction."
+        "The readiness aggregate can only be PASS when every required category is proven and no blocking finding exists; any required missing/unverifiable evidence yields UNKNOWN.",
+        "Fidelity diagnostics retain original codes, severity, node/component identity and viewport where available.",
+        "Responsive inheritance findings consume existing inspection output and do not call propagation/apply APIs.",
+        "Visual Diff findings preserve exact-head/template/version provenance, page/viewport localization, evidence class and repairability; pixel-only drift remains manual-review with no structured cause.",
+        "Accessibility, media, links, commerce, required-content, performance and page/route completeness are represented as distinct categories with named source authorities.",
+        "Canonical page completeness validates all 14 page types exactly once for the active template identity and cannot treat foreign/stale page rows as satisfying coverage.",
+        "Template-level evidence that is unavailable in the Builder runtime remains explicit UNKNOWN rather than being inferred from local page state.",
+        "No readiness module imports publish actions, persistence mutations, Builder mutation application or screenshot/golden capture code.",
+        "Equivalent normalized evidence produces deep-equal readiness output regardless of finding input order.",
+        "Release Risk Budget remains within policy for the wave or the UI adoption is split before implementation proceeds.",
+        "This Core-only wave must leave VX-PUBLISH-READINESS non-PROVEN because active Builder V3 adoption is intentionally deferred by Release Risk Budget."
       ],
       "invariants": [
-        "One completion decision authority: GUARD-COMPLETION-TRUTH.",
-        "External proof transport never decides completion; it only normalizes validated evidence.",
-        "Exact head, branch, state version, producer workflow/run and artifact truth are part of evidence identity.",
-        "UNKNOWN or unavailable external proof is BLOCK, never probable PASS.",
-        "Existing producer authority remains authoritative for its own result; the handoff cannot rewrite or upgrade it.",
-        "Verification-engine semantics include the handoff implementation and CI wiring."
+        "Readiness composes evidence; it does not own the underlying accessibility, responsive, visual, route, commerce, media, content or performance truth.",
+        "UNKNOWN is never equivalent to PASS.",
+        "BLOCK dominates UNKNOWN; UNKNOWN dominates PASS at aggregate level.",
+        "A warning may remain non-blocking only when its source authority classifies it as non-error and its evidence is present.",
+        "Pixel evidence alone cannot claim a causal Page Schema defect or repair operation.",
+        "Readiness does not publish, save, mutate, persist, capture screenshots or promote golden baselines.",
+        "Template/page/source identity must be preserved across every template-level evidence input.",
+        "Core proof does not imply active UI adoption or full Publish Readiness capability completion."
       ],
       "forbiddenStates": [
-        "completion-truth-verified-before-required-external-proof",
-        "external-workflow-success-without-artifact-truth-counted-pass",
-        "stale-external-artifact-reused-as-current-head",
-        "wrong-branch-or-wrong-head-proof-accepted",
-        "external-proof-transport-becomes-second-completion-gate",
-        "unrequested-template-factory-wait-on-unrelated-development",
-        "verification-engine-change-retains-stale-promotion-proof"
+        "unknown-evidence-counted-pass",
+        "partial-category-set-counted-pass",
+        "pixel-drift-generates-causal-repair",
+        "foreign-template-page-satisfies-completeness",
+        "stale-visual-evidence-counted-current",
+        "link-shape-check-counted-route-reachability",
+        "alt-text-check-counted-media-production-ready",
+        "binding-context-counted-commerce-proof",
+        "legacy-production-builder-only-adoption",
+        "readiness-core-publishes-or-mutates",
+        "smart-intent-falsely-proven",
+        "smart-autofix-falsely-proven",
+        "template-3-authoring"
       ]
     },
     "model": {
@@ -198,167 +296,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Normal CI verifies local evidence and closes while mandatory sibling workflow proof is still running.",
-        "A required external guard remains permanently MISSING because its artifact is never normalized into the local manifest.",
-        "Branch-only lookup selects an older successful workflow artifact for a newer head.",
-        "Workflow status is success while its machine-readable artifact is incomplete or contains errors.",
-        "Malformed or absent external artifact is silently ignored.",
-        "An unrelated development transaction waits for Template Factory even though its Completion Contract never references it.",
-        "The handoff semantics change without invalidating resumable verification promotion identity."
+        "Current page has no Fidelity errors, but visual exact-head evidence is absent and readiness reports PASS.",
+        "One visual pixel hotspot is labeled as an overflow repair without structured Runtime evidence.",
+        "Fourteen stored page rows exist but one page belongs to a different template version and completeness still passes.",
+        "A hard performance issue appears as a warning because the UI maps only presentation status labels.",
+        "A safe-looking href passes syntax validation while route-integrity evidence is missing and link readiness still passes.",
+        "Media has valid alt text but Template Factory media evidence reports planned assets; readiness incorrectly passes media.",
+        "Commerce components render but engine/showroom proof is unavailable; readiness incorrectly passes commerce.",
+        "A new unknown evidence state is dropped by aggregation and produces a false clean summary.",
+        "A blocking category and an unknown category coexist but aggregate precedence incorrectly returns UNKNOWN instead of BLOCK.",
+        "Core-only proof is incorrectly used to promote the full VX-PUBLISH-READINESS capability before V3 adoption."
       ],
       "edgeCases": [
-        "No external evidence references exist.",
-        "Completion Contract is closed and must not create a fresh external wait.",
-        "Multiple local evidence references plus one external evidence reference exist in the same requirement.",
-        "A producer run is queued/in-progress while an older exact-branch success exists.",
-        "A producer run is terminal failure with a leftover artifact.",
-        "Duplicate external evidence records target the same guard.",
-        "Unsupported external guard is referenced and must fail visible rather than guessed."
+        "No draft revision while all document diagnostics are otherwise clean.",
+        "Fidelity warning-only accessibility issues with no errors.",
+        "Visual evidence has bounded nonzero mismatch but remains within accepted thresholds.",
+        "Visual manifest is valid but contains an unclassified warning.",
+        "Inheritance has redundant override warnings on multiple viewports.",
+        "Page inventory contains duplicate page types or unknown page types.",
+        "Template-level evidence is supplied for the correct template key but wrong version.",
+        "A current page has no image nodes while template-level media evidence is unavailable.",
+        "Route-integrity issue localizes only to config path/href rather than nodeId.",
+        "Input evidence collections arrive in different order."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-EXISTING-TRUTH-HANDOFF",
-        "summary": "Transport validated sibling-workflow proof into the existing Resumable Verification evidence manifest and let the existing Completion Truth decide closure.",
+        "id": "ALT-PUBLISH-READINESS-CANONICAL-AGGREGATOR",
+        "summary": "Create one pure readiness Core that consumes existing authorities, then adopt it in active Builder V3 in a separate release-budgeted wave.",
         "disposition": "selected",
-        "reason": "Preserves one completion authority, avoids proof duplication and closes both the permanent-MISSING and false-closure failure modes."
+        "reason": "Preserves authority ownership and satisfies the proven Release Risk split without weakening gates."
       },
       {
-        "id": "ALT-MANUAL-MERGE-CHECK",
-        "summary": "Remove external proof from Completion Contract and rely on a manual pre-merge check.",
+        "id": "ALT-PUBLISH-READINESS-EXPAND-UI-CHECKLIST",
+        "summary": "Keep adding conditions directly to the Builder publish drawer.",
         "disposition": "rejected",
-        "reason": "The Brabus run already proved Completion Truth can become VERIFIED_DONE before the sibling proof finishes; manual policy is not machine-enforced completion truth."
+        "reason": "Would leave no reusable evidence contract, duplicate semantics and make provenance/UNKNOWN behavior fragile."
       },
       {
-        "id": "ALT-SECOND-CROSS-WORKFLOW-GATE",
-        "summary": "Create a dedicated cross-workflow completion gate beside Completion Truth.",
+        "id": "ALT-PUBLISH-READINESS-NEW-MEGA-GATE",
+        "summary": "Create a new independent gate that rechecks visual, route, media and commerce behavior itself.",
         "disposition": "rejected",
-        "reason": "Would duplicate blocking responsibility and recreate the rule/gate ping-pong architecture the Control Plane is intended to eliminate."
-      }
-    ],
-    "challenge": [
-      {
-        "id": "CH-1",
-        "scenario": "The sibling Template Factory workflow is still running while normal CI reaches its Completion Truth step.",
-        "finding": "Immediate Truth evaluation sees required evidence as missing and either deadlocks or tempts developers to remove the requirement.",
-        "resolution": "CI detects the required external guard from the Completion Contract and waits boundedly for the exact-head producer run before Resumable Verification finalization.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-2",
-        "scenario": "An older successful Template Factory run exists on the same feature branch.",
-        "finding": "Branch-based selection could launder stale browser evidence into the current transaction.",
-        "resolution": "Producer selection and artifact validation are exact-head; branch alone is never sufficient.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-3",
-        "scenario": "GitHub reports workflow success but the downloaded Template Factory manifest is incomplete or contains errors.",
-        "finding": "Transport status could override semantic producer truth.",
-        "resolution": "Require both successful workflow conclusion and validated machine-readable manifest contract/checksum/source identity/browser completeness.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-4",
-        "scenario": "The active Completion Contract contains no supported external guard.",
-        "finding": "A global wait would slow every development transaction and couple unrelated work to Template Factory.",
-        "resolution": "Requirement detection is contract-driven; no reference means no wait, no artifact download and no synthesized evidence.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-5",
-        "scenario": "The handoff implementation itself changes after resumable verification promotion.",
-        "finding": "Old promotion credit could authorize physical evidence reuse under new semantics.",
-        "resolution": "Include handoff implementation and CI wiring in verification-engine identity and regression-test the binding.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-6",
-        "scenario": "A required external guard is referenced but no explicit producer adapter exists.",
-        "finding": "Generic acceptance of arbitrary workflow artifacts would create an unbounded trust channel.",
-        "resolution": "Unsupported external guard IDs fail visible and require an explicit validator before they can contribute evidence.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-7",
-        "scenario": "Two external records for the same guard are available for one exact head.",
-        "finding": "Ambiguous evidence selection could hide a failed or contradictory producer run.",
-        "resolution": "Duplicate external guard evidence is rejected; one exact producer identity must be selected deterministically.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-8",
-        "scenario": "The external handoff code changes while an earlier resumable-verification promotion remains marked eligible.",
-        "finding": "Physical reuse could continue under verification semantics that were never shadow-proven.",
-        "resolution": "Bind the handoff module and CI wiring into verification-engine identity so semantic changes invalidate prior promotion evidence.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-9",
-        "scenario": "Completion Contract uses intuitive dimension labels such as provenance/evidence that are not canonical dimensions declared by its evidence guards.",
-        "finding": "Sentinel correctly treats semantic synonyms as unproven rather than guessing equivalence, so a human-readable claim can still be machine-invalid.",
-        "resolution": "Bind Completion claimScope dimensions to the exact Guard Registry vocabulary currently proven by the referenced guards; semantic aliases do not count as proof.",
-        "status": "resolved"
-      }
-    ],
-    "proofPlan": [
-      "Implement structured Completion Contract evidence reference extraction and derive non-local required guards relative to the existing verification plan.",
-      "Implement a Template Factory external-proof validator for workflow identity, exact head/branch/state/run, manifest contract/checksum/errors and complete browser evidence.",
-      "Merge only validated required external evidence into the existing final-evidence-manifest; missing or invalid required records make Resumable Verification BLOCK.",
-      "Wire CI to resolve/download/validate GUARD-TEMPLATE-FACTORY only when required by the active Completion Contract.",
-      "Add handoff implementation to verification-engine identity.",
-      "Adversarially test missing, failed, stale, wrong-head, wrong-branch, malformed, incomplete and unrequested evidence cases.",
-      "Run exact-head Quality, TypeScript, Production Build, Resumable Verification and Completion Truth.",
-      "Confirm isolated Release Risk stays within budget and no Builder/Template Factory product files are part of this foundation diff."
-    ],
-    "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
-      "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
-      ],
-      "mustEdit": [
-        "scripts/shoperation-verification-checkpoint.mjs",
-        "quality/knowledge/guard-registry.v1.json",
-        ".github/workflows/ci.yml"
-      ],
-      "mayEdit": [
-        "scripts/shoperation-external-proof-handoff.mjs",
-        "tests/shoperation-external-proof-handoff.test.ts",
-        "tests/shoperation-resumable-verification.test.ts"
-      ],
-      "impactedReadOnly": [
-        "scripts/shoperation-truth-gate.mjs",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/lib/shoperation-verification-reuse.mjs",
-        "scripts/release-risk-budget.mjs"
-      ],
-      "proof": [
-        "tests/shoperation-external-proof-handoff.test.ts",
-        "tests/shoperation-resumable-verification.test.ts"
-      ],
-      "unknown": []
-    },
-    "reviews": [
-      {
-        "specialist": "Control Plane",
-        "verdict": "PASS",
-        "reason": "Reuses canonical Completion Truth and Resumable Verification; no second gate."
-      },
-      {
-        "specialist": "Release Risk",
-        "verdict": "PASS",
-        "reason": "Isolated foundation is intentionally limited to quality/release infrastructure."
-      },
-      {
-        "specialist": "Proof Semantics",
-        "verdict": "PASS",
-        "reason": "Exact-state provenance and artifact semantics are preserved instead of inferred."
-      },
-      {
-        "specialist": "Sentinel",
-        "verdict": "PASS",
-        "reason": "Closes the exact class of decision/provenance divergence exposed by the revalidation run."
+        "reason": "Would violate the single-authority model and duplicate already PROVEN evidence producers."
       }
     ],
     "specialistReviews": [
@@ -366,134 +345,182 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Completion Truth and Resumable Verification already own development-completion evidence aggregation.",
-        "resolution": "Keep the handoff as evidence transport only and do not introduce a new blocking owner.",
+        "finding": "Existing Fidelity, inheritance, visual-diff, route/showroom and Template Factory engines already own the relevant evidence; readiness should only normalize their decisions.",
+        "resolution": "Implement a pure adapter/aggregator with explicit source authority identifiers and no source-authority rewrites.",
         "evidence": [
-          "scripts/shoperation-truth-gate.mjs",
-          "scripts/shoperation-verification-checkpoint.mjs",
-          "quality/knowledge/guard-registry.v1.json"
+          "src/lib/builder/storefront-fidelity-inspector.ts",
+          "src/lib/builder/storefront-responsive-layout-depth.ts",
+          "src/lib/builder/storefront-visual-diff-intelligence.ts",
+          "src/lib/builder/storefront-template-route-integrity.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A workflow-level SUCCESS is insufficient because stale or internally BLOCKed artifacts can coexist with wrapper success.",
-        "resolution": "Require exact-head producer identity plus machine-readable artifact contract/checksum/coverage and fail closed on any mismatch.",
+        "finding": "The active Builder does not currently possess all exact-head/template-level evidence, so a local clean document cannot prove template readiness.",
+        "resolution": "Required but unavailable evidence is represented as UNKNOWN and prevents aggregate PASS; no fallback inference is permitted.",
         "evidence": [
-          "scripts/shoperation-verification-checkpoint.mjs",
-          "tests/shoperation-resumable-verification.test.ts"
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/lib/builder/storefront-visual-diff-intelligence.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Cross-workflow transport touches release orchestration and can exceed risk budget when mixed with Builder/Factory product work.",
-        "resolution": "Isolate this foundation to quality/release infrastructure and keep the Brabus product revalidation in its own transaction.",
+        "finding": "Measured combined Core + active Admin UI change is 7/5 points across 4/3 subsystems.",
+        "resolution": "Split now: prove the Core on #701 within the existing 5/5 cumulative budget; preserve the V3 adoption patch separately and do not promote the full capability until that wave passes.",
         "evidence": [
-          "scripts/release-risk-budget.mjs",
-          ".github/workflows/ci.yml"
+          "deploy/release-risk-policy.json"
         ]
       },
       {
-        "role": "Operations",
+        "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Removing sibling evidence from Completion Contract avoids deadlock but creates false completion; re-running the producer inside CI duplicates proof authority.",
-        "resolution": "Detect required non-local evidence from the Completion Contract, wait boundedly for the canonical producer, normalize evidence, then reuse existing Completion Truth.",
+        "finding": "UI adoption is required for the full capability but is outside this release transaction after the measured risk overflow.",
+        "resolution": "Keep UI semantics specified and preserved in the WIP branch; this Core wave proves only the reusable decision contract.",
         "evidence": [
-          "scripts/lib/shoperation-operational-intelligence.mjs",
-          "quality/development/active-plan.json"
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/lib/builder/storefront-visual-diff-intelligence.ts"
         ]
       }
     ],
+    "challenge": [
+      {
+        "id": "CH-PUB-1",
+        "scenario": "All current-page Fidelity checks pass but visual evidence is absent.",
+        "finding": "Local diagnostics cannot prove exact-head visual readiness.",
+        "resolution": "Visual category is UNKNOWN and aggregate is UNKNOWN.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PUB-2",
+        "scenario": "Pixel diff fails with no structured runtime issue.",
+        "finding": "Pixels prove drift, not cause.",
+        "resolution": "BLOCK visual drift with manual-review repairability and no causal repair.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PUB-3",
+        "scenario": "A canonical page type is missing or duplicated in page inventory.",
+        "finding": "Page completeness is not proven.",
+        "resolution": "BLOCK page/route completeness with explicit page-type evidence.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PUB-4",
+        "scenario": "All 14 page types exist but one has foreign template/version identity.",
+        "finding": "Cardinality alone can hide mixed presentation authority.",
+        "resolution": "Foreign identity cannot satisfy completeness and produces BLOCK.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PUB-5",
+        "scenario": "Link syntax is valid but template route-integrity evidence is absent.",
+        "finding": "Safe URL syntax is weaker than reachable canonical route proof.",
+        "resolution": "Links retain local evidence but route reachability remains UNKNOWN; aggregate cannot PASS.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PUB-6",
+        "scenario": "Image alt diagnostics are clean while media planning reports unresolved planned/internal-reference assets.",
+        "finding": "Accessibility media checks are not production media readiness.",
+        "resolution": "Media category consumes explicit media authority; unresolved states BLOCK/UNKNOWN according to source evidence.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PUB-7",
+        "scenario": "Commerce components are present but executable engine/showroom evidence is absent.",
+        "finding": "Presentation presence is not commerce readiness.",
+        "resolution": "Commerce category remains UNKNOWN until canonical commerce/showroom evidence is supplied.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PUB-8",
+        "scenario": "A BLOCK finding and UNKNOWN finding coexist.",
+        "finding": "Unknown must not mask a known blocker.",
+        "resolution": "Aggregate precedence is BLOCK > UNKNOWN > PASS.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PUB-9",
+        "scenario": "Evidence lists arrive in different order.",
+        "finding": "UI and truth status must not depend on enumeration order.",
+        "resolution": "Normalize/sort findings deterministically before summary.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PUB-SPLIT-1",
+        "scenario": "The Core passes all adversarial proofs while active V3 still uses its old local checklist.",
+        "finding": "Core correctness is not equivalent to user-visible adoption.",
+        "resolution": "Keep full VX-PUBLISH-READINESS non-PROVEN and require a separate V3-adoption wave.",
+        "status": "resolved"
+      }
+    ],
+    "proofPlan": [
+      "Plan Before Code projected-scope proof and exact release-risk projection before implementation.",
+      "Core adversarial state-machine proof for PASS/BLOCK/UNKNOWN precedence and required-category completeness.",
+      "Authority mapping proof that each canonical readiness category names and preserves its existing source contract.",
+      "Localization proof for page/viewport/node/component/path/href fields when available.",
+      "Visual causality proof: pixel-only drift remains manual-review and cannot become a structured repair.",
+      "Page inventory adversarial proof for missing, duplicate, foreign-template and foreign-version rows.",
+      "Missing-evidence proof for visual, route, media and commerce categories: UNKNOWN never PASS.",
+      "Determinism/immutability proof across reordered equivalent evidence.",
+      "Source-code boundary proof forbidding publish/persistence/Builder mutation/screenshot capture imports from readiness Core.",
+      "Incremental Known Failure replay, targeted quality tests, full quality tests, TypeScript, production build, exact-head Template Factory Quality Gate v2, Completion Truth and lifecycle closure.",
+      "Capability-separation proof: Core success must not promote full VX-PUBLISH-READINESS, Smart Intent, Smart Auto-Fix or Template #3.",
+      "After Core lifecycle closure, resume the preserved V3-adoption change only in a separate release-budgeted transaction."
+    ],
+    "semanticExecutionRoute": {
+      "request": "PO-2026-10-03-VX-PUBLISH-READINESS-CORE-BRABUS-HARDENING",
+      "authority": [
+        "builder-template-system"
+      ],
+      "mustEdit": [
+        "src/lib/builder/storefront-publish-readiness.ts"
+      ],
+      "mayEdit": [
+        "tests/storefront-publish-readiness.test.ts"
+      ],
+      "impactedReadOnly": [
+        "src/app/admin/tartalom/builder/page.tsx",
+        "src/components/admin/storefront-visual-builder-v3.tsx",
+        "src/components/admin/storefront-visual-builder-production.tsx",
+        "src/components/admin/storefront-visual-builder.tsx",
+        "src/lib/builder/storefront-fidelity-diagnostics.ts",
+        "src/lib/builder/storefront-fidelity-inspector.ts",
+        "src/lib/builder/storefront-performance-contract.ts",
+        "src/lib/builder/storefront-responsive-layout-depth.ts",
+        "src/lib/builder/storefront-template-route-integrity.ts",
+        "src/lib/builder/storefront-visual-diff-intelligence.ts",
+        "src/lib/builder/template-factory/generator-readiness.ts",
+        "src/lib/builder/template-factory/media-planner.ts",
+        "src/lib/builder/template-factory/production-maturity.ts"
+      ],
+      "proof": [
+        "tests/storefront-publish-readiness.test.ts"
+      ],
+      "unknown": []
+    },
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
+    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-CORE-BRABUS-HARDENING",
     "requirements": [
       {
-        "id": "REQ-EXTERNAL-PROOF-DETECTION",
-        "requirement": "Required external Completion evidence is derived from the active Completion Contract and only unsupported/non-local guards are handed to explicit validators.",
+        "id": "REQ-VX-PUBLISH-READINESS-TRISTATE",
+        "requirement": "Canonical Publish Readiness aggregates all required evidence categories with authority provenance and fail-closed PASS/BLOCK/UNKNOWN semantics; UNKNOWN can never satisfy readiness.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "external-completion-proof-detection",
+          "breadth": "vx-publish-readiness-decision-contract",
           "strength": 2,
           "dimensions": [
-            "scope",
+            "claim-scope",
             "evidence-scope",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-UNREQUESTED-EXTERNAL-WAIT",
-            "statement": "Transactions with no external proof requirement do not wait for Template Factory.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-EXTERNAL-PROOF-PROVENANCE",
-        "requirement": "External Template Factory proof is accepted only when workflow and artifact truth match the same exact Development Transaction.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "external-proof-provenance",
-          "strength": 2,
-          "dimensions": [
-            "truth",
-            "freshness",
-            "coverage",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-STALE-OR-LAUNDERED-EXTERNAL-PROOF",
-            "statement": "Wrong-head, wrong-branch, failed, malformed, incomplete or contradictory external proof cannot become PASS.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-EXTERNAL-PROOF-TRUTH-INTEGRATION",
-        "requirement": "Validated external proof is merged into the existing Resumable Verification evidence manifest and remains required by the existing Completion Truth authority when referenced.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "external-proof-truth-integration",
-          "strength": 2,
-          "dimensions": [
-            "truth",
-            "resumable",
-            "evidence-scope",
+            "proven-scope",
             "limitations"
           ]
         },
@@ -507,13 +534,82 @@
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS",
-            "GUARD-PRODUCTION-BUILD"
+            "GUARD-TEMPLATE-FACTORY"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PARALLEL-COMPLETION-AUTHORITY",
-            "statement": "No second completion gate or release authority is introduced.",
+            "id": "NEG-PUBLISH-READINESS-FALSE-PASS",
+            "statement": "Missing, stale, partial or foreign authority evidence cannot be converted to PASS.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-VX-PUBLISH-READINESS-AUTHORITY-BOUNDARY",
+        "requirement": "Publish Readiness remains a read-only evidence decision contract: it does not publish, mutate Page Schema, duplicate source authorities or infer repairs from pixel evidence.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "publish-readiness-authority-boundary",
+          "strength": 2,
+          "dimensions": [
+            "status",
+            "classification",
+            "scope",
+            "limitations"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-PUBLISH-READINESS-PARALLEL-AUTHORITY",
+            "statement": "Readiness cannot become a second visual/route/commerce/media authority or invoke publish/mutation paths.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-VX-PUBLISH-READINESS-CAPABILITY-SEPARATION",
+        "requirement": "Publish Readiness Core completion does not promote the full VX-PUBLISH-READINESS capability, Smart Intent, Smart Auto-Fix or authorize Template #3; active V3 adoption remains a required separate wave.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "capability-separation",
+          "strength": 2,
+          "dimensions": [
+            "status",
+            "scope",
+            "limitations"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-PUBLISH-READINESS-CORE-FALSE-PROMOTION",
+            "statement": "Core-only proof cannot be reported as full Publish Readiness capability completion before active V3 adoption.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -522,14 +618,14 @@
       }
     ]
   },
-  "notes": "Isolated foundation extracted from the Brabus revalidation after Release Risk correctly blocked the mixed 4-subsystem/7-point Development Transaction. This branch changes only quality/release evidence transport. It does not implement or modify any Builder, template, Runtime or Factory maturity capability. Exact-head Quality exposed two proof-model issues: the handoff regression searched a fail-closed code in the wrapper instead of its owning helper, and Sentinel rejected noncanonical Completion claim dimensions. Both are repaired at their actual semantic owner; Sentinel is not weakened.",
+  "notes": "Tenth Brabus hardening is release-split by measured gate evidence. Combined Core + active V3 adoption produced Release Risk 7/5 and 4/3 subsystems. #701 now carries the Core-only Publish Readiness proof within the prior cumulative budget; the exact pre-split UI work is preserved at feature/vx-publish-readiness-v3-adoption-wip. VX-PUBLISH-READINESS remains non-PROVEN in this wave. Inheritance Intelligence and Visual Diff Intelligence remain PROVEN and lifecycle-closed. Smart Intent and Smart Auto-Fix remain blocked. Template #3 remains forbidden. Plan scope explicitly includes release-infrastructure because the task itself declares a release-budgeted split; this is intent scope only and does not weaken or alter the measured Release Risk Budget.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "c17ab9ce42db60d8b10b4cfb7d57e82bc6a98090",
-    "closedAt": "2026-10-02T11:07:42.691Z",
+    "verifiedImplementationHead": "005320d408636112f7c85599d207023e6f6e717f",
+    "closedAt": "2026-10-03T03:50:15.650Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
+    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-CORE-BRABUS-HARDENING",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

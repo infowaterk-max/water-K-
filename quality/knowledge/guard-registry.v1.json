@@ -525,6 +525,22 @@
           ],
           "visualProof": true
         }
+      },
+      "proofSemantics": {
+        "capabilities": [
+          "CAP-QUALITY"
+        ],
+        "scopeStrength": 2,
+        "scope": "template-factory-exact-head-browser-and-acceptance-proof",
+        "dimensions": [
+          "runtime",
+          "browser",
+          "template-factory",
+          "status",
+          "freshness",
+          "coverage",
+          "limitations"
+        ]
       }
     },
     {
