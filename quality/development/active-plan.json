@@ -518,7 +518,8 @@
         "tests/shoperation-semantic-execution-intelligence.test.ts",
         "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
         "tests/storefront-beauty-lab-reference-v2.test.ts",
-        "tests/template-factory-generator-readiness.test.ts"
+        "tests/template-factory-generator-readiness.test.ts",
+        "tests/storefront-cart-presentation-contract.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
