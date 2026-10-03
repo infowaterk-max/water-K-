@@ -1,4 +1,5 @@
 import {readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
 import {beforeAll,describe,expect,it} from 'vitest';
 import {buildCodebaseAtlas,impactForAtlasPattern,reconcileAuthorityDependencies} from '../scripts/lib/shoperation-codebase-atlas-runtime.mjs';
 
@@ -28,6 +29,18 @@ describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
     expect(workflow).toContain('Knowledge Before Build preflight');
     expect(workflow).toContain('Plan Before Code Gate');
     expect(workflow).not.toContain('Atlas Change Impact Gate');
+  });
+
+  it('allows truthful empty ownership only for neutral critical projections while product scope stays fail-closed',()=>{
+    const output=execFileSync(process.execPath,['scripts/shoperation-plan-before-code.mjs','--architecture-scope-self-test'],{encoding:'utf8'});
+    expect(output).toContain('Plan architecture-scope self-test: PASS');
+    const planGate=read('scripts/shoperation-plan-before-code.mjs');
+    expect(planGate).toContain('isArchitectureBearingProjectedFile=file=>!isNeutralFile(file)&&!isKnowledgeInfrastructureFile(file)');
+    expect(planGate).toContain('const architectureScopeRequired=requiresExpectedArchitectureScope(projectedFiles)');
+    expect(planGate).toContain("if(architectureScopeRequired&&!expectedDomains.length)issues.push({code:'DEV_PLAN_EXPECTED_DOMAINS_REQUIRED'})");
+    expect(planGate).toContain("if(architectureScopeRequired&&!expectedAuthorities.length)issues.push({code:'DEV_PLAN_EXPECTED_AUTHORITIES_REQUIRED'})");
+    expect(planGate).toContain("if(JSON.stringify(projectedDomains)!==JSON.stringify(expectedDomains))issues.push({code:'DEV_PLAN_DOMAIN_SCOPE_DRIFT'");
+    expect(planGate).toContain("if(JSON.stringify(projectedAuthorities)!==JSON.stringify(expectedAuthorities))issues.push({code:'DEV_PLAN_AUTHORITY_SCOPE_DRIFT'");
   });
 
   it('requires exact-head Atlas closure evidence without relaxing the Release Risk Budget',()=>{
