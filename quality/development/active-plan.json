@@ -317,7 +317,7 @@
         ]
       },
       {
-        "role": "Edit-Time Guard",
+        "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
         "finding": "Whole-file route deletion currently over-approximates contract identity and turns common UI text plus framework exports into required repository-wide edits.",
@@ -329,7 +329,7 @@
         ]
       },
       {
-        "role": "Control Plane / Reference Sync",
+        "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "A lexical same-value match is insufficient to prove dependency identity for generic display text or common exported symbol names when the origin file is deleted.",
