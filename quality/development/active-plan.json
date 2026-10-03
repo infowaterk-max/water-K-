@@ -3,7 +3,7 @@
   "taskId": "DEV-LEGACY-TEMPLATE-RETIREMENT",
   "task": "Retire legacy template implementations from active canonical authority while preserving only Playroom v20 and Loot Vault v2; leave historical sources inert for later deletion and do not alter Template #3 authoring.",
   "status": "ready-for-implementation",
-  "guardDigest": "0f3eadb0",
+  "guardDigest": "94082bf1",
   "changeBaseSha": "30c3efa28b0d0d85e43ea87a1233f0fc290bf1c7",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -25,7 +25,9 @@
     "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
     "tests/storefront-public-information-routes.test.ts",
     "tests/storefront-real-route-template-authority.test.ts",
-    "tests/customer-order-service-ux.test.ts"
+    "tests/customer-order-service-ux.test.ts",
+    "scripts/shoperation-knowledge-preflight.mjs",
+    "tests/shoperation-change-impact-atlas.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -34,10 +36,12 @@
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
+    "DOMAIN-QUALITY",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "builder-template-system",
+    "quality-knowledge-system",
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
@@ -46,7 +50,10 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -55,9 +62,13 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -138,7 +149,9 @@
         "The forbidden combined /szallitas-es-fizetes route no longer exists as a public page authority.",
         "Independent /szallitas and /fizetes public routes exist, are sitemap-visible and resolve through the active storefront Page Schema shell.",
         "Loot Vault v2 mobile/header/footer/CTA navigation uses separate shipping and payment destinations instead of the forbidden combined route.",
-        "Legacy /oldal/szallitas and /oldal/fizetes entrypoints remain backward-compatible aliases that converge on the canonical top-level routes."
+        "Legacy /oldal/szallitas and /oldal/fizetes entrypoints remain backward-compatible aliases that converge on the canonical top-level routes.",
+        "Knowledge Before Build resolves instruction-governed deleted route files through the same Atlas architecture resolver as Plan Before Code.",
+        "Knowledge infrastructure change triggers the full 49-failure replay set without weakening tombstone or domain-integrity checks."
       ],
       "invariants": [
         "There is one active template catalog and resolver authority; retirement does not create a second registry.",
@@ -147,7 +160,8 @@
         "Approved generated visual references are not deleted or replaced in this inactivation transaction.",
         "Shared Page Schema, Runtime, commerce engines, Template Factory and VX authorities are not weakened to make retirement pass.",
         "Shipping and payment remain separate public information authorities in every active canonical template and shared route registry.",
-        "Merchant-facing route compatibility may redirect old aliases but may not restore the forbidden combined route."
+        "Merchant-facing route compatibility may redirect old aliases but may not restore the forbidden combined route.",
+        "Knowledge Preflight may not treat a Git-proven, instruction-governed route tombstone as an unresolved architecture file when the canonical Atlas resolver can classify it."
       ],
       "forbiddenStates": [
         "legacy-template-key-resolves-active-package",
@@ -278,6 +292,19 @@
           "src/lib/builder/storefront-template-route-integrity.ts",
           "quality/knowledge/po-instructions.v1.json"
         ]
+      },
+      {
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Knowledge Preflight and Plan Before Code disagree on deleted-route architecture because only the latter uses the shared tombstone-aware Atlas resolver.",
+        "resolution": "Converge both gates on the existing resolver rather than adding a deletion exception or parallel tombstone registry.",
+        "evidence": [
+          "scripts/shoperation-knowledge-preflight.mjs",
+          "scripts/shoperation-plan-before-code.mjs",
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+          "tests/shoperation-semantic-execution-intelligence.test.ts"
+        ]
       }
     ],
     "challenge": [
@@ -336,6 +363,13 @@
         "finding": "Repository reality still exposes /szallitas-es-fizetes in the shared route registry, sitemap, live page and Loot Vault v2 package, so acknowledgment without remediation would preserve a known authority conflict.",
         "resolution": "Expand the transaction before further code edits: tombstone the forbidden combined route, add /szallitas and /fizetes authorities, converge legacy aliases, update the shared registry/sitemap and repair Loot Vault v2 navigation.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RETIRE-09",
+        "scenario": "A Product Owner-governed route deletion is correctly represented as an Atlas tombstone, but Knowledge Before Build classifies only live Atlas nodes and therefore flags the deleted route as domain-unresolved.",
+        "finding": "This creates a false BLOCK before Plan Before Code even though the canonical Atlas resolver can derive DOMAIN-STOREFRONT and shared-storefront authority for the tombstone.",
+        "resolution": "Reuse the existing tombstone-aware resolveAtlasArchitectureForPath path in Knowledge Preflight for direct domain and unresolved-file evaluation; add a regression that pins this integration.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -372,7 +406,9 @@
         "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
         "tests/storefront-public-information-routes.test.ts",
         "tests/storefront-real-route-template-authority.test.ts",
-        "tests/customer-order-service-ux.test.ts"
+        "tests/customer-order-service-ux.test.ts",
+        "scripts/shoperation-knowledge-preflight.mjs",
+        "tests/shoperation-change-impact-atlas.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -388,7 +424,8 @@
         "tests/template-factory-loot-vault-v2.test.ts",
         "tests/storefront-public-information-routes.test.ts",
         "tests/storefront-real-route-template-authority.test.ts",
-        "tests/customer-order-service-ux.test.ts"
+        "tests/customer-order-service-ux.test.ts",
+        "tests/shoperation-change-impact-atlas.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [
@@ -493,8 +530,32 @@
             ]
           }
         ]
+      },
+      {
+        "id": "REQ-RETIRE-TOMBSTONE-KNOWLEDGE",
+        "requirement": "Knowledge Before Build must classify deleted instruction-governed routes through canonical tombstone-aware Atlas architecture instead of blocking them as unresolved live files.",
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME"
+          ],
+          "outcome": [
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-RETIRE-TOMBSTONE-UNRESOLVED",
+            "statement": "A deleted /szallitas-es-fizetes route governed by the active PO instruction must not produce SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED.",
+            "evidence": [
+              "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
       }
     ]
   },
-  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation."
+  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation. Knowledge Before Build exposed an existing integration gap: deleted routes were looked up only in live Atlas nodes. Scope now includes a minimal tombstone-aware Knowledge Preflight convergence using the existing Atlas resolver. Because this changes knowledge infrastructure, the expected failure set expands to the canonical full replay of 49 failures and adds DOMAIN-QUALITY authority."
 }
