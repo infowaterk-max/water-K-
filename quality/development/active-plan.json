@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-VX-SMART-INTENT-BRABUS-HARDENING",
   "task": "Implement and adopt canonical VX Smart Intent: a deterministic, bounded merchant-intent compiler that translates contextual Hungarian/English editing intent into previewable existing Builder/responsive/typography/global-token operations, applies them only after explicit user action through ordinary undoable Page Schema history, and fails closed on ambiguous, stale or unsupported intent.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "80bae5fe",
   "changeBaseSha": "e63e7eee5a2180b958f6c3e288de45aa504f8cd8",
   "plannedFilePatterns": [
@@ -650,5 +650,18 @@
       }
     ]
   },
-  "notes": "Twelfth Brabus hardening wave. Publish Readiness is lifecycle-closed and PROVEN on parent e63e7eee5a2180b958f6c3e288de45aa504f8cd8. Smart Intent is intentionally distinct from Block 23 AI storefront generation and from future Smart Auto-Fix. Guarded Freedom remains authoritative: user intent compiles only to bounded existing operations; no arbitrary source code or schema patching. Template #3 remains forbidden until Smart Auto-Fix is also PROVEN. Plan-gate reconciliation adds database-schema only as scoped negative knowledge because persistence/database language appears in the safety boundary; this wave still declares no migration/schema mutation. The new Smart Intent module is a planned creation and therefore mayEdit rather than an existing-file mustEdit route. Actual-diff dependency reconciliation: canonical Smart Intent imports and validates shared Storefront Runtime/Page Schema authorities, therefore DOMAIN-STOREFRONT and shared-storefront are explicit expected dependency scopes; no new Storefront authority is introduced. Reference Sync fingerprint f02cd6dc is an exact exception for the inactive legacy production Builder's unchanged commitDocument expression; the active V3-only Smart Intent transient-plan invalidation is intentionally not propagated to an inactive consumer. Quality root-cause reconciliation: responsive reset must detect absence of all four direct override dimensions before planning; Generator Readiness has one stale pre-wave Smart Intent blocker assertion that must be updated without changing the readiness authority."
+  "notes": "Twelfth Brabus hardening wave. Publish Readiness is lifecycle-closed and PROVEN on parent e63e7eee5a2180b958f6c3e288de45aa504f8cd8. Smart Intent is intentionally distinct from Block 23 AI storefront generation and from future Smart Auto-Fix. Guarded Freedom remains authoritative: user intent compiles only to bounded existing operations; no arbitrary source code or schema patching. Template #3 remains forbidden until Smart Auto-Fix is also PROVEN. Plan-gate reconciliation adds database-schema only as scoped negative knowledge because persistence/database language appears in the safety boundary; this wave still declares no migration/schema mutation. The new Smart Intent module is a planned creation and therefore mayEdit rather than an existing-file mustEdit route. Actual-diff dependency reconciliation: canonical Smart Intent imports and validates shared Storefront Runtime/Page Schema authorities, therefore DOMAIN-STOREFRONT and shared-storefront are explicit expected dependency scopes; no new Storefront authority is introduced. Reference Sync fingerprint f02cd6dc is an exact exception for the inactive legacy production Builder's unchanged commitDocument expression; the active V3-only Smart Intent transient-plan invalidation is intentionally not propagated to an inactive consumer. Quality root-cause reconciliation: responsive reset must detect absence of all four direct override dimensions before planning; Generator Readiness has one stale pre-wave Smart Intent blocker assertion that must be updated without changing the readiness authority.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "94c71621438f31de98b8da126d7e5f6ebd0f5d8b",
+    "closedAt": "2026-10-03T04:59:45.512Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-03-VX-SMART-INTENT-BRABUS-HARDENING",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
