@@ -100,8 +100,9 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(resumable).toContain("reason:'template-semantic-page-impact'");
     expect(resumable).toContain("reason:'template-browser-input-fingerprints-equivalent'");
     expect(runner).toContain("mode:'full',pages:[...template.pageTypes],reason:'shared-runtime-changed'");
-    expect(runner).toContain("const mode=template.factoryCandidate?'full':'canary'");
-    expect(runner).toContain("const reason=template.factoryCandidate?'factory-exact-head-full':'default-canary'");
+    expect(runner).toContain("const pullRequestAcceptance=process.env.GITHUB_EVENT_NAME==='pull_request'");
+    expect(runner).toContain("const mode=(template.factoryCandidate||pullRequestAcceptance)?'full':'canary'");
+    expect(runner).toContain("const reason=template.factoryCandidate?'factory-exact-head-full':pullRequestAcceptance?'pull-request-exact-head-full':'default-canary'");
     expect(runner).toContain("'src/components/admin/storefront-visual-builder-v3.tsx'");
     expect(runner).toContain("'src/components/cart/'");
     expect(runner).toContain("'src/components/checkout/'");
@@ -115,6 +116,16 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain("manifest.qualityCandidate?'&qualityCandidate=1'");
     expect(runner).toContain('manifest.factoryCandidate||manifest.qualityCandidate');
     expect(runner).toContain('CANDIDATE_SHOWROOM_PLACEHOLDER_WARNING_PRESENT');
+  });
+
+  it('requires complete browser evidence for pull-request acceptance while preserving push canary regression fallback',()=>{
+    const runner=read('scripts/template-factory-quality-gate.mjs');
+    expect(runner).toContain("const pullRequestAcceptance=process.env.GITHUB_EVENT_NAME==='pull_request'");
+    expect(runner).toContain("const mode=(template.factoryCandidate||pullRequestAcceptance)?'full':'canary'");
+    expect(runner).toContain("pullRequestAcceptance?'pull-request-exact-head-full':'default-canary'");
+    expect(runner).toContain('if(pullRequestAcceptance){');
+    expect(runner).toContain('proof.browserMatrixPassed===true&&proof.browserMatrixComplete===true');
+    expect(runner).toContain('PR_ACCEPTANCE_BROWSER_MATRIX_INCOMPLETE');
   });
 
   it('reconciles page-level browser evidence without changing the v2 quality authority envelope',()=>{
