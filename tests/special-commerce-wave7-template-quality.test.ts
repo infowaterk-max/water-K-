@@ -3,6 +3,7 @@ import {resolve} from 'node:path';
 import {describe,expect,it} from 'vitest';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
+import {STOREFRONT_PAGE_TYPES} from '@/lib/builder/storefront-foundation';
 import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,STOREFRONT_TEMPLATE_LAUNCH_TARGET} from '@/lib/builder/storefront-template-catalog';
 import {
   STOREFRONT_SPECIAL_COMMERCE_CAPABILITIES,
@@ -12,7 +13,6 @@ import {
 } from '@/lib/builder/storefront-special-commerce-template2-adoption';
 
 const read=(path:string)=>readFileSync(resolve(process.cwd(),path),'utf8');
-const CANONICAL_PAGE_TYPES=['home','catalog','product','search','cart','checkout','account','content','blog-index','blog-article','faq','contact','legal','not-found'] as const;
 const walk=(nodes:readonly {componentKey:string;children?:readonly any[]}[],out:string[]=[])=>{for(const node of nodes){out.push(node.componentKey);walk(node.children??[],out);}return out;};
 
 describe('Special Commerce Wave 7 template quality gate',()=>{
@@ -27,9 +27,9 @@ describe('Special Commerce Wave 7 template quality gate',()=>{
   it('keeps every concrete template on the canonical 14-page D/T/M Builder contract',()=>{
     const components=createStorefrontVisualBuilderComponentRegistry();
     for(const template of STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES){
-      expect([...template.manifest.pageTypes],`${template.manifest.templateKey}:page-types`).toEqual(CANONICAL_PAGE_TYPES);
+      expect([...template.manifest.pageTypes],`${template.manifest.templateKey}:page-types`).toEqual(STOREFRONT_PAGE_TYPES);
       expect(template.manifest.responsive,`${template.manifest.templateKey}:responsive`).toEqual({desktop:true,tablet:true,mobile:true});
-      expect(template.pages,`${template.manifest.templateKey}:page-count`).toHaveLength(CANONICAL_PAGE_TYPES.length);
+      expect(template.pages,`${template.manifest.templateKey}:page-count`).toHaveLength(STOREFRONT_PAGE_TYPES.length);
       for(const page of template.pages){
         for(const key of walk(page.sections))expect(components.get(key,1),`${template.manifest.templateKey}:${page.pageType}:${key}`).toBeDefined();
       }
