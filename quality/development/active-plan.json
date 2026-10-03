@@ -264,28 +264,47 @@
         "mode": "review",
         "verdict": "pass",
         "finding": "The Core is already the canonical decision authority; V3 must be a presentation consumer only.",
-        "resolution": "Import the Core result and remove local readiness derivation."
+        "resolution": "Import the Core result and remove local readiness derivation.",
+        "evidence": [
+          "src/app/admin/tartalom/builder/page.tsx",
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/lib/builder/storefront-publish-readiness.ts"
+        ]
       },
       {
         "role": "Runtime",
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "The preserved WIP patch allows publish on UNKNOWN because it checks blockers only.",
-        "resolution": "Gate the action on readiness.decision==='PASS' in addition to existing busy/dirty/draft guards."
+        "resolution": "Gate the action on readiness.decision==='PASS' in addition to existing busy/dirty/draft guards.",
+        "evidence": [
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/lib/builder/storefront-publish-readiness.ts",
+          "tests/storefront-publish-readiness.test.ts"
+        ]
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
         "finding": "Tri-state readiness must stay understandable without turning UNKNOWN into an error.",
-        "resolution": "Render explicit PASS/BLOCK/UNKNOWN labels and Core reason/source/repairability details."
+        "resolution": "Render explicit PASS/BLOCK/UNKNOWN labels and Core reason/source/repairability details.",
+        "evidence": [
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/lib/builder/storefront-publish-readiness.ts"
+        ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
         "finding": "As a stacked transaction against the closed Core branch, expected material risk is admin-operations + builder-template-system only.",
-        "resolution": "Keep scope to V3, maturity and tests; split again if additional substantive subsystem changes become necessary."
+        "resolution": "Keep scope to V3, maturity and tests; split again if additional substantive subsystem changes become necessary.",
+        "evidence": [
+          "deploy/release-risk-policy.json",
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/lib/builder/template-factory/production-maturity.ts"
+        ]
       }
     ],
     "challenge": [
@@ -330,6 +349,20 @@
         "finding": "Capability claim would be broader than proof.",
         "resolution": "PROVEN evidence requires Core implementation plus active V3 implementation and executable adoption test.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-V3-7",
+        "scenario": "Core category findings arrive in a different order while category state is unchanged.",
+        "finding": "Presentation must not infer a different decision from finding order or choose a lower-severity lead finding first.",
+        "resolution": "V3 displays the Core category state as authority and selects explanatory lead evidence with BLOCK before UNKNOWN before advisory findings, without recomputing category truth.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-V3-8",
+        "scenario": "Readiness decision is PASS with warnings, but the draft is dirty or no saved draft revision exists.",
+        "finding": "Canonical readiness PASS cannot bypass existing draft-state preconditions for the publish action.",
+        "resolution": "Publish remains disabled unless decision is PASS AND busy=false AND dirty=false AND draftRevision is present.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -337,7 +370,7 @@
       "Source proof that active page.tsx renders V3, not legacy production Builder.",
       "UI source proof that old local readiness checklist is absent.",
       "Adversarial UI proof that UNKNOWN disables publish and PASS can remain publishable with warnings.",
-      "Presentation proof for state/source/reason/repairability/localization.",
+      "Executable/source proof must show each non-clean V3 readiness category renders the Core-provided state plus finding reason, authority/source, repairability and any available page/viewport/node/path/href localization; removal of any one field must make the adoption regression test fail.",
       "Source boundary proof that V3 does not fabricate external evidence or generate diagnostic mutations.",
       "Maturity proof promotes only VX-PUBLISH-READINESS and leaves Smart Intent/Auto-Fix non-PROVEN.",
       "Incremental Known Failure replay, Quality tests, TypeScript, production build, exact-head Template Factory proof, Completion Truth and lifecycle closure."
