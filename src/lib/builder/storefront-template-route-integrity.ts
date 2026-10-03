@@ -167,7 +167,7 @@ const previewPageForPath=(pathname:string):string|null=>{
   if(pathname.startsWith('/oldal/'))return'content';
   if(pathname==='/gyik')return'faq';
   if(pathname==='/kapcsolat')return'contact';
-  if(['/aszf','/adatvedelem','/impresszum','/szallitas-es-fizetes'].includes(pathname))return'legal';
+  if(['/aszf','/adatvedelem','/impresszum','/szallitas','/fizetes'].includes(pathname))return'legal';
   return null;
 };
 
@@ -384,7 +384,8 @@ export const STOREFRONT_TEMPLATE_SHOWROOM_SURFACES:readonly StorefrontShowroomSu
   {id:'wishlist',label:'Kedvencek',route:'/kedvencek',pageType:'account',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
   {id:'downloads',label:'Letöltéseim',route:'/fiokom/letoltesek',pageType:'account',reachability:'shopper-journey',navigationRequired:false,engines:['E1']},
   {id:'about',label:'Rólunk',route:'/oldal/rolunk',pageType:'content',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E10']},
-  {id:'shipping-payment',label:'Szállítás és fizetés',route:'/szallitas-es-fizetes',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
+  {id:'shipping',label:'Szállítás',route:'/szallitas',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
+  {id:'payment',label:'Fizetés',route:'/fizetes',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
   {id:'returns',label:'Visszaküldés',route:'/oldal/visszakuldes',pageType:'content',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
   {id:'faq',label:'GYIK',route:'/gyik',pageType:'faq',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
   {id:'contact',label:'Kapcsolat',route:'/kapcsolat',pageType:'contact',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
