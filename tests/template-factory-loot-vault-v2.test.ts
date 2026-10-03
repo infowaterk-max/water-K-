@@ -37,7 +37,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(JSON.stringify(article)).toContain('"componentKey":"story.hero"');
   });
 
-  it('is Product Owner preview-ready without implying acceptance or production catalog activation',()=>{
+  it('is Product Owner preview-ready and resolves only the canonical v2 production catalog authority',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
     expect(build.report.issues).toEqual([]);
     expect(build.report.technicalReady).toBe(true);
@@ -49,8 +49,8 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const preview=resolveStorefrontTemplatePreviewPackage('gaming.loot-vault',2,true);
     expect(preview).toEqual(LOOT_VAULT_V2_TEMPLATE_PACKAGE);
 
-    expect(getStorefrontTemplatePackage('gaming.loot-vault',2)).toBeUndefined();
-    expect(getStorefrontTemplatePackage('gaming.loot-vault',1)?.manifest.templateVersion).toBe(1);
+    expect(getStorefrontTemplatePackage('gaming.loot-vault',2)).toEqual(LOOT_VAULT_V2_TEMPLATE_PACKAGE);
+    expect(getStorefrontTemplatePackage('gaming.loot-vault',1)).toBeUndefined();
   });
 
   it('requires complete shopper navigation in preview, especially on mobile',()=>{
