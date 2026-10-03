@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE",
   "task": "Repair the existing Plan Before Code gate so a critical proof-only transaction whose projected files are exclusively neutral/test or knowledge-infrastructure paths may truthfully declare an empty domain/authority projection, while preserving exact scope drift detection whenever any architecture-bearing projected file exists.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "62903da6",
   "changeBaseSha": "8e50fbdea0f2b12c0bcf626862062b6316c915b3",
   "plannedFilePatterns": [
@@ -398,5 +398,18 @@
       }
     ]
   },
-  "notes": "Targeted prerequisite proven necessary by #795 Plan Before Code on head 6f45f9f55c0e669002c6c5c4d0c5a21e38ef4e67: projectedDomains=[] and projectedAuthorities=[] were exact, but unconditional non-empty requirements made the proof-only critical transaction unsatisfiable without false metadata. Control Plane remains otherwise frozen. Plan projection reconciled to measured quality-only scope: subsystem=quality-knowledge-system, negative knowledge SQ-NK-010/011/012/014/015, guardDigest=62903da6."
+  "notes": "Targeted prerequisite proven necessary by #795 Plan Before Code on head 6f45f9f55c0e669002c6c5c4d0c5a21e38ef4e67: projectedDomains=[] and projectedAuthorities=[] were exact, but unconditional non-empty requirements made the proof-only critical transaction unsatisfiable without false metadata. Control Plane remains otherwise frozen. Plan projection reconciled to measured quality-only scope: subsystem=quality-knowledge-system, negative knowledge SQ-NK-010/011/012/014/015, guardDigest=62903da6.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "7406f5a2775025304a3ff3547d0e2b960b72b21a",
+    "closedAt": "2026-10-03T07:11:29.856Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-03-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
