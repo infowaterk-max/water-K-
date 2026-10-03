@@ -20,7 +20,7 @@ describe('Template Generator Readiness v0.1',()=>{
       declared:true,
       ready:true,
       blueprintIdentity:'gaming.loot-vault@2',
-      template3AuthoringReady:true,
+      template3AuthoringReady:false,
       issues:[],
     });
     expect(build.report.generatorReadiness.productionMaturity.valid).toBe(true);
@@ -119,11 +119,12 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(result.issues.map(issue=>issue.code)).toContain('GENERATOR_PAGE_OWNERSHIP_DRIFT');
   });
 
-  it('reports technical Template #3 maturity only after all mandatory capability evidence is PROVEN',()=>{
+  it('keeps Template #3 blocked by remaining Brabus engine revalidation after VX Auto-Fix becomes PROVEN',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
     expect(build.report.generatorReadiness.ready).toBe(true);
-    expect(build.report.generatorReadiness.template3AuthoringReady).toBe(true);
-    expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).toEqual([]);
+    expect(build.report.generatorReadiness.template3AuthoringReady).toBe(false);
+    expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds).not.toContain('VX-SMART-AUTOFIX');
+    expect(build.report.generatorReadiness.productionMaturity.blockingCapabilityIds.some(id=>id.startsWith('ENGINE-')&&id.endsWith('-BRABUS-REVALIDATION'))).toBe(true);
     expect(build.report.generatorReadiness.productionMaturity.capabilities.find(item=>item.id==='VX-SMART-AUTOFIX')?.state).toBe('PROVEN');
   });
 
