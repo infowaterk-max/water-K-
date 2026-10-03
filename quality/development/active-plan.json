@@ -1,61 +1,33 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-VX-VISUAL-DIFF-INTELLIGENCE-CORE-BRABUS-HARDENING",
-  "task": "Evolve the existing exact-head Template Factory visual evidence into the canonical VX Visual Diff Intelligence Core: consume the existing quality-evidence case contract, validate evidence provenance and 14x3 completeness, classify structured runtime drift separately from unlocalized pixel drift, and produce deterministic reusable diagnostics without changing screenshot capture, Page Schema, Runtime or Builder mutations.",
-  "status": "closed",
-  "guardDigest": "bb25917e",
-  "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
+  "taskId": "DEV-VX-PUBLISH-READINESS-BRABUS-HARDENING",
+  "task": "Harden VX Publish Readiness as an evidence-backed Builder decision contract that aggregates existing responsive/inheritance, visual-diff, fidelity, media, link, commerce, content, performance and page/route authorities into fail-closed PASS/BLOCK/UNKNOWN findings without publishing or mutating Page Schema.",
+  "status": "ready-for-implementation",
+  "guardDigest": "ba1a39f8",
+  "changeBaseSha": "b90491189cea688963b74c7f5ad4507fa72af62c",
   "plannedFilePatterns": [
-    "docs/TEMPLATE_PRODUCTION_BRABUS_READINESS.md",
     "quality/development/active-plan.json",
-    "quality/knowledge/guard-registry.v1.json",
-    "scripts/template-factory-quality-gate.mjs",
-    "src/app/api/visual-fidelity/templates/route.ts",
-    "src/lib/builder/storefront-page-fingerprint.ts",
-    "src/lib/builder/storefront-responsive-layout-depth.ts",
-    "src/lib/builder/storefront-visual-diff-intelligence.ts",
-    "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts",
-    "src/lib/builder/template-factory/constraint-planner.ts",
-    "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
-    "src/lib/builder/template-factory/generator-readiness.ts",
-    "src/lib/builder/template-factory/media-planner.ts",
-    "src/lib/builder/template-factory/production-compiler-contract.ts",
-    "src/lib/builder/template-factory/production-compiler.ts",
-    "src/lib/builder/template-factory/production-contracts.ts",
-    "src/lib/builder/template-factory/production-lineage.ts",
+    "src/lib/builder/storefront-publish-readiness.ts",
+    "src/components/admin/storefront-visual-builder-v3.tsx",
     "src/lib/builder/template-factory/production-maturity.ts",
-    "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
-    "src/lib/builder/template-factory/scaffold.ts",
-    "src/lib/builder/template-factory/template-distinctness.ts",
-    "src/lib/builder/template-factory/template-genome.ts",
-    "src/lib/builder/template-factory/template-type-system.ts",
-    "tests/storefront-responsive-layout-depth.test.ts",
-    "tests/storefront-visual-diff-intelligence.test.ts",
-    "tests/template-factory-constraint-planner.test.ts",
-    "tests/template-factory-generator-readiness.test.ts",
-    "tests/template-factory-media-planner.test.ts",
-    "tests/template-factory-production-compiler.test.ts",
-    "tests/template-factory-production-lineage.test.ts",
-    "tests/template-factory-production-maturity.test.ts",
-    "tests/template-factory-template-distinctness.test.ts",
-    "tests/template-factory-template-genome.test.ts",
-    "tests/template-factory-template-type-system.test.ts"
+    "tests/storefront-publish-readiness.test.ts",
+    "tests/visual-builder-v3-ui.test.ts",
+    "tests/template-factory-production-maturity.test.ts"
   ],
   "expectedSubsystems": [
+    "admin-operations",
     "builder-template-system",
-    "database-schema",
-    "quality-knowledge-system",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
+    "DOMAIN-ADMIN",
     "DOMAIN-BUILDER",
-    "DOMAIN-QUALITY",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
+    "admin-operations",
     "builder-template-system",
-    "quality-knowledge-system",
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
@@ -64,10 +36,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -76,13 +45,9 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -115,127 +80,129 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-VX-VISUAL-DIFF-INTELLIGENCE-CORE-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-BRABUS-HARDENING",
     "riskTier": "critical",
-    "problemStatement": "Exact-head 14x3 browser evidence already captures page fingerprints, case fingerprints, runtime diagnostics, golden mismatch data including local hotspot evidence, warnings/errors and reuse provenance. That evidence currently remains CI-oriented and is not a reusable Builder intelligence contract. The Visual Diff Core must deterministically interpret the existing evidence without creating a second screenshot system and without treating pixels as Runtime truth or guessing Builder fixes from image mismatch alone.",
+    "problemStatement": "The active Visual Builder V3 currently presents a local Fidelity-based publish checklist, while Brabus readiness requires one deterministic decision contract that composes existing authorities across responsive/inheritance, exact-head visual drift, accessibility, media, links, commerce, required content, performance and canonical page/route completeness. Missing authority evidence must remain UNKNOWN, not silently become PASS. The contract must not publish, mutate Page Schema, duplicate screenshot/golden truth or infer causal repairs from pixels.",
     "observableOutcomes": [
-      "One canonical Visual Diff Intelligence Core consumes the existing shoporation.template-factory-quality-evidence.v2 case shape without changing the browser capture authority.",
-      "Manifest analysis validates template identity, expected source commit, canonical page/viewport matrix completeness, unique case identity and current/reused evidence provenance before reporting drift.",
-      "Fresh RERUN evidence is accepted only when bound to the expected source identity and case/page fingerprints are present.",
-      "REUSED evidence is accepted only when the current source identity is correct and reuseProof.fingerprintEquivalent is true with matching current fingerprint provenance.",
-      "Golden pass/fail/missing/dimension-mismatch and local hotspot fields are preserved as visual evidence, but pixel drift is explicitly classified as unlocalized/manual-review evidence rather than a causal diagnosis.",
-      "Structured runtime diagnostics classify overflow, protrusion, broken images, touch-target, clipping, shell/cardinality, mobile-navigation and social-integrity drift as explainable categories.",
-      "Unknown gate errors/warnings are never dropped; they remain explicit unclassified evidence so the intelligence cannot create a false clean result.",
-      "The result is deterministic, immutable and contains per-case diagnostics plus manifest summary by severity/evidence class/repairability.",
-      "The Core emits no Builder mutation, no screenshot capture, no persistence, no publish action and no automatic repair recommendation.",
-      "VX-VISUAL-DIFF-INTELLIGENCE becomes PROVEN only after executable adversarial proof; Publish Readiness, Smart Intent and Smart Auto-Fix remain non-PROVEN."
+      "One canonical Publish Readiness contract emits deterministic PASS/BLOCK/UNKNOWN findings and an aggregate decision without becoming a second domain authority.",
+      "Every finding carries authority/source, severity, explainable reason, repairability and page/viewport/node/path localization wherever the source authority exposes it.",
+      "Current-page Fidelity accessibility/layout/performance evidence is consumed rather than reimplemented.",
+      "Responsive inheritance diagnostics are consumed read-only and remain localized to node/viewport/dimension.",
+      "Visual Diff manifest intelligence is consumed with its exact-head provenance and structured-vs-unlocalized causality boundary intact.",
+      "Canonical page inventory, template route integrity and showroom/page-route completeness evidence fail closed when absent or incomplete.",
+      "Media and commerce readiness consume existing Template Factory/Storefront evidence instead of inventing new business truth.",
+      "The active StorefrontVisualBuilderV3 readiness drawer renders the canonical contract and visibly distinguishes UNKNOWN from PASS and BLOCK.",
+      "The Publish Readiness contract never invokes publish actions and never mutates Builder Page Schema.",
+      "VX-PUBLISH-READINESS becomes PROVEN only after Core plus active Builder V3 adoption and full executable proof; Smart Intent and Smart Auto-Fix remain non-PROVEN."
     ],
     "unresolvedRisks": [
-      "Pixel mismatch ratio could be mistaken for a causal layout diagnosis and later drive unsafe Auto-Fix.",
-      "Reused browser evidence could be stale if fingerprint-equivalence provenance is incomplete or source identity changed.",
-      "A partial matrix could look clean simply because affected page/viewport cases are absent.",
-      "Unknown future gate error codes could be silently ignored by a fixed classifier.",
-      "Golden baseline missing or dimension mismatch could be collapsed into an ordinary pixel percentage and lose important semantics.",
-      "A case may have clean golden pixels but structured Runtime errors such as overflow or broken images.",
-      "A case may have pixel drift with no structured diagnostic; the Core must preserve uncertainty rather than inventing a cause.",
-      "Evidence aggregation could double-count duplicate page/viewport cases or mix another template/version into the matrix."
+      "A missing template-level evidence source could be mislabeled as clean because current-page Fidelity is green.",
+      "Warnings from non-blocking authorities could accidentally become blockers or, inversely, errors could be downgraded to advisory status.",
+      "Pixel-only visual drift could be converted into a causal diagnosis or repair suggestion.",
+      "Page inventory can contain all 14 page types while some belong to another template/version or lack a draft revision.",
+      "Current-page link checks validate URL shape but cannot prove canonical shopper-route reachability without route-integrity evidence.",
+      "Commerce capability presence in binding context could be mistaken for executable commerce readiness.",
+      "Media alt checks alone could be mistaken for media production readiness while planned/internal-reference assets remain unresolved.",
+      "Builder UI could display a stale or incomplete template-level readiness envelope without preserving provenance.",
+      "A PASS aggregate could be emitted when any required category is UNKNOWN.",
+      "Combining Core and active Builder UI could exceed the release risk budget and require a release split."
     ],
     "scope": {
       "in": [
-        "Typed Visual Diff evidence contract matching the existing Template Factory quality case data used for canonical page/viewport cases.",
-        "Manifest-level identity, provenance, uniqueness and canonical matrix completeness validation.",
-        "Golden/global/local drift interpretation with explicit uncertainty boundary.",
-        "Structured Runtime diagnostic classification and preservation of unknown raw gate evidence.",
-        "Deterministic immutable per-case and aggregate intelligence result.",
-        "Adversarial proof for stale/reused/partial/duplicate/mixed-template/unknown-error/pixel-only/runtime-only cases.",
-        "Maturity promotion after executable proof."
+        "Pure deterministic Publish Readiness decision contract over existing Builder/Fidelity/Inheritance/Visual Diff/Template Factory evidence.",
+        "PASS/BLOCK/UNKNOWN semantics with UNKNOWN fail-closed at aggregate level.",
+        "Finding provenance, source authority, severity, localization, explanation and repairability metadata.",
+        "Canonical nine-category coverage: responsive/inheritance, visual drift, accessibility, media, links, commerce, required content, performance, page/route completeness.",
+        "Active StorefrontVisualBuilderV3 presentation adoption of the canonical result without creating a second checklist.",
+        "Adversarial tests for missing/stale/mixed evidence, error/warning precedence, visual causality boundary and deterministic output.",
+        "Maturity promotion only after active UI adoption and executable proof."
       ],
       "out": [
-        "Changing screenshot capture or golden comparison thresholds.",
-        "Changing Template Factory browser gate decisions.",
-        "Builder-facing visual-diff UI in this change set.",
-        "Generating Builder operations from pixel differences.",
-        "Smart Auto-Fix.",
-        "Publish Readiness aggregation.",
-        "Natural-language Smart Intent.",
-        "New renderer, Runtime, Page Schema, persistence or Control Plane gate.",
+        "Publishing or changing publish persistence/action authority.",
+        "Page Schema mutation or repair operations.",
+        "Smart Intent or natural-language intent parsing.",
+        "Smart Auto-Fix or automatic mutation generation.",
+        "New screenshot capture, golden comparison or visual baseline authority.",
+        "Changing Fidelity, Visual Diff, responsive inheritance, route-integrity or Template Factory source authorities to make readiness pass.",
+        "Control Plane, guard, policy or Known Failure changes without a newly proven deficiency.",
         "Template #3 authoring."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Visual evidence can become dangerously authoritative if provenance or causality is overstated. Highest practical assurance is a pure deterministic interpreter over the existing exact-head evidence contract, with fail-closed matrix/provenance validation, explicit structured-vs-pixel evidence separation, unknown-evidence preservation and adversarial proof that screenshot drift never becomes an invented mutation or causal diagnosis.",
+      "rationale": "Publish readiness is a release-adjacent decision surface that composes heterogeneous authorities and can create false confidence if evidence is missing, stale or over-interpreted. The highest practically justified level is a pure fail-closed evidence aggregator with explicit authority provenance, finite state semantics, dependency closure, adversarial evidence injection and active-UI adoption proof. Formal verification of browser/application behavior is not justified because the underlying evidence producers remain executable runtime authorities.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
         "dependency-graph",
         "evidence-provenance",
+        "what-if-matrix",
         "adversarial-scenarios",
         "negative-tests",
         "boundary-cases",
-        "fault-injection",
-        "combination-proof",
-        "what-if-matrix",
         "pairwise-interactions",
         "threat-failure-model",
+        "fault-injection",
+        "combination-proof",
         "finite-state-exhaustion"
       ],
       "deferredTechniques": [
-        "builder-facing-diff-overlay",
-        "screenshot-region-to-node-inference",
+        "formal-proof-of-browser-runtime",
+        "new-live-browser-capture-authority",
+        "computer-vision-causality",
         "automatic-repair-planning",
-        "publish-readiness-aggregation",
-        "computer-vision-or-embedding-causality"
+        "publish-mutation-gating",
+        "page-schema-mutation"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Core contract identifies the existing quality evidence version and never requires a second screenshot or golden authority.",
-        "A manifest cannot be valid intelligence input unless all expected canonical page×viewport cases exist exactly once for the target template/version.",
-        "Case source identity must match the expected current source identity; foreign or stale source evidence blocks intelligence validity.",
-        "REUSED cases require explicit fingerprint-equivalent reuse proof; RERUN cases do not masquerade as reused evidence.",
-        "Golden missing, dimension-mismatch, fail and pass remain distinct states; local peakRegion/hotspot data is preserved when available.",
-        "Pixel-only mismatch produces manual-review/unlocalized visual drift and never a structured-cause or auto-fix-eligible classification.",
-        "Structured runtime evidence produces deterministic categories with the original raw evidence retained.",
-        "Unknown error/warning codes are retained as unclassified diagnostics and prevent a false clean summary.",
-        "A clean result requires valid evidence plus zero error/warning drift diagnostics across the complete matrix.",
-        "Analysis of the same normalized evidence twice returns deep-equal immutable results independent of input object-key order.",
-        "VX-VISUAL-DIFF-INTELLIGENCE becomes PROVEN while VX-PUBLISH-READINESS, VX-SMART-INTENT and VX-SMART-AUTOFIX remain non-PROVEN."
+        "The readiness aggregate can only be PASS when every required category is proven and no blocking finding exists; any required missing/unverifiable evidence yields UNKNOWN.",
+        "Fidelity diagnostics retain original codes, severity, node/component identity and viewport where available.",
+        "Responsive inheritance findings consume existing inspection output and do not call propagation/apply APIs.",
+        "Visual Diff findings preserve exact-head/template/version provenance, page/viewport localization, evidence class and repairability; pixel-only drift remains manual-review with no structured cause.",
+        "Accessibility, media, links, commerce, required-content, performance and page/route completeness are represented as distinct categories with named source authorities.",
+        "Canonical page completeness validates all 14 page types exactly once for the active template identity and cannot treat foreign/stale page rows as satisfying coverage.",
+        "Template-level evidence that is unavailable in the Builder runtime remains explicit UNKNOWN rather than being inferred from local page state.",
+        "The active StorefrontVisualBuilderV3 drawer renders PASS/BLOCK/UNKNOWN plus source/reason/repairability and does not use an independent status algorithm.",
+        "No readiness module imports publish actions, persistence mutations, Builder mutation application or screenshot/golden capture code.",
+        "Equivalent normalized evidence produces deep-equal readiness output regardless of finding input order.",
+        "Release Risk Budget remains within policy for the wave or the UI adoption is split before implementation proceeds.",
+        "VX-PUBLISH-READINESS is promoted only after Core and active V3 adoption proofs pass; VX-SMART-INTENT and VX-SMART-AUTOFIX remain non-PROVEN."
       ],
       "invariants": [
-        "Template Factory browser/golden gate remains the visual evidence producer and pass/fail authority.",
-        "Screenshots and mismatch ratios are evidence, not Page Schema or Runtime truth.",
-        "Visual Diff Core does not modify evidence, capture images, compare PNG bytes, or mutate Builder documents.",
-        "Pixel evidence alone cannot claim a root cause or concrete repair operation.",
-        "Structured diagnostics never erase raw error/warning strings from the source case.",
-        "Reused evidence is only current when fingerprint-equivalence provenance explicitly proves reuse.",
-        "Missing/duplicate/mixed-identity matrix cases fail closed.",
-        "No timestamps or run IDs affect deterministic diagnostic classification."
+        "Readiness composes evidence; it does not own the underlying accessibility, responsive, visual, route, commerce, media, content or performance truth.",
+        "UNKNOWN is never equivalent to PASS.",
+        "BLOCK dominates UNKNOWN; UNKNOWN dominates PASS at aggregate level.",
+        "A warning may remain non-blocking only when its source authority classifies it as non-error and its evidence is present.",
+        "Pixel evidence alone cannot claim a causal Page Schema defect or repair operation.",
+        "Readiness does not publish, save, mutate, persist, capture screenshots or promote golden baselines.",
+        "Template/page/source identity must be preserved across every template-level evidence input.",
+        "The active Builder UI consumes the canonical readiness result and does not maintain a parallel hard-coded readiness checklist."
       ],
       "forbiddenStates": [
-        "pixel-diff-treated-as-runtime-truth",
-        "pixel-hotspot-generates-builder-mutation",
-        "stale-reused-evidence-counted-current",
-        "partial-matrix-counted-clean",
-        "unknown-gate-error-dropped",
-        "mixed-template-cases-aggregated",
-        "visual-diff-core-captures-screenshot",
-        "visual-diff-core-persists-or-publishes",
+        "unknown-evidence-counted-pass",
+        "partial-category-set-counted-pass",
+        "pixel-drift-generates-causal-repair",
+        "foreign-template-page-satisfies-completeness",
+        "stale-visual-evidence-counted-current",
+        "link-shape-check-counted-route-reachability",
+        "alt-text-check-counted-media-production-ready",
+        "binding-context-counted-commerce-proof",
+        "legacy-production-builder-only-adoption",
+        "readiness-core-publishes-or-mutates",
+        "smart-intent-falsely-proven",
         "smart-autofix-falsely-proven",
         "template-3-authoring"
       ]
@@ -269,44 +236,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A 42-case matrix is missing one mobile case but summary still reports clean.",
-        "A reused case from an older source commit lacks valid reuse proof but is accepted as current.",
-        "A golden fail with no runtime issue is labeled overflow or spacing drift without evidence.",
-        "A runtime overflow exists while golden status passes and the case is incorrectly called clean.",
-        "Golden dimension mismatch is reduced to generic mismatchRatio=1 and loses dimension semantics.",
-        "Unknown future browser-gate error text is ignored and disappears from diagnostics.",
-        "Duplicate home-mobile cases inflate/replace each other instead of failing identity uniqueness.",
-        "Cases from a foreign template version are mixed into the requested matrix."
+        "Current page has no Fidelity errors, but visual exact-head evidence is absent and readiness reports PASS.",
+        "One visual pixel hotspot is labeled as an overflow repair without structured Runtime evidence.",
+        "Fourteen stored page rows exist but one page belongs to a different template version and completeness still passes.",
+        "A hard performance issue appears as a warning because the UI maps only presentation status labels.",
+        "A safe-looking href passes syntax validation while route-integrity evidence is missing and link readiness still passes.",
+        "Media has valid alt text but Template Factory media evidence reports planned assets; readiness incorrectly passes media.",
+        "Commerce components render but engine/showroom proof is unavailable; readiness incorrectly passes commerce.",
+        "A new unknown evidence state is dropped by aggregation and produces a false clean summary.",
+        "Active V3 keeps the old checklist while only the legacy production component adopts the new contract.",
+        "A blocking category and an unknown category coexist but aggregate precedence incorrectly returns UNKNOWN instead of BLOCK."
       ],
       "edgeCases": [
-        "Golden status pass with nonzero mismatch below both global and local budgets.",
-        "Golden fail caused only by local hotspot while global mismatch remains under threshold.",
-        "Missing baseline on a candidate where golden.required is false but evidence state still must remain explicit.",
-        "REUSED case has screenshotPath null but originScreenshotPath present.",
-        "RERUN case has no reuseProof.",
-        "Case has warnings only and no errors.",
-        "Case has both structured runtime error and visual pixel drift.",
-        "An extra noncanonical content-demo case exists beside a complete canonical matrix and is ignored for matrix completeness but may remain auxiliary evidence."
+        "No draft revision while all document diagnostics are otherwise clean.",
+        "Fidelity warning-only accessibility issues with no errors.",
+        "Visual evidence has bounded nonzero mismatch but remains within accepted thresholds.",
+        "Visual manifest is valid but contains an unclassified warning.",
+        "Inheritance has redundant override warnings on multiple viewports.",
+        "Page inventory contains duplicate page types or unknown page types.",
+        "Template-level evidence is supplied for the correct template key but wrong version.",
+        "A current page has no image nodes while template-level media evidence is unavailable.",
+        "Route-integrity issue localizes only to config path/href rather than nodeId.",
+        "Input evidence collections arrive in different order."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-VISUAL-DIFF-EVIDENCE-INTERPRETER",
-        "summary": "Consume the existing Template Factory evidence manifest in a typed pure intelligence core.",
+        "id": "ALT-PUBLISH-READINESS-CANONICAL-AGGREGATOR",
+        "summary": "Create one pure readiness contract that consumes existing authorities and expose it in the active Builder V3.",
         "disposition": "selected",
-        "reason": "Preserves the single screenshot/golden authority while making its evidence reusable and explainable."
+        "reason": "Preserves authority ownership, supports fail-closed UNKNOWN semantics and removes duplicated UI readiness logic."
       },
       {
-        "id": "ALT-VISUAL-DIFF-SECOND-CAPTURE",
-        "summary": "Add a Builder-specific screenshot/diff engine.",
+        "id": "ALT-PUBLISH-READINESS-EXPAND-UI-CHECKLIST",
+        "summary": "Keep adding conditions directly to the Builder publish drawer.",
         "disposition": "rejected",
-        "reason": "Would duplicate visual truth, thresholds and evidence provenance."
+        "reason": "Would leave no reusable evidence contract, duplicate semantics and make provenance/UNKNOWN behavior fragile."
       },
       {
-        "id": "ALT-VISUAL-DIFF-PIXEL-TO-AUTOFIX",
-        "summary": "Map pixel hotspots directly to Builder repairs.",
+        "id": "ALT-PUBLISH-READINESS-NEW-MEGA-GATE",
+        "summary": "Create a new independent gate that rechecks visual, route, media and commerce behavior itself.",
         "disposition": "rejected",
-        "reason": "Pixels do not prove causal schema changes; this would create unsafe guessed mutations."
+        "reason": "Would violate the single-authority model and duplicate already PROVEN evidence producers."
       }
     ],
     "specialistReviews": [
@@ -314,139 +285,165 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The Template Factory quality evidence manifest already contains the necessary page/viewport, fingerprint, golden and runtime diagnostic evidence.",
-        "resolution": "Build a pure consumer contract around that evidence; do not modify or replace the capture authority.",
+        "finding": "Existing Fidelity, inheritance, visual-diff, route/showroom and Template Factory engines already own the relevant evidence; readiness should only normalize their decisions.",
+        "resolution": "Implement a pure adapter/aggregator with explicit source authority identifiers and no source-authority rewrites.",
         "evidence": [
-          "scripts/template-factory-quality-gate.mjs",
-          "tests/storefront-template-quality-gate-v2.test.ts"
+          "src/lib/builder/storefront-fidelity-inspector.ts",
+          "src/lib/builder/storefront-responsive-layout-depth.ts",
+          "src/lib/builder/storefront-visual-diff-intelligence.ts",
+          "src/lib/builder/storefront-template-route-integrity.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "REUSED cases can look current while originating from an older run.",
-        "resolution": "Require current source identity plus explicit fingerprintEquivalent reuse proof and preserve origin provenance separately.",
+        "finding": "The active Builder does not currently possess all exact-head/template-level evidence, so a local clean document cannot prove template readiness.",
+        "resolution": "Required but unavailable evidence is represented as UNKNOWN and prevents aggregate PASS; no fallback inference is permitted.",
         "evidence": [
-          "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-          "scripts/template-factory-quality-gate.mjs"
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/lib/builder/storefront-visual-diff-intelligence.ts"
         ]
       },
       {
-        "role": "Runtime",
+        "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Pixel mismatch is not Runtime state and cannot safely identify a schema cause.",
-        "resolution": "Separate visual-baseline evidence from structured runtime diagnostics and mark pixel-only drift manual-review/unlocalized.",
+        "finding": "Core plus active Admin UI previously risks crossing the release budget if extra subsystems are pulled in.",
+        "resolution": "Keep the material change set to Builder core + active Admin UI; projected Release Risk is 4/5 across two substantive subsystems, with split mandatory if projection expands.",
         "evidence": [
-          "scripts/template-factory-quality-gate.mjs",
-          "src/lib/builder/storefront-runtime.ts"
+          "deploy/release-risk-policy.json"
         ]
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Useful authoring intelligence needs page/viewport localization and preserved hotspot data, but not speculative fixes.",
-        "resolution": "Return page, viewport, mismatch/hotspot localization and structured issue categories; defer overlays and repair actions.",
+        "finding": "A generic green/red checklist hides why a page is blocked and encourages unsafe interpretation of visual diffs.",
+        "resolution": "Render tri-state findings with source, localized reason and repairability; preserve visual-unlocalized manual-review semantics.",
         "evidence": [
-          "scripts/lib/shoperation-template-factory-golden-semantics.mjs",
-          "scripts/template-factory-quality-gate.mjs"
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/lib/builder/storefront-visual-diff-intelligence.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-VDIFF-1",
-        "scenario": "One canonical page×viewport case is missing from otherwise clean evidence.",
-        "finding": "Partial evidence cannot prove a clean template.",
-        "resolution": "Manifest validity fails with MATRIX_CASE_MISSING.",
+        "id": "CH-PUB-1",
+        "scenario": "All current-page Fidelity checks pass but visual evidence is absent.",
+        "finding": "Local diagnostics cannot prove exact-head visual readiness.",
+        "resolution": "Visual category is UNKNOWN and aggregate is UNKNOWN.",
         "status": "resolved"
       },
       {
-        "id": "CH-VDIFF-2",
-        "scenario": "A REUSED case points at current sourceCommit but lacks fingerprintEquivalent reuse proof.",
-        "finding": "Origin evidence freshness is unproven.",
-        "resolution": "Case provenance is invalid and the manifest cannot be clean.",
+        "id": "CH-PUB-2",
+        "scenario": "Pixel diff fails with no structured runtime issue.",
+        "finding": "Pixels prove drift, not cause.",
+        "resolution": "BLOCK visual drift with manual-review repairability and no causal repair.",
         "status": "resolved"
       },
       {
-        "id": "CH-VDIFF-3",
-        "scenario": "Golden mismatch fails with a local hotspot but runtime diagnostics are otherwise clean.",
-        "finding": "The system knows there is visual drift but not the cause.",
-        "resolution": "Emit unlocalized pixel-drift/manual-review diagnostic carrying mismatch and peakRegion; no structured cause.",
+        "id": "CH-PUB-3",
+        "scenario": "A canonical page type is missing or duplicated in page inventory.",
+        "finding": "Page completeness is not proven.",
+        "resolution": "BLOCK page/route completeness with explicit page-type evidence.",
         "status": "resolved"
       },
       {
-        "id": "CH-VDIFF-4",
-        "scenario": "Golden passes but horizontal overflow and protruding runtime diagnostics exist.",
-        "finding": "Pixel threshold must not hide structured defects.",
-        "resolution": "Emit structured runtime error diagnostics regardless of golden status.",
+        "id": "CH-PUB-4",
+        "scenario": "All 14 page types exist but one has foreign template/version identity.",
+        "finding": "Cardinality alone can hide mixed presentation authority.",
+        "resolution": "Foreign identity cannot satisfy completeness and produces BLOCK.",
         "status": "resolved"
       },
       {
-        "id": "CH-VDIFF-5",
-        "scenario": "Case contains an unknown future error prefix.",
-        "finding": "Fixed mapping could silently erase new failures.",
-        "resolution": "Emit unclassified raw error diagnostic and keep non-clean status.",
+        "id": "CH-PUB-5",
+        "scenario": "Link syntax is valid but template route-integrity evidence is absent.",
+        "finding": "Safe URL syntax is weaker than reachable canonical route proof.",
+        "resolution": "Links retain local evidence but route reachability remains UNKNOWN; aggregate cannot PASS.",
         "status": "resolved"
       },
       {
-        "id": "CH-VDIFF-6",
-        "scenario": "Two cases share the same pageType+viewport identity.",
-        "finding": "Aggregation order could overwrite evidence.",
-        "resolution": "Duplicate identity fails manifest validation before summary.",
+        "id": "CH-PUB-6",
+        "scenario": "Image alt diagnostics are clean while media planning reports unresolved planned/internal-reference assets.",
+        "finding": "Accessibility media checks are not production media readiness.",
+        "resolution": "Media category consumes explicit media authority; unresolved states BLOCK/UNKNOWN according to source evidence.",
         "status": "resolved"
       },
       {
-        "id": "CH-VDIFF-7",
-        "scenario": "A foreign template version case is mixed into a canonical matrix.",
-        "finding": "Matrix could accidentally satisfy cardinality with wrong evidence.",
-        "resolution": "Identity mismatch is explicit invalid evidence and cannot satisfy expected case coverage.",
+        "id": "CH-PUB-7",
+        "scenario": "Commerce components are present but executable engine/showroom evidence is absent.",
+        "finding": "Presentation presence is not commerce readiness.",
+        "resolution": "Commerce category remains UNKNOWN until canonical commerce/showroom evidence is supplied.",
         "status": "resolved"
       },
       {
-        "id": "CH-VDIFF-8",
-        "scenario": "Equivalent evidence objects differ only in object-key insertion order or runId/capturedAt.",
-        "finding": "Classification should not fluctuate on irrelevant metadata.",
-        "resolution": "Normalization ignores non-semantic timing/run metadata and produces deterministic deep-equal intelligence output.",
+        "id": "CH-PUB-8",
+        "scenario": "A BLOCK finding and UNKNOWN finding coexist.",
+        "finding": "Unknown must not mask a known blocker.",
+        "resolution": "Aggregate precedence is BLOCK > UNKNOWN > PASS.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PUB-9",
+        "scenario": "Evidence lists arrive in different order.",
+        "finding": "UI and truth status must not depend on enumeration order.",
+        "resolution": "Normalize/sort findings deterministically before summary.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PUB-10",
+        "scenario": "Legacy production component is updated while active V3 remains unchanged.",
+        "finding": "Capability would be falsely claimed as adopted.",
+        "resolution": "Active route resolution is explicit proof target; V3 adoption is required before maturity promotion.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Complete 14×3 synthetic canonical manifest produces valid clean intelligence when every case is clean and current.",
-      "Missing, duplicate and mixed-identity case adversarial proofs fail closed.",
-      "RERUN vs REUSED provenance proofs enforce fingerprint-equivalent reuse semantics.",
-      "Golden pass/fail/missing/dimension-mismatch and local hotspot proofs remain semantically distinct.",
-      "Pixel-only drift proof remains manual-review and has no structured repair category.",
-      "Runtime-only drift proof remains non-clean even when golden passes.",
-      "Unknown raw error/warning preservation proof prevents false-clean classification.",
-      "Determinism/immutability proof ignores runId/capturedAt/object-key order.",
-      "Source-code proof forbids screenshot capture, PNG comparison, Builder mutation, persistence and publish imports in the Core.",
-      "Maturity proof promotes only VX-VISUAL-DIFF-INTELLIGENCE; Publish Readiness, Smart Intent and Smart Auto-Fix remain non-PROVEN.",
-      "Normal CI + exact-head Template Factory Quality Gate v2 + Completion Truth + lifecycle closure."
+      "Plan Before Code projected-scope proof and exact release-risk projection before implementation.",
+      "Core adversarial state-machine proof for PASS/BLOCK/UNKNOWN precedence and required-category completeness.",
+      "Authority mapping proof that each canonical readiness category names and preserves its existing source contract.",
+      "Localization proof for page/viewport/node/component/path/href fields when available.",
+      "Visual causality proof: pixel-only drift remains manual-review and cannot become a structured repair.",
+      "Page inventory adversarial proof for missing, duplicate, foreign-template and foreign-version rows.",
+      "Missing-evidence proof for visual, route, media and commerce categories: UNKNOWN never PASS.",
+      "Determinism/immutability proof across reordered equivalent evidence.",
+      "Source-code boundary proof forbidding publish/persistence/Builder mutation/screenshot capture imports from readiness Core.",
+      "Active V3 UI proof consumes the canonical readiness result and displays UNKNOWN distinctly.",
+      "Maturity proof promotes only VX-PUBLISH-READINESS; Smart Intent and Smart Auto-Fix remain non-PROVEN.",
+      "Incremental Known Failure replay, targeted quality tests, full quality tests, TypeScript, production build, exact-head Template Factory Quality Gate v2, Completion Truth and lifecycle closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-VX-VISUAL-DIFF-INTELLIGENCE-CORE-BRABUS-HARDENING",
+      "request": "PO-2026-10-03-VX-PUBLISH-READINESS-BRABUS-HARDENING",
       "authority": [
-        "builder-template-system"
+        "builder-template-system",
+        "admin-operations"
       ],
       "mustEdit": [
-        "src/lib/builder/storefront-visual-diff-intelligence.ts",
+        "src/components/admin/storefront-visual-builder-v3.tsx",
         "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
-        "tests/storefront-visual-diff-intelligence.test.ts",
+        "src/lib/builder/storefront-publish-readiness.ts",
+        "tests/storefront-publish-readiness.test.ts",
+        "tests/visual-builder-v3-ui.test.ts",
         "tests/template-factory-production-maturity.test.ts"
       ],
       "impactedReadOnly": [
-        "scripts/template-factory-quality-gate.mjs",
-        "scripts/lib/shoperation-template-factory-golden-semantics.mjs",
-        "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-        "src/lib/builder/storefront-runtime.ts"
+        "src/components/admin/storefront-visual-builder-production.tsx",
+        "src/app/admin/tartalom/builder/page.tsx",
+        "src/lib/builder/storefront-fidelity-inspector.ts",
+        "src/lib/builder/storefront-fidelity-diagnostics.ts",
+        "src/lib/builder/storefront-performance-contract.ts",
+        "src/lib/builder/storefront-responsive-layout-depth.ts",
+        "src/lib/builder/storefront-visual-diff-intelligence.ts",
+        "src/lib/builder/storefront-template-route-integrity.ts",
+        "src/lib/builder/template-factory/media-planner.ts",
+        "src/lib/builder/template-factory/generator-readiness.ts"
       ],
       "proof": [
-        "tests/storefront-visual-diff-intelligence.test.ts",
+        "tests/storefront-publish-readiness.test.ts",
+        "tests/visual-builder-v3-ui.test.ts",
         "tests/template-factory-production-maturity.test.ts"
       ],
       "unknown": []
@@ -455,14 +452,14 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-VX-VISUAL-DIFF-INTELLIGENCE-CORE-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-VX-PUBLISH-READINESS-BRABUS-HARDENING",
     "requirements": [
       {
-        "id": "REQ-VX-VISUAL-DIFF-EVIDENCE",
-        "requirement": "Existing exact-head Template Factory visual evidence becomes a typed deterministic intelligence input with fail-closed identity, provenance and canonical matrix validation.",
+        "id": "REQ-VX-PUBLISH-READINESS-TRISTATE",
+        "requirement": "Canonical Publish Readiness aggregates all required evidence categories with authority provenance and fail-closed PASS/BLOCK/UNKNOWN semantics; UNKNOWN can never satisfy readiness.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "vx-visual-diff-intelligence",
+          "breadth": "vx-publish-readiness-decision-contract",
           "strength": 2,
           "dimensions": [
             "claim-scope",
@@ -476,16 +473,89 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-QUALITY-TESTS",
+            "GUARD-TYPECHECK"
           ],
           "outcome": [
+            "GUARD-QUALITY-TESTS",
             "GUARD-TEMPLATE-FACTORY"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-VISUAL-DIFF-SECOND-TRUTH",
-            "statement": "Visual Diff Core cannot introduce a second screenshot/golden truth or accept stale/partial evidence as current.",
+            "id": "NEG-PUBLISH-READINESS-FALSE-PASS",
+            "statement": "Missing, stale, partial or foreign authority evidence cannot be converted to PASS.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-VX-PUBLISH-READINESS-AUTHORITY-BOUNDARY",
+        "requirement": "Publish Readiness remains a read-only evidence decision contract: it does not publish, mutate Page Schema, duplicate source authorities or infer repairs from pixel evidence.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "publish-readiness-authority-boundary",
+          "strength": 2,
+          "dimensions": [
+            "status",
+            "classification",
+            "scope",
+            "limitations"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-PUBLISH-READINESS-PARALLEL-AUTHORITY",
+            "statement": "Readiness cannot become a second visual/route/commerce/media authority or invoke publish/mutation paths.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-VX-PUBLISH-READINESS-ACTIVE-UI",
+        "requirement": "The active StorefrontVisualBuilderV3 consumes and presents the canonical Publish Readiness result with source, localization, reason, repairability and distinct UNKNOWN semantics.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "publish-readiness-builder-adoption",
+          "strength": 2,
+          "dimensions": [
+            "implementation-scope",
+            "user-visible-adoption",
+            "limitations"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-TYPECHECK"
+          ],
+          "outcome": [
+            "GUARD-PRODUCTION-BUILD",
+            "GUARD-TEMPLATE-FACTORY"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-PUBLISH-READINESS-LEGACY-ONLY",
+            "statement": "Capability cannot be promoted if only an inactive legacy Builder surface consumes the contract.",
             "evidence": [
               "GUARD-QUALITY-TESTS",
               "GUARD-TEMPLATE-FACTORY"
@@ -494,50 +564,14 @@
         ]
       },
       {
-        "id": "REQ-VX-VISUAL-DIFF-CAUSALITY-BOUNDARY",
-        "requirement": "Pixel drift remains unlocalized/manual-review evidence while structured runtime diagnostics remain separately explainable; no pixel evidence directly generates Builder repairs.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "visual-diff-causality",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "classification",
-            "scope",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-VISUAL-DIFF-GUESSED-FIX",
-            "statement": "Mismatch ratios or hotspots cannot be converted into invented causal diagnoses or Builder mutations.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-VX-VISUAL-DIFF-CAPABILITY-SEPARATION",
-        "requirement": "Visual Diff Intelligence completion does not promote Publish Readiness, Smart Intent or Smart Auto-Fix.",
+        "id": "REQ-VX-PUBLISH-READINESS-CAPABILITY-SEPARATION",
+        "requirement": "Publish Readiness completion does not promote Smart Intent, Smart Auto-Fix or authorize Template #3.",
         "claimScope": {
           "capability": "CAP-QUALITY",
           "breadth": "capability-separation",
           "strength": 2,
           "dimensions": [
             "status",
-            "classification",
             "scope",
             "limitations"
           ]
@@ -555,8 +589,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-VISUAL-DIFF-FALSE-VX-PROVEN",
-            "statement": "Visual Diff completion cannot imply remaining VX capabilities are proven.",
+            "id": "NEG-PUBLISH-READINESS-FALSE-NEXT-PROVEN",
+            "statement": "Smart Intent, Smart Auto-Fix and Template #3 readiness remain blocked.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -565,18 +599,5 @@
       }
     ]
   },
-  "notes": "Ninth Brabus hardening wave. Inheritance Intelligence Core is PROVEN and lifecycle-closed. Remaining dependency order: Visual Diff Intelligence Core → Publish Readiness → Smart Intent → Smart Auto-Fix. This wave is core-only and does not add Builder UI or repair actions. Template #3 remains forbidden. Canonical Visual Diff Core projection reconciled: include storefront-page-fingerprint authority; subsystem scope builder-template-system/database-schema/quality-knowledge-system/shared-storefront/storefront-ui; negative knowledge SQ-NK-005/011/014/015 apply; guard digest bb25917e.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "ab77cd3a2b53d5130ef249a943cb928edfdb5b6d",
-    "closedAt": "2026-10-03T01:07:28.193Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-VX-VISUAL-DIFF-INTELLIGENCE-CORE-BRABUS-HARDENING",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Tenth Brabus hardening wave. Inheritance Intelligence and Visual Diff Intelligence are PROVEN and lifecycle-closed. Active route audit proved StorefrontVisualBuilderV3 is the live Builder surface; the older storefront-visual-builder-production.tsx readiness checklist is read-only legacy evidence for this wave. Projected Release Risk is 4/5 across builder-template-system + admin-operations, so no split is required unless the material change set expands. Dependency order remains Publish Readiness → Smart Intent → Smart Auto-Fix. Template #3 remains forbidden."
 }
