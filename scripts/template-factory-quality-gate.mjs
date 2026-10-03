@@ -13,6 +13,7 @@ const headSha=(process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').tri
 const currentBranch=(process.env.QUALITY_BRANCH??process.env.GITHUB_HEAD_REF??process.env.GITHUB_REF_NAME??'').trim();
 const currentRunId=(process.env.GITHUB_RUN_ID??'local').trim();
 const previousManifestPath=(process.env.TEMPLATE_QUALITY_PREVIOUS_MANIFEST??'').trim();
+const pullRequestAcceptance=process.env.GITHUB_EVENT_NAME==='pull_request';
 const viewportProfiles=Object.freeze({
   desktop:{width:1200,height:1000},
   tablet:{width:768,height:1024},
@@ -218,9 +219,9 @@ function selectScope(catalog,changes,previous,{registry,diffByFile,factoryEngine
         selected.set(template.templateKey,{template,mode:'reuse',pages:[],reason:'no-relevant-browser-input-change',semanticImpact:[],prior});
         continue;
       }
-      const mode=template.factoryCandidate?'full':'canary';
+      const mode=(template.factoryCandidate||pullRequestAcceptance)?'full':'canary';
       const pages=mode==='full'?[...template.pageTypes]:template.pageTypes.filter(pageType=>canaryPageTypes.has(pageType));
-      const reason=template.factoryCandidate?'factory-exact-head-full':'default-canary';
+      const reason=template.factoryCandidate?'factory-exact-head-full':pullRequestAcceptance?'pull-request-exact-head-full':'default-canary';
       selected.set(template.templateKey,{template,mode,pages,reason,semanticImpact:[],prior:null});
     }
   }
@@ -687,6 +688,16 @@ const acceptanceProofs=scope.selected.map(selected=>{
     blockers,
   };
 });
+
+if(pullRequestAcceptance){
+  for(const proof of acceptanceProofs){
+    if(proof.browserMatrixPassed===true&&proof.browserMatrixComplete===true)continue;
+    errors.push({
+      case:`acceptance:${proof.templateKey}`,
+      error:`PR_ACCEPTANCE_BROWSER_MATRIX_INCOMPLETE:${proof.browserMatrixCaseCount}/${proof.browserMatrixExpectedCaseCount}`,
+    });
+  }
+}
 
 const templatePageFingerprints=Object.fromEntries(scope.selected.map(selected=>[selected.template.templateKey,{templateVersion:selected.template.templateVersion,pages:selected.template.pageFingerprints??{}}]));
 const evidence={

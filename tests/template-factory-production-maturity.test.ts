@@ -6,12 +6,15 @@ import {
 } from '@/lib/builder/template-factory/production-maturity';
 
 describe('Template Production Brabus maturity v1',()=>{
-  it('clears the VX Smart Auto-Fix blocker without bypassing remaining Brabus engine revalidation',()=>{
+  it('marks engine technical maturity ready only after every Brabus revalidation proof is PROVEN',()=>{
     const result=evaluateStorefrontTemplateProductionMaturity();
     expect(result.valid).toBe(true);
-    expect(result.template3AuthoringReady).toBe(false);
-    expect(result.blockingCapabilityIds).not.toContain('VX-SMART-AUTOFIX');
-    expect(result.blockingCapabilityIds.some(id=>id.startsWith('ENGINE-')&&id.endsWith('-BRABUS-REVALIDATION'))).toBe(true);
+    expect(result.template3AuthoringReady).toBe(true);
+    expect(result.blockingCapabilityIds).toEqual([]);
+    const engines=result.capabilities.filter(item=>item.id.startsWith('ENGINE-')&&item.id.endsWith('-BRABUS-REVALIDATION'));
+    expect(engines).toHaveLength(12);
+    expect(engines.every(item=>item.state==='PROVEN')).toBe(true);
+    expect(engines.every(item=>item.evidence.some(row=>row.kind==='test'&&row.executable))).toBe(true);
     expect(result.capabilities.find(item=>item.id==='FACTORY-TEMPLATE-GENOME')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-TEMPLATE-TYPE-SYSTEM')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='FACTORY-CONSTRAINT-PLANNER')?.state).toBe('PROVEN');
@@ -23,11 +26,7 @@ describe('Template Production Brabus maturity v1',()=>{
     expect(result.capabilities.find(item=>item.id==='VX-INHERITANCE-INTELLIGENCE')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='VX-VISUAL-DIFF-INTELLIGENCE')?.state).toBe('PROVEN');
     expect(result.capabilities.find(item=>item.id==='VX-SMART-INTENT')?.state).toBe('PROVEN');
-    const autoFix=result.capabilities.find(item=>item.id==='VX-SMART-AUTOFIX');
-    expect(autoFix?.state).toBe('PROVEN');
-    expect(autoFix?.evidence.some(item=>item.kind==='implementation'&&item.path==='src/lib/builder/storefront-smart-autofix.ts')).toBe(true);
-    expect(autoFix?.evidence.some(item=>item.kind==='test'&&item.path==='tests/storefront-smart-autofix.test.ts')).toBe(true);
-    expect(autoFix?.nextAction).toContain('final end-to-end Brabus rehearsal');
+    expect(result.capabilities.find(item=>item.id==='VX-SMART-AUTOFIX')?.state).toBe('PROVEN');
   });
 
   it('rejects documentation-only PROVEN claims',()=>{
@@ -56,7 +55,7 @@ describe('Template Production Brabus maturity v1',()=>{
     expect(evaluateStorefrontTemplateProductionMaturity([bad]).valid).toBe(false);
   });
 
-  it('unlocks Template #3 only when every mandatory capability is PROVEN with executable evidence',()=>{
+  it('marks technical Template #3 maturity ready only when every mandatory capability is PROVEN with executable evidence',()=>{
     const promoted=storefrontTemplateProductionCapabilityCatalog().map(item=>({
       ...item,
       state:'PROVEN' as const,

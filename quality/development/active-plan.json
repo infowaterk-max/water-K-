@@ -1,36 +1,29 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-VX-SMART-AUTOFIX-BRABUS-HARDENING",
-  "task": "Implement and adopt canonical VX Smart Auto-Fix: classify Publish Readiness diagnostics through an explicit safe-repair registry, produce explainable preview-first stale-safe repair plans only for deterministically repairable findings, apply them through existing Builder authorities as one undoable document commit, and fail closed to MANUAL/BLOCK/UNKNOWN for every unsafe, stale, external, semantic or pixel-only diagnostic.",
+  "taskId": "DEV-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
+  "task": "Revalidate shared storefront engines E1-E11 and E13 against the current Mercedes-Maybach-Brabus stack with engine-specific adversarial proof, promote only engines whose required invariants are freshly proven, preserve each existing authority boundary, and keep Template #3 authoring forbidden until the separate final end-to-end Brabus rehearsal passes.",
   "status": "closed",
-  "guardDigest": "ba1a39f8",
-  "changeBaseSha": "568e2d2c509bb58e5d00f07963bc3b2f187e7f01",
+  "guardDigest": "94082bf1",
+  "changeBaseSha": "859519dd062bb0108f475851c1de4542f16326c6",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "src/lib/builder/storefront-smart-autofix.ts",
-    "src/components/admin/storefront-visual-builder-v3.tsx",
-    "src/lib/builder/template-factory/production-maturity.ts",
-    "tests/storefront-smart-autofix.test.ts",
-    "tests/visual-builder-v3-smart-autofix.test.ts",
-    "tests/visual-builder-production-completion.test.ts",
+    "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
+    "tests/template-factory-engine-brabus-revalidation.test.ts",
     "tests/template-factory-production-maturity.test.ts",
-    "tests/template-factory-generator-readiness.test.ts"
+    "tests/template-factory-generator-readiness.test.ts",
+    "scripts/template-factory-quality-gate.mjs",
+    "tests/storefront-template-quality-gate-v2.test.ts"
   ],
   "expectedSubsystems": [
-    "admin-operations",
     "builder-template-system",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-ADMIN",
-    "DOMAIN-BUILDER",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
-    "admin-operations",
-    "builder-template-system",
-    "shared-storefront"
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -38,7 +31,10 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -47,9 +43,13 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -89,74 +89,80 @@
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [],
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/lib/builder/template-factory/generator-readiness.ts",
+      "findingFingerprint": "3b038645",
+      "reason": "Intentional fail-closed undeclared-Blueprint branch. template3AuthoringReady must remain false when no Generator Blueprint is declared; this consumer is independent of the now-PROVEN Brabus engine revalidation maturity for declared generator candidates."
+    }
+  ],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-VX-SMART-AUTOFIX-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
     "riskTier": "critical",
-    "problemStatement": "VX Smart Auto-Fix is the final mandatory VX blocker after lifecycle-closed Publish Readiness and Smart Intent. Publish Readiness intentionally marks many findings as structured diagnostics, but structure alone is not proof that an automatic repair is semantically safe. Auto-Fix must therefore introduce no heuristic repair authority: it must classify each selected readiness finding, verify it against the current source authority, and emit an executable repair only when an explicit allowlisted rule proves a deterministic canonical schema operation. The initial safe registry covers redundant responsive inheritance overrides with dimension-local reset and Design Guard disabled with canonical warn-mode restoration. Semantic content, links, media, commerce, page completeness, unknown external evidence and pixel-only drift remain manual/non-automatic.",
+    "problemStatement": "The current production maturity catalog still blocks Template #3 because E1-E11 and E13 are all EVOLVE in the dedicated Brabus revalidation registry. Every engine already has canonical implementation and retained proof, so the missing capability is not another engine layer but fresh current-stack adversarial proof. This wave must prove each engine independently against its registered invariants, preserve its existing authority and mutation boundary, and promote only the engines that pass. A failure must identify the exact engine and trigger a separate targeted implementation fix rather than broadening this proof-only wave across multiple commerce/content/checkout authorities. During exact-head closure proof, the canonical Template Factory pull-request workflow returned SUCCESS while its own manifest marked gaming.playroom browserMatrixComplete=false (18/42 canary cases, no reusable previous full proof). The external completion handoff correctly rejected that artifact. This proves a gap inside the existing Template Factory gate: PR acceptance fallback can emit regression-signal canary evidence yet still exit success. The repair must align the existing gate with its declared 14x3 PR acceptance contract, not weaken external completion evidence.",
     "observableOutcomes": [
-      "One canonical Smart Auto-Fix Core accepts the current Page Schema plus a selected Publish Readiness finding and returns READY, MANUAL, BLOCK or UNKNOWN.",
-      "READY is possible only through an explicit safe-repair registry entry that matches finding code, evidence source, repairability, localization and current authority state.",
-      "RESPONSIVE_INHERITANCE_REDUNDANT_OVERRIDE plans reset exactly the localized visibility, grid-placement, container or child-order dimension through existing responsive authorities rather than resetting unrelated dimensions.",
-      "PUBLISH_READINESS_DESIGN_GUARD_OFF plans restore the existing Design Guard to canonical warn mode through setStorefrontDesignGuardMode.",
-      "Missing alt text, heading semantics, unsafe links, commerce/media/page completeness, draft persistence actions, unknown diagnostic codes and unlocalized external findings never generate schema repairs automatically.",
-      "Pixel-only or visual-unlocalized drift always returns MANUAL with zero operations even when the overall readiness decision is BLOCK.",
-      "Each READY plan binds finding identity, source page fingerprint, exact authority state and an integrity hash; stale or tampered plans fail before mutation.",
-      "Apply executes on a clone through existing canonical setters, validates Page Schema, proves the targeted diagnostic postcondition is resolved, and returns no partial output on failure.",
-      "Active StorefrontVisualBuilderV3 exposes per-finding Auto-Fix planning and a separate READY-only apply action inside readiness review.",
-      "V3 Auto-Fix application enters ordinary Builder undo/redo history with exactly one commitDocument call and never saves, publishes or persists by itself.",
-      "Auto-Fix does not call Smart Intent natural-language parsing, an AI gateway, or Visual Diff pixel data to invent a repair.",
-      "VX-SMART-AUTOFIX becomes PROVEN only after Core plus active V3 adoption and adversarial executable proof.",
-      "After promotion, all mandatory Template #3 maturity blockers are PROVEN, but Template #3 authoring remains forbidden until the separate final end-to-end Brabus rehearsal passes."
+      "A dedicated Brabus revalidation proof exercises E1-E11 adversarially through their existing public authorities without production mutation.",
+      "E13 remains on the existing exact-head browser/network checkout proof path and is never replaced by a synthetic unit-only proof.",
+      "Each revalidation row is PROVEN only when its current-stack proof producer exists and the engine-specific required invariants are explicitly exercised.",
+      "Retained proof alone cannot change an EVOLVE row to PROVEN.",
+      "Deterministic engines prove repeatability under input reordering and fail closed on malformed, stale, ineligible or incompatible inputs as appropriate.",
+      "Content authority proves publication/provenance/unsafe-content boundaries without moving content ownership into the Builder.",
+      "Server-read-model engines prove server-authoritative snapshots and reject unsafe/tampered state instead of recomputing price, tax, stock or order constraints client-side.",
+      "E13 exact-head proof preserves authoritative quote, shared runtime and guided checkout behavior without production side effects.",
+      "No engine source file is changed in the initial proof-first transaction.",
+      "If any engine fails revalidation, its state remains EVOLVE/RETHINK and the failure is split into a targeted engine repair wave before revalidation resumes.",
+      "Technical production maturity may become Template3AuthoringReady only when every engine row is PROVEN, but actual Template #3 authoring remains forbidden until the separate final end-to-end Brabus rehearsal passes.",
+      "When a pull-request exact-head run has no reusable complete proof for a non-factory template, fallback selection is full rather than canary.",
+      "Push-only regression runs may retain default canary fallback when no full prior proof exists.",
+      "A pull-request Template Factory run fails closed if any selected acceptance proof remains browserMatrixComplete=false or browserMatrixPassed=false.",
+      "The external proof handoff contract remains unchanged and continues to require complete exact-head acceptance evidence."
     ],
     "unresolvedRisks": [
-      "A structured diagnostic may be mistaken for an automatically safe repair.",
-      "A readiness finding may be stale even though its deterministic id still exists in UI state.",
-      "A broad responsive reset could erase unrelated explicit overrides.",
-      "Auto-Fix could silently repair a semantic accessibility issue by inventing text or URLs.",
-      "Pixel mismatch or hotspot evidence could be treated as a causal schema diagnosis.",
-      "An external/template-level finding localized to another page could mutate the active page.",
-      "A plan could be tampered after preview or applied after the document changed.",
-      "A canonical operation could resolve one diagnostic while creating a new fatal Page Schema violation.",
-      "V3 could auto-apply on plan generation or bypass Builder history.",
-      "Maturity could be promoted while the active UI has no usable preview/apply adoption."
+      "A retained regression test may be mistaken for fresh Brabus revalidation.",
+      "One consolidated proof may accidentally hide an engine-specific missing invariant.",
+      "A deterministic engine may pass happy-path tests but fail under input reordering or malformed state.",
+      "A commerce read-model proof may accidentally mutate authoritative commerce state.",
+      "E10 may accept unverifiable provenance or unsafe content.",
+      "E11 may silently recompute server-owned price/tax/stock data.",
+      "E13 may be falsely promoted from unit evidence without the exact-head browser/network journey.",
+      "Registry promotion may mark all engines PROVEN even when one proof producer is absent.",
+      "Template #3 authoring may start immediately after technical maturity without the separate final rehearsal.",
+      "A future scope-selection change could accidentally reintroduce canary-only PR acceptance.",
+      "Making every push run full would unnecessarily increase proof cost; the correction must distinguish PR acceptance from push regression signaling."
     ],
     "scope": {
       "in": [
-        "Versioned Smart Auto-Fix plan/apply contract over Publish Readiness findings.",
-        "Explicit safe-repair registry with source/code/localization/current-state verification.",
-        "Dimension-local repair of proven redundant responsive inheritance overrides.",
-        "Canonical Design Guard off -> warn repair.",
-        "Explicit MANUAL classification for semantic, external, unsupported and pixel-only diagnostics.",
-        "Source page fingerprint plus deterministic plan hash and tamper/stale rejection.",
-        "Preview-first apply through existing responsive/fidelity authorities and final Page Schema validation.",
-        "Postcondition verification that the targeted safe diagnostic is resolved after apply.",
-        "Active V3 per-finding plan/preview/apply adoption with ordinary history.",
-        "Maturity promotion and Template #3 blocker-list regression proof."
+        "Dedicated current-stack Brabus revalidation contract for E1-E11 and E13.",
+        "Engine-by-engine adversarial proof of the existing requiredInvariants registry.",
+        "Determinism, malformed-state, stale-state, authority-boundary and no-production-mutation proof where applicable.",
+        "Exact-head E13 browser/network proof linkage through the existing Template Factory handoff authority.",
+        "Revalidation registry promotion only for freshly proven engines.",
+        "Production maturity and Generator Readiness regression proof for the resulting engine blocker set.",
+        "Repair the existing Template Factory PR fallback so missing reusable proof triggers a full browser matrix.",
+        "Fail closed at the existing Template Factory gate when PR acceptanceProofs are incomplete."
       ],
       "out": [
-        "Automatic copy, alt-text, heading, link, route, product, commerce or media invention.",
-        "Automatic page creation, draft save, persistence, publish or rollback.",
-        "Pixel-diff-to-schema causality, hotspot repair or screenshot authority.",
-        "General AI/LLM repair selection or Smart Intent text parsing.",
-        "New Page Schema, responsive, fidelity, readiness, visual-diff or persistence authority.",
-        "Batch repair-all orchestration in the first Brabus capability.",
-        "Control Plane/guard/policy changes unless this wave independently proves a persistent authority deficiency.",
-        "Template #3 authoring before final end-to-end Brabus rehearsal."
+        "New parallel engine implementations or duplicate commerce/content/checkout authorities.",
+        "Changing engine product code before a revalidation test demonstrates a concrete deficiency.",
+        "Weakening release risk, knowledge, Template Factory or Completion Truth gates.",
+        "Replacing E13 browser proof with synthetic unit evidence.",
+        "Production database, payment, order, inventory or customer mutation.",
+        "Template #3 authoring before the final end-to-end Brabus rehearsal.",
+        "Weakening external proof handoff completeness requirements.",
+        "Forcing all push regression runs to execute full 14x3 matrices."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Auto-Fix sits directly between diagnostics and schema mutation, so false repair is worse than an unsupported manual finding. Highest practical assurance is an explicit finite repair registry, exact source-code/evidence matching, localized current-state verification, source fingerprint and plan-hash freshness, dimension-local canonical setters, preview-before-apply, final schema validation, postcondition proof and active UI adoption. Unsupported findings fail closed rather than using heuristic inference.",
+      "rationale": "These proof rows gate the final technical readiness of Template Production. Highest practical assurance is fresh executable engine-specific adversarial evidence, deterministic replay, malformed/stale/fail-closed cases, explicit authority and no-mutation boundaries, exact-head browser proof for E13, and fail-closed registry promotion. Existing retained proof is useful baseline knowledge but is not itself sufficient for Brabus promotion.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
         "dependency-graph",
         "evidence-provenance",
-        "stale-state-guard",
-        "what-if-matrix",
         "adversarial-scenarios",
         "negative-tests",
         "boundary-cases",
@@ -164,64 +170,68 @@
         "threat-failure-model",
         "fault-injection",
         "determinism-proof",
-        "immutability-proof",
-        "combination-proof",
-        "finite-state-exhaustion"
+        "mutation-boundary-proof",
+        "exact-head-browser-proof",
+        "finite-state-exhaustion",
+        "what-if-matrix"
       ],
       "deferredTechniques": [
-        "general-llm-repair-selection",
-        "semantic-content-generation",
-        "automatic-route-invention",
-        "pixel-causality",
-        "batch-repair-all",
-        "cross-page-autonomous-mutation"
+        "engine-rewrite-without-failure-proof",
+        "new-commerce-authority",
+        "new-content-authority",
+        "synthetic-e13-unit-substitute",
+        "production-side-effect-testing",
+        "template-3-authoring"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Smart Auto-Fix Core exposes a versioned READY/MANUAL/BLOCK/UNKNOWN plan contract.",
-        "Every non-READY plan has zero executable operations.",
-        "A READY plan requires a registry rule whose expected finding code, source authority, repairability and localization all match.",
-        "Redundant responsive inheritance repair resets only the exact finding.location.path dimension and leaves sibling dimensions untouched.",
-        "The responsive repair is rejected if the current inheritance authority no longer contains the matching safeReset diagnostic.",
-        "Design Guard repair is READY only while the current mode is off and applies canonical warn mode without replacing unrelated fidelity metadata.",
-        "Pixel-only and structuredCause=false Visual Diff findings are always MANUAL and cannot enter the repair registry.",
-        "Structured accessibility/link/media/commerce findings without an explicit safe rule remain MANUAL; repairability=structured-diagnostic alone is insufficient.",
-        "Plan hash changes if any operation, finding binding, authority, fingerprint or repair explanation changes.",
-        "Apply rejects invalid plan contract, non-READY status, tampered hash, stale page fingerprint, page mismatch or stale authority state before returning a changed document.",
-        "Apply clones input, uses existing canonical setters, validates resulting Page Schema and proves the targeted diagnostic postcondition is gone.",
-        "V3 exposes separate Auto-Fix plan and apply controls on a selected readiness finding and never auto-applies from rendering or planning.",
-        "V3 apply calls commitDocument exactly once for a successful READY repair.",
-        "Core and V3 contain no AI gateway, save/publish/persistence authority or pixel-to-repair implementation.",
-        "Production maturity promotes VX-SMART-AUTOFIX only with Core + active V3 executable evidence.",
-        "Template #3 maturity may become technically ready only if every required capability is PROVEN; actual Template #3 authoring remains separately gated by final Brabus rehearsal."
+        "The revalidation registry retains exactly E1-E11 and E13 and no reserved E12 row is introduced.",
+        "Every PROVEN revalidation row has a non-null proofProducer distinct from the fact of retained proof.",
+        "E1 proves canonical Page Schema/runtime validation, binding resolution, responsive behavior and registry authority under invalid and valid inputs.",
+        "E2 proves deterministic explainable discovery, ineligible exclusion and no commerce mutation under candidate/input reordering.",
+        "E3 proves deterministic guidance, evidence explanation, invalid selection rejection and template-switch authority preservation.",
+        "E4 proves real-catalog-line composition, atomic intent, server revalidation and no silent replacement.",
+        "E5 proves slot validation, compatibility fail-closed, server revalidation and no silent replacement.",
+        "E6 proves structured evidence, explainability, UNKNOWN not compatible and malformed-rule fail-closed behavior.",
+        "E7 proves shared structured registry, unit normalization, comparison determinism and no commerce mutation.",
+        "E8 proves customer-context separation, soft ranking rather than hard lock, cart preservation and server persistence authority.",
+        "E9 proves server retention evidence, current-commerce revalidation, no invented subscription and no silent quantity adjustment.",
+        "E10 proves publication lifecycle, provenance fail-closed, unsafe-content rejection and template-switch content preservation.",
+        "E11 proves server-authoritative snapshot usage, no client recomputation of price/tax/stock, MOQ/order-multiple preservation and unsafe snapshot fail-closed.",
+        "E13 is PROVEN only with the existing exact-head browser/network checkout proof that shows shared runtime, authoritative quote, guided checkout and no production side effect.",
+        "Any failed engine remains non-PROVEN and identifies a targeted follow-up repair; the registry cannot bulk-promote around a failing proof.",
+        "Production maturity removes only engine blockers whose proof passed.",
+        "Template #3 authoring remains separately forbidden until the final end-to-end Brabus rehearsal passes.",
+        "On GITHUB_EVENT_NAME=pull_request with no reusable prior proof, non-factory templates select mode=full and all canonical page types.",
+        "On non-PR push fallback with no reusable prior proof, non-factory templates may remain mode=canary.",
+        "A PR manifest containing any acceptance proof with browserMatrixComplete=false or browserMatrixPassed=false makes the Template Factory gate fail.",
+        "The correction is covered by the existing Template Factory gate regression test and by this PR's next exact-head workflow, which must produce complete Playroom and Loot Vault acceptance evidence."
       ],
       "invariants": [
-        "Diagnostic structure is not repair authority.",
-        "Only explicit safe registry entries may produce operations.",
-        "Manual-review and visual-unlocalized findings never produce operations.",
-        "One repair plan targets exactly one readiness finding.",
-        "Responsive repair is dimension-local and exact-viewport only.",
-        "No repair invents merchant/business/semantic content.",
-        "READY plans are fingerprint-bound and hash-bound.",
-        "Apply is atomic, schema-valid, postcondition-proven and persistence-free.",
-        "Active UI always separates planning from application.",
-        "Final end-to-end rehearsal remains mandatory before Template #3 authoring."
+        "Retained proof is not fresh Brabus proof.",
+        "One engine failure cannot be hidden by other engine passes.",
+        "Proof cannot create a new engine authority.",
+        "Commerce/content/checkout ownership remains with the registered authority.",
+        "No revalidation proof mutates production state.",
+        "E13 requires browser/network exact-head evidence.",
+        "PROVEN requires executable evidence.",
+        "Template #3 final rehearsal remains mandatory after technical maturity.",
+        "Canary browser evidence is a regression signal, never sufficient PR acceptance evidence.",
+        "External completion handoff completeness is not weakened to compensate for incomplete upstream evidence."
       ],
       "forbiddenStates": [
-        "structured-diagnostic-implies-autofix",
-        "pixel-drift-generates-operation",
-        "manual-finding-has-operation",
-        "stale-finding-repaired",
-        "tampered-plan-applied",
-        "broad-responsive-reset-erases-unrelated-dimension",
-        "semantic-content-invented",
-        "external-other-page-mutates-active-page",
-        "autofix-saves-or-publishes",
-        "v3-auto-applies-on-plan",
-        "v3-bypasses-history",
-        "autofix-proven-without-active-ui",
-        "template-3-authoring-before-final-rehearsal"
+        "bulk-proven-with-missing-engine-proof",
+        "retained-proof-counts-as-revalidation",
+        "e13-proven-by-unit-only-test",
+        "commerce-read-model-mutates-order-or-price",
+        "content-authority-moved-into-builder",
+        "malformed-input-treated-as-valid",
+        "unknown-treated-as-compatible",
+        "silent-replacement-or-quantity-adjustment",
+        "template-3-authoring-before-final-rehearsal",
+        "pull-request-workflow-success-with-incomplete-browser-matrix",
+        "external-handoff-accepts-canary-as-complete"
       ]
     },
     "model": {
@@ -253,48 +263,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Missing alt text receives fabricated alt copy because readiness says structured-diagnostic.",
-        "Unlocalized pixel drift produces a guessed width/spacing mutation.",
-        "Responsive redundant visibility finding resets grid/container/child-order as collateral damage.",
-        "Finding disappeared after another edit but stale UI repair still applies.",
-        "Plan operation is edited after preview and hash is not revalidated.",
-        "Design Guard warn repair overwrites preset/protected-node fidelity metadata.",
-        "A finding points to another page but active page is mutated.",
-        "Repair resolves target symptom but creates a fatal Page Schema violation.",
-        "V3 runs apply immediately after planning without user confirmation.",
-        "Capability is marked PROVEN while Auto-Fix UI is not present on the active V3 route."
+        "A proof file merely checks version constants and never exercises the registered invariant.",
+        "One test loops engines generically and falsely treats shared PASS as engine-specific proof.",
+        "Candidate order changes ranking output for a deterministic engine.",
+        "Malformed compatibility/configuration data is accepted as valid.",
+        "A B2B read model recomputes a server-owned commercial value.",
+        "Unsafe editorial markup or unverifiable provenance reaches the public read model.",
+        "E13 is marked PROVEN before exact-head checkout proof exists.",
+        "Registry state changes to PROVEN while proofProducer remains null.",
+        "Technical readiness is misinterpreted as authorization to build Template #3."
       ],
       "edgeCases": [
-        "Redundant override warning exists for only one of four inheritance dimensions.",
-        "Two redundant dimensions exist on the same node but one finding is selected.",
-        "Selected finding is warning/PASS state but is safely repairable.",
-        "Design Guard already changed from off to warn between plan and apply.",
-        "Finding code is known but evidence source is unexpected.",
-        "Finding has structured-diagnostic repairability but no localization nodeId or viewport.",
-        "Visual Diff diagnostic claims structured cause but no explicit safe repair registry entry exists.",
-        "Current Page Schema fingerprint changes only in an unrelated node after plan.",
-        "Canonical repair operation becomes a no-op before apply.",
-        "Unsupported external evidence remains explainable MANUAL rather than UNKNOWN when source/code are known."
+        "Identical deterministic candidates supplied in reversed order.",
+        "Empty or malformed engine input that previously never reached a happy-path test.",
+        "Stale server snapshot or missing authoritative field.",
+        "Unknown compatibility result alongside otherwise valid data.",
+        "Valid content mixed with one unsafe relation or provenance claim.",
+        "E13 exact-head browser proof succeeds while a unit-only registry assertion also exists.",
+        "Eleven engines pass and one engine fails."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-AUTOFIX-SAFE-REGISTRY",
-        "summary": "Explicit allowlisted repair registry verified against current authority state and applied through existing setters.",
+        "id": "ALT-ENGINE-REVALIDATE-PROOF-FIRST",
+        "summary": "Fresh engine-specific adversarial proof over existing authorities; repair only engines that demonstrate a concrete deficiency.",
         "disposition": "selected",
-        "reason": "Makes automated mutation evidence-backed and fail-closed without inventing a second diagnostic or schema authority."
+        "reason": "Maximizes evidence while minimizing unnecessary cross-authority implementation change and release risk."
       },
       {
-        "id": "ALT-AUTOFIX-ALL-STRUCTURED",
-        "summary": "Automatically repair every readiness finding marked structured-diagnostic.",
+        "id": "ALT-ENGINE-BULK-PROMOTE-RETAINED",
+        "summary": "Mark EVOLVE rows PROVEN because retained engine tests already pass.",
         "disposition": "rejected",
-        "reason": "Structured localization does not prove semantic repair safety; it would fabricate content/links or overreach external authorities."
+        "reason": "Would collapse historical proof and current Brabus revalidation into the same claim and permit false readiness."
       },
       {
-        "id": "ALT-AUTOFIX-AI",
-        "summary": "Use a model to infer fixes from readiness text or visual mismatch.",
+        "id": "ALT-ENGINE-REWRITE-ALL",
+        "summary": "Rewrite or harden every engine before testing.",
         "disposition": "rejected",
-        "reason": "Would make mutation probabilistic, blur Smart Intent/Auto-Fix boundaries and violate pixel-drift non-causality."
+        "reason": "Creates unnecessary multi-authority change, exceeds practical release-risk discipline and may introduce regressions without evidence of deficiency."
       }
     ],
     "specialistReviews": [
@@ -302,183 +308,154 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Publish Readiness already provides canonical evidence identity; Auto-Fix should be a repair planner/adapter, not a second diagnostic engine.",
-        "resolution": "Consume StorefrontPublishReadinessFinding and verify against source authorities before planning.",
+        "finding": "The functional registry is already the canonical engine map and should remain the only maturity linkage.",
+        "resolution": "Extend only the Brabus revalidation evidence rows; do not create a second engine registry.",
         "evidence": [
-          "src/lib/builder/storefront-publish-readiness.ts",
-          "src/lib/builder/storefront-responsive-layout-depth.ts",
-          "src/lib/builder/storefront-fidelity-builder-operations.ts"
+          "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
+          "src/lib/builder/template-factory/production-maturity.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Repairability metadata is broader than safe automatic repair and stale diagnostics can mutate the wrong state.",
-        "resolution": "Require explicit registry membership, current-authority revalidation, page fingerprint, plan hash, schema validation and postcondition proof.",
+        "finding": "Retained proof and new revalidation proof can point at similar code paths and accidentally double-count evidence.",
+        "resolution": "Require dedicated revalidation assertions for every registered invariant and keep retainedProofProducer separate from current proofProducer.",
         "evidence": [
-          "src/lib/builder/storefront-publish-readiness.ts",
-          "src/lib/builder/storefront-page-fingerprint.ts",
-          "src/lib/builder/storefront-runtime.ts"
+          "src/lib/builder/template-factory/engine-functional-proof-registry.ts"
         ]
       },
       {
         "role": "UX / Template",
         "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Auto-Fix must remain understandable and reversible instead of becoming invisible automation.",
-        "resolution": "V3 shows selected finding, repair explanation/operations, separate plan and READY-only apply; apply is one ordinary history entry.",
+        "verdict": "pass",
+        "finding": "This wave changes no storefront presentation; its only UX effect is whether Template Production can progress.",
+        "resolution": "Keep Template #3 authoring process-blocked until the later end-to-end rehearsal despite technical maturity.",
         "evidence": [
-          "src/components/admin/storefront-visual-builder-v3.tsx",
-          "src/lib/builder/storefront-visual-builder.ts"
+          "src/lib/builder/template-factory/production-maturity.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
-        "verdict": "pass",
-        "finding": "Core + V3 adoption is expected to remain within the same builder/admin transaction envelope, but prior combined waves proved release budget must decide rather than assumption.",
-        "resolution": "Run Release Risk after Plan/Edit/Replay; split Core and UI if budget blocks.",
+        "verdict": "challenge-resolved",
+        "finding": "Changing multiple engine implementations in one PR would exceed the intended proof-only release envelope.",
+        "resolution": "Initial wave edits only Builder registry/maturity plus tests. Any failing engine gets a separate targeted repair transaction before revalidation resumes.",
         "evidence": [
-          "deploy/release-risk-policy.json",
-          "src/lib/builder/template-factory/production-maturity.ts"
+          "deploy/release-risk-policy.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-AF-1",
-        "scenario": "Publish Readiness emits ACCESSIBILITY_IMAGE_ALT_MISSING for node hero-image with repairability=structured-diagnostic and an exact nodeId.",
-        "finding": "The diagnostic is structurally localized but there is no evidence-backed text value that can serve as a truthful alt attribute; generating one would fabricate semantic merchant content.",
-        "resolution": "The safe registry has no ACCESSIBILITY_IMAGE_ALT_MISSING executable rule. Planning returns MANUAL with zero operations, and tests assert that no config/text mutation is emitted.",
+        "id": "CH-ER-1",
+        "scenario": "All retained proof suites are green.",
+        "finding": "Historical PASS does not prove current Brabus adversarial invariants.",
+        "resolution": "Rows remain EVOLVE until dedicated current revalidation evidence passes.",
         "status": "resolved"
       },
       {
-        "id": "CH-AF-2",
-        "scenario": "Visual pixel drift blocks mobile.",
-        "finding": "Pixel evidence is non-causal.",
-        "resolution": "MANUAL regardless of mismatch ratio/hotspot; zero operations.",
+        "id": "CH-ER-2",
+        "scenario": "Eleven engines pass and E6 fails malformed-rule handling.",
+        "finding": "Bulk promotion would hide one unsafe engine.",
+        "resolution": "E6 remains non-PROVEN and blocks Template #3 while the eleven proven rows may retain their evidence.",
         "status": "resolved"
       },
       {
-        "id": "CH-AF-3",
-        "scenario": "Redundant mobile visibility override is selected.",
-        "finding": "safeReset is source-authority proof.",
-        "resolution": "READY with visibility-only reset at the exact node/viewport.",
+        "id": "CH-ER-3",
+        "scenario": "E2 produces the same set but different order when candidates are reversed.",
+        "finding": "Determinism claim is false.",
+        "resolution": "Revalidation fails and no registry promotion occurs for E2.",
         "status": "resolved"
       },
       {
-        "id": "CH-AF-4",
-        "scenario": "Same node also has explicit grid/container overrides.",
-        "finding": "A broad reset would cause collateral mutation.",
-        "resolution": "Operation resets only finding.location.path dimension; other direct overrides must remain byte-equivalent.",
+        "id": "CH-ER-4",
+        "scenario": "E10 contains one unverifiable provenance relation among valid content.",
+        "finding": "Partial validity cannot override provenance failure.",
+        "resolution": "Public/read-model proof must fail closed.",
         "status": "resolved"
       },
       {
-        "id": "CH-AF-5",
-        "scenario": "Finding was generated before user manually fixed it.",
-        "finding": "Readiness object is stale.",
-        "resolution": "Planner revalidates current source diagnostic and returns BLOCK when no longer present.",
+        "id": "CH-ER-5",
+        "scenario": "E11 snapshot omits or tampers a server-owned commercial field.",
+        "finding": "Client recomputation would cross authority.",
+        "resolution": "Reject unsafe snapshot; never fill price/tax/stock locally.",
         "status": "resolved"
       },
       {
-        "id": "CH-AF-6",
-        "scenario": "Document changes after preview.",
-        "finding": "Repair plan source no longer exact.",
-        "resolution": "Fingerprint mismatch rejects apply before any operation.",
+        "id": "CH-ER-6",
+        "scenario": "Unit tests for E13 are green but no exact-head browser handoff exists.",
+        "finding": "Checkout browser/network semantics are unproven.",
+        "resolution": "E13 remains EVOLVE until GUARD-TEMPLATE-FACTORY exact-head browser proof passes.",
         "status": "resolved"
       },
       {
-        "id": "CH-AF-7",
-        "scenario": "Plan operation/hash is tampered.",
-        "finding": "Preview no longer represents apply.",
-        "resolution": "Deterministic plan hash mismatch rejects apply.",
+        "id": "CH-ER-7",
+        "scenario": "All engine rows become technically PROVEN.",
+        "finding": "This does not satisfy the separate full-system Brabus rehearsal.",
+        "resolution": "Template #3 authoring stays process-blocked until the next rehearsal wave closes.",
         "status": "resolved"
       },
       {
-        "id": "CH-AF-8",
-        "scenario": "A PUBLISH_READINESS_DESIGN_GUARD_OFF finding is previewed while mode=off, then another Builder action changes Design Guard to warn before Auto-Fix Apply.",
-        "finding": "The previewed repair is stale: applying the old plan would claim to repair a condition that no longer exists and could overwrite newer fidelity metadata.",
-        "resolution": "Apply revalidates the live Design Guard precondition before mutation. If mode is no longer off it throws SMART_AUTOFIX_SOURCE_STALE and returns no changed document.",
+        "id": "CH-ER-8",
+        "scenario": "A revalidation proof passes functionally but mutates its input object, cart-like state, catalog fixture or story fixture during evaluation.",
+        "finding": "A PASS with hidden mutation would violate the registered no-production-mutation/read-model boundary and could make repeated proof order-dependent.",
+        "resolution": "Adversarial tests snapshot/freeze relevant inputs and assert immutability or stable replay; any mutation leaves the engine non-PROVEN and triggers a targeted repair wave.",
         "status": "resolved"
       },
       {
-        "id": "CH-AF-9",
-        "scenario": "Known diagnostic code arrives from an unexpected evidence source.",
-        "finding": "Code collision cannot confer repair authority.",
-        "resolution": "Source+code registry key must both match or result is MANUAL/BLOCK.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-AF-10",
-        "scenario": "External route/media/commerce issue has a path.",
-        "finding": "Localization does not imply active-page schema ownership.",
-        "resolution": "No registry entry; MANUAL and no mutation.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-AF-11",
-        "scenario": "Canonical setter output violates Page Schema due unrelated state.",
-        "finding": "Repair cannot return partial invalid output.",
-        "resolution": "Apply works on clone and fails before returning changed document.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-AF-12",
-        "scenario": "All maturity capabilities become PROVEN after this wave.",
-        "finding": "Technical maturity alone must not start Template #3.",
-        "resolution": "Keep authoring explicitly blocked until a separate full end-to-end Brabus rehearsal passes.",
+        "id": "CH-ER-9",
+        "scenario": "A PR changes only engine registry/tests, there is no reusable complete Playroom checkpoint, and fallback scope selection chooses six canary pages.",
+        "finding": "The browser runner may report no case errors and exit zero even though acceptanceProof.browserMatrixComplete=false (18/42), producing a workflow SUCCESS that cannot satisfy Completion Truth.",
+        "resolution": "On pull_request fallback, select full pages for every template lacking reusable complete proof and add a final fail-closed PR acceptance check over acceptanceProofs. Preserve canary fallback only for non-PR regression runs.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Plan Before Code projected-scope and Release Risk proof before substantive implementation.",
-      "Safe-registry matrix proves source+code+repairability+localization are all required for READY.",
-      "Responsive adversarial matrix proves visibility/grid-placement/container/child-order repairs are exact-dimension and preserve all unrelated state.",
-      "Design Guard proof verifies off->warn preserves edit mode, preset id, baseline version and protected node ids.",
-      "Unsafe diagnostic matrix proves accessibility content, link, media, commerce, page completeness, visual pixel and unknown external findings are MANUAL/UNKNOWN with zero operations.",
-      "Freshness proof verifies stale page fingerprint and stale source diagnostic both block apply/planning.",
-      "Integrity proof tampers operation/finding binding/hash and proves apply rejection.",
-      "Atomic apply proof verifies input immutability, canonical setter use, Page Schema validation and targeted postcondition resolution.",
-      "Authority-boundary scan proves no AI gateway, Smart Intent parser, save/publish/persistence or pixel-to-repair logic.",
-      "Active V3 proof verifies per-finding plan, visible explanation, READY-only apply and exactly one history commit.",
-      "Maturity proof promotes only VX-SMART-AUTOFIX and preserves the separate final-rehearsal prohibition on Template #3 authoring.",
-      "Incremental replay, full Quality tests, TypeScript, production build, exact-head Template Factory proof, Completion Truth and lifecycle closure."
+      "Plan Before Code and Release Risk proof for a proof-only Builder transaction.",
+      "Dedicated E1-E11 adversarial revalidation test file with explicit engine-labelled cases and registered-invariant coverage.",
+      "Registry test proves PROVEN requires current proofProducer and cannot rely on retainedProofProducer alone.",
+      "E13 registry linkage plus exact-head Template Factory browser/network evidence; no unit-only substitution.",
+      "Mutation-boundary assertions prove no production side effects and no authority relocation.",
+      "Production maturity and Generator Readiness tests prove only freshly proven engine blockers are cleared.",
+      "If any engine test fails, stop registry promotion for that engine and open a targeted repair wave rather than editing all engines here.",
+      "Full Quality tests, TypeScript, Production Build, exact-head Template Factory proof, Completion Truth and lifecycle closure.",
+      "Template Factory gate regression locks PR fallback=full and push fallback=canary semantics without changing the external handoff validator.",
+      "The next exact-head PR Template Factory artifact must show gaming.playroom and gaming.loot-vault browserMatrixComplete=true and browserMatrixPassed=true before Completion Truth can proceed."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-03-VX-SMART-AUTOFIX-BRABUS-HARDENING",
+      "request": "PO-2026-10-03-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
       "authority": [
-        "builder-template-system",
-        "admin-operations",
-        "shared-storefront"
+        "builder-template-system"
       ],
       "mustEdit": [
-        "src/components/admin/storefront-visual-builder-v3.tsx",
-        "src/lib/builder/template-factory/production-maturity.ts"
+        "tests/template-factory-engine-brabus-revalidation.test.ts"
       ],
       "mayEdit": [
-        "src/lib/builder/storefront-smart-autofix.ts",
-        "tests/storefront-smart-autofix.test.ts",
-        "tests/visual-builder-v3-smart-autofix.test.ts",
-        "tests/visual-builder-production-completion.test.ts",
+        "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
+        "tests/template-factory-engine-brabus-revalidation.test.ts",
         "tests/template-factory-production-maturity.test.ts",
-        "tests/template-factory-generator-readiness.test.ts"
+        "tests/template-factory-generator-readiness.test.ts",
+        "scripts/template-factory-quality-gate.mjs",
+        "tests/storefront-template-quality-gate-v2.test.ts"
       ],
       "impactedReadOnly": [
-        "src/lib/builder/storefront-publish-readiness.ts",
-        "src/lib/builder/storefront-responsive-layout-depth.ts",
-        "src/lib/builder/storefront-fidelity-builder-operations.ts",
-        "src/lib/builder/storefront-fidelity-engine.ts",
-        "src/lib/builder/storefront-page-fingerprint.ts",
         "src/lib/builder/storefront-runtime.ts",
-        "src/lib/builder/storefront-visual-diff-intelligence.ts",
-        "src/lib/builder/storefront-smart-intent.ts",
-        "src/lib/builder/storefront-visual-builder.ts"
+        "src/lib/commerce/product-discovery.ts",
+        "src/lib/commerce/guided-finder.ts",
+        "src/lib/commerce/multi-product-composer.ts",
+        "src/lib/commerce/product-configurator.ts",
+        "src/lib/commerce/compatibility-engine.ts",
+        "src/lib/commerce/structured-product.ts",
+        "src/lib/commerce/context-profile.ts",
+        "src/lib/commerce/retention-reorder.ts",
+        "src/lib/content/story-engine.ts",
+        "src/lib/commerce/professional-b2b.ts",
+        "src/components/checkout/checkout-form.tsx",
+        "scripts/template-factory-product-owner-handoff.mjs"
       ],
       "proof": [
-        "tests/storefront-smart-autofix.test.ts",
-        "tests/visual-builder-v3-smart-autofix.test.ts",
-        "tests/visual-builder-production-completion.test.ts",
+        "tests/template-factory-engine-brabus-revalidation.test.ts",
         "tests/template-factory-production-maturity.test.ts",
         "tests/template-factory-generator-readiness.test.ts"
       ],
@@ -488,20 +465,20 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-VX-SMART-AUTOFIX-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
     "requirements": [
       {
-        "id": "REQ-VX-SMART-AUTOFIX-SAFE-REGISTRY",
-        "requirement": "Smart Auto-Fix produces executable repairs only from explicit source-verified safe registry entries; unsupported, semantic and pixel-only findings remain non-executable.",
+        "id": "REQ-ENGINE-BRABUS-FRESH-PROOF",
+        "requirement": "Every E1-E11/E13 PROVEN revalidation row is backed by fresh current-stack executable evidence for its registered invariants; retained proof alone cannot promote a row.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "vx-smart-autofix-safe-registry",
+          "breadth": "template-engine-brabus-revalidation",
           "strength": 2,
           "dimensions": [
             "status",
             "behavioral-proof",
             "coverage",
-            "limitations",
+            "freshness",
             "scope"
           ]
         },
@@ -515,87 +492,14 @@
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS",
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-AUTOFIX-UNSAFE-INFERENCE",
-            "statement": "Structured or visual evidence alone cannot authorize a repair.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-VX-SMART-AUTOFIX-ATOMIC-APPLY",
-        "requirement": "READY repair plans are fingerprint/hash bound, use existing canonical setters, validate Page Schema and prove the targeted postcondition before returning an atomic changed document.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "vx-smart-autofix-atomic-apply",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "behavioral-proof",
-            "freshness",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-AUTOFIX-STALE-TAMPERED",
-            "statement": "Stale or tampered repair plans cannot apply.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-VX-SMART-AUTOFIX-ACTIVE-V3",
-        "requirement": "Active V3 exposes preview-first per-finding Auto-Fix with READY-only apply and one ordinary Builder history commit.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "vx-smart-autofix-active-v3",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "behavioral-proof",
-            "coverage",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
-          ],
-          "outcome": [
             "GUARD-PRODUCTION-BUILD",
             "GUARD-TEMPLATE-FACTORY"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-AUTOFIX-V3-AUTOAPPLY",
-            "statement": "V3 cannot auto-apply repair during rendering/planning or bypass ordinary history.",
+            "id": "NEG-ENGINE-RETAINED-AS-FRESH",
+            "statement": "Retained proof cannot substitute for current Brabus revalidation.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -603,11 +507,46 @@
         ]
       },
       {
-        "id": "REQ-VX-SMART-AUTOFIX-MATURITY",
-        "requirement": "VX-SMART-AUTOFIX is promoted only after Core and active V3 proof; technical capability completion does not bypass the separately required final end-to-end Brabus rehearsal before Template #3 authoring.",
+        "id": "REQ-ENGINE-BRABUS-AUTHORITY-BOUNDARY",
+        "requirement": "Revalidation preserves registered engine authorities and proves fail-closed/no-production-mutation behavior without introducing parallel engine implementations.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "vx-smart-autofix-maturity",
+          "breadth": "engine-authority-boundaries",
+          "strength": 2,
+          "dimensions": [
+            "behavioral-proof",
+            "limitations",
+            "scope"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-ENGINE-AUTHORITY-CROSSING",
+            "statement": "Proof cannot mutate production state or move commerce/content/checkout truth into Builder authority.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-ENGINE-BRABUS-TEMPLATE3-BOUNDARY",
+        "requirement": "Technical maturity clears engine blockers only for passed proofs; Template #3 authoring remains separately prohibited until the final end-to-end Brabus rehearsal closes.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "template3-engine-maturity-boundary",
           "strength": 2,
           "dimensions": [
             "proven-scope",
@@ -629,24 +568,62 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-AUTOFIX-TEMPLATE3-EARLY",
-            "statement": "Auto-Fix maturity promotion alone cannot start Template #3 authoring.",
+            "id": "NEG-ENGINE-TEMPLATE3-EARLY",
+            "statement": "Engine technical maturity alone cannot authorize Template #3 authoring.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-ENGINE-BRABUS-TF-PR-ACCEPTANCE",
+        "requirement": "Template Factory pull-request acceptance must fail closed unless every selected template has complete passing browser evidence; canary-only evidence remains a regression signal and cannot satisfy external Completion Truth.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "template-factory-pr-acceptance-semantics",
+          "strength": 2,
+          "dimensions": [
+            "behavioral-proof",
+            "coverage",
+            "freshness",
+            "limitations"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-TYPECHECK"
+          ],
+          "outcome": [
+            "GUARD-TEMPLATE-FACTORY",
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-TF-CANARY-AS-PR-ACCEPTANCE",
+            "statement": "A pull-request Template Factory workflow cannot succeed with browserMatrixComplete=false for any selected acceptance proof.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS",
+              "GUARD-TEMPLATE-FACTORY"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Thirteenth Brabus hardening wave. Publish Readiness and Smart Intent are lifecycle-closed and PROVEN on parent 568e2d2c509bb58e5d00f07963bc3b2f187e7f01. Auto-Fix is deliberately narrower than 'repair every structured diagnostic': explicit safe registry membership is the repair authority. Template #3 remains forbidden until the final end-to-end Brabus rehearsal passes even if this wave clears the last maturity blocker. Plan projection narrowed to the measured Auto-Fix transaction: DOMAIN-ADMIN + DOMAIN-BUILDER, admin/builder authorities, no database-schema subsystem. Two critical challenges were rewritten with exact diagnostic codes, mutation risk and executable fail-closed outcomes. After the Core file entered the actual diff, Atlas correctly resolved its canonical Page Schema/runtime validation dependency as DOMAIN-STOREFRONT/shared-storefront. This is consumption of existing authority, not a new storefront authority; database-schema remains out of scope. Reference Sync fingerprint 3b038645 is an exact exception for generator-readiness' undeclared Blueprint return path: template3AuthoringReady:false remains intentionally fail-closed when no Blueprint is declared and is independent of the now-PROVEN Smart Auto-Fix maturity row. Quality root-cause reconciliation: Smart Auto-Fix is the final mandatory VX blocker, not the final global Template #3 blocker. Engine Brabus revalidation entries remain EVOLVE, so tests must remove VX-SMART-AUTOFIX from blockers without asserting template3AuthoringReady=true. The temporary Reference Sync exception for template3AuthoringReady:false is removed because the fail-closed false expectation is intentionally retained.",
+  "notes": "Fourteenth Brabus hardening wave. Parent #790 / VX Smart Auto-Fix is lifecycle-closed at 859519dd062bb0108f475851c1de4542f16326c6 with verified implementation head 80db31357df898bd9dd8b31f53699530f3a51b84. This transaction is proof-first: engine implementation files are read-only unless a concrete revalidation failure proves a deficiency, in which case the repair is split into a targeted follow-up transaction rather than silently expanding this wave. Initial Plan gate reconciliation: proof files live in proof/mayEdit rather than semantic mustEdit; registry dependency projection expands expected subsystems to builder-template-system + shared-storefront + storefront-ui; guardDigest refreshed to 0f3eadb0; critical assurance adds what-if-matrix and CH-ER-8 mutation-boundary challenge. Proof-first sequencing correction: engine-functional-proof-registry.ts is mayEdit rather than mustEdit so executable adversarial proof can run against EVOLVE rows before any PROVEN promotion commit; promotion is allowed only after proof passes. Critical semantic route resolved after proof file creation: the generated Atlas route now classifies tests/template-factory-engine-brabus-revalidation.test.ts as MUST_EDIT, so proof-first execution has a concrete mandatory target without forcing premature registry promotion. Reference Sync fingerprint 3b038645 is acknowledged exactly for generator-readiness' undeclared Blueprint return path. That branch must remain template3AuthoringReady:false even though declared generator candidates now clear all technical engine maturity blockers. Concrete Control Plane deficiency proven on c3b491b033f26cb862e64da210d86994d1598112: Template Factory PR run 37102297913 concluded SUCCESS while its manifest carried gaming.playroom browserMatrixComplete=false/browserMatrixPassed=false (18/42 canary cases, previousEvidence missing). External proof handoff correctly blocked. Scope is minimally expanded to repair the existing Template Factory PR acceptance fallback and fail-closed completeness check; external handoff semantics remain unchanged. Template Factory acceptance-gap plan reconciliation: knowledge infrastructure remains outside release subsystem counting, guardDigest refreshed to 94082bf1, and the additional SQ-KF quality-infrastructure failure scope is explicitly acknowledged.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "80db31357df898bd9dd8b31f53699530f3a51b84",
-    "closedAt": "2026-10-03T05:34:22.713Z",
+    "verifiedImplementationHead": "6a283d4c58fbc1f3446177a92506cfba85dd8f22",
+    "closedAt": "2026-10-03T06:33:28.794Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-03-VX-SMART-AUTOFIX-BRABUS-HARDENING",
+    "sourceRef": "PO-2026-10-03-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

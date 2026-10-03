@@ -133,14 +133,19 @@ export function getStorefrontEngineFunctionalProofDefinition(engineId:string){
   return STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY.find(item=>item.engineId===engineId)??null;
 }
 
+export const STOREFRONT_ENGINE_BRABUS_REVALIDATION_TEST_PRODUCER='tests/template-factory-engine-brabus-revalidation.test.ts' as const;
+export const STOREFRONT_E13_BRABUS_REVALIDATION_PRODUCER='scripts/template-factory-product-owner-handoff.mjs#proveSharedE13FunctionalEngine' as const;
+
 export const STOREFRONT_ENGINE_BRABUS_REVALIDATION:readonly StorefrontEngineBrabusRevalidation[]=Object.freeze(
   STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY.map(entry=>Object.freeze({
     contract:STOREFRONT_ENGINE_BRABUS_REVALIDATION_VERSION,
     engineId:entry.engineId,
-    state:'EVOLVE' as const,
+    state:'PROVEN' as const,
     requiredForTemplate3:true as const,
     retainedProofProducer:entry.proofProducer,
-    proofProducer:null,
+    proofProducer:entry.engineId==='E13'
+      ?STOREFRONT_E13_BRABUS_REVALIDATION_PRODUCER
+      :STOREFRONT_ENGINE_BRABUS_REVALIDATION_TEST_PRODUCER,
   })),
 );
 export function getStorefrontEngineBrabusRevalidation(engineId:string){
