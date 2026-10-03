@@ -95,7 +95,14 @@
     "SQ-NK-012",
     "SQ-NK-014"
   ],
-  "exceptions": [],
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/components/admin/storefront-visual-builder-production.tsx",
+      "findingFingerprint": "f02cd6dc",
+      "reason": "Intentional inactive legacy consumer. The active admin Builder route renders StorefrontVisualBuilderV3, where commitDocument additionally invalidates the transient Smart Intent plan before ordinary history continues. The legacy production component is not an active Smart Intent surface and must not be mutated solely to mirror this V3-only ephemeral UI-state invalidation."
+    }
+  ],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-03-VX-SMART-INTENT-BRABUS-HARDENING",
@@ -632,5 +639,5 @@
       }
     ]
   },
-  "notes": "Twelfth Brabus hardening wave. Publish Readiness is lifecycle-closed and PROVEN on parent e63e7eee5a2180b958f6c3e288de45aa504f8cd8. Smart Intent is intentionally distinct from Block 23 AI storefront generation and from future Smart Auto-Fix. Guarded Freedom remains authoritative: user intent compiles only to bounded existing operations; no arbitrary source code or schema patching. Template #3 remains forbidden until Smart Auto-Fix is also PROVEN. Plan-gate reconciliation adds database-schema only as scoped negative knowledge because persistence/database language appears in the safety boundary; this wave still declares no migration/schema mutation. The new Smart Intent module is a planned creation and therefore mayEdit rather than an existing-file mustEdit route. Actual-diff dependency reconciliation: canonical Smart Intent imports and validates shared Storefront Runtime/Page Schema authorities, therefore DOMAIN-STOREFRONT and shared-storefront are explicit expected dependency scopes; no new Storefront authority is introduced."
+  "notes": "Twelfth Brabus hardening wave. Publish Readiness is lifecycle-closed and PROVEN on parent e63e7eee5a2180b958f6c3e288de45aa504f8cd8. Smart Intent is intentionally distinct from Block 23 AI storefront generation and from future Smart Auto-Fix. Guarded Freedom remains authoritative: user intent compiles only to bounded existing operations; no arbitrary source code or schema patching. Template #3 remains forbidden until Smart Auto-Fix is also PROVEN. Plan-gate reconciliation adds database-schema only as scoped negative knowledge because persistence/database language appears in the safety boundary; this wave still declares no migration/schema mutation. The new Smart Intent module is a planned creation and therefore mayEdit rather than an existing-file mustEdit route. Actual-diff dependency reconciliation: canonical Smart Intent imports and validates shared Storefront Runtime/Page Schema authorities, therefore DOMAIN-STOREFRONT and shared-storefront are explicit expected dependency scopes; no new Storefront authority is introduced. Reference Sync fingerprint f02cd6dc is an exact exception for the inactive legacy production Builder's unchanged commitDocument expression; the active V3-only Smart Intent transient-plan invalidation is intentionally not propagated to an inactive consumer."
 }
