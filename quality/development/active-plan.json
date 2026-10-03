@@ -460,14 +460,14 @@
         "admin-operations"
       ],
       "mustEdit": [
-        "src/components/admin/storefront-visual-builder-v3.tsx",
         "src/lib/builder/template-factory/production-maturity.ts"
       ],
       "mayEdit": [
+        "src/components/admin/storefront-visual-builder-v3.tsx",
         "src/lib/builder/storefront-publish-readiness.ts",
         "tests/storefront-publish-readiness.test.ts",
-        "tests/visual-builder-v3-ui.test.ts",
-        "tests/template-factory-production-maturity.test.ts"
+        "tests/template-factory-production-maturity.test.ts",
+        "tests/visual-builder-v3-ui.test.ts"
       ],
       "impactedReadOnly": [
         "src/components/admin/storefront-visual-builder-production.tsx",
