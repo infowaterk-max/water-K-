@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-ENGINE-BRABUS-REVALIDATION",
   "task": "Revalidate shared storefront engines E1-E11 and E13 against the current Mercedes-Maybach-Brabus stack with engine-specific adversarial proof, promote only engines whose required invariants are freshly proven, preserve each existing authority boundary, and keep Template #3 authoring forbidden until the separate final end-to-end Brabus rehearsal passes.",
   "status": "ready-for-implementation",
-  "guardDigest": "ba1a39f8",
+  "guardDigest": "0f3eadb0",
   "changeBaseSha": "859519dd062bb0108f475851c1de4542f16326c6",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -13,7 +13,9 @@
     "tests/template-factory-generator-readiness.test.ts"
   ],
   "expectedSubsystems": [
-    "builder-template-system"
+    "builder-template-system",
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER"
@@ -144,7 +146,8 @@
         "determinism-proof",
         "mutation-boundary-proof",
         "exact-head-browser-proof",
-        "finite-state-exhaustion"
+        "finite-state-exhaustion",
+        "what-if-matrix"
       ],
       "deferredTechniques": [
         "engine-rewrite-without-failure-proof",
@@ -358,6 +361,13 @@
         "finding": "This does not satisfy the separate full-system Brabus rehearsal.",
         "resolution": "Template #3 authoring stays process-blocked until the next rehearsal wave closes.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-ER-8",
+        "scenario": "A revalidation proof passes functionally but mutates its input object, cart-like state, catalog fixture or story fixture during evaluation.",
+        "finding": "A PASS with hidden mutation would violate the registered no-production-mutation/read-model boundary and could make repeated proof order-dependent.",
+        "resolution": "Adversarial tests snapshot/freeze relevant inputs and assert immutability or stable replay; any mutation leaves the engine non-PROVEN and triggers a targeted repair wave.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -376,12 +386,13 @@
         "builder-template-system"
       ],
       "mustEdit": [
-        "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
+        "src/lib/builder/template-factory/engine-functional-proof-registry.ts"
+      ],
+      "mayEdit": [
         "tests/template-factory-engine-brabus-revalidation.test.ts",
         "tests/template-factory-production-maturity.test.ts",
         "tests/template-factory-generator-readiness.test.ts"
       ],
-      "mayEdit": [],
       "impactedReadOnly": [
         "src/lib/builder/storefront-runtime.ts",
         "src/lib/commerce/product-discovery.ts",
@@ -521,5 +532,5 @@
       }
     ]
   },
-  "notes": "Fourteenth Brabus hardening wave. Parent #790 / VX Smart Auto-Fix is lifecycle-closed at 859519dd062bb0108f475851c1de4542f16326c6 with verified implementation head 80db31357df898bd9dd8b31f53699530f3a51b84. This transaction is proof-first: engine implementation files are read-only unless a concrete revalidation failure proves a deficiency, in which case the repair is split into a targeted follow-up transaction rather than silently expanding this wave."
+  "notes": "Fourteenth Brabus hardening wave. Parent #790 / VX Smart Auto-Fix is lifecycle-closed at 859519dd062bb0108f475851c1de4542f16326c6 with verified implementation head 80db31357df898bd9dd8b31f53699530f3a51b84. This transaction is proof-first: engine implementation files are read-only unless a concrete revalidation failure proves a deficiency, in which case the repair is split into a targeted follow-up transaction rather than silently expanding this wave. Initial Plan gate reconciliation: proof files live in proof/mayEdit rather than semantic mustEdit; registry dependency projection expands expected subsystems to builder-template-system + shared-storefront + storefront-ui; guardDigest refreshed to 0f3eadb0; critical assurance adds what-if-matrix and CH-ER-8 mutation-boundary challenge."
 }
