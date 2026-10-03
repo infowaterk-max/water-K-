@@ -11,7 +11,6 @@ import type {
   StorefrontVisualDiffManifestResult,
 } from '@/lib/builder/storefront-visual-diff-intelligence';
 import type {StorefrontRouteIntegrityIssue,StorefrontShowroomContractIssue} from '@/lib/builder/storefront-template-route-integrity';
-import type {StorefrontTemplateMediaPlannerResult} from '@/lib/builder/template-factory/media-planner';
 
 export const STOREFRONT_PUBLISH_READINESS_VERSION='shoporation.storefront-publish-readiness.v1' as const;
 
@@ -93,7 +92,13 @@ export type StorefrontPublishReadinessShowroomEvidence={
 export type StorefrontPublishReadinessMediaEvidence={
   contract:string;
   target:EvidenceTarget;
-  result:Pick<StorefrontTemplateMediaPlannerResult,'valid'|'technicalFulfilled'|'readyFulfilled'|'issues'|'repairs'>;
+  result:{
+    valid:boolean;
+    technicalFulfilled:boolean;
+    readyFulfilled:boolean;
+    issues:readonly {code:string;path:string;message:string;severity:'error'}[];
+    repairs:readonly {assetKey:string;message:string}[];
+  };
 };
 
 export type StorefrontPublishReadinessCommerceIssue={
