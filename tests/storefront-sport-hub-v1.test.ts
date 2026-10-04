@@ -112,6 +112,33 @@ describe('SPORT HUB canonical v1 candidate',()=>{
     expect(navConfig?.items?.map((item:any)=>item.label)).toEqual(['Sportok','Felszerelés','Márkák','Inspiráció','Segítség']);
   });
 
+  it('keeps the PO-approved Home composition and functional sport profile controls',()=>{
+    const home=SPORT_HUB_V1_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='home')!;
+    expect(home.sections.map(section=>section.id)).toEqual([
+      'sport-hub-shell-header','sport-home-hero','sport-home-sports','sport-home-kit','sport-profile','sport-home-products','sport-home-editorial','sport-home-trust','sport-hub-shell-footer',
+    ]);
+    const nodes=walk(home.sections);
+    const heroGrid=nodes.find(node=>node.id==='sport-home-hero-grid');
+    expect(heroGrid?.children?.map((node:any)=>node.responsive?.desktop?.gridSpan)).toEqual([3,2,2,2,3]);
+    const profile=nodes.find(node=>node.id==='sport-profile-fields');
+    expect(profile?.componentKey).toBe('guided.finder');
+    expect(profile?.config?.presentation).toBe('compact-select-row');
+    expect(profile?.config?.options).toHaveLength(5);
+    const productGrid=nodes.find(node=>node.id==='sport-home-products-grid');
+    expect(productGrid?.config?.products).toHaveLength(6);
+    expect(productGrid?.config?.showCta).toBe(true);
+  });
+
+  it('keeps one canonical SPORT HUB footer across all 14 pages',()=>{
+    const signatures=SPORT_HUB_V1_TEMPLATE_PACKAGE.pages.map(page=>JSON.stringify(page.sections.at(-1)));
+    expect(new Set(signatures).size).toBe(1);
+    const footer=SPORT_HUB_V1_TEMPLATE_PACKAGE.pages[0].sections.at(-1)!;
+    const nodes=walk([footer]);
+    expect(nodes.find(node=>node.id==='sport-hub-footer-logo')?.config?.src).toBe('/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg');
+    expect(nodes.filter(node=>node.id?.startsWith('sport-hub-footer-col-')&&node.componentKey==='layout.stack')).toHaveLength(4);
+    expect(nodes.some(node=>node.id==='sport-hub-footer-social'&&node.componentKey==='system.social-links')).toBe(true);
+  });
+
   it('keeps the retired legacy SPORT HUB source outside the canonical v1 entrypoint',()=>{
     const serialized=JSON.stringify(SPORT_HUB_V1_TEMPLATE_PACKAGE);
     expect(serialized).not.toContain('src/lib/builder/templates/sport-hub.ts');
