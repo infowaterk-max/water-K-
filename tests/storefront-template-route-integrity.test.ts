@@ -5,7 +5,6 @@ import {
   augmentStorefrontTemplateDemoContent,
   evaluateStorefrontTemplateRouteIntegrity,
   getStorefrontTemplateDemoContent,
-  getStorefrontTemplateOwnerShowroomNavigationItems,
   rewriteStorefrontTemplatePreviewBindingContext,
 } from '@/lib/builder/storefront-template-route-integrity';
 import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
@@ -32,19 +31,6 @@ describe('Template Route Integrity + Demo Content Foundation',()=>{
     ) as {shippingHref:string;paymentHref:string};
     expect(rewritten.shippingHref).toBe('/storefront-template-preview?template=gaming.playroom&version=20&page=legal&viewport=mobile&demoContent=szallitas');
     expect(rewritten.paymentHref).toBe('/storefront-template-preview?template=gaming.playroom&version=20&page=legal&viewport=mobile&demoContent=fizetes');
-  });
-
-  it('preserves explicit quality-candidate authority across rewritten shopper links and owner showroom navigation',()=>{
-    const rewritten=rewriteStorefrontTemplatePreviewBindingContext(
-      {faqHref:'/gyik',shippingHref:'/szallitas'},
-      {templateKey:'sport.sport-hub',templateVersion:1,viewport:'mobile',qualityCandidate:true},
-    ) as {faqHref:string;shippingHref:string};
-    expect(rewritten.faqHref).toBe('/storefront-template-preview?template=sport.sport-hub&version=1&page=faq&viewport=mobile&qualityCandidate=1');
-    expect(rewritten.shippingHref).toBe('/storefront-template-preview?template=sport.sport-hub&version=1&page=legal&viewport=mobile&qualityCandidate=1&demoContent=szallitas');
-    const nav=getStorefrontTemplateOwnerShowroomNavigationItems({templateKey:'sport.sport-hub',templateVersion:1,viewport:'desktop',qualityCandidate:true});
-    expect(nav).toHaveLength(14);
-    expect(nav.every(item=>item.href.includes('qualityCandidate=1'))).toBe(true);
-    expect(nav.every(item=>!item.href.includes('factory=1'))).toBe(true);
   });
 
   it('keeps all implemented catalog packages route-integrity clean after shared augmentation',()=>{

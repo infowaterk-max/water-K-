@@ -4,7 +4,7 @@ import {notFound,redirect} from 'next/navigation';
 import {requireStorefrontTemplatePreviewAccess} from '@/lib/auth/template-preview-access';
 import {createClient} from '@/lib/supabase/server';
 import {PLANS} from '@/lib/plans/catalog';
-import {resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
+import {preserveStorefrontQualityCandidatePreviewAuthority,resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
 import {
   createStorefrontTemplatePreviewBindingContext,
   getStorefrontTemplatePreviewTheme,
@@ -63,14 +63,16 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   const demoPayload=demoFixture?.payload??null;
   const embed=query.embed==='1';
   const noticedPage=demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
-  const routedPage=rewriteStorefrontTemplatePreviewLinks(noticedPage,{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate,qualityCandidate});
-  const page=embed?routedPage:applyStorefrontTemplateOwnerShowroomNavigation(routedPage,{
+  const routedPage=preserveStorefrontQualityCandidatePreviewAuthority(
+    rewriteStorefrontTemplatePreviewLinks(noticedPage,{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate}),
+    qualityCandidate,
+  );
+  const page=embed?routedPage:preserveStorefrontQualityCandidatePreviewAuthority(applyStorefrontTemplateOwnerShowroomNavigation(routedPage,{
     templateKey:template.manifest.templateKey,
     templateVersion:template.manifest.templateVersion,
     viewport,
     factory:factoryCandidate,
-    qualityCandidate,
-  });
+  }),qualityCandidate);
   const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
   if(demoPayload){
     const content=baseContext.content&&typeof baseContext.content==='object'&&!Array.isArray(baseContext.content)?baseContext.content as Record<string,unknown>:{};
@@ -83,10 +85,10 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
       article:{title,excerpt:summary,summary,body,image:'',imageAlt:''},
     };
   }
-  const bindingContext=rewriteStorefrontTemplatePreviewBindingContext(
+  const bindingContext=preserveStorefrontQualityCandidatePreviewAuthority(rewriteStorefrontTemplatePreviewBindingContext(
     augmentStorefrontDigitalCommercePreviewContext({template,page,context:baseContext}),
-    {templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate,qualityCandidate},
-  );
+    {templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate},
+  ),qualityCandidate);
   const theme=getStorefrontTemplatePreviewTheme(template.manifest.templateKey) as CSSProperties;
   const previewCapability={plan:'pro' as const,features:[...PLANS.pro.features]};
   const factoryMeta=sourcePage.metadata?.templateFactory&&typeof sourcePage.metadata.templateFactory==='object'

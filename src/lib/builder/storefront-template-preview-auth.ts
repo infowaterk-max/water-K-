@@ -14,6 +14,22 @@ export type StorefrontTemplatePreviewAccountRuntime={
  capability:StorefrontRuntimeCapabilityContext;
 };
 
+export function preserveStorefrontQualityCandidatePreviewAuthority<T>(value:T,enabled:boolean):T{
+ if(!enabled)return value;
+ const rewrite=(input:unknown):unknown=>{
+  if(typeof input==='string'){
+   if(!input.startsWith('/storefront-template-preview?'))return input;
+   const url=new URL(input,'https://shoporation.local');
+   url.searchParams.set('qualityCandidate','1');
+   return`${url.pathname}?${url.searchParams.toString()}`;
+  }
+  if(Array.isArray(input))return input.map(rewrite);
+  if(!input||typeof input!=='object')return input;
+  return Object.fromEntries(Object.entries(input as Record<string,unknown>).map(([key,item])=>[key,rewrite(item)]));
+ };
+ return rewrite(value) as T;
+}
+
 export function resolveStorefrontTemplatePreviewPackage(templateKey:string,templateVersion?:number,factoryCandidate=false,qualityCandidate=false):StorefrontInstallableTemplatePackage|null{
  if(factoryCandidate&&qualityCandidate)return null;
  if(factoryCandidate){

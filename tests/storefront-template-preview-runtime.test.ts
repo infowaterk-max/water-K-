@@ -4,7 +4,7 @@ import {PLANS} from '@/lib/plans/catalog';
 import {STOREFRONT_TEMPLATE_CATALOG,getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {validateStorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import {resolveStorefrontTemplateAccountPreviewRuntimePage,resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
+import {preserveStorefrontQualityCandidatePreviewAuthority,resolveStorefrontTemplateAccountPreviewRuntimePage,resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
 
 describe('storefront template preview runtime',()=>{
   it('keeps accepted catalog resolution unchanged while factory resolution is explicit and fail-closed',()=>{
@@ -27,6 +27,19 @@ describe('storefront template preview runtime',()=>{
     const account=resolveStorefrontTemplateAccountPreviewRuntimePage('sport.sport-hub',1,false,true);
     expect(account?.page.pageType).toBe('account');
     expect(account?.page.templateKey).toBe('sport.sport-hub');
+  });
+
+  it('preserves quality-candidate authority only on owner-preview URLs without rewriting unrelated links',()=>{
+    const marked=preserveStorefrontQualityCandidatePreviewAuthority({
+      faqHref:'/storefront-template-preview?template=sport.sport-hub&version=1&page=faq&viewport=mobile',
+      shippingHref:'/storefront-template-preview?template=sport.sport-hub&version=1&page=legal&viewport=mobile&demoContent=szallitas',
+      externalHref:'https://example.com',
+    },true);
+    expect(marked.faqHref).toContain('qualityCandidate=1');
+    expect(marked.shippingHref).toContain('demoContent=szallitas');
+    expect(marked.shippingHref).toContain('qualityCandidate=1');
+    expect(marked.externalHref).toBe('https://example.com');
+    expect(preserveStorefrontQualityCandidatePreviewAuthority({href:'/storefront-template-preview?template=x'},false)).toEqual({href:'/storefront-template-preview?template=x'});
   });
 
   it('routes factory=1 through Factory candidate authority in both owner preview and Visual Fidelity QA',()=>{

@@ -27,7 +27,6 @@
     "src/app/storefront-template-preview/page.tsx",
     "src/app/storefront-template-preview-login/page.tsx",
     "src/lib/builder/storefront-template-preview-auth.ts",
-    "src/lib/builder/storefront-template-route-integrity.ts",
     "src/components/account/storefront-account-shell.tsx"
   ],
   "expectedSubsystems": [
@@ -353,7 +352,6 @@
         "src/app/storefront-template-preview/page.tsx",
         "src/app/storefront-template-preview-login/page.tsx",
         "src/lib/builder/storefront-template-preview-auth.ts",
-        "src/lib/builder/storefront-template-route-integrity.ts",
         "src/components/account/storefront-account-shell.tsx"
       ],
       "impactedReadOnly": [
@@ -562,5 +560,5 @@
       }
     ]
   },
-  "notes": "Visual First is already Product Owner approved for all 14 SPORT HUB page references. This transaction is implementation only. Do not reopen design decisions unless the Product Owner explicitly changes them. Keep the PR draft until exact-head proof and live visual acceptance are complete. FAQ runtime repair: reuse the existing shared content-disclosure implementation by widening commerce.content-tabs page compatibility from product-only to product+faq; no template-local FAQ engine. Browser evidence follow-up: fix only shared mobile accordion trigger wrapping after FAQ runtime root became valid; preserve the previously proven SPORT HUB mobile grid repair and all approved visuals. PO handoff repair: expose the already-proven SPORT HUB quality candidate through the authenticated owner preview only; preserve candidate isolation from the accepted catalog and carry qualityCandidate=1 across login and all preview navigation."
+  "notes": "Visual First is already Product Owner approved for all 14 SPORT HUB page references. This transaction is implementation only. Do not reopen design decisions unless the Product Owner explicitly changes them. Keep the PR draft until exact-head proof and live visual acceptance are complete. FAQ runtime repair: reuse the existing shared content-disclosure implementation by widening commerce.content-tabs page compatibility from product-only to product+faq; no template-local FAQ engine. Browser evidence follow-up: fix only shared mobile accordion trigger wrapping after FAQ runtime root became valid; preserve the previously proven SPORT HUB mobile grid repair and all approved visuals. PO handoff repair: expose the already-proven SPORT HUB quality candidate through the authenticated owner preview only; preserve candidate isolation from the accepted catalog and carry qualityCandidate=1 across login and all preview navigation. Scope correction: qualityCandidate propagation is confined to the authenticated owner-preview layer; shared route-integrity authority is intentionally unchanged so shipping/payment route authority is not reopened."
 }
