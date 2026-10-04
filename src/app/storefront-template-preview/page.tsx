@@ -85,10 +85,11 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
       article:{title,excerpt:summary,summary,body,image:'',imageAlt:''},
     };
   }
-  const bindingContext=preserveStorefrontQualityCandidatePreviewAuthority(rewriteStorefrontTemplatePreviewBindingContext(
+  const bindingContext=rewriteStorefrontTemplatePreviewBindingContext(
     augmentStorefrontDigitalCommercePreviewContext({template,page,context:baseContext}),
     {templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate},
-  ),qualityCandidate);
+  );
+  const previewBindingContext=preserveStorefrontQualityCandidatePreviewAuthority(bindingContext,qualityCandidate);
   const theme=getStorefrontTemplatePreviewTheme(template.manifest.templateKey) as CSSProperties;
   const previewCapability={plan:'pro' as const,features:[...PLANS.pro.features]};
   const factoryMeta=sourcePage.metadata?.templateFactory&&typeof sourcePage.metadata.templateFactory==='object'
@@ -103,7 +104,7 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   const content=<StorefrontRuntimeRenderer
     page={page}
     viewport={viewport}
-    bindingContext={bindingContext}
+    bindingContext={previewBindingContext}
     componentRegistry={createStorefrontVisualBuilderComponentRegistry()}
     rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
     capability={previewCapability}
