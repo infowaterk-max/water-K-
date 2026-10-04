@@ -3,7 +3,7 @@
   "taskId": "DEV-SPORT-HUB-V1-IMPLEMENTATION",
   "task": "Implement the PO-approved SPORT HUB Template #3 canonical v1 from the 14 accepted Visual First references using the existing Template Factory and shared runtime, without reviving legacy template authority or creating template-local business engines.",
   "status": "ready-for-implementation",
-  "guardDigest": "0f3eadb0",
+  "guardDigest": "02b5b622",
   "changeBaseSha": "93605211ee55717b4939d4bb95a45a15711b5a01",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -33,7 +33,8 @@
   "expectedSubsystems": [
     "builder-template-system",
     "shared-storefront",
-    "storefront-ui"
+    "storefront-ui",
+    "customer-account"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
