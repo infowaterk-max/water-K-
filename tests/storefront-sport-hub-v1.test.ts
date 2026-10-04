@@ -119,7 +119,7 @@ describe('SPORT HUB canonical v1 candidate',()=>{
     ]);
     const nodes=walk(home.sections);
     const heroGrid=nodes.find(node=>node.id==='sport-home-hero-grid');
-    expect(heroGrid?.children?.map((node:any)=>node.responsive?.desktop?.gridSpan)).toEqual([3,2,2,2,3]);
+    expect(heroGrid?.children?.map((node:any)=>node.responsive?.desktop?.gridSpan)).toEqual([3,2,2,2,3]);\n    expect(JSON.stringify(home)).not.toMatch(/media-1[0-4]\\.webp/);
     const profile=nodes.find(node=>node.id==='sport-profile-fields');
     expect(profile?.componentKey).toBe('guided.finder');
     expect(profile?.config?.presentation).toBe('compact-select-row');
@@ -157,8 +157,8 @@ describe('SPORT HUB canonical v1 candidate',()=>{
 
   it('does not render full-page Visual First reference sheets as storefront media',()=>{
     const serialized=JSON.stringify(SPORT_HUB_V1_TEMPLATE_PACKAGE);
-    expect(serialized).not.toMatch(/\/storefront-demo\/sport-hub-v1\/media-2[0-4]\.webp/);
-    expect(serialized).toContain('/storefront-demo/sport-hub-v1/products/salomon-sense-ride-5.webp');
+    expect(serialized).not.toMatch(/\/storefront-demo\/sport-hub-v1\/media-1[0-4]\.webp/);
+    expect(serialized).toContain('/storefront-demo/sport-hub-v1/products/salomon-sense-ride-5.webp');\n    expect(serialized).toContain('/storefront-demo/sport-hub-v1/media-20.webp');\n    expect(serialized).toContain('/storefront-demo/sport-hub-v1/media-21.webp');\n    expect(serialized).toContain('/storefront-demo/sport-hub-v1/media-22.webp');
     expect(serialized).toContain('/storefront-demo/sport-hub-v1/ui/asset-43-contact-support.webp');
   });
 
