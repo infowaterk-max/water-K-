@@ -16,11 +16,25 @@ describe('storefront template preview runtime',()=>{
     expect(resolveStorefrontTemplatePreviewPackage('missing.factory-template',1,true)).toBeNull();
   });
 
+  it('resolves SPORT HUB quality candidate only through explicit owner-preview authority without activating the catalog',()=>{
+    expect(getStorefrontTemplatePackage('sport.sport-hub',1)).toBeUndefined();
+    expect(resolveStorefrontTemplatePreviewPackage('sport.sport-hub',1,false,false)).toBeNull();
+    const candidate=resolveStorefrontTemplatePreviewPackage('sport.sport-hub',1,false,true);
+    expect(candidate?.manifest.templateKey).toBe('sport.sport-hub');
+    expect(candidate?.manifest.templateVersion).toBe(1);
+    expect(candidate?.pages).toHaveLength(14);
+    expect(resolveStorefrontTemplatePreviewPackage('sport.sport-hub',1,true,true)).toBeNull();
+    const account=resolveStorefrontTemplateAccountPreviewRuntimePage('sport.sport-hub',1,false,true);
+    expect(account?.page.pageType).toBe('account');
+    expect(account?.page.templateKey).toBe('sport.sport-hub');
+  });
+
   it('routes factory=1 through Factory candidate authority in both owner preview and Visual Fidelity QA',()=>{
     const preview=fs.readFileSync('src/app/storefront-template-preview/page.tsx','utf8');
     const fidelity=fs.readFileSync('src/app/visual-fidelity-qa/page.tsx','utf8');
     expect(preview).toContain("const factoryCandidate=query.factory==='1'");
-    expect(preview).toContain('resolveStorefrontTemplatePreviewPackage(templateKey,version,factoryCandidate)');
+    expect(preview).toContain("const qualityCandidate=query.qualityCandidate==='1'");
+    expect(preview).toContain('resolveStorefrontTemplatePreviewPackage(templateKey,version,factoryCandidate,qualityCandidate)');
     expect(fidelity).toContain("const factoryCandidate=query.factory==='1'");
     expect(fidelity).toContain('buildRegisteredStorefrontTemplateFactoryCandidate(templateKey)');
   });
@@ -36,6 +50,7 @@ describe('storefront template preview runtime',()=>{
     expect(login).toContain("import{AuthForm}from'@/components/auth/auth-form'");
     expect(login).toContain('previewTemplate={{templateKey:template.manifest.templateKey');
     expect(login).toContain("if(input.factoryCandidate)params.set('factory','1')");
+    expect(login).toContain("if(input.qualityCandidate)params.set('qualityCandidate','1')");
     expect(shell).toContain('resolveStorefrontTemplateAccountPreviewRuntimePage');
     expect(shell).toContain('data-storefront-account-shell={runtime.source}');
   });

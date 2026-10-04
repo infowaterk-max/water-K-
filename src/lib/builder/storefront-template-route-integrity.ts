@@ -178,7 +178,7 @@ const previewPageForPath=(pathname:string):string|null=>{
   return null;
 };
 
-function rewritePreviewHref(href:string,input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile';factoryCandidate?:boolean}){
+function rewritePreviewHref(href:string,input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile';factoryCandidate?:boolean;qualityCandidate?:boolean}){
   if(!href.startsWith('/')||href.startsWith('//'))return href;
   let url:URL;
   try{url=new URL(href,'https://shoporation.local');}catch{return href;}
@@ -191,6 +191,7 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
     viewport:input.viewport,
   });
   if(input.factoryCandidate)params.set('factory','1');
+  if(input.qualityCandidate)params.set('qualityCandidate','1');
   const canonicalInfoSlug=CANONICAL_INFORMATION_DEMO_ROUTES.get(url.pathname);
   if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')||canonicalInfoSlug){
     const slug=canonicalInfoSlug??url.pathname.split('/').filter(Boolean).at(-1);
@@ -222,6 +223,7 @@ type StorefrontTemplateOwnerShowroomInput={
   templateVersion:number;
   viewport:'desktop'|'tablet'|'mobile';
   factory?:boolean;
+  qualityCandidate?:boolean;
 };
 
 const ownerShowroomHref=(pageType:StorefrontBuilderPageType,input:StorefrontTemplateOwnerShowroomInput)=>{
@@ -232,6 +234,7 @@ const ownerShowroomHref=(pageType:StorefrontBuilderPageType,input:StorefrontTemp
     viewport:input.viewport,
   });
   if(input.factory)params.set('factory','1');
+  if(input.qualityCandidate)params.set('qualityCandidate','1');
   return`/storefront-template-preview?${params.toString()}`;
 };
 
@@ -282,7 +285,7 @@ export function applyStorefrontTemplateOwnerShowroomNavigation(
 
 export function rewriteStorefrontTemplatePreviewBindingContext(
   context:Record<string,unknown>,
-  input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile';factoryCandidate?:boolean},
+  input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile';factoryCandidate?:boolean;qualityCandidate?:boolean},
 ):Record<string,unknown>{
   const rewriteValue=(value:unknown,key:string|null=null):unknown=>{
     if(Array.isArray(value))return value.map(item=>rewriteValue(item,null));
@@ -299,7 +302,7 @@ export function rewriteStorefrontTemplatePreviewBindingContext(
 
 export function rewriteStorefrontTemplatePreviewLinks(
   page:StorefrontPageDocument,
-  input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile';factoryCandidate?:boolean},
+  input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile';factoryCandidate?:boolean;qualityCandidate?:boolean},
 ):StorefrontPageDocument{
   const rewriteValue=(value:unknown):unknown=>{
     if(Array.isArray(value))return value.map(rewriteValue);

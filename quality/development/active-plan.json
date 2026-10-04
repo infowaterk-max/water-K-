@@ -23,7 +23,12 @@
     "tests/template-factory-template-distinctness.test.ts",
     "tests/visual-baselines/sport.sport-hub/v1/**",
     "src/components/builder/storefront-content-disclosure.tsx",
-    "tests/storefront-fidelity-behavior.test.tsx"
+    "tests/storefront-fidelity-behavior.test.tsx",
+    "src/app/storefront-template-preview/page.tsx",
+    "src/app/storefront-template-preview-login/page.tsx",
+    "src/lib/builder/storefront-template-preview-auth.ts",
+    "src/lib/builder/storefront-template-route-integrity.ts",
+    "src/components/account/storefront-account-shell.tsx"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -137,7 +142,8 @@
         "Product Owner handoff contains no placeholder media, duplicate fake content, legacy fallback layout or unrelated template visual identity.",
         "Final exact-head proof includes typecheck, production build, Template Factory quality proof, route/cart regression and visual/browser evidence before completion is claimed.",
         "Shared commerce.content-tabs remains valid on Product, becomes valid on FAQ, and remains rejected for every unrelated page type.",
-        "Shared accordion disclosure must wrap long mobile trigger labels without horizontal viewport overflow while tab mode keeps its existing single-line navigation behavior."
+        "Shared accordion disclosure must wrap long mobile trigger labels without horizontal viewport overflow while tab mode keeps its existing single-line navigation behavior.",
+        "The authenticated owner preview can resolve SPORT HUB as an explicit quality candidate without adding it to the accepted catalog, and login/showroom/shopper preview links preserve qualityCandidate=1 end to end."
       ],
       "invariants": [
         "There is one canonical SPORT HUB package authority; legacy src/lib/builder/templates/sport-hub.ts remains inert historical source and is never imported as the new implementation.",
@@ -147,7 +153,8 @@
         "All 14 pages share the same canonical header/footer identity while page-body composition remains page-specific.",
         "Responsive differences are expressed through the canonical Desktop/Tablet/Mobile model, not user-agent checks, zoom compensation or a second responsive controller.",
         "Separate shipping and payment route authority remains intact in navigation and information-page links.",
-        "PO handoff is distinct from CI success: automated PASS cannot substitute for live visual acceptance."
+        "PO handoff is distinct from CI success: automated PASS cannot substitute for live visual acceptance.",
+        "Quality-candidate preview authority is explicit and cannot promote SPORT HUB into STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES before Product Owner acceptance."
       ],
       "forbiddenStates": [
         "legacy-sport-hub-source-becomes-active-authority",
@@ -199,7 +206,8 @@
         "Demo fixtures or hard-coded presentation values are mistaken for price, stock, variant or order authority.",
         "Shared shell drift creates page-specific header/footer variants and fragments end-to-end storefront identity.",
         "Shipping/payment navigation regresses to the forbidden combined route while visual screenshots still look correct.",
-        "Placeholder or duplicated media survives into Product Owner handoff and produces a false visual-fidelity pass."
+        "Placeholder or duplicated media survives into Product Owner handoff and produces a false visual-fidelity pass.",
+        "Template Factory browser proof passes against SPORT HUB quality-candidate authority while the Product Owner preview still resolves only the accepted catalog and returns 404."
       ],
       "edgeCases": [
         "Empty cart and one-item cart states must preserve shared quantity and continuation behavior.",
@@ -320,7 +328,8 @@
       "Use Template Factory quality/browser proof across Desktop, Tablet and Mobile and compare the rendered page families to the accepted Visual First references.",
       "Run TypeScript check and production build on the exact implementation HEAD after all page batches are complete.",
       "Run cart/checkout/account/search functional regressions through shared engines so visual composition cannot mask behavior regressions.",
-      "Run Completion Truth on fresh exact-head evidence; report DONE only if machine proof is VERIFIED and Product Owner visual acceptance is also obtained."
+      "Run Completion Truth on fresh exact-head evidence; report DONE only if machine proof is VERIFIED and Product Owner visual acceptance is also obtained.",
+      "Prove the authenticated owner-preview qualityCandidate path, login return target and generated showroom/shopper links resolve the same sport.sport-hub@1 candidate while the accepted catalog remains unchanged."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-03-SPORT-HUB-TEMPLATE-3-IMPLEMENTATION",
@@ -339,7 +348,12 @@
         "src/lib/builder/storefront-template-quality-gate.ts",
         "public/storefront-demo/sport-hub-v1/**",
         "src/lib/builder/storefront-commerce.ts",
-        "src/components/builder/storefront-content-disclosure.tsx"
+        "src/components/builder/storefront-content-disclosure.tsx",
+        "src/app/storefront-template-preview/page.tsx",
+        "src/app/storefront-template-preview-login/page.tsx",
+        "src/lib/builder/storefront-template-preview-auth.ts",
+        "src/lib/builder/storefront-template-route-integrity.ts",
+        "src/components/account/storefront-account-shell.tsx"
       ],
       "impactedReadOnly": [
         "src/lib/builder/templates/gaming/playroom/v20/**",
@@ -547,5 +561,5 @@
       }
     ]
   },
-  "notes": "Visual First is already Product Owner approved for all 14 SPORT HUB page references. This transaction is implementation only. Do not reopen design decisions unless the Product Owner explicitly changes them. Keep the PR draft until exact-head proof and live visual acceptance are complete. FAQ runtime repair: reuse the existing shared content-disclosure implementation by widening commerce.content-tabs page compatibility from product-only to product+faq; no template-local FAQ engine. Browser evidence follow-up: fix only shared mobile accordion trigger wrapping after FAQ runtime root became valid; preserve the previously proven SPORT HUB mobile grid repair and all approved visuals."
+  "notes": "Visual First is already Product Owner approved for all 14 SPORT HUB page references. This transaction is implementation only. Do not reopen design decisions unless the Product Owner explicitly changes them. Keep the PR draft until exact-head proof and live visual acceptance are complete. FAQ runtime repair: reuse the existing shared content-disclosure implementation by widening commerce.content-tabs page compatibility from product-only to product+faq; no template-local FAQ engine. Browser evidence follow-up: fix only shared mobile accordion trigger wrapping after FAQ runtime root became valid; preserve the previously proven SPORT HUB mobile grid repair and all approved visuals. PO handoff repair: expose the already-proven SPORT HUB quality candidate through the authenticated owner preview only; preserve candidate isolation from the accepted catalog and carry qualityCandidate=1 across login and all preview navigation."
 }
