@@ -89,6 +89,12 @@ describe('SPORT HUB canonical v1 candidate',()=>{
     expect(JSON.stringify(SPORT_HUB_V1_TEMPLATE_PACKAGE)).not.toMatch(/szallitas-es-fizetes|szállítás és fizetés/i);
   });
 
+  it('keeps one canonical PO-approved SPORT HUB header across all 14 pages',()=>{
+    const signatures=SPORT_HUB_V1_TEMPLATE_PACKAGE.pages.map(page=>JSON.stringify(page.sections[0]));
+    expect(new Set(signatures).size).toBe(1);
+    expect(SPORT_HUB_V1_TEMPLATE_PACKAGE.pages).toHaveLength(14);
+  });
+
   it('keeps the Account/login shell on the PO-approved one-row SPORT HUB header',()=>{
     const account=SPORT_HUB_V1_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='account')!;
     const header=account.sections.find(section=>section.componentKey==='system.commerce-header')!;

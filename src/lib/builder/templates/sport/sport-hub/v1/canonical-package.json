@@ -118,9 +118,9 @@
           "componentKey": "system.commerce-header",
           "componentVersion": 1,
           "config": {
-            "brandLabel": "SPORT HUB",
+            "brandLabel": "",
             "brandHref": "/",
-            "tagline": "TÖBB, MINT FELSZERELÉS",
+            "tagline": "",
             "utilityItems": [
               {
                 "label": "Fiókom",
@@ -140,28 +140,24 @@
             ],
             "tone": "background",
             "sticky": true,
-            "presentation": "commerce-two-tier",
+            "presentation": "commerce-single-tier",
             "showUtilityLabels": false,
             "categoryTriggerSymbol": "☰",
             "categoryTriggerLabel": "Sportok",
             "categoryTriggerHref": "/webaruhaz",
             "navTagline": "MOZGÁS. KALAND. JOBB ÉLET.",
             "style": {
-              "background": "rgba(5,29,45,.98)",
-              "borderBottom": "1px solid rgba(255,255,255,.12)",
-              "boxShadow": "0 10px 35px rgba(2,13,22,.22)"
+              "background": "#071521",
+              "borderBottom": "1px solid rgba(255,255,255,.16)",
+              "boxShadow": "0 8px 24px rgba(2,13,22,.22)",
+              "color": "#ffffff"
             },
             "innerStyle": {
               "maxWidth": "none",
-              "padding": ".7rem clamp(1rem,3vw,2.4rem) .45rem",
-              "gap": ".6rem"
+              "padding": ".34rem clamp(.9rem,2vw,1.4rem)",
+              "gap": ".45rem"
             },
             "brandStyle": {
-              "fontFamily": "Arial Narrow, Arial, sans-serif",
-              "fontSize": "1.5rem",
-              "fontWeight": 900,
-              "fontStyle": "italic",
-              "letterSpacing": "-.03em",
               "color": "#ffffff"
             },
             "taglineStyle": {
@@ -236,7 +232,37 @@
                 "label": "Impresszum",
                 "href": "/impresszum"
               }
-            ]
+            ],
+            "logoUrl": "/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg",
+            "logoAlt": "SPORT HUB – TÖBB, MINT FELSZERELÉS",
+            "logoStyle": {
+              "width": "11.6rem",
+              "height": "2.7rem",
+              "objectFit": "contain"
+            },
+            "utilityStyle": {
+              "gap": ".35rem",
+              "color": "#ffffff"
+            },
+            "styleSlots": {
+              "singleTierRow": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "singleTierNavigation": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "searchFrame": {
+                "maxWidth": "22rem"
+              },
+              "utilityItem": {
+                "border": "0",
+                "borderRadius": "0",
+                "minWidth": "2.35rem",
+                "minHeight": "2.35rem",
+                "padding": ".3rem",
+                "color": "#ffffff"
+              }
+            }
           },
           "children": [
             {
@@ -251,19 +277,19 @@
                 "ariaLabel": "Keresés a SPORT HUB-ban",
                 "presentation": "commerce",
                 "style": {
-                  "height": "2.45rem",
-                  "background": "#f6f8fa",
-                  "border": "1px solid rgba(255,255,255,.35)",
+                  "height": "2.25rem",
+                  "background": "#f5f7f9",
+                  "border": "1px solid rgba(255,255,255,.42)",
                   "borderRadius": "999px"
                 },
                 "inputStyle": {
-                  "color": "#102641",
-                  "fontSize": ".75rem"
+                  "color": "#667487",
+                  "fontSize": ".78rem"
                 },
                 "buttonStyle": {
                   "background": "transparent",
                   "color": "#102641",
-                  "padding": ".4rem .8rem"
+                  "padding": ".25rem .65rem"
                 }
               }
             },
@@ -297,10 +323,12 @@
                   }
                 ],
                 "style": {
-                  "gap": "1.25rem",
-                  "fontSize": ".72rem",
-                  "fontWeight": 750,
-                  "color": "#ffffff"
+                  "gap": "clamp(.95rem,1.55vw,1.65rem)",
+                  "fontSize": ".9rem",
+                  "fontWeight": 650,
+                  "fontFamily": "Arial Narrow, Arial, sans-serif",
+                  "color": "#ffffff",
+                  "whiteSpace": "nowrap"
                 }
               }
             }
@@ -3966,9 +3994,9 @@
           "componentKey": "system.commerce-header",
           "componentVersion": 1,
           "config": {
-            "brandLabel": "SPORT HUB",
+            "brandLabel": "",
             "brandHref": "/",
-            "tagline": "TÖBB, MINT FELSZERELÉS",
+            "tagline": "",
             "utilityItems": [
               {
                 "label": "Fiókom",
@@ -3988,28 +4016,24 @@
             ],
             "tone": "background",
             "sticky": true,
-            "presentation": "commerce-two-tier",
+            "presentation": "commerce-single-tier",
             "showUtilityLabels": false,
             "categoryTriggerSymbol": "☰",
             "categoryTriggerLabel": "Sportok",
             "categoryTriggerHref": "/webaruhaz",
             "navTagline": "MOZGÁS. KALAND. JOBB ÉLET.",
             "style": {
-              "background": "rgba(5,29,45,.98)",
-              "borderBottom": "1px solid rgba(255,255,255,.12)",
-              "boxShadow": "0 10px 35px rgba(2,13,22,.22)"
+              "background": "#071521",
+              "borderBottom": "1px solid rgba(255,255,255,.16)",
+              "boxShadow": "0 8px 24px rgba(2,13,22,.22)",
+              "color": "#ffffff"
             },
             "innerStyle": {
               "maxWidth": "none",
-              "padding": ".7rem clamp(1rem,3vw,2.4rem) .45rem",
-              "gap": ".6rem"
+              "padding": ".34rem clamp(.9rem,2vw,1.4rem)",
+              "gap": ".45rem"
             },
             "brandStyle": {
-              "fontFamily": "Arial Narrow, Arial, sans-serif",
-              "fontSize": "1.5rem",
-              "fontWeight": 900,
-              "fontStyle": "italic",
-              "letterSpacing": "-.03em",
               "color": "#ffffff"
             },
             "taglineStyle": {
@@ -4084,7 +4108,37 @@
                 "label": "Impresszum",
                 "href": "/impresszum"
               }
-            ]
+            ],
+            "logoUrl": "/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg",
+            "logoAlt": "SPORT HUB – TÖBB, MINT FELSZERELÉS",
+            "logoStyle": {
+              "width": "11.6rem",
+              "height": "2.7rem",
+              "objectFit": "contain"
+            },
+            "utilityStyle": {
+              "gap": ".35rem",
+              "color": "#ffffff"
+            },
+            "styleSlots": {
+              "singleTierRow": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "singleTierNavigation": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "searchFrame": {
+                "maxWidth": "22rem"
+              },
+              "utilityItem": {
+                "border": "0",
+                "borderRadius": "0",
+                "minWidth": "2.35rem",
+                "minHeight": "2.35rem",
+                "padding": ".3rem",
+                "color": "#ffffff"
+              }
+            }
           },
           "children": [
             {
@@ -4099,19 +4153,19 @@
                 "ariaLabel": "Keresés a SPORT HUB-ban",
                 "presentation": "commerce",
                 "style": {
-                  "height": "2.45rem",
-                  "background": "#f6f8fa",
-                  "border": "1px solid rgba(255,255,255,.35)",
+                  "height": "2.25rem",
+                  "background": "#f5f7f9",
+                  "border": "1px solid rgba(255,255,255,.42)",
                   "borderRadius": "999px"
                 },
                 "inputStyle": {
-                  "color": "#102641",
-                  "fontSize": ".75rem"
+                  "color": "#667487",
+                  "fontSize": ".78rem"
                 },
                 "buttonStyle": {
                   "background": "transparent",
                   "color": "#102641",
-                  "padding": ".4rem .8rem"
+                  "padding": ".25rem .65rem"
                 }
               }
             },
@@ -4145,10 +4199,12 @@
                   }
                 ],
                 "style": {
-                  "gap": "1.25rem",
-                  "fontSize": ".72rem",
-                  "fontWeight": 750,
-                  "color": "#ffffff"
+                  "gap": "clamp(.95rem,1.55vw,1.65rem)",
+                  "fontSize": ".9rem",
+                  "fontWeight": 650,
+                  "fontFamily": "Arial Narrow, Arial, sans-serif",
+                  "color": "#ffffff",
+                  "whiteSpace": "nowrap"
                 }
               }
             }
@@ -5802,9 +5858,9 @@
           "componentKey": "system.commerce-header",
           "componentVersion": 1,
           "config": {
-            "brandLabel": "SPORT HUB",
+            "brandLabel": "",
             "brandHref": "/",
-            "tagline": "TÖBB, MINT FELSZERELÉS",
+            "tagline": "",
             "utilityItems": [
               {
                 "label": "Fiókom",
@@ -5824,28 +5880,24 @@
             ],
             "tone": "background",
             "sticky": true,
-            "presentation": "commerce-two-tier",
+            "presentation": "commerce-single-tier",
             "showUtilityLabels": false,
             "categoryTriggerSymbol": "☰",
             "categoryTriggerLabel": "Sportok",
             "categoryTriggerHref": "/webaruhaz",
             "navTagline": "MOZGÁS. KALAND. JOBB ÉLET.",
             "style": {
-              "background": "rgba(5,29,45,.98)",
-              "borderBottom": "1px solid rgba(255,255,255,.12)",
-              "boxShadow": "0 10px 35px rgba(2,13,22,.22)"
+              "background": "#071521",
+              "borderBottom": "1px solid rgba(255,255,255,.16)",
+              "boxShadow": "0 8px 24px rgba(2,13,22,.22)",
+              "color": "#ffffff"
             },
             "innerStyle": {
               "maxWidth": "none",
-              "padding": ".7rem clamp(1rem,3vw,2.4rem) .45rem",
-              "gap": ".6rem"
+              "padding": ".34rem clamp(.9rem,2vw,1.4rem)",
+              "gap": ".45rem"
             },
             "brandStyle": {
-              "fontFamily": "Arial Narrow, Arial, sans-serif",
-              "fontSize": "1.5rem",
-              "fontWeight": 900,
-              "fontStyle": "italic",
-              "letterSpacing": "-.03em",
               "color": "#ffffff"
             },
             "taglineStyle": {
@@ -5920,7 +5972,37 @@
                 "label": "Impresszum",
                 "href": "/impresszum"
               }
-            ]
+            ],
+            "logoUrl": "/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg",
+            "logoAlt": "SPORT HUB – TÖBB, MINT FELSZERELÉS",
+            "logoStyle": {
+              "width": "11.6rem",
+              "height": "2.7rem",
+              "objectFit": "contain"
+            },
+            "utilityStyle": {
+              "gap": ".35rem",
+              "color": "#ffffff"
+            },
+            "styleSlots": {
+              "singleTierRow": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "singleTierNavigation": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "searchFrame": {
+                "maxWidth": "22rem"
+              },
+              "utilityItem": {
+                "border": "0",
+                "borderRadius": "0",
+                "minWidth": "2.35rem",
+                "minHeight": "2.35rem",
+                "padding": ".3rem",
+                "color": "#ffffff"
+              }
+            }
           },
           "children": [
             {
@@ -5935,19 +6017,19 @@
                 "ariaLabel": "Keresés a SPORT HUB-ban",
                 "presentation": "commerce",
                 "style": {
-                  "height": "2.45rem",
-                  "background": "#f6f8fa",
-                  "border": "1px solid rgba(255,255,255,.35)",
+                  "height": "2.25rem",
+                  "background": "#f5f7f9",
+                  "border": "1px solid rgba(255,255,255,.42)",
                   "borderRadius": "999px"
                 },
                 "inputStyle": {
-                  "color": "#102641",
-                  "fontSize": ".75rem"
+                  "color": "#667487",
+                  "fontSize": ".78rem"
                 },
                 "buttonStyle": {
                   "background": "transparent",
                   "color": "#102641",
-                  "padding": ".4rem .8rem"
+                  "padding": ".25rem .65rem"
                 }
               }
             },
@@ -5981,10 +6063,12 @@
                   }
                 ],
                 "style": {
-                  "gap": "1.25rem",
-                  "fontSize": ".72rem",
-                  "fontWeight": 750,
-                  "color": "#ffffff"
+                  "gap": "clamp(.95rem,1.55vw,1.65rem)",
+                  "fontSize": ".9rem",
+                  "fontWeight": 650,
+                  "fontFamily": "Arial Narrow, Arial, sans-serif",
+                  "color": "#ffffff",
+                  "whiteSpace": "nowrap"
                 }
               }
             }
@@ -7450,9 +7534,9 @@
           "componentKey": "system.commerce-header",
           "componentVersion": 1,
           "config": {
-            "brandLabel": "SPORT HUB",
+            "brandLabel": "",
             "brandHref": "/",
-            "tagline": "TÖBB, MINT FELSZERELÉS",
+            "tagline": "",
             "utilityItems": [
               {
                 "label": "Fiókom",
@@ -7472,28 +7556,24 @@
             ],
             "tone": "background",
             "sticky": true,
-            "presentation": "commerce-two-tier",
+            "presentation": "commerce-single-tier",
             "showUtilityLabels": false,
             "categoryTriggerSymbol": "☰",
             "categoryTriggerLabel": "Sportok",
             "categoryTriggerHref": "/webaruhaz",
             "navTagline": "MOZGÁS. KALAND. JOBB ÉLET.",
             "style": {
-              "background": "rgba(5,29,45,.98)",
-              "borderBottom": "1px solid rgba(255,255,255,.12)",
-              "boxShadow": "0 10px 35px rgba(2,13,22,.22)"
+              "background": "#071521",
+              "borderBottom": "1px solid rgba(255,255,255,.16)",
+              "boxShadow": "0 8px 24px rgba(2,13,22,.22)",
+              "color": "#ffffff"
             },
             "innerStyle": {
               "maxWidth": "none",
-              "padding": ".7rem clamp(1rem,3vw,2.4rem) .45rem",
-              "gap": ".6rem"
+              "padding": ".34rem clamp(.9rem,2vw,1.4rem)",
+              "gap": ".45rem"
             },
             "brandStyle": {
-              "fontFamily": "Arial Narrow, Arial, sans-serif",
-              "fontSize": "1.5rem",
-              "fontWeight": 900,
-              "fontStyle": "italic",
-              "letterSpacing": "-.03em",
               "color": "#ffffff"
             },
             "taglineStyle": {
@@ -7568,7 +7648,37 @@
                 "label": "Impresszum",
                 "href": "/impresszum"
               }
-            ]
+            ],
+            "logoUrl": "/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg",
+            "logoAlt": "SPORT HUB – TÖBB, MINT FELSZERELÉS",
+            "logoStyle": {
+              "width": "11.6rem",
+              "height": "2.7rem",
+              "objectFit": "contain"
+            },
+            "utilityStyle": {
+              "gap": ".35rem",
+              "color": "#ffffff"
+            },
+            "styleSlots": {
+              "singleTierRow": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "singleTierNavigation": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "searchFrame": {
+                "maxWidth": "22rem"
+              },
+              "utilityItem": {
+                "border": "0",
+                "borderRadius": "0",
+                "minWidth": "2.35rem",
+                "minHeight": "2.35rem",
+                "padding": ".3rem",
+                "color": "#ffffff"
+              }
+            }
           },
           "children": [
             {
@@ -7583,19 +7693,19 @@
                 "ariaLabel": "Keresés a SPORT HUB-ban",
                 "presentation": "commerce",
                 "style": {
-                  "height": "2.45rem",
-                  "background": "#f6f8fa",
-                  "border": "1px solid rgba(255,255,255,.35)",
+                  "height": "2.25rem",
+                  "background": "#f5f7f9",
+                  "border": "1px solid rgba(255,255,255,.42)",
                   "borderRadius": "999px"
                 },
                 "inputStyle": {
-                  "color": "#102641",
-                  "fontSize": ".75rem"
+                  "color": "#667487",
+                  "fontSize": ".78rem"
                 },
                 "buttonStyle": {
                   "background": "transparent",
                   "color": "#102641",
-                  "padding": ".4rem .8rem"
+                  "padding": ".25rem .65rem"
                 }
               }
             },
@@ -7629,10 +7739,12 @@
                   }
                 ],
                 "style": {
-                  "gap": "1.25rem",
-                  "fontSize": ".72rem",
-                  "fontWeight": 750,
-                  "color": "#ffffff"
+                  "gap": "clamp(.95rem,1.55vw,1.65rem)",
+                  "fontSize": ".9rem",
+                  "fontWeight": 650,
+                  "fontFamily": "Arial Narrow, Arial, sans-serif",
+                  "color": "#ffffff",
+                  "whiteSpace": "nowrap"
                 }
               }
             }
@@ -8531,9 +8643,9 @@
           "componentKey": "system.commerce-header",
           "componentVersion": 1,
           "config": {
-            "brandLabel": "SPORT HUB",
+            "brandLabel": "",
             "brandHref": "/",
-            "tagline": "TÖBB, MINT FELSZERELÉS",
+            "tagline": "",
             "utilityItems": [
               {
                 "label": "Fiókom",
@@ -8553,28 +8665,24 @@
             ],
             "tone": "background",
             "sticky": true,
-            "presentation": "commerce-two-tier",
+            "presentation": "commerce-single-tier",
             "showUtilityLabels": false,
             "categoryTriggerSymbol": "☰",
             "categoryTriggerLabel": "Sportok",
             "categoryTriggerHref": "/webaruhaz",
             "navTagline": "MOZGÁS. KALAND. JOBB ÉLET.",
             "style": {
-              "background": "rgba(5,29,45,.98)",
-              "borderBottom": "1px solid rgba(255,255,255,.12)",
-              "boxShadow": "0 10px 35px rgba(2,13,22,.22)"
+              "background": "#071521",
+              "borderBottom": "1px solid rgba(255,255,255,.16)",
+              "boxShadow": "0 8px 24px rgba(2,13,22,.22)",
+              "color": "#ffffff"
             },
             "innerStyle": {
               "maxWidth": "none",
-              "padding": ".7rem clamp(1rem,3vw,2.4rem) .45rem",
-              "gap": ".6rem"
+              "padding": ".34rem clamp(.9rem,2vw,1.4rem)",
+              "gap": ".45rem"
             },
             "brandStyle": {
-              "fontFamily": "Arial Narrow, Arial, sans-serif",
-              "fontSize": "1.5rem",
-              "fontWeight": 900,
-              "fontStyle": "italic",
-              "letterSpacing": "-.03em",
               "color": "#ffffff"
             },
             "taglineStyle": {
@@ -8649,7 +8757,37 @@
                 "label": "Impresszum",
                 "href": "/impresszum"
               }
-            ]
+            ],
+            "logoUrl": "/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg",
+            "logoAlt": "SPORT HUB – TÖBB, MINT FELSZERELÉS",
+            "logoStyle": {
+              "width": "11.6rem",
+              "height": "2.7rem",
+              "objectFit": "contain"
+            },
+            "utilityStyle": {
+              "gap": ".35rem",
+              "color": "#ffffff"
+            },
+            "styleSlots": {
+              "singleTierRow": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "singleTierNavigation": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "searchFrame": {
+                "maxWidth": "22rem"
+              },
+              "utilityItem": {
+                "border": "0",
+                "borderRadius": "0",
+                "minWidth": "2.35rem",
+                "minHeight": "2.35rem",
+                "padding": ".3rem",
+                "color": "#ffffff"
+              }
+            }
           },
           "children": [
             {
@@ -8664,19 +8802,19 @@
                 "ariaLabel": "Keresés a SPORT HUB-ban",
                 "presentation": "commerce",
                 "style": {
-                  "height": "2.45rem",
-                  "background": "#f6f8fa",
-                  "border": "1px solid rgba(255,255,255,.35)",
+                  "height": "2.25rem",
+                  "background": "#f5f7f9",
+                  "border": "1px solid rgba(255,255,255,.42)",
                   "borderRadius": "999px"
                 },
                 "inputStyle": {
-                  "color": "#102641",
-                  "fontSize": ".75rem"
+                  "color": "#667487",
+                  "fontSize": ".78rem"
                 },
                 "buttonStyle": {
                   "background": "transparent",
                   "color": "#102641",
-                  "padding": ".4rem .8rem"
+                  "padding": ".25rem .65rem"
                 }
               }
             },
@@ -8710,10 +8848,12 @@
                   }
                 ],
                 "style": {
-                  "gap": "1.25rem",
-                  "fontSize": ".72rem",
-                  "fontWeight": 750,
-                  "color": "#ffffff"
+                  "gap": "clamp(.95rem,1.55vw,1.65rem)",
+                  "fontSize": ".9rem",
+                  "fontWeight": 650,
+                  "fontFamily": "Arial Narrow, Arial, sans-serif",
+                  "color": "#ffffff",
+                  "whiteSpace": "nowrap"
                 }
               }
             }
@@ -11349,9 +11489,9 @@
           "componentKey": "system.commerce-header",
           "componentVersion": 1,
           "config": {
-            "brandLabel": "SPORT HUB",
+            "brandLabel": "",
             "brandHref": "/",
-            "tagline": "TÖBB, MINT FELSZERELÉS",
+            "tagline": "",
             "utilityItems": [
               {
                 "label": "Fiókom",
@@ -11371,28 +11511,24 @@
             ],
             "tone": "background",
             "sticky": true,
-            "presentation": "commerce-two-tier",
+            "presentation": "commerce-single-tier",
             "showUtilityLabels": false,
             "categoryTriggerSymbol": "☰",
             "categoryTriggerLabel": "Sportok",
             "categoryTriggerHref": "/webaruhaz",
             "navTagline": "MOZGÁS. KALAND. JOBB ÉLET.",
             "style": {
-              "background": "rgba(5,29,45,.98)",
-              "borderBottom": "1px solid rgba(255,255,255,.12)",
-              "boxShadow": "0 10px 35px rgba(2,13,22,.22)"
+              "background": "#071521",
+              "borderBottom": "1px solid rgba(255,255,255,.16)",
+              "boxShadow": "0 8px 24px rgba(2,13,22,.22)",
+              "color": "#ffffff"
             },
             "innerStyle": {
               "maxWidth": "none",
-              "padding": ".7rem clamp(1rem,3vw,2.4rem) .45rem",
-              "gap": ".6rem"
+              "padding": ".34rem clamp(.9rem,2vw,1.4rem)",
+              "gap": ".45rem"
             },
             "brandStyle": {
-              "fontFamily": "Arial Narrow, Arial, sans-serif",
-              "fontSize": "1.5rem",
-              "fontWeight": 900,
-              "fontStyle": "italic",
-              "letterSpacing": "-.03em",
               "color": "#ffffff"
             },
             "taglineStyle": {
@@ -11467,7 +11603,37 @@
                 "label": "Impresszum",
                 "href": "/impresszum"
               }
-            ]
+            ],
+            "logoUrl": "/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg",
+            "logoAlt": "SPORT HUB – TÖBB, MINT FELSZERELÉS",
+            "logoStyle": {
+              "width": "11.6rem",
+              "height": "2.7rem",
+              "objectFit": "contain"
+            },
+            "utilityStyle": {
+              "gap": ".35rem",
+              "color": "#ffffff"
+            },
+            "styleSlots": {
+              "singleTierRow": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "singleTierNavigation": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "searchFrame": {
+                "maxWidth": "22rem"
+              },
+              "utilityItem": {
+                "border": "0",
+                "borderRadius": "0",
+                "minWidth": "2.35rem",
+                "minHeight": "2.35rem",
+                "padding": ".3rem",
+                "color": "#ffffff"
+              }
+            }
           },
           "children": [
             {
@@ -11482,19 +11648,19 @@
                 "ariaLabel": "Keresés a SPORT HUB-ban",
                 "presentation": "commerce",
                 "style": {
-                  "height": "2.45rem",
-                  "background": "#f6f8fa",
-                  "border": "1px solid rgba(255,255,255,.35)",
+                  "height": "2.25rem",
+                  "background": "#f5f7f9",
+                  "border": "1px solid rgba(255,255,255,.42)",
                   "borderRadius": "999px"
                 },
                 "inputStyle": {
-                  "color": "#102641",
-                  "fontSize": ".75rem"
+                  "color": "#667487",
+                  "fontSize": ".78rem"
                 },
                 "buttonStyle": {
                   "background": "transparent",
                   "color": "#102641",
-                  "padding": ".4rem .8rem"
+                  "padding": ".25rem .65rem"
                 }
               }
             },
@@ -11528,10 +11694,12 @@
                   }
                 ],
                 "style": {
-                  "gap": "1.25rem",
-                  "fontSize": ".72rem",
-                  "fontWeight": 750,
-                  "color": "#ffffff"
+                  "gap": "clamp(.95rem,1.55vw,1.65rem)",
+                  "fontSize": ".9rem",
+                  "fontWeight": 650,
+                  "fontFamily": "Arial Narrow, Arial, sans-serif",
+                  "color": "#ffffff",
+                  "whiteSpace": "nowrap"
                 }
               }
             }
@@ -12170,9 +12338,9 @@
           "componentKey": "system.commerce-header",
           "componentVersion": 1,
           "config": {
-            "brandLabel": "SPORT HUB",
+            "brandLabel": "",
             "brandHref": "/",
-            "tagline": "TÖBB, MINT FELSZERELÉS",
+            "tagline": "",
             "utilityItems": [
               {
                 "label": "Fiókom",
@@ -12192,28 +12360,24 @@
             ],
             "tone": "background",
             "sticky": true,
-            "presentation": "commerce-two-tier",
+            "presentation": "commerce-single-tier",
             "showUtilityLabels": false,
             "categoryTriggerSymbol": "☰",
             "categoryTriggerLabel": "Sportok",
             "categoryTriggerHref": "/webaruhaz",
             "navTagline": "MOZGÁS. KALAND. JOBB ÉLET.",
             "style": {
-              "background": "rgba(5,29,45,.98)",
-              "borderBottom": "1px solid rgba(255,255,255,.12)",
-              "boxShadow": "0 10px 35px rgba(2,13,22,.22)"
+              "background": "#071521",
+              "borderBottom": "1px solid rgba(255,255,255,.16)",
+              "boxShadow": "0 8px 24px rgba(2,13,22,.22)",
+              "color": "#ffffff"
             },
             "innerStyle": {
               "maxWidth": "none",
-              "padding": ".7rem clamp(1rem,3vw,2.4rem) .45rem",
-              "gap": ".6rem"
+              "padding": ".34rem clamp(.9rem,2vw,1.4rem)",
+              "gap": ".45rem"
             },
             "brandStyle": {
-              "fontFamily": "Arial Narrow, Arial, sans-serif",
-              "fontSize": "1.5rem",
-              "fontWeight": 900,
-              "fontStyle": "italic",
-              "letterSpacing": "-.03em",
               "color": "#ffffff"
             },
             "taglineStyle": {
@@ -12288,7 +12452,37 @@
                 "label": "Impresszum",
                 "href": "/impresszum"
               }
-            ]
+            ],
+            "logoUrl": "/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg",
+            "logoAlt": "SPORT HUB – TÖBB, MINT FELSZERELÉS",
+            "logoStyle": {
+              "width": "11.6rem",
+              "height": "2.7rem",
+              "objectFit": "contain"
+            },
+            "utilityStyle": {
+              "gap": ".35rem",
+              "color": "#ffffff"
+            },
+            "styleSlots": {
+              "singleTierRow": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "singleTierNavigation": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "searchFrame": {
+                "maxWidth": "22rem"
+              },
+              "utilityItem": {
+                "border": "0",
+                "borderRadius": "0",
+                "minWidth": "2.35rem",
+                "minHeight": "2.35rem",
+                "padding": ".3rem",
+                "color": "#ffffff"
+              }
+            }
           },
           "children": [
             {
@@ -12303,19 +12497,19 @@
                 "ariaLabel": "Keresés a SPORT HUB-ban",
                 "presentation": "commerce",
                 "style": {
-                  "height": "2.45rem",
-                  "background": "#f6f8fa",
-                  "border": "1px solid rgba(255,255,255,.35)",
+                  "height": "2.25rem",
+                  "background": "#f5f7f9",
+                  "border": "1px solid rgba(255,255,255,.42)",
                   "borderRadius": "999px"
                 },
                 "inputStyle": {
-                  "color": "#102641",
-                  "fontSize": ".75rem"
+                  "color": "#667487",
+                  "fontSize": ".78rem"
                 },
                 "buttonStyle": {
                   "background": "transparent",
                   "color": "#102641",
-                  "padding": ".4rem .8rem"
+                  "padding": ".25rem .65rem"
                 }
               }
             },
@@ -12349,10 +12543,12 @@
                   }
                 ],
                 "style": {
-                  "gap": "1.25rem",
-                  "fontSize": ".72rem",
-                  "fontWeight": 750,
-                  "color": "#ffffff"
+                  "gap": "clamp(.95rem,1.55vw,1.65rem)",
+                  "fontSize": ".9rem",
+                  "fontWeight": 650,
+                  "fontFamily": "Arial Narrow, Arial, sans-serif",
+                  "color": "#ffffff",
+                  "whiteSpace": "nowrap"
                 }
               }
             }
@@ -13203,9 +13399,9 @@
           "componentKey": "system.commerce-header",
           "componentVersion": 1,
           "config": {
-            "brandLabel": "SPORT HUB",
+            "brandLabel": "",
             "brandHref": "/",
-            "tagline": "TÖBB, MINT FELSZERELÉS",
+            "tagline": "",
             "utilityItems": [
               {
                 "label": "Fiókom",
@@ -13225,28 +13421,24 @@
             ],
             "tone": "background",
             "sticky": true,
-            "presentation": "commerce-two-tier",
+            "presentation": "commerce-single-tier",
             "showUtilityLabels": false,
             "categoryTriggerSymbol": "☰",
             "categoryTriggerLabel": "Sportok",
             "categoryTriggerHref": "/webaruhaz",
             "navTagline": "MOZGÁS. KALAND. JOBB ÉLET.",
             "style": {
-              "background": "rgba(5,29,45,.98)",
-              "borderBottom": "1px solid rgba(255,255,255,.12)",
-              "boxShadow": "0 10px 35px rgba(2,13,22,.22)"
+              "background": "#071521",
+              "borderBottom": "1px solid rgba(255,255,255,.16)",
+              "boxShadow": "0 8px 24px rgba(2,13,22,.22)",
+              "color": "#ffffff"
             },
             "innerStyle": {
               "maxWidth": "none",
-              "padding": ".7rem clamp(1rem,3vw,2.4rem) .45rem",
-              "gap": ".6rem"
+              "padding": ".34rem clamp(.9rem,2vw,1.4rem)",
+              "gap": ".45rem"
             },
             "brandStyle": {
-              "fontFamily": "Arial Narrow, Arial, sans-serif",
-              "fontSize": "1.5rem",
-              "fontWeight": 900,
-              "fontStyle": "italic",
-              "letterSpacing": "-.03em",
               "color": "#ffffff"
             },
             "taglineStyle": {
@@ -13321,7 +13513,37 @@
                 "label": "Impresszum",
                 "href": "/impresszum"
               }
-            ]
+            ],
+            "logoUrl": "/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg",
+            "logoAlt": "SPORT HUB – TÖBB, MINT FELSZERELÉS",
+            "logoStyle": {
+              "width": "11.6rem",
+              "height": "2.7rem",
+              "objectFit": "contain"
+            },
+            "utilityStyle": {
+              "gap": ".35rem",
+              "color": "#ffffff"
+            },
+            "styleSlots": {
+              "singleTierRow": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "singleTierNavigation": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "searchFrame": {
+                "maxWidth": "22rem"
+              },
+              "utilityItem": {
+                "border": "0",
+                "borderRadius": "0",
+                "minWidth": "2.35rem",
+                "minHeight": "2.35rem",
+                "padding": ".3rem",
+                "color": "#ffffff"
+              }
+            }
           },
           "children": [
             {
@@ -13336,19 +13558,19 @@
                 "ariaLabel": "Keresés a SPORT HUB-ban",
                 "presentation": "commerce",
                 "style": {
-                  "height": "2.45rem",
-                  "background": "#f6f8fa",
-                  "border": "1px solid rgba(255,255,255,.35)",
+                  "height": "2.25rem",
+                  "background": "#f5f7f9",
+                  "border": "1px solid rgba(255,255,255,.42)",
                   "borderRadius": "999px"
                 },
                 "inputStyle": {
-                  "color": "#102641",
-                  "fontSize": ".75rem"
+                  "color": "#667487",
+                  "fontSize": ".78rem"
                 },
                 "buttonStyle": {
                   "background": "transparent",
                   "color": "#102641",
-                  "padding": ".4rem .8rem"
+                  "padding": ".25rem .65rem"
                 }
               }
             },
@@ -13382,10 +13604,12 @@
                   }
                 ],
                 "style": {
-                  "gap": "1.25rem",
-                  "fontSize": ".72rem",
-                  "fontWeight": 750,
-                  "color": "#ffffff"
+                  "gap": "clamp(.95rem,1.55vw,1.65rem)",
+                  "fontSize": ".9rem",
+                  "fontWeight": 650,
+                  "fontFamily": "Arial Narrow, Arial, sans-serif",
+                  "color": "#ffffff",
+                  "whiteSpace": "nowrap"
                 }
               }
             }
@@ -14093,9 +14317,9 @@
           "componentKey": "system.commerce-header",
           "componentVersion": 1,
           "config": {
-            "brandLabel": "SPORT HUB",
+            "brandLabel": "",
             "brandHref": "/",
-            "tagline": "TÖBB, MINT FELSZERELÉS",
+            "tagline": "",
             "utilityItems": [
               {
                 "label": "Fiókom",
@@ -14115,28 +14339,24 @@
             ],
             "tone": "background",
             "sticky": true,
-            "presentation": "commerce-two-tier",
+            "presentation": "commerce-single-tier",
             "showUtilityLabels": false,
             "categoryTriggerSymbol": "☰",
             "categoryTriggerLabel": "Sportok",
             "categoryTriggerHref": "/webaruhaz",
             "navTagline": "MOZGÁS. KALAND. JOBB ÉLET.",
             "style": {
-              "background": "rgba(5,29,45,.98)",
-              "borderBottom": "1px solid rgba(255,255,255,.12)",
-              "boxShadow": "0 10px 35px rgba(2,13,22,.22)"
+              "background": "#071521",
+              "borderBottom": "1px solid rgba(255,255,255,.16)",
+              "boxShadow": "0 8px 24px rgba(2,13,22,.22)",
+              "color": "#ffffff"
             },
             "innerStyle": {
               "maxWidth": "none",
-              "padding": ".7rem clamp(1rem,3vw,2.4rem) .45rem",
-              "gap": ".6rem"
+              "padding": ".34rem clamp(.9rem,2vw,1.4rem)",
+              "gap": ".45rem"
             },
             "brandStyle": {
-              "fontFamily": "Arial Narrow, Arial, sans-serif",
-              "fontSize": "1.5rem",
-              "fontWeight": 900,
-              "fontStyle": "italic",
-              "letterSpacing": "-.03em",
               "color": "#ffffff"
             },
             "taglineStyle": {
@@ -14211,7 +14431,37 @@
                 "label": "Impresszum",
                 "href": "/impresszum"
               }
-            ]
+            ],
+            "logoUrl": "/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg",
+            "logoAlt": "SPORT HUB – TÖBB, MINT FELSZERELÉS",
+            "logoStyle": {
+              "width": "11.6rem",
+              "height": "2.7rem",
+              "objectFit": "contain"
+            },
+            "utilityStyle": {
+              "gap": ".35rem",
+              "color": "#ffffff"
+            },
+            "styleSlots": {
+              "singleTierRow": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "singleTierNavigation": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "searchFrame": {
+                "maxWidth": "22rem"
+              },
+              "utilityItem": {
+                "border": "0",
+                "borderRadius": "0",
+                "minWidth": "2.35rem",
+                "minHeight": "2.35rem",
+                "padding": ".3rem",
+                "color": "#ffffff"
+              }
+            }
           },
           "children": [
             {
@@ -14226,19 +14476,19 @@
                 "ariaLabel": "Keresés a SPORT HUB-ban",
                 "presentation": "commerce",
                 "style": {
-                  "height": "2.45rem",
-                  "background": "#f6f8fa",
-                  "border": "1px solid rgba(255,255,255,.35)",
+                  "height": "2.25rem",
+                  "background": "#f5f7f9",
+                  "border": "1px solid rgba(255,255,255,.42)",
                   "borderRadius": "999px"
                 },
                 "inputStyle": {
-                  "color": "#102641",
-                  "fontSize": ".75rem"
+                  "color": "#667487",
+                  "fontSize": ".78rem"
                 },
                 "buttonStyle": {
                   "background": "transparent",
                   "color": "#102641",
-                  "padding": ".4rem .8rem"
+                  "padding": ".25rem .65rem"
                 }
               }
             },
@@ -14272,10 +14522,12 @@
                   }
                 ],
                 "style": {
-                  "gap": "1.25rem",
-                  "fontSize": ".72rem",
-                  "fontWeight": 750,
-                  "color": "#ffffff"
+                  "gap": "clamp(.95rem,1.55vw,1.65rem)",
+                  "fontSize": ".9rem",
+                  "fontWeight": 650,
+                  "fontFamily": "Arial Narrow, Arial, sans-serif",
+                  "color": "#ffffff",
+                  "whiteSpace": "nowrap"
                 }
               }
             }
@@ -14997,9 +15249,9 @@
           "componentKey": "system.commerce-header",
           "componentVersion": 1,
           "config": {
-            "brandLabel": "SPORT HUB",
+            "brandLabel": "",
             "brandHref": "/",
-            "tagline": "TÖBB, MINT FELSZERELÉS",
+            "tagline": "",
             "utilityItems": [
               {
                 "label": "Fiókom",
@@ -15019,28 +15271,24 @@
             ],
             "tone": "background",
             "sticky": true,
-            "presentation": "commerce-two-tier",
+            "presentation": "commerce-single-tier",
             "showUtilityLabels": false,
             "categoryTriggerSymbol": "☰",
             "categoryTriggerLabel": "Sportok",
             "categoryTriggerHref": "/webaruhaz",
             "navTagline": "MOZGÁS. KALAND. JOBB ÉLET.",
             "style": {
-              "background": "rgba(5,29,45,.98)",
-              "borderBottom": "1px solid rgba(255,255,255,.12)",
-              "boxShadow": "0 10px 35px rgba(2,13,22,.22)"
+              "background": "#071521",
+              "borderBottom": "1px solid rgba(255,255,255,.16)",
+              "boxShadow": "0 8px 24px rgba(2,13,22,.22)",
+              "color": "#ffffff"
             },
             "innerStyle": {
               "maxWidth": "none",
-              "padding": ".7rem clamp(1rem,3vw,2.4rem) .45rem",
-              "gap": ".6rem"
+              "padding": ".34rem clamp(.9rem,2vw,1.4rem)",
+              "gap": ".45rem"
             },
             "brandStyle": {
-              "fontFamily": "Arial Narrow, Arial, sans-serif",
-              "fontSize": "1.5rem",
-              "fontWeight": 900,
-              "fontStyle": "italic",
-              "letterSpacing": "-.03em",
               "color": "#ffffff"
             },
             "taglineStyle": {
@@ -15115,7 +15363,37 @@
                 "label": "Impresszum",
                 "href": "/impresszum"
               }
-            ]
+            ],
+            "logoUrl": "/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg",
+            "logoAlt": "SPORT HUB – TÖBB, MINT FELSZERELÉS",
+            "logoStyle": {
+              "width": "11.6rem",
+              "height": "2.7rem",
+              "objectFit": "contain"
+            },
+            "utilityStyle": {
+              "gap": ".35rem",
+              "color": "#ffffff"
+            },
+            "styleSlots": {
+              "singleTierRow": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "singleTierNavigation": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "searchFrame": {
+                "maxWidth": "22rem"
+              },
+              "utilityItem": {
+                "border": "0",
+                "borderRadius": "0",
+                "minWidth": "2.35rem",
+                "minHeight": "2.35rem",
+                "padding": ".3rem",
+                "color": "#ffffff"
+              }
+            }
           },
           "children": [
             {
@@ -15130,19 +15408,19 @@
                 "ariaLabel": "Keresés a SPORT HUB-ban",
                 "presentation": "commerce",
                 "style": {
-                  "height": "2.45rem",
-                  "background": "#f6f8fa",
-                  "border": "1px solid rgba(255,255,255,.35)",
+                  "height": "2.25rem",
+                  "background": "#f5f7f9",
+                  "border": "1px solid rgba(255,255,255,.42)",
                   "borderRadius": "999px"
                 },
                 "inputStyle": {
-                  "color": "#102641",
-                  "fontSize": ".75rem"
+                  "color": "#667487",
+                  "fontSize": ".78rem"
                 },
                 "buttonStyle": {
                   "background": "transparent",
                   "color": "#102641",
-                  "padding": ".4rem .8rem"
+                  "padding": ".25rem .65rem"
                 }
               }
             },
@@ -15176,10 +15454,12 @@
                   }
                 ],
                 "style": {
-                  "gap": "1.25rem",
-                  "fontSize": ".72rem",
-                  "fontWeight": 750,
-                  "color": "#ffffff"
+                  "gap": "clamp(.95rem,1.55vw,1.65rem)",
+                  "fontSize": ".9rem",
+                  "fontWeight": 650,
+                  "fontFamily": "Arial Narrow, Arial, sans-serif",
+                  "color": "#ffffff",
+                  "whiteSpace": "nowrap"
                 }
               }
             }
@@ -15930,9 +16210,9 @@
           "componentKey": "system.commerce-header",
           "componentVersion": 1,
           "config": {
-            "brandLabel": "SPORT HUB",
+            "brandLabel": "",
             "brandHref": "/",
-            "tagline": "TÖBB, MINT FELSZERELÉS",
+            "tagline": "",
             "utilityItems": [
               {
                 "label": "Fiókom",
@@ -15952,28 +16232,24 @@
             ],
             "tone": "background",
             "sticky": true,
-            "presentation": "commerce-two-tier",
+            "presentation": "commerce-single-tier",
             "showUtilityLabels": false,
             "categoryTriggerSymbol": "☰",
             "categoryTriggerLabel": "Sportok",
             "categoryTriggerHref": "/webaruhaz",
             "navTagline": "MOZGÁS. KALAND. JOBB ÉLET.",
             "style": {
-              "background": "rgba(5,29,45,.98)",
-              "borderBottom": "1px solid rgba(255,255,255,.12)",
-              "boxShadow": "0 10px 35px rgba(2,13,22,.22)"
+              "background": "#071521",
+              "borderBottom": "1px solid rgba(255,255,255,.16)",
+              "boxShadow": "0 8px 24px rgba(2,13,22,.22)",
+              "color": "#ffffff"
             },
             "innerStyle": {
               "maxWidth": "none",
-              "padding": ".7rem clamp(1rem,3vw,2.4rem) .45rem",
-              "gap": ".6rem"
+              "padding": ".34rem clamp(.9rem,2vw,1.4rem)",
+              "gap": ".45rem"
             },
             "brandStyle": {
-              "fontFamily": "Arial Narrow, Arial, sans-serif",
-              "fontSize": "1.5rem",
-              "fontWeight": 900,
-              "fontStyle": "italic",
-              "letterSpacing": "-.03em",
               "color": "#ffffff"
             },
             "taglineStyle": {
@@ -16048,7 +16324,37 @@
                 "label": "Impresszum",
                 "href": "/impresszum"
               }
-            ]
+            ],
+            "logoUrl": "/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg",
+            "logoAlt": "SPORT HUB – TÖBB, MINT FELSZERELÉS",
+            "logoStyle": {
+              "width": "11.6rem",
+              "height": "2.7rem",
+              "objectFit": "contain"
+            },
+            "utilityStyle": {
+              "gap": ".35rem",
+              "color": "#ffffff"
+            },
+            "styleSlots": {
+              "singleTierRow": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "singleTierNavigation": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "searchFrame": {
+                "maxWidth": "22rem"
+              },
+              "utilityItem": {
+                "border": "0",
+                "borderRadius": "0",
+                "minWidth": "2.35rem",
+                "minHeight": "2.35rem",
+                "padding": ".3rem",
+                "color": "#ffffff"
+              }
+            }
           },
           "children": [
             {
@@ -16063,19 +16369,19 @@
                 "ariaLabel": "Keresés a SPORT HUB-ban",
                 "presentation": "commerce",
                 "style": {
-                  "height": "2.45rem",
-                  "background": "#f6f8fa",
-                  "border": "1px solid rgba(255,255,255,.35)",
+                  "height": "2.25rem",
+                  "background": "#f5f7f9",
+                  "border": "1px solid rgba(255,255,255,.42)",
                   "borderRadius": "999px"
                 },
                 "inputStyle": {
-                  "color": "#102641",
-                  "fontSize": ".75rem"
+                  "color": "#667487",
+                  "fontSize": ".78rem"
                 },
                 "buttonStyle": {
                   "background": "transparent",
                   "color": "#102641",
-                  "padding": ".4rem .8rem"
+                  "padding": ".25rem .65rem"
                 }
               }
             },
@@ -16109,10 +16415,12 @@
                   }
                 ],
                 "style": {
-                  "gap": "1.25rem",
-                  "fontSize": ".72rem",
-                  "fontWeight": 750,
-                  "color": "#ffffff"
+                  "gap": "clamp(.95rem,1.55vw,1.65rem)",
+                  "fontSize": ".9rem",
+                  "fontWeight": 650,
+                  "fontFamily": "Arial Narrow, Arial, sans-serif",
+                  "color": "#ffffff",
+                  "whiteSpace": "nowrap"
                 }
               }
             }
@@ -17042,9 +17350,9 @@
           "componentKey": "system.commerce-header",
           "componentVersion": 1,
           "config": {
-            "brandLabel": "SPORT HUB",
+            "brandLabel": "",
             "brandHref": "/",
-            "tagline": "TÖBB, MINT FELSZERELÉS",
+            "tagline": "",
             "utilityItems": [
               {
                 "label": "Fiókom",
@@ -17064,28 +17372,24 @@
             ],
             "tone": "background",
             "sticky": true,
-            "presentation": "commerce-two-tier",
+            "presentation": "commerce-single-tier",
             "showUtilityLabels": false,
             "categoryTriggerSymbol": "☰",
             "categoryTriggerLabel": "Sportok",
             "categoryTriggerHref": "/webaruhaz",
             "navTagline": "MOZGÁS. KALAND. JOBB ÉLET.",
             "style": {
-              "background": "rgba(5,29,45,.98)",
-              "borderBottom": "1px solid rgba(255,255,255,.12)",
-              "boxShadow": "0 10px 35px rgba(2,13,22,.22)"
+              "background": "#071521",
+              "borderBottom": "1px solid rgba(255,255,255,.16)",
+              "boxShadow": "0 8px 24px rgba(2,13,22,.22)",
+              "color": "#ffffff"
             },
             "innerStyle": {
               "maxWidth": "none",
-              "padding": ".7rem clamp(1rem,3vw,2.4rem) .45rem",
-              "gap": ".6rem"
+              "padding": ".34rem clamp(.9rem,2vw,1.4rem)",
+              "gap": ".45rem"
             },
             "brandStyle": {
-              "fontFamily": "Arial Narrow, Arial, sans-serif",
-              "fontSize": "1.5rem",
-              "fontWeight": 900,
-              "fontStyle": "italic",
-              "letterSpacing": "-.03em",
               "color": "#ffffff"
             },
             "taglineStyle": {
@@ -17160,7 +17464,37 @@
                 "label": "Impresszum",
                 "href": "/impresszum"
               }
-            ]
+            ],
+            "logoUrl": "/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg",
+            "logoAlt": "SPORT HUB – TÖBB, MINT FELSZERELÉS",
+            "logoStyle": {
+              "width": "11.6rem",
+              "height": "2.7rem",
+              "objectFit": "contain"
+            },
+            "utilityStyle": {
+              "gap": ".35rem",
+              "color": "#ffffff"
+            },
+            "styleSlots": {
+              "singleTierRow": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "singleTierNavigation": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "searchFrame": {
+                "maxWidth": "22rem"
+              },
+              "utilityItem": {
+                "border": "0",
+                "borderRadius": "0",
+                "minWidth": "2.35rem",
+                "minHeight": "2.35rem",
+                "padding": ".3rem",
+                "color": "#ffffff"
+              }
+            }
           },
           "children": [
             {
@@ -17175,19 +17509,19 @@
                 "ariaLabel": "Keresés a SPORT HUB-ban",
                 "presentation": "commerce",
                 "style": {
-                  "height": "2.45rem",
-                  "background": "#f6f8fa",
-                  "border": "1px solid rgba(255,255,255,.35)",
+                  "height": "2.25rem",
+                  "background": "#f5f7f9",
+                  "border": "1px solid rgba(255,255,255,.42)",
                   "borderRadius": "999px"
                 },
                 "inputStyle": {
-                  "color": "#102641",
-                  "fontSize": ".75rem"
+                  "color": "#667487",
+                  "fontSize": ".78rem"
                 },
                 "buttonStyle": {
                   "background": "transparent",
                   "color": "#102641",
-                  "padding": ".4rem .8rem"
+                  "padding": ".25rem .65rem"
                 }
               }
             },
@@ -17221,10 +17555,12 @@
                   }
                 ],
                 "style": {
-                  "gap": "1.25rem",
-                  "fontSize": ".72rem",
-                  "fontWeight": 750,
-                  "color": "#ffffff"
+                  "gap": "clamp(.95rem,1.55vw,1.65rem)",
+                  "fontSize": ".9rem",
+                  "fontWeight": 650,
+                  "fontFamily": "Arial Narrow, Arial, sans-serif",
+                  "color": "#ffffff",
+                  "whiteSpace": "nowrap"
                 }
               }
             }
@@ -17880,9 +18216,9 @@
           "componentKey": "system.commerce-header",
           "componentVersion": 1,
           "config": {
-            "brandLabel": "SPORT HUB",
+            "brandLabel": "",
             "brandHref": "/",
-            "tagline": "TÖBB, MINT FELSZERELÉS",
+            "tagline": "",
             "utilityItems": [
               {
                 "label": "Fiókom",
@@ -17902,28 +18238,24 @@
             ],
             "tone": "background",
             "sticky": true,
-            "presentation": "commerce-two-tier",
+            "presentation": "commerce-single-tier",
             "showUtilityLabels": false,
             "categoryTriggerSymbol": "☰",
             "categoryTriggerLabel": "Sportok",
             "categoryTriggerHref": "/webaruhaz",
             "navTagline": "MOZGÁS. KALAND. JOBB ÉLET.",
             "style": {
-              "background": "rgba(5,29,45,.98)",
-              "borderBottom": "1px solid rgba(255,255,255,.12)",
-              "boxShadow": "0 10px 35px rgba(2,13,22,.22)"
+              "background": "#071521",
+              "borderBottom": "1px solid rgba(255,255,255,.16)",
+              "boxShadow": "0 8px 24px rgba(2,13,22,.22)",
+              "color": "#ffffff"
             },
             "innerStyle": {
               "maxWidth": "none",
-              "padding": ".7rem clamp(1rem,3vw,2.4rem) .45rem",
-              "gap": ".6rem"
+              "padding": ".34rem clamp(.9rem,2vw,1.4rem)",
+              "gap": ".45rem"
             },
             "brandStyle": {
-              "fontFamily": "Arial Narrow, Arial, sans-serif",
-              "fontSize": "1.5rem",
-              "fontWeight": 900,
-              "fontStyle": "italic",
-              "letterSpacing": "-.03em",
               "color": "#ffffff"
             },
             "taglineStyle": {
@@ -17998,7 +18330,37 @@
                 "label": "Impresszum",
                 "href": "/impresszum"
               }
-            ]
+            ],
+            "logoUrl": "/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg",
+            "logoAlt": "SPORT HUB – TÖBB, MINT FELSZERELÉS",
+            "logoStyle": {
+              "width": "11.6rem",
+              "height": "2.7rem",
+              "objectFit": "contain"
+            },
+            "utilityStyle": {
+              "gap": ".35rem",
+              "color": "#ffffff"
+            },
+            "styleSlots": {
+              "singleTierRow": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "singleTierNavigation": {
+                "fontFamily": "Arial Narrow, Arial, sans-serif"
+              },
+              "searchFrame": {
+                "maxWidth": "22rem"
+              },
+              "utilityItem": {
+                "border": "0",
+                "borderRadius": "0",
+                "minWidth": "2.35rem",
+                "minHeight": "2.35rem",
+                "padding": ".3rem",
+                "color": "#ffffff"
+              }
+            }
           },
           "children": [
             {
@@ -18013,19 +18375,19 @@
                 "ariaLabel": "Keresés a SPORT HUB-ban",
                 "presentation": "commerce",
                 "style": {
-                  "height": "2.45rem",
-                  "background": "#f6f8fa",
-                  "border": "1px solid rgba(255,255,255,.35)",
+                  "height": "2.25rem",
+                  "background": "#f5f7f9",
+                  "border": "1px solid rgba(255,255,255,.42)",
                   "borderRadius": "999px"
                 },
                 "inputStyle": {
-                  "color": "#102641",
-                  "fontSize": ".75rem"
+                  "color": "#667487",
+                  "fontSize": ".78rem"
                 },
                 "buttonStyle": {
                   "background": "transparent",
                   "color": "#102641",
-                  "padding": ".4rem .8rem"
+                  "padding": ".25rem .65rem"
                 }
               }
             },
@@ -18059,10 +18421,12 @@
                   }
                 ],
                 "style": {
-                  "gap": "1.25rem",
-                  "fontSize": ".72rem",
-                  "fontWeight": 750,
-                  "color": "#ffffff"
+                  "gap": "clamp(.95rem,1.55vw,1.65rem)",
+                  "fontSize": ".9rem",
+                  "fontWeight": 650,
+                  "fontFamily": "Arial Narrow, Arial, sans-serif",
+                  "color": "#ffffff",
+                  "whiteSpace": "nowrap"
                 }
               }
             }
