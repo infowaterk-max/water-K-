@@ -92,16 +92,18 @@ describe('SPORT HUB canonical v1 candidate',()=>{
   it('keeps the Account/login shell on the PO-approved one-row SPORT HUB header',()=>{
     const account=SPORT_HUB_V1_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='account')!;
     const header=account.sections.find(section=>section.componentKey==='system.commerce-header')!;
-    expect(header.config.presentation).toBe('commerce-single-tier');
-    expect(header.config.logoUrl).toBe('/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg');
-    expect(header.config.logoAlt).toBe('SPORT HUB – TÖBB, MINT FELSZERELÉS');
-    expect(header.config.brandLabel).toBe('');
-    expect(header.config.tagline).toBe('');
-    expect(header.config.style?.color).toBe('#ffffff');
-    expect(header.config.styleSlots?.searchFrame?.maxWidth).toBe('22rem');
-    expect(header.config.styleSlots?.utilityItem?.color).toBe('#ffffff');
+    const config=header.config as Record<string,any>;
+    expect(config.presentation).toBe('commerce-single-tier');
+    expect(config.logoUrl).toBe('/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg');
+    expect(config.logoAlt).toBe('SPORT HUB – TÖBB, MINT FELSZERELÉS');
+    expect(config.brandLabel).toBe('');
+    expect(config.tagline).toBe('');
+    expect(config.style?.color).toBe('#ffffff');
+    expect(config.styleSlots?.searchFrame?.maxWidth).toBe('22rem');
+    expect(config.styleSlots?.utilityItem?.color).toBe('#ffffff');
     const nav=header.children?.find(child=>child.componentKey==='system.navigation');
-    expect(nav?.config.items?.map((item:any)=>item.label)).toEqual(['Sportok','Felszerelés','Márkák','Inspiráció','Segítség']);
+    const navConfig=nav?.config as Record<string,any>|undefined;
+    expect(navConfig?.items?.map((item:any)=>item.label)).toEqual(['Sportok','Felszerelés','Márkák','Inspiráció','Segítség']);
   });
 
   it('keeps the retired legacy SPORT HUB source outside the canonical v1 entrypoint',()=>{
