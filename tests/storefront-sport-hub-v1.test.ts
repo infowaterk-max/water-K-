@@ -89,6 +89,21 @@ describe('SPORT HUB canonical v1 candidate',()=>{
     expect(JSON.stringify(SPORT_HUB_V1_TEMPLATE_PACKAGE)).not.toMatch(/szallitas-es-fizetes|szállítás és fizetés/i);
   });
 
+  it('keeps the Account/login shell on the PO-approved one-row SPORT HUB header',()=>{
+    const account=SPORT_HUB_V1_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='account')!;
+    const header=account.sections.find(section=>section.componentKey==='system.commerce-header')!;
+    expect(header.config.presentation).toBe('commerce-single-tier');
+    expect(header.config.logoUrl).toBe('/storefront-demo/sport-hub-v1/ui/sport-hub-logo.svg');
+    expect(header.config.logoAlt).toBe('SPORT HUB – TÖBB, MINT FELSZERELÉS');
+    expect(header.config.brandLabel).toBe('');
+    expect(header.config.tagline).toBe('');
+    expect(header.config.style?.color).toBe('#ffffff');
+    expect(header.config.styleSlots?.searchFrame?.maxWidth).toBe('22rem');
+    expect(header.config.styleSlots?.utilityItem?.color).toBe('#ffffff');
+    const nav=header.children?.find(child=>child.componentKey==='system.navigation');
+    expect(nav?.config.items?.map((item:any)=>item.label)).toEqual(['Sportok','Felszerelés','Márkák','Inspiráció','Segítség']);
+  });
+
   it('keeps the retired legacy SPORT HUB source outside the canonical v1 entrypoint',()=>{
     const serialized=JSON.stringify(SPORT_HUB_V1_TEMPLATE_PACKAGE);
     expect(serialized).not.toContain('src/lib/builder/templates/sport-hub.ts');

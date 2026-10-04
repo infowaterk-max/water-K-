@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 56" role="img" aria-labelledby="title desc">
+<title id="title">SPORT HUB</title>
+<desc id="desc">SPORT HUB – Több, mint felszerelés</desc>
+<g fill="none" fill-rule="evenodd">
+  <path d="M2 39 22 8l11 15 8-11 22 31H50L40 28l-7 10-11-15L10 42Z" fill="#0B84F3"/>
+  <path d="m13 37 10-15 9 12 8-11 13 18h-9l-5-7-7 9-9-12-5 8Z" fill="#FFFFFF"/>
+  <path d="M4 43h56" stroke="#45B9FF" stroke-width="2" stroke-linecap="round"/>
+  <text x="70" y="28" fill="#FFFFFF" font-family="Arial Narrow,Arial,sans-serif" font-size="24" font-style="italic" font-weight="900" letter-spacing="-1">SPORT</text>
+  <text x="143" y="28" fill="#0B84F3" font-family="Arial Narrow,Arial,sans-serif" font-size="24" font-style="italic" font-weight="900" letter-spacing="-1">HUB</text>
+  <text x="70" y="43" fill="#FFFFFF" font-family="Arial Narrow,Arial,sans-serif" font-size="7.6" font-weight="800" letter-spacing="1.1">TÖBB, MINT FELSZERELÉS</text>
+</g>
+</svg>

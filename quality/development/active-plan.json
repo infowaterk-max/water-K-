@@ -27,7 +27,9 @@
     "src/app/storefront-template-preview/page.tsx",
     "src/app/storefront-template-preview-login/page.tsx",
     "src/lib/builder/storefront-template-preview-auth.ts",
-    "src/components/account/storefront-account-shell.tsx"
+    "src/components/account/storefront-account-shell.tsx",
+    "src/components/builder/storefront-commerce-header.tsx",
+    "tests/storefront-commerce-header.test.tsx"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -143,7 +145,8 @@
         "Final exact-head proof includes typecheck, production build, Template Factory quality proof, route/cart regression and visual/browser evidence before completion is claimed.",
         "Shared commerce.content-tabs remains valid on Product, becomes valid on FAQ, and remains rejected for every unrelated page type.",
         "Shared accordion disclosure must wrap long mobile trigger labels without horizontal viewport overflow while tab mode keeps its existing single-line navigation behavior.",
-        "The authenticated owner preview can resolve SPORT HUB as an explicit quality candidate without adding it to the accepted catalog, and login/showroom/shopper preview links preserve qualityCandidate=1 end to end."
+        "The authenticated owner preview can resolve SPORT HUB as an explicit quality candidate without adding it to the accepted catalog, and login/showroom/shopper preview links preserve qualityCandidate=1 end to end.",
+        "The SPORT HUB Account/login preview reproduces the approved single-row header: real SPORT HUB logo, five primary navigation items in the same row, bounded search width, visible account/favorites/cart icons, and no desktop category hamburger row."
       ],
       "invariants": [
         "There is one canonical SPORT HUB package authority; legacy src/lib/builder/templates/sport-hub.ts remains inert historical source and is never imported as the new implementation.",
@@ -207,7 +210,8 @@
         "Shared shell drift creates page-specific header/footer variants and fragments end-to-end storefront identity.",
         "Shipping/payment navigation regresses to the forbidden combined route while visual screenshots still look correct.",
         "Placeholder or duplicated media survives into Product Owner handoff and produces a false visual-fidelity pass.",
-        "Template Factory browser proof passes against SPORT HUB quality-candidate authority while the Product Owner preview still resolves only the accepted catalog and returns 404."
+        "Template Factory browser proof passes against SPORT HUB quality-candidate authority while the Product Owner preview still resolves only the accepted catalog and returns 404.",
+        "Account/login falls back to the generic two-tier commerce header, producing text-only branding, an oversized search field, dark utility icons and an unintended desktop category-trigger row."
       ],
       "edgeCases": [
         "Empty cart and one-item cart states must preserve shared quantity and continuation behavior.",
@@ -329,7 +333,8 @@
       "Run TypeScript check and production build on the exact implementation HEAD after all page batches are complete.",
       "Run cart/checkout/account/search functional regressions through shared engines so visual composition cannot mask behavior regressions.",
       "Run Completion Truth on fresh exact-head evidence; report DONE only if machine proof is VERIFIED and Product Owner visual acceptance is also obtained.",
-      "Prove the authenticated owner-preview qualityCandidate path, login return target and generated showroom/shopper links resolve the same sport.sport-hub@1 candidate while the accepted catalog remains unchanged."
+      "Prove the authenticated owner-preview qualityCandidate path, login return target and generated showroom/shopper links resolve the same sport.sport-hub@1 candidate while the accepted catalog remains unchanged.",
+      "Prove the Account/login page resolves the SPORT HUB one-row header on Desktop/Tablet, keeps the shared mobile hamburger behavior, renders the repo-owned SPORT HUB logo, and preserves visible utility icons and bounded search geometry."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-03-SPORT-HUB-TEMPLATE-3-IMPLEMENTATION",
@@ -352,7 +357,9 @@
         "src/app/storefront-template-preview/page.tsx",
         "src/app/storefront-template-preview-login/page.tsx",
         "src/lib/builder/storefront-template-preview-auth.ts",
-        "src/components/account/storefront-account-shell.tsx"
+        "src/components/account/storefront-account-shell.tsx",
+        "src/components/builder/storefront-commerce-header.tsx",
+        "tests/storefront-commerce-header.test.tsx"
       ],
       "impactedReadOnly": [
         "src/lib/builder/templates/gaming/playroom/v20/**",
@@ -560,5 +567,5 @@
       }
     ]
   },
-  "notes": "Visual First is already Product Owner approved for all 14 SPORT HUB page references. This transaction is implementation only. Do not reopen design decisions unless the Product Owner explicitly changes them. Keep the PR draft until exact-head proof and live visual acceptance are complete. FAQ runtime repair: reuse the existing shared content-disclosure implementation by widening commerce.content-tabs page compatibility from product-only to product+faq; no template-local FAQ engine. Browser evidence follow-up: fix only shared mobile accordion trigger wrapping after FAQ runtime root became valid; preserve the previously proven SPORT HUB mobile grid repair and all approved visuals. PO handoff repair: expose the already-proven SPORT HUB quality candidate through the authenticated owner preview only; preserve candidate isolation from the accepted catalog and carry qualityCandidate=1 across login and all preview navigation. Scope correction: qualityCandidate propagation is confined to the authenticated owner-preview layer; shared route-integrity authority is intentionally unchanged so shipping/payment route authority is not reopened."
+  "notes": "Visual First is already Product Owner approved for all 14 SPORT HUB page references. This transaction is implementation only. Do not reopen design decisions unless the Product Owner explicitly changes them. Keep the PR draft until exact-head proof and live visual acceptance are complete. FAQ runtime repair: reuse the existing shared content-disclosure implementation by widening commerce.content-tabs page compatibility from product-only to product+faq; no template-local FAQ engine. Browser evidence follow-up: fix only shared mobile accordion trigger wrapping after FAQ runtime root became valid; preserve the previously proven SPORT HUB mobile grid repair and all approved visuals. PO handoff repair: expose the already-proven SPORT HUB quality candidate through the authenticated owner preview only; preserve candidate isolation from the accepted catalog and carry qualityCandidate=1 across login and all preview navigation. Scope correction: qualityCandidate propagation is confined to the authenticated owner-preview layer; shared route-integrity authority is intentionally unchanged so shipping/payment route authority is not reopened. PO audit repair 2026-10-04: first acceptance repair is Account/login only. Match the approved SPORT HUB header reference exactly enough for PO review; do not use this transaction to repair Home/Catalog/Product audit findings."
 }
