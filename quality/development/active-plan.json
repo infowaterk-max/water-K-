@@ -28,10 +28,12 @@
     "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER"
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "builder-template-system"
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -130,7 +132,8 @@
         "Prices, stock, variants, order state, payment state and product facts remain bound to shared/catalog/commerce data rather than being invented by template presentation.",
         "SPORT HUB preview theme, package identity and catalog resolution point to the same canonical v1 package throughout branch preview and acceptance proof.",
         "Product Owner handoff contains no placeholder media, duplicate fake content, legacy fallback layout or unrelated template visual identity.",
-        "Final exact-head proof includes typecheck, production build, Template Factory quality proof, route/cart regression and visual/browser evidence before completion is claimed."
+        "Final exact-head proof includes typecheck, production build, Template Factory quality proof, route/cart regression and visual/browser evidence before completion is claimed.",
+        "Shared commerce.content-tabs remains valid on Product, becomes valid on FAQ, and remains rejected for every unrelated page type."
       ],
       "invariants": [
         "There is one canonical SPORT HUB package authority; legacy src/lib/builder/templates/sport-hub.ts remains inert historical source and is never imported as the new implementation.",

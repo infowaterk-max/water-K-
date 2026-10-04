@@ -36,6 +36,17 @@ describe('SPORT HUB canonical v1 candidate',()=>{
     }
   });
 
+  it('keeps shared content disclosure scoped to Product and FAQ only',()=>{
+    const registry=createStorefrontVisualBuilderComponentRegistry();
+    const disclosure=registry.get('commerce.content-tabs',1);
+    expect(disclosure?.manifest.pageTypes).toEqual(['product','faq']);
+
+    const product=SPORT_HUB_V1_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='product')!;
+    const faq=SPORT_HUB_V1_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='faq')!;
+    expect(validateStorefrontPageDocument(product,registry,capability).ok).toBe(true);
+    expect(validateStorefrontPageDocument(faq,registry,capability).ok).toBe(true);
+  });
+
   it('uses the same canonical SPORT HUB design tokens in candidate preview',()=>{
     expect(getStorefrontTemplatePreviewTheme('sport.sport-hub')).toEqual(SPORT_HUB_V1_DESIGN_TOKENS);
   });
@@ -89,7 +100,8 @@ describe('SPORT HUB canonical v1 candidate',()=>{
     for(const grid of largeGapGrids)expect(grid.config.style?.mobile?.gap).toBe('1rem');
     const faq=allNodes.find(node=>node.id==='sport-faq-questions');
     expect(faq?.componentKey).toBe('commerce.content-tabs');
-    expect(faq?.config?.behavior).toMatchObject({mode:'accordion',allowCollapse:true});
+    expect(faq?.config?.behavior?.mode).toBe('accordion');
+    expect(faq?.config?.behavior).toMatchObject({allowCollapse:true});
     expect(faq?.config?.tabs).toHaveLength(6);
   });
 
