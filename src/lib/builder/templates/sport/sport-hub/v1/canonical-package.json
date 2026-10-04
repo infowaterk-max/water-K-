@@ -488,7 +488,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-06.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-10.webp",
                             "alt": "FUTÁS",
                             "width": 1600,
                             "height": 1000,
@@ -498,17 +498,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-06.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-10.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-06.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-10.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-06.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-10.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -610,7 +610,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-01.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-12.webp",
                             "alt": "KERÉKPÁR",
                             "width": 1600,
                             "height": 1000,
@@ -620,17 +620,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-01.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-12.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-01.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-12.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-01.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-12.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -1119,7 +1119,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-20.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-06.webp",
                             "alt": "Futás",
                             "width": 1600,
                             "height": 1000,
@@ -1129,17 +1129,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-20.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-06.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-20.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-06.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-20.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-06.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -1240,7 +1240,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-07.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-01.webp",
                             "alt": "Kerékpár",
                             "width": 1600,
                             "height": 1000,
@@ -1250,17 +1250,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-07.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-01.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-07.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-01.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-07.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-01.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -1361,7 +1361,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-08.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-13.webp",
                             "alt": "Túrázás",
                             "width": 1600,
                             "height": 1000,
@@ -1371,17 +1371,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-08.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-13.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-08.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-13.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-08.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-13.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -3001,7 +3001,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-19.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-11.webp",
                             "alt": "5 lélegzetelállító túraútvonal Magyarországon",
                             "width": 1600,
                             "height": 1000,
@@ -3011,17 +3011,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-19.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-11.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-19.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-11.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-19.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-11.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -3143,7 +3143,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-23.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-08.webp",
                             "alt": "Hogyan készülj fel egy hegyi túrára?",
                             "width": 1600,
                             "height": 1000,
@@ -3153,17 +3153,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-23.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-08.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-23.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-08.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-23.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-08.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -3285,7 +3285,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-15.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-05.webp",
                             "alt": "Valódi történetek. Valódi emberek.",
                             "width": 1600,
                             "height": 1000,
@@ -3295,17 +3295,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-15.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-15.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-15.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -6134,7 +6134,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/ui/asset-41-product-benefit.webp",
+                            "src": "/storefront-demo/sport-hub-v1/products/salomon-sense-ride-5.webp",
                             "alt": "Salomon Sense Ride 5",
                             "width": 1600,
                             "height": 1000,
@@ -6144,17 +6144,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/ui/asset-41-product-benefit.webp",
+                                "src": "/storefront-demo/sport-hub-v1/products/salomon-sense-ride-5.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/ui/asset-41-product-benefit.webp",
+                                "src": "/storefront-demo/sport-hub-v1/products/salomon-sense-ride-5.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/ui/asset-41-product-benefit.webp",
+                                "src": "/storefront-demo/sport-hub-v1/products/salomon-sense-ride-5.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -6839,7 +6839,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "",
+                            "src": "/storefront-demo/sport-hub-v1/ui/asset-41-product-benefit.webp",
                             "alt": "Terepfutó hegyi ösvényen",
                             "width": 1200,
                             "height": 800,
@@ -7782,7 +7782,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-04.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-11.webp",
                             "alt": "KOSÁR",
                             "width": 1600,
                             "height": 1000,
@@ -7792,17 +7792,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-04.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-11.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-04.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-11.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-04.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-11.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -8863,7 +8863,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-05.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-04.webp",
                             "alt": "Pénztár",
                             "width": 1600,
                             "height": 1000,
@@ -8873,17 +8873,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-04.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-04.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-04.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -13507,7 +13507,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-22.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-11.webp",
                             "alt": "TÖRTÉNETEK, TIPPEK, ÚTVONALAK, FELSZERELÉS.",
                             "width": 1600,
                             "height": 1000,
@@ -13517,17 +13517,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-22.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-11.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-22.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-11.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-22.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-11.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -14397,7 +14397,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/ui/asset-47-404-new-direction.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-19.webp",
                             "alt": "Hogyan készülj fel egy többnapos hegyi túrára?",
                             "width": 1600,
                             "height": 1000,
@@ -14407,17 +14407,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/ui/asset-47-404-new-direction.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-19.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/ui/asset-47-404-new-direction.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-19.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/ui/asset-47-404-new-direction.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-19.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -14589,7 +14589,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/ui/asset-48-404-camp.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-05.webp",
                             "alt": "Többnapos hegyi túra",
                             "width": 1600,
                             "height": 1000,
@@ -14599,17 +14599,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/ui/asset-48-404-camp.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/ui/asset-48-404-camp.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/ui/asset-48-404-camp.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -15301,7 +15301,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-17.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-07.webp",
                             "alt": "GYAKORI KÉRDÉSEK",
                             "width": 1600,
                             "height": 1000,
@@ -15311,17 +15311,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-17.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-07.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-17.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-07.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-17.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-07.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -15530,15 +15530,84 @@
                     },
                     {
                       "id": "sport-faq-questions",
-                      "componentKey": "layout.stack",
+                      "componentKey": "commerce.content-tabs",
                       "componentVersion": 1,
                       "config": {
-                        "direction": "vertical",
-                        "gap": "s",
-                        "align": "stretch",
-                        "justify": "start",
-                        "style": {
-                          "padding": "0"
+                        "tabs": [
+                          {
+                            "id": "faq-order",
+                            "label": "Hogyan adhatok le rendelést a SPORT HUB webáruházban?",
+                            "title": "Hogyan adhatok le rendelést a SPORT HUB webáruházban?",
+                            "copy": "Válaszd ki a terméket, állítsd be a szükséges opciókat, majd a kosárból folytasd a biztonságos pénztárhoz."
+                          },
+                          {
+                            "id": "faq-account",
+                            "label": "Szükséges regisztráció a rendeléshez?",
+                            "title": "Szükséges regisztráció a rendeléshez?",
+                            "copy": "A rendelési folyamat a kereskedő aktuális fiók- és checkout szabályai szerint működik."
+                          },
+                          {
+                            "id": "faq-change",
+                            "label": "Hogyan tudom módosítani vagy lemondani a rendelést?",
+                            "title": "Hogyan tudom módosítani vagy lemondani a rendelést?",
+                            "copy": "Vedd fel velünk a kapcsolatot minél hamarabb, és add meg a rendelési azonosítót."
+                          },
+                          {
+                            "id": "faq-shipping",
+                            "label": "Milyen szállítási lehetőségek közül választhatok?",
+                            "title": "Milyen szállítási lehetőségek közül választhatok?",
+                            "copy": "A tényleges szállítási módokat és díjakat a közös szolgáltatói konfiguráció adja."
+                          },
+                          {
+                            "id": "faq-return",
+                            "label": "Hogyan működik a visszaküldés?",
+                            "title": "Hogyan működik a visszaküldés?",
+                            "copy": "A visszaküldési feltételeket a mindenkori kereskedői szabályzat és jogi tartalom határozza meg."
+                          },
+                          {
+                            "id": "faq-payment",
+                            "label": "Milyen fizetési módok érhetők el?",
+                            "title": "Milyen fizetési módok érhetők el?",
+                            "copy": "A pénztár mindig az aktuálisan engedélyezett, szerveroldalon konfigurált fizetési módokat mutatja."
+                          }
+                        ],
+                        "presentation": "sport-hub-faq",
+                        "behavior": {
+                          "mode": "accordion",
+                          "defaultIndex": 0,
+                          "allowCollapse": true
+                        },
+                        "styleSlots": {
+                          "root": {
+                            "base": {
+                              "border": "0"
+                            },
+                            "desktop": {},
+                            "tablet": {},
+                            "mobile": {}
+                          },
+                          "tab": {
+                            "base": {
+                              "fontSize": ".92rem",
+                              "fontWeight": 800,
+                              "textTransform": "none",
+                              "letterSpacing": "0"
+                            },
+                            "desktop": {},
+                            "tablet": {},
+                            "mobile": {}
+                          },
+                          "panel": {
+                            "base": {
+                              "background": "#ffffff",
+                              "border": "1px solid #d7dee5",
+                              "borderRadius": ".4rem",
+                              "padding": "1rem"
+                            },
+                            "desktop": {},
+                            "tablet": {},
+                            "mobile": {}
+                          }
                         }
                       },
                       "responsive": {
@@ -15551,645 +15620,7 @@
                         "mobile": {
                           "gridSpan": 12
                         }
-                      },
-                      "children": [
-                        {
-                          "id": "sport-faq-row-1",
-                          "componentKey": "layout.stack",
-                          "componentVersion": 1,
-                          "config": {
-                            "direction": "vertical",
-                            "gap": "s",
-                            "align": "stretch",
-                            "justify": "start",
-                            "style": {
-                              "background": "#ffffff",
-                              "border": "1px solid #d7dee5",
-                              "borderRadius": ".4rem",
-                              "padding": ".85rem 1rem",
-                              "boxShadow": "0 8px 24px rgba(5,29,45,.05)"
-                            }
-                          },
-                          "responsive": {
-                            "desktop": {
-                              "gridSpan": 12
-                            },
-                            "tablet": {
-                              "gridSpan": 12
-                            },
-                            "mobile": {
-                              "gridSpan": 12
-                            }
-                          },
-                          "children": [
-                            {
-                              "id": "sport-faq-row-1-head",
-                              "componentKey": "layout.stack",
-                              "componentVersion": 1,
-                              "config": {
-                                "direction": "horizontal",
-                                "gap": "s",
-                                "align": "stretch",
-                                "justify": "between",
-                                "style": {
-                                  "display": "flex",
-                                  "flexDirection": "row",
-                                  "justifyContent": "space-between",
-                                  "alignItems": "center"
-                                }
-                              },
-                              "responsive": {
-                                "desktop": {
-                                  "gridSpan": 12
-                                },
-                                "tablet": {
-                                  "gridSpan": 12
-                                },
-                                "mobile": {
-                                  "gridSpan": 12
-                                }
-                              },
-                              "children": [
-                                {
-                                  "id": "sport-faq-row-1-q",
-                                  "componentKey": "content.heading",
-                                  "componentVersion": 1,
-                                  "config": {
-                                    "text": "Hogyan adhatok le rendelést a SPORT HUB webáruházban?",
-                                    "level": 3,
-                                    "align": "left",
-                                    "tone": "text",
-                                    "style": {
-                                      "fontSize": "1rem"
-                                    }
-                                  }
-                                },
-                                {
-                                  "id": "sport-faq-row-1-symbol",
-                                  "componentKey": "content.text",
-                                  "componentVersion": 1,
-                                  "config": {
-                                    "text": "＋",
-                                    "as": "p",
-                                    "align": "left",
-                                    "tone": "text",
-                                    "style": {
-                                      "fontSize": "1.15rem",
-                                      "fontWeight": 900,
-                                      "color": "#148cff"
-                                    }
-                                  }
-                                }
-                              ]
-                            },
-                            {
-                              "id": "sport-faq-row-1-a",
-                              "componentKey": "content.text",
-                              "componentVersion": 1,
-                              "config": {
-                                "text": "Válaszd ki a terméket, állítsd be a szükséges opciókat, majd a kosárból folytasd a biztonságos pénztárhoz.",
-                                "as": "p",
-                                "align": "left",
-                                "tone": "text",
-                                "style": {
-                                  "fontSize": ".8rem",
-                                  "color": "#60717c"
-                                }
-                              }
-                            }
-                          ]
-                        },
-                        {
-                          "id": "sport-faq-row-2",
-                          "componentKey": "layout.stack",
-                          "componentVersion": 1,
-                          "config": {
-                            "direction": "vertical",
-                            "gap": "s",
-                            "align": "stretch",
-                            "justify": "start",
-                            "style": {
-                              "background": "#ffffff",
-                              "border": "1px solid #d7dee5",
-                              "borderRadius": ".4rem",
-                              "padding": ".85rem 1rem",
-                              "boxShadow": "0 8px 24px rgba(5,29,45,.05)"
-                            }
-                          },
-                          "responsive": {
-                            "desktop": {
-                              "gridSpan": 12
-                            },
-                            "tablet": {
-                              "gridSpan": 12
-                            },
-                            "mobile": {
-                              "gridSpan": 12
-                            }
-                          },
-                          "children": [
-                            {
-                              "id": "sport-faq-row-2-head",
-                              "componentKey": "layout.stack",
-                              "componentVersion": 1,
-                              "config": {
-                                "direction": "horizontal",
-                                "gap": "s",
-                                "align": "stretch",
-                                "justify": "between",
-                                "style": {
-                                  "display": "flex",
-                                  "flexDirection": "row",
-                                  "justifyContent": "space-between",
-                                  "alignItems": "center"
-                                }
-                              },
-                              "responsive": {
-                                "desktop": {
-                                  "gridSpan": 12
-                                },
-                                "tablet": {
-                                  "gridSpan": 12
-                                },
-                                "mobile": {
-                                  "gridSpan": 12
-                                }
-                              },
-                              "children": [
-                                {
-                                  "id": "sport-faq-row-2-q",
-                                  "componentKey": "content.heading",
-                                  "componentVersion": 1,
-                                  "config": {
-                                    "text": "Szükséges regisztráció a rendeléshez?",
-                                    "level": 3,
-                                    "align": "left",
-                                    "tone": "text",
-                                    "style": {
-                                      "fontSize": "1rem"
-                                    }
-                                  }
-                                },
-                                {
-                                  "id": "sport-faq-row-2-symbol",
-                                  "componentKey": "content.text",
-                                  "componentVersion": 1,
-                                  "config": {
-                                    "text": "＋",
-                                    "as": "p",
-                                    "align": "left",
-                                    "tone": "text",
-                                    "style": {
-                                      "fontSize": "1.15rem",
-                                      "fontWeight": 900,
-                                      "color": "#148cff"
-                                    }
-                                  }
-                                }
-                              ]
-                            },
-                            {
-                              "id": "sport-faq-row-2-a",
-                              "componentKey": "content.text",
-                              "componentVersion": 1,
-                              "config": {
-                                "text": "A rendelési folyamat a kereskedő aktuális fiók- és checkout szabályai szerint működik.",
-                                "as": "p",
-                                "align": "left",
-                                "tone": "text",
-                                "style": {
-                                  "fontSize": ".8rem",
-                                  "color": "#60717c"
-                                }
-                              }
-                            }
-                          ]
-                        },
-                        {
-                          "id": "sport-faq-row-3",
-                          "componentKey": "layout.stack",
-                          "componentVersion": 1,
-                          "config": {
-                            "direction": "vertical",
-                            "gap": "s",
-                            "align": "stretch",
-                            "justify": "start",
-                            "style": {
-                              "background": "#ffffff",
-                              "border": "1px solid #d7dee5",
-                              "borderRadius": ".4rem",
-                              "padding": ".85rem 1rem",
-                              "boxShadow": "0 8px 24px rgba(5,29,45,.05)"
-                            }
-                          },
-                          "responsive": {
-                            "desktop": {
-                              "gridSpan": 12
-                            },
-                            "tablet": {
-                              "gridSpan": 12
-                            },
-                            "mobile": {
-                              "gridSpan": 12
-                            }
-                          },
-                          "children": [
-                            {
-                              "id": "sport-faq-row-3-head",
-                              "componentKey": "layout.stack",
-                              "componentVersion": 1,
-                              "config": {
-                                "direction": "horizontal",
-                                "gap": "s",
-                                "align": "stretch",
-                                "justify": "between",
-                                "style": {
-                                  "display": "flex",
-                                  "flexDirection": "row",
-                                  "justifyContent": "space-between",
-                                  "alignItems": "center"
-                                }
-                              },
-                              "responsive": {
-                                "desktop": {
-                                  "gridSpan": 12
-                                },
-                                "tablet": {
-                                  "gridSpan": 12
-                                },
-                                "mobile": {
-                                  "gridSpan": 12
-                                }
-                              },
-                              "children": [
-                                {
-                                  "id": "sport-faq-row-3-q",
-                                  "componentKey": "content.heading",
-                                  "componentVersion": 1,
-                                  "config": {
-                                    "text": "Hogyan tudom módosítani vagy lemondani a rendelést?",
-                                    "level": 3,
-                                    "align": "left",
-                                    "tone": "text",
-                                    "style": {
-                                      "fontSize": "1rem"
-                                    }
-                                  }
-                                },
-                                {
-                                  "id": "sport-faq-row-3-symbol",
-                                  "componentKey": "content.text",
-                                  "componentVersion": 1,
-                                  "config": {
-                                    "text": "＋",
-                                    "as": "p",
-                                    "align": "left",
-                                    "tone": "text",
-                                    "style": {
-                                      "fontSize": "1.15rem",
-                                      "fontWeight": 900,
-                                      "color": "#148cff"
-                                    }
-                                  }
-                                }
-                              ]
-                            },
-                            {
-                              "id": "sport-faq-row-3-a",
-                              "componentKey": "content.text",
-                              "componentVersion": 1,
-                              "config": {
-                                "text": "Vedd fel velünk a kapcsolatot minél hamarabb, és add meg a rendelési azonosítót.",
-                                "as": "p",
-                                "align": "left",
-                                "tone": "text",
-                                "style": {
-                                  "fontSize": ".8rem",
-                                  "color": "#60717c"
-                                }
-                              }
-                            }
-                          ]
-                        },
-                        {
-                          "id": "sport-faq-row-4",
-                          "componentKey": "layout.stack",
-                          "componentVersion": 1,
-                          "config": {
-                            "direction": "vertical",
-                            "gap": "s",
-                            "align": "stretch",
-                            "justify": "start",
-                            "style": {
-                              "background": "#ffffff",
-                              "border": "1px solid #d7dee5",
-                              "borderRadius": ".4rem",
-                              "padding": ".85rem 1rem",
-                              "boxShadow": "0 8px 24px rgba(5,29,45,.05)"
-                            }
-                          },
-                          "responsive": {
-                            "desktop": {
-                              "gridSpan": 12
-                            },
-                            "tablet": {
-                              "gridSpan": 12
-                            },
-                            "mobile": {
-                              "gridSpan": 12
-                            }
-                          },
-                          "children": [
-                            {
-                              "id": "sport-faq-row-4-head",
-                              "componentKey": "layout.stack",
-                              "componentVersion": 1,
-                              "config": {
-                                "direction": "horizontal",
-                                "gap": "s",
-                                "align": "stretch",
-                                "justify": "between",
-                                "style": {
-                                  "display": "flex",
-                                  "flexDirection": "row",
-                                  "justifyContent": "space-between",
-                                  "alignItems": "center"
-                                }
-                              },
-                              "responsive": {
-                                "desktop": {
-                                  "gridSpan": 12
-                                },
-                                "tablet": {
-                                  "gridSpan": 12
-                                },
-                                "mobile": {
-                                  "gridSpan": 12
-                                }
-                              },
-                              "children": [
-                                {
-                                  "id": "sport-faq-row-4-q",
-                                  "componentKey": "content.heading",
-                                  "componentVersion": 1,
-                                  "config": {
-                                    "text": "Milyen szállítási lehetőségek közül választhatok?",
-                                    "level": 3,
-                                    "align": "left",
-                                    "tone": "text",
-                                    "style": {
-                                      "fontSize": "1rem"
-                                    }
-                                  }
-                                },
-                                {
-                                  "id": "sport-faq-row-4-symbol",
-                                  "componentKey": "content.text",
-                                  "componentVersion": 1,
-                                  "config": {
-                                    "text": "＋",
-                                    "as": "p",
-                                    "align": "left",
-                                    "tone": "text",
-                                    "style": {
-                                      "fontSize": "1.15rem",
-                                      "fontWeight": 900,
-                                      "color": "#148cff"
-                                    }
-                                  }
-                                }
-                              ]
-                            },
-                            {
-                              "id": "sport-faq-row-4-a",
-                              "componentKey": "content.text",
-                              "componentVersion": 1,
-                              "config": {
-                                "text": "A tényleges szállítási módokat és díjakat a közös szolgáltatói konfiguráció adja.",
-                                "as": "p",
-                                "align": "left",
-                                "tone": "text",
-                                "style": {
-                                  "fontSize": ".8rem",
-                                  "color": "#60717c"
-                                }
-                              }
-                            }
-                          ]
-                        },
-                        {
-                          "id": "sport-faq-row-5",
-                          "componentKey": "layout.stack",
-                          "componentVersion": 1,
-                          "config": {
-                            "direction": "vertical",
-                            "gap": "s",
-                            "align": "stretch",
-                            "justify": "start",
-                            "style": {
-                              "background": "#ffffff",
-                              "border": "1px solid #d7dee5",
-                              "borderRadius": ".4rem",
-                              "padding": ".85rem 1rem",
-                              "boxShadow": "0 8px 24px rgba(5,29,45,.05)"
-                            }
-                          },
-                          "responsive": {
-                            "desktop": {
-                              "gridSpan": 12
-                            },
-                            "tablet": {
-                              "gridSpan": 12
-                            },
-                            "mobile": {
-                              "gridSpan": 12
-                            }
-                          },
-                          "children": [
-                            {
-                              "id": "sport-faq-row-5-head",
-                              "componentKey": "layout.stack",
-                              "componentVersion": 1,
-                              "config": {
-                                "direction": "horizontal",
-                                "gap": "s",
-                                "align": "stretch",
-                                "justify": "between",
-                                "style": {
-                                  "display": "flex",
-                                  "flexDirection": "row",
-                                  "justifyContent": "space-between",
-                                  "alignItems": "center"
-                                }
-                              },
-                              "responsive": {
-                                "desktop": {
-                                  "gridSpan": 12
-                                },
-                                "tablet": {
-                                  "gridSpan": 12
-                                },
-                                "mobile": {
-                                  "gridSpan": 12
-                                }
-                              },
-                              "children": [
-                                {
-                                  "id": "sport-faq-row-5-q",
-                                  "componentKey": "content.heading",
-                                  "componentVersion": 1,
-                                  "config": {
-                                    "text": "Hogyan működik a visszaküldés?",
-                                    "level": 3,
-                                    "align": "left",
-                                    "tone": "text",
-                                    "style": {
-                                      "fontSize": "1rem"
-                                    }
-                                  }
-                                },
-                                {
-                                  "id": "sport-faq-row-5-symbol",
-                                  "componentKey": "content.text",
-                                  "componentVersion": 1,
-                                  "config": {
-                                    "text": "＋",
-                                    "as": "p",
-                                    "align": "left",
-                                    "tone": "text",
-                                    "style": {
-                                      "fontSize": "1.15rem",
-                                      "fontWeight": 900,
-                                      "color": "#148cff"
-                                    }
-                                  }
-                                }
-                              ]
-                            },
-                            {
-                              "id": "sport-faq-row-5-a",
-                              "componentKey": "content.text",
-                              "componentVersion": 1,
-                              "config": {
-                                "text": "A visszaküldési feltételeket a mindenkori kereskedői szabályzat és jogi tartalom határozza meg.",
-                                "as": "p",
-                                "align": "left",
-                                "tone": "text",
-                                "style": {
-                                  "fontSize": ".8rem",
-                                  "color": "#60717c"
-                                }
-                              }
-                            }
-                          ]
-                        },
-                        {
-                          "id": "sport-faq-row-6",
-                          "componentKey": "layout.stack",
-                          "componentVersion": 1,
-                          "config": {
-                            "direction": "vertical",
-                            "gap": "s",
-                            "align": "stretch",
-                            "justify": "start",
-                            "style": {
-                              "background": "#ffffff",
-                              "border": "1px solid #d7dee5",
-                              "borderRadius": ".4rem",
-                              "padding": ".85rem 1rem",
-                              "boxShadow": "0 8px 24px rgba(5,29,45,.05)"
-                            }
-                          },
-                          "responsive": {
-                            "desktop": {
-                              "gridSpan": 12
-                            },
-                            "tablet": {
-                              "gridSpan": 12
-                            },
-                            "mobile": {
-                              "gridSpan": 12
-                            }
-                          },
-                          "children": [
-                            {
-                              "id": "sport-faq-row-6-head",
-                              "componentKey": "layout.stack",
-                              "componentVersion": 1,
-                              "config": {
-                                "direction": "horizontal",
-                                "gap": "s",
-                                "align": "stretch",
-                                "justify": "between",
-                                "style": {
-                                  "display": "flex",
-                                  "flexDirection": "row",
-                                  "justifyContent": "space-between",
-                                  "alignItems": "center"
-                                }
-                              },
-                              "responsive": {
-                                "desktop": {
-                                  "gridSpan": 12
-                                },
-                                "tablet": {
-                                  "gridSpan": 12
-                                },
-                                "mobile": {
-                                  "gridSpan": 12
-                                }
-                              },
-                              "children": [
-                                {
-                                  "id": "sport-faq-row-6-q",
-                                  "componentKey": "content.heading",
-                                  "componentVersion": 1,
-                                  "config": {
-                                    "text": "Milyen fizetési módok érhetők el?",
-                                    "level": 3,
-                                    "align": "left",
-                                    "tone": "text",
-                                    "style": {
-                                      "fontSize": "1rem"
-                                    }
-                                  }
-                                },
-                                {
-                                  "id": "sport-faq-row-6-symbol",
-                                  "componentKey": "content.text",
-                                  "componentVersion": 1,
-                                  "config": {
-                                    "text": "＋",
-                                    "as": "p",
-                                    "align": "left",
-                                    "tone": "text",
-                                    "style": {
-                                      "fontSize": "1.15rem",
-                                      "fontWeight": 900,
-                                      "color": "#148cff"
-                                    }
-                                  }
-                                }
-                              ]
-                            },
-                            {
-                              "id": "sport-faq-row-6-a",
-                              "componentKey": "content.text",
-                              "componentVersion": 1,
-                              "config": {
-                                "text": "A pénztár mindig az aktuálisan engedélyezett, szerveroldalon konfigurált fizetési módokat mutatja.",
-                                "as": "p",
-                                "align": "left",
-                                "tone": "text",
-                                "style": {
-                                  "fontSize": ".8rem",
-                                  "color": "#60717c"
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      ]
+                      }
                     }
                   ]
                 }
@@ -18753,7 +18184,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/ui/asset-46-404-trail.webp",
+                            "src": "/storefront-demo/sport-hub-v1/ui/asset-47-404-new-direction.webp",
                             "alt": "ELTÉRTÉL AZ ÚTVONALTÓL",
                             "width": 1600,
                             "height": 1000,
@@ -18763,17 +18194,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/ui/asset-46-404-trail.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-47-404-new-direction.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/ui/asset-46-404-trail.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-47-404-new-direction.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/ui/asset-46-404-trail.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-47-404-new-direction.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }

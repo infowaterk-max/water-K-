@@ -82,12 +82,22 @@ describe('SPORT HUB canonical v1 candidate',()=>{
     const serialized=JSON.stringify(SPORT_HUB_V1_TEMPLATE_PACKAGE);
     expect(serialized).not.toContain('src/lib/builder/templates/sport-hub.ts');
   });
-  it('keeps large 12-column grids bounded on mobile and excludes full-page reference screenshots from content media',()=>{
-    const largeGapGrids=SPORT_HUB_V1_TEMPLATE_PACKAGE.pages.flatMap(page=>walk(page.sections).filter(node=>node.componentKey==='layout.grid'&&node.config.gap==='l'));
+  it('keeps the proven mobile grid repair and uses the shared FAQ accordion',()=>{
+    const allNodes=SPORT_HUB_V1_TEMPLATE_PACKAGE.pages.flatMap(page=>walk(page.sections));
+    const largeGapGrids=allNodes.filter(node=>node.componentKey==='layout.grid'&&node.config.gap==='l');
     expect(largeGapGrids).toHaveLength(10);
     for(const grid of largeGapGrids)expect(grid.config.style?.mobile?.gap).toBe('1rem');
+    const faq=allNodes.find(node=>node.id==='sport-faq-questions');
+    expect(faq?.componentKey).toBe('commerce.content-tabs');
+    expect(faq?.config?.behavior).toMatchObject({mode:'accordion',allowCollapse:true});
+    expect(faq?.config?.tabs).toHaveLength(6);
+  });
+
+  it('does not render full-page Visual First reference sheets as storefront media',()=>{
     const serialized=JSON.stringify(SPORT_HUB_V1_TEMPLATE_PACKAGE);
-    expect(serialized).not.toMatch(/\/media-(10|11|12|13|14)\.webp/);
+    expect(serialized).not.toMatch(/\/storefront-demo\/sport-hub-v1\/media-2[0-4]\.webp/);
+    expect(serialized).toContain('/storefront-demo/sport-hub-v1/products/salomon-sense-ride-5.webp');
+    expect(serialized).toContain('/storefront-demo/sport-hub-v1/ui/asset-43-contact-support.webp');
   });
 
 });

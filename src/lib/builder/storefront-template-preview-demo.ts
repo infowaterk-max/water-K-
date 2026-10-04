@@ -58,7 +58,7 @@ const SPORT_HUB_PREVIEW_PRODUCTS=Object.freeze([
 const SPORT_HUB_PREVIEW_GALLERY=Object.freeze([
   {src:'/storefront-demo/sport-hub-v1/products/salomon-sense-ride-5.webp',alt:'Salomon Sense Ride 5 terepfutó cipő'},
   {src:'/storefront-demo/sport-hub-v1/ui/asset-41-product-benefit.webp',alt:'Terepfutó cipő havas terepen'},
-  {src:'/storefront-demo/sport-hub-v1/media-23.webp',alt:'Terepfutás részlet'},
+  {src:'/storefront-demo/sport-hub-v1/media-14.webp',alt:'Terepfutás részlet'},
   {src:'/storefront-demo/sport-hub-v1/media-09.webp',alt:'Hegyi terepfutás'},
 ] as const);
 
