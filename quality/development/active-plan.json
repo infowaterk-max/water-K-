@@ -21,7 +21,9 @@
     "tests/storefront-template-quality-gate-v2.test.ts",
     "tests/template-factory-generator-readiness.test.ts",
     "tests/template-factory-template-distinctness.test.ts",
-    "tests/visual-baselines/sport.sport-hub/v1/**"
+    "tests/visual-baselines/sport.sport-hub/v1/**",
+    "src/components/builder/storefront-content-disclosure.tsx",
+    "tests/storefront-fidelity-behavior.test.tsx"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -133,7 +135,8 @@
         "SPORT HUB preview theme, package identity and catalog resolution point to the same canonical v1 package throughout branch preview and acceptance proof.",
         "Product Owner handoff contains no placeholder media, duplicate fake content, legacy fallback layout or unrelated template visual identity.",
         "Final exact-head proof includes typecheck, production build, Template Factory quality proof, route/cart regression and visual/browser evidence before completion is claimed.",
-        "Shared commerce.content-tabs remains valid on Product, becomes valid on FAQ, and remains rejected for every unrelated page type."
+        "Shared commerce.content-tabs remains valid on Product, becomes valid on FAQ, and remains rejected for every unrelated page type.",
+        "Shared accordion disclosure must wrap long mobile trigger labels without horizontal viewport overflow while tab mode keeps its existing single-line navigation behavior."
       ],
       "invariants": [
         "There is one canonical SPORT HUB package authority; legacy src/lib/builder/templates/sport-hub.ts remains inert historical source and is never imported as the new implementation.",
@@ -321,7 +324,8 @@
     "semanticExecutionRoute": {
       "request": "PO-2026-10-03-SPORT-HUB-TEMPLATE-3-IMPLEMENTATION",
       "authority": [
-        "builder-template-system"
+        "builder-template-system",
+        "shared-storefront"
       ],
       "mustEdit": [
         "src/lib/builder/templates/sport/sport-hub/v1/index.ts",
@@ -333,7 +337,8 @@
         "src/lib/builder/storefront-template-quality-candidates.ts",
         "src/lib/builder/storefront-template-quality-gate.ts",
         "public/storefront-demo/sport-hub-v1/**",
-        "src/lib/builder/storefront-commerce.ts"
+        "src/lib/builder/storefront-commerce.ts",
+        "src/components/builder/storefront-content-disclosure.tsx"
       ],
       "impactedReadOnly": [
         "src/lib/builder/templates/gaming/playroom/v20/**",
@@ -342,7 +347,8 @@
       "proof": [
         "tests/storefront-sport-hub-v1.test.ts",
         "tests/template-factory-generator-readiness.test.ts",
-        "tests/storefront-template-quality-gate-v2.test.ts"
+        "tests/storefront-template-quality-gate-v2.test.ts",
+        "tests/storefront-fidelity-behavior.test.tsx"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -540,5 +546,5 @@
       }
     ]
   },
-  "notes": "Visual First is already Product Owner approved for all 14 SPORT HUB page references. This transaction is implementation only. Do not reopen design decisions unless the Product Owner explicitly changes them. Keep the PR draft until exact-head proof and live visual acceptance are complete. FAQ runtime repair: reuse the existing shared content-disclosure implementation by widening commerce.content-tabs page compatibility from product-only to product+faq; no template-local FAQ engine."
+  "notes": "Visual First is already Product Owner approved for all 14 SPORT HUB page references. This transaction is implementation only. Do not reopen design decisions unless the Product Owner explicitly changes them. Keep the PR draft until exact-head proof and live visual acceptance are complete. FAQ runtime repair: reuse the existing shared content-disclosure implementation by widening commerce.content-tabs page compatibility from product-only to product+faq; no template-local FAQ engine. Browser evidence follow-up: fix only shared mobile accordion trigger wrapping after FAQ runtime root became valid; preserve the previously proven SPORT HUB mobile grid repair and all approved visuals."
 }
