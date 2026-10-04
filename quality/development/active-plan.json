@@ -11,6 +11,7 @@
     "public/storefront-demo/sport-hub-v1/**",
     "src/lib/builder/storefront-template-catalog.ts",
     "src/lib/builder/storefront-template-preview-demo.ts",
+    "src/lib/builder/storefront-commerce.ts",
     "src/lib/builder/storefront-template-quality-candidates.ts",
     "src/lib/builder/storefront-template-quality-gate.ts",
     "tests/storefront-sport-hub-v1.test.ts",
@@ -328,7 +329,8 @@
         "src/lib/builder/storefront-template-preview-demo.ts",
         "src/lib/builder/storefront-template-quality-candidates.ts",
         "src/lib/builder/storefront-template-quality-gate.ts",
-        "public/storefront-demo/sport-hub-v1/**"
+        "public/storefront-demo/sport-hub-v1/**",
+        "src/lib/builder/storefront-commerce.ts"
       ],
       "impactedReadOnly": [
         "src/lib/builder/templates/gaming/playroom/v20/**",
@@ -535,5 +537,5 @@
       }
     ]
   },
-  "notes": "Visual First is already Product Owner approved for all 14 SPORT HUB page references. This transaction is implementation only. Do not reopen design decisions unless the Product Owner explicitly changes them. Keep the PR draft until exact-head proof and live visual acceptance are complete."
+  "notes": "Visual First is already Product Owner approved for all 14 SPORT HUB page references. This transaction is implementation only. Do not reopen design decisions unless the Product Owner explicitly changes them. Keep the PR draft until exact-head proof and live visual acceptance are complete. FAQ runtime repair: reuse the existing shared content-disclosure implementation by widening commerce.content-tabs page compatibility from product-only to product+faq; no template-local FAQ engine."
 }
