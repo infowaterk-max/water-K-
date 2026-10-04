@@ -62,10 +62,13 @@ describe('Visual Builder shared behavior contract',()=>{
     expect(desktop).toContain('role="tab"');
     expect(desktop).toContain('aria-selected="true"');
     expect(desktop).toContain('role="tabpanel"');
+    expect(desktop).toContain('white-space:nowrap');
     const mobile=render('commerce.content-tabs',{tabs,behavior:{mode:'responsive',allowCollapse:true}},'mobile');
     expect(mobile).toContain('data-storefront-content-behavior="accordion"');
     expect(mobile).toContain('aria-expanded="true"');
     expect(mobile).toContain('role="region"');
+    expect(mobile).toContain('white-space:normal');
+    expect(mobile).toContain('overflow-wrap:anywhere');
   });
 
   it('activates the carousel only on mobile and keeps desktop as the regular grid',()=>{

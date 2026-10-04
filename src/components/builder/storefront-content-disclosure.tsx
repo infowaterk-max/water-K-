@@ -40,7 +40,7 @@ export function StorefrontContentDisclosure({
     const triggerId=`sf-${uid}-accordion-trigger-${index}`;
     const panelId=`sf-${uid}-accordion-panel-${index}`;
     return <div key={tab.id} style={{borderBottom:'1px solid var(--shoporation-color-border,#ddd)'}}>
-      <button id={triggerId} type="button" aria-expanded={open} aria-controls={panelId} className={buttonClass} style={{...baseButton,width:'100%',display:'flex',justifyContent:'space-between',alignItems:'center',padding:'1rem 0',...(open?styles.tabActive:{})}} onClick={()=>setActive(current=>current===index&&allowCollapse?null:index)}>{tab.label||tab.title}<span aria-hidden="true">{open?'−':'+'}</span></button>
+      <button id={triggerId} type="button" aria-expanded={open} aria-controls={panelId} className={buttonClass} style={{...baseButton,width:'100%',minWidth:0,display:'flex',justifyContent:'space-between',alignItems:'center',gap:'.75rem',padding:'1rem 0',...(open?styles.tabActive:{}),whiteSpace:'normal',overflowWrap:'anywhere'}} onClick={()=>setActive(current=>current===index&&allowCollapse?null:index)}>{tab.label||tab.title}<span aria-hidden="true" style={{flexShrink:0}}>{open?'−':'+'}</span></button>
       <article id={panelId} role="region" aria-labelledby={triggerId} hidden={!open} style={{...styles.panel,display:open?'grid':'none',alignContent:'start',gap:'.55rem',padding:'0 0 1rem'}}>{panelContent(tab)}</article>
     </div>;
   })}</div>;

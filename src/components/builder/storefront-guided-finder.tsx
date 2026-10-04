@@ -22,6 +22,23 @@ const eyebrow=(value:unknown,style:CSSProperties={})=>text(value)?<small style={
 
 function Finder({config,node,viewport}:StorefrontComponentRenderProps){
   const options=rows(config.options);const presentation=text(config.presentation);const slot=styles(config,viewport);
+  if(presentation==='compact-select-row'){
+    const fields=options;
+    const columns=viewport==='mobile'?1:viewport==='tablet'?Math.min(2,fields.length):Math.max(1,fields.length);
+    return <section data-storefront-guided="finder" data-presentation={presentation} style={{...span(node),display:'grid',gap:'.55rem',...slot('root')}}>
+      <div style={{display:'grid',gridTemplateColumns:`repeat(${columns},minmax(0,1fr))`,gap:'.45rem',...slot('options')}}>{fields.map((field,i)=>{
+        const choices=rows(field.choices);
+        return <label key={text(field.id,`${i}`)} style={{display:'grid',gap:'.32rem',minWidth:0,padding:'.35rem .45rem',background:'var(--shoporation-color-background,#fff)',border:'1px solid var(--shoporation-color-border,#d7dee5)',borderRadius:'.2rem',...slot('option')}}>
+          <strong style={{fontSize:'.62rem',display:'flex',alignItems:'center',gap:'.35rem',...slot('optionLabel')}}><span aria-hidden="true" style={{display:'inline-grid',placeItems:'center',width:'1.2rem',height:'1.2rem',borderRadius:'999px',background:'var(--shoporation-color-primary,#0b84f3)',color:'var(--shoporation-color-primary-contrast,#fff)',fontSize:'.55rem'}}>{i+1}</span>{text(field.label,`Mező ${i+1}`)}</strong>
+          <select name={text(field.id,`field-${i}`)} defaultValue="" aria-label={text(field.label,`Mező ${i+1}`)} style={{width:'100%',minWidth:0,minHeight:'44px',border:'1px solid var(--shoporation-color-border,#d7dee5)',background:'var(--shoporation-color-background,#fff)',color:'inherit',padding:'.5rem .48rem',fontSize:'.68rem',borderRadius:'.15rem'}}>
+            <option value="" disabled>{text(field.placeholder,'Válassz')}</option>
+            {choices.map((choice,j)=><option key={text(choice.value,`${j}`)} value={text(choice.value,`${j}`)}>{text(choice.label,`Opció ${j+1}`)}</option>)}
+          </select>
+        </label>;
+      })}</div>
+      {text(config.actionLabel)?<a href={safeHref(config.actionHref,'#finder-results')} style={{justifySelf:'end',fontWeight:700,color:'inherit',...slot('action')}}>{text(config.actionLabel)} →</a>:null}
+    </section>;
+  }
   if(presentation==='editorial-choice-grid'){
     const requested=Math.max(3,Math.min(6,Math.round(num(config.columns,5))));
     const columns=viewport==='mobile'?2:viewport==='tablet'?Math.min(3,requested):requested;

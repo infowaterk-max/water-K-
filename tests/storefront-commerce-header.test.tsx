@@ -93,6 +93,25 @@ describe('shared commerce header',()=>{
     expect(html).toContain('VÁLOGATOTT KÍNÁLAT');
   });
 
+  it('renders explicit single-tier desktop commerce chrome without the desktop category trigger row',()=>{
+    const single=structuredClone(page);
+    const header=single.sections[0];
+    header.config.presentation='commerce-single-tier';
+    header.config.brandLabel='';
+    header.config.tagline='';
+    header.config.logoUrl='/logo.svg';
+    header.config.logoAlt='Demo logo';
+    header.config.categoryTriggerLabel='Kategóriák';
+    const html=render('desktop',single);
+    expect(html).toContain('data-presentation="commerce-single-tier"');
+    expect(html).toContain('data-storefront-header-row="single-tier"');
+    expect(html).toContain('src="/logo.svg"');
+    expect(html).toContain('alt="Demo logo"');
+    expect(html).toContain('Játékok');
+    expect(html).toContain('aria-label="Webshop műveletek"');
+    expect(html).not.toContain('>Kategóriák<');
+  });
+
   it('renders the shared mobile navigation behind a real hamburger disclosure',()=>{
     const html=render('mobile');
     expect(html).toContain('Mit keresel?');

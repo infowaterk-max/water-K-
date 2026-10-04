@@ -7,10 +7,10 @@ import{resolveStorefrontTemplatePreviewPackage}from'@/lib/builder/storefront-tem
 import{STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType}from'@/lib/builder/storefront-foundation';
 
 export const dynamic='force-dynamic';
-type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;next?:string;factory?:string}>};
+type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;next?:string;factory?:string;qualityCandidate?:string}>};
 const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
-function previewTarget(input:{templateKey:string;templateVersion:number;pageType:StorefrontBuilderPageType;viewport:string;requested?:string;factoryCandidate:boolean}){
+function previewTarget(input:{templateKey:string;templateVersion:number;pageType:StorefrontBuilderPageType;viewport:string;requested?:string;factoryCandidate:boolean;qualityCandidate:boolean}){
  const requested=normalizeStorefrontReturnTarget(input.requested);
  if(requested?.startsWith('/storefront-template-preview?'))return requested;
  const params=new URLSearchParams({
@@ -20,6 +20,7 @@ function previewTarget(input:{templateKey:string;templateVersion:number;pageType
   viewport:input.viewport==='mobile'?'mobile':input.viewport==='tablet'?'tablet':'desktop',
  });
  if(input.factoryCandidate)params.set('factory','1');
+ if(input.qualityCandidate)params.set('qualityCandidate','1');
  return`/storefront-template-preview?${params.toString()}`;
 }
 
@@ -30,7 +31,9 @@ export default async function StorefrontTemplatePreviewLogin({searchParams}:Prop
  const pageType=(query.page??'home') as StorefrontBuilderPageType;
  if(!templateKey||version!==undefined&&!Number.isInteger(version)||!allowedPageTypes.has(pageType))notFound();
  const factoryCandidate=query.factory==='1';
- const template=resolveStorefrontTemplatePreviewPackage(templateKey,version,factoryCandidate);
+ const qualityCandidate=query.qualityCandidate==='1';
+ if(factoryCandidate&&qualityCandidate)notFound();
+ const template=resolveStorefrontTemplatePreviewPackage(templateKey,version,factoryCandidate,qualityCandidate);
  if(!template||!template.pages.some(page=>page.pageType==='account'))notFound();
  const target=previewTarget({
   templateKey:template.manifest.templateKey,
@@ -39,6 +42,7 @@ export default async function StorefrontTemplatePreviewLogin({searchParams}:Prop
   viewport:query.viewport??'desktop',
   requested:query.next,
   factoryCandidate,
+  qualityCandidate,
  });
  const supabase=await createClient();
  const{data:{user}}=await supabase.auth.getUser();
@@ -46,7 +50,7 @@ export default async function StorefrontTemplatePreviewLogin({searchParams}:Prop
  return <StorefrontAccountShell
   customerId={null}
   fallbackNavigation={null}
-  previewTemplate={{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,factoryCandidate}}
+  previewTemplate={{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,factoryCandidate,qualityCandidate}}
  >
   <main className="section accountPage storefrontSignedOutAccount" data-template-preview-auth="true">
    <div className="shell">

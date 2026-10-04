@@ -1,59 +1,50 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-LEGACY-TEMPLATE-RETIREMENT",
-  "task": "Retire legacy template implementations from active canonical authority while preserving only Playroom v20 and Loot Vault v2; leave historical sources inert for later deletion and do not alter Template #3 authoring.",
-  "status": "closed",
-  "guardDigest": "94082bf1",
-  "changeBaseSha": "30c3efa28b0d0d85e43ea87a1233f0fc290bf1c7",
+  "taskId": "DEV-SPORT-HUB-V1-IMPLEMENTATION",
+  "task": "Implement the PO-approved SPORT HUB Template #3 canonical v1 from the 14 accepted Visual First references using the existing Template Factory and shared runtime, without reviving legacy template authority or creating template-local business engines.",
+  "status": "ready-for-implementation",
+  "guardDigest": "02b5b622",
+  "changeBaseSha": "93605211ee55717b4939d4bb95a45a15711b5a01",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
+    "src/lib/builder/templates/sport/sport-hub/v1/**",
+    "public/storefront-demo/sport-hub-v1/**",
     "src/lib/builder/storefront-template-catalog.ts",
     "src/lib/builder/storefront-template-preview-demo.ts",
-    "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
-    "tests/special-commerce-wave7-template-quality.test.ts",
-    "tests/special-commerce-wave7-template2-adoption.test.ts",
-    "tests/template-factory-template-distinctness.test.ts",
+    "src/lib/builder/storefront-commerce.ts",
+    "src/lib/builder/storefront-template-quality-candidates.ts",
+    "src/lib/builder/storefront-template-quality-gate.ts",
+    "tests/storefront-sport-hub-v1.test.ts",
+    "tests/storefront-template-preview-runtime.test.ts",
     "tests/storefront-template-route-integrity.test.ts",
-    "tests/template-factory-loot-vault-v2.test.ts",
-    "src/app/oldal/[slug]/page.tsx",
-    "src/app/szallitas/page.tsx",
-    "src/app/fizetes/page.tsx",
-    "src/app/szallitas-es-fizetes/page.tsx",
-    "src/app/sitemap.ts",
-    "src/app/gyik/page.tsx",
-    "src/lib/builder/storefront-template-route-integrity.ts",
-    "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
-    "tests/storefront-public-information-routes.test.ts",
-    "tests/storefront-real-route-template-authority.test.ts",
-    "tests/customer-order-service-ux.test.ts",
-    "scripts/shoperation-knowledge-preflight.mjs",
-    "tests/shoperation-change-impact-atlas.test.ts",
-    "scripts/lib/shoperation-reference-sync-runtime.mjs",
-    "tests/shoperation-development-guard.test.ts",
-    "src/app/kapcsolat/page.tsx",
-    "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
-    "tests/shoperation-semantic-execution-intelligence.test.ts",
-    "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
-    "tests/storefront-beauty-lab-reference-v2.test.ts",
     "tests/storefront-cart-presentation-contract.test.ts",
+    "tests/storefront-template-quality-gate-v2.test.ts",
     "tests/template-factory-generator-readiness.test.ts",
-    "src/lib/builder/storefront-template-runtime-normalization.ts",
-    "scripts/template-factory-quality-gate.mjs",
-    "tests/storefront-template-quality-gate-v2.test.ts"
+    "tests/template-factory-template-distinctness.test.ts",
+    "tests/visual-baselines/sport.sport-hub/v1/**",
+    "src/components/builder/storefront-content-disclosure.tsx",
+    "tests/storefront-fidelity-behavior.test.tsx",
+    "src/app/storefront-template-preview/page.tsx",
+    "src/app/storefront-template-preview-login/page.tsx",
+    "src/lib/builder/storefront-template-preview-auth.ts",
+    "src/components/account/storefront-account-shell.tsx",
+    "src/components/builder/storefront-commerce-header.tsx",
+    "tests/storefront-commerce-header.test.tsx",
+    "src/components/builder/storefront-commerce.tsx",
+    "src/components/builder/storefront-guided-finder.tsx"
   ],
   "expectedSubsystems": [
     "builder-template-system",
     "shared-storefront",
-    "storefront-ui"
+    "storefront-ui",
+    "customer-account"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
-    "DOMAIN-QUALITY",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "builder-template-system",
-    "quality-knowledge-system",
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
@@ -62,10 +53,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -74,13 +62,9 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -125,11 +109,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-LEGACY-TEMPLATE-RETIREMENT",
+    "sourceRef": "PO-2026-10-03-SPORT-HUB-TEMPLATE-3-IMPLEMENTATION",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "The change removes legacy template implementations from active authority surfaces that feed installation, preview, AI selection, Special Commerce inventory and distinctness. Strong behavioral proof is warranted because a false retirement could either keep legacy authority alive or accidentally remove the two accepted canonical templates; physical source deletion is deliberately deferred until active reachability is proven absent.",
+      "rationale": "This is a full 14-page installable template package that enters the canonical Builder/Template Factory path and composes shared commerce surfaces. Strong behavioral proof is warranted to protect page identity, responsive authority, route convergence and fidelity while avoiding template-local business logic; critical finite-state exhaustion is unnecessary because no new commerce, auth, schema or provider authority is introduced.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -139,75 +123,59 @@
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
-        "fault-injection",
-        "determinism-proof",
-        "authority-boundary-proof"
+        "fault-injection"
       ],
       "deferredTechniques": [
-        "physical-legacy-source-deletion",
-        "approved-reference-image-migration",
-        "template-3-authoring"
+        "finite-state-exhaustion",
+        "new-commerce-engine-proof",
+        "database-schema-proof"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "The active template resolver exposes exactly gaming.playroom@20 and gaming.loot-vault@2.",
-        "Loot Vault v1 and every other legacy template key in the former active 24-package catalog resolve to no active package.",
-        "The preview theme authority imports and registers only canonical Playroom v20 and Loot Vault v2 design tokens.",
-        "AI template selection and Special Commerce inventory inherit the reduced canonical catalog without a parallel legacy list.",
-        "Template distinctness uses only canonical foreign templates and excludes same-template identity from clone comparison.",
-        "No Template #3 implementation, Visual First artifact or authoring branch content is modified by this transaction.",
-        "Historical legacy source files remain inert and available only for later evidence-guided physical deletion.",
-        "The forbidden combined /szallitas-es-fizetes route no longer exists as a public page authority.",
-        "Independent /szallitas and /fizetes public routes exist, are sitemap-visible and resolve through the active storefront Page Schema shell.",
-        "Loot Vault v2 mobile/header/footer/CTA navigation uses separate shipping and payment destinations instead of the forbidden combined route.",
-        "Legacy /oldal/szallitas and /oldal/fizetes entrypoints remain backward-compatible aliases that converge on the canonical top-level routes.",
-        "Knowledge Before Build resolves instruction-governed deleted route files through the same Atlas architecture resolver as Plan Before Code.",
-        "Knowledge infrastructure change triggers the full 49-failure replay set without weakening tombstone or domain-integrity checks.",
-        "Whole-file Next route deletion does not promote generic display text, generic implementation expressions or framework page exports into global stale-reference contracts.",
-        "Deleted route/file identity remains fail-closed: stale route literals and actual file-path consumers still block unless classified as explicit instruction/tombstone evidence.",
-        "Reference Sync blocks the real stale /szallitas-es-fizetes Contact link until it is changed.",
-        "Deleting a page does not mark unrelated identical display text or same-named exports in other modules as stale consumers.",
-        "A true cross-file export consumer importing the deleted/changed origin module remains blocking.",
-        "PO-instruction and tombstone regression references to the forbidden route/path remain recognized as evidence rather than required implementation edits.",
-        "Playroom v20 canonical navigation uses /szallitas and /fizetes directly; legacy /oldal aliases remain compatibility-only.",
-        "Unchanged legacy template source files outside the active catalog cannot block canonical route retirement merely because they retain historical route literals.",
-        "Beauty Lab remains available only as inert source-history/reference evidence and is unresolved by the active storefront catalog.",
-        "Loot Vault generator distinctness compares against exactly the one other active canonical template, Playroom v20.",
-        "Semantic Execution regressions distinguish lexical display-text coincidence from component-key dependency identity.",
-        "The shipping/payment PO instruction requires only live canonical route files after the combined-route tombstone.",
-        "Every active canonical template receives the shared customer-task empty-cart continuation action 'Vásárlás folytatása' -> /webaruhaz through runtime normalization.",
-        "A modified test file cannot become the origin of production component-key, display-text or implementation-expression stale-consumer requirements.",
-        "Production-origin component keys and other high-signal identities must still detect stale test consumers.",
-        "Deleting or renaming a test file itself remains reference-checked through file-path identity.",
-        "Canonical /szallitas and /fizetes links materialize their page-specific demo content fixtures without restoring /oldal aliases as active navigation.",
-        "Preview rewriting maps canonical /szallitas and /fizetes to the legal page family with the matching demoContent slug.",
-        "Template Factory mobile-menu proof uses the canonical legal-page shipping demo preview and preserves demo-warning assertions."
+        "SPORT HUB is implemented as one self-contained canonical sport.sport-hub@1 package using the current package/runtime technology rather than the historical legacy source file.",
+        "The implementation contains exactly the canonical 14 page types in repository-authoritative order: home, catalog, product, cart, checkout, account, search, content, blog-index, blog-article, faq, contact, legal and not-found.",
+        "Each implemented page reproduces the already Product Owner approved SPORT HUB visual reference instead of introducing a new visual concept.",
+        "Header, footer, design tokens and recurring SPORT HUB shell language remain canonical and consistent across all 14 pages.",
+        "Desktop, Tablet and Mobile state are explicit through the shared responsive authority; mobile-specific interaction changes are preserved where the approved design requires them.",
+        "Checkout uses the accepted one-page vertically stacked collapsible process and composes the existing shared checkout/order authorities without a SPORT HUB-specific checkout engine.",
+        "Contact keeps the accepted topic-first flow, with tiles on desktop/tablet and single-open accordion behavior on mobile, without exposing two competing topic selectors on one screen.",
+        "Shipping and payment remain separate destinations and no combined shipping-payment public authority is restored.",
+        "Prices, stock, variants, order state, payment state and product facts remain bound to shared/catalog/commerce data rather than being invented by template presentation.",
+        "SPORT HUB preview theme, package identity and catalog resolution point to the same canonical v1 package throughout branch preview and acceptance proof.",
+        "Product Owner handoff contains no placeholder media, duplicate fake content, legacy fallback layout or unrelated template visual identity.",
+        "Final exact-head proof includes typecheck, production build, Template Factory quality proof, route/cart regression and visual/browser evidence before completion is claimed.",
+        "Shared commerce.content-tabs remains valid on Product, becomes valid on FAQ, and remains rejected for every unrelated page type.",
+        "Shared accordion disclosure must wrap long mobile trigger labels without horizontal viewport overflow while tab mode keeps its existing single-line navigation behavior.",
+        "The authenticated owner preview can resolve SPORT HUB as an explicit quality candidate without adding it to the accepted catalog, and login/showroom/shopper preview links preserve qualityCandidate=1 end to end.",
+        "The SPORT HUB Account/login preview reproduces the approved single-row header: real SPORT HUB logo, five primary navigation items in the same row, bounded search width, visible account/favorites/cart icons, and no desktop category hamburger row.",
+        "The approved SPORT HUB one-row header is canonical and identical across all 14 pages, preventing QUALITY_HEADER_DRIFT while preserving page bodies unchanged.",
+        "SPORT HUB Home matches the accepted Visual First composition: 3/6/3 hero, route selector, Build Your Kit, five-field sport profile, six featured products, editorial cards, trust strip, and substantial footer.",
+        "The SPORT HUB footer is one canonical shared footer across all 14 pages rather than page-local copies.",
+        "The sport profile uses five native interactive select controls instead of static placeholder boxes."
       ],
       "invariants": [
-        "There is one active template catalog and resolver authority; retirement does not create a second registry.",
-        "Playroom v20 and Loot Vault v2 remain installable, previewable and addressable through their canonical package entrypoints.",
-        "A legacy accepted or reaccepted implementation cannot become visual authority merely because its source remains in Git.",
-        "Approved generated visual references are not deleted or replaced in this inactivation transaction.",
-        "Shared Page Schema, Runtime, commerce engines, Template Factory and VX authorities are not weakened to make retirement pass.",
-        "Shipping and payment remain separate public information authorities in every active canonical template and shared route registry.",
-        "Merchant-facing route compatibility may redirect old aliases but may not restore the forbidden combined route.",
-        "Knowledge Preflight may not treat a Git-proven, instruction-governed route tombstone as an unresolved architecture file when the canonical Atlas resolver can classify it.",
-        "Reference Sync narrowing must reduce false positives without allowing live route/file identity consumers to pass.",
-        "A template file edited in the current transaction remains subject to full Reference Sync even if it is not yet in the active catalog.",
-        "Reference Sync authority direction is implementation-to-proof: tests consume contracts but do not originate production identity from their internal assertions or fixtures."
+        "There is one canonical SPORT HUB package authority; legacy src/lib/builder/templates/sport-hub.ts remains inert historical source and is never imported as the new implementation.",
+        "Shared Page Schema, component registry, responsive authority and storefront runtime are consumed rather than forked.",
+        "Template presentation never becomes authority for price, inventory, checkout, account, shipping or payment truth.",
+        "Approved Visual First references are treated as immutable design authority during implementation unless the Product Owner explicitly changes a decision.",
+        "All 14 pages share the same canonical header/footer identity while page-body composition remains page-specific.",
+        "Responsive differences are expressed through the canonical Desktop/Tablet/Mobile model, not user-agent checks, zoom compensation or a second responsive controller.",
+        "Separate shipping and payment route authority remains intact in navigation and information-page links.",
+        "PO handoff is distinct from CI success: automated PASS cannot substitute for live visual acceptance.",
+        "Quality-candidate preview authority is explicit and cannot promote SPORT HUB into STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES before Product Owner acceptance."
       ],
       "forbiddenStates": [
-        "legacy-template-key-resolves-active-package",
-        "legacy-preview-theme-import-remains-active",
-        "loot-vault-v1-remains-active-authority",
-        "playroom-v20-or-loot-vault-v2-becomes-unresolvable",
-        "parallel-template-catalog-created",
-        "template-3-authoring-contaminated",
-        "approved-visual-reference-deleted",
-        "combined-shipping-payment-route-remains-public",
-        "canonical-navigation-points-to-oldal-shipping-payment-aliases",
-        "loot-vault-v2-retains-combined-shipping-payment-link"
+        "legacy-sport-hub-source-becomes-active-authority",
+        "new-unapproved-sport-hub-visual-concept",
+        "template-local-commerce-or-checkout-engine",
+        "desktop-only-layout-shrunk-into-mobile",
+        "combined-shipping-payment-route-restored",
+        "header-or-footer-forks-between-pages",
+        "placeholder-media-reaches-po-handoff",
+        "catalog-package-preview-identity-divergence",
+        "fake-price-stock-or-order-truth-in-template",
+        "completion-claimed-without-exact-head-proof-and-po-review"
       ]
     },
     "model": {
@@ -239,44 +207,47 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The catalog shrinks but a preview or AI path directly imports legacy template authority and keeps it operational.",
-        "Loot Vault v2 is omitted while legacy Loot Vault v1 remains the resolvable package.",
-        "Tests are rewritten to accept two entries while runtime resolver still exposes legacy keys.",
-        "Distinctness loses all foreign corpus evidence instead of retaining Playroom as a canonical comparison.",
-        "Physical deletion removes an approved visual reference before reference inventory is proven.",
-        "The retirement transaction touches Template #3 and obscures whether the new production system passes its first real authoring test.",
-        "A retained Loot Vault v2 regression still asserts the pre-retirement catalog state and blocks intentional canonical v2 activation.",
-        "A previously recorded Product Owner instruction remains acknowledged but unimplemented in the actual shared route authority.",
-        "The forbidden combined route is deleted without providing canonical top-level shipping and payment replacements.",
-        "Loot Vault v2 package navigation remains internally consistent but points at a route that the shared authority has retired."
+        "The new package accidentally imports or wraps the retired legacy SPORT HUB implementation, making source history an active second authority.",
+        "Only the Home page matches the approved reference while other page families fall back to generic shared layouts and lose SPORT HUB identity.",
+        "Catalog, preview theme and package export resolve different versions or packages, so QA and Product Owner inspect different implementations.",
+        "Desktop fidelity is achieved by fixed geometry that causes tablet/mobile overflow or compressed desktop interactions on mobile.",
+        "Checkout or account visuals duplicate business behavior locally instead of composing the shared runtime and engine bindings.",
+        "Demo fixtures or hard-coded presentation values are mistaken for price, stock, variant or order authority.",
+        "Shared shell drift creates page-specific header/footer variants and fragments end-to-end storefront identity.",
+        "Shipping/payment navigation regresses to the forbidden combined route while visual screenshots still look correct.",
+        "Placeholder or duplicated media survives into Product Owner handoff and produces a false visual-fidelity pass.",
+        "Template Factory browser proof passes against SPORT HUB quality-candidate authority while the Product Owner preview still resolves only the accepted catalog and returns 404.",
+        "Account/login falls back to the generic two-tier commerce header, producing text-only branding, an oversized search field, dark utility icons and an unintended desktop category-trigger row."
       ],
       "edgeCases": [
-        "A stale persisted legacy page key may still request preview styling even though its template package is no longer resolvable.",
-        "Special Commerce code derives its inventory dynamically and therefore should contract automatically rather than receive a second hard-coded list.",
-        "Loot Vault v2 shares the same templateKey as v1, so version-specific resolver behavior must fail closed for v1 and succeed for v2.",
-        "Same-key Loot Vault v2 must be excluded from its own distinctness corpus while Playroom v20 remains a foreign canonical reference.",
-        "Historical /oldal/szallitas and /oldal/fizetes links need compatibility without remaining canonical navigation targets.",
-        "Deleting the combined route must be represented as an instruction-governed tombstone rather than an unexplained missing page."
+        "Empty cart and one-item cart states must preserve shared quantity and continuation behavior.",
+        "Long Hungarian labels and legal/information copy must wrap without horizontal overflow at mobile widths.",
+        "Search with zero results, many results and mixed product/content results must preserve the approved search hierarchy.",
+        "Account page with no orders or favorites must remain coherent without fabricating customer history.",
+        "Contact topic selection must have exactly one active selection mechanism per viewport and one open mobile accordion topic.",
+        "Checkout step summaries must remain readable after completion and only one active step should be expanded.",
+        "Product option and quantity controls must remain usable when stock/variant data removes one or more choices.",
+        "Missing optional editorial content must fail gracefully without exposing placeholder copy at Product Owner handoff."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-RETIRE-INACTIVATE-FIRST",
-        "summary": "Remove legacy templates from active catalog, resolver, preview and derived authority surfaces while leaving source files inert.",
+        "id": "ALT-CANONICAL-PACKAGE",
+        "summary": "Create a new self-contained sport/sport-hub/v1 canonical package and compose only existing shared runtime/component authorities.",
         "disposition": "selected",
-        "reason": "This directly prevents interference with future authoring while preserving historical evidence until every deletion dependency and accepted visual reference is inventoried."
+        "reason": "Matches the current Playroom/Loot Vault production technology, preserves one package authority and allows the approved 14-page design to be implemented without reviving legacy code."
       },
       {
-        "id": "ALT-RETIRE-HARD-DELETE-NOW",
-        "summary": "Delete every legacy template source, test and media artifact in one transaction.",
+        "id": "ALT-REVIVE-LEGACY",
+        "summary": "Reactivate and visually patch the historical src/lib/builder/templates/sport-hub.ts package.",
         "disposition": "rejected",
-        "reason": "Direct deletion has a wider dependency blast radius and risks deleting the only surviving accepted visual reference or historical proof before those assets are classified."
+        "reason": "The legacy source was intentionally retired from active authority and its structure does not represent the newly approved Visual First composition."
       },
       {
-        "id": "ALT-RETIRE-LEAVE-CATALOG-AS-IS",
-        "summary": "Keep all legacy packages active and rely on developers to ignore them during future Template Factory work.",
+        "id": "ALT-TEMPLATE-SPECIFIC-UI",
+        "summary": "Build SPORT HUB as bespoke React routes/components outside the canonical package and shared storefront runtime.",
         "disposition": "rejected",
-        "reason": "The active catalog feeds preview, AI, Special Commerce and distinctness, so human convention cannot prevent legacy implementations from influencing later production."
+        "reason": "Would create a parallel rendering/behavior path, weaken Builder compatibility and make shared commerce/account/checkout behavior drift likely."
       }
     ],
     "specialistReviews": [
@@ -284,551 +255,319 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The active 24-package catalog is the central runtime selection surface, and derived consumers should contract by consuming the same reduced canonical authority.",
-        "resolution": "Preserve one catalog/resolver and remove legacy packages there rather than introducing a separate active-template registry.",
-        "evidence": [
-          "src/lib/builder/storefront-template-catalog.ts",
-          "src/lib/builder/storefront-special-commerce-template2-adoption.ts",
-          "src/lib/builder/storefront-ai-generator-server.ts"
-        ]
-      },
-      {
-        "role": "Data Integrity",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Removing legacy packages from the catalog alone is insufficient because preview themes previously imported legacy design-token modules directly.",
-        "resolution": "Treat direct preview imports as an authority bypass and reduce PREVIEW_THEME_BY_TEMPLATE to Playroom v20 and canonical Loot Vault v2 tokens.",
-        "evidence": [
-          "src/lib/builder/storefront-template-preview-demo.ts",
-          "src/lib/builder/templates/gaming/loot-vault/v2/index.ts"
-        ]
+        "finding": "The current active template catalog exposes Playroom v20 and Loot Vault v2 through self-contained canonical package entrypoints; SPORT HUB should use the same package/runtime boundary.",
+        "resolution": "Use a new sport/sport-hub/v1 package, keep the retired legacy source inert, and limit shared-file edits to registration/preview/quality authorities."
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Legacy visually rejected implementations must not remain reference material for future clone avoidance or be mistaken for Product Owner-approved visual direction.",
-        "resolution": "Use only the two accepted canonical templates as the active distinctness corpus and preserve old sources only as inert history until approved reference images are inventoried.",
-        "evidence": [
-          "tests/template-factory-template-distinctness.test.ts",
-          "src/lib/builder/template-factory/generator-readiness.ts"
-        ]
-      },
-      {
-        "role": "Runtime",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "The shared storefront still has a concrete page module, sitemap entry and route-registry entry for the forbidden combined shipping/payment route.",
-        "resolution": "Treat the combined page as a planned deletion governed by PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE and add independent canonical route modules before removing it.",
-        "evidence": [
-          "src/app/szallitas-es-fizetes/page.tsx",
-          "src/app/sitemap.ts",
-          "src/lib/builder/storefront-template-route-integrity.ts",
-          "quality/knowledge/po-instructions.v1.json"
-        ]
+        "finding": "The Product Owner has already accepted the 14 SPORT HUB page references, so implementation must reproduce them rather than reopen visual concept work.",
+        "resolution": "Treat the accepted screenshots plus recorded Checkout/Contact responsive decisions as immutable implementation authority and verify fidelity at handoff."
       },
       {
         "role": "Known Failure",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Knowledge Preflight and Plan Before Code disagree on deleted-route architecture because only the latter uses the shared tombstone-aware Atlas resolver.",
-        "resolution": "Converge both gates on the existing resolver rather than adding a deletion exception or parallel tombstone registry.",
-        "evidence": [
-          "scripts/shoperation-knowledge-preflight.mjs",
-          "scripts/shoperation-plan-before-code.mjs",
-          "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-          "tests/shoperation-semantic-execution-intelligence.test.ts"
-        ]
-      },
-      {
-        "role": "Known Failure",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Whole-file route deletion currently over-approximates contract identity and turns common UI text plus framework exports into required repository-wide edits.",
-        "resolution": "Narrow candidate generation/classification at the existing Reference Sync runtime rather than adding exceptions or a parallel guard.",
-        "evidence": [
-          "scripts/lib/shoperation-reference-sync-runtime.mjs",
-          "scripts/shoperation-edit-time-guard.mjs",
-          "tests/shoperation-development-guard.test.ts"
-        ]
-      },
-      {
-        "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A lexical same-value match is insufficient to prove dependency identity for generic display text or common exported symbol names when the origin file is deleted.",
-        "resolution": "Use origin-sensitive semantics for deleted exports and preserve tombstone evidence rather than mutating unrelated same-name consumers.",
-        "evidence": [
-          "scripts/lib/shoperation-reference-sync-runtime.mjs",
-          "scripts/shoperation-edit-time-guard.mjs",
-          "tests/shoperation-development-guard.test.ts",
-          "src/app/kapcsolat/page.tsx"
-        ]
-      },
-      {
-        "role": "Architecture",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Runtime authority and edit-time authority must agree on which template packages are active; otherwise catalog retirement is incomplete.",
-        "resolution": "Reference Sync reads the existing active catalog imports rather than creating a second retirement registry. Changed template files never receive source-history exemption.",
-        "evidence": [
-          "src/lib/builder/storefront-template-catalog.ts",
-          "src/lib/builder/templates/gaming/playroom/v20/index.ts",
-          "scripts/lib/shoperation-reference-sync-runtime.mjs"
-        ]
-      },
-      {
-        "role": "Runtime",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "The active Loot Vault package exposes a valid but noncanonical empty-cart CTA through runtime normalization.",
-        "resolution": "Repair the shared runtime normalizer rather than weakening the portfolio contract or patching only Loot Vault.",
-        "evidence": [
-          "src/lib/builder/storefront-template-runtime-normalization.ts",
-          "tests/storefront-cart-presentation-contract.test.ts"
-        ]
-      },
-      {
-        "role": "Architecture",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Reference dependency direction must flow implementation authority → tests, never test implementation detail → production authority.",
-        "resolution": "Treat tests as evidence/consumer nodes unless the changed identity is the test file path itself.",
-        "evidence": [
-          "scripts/lib/shoperation-reference-sync-runtime.mjs",
-          "tests/shoperation-development-guard.test.ts"
-        ]
-      },
-      {
-        "role": "UX / Template",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "The mobile-menu browser case must continue proving demo-content warning semantics while following the canonical top-level information-route model.",
-        "resolution": "Preserve demo warning assertions and change only the route/demo-content resolution to canonical /szallitas semantics.",
-        "evidence": [
-          "src/lib/builder/storefront-template-route-integrity.ts",
-          "scripts/template-factory-quality-gate.mjs",
-          "tests/storefront-template-route-integrity.test.ts",
-          "tests/storefront-template-quality-gate-v2.test.ts"
-        ]
+        "finding": "Registering an incomplete package too early could expose placeholders or let QA and Product Owner inspect different authority states.",
+        "resolution": "Keep the PR draft, implement the complete canonical page matrix under one transaction, run candidate proof before final acceptance, and do not claim completion until exact-head browser evidence and PO review agree."
       }
     ],
     "challenge": [
       {
-        "id": "CH-RETIRE-01",
-        "scenario": "The active catalog is reduced but a legacy key can still be resolved by a hidden secondary resolver.",
-        "finding": "That would make the inactivation cosmetic and violate single-authority semantics.",
-        "resolution": "Regression-test explicit legacy keys against getStorefrontTemplatePackage and require undefined for every retired key.",
+        "id": "CH-LEGACY-AUTHORITY",
+        "scenario": "A developer imports the old sport-hub.ts to accelerate implementation.",
+        "finding": "That would reactivate a retired implementation and create two competing SPORT HUB authorities.",
+        "resolution": "The new package must be self-contained under sport/sport-hub/v1; legacy imports are forbidden and regression-tested.",
         "status": "resolved"
       },
       {
-        "id": "CH-RETIRE-02",
-        "scenario": "The preview UI retains legacy design-token imports independently of package resolution.",
-        "finding": "A retired template could continue influencing presentation and future visual work through a bypass.",
-        "resolution": "Remove legacy preview imports and map only canonical Playroom v20 and Loot Vault v2 themes.",
+        "id": "CH-VISUAL-DRIFT",
+        "scenario": "The implementation uses generic template defaults wherever the approved screenshots are difficult to reproduce.",
+        "finding": "A green schema/build result could still produce a visually different template and defeat Visual First approval.",
+        "resolution": "Implement page-specific compositions and require exact-head visual/browser comparison before Product Owner handoff.",
         "status": "resolved"
       },
       {
-        "id": "CH-RETIRE-03",
-        "scenario": "Loot Vault v1 remains active because its templateKey matches canonical Loot Vault v2.",
-        "finding": "Key-only reasoning could hide a version-authority collision.",
-        "resolution": "Make v2 the sole catalog entry and explicitly prove v1 is unresolved while v2 resolves.",
+        "id": "CH-RESPONSIVE-SHRINK",
+        "scenario": "Desktop structure is merely compressed for tablet/mobile to reduce implementation time.",
+        "finding": "Approved mobile interaction, especially Contact and dense commerce surfaces, would become unusable or structurally wrong.",
+        "resolution": "Persist explicit responsive authorities and implement mobile-specific composition/interaction changes where the accepted design requires them.",
         "status": "resolved"
       },
       {
-        "id": "CH-RETIRE-04",
-        "scenario": "Distinctness loses its foreign comparison set after legacy templates are removed.",
-        "finding": "An empty corpus would create a false or blocked anti-clone result.",
-        "resolution": "Retain Playroom v20 as the canonical foreign corpus for Loot Vault v2 and assert corpusSize equals one.",
+        "id": "CH-BUSINESS-TRUTH",
+        "scenario": "Screenshot prices, stock labels or checkout state are encoded as template business truth.",
+        "finding": "Presentation fixtures could override or contradict shared commerce/catalog authority.",
+        "resolution": "Use bindings and replaceable demo fixtures only; shared engines remain authoritative for live commerce state.",
         "status": "resolved"
       },
       {
-        "id": "CH-RETIRE-05",
-        "scenario": "Special Commerce or AI receives a hand-maintained replacement list that later drifts from the catalog.",
-        "finding": "A second list would recreate the duplicate-authority problem retirement is intended to remove.",
-        "resolution": "Leave those consumers catalog-derived and prove their inventory contracts follow the canonical catalog count.",
+        "id": "CH-SHELL-FORK",
+        "scenario": "Pages are implemented independently and each receives a slightly different header/footer copy or structure.",
+        "finding": "End-to-end SPORT HUB identity fragments even if individual screenshots look close.",
+        "resolution": "Use one canonical shell definition repeated identically across the package and assert header/footer parity across all page types.",
         "status": "resolved"
       },
       {
-        "id": "CH-RETIRE-06",
-        "scenario": "Physical deletion is performed before accepted generated visual references are separated from legacy implementation media.",
-        "finding": "That could destroy the only trustworthy visual authority for future rebuilds.",
-        "resolution": "Defer physical deletion; first prove runtime inactivation, then inventory and preserve PO-approved reference images in a separate transaction.",
+        "id": "CH-ROUTE-REGRESSION",
+        "scenario": "Information/navigation links reintroduce a combined shipping-and-payment destination.",
+        "finding": "This violates the retained Product Owner instruction and previously repaired route authority.",
+        "resolution": "Keep /szallitas and /fizetes separate and include route-integrity regression in the proof set.",
         "status": "resolved"
       },
       {
-        "id": "CH-RETIRE-07",
-        "scenario": "A historical Loot Vault v2 test still requires v2 to remain outside the production resolver while the new Product Owner instruction explicitly promotes v2 to canonical active authority.",
-        "finding": "Leaving the assertion unchanged would make the proof suite enforce a superseded lifecycle boundary and prevent the requested retirement state.",
-        "resolution": "Update only the lifecycle expectation: v2 must resolve canonically and v1 must fail closed; retain all Factory readiness, media and Page Schema assertions unchanged.",
+        "id": "CH-PLACEHOLDER-HANDOFF",
+        "scenario": "Temporary media or generic fallback content remains when the branch is shown for acceptance.",
+        "finding": "Product Owner could review an implementation that is not the intended visual product, repeating the known placeholder handoff failure.",
+        "resolution": "No handoff until page-specific media/content slots are populated and Template Factory/browser evidence shows the intended exact-head package.",
         "status": "resolved"
       },
       {
-        "id": "CH-RETIRE-08",
-        "scenario": "The retirement touches a Loot Vault v2 regression governed by an active Product Owner instruction that requires separate shipping and payment public routes.",
-        "finding": "Repository reality still exposes /szallitas-es-fizetes in the shared route registry, sitemap, live page and Loot Vault v2 package, so acknowledgment without remediation would preserve a known authority conflict.",
-        "resolution": "Expand the transaction before further code edits: tombstone the forbidden combined route, add /szallitas and /fizetes authorities, converge legacy aliases, update the shared registry/sitemap and repair Loot Vault v2 navigation.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RETIRE-09",
-        "scenario": "A Product Owner-governed route deletion is correctly represented as an Atlas tombstone, but Knowledge Before Build classifies only live Atlas nodes and therefore flags the deleted route as domain-unresolved.",
-        "finding": "This creates a false BLOCK before Plan Before Code even though the canonical Atlas resolver can derive DOMAIN-STOREFRONT and shared-storefront authority for the tombstone.",
-        "resolution": "Reuse the existing tombstone-aware resolveAtlasArchitectureForPath path in Knowledge Preflight for direct domain and unresolved-file evaluation; add a regression that pins this integration.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RETIRE-10",
-        "scenario": "Deleting a Next.js route page causes Reference Sync to treat every removed display string, generic page export and incidental implementation expression as a repository-wide contract.",
-        "finding": "The current guard emits false stale-consumer blocks for unrelated generateMetadata exports and ordinary copy such as 'Rendelési folyamat', obscuring the real route/file identity consumers.",
-        "resolution": "Keep fail-closed checks for route/file/asset/component/config/data identity, but suppress generic display-text, implementation-expression and framework page-export candidates originating from a fully deleted Next route file. Preserve evidence-aware treatment for PO-instruction and tombstone regression fixtures.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RETIRE-11",
-        "scenario": "Reference Sync treats all text and exported symbol names removed with a deleted page as repository-wide identities, producing unrelated stale consumers such as other pages' generateMetadata exports and generic 'Szállítás és fizetés' copy.",
-        "finding": "The guard correctly found one real stale route in the Contact page, but 100+ additional findings are identity collisions rather than dependencies. Accepting them would force unrelated files into Implementation Sync and make safe route deletion practically impossible.",
-        "resolution": "Preserve exact route/path/asset/component identities fail-closed, suppress ordinary display-text and implementation-expression candidates originating only from full-file deletion, scope export-symbol consumers to imports of the originating module, and classify explicit tombstone/forbidden-route test and PO-instruction references as evidence. Fix the real Contact route consumer separately.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RETIRE-12",
-        "scenario": "The shared canonical routes are separated, but Playroom v20—the other active canonical template—still links to legacy /oldal/szallitas and /oldal/fizetes compatibility aliases.",
-        "finding": "Leaving the active canonical template on aliases violates the plan invariant that compatibility aliases must not remain canonical navigation targets.",
-        "resolution": "Rewrite only Playroom v20 canonical package navigation from /oldal/szallitas and /oldal/fizetes to /szallitas and /fizetes. Legacy Playroom reference source files remain inert and are not promoted back into authority.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RETIRE-13",
-        "scenario": "Reference Sync finds legacy template source files that still contain compatibility-alias routes even though those template implementations were removed from the active catalog and are not changed by this transaction.",
-        "finding": "Treating catalog-retired source history as an active machine consumer lets the very legacy templates being retired continue to block current canonical authority changes.",
-        "resolution": "Derive active template roots from the single storefront-template-catalog authority. Unchanged template source files outside those active roots are evidence/source-history, not required edits; any template source edited in the current transaction remains fully checked.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RETIRE-14",
-        "scenario": "The full Quality suite still contains retirement-predecessor assertions that require Beauty Lab to remain an active catalog package and require Loot Vault distinctness to compare against the former 20+ active legacy corpus.",
-        "finding": "Those assertions directly contradict the selected single-authority retirement model, where only Playroom v20 and Loot Vault v2 remain active and the foreign canonical distinctness corpus is exactly one package.",
-        "resolution": "Update the regression authority to test Beauty Lab as inert historical/reference source without catalog resolution and pin Loot Vault distinctness to the active one-template foreign corpus.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RETIRE-15",
-        "scenario": "Full Quality still asserts lexical cross-file display text as a dependency and expects the deleted combined shipping/payment page inside live instruction-required files.",
-        "finding": "Both assertions predate the proven Reference Sync identity correction and the completed combined-route tombstone.",
-        "resolution": "Keep component-key stale consumers blocking, treat unbound display-text matches as non-identity, and require only the live /szallitas and /fizetes route files from the active instruction while separately proving the forbidden combined route is absent.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RETIRE-16",
-        "scenario": "Loot Vault v2 enters the active production catalog with a template-specific empty-cart CTA label even though the existing portfolio-wide customer-task cart contract requires one shared continuation action.",
-        "finding": "The generic cart normalizer only fills emptyCtaLabel/emptyCtaHref when missing, allowing a template-specific non-empty value to bypass the shared cart presentation authority.",
-        "resolution": "Make the shared cart normalizer authoritative for the empty-cart continuation action: always normalize to 'Vásárlás folytatása' and '/webaruhaz'. Preserve template visual identity outside shared commerce-task semantics.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RETIRE-16",
-        "scenario": "Reference Sync treats identifiers removed from modified test files as if the test were the production contract origin, causing unrelated runtime and dozens of other tests to become stale consumers.",
-        "finding": "This reverses authority direction: tests are proof/consumers of implementation contracts, not providers of production component keys, implementation expressions or UI identities.",
-        "resolution": "Filter non-file identity candidates originating from tests before repository-wide consumer reconciliation. Preserve test files as consumers, and preserve test file-path identity so workflow/package references to a deleted test still fail closed.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RETIRE-17",
-        "scenario": "After canonical shipping/payment navigation moved from /oldal/szallitas and /oldal/fizetes to top-level /szallitas and /fizetes, the shared demo-content augmentor no longer materializes those informational fixtures while the browser proof still requests the old content-page preview shape.",
-        "finding": "The public route authority is correct, but the preview/demo-content and Template Factory browser-proof authorities are stale relative to it; Playroom v20 mobile proof reaches notFound before the runtime root renders.",
-        "resolution": "Extend the existing demo-content route integrity logic to recognize canonical top-level shipping/payment information routes, rewrite their preview as legal-page demo content, and update the existing mobile-menu browser proof to the same canonical QA URL. Do not restore /oldal shipping/payment as active authority.",
+        "id": "CH-PREVIEW-IDENTITY",
+        "scenario": "Preview theme or catalog registration resolves a different SPORT HUB package identity than the implemented canonical entrypoint.",
+        "finding": "QA PASS would not prove the package the Product Owner sees.",
+        "resolution": "Register one sport.sport-hub@1 entrypoint and assert preview/catalog/package identity convergence in tests.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run targeted catalog, route-integrity, Special Commerce and distinctness tests against the reduced canonical authority.",
-      "Run typecheck and production build so removed imports and canonical Loot Vault v2 design-token export are compile-proven.",
-      "Run the existing Template Factory quality path to ensure canonical Loot Vault v2 remains generator-ready with the reduced distinctness corpus.",
-      "Run Release Risk and Completion Truth on the exact branch head before lifecycle closure.",
-      "Verify the branch diff contains no Template #3 authoring files and no physical deletion of accepted visual reference assets.",
-      "Run the active Product Owner instruction state check and require zero forbidden /szallitas-es-fizetes occurrences in scoped canonical route authority.",
-      "Prove /szallitas and /fizetes route modules, sitemap entries and Loot Vault v2 navigation converge on the same shared storefront presentation authority."
+      "Run Plan Before Code against the complete implementation envelope and do not touch implementation files until it passes.",
+      "After each coherent page batch run Edit-Time Guard, Knowledge Preflight and Incremental Replay so reference and Known Failure drift is caught before the next batch.",
+      "Assert exact canonical 14-page cardinality/order, stable template identity, shared shell parity and route integrity with focused SPORT HUB regression coverage.",
+      "Use Template Factory quality/browser proof across Desktop, Tablet and Mobile and compare the rendered page families to the accepted Visual First references.",
+      "Run TypeScript check and production build on the exact implementation HEAD after all page batches are complete.",
+      "Run cart/checkout/account/search functional regressions through shared engines so visual composition cannot mask behavior regressions.",
+      "Run Completion Truth on fresh exact-head evidence; report DONE only if machine proof is VERIFIED and Product Owner visual acceptance is also obtained.",
+      "Prove the authenticated owner-preview qualityCandidate path, login return target and generated showroom/shopper links resolve the same sport.sport-hub@1 candidate while the accepted catalog remains unchanged.",
+      "Prove the Account/login page resolves the SPORT HUB one-row header on Desktop/Tablet, keeps the shared mobile hamburger behavior, renders the repo-owned SPORT HUB logo, and preserves visible utility icons and bounded search geometry."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-03-LEGACY-TEMPLATE-RETIREMENT",
+      "request": "PO-2026-10-03-SPORT-HUB-TEMPLATE-3-IMPLEMENTATION",
       "authority": [
         "builder-template-system",
         "shared-storefront"
       ],
       "mustEdit": [
+        "src/lib/builder/templates/sport/sport-hub/v1/index.ts",
+        "src/lib/builder/templates/sport/sport-hub/v1/canonical-package.json"
+      ],
+      "mayEdit": [
         "src/lib/builder/storefront-template-catalog.ts",
         "src/lib/builder/storefront-template-preview-demo.ts",
-        "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
-        "tests/special-commerce-wave7-template-quality.test.ts",
-        "tests/special-commerce-wave7-template2-adoption.test.ts",
-        "tests/template-factory-template-distinctness.test.ts",
-        "tests/storefront-template-route-integrity.test.ts",
-        "tests/template-factory-loot-vault-v2.test.ts",
-        "src/app/oldal/[slug]/page.tsx",
-        "src/app/szallitas/page.tsx",
-        "src/app/fizetes/page.tsx",
-        "src/app/szallitas-es-fizetes/page.tsx",
-        "src/app/sitemap.ts",
-        "src/app/gyik/page.tsx",
-        "src/lib/builder/storefront-template-route-integrity.ts",
-        "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
-        "tests/storefront-public-information-routes.test.ts",
-        "tests/storefront-real-route-template-authority.test.ts",
-        "tests/customer-order-service-ux.test.ts",
-        "scripts/shoperation-knowledge-preflight.mjs",
-        "tests/shoperation-change-impact-atlas.test.ts",
-        "scripts/lib/shoperation-reference-sync-runtime.mjs",
-        "tests/shoperation-development-guard.test.ts",
-        "src/app/kapcsolat/page.tsx",
-        "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
-        "tests/shoperation-semantic-execution-intelligence.test.ts",
-        "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
-        "tests/storefront-beauty-lab-reference-v2.test.ts",
-        "tests/template-factory-generator-readiness.test.ts",
-        "src/lib/builder/storefront-template-runtime-normalization.ts",
-        "scripts/template-factory-quality-gate.mjs"
+        "src/lib/builder/storefront-template-quality-candidates.ts",
+        "src/lib/builder/storefront-template-quality-gate.ts",
+        "public/storefront-demo/sport-hub-v1/**",
+        "src/lib/builder/storefront-commerce.ts",
+        "src/components/builder/storefront-content-disclosure.tsx",
+        "src/app/storefront-template-preview/page.tsx",
+        "src/app/storefront-template-preview-login/page.tsx",
+        "src/lib/builder/storefront-template-preview-auth.ts",
+        "src/components/account/storefront-account-shell.tsx",
+        "src/components/builder/storefront-commerce-header.tsx",
+        "tests/storefront-commerce-header.test.tsx",
+        "src/components/builder/storefront-commerce.tsx",
+        "src/components/builder/storefront-guided-finder.tsx"
       ],
-      "mayEdit": [],
       "impactedReadOnly": [
-        "src/lib/builder/storefront-special-commerce-template2-adoption.ts",
-        "src/lib/builder/storefront-ai-generator-server.ts",
-        "src/lib/builder/template-factory/generator-readiness.ts"
+        "src/lib/builder/templates/gaming/playroom/v20/**",
+        "src/lib/builder/templates/gaming/loot-vault/v2/**"
       ],
       "proof": [
-        "tests/storefront-template-route-integrity.test.ts",
-        "tests/special-commerce-wave7-template-quality.test.ts",
-        "tests/special-commerce-wave7-template2-adoption.test.ts",
-        "tests/template-factory-template-distinctness.test.ts",
-        "tests/template-factory-loot-vault-v2.test.ts",
-        "tests/storefront-public-information-routes.test.ts",
-        "tests/storefront-real-route-template-authority.test.ts",
-        "tests/customer-order-service-ux.test.ts",
-        "tests/shoperation-change-impact-atlas.test.ts",
-        "tests/shoperation-development-guard.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts",
-        "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
-        "tests/storefront-beauty-lab-reference-v2.test.ts",
-        "tests/storefront-cart-presentation-contract.test.ts",
+        "tests/storefront-sport-hub-v1.test.ts",
         "tests/template-factory-generator-readiness.test.ts",
-        "tests/storefront-template-quality-gate-v2.test.ts"
+        "tests/storefront-template-quality-gate-v2.test.ts",
+        "tests/storefront-fidelity-behavior.test.tsx"
       ],
       "unknown": [],
-      "plannedDeletions": [
-        "src/app/szallitas-es-fizetes/page.tsx"
-      ]
+      "plannedDeletions": []
     },
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-03-LEGACY-TEMPLATE-RETIREMENT",
+    "sourceRef": "PO-2026-10-03-SPORT-HUB-TEMPLATE-3-IMPLEMENTATION",
     "requirements": [
       {
-        "id": "REQ-RETIRE-ACTIVE-AUTHORITY",
-        "requirement": "Only Playroom v20 and Loot Vault v2 may remain active, resolvable template package authorities.",
+        "id": "REQ-CANONICAL-PACKAGE",
+        "requirement": "SPORT HUB exists as one self-contained sport.sport-hub@1 canonical package with exactly the canonical 14-page matrix and no dependency on the retired legacy implementation.",
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
+            "GUARD-EDIT-TIME",
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
+            "GUARD-TEMPLATE-FACTORY",
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RETIRE-LEGACY-RESOLVER",
-            "statement": "No retired template key or Loot Vault v1 may resolve as an active package.",
+            "id": "NEG-LEGACY-ACTIVE",
+            "statement": "Retired legacy SPORT HUB source becomes importable active package authority.",
             "evidence": [
+              "GUARD-EDIT-TIME",
+              "GUARD-INCREMENTAL-REPLAY"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-VISUAL-FIDELITY",
+        "requirement": "All 14 page compositions preserve the Product Owner approved SPORT HUB visual identity and page-specific hierarchy rather than generic fallback layouts.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-TEMPLATE-FACTORY"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-GENERIC-FALLBACK",
+            "statement": "Placeholder or generic template composition reaches Product Owner handoff.",
+            "evidence": [
+              "GUARD-TEMPLATE-FACTORY",
               "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       },
       {
-        "id": "REQ-RETIRE-NO-BYPASS",
-        "requirement": "Preview, derived inventory and distinctness paths must not preserve a parallel legacy template authority.",
+        "id": "REQ-RESPONSIVE-AUTHORITY",
+        "requirement": "Desktop, Tablet and Mobile behavior is explicit through the canonical responsive authority, including viewport-specific Contact and dense commerce interaction behavior.",
         "evidence": {
           "implementation": [
-            "GUARD-EDIT-TIME"
-          ],
-          "outcome": [
             "GUARD-QUALITY-TESTS",
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-RETIRE-PREVIEW-BYPASS",
-            "statement": "Legacy design-token modules must not remain registered in the active preview theme authority.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-TYPECHECK"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-RETIRE-SAFE-BOUNDARY",
-        "requirement": "The retirement must leave Template #3 authoring untouched and defer physical legacy deletion until accepted visual references are inventoried.",
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
+            "GUARD-TYPECHECK"
           ],
           "outcome": [
-            "GUARD-RELEASE-RISK",
             "GUARD-TEMPLATE-FACTORY"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RETIRE-TEMPLATE3-CONTAMINATION",
-            "statement": "No Template #3 authoring artifact or accepted visual reference may be deleted or modified.",
+            "id": "NEG-DESKTOP-SHRINK",
+            "statement": "Mobile becomes a compressed desktop layout or introduces a second responsive controller.",
             "evidence": [
-              "GUARD-RELEASE-RISK",
+              "GUARD-EDIT-TIME",
               "GUARD-TEMPLATE-FACTORY"
             ]
           }
         ]
       },
       {
-        "id": "REQ-RETIRE-SHIPPING-PAYMENT-AUTHORITY",
-        "requirement": "Shipping and payment must be separate canonical public route authorities, with the forbidden combined route removed and active template navigation converged on /szallitas and /fizetes.",
+        "id": "REQ-SHARED-CAPABILITIES",
+        "requirement": "Checkout, cart, account, search and commerce presentation compose existing shared capabilities while price, stock, order and payment truth remain outside template authority.",
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-EDIT-TIME"
+            "GUARD-EDIT-TIME",
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK",
+            "GUARD-INCREMENTAL-REPLAY",
             "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RETIRE-COMBINED-SHIPPING-PAYMENT",
-            "statement": "No active shared route, sitemap entry or canonical Loot Vault v2 navigation may expose /szallitas-es-fizetes.",
+            "id": "NEG-LOCAL-BUSINESS-ENGINE",
+            "statement": "SPORT HUB introduces a template-local checkout, account, pricing, inventory or order authority.",
             "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-PRODUCTION-BUILD"
+              "GUARD-EDIT-TIME",
+              "GUARD-INCREMENTAL-REPLAY"
             ]
           }
         ]
       },
       {
-        "id": "REQ-RETIRE-TOMBSTONE-KNOWLEDGE",
-        "requirement": "Knowledge Before Build must classify deleted instruction-governed routes through canonical tombstone-aware Atlas architecture instead of blocking them as unresolved live files.",
+        "id": "REQ-CHECKOUT-CONTACT",
+        "requirement": "Checkout preserves the accepted one-page collapsible flow and Contact preserves the accepted topic-first responsive flow with one topic selector mechanism per viewport.",
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-EDIT-TIME"
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-TEMPLATE-FACTORY"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-CONTACT-DUAL-SELECTOR",
+            "statement": "Contact exposes competing topic selectors or loses single-open mobile accordion behavior.",
+            "evidence": [
+              "GUARD-TEMPLATE-FACTORY",
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-SHIPPING-PAYMENT",
+        "requirement": "SPORT HUB keeps shipping and payment as separate destinations and never restores the forbidden combined shipping-payment public route.",
+        "evidence": {
+          "implementation": [
+            "GUARD-EDIT-TIME",
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-INCREMENTAL-REPLAY"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-COMBINED-SHIPPING-PAYMENT",
+            "statement": "Any SPORT HUB navigation or information surface targets a combined shipping-and-payment authority.",
+            "evidence": [
+              "GUARD-EDIT-TIME",
+              "GUARD-INCREMENTAL-REPLAY"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-PREVIEW-IDENTITY",
+        "requirement": "Template catalog, preview theme and canonical package entrypoint resolve the same sport.sport-hub@1 implementation on the exact branch HEAD.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-TEMPLATE-FACTORY",
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-PREVIEW-PACKAGE-DRIFT",
+            "statement": "QA or Product Owner preview resolves a different package/version than the canonical SPORT HUB implementation.",
+            "evidence": [
+              "GUARD-TEMPLATE-FACTORY",
+              "GUARD-INCREMENTAL-REPLAY"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-COMPLETION-PROOF",
+        "requirement": "The implementation reaches handoff only after exact-head quality tests, typecheck, production build and Template Factory proof pass, followed by Product Owner visual review.",
+        "evidence": {
+          "implementation": [
+            "GUARD-TYPECHECK",
+            "GUARD-PRODUCTION-BUILD"
+          ],
+          "outcome": [
+            "GUARD-TEMPLATE-FACTORY",
             "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RETIRE-TOMBSTONE-UNRESOLVED",
-            "statement": "A deleted /szallitas-es-fizetes route governed by the active PO instruction must not produce SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED.",
+            "id": "NEG-CI-EQUALS-PO-ACCEPTANCE",
+            "statement": "Automated green status is reported as final visual acceptance without Product Owner review.",
             "evidence": [
-              "GUARD-KNOWLEDGE-PREFLIGHT",
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-RETIRE-REFERENCE-SYNC-SEMANTICS",
-        "requirement": "Reference Sync must distinguish deleted-route identity from incidental route-page copy/framework exports so the Edit-Time Guard blocks true stale machine consumers without requiring unrelated files to change.",
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-EDIT-TIME"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-INCREMENTAL-REPLAY"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-RETIRE-REFERENCE-FALSE-BLOCK",
-            "statement": "Deleting a Next route page must not make unrelated generateMetadata exports or ordinary duplicated display copy mandatory edits.",
-            "evidence": [
-              "GUARD-EDIT-TIME",
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-RETIRE-REFERENCE-FALSE-PASS",
-            "statement": "A real live /szallitas-es-fizetes route or deleted-file consumer must still block.",
-            "evidence": [
-              "GUARD-EDIT-TIME",
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-RETIRE-REFERENCE-IDENTITY",
-        "requirement": "Reference Sync must distinguish real dependency identity from lexical collisions during the combined-route tombstone, while still blocking genuine stale route/path/export consumers.",
-        "evidence": {
-          "implementation": [
-            "GUARD-EDIT-TIME"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-INCREMENTAL-REPLAY"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-RETIRE-REFERENCE-FALSE-POSITIVE",
-            "statement": "Unrelated display text or same-name exports may not be promoted to required implementation edits solely because a page containing the same token was deleted.",
-            "evidence": [
-              "GUARD-EDIT-TIME",
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-RETIRE-REFERENCE-FALSE-NEGATIVE",
-            "statement": "Real stale route/path consumers and true imports from a deleted export origin must remain blocking.",
-            "evidence": [
-              "GUARD-EDIT-TIME",
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-RETIRE-LEGACY-SOURCE-HISTORY",
-        "requirement": "Reference Sync must align template-consumer authority with the active storefront catalog so inert legacy source history cannot interfere with canonical template/runtime changes.",
-        "evidence": {
-          "implementation": [
-            "GUARD-EDIT-TIME"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-INCREMENTAL-REPLAY"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-RETIRE-INERT-LEGACY-BLOCK",
-            "statement": "An unchanged catalog-retired template source must not become a required implementation edit solely due to a canonical route change.",
-            "evidence": [
-              "GUARD-EDIT-TIME"
-            ]
-          },
-          {
-            "id": "NEG-RETIRE-ACTIVE-TEMPLATE-BYPASS",
-            "statement": "Active catalog templates and template files changed by the current transaction must remain fully reference-checked.",
-            "evidence": [
-              "GUARD-EDIT-TIME",
+              "GUARD-TEMPLATE-FACTORY",
               "GUARD-QUALITY-TESTS"
             ]
           }
@@ -836,18 +575,5 @@
       }
     ]
   },
-  "notes": "Clean retirement transaction restarted from the verified Brabus closure HEAD because the first exploratory retirement branch received edits before its Development Plan existed. This branch intentionally restores true Plan Before Code ordering: this plan is committed first, then the already-audited authority changes are replayed. Physical deletion is explicitly deferred. Scope expanded before editing `tests/template-factory-loot-vault-v2.test.ts` after Incremental Replay exposed one superseded lifecycle assertion; guard digest and authority scope are unchanged because the added regression file is neutral test evidence. Scope expanded after Plan Before Code surfaced PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. Repository audit proved the combined /szallitas-es-fizetes authority still existed in runtime, sitemap, route integrity and Loot Vault v2. The transaction now includes the instruction-governed tombstone plus canonical /szallitas and /fizetes replacements before further implementation. Knowledge Before Build exposed an existing integration gap: deleted routes were looked up only in live Atlas nodes. Scope now includes a minimal tombstone-aware Knowledge Preflight convergence using the existing Atlas resolver. Because this changes knowledge infrastructure, the expected failure set expands to the canonical full replay of 49 failures and adds DOMAIN-QUALITY authority. Edit-Time Guard exposed a proven Reference Sync overreach on whole-file Next route deletion. Plan now includes a narrow existing-runtime semantic fix plus regression coverage; full 49-failure replay and guard digest remain unchanged because this is already knowledge infrastructure. Edit-Time Guard then proved one real stale Contact route plus a reference-identity false-positive class for deleted-file display text and generic export names. Scope now includes a minimal Reference Sync semantic correction and its regression coverage; subsystem set, full 49-failure replay and guard digest remain unchanged. Plan schema normalized specialist review labels to the canonical role set; review findings and resolutions are unchanged. Duplicate challenge identifier normalized without changing evidence. Edit-Time route review exposed that active Playroom v20 still used the compatibility aliases. Scope now includes only its canonical package so both active templates converge on /szallitas and /fizetes; historical Playroom reference sources remain inert. Reference Sync scope is further aligned with the active template catalog: unchanged catalog-retired template sources are source-history evidence, while active or currently edited template sources remain fail-closed. Full Quality verification exposed superseded pre-retirement assertions in Beauty Lab catalog tests, generator distinctness corpus expectations, and semantic execution/reference-sync tests. These tests are now explicitly in scope so they can be realigned to the already-selected retirement authority without weakening runtime proof. Full Quality isolated one genuine runtime contract defect: Loot Vault v2 retained a template-specific empty-cart CTA because generic cart normalization only supplied defaults. The shared cart normalization file is now explicitly in scope; the existing portfolio-wide cart contract remains authoritative. Full-quality retirement test rewrites exposed a reverse-authority Reference Sync bug: deleted test implementation details were treated as production contract origins. Scope remains within the already-planned Reference Sync runtime and regression authority; no new subsystem or guard is introduced. Edit-Time proof confirmed Reference Sync PASS with zero stale/review findings after test-origin correction. The only remaining blocker was a plan-classification error: storefront-cart-presentation-contract is regression proof for the shared normalization change, not a required edited target; it is retained in planned/proof scope and removed from mustEdit. Exact-head 14x3 browser proof exposed a stale preview/demo-content assumption after shipping/payment route separation. Scope now includes the existing Template Factory quality runner and its regression test so browser proof follows canonical top-level informational route semantics while retaining demo warning and mobile-menu checks.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "c7bd954090cc9a59a7186a160c064427ed3c0517",
-    "closedAt": "2026-10-03T09:40:33.059Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-03-LEGACY-TEMPLATE-RETIREMENT",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Visual First is already Product Owner approved for all 14 SPORT HUB page references. This transaction is implementation only. Do not reopen design decisions unless the Product Owner explicitly changes them. Keep the PR draft until exact-head proof and live visual acceptance are complete. FAQ runtime repair: reuse the existing shared content-disclosure implementation by widening commerce.content-tabs page compatibility from product-only to product+faq; no template-local FAQ engine. Browser evidence follow-up: fix only shared mobile accordion trigger wrapping after FAQ runtime root became valid; preserve the previously proven SPORT HUB mobile grid repair and all approved visuals. PO handoff repair: expose the already-proven SPORT HUB quality candidate through the authenticated owner preview only; preserve candidate isolation from the accepted catalog and carry qualityCandidate=1 across login and all preview navigation. Scope correction: qualityCandidate propagation is confined to the authenticated owner-preview layer; shared route-integrity authority is intentionally unchanged so shipping/payment route authority is not reopened. PO audit repair 2026-10-04: first acceptance repair is Account/login only. Match the approved SPORT HUB header reference exactly enough for PO review; do not use this transaction to repair Home/Catalog/Product audit findings. Factory reconciliation 2026-10-04: QUALITY_HEADER_DRIFT proved the SPORT HUB chrome is template-global. Promote the approved one-row SPORT HUB header from the Account repair to the canonical shared header on all 14 pages; body sections remain untouched. PO-authorized Home fidelity batch 2026-10-04: rebuild only the SPORT HUB Home body against the accepted Visual First reference; preserve accepted global header; replace the generic footer with one canonical shared SPORT HUB footer propagated to all 14 pages; add a reusable compact native-select guided finder presentation and SPORT HUB product-card presentation details required by the accepted Home. Plan reconciliation after run #3688: the Home fidelity batch intentionally extends two shared Builder renderer capabilities (compact-select-row guided finder and SPORT HUB product-card presentation); both renderer files are explicitly authorized in plannedFilePatterns and MAY_EDIT. Fidelity correction after run #3689 visual evidence review: replace accidental full-page reference-sheet assets in Home with individual repo-owned hero/editorial photography; correct Home sports and Build Your Kit nested grid composition to prevent desktop wrapping; make native select/product/social touch targets safe; keep footer global; correct stale SPORT HUB media test authority so media-10..14 are treated as reference sheets while media-20..24 remain valid individual photos."
 }

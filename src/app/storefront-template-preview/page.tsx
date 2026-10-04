@@ -4,7 +4,7 @@ import {notFound,redirect} from 'next/navigation';
 import {requireStorefrontTemplatePreviewAccess} from '@/lib/auth/template-preview-access';
 import {createClient} from '@/lib/supabase/server';
 import {PLANS} from '@/lib/plans/catalog';
-import {resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
+import {preserveStorefrontQualityCandidatePreviewAuthority,resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
 import {
   createStorefrontTemplatePreviewBindingContext,
   getStorefrontTemplatePreviewTheme,
@@ -19,7 +19,7 @@ import {applyStorefrontTemplateDemoNotice,applyStorefrontTemplateOwnerShowroomNa
 import styles from './storefront-template-preview.module.css';
 
 export const dynamic='force-dynamic';
-type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string;demoContent?:string;factory?:string}>};
+type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string;demoContent?:string;factory?:string;qualityCandidate?:string}>};
 const widths=STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX;
 const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
@@ -30,7 +30,9 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   const pageType=(query.page??'home') as StorefrontBuilderPageType;
   if(!templateKey||version!==undefined&&!Number.isInteger(version)||!allowedPageTypes.has(pageType))notFound();
   const factoryCandidate=query.factory==='1';
-  const template=resolveStorefrontTemplatePreviewPackage(templateKey,version,factoryCandidate);
+  const qualityCandidate=query.qualityCandidate==='1';
+  if(factoryCandidate&&qualityCandidate)notFound();
+  const template=resolveStorefrontTemplatePreviewPackage(templateKey,version,factoryCandidate,qualityCandidate);
   if(!template)notFound();
   const returnParams=new URLSearchParams();
   for(const [key,value] of Object.entries(query))if(typeof value==='string'&&value)returnParams.set(key,value);
@@ -48,6 +50,7 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
       viewport:query.viewport==='mobile'?'mobile':query.viewport==='tablet'?'tablet':'desktop',
       next:returnTo,
       ...(factoryCandidate?{factory:'1'}:{}),
+      ...(qualityCandidate?{qualityCandidate:'1'}:{}),
     });
     redirect(`/storefront-template-preview-login?${loginParams.toString()}`);
   }
@@ -60,13 +63,16 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   const demoPayload=demoFixture?.payload??null;
   const embed=query.embed==='1';
   const noticedPage=demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
-  const routedPage=rewriteStorefrontTemplatePreviewLinks(noticedPage,{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate});
-  const page=embed?routedPage:applyStorefrontTemplateOwnerShowroomNavigation(routedPage,{
+  const routedPage=preserveStorefrontQualityCandidatePreviewAuthority(
+    rewriteStorefrontTemplatePreviewLinks(noticedPage,{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate}),
+    qualityCandidate,
+  );
+  const page=embed?routedPage:preserveStorefrontQualityCandidatePreviewAuthority(applyStorefrontTemplateOwnerShowroomNavigation(routedPage,{
     templateKey:template.manifest.templateKey,
     templateVersion:template.manifest.templateVersion,
     viewport,
     factory:factoryCandidate,
-  });
+  }),qualityCandidate);
   const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
   if(demoPayload){
     const content=baseContext.content&&typeof baseContext.content==='object'&&!Array.isArray(baseContext.content)?baseContext.content as Record<string,unknown>:{};
@@ -83,13 +89,14 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
     augmentStorefrontDigitalCommercePreviewContext({template,page,context:baseContext}),
     {templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate},
   );
+  if(qualityCandidate)Object.assign(bindingContext,preserveStorefrontQualityCandidatePreviewAuthority(bindingContext,true));
   const theme=getStorefrontTemplatePreviewTheme(template.manifest.templateKey) as CSSProperties;
   const previewCapability={plan:'pro' as const,features:[...PLANS.pro.features]};
   const factoryMeta=sourcePage.metadata?.templateFactory&&typeof sourcePage.metadata.templateFactory==='object'
     ?sourcePage.metadata.templateFactory as Record<string,unknown>
     :null;
   const recipeIdentity=typeof factoryMeta?.recipeIdentity==='string'?factoryMeta.recipeIdentity:`${template.manifest.templateKey}@${template.manifest.templateVersion}`;
-  const compileSource=typeof factoryMeta?.compileSource==='string'?factoryMeta.compileSource:(factoryCandidate?'unknown':'catalog');
+  const compileSource=typeof factoryMeta?.compileSource==='string'?factoryMeta.compileSource:(factoryCandidate?'unknown':qualityCandidate?'quality-candidate':'catalog');
   const foundationTemplate=typeof factoryMeta?.foundationTemplateKey==='string'&&typeof factoryMeta?.foundationTemplateVersion==='number'
     ?`${factoryMeta.foundationTemplateKey}@${factoryMeta.foundationTemplateVersion}`
     :'none';
@@ -102,7 +109,7 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
     rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
     capability={previewCapability}
   />;
-  if(embed)return <main className={styles.embed} style={theme} data-template-preview="representative-demo" data-template-key={template.manifest.templateKey} data-template-version={template.manifest.templateVersion} data-factory-candidate={factoryCandidate?'true':'false'} data-template-recipe={recipeIdentity} data-compile-source={compileSource} data-foundation-template={foundationTemplate} data-source-commit={sourceCommit} data-page-type={pageType}>{content}</main>;
+  if(embed)return <main className={styles.embed} style={theme} data-template-preview="representative-demo" data-template-key={template.manifest.templateKey} data-template-version={template.manifest.templateVersion} data-factory-candidate={factoryCandidate?'true':'false'} data-quality-candidate={qualityCandidate?'true':'false'} data-template-recipe={recipeIdentity} data-compile-source={compileSource} data-foundation-template={foundationTemplate} data-source-commit={sourceCommit} data-page-type={pageType}>{content}</main>;
   const href=(next:StorefrontViewport)=>{
     const params=new URLSearchParams();
     for(const[key,value]of Object.entries(query))if(typeof value==='string'&&value)params.set(key,value);
@@ -119,6 +126,6 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
       <div><strong>{templateKey.split('.').at(-1)?.split('-').map(part=>part.charAt(0).toUpperCase()+part.slice(1)).join(' ')}</strong><span>Élő sablon-előnézet · reprezentatív demo tartalom · semmit nem telepít</span></div>
       <nav aria-label="Előnézeti méret"><Link data-active={viewport==='desktop'} href={href('desktop')}>Desktop</Link><Link data-active={viewport==='tablet'} href={href('tablet')}>Tablet</Link><Link data-active={viewport==='mobile'} href={href('mobile')}>Mobil</Link></nav>
     </header>
-    <section className={styles.stage}><div className={styles.viewport} style={{...theme,maxWidth:widths[viewport]}} data-template-preview="representative-demo" data-template-key={template.manifest.templateKey} data-template-version={template.manifest.templateVersion} data-factory-candidate={factoryCandidate?'true':'false'} data-template-recipe={recipeIdentity} data-compile-source={compileSource} data-foundation-template={foundationTemplate} data-source-commit={sourceCommit} data-page-type={pageType}>{content}</div></section>
+    <section className={styles.stage}><div className={styles.viewport} style={{...theme,maxWidth:widths[viewport]}} data-template-preview="representative-demo" data-template-key={template.manifest.templateKey} data-template-version={template.manifest.templateVersion} data-factory-candidate={factoryCandidate?'true':'false'} data-quality-candidate={qualityCandidate?'true':'false'} data-template-recipe={recipeIdentity} data-compile-source={compileSource} data-foundation-template={foundationTemplate} data-source-commit={sourceCommit} data-page-type={pageType}>{content}</div></section>
   </main>;
 }

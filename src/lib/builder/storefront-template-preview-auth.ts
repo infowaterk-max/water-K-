@@ -2,6 +2,7 @@ import type{StorefrontRuntimeCapabilityContext}from'@/lib/builder/storefront-run
 import type{StorefrontInstallableTemplatePackage}from'@/lib/builder/storefront-template-installation';
 import{getStorefrontTemplatePackage}from'@/lib/builder/storefront-template-catalog';
 import{buildRegisteredStorefrontTemplateFactoryCandidate}from'@/lib/builder/template-factory/recipe-registry';
+import{resolveStorefrontTemplateQualityCandidate}from'@/lib/builder/storefront-template-quality-candidates';
 import{createStorefrontTemplatePreviewBindingContext}from'@/lib/builder/storefront-template-preview-demo';
 import{PLANS}from'@/lib/plans/catalog';
 
@@ -13,7 +14,24 @@ export type StorefrontTemplatePreviewAccountRuntime={
  capability:StorefrontRuntimeCapabilityContext;
 };
 
-export function resolveStorefrontTemplatePreviewPackage(templateKey:string,templateVersion?:number,factoryCandidate=false):StorefrontInstallableTemplatePackage|null{
+export function preserveStorefrontQualityCandidatePreviewAuthority<T>(value:T,enabled:boolean):T{
+ if(!enabled)return value;
+ const rewrite=(input:unknown):unknown=>{
+  if(typeof input==='string'){
+   if(!input.startsWith('/storefront-template-preview?'))return input;
+   const url=new URL(input,'https://shoporation.local');
+   url.searchParams.set('qualityCandidate','1');
+   return`${url.pathname}?${url.searchParams.toString()}`;
+  }
+  if(Array.isArray(input))return input.map(rewrite);
+  if(!input||typeof input!=='object')return input;
+  return Object.fromEntries(Object.entries(input as Record<string,unknown>).map(([key,item])=>[key,rewrite(item)]));
+ };
+ return rewrite(value) as T;
+}
+
+export function resolveStorefrontTemplatePreviewPackage(templateKey:string,templateVersion?:number,factoryCandidate=false,qualityCandidate=false):StorefrontInstallableTemplatePackage|null{
+ if(factoryCandidate&&qualityCandidate)return null;
  if(factoryCandidate){
   try{
    const build=buildRegisteredStorefrontTemplateFactoryCandidate(templateKey);
@@ -22,11 +40,12 @@ export function resolveStorefrontTemplatePreviewPackage(templateKey:string,templ
    return build.package;
   }catch{return null}
  }
+ if(qualityCandidate)return resolveStorefrontTemplateQualityCandidate(templateKey,templateVersion)?.template??null;
  return getStorefrontTemplatePackage(templateKey,templateVersion)??null;
 }
 
-export function resolveStorefrontTemplateAccountPreviewRuntimePage(templateKey:string,templateVersion?:number,factoryCandidate=false):StorefrontTemplatePreviewAccountRuntime|null{
- const template=resolveStorefrontTemplatePreviewPackage(templateKey,templateVersion,factoryCandidate);
+export function resolveStorefrontTemplateAccountPreviewRuntimePage(templateKey:string,templateVersion?:number,factoryCandidate=false,qualityCandidate=false):StorefrontTemplatePreviewAccountRuntime|null{
+ const template=resolveStorefrontTemplatePreviewPackage(templateKey,templateVersion,factoryCandidate,qualityCandidate);
  if(!template)return null;
  const page=template.pages.find(item=>item.pageType==='account');
  if(!page)return null;
