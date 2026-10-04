@@ -488,7 +488,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-01.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-06.webp",
                             "alt": "FUTÁS",
                             "width": 1600,
                             "height": 1000,
@@ -498,17 +498,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-01.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-06.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-01.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-06.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-01.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-06.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -610,7 +610,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-02.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-01.webp",
                             "alt": "KERÉKPÁR",
                             "width": 1600,
                             "height": 1000,
@@ -620,17 +620,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-02.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-01.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-02.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-01.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-02.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-01.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -732,7 +732,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-03.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-16.webp",
                             "alt": "TÚRÁZÁS",
                             "width": 1600,
                             "height": 1000,
@@ -742,17 +742,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-03.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-16.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-03.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-16.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-03.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-16.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -1119,7 +1119,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-04.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-20.webp",
                             "alt": "Futás",
                             "width": 1600,
                             "height": 1000,
@@ -1129,17 +1129,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-04.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-20.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-04.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-20.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-04.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-20.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -1240,7 +1240,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-05.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-07.webp",
                             "alt": "Kerékpár",
                             "width": 1600,
                             "height": 1000,
@@ -1250,17 +1250,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-07.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-07.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-07.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -1361,7 +1361,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-06.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-08.webp",
                             "alt": "Túrázás",
                             "width": 1600,
                             "height": 1000,
@@ -1371,17 +1371,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-06.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-08.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-06.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-08.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-06.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-08.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -3001,7 +3001,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-07.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-19.webp",
                             "alt": "5 lélegzetelállító túraútvonal Magyarországon",
                             "width": 1600,
                             "height": 1000,
@@ -3011,17 +3011,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-07.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-19.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-07.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-19.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-07.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-19.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -3143,7 +3143,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-08.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-23.webp",
                             "alt": "Hogyan készülj fel egy hegyi túrára?",
                             "width": 1600,
                             "height": 1000,
@@ -3153,17 +3153,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-08.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-23.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-08.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-23.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-08.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-23.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -3285,7 +3285,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-09.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-15.webp",
                             "alt": "Valódi történetek. Valódi emberek.",
                             "width": 1600,
                             "height": 1000,
@@ -3295,17 +3295,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-09.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-15.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-09.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-15.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-09.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-15.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -4298,7 +4298,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-10.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-09.webp",
                             "alt": "FUTÁS",
                             "width": 1600,
                             "height": 1000,
@@ -4308,17 +4308,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-10.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-09.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-10.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-09.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-10.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-09.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -4874,7 +4874,15 @@
                   "config": {
                     "columns": 12,
                     "gap": "l",
-                    "align": "stretch"
+                    "align": "stretch",
+                    "style": {
+                      "base": {},
+                      "desktop": {},
+                      "tablet": {},
+                      "mobile": {
+                        "gap": "1rem"
+                      }
+                    }
                   },
                   "children": [
                     {
@@ -6126,7 +6134,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-11.webp",
+                            "src": "/storefront-demo/sport-hub-v1/ui/asset-41-product-benefit.webp",
                             "alt": "Salomon Sense Ride 5",
                             "width": 1600,
                             "height": 1000,
@@ -6136,17 +6144,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-11.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-41-product-benefit.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-11.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-41-product-benefit.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-11.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-41-product-benefit.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -6192,7 +6200,15 @@
                   "config": {
                     "columns": 12,
                     "gap": "l",
-                    "align": "stretch"
+                    "align": "stretch",
+                    "style": {
+                      "base": {},
+                      "desktop": {},
+                      "tablet": {},
+                      "mobile": {
+                        "gap": "1rem"
+                      }
+                    }
                   },
                   "children": [
                     {
@@ -6709,7 +6725,15 @@
                   "config": {
                     "columns": 12,
                     "gap": "l",
-                    "align": "stretch"
+                    "align": "stretch",
+                    "style": {
+                      "base": {},
+                      "desktop": {},
+                      "tablet": {},
+                      "mobile": {
+                        "gap": "1rem"
+                      }
+                    }
                   },
                   "children": [
                     {
@@ -7758,7 +7782,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-12.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-04.webp",
                             "alt": "KOSÁR",
                             "width": 1600,
                             "height": 1000,
@@ -7768,17 +7792,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-12.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-04.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-12.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-04.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-12.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-04.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -7824,7 +7848,15 @@
                   "config": {
                     "columns": 12,
                     "gap": "l",
-                    "align": "stretch"
+                    "align": "stretch",
+                    "style": {
+                      "base": {},
+                      "desktop": {},
+                      "tablet": {},
+                      "mobile": {
+                        "gap": "1rem"
+                      }
+                    }
                   },
                   "children": [
                     {
@@ -8831,7 +8863,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-13.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-05.webp",
                             "alt": "Pénztár",
                             "width": 1600,
                             "height": 1000,
@@ -8841,17 +8873,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-13.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-13.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-13.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-05.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -10144,7 +10176,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-14.webp",
+                            "src": "/storefront-demo/sport-hub-v1/ui/asset-42-account-profile.webp",
                             "alt": "Szia, Márk! 👋",
                             "width": 1600,
                             "height": 1000,
@@ -10154,17 +10186,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-14.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-42-account-profile.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-14.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-42-account-profile.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-14.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-42-account-profile.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -10210,7 +10242,15 @@
                   "config": {
                     "columns": 12,
                     "gap": "l",
-                    "align": "stretch"
+                    "align": "stretch",
+                    "style": {
+                      "base": {},
+                      "desktop": {},
+                      "tablet": {},
+                      "mobile": {
+                        "gap": "1rem"
+                      }
+                    }
                   },
                   "children": [
                     {
@@ -11613,7 +11653,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-15.webp",
+                            "src": "/storefront-demo/sport-hub-v1/ui/asset-45-search-none.webp",
                             "alt": "„túracipő”",
                             "width": 1600,
                             "height": 1000,
@@ -11623,17 +11663,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-15.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-45-search-none.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-15.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-45-search-none.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-15.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-45-search-none.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -11679,7 +11719,15 @@
                   "config": {
                     "columns": 12,
                     "gap": "l",
-                    "align": "stretch"
+                    "align": "stretch",
+                    "style": {
+                      "base": {},
+                      "desktop": {},
+                      "tablet": {},
+                      "mobile": {
+                        "gap": "1rem"
+                      }
+                    }
                   },
                   "children": [
                     {
@@ -12438,7 +12486,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-16.webp",
+                            "src": "/storefront-demo/sport-hub-v1/ui/asset-44-content-route.webp",
                             "alt": "Hogyan válassz túrahátizsákot?",
                             "width": 1600,
                             "height": 1000,
@@ -12448,17 +12496,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-16.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-44-content-route.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-16.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-44-content-route.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-16.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-44-content-route.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -12504,7 +12552,15 @@
                   "config": {
                     "columns": 12,
                     "gap": "l",
-                    "align": "stretch"
+                    "align": "stretch",
+                    "style": {
+                      "base": {},
+                      "desktop": {},
+                      "tablet": {},
+                      "mobile": {
+                        "gap": "1rem"
+                      }
+                    }
                   },
                   "children": [
                     {
@@ -13451,7 +13507,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-17.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-22.webp",
                             "alt": "TÖRTÉNETEK, TIPPEK, ÚTVONALAK, FELSZERELÉS.",
                             "width": 1600,
                             "height": 1000,
@@ -13461,17 +13517,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-17.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-22.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-17.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-22.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-17.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-22.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -14341,7 +14397,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-18.webp",
+                            "src": "/storefront-demo/sport-hub-v1/ui/asset-47-404-new-direction.webp",
                             "alt": "Hogyan készülj fel egy többnapos hegyi túrára?",
                             "width": 1600,
                             "height": 1000,
@@ -14351,17 +14407,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-18.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-47-404-new-direction.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-18.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-47-404-new-direction.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-18.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-47-404-new-direction.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -14407,7 +14463,15 @@
                   "config": {
                     "columns": 12,
                     "gap": "l",
-                    "align": "stretch"
+                    "align": "stretch",
+                    "style": {
+                      "base": {},
+                      "desktop": {},
+                      "tablet": {},
+                      "mobile": {
+                        "gap": "1rem"
+                      }
+                    }
                   },
                   "children": [
                     {
@@ -14525,7 +14589,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-19.webp",
+                            "src": "/storefront-demo/sport-hub-v1/ui/asset-48-404-camp.webp",
                             "alt": "Többnapos hegyi túra",
                             "width": 1600,
                             "height": 1000,
@@ -14535,17 +14599,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-19.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-48-404-camp.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-19.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-48-404-camp.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-19.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-48-404-camp.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -15237,7 +15301,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-20.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-17.webp",
                             "alt": "GYAKORI KÉRDÉSEK",
                             "width": 1600,
                             "height": 1000,
@@ -15247,17 +15311,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-20.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-17.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-20.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-17.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-20.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-17.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -15303,7 +15367,15 @@
                   "config": {
                     "columns": 12,
                     "gap": "l",
-                    "align": "stretch"
+                    "align": "stretch",
+                    "style": {
+                      "base": {},
+                      "desktop": {},
+                      "tablet": {},
+                      "mobile": {
+                        "gap": "1rem"
+                      }
+                    }
                   },
                   "children": [
                     {
@@ -16731,7 +16803,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-21.webp",
+                            "src": "/storefront-demo/sport-hub-v1/ui/asset-43-contact-support.webp",
                             "alt": "Kapcsolat",
                             "width": 1600,
                             "height": 1000,
@@ -16741,17 +16813,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-21.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-43-contact-support.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-21.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-43-contact-support.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-21.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-43-contact-support.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -17843,7 +17915,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-22.webp",
+                            "src": "/storefront-demo/sport-hub-v1/media-03.webp",
                             "alt": "SZÁLLÍTÁSI INFORMÁCIÓK",
                             "width": 1600,
                             "height": 1000,
@@ -17853,17 +17925,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-22.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-03.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-22.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-03.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-22.webp",
+                                "src": "/storefront-demo/sport-hub-v1/media-03.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -17909,7 +17981,15 @@
                   "config": {
                     "columns": 12,
                     "gap": "l",
-                    "align": "stretch"
+                    "align": "stretch",
+                    "style": {
+                      "base": {},
+                      "desktop": {},
+                      "tablet": {},
+                      "mobile": {
+                        "gap": "1rem"
+                      }
+                    }
                   },
                   "children": [
                     {
@@ -18673,7 +18753,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/sport-hub-v1/media-23.webp",
+                            "src": "/storefront-demo/sport-hub-v1/ui/asset-46-404-trail.webp",
                             "alt": "ELTÉRTÉL AZ ÚTVONALTÓL",
                             "width": 1600,
                             "height": 1000,
@@ -18683,17 +18763,17 @@
                             "objectPosition": "center center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/sport-hub-v1/media-23.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-46-404-trail.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/sport-hub-v1/media-23.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-46-404-trail.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/sport-hub-v1/media-23.webp",
+                                "src": "/storefront-demo/sport-hub-v1/ui/asset-46-404-trail.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }

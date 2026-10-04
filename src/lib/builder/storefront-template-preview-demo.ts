@@ -46,6 +46,29 @@ const PLAYROOM_PREVIEW_PRODUCTS=Object.freeze([
   {name:'Kingdom Grid',image:'/storefront/playroom/game-kingdom-grid.svg',price:21990,badge:'TAKTIKA',stockLabel:'Raktáron'},
 ]);
 
+const SPORT_HUB_PREVIEW_PRODUCTS=Object.freeze([
+  {id:'salomon-sense-ride-5',name:'Salomon Sense Ride 5',image:'/storefront-demo/sport-hub-v1/products/salomon-sense-ride-5.webp',price:49990,badge:'KIEMELT',stockLabel:'Raktáron'},
+  {id:'abus-airbreaker',name:'Abus AirBreaker',image:'/storefront-demo/sport-hub-v1/products/abus-airbreaker.webp',price:79990,badge:'',stockLabel:'Raktáron'},
+  {id:'deuter-futura-32',name:'Deuter Futura 32',image:'/storefront-demo/sport-hub-v1/products/deuter-futura-32.webp',price:59990,badge:'',stockLabel:'Raktáron'},
+  {id:'salomon-active-skin-8',name:'Salomon Active Skin 8',image:'/storefront-demo/sport-hub-v1/products/salomon-active-skin-8.webp',price:44990,badge:'',stockLabel:'Raktáron'},
+  {id:'garmin-forerunner-265',name:'Garmin Forerunner 265',image:'/storefront-demo/sport-hub-v1/products/garmin-forerunner-265.webp',price:169990,badge:'',stockLabel:'Raktáron'},
+  {id:'manduka-pro',name:'Manduka PRO',image:'/storefront-demo/sport-hub-v1/products/manduka-pro.webp',price:39990,badge:'',stockLabel:'Raktáron'},
+] as const);
+
+const SPORT_HUB_PREVIEW_GALLERY=Object.freeze([
+  {src:'/storefront-demo/sport-hub-v1/products/salomon-sense-ride-5.webp',alt:'Salomon Sense Ride 5 terepfutó cipő'},
+  {src:'/storefront-demo/sport-hub-v1/ui/asset-41-product-benefit.webp',alt:'Terepfutó cipő havas terepen'},
+  {src:'/storefront-demo/sport-hub-v1/media-23.webp',alt:'Terepfutás részlet'},
+  {src:'/storefront-demo/sport-hub-v1/media-09.webp',alt:'Hegyi terepfutás'},
+] as const);
+
+const SPORT_HUB_PREVIEW_COLLECTIONS=Object.freeze([
+  {id:'running',label:'Futás',title:'Futás',href:'#preview-demo',image:'/storefront-demo/sport-hub-v1/media-06.webp',imageAlt:'Hegyi futás',copy:'Aszfalton vagy hegyen – mindig előre.'},
+  {id:'cycling',label:'Kerékpár',title:'Kerékpár',href:'#preview-demo',image:'/storefront-demo/sport-hub-v1/media-01.webp',imageAlt:'Országúti kerékpározás',copy:'Új utak, nagyobb szabadság.'},
+  {id:'hiking',label:'Túrázás',title:'Túrázás',href:'#preview-demo',image:'/storefront-demo/sport-hub-v1/media-16.webp',imageAlt:'Túrázás a hegyekben',copy:'Fedezd fel a világot.'},
+  {id:'fitness',label:'Fitnesz',title:'Fitnesz',href:'#preview-demo',image:'/storefront-demo/sport-hub-v1/media-08.webp',imageAlt:'Erőnléti edzés',copy:'Erősebb mindennapok.'},
+] as const);
+
 const CATEGORY_COLLECTIONS:Record<string,readonly string[]>={
   beauty:['Rutinok','Újdonságok','Összetevők','Best seller'],
   fashion:['New season','Essentials','Editorial edit','Accessories'],
@@ -112,6 +135,15 @@ function fixtureNames(template:StorefrontInstallableTemplatePackage,type:'produc
 }
 
 function demoProducts(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
+  if(template.manifest.templateKey==='sport.sport-hub'){
+    return SPORT_HUB_PREVIEW_PRODUCTS.slice(0,previewProductLimit(page)).map((product,index)=>({
+      ...product,
+      href:'#preview-demo',
+      imageAlt:`${product.name} jóváhagyott SPORT HUB termékkép`,
+      compareAtPrice:null,
+      badge:product.badge|| (index===2?'ÚJ':''),
+    }));
+  }
   if(template.manifest.templateKey==='gaming.playroom'){
     const limit=page.pageType==='home'?12:previewProductLimit(page);
     return PLAYROOM_PREVIEW_PRODUCTS.slice(0,limit).map((product,index)=>({
@@ -145,6 +177,7 @@ function demoProducts(template:StorefrontInstallableTemplatePackage,page:Storefr
 }
 
 function demoCollections(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
+  if(template.manifest.templateKey==='sport.sport-hub')return SPORT_HUB_PREVIEW_COLLECTIONS.map(item=>({...item}));
   const category=template.manifest.templateKey.split('.')[0]??'tech';
   const fixture=fixtureNames(template,'collection');
   const fallback=CATEGORY_COLLECTIONS[category]??CATEGORY_COLLECTIONS.tech;
@@ -197,6 +230,35 @@ function valueForBinding(input:{template:StorefrontInstallableTemplatePackage;pa
   const collections=demoCollections(template,page);
   const items=genericItems(template,page);
   const key=node.componentKey;
+  const sportHub=template.manifest.templateKey==='sport.sport-hub';
+
+  if(sportHub&&slot==='lines'&&(key==='commerce.cart-summary'||key==='commerce.checkout-summary')){
+    return SPORT_HUB_PREVIEW_PRODUCTS.slice(0,4).map((product,index)=>({id:product.id,name:product.name,quantity:1,lineTotal:product.price,variantLabel:index===0?'Fekete / Oliva':''}));
+  }
+  if(sportHub&&slot==='subtotal')return 234960;
+  if(sportHub&&slot==='shipping')return 0;
+  if(sportHub&&slot==='total')return 234960;
+  if(sportHub&&slot==='images'&&key==='commerce.product-gallery')return SPORT_HUB_PREVIEW_GALLERY.map(item=>({...item}));
+  if(sportHub&&slot==='options'&&key==='commerce.variant-swatches')return[
+    {id:'black',label:'Fekete',value:'black',available:true,selected:true,swatch:'#15191d'},
+    {id:'olive',label:'Oliva',value:'olive',available:true,selected:false,swatch:'#b8aa8e'},
+    {id:'blue',label:'Kék',value:'blue',available:true,selected:false,swatch:'#5f8791'},
+    {id:'orange',label:'Narancs',value:'orange',available:true,selected:false,swatch:'#e65b2f'},
+  ];
+  if(sportHub&&slot==='options'&&key==='commerce.size-selector')return['41 1/3','42','42 2/3','43 1/3','44','44 2/3','45 1/3','46','46 2/3','47 1/3'].map((label,index)=>({id:`size-${index}`,label,value:label,available:true,selected:index===1}));
+  if(sportHub&&slot==='tabs'&&key==='commerce.content-tabs')return[
+    {id:'description',label:'Részletes leírás',title:'Részletes leírás',copy:'Sokoldalú terepfutó cipő kényelmes csillapítással és stabil tartással változatos terepre.'},
+    {id:'technology',label:'Technológiák',title:'Technológiák',copy:'All Terrain Contagrip™ talp, Energy Foam középtalp és stabil, jól szellőző felsőrész.'},
+    {id:'size-guide',label:'Mérettáblázat',title:'Mérettáblázat',copy:'A megfelelő méret kiválasztásához használd a termékhez tartozó méretsegédletet.'},
+    {id:'reviews',label:'Vélemények',title:'Vélemények',copy:'A bemutató értékelések helyére az éles webshopban a valódi vásárlói visszajelzések kerülnek.'},
+  ];
+  if(sportHub&&slot==='description')return'Sokoldalú terepfutó cipő, amely ötvözi a kényelmet, stabilitást és tapadást. Ideális mindennapi edzésekhez és hosszabb hegyi kalandokhoz.';
+  if(sportHub&&slot==='rating')return 4.8;
+  if(sportHub&&slot==='count')return 124;
+  if(sportHub&&slot==='stockLabel')return'Raktáron';
+  if(sportHub&&slot==='price')return 49990;
+  if(sportHub&&slot==='compareAtPrice')return null;
+  if(sportHub&&slot==='badges')return['ÚJ MODELL'];
 
   if(slot==='products'||key==='commerce.product-grid'||key==='commerce.recommendation-row')return products;
   if(slot==='items'){

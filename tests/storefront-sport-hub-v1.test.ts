@@ -82,4 +82,12 @@ describe('SPORT HUB canonical v1 candidate',()=>{
     const serialized=JSON.stringify(SPORT_HUB_V1_TEMPLATE_PACKAGE);
     expect(serialized).not.toContain('src/lib/builder/templates/sport-hub.ts');
   });
+  it('keeps large 12-column grids bounded on mobile and excludes full-page reference screenshots from content media',()=>{
+    const largeGapGrids=SPORT_HUB_V1_TEMPLATE_PACKAGE.pages.flatMap(page=>walk(page.sections).filter(node=>node.componentKey==='layout.grid'&&node.config.gap==='l'));
+    expect(largeGapGrids).toHaveLength(10);
+    for(const grid of largeGapGrids)expect(grid.config.style?.mobile?.gap).toBe('1rem');
+    const serialized=JSON.stringify(SPORT_HUB_V1_TEMPLATE_PACKAGE);
+    expect(serialized).not.toMatch(/\/media-(10|11|12|13|14)\.webp/);
+  });
+
 });
