@@ -1,23 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-LIVING-ROADMAP-V2-MATURITY-GRAPH",
-  "task": "Migrate the canonical Shoperation Living Roadmap to the accepted v2 maturity sequence and prerequisite graph without changing commerce runtime behavior.",
-  "status": "closed",
+  "taskId": "DEV-PACKAGE-MATRIX-BENCHMARK-RECONCILIATION",
+  "task": "Refine the canonical Shoperation Alap / Pro / Add-on capability matrix from accepted Shopify, Shoprenter and UNAS benchmark decisions without changing runtime behavior.",
+  "status": "ready-for-implementation",
   "guardDigest": "aa79c504",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "quality/knowledge/capability-registry.v1.json",
-    "quality/knowledge/living-roadmap.v1.json",
     "quality/knowledge/living-roadmap.v2.json",
-    "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md",
-    "scripts/lib/shoperation-architecture-health.mjs",
-    "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-    "src/lib/quality-system/capability-evidence.ts",
-    "tests/architecture-health.test.ts",
-    "tests/deep-atlas-scan.test.ts",
-    "tests/shoperation-sentinel.test.ts",
-    "tests/capability-roadmap-evidence.test.ts"
+    "tests/architecture-health.test.ts"
   ],
   "expectedSubsystems": [],
   "expectedDomains": [
@@ -84,42 +75,38 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-LIVING-ROADMAP-V2",
+    "sourceRef": "PO-2026-10-05-PACKAGE-MATRIX-BENCHMARK",
     "riskTier": "medium",
     "assuranceCeiling": {
       "level": "state-and-failure-review",
-      "rationale": "The change moves a canonical planning authority and its consumers, so it requires explicit dependency invariants, failure-path review and exact-reference checks, but it does not modify runtime commerce behavior or production data.",
+      "rationale": "Package entitlements are commercial and authorization-facing roadmap authority. The change must preserve accepted competitor-benchmark boundaries and prevent Digital Office leakage into Alap.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
-        "state-model",
-        "adversarial-scenarios",
-        "boundary-cases"
+        "boundary-cases",
+        "adversarial-scenarios"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "Exactly one canonical Living Roadmap authority remains and all known consumers read the v2 file.",
-        "The nine accepted maturity stages form a valid dependency chain with no missing references, cycles or reverse-order dependencies.",
-        "Historical evidence-backed done and operational states remain represented without being misused as proof of later maturity gates.",
-        "Builder and Template Factory are separate registry capabilities and the Factory cannot precede Builder adversarial acceptance.",
-        "No commerce runtime, template implementation or SPORT HUB production work is introduced by this transaction."
+        "Alap remains a complete professional webshop and is not artificially crippled below the accepted Shopify/Shoprenter/UNAS benchmark baseline.",
+        "Digital Office and all of its collaboration/workforce surfaces are Pro-only except ordinary transactional webshop email and Form Wizard notification behavior.",
+        "Previously accepted Alap multi-location inventory and simple event-to-action automation remain Alap; advanced routing/workflow depth remains Pro.",
+        "Specialized or variable-cost capabilities remain Add-on/post-launch rather than being forced into Pro merely to increase package count."
       ],
       "invariants": [
-        "Higher-layer maturity cannot prove a lower-layer maturity gate.",
-        "Core capability completion and adversarial proof occur before Unified Product Experience and Builder completion.",
-        "Builder adversarial acceptance occurs before Factory revalidation and 42-template production.",
-        "Final Market Ready certification runs after Surface Reduction on the reduced production candidate.",
-        "The Evidence Ledger remains proof-only and cannot override roadmap, capability or domain truth."
+        "All 42 templates and the full manual Builder are available in both Alap and Pro.",
+        "Core checkout/order/payment/shipping/invoice/tax/security authorities cannot be paywalled behind Pro.",
+        "Digital Office Team Chat, mailbox/team inbox, tasks, approvals, staff profiles, leave/delegation, sending center, communication workspace and related workforce tooling do not leak into Alap.",
+        "Company billing in B2C checkout is not the same as Pro B2B organizational purchasing."
       ],
       "forbiddenStates": [
-        "parallel-canonical-roadmap-authorities",
-        "template-factory-before-builder-acceptance",
-        "market-ready-certification-before-template-portfolio",
-        "payment-hub-classified-post-launch",
-        "higher-layer-proof-closes-lower-layer-gap",
-        "roadmap-migration-changes-commerce-runtime"
+        "digital-office-capability-in-alap",
+        "multi-location-baseline-pro-only",
+        "all-automation-pro-only",
+        "core-commerce-provider-integration-pro-only",
+        "separate-basic-and-pro-template-forks"
       ]
     },
     "model": {
@@ -151,53 +138,45 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A consumer keeps importing the retired v1 roadmap and silently diverges from the new canonical order.",
-        "A new maturity node references a missing roadmap item or unknown capability and architecture health still reports PASS.",
-        "Historical implementation labels are interpreted as proof that a new maturity gate is complete.",
-        "Template Factory or portfolio production becomes schedulable before the manual Builder is complete and adversarially proven.",
-        "Market Ready certification is treated as a place to add missing core functionality instead of a final closure gate."
+        "A later assistant recommendation overwrites an earlier explicit PO package decision.",
+        "Digital Office subfeatures leak into Alap through generic chat/email/workforce labels.",
+        "Basic merchant security, reporting or inventory operations are over-paywalled despite the accepted competitor benchmark.",
+        "A specialized add-on is incorrectly treated as mandatory Pro scope."
       ],
       "edgeCases": [
-        "The v1 roadmap is deleted while one test or script still references its path.",
-        "A new capability registry entry points to a roadmap item that was renamed during migration.",
-        "Two roadmap items share the same order but have no dependency relation.",
-        "Post-launch and parked items remain visible without becoming accidental Market Ready dependencies."
+        "Simple customer groups exist in Alap while full company-account B2B governance remains Pro.",
+        "Multi-location stock is Alap while automated cross-location routing/split fulfillment is Pro.",
+        "Simple event-to-action recipes are Alap while branching multi-step workflows are Pro.",
+        "Transactional and campaign email can exist outside Digital Office without creating an inbox/team-workspace entitlement leak."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-V2-SINGLE-AUTHORITY",
-        "summary": "Replace the v1 roadmap authority with one canonical v2 maturity graph and migrate every known consumer to it.",
+        "id": "ALT-BENCHMARK-RECONCILED-MATRIX",
+        "summary": "Use the accepted competitor benchmark plus later PO overrides to define a complete Alap and operational Pro boundary.",
         "disposition": "selected",
-        "reason": "This preserves a single machine-readable roadmap authority while making the accepted maturity order explicit and testable."
+        "reason": "It preserves prior work, prevents arbitrary paywalls, and keeps Pro focused on business-system depth."
       },
       {
-        "id": "ALT-KEEP-V1-NARRATIVE-ORDER",
-        "summary": "Keep the existing v1 file and only annotate the old feature order with prose about the new maturity sequence.",
+        "id": "ALT-PREVIOUS-QUICK-MATRIX",
+        "summary": "Keep the earlier simplified matrix that put all multi-location and automation depth into Pro.",
         "disposition": "rejected",
-        "reason": "The old machine-readable order would remain authoritative and could continue driving Builder, Factory and Market Ready work in the wrong sequence."
+        "reason": "It contradicts earlier explicit PO decisions and loses information from the detailed benchmark conversations."
       }
     ],
     "challenge": [
       {
-        "id": "CH-ROADMAP-1",
-        "scenario": "A higher-layer template or Builder proof is green while a lower-layer Core capability is still partial.",
-        "finding": "Without explicit maturity dependencies the system could overclaim readiness from unrelated higher-layer evidence.",
-        "resolution": "The v2 backbone requires each later maturity gate to depend on the preceding gate and records that higher-layer proof cannot close lower-layer gaps.",
+        "id": "CH-PACKAGE-1",
+        "scenario": "An Alap customer needs two warehouses and manual transfer visibility but no automation.",
+        "finding": "Earlier PO decision explicitly placed baseline multi-location/multi-warehouse inventory in Alap.",
+        "resolution": "Keep locations, per-location stock and manual inventory operations in Alap; reserve automated routing/split optimization for Pro.",
         "status": "resolved"
       },
       {
-        "id": "CH-ROADMAP-2",
-        "scenario": "The v1 roadmap file is retired but a quality script or test still imports the old path.",
-        "finding": "The repository would have a hidden stale consumer or fail after merge despite a logically correct v2 graph.",
-        "resolution": "All discovered consumers are migrated to v2 and architecture tests assert the v2 contract and maturity chain.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ROADMAP-3",
-        "scenario": "Builder and Template Factory stay represented as one capability after the maturity order separates them.",
-        "finding": "Capability evidence could falsely allow Factory proof to stand in for Builder maturity or vice versa.",
-        "resolution": "The capability registry splits Visual Builder from Template Production System / Factory while retaining the same DOMAIN-BUILDER owner authority.",
+        "id": "CH-PACKAGE-2",
+        "scenario": "An Alap merchant uses normal order emails, forms, newsletter or simple campaign messages.",
+        "finding": "These do not make the merchant a Digital Office customer.",
+        "resolution": "Keep transactional/form/basic marketing communication in Alap while every shared inbox, Team Chat and workforce collaboration surface remains Pro-only.",
         "status": "resolved"
       }
     ],
@@ -206,134 +185,72 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The accepted roadmap is a maturity graph, not a linear feature backlog, and the canonical authority must encode dependency gates directly.",
-        "resolution": "Use nine explicit maturity nodes and keep feature capabilities beneath the Core and Builder gates instead of allowing order numbers alone to imply readiness.",
+        "finding": "Entitlements must split by business capability, not by duplicated runtime or template implementation.",
+        "resolution": "Keep shared engines canonical and package-gate capabilities server-side.",
         "evidence": [
-          "quality/knowledge/living-roadmap.v2.json",
-          "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md"
+          "quality/knowledge/living-roadmap.v2.json"
         ]
       },
       {
-        "role": "Known Failure",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Deleting the v1 authority can create stale-path failures or hidden parallel truth if even one consumer is missed.",
-        "resolution": "Migrate every discovered consumer, delete v1 on the same transaction, and run full knowledge-infrastructure Known Failure replay plus quality tests.",
+        "role": "Product",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The accepted benchmark strategy is Alap = complete professional webshop, Pro = larger-team/business-system depth.",
+        "resolution": "Use competitor baseline as a floor, then monetize higher operational complexity and specialized add-ons rather than ordinary commerce.",
         "evidence": [
-          "scripts/lib/shoperation-architecture-health.mjs",
-          "tests/architecture-health.test.ts",
-          "src/lib/quality-system/capability-evidence.ts"
+          "quality/knowledge/living-roadmap.v2.json"
         ]
       }
     ],
     "proofPlan": [
-      "Run the canonical development guards against the exact PR base and head using this active-plan transaction identity.",
-      "Run Architecture Health and quality tests to prove all roadmap references, capability references and maturity dependencies are coherent.",
-      "Run TypeScript and production build to detect stale imports of the retired v1 roadmap path.",
-      "Verify the v2 graph has no missing dependency, cycle or topological-order violation and preserves evidence-backed historical done states.",
-      "Require Completion Truth to remain NOT DONE unless exact-head quality, typecheck and production-build evidence satisfy the declared requirements."
+      "Assert the structured package matrix contains the accepted Alap multi-location and simple automation boundaries.",
+      "Assert every Digital Office collaboration/workforce capability is absent from Alap and present in Pro.",
+      "Assert full Builder and 42 template family access remain shared.",
+      "Run canonical quality tests, TypeScript and production build on exact head."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-05-LIVING-ROADMAP-V2",
+      "request": "PO-2026-10-05-PACKAGE-MATRIX-BENCHMARK",
       "authority": [
         "quality-knowledge-system"
       ],
       "mustEdit": [
-        "quality/knowledge/living-roadmap.v2.json",
-        "quality/knowledge/capability-registry.v1.json"
+        "quality/knowledge/living-roadmap.v2.json"
       ],
       "mayEdit": [
-        "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md",
-        "scripts/lib/shoperation-architecture-health.mjs",
-        "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-        "src/lib/quality-system/capability-evidence.ts",
-        "tests/architecture-health.test.ts",
-        "tests/deep-atlas-scan.test.ts",
-        "tests/shoperation-sentinel.test.ts",
-        "tests/capability-roadmap-evidence.test.ts"
+        "tests/architecture-health.test.ts"
       ],
       "impactedReadOnly": [
-        "quality/knowledge/evidence-ledger.v1.json",
-        "quality/knowledge/domain-foundations.v1.json"
+        "quality/knowledge/capability-registry.v1.json",
+        "quality/knowledge/evidence-ledger.v1.json"
       ],
       "proof": [
-        "tests/architecture-health.test.ts",
-        "tests/deep-atlas-scan.test.ts",
-        "tests/shoperation-sentinel.test.ts",
-        "tests/capability-roadmap-evidence.test.ts"
+        "tests/architecture-health.test.ts"
       ],
       "unknown": [],
-      "plannedDeletions": [
-        "quality/knowledge/living-roadmap.v1.json"
-      ]
+      "plannedDeletions": []
     },
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-LIVING-ROADMAP-V2",
+    "sourceRef": "PO-2026-10-05-PACKAGE-MATRIX-BENCHMARK",
     "requirements": [
       {
-        "id": "REQ-ROADMAP-V2-SINGLE-AUTHORITY",
-        "requirement": "The canonical quality-system roadmap authority is Living Roadmap v2, the v1 authority is retired, and the migrated canonical roadmap consumers no longer reference the v1 path.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
-          ],
-          "outcome": [
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-PARALLEL-ROADMAP-AUTHORITY",
-            "statement": "A second canonical roadmap or stale v1 consumer must not remain active.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ],
+        "id": "REQ-PACKAGE-MATRIX-BENCHMARK",
+        "requirement": "The canonical roadmap package matrix reflects accepted Alap, Pro and Add-on boundaries from the Shopify, Shoprenter and UNAS benchmark plus later PO overrides.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "canonical-quality-roadmap-authority-and-migrated-consumers",
+          "breadth": "package-matrix-roadmap-authority",
           "strength": 2,
           "dimensions": [
             "tests",
-            "consumers",
             "regression",
-            "types",
             "build"
           ]
         },
         "requiredCapabilities": [
           "CAP-QUALITY"
-        ]
-      },
-      {
-        "id": "REQ-MATURITY-DEPENDENCY-CHAIN",
-        "requirement": "The accepted nine-stage maturity backbone and its critical dependencies are machine-validated without missing references or reverse sequencing.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-HIGHER-LAYER-BYPASS",
-            "statement": "Builder, Factory, templates or Market Ready must not bypass their required lower-layer maturity gate.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-ROADMAP-MIGRATION-NO-RUNTIME-FEATURE",
-        "requirement": "The roadmap migration changes planning and quality authority only and does not introduce commerce, Builder or template runtime feature behavior.",
+        ],
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -344,8 +261,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RUNTIME-SCOPE-EXPANSION",
-            "statement": "The transaction must not silently expand into commerce runtime or template implementation work.",
+            "id": "NEG-DIGITAL-OFFICE-LEAK",
+            "statement": "Digital Office collaboration/workforce capabilities must not be assigned to Alap.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-MULTILOCATION-PAYWALL",
+            "statement": "Baseline multi-location inventory must not become Pro-only.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -354,18 +278,5 @@
       }
     ]
   },
-  "notes": "Canonical roadmap reconciliation and authority migration only. This transaction records accepted PO decisions, replaces the old feature-order roadmap with the v2 maturity graph, retires the v1 authority, splits Builder from Template Factory in the capability registry, and updates quality consumers/tests. No storefront, commerce runtime, Builder implementation or template production is in scope.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "e689c56f6a626153c1e6e77d75afc44db206e940",
-    "closedAt": "2026-10-05T09:13:35.904Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-05-LIVING-ROADMAP-V2",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Package-authority refinement only. No runtime entitlement implementation or billing/pricing changes are introduced in this transaction."
 }
