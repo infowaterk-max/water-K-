@@ -1,62 +1,73 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-STAGE1-WORKFORCE-PROFILE-LOGOUT",
-  "task": "Add the canonical workforce profile dropdown and logout control to the authenticated admin shell without changing customer authentication, tenant selection or AAL2 policy.",
+  "taskId": "DEV-CONTROL-PLANE-TENANCY-SCOPE-MAPPING",
+  "task": "Teach the existing release-risk subsystem classifier that canonical src/lib/instances/** tenancy authority is a high-risk auth/access surface, so tenancy changes are not unresolved by Plan Before Code.",
   "status": "closed",
-  "guardDigest": "663168a5",
-  "changeBaseSha": "e7a9c16e36e518a6425fd3ba8c294f27548a6d0c",
+  "guardDigest": "075ef183",
+  "changeBaseSha": "4f6a638219cf7746f88fbd89b209f700a0e7d462",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "src/app/admin/layout.tsx",
-    "src/app/admin/admin-shell.css",
-    "src/components/admin/admin-profile-menu.tsx",
-    "tests/workforce-profile-logout.test.ts"
+    "deploy/release-risk-policy.json",
+    "tests/control-plane-tenancy-scope-mapping.test.ts"
   ],
   "expectedSubsystems": [
-    "admin-operations",
     "auth-access-authority",
     "customer-account",
-    "storefront-ui"
+    "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-ADMIN"
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "admin-operations"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-005",
+    "SQ-KF-003",
+    "SQ-KF-004",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-011",
-    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
+    "SQ-KF-020",
     "SQ-KF-022",
+    "TF-KF-001",
     "TF-KF-002",
-    "TF-KF-006",
+    "TF-KF-005",
+    "TF-KF-007",
     "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
     "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
     "TF-KF-020"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
     "SQ-NK-006",
-    "SQ-NK-008",
+    "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-PROFILE-LOGOUT",
+    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-PREREQUISITE",
     "riskTier": "medium",
     "assuranceCeiling": {
       "level": "state-and-failure-review",
-      "rationale": "This transaction adds a privileged-session termination control to the shared admin shell. It must preserve server-owned role context, use Supabase as the session authority, fail closed on sign-out failure, and avoid changing customer auth or the parked AAL2 policy.",
+      "rationale": "This changes the existing release-risk classification policy, not product behavior. It must classify canonical tenancy code without broadening unrelated paths or weakening risk limits.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -68,28 +79,23 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Every authenticated admin shell exposes a profile dropdown containing the current workforce email/identity label, the server-resolved platform or merchant role label, and a logout action.",
-        "Logout delegates to the existing Supabase browser auth client and redirects to the dedicated workforce login only after Supabase confirms sign-out success.",
-        "A sign-out error leaves the current admin session in place and surfaces an actionable error instead of pretending logout succeeded.",
-        "Platform and merchant role labels are derived from the existing server-owned platform/store role authorities and are not read from client-editable metadata.",
-        "Customer logout/authentication surfaces, tenant-selection authority, middleware and the parked AAL2 enforcement PR remain unchanged.",
-        "The profile control remains usable in both the desktop sidebar and the existing mobile admin shell without creating a second navigation controller."
+        "src/lib/instances/** is classified by the existing release-risk policy as auth-access-authority.",
+        "The mapping does not alter risk scores, limits, or any other subsystem definition.",
+        "The canonical DOMAIN-TENANCY ownership remains unchanged; the release policy only classifies verification risk.",
+        "A deterministic test proves the mapping exists and remains isolated."
       ],
       "invariants": [
-        "Supabase Auth remains the sole session/authentication authority; the profile component may request sign-out but may not create or mutate identity truth.",
-        "Admin role labels are computed by the server layout from getPlatformRole/getActiveStoreRoles and passed as display data only.",
-        "The admin profile menu is a presentation capability inside the canonical admin shell, not a parallel shell or authorization layer.",
-        "Logout success returns to /api/auth/workforce-login?next=%2Fadmin; it never routes the workforce user through the customer account login.",
-        "No AAL2, MFA enrollment, tenant selection, permission evaluation or middleware behavior changes in this release unit."
+        "No new quality system or subsystem is introduced.",
+        "The existing auth-access-authority high-risk classification is reused.",
+        "Domain truth ownership and release-risk classification remain separate concerns.",
+        "No product/runtime file changes in this prerequisite."
       ],
       "forbiddenStates": [
-        "customer-logout-component-reused-as-workforce-authority",
-        "client-metadata-used-as-admin-role-authority",
-        "logout-redirect-before-supabase-signout-success",
-        "logout-error-hidden-while-session-remains-active",
-        "profile-menu-duplicates-admin-navigation-controller",
-        "aal2-policy-change-in-profile-release",
-        "tenant-selection-change-in-profile-release"
+        "new-parallel-tenancy-risk-subsystem",
+        "risk-limit-relaxation",
+        "broad-src-lib-wildcard-classification",
+        "domain-tenancy-owner-change",
+        "product-runtime-change-in-prerequisite"
       ]
     },
     "model": {
@@ -121,30 +127,26 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The menu reuses the storefront/customer logout control and sends staff to the public storefront, collapsing the dedicated workforce entry contract.",
-        "The UI displays a role sourced from user metadata or another client-controlled value rather than the current platform/store role authority.",
-        "The browser navigates away even when signOut fails, leaving an active privileged session behind while presenting a false logged-out state.",
-        "Mobile styling hides or overlaps the profile/logout control because desktop sidebar geometry is merely shrunk."
+        "The classifier leaves canonical tenancy files unresolved and blocks legitimate tenancy development.",
+        "An overly broad pattern accidentally classifies unrelated src/lib code as high-risk auth/access."
       ],
       "edgeCases": [
-        "A platform owner with no active tenant still sees a valid platform role label and can log out.",
-        "A merchant user with multiple active store roles receives a deterministic joined display label without changing permission authority.",
-        "A user with no displayable email receives a neutral workforce-account label rather than client-derived profile metadata.",
-        "Repeated logout clicks are disabled while a sign-out request is in flight."
+        "Nested tenancy files under src/lib/instances subdirectories are included.",
+        "No other subsystem receives a new pattern."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-SHARED-CUSTOMER-LOGOUT",
-        "summary": "Reuse src/components/auth/logout-button.tsx inside the admin shell.",
+        "id": "ALT-NEW-TENANCY-SUBSYSTEM",
+        "summary": "Introduce a new release-risk tenancy subsystem.",
         "disposition": "rejected",
-        "reason": "That component returns to the public storefront and is customer-surface behavior; using it would blur the dedicated workforce login/logout contract."
+        "reason": "That would create a new parallel quality classification and require unnecessary policy/dependency expansion."
       },
       {
-        "id": "ALT-ADMIN-PROFILE-MENU",
-        "summary": "Add one admin-shell profile component that consumes server-resolved identity display data and uses the existing Supabase browser client only for sign-out.",
+        "id": "ALT-REUSE-AUTH-ACCESS",
+        "summary": "Add src/lib/instances/** to the existing high-risk auth-access-authority subsystem.",
         "disposition": "selected",
-        "reason": "This keeps presentation in DOMAIN-ADMIN, session mutation in the canonical Supabase auth authority, and the workforce/customer entrypoints separate."
+        "reason": "Tenant selection is security-sensitive access context and this resolves the missing classification using the existing risk model."
       }
     ],
     "specialistReviews": [
@@ -152,80 +154,70 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The profile dropdown belongs in the existing admin shell and may consume identity/role display context, but it must not become a new auth or navigation authority.",
-        "resolution": "Render one AdminProfileMenu from src/app/admin/layout.tsx and keep all authorization decisions in existing server auth helpers.",
+        "finding": "Release-risk classification must not redefine domain truth ownership.",
+        "resolution": "Keep DOMAIN-TENANCY unchanged and only map src/lib/instances/** into existing auth-access risk classification.",
         "evidence": [
-          "quality/knowledge/living-roadmap.v2.json",
           "quality/knowledge/domain-foundations.v1.json",
-          "src/app/admin/layout.tsx"
+          "deploy/release-risk-policy.json"
         ]
       },
       {
-        "role": "Security",
+        "role": "Release",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A logout UI that redirects before confirming sign-out can create a false logged-out state while the privileged session remains active.",
-        "resolution": "Guard navigation on a successful Supabase auth.signOut result; on error, stay in place and show an alert.",
+        "finding": "Changing release policy inside the same high-risk tenancy feature violates isolation and inflates the release-risk budget.",
+        "resolution": "Ship this policy mapping as an isolated prerequisite release unit before reconciling the tenancy feature.",
         "evidence": [
-          "src/lib/supabase/browser.ts",
-          "src/components/auth/logout-button.tsx"
+          "artifacts/release-risk-budget.json",
+          "deploy/release-risk-policy.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-WORKFORCE-PROFILE-1",
-        "scenario": "Supabase signOut returns an error.",
-        "finding": "Redirecting anyway would conceal a still-active admin session.",
-        "resolution": "Do not navigate; clear busy state and render an error alert.",
+        "id": "CH-TENANCY-SCOPE-1",
+        "scenario": "A future tenancy file is added under src/lib/instances/subdir/file.ts.",
+        "finding": "The classifier must recognize nested canonical tenancy paths.",
+        "resolution": "Use the existing glob form src/lib/instances/** rather than one-file entries.",
         "status": "resolved"
       },
       {
-        "id": "CH-WORKFORCE-PROFILE-2",
-        "scenario": "The authenticated actor is a platform owner without a selected storefront.",
-        "finding": "The profile menu must not depend on tenant/storefront resolution beyond the layout's already-valid platform role.",
-        "resolution": "Use the existing platform role label and current auth user email; no tenant lookup is introduced by the menu.",
+        "id": "CH-TENANCY-SCOPE-2",
+        "scenario": "The policy edit accidentally changes score thresholds or another subsystem.",
+        "finding": "That would be a broader release-governance change than required.",
+        "resolution": "Test exact presence of the one pattern and assert policy limits/subsystem names remain unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-WORKFORCE-PROFILE-3",
-        "scenario": "The admin shell is rendered on mobile.",
-        "finding": "A desktop-only floating profile widget could collide with the canonical mobile navigation.",
-        "resolution": "Keep the profile control in normal sidebar flow with bounded responsive CSS rather than fixed/absolute positioning.",
+        "id": "CH-TENANCY-SCOPE-3",
+        "scenario": "The mapping is interpreted as moving tenant truth into DOMAIN-IDENTITY.",
+        "finding": "Risk classification and architecture authority serve different concerns.",
+        "resolution": "Do not edit domain-foundations; preserve tenant-context-authority as canonical owner.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Add deterministic regression proof that the canonical roadmap requirement is implemented in the existing admin shell and that role display data comes from server-owned role resolution.",
-      "Prove the workforce logout component uses Supabase auth.signOut, blocks duplicate clicks, redirects only after success, exposes an error on failure, and never routes to the customer storefront/account entry.",
-      "Run full Quality Tests, TypeScript validation and Production Build.",
-      "Run Incremental Known Failure Replay plus Edit-Time/Reference Sync/Implementation Sync through the existing Control Plane.",
-      "Require exact-head Completion Truth VERIFIED and lifecycle closure before declaring this block complete."
+      "Add a deterministic regression test for the exact src/lib/instances/** mapping and unchanged DOMAIN-TENANCY ownership.",
+      "Run full Quality Tests, TypeScript and Production Build.",
+      "Require exact-head Completion Truth and lifecycle closure before merging the prerequisite."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-05-STAGE1-WORKFORCE-PROFILE-LOGOUT",
+      "request": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-PREREQUISITE",
       "authority": [
-        "admin-operations",
-        "auth-access-authority"
+        "release-infrastructure"
       ],
       "mustEdit": [
-        "src/app/admin/layout.tsx",
-        "src/components/admin/admin-profile-menu.tsx"
+        "deploy/release-risk-policy.json"
       ],
       "mayEdit": [
-        "src/app/admin/admin-shell.css",
-        "tests/workforce-profile-logout.test.ts"
+        "tests/control-plane-tenancy-scope-mapping.test.ts"
       ],
       "impactedReadOnly": [
-        "src/lib/auth/require-admin.ts",
-        "src/lib/auth/platform-operator.ts",
-        "src/lib/auth/store-rbac.ts",
-        "src/lib/supabase/browser.ts",
-        "src/components/auth/logout-button.tsx",
-        "quality/knowledge/living-roadmap.v2.json"
+        "quality/knowledge/domain-foundations.v1.json",
+        "scripts/lib/shoperation-development-runtime.mjs"
       ],
       "proof": [
-        "tests/workforce-profile-logout.test.ts"
+        "tests/control-plane-tenancy-scope-mapping.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -234,14 +226,14 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-PROFILE-LOGOUT",
+    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-PREREQUISITE",
     "requirements": [
       {
-        "id": "REQ-WORKFORCE-PROFILE-LOGOUT",
-        "requirement": "The canonical admin shell exposes a workforce profile dropdown with server-resolved identity/role display context and a fail-closed Supabase-backed logout that returns to the dedicated workforce login.",
+        "id": "REQ-CONTROL-PLANE-TENANCY-SCOPE-MAPPING",
+        "requirement": "The existing release-risk classifier recognizes canonical src/lib/instances/** tenancy authority through the existing high-risk auth-access subsystem without changing domain ownership or risk limits.",
         "claimScope": {
-          "capability": "CAP-AUTH",
-          "breadth": "workforce-admin-profile-dropdown-logout",
+          "capability": "CAP-QUALITY",
+          "breadth": "tenancy-risk-classification",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -251,8 +243,8 @@
           ]
         },
         "requiredCapabilities": [
-          "CAP-AUTH",
-          "CAP-ADMIN"
+          "CAP-QUALITY",
+          "CAP-TENANT"
         ],
         "evidence": {
           "implementation": [
@@ -265,22 +257,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-CUSTOMER-AUTH-DRIFT",
-            "statement": "Customer logout/authentication components and storefront login routing must remain unchanged.",
+            "id": "NEG-RISK-LIMIT-RELAXATION",
+            "statement": "Release-risk score or subsystem limits are not weakened.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-FALSE-LOGOUT",
-            "statement": "A failed Supabase sign-out must not navigate away or present a successful logged-out state.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-CLIENT-ROLE-AUTHORITY",
-            "statement": "The profile menu must not derive privileged role truth from client-editable metadata.",
+            "id": "NEG-TENANCY-AUTHORITY-DRIFT",
+            "statement": "DOMAIN-TENANCY remains owned by tenant-context-authority.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -289,14 +274,14 @@
       }
     ]
   },
-  "notes": "Independent MR1 release unit started from main e7a9c16 after PR #867 merged. PR #858 AAL2 enforcement remains parked and read-only. This block implements only the canonical profile dropdown/logout scope. Plan scope reconciled to the Control Plane planned-projection classification: the implementation remains DOMAIN-ADMIN/admin-operations authority while its dependency/test surface activates auth-access, customer-account and storefront guard coverage.",
+  "notes": "Isolated prerequisite extracted from Stage 1 platform tenant-context work after Release Risk Budget correctly rejected combining release-policy classification with the high-risk product change. Plan envelope reconciled to the Control Plane intent projection: wording about auth/access classification activates auth-access-authority and its customer-account dependency for replay, while the only material policy mutation remains release-infrastructure.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "31d9f58191cde3ac09eda3411ea9423aebcb1fa8",
-    "closedAt": "2026-10-05T14:51:14.318Z",
+    "verifiedImplementationHead": "692cee0425f20e2ff9de34d2ca235e315a8a2fad",
+    "closedAt": "2026-10-05T15:46:26.944Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-PROFILE-LOGOUT",
+    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-PREREQUISITE",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
