@@ -7,12 +7,12 @@
   "changeBaseSha": "2d3aa9d7e7832651fab2734b1812cecdb6f636dd",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "src/app/staff/login/page.tsx",
+    "src/app/api/auth/workforce-login/page.tsx",
     "src/app/api/auth/workforce-context/route.ts",
     "src/lib/auth/workforce-auth-form.tsx",
-    "src/app/fiokom/page.tsx",
     "src/lib/auth/admin-api.ts",
     "src/lib/auth/require-admin.ts",
+    "src/middleware.ts",
     "tests/workforce-auth-ux.test.ts"
   ],
   "expectedSubsystems": [
@@ -22,12 +22,10 @@
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-IDENTITY",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-IDENTITY"
   ],
   "expectedAuthorities": [
-    "auth-access-authority",
-    "shared-storefront"
+    "auth-access-authority"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -173,9 +171,9 @@
     "alternatives": [
       {
         "id": "ALT-DEDICATED-WORKFORCE-FLOW",
-        "summary": "Add a dedicated workforce login page that consumes server-resolved role context and the existing canonical MFA primitives.",
+        "summary": "Expose a dedicated /staff/login alias whose implementation page lives under the canonical auth route ownership, consuming server-resolved role context and the existing MFA primitives.",
         "disposition": "selected",
-        "reason": "It separates workforce UX from shopper auth, keeps factor truth in Supabase and postpones authorization enforcement while still proving the full enrollment/challenge interaction."
+        "reason": "This keeps the entire substantive release unit inside auth-access-authority while preserving a product-facing workforce URL, customer-auth separation and the PO-mandated enrollment/challenge flow."
       },
       {
         "id": "ALT-EXTEND-CUSTOMER-AUTHFORM",
@@ -290,6 +288,13 @@
         "finding": "Blindly rewriting those consumers would cross the PO non-scope boundary into Builder/template and preview acceptance behavior, including a non-admin storefront-template-preview return contract.",
         "resolution": "Keep the three consumers unchanged and record exact fingerprint-scoped review exceptions; no broad exception or route rewrite is allowed.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-MFA-UX-10",
+        "scenario": "The first complete workforce UX diff spans auth-access-authority, customer-account and storefront-ui, causing the production Release Risk Budget to block a high-risk auth change mixed with lower-risk subsystems.",
+        "finding": "Keeping the convenient /fiokom bridge and a generic app page would violate the canonical rule that a high-risk subsystem must be the only substantive production release subsystem.",
+        "resolution": "Revert customer-account changes, place the workforce page under src/app/api/auth ownership, and use middleware only as a /staff/login presentation alias; middleware remains routing-only and adds no AAL2 authorization enforcement.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -302,16 +307,15 @@
     "semanticExecutionRoute": {
       "request": "PO-2026-10-05-STAGE1-WORKFORCE-MFA-UX",
       "authority": [
-        "auth-access-authority",
-        "shared-storefront"
+        "auth-access-authority"
       ],
       "mustEdit": [
+        "src/app/api/auth/workforce-login/page.tsx",
         "src/app/api/auth/workforce-context/route.ts",
         "src/lib/auth/workforce-auth-form.tsx",
-        "src/app/staff/login/page.tsx",
-        "src/app/fiokom/page.tsx",
         "src/lib/auth/admin-api.ts",
-        "src/lib/auth/require-admin.ts"
+        "src/lib/auth/require-admin.ts",
+        "src/middleware.ts"
       ],
       "mayEdit": [
         "tests/workforce-auth-ux.test.ts"
@@ -322,11 +326,11 @@
         "src/lib/auth/workforce-mfa-client.ts",
         "src/components/auth/auth-form.tsx",
         "src/components/auth/platform-auth-form.tsx",
-        "src/middleware.ts",
         "quality/knowledge/living-roadmap.v2.json",
         "src/app/api/pilot-access/start/route.ts",
         "src/lib/auth/template-preview-access.ts",
-        "tests/storefront-template-preview-access.test.ts"
+        "tests/storefront-template-preview-access.test.ts",
+        "src/app/fiokom/page.tsx"
       ],
       "proof": [
         "tests/workforce-auth-ux.test.ts"
@@ -392,5 +396,5 @@
       }
     ]
   },
-  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY UI block only. The canonical AAL2/TOTP primitives from PR #848 are consumed, not reimplemented. The next separate high-risk auth block will add authorization enforcement after this UX is exact-head VERIFIED. CI attempt 1 exposed an Authority Graph dependency drift in the new route; scope was widened to the existing canonical admin-api identity boundary rather than adding a new cross-domain exception. Reference Sync review confirmed three preview/template consumers are intentionally unchanged and are acknowledged only through exact finding fingerprints."
+  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY UI block only. The canonical AAL2/TOTP primitives from PR #848 are consumed, not reimplemented. The next separate high-risk auth block will add authorization enforcement after this UX is exact-head VERIFIED. CI attempt 1 exposed an Authority Graph dependency drift in the new route; scope was widened to the existing canonical admin-api identity boundary rather than adding a new cross-domain exception. Reference Sync review confirmed three preview/template consumers are intentionally unchanged and are acknowledged only through exact finding fingerprints. Release Risk Budget required high-risk isolation, so the final transaction removes customer-account/storefront substantive edits and keeps the workforce UX entirely inside auth-access-authority; /staff/login is a middleware alias only."
 }
