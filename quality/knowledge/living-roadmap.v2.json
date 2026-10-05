@@ -1312,7 +1312,9 @@
       "status": "planned",
       "phase": "template-factory",
       "capabilities": [
-        "CAP-BUILDER"
+        "CAP-TEMPLATE-FACTORY",
+        "CAP-STOREFRONT",
+        "CAP-QUALITY"
       ],
       "evidenceRefs": [],
       "order": 900,
@@ -1342,7 +1344,7 @@
       "targetWindow": "stage-8",
       "priority": "P0",
       "capabilities": [
-        "CAP-BUILDER",
+        "CAP-TEMPLATE-FACTORY",
         "CAP-STOREFRONT"
       ],
       "dependsOn": [
