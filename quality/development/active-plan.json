@@ -11,6 +11,7 @@
     "src/app/api/auth/workforce-context/route.ts",
     "src/lib/auth/workforce-auth-form.tsx",
     "src/app/fiokom/page.tsx",
+    "src/lib/auth/admin-api.ts",
     "src/lib/auth/require-admin.ts",
     "tests/workforce-auth-ux.test.ts"
   ],
@@ -256,6 +257,13 @@
         "finding": "Authentication alone does not prove workforce authorization.",
         "resolution": "A server-owned workforce-context lookup must resolve platform or store staff role authority before any MFA decision or admin redirect occurs.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-MFA-UX-8",
+        "scenario": "The workforce context API directly imports tenant instance and store-role authority from an Identity-domain route.",
+        "finding": "Codebase Atlas rejects the direct DOMAIN-IDENTITY to DOMAIN-TENANCY dependency because only the canonical auth boundary modules are authorized to consume tenancy context.",
+        "resolution": "Resolve platform/store workforce context inside src/lib/auth/admin-api.ts, whose Identity-to-Tenancy boundary is already an explicit architecture contract, and keep the route as a thin Identity API consumer.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -276,6 +284,7 @@
         "src/lib/auth/workforce-auth-form.tsx",
         "src/app/staff/login/page.tsx",
         "src/app/fiokom/page.tsx",
+        "src/lib/auth/admin-api.ts",
         "src/lib/auth/require-admin.ts"
       ],
       "mayEdit": [
@@ -354,5 +363,5 @@
       }
     ]
   },
-  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY UI block only. The canonical AAL2/TOTP primitives from PR #848 are consumed, not reimplemented. The next separate high-risk auth block will add authorization enforcement after this UX is exact-head VERIFIED."
+  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY UI block only. The canonical AAL2/TOTP primitives from PR #848 are consumed, not reimplemented. The next separate high-risk auth block will add authorization enforcement after this UX is exact-head VERIFIED. CI attempt 1 exposed an Authority Graph dependency drift in the new route; scope was widened to the existing canonical admin-api identity boundary rather than adding a new cross-domain exception."
 }
