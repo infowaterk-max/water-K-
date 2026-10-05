@@ -6,9 +6,18 @@
   "guardDigest": "aa79c504",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
+    "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md",
     "quality/development/active-plan.json",
+    "quality/knowledge/capability-registry.v1.json",
+    "quality/knowledge/living-roadmap.v1.json",
     "quality/knowledge/living-roadmap.v2.json",
-    "tests/architecture-health.test.ts"
+    "scripts/lib/shoperation-architecture-health.mjs",
+    "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+    "src/lib/quality-system/capability-evidence.ts",
+    "tests/architecture-health.test.ts",
+    "tests/capability-roadmap-evidence.test.ts",
+    "tests/deep-atlas-scan.test.ts",
+    "tests/shoperation-sentinel.test.ts"
   ],
   "expectedSubsystems": [],
   "expectedDomains": [
@@ -84,7 +93,8 @@
         "explicit-specification",
         "invariants",
         "boundary-cases",
-        "adversarial-scenarios"
+        "adversarial-scenarios",
+        "state-model"
       ],
       "deferredTechniques": []
     },
@@ -197,19 +207,21 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Entitlements must split by business capability, not by duplicated runtime or template implementation.",
-        "resolution": "Keep shared engines canonical and package-gate capabilities server-side.",
+        "finding": "Package entitlements must remain a capability boundary over shared canonical engines and must not fork runtime, templates or commerce authorities.",
+        "resolution": "Keep the shared runtime and Builder canonical; enforce Alap/Pro differences as server-authoritative entitlements in the roadmap/package matrix.",
         "evidence": [
-          "quality/knowledge/living-roadmap.v2.json"
+          "quality/knowledge/living-roadmap.v2.json",
+          "quality/knowledge/capability-registry.v1.json"
         ]
       },
       {
-        "role": "Product",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The accepted benchmark strategy is Alap = complete professional webshop, Pro = larger-team/business-system depth.",
-        "resolution": "Use competitor baseline as a floor, then monetize higher operational complexity and specialized add-ons rather than ordinary commerce.",
+        "role": "Known Failure",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "A simplified package matrix can silently reintroduce prior entitlement mistakes, especially Digital Office or Special Commerce leakage into Alap.",
+        "resolution": "Lock the critical package boundaries with explicit negative assertions in architecture-health tests and retain the earlier benchmark-derived decisions in the canonical roadmap.",
         "evidence": [
+          "tests/architecture-health.test.ts",
           "quality/knowledge/living-roadmap.v2.json"
         ]
       }
@@ -230,7 +242,16 @@
         "quality/knowledge/living-roadmap.v2.json"
       ],
       "mayEdit": [
-        "tests/architecture-health.test.ts"
+        "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md",
+        "quality/knowledge/capability-registry.v1.json",
+        "quality/knowledge/living-roadmap.v1.json",
+        "scripts/lib/shoperation-architecture-health.mjs",
+        "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+        "src/lib/quality-system/capability-evidence.ts",
+        "tests/architecture-health.test.ts",
+        "tests/capability-roadmap-evidence.test.ts",
+        "tests/deep-atlas-scan.test.ts",
+        "tests/shoperation-sentinel.test.ts"
       ],
       "impactedReadOnly": [
         "quality/knowledge/capability-registry.v1.json",
