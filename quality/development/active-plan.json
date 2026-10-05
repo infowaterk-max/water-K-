@@ -381,14 +381,24 @@
           "CAP-RELEASE"
         ],
         "evidence": {
-          "implementation": [],
+          "implementation": [
+            "GUARD-RELEASE-RISK"
+          ],
           "outcome": [
             "GUARD-RELEASE-RISK"
           ]
         },
-        "forbiddenRegressions": []
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-HIGH-RISK-MIXED-RELEASE",
+            "statement": "The high-risk Auth Core release must not be mixed with substantive non-auth subsystems or exceed the canonical release risk budget.",
+            "evidence": [
+              "GUARD-RELEASE-RISK"
+            ]
+          }
+        ]
       }
     ]
   },
-  "notes": "Release Risk Budget on combined workforce convergence head 9565aee4 proved the implementation was too broad: 10/5 points across four subsystems, while Plan Before Code, Edit-Time Guard and Incremental Replay all passed. This transaction is the required first split: high-risk Auth Core only. The already-developed non-auth platform/account/preview/admin delegators remain on the combined reference branch and will be re-applied from verified main as a second release unit. PR #858 remains parked and AAL2 enforcement is not activated. Sentinel integrity correctly rejected CAP-RELEASE evidence embedded inside the CAP-AUTH completion claim. Release isolation is now modeled as a separate CAP-RELEASE requirement proven by GUARD-RELEASE-RISK; the release gate itself remains mandatory and unchanged."
+  "notes": "Release Risk Budget on combined workforce convergence head 9565aee4 proved the implementation was too broad: 10/5 points across four subsystems, while Plan Before Code, Edit-Time Guard and Incremental Replay all passed. This transaction is the required first split: high-risk Auth Core only. The already-developed non-auth platform/account/preview/admin delegators remain on the combined reference branch and will be re-applied from verified main as a second release unit. PR #858 remains parked and AAL2 enforcement is not activated. Sentinel integrity correctly rejected CAP-RELEASE evidence embedded inside the CAP-AUTH completion claim. Release isolation is now modeled as a separate CAP-RELEASE requirement proven by GUARD-RELEASE-RISK; the release gate itself remains mandatory and unchanged. Plan Before Code required explicit implementation evidence and negative verification for the CAP-RELEASE claim; both are bound to GUARD-RELEASE-RISK, whose canonical proof semantics are CAP-RELEASE with risk/release-scope dimensions."
 }
