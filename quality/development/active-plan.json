@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-STAGE1-WORKFORCE-PROFILE-LOGOUT",
   "task": "Add the canonical workforce profile dropdown and logout control to the authenticated admin shell without changing customer authentication, tenant selection or AAL2 policy.",
-  "status": "implementation-ready",
+  "status": "ready-for-implementation",
   "guardDigest": "663168a5",
   "changeBaseSha": "e7a9c16e36e518a6425fd3ba8c294f27548a6d0c",
   "plannedFilePatterns": [
