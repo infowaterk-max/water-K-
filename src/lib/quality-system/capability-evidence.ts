@@ -1,5 +1,5 @@
 import capabilitiesJson from '../../../quality/knowledge/capability-registry.v1.json';
-import roadmapJson from '../../../quality/knowledge/living-roadmap.v1.json';
+import roadmapJson from '../../../quality/knowledge/living-roadmap.v2.json';
 import evidenceJson from '../../../quality/knowledge/evidence-ledger.v1.json';
 import domainsJson from '../../../quality/knowledge/domain-foundations.v1.json';
 
