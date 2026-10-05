@@ -1,18 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-STAGE1-WORKFORCE-MFA-UX",
-  "task": "Implement dedicated staff/admin login plus TOTP enrollment and challenge UX using the canonical workforce assurance primitives without enabling global AAL2 authorization enforcement.",
+  "taskId": "DEV-STAGE1-WORKFORCE-ADMIN-ENTRY-BRIDGE",
+  "task": "Bridge the existing admin login intent from the customer account entry to the dedicated workforce login while preserving shopper authentication isolation and safe admin return targets.",
   "status": "closed",
   "guardDigest": "663168a5",
-  "changeBaseSha": "2d3aa9d7e7832651fab2734b1812cecdb6f636dd",
+  "changeBaseSha": "e0f65b8dc4232e71cde9271de27039a590b4aae1",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "src/app/api/auth/workforce-login/page.tsx",
-    "src/app/api/auth/workforce-context/route.ts",
-    "src/lib/auth/workforce-auth-form.tsx",
-    "src/lib/auth/admin-api.ts",
-    "src/lib/auth/require-admin.ts",
-    "tests/workforce-auth-ux.test.ts"
+    "src/app/fiokom/page.tsx",
+    "tests/workforce-admin-entry-bridge.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -21,23 +17,23 @@
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-IDENTITY"
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "auth-access-authority"
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-013",
-    "SQ-KF-014",
-    "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
     "SQ-KF-005",
     "SQ-KF-007",
     "SQ-KF-011",
     "SQ-KF-012",
+    "SQ-KF-013",
+    "SQ-KF-014",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-022",
     "TF-KF-002",
     "TF-KF-006",
     "TF-KF-008",
@@ -51,73 +47,46 @@
     "SQ-NK-008",
     "SQ-NK-012"
   ],
-  "exceptions": [
-    {
-      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
-      "file": "src/app/api/pilot-access/start/route.ts",
-      "findingFingerprint": "2838dbb4",
-      "reason": "Intentional preview-only pilot access consumer. Stage 1 workforce MFA UX explicitly excludes Builder/template/pilot acceptance work; changing this route would expand the development transaction beyond the accepted block."
-    },
-    {
-      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
-      "file": "src/lib/auth/template-preview-access.ts",
-      "findingFingerprint": "89655752",
-      "reason": "Intentional template-preview authentication consumer. Its return target includes storefront-template-preview rather than the admin-only workforce return contract, and Builder/template behavior is explicit non-scope for this block."
-    },
-    {
-      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
-      "file": "tests/storefront-template-preview-access.test.ts",
-      "findingFingerprint": "2c2f522c",
-      "reason": "Intentional regression evidence for the unchanged template-preview login contract; it must remain aligned with src/lib/auth/template-preview-access.ts while Builder/template work stays outside this transaction."
-    }
-  ],
+  "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-MFA-UX",
-    "riskTier": "high",
+    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-ADMIN-ENTRY-BRIDGE",
+    "riskTier": "medium",
     "assuranceCeiling": {
-      "level": "strong-behavioral-proof",
-      "rationale": "The flow handles workforce credentials, Supabase MFA factor enrollment and privileged-session assurance. It must compose the existing identity authority, preserve customer authentication boundaries, fail closed on missing MFA/context evidence and avoid prematurely changing global admin authorization enforcement.",
+      "level": "state-and-failure-review",
+      "rationale": "This transaction changes the customer-account presentation entry path for an existing privileged login intent. It must preserve customer authentication behavior, reject ambiguous/non-admin return intents, and delegate workforce authentication to the already verified Supabase-backed workforce authority without expanding middleware or authorization scope.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "what-if-matrix",
         "adversarial-scenarios",
-        "boundary-cases",
-        "pairwise-interactions",
-        "threat-failure-model",
-        "fault-injection"
+        "boundary-cases"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "A dedicated staff/admin login route authenticates workforce users without modifying shopper registration or customer MFA policy.",
-        "When the canonical workforce policy requires a factor and none is verified, the UI starts Supabase TOTP enrollment and displays both QR data and the manual secret fallback.",
-        "When verified TOTP factors exist but the current session is below AAL2, the UI challenges a verified factor and only continues after Supabase verification succeeds.",
-        "A platform owner is guided until two verified TOTP factors exist and the current session is AAL2.",
-        "Successful completion returns to the originally requested safe admin target, while invalid or external return targets fall back to /admin.",
-        "MFA/context loading errors and interrupted enrollment fail closed inside the workforce flow; abandoned unverified enrollment can be cancelled and unenrolled.",
-        "The UI remains usable on narrow mobile and desktop widths without localStorage/sessionStorage MFA state or OTP-secret persistence.",
-        "This block does not add requireAdmin, middleware or API-wide AAL2 authorization enforcement."
+        "An unauthenticated admin request that middleware expresses as /fiokom?reason=login&next=<safe-admin-target> is redirected to /api/auth/workforce-login with the same encoded safe admin target.",
+        "The bridge executes before storefront instance resolution so platform/workforce login does not depend on an active storefront context.",
+        "Ordinary /fiokom shopper login, registration and customer AuthForm behavior remain unchanged.",
+        "reason=login without a valid local /admin return target does not enter the workforce bridge.",
+        "No middleware, requireAdmin, workforce MFA policy, AAL2 enforcement or customer MFA policy is changed in this transaction."
       ],
       "invariants": [
-        "Supabase Auth remains the sole TOTP secret, factor verification and AAL authority.",
-        "The existing workforce assurance policy remains the sole source of required factor count.",
-        "Customer AuthForm behavior and customer MFA policy remain unchanged.",
-        "A client-side success state never substitutes for server-owned workforce role context.",
-        "No workforce flow writes OTP secrets, challenge codes or MFA readiness to localStorage or sessionStorage.",
-        "Admin authorization enforcement remains unchanged until the next dedicated high-risk auth block."
+        "Supabase Auth and the verified workforce login route remain the authentication/MFA authority.",
+        "The customer account page is only a routing bridge for an explicit admin intent and never evaluates workforce role, tenant role or MFA readiness itself.",
+        "Return targets are normalized with the existing local-return helper and accepted only for /admin or /admin/*.",
+        "Platform-owner workforce entry must not require getCurrentWebshopInstance before reaching workforce authentication.",
+        "Normal customer account access continues to resolve storefront context and render AuthForm exactly as before."
       ],
       "forbiddenStates": [
-        "second-mfa-authority",
-        "otp-secret-browser-persistence",
-        "customer-login-repurposed-as-workforce-mfa-authority",
-        "platform-owner-completes-with-one-verified-factor",
-        "mfa-provider-error-redirects-to-admin",
-        "external-open-redirect-after-login",
-        "global-aal2-enforcement-in-this-block"
+        "customer-authform-becomes-workforce-auth",
+        "workforce-role-resolution-inside-fiokom",
+        "bridge-without-admin-return-target",
+        "external-or-protocol-relative-workforce-return",
+        "storefront-instance-required-before-workforce-redirect",
+        "middleware-becomes-authorization-authority",
+        "aal2-policy-change-in-bridge-release"
       ]
     },
     "model": {
@@ -149,42 +118,28 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A shopper credential is accepted by the workforce surface and accidentally treated as staff authority.",
-        "A platform owner verifies one factor and is redirected before the required second verified factor exists.",
-        "An unverified enrollment is abandoned and repeatedly accumulates stale factors that obstruct later enrollment.",
-        "MFA snapshot or role-context retrieval fails and the UI continues as though no MFA were required.",
-        "A crafted next parameter redirects a privileged login to an external or non-admin target.",
-        "The workforce UX starts enforcing AAL2 globally and blocks low-risk staff beyond the accepted policy.",
-        "Mobile layout hides the QR fallback, code field or recovery controls required to finish enrollment."
+        "A broad reason=login check diverts normal customer login or preview/pilot flows into workforce authentication.",
+        "The account page resolves storefront instance before redirecting, preserving the exact platform-owner/storefront dependency the bridge is intended to remove.",
+        "A crafted next parameter is forwarded to workforce login without local/admin-only normalization."
       ],
       "edgeCases": [
-        "Platform owner with zero verified factors at AAL1 enrolls factor one, verifies it, then is guided to enroll factor two.",
-        "Platform owner with one verified factor at AAL1 first challenges that factor, then enrolls and verifies the second factor.",
-        "Platform owner with two verified factors at AAL1 challenges one verified factor and then proceeds.",
-        "Merchant admin with one verified factor at AAL1 challenges and proceeds after AAL2.",
-        "Low-risk platform operator or store staff with zero required factors proceeds without forced enrollment.",
-        "Customer-only user signing in on the workforce route receives a staff-access error and is not granted admin navigation.",
-        "An interrupted unverified enrollment can be cancelled and removed before a fresh enrollment starts."
+        "next=/admin is bridged.",
+        "next=/admin/rendelesek?status=processing is bridged with its query preserved.",
+        "next=//evil.example, next=/fiokom and missing next remain on the customer account flow."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-DEDICATED-WORKFORCE-FLOW",
-        "summary": "Expose the dedicated workforce login as an auth-owned Next.js page under /api/auth/workforce-login, consuming server-resolved role context and the existing MFA primitives.",
+        "id": "ALT-ACCOUNT-INTENT-BRIDGE",
+        "summary": "Handle only the existing admin login intent in src/app/fiokom/page.tsx and delegate immediately to the verified workforce route.",
         "disposition": "selected",
-        "reason": "This keeps the substantive high-risk release unit entirely inside auth-access-authority. The existing admin-entry redirect bridge is deliberately deferred to a separate lower-risk stacked release unit rather than mixing customer-account routing into the auth PR."
+        "reason": "This fulfills the explicit deferred #849 release unit while keeping middleware read-only and customer/workforce authorities separate."
       },
       {
-        "id": "ALT-EXTEND-CUSTOMER-AUTHFORM",
-        "summary": "Add staff role detection and MFA screens directly inside the existing shopper AuthForm.",
+        "id": "ALT-MIDDLEWARE-DIRECT-WORKFORCE-REDIRECT",
+        "summary": "Change middleware so unauthenticated admin pages redirect directly to workforce login.",
         "disposition": "rejected",
-        "reason": "It would mix customer and workforce intent, increase route/policy coupling and risk turning a shared customer presentation component into a second workforce authority."
-      },
-      {
-        "id": "ALT-ENFORCE-AAL2-IN-MIDDLEWARE-NOW",
-        "summary": "Wire AAL2 checks into middleware and requireAdmin at the same time as the first MFA UX.",
-        "disposition": "rejected",
-        "reason": "The Product Owner explicitly separated UX proof from the next high-risk enforcement block; combining them would expand blast radius before enrollment and recovery behavior is proven."
+        "reason": "The prior verified block deliberately left middleware read-only; changing it would expand the transaction and risk making middleware a competing auth-routing authority."
       }
     ],
     "specialistReviews": [
@@ -192,147 +147,76 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The workforce surface must compose the canonical identity primitives and may not duplicate required-factor logic or factor persistence in presentation code.",
-        "resolution": "Server role context returns only the role-derived requirement, while enrollment/challenge calls remain wrappers over the existing workforce MFA client and Supabase Auth.",
+        "finding": "The bridge must remain presentation routing only and must not duplicate role, tenant or MFA decisions.",
+        "resolution": "The account page validates only the existing reason/next intent and delegates to /api/auth/workforce-login before storefront context resolution.",
         "evidence": [
-          "src/lib/auth/workforce-assurance-policy.ts",
-          "src/lib/auth/workforce-mfa-client.ts",
-          "quality/knowledge/domain-foundations.v1.json"
+          "quality/knowledge/living-roadmap.v2.json",
+          "quality/development/active-plan.json",
+          "src/app/api/auth/workforce-login/page.tsx"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A successful password sign-in is only AAL1 and cannot be treated as privileged-ready; provider/context errors and unsafe return targets must not create a bypass.",
-        "resolution": "The workforce flow fails closed on context/MFA errors, requires the canonical next MFA step before redirect, and normalizes return intent to a local /admin target.",
+        "finding": "A query-string bridge can become an open redirect or a cross-surface login confusion path if reason=login alone is sufficient.",
+        "resolution": "The bridge requires a normalized local return target whose path is exactly /admin or begins /admin/; missing, external, protocol-relative and customer targets stay on the shopper flow.",
         "evidence": [
-          "src/lib/auth/workforce-assurance-policy.ts",
-          "src/lib/auth/workforce-mfa-client.ts",
-          "src/lib/auth/storefront-return-target.ts"
-        ]
-      },
-      {
-        "role": "UX / Template",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Enrollment must remain operable without QR scanning and on narrow screens, including explicit cancellation of an in-progress factor.",
-        "resolution": "The planned surface exposes the TOTP secret fallback, touch-sized controls, responsive single-column layout and an enrollment cancellation path that unenrolls the unverified factor.",
-        "evidence": [
-          "PO-2026-10-05-STAGE1-WORKFORCE-MFA-UX",
-          "Supabase TOTP enrollment guidance"
+          "src/lib/auth/storefront-return-target.ts",
+          "src/middleware.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-MFA-UX-1",
-        "scenario": "A platform owner has one verified factor but the password login session is AAL1.",
-        "finding": "Enrolling factor two immediately would skip proof that the current session controls the already verified factor.",
-        "resolution": "The state machine follows the canonical policy: challenge the existing verified factor first, then enroll the missing second factor.",
+        "id": "CH-ADMIN-BRIDGE-1",
+        "scenario": "A shopper opens /fiokom normally or with a customer next target.",
+        "finding": "A broad workforce redirect would collapse the required customer/workforce separation.",
+        "resolution": "Only reason=login plus a normalized /admin target activates the bridge.",
         "status": "resolved"
       },
       {
-        "id": "CH-MFA-UX-2",
-        "scenario": "A user closes or cancels the screen after Supabase creates an unverified TOTP enrollment.",
-        "finding": "Leaving stale unverified factors can accumulate and make later enrollment ambiguous.",
-        "resolution": "Cancellation explicitly unenrolls the in-progress factor, and a new enrollment cleans stale unverified TOTP factors before creating another.",
+        "id": "CH-ADMIN-BRIDGE-2",
+        "scenario": "A platform owner has no active storefront/tenant context when opening /admin.",
+        "finding": "Calling getCurrentWebshopInstance before redirect would preserve a storefront dependency.",
+        "resolution": "Search intent is evaluated and redirected before instance resolution.",
         "status": "resolved"
       },
       {
-        "id": "CH-MFA-UX-3",
-        "scenario": "The role-context endpoint or Supabase MFA snapshot fails after password authentication.",
-        "finding": "Treating the failure as zero required factors would turn an availability error into an authentication downgrade.",
-        "resolution": "The workforce UI enters an error/retry state and never redirects to the requested admin target until context and MFA evidence load successfully.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-MFA-UX-4",
-        "scenario": "A normal shopper reaches /fiokom without an admin login intent.",
-        "finding": "A broad redirect to the workforce page would silently change the customer login contract.",
-        "resolution": "Only the existing reason=login intent with a normalized /admin next target bridges to the dedicated workforce route; all ordinary customer account behavior remains untouched.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-MFA-UX-5",
-        "scenario": "An attacker supplies next=//evil.example or another non-admin local path.",
-        "finding": "Returning blindly after MFA could create an open redirect or cross-surface privileged-login confusion.",
-        "resolution": "The page normalizes the value with the existing safe local return helper and accepts only /admin targets, otherwise falling back to /admin.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-MFA-UX-6",
-        "scenario": "A low-risk staff role has no verified factor and no sensitive-boundary requirement.",
-        "finding": "Forcing enrollment merely because the user entered the staff portal would contradict the accepted workforce MFA policy.",
-        "resolution": "The server derives requiredFactors from the canonical policy; zero-factor roles proceed without a synthetic MFA requirement.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-MFA-UX-7",
-        "scenario": "A customer-only account successfully authenticates with email and password on the workforce route.",
-        "finding": "Authentication alone does not prove workforce authorization.",
-        "resolution": "A server-owned workforce-context lookup must resolve platform or store staff role authority before any MFA decision or admin redirect occurs.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-MFA-UX-8",
-        "scenario": "The workforce context API directly imports tenant instance and store-role authority from an Identity-domain route.",
-        "finding": "Codebase Atlas rejects the direct DOMAIN-IDENTITY to DOMAIN-TENANCY dependency because only the canonical auth boundary modules are authorized to consume tenancy context.",
-        "resolution": "Resolve platform/store workforce context inside src/lib/auth/admin-api.ts, whose Identity-to-Tenancy boundary is already an explicit architecture contract, and keep the route as a thin Identity API consumer.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-MFA-UX-9",
-        "scenario": "Reference Sync finds legacy /fiokom login literals in pilot and template-preview paths after requireAdmin moves ordinary admin login to the dedicated workforce route.",
-        "finding": "Blindly rewriting those consumers would cross the PO non-scope boundary into Builder/template and preview acceptance behavior, including a non-admin storefront-template-preview return contract.",
-        "resolution": "Keep the three consumers unchanged and record exact fingerprint-scoped review exceptions; no broad exception or route rewrite is allowed.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-MFA-UX-10",
-        "scenario": "The first complete workforce UX diff spans auth-access-authority, customer-account and storefront-ui, causing the production Release Risk Budget to block a high-risk auth change mixed with lower-risk subsystems.",
-        "finding": "Keeping the convenient /fiokom bridge and a generic app page would violate the canonical rule that a high-risk subsystem must be the only substantive production release subsystem.",
-        "resolution": "Revert customer-account and middleware changes and keep the workforce page under src/app/api/auth ownership. The existing middleware remains read-only; a separate stacked customer-account release unit will bridge its existing /fiokom?reason=login&next=/admin intent to the verified workforce route.",
+        "id": "CH-ADMIN-BRIDGE-3",
+        "scenario": "An attacker supplies //evil.example, a control-containing path, or /fiokom as next.",
+        "finding": "Blind forwarding could create open redirect or privileged-login surface confusion.",
+        "resolution": "Reuse normalizeStorefrontReturnTarget and require /admin or /admin/*; otherwise do not bridge.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run deterministic regression tests covering safe workforce return routing, customer-auth isolation, Supabase-only MFA usage, platform-owner second-factor progression and abandoned enrollment cleanup.",
-      "Run the full quality test suite so existing customer account, platform portal, RBAC, navigation and Known Failure regressions remain green.",
-      "Run TypeScript validation for the new App Router page, route handler and client MFA state machine.",
-      "Run production build proof to catch Server/Client Component boundary, Next.js routing and responsive JSX compilation failures.",
-      "Use exact-head CI Completion Truth evidence before closure; do not treat an automatically created Vercel preview or Vercel READY status as completion proof."
+      "Add deterministic source-level regression proof for bridge activation, ordering before storefront instance resolution, admin-only safe returns and customer-flow preservation.",
+      "Run the full Quality Tests suite, TypeScript validation and Production Build on the branch.",
+      "Run Incremental Known Failure Replay plus Edit-Time/Reference Sync/Implementation Sync through the existing Control Plane.",
+      "Require exact-head Completion Truth VERIFIED and lifecycle closure before declaring the block complete."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-05-STAGE1-WORKFORCE-MFA-UX",
+      "request": "PO-2026-10-05-STAGE1-WORKFORCE-ADMIN-ENTRY-BRIDGE",
       "authority": [
-        "auth-access-authority"
+        "shared-storefront"
       ],
       "mustEdit": [
-        "src/app/api/auth/workforce-login/page.tsx",
-        "src/app/api/auth/workforce-context/route.ts",
-        "src/lib/auth/workforce-auth-form.tsx",
-        "src/lib/auth/admin-api.ts",
-        "src/lib/auth/require-admin.ts"
+        "src/app/fiokom/page.tsx"
       ],
       "mayEdit": [
-        "tests/workforce-auth-ux.test.ts"
+        "tests/workforce-admin-entry-bridge.test.ts"
       ],
       "impactedReadOnly": [
-        "src/lib/auth/workforce-assurance-policy.ts",
-        "src/lib/auth/workforce-assurance.ts",
-        "src/lib/auth/workforce-mfa-client.ts",
+        "src/middleware.ts",
+        "src/app/api/auth/workforce-login/page.tsx",
+        "src/lib/auth/storefront-return-target.ts",
         "src/components/auth/auth-form.tsx",
-        "src/components/auth/platform-auth-form.tsx",
-        "quality/knowledge/living-roadmap.v2.json",
-        "src/app/api/pilot-access/start/route.ts",
-        "src/lib/auth/template-preview-access.ts",
-        "tests/storefront-template-preview-access.test.ts",
-        "src/app/fiokom/page.tsx",
-        "src/middleware.ts"
+        "src/lib/auth/require-admin.ts",
+        "quality/knowledge/living-roadmap.v2.json"
       ],
       "proof": [
-        "tests/workforce-auth-ux.test.ts"
+        "tests/workforce-admin-entry-bridge.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -341,14 +225,14 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-MFA-UX",
+    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-ADMIN-ENTRY-BRIDGE",
     "requirements": [
       {
-        "id": "REQ-WORKFORCE-MFA-UX",
-        "requirement": "The dedicated workforce login provides safe staff/admin password authentication, canonical Supabase TOTP enrollment/challenge UX, two-factor platform-owner progression, safe admin return routing and fail-closed error/cancellation behavior without changing customer MFA policy or global AAL2 authorization enforcement.",
+        "id": "REQ-WORKFORCE-ADMIN-ENTRY-BRIDGE",
+        "requirement": "The legacy admin login intent exposed through /fiokom delegates safely to the dedicated workforce login before storefront context resolution, while ordinary customer authentication remains unchanged.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "workforce-login-mfa-enrollment-challenge-ux",
+          "breadth": "workforce-admin-entry-customer-account-bridge",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -371,22 +255,22 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SECOND-MFA-AUTHORITY",
-            "statement": "No custom OTP verification service, secret persistence or browser storage may become an MFA authority.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
             "id": "NEG-CUSTOMER-AUTH-DRIFT",
-            "statement": "Ordinary shopper login/registration and customer MFA policy must remain unchanged by the workforce flow.",
+            "statement": "Ordinary shopper /fiokom login and customer AuthForm behavior must remain unchanged.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-EARLY-AAL2-ENFORCEMENT",
-            "statement": "This block must not add middleware/API-wide or requireAdmin AAL2 authorization enforcement.",
+            "id": "NEG-UNSAFE-WORKFORCE-RETURN",
+            "statement": "External, protocol-relative, missing or non-admin next targets must not activate the workforce bridge.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-STOREFRONT-DEPENDENT-WORKFORCE-ENTRY",
+            "statement": "Workforce bridge evaluation must happen before storefront instance resolution.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -395,14 +279,14 @@
       }
     ]
   },
-  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY UI block only. The canonical AAL2/TOTP primitives from PR #848 are consumed, not reimplemented. The next separate high-risk auth block will add authorization enforcement after this UX is exact-head VERIFIED. CI attempt 1 exposed an Authority Graph dependency drift in the new route; scope was widened to the existing canonical admin-api identity boundary rather than adding a new cross-domain exception. Reference Sync review confirmed three preview/template consumers are intentionally unchanged and are acknowledged only through exact finding fingerprints. Release Risk Budget required high-risk isolation, so the final transaction removes customer-account/storefront substantive edits and keeps the workforce UX entirely inside auth-access-authority; /staff/login is a middleware alias only. Atlas also proves src/middleware.ts has no canonical domain classification; middleware therefore remains read-only in this auth release unit. The normal admin-entry bridge will be a separate stacked customer-account transaction after the auth unit is verified.",
+  "notes": "Follow-up release unit explicitly deferred by the verified workforce MFA UX block. This transaction starts from main e0f65b8 and does not stack on parked PR #858. Middleware, workforce MFA/AAL2 authority and shopper AuthForm are read-only.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "121ec844de3c12200bbb4d925ce77b8b9ab6f4d1",
-    "closedAt": "2026-10-05T12:12:59.572Z",
+    "verifiedImplementationHead": "29d60bdd3df83f2495c0ad60178c002bc017401a",
+    "closedAt": "2026-10-05T13:49:16.459Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-MFA-UX",
+    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-ADMIN-ENTRY-BRIDGE",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
