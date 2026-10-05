@@ -324,6 +324,12 @@
       "file": "src/lib/runtime/public-site-url.ts",
       "findingFingerprint": "dddaec35",
       "reason": "Exact-fingerprint Reference Sync review only: this file matched a generic implementation expression changed inside the workforce auth authority, but it is not a semantic consumer of the changed workforce AAL2 contract. Implementation Sync reports no missing required consumer; the file is intentionally unchanged to avoid widening this high-risk auth transaction."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/lib/storefront/access.ts",
+      "findingFingerprint": "23d0b000",
+      "reason": "Exact-fingerprint Reference Sync review only: storefront browse/access checks whether the signed-in user is a platform or merchant actor to decide preview/storefront visibility. It does not authorize workforce admin operations, does not evaluate MFA readiness, and is not a semantic consumer of the server-side workforce AAL2 enforcement contract. The file remains unchanged to avoid turning storefront access into a second workforce auth authority."
     }
   ],
   "operationalIntelligence": {
@@ -542,6 +548,13 @@
         "scenario": "Full quality verification exposes legacy auth contracts and Sentinel overclaim after the first enforcement implementation.",
         "finding": "The first implementation replaced canonical hasStorePermission evaluation with the static role matrix, changed established fail-closed/rate-limit contract shapes, and claimed proof strength/dimensions beyond the current Guard Registry.",
         "resolution": "Restore hasStorePermission as the tenant permission authority, retain the established platform-role and fail-closed/rate-limit contracts, and reduce Completion Truth scope to strength 2 with only dimensions actually proven by Quality Tests, TypeScript and Production Build.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-AAL2-9",
+        "scenario": "Reference Sync finds src/lib/storefront/access.ts because it uses the same platform_operators query expression as admin-api.",
+        "finding": "The storefront module only determines browse/preview visibility and does not return an admin actor or authorize privileged workforce operations; wiring MFA enforcement into it would create cross-surface auth coupling.",
+        "resolution": "Keep storefront access unchanged and acknowledge only the exact Reference Sync fingerprint for this consumer.",
         "status": "resolved"
       }
     ],
