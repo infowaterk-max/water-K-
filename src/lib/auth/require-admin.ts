@@ -49,6 +49,7 @@ export async function requireAdmin(returnTo?:string) {
       .from('platform_operators')
       .select('role')
       .eq('user_id',authData.user.id)
+      .in('role',['owner','admin','operator'])
       .maybeSingle();
 
     if(!platformError){

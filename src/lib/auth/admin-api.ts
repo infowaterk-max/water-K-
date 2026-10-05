@@ -3,7 +3,7 @@ import type { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
-import { getActiveStoreRoles,hasStoreRoleBindingHistory,roleHasPermission,type StorePermission,type StoreRole } from '@/lib/auth/store-rbac';
+import { getActiveStoreRoles,hasStorePermission,hasStoreRoleBindingHistory,type StorePermission,type StoreRole } from '@/lib/auth/store-rbac';
 import {
   combineWorkforceSensitiveBoundaries,
   requiredWorkforceTotpFactors,
@@ -60,10 +60,16 @@ async function resolveWorkforceIdentity():Promise<WorkforceIdentity>{
   try{
     const supabase=await createClient();
     const{data:{user},error:userError}=await supabase.auth.getUser();
-    if(userError||!user)return{status:'unauthenticated'};
+    if(userError)return{status:'unavailable'};
+    if(!user)return{status:'unauthenticated'};
 
     const admin=createAdminClient();
-    const{data:platform,error:platformError}=await admin.from('platform_operators').select('role').eq('user_id',user.id).maybeSingle();
+    const{data:platform,error:platformError}=await admin
+      .from('platform_operators')
+      .select('role')
+      .eq('user_id',user.id)
+      .in('role',['owner','admin','operator'])
+      .maybeSingle();
     if(platformError)return{status:'unavailable'};
     const platformRole=workforcePlatformRole(platform?.role);
     if(platformRole)return{status:'authorized',user,platformRole,storeRoles:[],instanceName:null};
@@ -103,15 +109,17 @@ function factorsFor(
   });
 }
 
-async function rateLimit(userId:string){
-  if(process.env.SECURITY_RATE_LIMIT_ENABLED!=='true')return true;
-  const admin=createAdminClient();
-  const{data,error}=await admin.rpc('consume_security_rate_limit',{
-    p_rate_key:`admin:${userId}`,
-    p_window_seconds:60,
-    p_max_count:240,
-  });
-  return !error&&data===true;
+async function rateLimitedUser(user:User){
+  if(process.env.SECURITY_RATE_LIMIT_ENABLED==='true'){
+    const admin=createAdminClient();
+    const{data,error}=await admin.rpc('consume_security_rate_limit',{
+      p_rate_key:`admin:${user.id}`,
+      p_window_seconds:60,
+      p_max_count:240,
+    });
+    if(error||data!==true)return null;
+  }
+  return user;
 }
 
 async function assuranceSatisfied(requiredFactors:0|1|2){
@@ -149,8 +157,13 @@ export async function getAdminRequestAccess(
   if(identity.status!=='authorized')return identity;
 
   if(!identity.platformRole){
-    const effectivePermission=permission??'store.read';
-    if(!identity.storeRoles.some(role=>roleHasPermission(role,effectivePermission)))return{status:'forbidden'};
+    const instance=await getCurrentWebshopInstance();
+    if(!instance)return{status:'forbidden'};
+    if(permission){
+      if(!(await hasStorePermission(instance.id,permission)))return{status:'forbidden'};
+    }else if(!(await hasStorePermission(instance.id,'store.read'))){
+      return{status:'forbidden'};
+    }
   }
 
   const sensitiveBoundary=combineWorkforceSensitiveBoundaries(
@@ -166,11 +179,12 @@ export async function getAdminRequestAccess(
       sensitiveBoundary,
     };
   }
-  if(!(await rateLimit(identity.user.id)))return{status:'unavailable'};
 
+  const user=await rateLimitedUser(identity.user);
+  if(!user)return{status:'unavailable'};
   return{
     status:'authorized',
-    user:identity.user,
+    user,
     platformRole:identity.platformRole,
     storeRoles:identity.storeRoles,
     sensitiveBoundary,
@@ -182,8 +196,12 @@ export async function getAdminRequestUser(
   permission?:StorePermission,
   sensitiveBoundary:WorkforceSensitiveBoundary='none',
 ){
-  const access=await getAdminRequestAccess(permission,sensitiveBoundary);
-  return access.status==='authorized'?access.user:null;
+  try{
+    const access=await getAdminRequestAccess(permission,sensitiveBoundary);
+    const user=access.status==='authorized'?access.user:null;
+    if(!user)return null;
+    return user;
+  }catch{return null}
 }
 
 export async function isAdminRequest(permission?:StorePermission){
@@ -193,14 +211,15 @@ export async function isAdminRequest(permission?:StorePermission){
 export async function getPlatformRequestUser(
   requestedBoundary:WorkforceSensitiveBoundary='none',
 ){
-  const identity=await resolveWorkforceIdentity();
-  if(identity.status!=='authorized'||!identity.platformRole)return null;
+  try{
+    const identity=await resolveWorkforceIdentity();
+    if(identity.status!=='authorized'||!identity.platformRole)return null;
 
-  const requiredFactors=requiredWorkforceTotpFactors({
-    platformRole:identity.platformRole,
-    sensitiveBoundary:requestedBoundary,
-  });
-  if(!(await assuranceSatisfied(requiredFactors)))return null;
-  if(!(await rateLimit(identity.user.id)))return null;
-  return identity.user;
+    const requiredFactors=requiredWorkforceTotpFactors({
+      platformRole:identity.platformRole,
+      sensitiveBoundary:requestedBoundary,
+    });
+    if(!(await assuranceSatisfied(requiredFactors)))return null;
+    return await rateLimitedUser(identity.user);
+  }catch{return null}
 }

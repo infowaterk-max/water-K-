@@ -71,7 +71,9 @@ describe('Stage 1 workforce AAL2 authorization enforcement',()=>{
     expect(adminApi).toContain('getWorkforceAssuranceSnapshot');
     expect(adminApi).toContain('workforceAssuranceSatisfied(snapshot,requiredFactors)');
     expect(adminApi).toContain("status:'assurance-required'");
-    expect(adminApi).toContain("return access.status==='authorized'?access.user:null");
+    expect(adminApi).toContain("const user=access.status==='authorized'?access.user:null");
+    expect(adminApi).toContain('if(!user)return null');
+    expect(adminApi).toContain('hasStorePermission(instance.id,permission)');
   });
 
   it('covers existing sensitive call sites through their canonical permission',()=>{
