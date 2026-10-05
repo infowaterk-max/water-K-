@@ -7,12 +7,17 @@ const read=(path:string)=>readFileSync(resolve(process.cwd(),path),'utf8');
 describe('platform owner zero-tenant hotfix',()=>{
   it('lands platform login and activation on a tenant-independent control center',()=>{
     const form=read('src/components/auth/platform-auth-form.tsx');
+    const portal=read('src/app/platform/page.tsx');
+    const activation=read('src/lib/auth/platform-activation-form.tsx');
     const layout=read('src/app/admin/layout.tsx');
     const ia=read('src/lib/navigation/admin-ia.ts');
     const page=read('src/app/admin/platform/page.tsx');
 
     expect(form).toContain("router.push('/admin/platform')");
     expect(form).not.toContain("router.push('/admin/iranyitokozpont')");
+    expect(portal).toContain("workforceLoginHref('/admin/platform')");
+    expect(portal).not.toContain('PlatformAuthForm');
+    expect(activation).toContain('window.location.replace(workforceLoginHref(PLATFORM_TARGET))');
     expect(ia).toContain("href:'/admin/platform',label:'Platform irányítóközpont'");
     expect(page).toContain('requirePlatformOperator');
     expect(page).not.toContain('requireCurrentStoreContext');
