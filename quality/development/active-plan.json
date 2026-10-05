@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-WORKFORCE-AAL2-PRIMITIVES",
   "task": "Implement TOTP and AAL2 workforce identity primitives in the canonical identity authority.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "d64b38b6",
   "changeBaseSha": "9d4a86a6bf61139017ef37fefca5d82b3b845edc",
   "plannedFilePatterns": [
@@ -314,5 +314,18 @@
       }
     ]
   },
-  "notes": "Stage 1 identity foundation only. This commit adds canonical policy and Supabase MFA primitives but deliberately does not alter active admin routing, middleware, authorization checks or customer authentication."
+  "notes": "Stage 1 identity foundation only. This commit adds canonical policy and Supabase MFA primitives but deliberately does not alter active admin routing, middleware, authorization checks or customer authentication.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "45fd33732887b26f83cfb04e3c395803c063d5f0",
+    "closedAt": "2026-10-05T11:04:47.831Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-IDENTITY",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
