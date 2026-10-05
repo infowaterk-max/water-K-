@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-STAGE1-WORKFORCE-AUTH-CORE",
   "task": "Stage 1 MR1 Workforce Identity core: implement canonical workforce sign-in return targets, credential completion, password recovery, MFA entry UX, and owner activation primitives under the existing identity authority. No permission or AAL2 enforcement changes.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "00e392d5",
   "changeBaseSha": "b3139b0fa2629ca4759b40116ccc4c38e260b396",
   "plannedFilePatterns": [
@@ -400,5 +400,18 @@
       }
     ]
   },
-  "notes": "Release Risk Budget on combined workforce convergence head 9565aee4 proved the implementation was too broad: 10/5 points across four subsystems, while Plan Before Code, Edit-Time Guard and Incremental Replay all passed. This transaction is the required first split: high-risk Auth Core only. The already-developed non-auth platform/account/preview/admin delegators remain on the combined reference branch and will be re-applied from verified main as a second release unit. PR #858 remains parked and AAL2 enforcement is not activated. Sentinel integrity correctly rejected CAP-RELEASE evidence embedded inside the CAP-AUTH completion claim. Release isolation is now modeled as a separate CAP-RELEASE requirement proven by GUARD-RELEASE-RISK; the release gate itself remains mandatory and unchanged. Plan Before Code required explicit implementation evidence and negative verification for the CAP-RELEASE claim; both are bound to GUARD-RELEASE-RISK, whose canonical proof semantics are CAP-RELEASE with risk/release-scope dimensions."
+  "notes": "Release Risk Budget on combined workforce convergence head 9565aee4 proved the implementation was too broad: 10/5 points across four subsystems, while Plan Before Code, Edit-Time Guard and Incremental Replay all passed. This transaction is the required first split: high-risk Auth Core only. The already-developed non-auth platform/account/preview/admin delegators remain on the combined reference branch and will be re-applied from verified main as a second release unit. PR #858 remains parked and AAL2 enforcement is not activated. Sentinel integrity correctly rejected CAP-RELEASE evidence embedded inside the CAP-AUTH completion claim. Release isolation is now modeled as a separate CAP-RELEASE requirement proven by GUARD-RELEASE-RISK; the release gate itself remains mandatory and unchanged. Plan Before Code required explicit implementation evidence and negative verification for the CAP-RELEASE claim; both are bound to GUARD-RELEASE-RISK, whose canonical proof semantics are CAP-RELEASE with risk/release-scope dimensions.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "b49d521a9e4e4928074289afcc32c97eb94e6060",
+    "closedAt": "2026-10-05T17:57:49.713Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-AUTH-CORE",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
