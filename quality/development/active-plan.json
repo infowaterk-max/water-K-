@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-TENANT-SCOPE-CLASSIFICATION",
   "task": "Classify canonical instance-context paths in the existing risk subsystem map so Development Guard can resolve the declared tenancy authority.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "0cbb5171",
   "changeBaseSha": "4f6a638219cf7746f88fbd89b209f700a0e7d462",
   "plannedFilePatterns": [
@@ -265,5 +265,18 @@
       }
     ]
   },
-  "notes": "Prerequisite isolation transaction required by Release Risk Budget before the high-risk tenant authority implementation. No runtime behavior changes."
+  "notes": "Prerequisite isolation transaction required by Release Risk Budget before the high-risk tenant authority implementation. No runtime behavior changes.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "a3949fb1cfa671f926c826469415dd53fd893fc0",
+    "closedAt": "2026-10-05T15:48:02.652Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-PREREQ",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
