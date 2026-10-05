@@ -1,89 +1,86 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-STAGE1-PLATFORM-TENANT-CONTEXT-CORE",
-  "task": "Add explicit signed platform tenant-context resolution for privileged platform actors without changing presentation surfaces.",
+  "taskId": "DEV-STAGE1-PLATFORM-TENANT-CONTEXT-UI",
+  "task": "Expose explicit selected-tenant context controls in platform operations surfaces while consuming the existing canonical tenant authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "d64b38b6",
-  "changeBaseSha": "a3949fb1cfa671f926c826469415dd53fd893fc0",
+  "guardDigest": "1d1d5f53",
+  "changeBaseSha": "30e38ec69c5bc2ff8aa1064d0902b9ad043df5c5",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "src/lib/instances/platform-tenant-context.ts",
-    "src/lib/instances/access.ts",
-    "tests/platform-tenant-context-core.test.ts"
+    "src/app/admin/platform/context-actions.ts",
+    "src/app/admin/platform/page.tsx",
+    "src/app/admin/platform/webaruhazak/page.tsx",
+    "src/app/admin/layout.tsx",
+    "tests/platform-tenant-context-ui.test.ts"
   ],
   "expectedSubsystems": [
-    "auth-access-authority",
-    "customer-account"
+    "admin-operations",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-TENANCY"
+    "DOMAIN-ADMIN"
   ],
   "expectedAuthorities": [
-    "tenant-context-authority"
+    "admin-operations"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-007",
+    "SQ-KF-005",
     "SQ-KF-011",
+    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-016",
     "SQ-KF-017",
     "SQ-KF-022",
-    "TF-KF-002",
-    "TF-KF-008",
-    "TF-KF-012",
-    "TF-KF-020"
+    "TF-KF-006"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-006",
+    "SQ-NK-008",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-CORE",
-    "riskTier": "high",
+    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-UI",
+    "riskTier": "medium",
     "assuranceCeiling": {
-      "level": "strong-behavioral-proof",
-      "rationale": "Canonical tenant resolution for privileged platform actors is high-risk because a wrong context can cross customer boundaries. The context must be explicit, signed, actor-bound, current-authority validated and fail closed.",
+      "level": "state-and-failure-review",
+      "rationale": "This transaction exposes a privileged context-selection capability in platform operations UI. It must not duplicate tenant authority, accept arbitrary targets, or obscure the active operating context.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "what-if-matrix",
         "adversarial-scenarios",
-        "boundary-cases",
-        "pairwise-interactions",
-        "threat-failure-model",
-        "fault-injection"
+        "boundary-cases"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "A short-lived signed tenant-context token binds actor UUID, instance UUID and expiry.",
-        "Canonical instance resolution honors the token only for the same authenticated actor with a current platform_operators role.",
-        "A valid explicit target is resolved by exact instance id and only for pilot/active status.",
-        "If the explicit target is unavailable or current platform authority is missing, resolution returns null instead of another tenant.",
-        "Configured deployment tenant and pilot acceptance precedence remain unchanged.",
-        "Normal merchant role_binding resolution remains unchanged when no valid actor-bound platform context exists."
+        "Platform control center and managed-instance list expose an explicit action for eligible pilot/active tenants.",
+        "The server action revalidates current platform operator authority and exact target eligibility before invoking the canonical tenant-context setter.",
+        "The platform shell displays the currently selected tenant name whenever a platform actor is operating inside a tenant context.",
+        "A clear-context action returns the actor to the tenant-independent platform control center.",
+        "Suspended or archived targets are not presented as enterable tenant contexts.",
+        "No customer authentication, pilot acceptance or AAL2 policy is changed."
       ],
       "invariants": [
-        "DOMAIN-TENANCY remains the single tenant-selection authority.",
-        "The cookie cannot grant platform authority and is revalidated against server-owned platform_operators.",
-        "No first-tenant, first-membership or ambiguous multi-tenant fallback is introduced.",
-        "The admin tenant-context signing domain and cookie are distinct from storefront pilot acceptance.",
-        "A different authenticated actor cannot consume another actor's token."
+        "UI and server actions consume tenant-context-authority; they do not implement a second tenant resolver.",
+        "Target instance ids are validated server-side and eligibility is queried from canonical data.",
+        "The active context is visibly identified before tenant-scoped operations.",
+        "Clearing context removes only the platform tenant selection and does not sign the user out."
       ],
       "forbiddenStates": [
-        "unsigned-tenant-context",
-        "cross-user-context-reuse",
-        "cookie-grants-platform-authority",
-        "explicit-target-falls-through-to-another-tenant",
-        "pilot-acceptance-reused-as-admin-context",
-        "configured-tenant-precedence-overridden"
+        "raw-form-instance-id-directly-becomes-context",
+        "suspended-or-archived-context-entry",
+        "hidden-active-tenant-for-platform-actor",
+        "clear-context-signs-out-user",
+        "presentation-layer-duplicates-tenant-resolver"
       ]
     },
     "model": {
@@ -115,39 +112,36 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A browser-controlled tenant id becomes authoritative without cryptographic proof.",
-        "A signed instance-only token leaks across users on the same browser.",
-        "A revoked platform actor retains cross-tenant access until token expiry.",
-        "A stale explicit target silently falls through to a different membership candidate.",
-        "The normal platform token accidentally broadens storefront pilot acceptance."
+        "A forged form target bypasses instance eligibility validation.",
+        "The platform actor enters a tenant but the shell does not indicate which tenant is active.",
+        "A presentation shortcut sets cookies directly instead of using the canonical tenancy capability.",
+        "The clear action mutates authentication instead of operating context."
       ],
       "edgeCases": [
-        "Platform actor with zero store memberships can still resolve one explicitly selected tenant.",
-        "Platform actor with multiple bindings resolves only the signed target.",
-        "Expired or tampered token contributes no explicit context.",
-        "Archived/suspended selected target returns null.",
-        "Merchant actor without a matching platform row cannot consume the token.",
-        "Configured deployment slug still resolves before the platform context."
+        "Pilot and active tenants expose entry actions.",
+        "Suspended and archived tenants remain visible but are not enterable.",
+        "A platform actor with selected context can return to platform-global operations without logout.",
+        "Invalid target ids return to platform management with a bounded error state."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-RAW-COOKIE",
-        "summary": "Store only the selected instance id in an HttpOnly cookie.",
+        "id": "ALT-QUERY-TENANT",
+        "summary": "Carry the selected tenant only in query parameters on every platform navigation.",
         "disposition": "rejected",
-        "reason": "HttpOnly limits script access but does not authenticate the tenant value and cannot prevent tampering or cross-user reuse."
+        "reason": "Query state is client-controlled, leaks into links, and would force presentation surfaces to become tenant authority."
       },
       {
-        "id": "ALT-DATABASE-POINTER",
-        "summary": "Persist a selected tenant pointer on the platform user record.",
+        "id": "ALT-DIRECT-COOKIE-IN-PAGE",
+        "summary": "Set the tenant cookie directly from presentation components.",
         "disposition": "rejected",
-        "reason": "A durable account-level pointer creates hidden cross-device state and can silently affect later sessions beyond the explicit browser workflow."
+        "reason": "This duplicates authority and bypasses server-side target eligibility checks."
       },
       {
-        "id": "ALT-ACTOR-BOUND-SIGNED-CONTEXT",
-        "summary": "Use a short-lived HMAC token bound to actor, instance and expiry, then revalidate current platform authority during canonical resolution.",
+        "id": "ALT-SERVER-ACTION-CONSUMER",
+        "summary": "Use a thin platform server action to validate the target and invoke the canonical tenancy setter/clearer.",
         "disposition": "selected",
-        "reason": "It provides explicit bounded context while preserving server authority and exact-target fail-closed semantics."
+        "reason": "This keeps UI orchestration in DOMAIN-ADMIN while tenant truth remains in DOMAIN-TENANCY."
       }
     ],
     "specialistReviews": [
@@ -155,105 +149,74 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The resolver must remain in DOMAIN-TENANCY and not be implemented as a presentation-local selector.",
-        "resolution": "The token primitive and consumption both live under src/lib/instances, which is the canonical tenant context path.",
+        "finding": "Platform UI may orchestrate tenant selection but cannot own context truth.",
+        "resolution": "context-actions.ts validates the requested target and delegates storage to src/lib/instances/platform-tenant-context.ts.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json",
-          "src/lib/instances/access.ts"
+          "src/app/admin/platform/context-actions.ts",
+          "quality/knowledge/domain-foundations.v1.json"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Signing only the instance id would still let a later authenticated user inherit an earlier platform user's selected scope.",
-        "resolution": "The payload binds actorId and instanceId and the cookie reader requires an exact actor match before returning the selected instance.",
+        "finding": "A hidden instanceId submitted from the browser is untrusted and must not directly set context.",
+        "resolution": "The action validates UUID syntax, requires current platform authority, queries the exact instance, and allows only pilot/active status before delegating.",
         "evidence": [
-          "src/lib/instances/platform-tenant-context.ts"
-        ]
-      },
-      {
-        "role": "Data Integrity",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Explicit selection must never degrade into another candidate when the requested target is stale or unavailable.",
-        "resolution": "A present valid selection performs one exact eligible-instance lookup and returns normalize(selectedData), including null, without entering role-binding candidate resolution.",
-        "evidence": [
-          "src/lib/instances/access.ts",
-          "tests/platform-tenant-context-core.test.ts"
+          "src/app/admin/platform/context-actions.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-CORE-1",
-        "scenario": "Actor A's token remains after Actor B authenticates.",
-        "finding": "Cross-user tenant leakage would be possible without actor binding.",
-        "resolution": "Token payload and reader require the current actor id to match exactly.",
+        "id": "CH-UI-1",
+        "scenario": "A user modifies the hidden instanceId before submitting the selection form.",
+        "finding": "Client input could target an arbitrary tenant.",
+        "resolution": "The server action validates UUID and exact canonical instance eligibility before setting context.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-2",
-        "scenario": "Token signature or expiry is modified client-side.",
-        "finding": "Tampered context must not influence tenant truth.",
-        "resolution": "HMAC verification uses a domain-separated key and timingSafeEqual; invalid or expired input returns null.",
+        "id": "CH-UI-2",
+        "scenario": "A platform actor selects a tenant and later navigates to another operations page.",
+        "finding": "Without visible context, cross-tenant mistakes become more likely.",
+        "resolution": "The shared platform shell shows the active tenant label whenever an instance is selected.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-3",
-        "scenario": "Platform role is revoked while a valid token remains.",
-        "finding": "Token possession must not preserve cross-tenant privilege.",
-        "resolution": "Current platform_operators authority is queried on each selected-context resolution and absence/error fails closed.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-CORE-4",
-        "scenario": "Selected tenant is archived or suspended.",
-        "finding": "Resolver could otherwise pick another membership candidate.",
-        "resolution": "Exact selected lookup is limited to pilot/active and returns null directly when no eligible row exists.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-CORE-5",
-        "scenario": "A deployment has WEBSHOP_INSTANCE_SLUG and also receives a platform token.",
-        "finding": "Browser context must not override deployment-bound tenant scope.",
-        "resolution": "Configured-slug resolution remains earlier in the canonical resolver.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-CORE-6",
-        "scenario": "Preview pilot acceptance and platform tenant context coexist.",
-        "finding": "Normal context must not become storefront acceptance authority.",
-        "resolution": "Pilot acceptance remains separate, with a different cookie/signing domain and existing precedence.",
+        "id": "CH-UI-3",
+        "scenario": "The actor wants to resume global platform work without ending the authenticated session.",
+        "finding": "Logout would be excessive and conflate identity with operating context.",
+        "resolution": "A dedicated clear-context server action removes only tenant context and redirects to /admin/platform.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Add deterministic regression proof for actor-bound signing, tamper/expiry rejection markers, exact target resolution and no-fallback ordering.",
-      "Run Incremental Known Failure Replay for the isolated auth/access subsystem.",
-      "Run full Quality Tests, TypeScript and Production Build.",
+      "Add deterministic source-level regression proof for target validation, eligible-status gating, context visibility and clear behavior.",
+      "Run Quality Tests, TypeScript and Production Build.",
+      "Run Incremental Known Failure Replay and existing sync/truth gates.",
       "Require exact-head Completion Truth VERIFIED and lifecycle closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-CORE",
+      "request": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-UI",
       "authority": [
-        "tenant-context-authority"
+        "admin-operations"
       ],
       "mustEdit": [
-        "src/lib/instances/platform-tenant-context.ts",
-        "src/lib/instances/access.ts"
+        "src/app/admin/platform/context-actions.ts",
+        "src/app/admin/platform/page.tsx",
+        "src/app/admin/platform/webaruhazak/page.tsx",
+        "src/app/admin/layout.tsx"
       ],
       "mayEdit": [
-        "tests/platform-tenant-context-core.test.ts"
+        "tests/platform-tenant-context-ui.test.ts"
       ],
       "impactedReadOnly": [
-        "src/lib/auth/platform-operator.ts",
-        "src/lib/auth/store-rbac.ts",
-        "src/lib/storefront/pilot-access.ts",
-        "quality/knowledge/domain-foundations.v1.json"
+        "src/lib/instances/platform-tenant-context.ts",
+        "src/lib/instances/access.ts",
+        "src/lib/auth/platform-operator.ts"
       ],
       "proof": [
-        "tests/platform-tenant-context-core.test.ts"
+        "tests/platform-tenant-context-ui.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -262,15 +225,15 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-CORE",
+    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-UI",
     "requirements": [
       {
-        "id": "REQ-PLATFORM-TENANT-CONTEXT-CORE",
-        "requirement": "Canonical instance resolution supports a short-lived actor-bound signed platform tenant selection, revalidates current platform authority, and resolves only the exact eligible target without fallback.",
+        "id": "REQ-PLATFORM-TENANT-CONTEXT-UI",
+        "requirement": "Platform operations surfaces provide explicit eligible-tenant entry, visible active-context state, and clear-context return while delegating tenant truth to the canonical authority.",
         "claimScope": {
-          "capability": "CAP-TENANT",
-          "breadth": "platform-explicit-tenant-context-core",
-          "strength": 3,
+          "capability": "CAP-ADMIN",
+          "breadth": "platform-tenant-context-ui",
+          "strength": 2,
           "dimensions": [
             "tests",
             "types",
@@ -279,8 +242,8 @@
           ]
         },
         "requiredCapabilities": [
-          "CAP-TENANT",
-          "CAP-AUTH"
+          "CAP-ADMIN",
+          "CAP-TENANT"
         ],
         "evidence": {
           "implementation": [
@@ -293,22 +256,22 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-CROSS-USER-CONTEXT",
-            "statement": "A token selected by one actor cannot resolve for a different authenticated actor.",
+            "id": "NEG-UNVALIDATED-TARGET",
+            "statement": "Browser-submitted instance ids cannot directly establish tenant context.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-EXPLICIT-FALLBACK",
-            "statement": "An unavailable explicit selected target cannot fall through to another tenant.",
+            "id": "NEG-HIDDEN-CONTEXT",
+            "statement": "A platform actor operating inside a selected tenant sees the active tenant identity in the shared shell.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-PILOT-AUTHORITY-DRIFT",
-            "statement": "Pilot storefront acceptance remains distinct from platform tenant context.",
+            "id": "NEG-AUTH-CONTEXT-CONFLATION",
+            "statement": "Clearing tenant context does not sign out or alter customer authentication.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -317,5 +280,5 @@
       }
     ]
   },
-  "notes": "Second isolated transaction in the MR1 platform tenant-selection block. Base is the scope-classification branch so release-risk diff contains only the high-risk tenant/auth authority."
+  "notes": "Third isolated transaction in the MR1 platform tenant-selection block. Base is the verified-core candidate branch; no DOMAIN-TENANCY implementation files are modified here."
 }
