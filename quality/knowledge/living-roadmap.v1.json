@@ -216,6 +216,36 @@
       "evidenceRefs": []
     },
     {
+      "id": "MR1-PACKAGE-CAPABILITY-MATRIX",
+      "title": "Alap / Pro / Add-on Capability Matrix",
+      "status": "accepted",
+      "phase": "core",
+      "order": 115,
+      "targetWindow": "core-capability-complete",
+      "priority": "P0",
+      "dependsOn": [
+        "MR1-MULTITENANT-FOUNDATION"
+      ],
+      "capabilities": [
+        "CAP-AUTH",
+        "CAP-TENANT",
+        "CAP-COMMERCE",
+        "CAP-CATALOG",
+        "CAP-ADMIN",
+        "CAP-INTEGRATIONS",
+        "CAP-BUILDER"
+      ],
+      "scope": [
+        "Alap is a complete professional webshop, not an intentionally crippled entry tier; Pro is the operational/business-system layer above it",
+        "both Alap and Pro use the same 42 design families and the same full manual Builder; there are no Basic/Pro template forks",
+        "Alap includes catalog/product/category/variant/media, digital products/documents, CSV/import/export/bulk, normal inventory, orders/returns/refunds, P0 payment/shipping/invoice integrations, customer account/guest checkout, company billing data, baseline coupons, SEO/search/filter/blog/content, wishlist/reviews/back-in-stock, normal cross-sell/related products, transactional email, Form Wizard and baseline dashboard/reporting",
+        "Pro includes multi-location/transfer/split-fulfillment operations, full B2B organization/RFQ/contract-pricing/maker-checker layer, advanced promotion logic, advanced analytics/LTV/attribution, CRM/business intelligence, workflow automation, predictive/decision-support capabilities subject to their separate launch decisions, Digital Office, staff leave/delegation/team workflow, advanced B2B sales operations, loyalty and controlled API/advanced integrations",
+        "AI capabilities remain separate Add-ons unless a later explicit packaging decision says otherwise",
+        "ordinary company billing at checkout is not the same thing as the Pro B2B organizational purchasing system"
+      ],
+      "evidenceRefs": []
+    },
+    {
       "id": "STORE-FRONT-RUNTIME",
       "title": "Shared Storefront Runtime + Page Schema Authority",
       "status": "operational",
@@ -281,17 +311,19 @@
       "status": "hardening",
       "phase": "storefront",
       "order": 150,
-      "targetWindow": "before-market-ready",
-      "priority": "P1",
+      "targetWindow": "core-capability-complete-before-builder",
+      "priority": "P0",
       "capabilities": [
         "CAP-STOREFRONT",
         "CAP-COMMERCE",
         "CAP-BUILDER"
       ],
       "scope": [
-        "shared Product Discovery, Guided Finder, Composer, Configurator, Compatibility and Compare/Spec engines",
-        "launch add-ons must be first-customer ready unless explicitly deferred",
-        "template-local business engines are forbidden"
+        "all launch-classified shared Special Commerce engines must be production-ready before Builder Production Complete so the Builder edits real finished commerce capabilities rather than placeholder/template-local logic",
+        "launch-classified family includes Product Discovery, Guided Finder, Multi-product Composer, Product Configurator, Compatibility, Compare/Spec, Interactive Scene / Shop the Look / Shop the Room, Recipe Commerce with structured allergen/dietary authority, Drop/Release and non-3D interactive product presentation where required",
+        "engines remain shared platform capabilities and may never become template-local business authorities",
+        "Builder/template layers configure presentation and semantic insertion only; authoritative product, variant, price, stock, cart, order, payment and eligibility truth stays in commerce authorities",
+        "advanced AR, advanced 3D and exploded-product experiences remain post-launch premium scope unless later explicitly promoted"
       ],
       "evidenceRefs": []
     },
@@ -386,7 +418,12 @@
         "role- and tenant-aware staff authentication",
         "MFA/2FA policy consideration",
         "profile dropdown logout",
-        "platform-owner tenant selection without storefront login dependency"
+        "platform-owner tenant selection without storefront login dependency",
+        "Market Ready MFA policy: platform owner/platform admin must operate at AAL2; merchant owner/admin and any staff role with sensitive user/permission, provider credential, integration/API, refund or security authority must also use AAL2",
+        "low-risk store-worker login is not globally MFA-mandatory unless the assigned permissions cross the sensitive-operation boundary; sensitive operations require current AAL2 rather than repeated per-click challenges",
+        "customer MFA remains optional in Market Ready 1.0",
+        "TOTP is the primary launch second factor; SMS/phone is not the primary MFA authority and may only be used as a bounded recovery/secondary path where supported",
+        "platform-owner accounts should maintain two enrolled TOTP factors to reduce lockout risk"
       ],
       "evidenceRefs": []
     },
@@ -495,6 +532,32 @@
       "evidenceRefs": []
     },
     {
+      "id": "PAYMENT-HUB-1",
+      "title": "Pay 1.0 — Provider-agnostic Payment Hub",
+      "status": "planned",
+      "phase": "core",
+      "order": 355,
+      "targetWindow": "core-capability-complete",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-INTEGRATIONS",
+        "CAP-COMMERCE"
+      ],
+      "dependsOn": [
+        "CORE-ENGINE-2"
+      ],
+      "scope": [
+        "provider-neutral PaymentProvider contract; the existing K&H integration is an adapter, not a separate commerce authority",
+        "canonical authorization/capture/refund/failure state model, webhooks, idempotency, transaction admin and reconciliation/audit",
+        "Market Ready Hungary P0 adapters: K&H, SimplePay, Barion and Stripe",
+        "provider setup UX is selection-first and wizard-like; only the selected provider's credentials/configuration are shown",
+        "provider self-test and fail-closed live activation",
+        "Provider Change / Integration Health Watch observes official API documentation, authentication requirements, changelogs, deprecated versions/endpoints, webhook requirements and provider incidents; it warns the platform owner and never mutates adapters autonomously",
+        "qvik support belongs inside a supporting payment-provider adapter capability rather than creating a second payment authority"
+      ],
+      "evidenceRefs": []
+    },
+    {
       "id": "SHIPPING-FOUNDATION",
       "title": "Shipping / Fulfillment Foundation",
       "status": "planned",
@@ -508,11 +571,39 @@
         "CAP-CATALOG"
       ],
       "scope": [
-        "provider-agnostic Shipping/Fulfillment contract and first production adapters",
-        "shipping recommendation from customer address plus product weight/dimensions/volume",
-        "product logistics model: unit/box quantity, net/gross weight, dimensions, volume and carrier compatibility",
-        "admin critical warning for bad address/shipping/API state",
+        "provider-agnostic ShippingProvider / FulfillmentProvider contract and first production adapters",
+        "Market Ready Hungary P0 adapters: GLS, FOXPOST, MPL, DPD and Express One",
+        "Packeta may remain as a compatibility/international adapter but is not a separate Hungarian domestic launch-provider requirement",
+        "shipping recommendation from customer address plus authoritative product logistics data such as weight, dimensions, volume and carrier compatibility",
+        "wizard setup with provider-specific credentials/configuration only after provider selection",
+        "provider self-test, pickup/parcel-point capability where supported, label creation, status, tracking and webhook handling",
+        "Provider Change / Integration Health Watch observes official API/auth/changelog/deprecation/webhook/status changes and warns the platform owner without autonomous adapter mutation",
         "no carrier-specific commerce authority"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "MR1-HUNGARY-TAX-VAT",
+      "title": "Hungary Tax / VAT Commerce Authority",
+      "status": "accepted",
+      "phase": "core",
+      "order": 365,
+      "targetWindow": "core-capability-complete",
+      "priority": "P0",
+      "dependsOn": [
+        "CORE-ENGINE-2"
+      ],
+      "capabilities": [
+        "CAP-COMMERCE",
+        "CAP-INTEGRATIONS",
+        "CAP-ADMIN"
+      ],
+      "scope": [
+        "Market Ready 1.0 tax scope is Hungary-first and must be complete for Hungarian commerce before launch",
+        "merchant-configurable Hungarian net/gross price and VAT-class/rate behavior with consistent product/variant, discount, refund and order calculations",
+        "B2C and B2B/company billing tax data, including Hungarian tax-number handling, must remain coherent with checkout and invoice-provider handoff",
+        "invoice-provider payloads must carry authoritative tax/VAT data; Shoperation does not become its own invoicing/tax-reporting product at launch",
+        "architecture remains extensible for future country tax policies, multi-country VAT/OSS/IOSS and other jurisdictions, but those are not Market Ready 1.0 blockers"
       ],
       "evidenceRefs": []
     },
@@ -556,7 +647,9 @@
         "customer/catalog bulk operations and safe import/export",
         "merchant operational maturity",
         "integration/extension event foundation",
-        "inventory and fulfillment exception handling"
+        "inventory and fulfillment exception handling",
+        "Alap coupon baseline: coupon code with fixed-amount or percentage discount, start/end validity, minimum order amount and maximum order amount; one coupon per cart",
+        "Pro promotion depth: multiple coupon combination/compatibility rules, richer product/category/customer targeting, automated or triggered coupon logic and Smart Coupon behavior"
       ],
       "evidenceRefs": []
     },
@@ -578,7 +671,12 @@
         "leave request approval and timed substitute delegation",
         "away status reflected in permissions",
         "Sales quote creation with SKU/product insertion and accepted quote -> order path",
-        "shared communication/email templates for marketing, order, shipping and error contexts"
+        "shared communication/email templates for marketing, order, shipping and error contexts",
+        "Digital Office is a Pro capability",
+        "Market Ready email connectivity: Google Workspace/Gmail, Microsoft 365/Outlook and standards-based IMAP/SMTP for compatible external/domain mailboxes",
+        "default initial mailbox history import: latest 12 months up to 50,000 messages per mailbox, newest-first; older history may be imported later as bounded background work",
+        "after initial import, synchronization is incremental/event-driven where provider APIs support it; provider-native OAuth/API sync is preferred for Google and Microsoft",
+        "transactional webshop emails remain an Alap capability and do not depend on the Pro Digital Office mailbox workspace"
       ],
       "evidenceRefs": []
     },
@@ -702,10 +800,17 @@
         "CAP-ADMIN"
       ],
       "scope": [
-        "organization ownership and role governance",
-        "tenant-safe B2B identity and approval",
-        "pricing/order context and audit",
-        "launch review of remaining B2B gaps"
+        "company/B2B account with verified company identity and Hungarian tax number; approved legal identity changes require re-verification and audit",
+        "company users with owner/admin/buyer roles and server-authoritative B2B purchase authority",
+        "partner pricing with net/gross display, MOQ and order-multiple enforcement",
+        "PDP Ajánlatot kérek -> RFQ -> commercial opportunity -> merchant offer -> offer acceptance -> order, with Ajánlatkéréseim and Ügyeim account surfaces",
+        "account manager assignment and full audit trail",
+        "spending authority is two-dimensional: optional per-member purchase/approval threshold plus optional company credit/exposure limit; these are separate controls",
+        "maker-checker activates when an action/order/offer acceptance exceeds the actor's purchase authority or an explicit company policy requires approval; when checker approval is required, self-approval is forbidden",
+        "contract-price authority priority: accepted/specific offer price > active account contract price list > ordinary partner/reseller price > retail price; validity and provenance are server-authoritative and audited",
+        "B2B payment terms / credit policy is Market Ready scope: per-account allowed methods/terms such as prepayment, bank transfer and approved net-N-day terms, with optional credit limit/exposure enforcement",
+        "customer purchase-order/reference number is a first-class RFQ/offer/order attribute; merchant policy may make it mandatory for B2B purchasing and it is carried as an immutable order/invoice handoff snapshot",
+        "quote conversion probability remains hidden until at least 3 months of tenant-specific learning and at least 30 closed quote outcomes; elapsed time alone never activates the KPI and insufficient confidence hides it again"
       ],
       "evidenceRefs": []
     },
@@ -727,6 +832,29 @@
         "canonical Page Schema/Runtime only",
         "permission/safety limits",
         "public activation only after controlled readiness, approximately first 20-50 customers"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "SURFACE-REDUCTION",
+      "title": "Surface Reduction / Dead Code & Route Audit",
+      "status": "planned",
+      "phase": "market-ready",
+      "order": 480,
+      "targetWindow": "immediately-before-market-ready-certification",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-RELEASE",
+        "CAP-QUALITY",
+        "CAP-ADMIN"
+      ],
+      "dependsOn": [],
+      "scope": [
+        "run immediately before the final full Market Ready product audit/certification, not after public launch",
+        "inventory routes/pages/endpoints/legacy flags, dead or unreachable code paths and unused integration/template/Builder surfaces",
+        "remove or demonstrably disable unused code and obsolete authorities before the final audit so dead surface does not inflate attack area or verification scope",
+        "re-check reachability, auth/RBAC/RLS, secrets/dependencies and regressions after reduction",
+        "the final Market Ready audit/certification runs on the reduced production candidate, not on a pre-cleanup codebase"
       ],
       "evidenceRefs": []
     },
@@ -754,7 +882,12 @@
         "SHIPPING-FOUNDATION",
         "INVOICE-FOUNDATION",
         "SANDBOX-TEST-MODE",
-        "SCALE-COST-ARCHITECTURE"
+        "SCALE-COST-ARCHITECTURE",
+        "SURFACE-REDUCTION",
+        "PAYMENT-HUB-1",
+        "MR1-HUNGARY-TAX-VAT",
+        "MR1-PACKAGE-CAPABILITY-MATRIX",
+        "B2B-MATURITY"
       ],
       "scope": [
         "privacy/GDPR and data lifecycle compliance",
@@ -765,7 +898,8 @@
         "B2B maturity and operational maturity review",
         "production evidence/release proof and rollback",
         "Controlled Integration Framework certification",
-        "AI Builder launch-safety verification"
+        "AI Builder launch-safety verification",
+        "final full product audit/certification must run only after Surface Reduction / dead-code and unused-surface cleanup is complete"
       ],
       "evidenceRefs": []
     },
@@ -818,30 +952,6 @@
       "evidenceRefs": []
     },
     {
-      "id": "SURFACE-REDUCTION",
-      "title": "Surface Reduction / Dead Code & Route Audit",
-      "status": "post-launch",
-      "phase": "post-market-ready",
-      "order": 520,
-      "targetWindow": "immediately-after-market-ready-1.0",
-      "priority": "P0",
-      "capabilities": [
-        "CAP-RELEASE",
-        "CAP-QUALITY",
-        "CAP-ADMIN"
-      ],
-      "dependsOn": [
-        "MARKET-READY-1-0"
-      ],
-      "scope": [
-        "inventory routes/pages/endpoints/legacy flags",
-        "reachability/auth/RBAC/RLS review",
-        "remove or demonstrably disable unused surfaces",
-        "regression proof after attack-surface reduction"
-      ],
-      "evidenceRefs": []
-    },
-    {
       "id": "DYNAMIC-FAQ",
       "title": "Dynamic FAQ / Customer Question Intelligence",
       "status": "post-launch",
@@ -883,30 +993,6 @@
         "Visual KPI Board"
       ],
       "notes": "Extends existing Incident/Admin authorities; code-changing repair remains proposal-first and governed.",
-      "evidenceRefs": []
-    },
-    {
-      "id": "PAYMENT-HUB-1",
-      "title": "Pay 1.0 — Provider-agnostic Payment Hub",
-      "status": "post-launch",
-      "phase": "post-launch",
-      "order": 620,
-      "targetWindow": "post-launch",
-      "priority": "P1",
-      "capabilities": [
-        "CAP-INTEGRATIONS",
-        "CAP-COMMERCE"
-      ],
-      "dependsOn": [
-        "MARKET-READY-1-0"
-      ],
-      "scope": [
-        "PaymentProvider contract",
-        "authorization/capture/refund/failure state model",
-        "webhooks and idempotency",
-        "transaction admin and reconciliation/audit",
-        "current K&H integration becomes an adapter"
-      ],
       "evidenceRefs": []
     },
     {
