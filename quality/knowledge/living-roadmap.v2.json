@@ -1242,7 +1242,8 @@
       "priority": "P0",
       "dependsOn": [
         "VISUAL-BUILDER",
-        "GUARDED-VISUAL-SECTION-LIBRARY"
+        "GUARDED-VISUAL-SECTION-LIBRARY",
+        "TEMPLATE-CAPABILITY-CENSUS-42"
       ],
       "capabilities": [
         "CAP-BUILDER",
