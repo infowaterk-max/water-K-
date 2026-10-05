@@ -8,14 +8,14 @@
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/template-factory-product-owner-handoff.mjs",
-    "tests/template-factory-engine-functional-proof-runner.test.ts"
+    "tests/architecture-health.test.ts"
   ],
   "expectedSubsystems": [],
   "expectedDomains": [
-    "DOMAIN-BUILDER"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "builder-template-system"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -96,7 +96,7 @@
         "The E13 Product Owner/engine proof navigates directly to /api/auth/workforce-login with next=/admin/platform rather than relying on the legacy /platform password form.",
         "The proof scopes credential locators to the canonical data-workforce-auth surface and submits with the canonical workforce password-step control.",
         "The proof still requires successful navigation to /admin/platform; MFA enrollment/challenge, missing workforce access, or any unexpected redirect fails closed instead of being bypassed.",
-        "A deterministic regression test locks the canonical route, workforce root, and submit selector into the proof harness contract.",
+        "A deterministic DOMAIN-QUALITY architecture regression locks the canonical route, workforce root, submit selector, and removal of the legacy platform-login selector into the proof-harness contract.",
         "No Shoperation product route, Auth Core primitive, role/tenant authority, middleware, or parked AAL2 enforcement changes in this release.",
         "The release remains an isolated quality-infrastructure transaction within the canonical Release Risk Budget."
       ],
@@ -188,6 +188,7 @@
         "resolution": "Change only the handoff harness and its regression test; keep product/Auth Core read-only.",
         "evidence": [
           "scripts/template-factory-product-owner-handoff.mjs",
+          "tests/architecture-health.test.ts",
           "src/app/api/auth/workforce-login/page.tsx"
         ]
       },
@@ -240,13 +241,13 @@
         "id": "CH-E13-PROOF-4",
         "scenario": "A future refactor reintroduces the legacy locator.",
         "finding": "The same false-negative regression returns.",
-        "resolution": "Add a source-contract regression asserting canonical workforce route/root/submit and absence of the legacy button locator.",
+        "resolution": "Add a DOMAIN-QUALITY source-contract regression asserting canonical workforce route/root/submit and absence of the legacy button locator.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
       "Run Plan Before Code on this exact plan-only head before editing the harness.",
-      "Update only the E13 platform-authentication helper and its existing focused regression test.",
+      "Update only the E13 platform-authentication helper and the canonical DOMAIN-QUALITY architecture regression.",
       "Run Edit-Time Guard and full Incremental Replay; knowledge-infrastructure change requires full failure replay.",
       "Require Release Risk Budget PASS as a single substantive quality-infrastructure subsystem.",
       "Run full Quality Tests, TypeScript and Production Build.",
@@ -256,15 +257,16 @@
     "semanticExecutionRoute": {
       "request": "PO-2026-10-05-MR1-E13-WORKFORCE-PROOF-COMPATIBILITY",
       "authority": [
-        "builder-template-system"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
         "scripts/template-factory-product-owner-handoff.mjs"
       ],
       "mayEdit": [
-        "tests/template-factory-engine-functional-proof-runner.test.ts"
+        "tests/architecture-health.test.ts"
       ],
       "impactedReadOnly": [
+        "tests/template-factory-engine-functional-proof-runner.test.ts",
         "src/app/api/auth/workforce-login/page.tsx",
         "src/lib/auth/workforce-auth-form.tsx",
         "src/lib/auth/workforce-return-target.ts",
@@ -274,7 +276,7 @@
         ".github/workflows/template-factory-quality-gate.yml"
       ],
       "proof": [
-        "tests/template-factory-engine-functional-proof-runner.test.ts",
+        "tests/architecture-health.test.ts",
         ".github/workflows/template-factory-quality-gate.yml"
       ],
       "unknown": [],
