@@ -1,105 +1,131 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-STAGE1-WORKFORCE-AUTH-CORE",
-  "task": "Stage 1 MR1 Workforce Identity core: implement canonical workforce sign-in return targets, credential completion, password recovery, MFA entry UX, and owner activation primitives under the existing identity authority. No permission or AAL2 enforcement changes.",
-  "status": "closed",
-  "guardDigest": "00e392d5",
-  "changeBaseSha": "b3139b0fa2629ca4759b40116ccc4c38e260b396",
+  "taskId": "DEV-STAGE1-E13-WORKFORCE-PROOF-COMPATIBILITY",
+  "task": "E13 workforce proof harness compatibility",
+  "status": "ready-for-implementation",
+  "guardDigest": "540e4ce8",
+  "changeBaseSha": "c8fa6a37b7a69fe8f9b946c83a25678545a34b38",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "src/lib/auth/workforce-return-target.ts",
-    "src/app/api/auth/workforce-login/page.tsx",
-    "src/lib/auth/workforce-auth-form.tsx",
-    "src/app/api/auth/workforce-credential/page.tsx",
-    "src/lib/auth/workforce-credential-form.tsx",
-    "src/lib/auth/platform-activation-form.tsx",
-    "tests/workforce-auth-ux.test.ts",
-    "tests/workforce-auth-core-isolation.test.ts"
+    "scripts/template-factory-product-owner-handoff.mjs",
+    "tests/architecture-health.test.ts",
+    ".github/workflows/template-factory-quality-gate.yml"
   ],
   "expectedSubsystems": [
-    "auth-access-authority",
-    "customer-account",
-    "storefront-ui"
+    "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-IDENTITY"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "auth-access-authority"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
+    "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
+    "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
+    "TF-KF-001",
     "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
     "TF-KF-006",
+    "TF-KF-007",
     "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
     "TF-KF-012",
-    "TF-KF-020"
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-006",
-    "SQ-NK-008",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
+    "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-AUTH-CORE",
-    "riskTier": "high",
+    "sourceRef": "PO-2026-10-05-MR1-E13-WORKFORCE-PROOF-COMPATIBILITY",
+    "riskTier": "medium",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "This isolated high-risk transaction changes workforce authentication primitives only. A defect could create an unsafe return target, mix shopper and workforce credential state, break privileged password recovery, or create a second session/MFA authority. Active non-auth entrypoint delegates and parked AAL2 enforcement are explicitly excluded.",
+      "rationale": "The product-side workforce convergence is already technically verified, but the Template Factory E13 browser harness still targets the removed legacy platform password UI. This isolated transaction changes only quality infrastructure so the proof follows the canonical Workforce Auth entrypoint without weakening proof semantics or reopening product authority.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "what-if-matrix",
         "adversarial-scenarios",
         "boundary-cases",
-        "pairwise-interactions",
         "threat-failure-model",
-        "fault-injection"
+        "proof-obligation"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "Workforce return targets are normalized by one auth-owned fail-closed helper that permits only /admin, /admin/* and exact /storefront-template-preview paths.",
-        "The dedicated workforce login accepts the shared safe workforce return target and WorkforceAuthForm uses the same authority when completing the flow.",
-        "Workforce password recovery redirects to a workforce-owned credential completion route rather than shopper AuthForm recovery.",
-        "Workforce credential completion accepts invite/recovery modes, requires Supabase callback evidence, updates the Supabase password and re-enters canonical workforce login.",
-        "An auth-owned owner-activation primitive can create an eligible owner account and hands an immediate authenticated session back to canonical workforce login.",
-        "No active /platform, /fiokom, template-preview or admin invitation delegate is changed in this release unit.",
-        "No role, tenant, middleware authorization authority or AAL2 enforcement is added, weakened or activated."
+        "The E13 Product Owner/engine proof navigates directly to /api/auth/workforce-login with next=/admin/platform rather than relying on the legacy /platform password form.",
+        "The proof scopes credential locators to the canonical data-workforce-auth surface and submits with the canonical workforce password-step control.",
+        "The proof still requires successful navigation to /admin/platform; MFA enrollment/challenge, missing workforce access, or any unexpected redirect fails closed instead of being bypassed.",
+        "A deterministic DOMAIN-QUALITY architecture regression locks the canonical route, workforce root, submit selector, and removal of the legacy platform-login selector into the proof-harness contract.",
+        "No Shoperation product route, Auth Core primitive, role/tenant authority, middleware, or parked AAL2 enforcement changes in this release.",
+        "The release remains an isolated quality-infrastructure transaction within the canonical Release Risk Budget.",
+        "Changes to scripts/template-factory-product-owner-handoff.mjs trigger Template Factory Quality Gate v2 on both push and pull_request so the proof producer cannot change without exact-head browser proof."
       ],
       "invariants": [
-        "Supabase Auth remains the only session, password and MFA authority.",
-        "Server-owned role and tenant authorities remain unchanged.",
-        "Customer AuthForm remains shopper-owned and is not imported by workforce credential completion.",
-        "A pre-existing arbitrary Supabase session is insufficient to authorize workforce credential completion without invite/recovery callback evidence.",
-        "PR #858 remains parked and untouched.",
-        "The Auth Core release diff contains no substantive non-auth authority changes."
+        "Supabase Auth and the existing Workforce Auth Core remain the only workforce authentication authority.",
+        "The proof harness is a consumer of the canonical workforce entrypoint; it must not recreate credential/session/MFA policy.",
+        "Product runtime files are read-only in this transaction.",
+        "PR #858 remains parked and AAL2 enforcement stays inactive.",
+        "A green proof cannot be obtained by restoring the legacy PlatformAuthForm button or skipping workforce navigation.",
+        "The proof producer is included in both Template Factory workflow path filters; manual workflow dispatch is not accepted as a substitute because E13 browser proof is pull-request scoped."
       ],
       "forbiddenStates": [
-        "external-workforce-return-target",
-        "workforce-return-loop-to-preview-login",
-        "customer-session-alone-authorizes-workforce-credential-change",
-        "customer-authform-imported-by-workforce-credential-flow",
-        "second-session-or-mfa-authority",
-        "middleware-authz-authority",
+        "legacy-platform-password-selector-in-e13-proof",
+        "e13-proof-customer-authform",
+        "e13-proof-mfa-bypass",
+        "product-runtime-edit-in-proof-release",
         "aal2-enforcement-activation",
-        "non-auth-entrypoint-delegate-change"
+        "release-risk-budget-bypass",
+        "proof-producer-change-without-template-factory-gate-trigger"
       ]
     },
     "model": {
@@ -131,42 +157,46 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A crafted protocol-relative or external next target escapes the workforce login origin.",
-        "The shared return-target helper accepts the preview-login route and creates an authentication loop.",
-        "Password recovery sends privileged users through the shopper credential flow.",
-        "An already signed-in shopper manually opens the workforce credential page and changes credentials without invite/recovery link evidence.",
-        "Owner activation bypasses the server-side eligibility claim or navigates directly into privileged UI instead of canonical workforce login.",
-        "The change accidentally activates the parked AAL2 authorization enforcement or changes role/tenant authority.",
-        "The isolated release unintentionally edits a non-auth route and violates the release risk budget."
+        "The browser harness waits forever for the removed Belépés a Shoperationbe control on /platform.",
+        "The harness enters shopper authentication instead of the canonical workforce surface.",
+        "The harness silently treats an MFA enrollment/challenge as successful platform authentication.",
+        "The fix modifies product routes or Auth Core and recreates a mixed release-risk transaction.",
+        "A source-only assertion passes while the exact-head browser journey still cannot reach /admin/platform.",
+        "The handoff proof producer changes but path filters suppress Template Factory Quality Gate, allowing source tests to pass without the exact-head E13 journey."
       ],
       "edgeCases": [
-        "next=/admin and nested admin URLs with query strings are preserved.",
-        "Exact /storefront-template-preview with query parameters is preserved.",
-        "/storefront-template-preview-login, /fiokom, //evil.example and https://evil.example are rejected.",
-        "Recovery without callback evidence fails closed even when a shopper session already exists.",
-        "Invite/recovery with valid Supabase callback evidence can set a password and continue through canonical workforce login.",
-        "Owner activation without an eligible claim fails closed.",
-        "No active caller is required to consume the new activation/credential primitives until the second release unit."
+        "An existing valid storageState may still short-circuit through /admin/platform exactly as before.",
+        "Without reusable storageState the proof must use the canonical workforce login route.",
+        "The workforce form begins in checking/loading state before exposing the password phase.",
+        "The exact-head preview may require a deliberate one-off Vercel preview while normal branch builds remain ignored.",
+        "Any required MFA step remains fail-closed until the parked enforcement/fixture strategy is intentionally changed.",
+        "Both push and pull_request path filters must include the handoff proof producer even though the E13 credential journey itself only executes on pull_request."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-AUTH-PLUS-DELEGATORS",
-        "summary": "Ship auth primitives and all active route delegator changes together.",
+        "id": "ALT-RESTORE-LEGACY-LOGIN",
+        "summary": "Restore the old PlatformAuthForm/button so the stale proof passes.",
         "disposition": "rejected",
-        "reason": "Release Risk Budget proved 10/5 points across four subsystems; high-risk auth authority must be isolated."
+        "reason": "That would undo Stage 1 entrypoint convergence and preserve a parallel privileged password surface."
       },
       {
-        "id": "ALT-RISK-POLICY-EXCEPTION",
-        "summary": "Raise or bypass the release risk budget for the combined change.",
+        "id": "ALT-MIX-PROOF-WITH-DELEGATORS",
+        "summary": "Ship the harness change inside PR #912.",
         "disposition": "rejected",
-        "reason": "The budget is a canonical production control and the change can be dependency-closed through sequential releases without weakening it."
+        "reason": "Release Risk Budget proved 7/5 points across four subsystems when quality infrastructure was mixed with the three product subsystems."
       },
       {
-        "id": "ALT-ISOLATED-AUTH-CORE",
-        "summary": "Ship only auth-owned primitives first, then rebase non-auth entrypoint delegators on the verified main.",
+        "id": "ALT-ISOLATED-PROOF-HARNESS",
+        "summary": "Ship only the quality-infrastructure consumer fix first, then rebase the product-only delegator release on the new main.",
         "disposition": "selected",
-        "reason": "This keeps the high-risk auth release at one substantive subsystem while preserving the already designed convergence path."
+        "reason": "This preserves release isolation and lets #912 consume a corrected canonical proof harness without weakening any gate."
+      },
+      {
+        "id": "ALT-MANUAL-WORKFLOW-DISPATCH",
+        "summary": "Leave path filters unchanged and manually dispatch Template Factory proof.",
+        "disposition": "rejected",
+        "reason": "The E13 proof step is pull-request scoped and manual dispatch would skip the exact browser authentication proof; producer-to-gate dependency must be automatic."
       }
     ],
     "specialistReviews": [
@@ -174,11 +204,11 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Authentication primitives belong to DOMAIN-IDENTITY; active presentation delegates can consume them in a later release.",
-        "resolution": "This unit edits only canonical auth paths plus neutral tests.",
+        "finding": "The failing code is a proof consumer, not product authentication authority.",
+        "resolution": "Change only the handoff harness and its regression test; keep product/Auth Core read-only.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json",
-          "src/lib/auth/workforce-return-target.ts",
+          "scripts/template-factory-product-owner-handoff.mjs",
+          "tests/architecture-health.test.ts",
           "src/app/api/auth/workforce-login/page.tsx"
         ]
       },
@@ -186,117 +216,98 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A generic existing session must not be treated as invite/recovery authorization.",
-        "resolution": "Credential completion requires explicit Supabase callback evidence before the form becomes ready.",
+        "finding": "A proof fix must not bypass workforce MFA/access checks merely to restore a green E13 run.",
+        "resolution": "Use the real canonical workforce form and keep /admin/platform navigation mandatory; unexpected MFA/access states remain failures.",
         "evidence": [
-          "src/lib/auth/workforce-credential-form.tsx",
-          "tests/workforce-auth-core-isolation.test.ts"
+          "src/lib/auth/workforce-auth-form.tsx",
+          "scripts/template-factory-product-owner-handoff.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The combined convergence branch exceeded Release Risk Budget because high-risk auth was mixed with three other subsystems.",
-        "resolution": "Auth Core is split into its own release transaction; non-auth delegates remain unchanged until a second unit.",
+        "finding": "The proof producer must self-trigger its exact-head gate, but mixing that infrastructure with product delegates exceeds the canonical budget.",
+        "resolution": "Keep both proof producer and its workflow trigger in this isolated infrastructure release; expected release risk is quality-infrastructure medium + release-infrastructure medium, with no product subsystem.",
         "evidence": [
           "deploy/release-risk-policy.json",
-          "scripts/release-risk-budget.mjs"
+          ".github/workflows/template-factory-quality-gate.yml",
+          "scripts/template-factory-product-owner-handoff.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-AUTH-1",
-        "scenario": "An attacker supplies //evil.example or https://evil.example as next.",
-        "finding": "A local-looking redirect helper can become an open redirect if origin semantics are ambiguous.",
-        "resolution": "Normalize against a fixed local origin and allowlist only canonical workforce destinations.",
+        "id": "CH-E13-PROOF-1",
+        "scenario": "The old /platform password form no longer exists.",
+        "finding": "The harness times out on a deleted button and reports a false E13 engine failure.",
+        "resolution": "Navigate to canonical workforce-login and use its password-step selector.",
         "status": "resolved"
       },
       {
-        "id": "CH-AUTH-2",
-        "scenario": "A caller supplies /storefront-template-preview-login or /fiokom as next.",
-        "finding": "A broad prefix rule can create a loop or cross into shopper account UX.",
-        "resolution": "Allow exact preview runtime path only; reject preview-login and shopper account paths.",
+        "id": "CH-E13-PROOF-2",
+        "scenario": "The workforce surface returns enrollment or challenge instead of the password phase.",
+        "finding": "Blindly bypassing that state would falsify security proof.",
+        "resolution": "Do not add bypass logic; the browser proof fails closed unless it can legitimately reach /admin/platform.",
         "status": "resolved"
       },
       {
-        "id": "CH-AUTH-3",
-        "scenario": "A workforce user requests password recovery.",
-        "finding": "Using shopper recovery would recreate split credential authority.",
-        "resolution": "WorkforceAuthForm sends recovery directly to the workforce-owned credential route.",
+        "id": "CH-E13-PROOF-3",
+        "scenario": "The harness fix is bundled with #912 product delegates.",
+        "finding": "Release Risk Budget becomes 7/5 across four subsystems.",
+        "resolution": "Use this isolated quality-infrastructure release first.",
         "status": "resolved"
       },
       {
-        "id": "CH-AUTH-4",
-        "scenario": "A shopper session already exists and the user manually opens flow=invite or flow=recovery.",
-        "finding": "Session presence alone does not prove possession of a workforce invite/recovery link.",
-        "resolution": "Require matching hash type, PKCE code/token hash, or access/refresh token callback evidence before credential update.",
+        "id": "CH-E13-PROOF-4",
+        "scenario": "A future refactor reintroduces the legacy locator.",
+        "finding": "The same false-negative regression returns.",
+        "resolution": "Add a DOMAIN-QUALITY source-contract regression asserting canonical workforce route/root/submit and absence of the legacy button locator.",
         "status": "resolved"
       },
       {
-        "id": "CH-AUTH-5",
-        "scenario": "An owner activation email is not eligible.",
-        "finding": "Client signup without the server owner-claim gate could create an unauthorized owner identity.",
-        "resolution": "Activation must call /api/platform/activation and fail closed unless eligible=true.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-AUTH-6",
-        "scenario": "Auth Core work is mistaken for AAL2 authorization enforcement.",
-        "finding": "Changing requireAdmin/middleware would alter runtime enforcement before the planned final audit.",
-        "resolution": "Those authorities remain read-only; tests prohibit workforceAssuranceSatisfied/AAL2 enforcement in this unit.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-AUTH-7",
-        "scenario": "The high-risk auth release also changes active platform/account/preview/admin delegates.",
-        "finding": "That would reproduce the Release Risk Budget violation.",
-        "resolution": "The plan envelope excludes all non-auth delegates and the release gate must report 5/5 points with one scored subsystem.",
+        "id": "CH-E13-PROOF-5",
+        "scenario": "Only the handoff proof producer and its quality regression change.",
+        "finding": "Current workflow path filters do not select the Template Factory gate, so exact-head E13 proof never runs.",
+        "resolution": "Add the handoff script to both push and pull_request paths and lock the dependency in the DOMAIN-QUALITY regression.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code on the exact plan-only Auth Core head before implementation.",
-      "Add deterministic return-target, recovery, credential-evidence and activation source-contract tests.",
-      "Run Edit-Time / Reference Sync and Incremental Known Failure Replay after the auth-only implementation commit.",
-      "Require Release Risk Budget PASS at 5/5 points with exactly one substantive subsystem.",
+      "Run Plan Before Code on this exact plan-only head before editing the harness.",
+      "Update only the E13 platform-authentication helper and the canonical DOMAIN-QUALITY architecture regression.",
+      "Run Edit-Time Guard and full Incremental Replay; knowledge-infrastructure change requires full failure replay.",
+      "Require Release Risk Budget PASS as a single substantive quality-infrastructure subsystem.",
+      "Require Release Risk Budget PASS at 4/5 or lower across quality-infrastructure and release-infrastructure only.",
       "Run full Quality Tests, TypeScript and Production Build.",
-      "Require exact-head Completion Truth VERIFIED and lifecycle closure before merging Auth Core to main."
+      "Require the exact-head Template Factory E13 functional proof to resolve a matching preview and pass the real workforce login journey.",
+      "Require Completion Truth VERIFIED and lifecycle closure before merging this infrastructure fix to main."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-AUTH-CORE",
+      "request": "PO-2026-10-05-MR1-E13-WORKFORCE-PROOF-COMPATIBILITY",
       "authority": [
-        "auth-access-authority"
+        "quality-knowledge-system",
+        "release-infrastructure"
       ],
       "mustEdit": [
-        "src/lib/auth/workforce-return-target.ts",
-        "src/app/api/auth/workforce-login/page.tsx",
-        "src/lib/auth/workforce-auth-form.tsx",
-        "src/app/api/auth/workforce-credential/page.tsx",
-        "src/lib/auth/workforce-credential-form.tsx",
-        "src/lib/auth/platform-activation-form.tsx"
+        "scripts/template-factory-product-owner-handoff.mjs",
+        ".github/workflows/template-factory-quality-gate.yml"
       ],
       "mayEdit": [
-        "tests/workforce-auth-ux.test.ts",
-        "tests/workforce-auth-core-isolation.test.ts"
+        "tests/architecture-health.test.ts"
       ],
       "impactedReadOnly": [
+        "tests/template-factory-engine-functional-proof-runner.test.ts",
+        "src/app/api/auth/workforce-login/page.tsx",
+        "src/lib/auth/workforce-auth-form.tsx",
+        "src/lib/auth/workforce-return-target.ts",
         "src/app/platform/page.tsx",
-        "src/app/fiokom/page.tsx",
-        "src/app/storefront-template-preview-login/page.tsx",
-        "src/app/admin/platform/webaruhazak/actions.ts",
-        "src/components/auth/auth-form.tsx",
-        "src/components/auth/platform-auth-form.tsx",
-        "src/lib/auth/admin-api.ts",
         "src/lib/auth/require-admin.ts",
-        "src/lib/instances/access.ts",
-        "src/middleware.ts",
-        "quality/knowledge/living-roadmap.v2.json"
+        "src/middleware.ts"
       ],
       "proof": [
-        "tests/workforce-auth-ux.test.ts",
-        "tests/workforce-auth-core-isolation.test.ts"
+        "tests/architecture-health.test.ts",
+        ".github/workflows/template-factory-quality-gate.yml"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -305,60 +316,53 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-AUTH-CORE",
+    "sourceRef": "PO-2026-10-05-MR1-E13-WORKFORCE-PROOF-COMPATIBILITY",
     "requirements": [
       {
-        "id": "REQ-WORKFORCE-AUTH-CORE",
-        "requirement": "Canonical workforce authentication primitives provide safe return targeting, workforce-owned recovery/credential completion and owner activation handoff while existing role, tenant, shopper and parked AAL2 authorities remain unchanged.",
+        "id": "REQ-E13-WORKFORCE-PROOF-COMPATIBILITY",
+        "requirement": "The E13 browser proof consumes the canonical workforce entrypoint, preserves fail-closed platform authentication semantics, and automatically triggers exact-head Template Factory proof whenever its producer changes.",
         "claimScope": {
-          "capability": "CAP-AUTH",
-          "breadth": "workforce-auth-core",
+          "capability": "CAP-QUALITY",
+          "breadth": "e13-workforce-proof-harness",
           "strength": 2,
           "dimensions": [
             "tests",
-            "types",
-            "build",
-            "forbidden-state"
+            "regression",
+            "forbidden-state",
+            "behavioral-proof"
           ]
         },
         "requiredCapabilities": [
-          "CAP-AUTH"
+          "CAP-QUALITY"
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
+            "GUARD-EDIT-TIME",
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
+            "GUARD-QUALITY-TESTS",
             "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-WORKFORCE-REDIRECT-ESCAPE",
-            "statement": "Workforce return targets must not escape to external, shopper-account or preview-login routes.",
+            "id": "NEG-E13-LEGACY-LOGIN",
+            "statement": "The E13 proof must not depend on the removed legacy platform login button or PlatformAuthForm.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-CUSTOMER-SESSION-CREDENTIAL-BYPASS",
-            "statement": "An arbitrary existing customer session must not authorize workforce credential completion without callback evidence.",
+            "id": "NEG-E13-WORKFORCE-BYPASS",
+            "statement": "The proof must not bypass canonical workforce access/MFA state to obtain a green result.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-SECOND-AUTH-AUTHORITY",
-            "statement": "The Auth Core must continue to use Supabase Auth and existing workforce MFA primitives rather than creating another credential/session authority.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-TYPECHECK"
-            ]
-          },
-          {
-            "id": "NEG-AAL2-ACTIVATION",
-            "statement": "This release must not activate or weaken the parked AAL2 authorization enforcement.",
+            "id": "NEG-E13-PROOF-NOT-TRIGGERED",
+            "statement": "A handoff proof-producer change must not bypass Template Factory Quality Gate through an incomplete path filter.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -366,11 +370,11 @@
         ]
       },
       {
-        "id": "REQ-WORKFORCE-AUTH-CORE-RELEASE-ISOLATION",
-        "requirement": "The high-risk workforce Auth Core ships as an isolated release transaction within the canonical Release Risk Budget.",
+        "id": "REQ-E13-PROOF-RELEASE-ISOLATION",
+        "requirement": "The proof-harness compatibility fix ships as an isolated quality-infrastructure release within the canonical Release Risk Budget.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "workforce-auth-core-release-isolation",
+          "breadth": "e13-proof-quality-infrastructure-release",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -390,8 +394,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-HIGH-RISK-MIXED-RELEASE",
-            "statement": "The high-risk Auth Core release must not be mixed with substantive non-auth subsystems or exceed the canonical release risk budget.",
+            "id": "NEG-E13-MIXED-RELEASE",
+            "statement": "The harness release must not include substantive product/Auth Core subsystems or exceed the canonical release-risk budget.",
             "evidence": [
               "GUARD-RELEASE-RISK"
             ]
@@ -400,18 +404,5 @@
       }
     ]
   },
-  "notes": "Release Risk Budget on combined workforce convergence head 9565aee4 proved the implementation was too broad: 10/5 points across four subsystems, while Plan Before Code, Edit-Time Guard and Incremental Replay all passed. This transaction is the required first split: high-risk Auth Core only. The already-developed non-auth platform/account/preview/admin delegators remain on the combined reference branch and will be re-applied from verified main as a second release unit. PR #858 remains parked and AAL2 enforcement is not activated. Sentinel integrity correctly rejected CAP-RELEASE evidence embedded inside the CAP-AUTH completion claim. Release isolation is now modeled as a separate CAP-RELEASE requirement proven by GUARD-RELEASE-RISK; the release gate itself remains mandatory and unchanged. Plan Before Code required explicit implementation evidence and negative verification for the CAP-RELEASE claim; both are bound to GUARD-RELEASE-RISK, whose canonical proof semantics are CAP-RELEASE with risk/release-scope dimensions.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "b49d521a9e4e4928074289afcc32c97eb94e6060",
-    "closedAt": "2026-10-05T17:57:49.713Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-AUTH-CORE",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "The Stage 1 product-only delegator implementation was already technically VERIFIED, but exact-head Template Factory proof exposed a stale E13 login harness. Mixing the harness fix into PR #912 produced Release Risk Budget BLOCK at 7/5 points across quality-infrastructure + admin-operations + customer-account + storefront-ui. This branch is the required isolated quality-infrastructure transaction. PR #912 remains draft until this fix lands on main; PR #858 remains parked and AAL2 enforcement remains inactive. During isolation, the workflow path filter was proven incomplete: scripts/template-factory-product-owner-handoff.mjs was executed by the gate but did not itself trigger that gate. The isolated release therefore includes the two path-filter entries as a release-infrastructure dependency; this remains below the canonical risk ceiling and is required for truthful exact-head proof."
 }
