@@ -5,7 +5,7 @@ import {buildCodebaseAtlas,validateCodebaseAtlas,writeCodebaseAtlasArtifacts} fr
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
 const policy=readJson('quality/knowledge/deep-atlas-scan-policy.v1.json');
-const roadmap=readJson('quality/knowledge/living-roadmap.v1.json');
+const roadmap=readJson('quality/knowledge/living-roadmap.v2.json');
 
 const atlas=buildCodebaseAtlas();
 const atlasValidation=validateCodebaseAtlas(atlas);

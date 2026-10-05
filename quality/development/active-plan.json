@@ -1,30 +1,30 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-EXTERNAL-PROOF-HANDOFF",
-  "task": "Bind required exact-head evidence from existing parallel workflows into the canonical Resumable Verification and Completion Truth authority without creating another gate.",
+  "taskId": "DEV-PACKAGE-MATRIX-BENCHMARK-RECONCILIATION",
+  "task": "Refine the canonical Shoperation Alap / Pro / Add-on capability matrix from accepted Shopify, Shoprenter and UNAS benchmark decisions without changing runtime behavior.",
   "status": "closed",
-  "guardDigest": "efe9d183",
-  "changeBaseSha": "d34e9ee152205440c553b6b8662c7b14042137d2",
+  "guardDigest": "aa79c504",
+  "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
+    "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md",
     "quality/development/active-plan.json",
-    "scripts/shoperation-external-proof-handoff.mjs",
-    "scripts/shoperation-verification-checkpoint.mjs",
-    "quality/knowledge/guard-registry.v1.json",
-    ".github/workflows/ci.yml",
-    "tests/shoperation-external-proof-handoff.test.ts",
-    "tests/shoperation-resumable-verification.test.ts"
+    "quality/knowledge/capability-registry.v1.json",
+    "quality/knowledge/living-roadmap.v1.json",
+    "quality/knowledge/living-roadmap.v2.json",
+    "scripts/lib/shoperation-architecture-health.mjs",
+    "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+    "src/lib/quality-system/capability-evidence.ts",
+    "tests/architecture-health.test.ts",
+    "tests/capability-roadmap-evidence.test.ts",
+    "tests/deep-atlas-scan.test.ts",
+    "tests/shoperation-sentinel.test.ts"
   ],
-  "expectedSubsystems": [
-    "quality-infrastructure",
-    "release-infrastructure"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -79,94 +79,48 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
-    "riskTier": "critical",
-    "problemStatement": "The current Completion Truth authority can consume evidence produced inside normal CI, but a mandatory proof produced by a separate exact-head workflow can be either permanently MISSING or silently moved outside the machine-readable Completion Contract. The Brabus revalidation exposed both failure modes: including GUARD-TEMPLATE-FACTORY deadlocked Truth because CI could not see the sibling workflow artifact; removing it let Completion Truth become VERIFIED_DONE before Template Factory completed. The fix must transport external exact-head evidence into the existing Resumable Verification manifest while preserving one Completion Truth authority.",
-    "observableOutcomes": [
-      "Completion Contract references to supported external guards are detected from structured evidence references rather than hard-coded per-task prose.",
-      "Normal CI waits only for an external guard that the active Completion Contract actually requires.",
-      "A successful external workflow is insufficient by itself: exact head, branch, state version, producer run and machine-readable artifact truth must all agree.",
-      "Validated external proof is normalized into the existing Resumable Verification final evidence manifest and consumed by the existing Completion Truth Gate.",
-      "Missing, failed, stale, wrong-head, wrong-branch, malformed, incomplete or ambiguous external evidence fails closed.",
-      "Development transactions that do not require an external guard do not wait for Template Factory and preserve current CI behavior.",
-      "No second quality gate, Completion Truth authority, Template Factory authority or release authority is created."
-    ],
-    "unresolvedRisks": [
-      "Cross-workflow waiting increases CI wall time only for transactions whose Completion Contract explicitly requires the external proof.",
-      "The first supported producer is GUARD-TEMPLATE-FACTORY; future external guards require an explicit adapter/validator instead of generic trust in arbitrary workflow artifacts.",
-      "GitHub Actions artifact/API availability is an external transport dependency; unavailable evidence remains BLOCK rather than guessed PASS."
-    ],
-    "scope": {
-      "in": [
-        "Existing Completion Contract evidence references and Guard Registry identities.",
-        "Existing Resumable Verification final evidence manifest and Completion Truth Gate.",
-        "Generic external-proof requirement detection for guards absent from the local verification plan.",
-        "Exact-head Template Factory workflow/artifact transport as the first supported external producer.",
-        "CI orchestration needed to wait boundedly, download, validate and hand off required external proof.",
-        "Adversarial regression coverage for stale/mismatched/failed/malformed/incomplete external proof."
-      ],
-      "out": [
-        "Any Builder, Template Factory maturity model, storefront runtime or template implementation.",
-        "Any second blocking gate, Completion Truth authority, release authority or Template Factory authority.",
-        "Weakening Release Risk, Sentinel, Proof Semantics, Plan Before Code or existing exact-head provenance rules.",
-        "Treating workflow success without machine-readable artifact proof as completion evidence.",
-        "General trust of arbitrary external workflow artifacts without an explicit validator."
-      ]
-    },
+    "sourceRef": "PO-2026-10-05-PACKAGE-MATRIX-BENCHMARK",
+    "riskTier": "medium",
     "assuranceCeiling": {
-      "level": "critical-practical",
-      "rationale": "This change modifies the evidence path used by the authority that decides whether a Development Transaction is actually complete. The highest practical assurance level is exact-head fail-closed provenance, artifact/workflow decision reconciliation, bounded transport, explicit supported-producer validation and adversarial proof against evidence laundering, without adding a parallel completion system.",
+      "level": "state-and-failure-review",
+      "rationale": "Package entitlements are commercial and authorization-facing roadmap authority. The change must preserve accepted competitor-benchmark boundaries and prevent Digital Office leakage into Alap.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
-        "state-model",
-        "what-if-matrix",
-        "adversarial-scenarios",
         "boundary-cases",
-        "pairwise-interactions",
-        "threat-failure-model",
-        "fault-injection",
-        "finite-state-exhaustion"
+        "adversarial-scenarios",
+        "state-model"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "A Completion Contract requiring GUARD-TEMPLATE-FACTORY cannot reach VERIFIED_DONE until an exact-head successful Template Factory artifact is validated and present in the canonical final evidence set.",
-        "A Completion Contract that does not require GUARD-TEMPLATE-FACTORY does not wait for or synthesize Template Factory evidence.",
-        "Wrong-head, wrong-branch, failed workflow, missing run identity, invalid contract, invalid checksum, incomplete browser matrix or artifact errors all fail closed.",
-        "An older successful artifact from the same branch cannot satisfy a newer exact-head requirement.",
-        "Workflow success plus artifact BLOCK/incomplete state cannot be laundered into PASS.",
-        "External evidence is merged into the existing Resumable Verification final-evidence-manifest and the existing Completion Truth Gate remains the only completion decision authority.",
-        "The handoff helper is part of verification-engine identity so later semantic changes invalidate stale resumable-promotion proof.",
-        "Quality tests, TypeScript and production build remain green on the exact foundation head.",
-        "Release Risk stays inside budget for this isolated quality/release foundation transaction."
+        "Alap remains a complete professional webshop and is not artificially crippled below the accepted Shopify/Shoprenter/UNAS benchmark baseline for ordinary commerce.",
+        "Digital Office and all of its collaboration/workforce surfaces are Pro-only except ordinary transactional webshop email, Form Wizard notification behavior and normal outbound marketing communication.",
+        "Previously accepted Alap multi-location inventory and simple event-to-action automation remain Alap; advanced routing/workflow depth remains Pro.",
+        "Special Commerce shopping engines are Pro capabilities: Alap does not expose authorable Guided Finder, Composer, Configurator, Compatibility/Fitment, Compare & Spec, Profile/Context, Release/Drop, Interactive Scene or Recipe Commerce experiences.",
+        "Both packages retain equal design/template quality and the same full manual Builder; Pro differentiation is capability entitlement, not a superior skin.",
+        "Specialized or variable-cost capabilities remain Add-on/post-launch rather than being forced into Pro merely to increase package count."
       ],
       "invariants": [
-        "One completion decision authority: GUARD-COMPLETION-TRUTH.",
-        "External proof transport never decides completion; it only normalizes validated evidence.",
-        "Exact head, branch, state version, producer workflow/run and artifact truth are part of evidence identity.",
-        "UNKNOWN or unavailable external proof is BLOCK, never probable PASS.",
-        "Existing producer authority remains authoritative for its own result; the handoff cannot rewrite or upgrade it.",
-        "Verification-engine semantics include the handoff implementation and CI wiring."
+        "All 42 templates and the full manual Builder are available in both Alap and Pro.",
+        "Core checkout/order/payment/shipping/invoice/tax/security authorities cannot be paywalled behind Pro.",
+        "Digital Office Team Chat, mailbox/team inbox, tasks, approvals, staff profiles, leave/delegation, sending center, communication workspace and related workforce tooling do not leak into Alap.",
+        "Alap cannot configure, instantiate or publish Special Commerce engine experiences even though both packages share the same runtime and Builder.",
+        "Company billing in B2C checkout is not the same as Pro B2B organizational purchasing."
       ],
       "forbiddenStates": [
-        "completion-truth-verified-before-required-external-proof",
-        "external-workflow-success-without-artifact-truth-counted-pass",
-        "stale-external-artifact-reused-as-current-head",
-        "wrong-branch-or-wrong-head-proof-accepted",
-        "external-proof-transport-becomes-second-completion-gate",
-        "unrequested-template-factory-wait-on-unrelated-development",
-        "verification-engine-change-retains-stale-promotion-proof"
+        "digital-office-capability-in-alap",
+        "special-commerce-engine-entitlement-in-alap",
+        "multi-location-baseline-pro-only",
+        "all-automation-pro-only",
+        "core-commerce-provider-integration-pro-only",
+        "separate-basic-and-pro-template-forks"
       ]
     },
     "model": {
@@ -198,167 +152,54 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Normal CI verifies local evidence and closes while mandatory sibling workflow proof is still running.",
-        "A required external guard remains permanently MISSING because its artifact is never normalized into the local manifest.",
-        "Branch-only lookup selects an older successful workflow artifact for a newer head.",
-        "Workflow status is success while its machine-readable artifact is incomplete or contains errors.",
-        "Malformed or absent external artifact is silently ignored.",
-        "An unrelated development transaction waits for Template Factory even though its Completion Contract never references it.",
-        "The handoff semantics change without invalidating resumable verification promotion identity."
+        "A later assistant recommendation overwrites an earlier explicit PO package decision.",
+        "Digital Office subfeatures leak into Alap through generic chat/email/workforce labels.",
+        "Basic merchant security, reporting or inventory operations are over-paywalled despite the accepted competitor benchmark.",
+        "A specialized add-on is incorrectly treated as mandatory Pro scope."
       ],
       "edgeCases": [
-        "No external evidence references exist.",
-        "Completion Contract is closed and must not create a fresh external wait.",
-        "Multiple local evidence references plus one external evidence reference exist in the same requirement.",
-        "A producer run is queued/in-progress while an older exact-branch success exists.",
-        "A producer run is terminal failure with a leftover artifact.",
-        "Duplicate external evidence records target the same guard.",
-        "Unsupported external guard is referenced and must fail visible rather than guessed."
+        "Simple customer groups exist in Alap while full company-account B2B governance remains Pro.",
+        "Multi-location stock is Alap while automated cross-location routing/split fulfillment is Pro.",
+        "Simple event-to-action recipes are Alap while branching multi-step workflows are Pro.",
+        "Transactional and campaign email can exist outside Digital Office without creating an inbox/team-workspace entitlement leak.",
+        "A template may visually contain an area suitable for a Special Commerce experience, but Alap must render an ordinary storefront composition rather than silently enabling the Pro engine."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-EXISTING-TRUTH-HANDOFF",
-        "summary": "Transport validated sibling-workflow proof into the existing Resumable Verification evidence manifest and let the existing Completion Truth decide closure.",
+        "id": "ALT-BENCHMARK-RECONCILED-MATRIX",
+        "summary": "Use the accepted competitor benchmark plus later PO overrides to define a complete Alap and operational Pro boundary.",
         "disposition": "selected",
-        "reason": "Preserves one completion authority, avoids proof duplication and closes both the permanent-MISSING and false-closure failure modes."
+        "reason": "It preserves prior work, prevents arbitrary paywalls, and keeps Pro focused on business-system depth."
       },
       {
-        "id": "ALT-MANUAL-MERGE-CHECK",
-        "summary": "Remove external proof from Completion Contract and rely on a manual pre-merge check.",
+        "id": "ALT-PREVIOUS-QUICK-MATRIX",
+        "summary": "Keep the earlier simplified matrix that put all multi-location and automation depth into Pro.",
         "disposition": "rejected",
-        "reason": "The Brabus run already proved Completion Truth can become VERIFIED_DONE before the sibling proof finishes; manual policy is not machine-enforced completion truth."
-      },
-      {
-        "id": "ALT-SECOND-CROSS-WORKFLOW-GATE",
-        "summary": "Create a dedicated cross-workflow completion gate beside Completion Truth.",
-        "disposition": "rejected",
-        "reason": "Would duplicate blocking responsibility and recreate the rule/gate ping-pong architecture the Control Plane is intended to eliminate."
+        "reason": "It contradicts earlier explicit PO decisions and loses information from the detailed benchmark conversations."
       }
     ],
     "challenge": [
       {
-        "id": "CH-1",
-        "scenario": "The sibling Template Factory workflow is still running while normal CI reaches its Completion Truth step.",
-        "finding": "Immediate Truth evaluation sees required evidence as missing and either deadlocks or tempts developers to remove the requirement.",
-        "resolution": "CI detects the required external guard from the Completion Contract and waits boundedly for the exact-head producer run before Resumable Verification finalization.",
+        "id": "CH-PACKAGE-1",
+        "scenario": "An Alap customer needs two warehouses and manual transfer visibility but no automation.",
+        "finding": "Earlier PO decision explicitly placed baseline multi-location/multi-warehouse inventory in Alap.",
+        "resolution": "Keep locations, per-location stock and manual inventory operations in Alap; reserve automated routing/split optimization for Pro.",
         "status": "resolved"
       },
       {
-        "id": "CH-2",
-        "scenario": "An older successful Template Factory run exists on the same feature branch.",
-        "finding": "Branch-based selection could launder stale browser evidence into the current transaction.",
-        "resolution": "Producer selection and artifact validation are exact-head; branch alone is never sufficient.",
+        "id": "CH-PACKAGE-2",
+        "scenario": "An Alap merchant uses normal order emails, forms, newsletter or simple campaign messages.",
+        "finding": "These do not make the merchant a Digital Office customer.",
+        "resolution": "Keep transactional/form/basic marketing communication in Alap while every shared inbox, Team Chat and workforce collaboration surface remains Pro-only.",
         "status": "resolved"
       },
       {
-        "id": "CH-3",
-        "scenario": "GitHub reports workflow success but the downloaded Template Factory manifest is incomplete or contains errors.",
-        "finding": "Transport status could override semantic producer truth.",
-        "resolution": "Require both successful workflow conclusion and validated machine-readable manifest contract/checksum/source identity/browser completeness.",
+        "id": "CH-PACKAGE-3",
+        "scenario": "Alap and Pro share the same visual template family, so a template region could appear to imply the same commerce-engine capability in both packages.",
+        "finding": "Equal visual quality was never intended to erase the Pro entitlement difference; later accepted decisions place Guided Finder, Composer, Configurator, Compatibility/Fitment, Compare & Spec and Profile/Context in Pro.",
+        "resolution": "Keep the shared design/runtime, but gate all Special Commerce authoring and customer experience activation behind Pro entitlements; Alap receives an ordinary storefront composition/fallback.",
         "status": "resolved"
-      },
-      {
-        "id": "CH-4",
-        "scenario": "The active Completion Contract contains no supported external guard.",
-        "finding": "A global wait would slow every development transaction and couple unrelated work to Template Factory.",
-        "resolution": "Requirement detection is contract-driven; no reference means no wait, no artifact download and no synthesized evidence.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-5",
-        "scenario": "The handoff implementation itself changes after resumable verification promotion.",
-        "finding": "Old promotion credit could authorize physical evidence reuse under new semantics.",
-        "resolution": "Include handoff implementation and CI wiring in verification-engine identity and regression-test the binding.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-6",
-        "scenario": "A required external guard is referenced but no explicit producer adapter exists.",
-        "finding": "Generic acceptance of arbitrary workflow artifacts would create an unbounded trust channel.",
-        "resolution": "Unsupported external guard IDs fail visible and require an explicit validator before they can contribute evidence.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-7",
-        "scenario": "Two external records for the same guard are available for one exact head.",
-        "finding": "Ambiguous evidence selection could hide a failed or contradictory producer run.",
-        "resolution": "Duplicate external guard evidence is rejected; one exact producer identity must be selected deterministically.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-8",
-        "scenario": "The external handoff code changes while an earlier resumable-verification promotion remains marked eligible.",
-        "finding": "Physical reuse could continue under verification semantics that were never shadow-proven.",
-        "resolution": "Bind the handoff module and CI wiring into verification-engine identity so semantic changes invalidate prior promotion evidence.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-9",
-        "scenario": "Completion Contract uses intuitive dimension labels such as provenance/evidence that are not canonical dimensions declared by its evidence guards.",
-        "finding": "Sentinel correctly treats semantic synonyms as unproven rather than guessing equivalence, so a human-readable claim can still be machine-invalid.",
-        "resolution": "Bind Completion claimScope dimensions to the exact Guard Registry vocabulary currently proven by the referenced guards; semantic aliases do not count as proof.",
-        "status": "resolved"
-      }
-    ],
-    "proofPlan": [
-      "Implement structured Completion Contract evidence reference extraction and derive non-local required guards relative to the existing verification plan.",
-      "Implement a Template Factory external-proof validator for workflow identity, exact head/branch/state/run, manifest contract/checksum/errors and complete browser evidence.",
-      "Merge only validated required external evidence into the existing final-evidence-manifest; missing or invalid required records make Resumable Verification BLOCK.",
-      "Wire CI to resolve/download/validate GUARD-TEMPLATE-FACTORY only when required by the active Completion Contract.",
-      "Add handoff implementation to verification-engine identity.",
-      "Adversarially test missing, failed, stale, wrong-head, wrong-branch, malformed, incomplete and unrequested evidence cases.",
-      "Run exact-head Quality, TypeScript, Production Build, Resumable Verification and Completion Truth.",
-      "Confirm isolated Release Risk stays within budget and no Builder/Template Factory product files are part of this foundation diff."
-    ],
-    "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
-      "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
-      ],
-      "mustEdit": [
-        "scripts/shoperation-verification-checkpoint.mjs",
-        "quality/knowledge/guard-registry.v1.json",
-        ".github/workflows/ci.yml"
-      ],
-      "mayEdit": [
-        "scripts/shoperation-external-proof-handoff.mjs",
-        "tests/shoperation-external-proof-handoff.test.ts",
-        "tests/shoperation-resumable-verification.test.ts"
-      ],
-      "impactedReadOnly": [
-        "scripts/shoperation-truth-gate.mjs",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/lib/shoperation-verification-reuse.mjs",
-        "scripts/release-risk-budget.mjs"
-      ],
-      "proof": [
-        "tests/shoperation-external-proof-handoff.test.ts",
-        "tests/shoperation-resumable-verification.test.ts"
-      ],
-      "unknown": []
-    },
-    "reviews": [
-      {
-        "specialist": "Control Plane",
-        "verdict": "PASS",
-        "reason": "Reuses canonical Completion Truth and Resumable Verification; no second gate."
-      },
-      {
-        "specialist": "Release Risk",
-        "verdict": "PASS",
-        "reason": "Isolated foundation is intentionally limited to quality/release infrastructure."
-      },
-      {
-        "specialist": "Proof Semantics",
-        "verdict": "PASS",
-        "reason": "Exact-state provenance and artifact semantics are preserved instead of inferred."
-      },
-      {
-        "specialist": "Sentinel",
-        "verdict": "PASS",
-        "reason": "Closes the exact class of decision/provenance divergence exposed by the revalidation run."
       }
     ],
     "specialistReviews": [
@@ -366,65 +207,79 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Completion Truth and Resumable Verification already own development-completion evidence aggregation.",
-        "resolution": "Keep the handoff as evidence transport only and do not introduce a new blocking owner.",
+        "finding": "Package entitlements must remain a capability boundary over shared canonical engines and must not fork runtime, templates or commerce authorities.",
+        "resolution": "Keep the shared runtime and Builder canonical; enforce Alap/Pro differences as server-authoritative entitlements in the roadmap/package matrix.",
         "evidence": [
-          "scripts/shoperation-truth-gate.mjs",
-          "scripts/shoperation-verification-checkpoint.mjs",
-          "quality/knowledge/guard-registry.v1.json"
+          "quality/knowledge/living-roadmap.v2.json",
+          "quality/knowledge/capability-registry.v1.json"
         ]
       },
       {
-        "role": "Data Integrity",
+        "role": "Known Failure",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A workflow-level SUCCESS is insufficient because stale or internally BLOCKed artifacts can coexist with wrapper success.",
-        "resolution": "Require exact-head producer identity plus machine-readable artifact contract/checksum/coverage and fail closed on any mismatch.",
+        "finding": "A simplified package matrix can silently reintroduce prior entitlement mistakes, especially Digital Office or Special Commerce leakage into Alap.",
+        "resolution": "Lock the critical package boundaries with explicit negative assertions in architecture-health tests and retain the earlier benchmark-derived decisions in the canonical roadmap.",
         "evidence": [
-          "scripts/shoperation-verification-checkpoint.mjs",
-          "tests/shoperation-resumable-verification.test.ts"
-        ]
-      },
-      {
-        "role": "Release",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Cross-workflow transport touches release orchestration and can exceed risk budget when mixed with Builder/Factory product work.",
-        "resolution": "Isolate this foundation to quality/release infrastructure and keep the Brabus product revalidation in its own transaction.",
-        "evidence": [
-          "scripts/release-risk-budget.mjs",
-          ".github/workflows/ci.yml"
-        ]
-      },
-      {
-        "role": "Operations",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Removing sibling evidence from Completion Contract avoids deadlock but creates false completion; re-running the producer inside CI duplicates proof authority.",
-        "resolution": "Detect required non-local evidence from the Completion Contract, wait boundedly for the canonical producer, normalize evidence, then reuse existing Completion Truth.",
-        "evidence": [
-          "scripts/lib/shoperation-operational-intelligence.mjs",
-          "quality/development/active-plan.json"
+          "tests/architecture-health.test.ts",
+          "quality/knowledge/living-roadmap.v2.json"
         ]
       }
     ],
+    "proofPlan": [
+      "Assert the structured package matrix contains the accepted Alap multi-location and simple automation boundaries.",
+      "Assert every Digital Office collaboration/workforce capability is absent from Alap and present in Pro.",
+      "Assert all accepted Special Commerce shopping engines are absent from Alap and present in Pro.",
+      "Assert full Builder and 42 template family access remain shared.",
+      "Run canonical quality tests, TypeScript and production build on exact head."
+    ],
+    "semanticExecutionRoute": {
+      "request": "PO-2026-10-05-PACKAGE-MATRIX-BENCHMARK",
+      "authority": [
+        "quality-knowledge-system"
+      ],
+      "mustEdit": [
+        "quality/knowledge/living-roadmap.v2.json"
+      ],
+      "mayEdit": [
+        "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md",
+        "quality/knowledge/capability-registry.v1.json",
+        "quality/knowledge/living-roadmap.v1.json",
+        "scripts/lib/shoperation-architecture-health.mjs",
+        "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+        "src/lib/quality-system/capability-evidence.ts",
+        "tests/architecture-health.test.ts",
+        "tests/capability-roadmap-evidence.test.ts",
+        "tests/deep-atlas-scan.test.ts",
+        "tests/shoperation-sentinel.test.ts"
+      ],
+      "impactedReadOnly": [
+        "quality/knowledge/capability-registry.v1.json",
+        "quality/knowledge/evidence-ledger.v1.json"
+      ],
+      "proof": [
+        "tests/architecture-health.test.ts"
+      ],
+      "unknown": [],
+      "plannedDeletions": []
+    },
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
+    "sourceRef": "PO-2026-10-05-PACKAGE-MATRIX-BENCHMARK",
     "requirements": [
       {
-        "id": "REQ-EXTERNAL-PROOF-DETECTION",
-        "requirement": "Required external Completion evidence is derived from the active Completion Contract and only unsupported/non-local guards are handed to explicit validators.",
+        "id": "REQ-PACKAGE-MATRIX-BENCHMARK",
+        "requirement": "The canonical roadmap package matrix reflects accepted Alap, Pro and Add-on boundaries from the Shopify, Shoprenter and UNAS benchmark plus later PO overrides.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "external-completion-proof-detection",
+          "breadth": "package-matrix-roadmap-authority",
           "strength": 2,
           "dimensions": [
-            "scope",
-            "evidence-scope",
-            "limitations"
+            "tests",
+            "regression",
+            "build"
           ]
         },
         "requiredCapabilities": [
@@ -435,85 +290,27 @@
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-UNREQUESTED-EXTERNAL-WAIT",
-            "statement": "Transactions with no external proof requirement do not wait for Template Factory.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-EXTERNAL-PROOF-PROVENANCE",
-        "requirement": "External Template Factory proof is accepted only when workflow and artifact truth match the same exact Development Transaction.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "external-proof-provenance",
-          "strength": 2,
-          "dimensions": [
-            "truth",
-            "freshness",
-            "coverage",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-STALE-OR-LAUNDERED-EXTERNAL-PROOF",
-            "statement": "Wrong-head, wrong-branch, failed, malformed, incomplete or contradictory external proof cannot become PASS.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-EXTERNAL-PROOF-TRUTH-INTEGRATION",
-        "requirement": "Validated external proof is merged into the existing Resumable Verification evidence manifest and remains required by the existing Completion Truth authority when referenced.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "external-proof-truth-integration",
-          "strength": 2,
-          "dimensions": [
-            "truth",
-            "resumable",
-            "evidence-scope",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS",
             "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PARALLEL-COMPLETION-AUTHORITY",
-            "statement": "No second completion gate or release authority is introduced.",
+            "id": "NEG-DIGITAL-OFFICE-LEAK",
+            "statement": "Digital Office collaboration/workforce capabilities must not be assigned to Alap.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-SPECIAL-COMMERCE-LEAK",
+            "statement": "Special Commerce shopping engine entitlements must not be assigned to Alap.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-MULTILOCATION-PAYWALL",
+            "statement": "Baseline multi-location inventory must not become Pro-only.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -522,14 +319,14 @@
       }
     ]
   },
-  "notes": "Isolated foundation extracted from the Brabus revalidation after Release Risk correctly blocked the mixed 4-subsystem/7-point Development Transaction. This branch changes only quality/release evidence transport. It does not implement or modify any Builder, template, Runtime or Factory maturity capability. Exact-head Quality exposed two proof-model issues: the handoff regression searched a fail-closed code in the wrapper instead of its owning helper, and Sentinel rejected noncanonical Completion claim dimensions. Both are repaired at their actual semantic owner; Sentinel is not weakened.",
+  "notes": "Package-authority refinement only. No runtime entitlement implementation or billing/pricing changes are introduced in this transaction.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "c17ab9ce42db60d8b10b4cfb7d57e82bc6a98090",
-    "closedAt": "2026-10-02T11:07:42.691Z",
+    "verifiedImplementationHead": "3b4262cc320db013d37f3560273e99e6db8f51c1",
+    "closedAt": "2026-10-05T10:36:50.320Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
+    "sourceRef": "PO-2026-10-05-PACKAGE-MATRIX-BENCHMARK",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

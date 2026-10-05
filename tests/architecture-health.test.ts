@@ -57,9 +57,15 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
     expect(workflow).not.toContain('Architecture Confidence Gate');
   });
 
-  it('keeps accepted roadmap references and sequencing canonical',()=>{
+  it('keeps Living Roadmap v2 dependency maturity canonical',()=>{
     const capabilities=JSON.parse(readFileSync('quality/knowledge/capability-registry.v1.json','utf8')) as {capabilities:Array<{id:string;roadmapRefs?:string[]}>};
-    const roadmap=JSON.parse(readFileSync('quality/knowledge/living-roadmap.v1.json','utf8')) as {items:Array<{id:string;status:string;order?:number;targetWindow?:string;dependsOn?:string[]}>};
+    const roadmap=JSON.parse(readFileSync('quality/knowledge/living-roadmap.v2.json','utf8')) as {
+      contract:string;version:number;principles:{maturityBackbone:string[];higherLayerCannotProveLowerLayer:boolean};
+      items:Array<{id:string;status:string;order?:number;targetWindow?:string;dependsOn?:string[];packageMatrix?:{alap:{capabilities:string[]};pro:{capabilities:string[]};addOnOrLater:{capabilities:string[]};explicitExclusionsFromAlap:string[]}}>;
+    };
+    expect(roadmap.contract).toBe('shoporation.living-roadmap.v2');
+    expect(roadmap.version).toBe(2);
+    expect(roadmap.principles.higherLayerCannotProveLowerLayer).toBe(true);
     const ids=new Set(roadmap.items.map(item=>item.id));
     for(const capability of capabilities.capabilities){
       for(const ref of capability.roadmapRefs??[])expect(ids.has(ref),`${capability.id} missing roadmap ref ${ref}`).toBe(true);
@@ -68,13 +74,47 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
       for(const dependency of item.dependsOn??[])expect(ids.has(dependency),`${item.id} missing dependency ${dependency}`).toBe(true);
     }
     const byId=new Map(roadmap.items.map(item=>[item.id,item]));
-    expect(byId.get('TEMPLATE-PRODUCTION-SYSTEM')?.status).toBe('in-progress');
-    expect(byId.get('TEMPLATE-PORTFOLIO-42')?.order).toBeLessThan(byId.get('GUARDED-VISUAL-SECTION-LIBRARY')?.order??0);
-    expect(byId.get('GUARDED-VISUAL-SECTION-LIBRARY')?.order).toBeLessThan(byId.get('MARKET-READY-1-0')?.order??0);
-    expect(byId.get('SANDBOX-TEST-MODE')?.targetWindow).toBe('market-ready-1.0');
-    expect(byId.get('PAYMENT-HUB-1')?.targetWindow).toBe('post-launch');
-    expect(byId.get('SURFACE-REDUCTION')?.targetWindow).toBe('immediately-after-market-ready-1.0');
+    const backbone=[
+      'SHOPERATION-CORE-CAPABILITY-COMPLETE',
+      'CORE-OPERATIONAL-ADVERSARIAL-PROOF',
+      'UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE',
+      'TEMPLATE-CAPABILITY-CENSUS-42',
+      'BUILDER-PRODUCTION-COMPLETE',
+      'BUILDER-ADVERSARIAL-ACCEPTANCE',
+      'TEMPLATE-PRODUCTION-SYSTEM',
+      'TEMPLATE-PORTFOLIO-42',
+      'MARKET-READY-1-0',
+    ];
+    expect(roadmap.principles.maturityBackbone).toEqual(backbone);
+    for(let i=1;i<backbone.length;i++){
+      expect(byId.get(backbone[i])?.dependsOn, `${backbone[i]} must depend on prior maturity ${backbone[i-1]}`).toContain(backbone[i-1]);
+    }
+    expect(byId.get('PAYMENT-HUB-1')?.targetWindow).toBe('core-capability-complete');
+    expect(byId.get('SPECIAL-COMMERCE')?.targetWindow).toBe('core-capability-complete');
+    expect(byId.get('DEVELOPER-INTEGRATION-SANDBOX')?.dependsOn).toContain('CONTROLLED-INTEGRATION-FRAMEWORK');
+    expect(byId.get('AI-BUILDER-DARK-LAUNCH')?.dependsOn).toContain('BUILDER-ADVERSARIAL-ACCEPTANCE');
+    expect(byId.get('SURFACE-REDUCTION')?.dependsOn).toContain('TEMPLATE-PORTFOLIO-42');
+    expect(byId.get('MARKET-READY-1-0')?.dependsOn).toContain('SURFACE-REDUCTION');
     expect(byId.get('WEBSITE-BUILDER')?.status).toBe('parked');
+    const packageMatrix=byId.get('MR1-PACKAGE-CAPABILITY-MATRIX')?.packageMatrix;
+    expect(packageMatrix).toBeDefined();
+    expect(packageMatrix?.alap.capabilities).toContain('full manual Visual Builder and responsive Desktop/Tablet/Mobile storefront editing/preview');
+    expect(packageMatrix?.alap.capabilities).toContain('baseline inventory plus multi-location/multi-warehouse InventoryLocation support');
+    expect(packageMatrix?.alap.capabilities).toContain('simple ready-made automation recipes and single event-to-action rules');
+    expect(packageMatrix?.pro.capabilities).toContain('automated cross-location source selection and cross-warehouse routing');
+    expect(packageMatrix?.pro.capabilities).toContain('multi-condition, branching, multi-step governed workflow automation');
+    expect(packageMatrix?.pro.capabilities).toContain('Digital Office Team Chat for staff-to-staff communication');
+    expect(packageMatrix?.pro.capabilities).toContain('Guided Finder (E3) entitlement');
+    expect(packageMatrix?.pro.capabilities).toContain('Multi-Product Composer (E4) entitlement');
+    expect(packageMatrix?.pro.capabilities).toContain('Product Configurator (E5) entitlement');
+    expect(packageMatrix?.pro.capabilities).toContain('Compatibility / Fitment (E6) entitlement');
+    expect(packageMatrix?.pro.capabilities).toContain('Compare & Spec (E7) entitlement');
+    expect(packageMatrix?.pro.capabilities).toContain('Profile / Context (E8) entitlement');
+    expect(packageMatrix?.pro.capabilities).toContain('Drop / Release Commerce entitlement');
+    expect(packageMatrix?.alap.capabilities.some(capability=>/Guided Finder|Composer|Configurator|Compatibility|Compare\/Spec|Profile\/Context|Drop\/Release/i.test(capability))).toBe(false);
+    expect(packageMatrix?.alap.capabilities.some(capability=>capability.includes('Digital Office'))).toBe(false);
+    expect(packageMatrix?.explicitExclusionsFromAlap).toContain('Digital Office Team Chat');
+    expect(packageMatrix?.explicitExclusionsFromAlap).toContain('Digital Office shared mailbox/inbox/thread workspace');
   });
 
   it('ADVERSARIAL: free-form capability evidence cannot produce PROVEN confidence',()=>{

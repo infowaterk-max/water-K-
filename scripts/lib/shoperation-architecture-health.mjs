@@ -6,7 +6,7 @@ import {buildCodebaseAtlas} from './shoperation-codebase-atlas-runtime.mjs';
 
 const readJson=path=>JSON.parse(readFileSync(path,'utf8'));
 const capabilities=readJson('quality/knowledge/capability-registry.v1.json');
-const roadmap=readJson('quality/knowledge/living-roadmap.v1.json');
+const roadmap=readJson('quality/knowledge/living-roadmap.v2.json');
 const evidence=readJson('quality/knowledge/evidence-ledger.v1.json');
 const domains=readJson('quality/knowledge/domain-foundations.v1.json');
 const guards=readJson('quality/knowledge/guard-registry.v1.json');

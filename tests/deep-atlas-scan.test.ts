@@ -52,7 +52,7 @@ describe('Daily Deep Atlas Scan',()=>{
   });
 
   it('records Drift Confidence and Deep Atlas as proven after their merge proof exists',()=>{
-    const roadmap=JSON.parse(read('quality/knowledge/living-roadmap.v1.json')) as {items:Array<{id:string;status:string;evidenceRefs:string[]}>};
+    const roadmap=JSON.parse(read('quality/knowledge/living-roadmap.v2.json')) as {items:Array<{id:string;status:string;evidenceRefs:string[]}>};
     const drift=roadmap.items.find(item=>item.id==='DRIFT-CONFIDENCE');
     const deep=roadmap.items.find(item=>item.id==='DEEP-ATLAS-SCAN');
     expect(drift?.status).toBe('done');
