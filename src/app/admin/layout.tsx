@@ -24,9 +24,10 @@ import { AdminRouteContext } from '@/components/navigation/admin-route-context';
 import { AdminFontScale } from '@/components/admin/admin-font-scale';
 import { PlatformDeviceLabLauncher } from '@/components/admin/platform-device-lab-launcher';
 import { PlatformResponsiveViewport } from '@/components/admin/platform-responsive-viewport';
+import { AdminProfileMenu } from '@/components/admin/admin-profile-menu';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { getPlatformRole } from '@/lib/auth/platform-operator';
-import { getActiveStoreRoles,roleHasPermission,type StorePermission } from '@/lib/auth/store-rbac';
+import { getActiveStoreRoles,roleHasPermission,type StorePermission,type StoreRole } from '@/lib/auth/store-rbac';
 import { hasStoreCapability,type StoreCapability } from '@/lib/auth/store-capabilities';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { getCurrentPlan } from '@/lib/plans/access';
@@ -35,6 +36,8 @@ import { FREQUENT_TASKS,MERCHANT_NAVIGATION,PLATFORM_NAVIGATION } from '@/lib/na
 import { resolveEntitledFrequentTasks,resolveEntitledMerchantNavigation } from '@/lib/navigation/entitlement-navigation';
 import { getFeatureEntitlementDecisions } from '@/lib/entitlements/access';
 import {hasActiveBusinessPulseTrial} from '@/lib/business-pulse/access';
+
+const STORE_ROLE_LABELS:Record<StoreRole,string>={owner:'Tulajdonos',admin:'Adminisztrátor',catalog_manager:'Katalóguskezelő',order_manager:'Rendeléskezelő',marketing_manager:'Marketingkezelő',support:'Ügyfélszolgálat',analyst:'Elemző',viewer:'Megtekintő'};
 
 export default async function AdminLayout({children}:{children:React.ReactNode}){
   const user=await requireAdmin();
@@ -62,6 +65,7 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
   const quickItems=(!isPlatform||Boolean(instance))?resolveEntitledFrequentTasks(hasFeature,can):[];
   const mobileTitle=isPlatform&&!instance?'Shoperation':merchantName;
   const showUpgrade=!isPlatform&&plan==='alap'&&!trialPro;
-  const shell=<main className="adminGrid"><aside className="adminSide"><div className="adminBrand">{isPlatform?<><div className="adminBrandWordmark"><strong>SHOPERATION</strong><span>WEBSHOP, AMI VELED GONDOLKODIK.</span></div><span className="adminRoleBadge">{platformLabel}</span></>:<><div className="adminBrandWordmark"><strong>{merchantName}</strong><span>Shoperation {definition.name}{trialPro?' · Trial':''}</span></div></>}</div><AdminMobileNavigation mobileTitle={mobileTitle} sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={showUpgrade}/><AdminNavigation sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={showUpgrade}/>{isPlatform&&<PlatformDeviceLabLauncher/>}<AdminFontScale/><Link className="adminStoreLink" href="/">← Webshop előnézet</Link></aside><div className="adminContentShell"><AdminRouteContext sections={sections} operatorItems={operatorItems}/>{children}</div></main>;
+  const accountRoleLabel=isPlatform?platformLabel:roles.length?roles.map(role=>STORE_ROLE_LABELS[role]).join(', '):'Munkatárs';
+  const shell=<main className="adminGrid"><aside className="adminSide"><div className="adminBrand">{isPlatform?<><div className="adminBrandWordmark"><strong>SHOPERATION</strong><span>WEBSHOP, AMI VELED GONDOLKODIK.</span></div><span className="adminRoleBadge">{platformLabel}</span></>:<><div className="adminBrandWordmark"><strong>{merchantName}</strong><span>Shoperation {definition.name}{trialPro?' · Trial':''}</span></div></>}</div><AdminMobileNavigation mobileTitle={mobileTitle} sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={showUpgrade}/><AdminNavigation sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={showUpgrade}/>{isPlatform&&<PlatformDeviceLabLauncher/>}<AdminFontScale/><AdminProfileMenu email={user.email} roleLabel={accountRoleLabel}/><Link className="adminStoreLink" href="/">← Webshop előnézet</Link></aside><div className="adminContentShell"><AdminRouteContext sections={sections} operatorItems={operatorItems}/>{children}</div></main>;
   return <PlatformResponsiveViewport enabled={isPlatform}>{shell}</PlatformResponsiveViewport>;
 }
