@@ -130,4 +130,14 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
     expect(registry.capabilities.find((item:any)=>item.id==='CAP-ATLAS').evidenceRequirement.freeFormEvidenceDoesNotScore).toBe(true);
   });
 
+  it('keeps the E13 proof harness on the canonical workforce entry surface',()=>{
+    const handoff=readFileSync('scripts/template-factory-product-owner-handoff.mjs','utf8');
+    expect(handoff).toContain("new URL('/api/auth/workforce-login',origin)");
+    expect(handoff).toContain("loginUrl.searchParams.set('next','/admin/platform')");
+    expect(handoff).toContain("page.locator('[data-workforce-auth=\\\"true\\\"]')");
+    expect(handoff).toContain("name:'Tovább a biztonsági ellenőrzéshez'");
+    expect(handoff).not.toContain("page.goto(new URL('/platform',origin)");
+    expect(handoff).not.toContain("name:'Belépés a Shoperationbe'");
+  });
+
 });
