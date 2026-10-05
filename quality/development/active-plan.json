@@ -1,126 +1,90 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-PACKAGE-MATRIX-BENCHMARK-RECONCILIATION",
-  "task": "Refine the canonical Shoperation Alap / Pro / Add-on capability matrix from accepted Shopify, Shoprenter and UNAS benchmark decisions without changing runtime behavior.",
+  "taskId": "DEV-CORE-WORKFORCE-AAL2-PRIMITIVES",
+  "task": "Implement TOTP and AAL2 workforce identity primitives in the canonical identity authority.",
   "status": "closed",
-  "guardDigest": "aa79c504",
-  "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
+  "guardDigest": "d64b38b6",
+  "changeBaseSha": "9d4a86a6bf61139017ef37fefca5d82b3b845edc",
   "plannedFilePatterns": [
-    "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md",
     "quality/development/active-plan.json",
-    "quality/knowledge/capability-registry.v1.json",
-    "quality/knowledge/living-roadmap.v1.json",
-    "quality/knowledge/living-roadmap.v2.json",
-    "scripts/lib/shoperation-architecture-health.mjs",
-    "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-    "src/lib/quality-system/capability-evidence.ts",
-    "tests/architecture-health.test.ts",
-    "tests/capability-roadmap-evidence.test.ts",
-    "tests/deep-atlas-scan.test.ts",
-    "tests/shoperation-sentinel.test.ts"
+    "src/lib/auth/workforce-assurance-policy.ts",
+    "src/lib/auth/workforce-assurance.ts",
+    "src/lib/auth/workforce-mfa-client.ts",
+    "tests/workforce-identity-aal2-primitives.test.ts"
   ],
-  "expectedSubsystems": [],
+  "expectedSubsystems": [
+    "auth-access-authority",
+    "customer-account"
+  ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-IDENTITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "auth-access-authority"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
-    "SQ-KF-010",
     "SQ-KF-011",
-    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-015",
-    "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
-    "TF-KF-001",
     "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
-    "TF-KF-006",
-    "TF-KF-007",
     "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
     "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "TF-KF-020"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-006",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-PACKAGE-MATRIX-BENCHMARK",
-    "riskTier": "medium",
+    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-IDENTITY",
+    "riskTier": "high",
     "assuranceCeiling": {
-      "level": "state-and-failure-review",
-      "rationale": "Package entitlements are commercial and authorization-facing roadmap authority. The change must preserve accepted competitor-benchmark boundaries and prevent Digital Office leakage into Alap.",
+      "level": "strong-behavioral-proof",
+      "rationale": "Workforce MFA primitives influence future privileged access decisions, so policy, factor counting, fail-closed evidence loading and use of the existing Supabase MFA authority must be proven before enforcement is wired into active admin access.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
-        "boundary-cases",
+        "state-model",
+        "what-if-matrix",
         "adversarial-scenarios",
-        "state-model"
+        "boundary-cases",
+        "pairwise-interactions",
+        "threat-failure-model",
+        "fault-injection"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "Alap remains a complete professional webshop and is not artificially crippled below the accepted Shopify/Shoprenter/UNAS benchmark baseline for ordinary commerce.",
-        "Digital Office and all of its collaboration/workforce surfaces are Pro-only except ordinary transactional webshop email, Form Wizard notification behavior and normal outbound marketing communication.",
-        "Previously accepted Alap multi-location inventory and simple event-to-action automation remain Alap; advanced routing/workflow depth remains Pro.",
-        "Special Commerce shopping engines are Pro capabilities: Alap does not expose authorable Guided Finder, Composer, Configurator, Compatibility/Fitment, Compare & Spec, Profile/Context, Release/Drop, Interactive Scene or Recipe Commerce experiences.",
-        "Both packages retain equal design/template quality and the same full manual Builder; Pro differentiation is capability entitlement, not a superior skin.",
-        "Specialized or variable-cost capabilities remain Add-on/post-launch rather than being forced into Pro merely to increase package count."
+        "Platform owner policy requires two verified TOTP factors before future AAL2 enforcement can consider the owner ready.",
+        "Platform admin and merchant owner/admin policy requires one verified TOTP factor and AAL2.",
+        "Low-risk workforce roles are not globally MFA-blocked unless a caller explicitly marks the operation as a sensitive boundary.",
+        "Server assurance evidence fails closed when Supabase MFA state cannot be loaded.",
+        "Client primitives use the existing Supabase TOTP factor authority and do not persist a second OTP secret or verification authority.",
+        "This foundation does not yet change active admin routing or authorization behavior."
       ],
       "invariants": [
-        "All 42 templates and the full manual Builder are available in both Alap and Pro.",
-        "Core checkout/order/payment/shipping/invoice/tax/security authorities cannot be paywalled behind Pro.",
-        "Digital Office Team Chat, mailbox/team inbox, tasks, approvals, staff profiles, leave/delegation, sending center, communication workspace and related workforce tooling do not leak into Alap.",
-        "Alap cannot configure, instantiate or publish Special Commerce engine experiences even though both packages share the same runtime and Builder.",
-        "Company billing in B2C checkout is not the same as Pro B2B organizational purchasing."
+        "Supabase Auth remains the only MFA factor and authenticator assurance authority.",
+        "An AAL2 session cannot compensate for a missing required verified TOTP factor count.",
+        "A required verified factor count cannot compensate for a current session below AAL2.",
+        "Platform owner readiness is stricter than ordinary platform admin readiness.",
+        "Customer MFA policy is not changed by this workforce-only transaction."
       ],
       "forbiddenStates": [
-        "digital-office-capability-in-alap",
-        "special-commerce-engine-entitlement-in-alap",
-        "multi-location-baseline-pro-only",
-        "all-automation-pro-only",
-        "core-commerce-provider-integration-pro-only",
-        "separate-basic-and-pro-template-forks"
+        "custom-otp-secret-authority",
+        "platform-owner-ready-with-one-factor",
+        "aal1-treated-as-privileged-ready",
+        "mfa-provider-error-treated-as-ready",
+        "blanket-mfa-requirement-for-all-low-risk-workers",
+        "customer-mfa-made-mandatory-by-workforce-policy"
       ]
     },
     "model": {
@@ -152,53 +116,83 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A later assistant recommendation overwrites an earlier explicit PO package decision.",
-        "Digital Office subfeatures leak into Alap through generic chat/email/workforce labels.",
-        "Basic merchant security, reporting or inventory operations are over-paywalled despite the accepted competitor benchmark.",
-        "A specialized add-on is incorrectly treated as mandatory Pro scope."
+        "A platform owner reaches future privileged access with only one verified factor.",
+        "An existing verified factor is mistaken for current AAL2 after session assurance has dropped to AAL1.",
+        "An MFA API error is interpreted as no MFA requirement instead of unavailable assurance evidence.",
+        "A second local OTP store diverges from Supabase Auth and becomes an alternate authentication authority.",
+        "Low-risk staff are blocked globally even when they never cross a sensitive operation boundary.",
+        "Unverified or abandoned TOTP enrollment is counted as a verified factor."
       ],
       "edgeCases": [
-        "Simple customer groups exist in Alap while full company-account B2B governance remains Pro.",
-        "Multi-location stock is Alap while automated cross-location routing/split fulfillment is Pro.",
-        "Simple event-to-action recipes are Alap while branching multi-step workflows are Pro.",
-        "Transactional and campaign email can exist outside Digital Office without creating an inbox/team-workspace entitlement leak.",
-        "A template may visually contain an area suitable for a Special Commerce experience, but Alap must render an ordinary storefront composition rather than silently enabling the Pro engine."
+        "A platform owner has one verified factor and an AAL2 session: the next step is enrollment of factor two, not ready.",
+        "A platform owner has two verified factors but an AAL1 session: the next step is challenge, not ready.",
+        "A merchant admin has one verified factor and AAL2: the policy can report ready.",
+        "A support user has no MFA and no sensitive boundary: the policy requires zero factors.",
+        "A support user crosses a security boundary: the policy requires one factor.",
+        "MFA state retrieval throws before either AAL or factor data is available: server snapshot remains unavailable and not ready."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-BENCHMARK-RECONCILED-MATRIX",
-        "summary": "Use the accepted competitor benchmark plus later PO overrides to define a complete Alap and operational Pro boundary.",
+        "id": "ALT-SUPABASE-CANONICAL-MFA",
+        "summary": "Use Supabase Auth MFA as the single factor authority and add deterministic Shoperation workforce policy around it.",
         "disposition": "selected",
-        "reason": "It preserves prior work, prevents arbitrary paywalls, and keeps Pro focused on business-system depth."
+        "reason": "It preserves the existing authentication authority, avoids duplicate secret storage and gives the later enforcement layer a testable factor/AAL contract."
       },
       {
-        "id": "ALT-PREVIOUS-QUICK-MATRIX",
-        "summary": "Keep the earlier simplified matrix that put all multi-location and automation depth into Pro.",
+        "id": "ALT-UI-DIRECT-MFA-POLICY",
+        "summary": "Let each login or admin UI decide factor requirements directly while calling Supabase MFA.",
         "disposition": "rejected",
-        "reason": "It contradicts earlier explicit PO decisions and loses information from the detailed benchmark conversations."
+        "reason": "It would duplicate policy across surfaces and allow UI state to become an authorization authority."
+      },
+      {
+        "id": "ALT-CUSTOM-TOTP-SERVICE",
+        "summary": "Store Shoperation-owned TOTP secrets and verify codes in a separate first-party MFA service.",
+        "disposition": "rejected",
+        "reason": "It creates a second authentication authority, expands secret-handling risk and conflicts with the one-canonical-authority architecture."
       }
     ],
     "challenge": [
       {
-        "id": "CH-PACKAGE-1",
-        "scenario": "An Alap customer needs two warehouses and manual transfer visibility but no automation.",
-        "finding": "Earlier PO decision explicitly placed baseline multi-location/multi-warehouse inventory in Alap.",
-        "resolution": "Keep locations, per-location stock and manual inventory operations in Alap; reserve automated routing/split optimization for Pro.",
+        "id": "CH-AAL2-1",
+        "scenario": "Platform owner has an AAL2 session but only one verified TOTP factor.",
+        "finding": "Session AAL alone would incorrectly satisfy the stronger owner policy.",
+        "resolution": "Readiness requires both current AAL2 and at least two verified TOTP factors for owner policy.",
         "status": "resolved"
       },
       {
-        "id": "CH-PACKAGE-2",
-        "scenario": "An Alap merchant uses normal order emails, forms, newsletter or simple campaign messages.",
-        "finding": "These do not make the merchant a Digital Office customer.",
-        "resolution": "Keep transactional/form/basic marketing communication in Alap while every shared inbox, Team Chat and workforce collaboration surface remains Pro-only.",
+        "id": "CH-AAL2-2",
+        "scenario": "User has verified TOTP factors but the current session is AAL1.",
+        "finding": "Enrollment history does not prove that the current session completed MFA.",
+        "resolution": "The state model returns challenge until the current authenticator assurance level is AAL2.",
         "status": "resolved"
       },
       {
-        "id": "CH-PACKAGE-3",
-        "scenario": "Alap and Pro share the same visual template family, so a template region could appear to imply the same commerce-engine capability in both packages.",
-        "finding": "Equal visual quality was never intended to erase the Pro entitlement difference; later accepted decisions place Guided Finder, Composer, Configurator, Compatibility/Fitment, Compare & Spec and Profile/Context in Pro.",
-        "resolution": "Keep the shared design/runtime, but gate all Special Commerce authoring and customer experience activation behind Pro entitlements; Alap receives an ordinary storefront composition/fallback.",
+        "id": "CH-AAL2-3",
+        "scenario": "Supabase MFA factor or AAL retrieval returns an error.",
+        "finding": "Treating missing evidence as zero requirement would fail open.",
+        "resolution": "Server assurance returns available=false and can never satisfy a positive factor requirement.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-AAL2-4",
+        "scenario": "A low-risk viewer or support worker uses ordinary read/support operations.",
+        "finding": "Global MFA enforcement would exceed the accepted PO policy and unnecessarily block routine work.",
+        "resolution": "Low-risk roles require zero factors unless a sensitive boundary is explicitly requested.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-AAL2-5",
+        "scenario": "A TOTP enrollment exists but is not verified.",
+        "finding": "Counting enrollment existence would allow an abandoned factor to satisfy policy.",
+        "resolution": "Only factors whose Supabase status is verified count toward the required factor total.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-AAL2-6",
+        "scenario": "A future sensitive refund, provider credential or integration operation is performed by a normally low-risk actor.",
+        "finding": "Role-level policy alone cannot express step-up authentication at a specific sensitive boundary.",
+        "resolution": "The policy accepts an explicit sensitive boundary that raises the requirement to one verified factor/AAL2 without globally changing the role.",
         "status": "resolved"
       }
     ],
@@ -207,58 +201,64 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Package entitlements must remain a capability boundary over shared canonical engines and must not fork runtime, templates or commerce authorities.",
-        "resolution": "Keep the shared runtime and Builder canonical; enforce Alap/Pro differences as server-authoritative entitlements in the roadmap/package matrix.",
+        "finding": "MFA factor truth must remain inside the existing identity authority and must not be duplicated in storefront or admin presentation code.",
+        "resolution": "The foundation lives only under src/lib/auth and wraps Supabase MFA without creating a new persistence authority.",
         "evidence": [
-          "quality/knowledge/living-roadmap.v2.json",
-          "quality/knowledge/capability-registry.v1.json"
+          "quality/knowledge/domain-foundations.v1.json",
+          "src/lib/auth/workforce-assurance-policy.ts"
+        ]
+      },
+      {
+        "role": "Security",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "AAL2 alone is insufficient for the accepted platform-owner two-factor enrollment rule, and provider failures must not silently downgrade assurance.",
+        "resolution": "Readiness checks both AAL2 and verified-factor count; server retrieval errors produce an unavailable fail-closed snapshot.",
+        "evidence": [
+          "src/lib/auth/workforce-assurance.ts",
+          "tests/workforce-identity-aal2-primitives.test.ts"
         ]
       },
       {
         "role": "Known Failure",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "A simplified package matrix can silently reintroduce prior entitlement mistakes, especially Digital Office or Special Commerce leakage into Alap.",
-        "resolution": "Lock the critical package boundaries with explicit negative assertions in architecture-health tests and retain the earlier benchmark-derived decisions in the canonical roadmap.",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Putting MFA rules directly into later UI would repeat the known second-authority failure class and make route-specific behavior drift likely.",
+        "resolution": "Expose shared deterministic primitives now and keep later UI as a consumer of this identity authority.",
         "evidence": [
-          "tests/architecture-health.test.ts",
-          "quality/knowledge/living-roadmap.v2.json"
+          "quality/knowledge/shoperation-quality-knowledge.v1.json",
+          "src/lib/auth/workforce-mfa-client.ts"
         ]
       }
     ],
     "proofPlan": [
-      "Assert the structured package matrix contains the accepted Alap multi-location and simple automation boundaries.",
-      "Assert every Digital Office collaboration/workforce capability is absent from Alap and present in Pro.",
-      "Assert all accepted Special Commerce shopping engines are absent from Alap and present in Pro.",
-      "Assert full Builder and 42 template family access remain shared.",
-      "Run canonical quality tests, TypeScript and production build on exact head."
+      "Run deterministic policy tests for owner/admin/low-risk/sensitive-boundary factor requirements.",
+      "Run state-transition tests for enroll, challenge and ready decisions across AAL1/AAL2 and one/two-factor states.",
+      "Verify server assurance source fails closed on MFA retrieval failure and requires both AAL2 and factor count.",
+      "Verify client primitives call Supabase TOTP enrollment, factor listing and challengeAndVerify without browser secret persistence.",
+      "Run exact-head quality tests, TypeScript and production build before any enforcement wiring is allowed."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-05-PACKAGE-MATRIX-BENCHMARK",
+      "request": "PO-2026-10-05-STAGE1-WORKFORCE-IDENTITY",
       "authority": [
-        "quality-knowledge-system"
+        "auth-access-authority"
       ],
       "mustEdit": [
-        "quality/knowledge/living-roadmap.v2.json"
+        "src/lib/auth/workforce-assurance-policy.ts",
+        "src/lib/auth/workforce-assurance.ts",
+        "src/lib/auth/workforce-mfa-client.ts"
       ],
       "mayEdit": [
-        "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md",
-        "quality/knowledge/capability-registry.v1.json",
-        "quality/knowledge/living-roadmap.v1.json",
-        "scripts/lib/shoperation-architecture-health.mjs",
-        "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-        "src/lib/quality-system/capability-evidence.ts",
-        "tests/architecture-health.test.ts",
-        "tests/capability-roadmap-evidence.test.ts",
-        "tests/deep-atlas-scan.test.ts",
-        "tests/shoperation-sentinel.test.ts"
+        "tests/workforce-identity-aal2-primitives.test.ts"
       ],
       "impactedReadOnly": [
-        "quality/knowledge/capability-registry.v1.json",
-        "quality/knowledge/evidence-ledger.v1.json"
+        "src/lib/auth/require-admin.ts",
+        "src/lib/auth/admin-api.ts",
+        "src/lib/auth/store-rbac.ts",
+        "quality/knowledge/living-roadmap.v2.json"
       ],
       "proof": [
-        "tests/architecture-health.test.ts"
+        "tests/workforce-identity-aal2-primitives.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -267,27 +267,29 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-PACKAGE-MATRIX-BENCHMARK",
+    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-IDENTITY",
     "requirements": [
       {
-        "id": "REQ-PACKAGE-MATRIX-BENCHMARK",
-        "requirement": "The canonical roadmap package matrix reflects accepted Alap, Pro and Add-on boundaries from the Shopify, Shoprenter and UNAS benchmark plus later PO overrides.",
+        "id": "REQ-WORKFORCE-AAL2-PRIMITIVES",
+        "requirement": "The canonical identity authority contains deterministic workforce TOTP/AAL2 policy and Supabase MFA primitives without yet changing active admin authorization enforcement.",
         "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "package-matrix-roadmap-authority",
+          "capability": "CAP-AUTH",
+          "breadth": "workforce-aal2-primitive-foundation",
           "strength": 2,
           "dimensions": [
             "tests",
-            "regression",
-            "build"
+            "types",
+            "build",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
-          "CAP-QUALITY"
+          "CAP-AUTH"
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-QUALITY-TESTS",
+            "GUARD-TYPECHECK"
           ],
           "outcome": [
             "GUARD-PRODUCTION-BUILD"
@@ -295,22 +297,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-DIGITAL-OFFICE-LEAK",
-            "statement": "Digital Office collaboration/workforce capabilities must not be assigned to Alap.",
+            "id": "NEG-SECOND-MFA-AUTHORITY",
+            "statement": "The foundation must not create custom OTP secret persistence or a second MFA verification authority.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-SPECIAL-COMMERCE-LEAK",
-            "statement": "Special Commerce shopping engine entitlements must not be assigned to Alap.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-MULTILOCATION-PAYWALL",
-            "statement": "Baseline multi-location inventory must not become Pro-only.",
+            "id": "NEG-WORKFORCE-POLICY-OVERREACH",
+            "statement": "The foundation must not make customer MFA mandatory or globally require MFA for every low-risk workforce role.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -319,14 +314,14 @@
       }
     ]
   },
-  "notes": "Package-authority refinement only. No runtime entitlement implementation or billing/pricing changes are introduced in this transaction.",
+  "notes": "Stage 1 identity foundation only. This commit adds canonical policy and Supabase MFA primitives but deliberately does not alter active admin routing, middleware, authorization checks or customer authentication.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "3b4262cc320db013d37f3560273e99e6db8f51c1",
-    "closedAt": "2026-10-05T10:36:50.320Z",
+    "verifiedImplementationHead": "45fd33732887b26f83cfb04e3c395803c063d5f0",
+    "closedAt": "2026-10-05T11:04:47.831Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-05-PACKAGE-MATRIX-BENCHMARK",
+    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-IDENTITY",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
