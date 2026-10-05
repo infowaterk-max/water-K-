@@ -13,16 +13,12 @@ describe('Stage 1 workforce login and MFA UX',()=>{
   const customerAuth=read('src/components/auth/auth-form.tsx');
   const middleware=read('src/middleware.ts');
 
-  it('provides a dedicated workforce entry point with a safe admin-only return target',()=>{
+  it('provides a dedicated auth-owned workforce entry point with a safe admin-only return target',()=>{
     expect(page).toContain('Staff és admin belépés');
     expect(page).toContain('normalizeStorefrontReturnTarget(rawNext)');
     expect(page).toContain("normalized==='/admin'||normalized.startsWith('/admin/')");
     expect(page).toContain('<WorkforceAuthForm returnTo={returnTo}/>');
-    expect(requireAdmin).toContain('/staff/login?next=');
-    expect(middleware).toContain("request.nextUrl.pathname==='/staff/login'");
-    expect(middleware).toContain("target.pathname='/api/auth/workforce-login'");
-    expect(middleware).toContain("target.pathname='/staff/login'");
-    expect(middleware).toContain("target.searchParams.set('next',adminReturnPath(request))");
+    expect(requireAdmin).toContain('/api/auth/workforce-login?next=');
   });
 
   it('derives workforce requirements through the canonical identity-to-tenancy boundary',()=>{
@@ -70,7 +66,7 @@ describe('Stage 1 workforce login and MFA UX',()=>{
     expect(requireAdmin).not.toContain('workforceAssuranceSatisfied');
     expect(middleware).not.toContain('getAuthenticatorAssuranceLevel');
     expect(middleware).not.toContain('workforceAssuranceSatisfied');
-    expect(middleware).toContain("if(authError||!user)return workforceLoginRedirect(request,pendingCookies)");
+    expect(middleware).toContain("if(authError||!user)return accountRedirect(request,'login',pendingCookies)");
   });
 
   it('contains narrow-screen interaction rules and touch-sized controls',()=>{

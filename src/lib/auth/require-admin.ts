@@ -16,7 +16,7 @@ export async function requireAdmin(returnTo?:string) {
   const{data:authData,error}=await supabase.auth.getUser();
   if(error||!authData.user){
     const next=safeLoginReturn(returnTo);
-    redirect(next?`/staff/login?next=${encodeURIComponent(next)}`:'/staff/login?next=%2Fadmin');
+    redirect(next?`/api/auth/workforce-login?next=${encodeURIComponent(next)}`:'/api/auth/workforce-login?next=%2Fadmin');
   }
 
   try{
