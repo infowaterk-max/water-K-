@@ -17,19 +17,20 @@ describe('Stage 1 workforce login and MFA UX',()=>{
     expect(page).toContain('Staff és admin belépés');
     expect(page).toContain('normalizeStorefrontReturnTarget(rawNext)');
     expect(page).toContain("normalized==='/admin'||normalized.startsWith('/admin/')");
-    expect(page).toContain('<WorkforceAuthForm returnTo={returnTo}/>');
-    expect(requireAdmin).toContain('/api/auth/workforce-login?next=');
+    expect(page).toContain('parseWorkforceSensitiveBoundary(rawBoundary)');
+    expect(page).toContain('<WorkforceAuthForm returnTo={returnTo} boundary={boundary}/>');
+    expect(requireAdmin).toContain('/api/auth/workforce-login?');
   });
 
   it('derives workforce requirements through the canonical identity-to-tenancy boundary',()=>{
-    expect(contextRoute).toContain('getWorkforceRequestContext');
+    expect(contextRoute).toContain('getWorkforceRequestContext(requestedBoundary)');
+    expect(contextRoute).toContain("error:'WORKFORCE_BOUNDARY_INVALID'");
     expect(contextRoute).not.toContain("from '@/lib/instances/access'");
     expect(contextRoute).not.toContain("from '@/lib/auth/store-rbac'");
     expect(adminApi).toContain('export async function getWorkforceRequestContext');
     expect(adminApi).toContain('getCurrentWebshopInstance()');
     expect(adminApi).toContain('getActiveStoreRoles(instance.id)');
     expect(adminApi).toContain('hasStoreRoleBindingHistory(instance.id,user.id)');
-    expect(contextRoute).toContain('requiredWorkforceTotpFactors({platformRole:context.platformRole,storeRoles})');
     expect(adminApi).not.toContain('user_metadata');
   });
 
@@ -59,14 +60,21 @@ describe('Stage 1 workforce login and MFA UX',()=>{
     expect(form).toContain('Enrollment megszakítása');
   });
 
-  it('keeps customer auth and global admin AAL2 enforcement outside this block',()=>{
+  it('keeps customer auth and middleware outside the MFA authority while server admin auth enforces assurance',()=>{
     expect(customerAuth).not.toContain('WorkforceAuthForm');
     expect(customerAuth).not.toContain('workforce-mfa-client');
-    expect(requireAdmin).not.toContain('getAuthenticatorAssuranceLevel');
-    expect(requireAdmin).not.toContain('workforceAssuranceSatisfied');
+    expect(requireAdmin).toContain('getWorkforceAssuranceSnapshot');
+    expect(requireAdmin).toContain('workforceAssuranceSatisfied');
     expect(middleware).not.toContain('getAuthenticatorAssuranceLevel');
+    expect(middleware).not.toContain('getWorkforceAssuranceSnapshot');
     expect(middleware).not.toContain('workforceAssuranceSatisfied');
-    expect(middleware).toContain("if(authError||!user)return accountRedirect(request,'login',pendingCookies)");
+  });
+
+  it('passes a canonical sensitive boundary to the server without browser persistence',()=>{
+    expect(form).toContain("if(boundary!=='none')params.set('boundary',boundary)");
+    expect(form).toContain('/api/auth/workforce-context?');
+    expect(form).not.toContain('localStorage');
+    expect(form).not.toContain('sessionStorage');
   });
 
   it('contains narrow-screen interaction rules and touch-sized controls',()=>{
