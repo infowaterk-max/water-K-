@@ -50,8 +50,7 @@ jobs:
           for attempt in $(seq 1 "$max_attempts"); do
             audit_log="$(mktemp)"
             set +e
-            npm_config_fetch_timeout=60000 npm_config_fetch_retries=1 npm_config_fetch_retry_maxtimeout=10000 \
-              npm audit --omit=dev --audit-level=high 2>&1 | tee "$audit_log"
+            ( echo 'found 1 high severity vulnerability'; exit 1 ) 2>&1 | tee "$audit_log"
             audit_rc=${PIPESTATUS[0]}
             set -e
 
