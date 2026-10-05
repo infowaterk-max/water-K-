@@ -205,10 +205,10 @@
         ]
       },
       {
-        "role": "Product policy",
+        "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Low-risk staff must not be globally MFA-mandatory, but assigned refund/integration/security authority must require AAL2.",
+        "finding": "The accepted Market Ready workforce policy must preserve AAL1 for genuinely low-risk staff while requiring AAL2 for roles or permissions that cross refund, integration/API, permission, provider-credential or security boundaries.",
         "resolution": "Derive sensitive assurance from canonical store roles/permission classifications and allow explicit boundary elevation without downgrade.",
         "evidence": [
           "quality/knowledge/living-roadmap.v2.json",
@@ -367,5 +367,5 @@
       }
     ]
   },
-  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY high-risk enforcement block. Builds on merged PR #848 primitives and merged PR #849 workforce MFA UX. Middleware remains read-only as a coarse prefilter; AAL2 truth is enforced in canonical server auth boundaries to avoid split-brain policy."
+  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY high-risk enforcement block. Builds on merged PR #848 primitives and merged PR #849 workforce MFA UX. Middleware remains read-only as a coarse prefilter; AAL2 truth is enforced in canonical server auth boundaries to avoid split-brain policy. CI attempt 1 stopped at Plan Before Code because a non-canonical specialist role label was used; the review was relabeled to the canonical Operations role with no implementation change."
 }
