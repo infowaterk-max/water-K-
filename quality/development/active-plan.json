@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-STAGE1-PLATFORM-TENANT-CONTEXT-CORE",
   "task": "Add explicit signed platform tenant-context resolution for privileged platform actors without changing presentation surfaces.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "d64b38b6",
   "changeBaseSha": "d3b6c3561df64a6c7489fa2c5520ba11af0cf59c",
   "plannedFilePatterns": [
@@ -328,5 +328,18 @@
       }
     ]
   },
-  "notes": "Clean core transaction rebuilt from current main after the tenancy-scope prerequisite merged. Supersedes the old stacked #897 base. Includes path-scoped admin/API context parity discovered during audit; storefront paths remain outside the platform context cookie scope."
+  "notes": "Clean core transaction rebuilt from current main after the tenancy-scope prerequisite merged. Supersedes the old stacked #897 base. Includes path-scoped admin/API context parity discovered during audit; storefront paths remain outside the platform context cookie scope.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "6fc6a190a322e5d675ceff2eb9b1e8bac7d84854",
+    "closedAt": "2026-10-05T16:04:01.377Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-CORE-MAIN",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
