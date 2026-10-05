@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-LIVING-ROADMAP-V2-MATURITY-GRAPH",
   "task": "Migrate the canonical Shoperation Living Roadmap to the accepted v2 maturity sequence and prerequisite graph without changing commerce runtime behavior.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "aa79c504",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
@@ -354,5 +354,18 @@
       }
     ]
   },
-  "notes": "Canonical roadmap reconciliation and authority migration only. This transaction records accepted PO decisions, replaces the old feature-order roadmap with the v2 maturity graph, retires the v1 authority, splits Builder from Template Factory in the capability registry, and updates quality consumers/tests. No storefront, commerce runtime, Builder implementation or template production is in scope."
+  "notes": "Canonical roadmap reconciliation and authority migration only. This transaction records accepted PO decisions, replaces the old feature-order roadmap with the v2 maturity graph, retires the v1 authority, splits Builder from Template Factory in the capability registry, and updates quality consumers/tests. No storefront, commerce runtime, Builder implementation or template production is in scope.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "e689c56f6a626153c1e6e77d75afc44db206e940",
+    "closedAt": "2026-10-05T09:13:35.904Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-LIVING-ROADMAP-V2",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
