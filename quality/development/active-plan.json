@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-STAGE1-PLATFORM-TENANT-CONTEXT-UI",
   "task": "Expose explicit selected-tenant context controls in platform operations surfaces while consuming the existing canonical tenant authority.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "1d1d5f53",
   "changeBaseSha": "eca6974e1c77ce33a0ef71f916adac5c9a31a312",
   "plannedFilePatterns": [
@@ -289,5 +289,18 @@
       }
     ]
   },
-  "notes": "Clean UI/control transaction rebuilt from current main after the tenant-context core merged as PR #901. Supersedes stale stacked PR #898. This release consumes but does not modify DOMAIN-TENANCY implementation."
+  "notes": "Clean UI/control transaction rebuilt from current main after the tenant-context core merged as PR #901. Supersedes stale stacked PR #898. This release consumes but does not modify DOMAIN-TENANCY implementation.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "e8c7be51087795fbedab0a5318d7fe6ce906c690",
+    "closedAt": "2026-10-05T16:19:04.055Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-UI-MAIN",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
