@@ -102,7 +102,20 @@
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [],
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/app/fiokom/layout.tsx",
+      "findingFingerprint": "18b6e8f2",
+      "reason": "Exact-fingerprint review only: the customer account layout intentionally continues to render StorefrontAccountShell for shopper account presentation. The changed workforce-only template preview login removed that shell because it now delegates immediately to canonical workforce authentication; the customer layout is not a workforce authentication or authorization consumer."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/app/fiokom/layout.tsx",
+      "findingFingerprint": "2a254433",
+      "reason": "Exact-fingerprint review only: the closing StorefrontAccountShell expression belongs to the unchanged shopper account layout. It is intentionally independent from the workforce-only preview-login route and does not consume or override workforce login, role, tenant or MFA authority."
+    }
+  ],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-RECONCILIATION",
@@ -437,5 +450,5 @@
       }
     ]
   },
-  "notes": "MR1 reconciliation found active non-canonical privileged entrypoints on main: /platform direct password login, template-preview customer AuthForm login, and workforce invite completion through /fiokom. This is one release unit to converge entrypoints only. PR #858 remains parked and untouched. Plan Before Code attempt 1 correctly blocked because src/components/auth/platform-auth-form.tsx is not Atlas-classified and high-risk challenge depth was 5/6. The remediation does not weaken Atlas: the active /platform route moves to a canonical src/lib/auth activation component, leaves the unclassified legacy file read-only/unreachable, and adds the missing adversarial challenge. Pre-implementation dependency review also found WorkforceAuthForm.finish() was admin-only and that platform-login removal would otherwise orphan workforce password recovery. The same release unit therefore centralizes allowed workforce return targets in WorkforceAuthForm and moves invite/recovery credential completion to an auth-owned route; customer AuthForm remains read-only. Adversarial implementation review added CH-ENTRY-8: a pre-existing customer session is insufficient for workforce credential completion without invite/recovery callback evidence."
+  "notes": "MR1 reconciliation found active non-canonical privileged entrypoints on main: /platform direct password login, template-preview customer AuthForm login, and workforce invite completion through /fiokom. This is one release unit to converge entrypoints only. PR #858 remains parked and untouched. Plan Before Code attempt 1 correctly blocked because src/components/auth/platform-auth-form.tsx is not Atlas-classified and high-risk challenge depth was 5/6. The remediation does not weaken Atlas: the active /platform route moves to a canonical src/lib/auth activation component, leaves the unclassified legacy file read-only/unreachable, and adds the missing adversarial challenge. Pre-implementation dependency review also found WorkforceAuthForm.finish() was admin-only and that platform-login removal would otherwise orphan workforce password recovery. The same release unit therefore centralizes allowed workforce return targets in WorkforceAuthForm and moves invite/recovery credential completion to an auth-owned route; customer AuthForm remains read-only. Adversarial implementation review added CH-ENTRY-8: a pre-existing customer session is insufficient for workforce credential completion without invite/recovery callback evidence. Edit-Time exact-head 1c9ce1a reduced Reference Sync from 257 findings to two review-only customer-layout shell expressions with stale=0 and Implementation Sync PASS; both are acknowledged by exact fingerprint only."
 }
