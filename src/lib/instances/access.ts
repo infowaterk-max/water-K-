@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isPlanCode, type PlanCode } from '@/lib/plans/catalog';
 import { getPilotAcceptanceInstanceId } from '@/lib/storefront/pilot-access';
+import { getPlatformTenantContextInstanceId } from '@/lib/instances/platform-tenant-context';
 import type { StorefrontNavigationConfig } from '@/lib/navigation/storefront-ia';
 
 export type StorefrontSocialLinks={facebook?:string;instagram?:string;youtube?:string;tiktok?:string;x?:string;twitch?:string;linkedin?:string;pinterest?:string};
@@ -52,6 +53,16 @@ export async function getCurrentWebshopInstance():Promise<WebshopInstance|null>{
   const supabase=await createClient();
   const{data:auth}=await supabase.auth.getUser();
   if(!auth.user)return null;
+
+  const selectedPlatformInstanceId=await getPlatformTenantContextInstanceId(auth.user.id);
+  if(selectedPlatformInstanceId){
+    const{data:selectionAuthority,error:selectionAuthorityError}=await admin.from('platform_operators').select('role').eq('user_id',auth.user.id).in('role',['owner','admin','operator']).maybeSingle();
+    if(selectionAuthorityError||!selectionAuthority)return null;
+    const{data:selectedData,error:selectedInstanceError}=await admin.from('webshop_instances').select(SELECT).eq('id',selectedPlatformInstanceId).in('status',['pilot','active']).maybeSingle();
+    if(selectedInstanceError)return null;
+    return normalize(selectedData as unknown as InstanceRow|null);
+  }
+
   const now=new Date().toISOString();
   const candidates=new Map<string,InstanceRow>();
 
