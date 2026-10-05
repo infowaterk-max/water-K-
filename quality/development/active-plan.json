@@ -11,8 +11,8 @@
     "src/app/api/auth/workforce-login/page.tsx",
     "src/app/fiokom/page.tsx",
     "src/app/storefront-template-preview-login/page.tsx",
-    "src/app/api/auth/workforce-invite/page.tsx",
-    "src/lib/auth/workforce-invite-form.tsx",
+    "src/app/api/auth/workforce-credential/page.tsx",
+    "src/lib/auth/workforce-credential-form.tsx",
     "src/app/admin/platform/webaruhazak/actions.ts",
     "tests/workforce-auth-ux.test.ts",
     "tests/workforce-admin-entry-bridge.test.ts",
@@ -22,7 +22,8 @@
     "tests/workforce-entrypoint-convergence.test.ts",
     "tests/storefront-template-preview-runtime.test.ts",
     "src/app/platform/page.tsx",
-    "src/lib/auth/platform-activation-form.tsx"
+    "src/lib/auth/platform-activation-form.tsx",
+    "src/lib/auth/workforce-auth-form.tsx"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -124,11 +125,11 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The dedicated /api/auth/workforce-login page is the only password login surface used to begin privileged workforce/admin access.",
+        "The dedicated /api/auth/workforce-login page and WorkforceAuthForm are the only password-login/recovery entry surface used to begin privileged workforce/admin access.",
         "The active /platform portal no longer exposes or imports the legacy direct-password PlatformAuthForm; existing workforce users enter through the canonical workforce login while first-owner activation is provided by a canonical auth-owned activation component.",
         "Template-preview authentication no longer renders the customer AuthForm and delegates only to the canonical workforce login with a sanitized exact preview return target.",
         "Explicit /fiokom workforce login intent bridges both admin and exact template-preview return targets before storefront instance resolution while ordinary shopper authentication remains unchanged.",
-        "Workforce invitations complete password establishment on a workforce-owned route and then continue into the canonical workforce login; the customer account AuthForm is not used for workforce onboarding.",
+        "Workforce invitations and password recovery complete credential establishment on a workforce-owned route and then continue into the canonical workforce login; the customer account AuthForm is not used for workforce onboarding or recovery.",
         "Return targets accept only local /admin, /admin/* and exact /storefront-template-preview targets; protocol-relative, external, customer-account and preview-login loop targets are rejected.",
         "No role, tenant, middleware authorization authority or AAL2 enforcement is added, weakened or activated."
       ],
@@ -185,7 +186,8 @@
         "A broad prefix check accepts /storefront-template-preview-login or a crafted protocol-relative URL and causes loops or open redirects.",
         "An invited merchant owner/admin receives a workforce membership but must use shopper account onboarding to establish a password.",
         "Post-activation navigation jumps directly to /admin/platform instead of traversing canonical workforce context/MFA UX.",
-        "The change accidentally activates the parked AAL2 authorization enforcement or changes RBAC/tenant authority."
+        "The change accidentally activates the parked AAL2 authorization enforcement or changes RBAC/tenant authority.",
+        "Removing the legacy platform login also removes the only visible workforce password-recovery path, forcing privileged users back through shopper recovery UX."
       ],
       "edgeCases": [
         "next=/admin and nested admin URLs with query strings are preserved.",
@@ -193,7 +195,8 @@
         "/storefront-template-preview-login, /fiokom, //evil.example and https://evil.example are rejected.",
         "An existing customer session reaching workforce login can sign out and choose another account rather than being treated as workforce.",
         "An invite link with a valid Supabase session can set a password then continue to workforce login without creating a new session authority.",
-        "A platform activation that already returns a session continues through workforce login rather than directly entering admin."
+        "A platform activation that already returns a session continues through workforce login rather than directly entering admin.",
+        "A workforce password-recovery link establishes a new password through the workforce credential route and then re-enters canonical workforce context/MFA processing."
       ]
     },
     "alternatives": [
@@ -295,6 +298,13 @@
         "finding": "Dead legacy source could be mistaken for a still-supported authentication authority or be accidentally re-imported later.",
         "resolution": "The active /platform route must not import PlatformAuthForm, source-level regression proves zero active route reference, and the legacy file remains read-only in this transaction because its path is not Atlas-classified. Removing/classifying dead code is not allowed to widen this MR1 release unit.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-ENTRY-7",
+        "scenario": "The legacy platform form is removed from the active route and a workforce user forgets their password.",
+        "finding": "Without moving recovery into the canonical workforce form, the user would either lose recovery or be forced through the shopper AuthForm, recreating the customer/workforce split violation.",
+        "resolution": "WorkforceAuthForm initiates Supabase password recovery and the workforce-owned credential completion route updates the password, then delegates back to workforce login/context/MFA.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -316,11 +326,12 @@
         "src/lib/auth/workforce-return-target.ts",
         "src/app/api/auth/workforce-login/page.tsx",
         "src/app/storefront-template-preview-login/page.tsx",
-        "src/app/api/auth/workforce-invite/page.tsx",
-        "src/lib/auth/workforce-invite-form.tsx",
+        "src/app/api/auth/workforce-credential/page.tsx",
+        "src/lib/auth/workforce-credential-form.tsx",
         "src/app/admin/platform/webaruhazak/actions.ts",
         "src/app/platform/page.tsx",
-        "src/lib/auth/platform-activation-form.tsx"
+        "src/lib/auth/platform-activation-form.tsx",
+        "src/lib/auth/workforce-auth-form.tsx"
       ],
       "mayEdit": [
         "src/app/fiokom/page.tsx",
@@ -419,5 +430,5 @@
       }
     ]
   },
-  "notes": "MR1 reconciliation found active non-canonical privileged entrypoints on main: /platform direct password login, template-preview customer AuthForm login, and workforce invite completion through /fiokom. This is one release unit to converge entrypoints only. PR #858 remains parked and untouched. Plan Before Code attempt 1 correctly blocked because src/components/auth/platform-auth-form.tsx is not Atlas-classified and high-risk challenge depth was 5/6. The remediation does not weaken Atlas: the active /platform route moves to a canonical src/lib/auth activation component, leaves the unclassified legacy file read-only/unreachable, and adds the missing adversarial challenge."
+  "notes": "MR1 reconciliation found active non-canonical privileged entrypoints on main: /platform direct password login, template-preview customer AuthForm login, and workforce invite completion through /fiokom. This is one release unit to converge entrypoints only. PR #858 remains parked and untouched. Plan Before Code attempt 1 correctly blocked because src/components/auth/platform-auth-form.tsx is not Atlas-classified and high-risk challenge depth was 5/6. The remediation does not weaken Atlas: the active /platform route moves to a canonical src/lib/auth activation component, leaves the unclassified legacy file read-only/unreachable, and adds the missing adversarial challenge. Pre-implementation dependency review also found WorkforceAuthForm.finish() was admin-only and that platform-login removal would otherwise orphan workforce password recovery. The same release unit therefore centralizes allowed workforce return targets in WorkforceAuthForm and moves invite/recovery credential completion to an auth-owned route; customer AuthForm remains read-only."
 }
