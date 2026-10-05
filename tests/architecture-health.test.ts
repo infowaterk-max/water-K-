@@ -61,7 +61,7 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
     const capabilities=JSON.parse(readFileSync('quality/knowledge/capability-registry.v1.json','utf8')) as {capabilities:Array<{id:string;roadmapRefs?:string[]}>};
     const roadmap=JSON.parse(readFileSync('quality/knowledge/living-roadmap.v2.json','utf8')) as {
       contract:string;version:number;principles:{maturityBackbone:string[];higherLayerCannotProveLowerLayer:boolean};
-      items:Array<{id:string;status:string;order?:number;targetWindow?:string;dependsOn?:string[]}>;
+      items:Array<{id:string;status:string;order?:number;targetWindow?:string;dependsOn?:string[];packageMatrix?:{alap:{capabilities:string[]};pro:{capabilities:string[]};addOnOrLater:{capabilities:string[]};explicitExclusionsFromAlap:string[]}}>;
     };
     expect(roadmap.contract).toBe('shoporation.living-roadmap.v2');
     expect(roadmap.version).toBe(2);
@@ -96,6 +96,17 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
     expect(byId.get('SURFACE-REDUCTION')?.dependsOn).toContain('TEMPLATE-PORTFOLIO-42');
     expect(byId.get('MARKET-READY-1-0')?.dependsOn).toContain('SURFACE-REDUCTION');
     expect(byId.get('WEBSITE-BUILDER')?.status).toBe('parked');
+    const packageMatrix=byId.get('MR1-PACKAGE-CAPABILITY-MATRIX')?.packageMatrix;
+    expect(packageMatrix).toBeDefined();
+    expect(packageMatrix?.alap.capabilities).toContain('full manual Visual Builder and responsive Desktop/Tablet/Mobile storefront editing/preview');
+    expect(packageMatrix?.alap.capabilities).toContain('baseline inventory plus multi-location/multi-warehouse InventoryLocation support');
+    expect(packageMatrix?.alap.capabilities).toContain('simple ready-made automation recipes and single event-to-action rules');
+    expect(packageMatrix?.pro.capabilities).toContain('automated cross-location source selection and cross-warehouse routing');
+    expect(packageMatrix?.pro.capabilities).toContain('multi-condition, branching, multi-step governed workflow automation');
+    expect(packageMatrix?.pro.capabilities).toContain('Digital Office Team Chat for staff-to-staff communication');
+    expect(packageMatrix?.alap.capabilities.some(capability=>capability.includes('Digital Office'))).toBe(false);
+    expect(packageMatrix?.explicitExclusionsFromAlap).toContain('Digital Office Team Chat');
+    expect(packageMatrix?.explicitExclusionsFromAlap).toContain('Digital Office shared mailbox/inbox/thread workspace');
   });
 
   it('ADVERSARIAL: free-form capability evidence cannot produce PROVEN confidence',()=>{
