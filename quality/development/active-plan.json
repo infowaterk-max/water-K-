@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-STAGE1-WORKFORCE-PROFILE-LOGOUT",
   "task": "Add the canonical workforce profile dropdown and logout control to the authenticated admin shell without changing customer authentication, tenant selection or AAL2 policy.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "663168a5",
   "changeBaseSha": "e7a9c16e36e518a6425fd3ba8c294f27548a6d0c",
   "plannedFilePatterns": [
@@ -289,5 +289,18 @@
       }
     ]
   },
-  "notes": "Independent MR1 release unit started from main e7a9c16 after PR #867 merged. PR #858 AAL2 enforcement remains parked and read-only. This block implements only the canonical profile dropdown/logout scope. Plan scope reconciled to the Control Plane planned-projection classification: the implementation remains DOMAIN-ADMIN/admin-operations authority while its dependency/test surface activates auth-access, customer-account and storefront guard coverage."
+  "notes": "Independent MR1 release unit started from main e7a9c16 after PR #867 merged. PR #858 AAL2 enforcement remains parked and read-only. This block implements only the canonical profile dropdown/logout scope. Plan scope reconciled to the Control Plane planned-projection classification: the implementation remains DOMAIN-ADMIN/admin-operations authority while its dependency/test surface activates auth-access, customer-account and storefront guard coverage.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "31d9f58191cde3ac09eda3411ea9423aebcb1fa8",
+    "closedAt": "2026-10-05T14:51:14.318Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-PROFILE-LOGOUT",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
