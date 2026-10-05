@@ -333,7 +333,7 @@
     "state": "LEARN",
     "truthStatus": "VERIFIED",
     "verifiedImplementationHead": "6fc6a190a322e5d675ceff2eb9b1e8bac7d84854",
-    "closedAt": "2026-10-05T16:04:01.377Z",
+    "closedAt": "2026-10-05T16:04:00.120Z",
     "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-CORE-MAIN",
     "learning": {
