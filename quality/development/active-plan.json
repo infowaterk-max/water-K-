@@ -16,7 +16,8 @@
     "src/lib/quality-system/capability-evidence.ts",
     "tests/architecture-health.test.ts",
     "tests/deep-atlas-scan.test.ts",
-    "tests/shoperation-sentinel.test.ts"
+    "tests/shoperation-sentinel.test.ts",
+    "tests/capability-roadmap-evidence.test.ts"
   ],
   "expectedSubsystems": [],
   "expectedDomains": [
@@ -248,7 +249,8 @@
         "src/lib/quality-system/capability-evidence.ts",
         "tests/architecture-health.test.ts",
         "tests/deep-atlas-scan.test.ts",
-        "tests/shoperation-sentinel.test.ts"
+        "tests/shoperation-sentinel.test.ts",
+        "tests/capability-roadmap-evidence.test.ts"
       ],
       "impactedReadOnly": [
         "quality/knowledge/evidence-ledger.v1.json",
@@ -257,7 +259,8 @@
       "proof": [
         "tests/architecture-health.test.ts",
         "tests/deep-atlas-scan.test.ts",
-        "tests/shoperation-sentinel.test.ts"
+        "tests/shoperation-sentinel.test.ts",
+        "tests/capability-roadmap-evidence.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [
