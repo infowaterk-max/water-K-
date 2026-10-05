@@ -815,13 +815,45 @@
         "least privilege is mandatory: a printer-like connector that needs one function receives that function, not broad filesystem, tenant-data, admin or generic runtime access",
         "no arbitrary third-party code execution, plugin-installed runtime, generic SQL/RPC/database proxy or broad permission bundle",
         "provider adapters and approved ERP/WMS/accounting/operational connectors reuse this foundation",
-        "a public/open App Store ecosystem is not a Market Ready blocker; any later marketplace remains curated, reviewed and permission-scoped rather than Shopify-style unrestricted extension execution"
+        "a public/open App Store ecosystem is not a Market Ready blocker; any later marketplace remains curated, reviewed and permission-scoped rather than Shopify-style unrestricted extension execution",
+        "external third-party software integrates out-of-process through governed APIs/webhooks/connectors; it does not install arbitrary runtime code inside Shoperation",
+        "compatibility is contract-based rather than vendor-based: any external system capable of the supported secure protocols may integrate through an approved connector or a bounded translation bridge",
+        "legacy/proprietary systems without suitable native APIs may require a separately reviewed external bridge/agent; this does not expand Shoperation runtime permissions"
       ],
       "evidenceRefs": [],
       "dependsOn": [
         "CORE-ENGINE-2",
         "EVENT-DRIVEN-WORKFLOW"
       ]
+    },
+    {
+      "id": "DEVELOPER-INTEGRATION-SANDBOX",
+      "title": "Developer Integration Sandbox + Certification Kit",
+      "status": "accepted",
+      "phase": "core",
+      "order": 422,
+      "targetWindow": "core-capability-complete",
+      "priority": "P0",
+      "dependsOn": [
+        "CONTROLLED-INTEGRATION-FRAMEWORK"
+      ],
+      "capabilities": [
+        "CAP-INTEGRATIONS",
+        "CAP-AUTH",
+        "CAP-TENANT",
+        "CAP-QUALITY"
+      ],
+      "scope": [
+        "provide a non-production developer environment for approved external connector/application developers without granting access to real merchant data or Shoperation internal runtime",
+        "sandbox tenant/test data plus stable documented API contracts, app/connector registration, least-privilege scope selection and revocable test credentials",
+        "webhook simulator/replay tooling, idempotency examples, signed-event verification examples, rate-limit/error simulations and reference integration examples/SDKs where they materially reduce integration mistakes",
+        "machine-checkable connector capability manifest declares exactly which resources, actions, events and permissions the integration requires",
+        "contract/conformance test suite and certification harness verify scope use, tenant isolation, retries, webhook handling, security boundaries, version compatibility and failure behavior before production approval",
+        "API versioning, compatibility and deprecation policy prevents silent connector breakage",
+        "production access is a separate reviewed activation step with narrower-or-equal scopes to the certified sandbox declaration",
+        "no arbitrary code installation, no generic filesystem/database access and no blanket tenant permission request model"
+      ],
+      "evidenceRefs": []
     },
     {
       "id": "SANDBOX-TEST-MODE",
@@ -842,6 +874,49 @@
         "shipping self-test",
         "invoice self-test",
         "fail-closed readiness evidence before live activation"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "CORE-OPERATIONAL-ADVERSARIAL-PROOF",
+      "title": "Shoperation Core Operational / Adversarial Audit",
+      "status": "accepted",
+      "phase": "core-proof",
+      "order": 440,
+      "targetWindow": "after-core-capability-complete-before-unified-product-experience",
+      "priority": "P0",
+      "dependsOn": [
+        "MR1-WORKFORCE-IDENTITY",
+        "MR1-PACKAGE-CAPABILITY-MATRIX",
+        "PAYMENT-HUB-1",
+        "SHIPPING-FOUNDATION",
+        "INVOICE-FOUNDATION",
+        "MR1-HUNGARY-TAX-VAT",
+        "B2B-MATURITY",
+        "EVENT-DRIVEN-WORKFLOW",
+        "CONTROLLED-INTEGRATION-FRAMEWORK",
+        "DEVELOPER-INTEGRATION-SANDBOX",
+        "SPECIAL-COMMERCE"
+      ],
+      "capabilities": [
+        "CAP-AUTH",
+        "CAP-TENANT",
+        "CAP-COMMERCE",
+        "CAP-CATALOG",
+        "CAP-INTEGRATIONS",
+        "CAP-ADMIN",
+        "CAP-QUALITY",
+        "CAP-RELEASE"
+      ],
+      "scope": [
+        "mandatory Core closure stage after webshop-system capability implementation and before Unified Shoperation Product Experience, Builder or template production can proceed",
+        "audit the actual end-to-end webshop operating system, not Builder/template visuals: identity/RBAC/tenant isolation, onboarding/admin flows, catalog/variants/media/CSV/bulk/barcode, inventory/multi-location, order/payment/shipping/invoice/returns/refunds, promotions/SEO/customer account, B2B, Digital Office/communications, migration, integrations, tax, sandbox, scale/cost, privacy/security/backup/observability and launch-classified Special Commerce",
+        "normal functional proof is insufficient: execute adversarial and failure-path proof including malformed/stale data, duplicate callbacks, partial provider outage, timeouts/retries, concurrency/race conditions, reservation/transfer conflicts, cross-tenant access attempts, permission escalation attempts, partial imports/migrations, refund/order/payment mismatches and recovery/rollback scenarios",
+        "include realistic load, soak, scale, restore/disaster-recovery and operational observability exercises where applicable",
+        "Completion Truth rule: higher-layer Builder/template success cannot compensate for missing or partial Core evidence",
+        "audit output must explicitly identify high-value missing capabilities, design weaknesses, unsafe assumptions or commercially meaningful gaps; recommendations are surfaced to the Product Owner rather than silently omitted",
+        "any newly proposed capability discovered by the audit requires explicit PO acceptance before it becomes roadmap scope",
+        "Core may advance only when findings are fixed, deliberately accepted as bounded risk, or explicitly deferred by PO with documented rationale and evidence"
       ],
       "evidenceRefs": []
     },
