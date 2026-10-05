@@ -10,7 +10,6 @@
     "src/lib/auth/workforce-return-target.ts",
     "src/app/api/auth/workforce-login/page.tsx",
     "src/app/fiokom/page.tsx",
-    "src/components/auth/platform-auth-form.tsx",
     "src/app/storefront-template-preview-login/page.tsx",
     "src/app/api/auth/workforce-invite/page.tsx",
     "src/lib/auth/workforce-invite-form.tsx",
@@ -21,7 +20,9 @@
     "tests/platform-invite-production-redirect.test.ts",
     "tests/platform-owner-zero-tenant-hotfix.test.ts",
     "tests/workforce-entrypoint-convergence.test.ts",
-    "tests/storefront-template-preview-runtime.test.ts"
+    "tests/storefront-template-preview-runtime.test.ts",
+    "src/app/platform/page.tsx",
+    "src/lib/auth/platform-activation-form.tsx"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -124,7 +125,7 @@
     "definition": {
       "acceptanceCriteria": [
         "The dedicated /api/auth/workforce-login page is the only password login surface used to begin privileged workforce/admin access.",
-        "The active /platform portal no longer calls Supabase signInWithPassword; existing workforce users enter through the canonical workforce login while first-owner activation remains available.",
+        "The active /platform portal no longer exposes or imports the legacy direct-password PlatformAuthForm; existing workforce users enter through the canonical workforce login while first-owner activation is provided by a canonical auth-owned activation component.",
         "Template-preview authentication no longer renders the customer AuthForm and delegates only to the canonical workforce login with a sanitized exact preview return target.",
         "Explicit /fiokom workforce login intent bridges both admin and exact template-preview return targets before storefront instance resolution while ordinary shopper authentication remains unchanged.",
         "Workforce invitations complete password establishment on a workforce-owned route and then continue into the canonical workforce login; the customer account AuthForm is not used for workforce onboarding.",
@@ -140,7 +141,7 @@
         "No first-tenant, first-membership or audit-login bypass is introduced."
       ],
       "forbiddenStates": [
-        "platform-portal-direct-password-login",
+        "active-platform-route-legacy-direct-password-login",
         "template-preview-customer-authform",
         "workforce-invite-customer-account-onboarding",
         "external-workforce-return-target",
@@ -287,6 +288,13 @@
         "finding": "Scope expansion could activate #858 semantics or create a second authority.",
         "resolution": "Those authorities remain impacted-read-only; tests explicitly prohibit AAL2 enforcement and customer AuthForm coupling in this unit.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-ENTRY-6",
+        "scenario": "The legacy PlatformAuthForm remains in the repository after the active /platform route is moved to a canonical auth-owned activation component.",
+        "finding": "Dead legacy source could be mistaken for a still-supported authentication authority or be accidentally re-imported later.",
+        "resolution": "The active /platform route must not import PlatformAuthForm, source-level regression proves zero active route reference, and the legacy file remains read-only in this transaction because its path is not Atlas-classified. Removing/classifying dead code is not allowed to widen this MR1 release unit.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -307,11 +315,12 @@
       "mustEdit": [
         "src/lib/auth/workforce-return-target.ts",
         "src/app/api/auth/workforce-login/page.tsx",
-        "src/components/auth/platform-auth-form.tsx",
         "src/app/storefront-template-preview-login/page.tsx",
         "src/app/api/auth/workforce-invite/page.tsx",
         "src/lib/auth/workforce-invite-form.tsx",
-        "src/app/admin/platform/webaruhazak/actions.ts"
+        "src/app/admin/platform/webaruhazak/actions.ts",
+        "src/app/platform/page.tsx",
+        "src/lib/auth/platform-activation-form.tsx"
       ],
       "mayEdit": [
         "src/app/fiokom/page.tsx",
@@ -331,7 +340,8 @@
         "src/lib/instances/access.ts",
         "src/middleware.ts",
         "src/components/auth/auth-form.tsx",
-        "quality/knowledge/living-roadmap.v2.json"
+        "quality/knowledge/living-roadmap.v2.json",
+        "src/components/auth/platform-auth-form.tsx"
       ],
       "proof": [
         "tests/workforce-entrypoint-convergence.test.ts",
@@ -409,5 +419,5 @@
       }
     ]
   },
-  "notes": "MR1 reconciliation found active non-canonical privileged entrypoints on main: /platform direct password login, template-preview customer AuthForm login, and workforce invite completion through /fiokom. This is one release unit to converge entrypoints only. PR #858 remains parked and untouched."
+  "notes": "MR1 reconciliation found active non-canonical privileged entrypoints on main: /platform direct password login, template-preview customer AuthForm login, and workforce invite completion through /fiokom. This is one release unit to converge entrypoints only. PR #858 remains parked and untouched. Plan Before Code attempt 1 correctly blocked because src/components/auth/platform-auth-form.tsx is not Atlas-classified and high-risk challenge depth was 5/6. The remediation does not weaken Atlas: the active /platform route moves to a canonical src/lib/auth activation component, leaves the unclassified legacy file read-only/unreachable, and adds the missing adversarial challenge."
 }
