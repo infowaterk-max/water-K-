@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { WorkforceAuthForm } from '@/lib/auth/workforce-auth-form';
+import { normalizeStorefrontReturnTarget } from '@/lib/auth/storefront-return-target';
 import { normalizeWorkforceReturnTarget } from '@/lib/auth/workforce-return-target';
 
 export const metadata:Metadata={
@@ -13,7 +14,8 @@ type Props={searchParams:Promise<{next?:string|string[]}>};
 export default async function StaffLoginPage({searchParams}:Props){
   const query=await searchParams;
   const rawNext=Array.isArray(query.next)?query.next[0]:query.next;
-  const returnTo=normalizeWorkforceReturnTarget(rawNext)??'/admin';
+  const normalized=normalizeStorefrontReturnTarget(rawNext);
+  const returnTo=normalizeWorkforceReturnTarget(normalized)??'/admin';
 
   return <main className="section accountPage">
     <div className="shell">

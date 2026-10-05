@@ -1,4 +1,6 @@
 import{notFound,redirect}from'next/navigation';
+import{createClient}from'@/lib/supabase/server';
+import{normalizeStorefrontReturnTarget}from'@/lib/auth/storefront-return-target';
 import{normalizeWorkforceReturnTarget,workforceLoginHref}from'@/lib/auth/workforce-return-target';
 import{resolveStorefrontTemplatePreviewPackage}from'@/lib/builder/storefront-template-preview-auth';
 import{STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType}from'@/lib/builder/storefront-foundation';
@@ -8,8 +10,9 @@ type Props={searchParams:Promise<{template?:string;version?:string;page?:string;
 const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
 function previewTarget(input:{templateKey:string;templateVersion:number;pageType:StorefrontBuilderPageType;viewport:string;requested?:string;factoryCandidate:boolean}){
- const requested=normalizeWorkforceReturnTarget(input.requested);
- if(requested&&(requested==='/storefront-template-preview'||requested.startsWith('/storefront-template-preview?')))return requested;
+ const requested=normalizeStorefrontReturnTarget(input.requested);
+ const workforceRequested=normalizeWorkforceReturnTarget(requested);
+ if(workforceRequested&&(workforceRequested==='/storefront-template-preview'||workforceRequested.startsWith('/storefront-template-preview?')))return workforceRequested;
  const params=new URLSearchParams({
   template:input.templateKey,
   version:String(input.templateVersion),
@@ -37,5 +40,9 @@ export default async function StorefrontTemplatePreviewLogin({searchParams}:Prop
   requested:query.next,
   factoryCandidate,
  });
- redirect(workforceLoginHref(target));
+ const supabase=await createClient();
+ const{data:{user}}=await supabase.auth.getUser();
+ const destination=workforceLoginHref(target);
+ if(user)redirect(destination);
+ redirect(destination);
 }

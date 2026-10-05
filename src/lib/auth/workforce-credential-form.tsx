@@ -16,9 +16,16 @@ export function WorkforceCredentialForm({flow,returnTo}:{flow:Flow;returnTo:stri
     const search=new URLSearchParams(window.location.search);
     const hash=new URLSearchParams(window.location.hash.replace(/^#/,''));
     const errorCode=hash.get('error_code')??search.get('error_code');
+    const hashType=hash.get('type');
+    const hasLinkEvidence=hashType===flow||Boolean(search.get('code'))||Boolean(search.get('token_hash'))||Boolean(hash.get('access_token')&&hash.get('refresh_token'));
     if(errorCode){
       setStatus('invalid');
       setMessage(errorCode==='otp_expired'?'A workforce link lejárt. Kérj új meghívót vagy jelszó-visszaállító linket.':'A workforce link nem használható.');
+      return;
+    }
+    if(!hasLinkEvidence){
+      setStatus('invalid');
+      setMessage('A workforce credential mód csak meghívó vagy jelszó-visszaállító linkből nyitható meg.');
       return;
     }
     const supabase=createClient();

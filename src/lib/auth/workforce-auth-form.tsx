@@ -47,7 +47,8 @@ export function WorkforceAuthForm({returnTo}:{returnTo:string}){
   const verifiedFactors=useMemo(()=>snapshot?.factors.filter(factor=>factor.status==='verified')??[],[snapshot]);
 
   function finish(){
-    window.location.replace(normalizeWorkforceReturnTarget(returnTo)??'/admin');
+    const target=normalizeWorkforceReturnTarget(returnTo)??'/admin';
+    window.location.replace(target);
   }
 
   async function loadContext(){
