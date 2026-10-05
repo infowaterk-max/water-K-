@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-PACKAGE-MATRIX-BENCHMARK-RECONCILIATION",
   "task": "Refine the canonical Shoperation Alap / Pro / Add-on capability matrix from accepted Shopify, Shoprenter and UNAS benchmark decisions without changing runtime behavior.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "aa79c504",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
@@ -319,5 +319,18 @@
       }
     ]
   },
-  "notes": "Package-authority refinement only. No runtime entitlement implementation or billing/pricing changes are introduced in this transaction."
+  "notes": "Package-authority refinement only. No runtime entitlement implementation or billing/pricing changes are introduced in this transaction.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "3b4262cc320db013d37f3560273e99e6db8f51c1",
+    "closedAt": "2026-10-05T10:36:50.320Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-PACKAGE-MATRIX-BENCHMARK",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
