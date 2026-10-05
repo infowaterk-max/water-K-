@@ -389,14 +389,136 @@
         "CAP-BUILDER"
       ],
       "scope": [
-        "Alap is a complete professional webshop, not an intentionally crippled entry tier; Pro is the operational/business-system layer above it",
-        "both Alap and Pro use the same 42 design families and the same full manual Builder; there are no Basic/Pro template forks",
-        "Alap includes catalog/product/category/variant/media, digital products/documents, CSV/import/export/bulk, normal inventory, orders/returns/refunds, P0 payment/shipping/invoice integrations, customer account/guest checkout, company billing data, baseline coupons, SEO/search/filter/blog/content, wishlist/reviews/back-in-stock, normal cross-sell/related products, transactional email, Form Wizard and baseline dashboard/reporting",
-        "Pro includes multi-location/transfer/split-fulfillment operations, full B2B organization/RFQ/contract-pricing/maker-checker layer, advanced promotion logic, advanced analytics/LTV/attribution, CRM/business intelligence, workflow automation, predictive/decision-support capabilities subject to their separate launch decisions, Digital Office, staff leave/delegation/team workflow, advanced B2B sales operations, loyalty and controlled API/advanced integrations",
-        "AI capabilities remain separate Add-ons unless a later explicit packaging decision says otherwise",
-        "ordinary company billing at checkout is not the same thing as the Pro B2B organizational purchasing system"
+        "Alap is a complete professional webshop and the competitive floor: ordinary commerce capability must not be artificially paywalled merely to create a weaker entry tier",
+        "Pro is the larger-team/business-system layer: advanced B2B governance, Digital Office, advanced automation, advanced analytics/CRM/intelligence and operational optimization",
+        "both Alap and Pro use the same 42 design families, the same full manual Builder, the same canonical commerce authorities and the same storefront runtime; package differences are server-authoritative entitlements, never template forks",
+        "Digital Office is wholly Pro-only: no Team Chat, shared mailbox/inbox, communication workspace, tasks, approvals, staff profiles, leave/delegation, sending center, shared communication history/templates or Digital Office workforce surface may leak into Alap",
+        "Alap still includes ordinary transactional webshop email, Form Wizard delivery to an external merchant email address, newsletter/basic campaign sending and customer-facing notifications; these do not create a Digital Office workspace",
+        "baseline multi-location/multi-warehouse inventory is Alap; automated cross-location routing, split-fulfillment optimization, depot/address-aware source selection and Smart Stock/procurement optimization are Pro",
+        "simple ready-made automation recipes and single event-to-action rules are Alap; multi-condition, branching and multi-step governed workflows are Pro",
+        "ordinary company billing and simple customer groups/segments are Alap; company-account B2B purchasing governance, RFQ/offer, contract pricing, approval/spending/credit policy and maker-checker are Pro",
+        "provider integrations required to operate a normal Hungarian webshop are Alap; merchant-facing advanced API/webhook/integration-management depth is Pro, while connector-specific external/variable costs may remain Add-on",
+        "AI Builder, subscriptions, advanced AR/3D and similarly specialized or variable-cost capabilities remain Add-on/post-launch rather than being forced into Pro",
+        "package boundaries may be refined from real usage later, but a later recommendation cannot silently override an explicit PO entitlement decision"
       ],
-      "evidenceRefs": []
+      "evidenceRefs": [],
+      "benchmarkBasis": {
+        "platforms": [
+          "Shopify",
+          "Shoprenter",
+          "UNAS"
+        ],
+        "policy": "Alap must remain at least a complete competitive professional webshop; Pro monetizes higher operational/business-system depth rather than ordinary commerce necessities.",
+        "reconciliationNotes": [
+          "Shopify reinforced keeping full-store commerce, inventory, marketing foundations, reporting foundations and extensibility primitives available without crippling the entry plan.",
+          "Shoprenter reinforced keeping ordinary Hungarian commerce, bulk operations, coupons/promotions, local provider integrations and merchant usability out of an artificial Pro wall.",
+          "UNAS reinforced strong back-office/inventory/admin foundations while reserving deeper automation, procurement and higher integration depth for larger-operation tiers.",
+          "Later explicit PO decisions supersede older assistant suggestions where they conflict."
+        ]
+      },
+      "packageMatrix": {
+        "alap": {
+          "positioning": "Complete professional webshop for a small or growing merchant without requiring Pro for normal day-to-day commerce.",
+          "capabilities": [
+            "all 42 template design families",
+            "full manual Visual Builder and responsive Desktop/Tablet/Mobile storefront editing/preview",
+            "catalog: products, categories, variants/SKU, media, attributes, digital products and Product Documents",
+            "shared storefront/runtime, Page Schema, account, cart and checkout capabilities",
+            "guest checkout and customer account",
+            "ordinary company billing data and Hungarian tax-number capture",
+            "Hungary-first tax/VAT configuration and net/gross handling",
+            "orders, order status, cancellation, returns and financial refund flow",
+            "P0 payment providers and provider self-test",
+            "P0 shipping providers, parcel-point/pickup where supported, labels/tracking/status",
+            "InvoiceProvider/Szamlazz.hu launch integration",
+            "baseline inventory plus multi-location/multi-warehouse InventoryLocation support",
+            "per-location on_hand/reserved/available/in_transit visibility",
+            "manual inventory movements, reservations and transfers",
+            "personal/store pickup and manual source/transfer handling",
+            "barcode/SKU stock add-reduce-adjust-transfer and unknown-barcode product/variant intake",
+            "opt-in backorder policy where supported by the canonical order/inventory authority",
+            "search, filtering, sorting and Compare/Spec baseline",
+            "SEO, blog/content pages, landing pages and Form Wizard",
+            "CSV/import/export, bulk product/customer operations and Migration Assistant",
+            "normal customer groups/segments and ordinary merchant customer management",
+            "baseline coupon: fixed amount or percentage, validity window, minimum/maximum order value, one coupon per cart",
+            "scheduled sale prices and ordinary promotion primitives",
+            "wishlist, reviews, back-in-stock/customer stock alerts and ordinary related/cross-sell recommendations",
+            "newsletter/basic campaigns, basic abandoned-cart recovery and customer notifications",
+            "transactional webshop email; Form Wizard submission can notify the merchant's external email address",
+            "simple ready-made automation recipes and single event-to-action rules",
+            "standard operational dashboards and reports for sales, orders, products, inventory and customers",
+            "raw/basic campaign metrics and ordinary report export",
+            "merchant owner/staff authentication, baseline RBAC/permissions, audit/activity and applicable MFA/security controls",
+            "controlled setup for normal payment/shipping/invoice and other approved operational provider connectors",
+            "Guided Finder (E3), Multi-Product Composer (E4), Configurator Lite (E5), Compatibility Core (E6), Compare/Spec (E7) and Profile/Context (E8) shared engines where the storefront experience uses them",
+            "Drop/Release Commerce shared entitlement",
+            "Digital Commerce downloads and secure customer document access"
+          ]
+        },
+        "pro": {
+          "positioning": "Everything in Alap plus the operational/business-system layer for larger teams, B2B sales and more complex automation/decision workflows.",
+          "capabilities": [
+            "full Digital Office main workspace",
+            "Digital Office shared email/mailbox/inbox/thread workspace",
+            "Digital Office Team Chat for staff-to-staff communication",
+            "Digital Office tasks, approvals, sending center and communication templates/history",
+            "Digital Office staff profiles, workforce context, leave/substitution and scoped time-boxed delegation",
+            "Digital Office customer/order/quote/return/ticket/task communication context and assignment",
+            "advanced B2B company accounts with multiple company users and owner/admin/buyer governance",
+            "B2B verified company/tax identity, reapproval on sensitive company-data changes and full audit",
+            "partner/contract pricing, MOQ/order multiples and B2B-specific commercial policy",
+            "RFQ -> opportunity -> offer -> acceptance -> order, Ajánlatkéréseim and Ügyeim",
+            "account manager, per-member purchase authority, company credit/exposure limits, payment terms and customer PO/reference",
+            "maker-checker and approval policy for spending/offer/order actions",
+            "automated cross-location source selection and cross-warehouse routing",
+            "split fulfillment and advanced multi-location fulfillment optimization",
+            "address/carrier-depot-aware fulfillment decisions where operationally justified",
+            "Smart Stock, replenishment/procurement intelligence and advanced inventory operations",
+            "advanced analytics: LTV, cohort/retention, funnel/journey, attribution, ROI/profit and executive/business-review views",
+            "advanced CRM/business intelligence and action-center style decision support",
+            "advanced campaign segmentation, lifecycle journeys and automated marketing evaluation",
+            "advanced promotion rules: multi-coupon compatibility/stacking, richer product/category/customer targeting, triggered/Smart Coupon behavior",
+            "loyalty/retention depth when enabled by the accepted loyalty capability",
+            "multi-condition, branching, multi-step governed workflow automation",
+            "AI-assisted merchant decision support grounded in authoritative Shoperation facts",
+            "predictive/supervised operational intelligence; consequential execution remains human-approved for Market Ready",
+            "merchant-facing scoped API credentials, webhooks and advanced controlled integration management",
+            "advanced operational exports/integration flows for ERP/WMS/accounting/approved external systems",
+            "Interactive Scene / Shop-the-Look / Room-style commerce entitlement",
+            "Recipe Commerce entitlement"
+          ]
+        },
+        "addOnOrLater": {
+          "positioning": "Specialized, vertical, usage-based or high-variable-cost capability that should not force every Pro customer to pay for functionality they may never use.",
+          "capabilities": [
+            "AI Builder after its controlled dark-launch acceptance and later public activation",
+            "recurring subscription commerce",
+            "advanced AR, advanced 3D and exploded-product experiences",
+            "POS Pro / advanced physical-retail tooling when productized",
+            "external WMS/3PL/warehouse-automation/robotics connectors and connector-specific commercial fees",
+            "specialized vertical integrations or custom certified connectors with material third-party/operational cost",
+            "future public/curated integration marketplace capabilities beyond the closed Controlled Integration foundation",
+            "future multi-country/multi-currency/tax expansion beyond the Hungary-first Market Ready scope where separately productized",
+            "gift-card/store-credit depth if later promoted from the currently deferred/post-launch scope",
+            "premium/custom service work that is not a reusable Shoperation product capability"
+          ]
+        },
+        "explicitExclusionsFromAlap": [
+          "Digital Office Team Chat",
+          "Digital Office shared mailbox/inbox/thread workspace",
+          "Digital Office tasks and approvals",
+          "Digital Office staff profiles and workforce workspace",
+          "Digital Office leave/substitution/delegation",
+          "Digital Office sending center and shared communication history/templates",
+          "full B2B organizational purchasing governance",
+          "advanced cross-location/split-fulfillment optimization",
+          "advanced multi-step workflow automation",
+          "advanced CRM/LTV/cohort/attribution/executive intelligence",
+          "merchant-facing advanced API/integration management",
+          "AI-assisted business decisioning and supervised predictive operations"
+        ]
+      }
     },
     {
       "id": "PRODUCT-OPERATIONS",
