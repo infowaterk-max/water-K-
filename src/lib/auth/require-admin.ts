@@ -16,7 +16,7 @@ export async function requireAdmin(returnTo?:string) {
   const{data:authData,error}=await supabase.auth.getUser();
   if(error||!authData.user){
     const next=safeLoginReturn(returnTo);
-    redirect(next?`/fiokom?reason=login&next=${encodeURIComponent(next)}`:'/fiokom?reason=login');
+    redirect(next?`/staff/login?next=${encodeURIComponent(next)}`:'/staff/login?next=%2Fadmin');
   }
 
   try{
