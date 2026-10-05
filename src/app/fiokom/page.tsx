@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { AuthForm } from '@/components/auth/auth-form';
 import { LogoutButton } from '@/components/auth/logout-button';
 import { ProfileForm } from '@/components/account/profile-form';
@@ -16,16 +15,8 @@ import {BillingProfileForm} from '@/components/account/billing-profile-form';
 import {getCustomerBillingProfile} from '@/lib/account/billing-profile';
 import {resolveB2BAccountContext} from '@/lib/commerce/b2b-account';
 import {loadCustomerCommerceRecovery} from '@/lib/commerce/customer-commerce-recovery-server';
-import {normalizeStorefrontReturnTarget} from '@/lib/auth/storefront-return-target';
 
-type AccountPageProps={searchParams:Promise<Record<string,string|string[]|undefined>>};
-
-export default async function AccountPage({searchParams}:AccountPageProps){
- const query=await searchParams;
- const reason=Array.isArray(query.reason)?query.reason[0]:query.reason;
- const rawNext=Array.isArray(query.next)?query.next[0]:query.next;
- const workforceNext=normalizeStorefrontReturnTarget(rawNext);
- if(reason==='login'&&workforceNext&&(workforceNext==='/admin'||workforceNext.startsWith('/admin/')))redirect(`/staff/login?next=${encodeURIComponent(workforceNext)}`);
+export default async function AccountPage(){
  const instance=await getCurrentWebshopInstance(),brandName=instance?.brand.name??'Webáruház',configured=Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL&&(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY));
  if(!configured)return <main className="section accountPage"><div className="shell"><span className="eyebrow">{brandName} fiók</span><h1 className="sectionTitle">A saját vásárlói központod.</h1><div className="card"><h2>A hitelesítés még nincs konfigurálva.</h2><p className="muted">A publikus webshop ettől függetlenül használható.</p><Link className="btn btnPrimary" href="/webaruhaz">Vásárlás</Link></div></div></main>;
  const supabase=await createClient();const{data:{user}}=await supabase.auth.getUser();

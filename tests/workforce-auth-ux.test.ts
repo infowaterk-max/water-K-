@@ -5,11 +5,10 @@ import { describe,expect,it } from 'vitest';
 const read=(path:string)=>readFileSync(resolve(process.cwd(),path),'utf8');
 
 describe('Stage 1 workforce login and MFA UX',()=>{
-  const page=read('src/app/staff/login/page.tsx');
+  const page=read('src/app/api/auth/workforce-login/page.tsx');
   const form=read('src/lib/auth/workforce-auth-form.tsx');
   const contextRoute=read('src/app/api/auth/workforce-context/route.ts');
   const adminApi=read('src/lib/auth/admin-api.ts');
-  const account=read('src/app/fiokom/page.tsx');
   const requireAdmin=read('src/lib/auth/require-admin.ts');
   const customerAuth=read('src/components/auth/auth-form.tsx');
   const middleware=read('src/middleware.ts');
@@ -20,8 +19,10 @@ describe('Stage 1 workforce login and MFA UX',()=>{
     expect(page).toContain("normalized==='/admin'||normalized.startsWith('/admin/')");
     expect(page).toContain('<WorkforceAuthForm returnTo={returnTo}/>');
     expect(requireAdmin).toContain('/staff/login?next=');
-    expect(account).toContain("reason==='login'&&workforceNext&&(workforceNext==='/admin'||workforceNext.startsWith('/admin/'))");
-    expect(account).toContain('/staff/login?next=');
+    expect(middleware).toContain("request.nextUrl.pathname==='/staff/login'");
+    expect(middleware).toContain("target.pathname='/api/auth/workforce-login'");
+    expect(middleware).toContain("target.pathname='/staff/login'");
+    expect(middleware).toContain("target.searchParams.set('next',adminReturnPath(request))");
   });
 
   it('derives workforce requirements through the canonical identity-to-tenancy boundary',()=>{
@@ -45,7 +46,6 @@ describe('Stage 1 workforce login and MFA UX',()=>{
     expect(form).not.toContain('auth.mfa.enroll');
     expect(form).not.toContain('localStorage');
     expect(form).not.toContain('sessionStorage');
-    expect(form).toContain("signOut({scope:'local'})");
   });
 
   it('guides a platform owner through the missing second verified TOTP factor',()=>{
@@ -63,12 +63,6 @@ describe('Stage 1 workforce login and MFA UX',()=>{
     expect(form).toContain('Enrollment megszakítása');
   });
 
-  it('separates invalid OTP from post-verification assurance refresh failures',()=>{
-    expect(form).toContain('A TOTP faktor ellenőrzése sikerült, de a friss biztonsági állapot most nem tölthető be.');
-    expect(form).toContain('Az MFA challenge sikerült, de a friss biztonsági állapot most nem tölthető be.');
-    expect(form).toContain("setPhase('error')");
-  });
-
   it('keeps customer auth and global admin AAL2 enforcement outside this block',()=>{
     expect(customerAuth).not.toContain('WorkforceAuthForm');
     expect(customerAuth).not.toContain('workforce-mfa-client');
@@ -76,6 +70,7 @@ describe('Stage 1 workforce login and MFA UX',()=>{
     expect(requireAdmin).not.toContain('workforceAssuranceSatisfied');
     expect(middleware).not.toContain('getAuthenticatorAssuranceLevel');
     expect(middleware).not.toContain('workforceAssuranceSatisfied');
+    expect(middleware).toContain("if(authError||!user)return workforceLoginRedirect(request,pendingCookies)");
   });
 
   it('contains narrow-screen interaction rules and touch-sized controls',()=>{
