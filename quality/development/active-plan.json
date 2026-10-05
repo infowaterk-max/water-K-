@@ -1,21 +1,21 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-STAGE1-WORKFORCE-MFA-UX",
-  "task": "Implement dedicated workforce login plus canonical TOTP enrollment and challenge UX on top of the existing workforce assurance primitives without enabling global AAL2 authorization enforcement.",
+  "task": "Implement dedicated staff/admin login plus TOTP enrollment and challenge UX using the canonical workforce assurance primitives without enabling global AAL2 authorization enforcement.",
   "status": "ready-for-implementation",
-  "guardDigest": "00e392d5",
+  "guardDigest": "663168a5",
   "changeBaseSha": "2d3aa9d7e7832651fab2734b1812cecdb6f636dd",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "src/app/staff/login/page.tsx",
     "src/app/api/auth/workforce-context/route.ts",
     "src/lib/auth/workforce-auth-form.tsx",
-    "src/lib/auth/workforce-login-target.ts",
     "src/app/fiokom/page.tsx",
     "src/lib/auth/require-admin.ts",
     "tests/workforce-auth-ux.test.ts"
   ],
   "expectedSubsystems": [
+    "admin-operations",
     "auth-access-authority",
     "customer-account",
     "storefront-ui"
@@ -29,17 +29,17 @@
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-013",
+    "SQ-KF-014",
+    "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
     "SQ-KF-005",
     "SQ-KF-007",
     "SQ-KF-011",
     "SQ-KF-012",
-    "SQ-KF-013",
-    "SQ-KF-014",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-022",
     "TF-KF-002",
     "TF-KF-006",
     "TF-KF-008",
@@ -60,7 +60,7 @@
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "This UX handles privileged workforce sign-in state, TOTP enrollment secrets and AAL2 challenge transitions. It must consume the canonical workforce assurance policy and Supabase MFA authority without creating browser persistence or silently turning this UX block into global authorization enforcement.",
+      "rationale": "The flow handles workforce credentials, Supabase MFA factor enrollment and privileged-session assurance. It must compose the existing identity authority, preserve customer authentication boundaries, fail closed on missing MFA/context evidence and avoid prematurely changing global admin authorization enforcement.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -76,30 +76,31 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "A dedicated workforce sign-in route accepts staff/platform credentials and preserves a safe originally requested admin or preview destination.",
-        "When the canonical policy requires MFA and no verified TOTP factor exists, the UI starts TOTP enrollment and shows both QR setup data and the manual secret fallback.",
-        "When a verified factor exists but the current session is below AAL2, the UI challenges an existing verified TOTP factor and refreshes the assurance state after successful verification.",
-        "A platform owner is guided through enrollment until two verified TOTP factors exist; one verified factor is never presented as owner-ready.",
-        "Enrollment cancellation and provider failures leave the user on the workforce auth surface with an explicit recoverable state and do not persist OTP secrets in localStorage, sessionStorage or application storage.",
-        "Successful workforce authentication returns to the safe requested workforce destination while ordinary shopper/customer authentication remains on the existing customer flow.",
-        "The surface remains usable on narrow mobile and desktop layouts without introducing a separate MFA or OTP authority."
+        "A dedicated staff/admin login route authenticates workforce users without modifying shopper registration or customer MFA policy.",
+        "When the canonical workforce policy requires a factor and none is verified, the UI starts Supabase TOTP enrollment and displays both QR data and the manual secret fallback.",
+        "When verified TOTP factors exist but the current session is below AAL2, the UI challenges a verified factor and only continues after Supabase verification succeeds.",
+        "A platform owner is guided until two verified TOTP factors exist and the current session is AAL2.",
+        "Successful completion returns to the originally requested safe admin target, while invalid or external return targets fall back to /admin.",
+        "MFA/context loading errors and interrupted enrollment fail closed inside the workforce flow; abandoned unverified enrollment can be cancelled and unenrolled.",
+        "The UI remains usable on narrow mobile and desktop widths without localStorage/sessionStorage MFA state or OTP-secret persistence.",
+        "This block does not add requireAdmin, middleware or API-wide AAL2 authorization enforcement."
       ],
       "invariants": [
-        "Supabase Auth remains the only MFA factor, TOTP secret and challenge verification authority.",
-        "The existing workforce assurance policy remains the only Shoperation authority for required factor counts and next MFA step.",
-        "Customer sign-in and customer MFA policy are not changed by workforce-intent routing.",
-        "This block does not add requireAdmin or middleware AAL2 authorization enforcement.",
-        "Only verified TOTP factors count toward policy readiness; abandoned unverified enrollment never counts.",
-        "Return targets are same-origin relative workforce destinations and cannot become open redirects."
+        "Supabase Auth remains the sole TOTP secret, factor verification and AAL authority.",
+        "The existing workforce assurance policy remains the sole source of required factor count.",
+        "Customer AuthForm behavior and customer MFA policy remain unchanged.",
+        "A client-side success state never substitutes for server-owned workforce role context.",
+        "No workforce flow writes OTP secrets, challenge codes or MFA readiness to localStorage or sessionStorage.",
+        "Admin authorization enforcement remains unchanged until the next dedicated high-risk auth block."
       ],
       "forbiddenStates": [
+        "second-mfa-authority",
         "otp-secret-browser-persistence",
-        "custom-otp-verifier",
-        "platform-owner-finished-with-one-verified-factor",
-        "mfa-api-error-treated-as-success",
-        "unsafe-external-return-target",
-        "customer-login-globally-rerouted-to-workforce",
-        "global-admin-aal2-enforcement-enabled-in-this-block"
+        "customer-login-repurposed-as-workforce-mfa-authority",
+        "platform-owner-completes-with-one-verified-factor",
+        "mfa-provider-error-redirects-to-admin",
+        "external-open-redirect-after-login",
+        "global-aal2-enforcement-in-this-block"
       ]
     },
     "model": {
@@ -131,41 +132,42 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A platform owner signs in, verifies one TOTP and is sent to the requested admin page before the second verified factor exists.",
-        "An MFA provider/listFactors/AAL load error is mistaken for a zero-factor or ready state and bypasses enrollment or challenge.",
-        "The enrollment QR secret is copied into browser persistence and becomes a second long-lived application secret store.",
-        "An attacker supplies an absolute or protocol-relative next target and turns workforce login completion into an open redirect.",
-        "The customer account route starts enforcing workforce MFA merely because an admin-intent adapter was added.",
-        "A cancelled unverified enrollment remains orphaned and later confuses factor selection or verified-factor counting."
+        "A shopper credential is accepted by the workforce surface and accidentally treated as staff authority.",
+        "A platform owner verifies one factor and is redirected before the required second verified factor exists.",
+        "An unverified enrollment is abandoned and repeatedly accumulates stale factors that obstruct later enrollment.",
+        "MFA snapshot or role-context retrieval fails and the UI continues as though no MFA were required.",
+        "A crafted next parameter redirects a privileged login to an external or non-admin target.",
+        "The workforce UX starts enforcing AAL2 globally and blocks low-risk staff beyond the accepted policy.",
+        "Mobile layout hides the QR fallback, code field or recovery controls required to finish enrollment."
       ],
       "edgeCases": [
-        "Platform owner with zero verified factors must enroll factor one, verify it, then enroll and verify factor two before completion.",
-        "Platform owner with one verified factor at AAL2 must still enroll a second factor rather than being considered complete.",
-        "Platform owner with two verified factors at AAL1 must challenge an existing verified factor before completion.",
-        "Merchant owner/admin with one verified factor at AAL1 challenges rather than re-enrolling.",
-        "Low-risk support/viewer workforce with zero required factors completes first-factor login without being globally MFA-blocked.",
-        "A workforce login request without a safe next target falls back to the canonical admin landing page.",
-        "Cancelling an in-progress unverified enrollment attempts cleanup but never removes an already verified factor."
+        "Platform owner with zero verified factors at AAL1 enrolls factor one, verifies it, then is guided to enroll factor two.",
+        "Platform owner with one verified factor at AAL1 first challenges that factor, then enrolls and verifies the second factor.",
+        "Platform owner with two verified factors at AAL1 challenges one verified factor and then proceeds.",
+        "Merchant admin with one verified factor at AAL1 challenges and proceeds after AAL2.",
+        "Low-risk platform operator or store staff with zero required factors proceeds without forced enrollment.",
+        "Customer-only user signing in on the workforce route receives a staff-access error and is not granted admin navigation.",
+        "An interrupted unverified enrollment can be cancelled and removed before a fresh enrollment starts."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-DEDICATED-WORKFORCE-AUTH-SURFACE",
-        "summary": "Add a dedicated workforce route that consumes the existing assurance policy and MFA client primitives, while keeping shopper auth separate.",
+        "id": "ALT-DEDICATED-WORKFORCE-FLOW",
+        "summary": "Add a dedicated workforce login page that consumes server-resolved role context and the existing canonical MFA primitives.",
         "disposition": "selected",
-        "reason": "This creates the requested staff/admin UX without duplicating authentication policy or changing customer authentication semantics."
+        "reason": "It separates workforce UX from shopper auth, keeps factor truth in Supabase and postpones authorization enforcement while still proving the full enrollment/challenge interaction."
       },
       {
-        "id": "ALT-EXTEND-CUSTOMER-AUTH-FORM",
-        "summary": "Add staff role detection and MFA enrollment directly inside the existing shopper AuthForm.",
+        "id": "ALT-EXTEND-CUSTOMER-AUTHFORM",
+        "summary": "Add staff role detection and MFA screens directly inside the existing shopper AuthForm.",
         "disposition": "rejected",
-        "reason": "It would mix customer and workforce concerns, increase authority ambiguity and risk accidental customer MFA policy changes."
+        "reason": "It would mix customer and workforce intent, increase route/policy coupling and risk turning a shared customer presentation component into a second workforce authority."
       },
       {
-        "id": "ALT-GLOBAL-ADMIN-MIDDLEWARE-AAL2",
-        "summary": "Enforce AAL2 immediately in middleware and requireAdmin while building the UI at the same time.",
+        "id": "ALT-ENFORCE-AAL2-IN-MIDDLEWARE-NOW",
+        "summary": "Wire AAL2 checks into middleware and requireAdmin at the same time as the first MFA UX.",
         "disposition": "rejected",
-        "reason": "The Product Owner explicitly separates UX proof from the later high-risk enforcement block; combining them would expand blast radius and obscure failure diagnosis."
+        "reason": "The Product Owner explicitly separated UX proof from the next high-risk enforcement block; combining them would expand blast radius before enrollment and recovery behavior is proven."
       }
     ],
     "specialistReviews": [
@@ -173,94 +175,95 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The workforce UX must be a consumer of canonical identity policy rather than a route-local MFA policy engine.",
-        "resolution": "The client obtains workforce role context from a server route, then uses requiredWorkforceTotpFactors/nextWorkforceMfaStep and the existing workforce MFA client primitives.",
+        "finding": "The workforce surface must compose the canonical identity primitives and may not duplicate required-factor logic or factor persistence in presentation code.",
+        "resolution": "Server role context returns only the role-derived requirement, while enrollment/challenge calls remain wrappers over the existing workforce MFA client and Supabase Auth.",
         "evidence": [
           "src/lib/auth/workforce-assurance-policy.ts",
-          "src/lib/auth/workforce-mfa-client.ts"
+          "src/lib/auth/workforce-mfa-client.ts",
+          "quality/knowledge/domain-foundations.v1.json"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Displaying enrollment secrets and handling redirects introduces secret-leak and open-redirect risk; cancellation can also leave unverified factors behind.",
-        "resolution": "Enrollment material stays in React memory only, return targets are restricted to relative workforce routes, and cancellation only unenrolls the current unverified enrollment factor.",
+        "finding": "A successful password sign-in is only AAL1 and cannot be treated as privileged-ready; provider/context errors and unsafe return targets must not create a bypass.",
+        "resolution": "The workforce flow fails closed on context/MFA errors, requires the canonical next MFA step before redirect, and normalizes return intent to a local /admin target.",
         "evidence": [
-          "src/lib/auth/workforce-login-target.ts",
-          "src/lib/auth/workforce-auth-form.tsx",
-          "tests/workforce-auth-ux.test.ts"
+          "src/lib/auth/workforce-assurance-policy.ts",
+          "src/lib/auth/workforce-mfa-client.ts",
+          "src/lib/auth/storefront-return-target.ts"
         ]
       },
       {
-        "role": "Known Failure",
+        "role": "UX / Template",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Reusing the customer auth surface or inventing route-specific factor rules would repeat second-authority and navigation-drift failure classes.",
-        "resolution": "Use a dedicated workforce surface plus a narrow fiokom workforce-intent adapter; do not change ordinary customer sign-in behavior.",
+        "finding": "Enrollment must remain operable without QR scanning and on narrow screens, including explicit cancellation of an in-progress factor.",
+        "resolution": "The planned surface exposes the TOTP secret fallback, touch-sized controls, responsive single-column layout and an enrollment cancellation path that unenrolls the unverified factor.",
         "evidence": [
-          "quality/knowledge/shoperation-quality-knowledge.v1.json",
-          "src/app/fiokom/page.tsx"
+          "PO-2026-10-05-STAGE1-WORKFORCE-MFA-UX",
+          "Supabase TOTP enrollment guidance"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-WFMFA-1",
-        "scenario": "A platform owner signs in with zero factors and successfully verifies the first enrollment.",
-        "finding": "If completion is evaluated immediately after AAL2 promotion, one factor could incorrectly finish the owner flow.",
-        "resolution": "Reload the MFA snapshot after verification and re-run canonical next-step policy; owner remains in enrollment until two verified factors exist.",
+        "id": "CH-MFA-UX-1",
+        "scenario": "A platform owner has one verified factor but the password login session is AAL1.",
+        "finding": "Enrolling factor two immediately would skip proof that the current session controls the already verified factor.",
+        "resolution": "The state machine follows the canonical policy: challenge the existing verified factor first, then enroll the missing second factor.",
         "status": "resolved"
       },
       {
-        "id": "CH-WFMFA-2",
-        "scenario": "A user already has a verified factor but the current session is only AAL1.",
-        "finding": "Starting another enrollment would create unnecessary factors and not prove possession of the existing second factor.",
-        "resolution": "Select an existing verified TOTP factor and run challengeAndVerify, then reload the snapshot.",
+        "id": "CH-MFA-UX-2",
+        "scenario": "A user closes or cancels the screen after Supabase creates an unverified TOTP enrollment.",
+        "finding": "Leaving stale unverified factors can accumulate and make later enrollment ambiguous.",
+        "resolution": "Cancellation explicitly unenrolls the in-progress factor, and a new enrollment cleans stale unverified TOTP factors before creating another.",
         "status": "resolved"
       },
       {
-        "id": "CH-WFMFA-3",
-        "scenario": "The server cannot resolve a workforce role/context after first-factor sign-in.",
-        "finding": "Treating the actor as low-risk would turn missing authorization context into an MFA bypass.",
-        "resolution": "The workforce context endpoint fails closed; the UI signs no authorization claim and does not continue to the requested destination.",
+        "id": "CH-MFA-UX-3",
+        "scenario": "The role-context endpoint or Supabase MFA snapshot fails after password authentication.",
+        "finding": "Treating the failure as zero required factors would turn an availability error into an authentication downgrade.",
+        "resolution": "The workforce UI enters an error/retry state and never redirects to the requested admin target until context and MFA evidence load successfully.",
         "status": "resolved"
       },
       {
-        "id": "CH-WFMFA-4",
-        "scenario": "The user cancels while a new TOTP enrollment is unverified.",
-        "finding": "Leaving the factor behind can create orphaned MFA setup state and repeated confusing enrollments.",
-        "resolution": "Track only the current enrollment factor in component memory and attempt unenroll on cancel before returning to the sign-in-ready state.",
+        "id": "CH-MFA-UX-4",
+        "scenario": "A normal shopper reaches /fiokom without an admin login intent.",
+        "finding": "A broad redirect to the workforce page would silently change the customer login contract.",
+        "resolution": "Only the existing reason=login intent with a normalized /admin next target bridges to the dedicated workforce route; all ordinary customer account behavior remains untouched.",
         "status": "resolved"
       },
       {
-        "id": "CH-WFMFA-5",
-        "scenario": "A crafted next query contains //evil.example or an unrelated customer route.",
-        "finding": "Blind navigation after MFA would create an open redirect or cross-surface flow confusion.",
-        "resolution": "Normalize only same-origin relative workforce targets and fall back to /admin.",
+        "id": "CH-MFA-UX-5",
+        "scenario": "An attacker supplies next=//evil.example or another non-admin local path.",
+        "finding": "Returning blindly after MFA could create an open redirect or cross-surface privileged-login confusion.",
+        "resolution": "The page normalizes the value with the existing safe local return helper and accepts only /admin targets, otherwise falling back to /admin.",
         "status": "resolved"
       },
       {
-        "id": "CH-WFMFA-6",
-        "scenario": "A low-risk staff member without an MFA requirement signs in through the workforce route.",
-        "finding": "A blanket MFA screen would violate the accepted policy and create unnecessary workforce lockout.",
-        "resolution": "The server returns canonical role context and the shared policy can return zero required factors, allowing completion without enrollment.",
+        "id": "CH-MFA-UX-6",
+        "scenario": "A low-risk staff role has no verified factor and no sensitive-boundary requirement.",
+        "finding": "Forcing enrollment merely because the user entered the staff portal would contradict the accepted workforce MFA policy.",
+        "resolution": "The server derives requiredFactors from the canonical policy; zero-factor roles proceed without a synthetic MFA requirement.",
         "status": "resolved"
       },
       {
-        "id": "CH-WFMFA-7",
-        "scenario": "MFA snapshot or challenge verification throws midway through the UI flow.",
-        "finding": "A success redirect from stale client state would convert provider failure into fail-open behavior.",
-        "resolution": "All MFA transitions are awaited, errors remain on the auth surface, and navigation occurs only after a fresh snapshot reports ready.",
+        "id": "CH-MFA-UX-7",
+        "scenario": "A customer-only account successfully authenticates with email and password on the workforce route.",
+        "finding": "Authentication alone does not prove workforce authorization.",
+        "resolution": "A server-owned workforce-context lookup must resolve platform or store staff role authority before any MFA decision or admin redirect occurs.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run deterministic workforce auth UX regression tests covering safe return targets, workforce/customer separation, owner two-factor sequencing, challenge flow, enrollment cancellation and forbidden browser persistence.",
-      "Run the existing workforce identity primitive regression suite to prove the UX still consumes the canonical policy and Supabase MFA authority.",
-      "Run exact-head TypeScript validation and production build to prove the new App Router route, server context handler and client MFA surface compile together.",
-      "Verify the final diff does not add AAL2 enforcement to middleware, requireAdmin authorization decisions or customer MFA policy.",
-      "Use exact-head CI evidence for Truth Gate and close the lifecycle only when every completion requirement and forbidden regression is VERIFIED."
+      "Run deterministic regression tests covering safe workforce return routing, customer-auth isolation, Supabase-only MFA usage, platform-owner second-factor progression and abandoned enrollment cleanup.",
+      "Run the full quality test suite so existing customer account, platform portal, RBAC, navigation and Known Failure regressions remain green.",
+      "Run TypeScript validation for the new App Router page, route handler and client MFA state machine.",
+      "Run production build proof to catch Server/Client Component boundary, Next.js routing and responsive JSX compilation failures.",
+      "Use exact-head CI Completion Truth evidence before closure; do not treat an automatically created Vercel preview or Vercel READY status as completion proof."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-05-STAGE1-WORKFORCE-MFA-UX",
@@ -269,10 +272,9 @@
         "shared-storefront"
       ],
       "mustEdit": [
-        "src/app/staff/login/page.tsx",
         "src/app/api/auth/workforce-context/route.ts",
         "src/lib/auth/workforce-auth-form.tsx",
-        "src/lib/auth/workforce-login-target.ts",
+        "src/app/staff/login/page.tsx",
         "src/app/fiokom/page.tsx",
         "src/lib/auth/require-admin.ts"
       ],
@@ -284,11 +286,12 @@
         "src/lib/auth/workforce-assurance.ts",
         "src/lib/auth/workforce-mfa-client.ts",
         "src/components/auth/auth-form.tsx",
-        "src/middleware.ts"
+        "src/components/auth/platform-auth-form.tsx",
+        "src/middleware.ts",
+        "quality/knowledge/living-roadmap.v2.json"
       ],
       "proof": [
-        "tests/workforce-auth-ux.test.ts",
-        "tests/workforce-identity-aal2-primitives.test.ts"
+        "tests/workforce-auth-ux.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -300,11 +303,11 @@
     "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-MFA-UX",
     "requirements": [
       {
-        "id": "REQ-WORKFORCE-LOGIN-RETURN",
-        "requirement": "A dedicated workforce login flow authenticates staff/platform users and returns successful sessions only to a safe originally requested workforce destination.",
+        "id": "REQ-WORKFORCE-MFA-UX",
+        "requirement": "The dedicated workforce login provides safe staff/admin password authentication, canonical Supabase TOTP enrollment/challenge UX, two-factor platform-owner progression, safe admin return routing and fail-closed error/cancellation behavior without changing customer MFA policy or global AAL2 authorization enforcement.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "workforce-login-and-return-intent",
+          "breadth": "workforce-login-mfa-enrollment-challenge-ux",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -327,101 +330,22 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-WORKFORCE-OPEN-REDIRECT",
-            "statement": "Workforce login must not accept protocol-relative, absolute or non-workforce return targets.",
+            "id": "NEG-SECOND-MFA-AUTHORITY",
+            "statement": "No custom OTP verification service, secret persistence or browser storage may become an MFA authority.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-CUSTOMER-AUTH-REPLACEMENT",
-            "statement": "Ordinary customer login must not be globally replaced or MFA-mandated by this workforce route.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-WORKFORCE-TOTP-UX",
-        "requirement": "The workforce auth surface supports TOTP QR/secret enrollment, verified-factor challenge and platform-owner two-factor sequencing through the existing canonical MFA primitives.",
-        "claimScope": {
-          "capability": "CAP-AUTH",
-          "breadth": "workforce-totp-enrollment-challenge-ui",
-          "strength": 2,
-          "dimensions": [
-            "tests",
-            "types",
-            "build",
-            "forbidden-state"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-AUTH"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
-          ],
-          "outcome": [
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-SECOND-MFA-AUTHORITY-UX",
-            "statement": "The UX must not create custom OTP verification or persist TOTP secrets in localStorage, sessionStorage or application storage.",
+            "id": "NEG-CUSTOMER-AUTH-DRIFT",
+            "statement": "Ordinary shopper login/registration and customer MFA policy must remain unchanged by the workforce flow.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-OWNER-ONE-FACTOR-COMPLETE",
-            "statement": "A platform owner with only one verified TOTP factor must not be treated as complete.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-WORKFORCE-UX-BOUNDARY",
-        "requirement": "The MFA UX handles provider errors and cancelled enrollment while remaining responsive, and it does not enable the later global AAL2 authorization-enforcement block.",
-        "claimScope": {
-          "capability": "CAP-AUTH",
-          "breadth": "workforce-mfa-ux-boundary-and-failure-handling",
-          "strength": 2,
-          "dimensions": [
-            "tests",
-            "types",
-            "build",
-            "forbidden-state"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-AUTH"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
-          ],
-          "outcome": [
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-PREMATURE-AAL2-ENFORCEMENT",
-            "statement": "This block must not add global AAL2 enforcement to middleware or active admin authorization decisions.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-MFA-FAIL-OPEN-UX",
-            "statement": "MFA provider or snapshot failures must not trigger a success redirect.",
+            "id": "NEG-EARLY-AAL2-ENFORCEMENT",
+            "statement": "This block must not add middleware/API-wide or requireAdmin AAL2 authorization enforcement.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -430,5 +354,5 @@
       }
     ]
   },
-  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY UX block only. Existing canonical assurance/TOTP primitives are consumed, not reimplemented. Global admin AAL2 enforcement remains explicitly deferred."
+  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY UI block only. The canonical AAL2/TOTP primitives from PR #848 are consumed, not reimplemented. The next separate high-risk auth block will add authorization enforcement after this UX is exact-head VERIFIED."
 }
