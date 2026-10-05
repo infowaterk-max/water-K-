@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-STAGE1-WORKFORCE-AAL2-ENFORCEMENT",
   "task": "Enforce the canonical workforce AAL2/TOTP policy at server-side admin authorization boundaries after the verified workforce MFA UX, including role-derived and sensitive-permission assurance without making customer MFA mandatory or turning middleware into a second MFA authority.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "663168a5",
   "changeBaseSha": "e0f65b8dc4232e71cde9271de27039a590b4aae1",
   "plannedFilePatterns": [
@@ -664,5 +664,18 @@
       }
     ]
   },
-  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY high-risk enforcement block. Builds on merged PR #848 primitives and merged PR #849 workforce MFA UX. Middleware remains read-only as a coarse prefilter; AAL2 truth is enforced in canonical server auth boundaries to avoid split-brain policy. CI attempt 1 stopped at Plan Before Code because a non-canonical specialist role label was used; the review was relabeled to the canonical Operations role with no implementation change. Edit-Time Guard attempt 2 produced 45 SQ-KF-022 Reference Sync reviews from generic implementation-expression matches while Implementation Sync remained PASS with zero missing required consumers. Each review is acknowledged by exact file+fingerprint only; no broad exception was introduced. Full quality attempt 3 found four auth-contract regressions plus Sentinel proof overclaim. The remediation restores canonical hasStorePermission/legacy security contracts and narrows the completion claim from strength 3 + adversarial to the registry-supported strength 2 + tests/types/build/forbidden-state; no global guard semantics are changed."
+  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY high-risk enforcement block. Builds on merged PR #848 primitives and merged PR #849 workforce MFA UX. Middleware remains read-only as a coarse prefilter; AAL2 truth is enforced in canonical server auth boundaries to avoid split-brain policy. CI attempt 1 stopped at Plan Before Code because a non-canonical specialist role label was used; the review was relabeled to the canonical Operations role with no implementation change. Edit-Time Guard attempt 2 produced 45 SQ-KF-022 Reference Sync reviews from generic implementation-expression matches while Implementation Sync remained PASS with zero missing required consumers. Each review is acknowledged by exact file+fingerprint only; no broad exception was introduced. Full quality attempt 3 found four auth-contract regressions plus Sentinel proof overclaim. The remediation restores canonical hasStorePermission/legacy security contracts and narrows the completion claim from strength 3 + adversarial to the registry-supported strength 2 + tests/types/build/forbidden-state; no global guard semantics are changed.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "c49a94d02307f39054eb5c0fa1091579b385c316",
+    "closedAt": "2026-10-05T13:26:01.774Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-AAL2-ENFORCEMENT",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
