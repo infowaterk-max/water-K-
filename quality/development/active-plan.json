@@ -1,7 +1,7 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-LIVING-ROADMAP-V2-MATURITY-GRAPH",
-  "task": "Migrate the canonical Shoperation Living Roadmap to the accepted v2 maturity and dependency graph without changing commerce runtime behavior.",
+  "task": "Migrate the canonical Shoperation Living Roadmap to the accepted v2 maturity sequence and prerequisite graph without changing commerce runtime behavior.",
   "status": "ready-for-implementation",
   "guardDigest": "aa79c504",
   "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
