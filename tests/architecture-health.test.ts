@@ -78,6 +78,8 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
     expect(byId.get('MR1-HUNGARY-TAX-VAT')?.targetWindow).toBe('core-capability-complete');
     expect(byId.get('MR1-PACKAGE-CAPABILITY-MATRIX')?.status).toBe('accepted');
     expect(byId.get('SPECIAL-COMMERCE')?.targetWindow).toBe('core-capability-complete-before-builder');
+    expect(byId.get('DEVELOPER-INTEGRATION-SANDBOX')?.dependsOn).toContain('CONTROLLED-INTEGRATION-FRAMEWORK');
+    expect(byId.get('CORE-OPERATIONAL-ADVERSARIAL-PROOF')?.targetWindow).toBe('after-core-capability-complete-before-unified-product-experience');
     expect(byId.get('WEBSITE-BUILDER')?.status).toBe('parked');
   });
 
