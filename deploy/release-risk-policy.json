@@ -33,7 +33,8 @@
       "patterns": [
         "src/lib/auth/**",
         "src/middleware.ts",
-        "src/app/api/auth/**"
+        "src/app/api/auth/**",
+        "src/lib/instances/**"
       ]
     },
     {
