@@ -1,30 +1,29 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-EXTERNAL-PROOF-HANDOFF",
-  "task": "Bind required exact-head evidence from existing parallel workflows into the canonical Resumable Verification and Completion Truth authority without creating another gate.",
-  "status": "closed",
-  "guardDigest": "efe9d183",
-  "changeBaseSha": "d34e9ee152205440c553b6b8662c7b14042137d2",
+  "taskId": "DEV-LIVING-ROADMAP-V2-MATURITY-GRAPH",
+  "task": "Migrate the canonical Shoperation Living Roadmap to the accepted v2 maturity and dependency graph without changing commerce runtime behavior.",
+  "status": "ready-for-implementation",
+  "guardDigest": "aa79c504",
+  "changeBaseSha": "0cb93c0e30b6a2a1964395ea5fd85525829cd8a3",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/shoperation-external-proof-handoff.mjs",
-    "scripts/shoperation-verification-checkpoint.mjs",
-    "quality/knowledge/guard-registry.v1.json",
-    ".github/workflows/ci.yml",
-    "tests/shoperation-external-proof-handoff.test.ts",
-    "tests/shoperation-resumable-verification.test.ts"
+    "quality/knowledge/capability-registry.v1.json",
+    "quality/knowledge/living-roadmap.v1.json",
+    "quality/knowledge/living-roadmap.v2.json",
+    "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md",
+    "scripts/lib/shoperation-architecture-health.mjs",
+    "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+    "src/lib/quality-system/capability-evidence.ts",
+    "tests/architecture-health.test.ts",
+    "tests/deep-atlas-scan.test.ts",
+    "tests/shoperation-sentinel.test.ts"
   ],
-  "expectedSubsystems": [
-    "quality-infrastructure",
-    "release-infrastructure"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -79,94 +78,47 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
-    "riskTier": "critical",
-    "problemStatement": "The current Completion Truth authority can consume evidence produced inside normal CI, but a mandatory proof produced by a separate exact-head workflow can be either permanently MISSING or silently moved outside the machine-readable Completion Contract. The Brabus revalidation exposed both failure modes: including GUARD-TEMPLATE-FACTORY deadlocked Truth because CI could not see the sibling workflow artifact; removing it let Completion Truth become VERIFIED_DONE before Template Factory completed. The fix must transport external exact-head evidence into the existing Resumable Verification manifest while preserving one Completion Truth authority.",
-    "observableOutcomes": [
-      "Completion Contract references to supported external guards are detected from structured evidence references rather than hard-coded per-task prose.",
-      "Normal CI waits only for an external guard that the active Completion Contract actually requires.",
-      "A successful external workflow is insufficient by itself: exact head, branch, state version, producer run and machine-readable artifact truth must all agree.",
-      "Validated external proof is normalized into the existing Resumable Verification final evidence manifest and consumed by the existing Completion Truth Gate.",
-      "Missing, failed, stale, wrong-head, wrong-branch, malformed, incomplete or ambiguous external evidence fails closed.",
-      "Development transactions that do not require an external guard do not wait for Template Factory and preserve current CI behavior.",
-      "No second quality gate, Completion Truth authority, Template Factory authority or release authority is created."
-    ],
-    "unresolvedRisks": [
-      "Cross-workflow waiting increases CI wall time only for transactions whose Completion Contract explicitly requires the external proof.",
-      "The first supported producer is GUARD-TEMPLATE-FACTORY; future external guards require an explicit adapter/validator instead of generic trust in arbitrary workflow artifacts.",
-      "GitHub Actions artifact/API availability is an external transport dependency; unavailable evidence remains BLOCK rather than guessed PASS."
-    ],
-    "scope": {
-      "in": [
-        "Existing Completion Contract evidence references and Guard Registry identities.",
-        "Existing Resumable Verification final evidence manifest and Completion Truth Gate.",
-        "Generic external-proof requirement detection for guards absent from the local verification plan.",
-        "Exact-head Template Factory workflow/artifact transport as the first supported external producer.",
-        "CI orchestration needed to wait boundedly, download, validate and hand off required external proof.",
-        "Adversarial regression coverage for stale/mismatched/failed/malformed/incomplete external proof."
-      ],
-      "out": [
-        "Any Builder, Template Factory maturity model, storefront runtime or template implementation.",
-        "Any second blocking gate, Completion Truth authority, release authority or Template Factory authority.",
-        "Weakening Release Risk, Sentinel, Proof Semantics, Plan Before Code or existing exact-head provenance rules.",
-        "Treating workflow success without machine-readable artifact proof as completion evidence.",
-        "General trust of arbitrary external workflow artifacts without an explicit validator."
-      ]
-    },
+    "sourceRef": "PO-2026-10-05-LIVING-ROADMAP-V2",
+    "riskTier": "medium",
     "assuranceCeiling": {
-      "level": "critical-practical",
-      "rationale": "This change modifies the evidence path used by the authority that decides whether a Development Transaction is actually complete. The highest practical assurance level is exact-head fail-closed provenance, artifact/workflow decision reconciliation, bounded transport, explicit supported-producer validation and adversarial proof against evidence laundering, without adding a parallel completion system.",
+      "level": "state-and-failure-review",
+      "rationale": "The change moves a canonical planning authority and its consumers, so it requires explicit dependency invariants, failure-path review and exact-reference checks, but it does not modify runtime commerce behavior or production data.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "what-if-matrix",
         "adversarial-scenarios",
-        "boundary-cases",
-        "pairwise-interactions",
-        "threat-failure-model",
-        "fault-injection",
-        "finite-state-exhaustion"
+        "boundary-cases"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "A Completion Contract requiring GUARD-TEMPLATE-FACTORY cannot reach VERIFIED_DONE until an exact-head successful Template Factory artifact is validated and present in the canonical final evidence set.",
-        "A Completion Contract that does not require GUARD-TEMPLATE-FACTORY does not wait for or synthesize Template Factory evidence.",
-        "Wrong-head, wrong-branch, failed workflow, missing run identity, invalid contract, invalid checksum, incomplete browser matrix or artifact errors all fail closed.",
-        "An older successful artifact from the same branch cannot satisfy a newer exact-head requirement.",
-        "Workflow success plus artifact BLOCK/incomplete state cannot be laundered into PASS.",
-        "External evidence is merged into the existing Resumable Verification final-evidence-manifest and the existing Completion Truth Gate remains the only completion decision authority.",
-        "The handoff helper is part of verification-engine identity so later semantic changes invalidate stale resumable-promotion proof.",
-        "Quality tests, TypeScript and production build remain green on the exact foundation head.",
-        "Release Risk stays inside budget for this isolated quality/release foundation transaction."
+        "Exactly one canonical Living Roadmap authority remains and all known consumers read the v2 file.",
+        "The nine accepted maturity stages form a valid dependency chain with no missing references, cycles or reverse-order dependencies.",
+        "Historical evidence-backed done and operational states remain represented without being misused as proof of later maturity gates.",
+        "Builder and Template Factory are separate registry capabilities and the Factory cannot precede Builder adversarial acceptance.",
+        "No commerce runtime, template implementation or SPORT HUB production work is introduced by this transaction."
       ],
       "invariants": [
-        "One completion decision authority: GUARD-COMPLETION-TRUTH.",
-        "External proof transport never decides completion; it only normalizes validated evidence.",
-        "Exact head, branch, state version, producer workflow/run and artifact truth are part of evidence identity.",
-        "UNKNOWN or unavailable external proof is BLOCK, never probable PASS.",
-        "Existing producer authority remains authoritative for its own result; the handoff cannot rewrite or upgrade it.",
-        "Verification-engine semantics include the handoff implementation and CI wiring."
+        "Higher-layer maturity cannot prove a lower-layer maturity gate.",
+        "Core capability completion and adversarial proof occur before Unified Product Experience and Builder completion.",
+        "Builder adversarial acceptance occurs before Factory revalidation and 42-template production.",
+        "Final Market Ready certification runs after Surface Reduction on the reduced production candidate.",
+        "The Evidence Ledger remains proof-only and cannot override roadmap, capability or domain truth."
       ],
       "forbiddenStates": [
-        "completion-truth-verified-before-required-external-proof",
-        "external-workflow-success-without-artifact-truth-counted-pass",
-        "stale-external-artifact-reused-as-current-head",
-        "wrong-branch-or-wrong-head-proof-accepted",
-        "external-proof-transport-becomes-second-completion-gate",
-        "unrequested-template-factory-wait-on-unrelated-development",
-        "verification-engine-change-retains-stale-promotion-proof"
+        "parallel-canonical-roadmap-authorities",
+        "template-factory-before-builder-acceptance",
+        "market-ready-certification-before-template-portfolio",
+        "payment-hub-classified-post-launch",
+        "higher-layer-proof-closes-lower-layer-gap",
+        "roadmap-migration-changes-commerce-runtime"
       ]
     },
     "model": {
@@ -198,167 +150,54 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Normal CI verifies local evidence and closes while mandatory sibling workflow proof is still running.",
-        "A required external guard remains permanently MISSING because its artifact is never normalized into the local manifest.",
-        "Branch-only lookup selects an older successful workflow artifact for a newer head.",
-        "Workflow status is success while its machine-readable artifact is incomplete or contains errors.",
-        "Malformed or absent external artifact is silently ignored.",
-        "An unrelated development transaction waits for Template Factory even though its Completion Contract never references it.",
-        "The handoff semantics change without invalidating resumable verification promotion identity."
+        "A consumer keeps importing the retired v1 roadmap and silently diverges from the new canonical order.",
+        "A new maturity node references a missing roadmap item or unknown capability and architecture health still reports PASS.",
+        "Historical implementation labels are interpreted as proof that a new maturity gate is complete.",
+        "Template Factory or portfolio production becomes schedulable before the manual Builder is complete and adversarially proven.",
+        "Market Ready certification is treated as a place to add missing core functionality instead of a final closure gate."
       ],
       "edgeCases": [
-        "No external evidence references exist.",
-        "Completion Contract is closed and must not create a fresh external wait.",
-        "Multiple local evidence references plus one external evidence reference exist in the same requirement.",
-        "A producer run is queued/in-progress while an older exact-branch success exists.",
-        "A producer run is terminal failure with a leftover artifact.",
-        "Duplicate external evidence records target the same guard.",
-        "Unsupported external guard is referenced and must fail visible rather than guessed."
+        "The v1 roadmap is deleted while one test or script still references its path.",
+        "A new capability registry entry points to a roadmap item that was renamed during migration.",
+        "Two roadmap items share the same order but have no dependency relation.",
+        "Post-launch and parked items remain visible without becoming accidental Market Ready dependencies."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-EXISTING-TRUTH-HANDOFF",
-        "summary": "Transport validated sibling-workflow proof into the existing Resumable Verification evidence manifest and let the existing Completion Truth decide closure.",
+        "id": "ALT-V2-SINGLE-AUTHORITY",
+        "summary": "Replace the v1 roadmap authority with one canonical v2 maturity graph and migrate every known consumer to it.",
         "disposition": "selected",
-        "reason": "Preserves one completion authority, avoids proof duplication and closes both the permanent-MISSING and false-closure failure modes."
+        "reason": "This preserves a single machine-readable roadmap authority while making the accepted maturity order explicit and testable."
       },
       {
-        "id": "ALT-MANUAL-MERGE-CHECK",
-        "summary": "Remove external proof from Completion Contract and rely on a manual pre-merge check.",
+        "id": "ALT-KEEP-V1-NARRATIVE-ORDER",
+        "summary": "Keep the existing v1 file and only annotate the old feature order with prose about the new maturity sequence.",
         "disposition": "rejected",
-        "reason": "The Brabus run already proved Completion Truth can become VERIFIED_DONE before the sibling proof finishes; manual policy is not machine-enforced completion truth."
-      },
-      {
-        "id": "ALT-SECOND-CROSS-WORKFLOW-GATE",
-        "summary": "Create a dedicated cross-workflow completion gate beside Completion Truth.",
-        "disposition": "rejected",
-        "reason": "Would duplicate blocking responsibility and recreate the rule/gate ping-pong architecture the Control Plane is intended to eliminate."
+        "reason": "The old machine-readable order would remain authoritative and could continue driving Builder, Factory and Market Ready work in the wrong sequence."
       }
     ],
     "challenge": [
       {
-        "id": "CH-1",
-        "scenario": "The sibling Template Factory workflow is still running while normal CI reaches its Completion Truth step.",
-        "finding": "Immediate Truth evaluation sees required evidence as missing and either deadlocks or tempts developers to remove the requirement.",
-        "resolution": "CI detects the required external guard from the Completion Contract and waits boundedly for the exact-head producer run before Resumable Verification finalization.",
+        "id": "CH-ROADMAP-1",
+        "scenario": "A higher-layer template or Builder proof is green while a lower-layer Core capability is still partial.",
+        "finding": "Without explicit maturity dependencies the system could overclaim readiness from unrelated higher-layer evidence.",
+        "resolution": "The v2 backbone requires each later maturity gate to depend on the preceding gate and records that higher-layer proof cannot close lower-layer gaps.",
         "status": "resolved"
       },
       {
-        "id": "CH-2",
-        "scenario": "An older successful Template Factory run exists on the same feature branch.",
-        "finding": "Branch-based selection could launder stale browser evidence into the current transaction.",
-        "resolution": "Producer selection and artifact validation are exact-head; branch alone is never sufficient.",
+        "id": "CH-ROADMAP-2",
+        "scenario": "The v1 roadmap file is retired but a quality script or test still imports the old path.",
+        "finding": "The repository would have a hidden stale consumer or fail after merge despite a logically correct v2 graph.",
+        "resolution": "All discovered consumers are migrated to v2 and architecture tests assert the v2 contract and maturity chain.",
         "status": "resolved"
       },
       {
-        "id": "CH-3",
-        "scenario": "GitHub reports workflow success but the downloaded Template Factory manifest is incomplete or contains errors.",
-        "finding": "Transport status could override semantic producer truth.",
-        "resolution": "Require both successful workflow conclusion and validated machine-readable manifest contract/checksum/source identity/browser completeness.",
+        "id": "CH-ROADMAP-3",
+        "scenario": "Builder and Template Factory stay represented as one capability after the maturity order separates them.",
+        "finding": "Capability evidence could falsely allow Factory proof to stand in for Builder maturity or vice versa.",
+        "resolution": "The capability registry splits Visual Builder from Template Production System / Factory while retaining the same DOMAIN-BUILDER owner authority.",
         "status": "resolved"
-      },
-      {
-        "id": "CH-4",
-        "scenario": "The active Completion Contract contains no supported external guard.",
-        "finding": "A global wait would slow every development transaction and couple unrelated work to Template Factory.",
-        "resolution": "Requirement detection is contract-driven; no reference means no wait, no artifact download and no synthesized evidence.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-5",
-        "scenario": "The handoff implementation itself changes after resumable verification promotion.",
-        "finding": "Old promotion credit could authorize physical evidence reuse under new semantics.",
-        "resolution": "Include handoff implementation and CI wiring in verification-engine identity and regression-test the binding.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-6",
-        "scenario": "A required external guard is referenced but no explicit producer adapter exists.",
-        "finding": "Generic acceptance of arbitrary workflow artifacts would create an unbounded trust channel.",
-        "resolution": "Unsupported external guard IDs fail visible and require an explicit validator before they can contribute evidence.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-7",
-        "scenario": "Two external records for the same guard are available for one exact head.",
-        "finding": "Ambiguous evidence selection could hide a failed or contradictory producer run.",
-        "resolution": "Duplicate external guard evidence is rejected; one exact producer identity must be selected deterministically.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-8",
-        "scenario": "The external handoff code changes while an earlier resumable-verification promotion remains marked eligible.",
-        "finding": "Physical reuse could continue under verification semantics that were never shadow-proven.",
-        "resolution": "Bind the handoff module and CI wiring into verification-engine identity so semantic changes invalidate prior promotion evidence.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-9",
-        "scenario": "Completion Contract uses intuitive dimension labels such as provenance/evidence that are not canonical dimensions declared by its evidence guards.",
-        "finding": "Sentinel correctly treats semantic synonyms as unproven rather than guessing equivalence, so a human-readable claim can still be machine-invalid.",
-        "resolution": "Bind Completion claimScope dimensions to the exact Guard Registry vocabulary currently proven by the referenced guards; semantic aliases do not count as proof.",
-        "status": "resolved"
-      }
-    ],
-    "proofPlan": [
-      "Implement structured Completion Contract evidence reference extraction and derive non-local required guards relative to the existing verification plan.",
-      "Implement a Template Factory external-proof validator for workflow identity, exact head/branch/state/run, manifest contract/checksum/errors and complete browser evidence.",
-      "Merge only validated required external evidence into the existing final-evidence-manifest; missing or invalid required records make Resumable Verification BLOCK.",
-      "Wire CI to resolve/download/validate GUARD-TEMPLATE-FACTORY only when required by the active Completion Contract.",
-      "Add handoff implementation to verification-engine identity.",
-      "Adversarially test missing, failed, stale, wrong-head, wrong-branch, malformed, incomplete and unrequested evidence cases.",
-      "Run exact-head Quality, TypeScript, Production Build, Resumable Verification and Completion Truth.",
-      "Confirm isolated Release Risk stays within budget and no Builder/Template Factory product files are part of this foundation diff."
-    ],
-    "semanticExecutionRoute": {
-      "request": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
-      "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
-      ],
-      "mustEdit": [
-        "scripts/shoperation-verification-checkpoint.mjs",
-        "quality/knowledge/guard-registry.v1.json",
-        ".github/workflows/ci.yml"
-      ],
-      "mayEdit": [
-        "scripts/shoperation-external-proof-handoff.mjs",
-        "tests/shoperation-external-proof-handoff.test.ts",
-        "tests/shoperation-resumable-verification.test.ts"
-      ],
-      "impactedReadOnly": [
-        "scripts/shoperation-truth-gate.mjs",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/lib/shoperation-verification-reuse.mjs",
-        "scripts/release-risk-budget.mjs"
-      ],
-      "proof": [
-        "tests/shoperation-external-proof-handoff.test.ts",
-        "tests/shoperation-resumable-verification.test.ts"
-      ],
-      "unknown": []
-    },
-    "reviews": [
-      {
-        "specialist": "Control Plane",
-        "verdict": "PASS",
-        "reason": "Reuses canonical Completion Truth and Resumable Verification; no second gate."
-      },
-      {
-        "specialist": "Release Risk",
-        "verdict": "PASS",
-        "reason": "Isolated foundation is intentionally limited to quality/release infrastructure."
-      },
-      {
-        "specialist": "Proof Semantics",
-        "verdict": "PASS",
-        "reason": "Exact-state provenance and artifact semantics are preserved instead of inferred."
-      },
-      {
-        "specialist": "Sentinel",
-        "verdict": "PASS",
-        "reason": "Closes the exact class of decision/provenance divergence exposed by the revalidation run."
       }
     ],
     "specialistReviews": [
@@ -366,154 +205,129 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Completion Truth and Resumable Verification already own development-completion evidence aggregation.",
-        "resolution": "Keep the handoff as evidence transport only and do not introduce a new blocking owner.",
+        "finding": "The accepted roadmap is a maturity graph, not a linear feature backlog, and the canonical authority must encode dependency gates directly.",
+        "resolution": "Use nine explicit maturity nodes and keep feature capabilities beneath the Core and Builder gates instead of allowing order numbers alone to imply readiness.",
         "evidence": [
-          "scripts/shoperation-truth-gate.mjs",
-          "scripts/shoperation-verification-checkpoint.mjs",
-          "quality/knowledge/guard-registry.v1.json"
+          "quality/knowledge/living-roadmap.v2.json",
+          "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md"
         ]
       },
       {
-        "role": "Data Integrity",
+        "role": "Known Failure",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A workflow-level SUCCESS is insufficient because stale or internally BLOCKed artifacts can coexist with wrapper success.",
-        "resolution": "Require exact-head producer identity plus machine-readable artifact contract/checksum/coverage and fail closed on any mismatch.",
+        "finding": "Deleting the v1 authority can create stale-path failures or hidden parallel truth if even one consumer is missed.",
+        "resolution": "Migrate every discovered consumer, delete v1 on the same transaction, and run full knowledge-infrastructure Known Failure replay plus quality tests.",
         "evidence": [
-          "scripts/shoperation-verification-checkpoint.mjs",
-          "tests/shoperation-resumable-verification.test.ts"
-        ]
-      },
-      {
-        "role": "Release",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Cross-workflow transport touches release orchestration and can exceed risk budget when mixed with Builder/Factory product work.",
-        "resolution": "Isolate this foundation to quality/release infrastructure and keep the Brabus product revalidation in its own transaction.",
-        "evidence": [
-          "scripts/release-risk-budget.mjs",
-          ".github/workflows/ci.yml"
-        ]
-      },
-      {
-        "role": "Operations",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Removing sibling evidence from Completion Contract avoids deadlock but creates false completion; re-running the producer inside CI duplicates proof authority.",
-        "resolution": "Detect required non-local evidence from the Completion Contract, wait boundedly for the canonical producer, normalize evidence, then reuse existing Completion Truth.",
-        "evidence": [
-          "scripts/lib/shoperation-operational-intelligence.mjs",
-          "quality/development/active-plan.json"
+          "scripts/lib/shoperation-architecture-health.mjs",
+          "tests/architecture-health.test.ts",
+          "src/lib/quality-system/capability-evidence.ts"
         ]
       }
     ],
+    "proofPlan": [
+      "Run the canonical development guards against the exact PR base and head using this active-plan transaction identity.",
+      "Run Architecture Health and quality tests to prove all roadmap references, capability references and maturity dependencies are coherent.",
+      "Run TypeScript and production build to detect stale imports of the retired v1 roadmap path.",
+      "Verify the v2 graph has no missing dependency, cycle or topological-order violation and preserves evidence-backed historical done states.",
+      "Require Completion Truth to remain NOT DONE unless exact-head quality, typecheck and production-build evidence satisfy the declared requirements."
+    ],
+    "semanticExecutionRoute": {
+      "request": "PO-2026-10-05-LIVING-ROADMAP-V2",
+      "authority": [
+        "quality-knowledge-system"
+      ],
+      "mustEdit": [
+        "quality/knowledge/living-roadmap.v2.json",
+        "quality/knowledge/capability-registry.v1.json"
+      ],
+      "mayEdit": [
+        "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md",
+        "scripts/lib/shoperation-architecture-health.mjs",
+        "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+        "src/lib/quality-system/capability-evidence.ts",
+        "tests/architecture-health.test.ts",
+        "tests/deep-atlas-scan.test.ts",
+        "tests/shoperation-sentinel.test.ts"
+      ],
+      "impactedReadOnly": [
+        "quality/knowledge/evidence-ledger.v1.json",
+        "quality/knowledge/domain-foundations.v1.json"
+      ],
+      "proof": [
+        "tests/architecture-health.test.ts",
+        "tests/deep-atlas-scan.test.ts",
+        "tests/shoperation-sentinel.test.ts"
+      ],
+      "unknown": [],
+      "plannedDeletions": [
+        "quality/knowledge/living-roadmap.v1.json"
+      ]
+    },
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
+    "sourceRef": "PO-2026-10-05-LIVING-ROADMAP-V2",
     "requirements": [
       {
-        "id": "REQ-EXTERNAL-PROOF-DETECTION",
-        "requirement": "Required external Completion evidence is derived from the active Completion Contract and only unsupported/non-local guards are handed to explicit validators.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "external-completion-proof-detection",
-          "strength": 2,
-          "dimensions": [
-            "scope",
-            "evidence-scope",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-UNREQUESTED-EXTERNAL-WAIT",
-            "statement": "Transactions with no external proof requirement do not wait for Template Factory.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-EXTERNAL-PROOF-PROVENANCE",
-        "requirement": "External Template Factory proof is accepted only when workflow and artifact truth match the same exact Development Transaction.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "external-proof-provenance",
-          "strength": 2,
-          "dimensions": [
-            "truth",
-            "freshness",
-            "coverage",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-STALE-OR-LAUNDERED-EXTERNAL-PROOF",
-            "statement": "Wrong-head, wrong-branch, failed, malformed, incomplete or contradictory external proof cannot become PASS.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-EXTERNAL-PROOF-TRUTH-INTEGRATION",
-        "requirement": "Validated external proof is merged into the existing Resumable Verification evidence manifest and remains required by the existing Completion Truth authority when referenced.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "external-proof-truth-integration",
-          "strength": 2,
-          "dimensions": [
-            "truth",
-            "resumable",
-            "evidence-scope",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
+        "id": "REQ-ROADMAP-V2-SINGLE-AUTHORITY",
+        "requirement": "The repository has one canonical Living Roadmap v2 authority and no active consumer depends on the retired v1 path.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS",
             "GUARD-TYPECHECK"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS",
             "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PARALLEL-COMPLETION-AUTHORITY",
-            "statement": "No second completion gate or release authority is introduced.",
+            "id": "NEG-PARALLEL-ROADMAP-AUTHORITY",
+            "statement": "A second canonical roadmap or stale v1 consumer must not remain active.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-MATURITY-DEPENDENCY-CHAIN",
+        "requirement": "The accepted nine-stage maturity backbone and its critical dependencies are machine-validated without missing references or reverse sequencing.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-HIGHER-LAYER-BYPASS",
+            "statement": "Builder, Factory, templates or Market Ready must not bypass their required lower-layer maturity gate.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-ROADMAP-MIGRATION-NO-RUNTIME-FEATURE",
+        "requirement": "The roadmap migration changes planning and quality authority only and does not introduce commerce, Builder or template runtime feature behavior.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-RUNTIME-SCOPE-EXPANSION",
+            "statement": "The transaction must not silently expand into commerce runtime or template implementation work.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -522,18 +336,5 @@
       }
     ]
   },
-  "notes": "Isolated foundation extracted from the Brabus revalidation after Release Risk correctly blocked the mixed 4-subsystem/7-point Development Transaction. This branch changes only quality/release evidence transport. It does not implement or modify any Builder, template, Runtime or Factory maturity capability. Exact-head Quality exposed two proof-model issues: the handoff regression searched a fail-closed code in the wrapper instead of its owning helper, and Sentinel rejected noncanonical Completion claim dimensions. Both are repaired at their actual semantic owner; Sentinel is not weakened.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "c17ab9ce42db60d8b10b4cfb7d57e82bc6a98090",
-    "closedAt": "2026-10-02T11:07:42.691Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-02-EXTERNAL-PROOF-HANDOFF",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Canonical roadmap reconciliation and authority migration only. This transaction records accepted PO decisions, replaces the old feature-order roadmap with the v2 maturity graph, retires the v1 authority, splits Builder from Template Factory in the capability registry, and updates quality consumers/tests. No storefront, commerce runtime, Builder implementation or template production is in scope."
 }
