@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-STAGE1-WORKFORCE-MFA-UX",
   "task": "Implement dedicated staff/admin login plus TOTP enrollment and challenge UX using the canonical workforce assurance primitives without enabling global AAL2 authorization enforcement.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "663168a5",
   "changeBaseSha": "2d3aa9d7e7832651fab2734b1812cecdb6f636dd",
   "plannedFilePatterns": [
@@ -395,5 +395,18 @@
       }
     ]
   },
-  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY UI block only. The canonical AAL2/TOTP primitives from PR #848 are consumed, not reimplemented. The next separate high-risk auth block will add authorization enforcement after this UX is exact-head VERIFIED. CI attempt 1 exposed an Authority Graph dependency drift in the new route; scope was widened to the existing canonical admin-api identity boundary rather than adding a new cross-domain exception. Reference Sync review confirmed three preview/template consumers are intentionally unchanged and are acknowledged only through exact finding fingerprints. Release Risk Budget required high-risk isolation, so the final transaction removes customer-account/storefront substantive edits and keeps the workforce UX entirely inside auth-access-authority; /staff/login is a middleware alias only. Atlas also proves src/middleware.ts has no canonical domain classification; middleware therefore remains read-only in this auth release unit. The normal admin-entry bridge will be a separate stacked customer-account transaction after the auth unit is verified."
+  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY UI block only. The canonical AAL2/TOTP primitives from PR #848 are consumed, not reimplemented. The next separate high-risk auth block will add authorization enforcement after this UX is exact-head VERIFIED. CI attempt 1 exposed an Authority Graph dependency drift in the new route; scope was widened to the existing canonical admin-api identity boundary rather than adding a new cross-domain exception. Reference Sync review confirmed three preview/template consumers are intentionally unchanged and are acknowledged only through exact finding fingerprints. Release Risk Budget required high-risk isolation, so the final transaction removes customer-account/storefront substantive edits and keeps the workforce UX entirely inside auth-access-authority; /staff/login is a middleware alias only. Atlas also proves src/middleware.ts has no canonical domain classification; middleware therefore remains read-only in this auth release unit. The normal admin-entry bridge will be a separate stacked customer-account transaction after the auth unit is verified.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "121ec844de3c12200bbb4d925ce77b8b9ab6f4d1",
+    "closedAt": "2026-10-05T12:11:22.850Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-MFA-UX",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
