@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requirePlatformOperator } from '@/lib/auth/platform-operator';
+import { selectPlatformTenantContextAction } from './context-actions';
 
 export const dynamic='force-dynamic';
 
@@ -89,13 +90,14 @@ export default async function PlatformControlCenterPage(){
         <Link className="btn btnPrimary" href="/admin/platform/webaruhazak">Összes webshop kezelése</Link>
       </div>
       <div className="adminTableScroll"><table className="adminTable">
-        <thead><tr><th>Név</th><th>Azonosító</th><th>Csomag</th><th>Állapot</th><th>Létrehozva</th></tr></thead>
+        <thead><tr><th>Név</th><th>Azonosító</th><th>Csomag</th><th>Állapot</th><th>Létrehozva</th><th>Admin</th></tr></thead>
         <tbody>{rows.map(row=><tr key={row.id}>
           <td><strong>{row.name}</strong></td>
           <td><code>{row.slug}</code></td>
           <td>Shoperation {row.subscription_plan==='pro'?'Pro':'Alap'}</td>
           <td><span className={`adminStatePill ${statusTone[row.status]}`}>{statusLabel[row.status]}</span></td>
           <td>{new Date(row.created_at).toLocaleDateString('hu-HU')}</td>
+          <td>{(row.status==='pilot'||row.status==='active')?<form action={selectPlatformTenantContextAction}><input type="hidden" name="instanceId" value={row.id}/><button className="btn btnGhost" type="submit">Admin megnyitása</button></form>:<span className="muted">Nem nyitható</span>}</td>
         </tr>)}</tbody>
       </table></div>
     </section>}
