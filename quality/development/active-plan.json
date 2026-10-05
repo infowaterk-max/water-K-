@@ -3,19 +3,24 @@
   "taskId": "DEV-STAGE1-E13-WORKFORCE-PROOF-COMPATIBILITY",
   "task": "E13 workforce proof harness compatibility",
   "status": "ready-for-implementation",
-  "guardDigest": "aa79c504",
+  "guardDigest": "540e4ce8",
   "changeBaseSha": "c8fa6a37b7a69fe8f9b946c83a25678545a34b38",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/template-factory-product-owner-handoff.mjs",
-    "tests/architecture-health.test.ts"
+    "tests/architecture-health.test.ts",
+    ".github/workflows/template-factory-quality-gate.yml"
   ],
-  "expectedSubsystems": [],
+  "expectedSubsystems": [
+    "release-infrastructure"
+  ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -70,6 +75,10 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
+    "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
@@ -98,14 +107,16 @@
         "The proof still requires successful navigation to /admin/platform; MFA enrollment/challenge, missing workforce access, or any unexpected redirect fails closed instead of being bypassed.",
         "A deterministic DOMAIN-QUALITY architecture regression locks the canonical route, workforce root, submit selector, and removal of the legacy platform-login selector into the proof-harness contract.",
         "No Shoperation product route, Auth Core primitive, role/tenant authority, middleware, or parked AAL2 enforcement changes in this release.",
-        "The release remains an isolated quality-infrastructure transaction within the canonical Release Risk Budget."
+        "The release remains an isolated quality-infrastructure transaction within the canonical Release Risk Budget.",
+        "Changes to scripts/template-factory-product-owner-handoff.mjs trigger Template Factory Quality Gate v2 on both push and pull_request so the proof producer cannot change without exact-head browser proof."
       ],
       "invariants": [
         "Supabase Auth and the existing Workforce Auth Core remain the only workforce authentication authority.",
         "The proof harness is a consumer of the canonical workforce entrypoint; it must not recreate credential/session/MFA policy.",
         "Product runtime files are read-only in this transaction.",
         "PR #858 remains parked and AAL2 enforcement stays inactive.",
-        "A green proof cannot be obtained by restoring the legacy PlatformAuthForm button or skipping workforce navigation."
+        "A green proof cannot be obtained by restoring the legacy PlatformAuthForm button or skipping workforce navigation.",
+        "The proof producer is included in both Template Factory workflow path filters; manual workflow dispatch is not accepted as a substitute because E13 browser proof is pull-request scoped."
       ],
       "forbiddenStates": [
         "legacy-platform-password-selector-in-e13-proof",
@@ -113,7 +124,8 @@
         "e13-proof-mfa-bypass",
         "product-runtime-edit-in-proof-release",
         "aal2-enforcement-activation",
-        "release-risk-budget-bypass"
+        "release-risk-budget-bypass",
+        "proof-producer-change-without-template-factory-gate-trigger"
       ]
     },
     "model": {
@@ -149,14 +161,16 @@
         "The harness enters shopper authentication instead of the canonical workforce surface.",
         "The harness silently treats an MFA enrollment/challenge as successful platform authentication.",
         "The fix modifies product routes or Auth Core and recreates a mixed release-risk transaction.",
-        "A source-only assertion passes while the exact-head browser journey still cannot reach /admin/platform."
+        "A source-only assertion passes while the exact-head browser journey still cannot reach /admin/platform.",
+        "The handoff proof producer changes but path filters suppress Template Factory Quality Gate, allowing source tests to pass without the exact-head E13 journey."
       ],
       "edgeCases": [
         "An existing valid storageState may still short-circuit through /admin/platform exactly as before.",
         "Without reusable storageState the proof must use the canonical workforce login route.",
         "The workforce form begins in checking/loading state before exposing the password phase.",
         "The exact-head preview may require a deliberate one-off Vercel preview while normal branch builds remain ignored.",
-        "Any required MFA step remains fail-closed until the parked enforcement/fixture strategy is intentionally changed."
+        "Any required MFA step remains fail-closed until the parked enforcement/fixture strategy is intentionally changed.",
+        "Both push and pull_request path filters must include the handoff proof producer even though the E13 credential journey itself only executes on pull_request."
       ]
     },
     "alternatives": [
@@ -177,6 +191,12 @@
         "summary": "Ship only the quality-infrastructure consumer fix first, then rebase the product-only delegator release on the new main.",
         "disposition": "selected",
         "reason": "This preserves release isolation and lets #912 consume a corrected canonical proof harness without weakening any gate."
+      },
+      {
+        "id": "ALT-MANUAL-WORKFLOW-DISPATCH",
+        "summary": "Leave path filters unchanged and manually dispatch Template Factory proof.",
+        "disposition": "rejected",
+        "reason": "The E13 proof step is pull-request scoped and manual dispatch would skip the exact browser authentication proof; producer-to-gate dependency must be automatic."
       }
     ],
     "specialistReviews": [
@@ -207,11 +227,12 @@
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The mixed proof+product transaction exceeds the canonical release budget.",
-        "resolution": "Isolate quality infrastructure before returning to the product-only #912 release.",
+        "finding": "The proof producer must self-trigger its exact-head gate, but mixing that infrastructure with product delegates exceeds the canonical budget.",
+        "resolution": "Keep both proof producer and its workflow trigger in this isolated infrastructure release; expected release risk is quality-infrastructure medium + release-infrastructure medium, with no product subsystem.",
         "evidence": [
           "deploy/release-risk-policy.json",
-          "scripts/release-risk-budget.mjs"
+          ".github/workflows/template-factory-quality-gate.yml",
+          "scripts/template-factory-product-owner-handoff.mjs"
         ]
       }
     ],
@@ -243,6 +264,13 @@
         "finding": "The same false-negative regression returns.",
         "resolution": "Add a DOMAIN-QUALITY source-contract regression asserting canonical workforce route/root/submit and absence of the legacy button locator.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-E13-PROOF-5",
+        "scenario": "Only the handoff proof producer and its quality regression change.",
+        "finding": "Current workflow path filters do not select the Template Factory gate, so exact-head E13 proof never runs.",
+        "resolution": "Add the handoff script to both push and pull_request paths and lock the dependency in the DOMAIN-QUALITY regression.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -250,6 +278,7 @@
       "Update only the E13 platform-authentication helper and the canonical DOMAIN-QUALITY architecture regression.",
       "Run Edit-Time Guard and full Incremental Replay; knowledge-infrastructure change requires full failure replay.",
       "Require Release Risk Budget PASS as a single substantive quality-infrastructure subsystem.",
+      "Require Release Risk Budget PASS at 4/5 or lower across quality-infrastructure and release-infrastructure only.",
       "Run full Quality Tests, TypeScript and Production Build.",
       "Require the exact-head Template Factory E13 functional proof to resolve a matching preview and pass the real workforce login journey.",
       "Require Completion Truth VERIFIED and lifecycle closure before merging this infrastructure fix to main."
@@ -257,10 +286,12 @@
     "semanticExecutionRoute": {
       "request": "PO-2026-10-05-MR1-E13-WORKFORCE-PROOF-COMPATIBILITY",
       "authority": [
-        "quality-knowledge-system"
+        "quality-knowledge-system",
+        "release-infrastructure"
       ],
       "mustEdit": [
-        "scripts/template-factory-product-owner-handoff.mjs"
+        "scripts/template-factory-product-owner-handoff.mjs",
+        ".github/workflows/template-factory-quality-gate.yml"
       ],
       "mayEdit": [
         "tests/architecture-health.test.ts"
@@ -272,8 +303,7 @@
         "src/lib/auth/workforce-return-target.ts",
         "src/app/platform/page.tsx",
         "src/lib/auth/require-admin.ts",
-        "src/middleware.ts",
-        ".github/workflows/template-factory-quality-gate.yml"
+        "src/middleware.ts"
       ],
       "proof": [
         "tests/architecture-health.test.ts",
@@ -290,7 +320,7 @@
     "requirements": [
       {
         "id": "REQ-E13-WORKFORCE-PROOF-COMPATIBILITY",
-        "requirement": "The E13 browser proof consumes the canonical workforce entrypoint and preserves fail-closed platform authentication semantics without legacy or shopper login fallback.",
+        "requirement": "The E13 browser proof consumes the canonical workforce entrypoint, preserves fail-closed platform authentication semantics, and automatically triggers exact-head Template Factory proof whenever its producer changes.",
         "claimScope": {
           "capability": "CAP-QUALITY",
           "breadth": "e13-workforce-proof-harness",
@@ -326,6 +356,13 @@
           {
             "id": "NEG-E13-WORKFORCE-BYPASS",
             "statement": "The proof must not bypass canonical workforce access/MFA state to obtain a green result.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-E13-PROOF-NOT-TRIGGERED",
+            "statement": "A handoff proof-producer change must not bypass Template Factory Quality Gate through an incomplete path filter.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -367,5 +404,5 @@
       }
     ]
   },
-  "notes": "The Stage 1 product-only delegator implementation was already technically VERIFIED, but exact-head Template Factory proof exposed a stale E13 login harness. Mixing the harness fix into PR #912 produced Release Risk Budget BLOCK at 7/5 points across quality-infrastructure + admin-operations + customer-account + storefront-ui. This branch is the required isolated quality-infrastructure transaction. PR #912 remains draft until this fix lands on main; PR #858 remains parked and AAL2 enforcement remains inactive."
+  "notes": "The Stage 1 product-only delegator implementation was already technically VERIFIED, but exact-head Template Factory proof exposed a stale E13 login harness. Mixing the harness fix into PR #912 produced Release Risk Budget BLOCK at 7/5 points across quality-infrastructure + admin-operations + customer-account + storefront-ui. This branch is the required isolated quality-infrastructure transaction. PR #912 remains draft until this fix lands on main; PR #858 remains parked and AAL2 enforcement remains inactive. During isolation, the workflow path filter was proven incomplete: scripts/template-factory-product-owner-handoff.mjs was executed by the gate but did not itself trigger that gate. The isolated release therefore includes the two path-filter entries as a release-infrastructure dependency; this remains below the canonical risk ceiling and is required for truthful exact-head proof."
 }
