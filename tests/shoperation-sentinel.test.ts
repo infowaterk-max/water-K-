@@ -171,7 +171,7 @@ describe('Shoperation Sentinel',()=>{
   });
 
   it('records the accepted component in the canonical roadmap',()=>{
-    const roadmap=JSON.parse(read('quality/knowledge/living-roadmap.v1.json'));
+    const roadmap=JSON.parse(read('quality/knowledge/living-roadmap.v2.json'));
     const item=roadmap.items.find((x:{id:string})=>x.id==='SHOPERATION-SENTINEL');
     expect(item.status).toBe('in-progress');
     expect(item.scope).toContain('no blocking authority and no autonomous code mutation');
