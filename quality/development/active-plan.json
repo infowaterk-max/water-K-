@@ -54,7 +54,26 @@
     "SQ-NK-008",
     "SQ-NK-012"
   ],
-  "exceptions": [],
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/app/api/pilot-access/start/route.ts",
+      "findingFingerprint": "2838dbb4",
+      "reason": "Intentional preview-only pilot access consumer. Stage 1 workforce MFA UX explicitly excludes Builder/template/pilot acceptance work; changing this route would expand the development transaction beyond the accepted block."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/lib/auth/template-preview-access.ts",
+      "findingFingerprint": "89655752",
+      "reason": "Intentional template-preview authentication consumer. Its return target includes storefront-template-preview rather than the admin-only workforce return contract, and Builder/template behavior is explicit non-scope for this block."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "tests/storefront-template-preview-access.test.ts",
+      "findingFingerprint": "2c2f522c",
+      "reason": "Intentional regression evidence for the unchanged template-preview login contract; it must remain aligned with src/lib/auth/template-preview-access.ts while Builder/template work stays outside this transaction."
+    }
+  ],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-05-STAGE1-WORKFORCE-MFA-UX",
@@ -264,6 +283,13 @@
         "finding": "Codebase Atlas rejects the direct DOMAIN-IDENTITY to DOMAIN-TENANCY dependency because only the canonical auth boundary modules are authorized to consume tenancy context.",
         "resolution": "Resolve platform/store workforce context inside src/lib/auth/admin-api.ts, whose Identity-to-Tenancy boundary is already an explicit architecture contract, and keep the route as a thin Identity API consumer.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-MFA-UX-9",
+        "scenario": "Reference Sync finds legacy /fiokom login literals in pilot and template-preview paths after requireAdmin moves ordinary admin login to the dedicated workforce route.",
+        "finding": "Blindly rewriting those consumers would cross the PO non-scope boundary into Builder/template and preview acceptance behavior, including a non-admin storefront-template-preview return contract.",
+        "resolution": "Keep the three consumers unchanged and record exact fingerprint-scoped review exceptions; no broad exception or route rewrite is allowed.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -297,7 +323,10 @@
         "src/components/auth/auth-form.tsx",
         "src/components/auth/platform-auth-form.tsx",
         "src/middleware.ts",
-        "quality/knowledge/living-roadmap.v2.json"
+        "quality/knowledge/living-roadmap.v2.json",
+        "src/app/api/pilot-access/start/route.ts",
+        "src/lib/auth/template-preview-access.ts",
+        "tests/storefront-template-preview-access.test.ts"
       ],
       "proof": [
         "tests/workforce-auth-ux.test.ts"
@@ -363,5 +392,5 @@
       }
     ]
   },
-  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY UI block only. The canonical AAL2/TOTP primitives from PR #848 are consumed, not reimplemented. The next separate high-risk auth block will add authorization enforcement after this UX is exact-head VERIFIED. CI attempt 1 exposed an Authority Graph dependency drift in the new route; scope was widened to the existing canonical admin-api identity boundary rather than adding a new cross-domain exception."
+  "notes": "Stage 1 MR1-WORKFORCE-IDENTITY UI block only. The canonical AAL2/TOTP primitives from PR #848 are consumed, not reimplemented. The next separate high-risk auth block will add authorization enforcement after this UX is exact-head VERIFIED. CI attempt 1 exposed an Authority Graph dependency drift in the new route; scope was widened to the existing canonical admin-api identity boundary rather than adding a new cross-domain exception. Reference Sync review confirmed three preview/template consumers are intentionally unchanged and are acknowledged only through exact finding fingerprints."
 }
