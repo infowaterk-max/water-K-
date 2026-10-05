@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-TENANCY-SCOPE-MAPPING",
   "task": "Teach the existing release-risk subsystem classifier that canonical src/lib/instances/** tenancy authority is a high-risk auth/access surface, so tenancy changes are not unresolved by Plan Before Code.",
   "status": "ready-for-implementation",
-  "guardDigest": "0cbb5171",
+  "guardDigest": "075ef183",
   "changeBaseSha": "4f6a638219cf7746f88fbd89b209f700a0e7d462",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -11,6 +11,8 @@
     "tests/control-plane-tenancy-scope-mapping.test.ts"
   ],
   "expectedSubsystems": [
+    "auth-access-authority",
+    "customer-account",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -20,31 +22,41 @@
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-001",
+    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-006",
+    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
+    "SQ-KF-011",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-017",
     "SQ-KF-018",
     "SQ-KF-020",
     "SQ-KF-022",
     "TF-KF-001",
+    "TF-KF-002",
     "TF-KF-005",
     "TF-KF-007",
+    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
+    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015"
+    "TF-KF-015",
+    "TF-KF-020"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-005",
+    "SQ-NK-006",
     "SQ-NK-010",
     "SQ-NK-012"
   ],
@@ -262,5 +274,5 @@
       }
     ]
   },
-  "notes": "Isolated prerequisite extracted from Stage 1 platform tenant-context work after Release Risk Budget correctly rejected combining release-policy classification with the high-risk product change."
+  "notes": "Isolated prerequisite extracted from Stage 1 platform tenant-context work after Release Risk Budget correctly rejected combining release-policy classification with the high-risk product change. Plan envelope reconciled to the Control Plane intent projection: wording about auth/access classification activates auth-access-authority and its customer-account dependency for replay, while the only material policy mutation remains release-infrastructure."
 }
