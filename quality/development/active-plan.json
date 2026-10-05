@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-TENANCY-SCOPE-MAPPING",
   "task": "Teach the existing release-risk subsystem classifier that canonical src/lib/instances/** tenancy authority is a high-risk auth/access surface, so tenancy changes are not unresolved by Plan Before Code.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "075ef183",
   "changeBaseSha": "4f6a638219cf7746f88fbd89b209f700a0e7d462",
   "plannedFilePatterns": [
@@ -274,5 +274,18 @@
       }
     ]
   },
-  "notes": "Isolated prerequisite extracted from Stage 1 platform tenant-context work after Release Risk Budget correctly rejected combining release-policy classification with the high-risk product change. Plan envelope reconciled to the Control Plane intent projection: wording about auth/access classification activates auth-access-authority and its customer-account dependency for replay, while the only material policy mutation remains release-infrastructure."
+  "notes": "Isolated prerequisite extracted from Stage 1 platform tenant-context work after Release Risk Budget correctly rejected combining release-policy classification with the high-risk product change. Plan envelope reconciled to the Control Plane intent projection: wording about auth/access classification activates auth-access-authority and its customer-account dependency for replay, while the only material policy mutation remains release-infrastructure.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "692cee0425f20e2ff9de34d2ca235e315a8a2fad",
+    "closedAt": "2026-10-05T15:46:26.944Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-PREREQUISITE",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
