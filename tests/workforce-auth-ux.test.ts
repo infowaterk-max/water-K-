@@ -8,6 +8,7 @@ describe('Stage 1 workforce login and MFA UX',()=>{
   const page=read('src/app/staff/login/page.tsx');
   const form=read('src/lib/auth/workforce-auth-form.tsx');
   const contextRoute=read('src/app/api/auth/workforce-context/route.ts');
+  const adminApi=read('src/lib/auth/admin-api.ts');
   const account=read('src/app/fiokom/page.tsx');
   const requireAdmin=read('src/lib/auth/require-admin.ts');
   const customerAuth=read('src/components/auth/auth-form.tsx');
@@ -23,13 +24,16 @@ describe('Stage 1 workforce login and MFA UX',()=>{
     expect(account).toContain('/staff/login?next=');
   });
 
-  it('derives workforce requirements from server-owned role context and the canonical policy',()=>{
-    expect(contextRoute).toContain('supabase.auth.getUser()');
-    expect(contextRoute).toContain("from('platform_operators')");
-    expect(contextRoute).toContain('getActiveStoreRoles(instance.id)');
-    expect(contextRoute).toContain('hasStoreRoleBindingHistory(instance.id,user.id)');
-    expect(contextRoute).toContain('requiredWorkforceTotpFactors({platformRole,storeRoles:workforceStoreRoles})');
-    expect(contextRoute).not.toContain('user_metadata');
+  it('derives workforce requirements through the canonical identity-to-tenancy boundary',()=>{
+    expect(contextRoute).toContain('getWorkforceRequestContext');
+    expect(contextRoute).not.toContain("from '@/lib/instances/access'");
+    expect(contextRoute).not.toContain("from '@/lib/auth/store-rbac'");
+    expect(adminApi).toContain('export async function getWorkforceRequestContext');
+    expect(adminApi).toContain('getCurrentWebshopInstance()');
+    expect(adminApi).toContain('getActiveStoreRoles(instance.id)');
+    expect(adminApi).toContain('hasStoreRoleBindingHistory(instance.id,user.id)');
+    expect(contextRoute).toContain('requiredWorkforceTotpFactors({platformRole:context.platformRole,storeRoles})');
+    expect(adminApi).not.toContain('user_metadata');
   });
 
   it('composes the existing Supabase MFA primitives instead of implementing a second authority',()=>{
@@ -75,7 +79,8 @@ describe('Stage 1 workforce login and MFA UX',()=>{
   });
 
   it('fails closed when staff context or MFA state cannot be established',()=>{
-    expect(contextRoute).toContain("return NextResponse.json({error:'WORKFORCE_CONTEXT_UNAVAILABLE'},{status:503})");
+    expect(adminApi).toContain("return{status:'unavailable'}");
+    expect(contextRoute).toContain("if(context.status!=='authorized')return NextResponse.json({error:'WORKFORCE_CONTEXT_UNAVAILABLE'},{status:503})");
     expect(form).toContain("setPhase('error')");
     expect(form).toContain('A staff jogosultság most nem ellenőrizhető');
     expect(form).toContain("if(!response.ok)throw new Error(payload.error??'WORKFORCE_CONTEXT_UNAVAILABLE')");
