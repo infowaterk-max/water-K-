@@ -72,8 +72,12 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
     expect(byId.get('TEMPLATE-PORTFOLIO-42')?.order).toBeLessThan(byId.get('GUARDED-VISUAL-SECTION-LIBRARY')?.order??0);
     expect(byId.get('GUARDED-VISUAL-SECTION-LIBRARY')?.order).toBeLessThan(byId.get('MARKET-READY-1-0')?.order??0);
     expect(byId.get('SANDBOX-TEST-MODE')?.targetWindow).toBe('market-ready-1.0');
-    expect(byId.get('PAYMENT-HUB-1')?.targetWindow).toBe('post-launch');
-    expect(byId.get('SURFACE-REDUCTION')?.targetWindow).toBe('immediately-after-market-ready-1.0');
+    expect(byId.get('PAYMENT-HUB-1')?.targetWindow).toBe('core-capability-complete');
+    expect(byId.get('SURFACE-REDUCTION')?.targetWindow).toBe('immediately-before-market-ready-certification');
+    expect(byId.get('MARKET-READY-1-0')?.dependsOn).toContain('SURFACE-REDUCTION');
+    expect(byId.get('MR1-HUNGARY-TAX-VAT')?.targetWindow).toBe('core-capability-complete');
+    expect(byId.get('MR1-PACKAGE-CAPABILITY-MATRIX')?.status).toBe('accepted');
+    expect(byId.get('SPECIAL-COMMERCE')?.targetWindow).toBe('core-capability-complete-before-builder');
     expect(byId.get('WEBSITE-BUILDER')?.status).toBe('parked');
   });
 
