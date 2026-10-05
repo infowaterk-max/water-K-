@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-STAGE1-WORKFORCE-ENTRYPOINT-DELEGATORS",
   "task": "Stage 1 MR1 workforce entrypoint convergence: make the active platform, customer-account bridge, template-preview and workforce invitation surfaces consume the already-verified canonical Workforce Auth Core without changing identity primitives, role/tenant authority, middleware or parked AAL2 enforcement.",
-  "status": "closed",
+  "status": "ready-for-implementation",
   "guardDigest": "2cec38ff",
   "changeBaseSha": "c8fa6a37b7a69fe8f9b946c83a25678545a34b38",
   "plannedFilePatterns": [
@@ -17,7 +17,8 @@
     "tests/platform-invite-production-redirect.test.ts",
     "tests/platform-owner-zero-tenant-hotfix.test.ts",
     "tests/workforce-entrypoint-convergence.test.ts",
-    "tests/storefront-template-preview-runtime.test.ts"
+    "tests/storefront-template-preview-runtime.test.ts",
+    "scripts/template-factory-product-owner-handoff.mjs"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -135,7 +136,8 @@
         "Explicit /fiokom workforce intent bridges allowed admin and exact template-preview targets through the shared workforce return-target helper before storefront instance resolution; ordinary shopper sign-in remains unchanged.",
         "Platform-created workforce invitations redirect to the verified workforce-owned credential completion route instead of shopper /fiokom onboarding.",
         "All four active delegates consume the merged Workforce Auth Core from main; no Auth Core implementation file is modified in this transaction.",
-        "No role, tenant, middleware authorization authority or AAL2 enforcement is added, weakened or activated."
+        "No role, tenant, middleware authorization authority or AAL2 enforcement is added, weakened or activated.",
+        "The E13 Template Factory functional proof authenticates through the canonical Workforce Auth login surface and does not depend on the removed legacy PlatformAuthForm button or shopper authentication."
       ],
       "invariants": [
         "Supabase Auth remains the only session/password/MFA authority.",
@@ -190,7 +192,8 @@
         "A platform invitation still redirects to shopper /fiokom invite UX instead of workforce credential completion.",
         "A delegator reimplements redirect allowlisting locally and diverges from the shared fail-closed workforce helper.",
         "The change edits Auth Core, require-admin, middleware or tenant resolution and accidentally reopens authority/AAL2 semantics.",
-        "The release reintroduces the combined-branch Release Risk Budget failure by mixing substantive auth implementation with ADMIN/BUILDER/STOREFRONT delegates."
+        "The release reintroduces the combined-branch Release Risk Budget failure by mixing substantive auth implementation with ADMIN/BUILDER/STOREFRONT delegates.",
+        "The Template Factory E13 proof harness remains coupled to the removed legacy platform password form and produces a false negative even though the canonical workforce entrypoint is correct."
       ],
       "edgeCases": [
         "Existing shopper flows through /fiokom remain shopper-owned unless reason=login and the normalized target is workforce-allowed.",
@@ -315,7 +318,8 @@
       "Run Edit-Time / Reference Sync and Incremental Known Failure Replay on the implementation head.",
       "Require Release Risk Budget PASS without substantive Auth Core scope.",
       "Run full Quality Tests, TypeScript and Production Build.",
-      "Require exact-head Completion Truth VERIFIED and lifecycle closure before merge."
+      "Require exact-head Completion Truth VERIFIED and lifecycle closure before merge.",
+      "Run the exact-head Template Factory E13 functional proof through the canonical workforce login surface and require the browser proof chain to pass before merge."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-05-MR1-WORKFORCE-ENTRYPOINT-DELEGATORS",
@@ -337,7 +341,8 @@
         "tests/platform-invite-production-redirect.test.ts",
         "tests/platform-owner-zero-tenant-hotfix.test.ts",
         "tests/workforce-entrypoint-convergence.test.ts",
-        "tests/storefront-template-preview-runtime.test.ts"
+        "tests/storefront-template-preview-runtime.test.ts",
+        "scripts/template-factory-product-owner-handoff.mjs"
       ],
       "impactedReadOnly": [
         "src/lib/auth/workforce-return-target.ts",
@@ -362,7 +367,8 @@
         "tests/platform-owner-zero-tenant-hotfix.test.ts",
         "tests/workforce-entrypoint-convergence.test.ts",
         "tests/storefront-template-preview-runtime.test.ts",
-        "tests/workforce-auth-core-isolation.test.ts"
+        "tests/workforce-auth-core-isolation.test.ts",
+        "scripts/template-factory-product-owner-handoff.mjs"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -465,18 +471,5 @@
       }
     ]
   },
-  "notes": "Auth Core was isolated, fully verified, and merged to main as PR #911 at c8fa6a37b7a69fe8f9b946c83a25678545a34b38. The preserved combined reference branch 9565aee4 must not be merged. This second transaction reapplies only the four active ADMIN/BUILDER/STOREFRONT delegator changes plus their seven targeted regressions on top of the verified main. All Auth Core primitives are read-only; PR #858 remains parked and AAL2 enforcement stays inactive.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "5dfc0fa15cf132d40d0e8d2a3931dc7a5929d35f",
-    "closedAt": "2026-10-05T19:11:34.958Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-ENTRYPOINT-DELEGATORS",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Auth Core was isolated, fully verified, and merged to main as PR #911 at c8fa6a37b7a69fe8f9b946c83a25678545a34b38. The preserved combined reference branch 9565aee4 must not be merged. This second transaction reapplies only the four active ADMIN/BUILDER/STOREFRONT delegator changes plus their seven targeted regressions on top of the verified main. All Auth Core primitives are read-only; PR #858 remains parked and AAL2 enforcement stays inactive. Follow-up proof compatibility: exact-head Template Factory exposed that the E13 handoff still targeted the removed legacy platform login button; the proof harness is now explicitly in-scope and must follow canonical Workforce Auth without changing product authority."
 }
