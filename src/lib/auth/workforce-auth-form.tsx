@@ -12,6 +12,7 @@ import {
   type WorkforceMfaClientSnapshot,
   type WorkforceTotpEnrollment,
 } from '@/lib/auth/workforce-mfa-client';
+import {normalizeWorkforceReturnTarget,workforceLoginHref} from '@/lib/auth/workforce-return-target';
 
 type WorkforceContextPayload={
   platformRole:'owner'|'admin'|'operator'|null;
@@ -46,7 +47,7 @@ export function WorkforceAuthForm({returnTo}:{returnTo:string}){
   const verifiedFactors=useMemo(()=>snapshot?.factors.filter(factor=>factor.status==='verified')??[],[snapshot]);
 
   function finish(){
-    const target=returnTo==='/admin'||returnTo.startsWith('/admin/')?returnTo:'/admin';
+    const target=normalizeWorkforceReturnTarget(returnTo)??'/admin';
     window.location.replace(target);
   }
 
@@ -132,6 +133,25 @@ export function WorkforceAuthForm({returnTo}:{returnTo:string}){
       const errorCode=error instanceof Error?error.message:'WORKFORCE_CONTEXT_UNAVAILABLE';
       setPhase('error');
       setMessage(contextErrorMessage(errorCode));
+    }finally{
+      setBusy(false);
+    }
+  }
+
+  async function resetPassword(){
+    const normalizedEmail=email.trim().toLowerCase();
+    if(!normalizedEmail){setMessage('Add meg az e-mail címedet a jelszó-visszaállításhoz.');return;}
+    setBusy(true);
+    setMessage('');
+    try{
+      const supabase=createClient();
+      const target=normalizeWorkforceReturnTarget(returnTo)??'/admin';
+      const canonicalLogin=workforceLoginHref(target);
+      const redirectTo=`${window.location.origin}/api/auth/workforce-credential?flow=recovery&next=${encodeURIComponent(target)}`;
+      const{error}=await supabase.auth.resetPasswordForEmail(normalizedEmail,{redirectTo});
+      setMessage(error?'A jelszó-visszaállítás nem sikerült.':`Jelszó-visszaállító e-mail elküldve. Folytatás: ${canonicalLogin}`);
+    }catch{
+      setMessage('A jelszó-visszaállítás most nem indítható el.');
     }finally{
       setBusy(false);
     }
@@ -276,6 +296,7 @@ export function WorkforceAuthForm({returnTo}:{returnTo:string}){
         <label>E-mail<input type="email" required autoComplete="email" value={email} onChange={event=>setEmail(event.target.value)}/></label>
         <label>Jelszó<input type="password" required minLength={8} autoComplete="current-password" value={password} onChange={event=>setPassword(event.target.value)}/></label>
         <button className="button" type="submit" disabled={busy}>{busy?'Belépés…':'Tovább a biztonsági ellenőrzéshez'}</button>
+        <button className="btn btnGhost" type="button" disabled={busy} onClick={resetPassword}>Elfelejtett jelszó</button>
       </form>}
 
       {phase==='enroll'&&<div className="workforceForm">

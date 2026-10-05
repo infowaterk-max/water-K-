@@ -13,7 +13,7 @@ describe('Stage 1 workforce admin entry bridge',()=>{
     expect(page).toContain("normalizeStorefrontReturnTarget(rawNext)");
     expect(page).toContain("reason==='login'&&safeNext&&(safeNext==='/admin'||safeNext.startsWith('/admin/'))");
     expect(page).toContain("redirect(\`/api/auth/workforce-login?next=\${encodeURIComponent(safeNext)}\`)");
-    expect(workforce).toContain("normalized==='/admin'||normalized.startsWith('/admin/')");
+    expect(workforce).toContain("normalizeWorkforceReturnTarget(normalized)");
   });
 
   it('evaluates the workforce bridge before storefront instance resolution',()=>{
