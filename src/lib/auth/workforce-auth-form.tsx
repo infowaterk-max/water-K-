@@ -167,11 +167,18 @@ export function WorkforceAuthForm({returnTo}:{returnTo:string}){
     setBusy(true);
     try{
       await challengeAndVerifyWorkforceTotp(enrollment.factorId,normalized);
-      setEnrollment(null);
-      await resolveNext(context,'A TOTP faktor ellenőrzése sikeres.');
     }catch{
       setMessage('A kód nem fogadható el. Ellenőrizd az authenticator alkalmazásban látható aktuális kódot, és próbáld újra.');
       setCode('');
+      setBusy(false);
+      return;
+    }
+    setEnrollment(null);
+    try{
+      await resolveNext(context,'A TOTP faktor ellenőrzése sikeres.');
+    }catch{
+      setPhase('error');
+      setMessage('A TOTP faktor ellenőrzése sikerült, de a friss biztonsági állapot most nem tölthető be. Próbáld újra.');
     }finally{
       setBusy(false);
     }
@@ -185,10 +192,17 @@ export function WorkforceAuthForm({returnTo}:{returnTo:string}){
     setBusy(true);
     try{
       await challengeAndVerifyWorkforceTotp(selectedFactorId,normalized);
-      await resolveNext(context,'A második hitelesítési lépcső sikeres.');
     }catch{
       setMessage('A hitelesítési kód hibás vagy lejárt. Kérj új kódot az authenticator alkalmazásból.');
       setCode('');
+      setBusy(false);
+      return;
+    }
+    try{
+      await resolveNext(context,'A második hitelesítési lépcső sikeres.');
+    }catch{
+      setPhase('error');
+      setMessage('Az MFA challenge sikerült, de a friss biztonsági állapot most nem tölthető be. Próbáld újra.');
     }finally{
       setBusy(false);
     }
@@ -219,7 +233,7 @@ export function WorkforceAuthForm({returnTo}:{returnTo:string}){
     try{
       if(enrollment)await unenrollWorkforceTotp(enrollment.factorId).catch(()=>undefined);
       const supabase=createClient();
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({scope:'local'});
     }finally{
       setContext(null);
       setSnapshot(null);

@@ -45,6 +45,7 @@ describe('Stage 1 workforce login and MFA UX',()=>{
     expect(form).not.toContain('auth.mfa.enroll');
     expect(form).not.toContain('localStorage');
     expect(form).not.toContain('sessionStorage');
+    expect(form).toContain("signOut({scope:'local'})");
   });
 
   it('guides a platform owner through the missing second verified TOTP factor',()=>{
@@ -60,6 +61,12 @@ describe('Stage 1 workforce login and MFA UX',()=>{
     expect(form).toContain("current.factors.filter(factor=>factor.status!=='verified')");
     expect(form).toContain('await unenrollWorkforceTotp(enrollment.factorId)');
     expect(form).toContain('Enrollment megszakítása');
+  });
+
+  it('separates invalid OTP from post-verification assurance refresh failures',()=>{
+    expect(form).toContain('A TOTP faktor ellenőrzése sikerült, de a friss biztonsági állapot most nem tölthető be.');
+    expect(form).toContain('Az MFA challenge sikerült, de a friss biztonsági állapot most nem tölthető be.');
+    expect(form).toContain("setPhase('error')");
   });
 
   it('keeps customer auth and global admin AAL2 enforcement outside this block',()=>{
