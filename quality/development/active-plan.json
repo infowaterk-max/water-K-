@@ -1,32 +1,37 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-STAGE1-PLATFORM-TENANT-CONTEXT-UI",
-  "task": "Expose explicit selected-tenant context controls in platform operations surfaces while consuming the existing canonical tenant authority.",
+  "taskId": "DEV-STAGE1-WORKFORCE-AUTH-CORE",
+  "task": "Stage 1 MR1 Workforce Identity core: implement canonical workforce sign-in return targets, credential completion, password recovery, MFA entry UX, and owner activation primitives under the existing identity authority. No permission or AAL2 enforcement changes.",
   "status": "closed",
-  "guardDigest": "1d1d5f53",
-  "changeBaseSha": "eca6974e1c77ce33a0ef71f916adac5c9a31a312",
+  "guardDigest": "00e392d5",
+  "changeBaseSha": "b3139b0fa2629ca4759b40116ccc4c38e260b396",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "src/app/admin/platform/context-actions.ts",
-    "src/app/admin/platform/page.tsx",
-    "src/app/admin/platform/webaruhazak/page.tsx",
-    "src/app/admin/layout.tsx",
-    "tests/platform-tenant-context-ui.test.ts"
+    "src/lib/auth/workforce-return-target.ts",
+    "src/app/api/auth/workforce-login/page.tsx",
+    "src/lib/auth/workforce-auth-form.tsx",
+    "src/app/api/auth/workforce-credential/page.tsx",
+    "src/lib/auth/workforce-credential-form.tsx",
+    "src/lib/auth/platform-activation-form.tsx",
+    "tests/workforce-auth-ux.test.ts",
+    "tests/workforce-auth-core-isolation.test.ts"
   ],
   "expectedSubsystems": [
-    "admin-operations",
+    "auth-access-authority",
+    "customer-account",
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-ADMIN"
+    "DOMAIN-IDENTITY"
   ],
   "expectedAuthorities": [
-    "admin-operations"
+    "auth-access-authority"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
     "SQ-KF-005",
+    "SQ-KF-007",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-013",
@@ -34,7 +39,11 @@
     "SQ-KF-016",
     "SQ-KF-017",
     "SQ-KF-022",
-    "TF-KF-006"
+    "TF-KF-002",
+    "TF-KF-006",
+    "TF-KF-008",
+    "TF-KF-012",
+    "TF-KF-020"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -46,42 +55,51 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-UI-MAIN",
-    "riskTier": "medium",
+    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-AUTH-CORE",
+    "riskTier": "high",
     "assuranceCeiling": {
-      "level": "state-and-failure-review",
-      "rationale": "This transaction exposes a privileged context-selection capability in platform operations UI. It must not duplicate tenant authority, accept arbitrary targets, or obscure the active operating context.",
+      "level": "strong-behavioral-proof",
+      "rationale": "This isolated high-risk transaction changes workforce authentication primitives only. A defect could create an unsafe return target, mix shopper and workforce credential state, break privileged password recovery, or create a second session/MFA authority. Active non-auth entrypoint delegates and parked AAL2 enforcement are explicitly excluded.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
+        "what-if-matrix",
         "adversarial-scenarios",
-        "boundary-cases"
+        "boundary-cases",
+        "pairwise-interactions",
+        "threat-failure-model",
+        "fault-injection"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "Platform control center and managed-instance list expose an explicit action for eligible pilot/active tenants.",
-        "The server action revalidates current platform operator authority and exact target eligibility before invoking the canonical tenant-context setter.",
-        "Invalid, unavailable or context-storage failures surface a bounded platform-management message instead of pretending tenant entry succeeded.",
-        "The platform shell displays the currently selected tenant name whenever a platform actor is operating inside a tenant context.",
-        "A clear-context action returns the actor to the tenant-independent platform control center without ending authentication.",
-        "Suspended or archived targets are not presented as enterable tenant contexts.",
-        "No customer authentication, pilot acceptance, tenancy authority implementation or AAL2 policy is changed."
+        "Workforce return targets are normalized by one auth-owned fail-closed helper that permits only /admin, /admin/* and exact /storefront-template-preview paths.",
+        "The dedicated workforce login accepts the shared safe workforce return target and WorkforceAuthForm uses the same authority when completing the flow.",
+        "Workforce password recovery redirects to a workforce-owned credential completion route rather than shopper AuthForm recovery.",
+        "Workforce credential completion accepts invite/recovery modes, requires Supabase callback evidence, updates the Supabase password and re-enters canonical workforce login.",
+        "An auth-owned owner-activation primitive can create an eligible owner account and hands an immediate authenticated session back to canonical workforce login.",
+        "No active /platform, /fiokom, template-preview or admin invitation delegate is changed in this release unit.",
+        "No role, tenant, middleware authorization authority or AAL2 enforcement is added, weakened or activated."
       ],
       "invariants": [
-        "UI and server actions consume tenant-context-authority; they do not implement a second tenant resolver.",
-        "Target instance ids are validated server-side and eligibility is queried from canonical data.",
-        "The active context is visibly identified before tenant-scoped operations.",
-        "Clearing context removes only the platform tenant selection and does not sign the user out."
+        "Supabase Auth remains the only session, password and MFA authority.",
+        "Server-owned role and tenant authorities remain unchanged.",
+        "Customer AuthForm remains shopper-owned and is not imported by workforce credential completion.",
+        "A pre-existing arbitrary Supabase session is insufficient to authorize workforce credential completion without invite/recovery callback evidence.",
+        "PR #858 remains parked and untouched.",
+        "The Auth Core release diff contains no substantive non-auth authority changes."
       ],
       "forbiddenStates": [
-        "raw-form-instance-id-directly-becomes-context",
-        "suspended-or-archived-context-entry",
-        "hidden-active-tenant-for-platform-actor",
-        "clear-context-signs-out-user",
-        "presentation-layer-duplicates-tenant-resolver"
+        "external-workforce-return-target",
+        "workforce-return-loop-to-preview-login",
+        "customer-session-alone-authorizes-workforce-credential-change",
+        "customer-authform-imported-by-workforce-credential-flow",
+        "second-session-or-mfa-authority",
+        "middleware-authz-authority",
+        "aal2-enforcement-activation",
+        "non-auth-entrypoint-delegate-change"
       ]
     },
     "model": {
@@ -113,37 +131,42 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A forged form target bypasses instance eligibility validation.",
-        "The platform actor enters a tenant but the shell does not indicate which tenant is active.",
-        "A presentation shortcut sets cookies directly instead of using the canonical tenancy capability.",
-        "The clear action mutates authentication instead of operating context.",
-        "Selection failure redirects back but the UI does not explain that tenant context was not established."
+        "A crafted protocol-relative or external next target escapes the workforce login origin.",
+        "The shared return-target helper accepts the preview-login route and creates an authentication loop.",
+        "Password recovery sends privileged users through the shopper credential flow.",
+        "An already signed-in shopper manually opens the workforce credential page and changes credentials without invite/recovery link evidence.",
+        "Owner activation bypasses the server-side eligibility claim or navigates directly into privileged UI instead of canonical workforce login.",
+        "The change accidentally activates the parked AAL2 authorization enforcement or changes role/tenant authority.",
+        "The isolated release unintentionally edits a non-auth route and violates the release risk budget."
       ],
       "edgeCases": [
-        "Pilot and active tenants expose entry actions.",
-        "Suspended and archived tenants remain visible but are not enterable.",
-        "A platform actor with selected context can return to platform-global operations without logout.",
-        "Invalid target ids return to platform management with a bounded error state."
+        "next=/admin and nested admin URLs with query strings are preserved.",
+        "Exact /storefront-template-preview with query parameters is preserved.",
+        "/storefront-template-preview-login, /fiokom, //evil.example and https://evil.example are rejected.",
+        "Recovery without callback evidence fails closed even when a shopper session already exists.",
+        "Invite/recovery with valid Supabase callback evidence can set a password and continue through canonical workforce login.",
+        "Owner activation without an eligible claim fails closed.",
+        "No active caller is required to consume the new activation/credential primitives until the second release unit."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-QUERY-TENANT",
-        "summary": "Carry the selected tenant only in query parameters on every platform navigation.",
+        "id": "ALT-AUTH-PLUS-DELEGATORS",
+        "summary": "Ship auth primitives and all active route delegator changes together.",
         "disposition": "rejected",
-        "reason": "Query state is client-controlled, leaks into links, and would force presentation surfaces to become tenant authority."
+        "reason": "Release Risk Budget proved 10/5 points across four subsystems; high-risk auth authority must be isolated."
       },
       {
-        "id": "ALT-DIRECT-COOKIE-IN-PAGE",
-        "summary": "Set the tenant cookie directly from presentation components.",
+        "id": "ALT-RISK-POLICY-EXCEPTION",
+        "summary": "Raise or bypass the release risk budget for the combined change.",
         "disposition": "rejected",
-        "reason": "This duplicates authority and bypasses server-side target eligibility checks."
+        "reason": "The budget is a canonical production control and the change can be dependency-closed through sequential releases without weakening it."
       },
       {
-        "id": "ALT-SERVER-ACTION-CONSUMER",
-        "summary": "Use a thin platform server action to validate the target and invoke the canonical tenancy setter/clearer.",
+        "id": "ALT-ISOLATED-AUTH-CORE",
+        "summary": "Ship only auth-owned primitives first, then rebase non-auth entrypoint delegators on the verified main.",
         "disposition": "selected",
-        "reason": "This keeps UI orchestration in DOMAIN-ADMIN while tenant truth remains in DOMAIN-TENANCY."
+        "reason": "This keeps the high-risk auth release at one substantive subsystem while preserving the already designed convergence path."
       }
     ],
     "specialistReviews": [
@@ -151,81 +174,129 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Platform UI may orchestrate tenant selection but cannot own context truth.",
-        "resolution": "context-actions.ts validates the requested target and delegates storage to src/lib/instances/platform-tenant-context.ts.",
+        "finding": "Authentication primitives belong to DOMAIN-IDENTITY; active presentation delegates can consume them in a later release.",
+        "resolution": "This unit edits only canonical auth paths plus neutral tests.",
         "evidence": [
-          "src/app/admin/platform/context-actions.ts",
-          "quality/knowledge/domain-foundations.v1.json"
+          "quality/knowledge/domain-foundations.v1.json",
+          "src/lib/auth/workforce-return-target.ts",
+          "src/app/api/auth/workforce-login/page.tsx"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A hidden instanceId submitted from the browser is untrusted and must not directly set context.",
-        "resolution": "The action validates UUID syntax, requires current platform authority, queries the exact instance, and allows only pilot/active status before delegating.",
+        "finding": "A generic existing session must not be treated as invite/recovery authorization.",
+        "resolution": "Credential completion requires explicit Supabase callback evidence before the form becomes ready.",
         "evidence": [
-          "src/app/admin/platform/context-actions.ts"
+          "src/lib/auth/workforce-credential-form.tsx",
+          "tests/workforce-auth-core-isolation.test.ts"
+        ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The combined convergence branch exceeded Release Risk Budget because high-risk auth was mixed with three other subsystems.",
+        "resolution": "Auth Core is split into its own release transaction; non-auth delegates remain unchanged until a second unit.",
+        "evidence": [
+          "deploy/release-risk-policy.json",
+          "scripts/release-risk-budget.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-UI-1",
-        "scenario": "A user modifies the hidden instanceId before submitting the selection form.",
-        "finding": "Client input could target an arbitrary tenant.",
-        "resolution": "The server action validates UUID and exact canonical instance eligibility before setting context.",
+        "id": "CH-AUTH-1",
+        "scenario": "An attacker supplies //evil.example or https://evil.example as next.",
+        "finding": "A local-looking redirect helper can become an open redirect if origin semantics are ambiguous.",
+        "resolution": "Normalize against a fixed local origin and allowlist only canonical workforce destinations.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-2",
-        "scenario": "A platform actor selects a tenant and later navigates to another operations page.",
-        "finding": "Without visible context, cross-tenant mistakes become more likely.",
-        "resolution": "The shared platform shell shows the active tenant label whenever an instance is selected.",
+        "id": "CH-AUTH-2",
+        "scenario": "A caller supplies /storefront-template-preview-login or /fiokom as next.",
+        "finding": "A broad prefix rule can create a loop or cross into shopper account UX.",
+        "resolution": "Allow exact preview runtime path only; reject preview-login and shopper account paths.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-3",
-        "scenario": "The actor wants to resume global platform work without ending the authenticated session.",
-        "finding": "Logout would be excessive and conflate identity with operating context.",
-        "resolution": "A dedicated clear-context server action removes only tenant context and redirects to /admin/platform.",
+        "id": "CH-AUTH-3",
+        "scenario": "A workforce user requests password recovery.",
+        "finding": "Using shopper recovery would recreate split credential authority.",
+        "resolution": "WorkforceAuthForm sends recovery directly to the workforce-owned credential route.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-4",
-        "scenario": "The requested instance is invalid, unavailable, or the canonical context setter fails.",
-        "finding": "A silent redirect would leave the operator unsure whether the tenant switch succeeded.",
-        "resolution": "Redirect with a bounded context reason and render a platform-management notice; never redirect to tenant admin on failure.",
+        "id": "CH-AUTH-4",
+        "scenario": "A shopper session already exists and the user manually opens flow=invite or flow=recovery.",
+        "finding": "Session presence alone does not prove possession of a workforce invite/recovery link.",
+        "resolution": "Require matching hash type, PKCE code/token hash, or access/refresh token callback evidence before credential update.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-AUTH-5",
+        "scenario": "An owner activation email is not eligible.",
+        "finding": "Client signup without the server owner-claim gate could create an unauthorized owner identity.",
+        "resolution": "Activation must call /api/platform/activation and fail closed unless eligible=true.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-AUTH-6",
+        "scenario": "Auth Core work is mistaken for AAL2 authorization enforcement.",
+        "finding": "Changing requireAdmin/middleware would alter runtime enforcement before the planned final audit.",
+        "resolution": "Those authorities remain read-only; tests prohibit workforceAssuranceSatisfied/AAL2 enforcement in this unit.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-AUTH-7",
+        "scenario": "The high-risk auth release also changes active platform/account/preview/admin delegates.",
+        "finding": "That would reproduce the Release Risk Budget violation.",
+        "resolution": "The plan envelope excludes all non-auth delegates and the release gate must report 5/5 points with one scored subsystem.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Add deterministic source-level regression proof for target validation, eligible-status gating, bounded selection-failure feedback, context visibility and clear behavior.",
-      "Run Quality Tests, TypeScript and Production Build.",
-      "Run Incremental Known Failure Replay and existing sync/truth gates.",
-      "Require exact-head Completion Truth VERIFIED and lifecycle closure."
+      "Run Plan Before Code on the exact plan-only Auth Core head before implementation.",
+      "Add deterministic return-target, recovery, credential-evidence and activation source-contract tests.",
+      "Run Edit-Time / Reference Sync and Incremental Known Failure Replay after the auth-only implementation commit.",
+      "Require Release Risk Budget PASS at 5/5 points with exactly one substantive subsystem.",
+      "Run full Quality Tests, TypeScript and Production Build.",
+      "Require exact-head Completion Truth VERIFIED and lifecycle closure before merging Auth Core to main."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-UI",
+      "request": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-AUTH-CORE",
       "authority": [
-        "admin-operations"
+        "auth-access-authority"
       ],
       "mustEdit": [
-        "src/app/admin/platform/context-actions.ts",
-        "src/app/admin/platform/page.tsx",
-        "src/app/admin/platform/webaruhazak/page.tsx",
-        "src/app/admin/layout.tsx"
+        "src/lib/auth/workforce-return-target.ts",
+        "src/app/api/auth/workforce-login/page.tsx",
+        "src/lib/auth/workforce-auth-form.tsx",
+        "src/app/api/auth/workforce-credential/page.tsx",
+        "src/lib/auth/workforce-credential-form.tsx",
+        "src/lib/auth/platform-activation-form.tsx"
       ],
       "mayEdit": [
-        "tests/platform-tenant-context-ui.test.ts"
+        "tests/workforce-auth-ux.test.ts",
+        "tests/workforce-auth-core-isolation.test.ts"
       ],
       "impactedReadOnly": [
-        "src/lib/instances/platform-tenant-context.ts",
+        "src/app/platform/page.tsx",
+        "src/app/fiokom/page.tsx",
+        "src/app/storefront-template-preview-login/page.tsx",
+        "src/app/admin/platform/webaruhazak/actions.ts",
+        "src/components/auth/auth-form.tsx",
+        "src/components/auth/platform-auth-form.tsx",
+        "src/lib/auth/admin-api.ts",
+        "src/lib/auth/require-admin.ts",
         "src/lib/instances/access.ts",
-        "src/lib/auth/platform-operator.ts"
+        "src/middleware.ts",
+        "quality/knowledge/living-roadmap.v2.json"
       ],
       "proof": [
-        "tests/platform-tenant-context-ui.test.ts"
+        "tests/workforce-auth-ux.test.ts",
+        "tests/workforce-auth-core-isolation.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -234,14 +305,14 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-UI-MAIN",
+    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-AUTH-CORE",
     "requirements": [
       {
-        "id": "REQ-PLATFORM-TENANT-CONTEXT-UI",
-        "requirement": "Platform operations surfaces provide explicit eligible-tenant entry, visible active-context state, and clear-context return while delegating tenant truth to the canonical authority.",
+        "id": "REQ-WORKFORCE-AUTH-CORE",
+        "requirement": "Canonical workforce authentication primitives provide safe return targeting, workforce-owned recovery/credential completion and owner activation handoff while existing role, tenant, shopper and parked AAL2 authorities remain unchanged.",
         "claimScope": {
-          "capability": "CAP-ADMIN",
-          "breadth": "platform-tenant-context-ui",
+          "capability": "CAP-AUTH",
+          "breadth": "workforce-auth-core",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -251,8 +322,7 @@
           ]
         },
         "requiredCapabilities": [
-          "CAP-ADMIN",
-          "CAP-TENANT"
+          "CAP-AUTH"
         ],
         "evidence": {
           "implementation": [
@@ -265,38 +335,79 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-UNVALIDATED-TARGET",
-            "statement": "Browser-submitted instance ids cannot directly establish tenant context.",
+            "id": "NEG-WORKFORCE-REDIRECT-ESCAPE",
+            "statement": "Workforce return targets must not escape to external, shopper-account or preview-login routes.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-HIDDEN-CONTEXT",
-            "statement": "A platform actor operating inside a selected tenant sees the active tenant identity in the shared shell.",
+            "id": "NEG-CUSTOMER-SESSION-CREDENTIAL-BYPASS",
+            "statement": "An arbitrary existing customer session must not authorize workforce credential completion without callback evidence.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-AUTH-CONTEXT-CONFLATION",
-            "statement": "Clearing tenant context does not sign out or alter customer authentication.",
+            "id": "NEG-SECOND-AUTH-AUTHORITY",
+            "statement": "The Auth Core must continue to use Supabase Auth and existing workforce MFA primitives rather than creating another credential/session authority.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS",
+              "GUARD-TYPECHECK"
+            ]
+          },
+          {
+            "id": "NEG-AAL2-ACTIVATION",
+            "statement": "This release must not activate or weaken the parked AAL2 authorization enforcement.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-WORKFORCE-AUTH-CORE-RELEASE-ISOLATION",
+        "requirement": "The high-risk workforce Auth Core ships as an isolated release transaction within the canonical Release Risk Budget.",
+        "claimScope": {
+          "capability": "CAP-RELEASE",
+          "breadth": "workforce-auth-core-release-isolation",
+          "strength": 2,
+          "dimensions": [
+            "risk",
+            "release-scope"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-RELEASE"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-RELEASE-RISK"
+          ],
+          "outcome": [
+            "GUARD-RELEASE-RISK"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-HIGH-RISK-MIXED-RELEASE",
+            "statement": "The high-risk Auth Core release must not be mixed with substantive non-auth subsystems or exceed the canonical release risk budget.",
+            "evidence": [
+              "GUARD-RELEASE-RISK"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Clean UI/control transaction rebuilt from current main after the tenant-context core merged as PR #901. Supersedes stale stacked PR #898. This release consumes but does not modify DOMAIN-TENANCY implementation.",
+  "notes": "Release Risk Budget on combined workforce convergence head 9565aee4 proved the implementation was too broad: 10/5 points across four subsystems, while Plan Before Code, Edit-Time Guard and Incremental Replay all passed. This transaction is the required first split: high-risk Auth Core only. The already-developed non-auth platform/account/preview/admin delegators remain on the combined reference branch and will be re-applied from verified main as a second release unit. PR #858 remains parked and AAL2 enforcement is not activated. Sentinel integrity correctly rejected CAP-RELEASE evidence embedded inside the CAP-AUTH completion claim. Release isolation is now modeled as a separate CAP-RELEASE requirement proven by GUARD-RELEASE-RISK; the release gate itself remains mandatory and unchanged. Plan Before Code required explicit implementation evidence and negative verification for the CAP-RELEASE claim; both are bound to GUARD-RELEASE-RISK, whose canonical proof semantics are CAP-RELEASE with risk/release-scope dimensions.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "e8c7be51087795fbedab0a5318d7fe6ce906c690",
-    "closedAt": "2026-10-05T16:19:04.055Z",
+    "verifiedImplementationHead": "b49d521a9e4e4928074289afcc32c97eb94e6060",
+    "closedAt": "2026-10-05T17:57:49.713Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-05-STAGE1-PLATFORM-TENANT-CONTEXT-UI-MAIN",
+    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-AUTH-CORE",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
