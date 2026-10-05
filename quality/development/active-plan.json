@@ -90,19 +90,23 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Alap remains a complete professional webshop and is not artificially crippled below the accepted Shopify/Shoprenter/UNAS benchmark baseline.",
-        "Digital Office and all of its collaboration/workforce surfaces are Pro-only except ordinary transactional webshop email and Form Wizard notification behavior.",
+        "Alap remains a complete professional webshop and is not artificially crippled below the accepted Shopify/Shoprenter/UNAS benchmark baseline for ordinary commerce.",
+        "Digital Office and all of its collaboration/workforce surfaces are Pro-only except ordinary transactional webshop email, Form Wizard notification behavior and normal outbound marketing communication.",
         "Previously accepted Alap multi-location inventory and simple event-to-action automation remain Alap; advanced routing/workflow depth remains Pro.",
+        "Special Commerce shopping engines are Pro capabilities: Alap does not expose authorable Guided Finder, Composer, Configurator, Compatibility/Fitment, Compare & Spec, Profile/Context, Release/Drop, Interactive Scene or Recipe Commerce experiences.",
+        "Both packages retain equal design/template quality and the same full manual Builder; Pro differentiation is capability entitlement, not a superior skin.",
         "Specialized or variable-cost capabilities remain Add-on/post-launch rather than being forced into Pro merely to increase package count."
       ],
       "invariants": [
         "All 42 templates and the full manual Builder are available in both Alap and Pro.",
         "Core checkout/order/payment/shipping/invoice/tax/security authorities cannot be paywalled behind Pro.",
         "Digital Office Team Chat, mailbox/team inbox, tasks, approvals, staff profiles, leave/delegation, sending center, communication workspace and related workforce tooling do not leak into Alap.",
+        "Alap cannot configure, instantiate or publish Special Commerce engine experiences even though both packages share the same runtime and Builder.",
         "Company billing in B2C checkout is not the same as Pro B2B organizational purchasing."
       ],
       "forbiddenStates": [
         "digital-office-capability-in-alap",
+        "special-commerce-engine-entitlement-in-alap",
         "multi-location-baseline-pro-only",
         "all-automation-pro-only",
         "core-commerce-provider-integration-pro-only",
@@ -147,7 +151,8 @@
         "Simple customer groups exist in Alap while full company-account B2B governance remains Pro.",
         "Multi-location stock is Alap while automated cross-location routing/split fulfillment is Pro.",
         "Simple event-to-action recipes are Alap while branching multi-step workflows are Pro.",
-        "Transactional and campaign email can exist outside Digital Office without creating an inbox/team-workspace entitlement leak."
+        "Transactional and campaign email can exist outside Digital Office without creating an inbox/team-workspace entitlement leak.",
+        "A template may visually contain an area suitable for a Special Commerce experience, but Alap must render an ordinary storefront composition rather than silently enabling the Pro engine."
       ]
     },
     "alternatives": [
@@ -178,6 +183,13 @@
         "finding": "These do not make the merchant a Digital Office customer.",
         "resolution": "Keep transactional/form/basic marketing communication in Alap while every shared inbox, Team Chat and workforce collaboration surface remains Pro-only.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-PACKAGE-3",
+        "scenario": "Alap and Pro share the same visual template family, so a template region could appear to imply the same commerce-engine capability in both packages.",
+        "finding": "Equal visual quality was never intended to erase the Pro entitlement difference; later accepted decisions place Guided Finder, Composer, Configurator, Compatibility/Fitment, Compare & Spec and Profile/Context in Pro.",
+        "resolution": "Keep the shared design/runtime, but gate all Special Commerce authoring and customer experience activation behind Pro entitlements; Alap receives an ordinary storefront composition/fallback.",
+        "status": "resolved"
       }
     ],
     "specialistReviews": [
@@ -205,6 +217,7 @@
     "proofPlan": [
       "Assert the structured package matrix contains the accepted Alap multi-location and simple automation boundaries.",
       "Assert every Digital Office collaboration/workforce capability is absent from Alap and present in Pro.",
+      "Assert all accepted Special Commerce shopping engines are absent from Alap and present in Pro.",
       "Assert full Builder and 42 template family access remain shared.",
       "Run canonical quality tests, TypeScript and production build on exact head."
     ],
@@ -263,6 +276,13 @@
           {
             "id": "NEG-DIGITAL-OFFICE-LEAK",
             "statement": "Digital Office collaboration/workforce capabilities must not be assigned to Alap.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-SPECIAL-COMMERCE-LEAK",
+            "statement": "Special Commerce shopping engine entitlements must not be assigned to Alap.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
