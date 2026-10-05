@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-STAGE1-WORKFORCE-ENTRYPOINT-DELEGATORS",
   "task": "Stage 1 MR1 workforce entrypoint convergence: make the active platform, customer-account bridge, template-preview and workforce invitation surfaces consume the already-verified canonical Workforce Auth Core without changing identity primitives, role/tenant authority, middleware or parked AAL2 enforcement.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "2cec38ff",
   "changeBaseSha": "c8fa6a37b7a69fe8f9b946c83a25678545a34b38",
   "plannedFilePatterns": [
@@ -465,5 +465,18 @@
       }
     ]
   },
-  "notes": "Auth Core was isolated, fully verified, and merged to main as PR #911 at c8fa6a37b7a69fe8f9b946c83a25678545a34b38. The preserved combined reference branch 9565aee4 must not be merged. This second transaction reapplies only the four active ADMIN/BUILDER/STOREFRONT delegator changes plus their seven targeted regressions on top of the verified main. All Auth Core primitives are read-only; PR #858 remains parked and AAL2 enforcement stays inactive."
+  "notes": "Auth Core was isolated, fully verified, and merged to main as PR #911 at c8fa6a37b7a69fe8f9b946c83a25678545a34b38. The preserved combined reference branch 9565aee4 must not be merged. This second transaction reapplies only the four active ADMIN/BUILDER/STOREFRONT delegator changes plus their seven targeted regressions on top of the verified main. All Auth Core primitives are read-only; PR #858 remains parked and AAL2 enforcement stays inactive.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "5dfc0fa15cf132d40d0e8d2a3931dc7a5929d35f",
+    "closedAt": "2026-10-05T19:11:34.958Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-ENTRYPOINT-DELEGATORS",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
