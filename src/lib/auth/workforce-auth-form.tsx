@@ -12,11 +12,13 @@ import {
   type WorkforceMfaClientSnapshot,
   type WorkforceTotpEnrollment,
 } from '@/lib/auth/workforce-mfa-client';
+import type { WorkforceSensitiveBoundary } from '@/lib/auth/workforce-assurance-policy';
 
 type WorkforceContextPayload={
   platformRole:'owner'|'admin'|'operator'|null;
   storeRoles:string[];
   requiredFactors:0|1|2;
+  sensitiveBoundary:WorkforceSensitiveBoundary;
   roleLabel:string;
   instanceName:string|null;
 };
@@ -31,7 +33,7 @@ function contextErrorMessage(code:string){
   return'A staff belépés ellenőrzése nem sikerült.';
 }
 
-export function WorkforceAuthForm({returnTo}:{returnTo:string}){
+export function WorkforceAuthForm({returnTo,boundary}:{returnTo:string;boundary:WorkforceSensitiveBoundary}){
   const[email,setEmail]=useState('');
   const[password,setPassword]=useState('');
   const[phase,setPhase]=useState<Phase>('checking');
@@ -51,7 +53,11 @@ export function WorkforceAuthForm({returnTo}:{returnTo:string}){
   }
 
   async function loadContext(){
-    const response=await fetch('/api/auth/workforce-context',{cache:'no-store'});
+    const params=new URLSearchParams();
+    if(boundary!=='none')params.set('boundary',boundary);
+    const query=params.toString();
+    const contextUrl=query?`/api/auth/workforce-context?${query}`:'/api/auth/workforce-context';
+    const response=await fetch(contextUrl,{cache:'no-store'});
     if(response.status===401)return null;
     const payload=await response.json().catch(()=>({error:'WORKFORCE_CONTEXT_UNAVAILABLE'})) as WorkforceContextPayload&{error?:string};
     if(!response.ok)throw new Error(payload.error??'WORKFORCE_CONTEXT_UNAVAILABLE');
@@ -265,6 +271,7 @@ export function WorkforceAuthForm({returnTo}:{returnTo:string}){
       <div className="assuranceFacts">
         <span>Jelszó → AAL1</span>
         <span>{context?'Elvárt TOTP faktor: '+String(context.requiredFactors):'MFA csak staff jogosultság után'}</span>
+        {context?.sensitiveBoundary&&context.sensitiveBoundary!=='none'?<span>Biztonsági határ: {context.sensitiveBoundary}</span>:null}
         <span>OTP titok nincs böngészőben tartósítva</span>
       </div>
     </div>

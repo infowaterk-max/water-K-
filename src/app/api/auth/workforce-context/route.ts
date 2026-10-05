@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getWorkforceRequestContext } from '@/lib/auth/admin-api';
-import { requiredWorkforceTotpFactors,type WorkforcePlatformRole,type WorkforceStoreRole } from '@/lib/auth/workforce-assurance-policy';
+import {
+  parseWorkforceSensitiveBoundary,
+  type WorkforcePlatformRole,
+  type WorkforceStoreRole,
+} from '@/lib/auth/workforce-assurance-policy';
 
 export const dynamic='force-dynamic';
 
@@ -18,18 +22,24 @@ function roleLabel(platformRole:WorkforcePlatformRole,storeRoles:readonly Workfo
   return'Megtekintő';
 }
 
-export async function GET(){
-  const context=await getWorkforceRequestContext();
+export async function GET(request:Request){
+  const rawBoundary=new URL(request.url).searchParams.get('boundary');
+  const requestedBoundary=parseWorkforceSensitiveBoundary(rawBoundary);
+  if(requestedBoundary===null){
+    return NextResponse.json({error:'WORKFORCE_BOUNDARY_INVALID'},{status:400});
+  }
+
+  const context=await getWorkforceRequestContext(requestedBoundary);
   if(context.status==='unauthenticated')return NextResponse.json({error:'AUTH_REQUIRED'},{status:401});
   if(context.status==='forbidden')return NextResponse.json({error:'WORKFORCE_ACCESS_REQUIRED'},{status:403});
   if(context.status!=='authorized')return NextResponse.json({error:'WORKFORCE_CONTEXT_UNAVAILABLE'},{status:503});
 
   const storeRoles=context.storeRoles as WorkforceStoreRole[];
-  const requiredFactors=requiredWorkforceTotpFactors({platformRole:context.platformRole,storeRoles});
   return NextResponse.json({
     platformRole:context.platformRole,
     storeRoles,
-    requiredFactors,
+    requiredFactors:context.requiredFactors,
+    sensitiveBoundary:context.sensitiveBoundary,
     roleLabel:roleLabel(context.platformRole,storeRoles),
     instanceName:context.instanceName,
   });
