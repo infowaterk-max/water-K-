@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-STAGE1-WORKFORCE-AUTH-FOUNDATION",
   "task": "Stage 1 workforce identity authority foundation with safe return targets, canonical privileged sign-in recovery, credential completion, and first-owner activation.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "00e392d5",
   "changeBaseSha": "b3139b0fa2629ca4759b40116ccc4c38e260b396",
   "plannedFilePatterns": [
@@ -358,5 +358,18 @@
       }
     ]
   },
-  "notes": "This transaction is the high-risk auth-authority half of the previously planned workforce entrypoint convergence. It is isolated because Production Release Risk Budget correctly rejected the combined auth/admin/customer/storefront unit. Downstream presentation/admin wiring is intentionally deferred to a second bounded transaction after this authority unit is integrated. Plan Before Code exact-head f19c498 corrected projection scope: auth App Router pages also project storefront-ui impact, canonical negative knowledge expands by SQ-NK-001/SQ-NK-008, high-risk assurance requires pairwise-interactions, and completion source identity is unified with the PO request."
+  "notes": "This transaction is the high-risk auth-authority half of the previously planned workforce entrypoint convergence. It is isolated because Production Release Risk Budget correctly rejected the combined auth/admin/customer/storefront unit. Downstream presentation/admin wiring is intentionally deferred to a second bounded transaction after this authority unit is integrated. Plan Before Code exact-head f19c498 corrected projection scope: auth App Router pages also project storefront-ui impact, canonical negative knowledge expands by SQ-NK-001/SQ-NK-008, high-risk assurance requires pairwise-interactions, and completion source identity is unified with the PO request.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "749896afd7a089736f0e59580040775e60960237",
+    "closedAt": "2026-10-05T17:48:43.422Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-RECONCILIATION",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
