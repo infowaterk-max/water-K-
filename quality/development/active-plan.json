@@ -270,7 +270,7 @@
         "claimScope": {
           "capability": "CAP-TENANT",
           "breadth": "platform-explicit-tenant-context-core",
-          "strength": 3,
+          "strength": 2,
           "dimensions": [
             "tests",
             "types",
@@ -317,5 +317,5 @@
       }
     ]
   },
-  "notes": "Second isolated transaction in the MR1 platform tenant-selection block. Base is the scope-classification branch so release-risk diff contains only the high-risk tenant/auth authority."
+  "notes": "Second isolated transaction in the MR1 platform tenant-selection block. Base is the scope-classification branch so release-risk diff contains only the high-risk tenant/auth authority. Sentinel semantic review corrected the Completion Contract scope strength from 3 to 2 because the strongest referenced evidence producer (GUARD-QUALITY-TESTS) proves scopeStrength 2; retaining 3 would be an overclaim."
 }
