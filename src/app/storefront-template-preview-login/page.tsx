@@ -42,7 +42,6 @@ export default async function StorefrontTemplatePreviewLogin({searchParams}:Prop
  });
  const supabase=await createClient();
  const{data:{user}}=await supabase.auth.getUser();
- // Workforce-only preview entry delegates to the canonical auth surface; it never owns shopper or MFA policy.
  const destination=workforceLoginHref(target);
  if(user)redirect(destination);
  redirect(destination);
