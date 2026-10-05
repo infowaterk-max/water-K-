@@ -305,13 +305,6 @@
         "finding": "Without moving recovery into the canonical workforce form, the user would either lose recovery or be forced through the shopper AuthForm, recreating the customer/workforce split violation.",
         "resolution": "WorkforceAuthForm initiates Supabase password recovery and the workforce-owned credential completion route updates the password, then delegates back to workforce login/context/MFA.",
         "status": "resolved"
-      },
-      {
-        "id": "CH-ENTRY-6",
-        "scenario": "The legacy platform auth component has no canonical architecture owner but remains referenced by the live /platform route.",
-        "finding": "Editing that unclassified component would bypass the architecture ownership model, while leaving the live reference would retain the alternate privileged password entry.",
-        "resolution": "Do not edit the unclassified component. Replace the live /platform composition with an Identity-owned activation component plus a link to canonical workforce login; deterministic proof verifies the legacy component is no longer imported by any live route.",
-        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -437,5 +430,5 @@
       }
     ]
   },
-  "notes": "MR1 reconciliation found active non-canonical privileged entrypoints on main: /platform direct password login, template-preview customer AuthForm login, and workforce invite completion through /fiokom. This is one release unit to converge entrypoints only. PR #858 remains parked and untouched. Plan Before Code attempt 1 correctly blocked because src/components/auth/platform-auth-form.tsx is not Atlas-classified and high-risk challenge depth was 5/6. The remediation does not weaken Atlas: the active /platform route moves to a canonical src/lib/auth activation component, leaves the unclassified legacy file read-only/unreachable, and adds the missing adversarial challenge. Pre-implementation dependency review also found WorkforceAuthForm.finish() was admin-only and that platform-login removal would otherwise orphan workforce password recovery. The same release unit therefore centralizes allowed workforce return targets in WorkforceAuthForm and moves invite/recovery credential completion to an auth-owned route; customer AuthForm remains read-only. Initial Plan Before Code correctly blocked direct editing of unclassified src/components/auth/platform-auth-form.tsx and required six high-risk challenges. The plan was repaired by leaving that legacy file untouched/dead, moving activation UX under canonical Identity ownership, changing the live /platform composition, and adding CH-ENTRY-6."
+  "notes": "MR1 reconciliation found active non-canonical privileged entrypoints on main: /platform direct password login, template-preview customer AuthForm login, and workforce invite completion through /fiokom. This is one release unit to converge entrypoints only. PR #858 remains parked and untouched. Plan Before Code attempt 1 correctly blocked because src/components/auth/platform-auth-form.tsx is not Atlas-classified and high-risk challenge depth was 5/6. The remediation does not weaken Atlas: the active /platform route moves to a canonical src/lib/auth activation component, leaves the unclassified legacy file read-only/unreachable, and adds the missing adversarial challenge. Pre-implementation dependency review also found WorkforceAuthForm.finish() was admin-only and that platform-login removal would otherwise orphan workforce password recovery. The same release unit therefore centralizes allowed workforce return targets in WorkforceAuthForm and moves invite/recovery credential completion to an auth-owned route; customer AuthForm remains read-only."
 }
