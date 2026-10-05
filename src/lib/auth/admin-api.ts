@@ -2,7 +2,48 @@ import 'server-only';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
-import { hasStorePermission,hasStoreRoleBindingHistory,type StorePermission } from '@/lib/auth/store-rbac';
+import { getActiveStoreRoles,hasStorePermission,hasStoreRoleBindingHistory,type StorePermission,type StoreRole } from '@/lib/auth/store-rbac';
+import type { WorkforcePlatformRole } from '@/lib/auth/workforce-assurance-policy';
+
+export type WorkforceRequestContext=
+  |{status:'authorized';platformRole:WorkforcePlatformRole;storeRoles:StoreRole[];instanceName:string|null}
+  |{status:'unauthenticated'|'forbidden'|'unavailable'};
+
+function workforcePlatformRole(value:unknown):WorkforcePlatformRole{
+  return value==='owner'||value==='admin'||value==='operator'?value:null;
+}
+
+export async function getWorkforceRequestContext():Promise<WorkforceRequestContext>{
+  try{
+    const supabase=await createClient();
+    const{data:{user},error:userError}=await supabase.auth.getUser();
+    if(userError||!user)return{status:'unauthenticated'};
+
+    const admin=createAdminClient();
+    const{data:platform,error:platformError}=await admin.from('platform_operators').select('role').eq('user_id',user.id).maybeSingle();
+    if(platformError)return{status:'unavailable'};
+    const platformRole=workforcePlatformRole(platform?.role);
+    if(platformRole)return{status:'authorized',platformRole,storeRoles:[],instanceName:null};
+
+    const instance=await getCurrentWebshopInstance();
+    if(!instance)return{status:'forbidden'};
+    let storeRoles=await getActiveStoreRoles(instance.id);
+
+    if(!storeRoles.length&&!(await hasStoreRoleBindingHistory(instance.id,user.id))){
+      const[{data:profile,error:profileError},{data:legacy,error:legacyError}]=await Promise.all([
+        supabase.from('profiles').select('role').eq('id',user.id).maybeSingle(),
+        admin.from('webshop_instance_members').select('role').eq('instance_id',instance.id).eq('user_id',user.id).in('role',['owner','admin']).maybeSingle(),
+      ]);
+      if(profileError||legacyError)return{status:'unavailable'};
+      if(profile?.role==='admin'&&(legacy?.role==='owner'||legacy?.role==='admin'))storeRoles=[legacy.role];
+    }
+
+    if(!storeRoles.length)return{status:'forbidden'};
+    return{status:'authorized',platformRole:null,storeRoles,instanceName:instance.name};
+  }catch{
+    return{status:'unavailable'};
+  }
+}
 
 export async function getAdminRequestUser(permission?:StorePermission){
   try{
