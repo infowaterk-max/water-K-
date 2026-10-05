@@ -115,24 +115,28 @@
     },
     {
       "id": "CAP-BUILDER",
-      "name": "Visual Builder & Template Factory",
+      "name": "Visual Builder",
       "domain": "DOMAIN-BUILDER",
       "authority": "builder-template-system",
       "maturity": "hardening",
       "surfaces": [
         "builder",
-        "template-factory"
+        "builder-runtime-authoring"
       ],
       "dependencies": [
         "DOMAIN-STOREFRONT"
       ],
       "evidence": [
         "schema validation",
-        "materialization proof",
-        "Known Failure replay"
+        "round-trip materialization proof",
+        "responsive runtime fidelity",
+        "Builder benchmark acceptance"
       ],
       "roadmapRefs": [
-        "TEMPLATE-PRODUCTION-SYSTEM"
+        "TEMPLATE-CAPABILITY-CENSUS-42",
+        "VISUAL-BUILDER",
+        "BUILDER-PRODUCTION-COMPLETE",
+        "BUILDER-ADVERSARIAL-ACCEPTANCE"
       ]
     },
     {
@@ -312,6 +316,31 @@
         "limitationsRequired": true,
         "freeFormEvidenceDoesNotScore": true
       }
+    },
+    {
+      "id": "CAP-TEMPLATE-FACTORY",
+      "name": "Template Production System / Factory",
+      "domain": "DOMAIN-BUILDER",
+      "authority": "builder-template-system",
+      "maturity": "hardening",
+      "surfaces": [
+        "template-factory",
+        "template-compiler",
+        "template-proof"
+      ],
+      "dependencies": [
+        "DOMAIN-BUILDER",
+        "DOMAIN-STOREFRONT"
+      ],
+      "evidence": [
+        "factory revalidation",
+        "Known Failure replay",
+        "template production proof"
+      ],
+      "roadmapRefs": [
+        "TEMPLATE-PRODUCTION-SYSTEM",
+        "TEMPLATE-PORTFOLIO-42"
+      ]
     }
   ]
 }
