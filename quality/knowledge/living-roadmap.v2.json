@@ -677,6 +677,32 @@
       ]
     },
     {
+      "id": "EVENT-DRIVEN-WORKFLOW",
+      "title": "Event-driven Workflow Core",
+      "status": "hardening",
+      "phase": "core-capability",
+      "order": 225,
+      "targetWindow": "core-capability-complete",
+      "priority": "P0",
+      "dependsOn": [
+        "CORE-ENGINE-2",
+        "MR1-MULTITENANT-FOUNDATION"
+      ],
+      "capabilities": [
+        "CAP-COMMERCE",
+        "CAP-ADMIN",
+        "CAP-QUALITY"
+      ],
+      "scope": [
+        "shared canonical 'event -> governed workflow/runbook' engine for Shoperation operational automation",
+        "the engine itself is Market Ready launch infrastructure; launch does not require every imaginable business workflow to exist",
+        "normalized allowlisted events, idempotent processing, retry/backoff, dead-letter evidence, audit and human approval where the workflow is sensitive",
+        "domain modules such as inventory, CRM/B2B, customer service, Digital Office and operational recovery must reuse this workflow authority instead of creating separate automation engines",
+        "the workflow engine does not itself invent business decisions or gain direct unrestricted commerce mutation authority"
+      ],
+      "evidenceRefs": []
+    },
+    {
       "id": "DIGITAL-OFFICE-WORKFORCE",
       "title": "Digital Office Workforce & Sales Operations",
       "status": "planned",
@@ -729,32 +755,6 @@
       "dependsOn": [
         "MR1-WORKFORCE-IDENTITY"
       ]
-    },
-    {
-      "id": "EVENT-DRIVEN-WORKFLOW",
-      "title": "Event-driven Workflow Core",
-      "status": "hardening",
-      "phase": "core-capability",
-      "order": 240,
-      "targetWindow": "core-capability-complete",
-      "priority": "P0",
-      "dependsOn": [
-        "CORE-ENGINE-2",
-        "MR1-MULTITENANT-FOUNDATION"
-      ],
-      "capabilities": [
-        "CAP-COMMERCE",
-        "CAP-ADMIN",
-        "CAP-QUALITY"
-      ],
-      "scope": [
-        "shared canonical 'event -> governed workflow/runbook' engine for Shoperation operational automation",
-        "the engine itself is Market Ready launch infrastructure; launch does not require every imaginable business workflow to exist",
-        "normalized allowlisted events, idempotent processing, retry/backoff, dead-letter evidence, audit and human approval where the workflow is sensitive",
-        "domain modules such as inventory, CRM/B2B, customer service, Digital Office and operational recovery must reuse this workflow authority instead of creating separate automation engines",
-        "the workflow engine does not itself invent business decisions or gain direct unrestricted commerce mutation authority"
-      ],
-      "evidenceRefs": []
     },
     {
       "id": "AI-SAFETY-SECURITY",
