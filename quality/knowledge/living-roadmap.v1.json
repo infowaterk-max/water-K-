@@ -654,6 +654,31 @@
       "evidenceRefs": []
     },
     {
+      "id": "EVENT-DRIVEN-WORKFLOW",
+      "title": "Event-driven Workflow Core",
+      "status": "hardening",
+      "phase": "core",
+      "order": 382,
+      "targetWindow": "core-capability-complete",
+      "priority": "P0",
+      "dependsOn": [
+        "CORE-ENGINE-2"
+      ],
+      "capabilities": [
+        "CAP-COMMERCE",
+        "CAP-ADMIN",
+        "CAP-QUALITY"
+      ],
+      "scope": [
+        "shared canonical 'event -> governed workflow/runbook' engine for Shoperation operational automation",
+        "the engine itself is Market Ready launch infrastructure; launch does not require every imaginable business workflow to exist",
+        "normalized allowlisted events, idempotent processing, retry/backoff, dead-letter evidence, audit and human approval where the workflow is sensitive",
+        "domain modules such as inventory, CRM/B2B, customer service, Digital Office and operational recovery must reuse this workflow authority instead of creating separate automation engines",
+        "the workflow engine does not itself invent business decisions or gain direct unrestricted commerce mutation authority"
+      ],
+      "evidenceRefs": []
+    },
+    {
       "id": "DIGITAL-OFFICE-WORKFORCE",
       "title": "Digital Office Workforce & Sales Operations",
       "status": "planned",
@@ -681,6 +706,31 @@
       "evidenceRefs": []
     },
     {
+      "id": "AI-ASSISTED-DECISIONING",
+      "title": "AI-assisted Decision Support",
+      "status": "hardening",
+      "phase": "core",
+      "order": 392,
+      "targetWindow": "market-ready-1.0-pro",
+      "priority": "P1",
+      "dependsOn": [
+        "CORE-ENGINE-2"
+      ],
+      "capabilities": [
+        "CAP-ADMIN",
+        "CAP-COMMERCE",
+        "CAP-QUALITY"
+      ],
+      "scope": [
+        "Pro merchant-facing advisory capability over authoritative Shoperation evidence",
+        "deterministic facts/calculations remain the source of truth; AI may explain, summarize and prioritize but may not fabricate authority or mutate commerce state",
+        "intended surfaces include executive overview, sales/B2B, CRM, marketing, inventory and promotion intelligence where sufficient evidence exists",
+        "AI outage must not remove the underlying deterministic facts or make the commerce core unavailable",
+        "the capability is useful only where it adds concrete decision value; no requirement to add generic AI buttons across the admin"
+      ],
+      "evidenceRefs": []
+    },
+    {
       "id": "EMAIL-BUILDER-MARKETING",
       "title": "Email Builder / Marketing Operations",
       "status": "hardening",
@@ -696,6 +746,31 @@
         "shared email/template authority",
         "campaign/newsletter operational maturity",
         "dynamic handoff without a parallel communication engine"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "PREDICTIVE-SUPERVISED-OPS",
+      "title": "Predictive / Supervised Operational Intelligence",
+      "status": "accepted",
+      "phase": "core",
+      "order": 402,
+      "targetWindow": "market-ready-1.0-pro",
+      "priority": "P1",
+      "dependsOn": [
+        "EVENT-DRIVEN-WORKFLOW"
+      ],
+      "capabilities": [
+        "CAP-ADMIN",
+        "CAP-COMMERCE",
+        "CAP-QUALITY"
+      ],
+      "scope": [
+        "Market Ready operating mode is human-supervised: the system may detect, predict, recommend and prepare governed actions, but a human remains the execution approval authority for consequential business actions",
+        "default autonomous mode is OFF; no Market Ready requirement exists for broad unattended price, inventory, promotion, order, customer or financial mutation",
+        "supervised operation must collect structured outcome evidence about recommendations/proposals: whether merchants viewed, accepted, rejected, modified or ignored them and what observable outcome followed where attribution is valid",
+        "self-evaluation means measuring recommendation usefulness, accuracy, confidence calibration, false positives/negatives and merchant adoption; it does not grant the system self-approval authority",
+        "resource investment in broader autonomy is evidence-gated rather than assumed from technical possibility"
       ],
       "evidenceRefs": []
     },
@@ -725,9 +800,9 @@
       "id": "CONTROLLED-INTEGRATION-FRAMEWORK",
       "title": "Controlled Integration Framework",
       "status": "planned",
-      "phase": "market-ready",
-      "order": 420,
-      "targetWindow": "market-ready-1.0",
+      "phase": "core",
+      "order": 412,
+      "targetWindow": "core-capability-complete",
       "priority": "P0",
       "capabilities": [
         "CAP-INTEGRATIONS",
@@ -735,12 +810,18 @@
         "CAP-TENANT"
       ],
       "scope": [
-        "walled-garden/curated integration direction, not an open Shopify-style app store",
-        "scoped API/permission contracts",
-        "sandbox and review/certification boundary",
-        "event foundation for safe extensions"
+        "closed/walled-garden integration model: external systems receive only the smallest explicit capability required for the connector's job",
+        "Market Ready foundation includes tenant-scoped, revocable/expiring credentials, allowlisted scopes, webhook/event delivery, retry/dead-letter evidence, audit and provider/connector lifecycle controls",
+        "least privilege is mandatory: a printer-like connector that needs one function receives that function, not broad filesystem, tenant-data, admin or generic runtime access",
+        "no arbitrary third-party code execution, plugin-installed runtime, generic SQL/RPC/database proxy or broad permission bundle",
+        "provider adapters and approved ERP/WMS/accounting/operational connectors reuse this foundation",
+        "a public/open App Store ecosystem is not a Market Ready blocker; any later marketplace remains curated, reviewed and permission-scoped rather than Shopify-style unrestricted extension execution"
       ],
-      "evidenceRefs": []
+      "evidenceRefs": [],
+      "dependsOn": [
+        "CORE-ENGINE-2",
+        "EVENT-DRIVEN-WORKFLOW"
+      ]
     },
     {
       "id": "SANDBOX-TEST-MODE",
@@ -1062,6 +1143,32 @@
         "affiliate/referral",
         "subscriptions where justified",
         "deeper personalization/customer-value capabilities"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "BOUNDED-AUTONOMY-EVIDENCE-REVIEW",
+      "title": "Bounded / Autonomous Commerce Evidence Review",
+      "status": "parked",
+      "phase": "post-launch",
+      "order": 655,
+      "targetWindow": "post-launch-after-minimum-12-months-real-usage",
+      "priority": "P3",
+      "dependsOn": [
+        "PREDICTIVE-SUPERVISED-OPS",
+        "MARKET-READY-1-0"
+      ],
+      "capabilities": [
+        "CAP-ADMIN",
+        "CAP-COMMERCE",
+        "CAP-QUALITY"
+      ],
+      "scope": [
+        "no broad bounded/autonomous activation is a Market Ready 1.0 requirement",
+        "revisit only after at least roughly 12 months of real customer usage and enough actual supervised-feature adoption/outcome evidence; elapsed time alone is insufficient",
+        "review merchant adoption, recommendation quality, false-positive/false-negative rates, approval/rejection patterns, measurable business outcomes, incidents and support burden",
+        "if real customers do not materially use the supervised capability, do not allocate major engineering resources to autonomy merely because the technology exists",
+        "any later bounded mode must remain least-authority, allowlisted, reversible where possible, budget/risk/confidence constrained, kill-switch protected and separately PO-approved"
       ],
       "evidenceRefs": []
     },
