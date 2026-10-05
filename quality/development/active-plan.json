@@ -275,7 +275,7 @@
     "requirements": [
       {
         "id": "REQ-ROADMAP-V2-SINGLE-AUTHORITY",
-        "requirement": "The repository has one canonical Living Roadmap v2 authority and no active consumer depends on the retired v1 path.",
+        "requirement": "The canonical quality-system roadmap authority is Living Roadmap v2, the v1 authority is retired, and the migrated canonical roadmap consumers no longer reference the v1 path.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS",
@@ -293,6 +293,21 @@
               "GUARD-QUALITY-TESTS"
             ]
           }
+        ],
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "canonical-quality-roadmap-authority-and-migrated-consumers",
+          "strength": 2,
+          "dimensions": [
+            "tests",
+            "consumers",
+            "regression",
+            "types",
+            "build"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
         ]
       },
       {
