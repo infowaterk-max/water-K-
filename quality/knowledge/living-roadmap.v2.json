@@ -389,9 +389,10 @@
         "CAP-BUILDER"
       ],
       "scope": [
-        "Alap is a complete professional webshop and the competitive floor: ordinary commerce capability must not be artificially paywalled merely to create a weaker entry tier",
-        "Pro is the larger-team/business-system layer: advanced B2B governance, Digital Office, advanced automation, advanced analytics/CRM/intelligence and operational optimization",
-        "both Alap and Pro use the same 42 design families, the same full manual Builder, the same canonical commerce authorities and the same storefront runtime; package differences are server-authoritative entitlements, never template forks",
+        "Alap is a complete professional webshop and competitive baseline for ordinary day-to-day commerce; it is not an artificially crippled store",
+        "Alap does not expose authorable Special Commerce shopping engines: its storefront may be visually just as strong as Pro, but merchant/customer experiences such as Guided Finder, Composer, Configurator, Compatibility, Compare/Spec, Profile/Context, Release/Drop, Interactive Scene and Recipe Commerce are Pro capabilities",
+        "Pro is the business-system and enhanced-shopping layer: Digital Office, advanced B2B governance, advanced automation/analytics/intelligence, operational optimization and Special Commerce engines",
+        "both Alap and Pro use the same 42 design families, the same full manual Builder, the same canonical commerce authorities and the same storefront runtime; package differences are server-authoritative entitlements, never lower-quality designs or separate template forks",
         "Digital Office is wholly Pro-only: no Team Chat, shared mailbox/inbox, communication workspace, tasks, approvals, staff profiles, leave/delegation, sending center, shared communication history/templates or Digital Office workforce surface may leak into Alap",
         "Alap still includes ordinary transactional webshop email, Form Wizard delivery to an external merchant email address, newsletter/basic campaign sending and customer-facing notifications; these do not create a Digital Office workspace",
         "baseline multi-location/multi-warehouse inventory is Alap; automated cross-location routing, split-fulfillment optimization, depot/address-aware source selection and Smart Stock/procurement optimization are Pro",
@@ -399,6 +400,7 @@
         "ordinary company billing and simple customer groups/segments are Alap; company-account B2B purchasing governance, RFQ/offer, contract pricing, approval/spending/credit policy and maker-checker are Pro",
         "provider integrations required to operate a normal Hungarian webshop are Alap; merchant-facing advanced API/webhook/integration-management depth is Pro, while connector-specific external/variable costs may remain Add-on",
         "AI Builder, subscriptions, advanced AR/3D and similarly specialized or variable-cost capabilities remain Add-on/post-launch rather than being forced into Pro",
+        "shared internal engines may technically power ordinary storefront primitives, but an Alap merchant cannot configure, instantiate or publish Pro Special Commerce experiences through Builder/template entitlements",
         "package boundaries may be refined from real usage later, but a later recommendation cannot silently override an explicit PO entitlement decision"
       ],
       "evidenceRefs": [],
@@ -408,12 +410,12 @@
           "Shoprenter",
           "UNAS"
         ],
-        "policy": "Alap must remain at least a complete competitive professional webshop; Pro monetizes higher operational/business-system depth rather than ordinary commerce necessities.",
+        "policy": "Alap remains a complete competitive professional webshop for ordinary commerce; Pro differentiates through larger-operation tooling and enhanced shopping/commerce engines while design quality remains equal.",
         "reconciliationNotes": [
-          "Shopify reinforced keeping full-store commerce, inventory, marketing foundations, reporting foundations and extensibility primitives available without crippling the entry plan.",
-          "Shoprenter reinforced keeping ordinary Hungarian commerce, bulk operations, coupons/promotions, local provider integrations and merchant usability out of an artificial Pro wall.",
-          "UNAS reinforced strong back-office/inventory/admin foundations while reserving deeper automation, procurement and higher integration depth for larger-operation tiers.",
-          "Later explicit PO decisions supersede older assistant suggestions where they conflict."
+          "The detailed competitor benchmark is a floor for normal webshop capability, not a reason to expose Shoperation's differentiated Special Commerce engines in Alap.",
+          "A later accepted entitlement decision records Guided Finder, Composer, Configurator, Compatibility/Fitment, Compare & Spec and Profile Context as Pro capabilities.",
+          "The current PO decision makes the package rule explicit: equal design quality does not imply equal shopping-engine capability; Pro templates gain the Special Commerce engines behind the shared design/runtime.",
+          "Later explicit PO decisions supersede older assistant suggestions or earlier temporary entitlement placements where they conflict."
         ]
       },
       "packageMatrix": {
@@ -437,7 +439,7 @@
             "personal/store pickup and manual source/transfer handling",
             "barcode/SKU stock add-reduce-adjust-transfer and unknown-barcode product/variant intake",
             "opt-in backorder policy where supported by the canonical order/inventory authority",
-            "search, filtering, sorting and Compare/Spec baseline",
+            "ordinary catalog search, filtering and sorting",
             "SEO, blog/content pages, landing pages and Form Wizard",
             "CSV/import/export, bulk product/customer operations and Migration Assistant",
             "normal customer groups/segments and ordinary merchant customer management",
@@ -451,8 +453,6 @@
             "raw/basic campaign metrics and ordinary report export",
             "merchant owner/staff authentication, baseline RBAC/permissions, audit/activity and applicable MFA/security controls",
             "controlled setup for normal payment/shipping/invoice and other approved operational provider connectors",
-            "Guided Finder (E3), Multi-Product Composer (E4), Configurator Lite (E5), Compatibility Core (E6), Compare/Spec (E7) and Profile/Context (E8) shared engines where the storefront experience uses them",
-            "Drop/Release Commerce shared entitlement",
             "Digital Commerce downloads and secure customer document access"
           ]
         },
@@ -486,7 +486,15 @@
             "merchant-facing scoped API credentials, webhooks and advanced controlled integration management",
             "advanced operational exports/integration flows for ERP/WMS/accounting/approved external systems",
             "Interactive Scene / Shop-the-Look / Room-style commerce entitlement",
-            "Recipe Commerce entitlement"
+            "Recipe Commerce entitlement",
+            "Product Discovery (E2) enhanced discovery engine entitlement",
+            "Guided Finder (E3) entitlement",
+            "Multi-Product Composer (E4) entitlement",
+            "Product Configurator (E5) entitlement",
+            "Compatibility / Fitment (E6) entitlement",
+            "Compare & Spec (E7) entitlement",
+            "Profile / Context (E8) entitlement",
+            "Drop / Release Commerce entitlement"
           ]
         },
         "addOnOrLater": {
@@ -516,7 +524,17 @@
           "advanced multi-step workflow automation",
           "advanced CRM/LTV/cohort/attribution/executive intelligence",
           "merchant-facing advanced API/integration management",
-          "AI-assisted business decisioning and supervised predictive operations"
+          "AI-assisted business decisioning and supervised predictive operations",
+          "Product Discovery (E2) enhanced discovery engine",
+          "Guided Finder (E3)",
+          "Multi-Product Composer (E4)",
+          "Product Configurator (E5)",
+          "Compatibility / Fitment (E6)",
+          "Compare & Spec (E7)",
+          "Profile / Context (E8)",
+          "Drop / Release Commerce",
+          "Interactive Scene / Shop-the-Look / Room-style commerce",
+          "Recipe Commerce"
         ]
       }
     },
