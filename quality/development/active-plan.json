@@ -1,93 +1,62 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-E13-PROOF-HARNESS-WORKFORCE-COMPATIBILITY",
-  "task": "E13 browser proof harness compatibility and quality authority reconciliation for the canonical workforce entry contract.",
-  "status": "closed",
-  "guardDigest": "62903da6",
-  "changeBaseSha": "ff42402e1cc18e8592ee1219bdd67dbdf18267da",
+  "taskId": "DEV-STAGE1-WORKFORCE-MFA-ACTIVATION-CONTROL",
+  "task": "Stage 1 Workforce Identity: add explicit prepared-versus-enforced MFA activation control so the complete TOTP policy remains implemented but interactive workforce MFA stays parked until final audit activation, without changing RBAC, tenant authority, middleware, or parked PR #858.",
+  "status": "ready-for-implementation",
+  "guardDigest": "00e392d5",
+  "changeBaseSha": "3a245d76e7ba62e731ea228805663062629fcaf8",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "quality/knowledge/domain-foundations.v1.json",
-    "scripts/template-factory-product-owner-handoff.mjs",
-    "tests/template-factory-engine-functional-proof-runner.test.ts",
-    "tests/shoperation-semantic-execution-intelligence.test.ts"
+    "src/lib/auth/workforce-assurance-policy.ts",
+    "src/app/api/auth/workforce-context/route.ts",
+    "tests/workforce-identity-aal2-primitives.test.ts",
+    "tests/workforce-auth-ux.test.ts",
+    "tests/workforce-mfa-activation-control.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system"
+    "auth-access-authority",
+    "customer-account",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-IDENTITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "auth-access-authority"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
-    "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
-    "TF-KF-001",
     "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
     "TF-KF-006",
-    "TF-KF-007",
     "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
     "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "TF-KF-020"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-001",
+    "SQ-NK-006",
+    "SQ-NK-008",
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-E13-PROOF-HARNESS-COMPATIBILITY",
+    "sourceRef": "PO-2026-10-06-MR1-WORKFORCE-MFA-ACTIVATION-CONTROL",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "The change is limited to quality/proof infrastructure but its output is release evidence. A defective harness can create false negatives that block valid releases or, worse, false positives that certify an invalid exact-head state. Product runtime identity and authorization authority must remain unchanged.",
+      "rationale": "The existing TOTP policy is security-sensitive and already implemented, but the active workforce login currently applies it immediately. The product-owner decision is to keep MFA prepared but non-blocking during ongoing visual/functional audit work and activate enforcement only near final audit. This transaction must separate policy truth from activation state without weakening the target policy or activating parked server-side AAL2 enforcement.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -103,28 +72,31 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The E13 browser proof authenticates through /api/auth/workforce-login with next=/admin/platform instead of navigating to the removed legacy /platform password form.",
-        "The proof waits for the canonical data-workforce-auth surface and uses its email/password inputs and canonical submit control.",
-        "The proof reaches /admin/platform after the canonical workforce entry without changing product runtime authentication, role, tenant or MFA authority.",
-        "The canonical domain registry classifies the Template Factory Product Owner handoff and Template Factory quality-gate scripts as DOMAIN-QUALITY / quality-knowledge-system infrastructure.",
-        "Regression tests fail if the proof producer returns to the legacy /platform credential surface or if the quality script loses canonical DOMAIN-QUALITY classification.",
-        "PR #858 remains parked; no AAL2 enforcement or product runtime behavior is activated or weakened."
+        "The canonical target TOTP policy remains unchanged: platform owner requires two factors, platform admin one, store owner/admin one, sensitive operations one, low-risk roles zero.",
+        "A canonical prepared/enforced activation mode is introduced under DOMAIN-IDENTITY without creating a second authentication authority.",
+        "Prepared mode is the default when no explicit activation value is configured and produces an effective interactive workforce TOTP requirement of zero while preserving the target policy value.",
+        "Enforced mode produces the effective TOTP requirement from the unchanged target policy.",
+        "The workforce-context route returns both effective and policy TOTP requirements plus the activation mode from server-owned configuration.",
+        "The canonical workforce login therefore remains usable for current visual/functional audits without mandatory TOTP enrollment/challenge while the activation mode is prepared.",
+        "No role, tenant, middleware authorization authority or parked PR #858 server-side AAL2 enforcement is added, weakened, merged or activated."
       ],
       "invariants": [
-        "A failing acceptance harness must be repaired at the harness/quality authority when the product contract is already correct.",
-        "The proof harness may consume the canonical workforce entry contract but may not become authentication or authorization authority.",
-        "Production/runtime auth, tenant, role and middleware files remain read-only.",
-        "The Release Risk Budget must see only the quality-infrastructure release subsystem plus neutral tests/plan metadata.",
-        "The proof must still require real credentials, canonical navigation to /admin/platform and the existing E13 side-effect/fail-closed assertions."
+        "Supabase Auth remains the only session/password/MFA authority.",
+        "requiredWorkforceTotpFactors remains the canonical Market Ready target-policy function and retains existing owner/admin semantics.",
+        "Activation state changes only the effective interactive login requirement; it does not alter role membership, tenant resolution or authorization decisions.",
+        "Unknown or absent activation configuration resolves to prepared, never silently to enforced.",
+        "Final enforcement requires an explicit future activation transaction; this release does not claim Market Ready AAL2 enforcement.",
+        "PR #858 remains open/draft and untouched.",
+        "The active delegator PR #912 remains separate and is not merged or modified by this Auth Core transaction."
       ],
       "forbiddenStates": [
-        "e13-proof-uses-legacy-platform-password-form",
-        "proof-harness-weakens-product-runtime-to-pass",
-        "template-factory-quality-script-unclassified",
-        "e13-proof-bypasses-platform-role-check",
-        "e13-proof-removes-side-effect-fail-closed-checks",
-        "runtime-auth-authority-change",
-        "aal2-enforcement-activation"
+        "target-mfa-policy-weakened",
+        "mfa-enforced-by-default-before-final-audit",
+        "client-owned-mfa-activation-authority",
+        "role-or-tenant-authority-change",
+        "middleware-authz-authority",
+        "aal2-server-enforcement-activation",
+        "delegator-release-mixed-into-auth-correction"
       ]
     },
     "model": {
@@ -156,72 +128,79 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The E13 harness still opens /platform and waits for the deleted legacy Belépés a Shoperationbe button.",
-        "The harness navigates to canonical workforce login but queries generic inputs outside the workforce surface and can bind to the wrong form.",
-        "The harness stops checking that the resulting route is /admin/platform, turning identity entry into a shallow page-load proof.",
-        "The product runtime is modified to satisfy the old harness instead of repairing the stale evidence producer.",
-        "The handoff script remains outside DOMAIN-QUALITY even though release and knowledge policies already classify it as quality infrastructure.",
-        "A broad domain path reclassifies unrelated Template Factory implementation as quality authority.",
-        "The proof compatibility fix is mixed back into the ADMIN/BUILDER/STOREFRONT delegator release and recreates the Release Risk Budget violation."
+        "The implementation changes owner/admin target factor counts to zero instead of separating policy from activation.",
+        "A missing environment value accidentally enables MFA and makes every visual audit require TOTP.",
+        "A client-visible/public environment flag becomes the authority for security activation.",
+        "Prepared mode suppresses the target policy value entirely, making final activation unverifiable or easy to forget.",
+        "The workforce-context route continues returning the raw target policy as the effective login requirement and still blocks the E13/visual audit login flow.",
+        "The fix edits requireAdmin, middleware, tenant resolution or PR #858 and prematurely activates server enforcement.",
+        "The activation correction is mixed into PR #912 and recreates the high-risk mixed-release budget failure."
       ],
       "edgeCases": [
-        "An existing storageState may already reach /admin/platform and remains a valid fast path.",
-        "Without stored state, missing proof credentials still fails closed with ENGINE_FUNCTIONAL_PLATFORM_CREDENTIALS_REQUIRED.",
-        "Canonical workforce login may present its own session/MFA continuation; the harness must not reimplement that authority.",
-        "The classification change uses exact script paths rather than a broad scripts/template-factory-** ownership claim.",
-        "The E13 proof retains cookie-consent handling, role-required diagnostics, authoritative quote, checkout flow and no-production-side-effect assertions."
+        "Undefined, empty, whitespace and unknown activation values resolve to prepared.",
+        "Only the exact canonical enforced value activates the target policy.",
+        "Prepared owner context reports policyRequiredFactors=2 but requiredFactors=0.",
+        "Prepared admin context reports policyRequiredFactors=1 but requiredFactors=0.",
+        "Enforced owner/admin contexts report effective values identical to the target policy.",
+        "Low-risk operator remains zero in both prepared and enforced modes.",
+        "Existing verified TOTP factors remain untouched in Supabase; prepared mode does not unenroll or mutate them."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-RESTORE-LEGACY-PLATFORM-LOGIN",
-        "summary": "Change /platform back to the old direct password form so the proof can log in.",
+        "id": "ALT-WEAKEN-TARGET-POLICY",
+        "summary": "Change requiredWorkforceTotpFactors so owner/admin temporarily return zero.",
         "disposition": "rejected",
-        "reason": "That would regress the verified Workforce Auth convergence and make product runtime conform to stale test infrastructure."
+        "reason": "That destroys the canonical Market Ready policy and conflates target security requirements with activation timing."
       },
       {
-        "id": "ALT-SKIP-E13-PROOF",
-        "summary": "Bypass or mark the exact-head E13 browser proof optional for this release.",
+        "id": "ALT-PROOF-HARNESS-BYPASS",
+        "summary": "Teach E13/visual proof tooling to bypass the workforce MFA state machine.",
         "disposition": "rejected",
-        "reason": "External functional proof is part of the canonical completion contract; removing it would weaken assurance."
+        "reason": "That would hide a real product activation mismatch and create special test authentication semantics."
       },
       {
-        "id": "ALT-QUALITY-HARNESS-RECONCILIATION",
-        "summary": "Update only the quality proof producer to consume the canonical workforce entry and reconcile its DOMAIN-QUALITY ownership.",
+        "id": "ALT-MERGE-PARKED-AAL2",
+        "summary": "Activate PR #858 and force full AAL2 now.",
+        "disposition": "rejected",
+        "reason": "This contradicts the accepted audit workflow and would make routine visual/functional audit access unnecessarily burdensome."
+      },
+      {
+        "id": "ALT-PREPARED-ENFORCED-ACTIVATION",
+        "summary": "Preserve target policy but derive the effective login requirement from an explicit server-owned prepared/enforced activation mode.",
         "disposition": "selected",
-        "reason": "This repairs the stale evidence path without changing product authority and keeps the release-risk transaction isolated."
+        "reason": "This keeps the complete security design implemented and testable while honoring the deliberate activation timing boundary."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Architecture",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The handoff and quality-gate scripts are already treated as quality infrastructure by scope/release policy but lack canonical DOMAIN-QUALITY path ownership.",
-        "resolution": "Register only the two exact quality scripts under DOMAIN-QUALITY; do not claim all Template Factory scripts.",
+        "role": "Security",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Defaulting owner/admin target policy itself to zero would weaken security truth.",
+        "resolution": "Keep requiredWorkforceTotpFactors unchanged; introduce a separate effective activation calculation with target policy still observable.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json",
-          "quality/knowledge/knowledge-scope-policy.v1.json",
-          "deploy/release-risk-policy.json"
+          "src/lib/auth/workforce-assurance-policy.ts",
+          "tests/workforce-identity-aal2-primitives.test.ts"
         ]
       },
       {
-        "role": "Operations",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Changing the product to satisfy the old E13 selector would convert a harness defect into a product regression.",
-        "resolution": "Keep product runtime read-only and update authenticatePlatformOperator to traverse the canonical workforce entry while retaining all downstream E13 proof obligations.",
+        "role": "Architecture",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "MFA activation belongs to DOMAIN-IDENTITY and must not be owned by preview, storefront, middleware or quality harness code.",
+        "resolution": "Only auth policy/context plus neutral regressions are editable; #912 delegates consume the resulting canonical contract later.",
         "evidence": [
-          "scripts/template-factory-product-owner-handoff.mjs",
-          "tests/template-factory-engine-functional-proof-runner.test.ts"
+          "quality/knowledge/domain-foundations.v1.json",
+          "src/app/api/auth/workforce-context/route.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The proof-harness edit cannot remain mixed with the delegator release because Release Risk Budget becomes 7/5 across four subsystems.",
-        "resolution": "Ship the quality-infrastructure compatibility change first as its own release, then rebase/reconstruct the delegator release on the new main.",
+        "finding": "Mixing the activation correction into the ADMIN/BUILDER/STOREFRONT delegator release would reopen the release-risk problem.",
+        "resolution": "Ship this as an isolated Auth Core transaction first; reconstruct #912 from verified main afterward.",
         "evidence": [
           "deploy/release-risk-policy.json",
           "quality/development/active-plan.json"
@@ -230,90 +209,96 @@
     ],
     "challenge": [
       {
-        "id": "CH-E13-Q1",
-        "scenario": "The proof opens /platform after the product removed direct password entry.",
-        "finding": "The proof fails before testing E13 even though the canonical product entry is correct.",
-        "resolution": "Navigate directly to /api/auth/workforce-login?next=/admin/platform.",
+        "id": "CH-MFA-ACT-1",
+        "scenario": "WORKFORCE_MFA_MODE is unset during current audits.",
+        "finding": "Raw target policy would force owner/admin enrollment or challenge immediately.",
+        "resolution": "Canonical mode resolver returns prepared and effective requiredFactors=0.",
         "status": "resolved"
       },
       {
-        "id": "CH-E13-Q2",
-        "scenario": "Another form with email/password inputs is present on the page.",
-        "finding": "Generic selectors could authenticate through the wrong surface.",
-        "resolution": "Scope all credential selectors to [data-workforce-auth=true].",
+        "id": "CH-MFA-ACT-2",
+        "scenario": "A typo or unknown activation value is deployed.",
+        "finding": "Silently treating unknown input as enforced would unexpectedly lock audit users behind MFA.",
+        "resolution": "Only exact enforced activates; all other values resolve to prepared in this pre-final-audit release.",
         "status": "resolved"
       },
       {
-        "id": "CH-E13-Q3",
-        "scenario": "Canonical sign-in succeeds but the actor lacks platform authority.",
-        "finding": "A shallow login success could falsely satisfy the engine precondition.",
-        "resolution": "Retain the /admin/platform URL wait and ENGINE_FUNCTIONAL_PLATFORM_ROLE_REQUIRED diagnostic.",
+        "id": "CH-MFA-ACT-3",
+        "scenario": "A developer solves the audit problem by changing owner/admin target factor counts.",
+        "finding": "Market Ready security policy truth would be lost.",
+        "resolution": "Regression tests keep owner=2/admin=1 and test activation separately.",
         "status": "resolved"
       },
       {
-        "id": "CH-E13-Q4",
-        "scenario": "A developer repairs the failure by reintroducing the old product login UI.",
-        "finding": "The acceptance harness would pass while the verified identity architecture regresses.",
-        "resolution": "Product runtime auth files are impacted-read-only and regression tests assert the harness contract instead.",
+        "id": "CH-MFA-ACT-4",
+        "scenario": "Prepared mode hides the future required factor count.",
+        "finding": "The system could appear to have no MFA policy and final activation could overclaim readiness.",
+        "resolution": "Context exposes both policyRequiredFactors and effective requiredFactors plus mfaMode.",
         "status": "resolved"
       },
       {
-        "id": "CH-E13-Q5",
-        "scenario": "The quality script remains unowned in Atlas.",
-        "finding": "Future Plan Before Code/Authority Graph reasoning can treat a canonical proof producer as semantically unresolved.",
-        "resolution": "Add only the exact handoff and quality-gate script paths to DOMAIN-QUALITY and prove classification.",
+        "id": "CH-MFA-ACT-5",
+        "scenario": "The E13 proof account is owner/admin.",
+        "finding": "Canonical login currently stops on TOTP before E13 proof, proving activation is already operationally enforced.",
+        "resolution": "Prepared mode lets canonical password/context flow complete without test-only bypass; E13 can then prove the real engine.",
         "status": "resolved"
       },
       {
-        "id": "CH-E13-Q6",
-        "scenario": "The domain fix broadly labels all Template Factory scripts as quality.",
-        "finding": "Builder implementation authority could be stolen by a broad quality glob.",
-        "resolution": "Use two exact canonical paths matching the scripts already named by knowledge/release policy.",
+        "id": "CH-MFA-ACT-6",
+        "scenario": "The correction edits requireAdmin/middleware or merges #858.",
+        "finding": "Server-side AAL2 authorization enforcement would become active before the planned final audit.",
+        "resolution": "Those authorities remain impacted-read-only and dedicated regressions retain the parked boundary.",
         "status": "resolved"
       },
       {
-        "id": "CH-E13-Q7",
-        "scenario": "The proof-harness fix stays in PR #912.",
-        "finding": "Release Risk Budget remains 7/5, 4/3 and blocks before functional proof.",
-        "resolution": "Isolate this quality release first; PR #912 will later consume it from main with no quality-infrastructure diff.",
+        "id": "CH-MFA-ACT-7",
+        "scenario": "The correction is committed directly into #912.",
+        "finding": "High-risk auth and three non-auth subsystems would again become one mixed release.",
+        "resolution": "Use an isolated Auth Core branch and merge to main before reconstructing #912.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code on the exact plan-only quality-infrastructure head before editing the domain registry or proof producer.",
-      "Add exact DOMAIN-QUALITY ownership for the two existing Template Factory quality scripts.",
-      "Change only authenticatePlatformOperator in the E13 proof producer to use canonical workforce entry; retain downstream proof semantics.",
-      "Add deterministic source-contract regression for the canonical workforce selectors and semantic Atlas regression for DOMAIN-QUALITY ownership.",
-      "Run Edit-Time Guard and full Incremental Known Failure Replay because quality knowledge changes force full replay.",
-      "Require Release Risk Budget PASS with quality-infrastructure only.",
-      "Run full Quality Tests, TypeScript and Production Build, then exact-head Completion Truth and lifecycle closure before merge."
+      "Run Plan Before Code on the exact plan-only head before implementation.",
+      "Add pure prepared/enforced activation semantics while preserving requiredWorkforceTotpFactors target-policy behavior.",
+      "Update workforce-context to derive effective factors server-side and expose target/effective/mode evidence.",
+      "Add deterministic policy/activation/source-contract regressions, including no parked AAL2 enforcement.",
+      "Run Edit-Time Guard and Incremental Known Failure Replay.",
+      "Require Release Risk Budget PASS for the isolated Auth Core transaction.",
+      "Run full Quality Tests, TypeScript and Production Build.",
+      "Require exact-head Completion Truth VERIFIED and lifecycle closure before merge to main; only then reconstruct #912."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-06-E13-PROOF-HARNESS-COMPATIBILITY",
+      "request": "PO-2026-10-06-MR1-WORKFORCE-MFA-ACTIVATION-CONTROL",
       "authority": [
-        "quality-knowledge-system"
+        "auth-access-authority"
       ],
       "mustEdit": [
-        "quality/knowledge/domain-foundations.v1.json",
-        "scripts/template-factory-product-owner-handoff.mjs"
+        "src/lib/auth/workforce-assurance-policy.ts",
+        "src/app/api/auth/workforce-context/route.ts"
       ],
       "mayEdit": [
-        "tests/template-factory-engine-functional-proof-runner.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "tests/workforce-identity-aal2-primitives.test.ts",
+        "tests/workforce-auth-ux.test.ts",
+        "tests/workforce-mfa-activation-control.test.ts"
       ],
       "impactedReadOnly": [
-        "src/app/platform/page.tsx",
-        "src/app/api/auth/workforce-login/page.tsx",
         "src/lib/auth/workforce-auth-form.tsx",
+        "src/lib/auth/workforce-mfa-client.ts",
+        "src/lib/auth/admin-api.ts",
         "src/lib/auth/require-admin.ts",
+        "src/lib/instances/access.ts",
         "src/middleware.ts",
-        ".github/workflows/template-factory-quality-gate.yml",
-        "quality/knowledge/knowledge-scope-policy.v1.json",
-        "deploy/release-risk-policy.json"
+        "src/app/platform/page.tsx",
+        "src/app/storefront-template-preview-login/page.tsx",
+        "src/app/admin/platform/webaruhazak/actions.ts",
+        "quality/knowledge/living-roadmap.v2.json"
       ],
       "proof": [
-        "tests/template-factory-engine-functional-proof-runner.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "tests/workforce-identity-aal2-primitives.test.ts",
+        "tests/workforce-auth-ux.test.ts",
+        "tests/workforce-mfa-activation-control.test.ts",
+        "tests/workforce-auth-core-isolation.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -322,55 +307,60 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-E13-PROOF-HARNESS-COMPATIBILITY",
+    "sourceRef": "PO-2026-10-06-MR1-WORKFORCE-MFA-ACTIVATION-CONTROL",
     "requirements": [
       {
-        "id": "REQ-E13-PROOF-HARNESS-CANONICAL-ENTRY",
-        "requirement": "The E13 exact-head browser proof consumes the canonical workforce entry contract and the proof producer is owned by canonical quality authority without changing product runtime identity or authorization semantics.",
+        "id": "REQ-WORKFORCE-MFA-ACTIVATION-CONTROL",
+        "requirement": "Workforce MFA keeps the canonical Market Ready target policy fully implemented while an explicit server-owned prepared/enforced activation mode controls the effective interactive login requirement; current default remains prepared until final audit.",
         "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "e13-proof-harness-canonical-entry",
+          "capability": "CAP-AUTH",
+          "breadth": "workforce-mfa-activation-control",
           "strength": 2,
           "dimensions": [
-            "scope",
-            "classification",
             "tests",
-            "forbidden-state",
-            "truth"
+            "types",
+            "build",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
-          "CAP-QUALITY"
+          "CAP-AUTH"
         ],
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-EDIT-TIME"
+            "GUARD-QUALITY-TESTS",
+            "GUARD-TYPECHECK"
           ],
           "outcome": [
-            "GUARD-INCREMENTAL-REPLAY",
-            "GUARD-QUALITY-TESTS"
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-E13-LEGACY-PLATFORM-LOGIN",
-            "statement": "The E13 proof must not depend on the removed legacy /platform direct-password surface.",
+            "id": "NEG-MFA-TARGET-POLICY-WEAKENED",
+            "statement": "Owner/admin target TOTP policy must remain 2/1 and must not be reduced to solve activation timing.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-PRODUCT-RUNTIME-FOR-HARNESS",
-            "statement": "Product runtime identity/authorization behavior must not be weakened or changed to satisfy the proof producer.",
+            "id": "NEG-MFA-PREMATURE-ENFORCEMENT",
+            "statement": "Absent or non-enforced activation configuration must not force TOTP during current audit workflows.",
             "evidence": [
-              "GUARD-EDIT-TIME",
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-QUALITY-AUTHORITY-UNRESOLVED",
-            "statement": "The canonical Template Factory proof scripts must not remain semantically unclassified.",
+            "id": "NEG-CLIENT-MFA-ACTIVATION-AUTHORITY",
+            "statement": "MFA activation must remain server-owned and must not be delegated to client/public configuration.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS",
+              "GUARD-TYPECHECK"
+            ]
+          },
+          {
+            "id": "NEG-AAL2-SERVER-ACTIVATION",
+            "statement": "This release must not activate requireAdmin/middleware AAL2 enforcement or merge parked PR #858.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -378,11 +368,11 @@
         ]
       },
       {
-        "id": "REQ-E13-PROOF-HARNESS-RELEASE-ISOLATION",
-        "requirement": "The proof-harness compatibility ships as an isolated quality-infrastructure release within the canonical Release Risk Budget.",
+        "id": "REQ-WORKFORCE-MFA-ACTIVATION-RELEASE-ISOLATION",
+        "requirement": "The high-risk MFA activation-control change ships as an isolated auth release within the canonical Release Risk Budget and does not mix with #912 delegator changes.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "e13-proof-harness-release-isolation",
+          "breadth": "workforce-mfa-activation-release-isolation",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -402,8 +392,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-MIXED-DELEGATOR-QUALITY-RELEASE",
-            "statement": "The quality proof-harness change must not ship in the same release diff as substantive ADMIN/BUILDER/STOREFRONT delegator changes.",
+            "id": "NEG-MFA-MIXED-DELEGATOR-RELEASE",
+            "statement": "The activation-control release must not contain substantive ADMIN/BUILDER/STOREFRONT delegator changes or recreate the original mixed release.",
             "evidence": [
               "GUARD-RELEASE-RISK"
             ]
@@ -412,18 +402,5 @@
       }
     ]
   },
-  "notes": "PR #912 proved the product delegator release itself is valid but a later exact-head E13 proof exposed a stale quality harness coupled to the removed legacy /platform password UI. Keeping the harness edit in #912 raises Release Risk Budget from the delegator-only 5/5 across 3 subsystems to 7/5 across 4. This transaction isolates the quality-infrastructure fix first. Product runtime and parked PR #858 remain untouched. Rebased onto security-fixed main ff42402e1cc18e8592ee1219bdd67dbdf18267da; source-map-js audit remediation and dependency-manifest authority changes are inherited from main and remain outside this quality transaction.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "586438992edb31eef13321b70283c65c51fb7805",
-    "closedAt": "2026-10-06T03:59:11.738Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-06-E13-PROOF-HARNESS-COMPATIBILITY",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Live exact-head E13 proof on PR #912 exposed an activation mismatch: canonical workforce login correctly follows requiredWorkforceTotpFactors, so the current owner/admin proof account is stopped by TOTP before E13 can run. This is not an E13 defect and must not be hidden by a quality-harness bypass. Product-owner direction remains: MFA/AAL2 is implemented now but enforcement is activated only near final audit. This isolated Auth Core correction separates target policy from activation state. PR #912 remains DRAFT and will be reconstructed from the new verified main; PR #858 remains parked."
 }
