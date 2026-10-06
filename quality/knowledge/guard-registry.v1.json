@@ -673,7 +673,7 @@
           "scripts/template-factory-*",
           "tests/**template-factory**",
           "tests/storefront-*.test.ts",
-          "quality/knowledge/**"
+          "quality/knowledge/guard-registry.v1.json"
         ],
         "configurationInputs": [
           ".github/workflows/template-factory-quality-gate.yml"

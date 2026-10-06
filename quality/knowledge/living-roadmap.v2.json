@@ -1447,7 +1447,8 @@
       "dependsOn": [
         "VISUAL-BUILDER",
         "GUARDED-VISUAL-SECTION-LIBRARY",
-        "TEMPLATE-CAPABILITY-CENSUS-42"
+        "TEMPLATE-CAPABILITY-CENSUS-42",
+        "MANAGED-TEMPLATE-QUICK-START"
       ],
       "capabilities": [
         "CAP-BUILDER",

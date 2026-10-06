@@ -123,6 +123,32 @@ describe('Control Plane ecosystem chain',()=>{
     expect(requiredExternalCompletionGuards({activePlan,verificationPlan,guardRegistry:registry})).toContain('GUARD-TEMPLATE-FACTORY');
   });
 
+  it('aligns Template Factory external-proof applicability with the producer workflow trigger authority',()=>{
+    const verificationPlan={gates:{
+      'GUARD-QUALITY-TESTS':{gateId:'GUARD-QUALITY-TESTS'},
+      'GUARD-PRODUCTION-BUILD':{gateId:'GUARD-PRODUCTION-BUILD'},
+    }};
+    const roadmapOnly={
+      status:'ready-for-implementation',
+      plannedFilePatterns:['quality/knowledge/living-roadmap.v2.json','tests/architecture-health.test.ts'],
+      operationalIntelligence:{semanticExecutionRoute:{mustEdit:['quality/knowledge/living-roadmap.v2.json'],mustCreate:[]}},
+      completionContract:{requirements:[{
+        evidence:{implementation:['GUARD-QUALITY-TESTS'],outcome:['GUARD-PRODUCTION-BUILD']},
+        forbiddenRegressions:[],
+      }]},
+    };
+    const classifierAuthority={
+      ...roadmapOnly,
+      plannedFilePatterns:['quality/knowledge/guard-registry.v1.json'],
+      operationalIntelligence:{semanticExecutionRoute:{mustEdit:['quality/knowledge/guard-registry.v1.json'],mustCreate:[]}},
+    };
+    const templateGuard=registry.guards.find((item:any)=>item.id==='GUARD-TEMPLATE-FACTORY');
+    expect(templateGuard?.verification?.semanticInputs).not.toContain('quality/knowledge/**');
+    expect(templateGuard?.verification?.semanticInputs).toContain('quality/knowledge/guard-registry.v1.json');
+    expect(requiredExternalCompletionGuards({activePlan:roadmapOnly,verificationPlan,guardRegistry:registry})).not.toContain('GUARD-TEMPLATE-FACTORY');
+    expect(requiredExternalCompletionGuards({activePlan:classifierAuthority,verificationPlan,guardRegistry:registry})).toContain('GUARD-TEMPLATE-FACTORY');
+  });
+
   it('keeps external-proof detection and resumable reconciliation on the same canonical requirement derivation',()=>{
     const checkpoint=readFileSync('scripts/shoperation-verification-checkpoint.mjs','utf8');
     expect(checkpoint).toContain('requiredExternalCompletionGuards({activePlan,verificationPlan:plan,guardRegistry})');

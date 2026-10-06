@@ -20,7 +20,8 @@
     "Shadow mode keeps full verification authoritative until false-reuse count is zero across the configured promotion proof.",
     "Development-branch Release Risk is risk analysis bound to the canonical Development Transaction; PASS or BLOCK never grants deployment or production-release authority by itself.",
     "Downstream Control Plane consumers must use matching upstream canonical data products when available; recomputation requires an explicit fallback provenance marker.",
-    "Release-unit materialization must validate every operation and exact target-base lease before one atomic ref update; partial application may never be reported as success."
+    "Release-unit materialization must validate every operation and exact target-base lease before one atomic ref update; partial application may never be reported as success.",
+    "External proof applicability must remain a subset of the authoritative producer workflow trigger scope; a consumer may not require an exact-context artifact that the producer is intentionally unable to emit."
   ],
   "intentMatchers": [
     {
@@ -190,6 +191,11 @@
       "quality-knowledge-system"
     ],
     "SQ-NK-022": [
+      "release-infrastructure",
+      "builder-template-system",
+      "quality-knowledge-system"
+    ],
+    "SQ-NK-023": [
       "release-infrastructure",
       "builder-template-system",
       "quality-knowledge-system"
