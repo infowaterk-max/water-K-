@@ -2,6 +2,8 @@ import {execFileSync,spawnSync} from 'node:child_process';
 import {existsSync,readFileSync} from 'node:fs';
 
 export const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
+export const activeDevelopmentPlanPath=()=>String(process.env.SHOPERATION_ACTIVE_PLAN??'').trim()||'quality/development/active-plan.json';
+export const readActiveDevelopmentPlan=()=>readJson(activeDevelopmentPlanPath());
 export const releasePolicy=readJson('deploy/release-risk-policy.json');
 export const knowledge=readJson('quality/knowledge/shoperation-quality-knowledge.v1.json');
 export const scopePolicy=readJson('quality/knowledge/knowledge-scope-policy.v1.json');
@@ -198,7 +200,8 @@ export function resolveCanonicalDevelopmentTransactionIdentity({
   if(!commitExists(base))return{decision:'BLOCK',code:'CI_TRANSACTION_BASE_UNRESOLVED',base,head,eventBase:eventBase||null};
   if(!commitExists(head))return{decision:'BLOCK',code:'CI_TRANSACTION_HEAD_UNRESOLVED',base,head,eventBase:eventBase||null};
   if(!isAncestor(base,head))return{decision:'BLOCK',code:'CI_TRANSACTION_ANCESTRY_INVALID',base,head,eventBase:eventBase||null};
-  return{decision:'PASS',code:null,base,head,eventBase:eventBase||null,authority:'quality/development/active-plan.json#changeBaseSha'};
+  const authority=plan?.releaseUnitContext?.planAuthority??'quality/development/active-plan.json#changeBaseSha';
+  return{decision:'PASS',code:null,base,head,eventBase:eventBase||null,authority};
 }
 
 export function parseChangedFileStatus(output){
@@ -273,7 +276,7 @@ if(process.argv.includes('--ci-transaction-self-test')){
 }
 
 if(process.argv.includes('--ci-transaction-env')){
-  const activePlan=readJson('quality/development/active-plan.json');
+  const activePlan=readActiveDevelopmentPlan();
   const identity=resolveCanonicalDevelopmentTransactionIdentity({
     plan:activePlan,
     eventBaseSha:process.env.CI_EVENT_BASE_SHA,
