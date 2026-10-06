@@ -81,6 +81,14 @@ export function validateTemplateFactoryExternalProof({
       const expectedAffected=JSON.stringify(verifiedRuntimeOrigin.affectedInputs??[]);
       const actualAffected=JSON.stringify(manifest.liveProof?.affectedInputs??[]);
       if(expectedAffected!==actualAffected)issues.push({code:'EXTERNAL_PROOF_RUNTIME_AFFECTED_INPUTS_MISMATCH',expected:verifiedRuntimeOrigin.affectedInputs??[],actual:manifest.liveProof?.affectedInputs??[]});
+      if(Boolean(manifest.liveProof?.runtimeClassifierChanged)!==Boolean(verifiedRuntimeOrigin.classifierChanged))issues.push({code:'EXTERNAL_PROOF_RUNTIME_CLASSIFIER_CHANGE_MISMATCH',expected:Boolean(verifiedRuntimeOrigin.classifierChanged),actual:Boolean(manifest.liveProof?.runtimeClassifierChanged)});
+      if(Boolean(manifest.liveProof?.runtimeSafetyFallbackApplied)!==Boolean(verifiedRuntimeOrigin.safetyFallbackApplied))issues.push({code:'EXTERNAL_PROOF_RUNTIME_FALLBACK_MISMATCH',expected:Boolean(verifiedRuntimeOrigin.safetyFallbackApplied),actual:Boolean(manifest.liveProof?.runtimeSafetyFallbackApplied)});
+      const expectedClassifierInputs=JSON.stringify(verifiedRuntimeOrigin.classifierInputs??[]);
+      const actualClassifierInputs=JSON.stringify(manifest.liveProof?.runtimeClassifierInputs??[]);
+      if(expectedClassifierInputs!==actualClassifierInputs)issues.push({code:'EXTERNAL_PROOF_RUNTIME_CLASSIFIER_INPUTS_MISMATCH',expected:verifiedRuntimeOrigin.classifierInputs??[],actual:manifest.liveProof?.runtimeClassifierInputs??[]});
+      const expectedFallbackPatterns=JSON.stringify(verifiedRuntimeOrigin.safetyFallbackRuntimePatterns??[]);
+      const actualFallbackPatterns=JSON.stringify(manifest.liveProof?.runtimeSafetyFallbackPatterns??[]);
+      if(expectedFallbackPatterns!==actualFallbackPatterns)issues.push({code:'EXTERNAL_PROOF_RUNTIME_FALLBACK_PATTERNS_MISMATCH',expected:verifiedRuntimeOrigin.safetyFallbackRuntimePatterns??[],actual:manifest.liveProof?.runtimeSafetyFallbackPatterns??[]});
     }
   }
   if(!String(runId??'').trim())issues.push({code:'EXTERNAL_PROOF_RUN_ID_MISSING'});
@@ -111,6 +119,8 @@ export function validateTemplateFactoryExternalProof({
         runtimeOriginMode:manifest.liveProof?.runtimeOriginMode??null,
         runtimeEquivalenceProven:manifest.liveProof?.runtimeEquivalenceProven===true,
         runtimeOriginDecision:verifiedRuntimeOrigin?.decision??null,
+        runtimeClassifierChanged:manifest.liveProof?.runtimeClassifierChanged===true,
+        runtimeSafetyFallbackApplied:manifest.liveProof?.runtimeSafetyFallbackApplied===true,
       },
     }:null,
   };
