@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-E13-PROOF-HARNESS-WORKFORCE-COMPATIBILITY",
   "task": "E13 browser proof harness compatibility and quality authority reconciliation for the canonical workforce entry contract.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "62903da6",
   "changeBaseSha": "c8fa6a37b7a69fe8f9b946c83a25678545a34b38",
   "plannedFilePatterns": [
@@ -412,5 +412,18 @@
       }
     ]
   },
-  "notes": "PR #912 proved the product delegator release itself is valid but a later exact-head E13 proof exposed a stale quality harness coupled to the removed legacy /platform password UI. Keeping the harness edit in #912 raises Release Risk Budget from the delegator-only 5/5 across 3 subsystems to 7/5 across 4. This transaction isolates the quality-infrastructure fix first. Product runtime and parked PR #858 remain untouched."
+  "notes": "PR #912 proved the product delegator release itself is valid but a later exact-head E13 proof exposed a stale quality harness coupled to the removed legacy /platform password UI. Keeping the harness edit in #912 raises Release Risk Budget from the delegator-only 5/5 across 3 subsystems to 7/5 across 4. This transaction isolates the quality-infrastructure fix first. Product runtime and parked PR #858 remain untouched.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "4cfcbb073c0cf32cb9983a8593bc8e7521f4534d",
+    "closedAt": "2026-10-06T03:20:41.788Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-06-E13-PROOF-HARNESS-COMPATIBILITY",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
