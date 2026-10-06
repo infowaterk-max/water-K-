@@ -141,13 +141,17 @@ describe('Control Plane ecosystem chain',()=>{
     expect(guard?.chain?.liveRuntime?.classifierInputs).toContain('scripts/lib/shoperation-template-factory-resumable-verification.mjs');
     expect(guard?.chain?.liveRuntime?.safetyFallbackRuntimePatterns).toContain('src/**');
     expect(workflow).toContain('deriveTemplateLiveRuntimeOrigin');
+    expect(workflow).toContain('deriveTemplatePreviewAnchorCandidates');
     expect(workflow).toContain('steps.live-proof.outputs.runtime_sha');
     expect(workflow).not.toContain("steps.live-proof.outputs.mode != 'REUSE'");
     expect(workflow).toContain('PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT');
+    expect(workflow).toContain('PRODUCT_OWNER_DEPLOYMENT_SOURCE_COMMIT');
+    expect(workflow).toContain("core.setOutput('deployment-source-commit',deploymentSha)");
     expect(workflow).toContain('TEMPLATE_QUALITY_LIVE_PROOF_DECISION');
+    expect(workflow).toContain('TEMPLATE_QUALITY_DEPLOYMENT_SOURCE_COMMIT');
     expect(workflow).toContain("deployment.production_environment===true||environment==='production'");
     expect(workflow).toContain("deployment.production_environment!==true&&environment==='preview'");
-    expect((workflow.match(/repos\\.listDeployments/g)??[])).toHaveLength(1);
+    expect((workflow.match(/repos\.listDeployments/g)??[])).toHaveLength(1);
     expect((workflow.match(/id: runtime-preview/g)??[])).toHaveLength(1);
     expect(workflow).not.toContain('id: product-owner-preview');
     expect(workflow).not.toContain('id: engine-functional-preview');
