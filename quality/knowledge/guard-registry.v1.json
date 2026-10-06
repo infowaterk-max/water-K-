@@ -720,7 +720,22 @@
             "package-lock.json"
           ],
           "unknownPolicy": "require-live",
-          "proofEngineInputsRemainIndependent": true
+          "proofEngineInputsRemainIndependent": true,
+          "classifierInputs": [
+            "quality/knowledge/guard-registry.v1.json",
+            "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+            ".github/workflows/template-factory-quality-gate.yml",
+            "scripts/template-factory-quality-gate.mjs",
+            "scripts/shoperation-external-proof-handoff.mjs"
+          ],
+          "safetyFallbackRuntimePatterns": [
+            "src/**",
+            "public/**",
+            "next.config.*",
+            "vercel.json",
+            "package.json",
+            "package-lock.json"
+          ]
         }
       }
     },
