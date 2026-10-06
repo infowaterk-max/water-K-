@@ -6,7 +6,7 @@ import {
   validateTemplateFactoryExternalProof,
   mergeExternalCompletionEvidence,
 } from '../scripts/shoperation-external-proof-handoff.mjs';
-import {templateLiveProofInputContractDigest} from '../scripts/lib/shoperation-template-factory-resumable-verification.mjs';
+import {templateFactoryEvidenceChecksum,templateLiveProofInputContractDigest} from '../scripts/lib/shoperation-template-factory-resumable-verification.mjs';
 import {readFileSync} from 'node:fs';
 
 const plan=(refs=['GUARD-QUALITY-TESTS','GUARD-TEMPLATE-FACTORY'])=>({
@@ -30,7 +30,7 @@ const manifest=(overrides={})=>{
       sourceCommit:'head-1',
       branch:'feature/test',
       originSourceCommit:'head-1',
-      originRunId:'12345',
+      originRunId:'123',
       originWorkflowConclusion:'current-workflow',
       ancestorProven:true,
       inputEquivalenceProven:false,
@@ -40,11 +40,8 @@ const manifest=(overrides={})=>{
       reason:'exact-head-live-proof',
     },
   };
-  const crypto=require('node:crypto');
-  const canonical=value=>Array.isArray(value)?'['+value.map(canonical).join(',')+']':value&&typeof value==='object'?'{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonical(value[key])).join(',')+'}':JSON.stringify(value);
   const merged={...base,...overrides};
-  const copy={...merged};delete copy.checksum;
-  merged.checksum=crypto.createHash('sha256').update(canonical(copy)).digest('hex');
+  merged.checksum=templateFactoryEvidenceChecksum(merged);
   return merged;
 };
 
@@ -61,7 +58,7 @@ describe('cross-workflow external completion proof handoff',()=>{
 
   it('rejects missing or unproven live-proof provenance even when the browser matrix is complete',()=>{
     const missing=validateTemplateFactoryExternalProof({
-      manifest:manifest({liveProof:null}),expectedHead:'head-1',expectedBranch:'feature/test',runId:'123',workflowConclusion:'success',guardRegistry,guardRegistry,
+      manifest:manifest({liveProof:null}),expectedHead:'head-1',expectedBranch:'feature/test',runId:'123',workflowConclusion:'success',guardRegistry,
     });
     expect(missing.ok).toBe(false);
     expect(missing.issues.map(item=>item.code)).toContain('TEMPLATE_LIVE_PROOF_CONTRACT_INVALID');
@@ -77,7 +74,7 @@ describe('cross-workflow external completion proof handoff',()=>{
         inputEquivalenceProven:true,
         affectedInputs:[],
       }}),
-      expectedHead:'head-1',expectedBranch:'feature/test',runId:'123',workflowConclusion:'success',guardRegistry,guardRegistry,
+      expectedHead:'head-1',expectedBranch:'feature/test',runId:'123',workflowConclusion:'success',guardRegistry,
     });
     expect(invalidReuse.ok).toBe(false);
     expect(invalidReuse.issues.map(item=>item.code)).toContain('TEMPLATE_LIVE_PROOF_REUSE_ANCESTRY_UNPROVEN');
@@ -86,7 +83,7 @@ describe('cross-workflow external completion proof handoff',()=>{
   it('accepts an exact-head successful Template Factory artifact with complete browser evidence',()=>{
     const result=validateTemplateFactoryExternalProof({
       manifest:manifest(),expectedHead:'head-1',expectedBranch:'feature/test',stateVersion:'shoporation-ci.v1',
-      runId:'12345',workflowName:'Template Factory Quality Gate v2',workflowConclusion:'success',guardRegistry,
+      runId:'123',workflowName:'Template Factory Quality Gate v2',workflowConclusion:'success',guardRegistry,
     });
     expect(result.ok).toBe(true);
     expect(result.evidence).toMatchObject({id:'GUARD-TEMPLATE-FACTORY',status:'PASS',sourceCommit:'head-1',branch:'feature/test',execution:'EXTERNAL'});
