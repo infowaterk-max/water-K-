@@ -234,7 +234,7 @@ export function deriveTemplatePreviewAnchorCandidates({
 }={}){
   const issues=[];
   if(!runtimeSourceCommit)return{
-    contract:'shoporation.template-factory-preview-anchor-candidates.v2',
+    contract:'shoporation.template-factory-preview-anchor-candidates.v1',
     decision:'BLOCK',
     issues:[{code:'TEMPLATE_PREVIEW_RUNTIME_SOURCE_MISSING'}],
     runtimeSourceCommit:null,
@@ -244,7 +244,7 @@ export function deriveTemplatePreviewAnchorCandidates({
   };
   const scanLimit=Number(maxScanCommits);
   if(!Number.isInteger(scanLimit)||scanLimit<1||scanLimit>5000)return{
-    contract:'shoporation.template-factory-preview-anchor-candidates.v2',
+    contract:'shoporation.template-factory-preview-anchor-candidates.v1',
     decision:'BLOCK',
     issues:[{code:'TEMPLATE_PREVIEW_ANCESTRY_SCAN_LIMIT_INVALID',actual:maxScanCommits}],
     runtimeSourceCommit,
@@ -255,7 +255,7 @@ export function deriveTemplatePreviewAnchorCandidates({
   const diagnosticLimit=Number.isInteger(Number(maxCandidates))&&Number(maxCandidates)>0?Number(maxCandidates):40;
   const boundary=templatePreviewRuntimeBoundary({registry,runtimeSourceCommit});
   if(boundary.decision!=='PASS')return{
-    contract:'shoporation.template-factory-preview-anchor-candidates.v2',
+    contract:'shoporation.template-factory-preview-anchor-candidates.v1',
     decision:'BLOCK',
     issues:boundary.issues,
     runtimeSourceCommit,
@@ -269,7 +269,7 @@ export function deriveTemplatePreviewAnchorCandidates({
       .split(/\r?\n/).map(value=>value.trim()).filter(Boolean);
   }catch(error){
     return{
-      contract:'shoporation.template-factory-preview-anchor-candidates.v2',
+      contract:'shoporation.template-factory-preview-anchor-candidates.v1',
       decision:'BLOCK',
       issues:[{code:'TEMPLATE_PREVIEW_ANCESTRY_ENUMERATION_FAILED',error:String(error)}],
       runtimeSourceCommit,
@@ -314,7 +314,7 @@ export function deriveTemplatePreviewAnchorCandidates({
   }
   if(!candidates.length)issues.push({code:'TEMPLATE_PREVIEW_EQUIVALENT_ANCESTOR_MISSING'});
   return{
-    contract:'shoporation.template-factory-preview-anchor-candidates.v2',
+    contract:'shoporation.template-factory-preview-anchor-candidates.v1',
     decision:issues.length?'BLOCK':'PASS',
     issues,
     runtimeSourceCommit,

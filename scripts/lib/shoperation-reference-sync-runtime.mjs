@@ -170,10 +170,6 @@ function semanticConsumers(atlas,candidates){
     const files=new Set();
     if(candidate.kind==='component-key')for(const file of atlas.literalIndex?.[candidate.value]??[])files.add(file);
     if(candidate.kind==='export-symbol')for(const file of atlas.referenceIndex?.[candidate.value]??[])files.add(file);
-    if(candidate.kind==='implementation-expression'){
-      for(const file of atlas.reverseImports?.[candidate.originFile]??[])files.add(file);
-      for(const file of atlas.semanticGraph?.reverseFileEdges?.[candidate.originFile]??[])files.add(file);
-    }
     for(const node of atlas.semanticGraph?.nodes??[])if(node.name===candidate.value&&node.file)files.add(node.file);
     for(const edge of atlas.semanticGraph?.edges??[])if(edge.label===candidate.value&&edge.fromFile)files.add(edge.fromFile);
     for(const file of files){
