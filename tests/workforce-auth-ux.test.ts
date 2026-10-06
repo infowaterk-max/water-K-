@@ -29,7 +29,12 @@ describe('Stage 1 workforce login and MFA UX',()=>{
     expect(adminApi).toContain('getCurrentWebshopInstance()');
     expect(adminApi).toContain('getActiveStoreRoles(instance.id)');
     expect(adminApi).toContain('hasStoreRoleBindingHistory(instance.id,user.id)');
-    expect(contextRoute).toContain('requiredWorkforceTotpFactors({platformRole:context.platformRole,storeRoles})');
+    expect(contextRoute).toContain('resolveWorkforceMfaRequirement(');
+    expect(contextRoute).toContain('process.env.WORKFORCE_MFA_MODE');
+    expect(contextRoute).toContain('requiredFactors:assurance.requiredFactors');
+    expect(contextRoute).toContain('policyRequiredFactors:assurance.policyRequiredFactors');
+    expect(contextRoute).toContain('mfaMode:assurance.mfaMode');
+    expect(contextRoute).not.toContain('NEXT_PUBLIC_WORKFORCE_MFA');
     expect(adminApi).not.toContain('user_metadata');
   });
 
@@ -44,7 +49,7 @@ describe('Stage 1 workforce login and MFA UX',()=>{
     expect(form).not.toContain('sessionStorage');
   });
 
-  it('guides a platform owner through the missing second verified TOTP factor',()=>{
+  it('guides a platform owner through the missing second verified TOTP factor when effective enforcement requires it',()=>{
     expect(form).toContain('activeContext.requiredFactors===2&&verifiedCount===1');
     expect(form).toContain('még egy második TOTP faktort is fel kell venned');
     expect(form).toContain("if(step==='challenge')");
