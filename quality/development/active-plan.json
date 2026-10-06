@@ -3,47 +3,82 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-PRODUCTION-SURFACE-CLOSURE-V1",
   "task": "Close the post-#958 Control Plane release-unit execution gaps by binding the existing GitHub adapter to a least-privilege repository execution surface, implementing the canonical ALREADY_APPLIED no-code path, and automating final parent Completion Truth/Lifecycle consumption without creating a parallel release, proof or lifecycle authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "128614ad",
+  "guardDigest": "9a67776f",
   "changeBaseSha": "108501e6b0cc6d1fb5653d4cc1720085b9db9f2a",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     ".github/workflows/ci.yml",
     "scripts/release-unit-github-runtime.mjs",
+    "scripts/lib/shoperation-release-unit-runtime.mjs",
     "scripts/release-unit-execute.mjs",
     "scripts/release-unit-parent-close.mjs",
     "tests/control-plane-release-unit-execution-binding.test.ts",
     "tests/control-plane-release-unit-production-surface.test.ts",
-    "tests/shoperation-operational-intelligence.test.ts"
+    "tests/shoperation-operational-intelligence.test.ts",
+    "tests/control-plane-release-unit-orchestration.test.ts"
   ],
   "expectedSubsystems": [
+    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
+    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-001",
+    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
+    "SQ-KF-005",
     "SQ-KF-006",
+    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
     "SQ-KF-018",
+    "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
     "TF-KF-005",
+    "TF-KF-006",
     "TF-KF-007",
+    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
+    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015"
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -350,19 +385,20 @@
       ],
       "mustEdit": [
         ".github/workflows/ci.yml",
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
         "scripts/release-unit-github-runtime.mjs",
         "scripts/release-unit-execute.mjs"
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-execution-binding.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts"
+        "tests/shoperation-operational-intelligence.test.ts",
+        "tests/control-plane-release-unit-orchestration.test.ts"
       ],
       "impactedReadOnly": [
         "quality/knowledge/guard-registry.v1.json",
         "quality/knowledge/living-roadmap.v2.json",
         "quality/knowledge/development-guard-policy.v1.json",
         "deploy/release-risk-policy.json",
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
         "scripts/shoperation-plan-before-code.mjs",
         "scripts/shoperation-truth-gate.mjs",
         "scripts/shoperation-close-development-plan.mjs"
@@ -549,5 +585,5 @@
       }
     ]
   },
-  "notes": "Capability-closure audit after merged PR #958 found three concrete remaining edges before the promised production-like rehearsal: no GitHub workflow/job invokes scripts/release-unit-execute.mjs; prepareActiveUnit still turns every ALREADY_APPLIED result into STALE despite the canonical no-code requirement; and the GitHub execution CLI stops at PARENT_CLOSURE_ELIGIBLE without consuming the existing parent Truth/Lifecycle closure path. This transaction closes only those integration gaps. It does not pre-promote Knowledge and does not yet claim the overall Release Unit Orchestration program end-to-end complete; a separate real multi-unit fixture rehearsal is mandatory after merge. Plan-only PR #969 run 37518329190 correctly failed closed on projected-scope reconciliation. Canonical projection resolved the implementation to release-infrastructure / DOMAIN-RELEASE / release-infrastructure authority, active failure set SQ-KF-003/004/006/008/009/013/014/018/020/022 plus TF-KF-001/005/007/009/010/011/013/014/015, projected Release Risk 2/5, and guard digest 128614ad. The plan is reconciled to those upstream facts before any implementation edit."
+  "notes": "Capability-closure audit after merged PR #958 found three concrete remaining edges before the promised production-like rehearsal: no GitHub workflow/job invokes scripts/release-unit-execute.mjs; prepareActiveUnit still turns every ALREADY_APPLIED result into STALE despite the canonical no-code requirement; and the GitHub execution CLI stops at PARENT_CLOSURE_ELIGIBLE without consuming the existing parent Truth/Lifecycle closure path. This transaction closes only those integration gaps. It does not pre-promote Knowledge and does not yet claim the overall Release Unit Orchestration program end-to-end complete; a separate real multi-unit fixture rehearsal is mandatory after merge. Plan-only PR #969 run 37518329190 correctly failed closed on projected-scope reconciliation. Canonical projection resolved the implementation to release-infrastructure / DOMAIN-RELEASE / release-infrastructure authority, active failure set SQ-KF-003/004/006/008/009/013/014/018/020/022 plus TF-KF-001/005/007/009/010/011/013/014/015, projected Release Risk 2/5, and guard digest 128614ad. The plan is reconciled to those upstream facts before any implementation edit. Pre-implementation state-machine audit proved the ALREADY_APPLIED no-code path cannot be implemented solely in the GitHub adapter because canonical verification currently requires PR_OPEN and canonical merge/close currently requires a PR-backed MERGED state. Scope therefore expands before the first implementation edit to scripts/lib/shoperation-release-unit-runtime.mjs plus its orchestration regression consumer; Plan Before Code must pass again before code changes."
 }
