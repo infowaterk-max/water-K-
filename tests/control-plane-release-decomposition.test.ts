@@ -32,6 +32,12 @@ function decompose(files,options={}){
 }
 
 describe('Control Plane release decomposition',()=>{
+  it('blocks stale upstream Atlas evidence without recomputing it downstream',()=>{
+    const source=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
+    expect(source).toContain("mode:'STALE_UPSTREAM_BLOCKED'");
+    expect(source).not.toContain('STALE_UPSTREAM_RECOMPUTED_FOR_DIAGNOSTICS');
+  });
+
   it('automatically decomposes a 30-file over-budget medium scope without changing the RRB',()=>{
     const admin=Array.from({length:10},(_,i)=>`src/app/admin/unit-${i}/page.tsx`);
     const account=Array.from({length:10},(_,i)=>`src/lib/customer/unit-${i}.ts`);

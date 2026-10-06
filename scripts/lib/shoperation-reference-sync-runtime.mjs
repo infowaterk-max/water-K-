@@ -170,6 +170,10 @@ function semanticConsumers(atlas,candidates){
     const files=new Set();
     if(candidate.kind==='component-key')for(const file of atlas.literalIndex?.[candidate.value]??[])files.add(file);
     if(candidate.kind==='export-symbol')for(const file of atlas.referenceIndex?.[candidate.value]??[])files.add(file);
+    if(candidate.kind==='implementation-expression'){
+      for(const file of atlas.reverseImports?.[candidate.originFile]??[])files.add(file);
+      for(const file of atlas.semanticGraph?.reverseFileEdges?.[candidate.originFile]??[])files.add(file);
+    }
     for(const node of atlas.semanticGraph?.nodes??[])if(node.name===candidate.value&&node.file)files.add(node.file);
     for(const edge of atlas.semanticGraph?.edges??[])if(edge.label===candidate.value&&edge.fromFile)files.add(edge.fromFile);
     for(const file of files){
@@ -187,7 +191,10 @@ function classification(row,candidate){
   if(row.file===candidate.originFile||negative(row))return'ignored';
   if(row.file==='AGENTS.md'||row.file.startsWith('docs/')||row.file.endsWith('.md'))return'evidence';
   if(candidate.severity==='review')return'review';
-  if(candidate.kind==='implementation-expression')return/^(tests)\//.test(row.file)||/\b(?:expect|assert|toContain|toMatch|toEqual)\b/.test(row.text)?'block':/^(scripts|quality|\.github)\//.test(row.file)?'review':'review';
+  if(candidate.kind==='implementation-expression'){
+    const assertion=/^(tests)\//.test(row.file)||/\b(?:expect|assert|toContain|toMatch|toEqual)\b/.test(row.text);
+    return assertion||row.source==='semantic'?'block':'ignored';
+  }
   return MACHINE.test(row.file)?'block':'review';
 }
 
@@ -250,13 +257,19 @@ if(process.argv.includes('--self-test')){
     [{file:'scripts/shoperation-codebase-atlas.mjs',line:3,text:atlasExpression}],
     [{file:'scripts/shoperation-codebase-atlas.mjs',line:3,text:atlasExpression}],
   )[0];
-  if((executableCoincidence?.staleConsumers??[]).length!==0||(executableCoincidence?.reviewConsumers??[]).length!==1)throw new Error('REFERENCE_SYNC_EXECUTABLE_COINCIDENCE_FALSE_BLOCK');
+  if((executableCoincidence?.staleConsumers??[]).length!==0||(executableCoincidence?.reviewConsumers??[]).length!==0||executableCoincidence?.afterConsumers?.[0]?.classification!=='ignored')throw new Error('REFERENCE_SYNC_EXECUTABLE_COINCIDENCE_FALSE_BLOCK');
   const assertionConsumer=evaluateCandidateConsumers(
     [{kind:'implementation-expression',value:atlasExpression,severity:'block',originFile:'scripts/shoperation-plan-before-code.mjs'}],
     [],
     [{file:'tests/atlas-consumer.test.ts',line:1,text:"expect(source).toContain('"+atlasExpression+"')"}],
   )[0];
   if((assertionConsumer?.staleConsumers??[]).length!==1)throw new Error('REFERENCE_SYNC_ASSERTION_CONSUMER_FALSE_NEGATIVE');
+  const semanticConsumer=evaluateCandidateConsumers(
+    [{kind:'implementation-expression',value:atlasExpression,severity:'block',originFile:'scripts/shoperation-plan-before-code.mjs'}],
+    [],
+    [{file:'scripts/linked-consumer.mjs',line:0,text:'[semantic:implementation-expression] '+atlasExpression,source:'semantic'}],
+  )[0];
+  if((semanticConsumer?.staleConsumers??[]).length!==1)throw new Error('REFERENCE_SYNC_SEMANTIC_CONSUMER_FALSE_NEGATIVE');
   const before='export async function startPlatformPilotAcceptanceAction(){}\nexport const KEEP_ME=1;';
   const unchanged='export async function startPlatformPilotAcceptanceAction(){}\nexport const KEEP_ME=1;';
   const renamed='export async function startStorefrontPilotAcceptanceAction(){}\nexport const KEEP_ME=1;';

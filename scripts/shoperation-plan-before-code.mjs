@@ -33,8 +33,8 @@ if(existsSync(upstreamAtlasPath)&&existsSync(upstreamImpactPath)){
     atlasProvenance={mode:'EXACT_HEAD_UPSTREAM',sourceCommit:expectedHead,changeImpactSourceCommit:upstreamImpact.sourceCommit};
   }else{
     issues.push({code:'DEV_PLAN_UPSTREAM_ATLAS_STALE_OR_INVALID',expectedHead,atlasContract:upstreamAtlas.contract??null,changeImpactContract:upstreamImpact.contract??null,changeImpactDecision:upstreamImpact.decision??null,changeImpactSourceCommit:upstreamImpact.sourceCommit??null});
-    atlas=buildCodebaseAtlas();
-    atlasProvenance={mode:'STALE_UPSTREAM_RECOMPUTED_FOR_DIAGNOSTICS',sourceCommit:expectedHead,changeImpactSourceCommit:upstreamImpact.sourceCommit??null};
+    atlas=upstreamAtlas;
+    atlasProvenance={mode:'STALE_UPSTREAM_BLOCKED',sourceCommit:expectedHead,changeImpactSourceCommit:upstreamImpact.sourceCommit??null};
   }
 }else{
   atlas=buildCodebaseAtlas();
