@@ -2,9 +2,10 @@ import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {evaluateClosedDevelopmentPlan,evaluateCompletionTruth,validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
 import {atomicWriteJson,sealCheckpointTruth} from './lib/shoperation-verification-reuse.mjs';
+import {activeDevelopmentPlanPath} from './lib/shoperation-development-runtime.mjs';
 
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
-const plan=readJson('quality/development/active-plan.json');
+const plan=readJson(activeDevelopmentPlanPath());
 const policy=readJson('quality/knowledge/development-guard-policy.v1.json');
 const registry=readJson('quality/knowledge/guard-registry.v1.json');
 const env=value=>String(process.env[value]??'').trim();
@@ -54,6 +55,7 @@ if(plan.status==='closed'){
 }else{
   report=evaluateCompletionTruth({plan,evidence,currentExactState,planIssues:validation.issues});
 }
+report.releaseUnitContext=plan.releaseUnitContext??null;
 report.generatedAt=new Date().toISOString();
 report.runId=env('GITHUB_RUN_ID')||null;
 report.runAttempt=env('GITHUB_RUN_ATTEMPT')||null;
