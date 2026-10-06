@@ -63,7 +63,10 @@ export function validateExactPullRequest(pr,{headSha,baseSha,bindingDigest}={}){
   if(!pr||Number(pr.number)<1)throw new Error('RELEASE_UNIT_PR_REQUIRED');
   if(pr.head?.sha!==headSha)throw new Error('RELEASE_UNIT_PR_HEAD_MISMATCH');
   if(pr.base?.sha!==baseSha)throw new Error('RELEASE_UNIT_PR_BASE_MISMATCH');
-  if(bindingDigest&&!String(pr.body??'').includes(bindingDigest))throw new Error('RELEASE_UNIT_PR_CONTEXT_MISMATCH');
+  if(bindingDigest){
+    const envelope=decodeReleaseUnitContextEnvelope(pr.body??'');
+    if(!envelope||envelope.bindingDigest!==bindingDigest)throw new Error('RELEASE_UNIT_PR_CONTEXT_MISMATCH');
+  }
   return pr;
 }
 function repoName(run,cwd){return text(run('gh',['repo','view','--json','nameWithOwner','-q','.nameWithOwner'],{cwd}));}
