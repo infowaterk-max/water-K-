@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-STAGE1-WORKFORCE-ENTRYPOINT-DELEGATORS",
   "task": "Stage 1 MR1 workforce entrypoint convergence: make the active platform, customer-account bridge, template-preview and workforce invitation surfaces consume the already-verified canonical Workforce Auth Core without changing identity primitives, role/tenant authority, middleware or parked AAL2 enforcement.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "2cec38ff",
   "changeBaseSha": "b2d5d4f4b3a0831aa2879bdb9bf6f14b55361c46",
   "plannedFilePatterns": [
@@ -468,5 +468,18 @@
       }
     ]
   },
-  "notes": "Auth Core was isolated and merged in PR #911. E13 proof-harness compatibility was then merged to main, and PR #922 added the verified server-owned WORKFORCE_MFA_MODE prepared/enforced activation control at main b2d5d4f4b3a0831aa2879bdb9bf6f14b55361c46. This reconstructed second transaction reapplies only the four ADMIN/BUILDER/STOREFRONT delegator changes plus their seven targeted regressions on top of that verified main. MFA target policy remains intact; default interactive activation remains prepared. PR #858 stays parked and AAL2 server enforcement stays inactive. The preserved combined reference branch must not be merged."
+  "notes": "Auth Core was isolated and merged in PR #911. E13 proof-harness compatibility was then merged to main, and PR #922 added the verified server-owned WORKFORCE_MFA_MODE prepared/enforced activation control at main b2d5d4f4b3a0831aa2879bdb9bf6f14b55361c46. This reconstructed second transaction reapplies only the four ADMIN/BUILDER/STOREFRONT delegator changes plus their seven targeted regressions on top of that verified main. MFA target policy remains intact; default interactive activation remains prepared. PR #858 stays parked and AAL2 server enforcement stays inactive. The preserved combined reference branch must not be merged.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "ce00ba6cfdbb87591704e7f071112d69c516129b",
+    "closedAt": "2026-10-06T04:57:01.683Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-ENTRYPOINT-DELEGATORS",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
