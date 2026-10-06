@@ -14,6 +14,11 @@ const currentBranch=(process.env.QUALITY_BRANCH??process.env.GITHUB_HEAD_REF??pr
 const currentRunId=(process.env.GITHUB_RUN_ID??'local').trim();
 const previousManifestPath=(process.env.TEMPLATE_QUALITY_PREVIOUS_MANIFEST??'').trim();
 const liveProofDecisionPath=(process.env.TEMPLATE_QUALITY_LIVE_PROOF_DECISION??'artifacts/template-factory-quality/live-proof-decision.json').trim();
+const deploymentSourceCommit=(process.env.TEMPLATE_QUALITY_DEPLOYMENT_SOURCE_COMMIT??'').trim()||null;
+const deploymentAnchorMode=(process.env.TEMPLATE_QUALITY_DEPLOYMENT_ANCHOR_MODE??'').trim()||null;
+const deploymentEquivalenceProven=(process.env.TEMPLATE_QUALITY_DEPLOYMENT_EQUIVALENCE_PROVEN??'').trim()==='true';
+const deploymentEnvironment=(process.env.TEMPLATE_QUALITY_DEPLOYMENT_ENVIRONMENT??'').trim()||null;
+const deploymentId=(process.env.TEMPLATE_QUALITY_DEPLOYMENT_ID??'').trim()||null;
 const liveProofMode=(process.env.TEMPLATE_QUALITY_LIVE_PROOF_MODE??'NOT_APPLICABLE').trim().toUpperCase();
 const liveProofReason=(process.env.TEMPLATE_QUALITY_LIVE_PROOF_REASON??'').trim();
 const liveProofOriginSourceCommit=(process.env.TEMPLATE_QUALITY_LIVE_PROOF_ORIGIN_SHA??'').trim();
@@ -722,6 +727,11 @@ const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   runtimeDependencyFiles:liveRuntimeClosure.dependencyFiles,
   runtimeGlobalFiles:liveRuntimeClosure.globalFiles,
   runtimeUnknowns:liveRuntimeClosure.issues,
+  deploymentSourceCommit:null,
+  deploymentAnchorMode:null,
+  deploymentRuntimeEquivalenceProven:false,
+  deploymentEnvironment:null,
+  deploymentId:null,
   changedFilesSinceOrigin:[],
   affectedInputs:[],
   reason:liveProofReason||'non-pull-request-local-proof',
@@ -745,6 +755,11 @@ const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   runtimeUnknowns:liveRuntimeClosure.issues,
   runtimeSourceCommit,
   runtimeOriginMode:liveProofDecision?.mode??(runtimeSourceCommit===(headSha==='HEAD'?null:headSha)?'CURRENT_HEAD':'UNKNOWN'),
+  deploymentSourceCommit,
+  deploymentAnchorMode,
+  deploymentRuntimeEquivalenceProven:deploymentEquivalenceProven,
+  deploymentEnvironment,
+  deploymentId,
   runtimeEquivalenceProven:Boolean(liveProofDecision?.runtimeEquivalenceProven),
   runtimeClassifierChanged:Boolean(liveProofDecision?.classifierChanged),
   runtimeSafetyFallbackApplied:Boolean(liveProofDecision?.safetyFallbackApplied),
