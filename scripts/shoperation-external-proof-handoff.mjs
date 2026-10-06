@@ -57,6 +57,21 @@ export function validateTemplateFactoryExternalProof({
   if(manifest?.branch!==expectedBranch)issues.push({code:'EXTERNAL_PROOF_BRANCH_MISMATCH',expected:expectedBranch,actual:manifest?.branch??null});
   if(manifest?.complete!==true)issues.push({code:'EXTERNAL_PROOF_MANIFEST_INCOMPLETE',actual:manifest?.complete??null});
   if((manifest?.errors??[]).length)issues.push({code:'EXTERNAL_PROOF_MANIFEST_ERRORS',count:manifest.errors.length});
+  const liveProof=manifest?.liveProof??null;
+  if(!liveProof)issues.push({code:'EXTERNAL_PROOF_LIVE_PROOF_MISSING'});
+  else{
+    if(liveProof.contract!=='shoporation.template-factory-live-proof-decision.v1')issues.push({code:'EXTERNAL_PROOF_LIVE_PROOF_CONTRACT_INVALID',actual:liveProof.contract??null});
+    if(liveProof.currentSourceCommit!==expectedHead)issues.push({code:'EXTERNAL_PROOF_LIVE_PROOF_HEAD_MISMATCH',expected:expectedHead,actual:liveProof.currentSourceCommit??null});
+    if(liveProof.branch!==expectedBranch)issues.push({code:'EXTERNAL_PROOF_LIVE_PROOF_BRANCH_MISMATCH',expected:expectedBranch,actual:liveProof.branch??null});
+    if(liveProof.passed!==true)issues.push({code:'EXTERNAL_PROOF_LIVE_PROOF_NOT_PASSED',mode:liveProof.mode??null});
+    if(liveProof.mode==='LIVE'){
+      if(liveProof.originSourceCommit!==expectedHead)issues.push({code:'EXTERNAL_PROOF_LIVE_ORIGIN_MISMATCH',expected:expectedHead,actual:liveProof.originSourceCommit??null});
+    }else if(liveProof.mode==='REUSED'){
+      if(liveProof.equivalenceProven!==true||liveProof.originHeadIsAncestor!==true||liveProof.priorManifestChecksumValid!==true)issues.push({code:'EXTERNAL_PROOF_REUSE_EQUIVALENCE_UNPROVEN'});
+      if((liveProof.affectedLiveProofInputs??[]).length)issues.push({code:'EXTERNAL_PROOF_REUSE_RUNTIME_INPUT_CHANGED',files:liveProof.affectedLiveProofInputs});
+      if(!liveProof.originSourceCommit||!String(liveProof.originRunId??'').trim()||liveProof.originWorkflowName!=='Template Factory Quality Gate v2'||liveProof.originWorkflowConclusion!=='success'||!String(liveProof.equivalenceDigest??'').trim())issues.push({code:'EXTERNAL_PROOF_REUSE_PROVENANCE_INCOMPLETE'});
+    }else issues.push({code:'EXTERNAL_PROOF_LIVE_PROOF_MODE_INVALID',actual:liveProof.mode??null});
+  }
   const proofs=Array.isArray(manifest?.acceptanceProofs)?manifest.acceptanceProofs:[];
   if(!proofs.length)issues.push({code:'EXTERNAL_PROOF_ACCEPTANCE_PROOF_MISSING'});
   const incomplete=proofs.filter(item=>item?.browserMatrixPassed!==true||item?.browserMatrixComplete!==true);
