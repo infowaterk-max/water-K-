@@ -99,7 +99,7 @@ if(has('--write-plan')){
       },
       executionAuthorized:false,
     },
-    completionContract:{sourceKind:'product-owner-request',sourceRef,requirements:[]},
+    completionContract:{sourceKind:'product-owner-request',sourceRef,systemObligations:{derivation:'canonical-gate-chain',requiredGuards:[...gateChain.orderedGateIds],externalGuards:[...gateChain.externalGateIds],phase:'PLAN'},requirements:[]},
     notes:'Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.',
   };
   mkdirSync('quality/development',{recursive:true});
