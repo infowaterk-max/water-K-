@@ -7,7 +7,7 @@ import {
   persistRemoteExecutionState,
   prepareActiveUnit,
   stateRefFor,
-} from './lib/shoperation-release-unit-github-runtime.mjs';
+} from './release-unit-github-runtime.mjs';
 
 const args=process.argv.slice(2);
 const value=name=>{const index=args.indexOf(name);return index>=0?args[index+1]??null:null;};
