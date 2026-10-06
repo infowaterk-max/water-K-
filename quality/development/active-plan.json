@@ -1,145 +1,92 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-PRODUCTION-SURFACE-CLOSURE-V1",
-  "task": "Close the post-#958 Control Plane release-unit execution gaps by binding the existing GitHub adapter to a least-privilege repository execution surface, implementing the canonical ALREADY_APPLIED no-code path, and automating final parent Completion Truth/Lifecycle consumption without creating a parallel release, proof or lifecycle authority.",
-  "status": "closed",
-  "guardDigest": "a41cfd0c",
-  "changeBaseSha": "108501e6b0cc6d1fb5653d4cc1720085b9db9f2a",
+  "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+  "task": "Create an inert non-product fixture corpus to exercise the canonical multi-unit executor end-to-end without changing application behavior.",
+  "status": "ready-for-implementation",
+  "guardDigest": "52c0dec9",
+  "changeBaseSha": "a157c1c291d5ef2f1b65b6452a771b6e130ea7ba",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    ".github/workflows/ci.yml",
-    ".github/workflows/release-unit-execution.yml",
-    "scripts/release-unit-github-runtime.mjs",
-    "scripts/lib/shoperation-release-unit-runtime.mjs",
-    "scripts/release-unit-execute.mjs",
-    "scripts/shoperation-edit-time-guard.mjs",
-    "scripts/release-unit-parent-close.mjs",
-    "tests/control-plane-release-unit-execution-binding.test.ts",
     "tests/control-plane-release-unit-production-surface.test.ts",
-    "tests/shoperation-operational-intelligence.test.ts",
-    "tests/control-plane-release-unit-orchestration.test.ts",
-    "tests/shoperation-development-guard.test.ts"
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-01.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-02.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-03.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-04.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-05.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-06.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-07.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-08.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-09.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-10.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-11.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-12.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-13.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-14.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-15.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-16.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-17.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-18.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-19.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-20.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-21.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-22.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-23.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-24.json",
+    "src/lib/quality-system/rehearsal-fixtures/v1/fixture-25.json"
   ],
   "expectedSubsystems": [
-    "release-infrastructure"
+    "quality-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-005",
-    "SQ-KF-006",
-    "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
-    "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-015",
-    "SQ-KF-016",
-    "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
-    "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
-    "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
-    "TF-KF-006",
-    "TF-KF-007",
-    "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "SQ-KF-022"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-016",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-PRODUCTION-SURFACE-CLOSURE",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
     "riskTier": "critical",
-    "problemStatement": "PR #958 merged the child Development Transaction binding and GitHub adapter, but the repository has no canonical workflow/job that invokes scripts/release-unit-execute.mjs in a real GitHub execution context. Static closure audit also proves that ALREADY_APPLIED is unconditionally converted to STALE/BLOCK despite the canonical no-code requirement, and that GitHub execution stops at PARENT_CLOSURE_ELIGIBLE instead of consuming the existing parent Completion Truth/Lifecycle path. A bounded production-like multi-unit rehearsal therefore cannot yet prove an operator-free end-to-end transaction.",
+    "problemStatement": "The canonical multi-unit executor is merged and individually proven, but it still lacks one bounded real GitHub transaction demonstrating three or more ordered child units, exact child evidence, sequential merges, persisted state and final parent closure.",
     "observableOutcomes": [
-      "A repository/GitHub execution surface invokes the existing release-unit adapter only for an explicit release-execution source namespace and uses job-scoped least-privilege write permissions instead of widening the ordinary CI token.",
-      "The execution surface consumes the canonical Plan Before Code release decomposition, persists/resumes the existing CAS execution state, and never recalculates manifest, Release Risk, Truth, Lifecycle or successor authority locally.",
-      "An ALREADY_APPLIED unit advances through an explicit no-code completion path only when every manifest operation is already applied at the exact current main and canonical exact-head proof obligations are satisfied; mixed or stale state remains fail closed.",
-      "After every release unit is CLOSED, the driver proves the final implementation main with the existing canonical gates, invokes the existing Completion Truth and lifecycle emitter, records the parent close receipt at that exact implementation main, and only then commits the closed parent plan through normal GitHub review/merge mechanics.",
-      "The source execution is interruption-resumable from the persisted state ref and stale/concurrent writers remain blocked by the existing force-with-lease CAS identity.",
-      "After this hardening merges, a separate bounded non-product fixture transaction can execute three or more release units through real GitHub PRs and merges without manual branch, receipt, successor, Truth or Lifecycle reconstruction."
+      "Canonical planning decomposes the bounded fixture change into at least three ordered child units without changing decomposition policy.",
+      "Each child reaches closure only after its exact materialized head passes the existing child verification and lifecycle authorities.",
+      "Every successor is reconciled against the merged predecessor main identity before materialization.",
+      "The parent closes only after all declared children close and remains bound to the final implementation main.",
+      "All material changes remain confined to the rehearsal fixture prefix and one Control Plane regression test."
     ],
     "unresolvedRisks": [
-      "A write-capable Actions job could become a privilege escalation path if it runs on ordinary feature branches or accepts free-form scope, so trigger namespace, exact source identity and job permissions must be narrower than the normal CI surface.",
-      "Parent closure must be proven against the last implementation main SHA rather than the later plan-closure commit SHA, otherwise the existing recordReleaseParentClosure exact-main invariant would be weakened or misbound.",
-      "A source execution may be interrupted while child CI is pending or after a merge but before state persistence, so resume must reconcile only authoritative matching PR/merge/main identity and never infer success from timing.",
-      "The final parent proof must not fabricate gate outcomes; producer artifacts and exact-head workflow success must be consumed through existing verification semantics, with external proof applicability no wider than its producer trigger scope.",
-      "ALREADY_APPLIED can be safe only when all intended operations are already present and proof can bind to exact current main; a partially applied, renamed, generated or dependency-drifted unit must still block."
+      "Live GitHub timing can expose proof-import or state-transition gaps that mocked orchestration tests cannot reproduce.",
+      "A stale executor attempt may race the persisted state and must fail without advancing authoritative state.",
+      "An unexpected architecture classification could widen scope and must block before fixture implementation.",
+      "A later metadata closure commit must not change the implementation head used by parent truth."
     ],
     "scope": {
       "in": [
-        "Bind the existing release-unit GitHub adapter to a narrowly triggered trusted default-branch workflow_run executor. The ordinary CI workflow only admits the dedicated source namespace; write authority exists only in the default-branch executor, which treats the source commit as data and runs trusted main executor code.",
-        "Add a thin bounded execution driver mode that initializes or resumes the existing CAS state, repeatedly invokes the existing adapter, waits only for authoritative exact-head child proof, and stops/fails closed on unsupported state or drift.",
-        "Implement the previously specified ALREADY_APPLIED no-code path inside the existing release-unit runtime/adapter without synthesizing a PR when exact current-main proof is sufficient.",
-        "Add a thin parent-close adapter that reuses existing Knowledge, Plan Before Code, Edit-Time, Incremental Replay, Release Risk, Quality/Type/Build evidence, Completion Truth, lifecycle emission and recordReleaseParentClosure semantics at the last merged implementation main.",
-        "Persist the canonical closed parent plan only after parent Truth/Lifecycle are verified at the final implementation main; the plan-closure commit may advance main afterward without changing the recorded implementation head.",
-        "Add adversarial regression coverage for trigger scope, permission scope, stale source/main/state ref, interruption/resume, ALREADY_APPLIED safe and unsafe states, parent early-close, final-main mismatch, closure-branch recursion and mutable receipt attacks.",
-        "Extend the existing Edit-Time Guard with a release-unit ALREADY_APPLIED evidence mode that validates the sealed materialization receipt against the exact child manifest/current main so Completion Truth receives canonical implementation evidence without inventing a parallel no-code gate."
+        "Create twenty-five inert JSON rehearsal fixtures under the canonical quality-system fixture prefix.",
+        "Add one regression assertion to the existing production-surface Control Plane test.",
+        "Use the unchanged canonical decomposition, child proof, state persistence, merge and parent closure paths.",
+        "Stop and route any newly discovered live execution gap through existing Failure Intake."
       ],
       "out": [
-        "No new Completion Truth, Lifecycle, Release Risk, Atlas, Sentinel, Knowledge, CI/CD platform or deployment authority.",
-        "No automatic product deployment, Vercel promotion, Supabase mutation, storefront, commerce, authentication, Builder or template behavior change.",
-        "No widening of Release Risk Budget, exact-head rules, Security Audit requirements, Sentinel requirements or external proof applicability.",
-        "No free-form workflow input may add files, change release-unit scope, replace Unit 2 manifests, reinterpret gate outcomes or choose an arbitrary merge target.",
-        "The actual three-plus-unit non-product rehearsal fixture is a post-merge proof transaction and is not predeclared as production implementation in this hardening change."
+        "No storefront, admin, database, authentication, payment, inventory, Builder, template or deployment behavior change.",
+        "No change to release risk, truth, lifecycle, decomposition limits, workflow permissions, Atlas or Sentinel authority.",
+        "No manual receipt fabrication or direct state editing to force the rehearsal forward."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This code will hold GitHub write capability and can advance decomposed Development Transactions through real PR and merge state. The strongest practical deterministic assurance is required because a trigger, identity or closure mistake could merge unauthorized scope or falsely close a parent transaction; exhaustive bounded state/adversarial proof is appropriate while existing Release Risk and Completion Truth remain independently authoritative.",
+      "rationale": "This proof drives real repository branch, pull-request, CI, merge and persisted orchestration state while deliberately restricting material changes to non-product fixtures. Exact identity, fail-closed transitions and final closure therefore require the strongest practical bounded assurance.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -156,33 +103,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Only completed CI workflow runs whose event is push and whose head branch is under release-execution/source/** can enter the write-capable executor; the executor workflow is loaded from the default branch and checks out trusted main executor code rather than executing source-branch release scripts with its token.",
-        "The job cannot widen Unit 2 scope: source commit, target base, manifest digest, child binding digest, PR head/base and state-ref CAS identity are exact and fail closed.",
-        "A production execution can be resumed after interruption without an operator recreating branch, child plan, PR number, proof receipt, merge receipt or successor manifest.",
-        "ALREADY_APPLIED completes without a synthetic code PR only when all canonical operations are atomically already present at exact current main and child/parent proof obligations remain satisfiable there.",
-        "Any mixed already-applied/new content, target-base drift, stale generated identity, wrong proof task/head, mutable PR context or concurrent state writer blocks the transaction.",
-        "Parent Completion Truth and Lifecycle cannot run before every unit is CLOSED and can only close against the exact last merged implementation main SHA.",
-        "The closed parent plan is committed only after a VERIFIED parent truth and LEARN lifecycle candidate are produced by existing authorities; execution code does not calculate an alternate verdict.",
-        "A later bounded three-plus-unit fixture rehearsal can drive source→U1→proof→merge→fresh U2/U3→parent truth/lifecycle with no manual reconstruction."
+        "The plan-only revision passes Plan Before Code before any rehearsal fixture is created.",
+        "The canonical decomposition contains at least three ordered units and only planned rehearsal material.",
+        "Every child is proven on its exact materialized head before merge or canonical no-code closure.",
+        "Every successor uses fresh merged-main reconciliation rather than the original parent base.",
+        "Parent truth and lifecycle run only after all units are closed at the exact final implementation main.",
+        "Any live missing edge blocks execution and is recorded rather than bypassed."
       ],
       "invariants": [
-        "Unit 2 release-unit manifest remains the exclusive execution-scope authority and neither workflow nor driver may add or reinterpret an operation.",
-        "Release Risk, exact-head child Completion Truth and existing lifecycle receipts remain authoritative producers; execution only validates and consumes them.",
-        "GitHub write permission is workflow/job-scoped on a default-branch workflow_run executor; source-branch workflow code and source-branch scripts never execute with the write-capable token.",
-        "CAS state persistence remains monotonic and a stale expected state commit can never be overwritten by a retry or second runner.",
-        "Parent closure evidence is bound to the final implementation main SHA recorded by the last CLOSED release unit, never to an arbitrary later main.",
-        "Security Audit, Sentinel and external proof applicability are not weakened by execution automation.",
-        "ALREADY_APPLIED implementation evidence is emitted only by the existing Edit-Time authority after exact manifest/receipt/main validation; the execution adapter may not fabricate GUARD-EDIT-TIME success."
+        "Fixture files are inert data and are not imported by application runtime code.",
+        "Unit manifests remain the exclusive material scope authority for each child.",
+        "Persisted execution state advances monotonically through the existing CAS contract.",
+        "Exact-head child proof remains mandatory before merge or no-code completion.",
+        "Parent closure cannot precede complete child closure."
       ],
       "forbiddenStates": [
-        "write-capable-release-job-on-ordinary-feature-branch",
-        "free-form-workflow-scope-override",
-        "already-applied-synthetic-code-pr",
-        "partial-already-applied-treated-as-complete",
-        "parent-closure-before-all-units-closed",
-        "parent-truth-on-nonfinal-main",
-        "stale-state-ref-overwrite",
-        "closure-branch-recursive-release-execution"
+        "rehearsal material outside the declared fixture and proof files",
+        "fewer than three canonical child units",
+        "child merge without exact child proof",
+        "successor authorization against stale main",
+        "stale persisted-state writer accepted",
+        "parent closure before every child is closed"
       ]
     },
     "model": {
@@ -214,41 +155,40 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A write-capable runner starts outside the authorized branch namespace or with an unsealed source identity.",
-        "The runner resumes from stale CAS state and races another execution.",
-        "An ALREADY_APPLIED receipt hides a partial or semantically drifted unit.",
-        "Child CI is green but exact child Truth/Lifecycle artifacts are missing or foreign.",
-        "Main changes after a unit merge before successor reconciliation.",
-        "Parent Truth/Lifecycle are produced at a SHA other than the last merged implementation main.",
-        "Closure-plan persistence accidentally re-enters release execution or changes product scope."
+        "Planning resolves an unexpected domain or subsystem.",
+        "Decomposition produces fewer than three children.",
+        "Exact child evidence cannot be imported from the matching CI head.",
+        "Merged main drifts before successor reconciliation.",
+        "Persisted execution state rejects a stale transition.",
+        "Parent proof cannot bind to the final implementation main."
       ],
       "edgeCases": [
-        "The first unit is already applied at exact main and needs no code PR.",
-        "A later unit becomes already applied only after a predecessor merge.",
-        "The source workflow is cancelled while exact child CI is pending and a later run resumes from the state ref.",
-        "Squash merge produces a resulting main SHA different from verified child source HEAD.",
-        "Final implementation main passes CI while the subsequent closed-plan commit has a different SHA.",
-        "External Template Factory proof is not applicable to the execution-surface change and must not be fabricated."
+        "Twenty-six material files pack across at least three units under the unchanged twelve-file limit.",
+        "A child CI remains pending across repeated executor polls.",
+        "A squash merge produces a main SHA different from the child source SHA.",
+        "A fixture is already present and exercises the canonical no-code branch.",
+        "An unrelated main change appears between child transitions.",
+        "The closure metadata commit advances main after parent truth."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-EXISTING-CI-NARROW-EXECUTION-SURFACE",
-        "summary": "Extend the existing CI workflow with a narrowly triggered release-execution job that calls the existing adapter and a thin existing-authority parent-close helper.",
+        "id": "ALT-REAL-FIXTURE",
+        "summary": "Run the real executor against a bounded inert multi-unit fixture corpus.",
         "disposition": "selected",
-        "reason": "This reuses the repository's current GitHub/CI identity, existing Unit 2 manifests, release adapter, CAS state, Truth and Lifecycle while keeping write permission isolated to one explicit source namespace."
+        "reason": "This directly proves GitHub orchestration while keeping application behavior untouched and material scope narrow."
       },
       {
-        "id": "ALT-OPERATOR-LOCAL-GH-LOOP",
-        "summary": "Keep the adapter command-line only and have an operator repeatedly run git/gh commands locally until every child PR and parent closure completes.",
+        "id": "ALT-MOCK-ONLY",
+        "summary": "Rely only on additional mocked state-machine and adapter regression tests.",
         "disposition": "rejected",
-        "reason": "That would preserve the exact manual reconstruction and interruption-resume dependency the requested production-like rehearsal is intended to eliminate, and it would not prove repository/GitHub execution behavior."
+        "reason": "Mocks cannot prove real pull-request metadata, Actions artifact lookup, merge receipts or persisted remote state behavior."
       },
       {
-        "id": "ALT-PARALLEL-RELEASE-MANAGER",
-        "summary": "Create a new standalone release workflow with its own risk checks, proof verdicts, state store and parent completion model.",
+        "id": "ALT-PRODUCT-CHANGE",
+        "summary": "Use an ordinary application feature change as the first end-to-end execution proof.",
         "disposition": "rejected",
-        "reason": "That would duplicate canonical Release Risk, Completion Truth, Lifecycle and Unit 2 scope authority, violating the ecosystem rule that downstream execution must consume upstream machine-known facts."
+        "reason": "That adds avoidable product risk before the newly connected execution surface has completed a bounded rehearsal."
       }
     ],
     "specialistReviews": [
@@ -256,10 +196,9 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The missing edge is an execution consumer and final closure binding around an already canonical adapter, not a missing release manager or Truth model.",
-        "resolution": "Keep Unit 2 manifest, release-unit runtime, Completion Truth and lifecycle as owners; add only a thin CI execution surface and parent-close consumer.",
+        "finding": "The remaining evidence gap is end-to-end execution behavior rather than another missing authority.",
+        "resolution": "Reuse the merged executor unchanged and constrain material changes to the rehearsal fixture contract.",
         "evidence": [
-          "quality/knowledge/guard-registry.v1.json",
           "scripts/release-unit-execute.mjs",
           "scripts/release-unit-github-runtime.mjs"
         ]
@@ -268,178 +207,150 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A write-capable push job defined by the release source branch is insufficiently isolated: the same source commit could alter the workflow or executor script that receives GITHUB_TOKEN.",
-        "resolution": "Use a separate default-branch workflow_run executor with job-scoped contents/pull-requests/actions permissions. It checks out trusted main executor code, fetches the source commit only as data, re-runs trusted Plan Before Code/Release Risk projection against that source, and never executes source-branch release scripts with the write token.",
+        "finding": "A real orchestration rehearsal can still cause repository mutation even when application scope is inert.",
+        "resolution": "Use only the already merged trusted execution path and reject any material operation outside the approved fixture and proof files.",
         "evidence": [
-          ".github/workflows/ci.yml",
           ".github/workflows/release-unit-execution.yml",
-          "quality/knowledge/development-guard-policy.v1.json"
+          "deploy/release-risk-policy.json"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The GitHub adapter already owns exact branch/PR/proof/merge and CAS semantics but has no repository job that drives it through pending CI and final parent closure.",
-        "resolution": "Drive the existing adapter monotonically, wait for authoritative exact-head receipts, and bind parent closure to the last merge receipt rather than reimplementing release decisions.",
+        "finding": "A valid rehearsal must prove multiple successor transitions and final parent closure, not only decomposition output.",
+        "resolution": "Require three or more real children with exact proof, merge receipts, fresh reconciliation and parent close evidence.",
         "evidence": [
-          "scripts/release-unit-github-runtime.mjs",
-          "scripts/release-unit-execute.mjs"
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "scripts/release-unit-parent-close.mjs"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The closed #958 plan explicitly required a safe ALREADY_APPLIED no-code path, while current prepareActiveUnit converts every ALREADY_APPLIED receipt to STALE/BLOCK.",
-        "resolution": "Implement and adversarially prove the promised exact-current-main no-code transition, while preserving fail-closed behavior for partial, stale, generated or proof-incomplete states.",
+        "finding": "The rehearsal would be invalid if a live block were bypassed because the changed data is non-product.",
+        "resolution": "Treat any live block as authoritative Failure Intake evidence and stop instead of reconstructing state manually.",
         "evidence": [
-          "quality/development/active-plan.json",
-          "scripts/release-unit-github-runtime.mjs"
+          "scripts/shoperation-failure-intake.mjs",
+          "quality/knowledge/development-guard-policy.v1.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-RUPSC-01",
-        "scenario": "An ordinary feature branch modifies the release driver and receives a write-capable GITHUB_TOKEN.",
-        "finding": "A broad token would let unrelated development scope create or merge repository PRs.",
-        "resolution": "Keep top-level CI read-only and condition a job-level write token on the dedicated release-execution source namespace only.",
+        "id": "CH-RH-01",
+        "scenario": "Planned fixtures resolve outside the expected quality authority.",
+        "finding": "Unexpected classification would invalidate the claimed bounded scope.",
+        "resolution": "Require exact Plan Before Code scope reconciliation before creating any fixture implementation.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUPSC-02",
-        "scenario": "Two workflow runs resume the same parent execution after an interruption and both try to advance the active unit.",
-        "finding": "Without exact expected state-ref identity the active unit could fork or merge twice.",
-        "resolution": "Reuse the existing force-with-lease CAS state ref on every persisted transition and fail the stale runner before any state advance.",
+        "id": "CH-RH-02",
+        "scenario": "Dependencies collapse the planned material into fewer than three units.",
+        "finding": "The run would not exercise successor orchestration deeply enough.",
+        "resolution": "Use independent inert fixture documents and inspect decomposition count before source execution.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUPSC-03",
-        "scenario": "A child PR exists but its CI is still pending, cancelled or green for a different head.",
-        "finding": "Timing or generic workflow success cannot substitute for exact child Truth/Lifecycle evidence.",
-        "resolution": "The bounded driver may poll, but advancement remains exclusively through importExactChildProof for the exact branch/head and matching child transaction artifacts.",
+        "id": "CH-RH-03",
+        "scenario": "A child has green CI but its exact transaction proof artifact is absent.",
+        "finding": "Generic workflow success cannot prove the child transaction.",
+        "resolution": "Keep exact artifact and child identity matching mandatory before any merge transition.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUPSC-04",
-        "scenario": "Materialization reports ALREADY_APPLIED because all unit content is already present at exact current main.",
-        "finding": "The current unconditional STALE/BLOCK implementation violates the canonical no-code requirement and would force a meaningless PR.",
-        "resolution": "Add a dedicated no-code transition that validates complete already-applied operations and exact-main proof; any mixed or uncertain result still blocks.",
+        "id": "CH-RH-04",
+        "scenario": "Main changes after one child merges but before the next child is authorized.",
+        "finding": "The successor could otherwise materialize against stale repository state.",
+        "resolution": "Require fresh successor reconciliation against current merged main and fail on unrelated drift.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUPSC-05",
-        "scenario": "One or more release units remain PLANNED, PR_OPEN, STALE or FAILED while a runner attempts parent closure.",
-        "finding": "Automating final closure could accidentally collapse a partially completed parent transaction.",
-        "resolution": "Parent-close code must require the existing closureEligible state, activeUnitId null and every declared unit CLOSED before invoking any parent proof.",
+        "id": "CH-RH-05",
+        "scenario": "Two attempts try to advance the same persisted parent state.",
+        "finding": "A stale writer could duplicate or reorder transitions.",
+        "resolution": "Preserve force-with-lease CAS and accept stale-writer rejection as the only safe outcome.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUPSC-06",
-        "scenario": "The closed-plan commit advances main after the last implementation merge and parent truth is evaluated against that later commit.",
-        "finding": "recordReleaseParentClosure requires the last unit merged main and would be semantically wrong if proof moved to the closure metadata commit.",
-        "resolution": "Run parent Truth and lifecycle emission at the exact last implementation main first, record closure there, then persist the resulting closed plan in a separate normal closure commit.",
+        "id": "CH-RH-06",
+        "scenario": "One planned operation is already present at current main.",
+        "finding": "Creating a meaningless child pull request would weaken idempotent execution semantics.",
+        "resolution": "Allow only the existing exact-main no-code path with canonical child proof and complete operation coverage.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUPSC-07",
-        "scenario": "Main advances between final-unit closure, parent proof and closed-plan persistence.",
-        "finding": "A closure candidate could be based on stale implementation state or accidentally absorb unrelated changes.",
-        "resolution": "Lease the final main to the last unit merge receipt throughout proof and closure-branch creation; any unexpected main drift blocks and requires fresh reconciliation.",
+        "id": "CH-RH-07",
+        "scenario": "All children close but parent proof runs after a later metadata commit.",
+        "finding": "Parent truth would be bound to the wrong implementation state.",
+        "resolution": "Use the existing parent-close adapter that proves the last child merged-main before closure persistence.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUPSC-08",
-        "scenario": "The closure-plan branch also matches the source execution trigger and recursively starts another release execution.",
-        "finding": "A metadata-only closure commit could accidentally initialize or resume a second parent driver.",
-        "resolution": "Separate source and closure branch namespaces and allow the write-capable driver only on release-execution/source/** while ordinary CI verifies closure/**.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RUPSC-09",
-        "scenario": "The driver sets final guard outcomes to success without corresponding exact-head producer artifacts or an authoritative workflow result.",
-        "finding": "That would fabricate evidence and bypass Completion Truth proof semantics.",
-        "resolution": "Rerun exact producer guards at final main, consume their artifacts through the existing verification checkpoint, and require exact-main CI success for Quality/Type/Build/Security before Truth.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RUPSC-10",
-        "scenario": "A workflow input supplies a different source commit, target base or arbitrary extra file than the sealed Development Transaction.",
-        "finding": "Free-form execution parameters would widen Unit 2 scope authority and make audit provenance mutable.",
-        "resolution": "Derive source SHA from the workflow commit, base from origin/main and scope from Plan Before Code output only; do not expose file, base or merge-target inputs.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RUPSC-11",
-        "scenario": "The driver marks GUARD-EDIT-TIME successful for an already-applied unit without running the canonical Edit-Time producer.",
-        "finding": "Completion Truth could accept fabricated implementation completeness even though no child PR diff exists.",
-        "resolution": "Add an explicit receipt-backed no-code mode to the existing Edit-Time Guard, validate all manifest operations as already applied at exact current main, and consume that producer artifact through normal verification checkpoint semantics.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RUPSC-12",
-        "scenario": "A release-execution/source branch modifies its own workflow or release driver before a push and thereby controls code that receives contents:write and pull-requests:write.",
-        "finding": "Branch-local job-level permissions alone do not establish a trustworthy execution boundary because workflow code is itself part of the untrusted source revision.",
-        "resolution": "The write-capable executor is a separate workflow_run workflow loaded from default branch; it checks out main for executable tooling, fetches the source SHA only as a git data object, regenerates canonical decomposition with trusted main tooling, and rejects non-source workflow_run contexts.",
+        "id": "CH-RH-08",
+        "scenario": "A live orchestration defect appears after an earlier child already merged.",
+        "finding": "Manual continuation could hide the actual missing edge.",
+        "resolution": "Stop at the authoritative blocked state, record Failure Intake, reconcile separately and replay only after repair.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Open a plan-only PR from the exact current main and require Plan Before Code PASS before editing CI, runtime or tests.",
-      "Prove the write-capable workflow is workflow_run/default-branch owned, rejects non-push and non-release-execution/source/** runs, checks out trusted main executor code, and never runs source-branch release scripts under its token.",
-      "Prove job-level permission isolation and branch namespace guards so normal CI stays contents:read and no pull_request event can enter release execution.",
-      "Add finite-state/adversarial tests for driver resume, stale CAS, pending/foreign child proof, merge/main drift and parent early-close rejection.",
-      "Add explicit ALREADY_APPLIED tests for all-applied exact-main PASS versus partial, stale, generated-identity or proof-incomplete BLOCK.",
-      "Run the existing Edit-Time Guard in sealed ALREADY_APPLIED mode and prove tampered receipt, partial operation coverage, wrong manifest/binding digest and wrong exact main all BLOCK before Completion Truth.",
-      "Prove parent closure consumes existing verification checkpoint, Completion Truth and lifecycle artifacts at the exact last implementation main and records recordReleaseParentClosure without a local verdict.",
-      "Run Edit-Time Guard, Incremental Replay, unchanged Release Risk, Quality Tests, TypeScript, Production Build and any canonically applicable external proof on the exact implementation head.",
-      "Require Completion Truth VERIFIED and Lifecycle Closure for this hardening transaction, merge it, and verify fresh main CI plus Template Factory applicability exactly as produced.",
-      "After merge, create a separate safe non-product fixture Development Transaction large enough for at least three release units and run it through the real release-execution source surface.",
-      "During the real rehearsal deliberately interrupt/resume once and exercise a stale CAS attempt without advancing authoritative state.",
-      "Do not declare the Release Unit Orchestration/Execution program end-to-end closed until U1→U2→U3+ and parent Truth/Lifecycle complete on real GitHub PR/merge receipts."
+      "Open this plan-only transaction and require Plan Before Code PASS before fixture implementation.",
+      "Inspect the generated decomposition and require at least three ordered units within the approved material scope.",
+      "Create the approved fixture implementation only after the plan proof is green.",
+      "Run the source revision through the existing repository execution surface and observe each real child transaction.",
+      "Require exact child verification, merge receipt and fresh successor reconciliation for every ordered child.",
+      "Inspect persisted execution state for monotonic identity and any observed stale-writer rejection.",
+      "Require parent Completion Truth and Lifecycle closure at the final implementation main.",
+      "Verify the later closure metadata commit and final main CI without claiming any unobserved fault scenario."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-PRODUCTION-SURFACE-CLOSURE",
+      "request": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
       "authority": [
-        "release-infrastructure"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        ".github/workflows/ci.yml",
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/release-unit-github-runtime.mjs",
-        "scripts/release-unit-execute.mjs",
-        "scripts/shoperation-edit-time-guard.mjs"
-      ],
-      "mayEdit": [
-        "tests/control-plane-release-unit-execution-binding.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts",
-        "tests/control-plane-release-unit-orchestration.test.ts",
-        "tests/shoperation-development-guard.test.ts"
-      ],
-      "impactedReadOnly": [
-        "quality/knowledge/guard-registry.v1.json",
-        "quality/knowledge/living-roadmap.v2.json",
-        "quality/knowledge/development-guard-policy.v1.json",
-        "deploy/release-risk-policy.json",
-        "scripts/shoperation-plan-before-code.mjs",
-        "scripts/shoperation-truth-gate.mjs",
-        "scripts/shoperation-close-development-plan.mjs"
-      ],
-      "mustCreate": [
-        ".github/workflows/release-unit-execution.yml",
-        "scripts/release-unit-parent-close.mjs",
         "tests/control-plane-release-unit-production-surface.test.ts"
       ],
+      "mayEdit": [],
+      "impactedReadOnly": [],
+      "mustCreate": [
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-01.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-02.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-03.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-04.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-05.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-06.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-07.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-08.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-09.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-10.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-11.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-12.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-13.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-14.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-15.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-16.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-17.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-18.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-19.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-20.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-21.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-22.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-23.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-24.json",
+        "src/lib/quality-system/rehearsal-fixtures/v1/fixture-25.json"
+      ],
       "forbidden": [
-        "deploy/release-risk-policy.json",
-        "src/**",
-        "supabase/**"
+        "src/app/**",
+        "src/components/**",
+        "supabase/**",
+        ".github/workflows/**",
+        "deploy/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-execution-binding.test.ts",
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts"
+        "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -450,7 +361,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-PRODUCTION-SURFACE-CLOSURE",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -468,11 +379,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-RELEASE-EXECUTION-SURFACE",
-        "requirement": "The repository exposes a bounded least-privilege GitHub execution surface that drives the existing release-unit adapter and CAS state without widening Unit 2 scope or ordinary CI write authority.",
+        "id": "REQ-REAL-MULTI-UNIT-EXECUTION",
+        "requirement": "The bounded rehearsal must execute three or more canonical child units with exact transaction identity and no material scope widening.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "github-release-execution-surface",
+          "breadth": "multi-unit-execution",
           "strength": 2,
           "dimensions": [
             "status",
@@ -494,8 +405,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-BROAD-WRITE-EXECUTION",
-            "statement": "Ordinary feature, pull_request or main CI must not receive the write-capable release execution path.",
+            "id": "NEG-REHEARSAL-SCOPE-WIDEN",
+            "statement": "No rehearsal operation may escape the approved material scope or bypass exact child verification.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -503,11 +414,11 @@
         ]
       },
       {
-        "id": "REQ-RELEASE-AUTHORITY-PRESERVED",
-        "requirement": "Release execution continues to consume canonical Release Risk and manifest release scope and cannot convert a Release Risk BLOCK or scope mismatch into an executable unit.",
+        "id": "REQ-REHEARSAL-RISK-INTEGRITY",
+        "requirement": "Every child must remain within the unchanged canonical release risk and release scope decision.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "release-unit-production-authority",
+          "breadth": "rehearsal-risk-integrity",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -527,8 +438,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PRODUCTION-SURFACE-RISK-BYPASS",
-            "statement": "No execution-surface transition may reinterpret or bypass a canonical Release Risk BLOCK.",
+            "id": "NEG-REHEARSAL-RISK-BYPASS",
+            "statement": "No blocked risk or scope decision may be reinterpreted as executable.",
             "evidence": [
               "GUARD-RELEASE-RISK"
             ]
@@ -536,46 +447,11 @@
         ]
       },
       {
-        "id": "REQ-ALREADY-APPLIED-NO-CODE",
-        "requirement": "A fully ALREADY_APPLIED release unit can complete through an exact-current-main no-code path without a synthetic PR, while partial, stale or semantically uncertain application remains blocked.",
+        "id": "REQ-REHEARSAL-PARENT-CLOSURE",
+        "requirement": "Parent truth and lifecycle may close only after every child closes and at the exact final implementation main.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-already-applied-no-code",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "idempotency",
-            "transaction-identity",
-            "forbidden-state"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-EDIT-TIME"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-PARTIAL-ALREADY-APPLIED",
-            "statement": "Partially applied or stale unit state must never be promoted to completed no-code execution.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-PARENT-FINAL-CLOSURE-BINDING",
-        "requirement": "After and only after every release unit is CLOSED, final parent proof is produced by the existing exact-head verification, Completion Truth and Lifecycle authorities at the last implementation main and consumed by recordReleaseParentClosure.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "release-parent-final-closure-binding",
+          "breadth": "multi-unit-parent-closure",
           "strength": 2,
           "dimensions": [
             "lifecycle",
@@ -599,8 +475,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PARENT-CLOSE-NONFINAL-MAIN",
-            "statement": "Parent completion must not be recorded before all units close or against a SHA other than the final implementation main.",
+            "id": "NEG-REHEARSAL-EARLY-CLOSE",
+            "statement": "Parent closure must not occur before all child units close or against a nonfinal main SHA.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -609,18 +485,5 @@
       }
     ]
   },
-  "notes": "Capability-closure audit after merged PR #958 found three concrete remaining edges before the promised production-like rehearsal: no GitHub workflow/job invokes scripts/release-unit-execute.mjs; prepareActiveUnit still turns every ALREADY_APPLIED result into STALE despite the canonical no-code requirement; and the GitHub execution CLI stops at PARENT_CLOSURE_ELIGIBLE without consuming the existing parent Truth/Lifecycle closure path. This transaction closes only those integration gaps. It does not pre-promote Knowledge and does not yet claim the overall Release Unit Orchestration program end-to-end complete; a separate real multi-unit fixture rehearsal is mandatory after merge. Plan-only PR #969 run 37518329190 correctly failed closed on projected-scope reconciliation. Canonical projection resolved the implementation to release-infrastructure / DOMAIN-RELEASE / release-infrastructure authority, active failure set SQ-KF-003/004/006/008/009/013/014/018/020/022 plus TF-KF-001/005/007/009/010/011/013/014/015, projected Release Risk 2/5, and guard digest 128614ad. The plan is reconciled to those upstream facts before any implementation edit. Pre-implementation state-machine audit proved the ALREADY_APPLIED no-code path cannot be implemented solely in the GitHub adapter because canonical verification currently requires PR_OPEN and canonical merge/close currently requires a PR-backed MERGED state. Scope therefore expands before the first implementation edit to scripts/lib/shoperation-release-unit-runtime.mjs plus its orchestration regression consumer; Plan Before Code must pass again before code changes. No-code proof analysis further showed that Completion Truth cannot accept a manually asserted implementation outcome when no child PR diff exists. The existing Edit-Time Guard must therefore gain a sealed materialization-receipt mode and remains the implementation-evidence producer. Scope expands to scripts/shoperation-edit-time-guard.mjs plus its regression consumer before implementation; no new guard ID or Truth authority is introduced. Plan-only PR #969 run 37519048754 narrowed the final projected subsystem to release-infrastructure while retaining DOMAIN-QUALITY + DOMAIN-RELEASE authorities, guard digest a41cfd0c, the broadened Known Failure set, and projected Release Risk 4/5. The plan is reconciled to that canonical projection before the first implementation edit. Pre-implementation security review found that a write-capable push job defined by the source branch would let that same source revision control token-bearing workflow/script code. The execution surface is therefore hardened before implementation to a separate default-branch workflow_run executor. .github/workflows/release-unit-execution.yml is added to canonical mustCreate scope; ordinary CI remains read-only and only provides the source-run trigger/admission context.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "e428f0ef8653720ab2436ded00e0c29e45e423ef",
-    "closedAt": "2026-10-06T19:56:23.527Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-PRODUCTION-SURFACE-CLOSURE",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Plan-only rehearsal transaction. No fixture implementation exists on this branch yet. The implementation is authorized only after Plan Before Code passes and decomposition shows at least three units."
 }
