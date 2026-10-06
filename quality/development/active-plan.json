@@ -16,7 +16,8 @@
     "tests/control-plane-ecosystem-chain.test.ts",
     "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
     ".github/workflows/template-factory-quality-gate.yml",
-    "tests/template-factory-resumable-verification.test.ts"
+    "tests/template-factory-resumable-verification.test.ts",
+    "scripts/template-factory-quality-gate.mjs"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -145,7 +146,8 @@
         "External completion proof requirements are derived from affected scope and guard semantics in addition to explicit PO completion references, so relevant external proof cannot be omitted accidentally.",
         "Existing blocking gates remain authoritative and final exact-diff Release Risk, exact-head evidence and Completion Truth are not weakened or replaced.",
         "Resumable Verification consumes the same canonical derived external-proof obligations as the external-proof detector, so a validated required proof cannot be rejected downstream as unrequested.",
-        "Template Factory live-preview proof may be reused only when a prior complete proof is same-branch ancestor evidence and no changed file since that proof intersects the canonical GUARD-TEMPLATE-FACTORY semantic, configuration, authority or global verification inputs; otherwise live exact-head proof remains mandatory."
+        "Template Factory live-preview proof may be reused only when a prior complete proof is same-branch ancestor evidence and no changed file since that proof intersects the canonical GUARD-TEMPLATE-FACTORY semantic, configuration, authority or global verification inputs; otherwise live exact-head proof remains mandatory.",
+        "The current-head Template Factory manifest records live-proof provenance explicitly: LIVE uses the current runtime source, while REUSED names the successful ancestor workflow/source and a machine-proven empty set of affected live-proof inputs."
       ],
       "invariants": [
         "One canonical guard registry remains the authority for gate identity and dependency semantics.",
@@ -352,6 +354,13 @@
         "finding": "Vercel Ignored Build Step correctly produces no preview, but the Template Factory workflow currently polls for an exact-head Vercel URL for up to the timeout and cannot consume the already-proven runtime-equivalent ancestor state.",
         "resolution": "Add a fail-closed live-proof reuse decision based on prior manifest checksum, same-branch ancestry and canonical GUARD-TEMPLATE-FACTORY plus global verification input equivalence. Only REUSE bypasses preview polling; UNKNOWN or affected input requires LIVE proof.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-11",
+        "scenario": "A current Template Factory workflow reuses an ancestor live E13/PO proof because application runtime inputs are unchanged.",
+        "finding": "Without provenance in the current manifest, workflow success alone would hide whether live behavior ran on the current deployment or was reused from an ancestor.",
+        "resolution": "Persist a checksummed liveProof record in the current Template Factory evidence and make external handoff validation reject missing, stale or unproven reuse provenance.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -379,7 +388,8 @@
         "scripts/shoperation-external-proof-handoff.mjs",
         "scripts/shoperation-verification-checkpoint.mjs",
         "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-        ".github/workflows/template-factory-quality-gate.yml"
+        ".github/workflows/template-factory-quality-gate.yml",
+        "scripts/template-factory-quality-gate.mjs"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -572,5 +582,5 @@
       }
     ]
   },
-  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Runtime proof on implementation HEAD 00d36f7 exposed a missing handoff: requirement detection requested and validated GUARD-TEMPLATE-FACTORY, while Resumable Verification still used manual Completion Contract refs and rejected the proof as EXTERNAL_EVIDENCE_UNREQUESTED. Scope is expanded canonically to the checkpoint reconciler before editing it. The current descendant HEAD 45dd558c has only canceled Vercel deployments because Ignored Build Step correctly classified it as non-runtime. Template Factory nevertheless waits for exact-head preview because PR cumulative path selection re-triggers the workflow. Scope is expanded to canonical Template Factory resumable-proof orchestration and workflow only; reuse must be evidence-based, never a skip."
+  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Runtime proof on implementation HEAD 00d36f7 exposed a missing handoff: requirement detection requested and validated GUARD-TEMPLATE-FACTORY, while Resumable Verification still used manual Completion Contract refs and rejected the proof as EXTERNAL_EVIDENCE_UNREQUESTED. Scope is expanded canonically to the checkpoint reconciler before editing it. The current descendant HEAD 45dd558c has only canceled Vercel deployments because Ignored Build Step correctly classified it as non-runtime. Template Factory nevertheless waits for exact-head preview because PR cumulative path selection re-triggers the workflow. Scope is expanded to canonical Template Factory resumable-proof orchestration and workflow only; reuse must be evidence-based, never a skip. Manifest producer is now explicitly in scope so live sub-proof reuse is visible to external Completion Truth rather than being an implicit workflow skip."
 }
