@@ -16,7 +16,7 @@ mkdirSync(outputDir,{recursive:true});
 let report;
 try{
   const guardRegistry=readJson('quality/knowledge/guard-registry.v1.json');
-  const plan=readJson('quality/development/active-plan.json');
+  const plan=readJson(String(process.env.SHOPERATION_ACTIVE_PLAN??'').trim()||'quality/development/active-plan.json');
   let evidenceRecords=evidencePath&&existsSync(evidencePath)?readJson(evidencePath):[];
   if(!Array.isArray(evidenceRecords))throw new Error('SENTINEL_INTEGRITY_EVIDENCE_NOT_ARRAY');
   const collected=filesUnder(controlPlaneDir);
