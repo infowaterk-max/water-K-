@@ -3,7 +3,7 @@ import {existsSync,readFileSync} from 'node:fs';
 import {access,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
-import {canonicalizeTemplateFactoryInfrastructureInput,deriveTemplateReplayDecision,reusableTemplateBrowserCase,templateBrowserCaseFingerprint,templateFactoryEvidenceChecksum,templateFactoryInfrastructureSemanticallyEquivalent,templateLiveProofInputContractDigest,validateTemplateLiveProofRecord} from './lib/shoperation-template-factory-resumable-verification.mjs';
+import {canonicalizeTemplateFactoryInfrastructureInput,deriveTemplateLiveRuntimeClosure,deriveTemplateReplayDecision,reusableTemplateBrowserCase,templateBrowserCaseFingerprint,templateFactoryEvidenceChecksum,templateFactoryInfrastructureSemanticallyEquivalent,templateLiveProofInputContractDigest,validateTemplateLiveProofRecord} from './lib/shoperation-template-factory-resumable-verification.mjs';
 import {DEFAULT_LOCAL_GOLDEN_POLICY,localGoldenMismatch} from './lib/shoperation-template-factory-golden-semantics.mjs';
 
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
@@ -692,6 +692,7 @@ const acceptanceProofs=scope.selected.map(selected=>{
 });
 
 const templatePageFingerprints=Object.fromEntries(scope.selected.map(selected=>[selected.template.templateKey,{templateVersion:selected.template.templateVersion,pages:selected.template.pageFingerprints??{}}]));
+const liveRuntimeClosure=deriveTemplateLiveRuntimeClosure({registry});
 const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   contract:'shoporation.template-factory-live-proof.v1',
   mode:'NOT_APPLICABLE',
@@ -703,7 +704,13 @@ const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   originWorkflowConclusion:null,
   ancestorProven:false,
   inputEquivalenceProven:false,
-  inputContractDigest:templateLiveProofInputContractDigest(registry),
+  inputContractDigest:templateLiveProofInputContractDigest(registry,liveRuntimeClosure),
+  runtimeClosureDecision:liveRuntimeClosure.decision,
+  runtimeEntrypoints:liveRuntimeClosure.entrypoints,
+  runtimeAncestorLayouts:liveRuntimeClosure.ancestorLayouts,
+  runtimeDependencyFiles:liveRuntimeClosure.dependencyFiles,
+  runtimeGlobalFiles:liveRuntimeClosure.globalFiles,
+  runtimeUnknowns:liveRuntimeClosure.issues,
   changedFilesSinceOrigin:[],
   affectedInputs:[],
   reason:liveProofReason||'non-pull-request-local-proof',
@@ -718,13 +725,19 @@ const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   originWorkflowConclusion:liveProofMode==='LIVE'?'current-workflow':liveProofOriginWorkflowConclusion||null,
   ancestorProven:liveProofMode==='LIVE'?true:liveProofAncestorProven,
   inputEquivalenceProven:liveProofMode==='LIVE'?false:liveProofInputEquivalenceProven,
-  inputContractDigest:templateLiveProofInputContractDigest(registry),
+  inputContractDigest:templateLiveProofInputContractDigest(registry,liveRuntimeClosure),
+  runtimeClosureDecision:liveRuntimeClosure.decision,
+  runtimeEntrypoints:liveRuntimeClosure.entrypoints,
+  runtimeAncestorLayouts:liveRuntimeClosure.ancestorLayouts,
+  runtimeDependencyFiles:liveRuntimeClosure.dependencyFiles,
+  runtimeGlobalFiles:liveRuntimeClosure.globalFiles,
+  runtimeUnknowns:liveRuntimeClosure.issues,
   changedFilesSinceOrigin:liveProofChangedFiles,
   affectedInputs:liveProofAffectedInputs,
   reason:liveProofReason||null,
 };
 if(liveProofMode!=='NOT_APPLICABLE'){
-  const liveValidation=validateTemplateLiveProofRecord(liveProof,{currentHead:headSha==='HEAD'?'':headSha,currentBranch,currentRunId,registry});
+  const liveValidation=validateTemplateLiveProofRecord(liveProof,{currentHead:headSha==='HEAD'?'':headSha,currentBranch,currentRunId,registry,runtimeClosure:liveRuntimeClosure});
   if(!liveValidation.ok)errors.push(...liveValidation.issues.map(issue=>({code:issue.code,scope:'live-proof-provenance',...issue})));
 }
 const evidence={
