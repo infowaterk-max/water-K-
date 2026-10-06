@@ -18,7 +18,9 @@
     "Known Failure regression scope may widen but never narrow the replay scope computed from dependencies and semantic inputs.",
     "Gate implementation, authority, schema, runtime, configuration, environment or toolchain changes invalidate dependent evidence.",
     "Shadow mode keeps full verification authoritative until false-reuse count is zero across the configured promotion proof.",
-    "Development-branch Release Risk is risk analysis bound to the canonical Development Transaction; PASS or BLOCK never grants deployment or production-release authority by itself."
+    "Development-branch Release Risk is risk analysis bound to the canonical Development Transaction; PASS or BLOCK never grants deployment or production-release authority by itself.",
+    "Downstream Control Plane consumers must use matching upstream canonical data products when available; recomputation requires an explicit fallback provenance marker.",
+    "Release-unit materialization must validate every operation and exact target-base lease before one atomic ref update; partial application may never be reported as success."
   ],
   "intentMatchers": [
     {
@@ -158,6 +160,38 @@
       "quality-knowledge-system"
     ],
     "SQ-NK-015": [
+      "quality-knowledge-system"
+    ],
+    "SQ-NK-016": [
+      "release-infrastructure",
+      "quality-knowledge-system"
+    ],
+    "SQ-NK-017": [
+      "release-infrastructure",
+      "builder-template-system",
+      "quality-knowledge-system"
+    ],
+    "SQ-NK-018": [
+      "release-infrastructure",
+      "builder-template-system",
+      "quality-knowledge-system"
+    ],
+    "SQ-NK-019": [
+      "release-infrastructure",
+      "quality-knowledge-system"
+    ],
+    "SQ-NK-020": [
+      "release-infrastructure",
+      "quality-knowledge-system"
+    ],
+    "SQ-NK-021": [
+      "release-infrastructure",
+      "builder-template-system",
+      "quality-knowledge-system"
+    ],
+    "SQ-NK-022": [
+      "release-infrastructure",
+      "builder-template-system",
       "quality-knowledge-system"
     ]
   },

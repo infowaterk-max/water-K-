@@ -3,6 +3,7 @@ import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {compileGateChain,deriveImplementationSkeleton,evaluateReleaseRiskFiles,getAllFailures,guardPolicy,knowledge,resolveDevelopmentScope,stableDigest} from './lib/shoperation-development-runtime.mjs';
 import {buildCodebaseAtlas,buildExecutionRoute,impactForAtlasPattern,writeCodebaseAtlasArtifacts} from './lib/shoperation-codebase-atlas-runtime.mjs';
 import {buildClosedDevelopmentPlan} from './lib/shoperation-operational-intelligence.mjs';
+import {decomposeReleaseScope,derivePlannedOperations} from './lib/shoperation-release-unit-runtime.mjs';
 
 const args=process.argv.slice(2),value=name=>{const i=args.indexOf(name);return i>=0?args[i+1]??'':null;},has=name=>args.includes(name);
 if(has('--close-plan')){
@@ -37,6 +38,18 @@ const implementationSkeleton=deriveImplementationSkeleton({plannedFilePatterns:f
 const projectedFiles=[...new Set([...implementationSkeleton.mustEdit,...implementationSkeleton.mustCreate])].sort();
 const projectedReleaseRisk=evaluateReleaseRiskFiles(projectedFiles);
 const gateChain=compileGateChain({guardRegistry,plannedFiles:projectedFiles,phase:'PLAN'});
+const releaseOperations=derivePlannedOperations({projectedFiles,atlas});
+const releaseDecomposition=decomposeReleaseScope({
+  transaction:{taskId:'DEVELOPMENT-GUARD',parentTransactionId:'DEVELOPMENT-GUARD',sourceRef,changeBaseSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()},
+  operations:releaseOperations,
+  atlas,
+  gateChain,
+  projectedRisk:projectedReleaseRisk,
+  forbiddenPatterns:implementationSkeleton.forbidden,
+  readOnlyPaths:implementationSkeleton.impactedReadOnly,
+  maxFilesPerUnit:Number(guardRegistry.ecosystem?.releaseDecomposition?.maxFilesPerUnit??12),
+  targetBaseSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
+});
 const expectedDomains=[...new Set(atlasContext.flatMap(item=>item.directDomains??[]))].sort();
 const expectedAuthorities=[...new Set(atlasContext.flatMap(item=>item.authorities??[]))].sort();
 const scope=resolveDevelopmentScope({files,task}),allFailures=getAllFailures(),failureById=new Map(allFailures.map(f=>[f.id,f]));
@@ -45,7 +58,7 @@ const negativeKnowledge=knowledge.negativeKnowledge.filter(item=>{const applicab
 const requiredRegressionTests=[...new Set(activeFailures.flatMap(f=>f.regressionTests??[]))].sort(),activeAuthorities=[...new Set(activeFailures.flatMap(f=>f.invariantIds??[]))].sort();
 const digest=stableDigest({failureIds:scope.activeFailureIds.slice().sort(),subsystems:scope.impactedSubsystems.slice().sort(),negativeKnowledgeIds:negativeKnowledge.map(x=>x.id).sort()});
 const decision=scope.unresolvedFiles.length?'BLOCK':'PASS';
-const manifest={contract:'shoporation.development-guard.v1',task,plannedFiles:files,projectedFiles,guardDigest:digest,scope,atlasContext,implementationSkeleton,projectedReleaseRisk,gateChain,activeAuthorities,activeFailureIds:scope.activeFailureIds,activeFailures,negativeKnowledge,requiredRegressionTests,generalRules:guardPolicy.generalRules,decision:decision==='PASS'&&projectedReleaseRisk.decision==='PASS'&&gateChain.decision==='PASS'?'PASS':'BLOCK'};
+const manifest={contract:'shoporation.development-guard.v1',task,plannedFiles:files,projectedFiles,guardDigest:digest,scope,atlasContext,implementationSkeleton,projectedReleaseRisk,releaseDecomposition,gateChain,activeAuthorities,activeFailureIds:scope.activeFailureIds,activeFailures,negativeKnowledge,requiredRegressionTests,generalRules:guardPolicy.generalRules,decision:decision==='PASS'&&projectedReleaseRisk.decision==='PASS'&&gateChain.decision==='PASS'?'PASS':'BLOCK'};
 mkdirSync('artifacts/shoperation-development-guard',{recursive:true});
 writeFileSync('artifacts/shoperation-development-guard/development-guard.json',JSON.stringify(manifest,null,2)+'\n');
 writeFileSync('artifacts/shoperation-development-guard/development-guard.md',['# Shoperation Development Guard','',`Decision: **${manifest.decision}**`,`Task: ${task}`,`Guard digest: ${digest}`,'','## Impacted subsystems',...scope.impactedSubsystems.map(x=>`- ${x}`),'','## Codebase Atlas impact',...atlasContext.flatMap(item=>[\`### ${item.pattern}\`,\`- owners/subsystems: ${item.subsystems.join(', ')||'unclassified'}\`,\`- surfaces: ${item.surfaces.join(', ')||'unknown'}\`,\`- affected routes: ${item.routes.map(r=>r.path).join(', ')||'none discovered'}\`,\`- related tests: ${item.tests.join(', ')||'none discovered'}\`,\`- component/literal keys: ${item.componentKeys.join(', ')||'none'}\`,'']), '## Active Known Failures',...activeFailures.flatMap(f=>[`### ${f.id} — ${f.title}`,f.directive.preventiveDirective,...f.directive.forbiddenApproaches.map(x=>`- FORBIDDEN: ${x}`),'']),'## Negative knowledge',...negativeKnowledge.map(x=>`- ${x.id}: ${x.rule}`),'','## Required regression authority',...requiredRegressionTests.map(x=>`- ${x}`)].join('\n')+'\n');
@@ -95,6 +108,7 @@ if(has('--write-plan')){
         phase:'PLAN',
         implementationSkeleton,
         projectedReleaseRisk,
+        releaseDecomposition,
         gateChain,
       },
       executionAuthorized:false,
