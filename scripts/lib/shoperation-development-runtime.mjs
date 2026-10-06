@@ -38,14 +38,14 @@ export function guardFindingFingerprint(finding){return stableDigest({ruleId:fin
 export function matchGuardException(finding,exceptions=[]){const findingFingerprint=guardFindingFingerprint(finding);const exception=(exceptions??[]).find(item=>item?.ruleId===finding?.ruleId&&item?.file===finding?.file&&item?.findingFingerprint===findingFingerprint)??null;return{findingFingerprint,exception};}
 
 
-function hasGlobPattern(value){return /[*?[\]{}]/.test(String(value??''));}
+function hasGlobPattern(value){return /[*?\[\]{}]/.test(String(value??''));}
 export function exactPlannedPaths(patterns=[]){return [...new Set((patterns??[]).map(value=>String(value??'').trim()).filter(value=>value&&!hasGlobPattern(value)))].sort();}
 function patternsMayOverlap(left,right){
   const a=String(left??''),b=String(right??'');
   if(!a||!b)return false;
   if(!hasGlobPattern(a))return globToRegExp(b).test(a);
   if(!hasGlobPattern(b))return globToRegExp(a).test(b);
-  const prefix=value=>value.slice(0,Math.max(0,...['*','?','[','{'].map(token=>{const index=value.indexOf(token);return index<0?value.length:index;})));
+  const prefix=value=>value.slice(0,Math.min(...['*','?','[','{'].map(token=>{const index=value.indexOf(token);return index<0?value.length:index;})));
   const ap=prefix(a),bp=prefix(b);
   return !ap||!bp||ap.startsWith(bp)||bp.startsWith(ap);
 }
