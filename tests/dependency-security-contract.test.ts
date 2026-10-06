@@ -20,4 +20,27 @@ describe('dependency security contract',()=>{
     expect(postcss.dependencies?.['source-map-js']).toBe('^1.2.1');
     expect(pkg.overrides?.postcss).toBe('>=8.5.23');
   });
+
+  it('pins patched sharp/libvips native dependency family for CVE-2026-96889 without broad framework churn',()=>{
+    const pkg=readJson('package.json');
+    const lock=readJson('package-lock.json');
+    const sharp=lock.packages['node_modules/sharp'];
+    const linuxX64=lock.packages['node_modules/@img/sharp-linux-x64'];
+    const libvipsLinuxX64=lock.packages['node_modules/@img/sharp-libvips-linux-x64'];
+    const next=lock.packages['node_modules/next'];
+
+    expect(pkg.overrides?.sharp).toBe('0.35.5');
+    expect(sharp).toMatchObject({
+      version:'0.35.5',
+      resolved:'https://registry.npmjs.org/sharp/-/sharp-0.35.5.tgz',
+      integrity:'sha512-Ywn4OnzGukp7CDMrp08RQ50YKmuwG47brZgIVPTvBaaAfQlRlygrRqSrxdCiL9M+LlzLBiJ68IR1QqvzHyjC7g==',
+    });
+    expect(sharp.optionalDependencies?.['@img/sharp-linux-x64']).toBe('0.35.5');
+    expect(sharp.optionalDependencies?.['@img/sharp-libvips-linux-x64']).toBe('1.3.4');
+    expect(linuxX64).toMatchObject({version:'0.35.5',optional:true});
+    expect(libvipsLinuxX64).toMatchObject({version:'1.3.4',optional:true});
+    expect(next.version).toBe('15.5.24');
+    expect(next.optionalDependencies?.sharp).toBe('^0.34.3 || ^0.35.3');
+  });
+
 });
