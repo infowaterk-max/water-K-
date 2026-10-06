@@ -155,7 +155,7 @@ describe('Control Plane ecosystem chain',()=>{
     expect((workflow.match(/id: runtime-preview/g)??[])).toHaveLength(1);
     expect(workflow).not.toContain('id: product-owner-preview');
     expect(workflow).not.toContain('id: engine-functional-preview');
-    expect(workflow).toContain('ENGINE_FUNCTIONAL_RUNTIME_PREVIEW_ANCHOR_MISSING');
+    expect(workflow).toContain('TEMPLATE_LIVE_RUNTIME_PREVIEW_ANCHOR_MISSING');
     expect(qualityGate).toContain('liveProofDecision?.runtimeSourceCommit');
     expect(qualityGate).toContain("contract:'shoporation.template-factory-live-proof.v1'");
     expect(handoff).toContain('PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT');
