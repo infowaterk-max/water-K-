@@ -130,6 +130,17 @@ describe('Control Plane ecosystem chain',()=>{
     expect(checkpoint).not.toContain('requiredIds:completionEvidenceGuardIds(activePlan)');
   });
 
+  it('binds cross-workflow Template Factory proof lookup to PR execution identity, not SHA alone',()=>{
+    const ci=readFileSync('.github/workflows/ci.yml','utf8');
+    expect(ci).toContain("const expectedEvent=context.eventName==='pull_request'?'pull_request':'push'");
+    expect(ci).toContain("const expectedBranch=context.payload.pull_request?.head?.ref??context.ref.replace('refs/heads/','')");
+    expect(ci).toContain('const expectedPrNumber=context.payload.pull_request?.number??null');
+    expect(ci).toContain('run.event!==expectedEvent||run.head_branch!==expectedBranch');
+    expect(ci).toContain('(run.pull_requests??[]).some(pr=>pr.number===expectedPrNumber)');
+    expect(ci).toContain('const rejected=allExactHead.filter(run=>!sameExecutionContext(run))');
+    expect(ci).toContain('Exact-context Template Factory proof resolved');
+  });
+
   it('routes Template Factory live proof through Atlas-derived runtime identity without hiding current proof execution',()=>{
     const workflow=readFileSync('.github/workflows/template-factory-quality-gate.yml','utf8');
     const qualityGate=readFileSync('scripts/template-factory-quality-gate.mjs','utf8');
