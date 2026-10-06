@@ -532,7 +532,8 @@
           "resumable",
           "known-failure",
           "deep-atlas",
-          "sentinel"
+          "sentinel",
+          "transaction-identity"
         ]
       },
       "chain": {
