@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-SHARP-LIBRSVG-CVE-2026-96889",
   "task": "Remediate the high-severity sharp/librsvg CVE-2026-96889 dependency finding by moving the locked optional Next.js sharp chain from 0.35.4/libvips bundle 1.3.3 to the current patched 0.35.5/libvips bundle 1.3.4 without weakening npm audit or changing product behavior.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "2c38ea91",
   "changeBaseSha": "51dfcada763fc039b34e83c63ebea1e9006160a6",
   "plannedFilePatterns": [
@@ -426,5 +426,18 @@
       }
     ]
   },
-  "notes": "Separate fail-closed prerequisite hotfix discovered by Unit 3 exact-head Security Audit. It is intentionally isolated from PR #955. After merge, Unit 3 must reconcile against the new main rather than silently absorbing drift. PR-context Plan Before Code run 37492799838 resolved the canonical dependency projection to DOMAIN-RELEASE/release-infrastructure with dependency-contract + shared-storefront + storefront-ui impact, the exact 30 Known Failures and SQ-NK-001/002/004/006/007/008/009/012, producing guard digest 2c38ea91. Exact-head Quality run dd15161a exposed a valid Sentinel proof-capability finding: CAP-RELEASE negative evidence referenced GUARD-EDIT-TIME. The Completion Contract is corrected so NEG-SHARP-DEPENDENCY-CHURN is proven only by the canonical GUARD-RELEASE-RISK producer; Sentinel implementation is unchanged. Exact-head Quality Tests on dd15161a exposed a Sentinel proof-capability mismatch: GUARD-EDIT-TIME cannot prove CAP-RELEASE. NEG-SHARP-DEPENDENCY-CHURN now consumes only the canonical GUARD-RELEASE-RISK producer for the release-scope claim."
+  "notes": "Separate fail-closed prerequisite hotfix discovered by Unit 3 exact-head Security Audit. It is intentionally isolated from PR #955. After merge, Unit 3 must reconcile against the new main rather than silently absorbing drift. PR-context Plan Before Code run 37492799838 resolved the canonical dependency projection to DOMAIN-RELEASE/release-infrastructure with dependency-contract + shared-storefront + storefront-ui impact, the exact 30 Known Failures and SQ-NK-001/002/004/006/007/008/009/012, producing guard digest 2c38ea91. Exact-head Quality run dd15161a exposed a valid Sentinel proof-capability finding: CAP-RELEASE negative evidence referenced GUARD-EDIT-TIME. The Completion Contract is corrected so NEG-SHARP-DEPENDENCY-CHURN is proven only by the canonical GUARD-RELEASE-RISK producer; Sentinel implementation is unchanged. Exact-head Quality Tests on dd15161a exposed a Sentinel proof-capability mismatch: GUARD-EDIT-TIME cannot prove CAP-RELEASE. NEG-SHARP-DEPENDENCY-CHURN now consumes only the canonical GUARD-RELEASE-RISK producer for the release-scope claim.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "a0246f9a2cb9b5bbaeb9f690e02da78550f68b5f",
+    "closedAt": "2026-10-06T16:19:51.883Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-06-SHARP-LIBRSVG-SECURITY-REMEDIATION",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
