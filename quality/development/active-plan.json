@@ -12,7 +12,8 @@
     "scripts/shoperation-development-guard.mjs",
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/shoperation-external-proof-handoff.mjs",
-    "tests/control-plane-ecosystem-chain.test.ts"
+    "tests/control-plane-ecosystem-chain.test.ts",
+    "scripts/shoperation-verification-checkpoint.mjs"
   ],
   "expectedSubsystems": [
     "quality-infrastructure"
@@ -185,7 +186,8 @@
         "A plan-only transaction is interpreted as failed implementation because phase applicability is not represented explicitly.",
         "Completion Truth verifies only locally declared evidence while an applicable external proof is missing.",
         "A new file duplicates an existing canonical capability because repository relationship mapping was not consulted before implementation.",
-        "A gate dependency graph contains a cycle or a required input has no authoritative producer."
+        "A gate dependency graph contains a cycle or a required input has no authoritative producer.",
+        "A downstream verification aggregator can still use legacy manual Completion Contract evidence selection even after the external-proof handoff has adopted canonical gate-chain applicability."
       ],
       "edgeCases": [
         "A planned file does not yet exist and must be represented as MUST_CREATE rather than silently omitted from projection.",
@@ -320,6 +322,13 @@
         "finding": "Silently suppressing the proof would weaken assurance while blindly accepting the broad pattern can create unnecessary cost.",
         "resolution": "Surface applicability provenance in the plan; if the pattern is over-broad, repair the owning guard contract in a later reviewed change rather than bypassing the proof.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-9",
+        "scenario": "External proof is correctly derived and validated, but the verification checkpoint still computes required external evidence from manual Completion Contract references only.",
+        "finding": "The exact-head proof becomes EXTERNAL_EVIDENCE_UNREQUESTED and Truth loses all finalized evidence despite every substantive gate passing.",
+        "resolution": "Make the verification checkpoint consume requiredExternalCompletionGuards from the same canonical gate-chain derivation used by the handoff, eliminating the duplicate requirement authority.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -330,7 +339,8 @@
       "Require actual Release Risk Budget PASS without changing its thresholds or classification rules.",
       "Run full Quality Tests, TypeScript and Production Build on the implementation head.",
       "Require exact-head Completion Truth VERIFIED and preserve external proof as an independent blocking authority where semantically applicable.",
-      "Close lifecycle only after the verified implementation head is recorded; workflow optimization is deferred to the dedicated later release unit."
+      "Close lifecycle only after the verified implementation head is recorded; workflow optimization is deferred to the dedicated later release unit.",
+      "Verify Resumable Verification consumes canonical requiredExternalCompletionGuards so a semantically required exact-head external proof is neither rejected as unrequested nor omitted from Truth evidence."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-06-CONTROL-PLANE-ECOSYSTEM-CHAIN",
@@ -342,7 +352,8 @@
         "scripts/lib/shoperation-development-runtime.mjs",
         "scripts/shoperation-development-guard.mjs",
         "scripts/shoperation-plan-before-code.mjs",
-        "scripts/shoperation-external-proof-handoff.mjs"
+        "scripts/shoperation-external-proof-handoff.mjs",
+        "scripts/shoperation-verification-checkpoint.mjs"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -534,5 +545,5 @@
       }
     ]
   },
-  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement."
+  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Scope expanded after exact-head integration evidence exposed one legacy downstream consumer: shoperation-verification-checkpoint.mjs must consume the same canonical external-proof requirement derivation as the handoff."
 }
