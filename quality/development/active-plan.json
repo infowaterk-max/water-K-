@@ -494,6 +494,20 @@
         "finding": "Incremental Replay fails because those machine-consumer assertions are stale; keeping them would also incorrectly forbid the manifest-bound child transaction authority.",
         "resolution": "Update the existing regression to assert the common activeDevelopmentPlanPath consumer plus root fallback and releaseUnitContext.planAuthority semantics, while retaining base/head mismatch and ancestry fail-closed assertions.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RUEB-22",
+        "scenario": "A CAP-RELEASE requirement cites GUARD-QUALITY-TESTS alongside Release Risk as outcome evidence.",
+        "finding": "Sentinel correctly blocks because a CAP-QUALITY producer cannot prove the release-authority claim, even though the same adapter also needs behavioral regression proof.",
+        "resolution": "Split release authority and execution identity into separate CAP-RELEASE and CAP-QUALITY completion requirements so each claim consumes only an authoritative producer for its capability.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUEB-23",
+        "scenario": "The PR body carries the child transaction as a base64url envelope but validateExactPullRequest searches for the raw binding digest as plaintext.",
+        "finding": "A valid canonical PR fails context validation because encoded evidence cannot satisfy a plaintext substring check; weakening the check would lose provenance.",
+        "resolution": "Decode the canonical release-unit context envelope from the PR body and compare its binding digest exactly; malformed, absent or mismatched envelopes remain fail closed.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -620,17 +634,15 @@
         ]
       },
       {
-        "id": "REQ-RELEASE-UNIT-GITHUB-EXECUTION",
-        "requirement": "The release-unit execution adapter produces exact materialization/PR/proof/merge receipts from existing git/gh and Control Plane authorities, persists progress with CAS, and cannot advance on stale or mismatched identity.",
+        "id": "REQ-RELEASE-UNIT-GITHUB-RELEASE-AUTHORITY",
+        "requirement": "The GitHub-bound release-unit adapter preserves the canonical Release Risk authority and exact target-base release scope; it cannot reinterpret or bypass a Release Risk BLOCK while producing materialization, PR or merge transactions.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "github-bound-release-unit-execution",
+          "breadth": "github-bound-release-unit-authority",
           "strength": 2,
           "dimensions": [
             "risk",
             "release-scope",
-            "status",
-            "idempotency",
             "freshness",
             "forbidden-state"
           ]
@@ -643,14 +655,49 @@
             "GUARD-RELEASE-RISK"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS",
             "GUARD-RELEASE-RISK"
           ]
         },
         "forbiddenRegressions": [
           {
+            "id": "NEG-GITHUB-EXECUTION-RISK-BYPASS",
+            "statement": "No GitHub execution transition may convert a canonical Release Risk BLOCK or stale target-base lease into an authorized release unit.",
+            "evidence": [
+              "GUARD-RELEASE-RISK"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-RELEASE-UNIT-GITHUB-EXECUTION-IDENTITY",
+        "requirement": "The GitHub-bound release-unit adapter binds materialized commit, PR body context, PR head/base, exact child proof, CAS state and merge receipt to one manifest-sealed child transaction and fails closed on any mismatched or mutable identity.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "github-bound-release-unit-execution-identity",
+          "strength": 2,
+          "dimensions": [
+            "status",
+            "idempotency",
+            "freshness",
+            "transaction-identity",
+            "forbidden-state"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-EDIT-TIME"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
             "id": "NEG-MANUAL-RECEIPT-AUTHORITY",
-            "statement": "Free-form operator PR/merge/proof receipts cannot advance canonical release-unit state without exact producer identity.",
+            "statement": "Free-form operator PR, proof or merge data cannot advance canonical release-unit state without exact manifest, binding, head, base and producer identity.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -695,5 +742,5 @@
       }
     ]
   },
-  "notes": "Continuation/hardening of merged Unit 3 after capability-closure audit. The audit proved two remaining canonical edges: PR/merge receipts had no repository producer, and intermediate unit lifecycle evidence was not bound to a distinct child Development Transaction. This transaction closes those edges inside existing Release Transaction/Control Plane authorities. No Knowledge promotion is pre-written. Plan-only PR #958 run 37501003926 resolved canonical scope to quality-infrastructure + release-infrastructure, retained DOMAIN-QUALITY + DOMAIN-RELEASE authorities, canonical Negative Knowledge SQ-NK-002/003/005/010/012/016-023, guard digest 9a67776f, projected Release Risk 4/5 PASS, and a mandatory two-unit decomposition caused by the canonical 12-file unit limit. Consumer audit found scripts/shoperation-sentinel-integrity-probe.mjs as an additional active-plan reader reachable from Control Plane replay. Canonical scope expanded before implementation; a new Plan Before Code PASS is required. Child-plan projection audit found create-only release units cannot satisfy the current critical semantic route without fabricating mustEdit. Scope expanded to operational-intelligence validator with a child-only mustEdit-or-mustCreate rule; root critical validation remains unchanged. Verification binding necessarily changes the existing Unit 3 orchestration proof fixture. Added tests/control-plane-release-unit-orchestration.test.ts to canonical proof scope; no legacy unbound verification compatibility is permitted. Replay-proven Atlas failure ATLAS_AUTHORITY_DEPENDENCY_DRIFT on head 162fcb15 showed the GitHub adapter was placed under DOMAIN-QUALITY by scripts/lib/shoperation-** canonical ownership while its declared responsibility is release-infrastructure. Root cause is corrected by canonical path placement, not by adding an authority exception. Exact-head Plan Before Code identified the GitHub execution runtime path as scripts/lib/shoperation-release-unit-github-runtime.mjs; the stale non-lib path declaration was reconciled without changing subsystem, domain, authority, risk, or proof scope. Current Atlas-compatible implementation places the thin GitHub-bound adapter in the release-domain scripts root. Canonical plan path reconciled to scripts/release-unit-github-runtime.mjs; no capability, risk or authority scope changed. Exact-head Edit-Time/Reference Sync on 337ccb03 found tests/shoperation-operational-intelligence.test.ts as a stale lifecycle consumer after child closure support. Added it to canonical proof scope before editing. Edit-Time Reference Sync identified tests/shoperation-operational-intelligence.test.ts as the canonical consumer of lifecycle transition semantics. Added to proof scope before editing; root closure semantics remain unchanged. Incremental Replay identified tests/shoperation-development-guard.test.ts as a stale canonical consumer of direct active-plan imports/authority text. Added to proof scope before editing; transaction identity invariants remain fail closed. Incremental Replay on 512b12de exposed tests/shoperation-development-guard.test.ts as a stale source-contract consumer after alternate child-plan routing. Added to canonical proof scope before editing; root active-plan fallback remains mandatory."
+  "notes": "Continuation/hardening of merged Unit 3 after capability-closure audit. The audit proved two remaining canonical edges: PR/merge receipts had no repository producer, and intermediate unit lifecycle evidence was not bound to a distinct child Development Transaction. This transaction closes those edges inside existing Release Transaction/Control Plane authorities. No Knowledge promotion is pre-written. Plan-only PR #958 run 37501003926 resolved canonical scope to quality-infrastructure + release-infrastructure, retained DOMAIN-QUALITY + DOMAIN-RELEASE authorities, canonical Negative Knowledge SQ-NK-002/003/005/010/012/016-023, guard digest 9a67776f, projected Release Risk 4/5 PASS, and a mandatory two-unit decomposition caused by the canonical 12-file unit limit. Consumer audit found scripts/shoperation-sentinel-integrity-probe.mjs as an additional active-plan reader reachable from Control Plane replay. Canonical scope expanded before implementation; a new Plan Before Code PASS is required. Child-plan projection audit found create-only release units cannot satisfy the current critical semantic route without fabricating mustEdit. Scope expanded to operational-intelligence validator with a child-only mustEdit-or-mustCreate rule; root critical validation remains unchanged. Verification binding necessarily changes the existing Unit 3 orchestration proof fixture. Added tests/control-plane-release-unit-orchestration.test.ts to canonical proof scope; no legacy unbound verification compatibility is permitted. Replay-proven Atlas failure ATLAS_AUTHORITY_DEPENDENCY_DRIFT on head 162fcb15 showed the GitHub adapter was placed under DOMAIN-QUALITY by scripts/lib/shoperation-** canonical ownership while its declared responsibility is release-infrastructure. Root cause is corrected by canonical path placement, not by adding an authority exception. Exact-head Plan Before Code identified the GitHub execution runtime path as scripts/lib/shoperation-release-unit-github-runtime.mjs; the stale non-lib path declaration was reconciled without changing subsystem, domain, authority, risk, or proof scope. Current Atlas-compatible implementation places the thin GitHub-bound adapter in the release-domain scripts root. Canonical plan path reconciled to scripts/release-unit-github-runtime.mjs; no capability, risk or authority scope changed. Exact-head Edit-Time/Reference Sync on 337ccb03 found tests/shoperation-operational-intelligence.test.ts as a stale lifecycle consumer after child closure support. Added it to canonical proof scope before editing. Edit-Time Reference Sync identified tests/shoperation-operational-intelligence.test.ts as the canonical consumer of lifecycle transition semantics. Added to proof scope before editing; root closure semantics remain unchanged. Incremental Replay identified tests/shoperation-development-guard.test.ts as a stale canonical consumer of direct active-plan imports/authority text. Added to proof scope before editing; transaction identity invariants remain fail closed. Incremental Replay on 512b12de exposed tests/shoperation-development-guard.test.ts as a stale source-contract consumer after alternate child-plan routing. Added to canonical proof scope before editing; root active-plan fallback remains mandatory. Quality/Sentinel on 498ce89a exposed a proof-capability mismatch in REQ-RELEASE-UNIT-GITHUB-EXECUTION. Split CAP-RELEASE authority from CAP-QUALITY execution identity without removing any gate. The same Quality run also proved PR context validation must decode the base64url canonical envelope rather than search for a plaintext digest."
 }
