@@ -36,7 +36,11 @@ if(existsSync(upstreamAtlasPath)&&existsSync(upstreamImpactPath)){
     }
   }catch{}
 }
-if(!atlas)atlas=buildCodebaseAtlas();
+const rebuildAtlas=()=>{
+  const atlas=buildCodebaseAtlas();
+  return atlas;
+};
+if(!atlas)atlas=rebuildAtlas();
 const atlasValidation=validateCodebaseAtlas(atlas);
 const atlasNodes=new Map(atlas.nodes.map(node=>[node.path,node]));
 if(!atlasValidation.ok)issues.push({code:'DEV_PLAN_ATLAS_INVALID',issues:atlasValidation.issues});

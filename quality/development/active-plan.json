@@ -411,18 +411,18 @@
         "quality/knowledge/guard-registry.v1.json",
         "quality/knowledge/shoperation-quality-knowledge.v1.json",
         "quality/knowledge/development-guard-policy.v1.json",
-        "scripts/shoperation-knowledge-preflight.mjs",
         "scripts/shoperation-development-guard.mjs",
         "scripts/shoperation-plan-before-code.mjs"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
+        "deploy/release-risk-policy.json",
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
         "scripts/lib/shoperation-development-runtime.mjs",
         "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/release-risk-budget.mjs",
         "scripts/release-manifest.mjs",
-        "deploy/release-risk-policy.json"
+        "scripts/release-risk-budget.mjs",
+        "scripts/shoperation-knowledge-preflight.mjs"
       ],
       "mustCreate": [
         "scripts/lib/shoperation-release-unit-runtime.mjs",
@@ -614,5 +614,5 @@
       }
     ]
   },
-  "notes": "Unit 2 extends the already merged Control Plane ecosystem chain. The broad Development Transaction remains distinct from Release Transactions: if projected risk is blocked, the original plan must not become executable merely because decomposition exists. Instead the system emits canonical unit manifests; a unit-specific transaction reconciles from exact main and final Release Risk remains independently authoritative. Prior Unit 1 lessons about execution-context proof identity, proof/runtime identity separation, proof-engine/runtime-input separation, upstream-data reuse, exact-head Atlas reuse and classifier self-narrowing are preserved through the existing canonical Knowledge mechanism rather than a new parallel registry. Plan-only CI 37454384741 proved the canonical scope resolver classifies the Knowledge Infrastructure paths as infrastructure metadata rather than a substantive quality-infrastructure subsystem; projected scope is therefore release-infrastructure only, while Atlas domain authority remains DOMAIN-QUALITY + DOMAIN-RELEASE. Unit 2 implementation records prior Unit 1 proof/runtime and recomputation lessons as canonical Negative Knowledge and makes release.decomposition + release.unit-manifests first-class outputs of the existing Plan Before Code producer."
+  "notes": "Unit 2 extends the already merged Control Plane ecosystem chain. The broad Development Transaction remains distinct from Release Transactions: if projected risk is blocked, the original plan must not become executable merely because decomposition exists. Instead the system emits canonical unit manifests; a unit-specific transaction reconciles from exact main and final Release Risk remains independently authoritative. Prior Unit 1 lessons about execution-context proof identity, proof/runtime identity separation, proof-engine/runtime-input separation, upstream-data reuse, exact-head Atlas reuse and classifier self-narrowing are preserved through the existing canonical Knowledge mechanism rather than a new parallel registry. Plan-only CI 37454384741 proved the canonical scope resolver classifies the Knowledge Infrastructure paths as infrastructure metadata rather than a substantive quality-infrastructure subsystem; projected scope is therefore release-infrastructure only, while Atlas domain authority remains DOMAIN-QUALITY + DOMAIN-RELEASE. Unit 2 implementation records prior Unit 1 proof/runtime and recomputation lessons as canonical Negative Knowledge and makes release.decomposition + release.unit-manifests first-class outputs of the existing Plan Before Code producer. Edit-Time Reference Sync confirmed the historical Atlas build expression is a repository-wide high-signal implementation identity; Plan Before Code therefore preserves it inside an explicit fallback helper while exact-head upstream snapshots remain the preferred path. Knowledge Preflight is corrected from MUST_EDIT to impacted read-only producer."
 }
