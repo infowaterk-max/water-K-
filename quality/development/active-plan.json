@@ -1,24 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-DECOMPOSITION-V2",
-  "task": "Control Plane release decomposition and manifest-driven split/transplant using Atlas relationships, gate obligations, atomic release-unit manifests, lease-safe batch materialization, and sequential main reconciliation.",
-  "status": "closed",
+  "taskId": "DEV-ROADMAP-MANAGED-QUICK-START-BACKBONE-FIX",
+  "task": "Reconcile Living Roadmap v2 maturity backbone after the accepted Managed Template Quick Start insertion so dependency order and architecture-health proof remain canonical.",
+  "status": "ready-for-implementation",
   "guardDigest": "d2e2bbba",
-  "changeBaseSha": "f8a22cc4a014c2d0fb293b8b327736a1138309b0",
+  "changeBaseSha": "5f74a0f1a084c82b58ceb2681c6484a03eae0fc4",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "quality/knowledge/development-guard-policy.v1.json",
-    "quality/knowledge/guard-registry.v1.json",
-    "quality/knowledge/shoperation-quality-knowledge.v1.json",
-    "scripts/lib/shoperation-release-unit-runtime.mjs",
-    "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-    "scripts/release-unit-materialize.mjs",
-    "scripts/shoperation-development-guard.mjs",
-    "scripts/shoperation-knowledge-preflight.mjs",
-    "scripts/shoperation-plan-before-code.mjs",
-    "tests/control-plane-release-decomposition.test.ts",
-    "tests/release-unit-materialization.test.ts",
-    "tests/template-factory-resumable-verification.test.ts"
+    "quality/knowledge/living-roadmap.v2.json",
+    "tests/architecture-health.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
@@ -99,95 +89,72 @@
   ],
   "exceptions": [],
   "operationalIntelligence": {
-    "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-DECOMPOSITION",
-    "riskTier": "critical",
-    "problemStatement": "Projected Release Risk can already identify an unsafe planned release before coding, but the Control Plane cannot yet convert that blocked scope into dependency-safe executable release units with canonical manifests and atomic lease-bound materialization, so decomposition still depends on manual interpretation.",
+    "sourceKind": "main-ci-failure-reconciliation",
+    "sourceRef": "MAIN-CI-37476878160-ROADMAP-BACKBONE",
+    "riskTier": "medium",
+    "problemStatement": "Main commit 5f74a0f1 legitimately inserted MANAGED-TEMPLATE-QUICK-START into the canonical maturity backbone, but left BUILDER-PRODUCTION-COMPLETE without a dependency on the new predecessor and left architecture-health proof hard-coded to the previous nine-element backbone, causing exact-head main Quality Tests to fail.",
     "observableOutcomes": [
-      "An over-budget planned scope produces deterministic release units before implementation, with every unit independently inside the unchanged canonical Release Risk Budget.",
-      "Each release unit manifest carries transaction identity, operations, repository relationships, authorities, proof obligations, target-base lease, predecessor state and reconciliation policy in one machine-readable contract.",
-      "A manifest can be materialized as one atomic repository commit with drift detection, first-class rename/delete handling, already-applied recognition and no successful partial application.",
-      "Later release units reconcile only from the merged predecessor main state and fail closed when main drift, cyclic ordering, forbidden paths or inseparable over-budget components make safe decomposition impossible."
+      "Living Roadmap v2 contains the accepted MANAGED-TEMPLATE-QUICK-START in the maturity backbone between TEMPLATE-CAPABILITY-CENSUS-42 and BUILDER-PRODUCTION-COMPLETE.",
+      "BUILDER-PRODUCTION-COMPLETE explicitly depends on MANAGED-TEMPLATE-QUICK-START while retaining its existing dependencies.",
+      "architecture-health regression asserts the ten-element canonical backbone and verifies every adjacent maturity dependency.",
+      "Exact-head CI returns green without weakening any architecture, roadmap, quality or release gate."
     ],
     "unresolvedRisks": [
-      "Acyclic source relationships do not prove semantic backward compatibility across intermediate release units, so every materialized unit must still pass its own exact-state gates before the next unit may reconcile.",
-      "Generated artifacts cannot be safely transplanted from path identity alone; materialization must require either explicit sealed source identity or a separate canonical regeneration contract.",
-      "Repository relationship data can contain unknown or broad edges, so decomposition must prefer false-negative fail-closed behavior over inventing an apparently convenient split."
+      "The roadmap item was added concurrently after Unit 2 merge; the hotfix must not alter Unit 2 code or reopen its closed lifecycle.",
+      "Changing only the test would mask a real dependency gap, while removing the roadmap item would discard an accepted product decision."
     ],
     "scope": {
       "in": [
-        "Extend the existing projected Release Risk producer with dependency-aware release decomposition using canonical Atlas and gate-chain inputs.",
-        "Produce canonical release-unit manifests with operations, leases, authorities, proof/gate obligations, prerequisites, generated-artifact semantics and expected post-unit state.",
-        "Add repository-level batch materialization using Git tree/commit plumbing so one unit is applied atomically instead of one GitHub API call per file.",
-        "Reconcile successor units from newly merged main and preserve the prior ecosystem lessons as canonical Negative Knowledge where not already represented."
+        "Reconcile the new maturity-backbone dependency edge.",
+        "Update the canonical regression proof to the accepted ten-element backbone.",
+        "Restore exact-head main quality without touching Unit 2 implementation."
       ],
       "out": [
-        "No Release Risk Budget threshold, risk weight, subsystem limit or High-risk isolation rule may change.",
-        "No weakening of Completion Truth, Sentinel, exact-head proof, Template Factory proof or existing blocking gate semantics.",
-        "No authentication, authorization, commerce, storefront or business-runtime behavior changes.",
-        "No new parallel truth, quality or release-risk authority beside the existing Control Plane ecosystem."
+        "No Release Risk, Completion Truth, Sentinel, Template Factory or Control Plane gate changes.",
+        "No change to the content or semantics of the accepted Managed Template Quick Start capability.",
+        "No Builder, storefront, auth, commerce or runtime implementation changes."
       ]
     },
     "assuranceCeiling": {
-      "level": "critical-practical",
-      "rationale": "This unit changes the orchestration that decides how an otherwise forbidden development scope is partitioned and transplanted into production-eligible release transactions. A false safe split could bypass dependency, proof or authority boundaries, so the strongest practical assurance profile is required while final exact-state Release Risk and Completion Truth remain independently authoritative.",
+      "level": "standard-governed",
+      "rationale": "This is a bounded canonical-roadmap dependency reconciliation with no runtime behavior change, but it affects architecture authority and must preserve explicit dependency semantics.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
-        "state-model",
-        "what-if-matrix",
-        "adversarial-scenarios",
         "boundary-cases",
-        "pairwise-interactions",
-        "threat-failure-model",
-        "fault-injection",
-        "finite-state-exhaustion"
+        "regression-proof"
       ],
-      "deferredTechniques": []
+      "deferredTechniques": [
+        "runtime-adversarial-proof"
+      ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Projected Release Risk BLOCK causes decomposition analysis before any implementation authorization and emits deterministic unit manifests rather than asking a downstream operator to rediscover the split.",
-        "Every generated release unit independently evaluates PASS under the unchanged canonical release-risk policy and carries all machine-known gate, proof, authority and repository relationship obligations.",
-        "Files connected by an inseparable cycle or proof ownership relation remain in one atomic component, and an atomic component that is itself over budget causes decomposition to fail closed.",
-        "Manifest operations distinguish create, modify, rename and delete, and forbidden or read-only paths cannot enter a materializable unit.",
-        "Materialization validates an exact target-base lease, detects already-applied operations, validates sealed generated artifacts and builds one atomic Git tree/commit before any target ref can move.",
-        "A successor manifest cannot materialize until its predecessor is recorded as merged and the manifest is reconciled to the resulting new main SHA.",
-        "Exact-head Knowledge Before Build Atlas/change-impact evidence is consumed by Plan Before Code when available instead of rebuilding the same repository relationship truth downstream.",
-        "The mandatory adversarial replay matrix covers 30-file splitting, mixed High/Medium scope, multiple Medium subsystems, inseparable scope, cyclic unit ordering, main drift, rename, delete, generated artifacts, idempotent already-applied changes, forbidden Auth Core paths, proof ownership and no-safe-decomposition."
+        "The new roadmap node remains present and accepted.",
+        "BUILDER-PRODUCTION-COMPLETE depends on MANAGED-TEMPLATE-QUICK-START.",
+        "The architecture-health test expects the ten-element backbone in the same order as the roadmap.",
+        "The adjacency loop proves the new edge rather than merely accepting the longer array.",
+        "Full Quality Tests, TypeScript and Production Build pass on exact head."
       ],
       "invariants": [
-        "Release Risk Budget policy and thresholds remain the single risk authority; decomposition only searches for units that already satisfy that policy.",
-        "A Development Transaction may describe broad intent, but each materialized Release Transaction has an explicit manifest and exact target-base lease.",
-        "Upstream Atlas, gate-chain and projected-risk facts are consumed by decomposition and are not independently rediscovered by the materializer.",
-        "A release unit may modify only paths named by its manifest operations; forbidden and read-only paths remain outside the materialized tree delta.",
-        "No target ref moves until every operation and generated-artifact identity has been validated and one complete tree/commit has been constructed.",
-        "A proof file that machine evidence binds to a capability cannot be placed in a different release unit from the files it proves.",
-        "Successor unit reconciliation always rebinds to the merged predecessor main SHA and recomputes risk/relationship assumptions before materialization.",
-        "Unknown relationship, dependency cycle, stale lease, ambiguous rename, generated artifact without sealed/regenerate semantics, or impossible RRB packing fails closed."
+        "Living Roadmap v2 remains the only roadmap authority.",
+        "Higher-layer maturity cannot silently bypass a newly inserted lower-layer prerequisite.",
+        "Tests follow accepted canonical roadmap truth; tests are not weakened to accept arbitrary order.",
+        "Unit 2 release-decomposition code and closed lifecycle remain unchanged."
       ],
       "forbiddenStates": [
-        "release-risk-threshold-raised-for-decomposition",
-        "manual-release-unit-file-copy",
-        "release-unit-with-risk-block",
-        "proof-separated-from-capability",
-        "forbidden-read-only-path-materialized",
-        "partial-materialization-reported-success",
-        "main-drift-ignored",
-        "successor-uses-stale-parent-base",
-        "rename-treated-as-unrelated-delete-create-without-identity",
-        "generated-artifact-copied-without-sealed-or-regenerate-semantics",
-        "unsafe-split-invented-after-no-safe-decomposition"
+        "remove-managed-template-quick-start-to-make-tests-green",
+        "update-test-without-roadmap-dependency-edge",
+        "skip-or-relax-architecture-health",
+        "touch-unit2-release-decomposition-code",
+        "direct-main-hotfix-without-branch-proof"
       ]
     },
     "model": {
       "phases": [
         "OBSERVE",
         "DEFINE",
-        "MODEL",
         "PLAN",
-        "CHALLENGE",
-        "IMPROVE",
         "PROVE_PLAN",
         "EXECUTE",
         "VERIFY",
@@ -197,11 +164,8 @@
       ],
       "transitions": [
         "OBSERVE->DEFINE",
-        "DEFINE->MODEL",
-        "MODEL->PLAN",
-        "PLAN->CHALLENGE",
-        "CHALLENGE->IMPROVE",
-        "IMPROVE->PROVE_PLAN",
+        "DEFINE->PLAN",
+        "PLAN->PROVE_PLAN",
         "PROVE_PLAN->EXECUTE",
         "EXECUTE->VERIFY",
         "VERIFY->TRUTH_GATE",
@@ -209,42 +173,33 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A greedy file-count split separates a proof from the implementation it proves and both units appear superficially valid.",
-        "A High-risk subsystem is packed with an unrelated substantive subsystem because decomposition uses file count instead of canonical risk semantics.",
-        "Two changed files form an inseparable repository cycle whose combined risk exceeds the budget, but a naive splitter breaks the cycle to force a result.",
-        "Unit two is materialized from the original base after unit one merged, overwriting or bypassing the predecessor state.",
-        "A rename is replayed as create-only and leaves the old authority path alive as duplicate truth.",
-        "One operation fails after earlier paths were already written, leaving a partial transplant that appears successful.",
-        "A generated artifact is copied even though its source generator or sealed identity changed.",
-        "The materializer recomputes proof/authority requirements differently from Plan Before Code and silently drops an upstream obligation."
+        "The new backbone entry is accepted in data but the next maturity item does not depend on it.",
+        "The regression list stays stale and reports a false architecture drift.",
+        "Only the regression is changed, allowing an actual dependency gap to survive."
       ],
       "edgeCases": [
-        "A 30-file scope spans several independent Medium subsystems and must split even though no individual file is dangerous.",
-        "A High-risk component depends on a Medium predecessor and must remain isolated while preserving executable order.",
-        "An operation is already present on the target base because a predecessor unit applied the same content and must be recognized idempotently.",
-        "A planned exact new file is absent from Atlas and still needs a create operation in its release manifest.",
-        "A read-only Auth Core path appears through a broad planned pattern and must block before materialization.",
-        "A successor unit has a predecessor manifest but main moved for an unrelated commit and the stale lease must fail closed."
+        "BUILDER-PRODUCTION-COMPLETE already has multiple dependencies; the new predecessor must be additive, not destructive.",
+        "Future backbone assertions must continue to fail if order or dependency continuity changes."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-MANUAL-SPLIT",
-        "summary": "Keep Projected Release Risk as a blocker and let engineers manually choose file batches after the plan fails.",
+        "id": "ALT-REMOVE-NEW-ITEM",
+        "summary": "Remove MANAGED-TEMPLATE-QUICK-START from the backbone.",
         "disposition": "rejected",
-        "reason": "This repeats machine-known Atlas, risk and proof analysis by hand, scales poorly to large scopes and permits inconsistent downstream interpretation."
+        "reason": "The item is an accepted canonical product decision and its scope is internally coherent."
       },
       {
-        "id": "ALT-INDEPENDENT-RELEASE-ORCHESTRATOR",
-        "summary": "Build a separate release planner and transplant service with its own dependency and proof model beside the Control Plane.",
+        "id": "ALT-TEST-ONLY",
+        "summary": "Update only architecture-health expected array.",
         "disposition": "rejected",
-        "reason": "A parallel authority would violate the ecosystem principle and create drift between Atlas, gate semantics, Release Risk and materialization."
+        "reason": "The adjacency proof would expose the missing BUILDER-PRODUCTION-COMPLETE dependency; hiding that would weaken the authority."
       },
       {
-        "id": "ALT-EXTEND-CANONICAL-CHAIN",
-        "summary": "Extend Plan Before Code with a deterministic decomposition consumer and canonical release-unit manifests, then use one lease-safe Git plumbing materializer.",
+        "id": "ALT-RECONCILE-BOTH",
+        "summary": "Add the missing dependency and update the proof together.",
         "disposition": "selected",
-        "reason": "This keeps the existing upstream producers authoritative, adds only the missing transformation between them and makes batch execution atomic without weakening any final gate."
+        "reason": "This restores consistency between authority data and executable regression without changing product semantics."
       }
     ],
     "specialistReviews": [
@@ -252,217 +207,81 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Release decomposition is a missing consumer of existing Atlas and gate-chain products, not a new architecture authority.",
-        "resolution": "Place decomposition downstream of projected risk and exact-head Atlas inside the existing Control Plane plan transaction, with manifests owned by release infrastructure.",
+        "finding": "The new roadmap node is structurally valid but insertion into a canonical maturity chain requires the successor edge.",
+        "resolution": "Make BUILDER-PRODUCTION-COMPLETE depend on MANAGED-TEMPLATE-QUICK-START and prove adjacency.",
         "evidence": [
-          "quality/knowledge/guard-registry.v1.json",
-          "scripts/shoperation-plan-before-code.mjs",
-          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
+          "quality/knowledge/living-roadmap.v2.json",
+          "tests/architecture-health.test.ts"
         ]
       },
       {
         "role": "Release",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Allowing a blocked broad plan to become execution-ready merely because it can theoretically be split would weaken the current pre-code Release Risk block.",
-        "resolution": "A broad over-budget plan remains BLOCKED; decomposition emits executable unit manifests and execution resumes only from a unit-specific plan reconciled to its exact main base.",
-        "evidence": [
-          "deploy/release-risk-policy.json",
-          "scripts/release-risk-budget.mjs",
-          "quality/knowledge/architecture-constitution.v1.json"
-        ]
-      },
-      {
-        "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Prior ecosystem incidents show that duplicated recomputation, ambiguous proof identity and classifier self-narrowing are recurring missing-edge classes relevant to release decomposition.",
-        "resolution": "Persist those lessons through the existing Negative Knowledge authority and make decomposition consume upstream exact-head products with provenance rather than recalculate them.",
+        "finding": "The red main is caused by an unrelated post-merge roadmap commit, not Unit 2.",
+        "resolution": "Repair in a separate bounded transaction from current main.",
         "evidence": [
-          "quality/knowledge/shoperation-quality-knowledge.v1.json",
-          "quality/knowledge/failure-intake-ledger.v1.json",
-          "quality/knowledge/development-guard-policy.v1.json"
-        ]
-      },
-      {
-        "role": "Operations",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Per-file GitHub API writes cannot provide a practical atomicity guarantee for 20–30 path release units.",
-        "resolution": "Use Git tree/index/commit plumbing to validate all operations first, create one commit object, and update or push the target ref only with an exact-base lease.",
-        "evidence": [
-          "scripts/release-unit-materialize.mjs",
-          "scripts/release-manifest.mjs",
-          "AGENTS.md"
+          "CI run 37476878160",
+          "main 5f74a0f1a084c82b58ceb2681c6484a03eae0fc4"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-RD-01",
-        "scenario": "Thirty planned files span four independent Medium-risk subsystems.",
-        "finding": "The original scope exceeds the unchanged RRB even though each subsystem is individually releasable.",
-        "resolution": "Topologically pack dependency components into deterministic units and require each unit to independently PASS evaluateReleaseRiskFiles.",
+        "id": "CH-RM-01",
+        "scenario": "Only update the expected test array to ten items.",
+        "finding": "The next adjacency check would correctly fail because BUILDER-PRODUCTION-COMPLETE lacks the new predecessor.",
+        "resolution": "Repair the roadmap dependency first-class and update proof in the same transaction.",
         "status": "resolved"
       },
       {
-        "id": "CH-RD-02",
-        "scenario": "One High-risk subsystem is planned together with a separate Medium-risk subsystem.",
-        "finding": "The canonical RRB requires High-risk isolation and cannot permit the mixed scope as one release.",
-        "resolution": "Emit separate ordered units; never reduce the High risk score or reinterpret neutral evidence as substantive scope.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RD-03",
-        "scenario": "Several Medium-risk subsystems together exceed the point budget or subsystem count.",
-        "finding": "File-count batching cannot know the correct boundary and may still create a blocked unit.",
-        "resolution": "Use the existing risk evaluator as the packing oracle and accept only candidate units whose canonical projected decision is PASS.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RD-04",
-        "scenario": "Changed files form a repository cycle and their combined atomic component exceeds RRB.",
-        "finding": "Breaking the cycle would manufacture an intermediate state with unresolved mutual dependencies.",
-        "resolution": "Collapse cyclic and proof-coupled files into atomic components; if the atomic component itself is blocked, return NO_SAFE_DECOMPOSITION.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RD-05",
-        "scenario": "Ordering constraints between otherwise separate release units form a cycle.",
-        "finding": "No predecessor sequence can materialize all units without violating at least one prerequisite.",
-        "resolution": "Topologically validate unit dependencies after packing and fail closed on any release-unit cycle.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RD-06",
-        "scenario": "Main advances after unit one was planned but before unit two materializes.",
-        "finding": "Applying unit two to its stale original base can overwrite predecessor or unrelated repository state.",
-        "resolution": "Require exact target-base lease and reconcile successor manifests only after reading the newly merged predecessor main SHA.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RD-07",
-        "scenario": "A planned path is renamed rather than independently deleted and created.",
-        "finding": "Losing rename identity can leave stale consumers or duplicate authority paths.",
-        "resolution": "Represent rename as a first-class operation with previousPath and target path, validating both target-base and source identities before tree construction.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RD-08",
-        "scenario": "A generated artifact is included in a unit but its generator output is not inherently portable.",
-        "finding": "Copying the file by path can materialize stale generated state even when source code is correct.",
-        "resolution": "Require explicit generated-artifact semantics: regenerate under a canonical contract or copy only under a sealed source identity.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RD-09",
-        "scenario": "A predecessor unit already applied the exact content requested by a later manifest.",
-        "finding": "Treating the existing content as an error makes reconciliation non-idempotent and creates unnecessary manual edits.",
-        "resolution": "Compare Git object identity before applying each operation and mark exact matches already-applied without creating a duplicate delta.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RD-10",
-        "scenario": "A broad source pattern accidentally includes Auth Core or another read-only authority.",
-        "finding": "Risk packing alone could place the path into an otherwise valid unit.",
-        "resolution": "Manifest construction and materialization both enforce forbidden/read-only path sets before any commit tree is created.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RD-11",
-        "scenario": "A regression/proof file would be packed separately from the changed capability it proves.",
-        "finding": "The implementation unit could merge without its required proof authority while the proof arrives later.",
-        "resolution": "Treat machine-proven proof ownership as an inseparable relation and block unowned proof files rather than guess a unit.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RD-12",
-        "scenario": "Plan Before Code runs after Knowledge Before Build already emitted exact-head Atlas and change-impact evidence.",
-        "finding": "Rebuilding Atlas downstream repeats expensive machine-known facts and can produce execution-context drift.",
-        "resolution": "Consume the exact-head upstream snapshot when provenance matches; only an explicitly marked fallback may rebuild when no canonical snapshot exists.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RD-13",
-        "scenario": "Every possible packing leaves one unit blocked because an atomic component is too risky.",
-        "finding": "A splitter optimized to always return units could invent a semantically false boundary.",
-        "resolution": "Return FAIL_CLOSED with diagnostic reasons and no materializable manifests when no safe decomposition exists.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RD-14",
-        "scenario": "The selected runtime source is a merge whose long feature-parent ancestry exceeds the bounded preview-candidate window while a safe equivalent Preview exists on another near parent lineage.",
-        "finding": "Topological max-count enumeration can spend the whole candidate budget on one merged lineage and never evaluate a graph-near safe ancestor, causing a false TEMPLATE_LIVE_RUNTIME_PREVIEW_ANCHOR_MISSING.",
-        "resolution": "Enumerate bounded ancestry fairly by graph distance across every parent using deterministic breadth-first traversal; keep equivalence and non-production Preview checks unchanged and fail closed if no BFS candidate is safe.",
+        "id": "CH-RM-02",
+        "scenario": "Remove the new backbone item to restore the previous test.",
+        "finding": "That would silently discard accepted managed-template launch sequencing.",
+        "resolution": "Preserve the accepted item and reconcile the chain.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Require exact-head Plan Before Code PASS on this plan-only commit before the first implementation file changes.",
-      "Add adversarial regression coverage for the complete required decomposition matrix, including 30-file, High/Medium, multi-Medium, inseparable, cyclic-order and no-safe-split cases.",
-      "Verify every emitted release unit independently evaluates PASS under deploy/release-risk-policy.json without modifying policy thresholds or classifier weights.",
-      "Verify manifest schema contains transaction identity, sequence, target-base lease, operations, required dependencies, authorities, subsystems, gates, proof, forbidden/read-only paths, generated semantics, prerequisites, expected post-state and reconciliation policy.",
-      "Verify exact-head Knowledge Before Build Atlas/change-impact provenance is consumed by Plan Before Code and downstream decomposition does not silently rebuild when that snapshot is present.",
-      "Exercise rename, delete, sealed generated artifact, already-applied content and forbidden Auth Core path materialization semantics in focused tests.",
-      "Exercise one temporary Git repository end-to-end to prove all operations are validated before one tree/commit is created and a ref update rejects a mismatched expected base.",
-      "Run Edit-Time Guard and Incremental Replay after implementation and require no unplanned subsystem, authority or Known Failure scope expansion.",
-      "Require actual Release Risk Budget PASS for the Unit 2 implementation itself under unchanged policy.",
-      "Run full Quality Tests, TypeScript and Production Build on the implementation head.",
-      "Require exact-head Completion Truth VERIFIED and external Template Factory proof whenever canonical guard semantics derive it as applicable.",
-      "Close lifecycle only after the verified implementation head is recorded and then rerun exact-head CI for Lifecycle Closure PASS.",
-      "Add a merge-DAG regression where one parent lineage is deeper than the candidate budget and prove breadth-first ancestry still surfaces the safe runtime-equivalent Preview ancestor without increasing the candidate limit."
+      "Require exact-head Plan Before Code PASS on this plan-only commit before implementation.",
+      "Assert the roadmap backbone has exactly the accepted ten ordered elements.",
+      "Assert BUILDER-PRODUCTION-COMPLETE depends on MANAGED-TEMPLATE-QUICK-START.",
+      "Run full architecture-health and Quality Tests.",
+      "Run TypeScript and Production Build.",
+      "Require exact-head Completion Truth/Lifecycle according to the canonical gate chain before merge."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-06-CONTROL-PLANE-RELEASE-DECOMPOSITION",
+      "request": "MAIN-CI-37476878160-ROADMAP-BACKBONE",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        "quality/knowledge/development-guard-policy.v1.json",
-        "quality/knowledge/guard-registry.v1.json",
-        "quality/knowledge/shoperation-quality-knowledge.v1.json",
-        "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-        "scripts/shoperation-development-guard.mjs",
-        "scripts/shoperation-plan-before-code.mjs"
+        "quality/knowledge/living-roadmap.v2.json",
+        "tests/architecture-health.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "deploy/release-risk-policy.json",
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "scripts/lib/shoperation-development-runtime.mjs",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/release-manifest.mjs",
-        "scripts/release-risk-budget.mjs",
-        "scripts/shoperation-knowledge-preflight.mjs"
+        "quality/knowledge/capability-registry.v1.json"
       ],
-      "mustCreate": [
+      "mustCreate": [],
+      "forbidden": [
         "scripts/lib/shoperation-release-unit-runtime.mjs",
         "scripts/release-unit-materialize.mjs",
-        "tests/control-plane-release-decomposition.test.ts",
-        "tests/release-unit-materialization.test.ts"
-      ],
-      "forbidden": [
-        "src/lib/auth/**",
-        "src/app/api/auth/**",
-        "src/middleware.ts",
-        "deploy/release-risk-policy.json"
+        "scripts/shoperation-plan-before-code.mjs"
       ],
       "proof": [
-        "tests/control-plane-release-decomposition.test.ts",
-        "tests/release-unit-materialization.test.ts",
-        "tests/template-factory-resumable-verification.test.ts"
+        "tests/architecture-health.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
-      "plannedRenames": [],
-      "generatedArtifacts": []
+      "plannedRenames": []
     },
     "executionAuthorized": true
   },
   "completionContract": {
-    "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-DECOMPOSITION",
+    "sourceKind": "main-ci-failure-reconciliation",
+    "sourceRef": "MAIN-CI-37476878160-ROADMAP-BACKBONE",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -473,63 +292,23 @@
         "GUARD-RELEASE-RISK",
         "GUARD-QUALITY-TESTS",
         "GUARD-TYPECHECK",
-        "GUARD-PRODUCTION-BUILD",
-        "GUARD-TEMPLATE-FACTORY"
+        "GUARD-PRODUCTION-BUILD"
       ],
-      "externalGuards": [
-        "GUARD-TEMPLATE-FACTORY"
-      ],
+      "externalGuards": [],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-RELEASE-DECOMPOSITION",
-        "requirement": "An original planned scope that exceeds Release Risk Budget is deterministically decomposed before coding into ordered release units that each satisfy the unchanged canonical risk policy, or fails closed when no safe decomposition exists.",
-        "claimScope": {
-          "capability": "CAP-RELEASE",
-          "breadth": "planned-release-decomposition",
-          "strength": 2,
-          "dimensions": [
-            "risk",
-            "release-scope",
-            "outcome"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-RELEASE"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-RELEASE-RISK"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-RRB-WEAKENED-BY-SPLIT",
-            "statement": "Decomposition must never raise, bypass or reinterpret the canonical Release Risk Budget to make a unit pass.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-RELEASE-RISK"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-RELEASE-UNIT-MANIFEST",
-        "requirement": "Every release unit has one canonical manifest containing complete machine-known scope, operation, authority, proof, lease, predecessor and post-state semantics before it can be materialized.",
+        "id": "REQ-ROADMAP-BACKBONE-CANONICAL",
+        "requirement": "The accepted Managed Template Quick Start is integrated as a true maturity prerequisite, and executable architecture proof matches the canonical ten-element backbone.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-manifest",
+          "breadth": "living-roadmap-maturity-backbone",
           "strength": 2,
           "dimensions": [
-            "plan",
-            "scope",
             "authority",
-            "proof",
-            "forbidden-state"
+            "dependency",
+            "proof"
           ]
         },
         "requiredCapabilities": [
@@ -537,7 +316,6 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
@@ -546,79 +324,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-MANIFEST-MISSING-MACHINE-FACT",
-            "statement": "A downstream materializer must not rediscover or manually request a deterministic fact already produced by Atlas, gate-chain or projected risk.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-ATOMIC-MATERIALIZATION",
-        "requirement": "Manifest-driven materialization validates the exact target-base lease and all operations before producing one atomic Git commit, with first-class rename/delete, sealed generated-artifact and already-applied handling.",
-        "claimScope": {
-          "capability": "CAP-RELEASE",
-          "breadth": "manifest-materialization",
-          "strength": 2,
-          "dimensions": [
-            "idempotency",
-            "forbidden-state",
-            "reconcile",
-            "outcome"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-RELEASE"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-PARTIAL-MATERIALIZATION",
-            "statement": "No target ref may move after only a subset of manifest operations has been applied or validated.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-SEQUENTIAL-RECONCILIATION",
-        "requirement": "A successor release unit reconciles only from the merged predecessor main state, detects stale main drift and preserves proof/relationship obligations across the new exact base.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "release-unit-reconciliation",
-          "strength": 2,
-          "dimensions": [
-            "scope",
-            "reconcile",
-            "missing-edge",
-            "unknowns"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-STALE-SUCCESSOR-BASE",
-            "statement": "A successor unit must not materialize from the original development base after its predecessor changed main.",
+            "id": "NEG-ROADMAP-CHAIN-GAP",
+            "statement": "A maturity-backbone node must not be inserted without making its successor depend on it.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -627,18 +334,5 @@
       }
     ]
   },
-  "notes": "Unit 2 extends the already merged Control Plane ecosystem chain. The broad Development Transaction remains distinct from Release Transactions: if projected risk is blocked, the original plan must not become executable merely because decomposition exists. Instead the system emits canonical unit manifests; a unit-specific transaction reconciles from exact main and final Release Risk remains independently authoritative. Prior Unit 1 lessons about execution-context proof identity, proof/runtime identity separation, proof-engine/runtime-input separation, upstream-data reuse, exact-head Atlas reuse and classifier self-narrowing are preserved through the existing canonical Knowledge mechanism rather than a new parallel registry. Plan-only CI 37454384741 proved the canonical scope resolver classifies the Knowledge Infrastructure paths as infrastructure metadata rather than a substantive quality-infrastructure subsystem; projected scope is therefore release-infrastructure only, while Atlas domain authority remains DOMAIN-QUALITY + DOMAIN-RELEASE. Unit 2 implementation records prior Unit 1 proof/runtime and recomputation lessons as canonical Negative Knowledge and makes release.decomposition + release.unit-manifests first-class outputs of the existing Plan Before Code producer. Edit-Time Reference Sync confirmed the historical Atlas build expression is a repository-wide high-signal implementation identity; Plan Before Code therefore preserves it inside an explicit fallback helper while exact-head upstream snapshots remain the preferred path. Knowledge Preflight is corrected from MUST_EDIT to impacted read-only producer. External PR-context proof on run 37460205095 exposed a merge-DAG starvation bug in bounded Preview-anchor enumeration: c34d7ac is 55 commits ahead of 42e60510, so rev-list --topo-order --max-count=40 can omit the graph-near 42e/33ed parent lineage. Scope expands canonically to the existing Template Factory resumable-verification runtime and its regression test; the fix must change traversal fairness, not increase the candidate budget or relax Preview equivalence. Merge-DAG Preview starvation is now canonical Negative Knowledge SQ-NK-022. The resolver keeps maxCandidates unchanged and switches only ancestry enumeration to deterministic breadth-first parent-distance traversal, preserving ancestor proof, conservative runtime-diff equivalence and Preview-only deployment requirements.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "fa40d8a1f1c071ae4ef92da7531a12d3d385a40f",
-    "closedAt": "2026-10-06T12:17:39.135Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-DECOMPOSITION",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Separate recovery transaction for the unrelated roadmap commit that landed after Unit 2 was merged. Unit 2 remains closed and untouched."
 }
