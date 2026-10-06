@@ -1109,6 +1109,13 @@
       "sourceRecords": [
         "quality/development/active-plan.json"
       ]
+    },
+    {
+      "id": "SQ-NK-023",
+      "rule": "Do not let an external guard consumer derive proof for a scope that its authoritative producer workflow cannot be triggered to produce. External-gate semantic applicability and producer trigger scope must remain aligned; generic roadmap/knowledge-only changes must not inherit Template Factory proof merely through an over-broad knowledge wildcard.",
+      "sourceRecords": [
+        "quality/development/active-plan.json"
+      ]
     }
   ]
 }

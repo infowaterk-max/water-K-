@@ -3,7 +3,7 @@
   "taskId": "DEV-ROADMAP-MANAGED-QUICK-START-BACKBONE-FIX",
   "task": "Reconcile Living Roadmap v2 maturity backbone after the accepted Managed Template Quick Start insertion so dependency order and architecture-health proof remain canonical.",
   "status": "ready-for-implementation",
-  "guardDigest": "821c8020",
+  "guardDigest": "13211d3e",
   "changeBaseSha": "5f74a0f1a084c82b58ceb2681c6484a03eae0fc4",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -93,7 +93,8 @@
     "SQ-NK-017",
     "SQ-NK-018",
     "SQ-NK-021",
-    "SQ-NK-022"
+    "SQ-NK-022",
+    "SQ-NK-023"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -381,5 +382,5 @@
       }
     ]
   },
-  "notes": "Separate recovery transaction for the unrelated roadmap commit that landed after Unit 2 was merged. Unit 2 remains closed and untouched. Plan-only CI 37478243393 reconciled exact canonical scope: DOMAIN-QUALITY; authority quality-knowledge-system; subsystems builder-template-system, customer-account, dependency-contract, payment-checkout-order-authority, shared-storefront; Negative Knowledge and assurance requirements updated exactly from Plan Before Code diagnostics. Sentinel integrity replay on 215e060c showed the hotfix Completion Contract overclaimed unsupported proof dimensions. The claim is reconciled to canonical producers: Plan Before Code covers plan/scope authority; Quality Tests covers regression/proof/status behavior. Sentinel itself remains unchanged. Sentinel integrity replay on 215e060c showed the requirement used domain words (authority/dependency) as proof-dimension taxonomy although GUARD-QUALITY-TESTS proves this invariant through executable scope/regression/proof semantics. The natural-language dependency requirement and its regression assertion remain unchanged; only the proof taxonomy is reconciled to the canonical guard semantics. During PR #954 verification, Control Plane external-proof derivation exposed a producer/consumer applicability mismatch: GUARD-TEMPLATE-FACTORY semanticInputs used broad quality/knowledge/** while the authoritative Template Factory workflow intentionally excludes generic knowledge/roadmap changes and only triggers on explicit TF-relevant knowledge such as guard-registry.v1.json. Scope expands to align the guard applicability with its producer and record the missing-edge as Negative Knowledge; no Template Factory proof requirement is weakened for actual TF inputs."
+  "notes": "Separate recovery transaction for the unrelated roadmap commit that landed after Unit 2 was merged. Unit 2 remains closed and untouched. Plan-only CI 37478243393 reconciled exact canonical scope: DOMAIN-QUALITY; authority quality-knowledge-system; subsystems builder-template-system, customer-account, dependency-contract, payment-checkout-order-authority, shared-storefront; Negative Knowledge and assurance requirements updated exactly from Plan Before Code diagnostics. Sentinel integrity replay on 215e060c showed the hotfix Completion Contract overclaimed unsupported proof dimensions. The claim is reconciled to canonical producers: Plan Before Code covers plan/scope authority; Quality Tests covers regression/proof/status behavior. Sentinel itself remains unchanged. Sentinel integrity replay on 215e060c showed the requirement used domain words (authority/dependency) as proof-dimension taxonomy although GUARD-QUALITY-TESTS proves this invariant through executable scope/regression/proof semantics. The natural-language dependency requirement and its regression assertion remain unchanged; only the proof taxonomy is reconciled to the canonical guard semantics. During PR #954 verification, Control Plane external-proof derivation exposed a producer/consumer applicability mismatch: GUARD-TEMPLATE-FACTORY semanticInputs used broad quality/knowledge/** while the authoritative Template Factory workflow intentionally excludes generic knowledge/roadmap changes and only triggers on explicit TF-relevant knowledge such as guard-registry.v1.json. Scope expands to align the guard applicability with its producer and record the missing-edge as Negative Knowledge; no Template Factory proof requirement is weakened for actual TF inputs. External-proof applicability alignment implemented: GUARD-TEMPLATE-FACTORY no longer consumes generic quality/knowledge/**; guard-registry.v1.json remains an explicit classifier input and workflow trigger. SQ-NK-023 records the invariant that an external consumer cannot require evidence outside its producer trigger scope."
 }
