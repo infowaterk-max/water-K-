@@ -65,7 +65,7 @@ describe('Template Factory shared engine functional proof runner',()=>{
     expect(workflow).toContain("deployment.production_environment!==true&&environment==='preview'");
     expect(workflow).toContain('Rejecting non-preview deployment');
     expect(workflow).toContain("const maxAttempts=runtimeMode==='CURRENT_HEAD'?90:1");
-    expect(workflow).toContain('ENGINE_FUNCTIONAL_RUNTIME_PREVIEW_ANCHOR_MISSING');
+    expect(workflow).toContain('TEMPLATE_LIVE_RUNTIME_PREVIEW_ANCHOR_MISSING');
     expect(workflow).toContain('non-production Vercel Preview deployment for the Atlas-selected runtime source');
     expect(workflow).toContain('PRODUCT_OWNER_PREVIEW_URL: "${{ steps.runtime-preview.outputs.base-url }}/storefront-template-preview?');
   });
