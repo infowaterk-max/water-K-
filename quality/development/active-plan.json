@@ -1,31 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-ROADMAP-MANAGED-QUICK-START-BACKBONE-FIX",
-  "task": "Reconcile Living Roadmap v2 maturity backbone after the accepted Managed Template Quick Start insertion so dependency order and architecture-health proof remain canonical.",
-  "status": "closed",
-  "guardDigest": "13211d3e",
-  "changeBaseSha": "5f74a0f1a084c82b58ceb2681c6484a03eae0fc4",
+  "taskId": "DEV-SHARP-LIBRSVG-CVE-2026-96889",
+  "task": "Remediate the high-severity sharp/librsvg CVE-2026-96889 dependency finding by moving the locked optional Next.js sharp chain from 0.35.4/libvips bundle 1.3.3 to the current patched 0.35.5/libvips bundle 1.3.4 without weakening npm audit or changing product behavior.",
+  "status": "ready-for-implementation",
+  "guardDigest": "PENDING-CANONICAL-RECONCILIATION",
+  "changeBaseSha": "51dfcada763fc039b34e83c63ebea1e9006160a6",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "quality/knowledge/development-guard-policy.v1.json",
-    "quality/knowledge/guard-registry.v1.json",
-    "quality/knowledge/living-roadmap.v2.json",
-    "quality/knowledge/shoperation-quality-knowledge.v1.json",
-    "tests/architecture-health.test.ts",
-    "tests/control-plane-ecosystem-chain.test.ts"
+    "package.json",
+    "package-lock.json",
+    "tests/dependency-security-contract.test.ts"
   ],
   "expectedSubsystems": [
-    "builder-template-system",
-    "customer-account",
-    "dependency-contract",
-    "payment-checkout-order-authority",
-    "shared-storefront"
+    "dependency-contract"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -80,85 +75,79 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-004",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-RESTORE-MAIN-ROADMAP-BACKBONE",
-    "riskTier": "medium",
-    "problemStatement": "Main commit 5f74a0f1 legitimately inserted MANAGED-TEMPLATE-QUICK-START into the canonical maturity backbone, but left BUILDER-PRODUCTION-COMPLETE without a dependency on the new predecessor and left architecture-health proof hard-coded to the previous nine-element backbone, causing exact-head main Quality Tests to fail.",
+    "sourceRef": "PO-2026-10-06-SHARP-LIBRSVG-SECURITY-REMEDIATION",
+    "riskTier": "high",
+    "problemStatement": "Exact-head CI now fails its non-bypassable production dependency audit because the lockfile installs sharp 0.35.4 with the vulnerable librsvg-bearing prebuilt dependency chain, while the supported patched sharp release is 0.35.5; this external security drift blocks Unit 3 even though Unit 3 itself does not alter dependencies.",
     "observableOutcomes": [
-      "Living Roadmap v2 contains the accepted MANAGED-TEMPLATE-QUICK-START in the maturity backbone between TEMPLATE-CAPABILITY-CENSUS-42 and BUILDER-PRODUCTION-COMPLETE.",
-      "BUILDER-PRODUCTION-COMPLETE explicitly depends on MANAGED-TEMPLATE-QUICK-START while retaining its existing dependencies.",
-      "architecture-health regression asserts the ten-element canonical backbone and verifies every adjacent maturity dependency.",
-      "Exact-head CI returns green without weakening any architecture, roadmap, quality or release gate."
+      "package.json deterministically constrains the transitive Next.js sharp dependency to patched sharp 0.35.5 without changing Next.js, React or application runtime contracts.",
+      "package-lock.json resolves sharp and its platform/libvips optional packages to the exact 0.35.5 / 1.3.4 patched artifact family and npm ci remains deterministic.",
+      "The real exact-head Security Audit passes naturally with no advisory suppression, timeout increase, allowlist, or audit-level downgrade.",
+      "Quality Tests, TypeScript and Production Build remain green and Unit 3 can subsequently rebase/reconcile from the new main."
     ],
     "unresolvedRisks": [
-      "The roadmap item was added concurrently after Unit 2 merge; the hotfix must not alter Unit 2 code or reopen its closed lifecycle.",
-      "Changing only the test would mask a real dependency gap, while removing the roadmap item would discard an accepted product decision."
+      "Sharp is an optional transitive dependency of Next.js image optimization, so a broad npm update could unintentionally churn unrelated platform packages.",
+      "Native prebuilt package identity spans sharp plus @img/sharp-* and @img/sharp-libvips-* packages; updating only the top-level lock entry would create an inconsistent install graph.",
+      "Security advisory feeds are external to repository state, so a previously green commit can become release-blocked without source changes and must still fail closed."
     ],
     "scope": {
       "in": [
-        "Reconcile the new maturity-backbone dependency edge.",
-        "Update the canonical regression proof to the accepted ten-element backbone.",
-        "Restore exact-head main quality without touching Unit 2 implementation."
+        "Add an exact root override for sharp 0.35.5.",
+        "Regenerate/update only the lockfile dependency graph required by that override.",
+        "Extend the existing dependency-security contract regression to assert patched sharp/libvips identities.",
+        "Prove the real exact-head npm security audit plus normal quality/type/build gates."
       ],
       "out": [
-        "No Release Risk, Completion Truth, Sentinel, Template Factory or Control Plane gate changes.",
-        "No change to the content or semantics of the accepted Managed Template Quick Start capability.",
-        "No Builder, storefront, auth, commerce or runtime implementation changes."
+        "No audit suppression, allowlist, severity downgrade or workflow change.",
+        "No Next.js, React, Supabase, product runtime, auth, commerce, database, Builder or storefront source change.",
+        "No broad dependency refresh beyond the sharp native/prebuilt dependency family required by the patched release.",
+        "No Unit 3 orchestration code changes on this security hotfix branch."
       ]
     },
     "assuranceCeiling": {
-      "level": "standard-governed",
-      "rationale": "This is a bounded canonical-roadmap dependency reconciliation with no runtime behavior change, but it affects architecture authority and must preserve explicit dependency semantics.",
+      "level": "strong-behavioral-proof",
+      "rationale": "A high-severity native image-processing dependency finding blocks release and can affect server-side processing of attacker-influenced image inputs. The remediation is small but changes the deterministic install graph and native binary family, so it requires exact versioning, bounded lockfile churn, real npm audit proof, and full build regression without weakening any security gate.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
+        "what-if-matrix",
         "adversarial-scenarios",
         "boundary-cases",
-        "regression-proof"
+        "pairwise-interactions",
+        "threat-failure-model",
+        "fault-injection"
       ],
-      "deferredTechniques": [
-        "runtime-adversarial-proof"
-      ]
+      "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "The new roadmap node remains present and accepted.",
-        "BUILDER-PRODUCTION-COMPLETE depends on MANAGED-TEMPLATE-QUICK-START.",
-        "The architecture-health test expects the ten-element backbone in the same order as the roadmap.",
-        "The adjacency loop proves the new edge rather than merely accepting the longer array.",
-        "Full Quality Tests, TypeScript and Production Build pass on exact head."
+        "package.json pins sharp exactly to 0.35.5 through the existing overrides authority.",
+        "package-lock.json installs node_modules/sharp at 0.35.5 and the corresponding @img/sharp platform packages at 0.35.5.",
+        "package-lock.json installs the corresponding @img/sharp-libvips platform packages at 1.3.4.",
+        "No unrelated direct dependency version changes are introduced.",
+        "The exact-head npm security audit no longer reports GHSA-wq5f-xc86-pv6w / CVE-2026-96889.",
+        "Full Quality Tests, TypeScript and Production Build remain green."
       ],
       "invariants": [
-        "Living Roadmap v2 remains the only roadmap authority.",
-        "Higher-layer maturity cannot silently bypass a newly inserted lower-layer prerequisite.",
-        "Tests follow accepted canonical roadmap truth; tests are not weakened to accept arbitrary order.",
-        "Unit 2 release-decomposition code and closed lifecycle remain unchanged."
+        "Security audit enforcement remains unchanged and authoritative.",
+        "The fix removes the vulnerable installed dependency rather than hiding its finding.",
+        "The lockfile remains npm-ci reproducible.",
+        "Next.js remains pinned at 15.5.24 and application dependencies remain otherwise unchanged.",
+        "Only the sharp native/prebuilt package family may change as a transitive consequence of the exact override."
       ],
       "forbiddenStates": [
-        "remove-managed-template-quick-start-to-make-tests-green",
-        "update-test-without-roadmap-dependency-edge",
-        "skip-or-relax-architecture-health",
-        "touch-unit2-release-decomposition-code",
-        "direct-main-hotfix-without-branch-proof"
+        "sharp-0.35.4-remains-installed",
+        "libvips-1.3.3-remains-installed",
+        "security-audit-bypass",
+        "security-audit-timeout-increase",
+        "loose-sharp-override",
+        "broad-dependency-churn",
+        "product-runtime-change"
       ]
     },
     "model": {
@@ -190,145 +179,173 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The new backbone entry is accepted in data but the next maturity item does not depend on it.",
-        "The regression list stays stale and reports a false architecture drift.",
-        "Only the regression is changed, allowing an actual dependency gap to survive."
+        "Only package.json is changed and npm ci still installs vulnerable lock entries.",
+        "Only sharp top-level lock entry changes while platform-native/libvips package identities remain stale.",
+        "A broad npm update changes unrelated transitive dependencies and expands release risk.",
+        "The audit is silenced rather than the vulnerable dependency being removed.",
+        "A loose version range later resolves to an unreviewed native binary.",
+        "The patched native dependency family fails installation or Next.js production build."
       ],
       "edgeCases": [
-        "BUILDER-PRODUCTION-COMPLETE already has multiple dependencies; the new predecessor must be additive, not destructive.",
-        "Future backbone assertions must continue to fail if order or dependency continuity changes."
+        "Next.js declares sharp as an optional dependency with range ^0.34.3 || ^0.35.3, so exact 0.35.5 remains compatible.",
+        "The repository does not directly import sharp in package.json; the root override controls the transitive optional dependency.",
+        "Platform-specific @img packages are optional but are part of lockfile integrity across supported environments.",
+        "The advisory may not affect every image format equally, but the release gate treats the installed high-severity dependency as blocking."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-REMOVE-NEW-ITEM",
-        "summary": "Remove MANAGED-TEMPLATE-QUICK-START from the backbone.",
+        "id": "ALT-AUDIT-SUPPRESSION",
+        "summary": "Suppress or allowlist the new npm audit advisory.",
         "disposition": "rejected",
-        "reason": "The item is an accepted canonical product decision and its scope is internally coherent."
+        "reason": "This weakens the blocking security authority and leaves the vulnerable package installed."
       },
       {
-        "id": "ALT-TEST-ONLY",
-        "summary": "Update only architecture-health expected array.",
+        "id": "ALT-NEXT-UPGRADE",
+        "summary": "Upgrade Next.js or the broader framework dependency set to obtain a newer sharp transitively.",
         "disposition": "rejected",
-        "reason": "The adjacency proof would expose the missing BUILDER-PRODUCTION-COMPLETE dependency; hiding that would weaken the authority."
+        "reason": "Next.js 15.5.24 already accepts sharp 0.35.5; a framework upgrade would add unnecessary product/runtime scope."
       },
       {
-        "id": "ALT-RECONCILE-BOTH",
-        "summary": "Add the missing dependency and update the proof together.",
+        "id": "ALT-EXACT-SHARP-OVERRIDE",
+        "summary": "Pin sharp exactly to 0.35.5 and update only its native/prebuilt lockfile family plus the existing dependency security regression.",
         "disposition": "selected",
-        "reason": "This restores consistency between authority data and executable regression without changing product semantics."
+        "reason": "This is the smallest deterministic remediation that removes the affected dependency while preserving existing framework and product contracts."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Architecture",
+        "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The new roadmap node is structurally valid but insertion into a canonical maturity chain requires the successor edge.",
-        "resolution": "Make BUILDER-PRODUCTION-COMPLETE depend on MANAGED-TEMPLATE-QUICK-START and prove adjacency.",
+        "finding": "Exact-head npm audit reports high-severity CVE-2026-96889 through sharp 0.35.4 and does not classify the failure as transient network noise.",
+        "resolution": "Install the current patched sharp 0.35.5 dependency family; no audit exception or severity downgrade is allowed.",
         "evidence": [
-          "quality/knowledge/living-roadmap.v2.json",
-          "tests/architecture-health.test.ts"
+          "CI run 37491384547 security-audit job 112364713465",
+          "package-lock.json"
         ]
       },
       {
         "role": "Release",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The red main is caused by an unrelated post-merge roadmap commit, not Unit 2.",
-        "resolution": "Repair in a separate bounded transaction from current main.",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "A normal npm update can rewrite a large optional native dependency graph and unintentionally change unrelated release inputs.",
+        "resolution": "Constrain the edit to an exact sharp override and accept lock churn only inside sharp/@img sharp native packages; full diff and Release Risk remain blocking.",
         "evidence": [
-          "CI run 37476878160",
-          "main 5f74a0f1a084c82b58ceb2681c6484a03eae0fc4"
+          "package.json",
+          "package-lock.json",
+          "deploy/release-risk-policy.json"
         ]
       },
       {
         "role": "Architecture",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "A new managed no-Builder launch mode could be treated as optional UX and therefore excluded from the hard maturity backbone.",
-        "resolution": "The roadmap itself marks it P0 and stage-4-before-builder-production-complete, and its scope says ordinary launch must work without Visual Builder on the same canonical runtime. Therefore Builder production maturity may not bypass it.",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Dependency manifests are already canonical DOMAIN-RELEASE inputs and do not require a new dependency authority.",
+        "resolution": "Reuse the existing dependency-contract subsystem, release-domain ownership and dependency-security regression instead of adding a new security subsystem.",
         "evidence": [
-          "quality/knowledge/living-roadmap.v2.json",
-          "MAIN-CI-37476878160"
+          "quality/knowledge/domain-foundations.v1.json",
+          "tests/dependency-security-contract.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-RM-01",
-        "scenario": "Only update the expected test array to ten items.",
-        "finding": "The next adjacency check would correctly fail because BUILDER-PRODUCTION-COMPLETE lacks the new predecessor.",
-        "resolution": "Repair the roadmap dependency first-class and update proof in the same transaction.",
+        "id": "CH-SHARP-01",
+        "scenario": "The audit is made green by changing workflow flags.",
+        "finding": "The vulnerable native dependency would remain installed.",
+        "resolution": "Workflow files are out of scope; exact-head npm audit must pass unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-RM-02",
-        "scenario": "Remove the new backbone item to restore the previous test.",
-        "finding": "That would silently discard accepted managed-template launch sequencing.",
-        "resolution": "Preserve the accepted item and reconcile the chain.",
+        "id": "CH-SHARP-02",
+        "scenario": "Only package.json gets an override while the lockfile remains 0.35.4.",
+        "finding": "npm ci uses lock authority and either rejects the mismatch or retains stale dependency identity.",
+        "resolution": "package.json and package-lock.json form one coherent dependency transaction.",
         "status": "resolved"
       },
       {
-        "id": "CH-RM-03",
-        "scenario": "The new roadmap node is inserted into the backbone and the successor dependency is added, but another existing BUILDER-PRODUCTION-COMPLETE dependency is accidentally removed during reconciliation.",
-        "finding": "A narrowly targeted edge fix can still regress independent prerequisite authority if it replaces rather than augments the dependency list.",
-        "resolution": "Make the dependency update additive and keep existing VISUAL-BUILDER, GUARDED-VISUAL-SECTION-LIBRARY and TEMPLATE-CAPABILITY-CENSUS-42 prerequisites; regression proof continues to validate the maturity predecessor separately.",
+        "id": "CH-SHARP-03",
+        "scenario": "Only node_modules/sharp is bumped in the lockfile.",
+        "finding": "Its exact @img/sharp and @img/sharp-libvips optional dependencies could remain inconsistent with the patched release.",
+        "resolution": "The complete sharp-native family required by 0.35.5 is updated as one bounded lock graph.",
         "status": "resolved"
       },
       {
-        "id": "CH-RM-04",
-        "scenario": "A generic Living Roadmap/knowledge-only change is classified as touching builder-template-system, so the gate chain requires GUARD-TEMPLATE-FACTORY even though the Template Factory producer workflow intentionally excludes generic quality/knowledge/** paths.",
-        "finding": "Consumer applicability is broader than producer trigger authority. CI can therefore wait for an exact-head external proof that can never be produced, creating a fail-by-timeout orchestration dead-end.",
-        "resolution": "Align GUARD-TEMPLATE-FACTORY semanticInputs with the producer workflow authority: retain only actual Template Factory runtime/classifier inputs, including explicit quality/knowledge/guard-registry.v1.json, and remove the broad quality/knowledge/** wildcard. Add a regression proving living-roadmap-only scope does not require Template Factory while guard-registry scope still does.",
+        "id": "CH-SHARP-04",
+        "scenario": "A broad npm update refreshes unrelated packages.",
+        "finding": "The hotfix becomes an uncontrolled dependency release.",
+        "resolution": "Diff review and contract test require unchanged direct dependencies and bounded sharp-family churn.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-SHARP-05",
+        "scenario": "The override uses ^0.35.5.",
+        "finding": "A future lock regeneration could silently select a later unreviewed native dependency version.",
+        "resolution": "Pin the root override exactly to 0.35.5.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-SHARP-06",
+        "scenario": "Patched sharp is incompatible with the current Next.js line.",
+        "finding": "Production build or image optimization installation could regress.",
+        "resolution": "Next.js current optional range includes ^0.35.3; exact-head npm ci, TypeScript and Production Build remain mandatory.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-SHARP-07",
+        "scenario": "Unit 3 code is modified together with the security hotfix.",
+        "finding": "The emergency dependency remediation would lose bounded scope and obscure proof attribution.",
+        "resolution": "Security branch touches only plan, dependency manifests and the existing dependency security test; Unit 3 remains isolated until this hotfix merges.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Require exact-head Plan Before Code PASS on this plan-only commit before implementation.",
-      "Assert the roadmap backbone has exactly the accepted ten ordered elements.",
-      "Assert BUILDER-PRODUCTION-COMPLETE depends on MANAGED-TEMPLATE-QUICK-START.",
-      "Run full architecture-health and Quality Tests.",
-      "Run TypeScript and Production Build.",
-      "Require exact-head Completion Truth/Lifecycle according to the canonical gate chain before merge.",
-      "Prove requiredExternalCompletionGuards returns no GUARD-TEMPLATE-FACTORY for a living-roadmap-only plan, while guard-registry.v1.json still derives GUARD-TEMPLATE-FACTORY and therefore has a matching producer workflow trigger."
+      "Require Plan Before Code PASS on this plan-only security branch before dependency edits.",
+      "Pin sharp exactly to 0.35.5 and update only the corresponding sharp/@img native lockfile family.",
+      "Extend tests/dependency-security-contract.test.ts to assert exact sharp 0.35.5 and representative libvips 1.3.4 identities while preserving the source-map-js regression.",
+      "Run Edit-Time Guard and Incremental Replay.",
+      "Require unchanged Release Risk Budget PASS.",
+      "Require exact-head Security Audit PASS with no exception.",
+      "Run full Quality Tests, TypeScript and Production Build, then Completion Truth and Lifecycle Closure before merge."
     ],
     "semanticExecutionRoute": {
-      "request": "MAIN-CI-37476878160-ROADMAP-BACKBONE",
+      "request": "PO-2026-10-06-SHARP-LIBRSVG-SECURITY-REMEDIATION",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        "quality/knowledge/development-guard-policy.v1.json",
-        "quality/knowledge/guard-registry.v1.json",
-        "quality/knowledge/living-roadmap.v2.json",
-        "quality/knowledge/shoperation-quality-knowledge.v1.json",
-        "tests/architecture-health.test.ts"
+        "package.json",
+        "package-lock.json",
+        "tests/dependency-security-contract.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "quality/knowledge/capability-registry.v1.json"
+        "src/**",
+        ".github/workflows/ci.yml",
+        "deploy/release-risk-policy.json",
+        "quality/knowledge/development-guard-policy.v1.json"
       ],
       "mustCreate": [],
       "forbidden": [
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/release-unit-materialize.mjs",
-        "scripts/shoperation-plan-before-code.mjs"
+        ".github/workflows/**",
+        "deploy/release-risk-policy.json",
+        "src/**"
       ],
       "proof": [
-        "tests/architecture-health.test.ts",
-        "tests/control-plane-ecosystem-chain.test.ts"
+        "tests/dependency-security-contract.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
-      "plannedRenames": []
+      "plannedRenames": [],
+      "generatedArtifacts": []
     },
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-RESTORE-MAIN-ROADMAP-BACKBONE",
+    "sourceRef": "PO-2026-10-06-SHARP-LIBRSVG-SECURITY-REMEDIATION",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -346,16 +363,17 @@
     },
     "requirements": [
       {
-        "id": "REQ-ROADMAP-BACKBONE-CANONICAL",
-        "requirement": "The accepted Managed Template Quick Start is integrated as a true maturity prerequisite, and executable architecture proof matches the canonical ten-element backbone.",
+        "id": "REQ-SHARP-CVE-REMEDIATION",
+        "requirement": "The deterministic dependency contract installs patched sharp 0.35.5 and corresponding libvips bundle 1.3.4 instead of the vulnerable sharp 0.35.4 chain, with unchanged audit enforcement.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "living-roadmap-maturity-backbone",
+          "breadth": "dependency-security-contract",
           "strength": 2,
           "dimensions": [
+            "tests",
             "scope",
-            "regression",
-            "proof"
+            "forbidden-state",
+            "truth"
           ]
         },
         "requiredCapabilities": [
@@ -363,8 +381,7 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-QUALITY-TESTS"
+            "GUARD-EDIT-TIME"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS"
@@ -372,28 +389,56 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-ROADMAP-CHAIN-GAP",
-            "statement": "A maturity-backbone node must not be inserted without making its successor depend on it.",
+            "id": "NEG-SHARP-AUDIT-BYPASS",
+            "statement": "The remediation must not disable, suppress, allowlist or downgrade the security audit.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-SHARP-VULNERABLE-LOCK",
+            "statement": "The lockfile must not retain sharp 0.35.4 or its vulnerable libvips 1.3.3 package family.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-SHARP-BOUNDED-RELEASE",
+        "requirement": "The security remediation remains a bounded dependency-contract release under the unchanged Release Risk authority and does not expand into product runtime or unrelated dependency upgrades.",
+        "claimScope": {
+          "capability": "CAP-RELEASE",
+          "breadth": "dependency-security-release",
+          "strength": 2,
+          "dimensions": [
+            "risk",
+            "release-scope"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-RELEASE"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-RELEASE-RISK"
+          ],
+          "outcome": [
+            "GUARD-RELEASE-RISK"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-SHARP-DEPENDENCY-CHURN",
+            "statement": "The remediation must not intentionally upgrade unrelated product or dependency subsystems.",
+            "evidence": [
+              "GUARD-RELEASE-RISK",
+              "GUARD-EDIT-TIME"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Separate recovery transaction for the unrelated roadmap commit that landed after Unit 2 was merged. Unit 2 remains closed and untouched. Plan-only CI 37478243393 reconciled exact canonical scope: DOMAIN-QUALITY; authority quality-knowledge-system; subsystems builder-template-system, customer-account, dependency-contract, payment-checkout-order-authority, shared-storefront; Negative Knowledge and assurance requirements updated exactly from Plan Before Code diagnostics. Sentinel integrity replay on 215e060c showed the hotfix Completion Contract overclaimed unsupported proof dimensions. The claim is reconciled to canonical producers: Plan Before Code covers plan/scope authority; Quality Tests covers regression/proof/status behavior. Sentinel itself remains unchanged. Sentinel integrity replay on 215e060c showed the requirement used domain words (authority/dependency) as proof-dimension taxonomy although GUARD-QUALITY-TESTS proves this invariant through executable scope/regression/proof semantics. The natural-language dependency requirement and its regression assertion remain unchanged; only the proof taxonomy is reconciled to the canonical guard semantics. During PR #954 verification, Control Plane external-proof derivation exposed a producer/consumer applicability mismatch: GUARD-TEMPLATE-FACTORY semanticInputs used broad quality/knowledge/** while the authoritative Template Factory workflow intentionally excludes generic knowledge/roadmap changes and only triggers on explicit TF-relevant knowledge such as guard-registry.v1.json. Scope expands to align the guard applicability with its producer and record the missing-edge as Negative Knowledge; no Template Factory proof requirement is weakened for actual TF inputs. External-proof applicability alignment implemented: GUARD-TEMPLATE-FACTORY no longer consumes generic quality/knowledge/**; guard-registry.v1.json remains an explicit classifier input and workflow trigger. SQ-NK-023 records the invariant that an external consumer cannot require evidence outside its producer trigger scope.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "1ed74c7046e0932685bf45a701c732f2e71842b3",
-    "closedAt": "2026-10-06T14:53:56.509Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-06-RESTORE-MAIN-ROADMAP-BACKBONE",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Separate fail-closed prerequisite hotfix discovered by Unit 3 exact-head Security Audit. It is intentionally isolated from PR #955. After merge, Unit 3 must reconcile against the new main rather than silently absorbing drift."
 }
