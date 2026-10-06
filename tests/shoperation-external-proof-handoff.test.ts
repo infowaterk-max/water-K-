@@ -6,7 +6,7 @@ import {
   validateTemplateFactoryExternalProof,
   mergeExternalCompletionEvidence,
 } from '../scripts/shoperation-external-proof-handoff.mjs';
-import {templateFactoryEvidenceChecksum,templateLiveProofInputContractDigest} from '../scripts/lib/shoperation-template-factory-resumable-verification.mjs';
+import {deriveTemplateLiveRuntimeClosure,templateFactoryEvidenceChecksum,templateLiveProofInputContractDigest} from '../scripts/lib/shoperation-template-factory-resumable-verification.mjs';
 import {readFileSync} from 'node:fs';
 
 const plan=(refs=['GUARD-QUALITY-TESTS','GUARD-TEMPLATE-FACTORY'])=>({
@@ -15,6 +15,8 @@ const plan=(refs=['GUARD-QUALITY-TESTS','GUARD-TEMPLATE-FACTORY'])=>({
 });
 const verificationPlan={gates:{'GUARD-QUALITY-TESTS':{gateId:'GUARD-QUALITY-TESTS'}}};
 const guardRegistry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
+const atlasSnapshot=JSON.parse(readFileSync('artifacts/shoperation-atlas/codebase-atlas.json','utf8'));
+const runtimeClosure=deriveTemplateLiveRuntimeClosure({registry:guardRegistry,atlas:atlasSnapshot});
 const liveRuntime=guardRegistry.guards.find((item:any)=>item.id==='GUARD-TEMPLATE-FACTORY')?.chain?.liveRuntime;
 const runtimeOrigin={
   decision:'PASS',
@@ -63,7 +65,7 @@ const manifest=(overrides={})=>{
       originWorkflowConclusion:'current-workflow',
       ancestorProven:true,
       inputEquivalenceProven:true,
-      inputContractDigest:templateLiveProofInputContractDigest(guardRegistry),
+      inputContractDigest:templateLiveProofInputContractDigest(guardRegistry,runtimeClosure),
       runtimeClosureDecision:'PASS',
       runtimeSourceCommit:runtimeOrigin.runtimeSourceCommit,
       runtimeOriginMode:runtimeOrigin.mode,
