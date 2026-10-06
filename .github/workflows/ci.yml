@@ -7,6 +7,7 @@ on:
       - 'feature/**'
       - 'roadmap/**'
       - 'fix/**'
+      - 'release-execution/source/**'
       - core-engine-2-batch
       - production-provisioning-acceptance
       - release-nonpayment-final-batch
