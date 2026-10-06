@@ -107,6 +107,26 @@
       "id": "SQ-AUTH-020",
       "subject": "semantically bounded development intent matching",
       "rule": "Development intent matchers must not let short provider or protocol tokens activate unrelated subsystems by substring. Short tokens require explicit lexical boundaries and regression examples for both positive and negative matches."
+    },
+    {
+      "id": "SQ-AUTH-021",
+      "subject": "proof execution-context identity",
+      "rule": "A proof identity is not established by source SHA alone. Workflow, event, branch/PR execution context and exact-state provenance must match the claim being consumed."
+    },
+    {
+      "id": "SQ-AUTH-022",
+      "subject": "proof transaction versus runtime identity",
+      "rule": "Proof transaction identity and deployed runtime identity are separate facts. Evidence must preserve both when the current harness verifies an ancestor or equivalent runtime."
+    },
+    {
+      "id": "SQ-AUTH-023",
+      "subject": "upstream deterministic data ownership",
+      "rule": "A deterministic fact already produced by an upstream canonical Control Plane component must be consumed downstream with provenance instead of independently recomputed."
+    },
+    {
+      "id": "SQ-AUTH-024",
+      "subject": "release-unit lease integrity",
+      "rule": "Every materialized Release Transaction must bind to an exact target-base lease and successor units must reconcile from the merged predecessor main state."
     }
   ],
   "globalBaselineFailureIds": [
@@ -1040,6 +1060,48 @@
       "sourceRecords": [
         "docs/support/QUALITY_GUARD_LESSONS_2026-09-24.md"
       ]
+    },
+    {
+      "id": "SQ-NK-016",
+      "rule": "Do not treat a matching source SHA by itself as sufficient proof identity; require the matching workflow/event/branch-or-PR execution context as well.",
+      "sourceRecords": [
+        "quality/development/active-plan.json"
+      ]
+    },
+    {
+      "id": "SQ-NK-017",
+      "rule": "Do not conflate the current proof transaction identity with the deployed runtime identity when the proof harness intentionally targets an ancestor or runtime-equivalent deployment.",
+      "sourceRecords": [
+        "quality/development/active-plan.json"
+      ]
+    },
+    {
+      "id": "SQ-NK-018",
+      "rule": "Do not classify proof-engine or orchestration inputs as deployed-runtime inputs merely because the same workflow consumes both; keep proof producer invalidation separate from runtime deployment invalidation.",
+      "sourceRecords": [
+        "quality/development/active-plan.json"
+      ]
+    },
+    {
+      "id": "SQ-NK-019",
+      "rule": "Do not recompute downstream a deterministic requirement, relationship or applicability fact that an upstream canonical producer already emitted; consume the canonical data product and its provenance.",
+      "sourceRecords": [
+        "quality/development/active-plan.json"
+      ]
+    },
+    {
+      "id": "SQ-NK-020",
+      "rule": "Do not rebuild Atlas downstream when Knowledge Before Build already emitted a matching exact-head Atlas/change-impact snapshot; consume the upstream snapshot and mark any fallback rebuild explicitly.",
+      "sourceRecords": [
+        "quality/development/active-plan.json"
+      ]
+    },
+    {
+      "id": "SQ-NK-021",
+      "rule": "Do not let a classifier change validate its own narrower dependency scope and thereby hide a runtime dependency; classifier-authority drift must use a conservative independently bounded fallback.",
+      "sourceRecords": [
+        "quality/development/active-plan.json"
+      ]
     }
   ]
-}
+}\n

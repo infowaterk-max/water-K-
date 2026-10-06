@@ -94,7 +94,9 @@
           "quality/knowledge/**",
           "scripts/shoperation-plan-before-code.mjs",
           "scripts/lib/shoperation-development-runtime.mjs",
-          "scripts/lib/shoperation-operational-intelligence.mjs"
+          "scripts/lib/shoperation-operational-intelligence.mjs",
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "scripts/release-unit-materialize.mjs"
         ],
         "configurationInputs": [
           ".github/workflows/ci.yml"
@@ -140,7 +142,9 @@
           "development.scope",
           "development.implementation-skeleton",
           "development.gate-chain",
-          "release.projected-risk"
+          "release.projected-risk",
+          "release.decomposition",
+          "release.unit-manifests"
         ]
       }
     },
@@ -1226,7 +1230,25 @@
       "completion.truth": {
         "producer": "GUARD-COMPLETION-TRUTH",
         "authority": "quality-knowledge-system"
+      },
+      "release.decomposition": {
+        "producer": "GUARD-PLAN-BEFORE-CODE",
+        "authority": "release-infrastructure"
+      },
+      "release.unit-manifests": {
+        "producer": "GUARD-PLAN-BEFORE-CODE",
+        "authority": "release-infrastructure"
       }
+    },
+    "releaseDecomposition": {
+      "contract": "shoporation.release-decomposition-policy.v1",
+      "authority": "release-infrastructure",
+      "riskAuthority": "deploy/release-risk-policy.json",
+      "maxFilesPerUnit": 12,
+      "atomicity": "atlas-scc-plus-proof-ownership",
+      "materialization": "manifest-driven-single-git-tree-commit",
+      "successorPolicy": "reconcile-from-merged-predecessor-main",
+      "noSafeDecomposition": "FAIL_CLOSED"
     }
   }
-}
+}\n

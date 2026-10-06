@@ -1,7 +1,7 @@
-import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
+import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {compileGateChain,deriveImplementationSkeleton,evaluateReleaseRiskFiles,exactPlannedPaths,getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
 import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,classifyAtlasPath,resolveAtlasArchitectureForPath,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
-import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
+import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';\nimport {decomposeReleaseScope,derivePlannedOperations} from './lib/shoperation-release-unit-runtime.mjs';
 
 const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
 const guardRegistry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
