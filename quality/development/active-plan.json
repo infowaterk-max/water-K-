@@ -7,8 +7,12 @@
   "changeBaseSha": "5f74a0f1a084c82b58ceb2681c6484a03eae0fc4",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
+    "quality/knowledge/development-guard-policy.v1.json",
+    "quality/knowledge/guard-registry.v1.json",
     "quality/knowledge/living-roadmap.v2.json",
-    "tests/architecture-health.test.ts"
+    "quality/knowledge/shoperation-quality-knowledge.v1.json",
+    "tests/architecture-health.test.ts",
+    "tests/control-plane-ecosystem-chain.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -270,6 +274,13 @@
         "finding": "A narrowly targeted edge fix can still regress independent prerequisite authority if it replaces rather than augments the dependency list.",
         "resolution": "Make the dependency update additive and keep existing VISUAL-BUILDER, GUARDED-VISUAL-SECTION-LIBRARY and TEMPLATE-CAPABILITY-CENSUS-42 prerequisites; regression proof continues to validate the maturity predecessor separately.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RM-04",
+        "scenario": "A generic Living Roadmap/knowledge-only change is classified as touching builder-template-system, so the gate chain requires GUARD-TEMPLATE-FACTORY even though the Template Factory producer workflow intentionally excludes generic quality/knowledge/** paths.",
+        "finding": "Consumer applicability is broader than producer trigger authority. CI can therefore wait for an exact-head external proof that can never be produced, creating a fail-by-timeout orchestration dead-end.",
+        "resolution": "Align GUARD-TEMPLATE-FACTORY semanticInputs with the producer workflow authority: retain only actual Template Factory runtime/classifier inputs, including explicit quality/knowledge/guard-registry.v1.json, and remove the broad quality/knowledge/** wildcard. Add a regression proving living-roadmap-only scope does not require Template Factory while guard-registry scope still does.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -278,7 +289,8 @@
       "Assert BUILDER-PRODUCTION-COMPLETE depends on MANAGED-TEMPLATE-QUICK-START.",
       "Run full architecture-health and Quality Tests.",
       "Run TypeScript and Production Build.",
-      "Require exact-head Completion Truth/Lifecycle according to the canonical gate chain before merge."
+      "Require exact-head Completion Truth/Lifecycle according to the canonical gate chain before merge.",
+      "Prove requiredExternalCompletionGuards returns no GUARD-TEMPLATE-FACTORY for a living-roadmap-only plan, while guard-registry.v1.json still derives GUARD-TEMPLATE-FACTORY and therefore has a matching producer workflow trigger."
     ],
     "semanticExecutionRoute": {
       "request": "MAIN-CI-37476878160-ROADMAP-BACKBONE",
@@ -287,7 +299,10 @@
         "release-infrastructure"
       ],
       "mustEdit": [
+        "quality/knowledge/development-guard-policy.v1.json",
+        "quality/knowledge/guard-registry.v1.json",
         "quality/knowledge/living-roadmap.v2.json",
+        "quality/knowledge/shoperation-quality-knowledge.v1.json",
         "tests/architecture-health.test.ts"
       ],
       "mayEdit": [],
@@ -301,7 +316,8 @@
         "scripts/shoperation-plan-before-code.mjs"
       ],
       "proof": [
-        "tests/architecture-health.test.ts"
+        "tests/architecture-health.test.ts",
+        "tests/control-plane-ecosystem-chain.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -365,5 +381,5 @@
       }
     ]
   },
-  "notes": "Separate recovery transaction for the unrelated roadmap commit that landed after Unit 2 was merged. Unit 2 remains closed and untouched. Plan-only CI 37478243393 reconciled exact canonical scope: DOMAIN-QUALITY; authority quality-knowledge-system; subsystems builder-template-system, customer-account, dependency-contract, payment-checkout-order-authority, shared-storefront; Negative Knowledge and assurance requirements updated exactly from Plan Before Code diagnostics. Sentinel integrity replay on 215e060c showed the hotfix Completion Contract overclaimed unsupported proof dimensions. The claim is reconciled to canonical producers: Plan Before Code covers plan/scope authority; Quality Tests covers regression/proof/status behavior. Sentinel itself remains unchanged. Sentinel integrity replay on 215e060c showed the requirement used domain words (authority/dependency) as proof-dimension taxonomy although GUARD-QUALITY-TESTS proves this invariant through executable scope/regression/proof semantics. The natural-language dependency requirement and its regression assertion remain unchanged; only the proof taxonomy is reconciled to the canonical guard semantics."
+  "notes": "Separate recovery transaction for the unrelated roadmap commit that landed after Unit 2 was merged. Unit 2 remains closed and untouched. Plan-only CI 37478243393 reconciled exact canonical scope: DOMAIN-QUALITY; authority quality-knowledge-system; subsystems builder-template-system, customer-account, dependency-contract, payment-checkout-order-authority, shared-storefront; Negative Knowledge and assurance requirements updated exactly from Plan Before Code diagnostics. Sentinel integrity replay on 215e060c showed the hotfix Completion Contract overclaimed unsupported proof dimensions. The claim is reconciled to canonical producers: Plan Before Code covers plan/scope authority; Quality Tests covers regression/proof/status behavior. Sentinel itself remains unchanged. Sentinel integrity replay on 215e060c showed the requirement used domain words (authority/dependency) as proof-dimension taxonomy although GUARD-QUALITY-TESTS proves this invariant through executable scope/regression/proof semantics. The natural-language dependency requirement and its regression assertion remain unchanged; only the proof taxonomy is reconciled to the canonical guard semantics. During PR #954 verification, Control Plane external-proof derivation exposed a producer/consumer applicability mismatch: GUARD-TEMPLATE-FACTORY semanticInputs used broad quality/knowledge/** while the authoritative Template Factory workflow intentionally excludes generic knowledge/roadmap changes and only triggers on explicit TF-relevant knowledge such as guard-registry.v1.json. Scope expands to align the guard applicability with its producer and record the missing-edge as Negative Knowledge; no Template Factory proof requirement is weakened for actual TF inputs."
 }
