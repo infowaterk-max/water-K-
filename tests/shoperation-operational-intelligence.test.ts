@@ -95,8 +95,12 @@ describe('Control Plane Operational Intelligence',()=>{
     expect(ci).toContain('DEV_LIFECYCLE_CLOSE_REQUIRED');
     expect(ci).toContain('active-plan.closed.json');
     expect(lifecycle).toContain('buildClosedDevelopmentPlan');
-    expect(lifecycle).toContain("decision:'BLOCK_UNTIL_COMMITTED'");
-    expect(lifecycle).toContain("action:arg('--apply')?'applied':'candidate-emitted'");
+    expect(lifecycle).toContain("decision:childTransaction?'PASS':'BLOCK_UNTIL_COMMITTED'");
+    expect(lifecycle).toContain("action:childTransaction?'child-receipt-emitted':(arg('--apply')?'applied':'candidate-emitted')");
+    expect(lifecycle).toContain("const childTransaction=plan.releaseUnitContext?.contract==='shoporation.release-unit-child-transaction.v1'");
+    expect(lifecycle).toContain("if(arg('--apply')&&!childTransaction)writeFileSync(PLAN_PATH");
+    expect(lifecycle).toContain("release-unit-child-lifecycle.json");
+    expect(lifecycle).toContain("shoporation.release-unit-child-lifecycle.v1");
     expect(lifecycle).toContain("plan.status==='closed'");
     expect(lifecycle).not.toContain('git push');
     expect(lifecycle).not.toContain('createOrUpdateFileContents');
