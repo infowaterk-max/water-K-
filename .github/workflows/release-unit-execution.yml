@@ -1,0 +1,90 @@
+name: Release Unit Execution
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: release-unit-execution-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  execute:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      startsWith(github.event.workflow_run.head_branch, 'release-execution/source/') &&
+      github.event.workflow_run.repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: read
+    env:
+      SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+      SOURCE_BRANCH: ${{ github.event.workflow_run.head_branch }}
+      SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout trusted default-branch executor
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Fetch source revision as data
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "$SOURCE_SHA"
+          test "$(git rev-parse "$SOURCE_SHA^{commit}")" = "$SOURCE_SHA"
+          mkdir -p artifacts/release-execution
+          git show "$SOURCE_SHA:quality/development/active-plan.json" > artifacts/release-execution/source-plan.json
+
+      - name: Recompute canonical source plan with trusted executor
+        env:
+          SHOPERATION_ACTIVE_PLAN: artifacts/release-execution/source-plan.json
+          DEVELOPMENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          QUALITY_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RELEASE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          SHOPERATION_REPLAY_HEAD: ${{ github.event.workflow_run.head_sha }}
+          SHOPERATION_REPLAY_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: node scripts/shoperation-plan-before-code.mjs --check
+
+      - name: Recompute canonical Release Risk with trusted executor
+        env:
+          SHOPERATION_ACTIVE_PLAN: artifacts/release-execution/source-plan.json
+          RELEASE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: node scripts/release-risk-budget.mjs
+
+      - name: Configure release execution identity
+        run: |
+          git config user.name "shoperation-release-executor"
+          git config user.email "shoperation-release-executor@users.noreply.github.com"
+
+      - name: Drive canonical release-unit execution
+        env:
+          SHOPERATION_RELEASE_EXECUTION_SOURCE_REF: ${{ github.event.workflow_run.head_branch }}
+          SHOPERATION_TRUSTED_EXECUTOR_ROOT: ${{ github.workspace }}
+        run: >-
+          node scripts/release-unit-execute.mjs
+          --drive
+          --decomposition-report artifacts/shoperation-development-guard/plan-before-code.json
+          --source "$SOURCE_SHA"

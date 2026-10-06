@@ -143,6 +143,65 @@ export function importExactChildProof({headSha,headBranch,repo=null,run=defaultR
     return{decision:'PASS',runId:exact.databaseId,truth:parse(readFileSync(truthPath,'utf8')),lifecyclePlan:parse(readFileSync(closedPath,'utf8'))};
   }finally{rmSync(temp,{recursive:true,force:true});}
 }
+export function proveAlreadyAppliedChild({manifest,receipt,currentMainSha,run=defaultRun,cwd=process.cwd()}={}){
+  if(receipt?.status!=='ALREADY_APPLIED'||receipt.targetBaseSha!==currentMainSha||receipt.materializedHeadSha!==currentMainSha)return{decision:'BLOCK',reason:'RELEASE_UNIT_ALREADY_APPLIED_MAIN_MISMATCH'};
+  if((receipt.applied??[]).length)return{decision:'BLOCK',reason:'RELEASE_UNIT_ALREADY_APPLIED_PARTIAL_APPLICATION'};
+  if((manifest?.operations??[]).some(operation=>operation.generated))return{decision:'BLOCK',reason:'RELEASE_UNIT_ALREADY_APPLIED_GENERATED_UNSUPPORTED'};
+  if((manifest?.requiredEvidence?.externalGateIds??[]).length)return{decision:'BLOCK',reason:'RELEASE_UNIT_ALREADY_APPLIED_EXTERNAL_PROOF_REQUIRED'};
+  const expected=(manifest?.operations??[]).map(item=>String(item.operation)+':'+String(item.file)).sort();
+  const actual=(receipt.alreadyApplied??[]).map(item=>String(item.operation)+':'+String(item.file)).sort();
+  if(!expected.length||JSON.stringify(expected)!==JSON.stringify(actual))return{decision:'BLOCK',reason:'RELEASE_UNIT_ALREADY_APPLIED_COVERAGE_MISMATCH'};
+  const temp=mkdtempSync(path.join(os.tmpdir(),'shoperation-release-unit-no-code-'));
+  const branch='release-unit-no-code/'+manifest.releaseUnitId.toLowerCase().replace(/[^a-z0-9._/-]+/g,'-');
+  try{
+    run('git',['worktree','add','--detach',temp,currentMainSha],{cwd});
+    const artifactDir=path.join(temp,'artifacts','shoperation-development-guard');
+    mkdirSync(artifactDir,{recursive:true});
+    const plan=structuredClone(manifest.childDevelopmentTransaction.plan);
+    plan.releaseUnitContext={...(plan.releaseUnitContext??{}),manifestDigest:manifest.manifestDigest,childPlanDigest:manifest.childDevelopmentTransaction.planDigest,bindingDigest:manifest.childDevelopmentTransaction.bindingDigest,materializedHeadSha:currentMainSha,targetBaseSha:currentMainSha};
+    const planPath=path.join(artifactDir,'release-unit-active-plan.json');
+    const receiptPath=path.join(artifactDir,'release-unit-already-applied.json');
+    writeFileSync(planPath,JSON.stringify(plan,null,2)+'\n');
+    writeFileSync(receiptPath,JSON.stringify(receipt,null,2)+'\n');
+    const safeEnv={
+      GH_TOKEN:'',GITHUB_TOKEN:'',
+      SHOPERATION_ACTIVE_PLAN:planPath,
+      SHOPERATION_EDIT_TIME_ALREADY_APPLIED_RECEIPT:receiptPath,
+      DEVELOPMENT_BASE_SHA:currentMainSha,QUALITY_BASE_SHA:currentMainSha,RELEASE_BASE_SHA:currentMainSha,
+      DEVELOPMENT_HEAD_SHA:currentMainSha,QUALITY_HEAD_SHA:currentMainSha,RELEASE_HEAD_SHA:currentMainSha,
+      SHOPERATION_REPLAY_HEAD:currentMainSha,SHOPERATION_REPLAY_BRANCH:branch,
+      SHOPERATION_VERIFICATION_ENVIRONMENT:'ci',SHOPERATION_TOOLCHAIN_ID:'node24',
+      SHOPERATION_TRUTH_STATE_VERSION:'shoporation-ci.v1',
+      GITHUB_SHA:currentMainSha,GITHUB_HEAD_REF:branch,GITHUB_REF_NAME:branch,
+    };
+    run('npm',['ci','--no-audit','--no-fund'],{cwd:temp,env:safeEnv});
+    run(process.execPath,['scripts/shoperation-knowledge-preflight.mjs'],{cwd:temp,env:safeEnv});
+    run(process.execPath,['scripts/shoperation-plan-before-code.mjs','--check'],{cwd:temp,env:safeEnv});
+    run(process.execPath,['scripts/shoperation-edit-time-guard.mjs','--check'],{cwd:temp,env:safeEnv});
+    run(process.execPath,['scripts/shoperation-incremental-replay.mjs','--check'],{cwd:temp,env:safeEnv});
+    run(process.execPath,['scripts/release-risk-budget.mjs'],{cwd:temp,env:safeEnv});
+    run('npm',['run','db:customer:guard'],{cwd:temp,env:safeEnv});
+    run('npm',['run','market-ready:gate'],{cwd:temp,env:safeEnv});
+    run('npm',['test'],{cwd:temp,env:safeEnv});
+    run('npm',['run','typecheck'],{cwd:temp,env:safeEnv});
+    run('npm',['run','build'],{cwd:temp,env:safeEnv});
+    const outcomes={'GUARD-KNOWLEDGE-PREFLIGHT':'success','GUARD-PLAN-BEFORE-CODE':'success','GUARD-EDIT-TIME':'success','GUARD-INCREMENTAL-REPLAY':'success','GUARD-RELEASE-RISK':'success','GUARD-CUSTOMER-BASELINE':'success','GUARD-MARKET-READY':'success','GUARD-QUALITY-TESTS':'success','GUARD-TYPECHECK':'success','GUARD-PRODUCTION-BUILD':'success'};
+    const verifyEnv={...safeEnv,SHOPERATION_REPLAY_PLAN:path.join(artifactDir,'resumable-verification-plan.json'),SHOPERATION_REPLAY_CHECKPOINT:path.join(temp,'artifacts','shoperation-verification-cache','checkpoint.json'),SHOPERATION_VERIFICATION_OUTCOMES_JSON:JSON.stringify(outcomes)};
+    run(process.execPath,['scripts/shoperation-verification-checkpoint.mjs','--check'],{cwd:temp,env:verifyEnv});
+    const truthEnv={...verifyEnv,SHOPERATION_TRUTH_HEAD:currentMainSha,SHOPERATION_TRUTH_BRANCH:branch,SHOPERATION_TRUTH_EVIDENCE_MANIFEST:path.join(artifactDir,'final-evidence-manifest.json'),SHOPERATION_TRUTH_CHECKPOINT:verifyEnv.SHOPERATION_REPLAY_CHECKPOINT};
+    run(process.execPath,['scripts/shoperation-truth-gate.mjs','--check'],{cwd:temp,env:truthEnv});
+    const truth=parse(readFileSync(path.join(artifactDir,'truth-gate.json'),'utf8'));
+    run(process.execPath,['scripts/shoperation-close-development-plan.mjs','--emit'],{cwd:temp,env:{...truthEnv,SHOPERATION_CLOSURE_HEAD:currentMainSha,SHOPERATION_CLOSURE_TRUTH_REPORT:path.join(artifactDir,'truth-gate.json')}});
+    const lifecyclePlan=parse(readFileSync(path.join(artifactDir,'active-plan.closed.json'),'utf8'));
+    return{decision:'PASS',truth,lifecyclePlan};
+  }catch(error){
+    return{decision:'BLOCK',reason:'RELEASE_UNIT_ALREADY_APPLIED_PROOF_FAILED',error:String(error?.stderr??error?.message??error)};
+  }finally{
+    try{run('git',['worktree','remove','--force',temp],{cwd});}catch{}
+    try{rmSync(temp,{recursive:true,force:true});}catch{}
+  }
+}
+
 export function mergeExactPullRequest({prNumber,sourceHeadSha,repo=null,run=defaultRun,cwd=process.cwd(),mergeMethod='squash'}={}){
   const repository=repo??repoName(run,cwd);
   run('gh',['pr','ready',String(prNumber),'--repo',repository],{cwd});
@@ -179,6 +238,8 @@ export function reevaluateSuccessorManifest({state,execution,currentMainSha,sour
           QUALITY_HEAD_SHA:candidateHead,
           RELEASE_HEAD_SHA:candidateHead,
           SHOPERATION_REPLAY_HEAD:candidateHead,
+          GH_TOKEN:'',
+          GITHUB_TOKEN:'',
         },
       });
     }catch(error){
@@ -242,8 +303,13 @@ export function prepareActiveUnit({state,currentMainSha,sourceCommit,run=default
   const receipt=materializeReleaseUnit({manifest:sealed,targetRef:'refs/remotes/origin/main',cwd,updateRef:false,message:releaseUnitCommitMessage(sealed)});
   next=applyReleaseUnitEvent(next,{type:'MATERIALIZED',releaseUnitId:execution.releaseUnitId,receipt});
   if(receipt.status==='ALREADY_APPLIED'){
-    const blocked={...next.units.find(item=>item.releaseUnitId===execution.releaseUnitId),state:'STALE',blocker:{code:'RELEASE_UNIT_ALREADY_APPLIED_REQUIRES_PARENT_RECONCILIATION',details:{targetBaseSha:sealed.targetBaseSha}},lastTransition:{to:'STALE',code:'RELEASE_UNIT_ALREADY_APPLIED_REQUIRES_PARENT_RECONCILIATION'}};
-    return{state:synchronizeReleaseParentExecution(next,blocked),decision:'BLOCK',reason:blocked.blocker,branch,manifest:sealed,receipt};
+    const proof=proveAlreadyAppliedChild({manifest:sealed,receipt,currentMainSha,run,cwd});
+    if(proof.decision!=='PASS'){
+      const blocked={...next.units.find(item=>item.releaseUnitId===execution.releaseUnitId),state:'STALE',blocker:{code:proof.reason??'RELEASE_UNIT_ALREADY_APPLIED_PROOF_BLOCK',details:{error:proof.error??null,targetBaseSha:sealed.targetBaseSha}},lastTransition:{to:'STALE',code:proof.reason??'RELEASE_UNIT_ALREADY_APPLIED_PROOF_BLOCK'}};
+      return{state:synchronizeReleaseParentExecution(next,blocked),decision:'BLOCK',reason:blocked.blocker,branch,manifest:sealed,receipt};
+    }
+    next=applyReleaseUnitEvent(next,{type:'ALREADY_APPLIED_VERIFIED',releaseUnitId:execution.releaseUnitId,truth:proof.truth,lifecyclePlan:proof.lifecyclePlan,currentMainSha});
+    return{state:next,decision:next.closureEligible?'PARENT_CLOSURE_ELIGIBLE':'UNIT_CLOSED',branch,manifest:sealed,receipt,noCode:true};
   }
   pushExactMaterializedCommit({commitSha:receipt.materializedHeadSha,branch,run,cwd});
   const pr=ensureExactPullRequest({manifest:sealed,materializedHeadSha:receipt.materializedHeadSha,branch,run,cwd});

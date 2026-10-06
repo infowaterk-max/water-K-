@@ -453,7 +453,7 @@ function regeneratedBlob({cwd,sourceCommit,operation}){
   const worktree=mkdtempSync(path.join(os.tmpdir(),'shoperation-release-unit-worktree-'));
   try{
     git(cwd,['worktree','add','--detach',worktree,sourceCommit]);
-    const result=spawnSync(command,{cwd:worktree,shell:true,encoding:'utf8'});
+    const result=spawnSync(command,{cwd:worktree,shell:true,encoding:'utf8',env:{...process.env,GH_TOKEN:'',GITHUB_TOKEN:''}});
     if(result.status!==0)throw new Error(`RELEASE_UNIT_REGENERATE_FAILED:${operation.file}:${result.stderr||result.stdout}`);
     const filePath=path.join(worktree,operation.file);
     return {blobSha:git(cwd,['hash-object','-w',filePath]),fileMode:'100644'};
@@ -772,6 +772,37 @@ export function recordReleaseUnitVerification(execution,{truth,lifecyclePlan}={}
   return next;
 }
 
+export function recordReleaseUnitAlreadyApplied(execution,{truth,lifecyclePlan,currentMainSha}={}){
+  if(execution?.contract!==RELEASE_UNIT_EXECUTION_CONTRACT)executionError('RELEASE_UNIT_EXECUTION_CONTRACT_INVALID');
+  if(execution.state!=='MATERIALIZED')executionError('RELEASE_UNIT_ALREADY_APPLIED_STATE_INVALID',{state:execution.state});
+  const receipt=execution.materialization;
+  if(receipt?.status!=='ALREADY_APPLIED')executionError('RELEASE_UNIT_ALREADY_APPLIED_RECEIPT_REQUIRED');
+  const head=requiredText(currentMainSha,'RELEASE_UNIT_ALREADY_APPLIED_MAIN_REQUIRED');
+  if(head!==execution.manifest.targetBaseSha||receipt.targetBaseSha!==head||receipt.materializedHeadSha!==head)executionError('RELEASE_UNIT_ALREADY_APPLIED_MAIN_MISMATCH');
+  if((receipt.applied??[]).length)executionError('RELEASE_UNIT_ALREADY_APPLIED_PARTIAL_APPLICATION');
+  if((execution.manifest.operations??[]).some(operation=>operation.generated))executionError('RELEASE_UNIT_ALREADY_APPLIED_GENERATED_UNSUPPORTED');
+  const expected=(execution.manifest.operations??[]).map(item=>String(item.operation)+':'+String(item.file)).sort();
+  const actual=(receipt.alreadyApplied??[]).map(item=>String(item.operation)+':'+String(item.file)).sort();
+  if(!expected.length||!sameJson(expected,actual))executionError('RELEASE_UNIT_ALREADY_APPLIED_COVERAGE_MISMATCH',{expected,actual});
+  const child=execution.manifest?.childDevelopmentTransaction;
+  if(!child?.taskId||!child?.planDigest||!child?.bindingDigest)executionError('RELEASE_UNIT_CHILD_TRANSACTION_REQUIRED');
+  if(truth?.taskId!==child.taskId)executionError('RELEASE_UNIT_TRUTH_TASK_MISMATCH',{expected:child.taskId,actual:truth?.taskId??null});
+  const truthContext=truth?.releaseUnitContext??{};
+  if(truthContext.parentTransactionId!==execution.parentTransactionId||truthContext.releaseUnitId!==execution.releaseUnitId||truthContext.manifestDigest!==execution.manifest.manifestDigest||truthContext.childPlanDigest!==child.planDigest||truthContext.bindingDigest!==child.bindingDigest)executionError('RELEASE_UNIT_TRUTH_CONTEXT_MISMATCH');
+  if(truth?.decision!=='PASS'||truth?.truthStatus!=='VERIFIED'||truth?.internalState!=='VERIFIED_DONE'||truth.currentExactState?.head!==head)executionError('RELEASE_UNIT_TRUTH_NOT_VERIFIED');
+  if(lifecyclePlan?.status!=='closed'||lifecyclePlan?.lifecycle?.state!=='LEARN'||lifecyclePlan?.lifecycle?.truthStatus!=='VERIFIED'||lifecyclePlan.lifecycle.verifiedImplementationHead!==head)executionError('RELEASE_UNIT_LIFECYCLE_NOT_CLOSED');
+  if(lifecyclePlan.taskId!==child.taskId)executionError('RELEASE_UNIT_LIFECYCLE_TASK_MISMATCH');
+  const lifecycleContext=lifecyclePlan.releaseUnitContext??{};
+  if(lifecycleContext.parentTransactionId!==execution.parentTransactionId||lifecycleContext.releaseUnitId!==execution.releaseUnitId||lifecycleContext.manifestDigest!==execution.manifest.manifestDigest||lifecycleContext.childPlanDigest!==child.planDigest||lifecycleContext.bindingDigest!==child.bindingDigest)executionError('RELEASE_UNIT_LIFECYCLE_CONTEXT_MISMATCH');
+  const next=executionClone(execution);
+  next.state='CLOSED';
+  next.verification={sourceHeadSha:head,truthContract:truth.contract??null,truthStatus:truth.truthStatus,internalState:truth.internalState,lifecycleState:lifecyclePlan.lifecycle.state,lifecycleTruthStatus:lifecyclePlan.lifecycle.truthStatus,verifiedImplementationHead:head,childTaskId:child.taskId,childPlanDigest:child.planDigest,bindingDigest:child.bindingDigest,noCode:true};
+  next.merge={contract:'shoporation.release-unit-no-code-main-receipt.v1',prNumber:null,sourceHeadSha:head,mergedMainSha:head,mergeMethod:'already-applied',noCode:true};
+  next.closeReceipt={contract:'shoporation.release-unit-close-receipt.v1',releaseUnitId:execution.releaseUnitId,sourceHeadSha:head,mergedMainSha:head,manifestDigest:execution.manifest.manifestDigest,truthStatus:truth.truthStatus,lifecycleState:lifecyclePlan.lifecycle.state,childTaskId:child.taskId,childPlanDigest:child.planDigest,bindingDigest:child.bindingDigest,noCode:true,decision:'PASS'};
+  next.lastTransition={to:'CLOSED',code:'RELEASE_UNIT_ALREADY_APPLIED_CLOSED'};
+  return next;
+}
+
 export function recordReleaseUnitMerge(execution,receipt){
   if(execution.state!=='VERIFIED')executionError('RELEASE_UNIT_MERGE_STATE_INVALID',{state:execution.state});
   if(receipt?.sourceHeadSha!==execution.verification.sourceHeadSha)executionError('RELEASE_UNIT_MERGE_SOURCE_HEAD_MISMATCH');
@@ -829,6 +860,7 @@ export function applyReleaseUnitEvent(parent,event){
   if(event.type==='MATERIALIZED')nextUnit=recordReleaseUnitMaterialization(current,event.receipt);
   else if(event.type==='PR_OPEN')nextUnit=recordReleaseUnitPullRequest(current,event.receipt);
   else if(event.type==='VERIFIED')nextUnit=recordReleaseUnitVerification(current,{truth:event.truth,lifecyclePlan:event.lifecyclePlan});
+  else if(event.type==='ALREADY_APPLIED_VERIFIED')nextUnit=recordReleaseUnitAlreadyApplied(current,{truth:event.truth,lifecyclePlan:event.lifecyclePlan,currentMainSha:event.currentMainSha});
   else if(event.type==='MERGED')nextUnit=recordReleaseUnitMerge(current,event.receipt);
   else if(event.type==='CLOSED')nextUnit=closeReleaseUnitExecution(current,{currentMainSha:event.currentMainSha});
   else if(event.type==='FAILED')nextUnit=failReleaseUnitExecution(current,{code:event.code,details:event.details});

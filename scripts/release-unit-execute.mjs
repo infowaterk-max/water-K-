@@ -8,13 +8,69 @@ import {
   prepareActiveUnit,
   stateRefFor,
 } from './release-unit-github-runtime.mjs';
+import {closeParentReleaseExecution,finishParentClosurePersistence} from './release-unit-parent-close.mjs';
 
 const args=process.argv.slice(2);
 const value=name=>{const index=args.indexOf(name);return index>=0?args[index+1]??null:null;};
 const has=name=>args.includes(name);
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const source=value('--source');
 if(!source)throw new Error('RELEASE_UNIT_SOURCE_COMMIT_REQUIRED');
+
+if(has('--drive')){
+  const reportPath=value('--decomposition-report');
+  if(!reportPath||!existsSync(reportPath))throw new Error('RELEASE_UNIT_DECOMPOSITION_REPORT_REQUIRED');
+  const report=readJson(reportPath),decomposition=report.releaseDecomposition;
+  if(!decomposition||decomposition.decision!=='PASS')throw new Error('RELEASE_UNIT_DECOMPOSITION_NOT_PASS');
+  const parentId=decomposition.releaseUnits?.[0]?.transaction?.parentTransactionId??decomposition.releaseUnits?.[0]?.transaction?.id;
+  if(!parentId)throw new Error('RELEASE_UNIT_PARENT_TRANSACTION_REQUIRED');
+  const stateRef=value('--state-ref')??stateRefFor(parentId);
+  let loaded=loadRemoteExecutionState({stateRef});
+  if(!loaded.state){
+    const initial=initializeExecutionState({decomposition,sourceCommit:source});
+    const saved=persistRemoteExecutionState({state:initial,stateRef});
+    loaded={state:initial,stateCommit:saved.stateCommit};
+  }else if(loaded.state.executionSourceCommit!==source){
+    throw new Error('RELEASE_UNIT_EXECUTION_SOURCE_DRIFT');
+  }
+  const maxPolls=Math.max(1,Number(process.env.SHOPERATION_RELEASE_EXECUTION_MAX_POLLS??180));
+  const pollMs=Math.max(1000,Number(process.env.SHOPERATION_RELEASE_EXECUTION_POLL_MS??10000));
+  for(let poll=0;poll<maxPolls;poll+=1){
+    const state=loaded.state;
+    let result;
+    if(state.closureComplete&&state.closurePersistence?.state==='PR_OPEN'){
+      result=finishParentClosurePersistence({state});
+    }else if(state.closureComplete&&state.closurePersistence?.state==='MERGED'){
+      console.log(JSON.stringify({decision:'PARENT_CLOSED',parentTransactionId:state.parentTransactionId,stateRef,stateCommit:loaded.stateCommit},null,2));
+      process.exit(0);
+    }else if(state.closureEligible){
+      result=closeParentReleaseExecution({state,sourceCommit:source});
+    }else{
+      const active=state.units.find(item=>item.releaseUnitId===state.activeUnitId);
+      if(active?.state==='PLANNED'){
+        execFileSync('git',['fetch','--quiet','origin','main']);
+        const currentMain=execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim();
+        result=prepareActiveUnit({state,currentMainSha:currentMain,sourceCommit:source});
+      }else if(active?.state==='PR_OPEN'){
+        result=finishActiveUnit({state});
+      }else{
+        throw new Error('RELEASE_UNIT_EXECUTION_STATE_UNSUPPORTED:'+String(active?.state??'none'));
+      }
+    }
+    if(result.state!==state){
+      const saved=persistRemoteExecutionState({state:result.state,stateRef,expectedStateCommit:loaded.stateCommit});
+      loaded={state:result.state,stateCommit:saved.stateCommit};
+    }
+    if(result.decision==='PENDING'){await sleep(pollMs);continue;}
+    if(result.decision==='BLOCK')throw new Error('RELEASE_UNIT_EXECUTION_BLOCK:'+JSON.stringify(result.reason??result.error??null));
+    if(result.decision==='PARENT_CLOSED'){
+      console.log(JSON.stringify({decision:result.decision,parentTransactionId:result.state.parentTransactionId,stateRef,stateCommit:loaded.stateCommit},null,2));
+      process.exit(0);
+    }
+  }
+  throw new Error('RELEASE_UNIT_EXECUTION_POLL_LIMIT');
+}
 
 if(has('--init')){
   const file=value('--decomposition');

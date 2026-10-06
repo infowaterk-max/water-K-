@@ -1,5 +1,5 @@
 import {execFileSync} from 'node:child_process';
-import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
+import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {activeDevelopmentPlanPath,aggregateGateDecision,getChangedFiles,globToRegExp,guardPolicy,matchGuardException} from './lib/shoperation-development-runtime.mjs';
 import {evaluateReferenceSynchronization} from './lib/shoperation-reference-sync-runtime.mjs';
 import {buildCodebaseAtlas,buildExecutionRoute,evaluatePoInstructionStates} from './lib/shoperation-codebase-atlas-runtime.mjs';
@@ -8,8 +8,30 @@ let patch='';if(diff.base){try{patch=git(['diff','--unified=0','--no-color',diff
 const findings=[];let currentFile=null,newLine=0;
 const declaredSemanticRequired=[...(plan.operationalIntelligence?.semanticExecutionRoute?.mustEdit??[])];
 const planMatchers=(plan.plannedFilePatterns??[]).map(globToRegExp);
-const actualOutsidePlanned=(diff.materialFiles??[]).filter(file=>!planMatchers.some(matcher=>matcher.test(file)));
-const actualChanged=new Set(diff.materialFiles??[]);
+const noCodeReceiptPath=String(process.env.SHOPERATION_EDIT_TIME_ALREADY_APPLIED_RECEIPT??'').trim();
+let noCodeEvidence={decision:'NOT_APPLICABLE',path:noCodeReceiptPath||null,files:[],issues:[]};
+if(noCodeReceiptPath){
+  if(!existsSync(noCodeReceiptPath))noCodeEvidence={...noCodeEvidence,decision:'BLOCK',issues:[{code:'EDIT_TIME_ALREADY_APPLIED_RECEIPT_MISSING'}]};
+  else{
+    try{
+      const receipt=JSON.parse(readFileSync(noCodeReceiptPath,'utf8')),context=plan.releaseUnitContext??{};
+      const expectedFiles=[...(plan.plannedFilePatterns??[])].sort();
+      const actualFiles=[...(receipt.alreadyApplied??[])].map(item=>item.file).filter(Boolean).sort();
+      const issues=[];
+      if(context.contract!=='shoporation.release-unit-child-transaction.v1')issues.push({code:'EDIT_TIME_ALREADY_APPLIED_CHILD_CONTEXT_REQUIRED'});
+      if(receipt.contract!=='shoporation.release-unit-materialization.v1'||receipt.status!=='ALREADY_APPLIED')issues.push({code:'EDIT_TIME_ALREADY_APPLIED_RECEIPT_INVALID'});
+      if((receipt.applied??[]).length)issues.push({code:'EDIT_TIME_ALREADY_APPLIED_PARTIAL'});
+      if(receipt.releaseUnitId!==context.releaseUnitId)issues.push({code:'EDIT_TIME_ALREADY_APPLIED_UNIT_MISMATCH'});
+      if(receipt.manifestDigest!==context.manifestDigest||receipt.bindingDigest!==context.bindingDigest)issues.push({code:'EDIT_TIME_ALREADY_APPLIED_BINDING_MISMATCH'});
+      if(!diff.head||receipt.targetBaseSha!==diff.head||receipt.materializedHeadSha!==diff.head)issues.push({code:'EDIT_TIME_ALREADY_APPLIED_HEAD_MISMATCH'});
+      if(JSON.stringify(expectedFiles)!==JSON.stringify(actualFiles))issues.push({code:'EDIT_TIME_ALREADY_APPLIED_COVERAGE_MISMATCH',expectedFiles,actualFiles});
+      noCodeEvidence={decision:issues.length?'BLOCK':'PASS',path:noCodeReceiptPath,files:actualFiles,issues,receipt:{releaseUnitId:receipt.releaseUnitId,manifestDigest:receipt.manifestDigest,bindingDigest:receipt.bindingDigest,targetBaseSha:receipt.targetBaseSha,materializedHeadSha:receipt.materializedHeadSha}};
+    }catch(error){noCodeEvidence={...noCodeEvidence,decision:'BLOCK',issues:[{code:'EDIT_TIME_ALREADY_APPLIED_RECEIPT_UNREADABLE',error:String(error)}]};}
+  }
+}
+const effectiveActualFiles=[...new Set([...(diff.materialFiles??[]),...(noCodeEvidence.decision==='PASS'?noCodeEvidence.files:[])])];
+const actualOutsidePlanned=effectiveActualFiles.filter(file=>!planMatchers.some(matcher=>matcher.test(file)));
+const actualChanged=new Set(effectiveActualFiles);
 if(diff.baseResolution==='UNRESOLVED'||!diff.base)findings.push({ruleId:'DEV-BLOCK-TRANSACTION-BASE-UNRESOLVED',severity:'block',title:'Development Transaction base is unresolved',file:'quality/development/active-plan.json',line:0,code:String(diff.requestedBase??plan.changeBaseSha??''),failureIds:['SQ-KF-022'],message:'Development Transaction: declared changeBaseSha cannot be resolved; silent fallback is forbidden.',exception:null});
 if(diff.headResolution==='UNRESOLVED_EXPLICIT'||!diff.head)findings.push({ruleId:'DEV-BLOCK-TRANSACTION-HEAD-UNRESOLVED',severity:'block',title:'Development Transaction head is unresolved',file:'quality/development/active-plan.json',line:0,code:String(diff.requestedHead??''),failureIds:['SQ-KF-022'],message:'Development Transaction: explicit head identity cannot be resolved; fallback to another head is forbidden.',exception:null});
 
@@ -32,6 +54,7 @@ for(const violation of poInstructionState.violations??[])findings.push({
   exception:null,
 });
 for(const item of referenceSync.staleConsumers??[])findings.push({ruleId:'DEV-BLOCK-REFERENCE-SYNC',severity:'block',title:'Stale consumer survived a removed or changed contract',file:item.file,line:item.line,code:item.text?.trim().slice(0,300)??'',failureIds:['SQ-KF-022'],message:`Reference Sync: ${item.reference.kind} "${item.reference.value}" changed in ${item.reference.originFile}, but a stale machine consumer remains.`,exception:null});
+for(const issue of noCodeEvidence.issues??[])findings.push({ruleId:'DEV-BLOCK-ALREADY-APPLIED-EVIDENCE',severity:'block',title:'ALREADY_APPLIED implementation evidence is invalid',file:noCodeReceiptPath||'quality/development/active-plan.json',line:0,code:issue.code,failureIds:['SQ-KF-022'],message:`Implementation Sync no-code evidence: ${issue.code}.`,exception:null});
 for(const item of referenceSync.reviewConsumers??[])findings.push({ruleId:'DEV-REVIEW-REFERENCE-SYNC',severity:'review',title:'Changed contract still has an ambiguous consumer',file:item.file,line:item.line,code:item.text?.trim().slice(0,300)??'',failureIds:['SQ-KF-022'],message:`Reference Sync review: ${item.reference.kind} "${item.reference.value}" changed in ${item.reference.originFile}; confirm this remaining consumer is intentional.`,exception:null});
 const referenceRequired=[...new Set((referenceSync.staleConsumers??[]).map(item=>item.file).filter(Boolean))];
 const requiredChangeSet=[...new Set([...declaredSemanticRequired,...instructionRequired,...referenceRequired])].sort();
@@ -59,7 +82,8 @@ const implementationSync={
   instructionRequired,
   referenceRequired,
   requiredChangeSet,
-  actualVerifiedChangeSet:[...(diff.materialFiles??[])].sort(),
+  actualVerifiedChangeSet:[...effectiveActualFiles].sort(),
+  noCodeEvidence,
   deletedVerifiedChangeSet:[...(diff.materialDeletedFiles??[])].sort(),
   missingRequired,
   requiredSubsetActual:missingRequired.length===0,
@@ -69,7 +93,7 @@ const implementationSync={
 };
 const childDecisions={referenceSync:referenceSync.decision,implementationSync:implementationSync.decision,poInstructionState:poInstructionState.decision};
 const reportDecision=aggregateGateDecision({localBlocking:blocking.length>0,childDecisions:Object.values(childDecisions)});
-const report={contract:'shoporation.edit-time-known-failure-guard.v2',base:diff.base,head:diff.head,baseResolution:diff.baseResolution,headResolution:diff.headResolution,requestedHead:diff.requestedHead??null,materialFiles:[...(diff.materialFiles??[])],metadataFiles:[...(diff.metadataFiles??[])],deletedFiles:[...(diff.materialDeletedFiles??[])],transactionChanges:[...(diff.changes??[])],findings,blockingFindings:blocking,referenceSync,implementationSync,poInstructionState,childDecisions,decision:reportDecision};
+const report={contract:'shoporation.edit-time-known-failure-guard.v2',noCodeEvidence,base:diff.base,head:diff.head,baseResolution:diff.baseResolution,headResolution:diff.headResolution,requestedHead:diff.requestedHead??null,materialFiles:[...(diff.materialFiles??[])],metadataFiles:[...(diff.metadataFiles??[])],deletedFiles:[...(diff.materialDeletedFiles??[])],transactionChanges:[...(diff.changes??[])],findings,blockingFindings:blocking,referenceSync,implementationSync,poInstructionState,childDecisions,decision:reportDecision};
 mkdirSync('artifacts/shoperation-development-guard',{recursive:true});
 writeFileSync('artifacts/shoperation-development-guard/reference-sync.json',JSON.stringify(referenceSync,null,2)+'\n');
 writeFileSync('artifacts/shoperation-development-guard/edit-time-guard.json',JSON.stringify(report,null,2)+'\n');
