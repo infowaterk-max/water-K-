@@ -63,7 +63,12 @@ if(plan.operationalIntelligence?.riskTier==='critical'){
   for(const file of declaredMustEdit)if(!implementationSkeleton.mustEdit.includes(file))issues.push({code:'DEV_PLAN_SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE',file});
   const declaredMustCreate=[...(declaredExecutionRoute?.mustCreate??[])].sort();
   const generatedMustCreate=[...implementationSkeleton.mustCreate].sort();
-  if(JSON.stringify(declaredMustCreate)!==JSON.stringify(generatedMustCreate))issues.push({code:'DEV_PLAN_SEMANTIC_MUST_CREATE_DRIFT',expected:generatedMustCreate,actual:declaredMustCreate});
+  const actuallyAdded=new Set((diff.changes??[]).filter(change=>change.status==='A').map(change=>change.file));
+  const fulfilledMustCreate=declaredMustCreate.filter(file=>actuallyAdded.has(file)).sort();
+  const expectedMustCreateDeclaration=[...new Set([...generatedMustCreate,...fulfilledMustCreate])].sort();
+  implementationSkeleton.mustCreateObligations=declaredMustCreate;
+  implementationSkeleton.fulfilledMustCreate=fulfilledMustCreate;
+  if(JSON.stringify(declaredMustCreate)!==JSON.stringify(expectedMustCreateDeclaration))issues.push({code:'DEV_PLAN_SEMANTIC_MUST_CREATE_DRIFT',expected:expectedMustCreateDeclaration,actual:declaredMustCreate,fulfilled:fulfilledMustCreate});
   const missingInstructionRequired=generatedExecutionRoute.INSTRUCTION_REQUIRED.filter(file=>!declaredMustEdit.includes(file));
   if(missingInstructionRequired.length)issues.push({code:'DEV_PLAN_PO_INSTRUCTION_REQUIRED_CHANGE_UNDECLARED',files:missingInstructionRequired,instructionIds:generatedExecutionRoute.PO_INSTRUCTIONS});
   if(generatedExecutionRoute.UNKNOWN.length)issues.push({code:'DEV_PLAN_SEMANTIC_EXECUTION_UNKNOWN',unknown:generatedExecutionRoute.UNKNOWN});
