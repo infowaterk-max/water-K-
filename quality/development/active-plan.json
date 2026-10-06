@@ -1,24 +1,28 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-DEPENDENCY-MANIFEST-AUTHORITY",
-  "task": "Quality authority reconciliation for dependency manifests before the source-map-js security remediation.",
+  "taskId": "DEV-SOURCE-MAP-JS-SECURITY-REMEDIATION",
+  "task": "Remediate the source-map-js high-severity dependency vulnerability by pinning the transitive dependency to 1.2.2 while preserving dependency manifest authority and existing runtime behavior.",
   "status": "ready-for-implementation",
-  "guardDigest": "b0d154f0",
+  "guardDigest": "2a712d14",
   "changeBaseSha": "c8fa6a37b7a69fe8f9b946c83a25678545a34b38",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "quality/knowledge/domain-foundations.v1.json",
-    "tests/shoperation-semantic-execution-intelligence.test.ts"
+    "tests/shoperation-semantic-execution-intelligence.test.ts",
+    "package.json",
+    "package-lock.json",
+    "tests/dependency-security-contract.test.ts"
   ],
   "expectedSubsystems": [
-    "dependency-contract",
-    "quality-knowledge-system"
+    "dependency-contract"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -73,20 +77,16 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-DEPENDENCY-MANIFEST-AUTHORITY",
+    "sourceRef": "PO-2026-10-06-SOURCE-MAP-JS-SECURITY-REMEDIATION",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "The dependency security fix cannot be planned safely while package.json and package-lock.json are semantically unowned by the canonical domain registry. This transaction repairs only that architecture classification before any dependency edit.",
+      "rationale": "A current high-severity npm advisory blocks every release. The patch is a transitive dependency update, but it affects the locked install contract and therefore must remain deterministic, exact-version pinned, Atlas-resolved and proven by the real npm audit rather than an exception.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -102,21 +102,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "package.json and package-lock.json classify as DOMAIN-RELEASE with release-infrastructure authority.",
-        "The change is limited to canonical domain classification plus deterministic Atlas regression.",
-        "Dependency package contents are not edited in this transaction.",
-        "Existing DOMAIN-QUALITY and other domain classifications remain unchanged."
+        "Root dependency manifests remain canonically classified as DOMAIN-RELEASE.",
+        "package.json explicitly overrides source-map-js to exactly 1.2.2.",
+        "package-lock.json resolves node_modules/source-map-js to version 1.2.2 with the matching registry artifact and integrity.",
+        "PostCSS remains on the existing 8.5.28 contract and continues to consume a compatible source-map-js version.",
+        "The real CI security-audit job no longer reports GHSA-68fv-2mgg-jv7q / the source-map-js 1.2.1 high-severity finding.",
+        "Quality, TypeScript and production build remain green; no product runtime/auth/AAL2 behavior is changed."
       ],
       "invariants": [
-        "Dependency manifests describe the install/release contract but do not become business-domain truth.",
-        "The classifier uses exact root manifest paths rather than a broad JSON glob.",
-        "No dependency version is changed before this Plan Before Code transaction passes."
+        "Security audit is not disabled, downgraded, allowlisted or bypassed.",
+        "The fix uses the patched dependency version rather than suppressing npm audit output.",
+        "No unrelated dependency is intentionally upgraded.",
+        "The lockfile remains deterministic and compatible with npm ci.",
+        "The package authority classification proven in the first coherent batch remains intact."
       ],
       "forbiddenStates": [
+        "source-map-js-1.2.1-locked",
+        "security-audit-exception",
+        "unbounded-source-map-js-override",
+        "unrelated-dependency-upgrade",
         "package-manifest-unclassified",
-        "broad-json-release-authority",
-        "dependency-version-edit-before-authority-plan",
-        "business-domain-ownership-transfer"
+        "product-runtime-change",
+        "aal2-enforcement-activation"
       ]
     },
     "model": {
@@ -148,150 +155,159 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The dependency security edit is attempted while package manifests remain Atlas-unresolved.",
-        "A broad *.json release path steals ownership from unrelated canonical JSON knowledge.",
-        "Only package.json is classified and package-lock.json remains unresolved.",
-        "The authority registry is changed without a classifier regression.",
-        "The security version change is mixed into this precondition transaction before Plan Before Code validates the authority model.",
-        "Release authority is confused with runtime package behavior authority.",
-        "The change weakens unresolved-scope checks instead of classifying the real dependency manifests."
+        "Only package.json is changed and package-lock.json continues installing vulnerable 1.2.1.",
+        "Only the lockfile is changed and a future lock regeneration falls back to a vulnerable transitive version.",
+        "An audit ignore/allowlist makes CI green without removing the vulnerable package.",
+        "The override uses a loose range and later resolves to an unreviewed version.",
+        "The lockfile integrity/resolved tuple does not match 1.2.2 and npm ci fails.",
+        "The dependency fix triggers unrelated transitive package churn.",
+        "Package manifests regress to unresolved Atlas ownership."
       ],
       "edgeCases": [
-        "Both package.json and package-lock.json are repository-root exact paths.",
-        "Nested package manifests, if introduced later, are not silently claimed by this exact-path rule.",
-        "Existing **/next.config.ts release ownership continues unchanged."
+        "PostCSS declares ^1.2.1, so 1.2.2 remains semver-compatible.",
+        "source-map-js is transitive rather than a direct runtime dependency.",
+        "The newly published 1.2.2 package must be pinned exactly despite the parent range.",
+        "Existing postcss override remains unchanged.",
+        "Security proof is accepted only from the actual exact-head security-audit job, not from source assertions alone."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-UNRESOLVED-EXCEPTION",
-        "summary": "Add an exception so package files can bypass Atlas resolution.",
+        "id": "ALT-AUDIT-IGNORE",
+        "summary": "Suppress or allowlist the new npm audit advisory.",
         "disposition": "rejected",
-        "reason": "That would weaken the canonical unresolved-scope guard."
+        "reason": "That weakens the security gate and leaves the vulnerable package installed."
       },
       {
-        "id": "ALT-NEUTRAL-PACKAGE-FILES",
-        "summary": "Treat dependency manifests as neutral files.",
+        "id": "ALT-POSTCSS-UPGRADE",
+        "summary": "Upgrade PostCSS or broader dependency groups to chase the transitive dependency.",
         "disposition": "rejected",
-        "reason": "Dependency changes carry release/security risk and must remain governed."
+        "reason": "PostCSS already allows the patched source-map-js patch; broader churn is unnecessary."
       },
       {
-        "id": "ALT-EXACT-RELEASE-OWNERSHIP",
-        "summary": "Assign only root package.json and package-lock.json to DOMAIN-RELEASE.",
+        "id": "ALT-EXACT-TRANSITIVE-PIN",
+        "summary": "Add an exact source-map-js 1.2.2 root override and update only its lock entry.",
         "disposition": "selected",
-        "reason": "Dependency manifests are release/install contracts and this preserves exact ownership without broad classification."
+        "reason": "This is the smallest deterministic remediation compatible with the existing PostCSS contract."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Architecture",
+        "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Dependency manifests currently have a release-risk subsystem but no canonical domain path.",
-        "resolution": "Add exact root manifest paths to DOMAIN-RELEASE.",
+        "finding": "Exact-head npm audit reports a high-severity source-map-js 1.2.1 vulnerability.",
+        "resolution": "Replace the installed transitive package with patched 1.2.2; no audit exception is permitted.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json",
-          "deploy/release-risk-policy.json"
+          "package.json",
+          "package-lock.json"
         ]
       },
       {
-        "role": "Operations",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Marking package files neutral would make a security-relevant dependency edit invisible to architecture closure.",
-        "resolution": "Keep dependency-contract risk classification and give manifests explicit release-domain ownership.",
+        "role": "Architecture",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Dependency manifests are now explicitly owned by DOMAIN-RELEASE and may be safely included in the planned projection.",
+        "resolution": "Retain exact release-domain ownership and its Atlas regression.",
         "evidence": [
-          "deploy/release-risk-policy.json",
+          "quality/knowledge/domain-foundations.v1.json",
           "tests/shoperation-semantic-execution-intelligence.test.ts"
         ]
       },
       {
         "role": "Release",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The subsequent source-map-js patch needs package manifests to be dependency-closed and Atlas-resolved.",
-        "resolution": "This precondition transaction establishes release ownership before the security scope expands.",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "A broad npm update could change unrelated dependency truth.",
+        "resolution": "Pin exactly 1.2.2 and change only the source-map-js lock entry plus the explicit override.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json"
+          "package.json",
+          "package-lock.json",
+          "tests/dependency-security-contract.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-PKG-1",
-        "scenario": "Plan Before Code projects package.json.",
-        "finding": "Without canonical domain ownership it blocks as unresolved.",
-        "resolution": "Register package.json exactly under DOMAIN-RELEASE.",
+        "id": "CH-SEC-1",
+        "scenario": "The audit is silenced without changing the package.",
+        "finding": "CI could turn green while the vulnerable code remains.",
+        "resolution": "No audit configuration changes are in scope; exact-head npm audit must pass naturally.",
         "status": "resolved"
       },
       {
-        "id": "CH-PKG-2",
-        "scenario": "Plan Before Code projects package-lock.json.",
-        "finding": "Lockfile must be governed identically to its manifest.",
-        "resolution": "Register package-lock.json exactly under DOMAIN-RELEASE.",
+        "id": "CH-SEC-2",
+        "scenario": "Only package-lock.json is updated.",
+        "finding": "Future regeneration could select another vulnerable version allowed by the parent range.",
+        "resolution": "Add exact root override source-map-js=1.2.2.",
         "status": "resolved"
       },
       {
-        "id": "CH-PKG-3",
-        "scenario": "A broad **/*.json pattern is used.",
-        "finding": "It can steal unrelated knowledge/config authority.",
-        "resolution": "Use exact root paths only.",
+        "id": "CH-SEC-3",
+        "scenario": "Only package.json is updated.",
+        "finding": "npm ci requires the locked install graph to agree.",
+        "resolution": "Update the source-map-js lock entry to 1.2.2 as the same coherent batch.",
         "status": "resolved"
       },
       {
-        "id": "CH-PKG-4",
-        "scenario": "The security version is edited now.",
-        "finding": "That would begin the dependency implementation before its semantic authority is valid.",
-        "resolution": "Dependency contents stay read-only until the next reviewed plan expansion.",
+        "id": "CH-SEC-4",
+        "scenario": "npm update changes unrelated transitive packages.",
+        "finding": "Security remediation becomes an unbounded dependency release.",
+        "resolution": "Do not regenerate the full graph; modify only the exact transitive lock record required by the override.",
         "status": "resolved"
       },
       {
-        "id": "CH-PKG-5",
-        "scenario": "Unresolved-scope handling is weakened.",
-        "finding": "Future unknown dependency files could pass silently.",
-        "resolution": "No guard/policy exception is introduced.",
+        "id": "CH-SEC-5",
+        "scenario": "1.2.2 is incompatible with PostCSS.",
+        "finding": "Build/runtime tooling could regress.",
+        "resolution": "PostCSS 8.5.28 declares ^1.2.1, which includes 1.2.2; full tests/build remain mandatory.",
         "status": "resolved"
       },
       {
-        "id": "CH-PKG-6",
-        "scenario": "The release domain is mistaken for package runtime ownership.",
-        "finding": "Business/runtime code could inherit release truth incorrectly.",
-        "resolution": "Only manifest paths are classified; package behavior remains external dependency behavior.",
+        "id": "CH-SEC-6",
+        "scenario": "The integrity value is wrong.",
+        "finding": "npm ci fails or artifact identity is unproven.",
+        "resolution": "Use the published 1.2.2 registry URL and package integrity and prove through npm ci in CI.",
         "status": "resolved"
       },
       {
-        "id": "CH-PKG-7",
-        "scenario": "Classification drifts later.",
-        "finding": "A future domain registry edit could silently unclassify dependency manifests.",
-        "resolution": "Add deterministic classifyAtlasPath assertions for both files.",
+        "id": "CH-SEC-7",
+        "scenario": "The package files lose domain classification.",
+        "finding": "A future dependency security edit becomes semantically unresolved again.",
+        "resolution": "Keep the exact DOMAIN-RELEASE classification regression in the final release.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code on this exact plan-only head.",
-      "Add only exact package.json/package-lock.json canonical paths to DOMAIN-RELEASE.",
-      "Add deterministic Atlas regression for release-domain classification.",
-      "Run Edit-Time and full Known Failure Replay.",
-      "Only after this coherent batch passes, regenerate the plan to include the dependency security edit."
+      "Run Plan Before Code again on this expanded exact-head plan before editing package.json or package-lock.json.",
+      "Add exact root override source-map-js=1.2.2 and update only the source-map-js lock record.",
+      "Add a deterministic dependency-security contract test asserting the override and locked 1.2.2 artifact.",
+      "Run Edit-Time and full Incremental Known Failure Replay.",
+      "Require Release Risk Budget PASS for the combined quality-infrastructure plus dependency-contract release diff.",
+      "Require the exact-head security-audit job to PASS with no audit exception.",
+      "Run full Quality Tests, TypeScript and Production Build, then Completion Truth and lifecycle closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-06-DEPENDENCY-MANIFEST-AUTHORITY",
+      "request": "PO-2026-10-06-SOURCE-MAP-JS-SECURITY-REMEDIATION",
       "authority": [
-        "quality-knowledge-system"
+        "quality-knowledge-system",
+        "release-infrastructure"
       ],
       "mustEdit": [
-        "quality/knowledge/domain-foundations.v1.json"
+        "package.json",
+        "package-lock.json"
       ],
       "mayEdit": [
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "tests/dependency-security-contract.test.ts"
       ],
       "impactedReadOnly": [
-        "package.json",
-        "package-lock.json",
+        "src/**",
+        ".github/workflows/ci.yml",
         "deploy/release-risk-policy.json",
-        "scripts/shoperation-plan-before-code.mjs"
+        "quality/knowledge/development-guard-policy.v1.json"
       ],
       "proof": [
+        "tests/dependency-security-contract.test.ts",
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "unknown": [],
@@ -301,20 +317,20 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-DEPENDENCY-MANIFEST-AUTHORITY",
+    "sourceRef": "PO-2026-10-06-SOURCE-MAP-JS-SECURITY-REMEDIATION",
     "requirements": [
       {
-        "id": "REQ-DEPENDENCY-MANIFEST-AUTHORITY",
-        "requirement": "Root dependency manifests have canonical DOMAIN-RELEASE ownership before security-sensitive dependency edits are allowed.",
+        "id": "REQ-SOURCE-MAP-JS-SECURITY",
+        "requirement": "The locked dependency contract installs source-map-js 1.2.2 instead of vulnerable 1.2.1 without weakening audit enforcement or changing product runtime behavior.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "dependency-manifest-authority",
+          "breadth": "dependency-security-contract",
           "strength": 2,
           "dimensions": [
-            "classification",
+            "tests",
             "scope",
             "forbidden-state",
-            "tests"
+            "truth"
           ]
         },
         "requiredCapabilities": [
@@ -322,7 +338,6 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
             "GUARD-EDIT-TIME"
           ],
           "outcome": [
@@ -332,22 +347,62 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-DEPENDENCY-MANIFEST-UNRESOLVED",
-            "statement": "package.json and package-lock.json must not remain semantically unclassified.",
+            "id": "NEG-AUDIT-BYPASS",
+            "statement": "The security remediation must not disable, suppress or allowlist the npm audit finding.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-BROAD-JSON-OWNERSHIP",
-            "statement": "The fix must not broadly classify unrelated JSON files as release authority.",
+            "id": "NEG-VULNERABLE-LOCK",
+            "statement": "The lockfile must not retain source-map-js 1.2.1.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-DEPENDENCY-CHURN",
+            "statement": "The remediation must not intentionally upgrade unrelated dependencies.",
+            "evidence": [
+              "GUARD-EDIT-TIME"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-DEPENDENCY-SECURITY-RELEASE",
+        "requirement": "The dependency security remediation stays within the canonical release risk budget and preserves release-domain manifest ownership.",
+        "claimScope": {
+          "capability": "CAP-RELEASE",
+          "breadth": "dependency-security-release",
+          "strength": 2,
+          "dimensions": [
+            "risk",
+            "release-scope"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-RELEASE"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-RELEASE-RISK"
+          ],
+          "outcome": [
+            "GUARD-RELEASE-RISK"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-OVERBROAD-SECURITY-RELEASE",
+            "statement": "The security release must not expand into unrelated product or dependency subsystems.",
+            "evidence": [
+              "GUARD-RELEASE-RISK"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Precondition for the source-map-js security remediation. The security audit currently fails on source-map-js 1.2.1, but dependency contents remain read-only until root package manifests have canonical DOMAIN-RELEASE ownership. This transaction intentionally does not weaken security-audit or Plan Before Code."
+  "notes": "A new high-severity npm advisory surfaced after the E13 quality release had already reached Completion Truth. Main currently locks source-map-js 1.2.1 through PostCSS 8.5.28 (^1.2.1). The first coherent batch on this branch established exact DOMAIN-RELEASE ownership for package.json/package-lock.json and passed Plan Before Code, Edit-Time and full Replay. This expanded plan now authorizes only the patched 1.2.2 dependency remediation; security-audit remains fully enforced."
 }
