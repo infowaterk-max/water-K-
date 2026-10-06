@@ -206,7 +206,7 @@
         ]
       },
       {
-        "role": "Quality",
+        "role": "Operations",
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "Changing the product to satisfy the old E13 selector would convert a harness defect into a product regression.",
