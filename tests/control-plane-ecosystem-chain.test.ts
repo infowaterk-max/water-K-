@@ -180,7 +180,9 @@ describe('Control Plane ecosystem chain',()=>{
     expect(guard).toContain("implementationSkeleton=deriveImplementationSkeleton");
     expect(guard).toContain("projectedReleaseRisk=evaluateReleaseRiskFiles");
     expect(guard).toContain("systemObligations:{derivation:'canonical-gate-chain'");
-    expect(plan).toContain('DEV_PLAN_PROJECTED_RELEASE_RISK_BLOCK');
+    expect(plan).toContain('DEV_PLAN_RELEASE_DECOMPOSITION_BLOCK');
+    expect(plan).toContain('DEV_PLAN_RELEASE_DECOMPOSITION_REQUIRED_FLAG_MISSING');
+    expect(plan).toContain('decomposeReleaseScope');
     expect(plan).toContain('DEV_PLAN_SEMANTIC_MUST_CREATE_DRIFT');
     expect(plan).toContain('compileGateChain');
   });

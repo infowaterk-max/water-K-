@@ -6,16 +6,17 @@
   "guardDigest": "efe9d183",
   "changeBaseSha": "f8a22cc4a014c2d0fb293b8b327736a1138309b0",
   "plannedFilePatterns": [
+    "docs/support/CONTROL_PLANE_RELEASE_DECOMPOSITION_2026-10-06.md",
     "quality/development/active-plan.json",
     "quality/knowledge/guard-registry.v1.json",
     "quality/knowledge/support-history-policy.v1.json",
     "scripts/lib/shoperation-development-runtime.mjs",
+    "scripts/lib/shoperation-reference-sync-runtime.mjs",
+    "scripts/release-manifest.mjs",
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/shoperation-release-unit-materializer.mjs",
-    "scripts/release-manifest.mjs",
+    "tests/control-plane-ecosystem-chain.test.ts",
     "tests/control-plane-release-decomposition.test.ts",
-    "docs/support/CONTROL_PLANE_RELEASE_DECOMPOSITION_2026-10-06.md",
-    "scripts/lib/shoperation-reference-sync-runtime.mjs",
     "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
   "expectedSubsystems": [
@@ -380,9 +381,10 @@
         "quality/knowledge/guard-registry.v1.json",
         "quality/knowledge/support-history-policy.v1.json",
         "scripts/lib/shoperation-development-runtime.mjs",
-        "scripts/shoperation-plan-before-code.mjs",
-        "scripts/release-manifest.mjs",
         "scripts/lib/shoperation-reference-sync-runtime.mjs",
+        "scripts/release-manifest.mjs",
+        "scripts/shoperation-plan-before-code.mjs",
+        "tests/control-plane-ecosystem-chain.test.ts",
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "mayEdit": [],
@@ -402,6 +404,7 @@
         "src/middleware.ts"
       ],
       "proof": [
+        "tests/control-plane-ecosystem-chain.test.ts",
         "tests/control-plane-release-decomposition.test.ts",
         "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
