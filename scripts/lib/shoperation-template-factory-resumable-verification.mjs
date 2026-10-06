@@ -1,6 +1,111 @@
+import {createHash} from 'node:crypto';
+import {globToRegExp} from './shoperation-development-runtime.mjs';
 import {canonicalizeVerificationEngineInput,classifySemanticUnits,digestObject} from './shoperation-verification-reuse.mjs';
 
 const uniq=values=>[...new Set(values)];
+
+
+const canonicalJson=value=>Array.isArray(value)?'['+value.map(canonicalJson).join(',')+']':value&&typeof value==='object'?'{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}':JSON.stringify(value);
+export function templateFactoryEvidenceChecksum(manifest){
+  const copy={...(manifest??{})};delete copy.checksum;
+  return createHash('sha256').update(canonicalJson(copy)).digest('hex');
+}
+
+export function templateLiveProofInputPatterns(registry){
+  const guard=(registry?.guards??[]).find(item=>item?.id==='GUARD-TEMPLATE-FACTORY');
+  return uniq([
+    ...(guard?.verification?.semanticInputs??[]),
+    ...(guard?.verification?.configurationInputs??[]),
+    ...(guard?.verification?.authorityInputs??[]),
+    ...(registry?.verificationReuse?.globalAuthorityInputs??[]),
+    ...(registry?.verificationReuse?.globalToolchainInputs??[]),
+    ...(registry?.verificationReuse?.promotion?.engineInputs??[]),
+  ].filter(Boolean)).sort();
+}
+
+export function deriveTemplateLiveProofDecision({
+  registry,
+  priorManifest=null,
+  priorManifestChecksumValid=false,
+  currentHead='',
+  currentBranch='',
+  ancestorProven=false,
+  originWorkflowConclusion='',
+  changedFilesSinceOrigin=[],
+}={}){
+  const inputPatterns=templateLiveProofInputPatterns(registry);
+  const inputContractDigest=digestObject({contract:'shoporation.template-factory-live-proof-inputs.v1',patterns:inputPatterns});
+  const changedFiles=uniq(changedFilesSinceOrigin.filter(Boolean)).sort();
+  const affectedInputs=changedFiles.filter(file=>inputPatterns.some(pattern=>globToRegExp(pattern).test(file))).sort();
+  const required=(reason,extra={})=>({
+    contract:'shoporation.template-factory-live-proof-decision.v1',
+    decision:'PASS',
+    mode:'REQUIRED',
+    reason,
+    sourceCommit:currentHead||null,
+    branch:currentBranch||null,
+    originSourceCommit:priorManifest?.sourceCommit??null,
+    originRunId:priorManifest?.runId??null,
+    originWorkflowConclusion:originWorkflowConclusion||null,
+    ancestorProven:Boolean(ancestorProven),
+    inputEquivalenceProven:false,
+    inputContractDigest,
+    changedFilesSinceOrigin:changedFiles,
+    affectedInputs,
+    ...extra,
+  });
+  if(!priorManifest)return required('prior-live-proof-manifest-missing');
+  if(priorManifest.contract!=='shoporation.template-factory-quality-evidence.v2')return required('prior-live-proof-contract-invalid');
+  if(priorManifest.complete!==true||(priorManifest.errors??[]).length)return required('prior-live-proof-incomplete');
+  if(!priorManifestChecksumValid)return required('prior-live-proof-checksum-invalid');
+  if(!currentHead||!currentBranch)return required('current-live-proof-identity-missing');
+  if(priorManifest.branch!==currentBranch)return required('prior-live-proof-branch-mismatch');
+  if(!priorManifest.sourceCommit||priorManifest.sourceCommit===currentHead)return required('prior-live-proof-origin-not-ancestor');
+  if(!ancestorProven)return required('prior-live-proof-ancestry-unproven');
+  if(String(originWorkflowConclusion).toLowerCase()!=='success')return required('prior-live-proof-workflow-not-success');
+  if(affectedInputs.length)return required('template-live-proof-input-changed');
+  return{
+    contract:'shoporation.template-factory-live-proof-decision.v1',
+    decision:'PASS',
+    mode:'REUSE',
+    reason:'template-live-proof-inputs-equivalent',
+    sourceCommit:currentHead,
+    branch:currentBranch,
+    originSourceCommit:priorManifest.sourceCommit,
+    originRunId:String(priorManifest.runId??''),
+    originWorkflowConclusion:'success',
+    ancestorProven:true,
+    inputEquivalenceProven:true,
+    inputContractDigest,
+    changedFilesSinceOrigin:changedFiles,
+    affectedInputs:[],
+  };
+}
+
+export function validateTemplateLiveProofRecord(record,{currentHead='',currentBranch='',registry}={}){
+  const issues=[];
+  const mode=String(record?.mode??'').toUpperCase();
+  const expectedDigest=digestObject({contract:'shoporation.template-factory-live-proof-inputs.v1',patterns:templateLiveProofInputPatterns(registry)});
+  if(record?.contract!=='shoporation.template-factory-live-proof.v1')issues.push({code:'TEMPLATE_LIVE_PROOF_CONTRACT_INVALID'});
+  if(record?.decision!=='PASS')issues.push({code:'TEMPLATE_LIVE_PROOF_DECISION_NOT_PASS'});
+  if(record?.sourceCommit!==currentHead)issues.push({code:'TEMPLATE_LIVE_PROOF_HEAD_MISMATCH',expected:currentHead,actual:record?.sourceCommit??null});
+  if(record?.branch!==currentBranch)issues.push({code:'TEMPLATE_LIVE_PROOF_BRANCH_MISMATCH',expected:currentBranch,actual:record?.branch??null});
+  if(record?.inputContractDigest!==expectedDigest)issues.push({code:'TEMPLATE_LIVE_PROOF_INPUT_CONTRACT_STALE'});
+  if(mode==='LIVE'){
+    if(record?.originSourceCommit!==currentHead)issues.push({code:'TEMPLATE_LIVE_PROOF_LIVE_ORIGIN_MISMATCH'});
+    if(!String(record?.originRunId??'').trim())issues.push({code:'TEMPLATE_LIVE_PROOF_LIVE_RUN_MISSING'});
+  }else if(mode==='REUSED'){
+    if(!String(record?.originSourceCommit??'').trim()||record.originSourceCommit===currentHead)issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_ORIGIN_INVALID'});
+    if(!String(record?.originRunId??'').trim())issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_RUN_MISSING'});
+    if(record?.originWorkflowConclusion!=='success')issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_WORKFLOW_NOT_SUCCESS'});
+    if(record?.ancestorProven!==true)issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_ANCESTRY_UNPROVEN'});
+    if(record?.inputEquivalenceProven!==true)issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_INPUT_EQUIVALENCE_UNPROVEN'});
+    if(!Array.isArray(record?.affectedInputs)||record.affectedInputs.length)issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_AFFECTED_INPUTS_PRESENT',affectedInputs:record?.affectedInputs??null});
+  }else{
+    issues.push({code:'TEMPLATE_LIVE_PROOF_MODE_INVALID',actual:record?.mode??null});
+  }
+  return{ok:issues.length===0,issues,mode};
+}
 
 export function canonicalizeTemplateFactoryInfrastructureInput(file,raw){
   return canonicalizeVerificationEngineInput(file,raw);
