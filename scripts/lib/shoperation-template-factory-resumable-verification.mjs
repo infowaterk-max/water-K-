@@ -104,6 +104,9 @@ export function selectTemplateLiveRuntimeOrigin({baseSha='',currentHead='',runti
     mode:runtimeSourceCommit===currentHead?'CURRENT_HEAD':runtimeSourceCommit===baseSha?'BASE_RUNTIME':'ANCESTOR_RUNTIME',
     changedFilesSinceOrigin,
     affectedInputs,
+    runtimeEquivalenceProven:issues.length===0,
+    ancestorProven:runtimeSourceCommit!==currentHead,
+    reason:runtimeSourceCommit===currentHead?'runtime-changed-at-current-head':runtimeSourceCommit===baseSha?'runtime-equivalent-to-base':'runtime-equivalent-to-latest-runtime-ancestor',
   };
 }
 
@@ -253,6 +256,10 @@ export function validateTemplateLiveProofRecord(record,{currentHead='',currentBr
     if(record?.originSourceCommit!==currentHead)issues.push({code:'TEMPLATE_LIVE_PROOF_LIVE_ORIGIN_MISMATCH'});
     if(!String(record?.originRunId??'').trim())issues.push({code:'TEMPLATE_LIVE_PROOF_LIVE_RUN_MISSING'});
     else if(currentRunId&&String(record.originRunId)!==String(currentRunId))issues.push({code:'TEMPLATE_LIVE_PROOF_LIVE_RUN_MISMATCH',expected:String(currentRunId),actual:String(record.originRunId)});
+    if(!String(record?.runtimeSourceCommit??'').trim())issues.push({code:'TEMPLATE_LIVE_PROOF_RUNTIME_SOURCE_MISSING'});
+    if(!String(record?.runtimeOriginMode??'').trim())issues.push({code:'TEMPLATE_LIVE_PROOF_RUNTIME_MODE_MISSING'});
+    if(record?.runtimeSourceCommit&&record.runtimeSourceCommit!==currentHead&&record?.runtimeEquivalenceProven!==true)issues.push({code:'TEMPLATE_LIVE_PROOF_RUNTIME_EQUIVALENCE_UNPROVEN'});
+    if(Array.isArray(record?.affectedInputs)&&record.affectedInputs.length)issues.push({code:'TEMPLATE_LIVE_PROOF_RUNTIME_AFFECTED_INPUTS_PRESENT',affectedInputs:record.affectedInputs});
   }else if(mode==='REUSED'){
     if(!String(record?.originSourceCommit??'').trim()||record.originSourceCommit===currentHead)issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_ORIGIN_INVALID'});
     if(!String(record?.originRunId??'').trim())issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_RUN_MISSING'});
