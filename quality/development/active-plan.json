@@ -419,13 +419,12 @@
             "id": "NEG-SHARP-DEPENDENCY-CHURN",
             "statement": "The remediation must not intentionally upgrade unrelated product or dependency subsystems.",
             "evidence": [
-              "GUARD-RELEASE-RISK",
-              "GUARD-EDIT-TIME"
+              "GUARD-RELEASE-RISK"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Separate fail-closed prerequisite hotfix discovered by Unit 3 exact-head Security Audit. It is intentionally isolated from PR #955. After merge, Unit 3 must reconcile against the new main rather than silently absorbing drift. PR-context Plan Before Code run 37492799838 resolved the canonical dependency projection to DOMAIN-RELEASE/release-infrastructure with dependency-contract + shared-storefront + storefront-ui impact, the exact 30 Known Failures and SQ-NK-001/002/004/006/007/008/009/012, producing guard digest 2c38ea91."
+  "notes": "Separate fail-closed prerequisite hotfix discovered by Unit 3 exact-head Security Audit. It is intentionally isolated from PR #955. After merge, Unit 3 must reconcile against the new main rather than silently absorbing drift. PR-context Plan Before Code run 37492799838 resolved the canonical dependency projection to DOMAIN-RELEASE/release-infrastructure with dependency-contract + shared-storefront + storefront-ui impact, the exact 30 Known Failures and SQ-NK-001/002/004/006/007/008/009/012, producing guard digest 2c38ea91. Exact-head Quality run dd15161a exposed a valid Sentinel proof-capability finding: CAP-RELEASE negative evidence referenced GUARD-EDIT-TIME. The Completion Contract is corrected so NEG-SHARP-DEPENDENCY-CHURN is proven only by the canonical GUARD-RELEASE-RISK producer; Sentinel implementation is unchanged."
 }
