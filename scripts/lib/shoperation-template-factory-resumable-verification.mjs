@@ -224,8 +224,16 @@ export function deriveTemplatePreviewAnchorCandidates({
   };
   let history=[];
   try{
-    history=execFileSync('git',['rev-list','--topo-order','--max-count='+String(maxCandidates),runtimeSourceCommit],{encoding:'utf8'})
-      .split(/\r?\n/).map(value=>value.trim()).filter(Boolean);
+    const limit=Math.max(1,Math.floor(Number(maxCandidates)||40));
+    const queue=[runtimeSourceCommit],seen=new Set();
+    while(queue.length&&history.length<limit){
+      const commit=queue.shift();
+      if(!commit||seen.has(commit))continue;
+      seen.add(commit);history.push(commit);
+      const parents=execFileSync('git',['show','-s','--format=%P',commit],{encoding:'utf8'})
+        .trim().split(/\s+/).map(value=>value.trim()).filter(Boolean);
+      for(const parent of parents)if(!seen.has(parent)&&!queue.includes(parent))queue.push(parent);
+    }
   }catch(error){
     return{
       contract:'shoporation.template-factory-preview-anchor-candidates.v1',
@@ -267,6 +275,8 @@ export function deriveTemplatePreviewAnchorCandidates({
     decision:issues.length?'BLOCK':'PASS',
     issues,
     runtimeSourceCommit,
+    ancestryEnumeration:'breadth-first-parent-distance',
+    candidateBudget:Math.max(1,Math.floor(Number(maxCandidates)||40)),
     candidates,
     rejected:rejected.slice(0,40),
   };

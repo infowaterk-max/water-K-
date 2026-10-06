@@ -188,6 +188,11 @@
       "release-infrastructure",
       "builder-template-system",
       "quality-knowledge-system"
+    ],
+    "SQ-NK-022": [
+      "release-infrastructure",
+      "builder-template-system",
+      "quality-knowledge-system"
     ]
   },
   "directives": {

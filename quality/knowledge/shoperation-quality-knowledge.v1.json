@@ -1102,6 +1102,13 @@
       "sourceRecords": [
         "quality/development/active-plan.json"
       ]
+    },
+    {
+      "id": "SQ-NK-022",
+      "rule": "Do not enumerate a bounded merge-DAG ancestry with a topology order that can spend the entire candidate budget on one parent lineage; safety-anchor discovery must be fair by graph distance across all parents while retaining the same equivalence checks.",
+      "sourceRecords": [
+        "quality/development/active-plan.json"
+      ]
     }
   ]
 }

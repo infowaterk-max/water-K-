@@ -145,6 +145,25 @@ describe('Template Factory resumable browser verification',()=>{
     expect(unrelated.issues.map(item=>item.code)).toContain('TEMPLATE_PREVIEW_ANCHOR_ANCESTRY_UNPROVEN');
   });
 
+  it('does not let a deep merged parent starve a graph-near safe Preview anchor inside the fixed candidate budget',()=>{
+    const candidates=deriveTemplatePreviewAnchorCandidates({
+      registry,
+      runtimeSourceCommit:'f8a22cc4a014c2d0fb293b8b327736a1138309b0',
+      maxCandidates:6,
+    });
+    expect(candidates.decision,JSON.stringify(candidates.issues)).toBe('PASS');
+    expect(candidates.ancestryEnumeration).toBe('breadth-first-parent-distance');
+    expect(candidates.candidateBudget).toBe(6);
+    expect(candidates.candidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        deploymentSourceCommit:'33ed65d17cd4f12a4456351276f01001982f6f39',
+        mode:'ANCESTOR_EQUIVALENT',
+        runtimeEquivalenceProven:true,
+        affectedRuntimeFiles:[],
+      }),
+    ]));
+  });
+
   it('recognizes the existing Stage 1 Preview head as a runtime-equivalent anchor for the current main merge',()=>{
     const candidates=deriveTemplatePreviewAnchorCandidates({
       registry,
