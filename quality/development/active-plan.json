@@ -8,6 +8,7 @@
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "quality/knowledge/guard-registry.v1.json",
+    "quality/knowledge/support-history-policy.v1.json",
     "scripts/lib/shoperation-development-runtime.mjs",
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/shoperation-release-unit-materializer.mjs",
@@ -375,6 +376,7 @@
       ],
       "mustEdit": [
         "quality/knowledge/guard-registry.v1.json",
+        "quality/knowledge/support-history-policy.v1.json",
         "scripts/lib/shoperation-development-runtime.mjs",
         "scripts/shoperation-plan-before-code.mjs",
         "scripts/release-manifest.mjs"

@@ -18,6 +18,22 @@
   ],
   "documentRules": [
     {
+      "file": "CONTROL_PLANE_DIAGNOSTICS_HARDENING_2026-09-28.md",
+      "recordType": "closure-evidence",
+      "subsystems": [
+        "quality-knowledge-system",
+        "release-infrastructure"
+      ]
+    },
+    {
+      "file": "CONTROL_PLANE_RELEASE_DECOMPOSITION_2026-10-06.md",
+      "recordType": "governance-rule",
+      "subsystems": [
+        "quality-knowledge-system",
+        "release-infrastructure"
+      ]
+    },
+    {
       "file": "DIGITAL_OFFICE_RESPONSIVE_INCIDENT_2026-09-10.md",
       "recordType": "incident-corpus",
       "subsystems": [
@@ -83,6 +99,14 @@
         "database-schema",
         "storefront-launch-runtime",
         "release-infrastructure"
+      ]
+    },
+    {
+      "file": "QUALITY_GUARD_LESSONS_2026-09-24.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "quality-knowledge-system",
+        "database-schema"
       ]
     },
     {
@@ -256,22 +280,6 @@
       "subsystems": [
         "builder-template-system",
         "shared-storefront"
-      ]
-    },
-    {
-      "file": "QUALITY_GUARD_LESSONS_2026-09-24.md",
-      "recordType": "incident-corpus",
-      "subsystems": [
-        "quality-knowledge-system",
-        "database-schema"
-      ]
-    },
-    {
-      "file": "CONTROL_PLANE_DIAGNOSTICS_HARDENING_2026-09-28.md",
-      "recordType": "closure-evidence",
-      "subsystems": [
-        "quality-knowledge-system",
-        "release-infrastructure"
       ]
     }
   ],
