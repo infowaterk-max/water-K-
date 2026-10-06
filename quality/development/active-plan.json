@@ -3,7 +3,7 @@
   "taskId": "DEV-DEPENDENCY-MANIFEST-AUTHORITY",
   "task": "Quality authority reconciliation for dependency manifests before the source-map-js security remediation.",
   "status": "ready-for-implementation",
-  "guardDigest": "62903da6",
+  "guardDigest": "b0d154f0",
   "changeBaseSha": "c8fa6a37b7a69fe8f9b946c83a25678545a34b38",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -11,6 +11,7 @@
     "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
   "expectedSubsystems": [
+    "dependency-contract",
     "quality-knowledge-system"
   ],
   "expectedDomains": [
