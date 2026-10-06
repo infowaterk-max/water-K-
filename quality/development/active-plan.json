@@ -6,18 +6,21 @@
   "guardDigest": "efe9d183",
   "changeBaseSha": "f8a22cc4a014c2d0fb293b8b327736a1138309b0",
   "plannedFilePatterns": [
+    ".github/workflows/template-factory-quality-gate.yml",
     "docs/support/CONTROL_PLANE_RELEASE_DECOMPOSITION_2026-10-06.md",
     "quality/development/active-plan.json",
     "quality/knowledge/guard-registry.v1.json",
     "quality/knowledge/support-history-policy.v1.json",
     "scripts/lib/shoperation-development-runtime.mjs",
     "scripts/lib/shoperation-reference-sync-runtime.mjs",
+    "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
     "scripts/release-manifest.mjs",
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/shoperation-release-unit-materializer.mjs",
     "tests/control-plane-ecosystem-chain.test.ts",
     "tests/control-plane-release-decomposition.test.ts",
-    "tests/shoperation-semantic-execution-intelligence.test.ts"
+    "tests/shoperation-semantic-execution-intelligence.test.ts",
+    "tests/template-factory-resumable-verification.test.ts"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -149,7 +152,8 @@
         "Release unit manifests explicitly represent create, modify, rename and delete operations plus required dependencies, authorities, subsystems, gates, evidence, forbidden paths, generated-artifact semantics and expected post-unit state.",
         "Materialization refuses a stale target-base lease, an operation outside manifest scope, forbidden/read-only paths, unresolved rename/delete sources and generated artifacts without regenerate or sealed identity semantics.",
         "Already-applied operations are recognized idempotently, but mixed partial state cannot be reported as a successful fresh application.",
-        "Successor-unit reconciliation replaces the predecessor lease with the newly observed main SHA and recomputes applicability rather than copying stale predecessor facts."
+        "Successor-unit reconciliation replaces the predecessor lease with the newly observed main SHA and recomputes applicability rather than copying stale predecessor facts.",
+        "Runtime-equivalent Preview anchor discovery scans the complete equivalence segment back to the first runtime-drift boundary instead of truncating at an arbitrary short commit window; a safety-cap overflow fails closed."
       ],
       "invariants": [
         "deploy/release-risk-policy.json remains the sole Release Risk threshold and subsystem classification authority.",
@@ -160,7 +164,8 @@
         "Rename and delete are first-class operations and preserve source-path identity for reconciliation and proof.",
         "Generated artifacts require either a declared regeneration instruction or sealed source identity; opaque copy semantics are forbidden.",
         "A materializer may touch only paths named by its manifest and may never silently broaden scope.",
-        "Final exact-diff Release Risk, exact-head proof, Completion Truth and Lifecycle remain authoritative after decomposition."
+        "Final exact-diff Release Risk, exact-head proof, Completion Truth and Lifecycle remain authoritative after decomposition.",
+        "A runtime-equivalent READY Preview that is an ancestor of the selected runtime source cannot disappear solely because more quality-only commits were added after it."
       ],
       "forbiddenStates": [
         "release-unit-split-by-file-count-only",
@@ -210,14 +215,16 @@
         "A rename or delete is flattened into create/modify semantics and leaves the old path or stale consumers behind.",
         "A generated artifact is copied from an obsolete source identity instead of being regenerated or sealed.",
         "The predecessor already applied the same content and the successor materializer duplicates the change instead of treating it as idempotently satisfied.",
-        "A protected Auth Core or other read-only authority path enters a generated unit through dependency closure and would be transplanted without explicit authorization."
+        "A protected Auth Core or other read-only authority path enters a generated unit through dependency closure and would be transplanted without explicit authorization.",
+        "A fixed commit-count Preview candidate horizon expires after many quality-only commits even though an older READY Preview is still runtime-equivalent and previously proved."
       ],
       "edgeCases": [
         "Thirty neutral test/evidence files may travel with substantive components without increasing risk, but must still follow proof co-location requirements.",
         "Several medium-risk subsystems may each be legal alone while their combined score exceeds the budget and therefore require deterministic binning.",
         "A rename whose destination is already identical can be already-applied only if the source path is absent as expected.",
         "A delete already absent at the reconciled target base is idempotently satisfied only when predecessor history or manifest policy permits already-applied recognition.",
-        "A successor manifest generated before its predecessor merge must be reconciled and re-leased rather than materialized unchanged."
+        "A successor manifest generated before its predecessor merge must be reconciled and re-leased rather than materialized unchanged.",
+        "The valid Preview anchor may be more than forty quality-only commits behind the runtime source while the runtime closure is byte-equivalent."
       ]
     },
     "alternatives": [
@@ -357,6 +364,13 @@
         "finding": "Forcing any split would create a knowingly invalid release topology.",
         "resolution": "Return NO_SAFE_DECOMPOSITION and keep execution unauthorized for that scope rather than weakening a gate.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RD-11",
+        "scenario": "The current runtime source has no Preview because quality-only commits are intentionally Vercel-cancelled, while a previously successful runtime-equivalent Preview is fifty-seven commits behind it.",
+        "finding": "A fixed forty-commit candidate horizon falsely reports TEMPLATE_LIVE_RUNTIME_PREVIEW_ANCHOR_MISSING even though ancestry and zero runtime drift prove a safe Preview exists.",
+        "resolution": "Walk the runtime-equivalent ancestry until the first runtime-drift boundary, retain all equivalent candidate SHAs within a high safety cap, and fail closed if the semantic boundary cannot be reached before that cap.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -369,7 +383,8 @@
       "Prove proof files and machine-required companion files remain co-located with the capability unit or are satisfied by an already-merged predecessor.",
       "Require Edit-Time Guard, Incremental Replay and final Release Risk PASS without any policy threshold or classifier weakening.",
       "Run full Quality Tests, TypeScript and Production Build on the exact implementation head.",
-      "Require exact-head Completion Truth VERIFIED, Lifecycle Closure PASS and Template Factory external proof when canonical guard applicability requires it."
+      "Require exact-head Completion Truth VERIFIED, Lifecycle Closure PASS and Template Factory external proof when canonical guard applicability requires it.",
+      "Prove Preview-anchor discovery includes a runtime-equivalent candidate beyond forty metadata-only commits, stops at the first runtime-drift boundary, and fails closed on ancestry-scan overflow rather than silently truncating."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-06-CONTROL-PLANE-RELEASE-DECOMPOSITION",
@@ -378,14 +393,17 @@
         "release-infrastructure"
       ],
       "mustEdit": [
+        ".github/workflows/template-factory-quality-gate.yml",
         "quality/knowledge/guard-registry.v1.json",
         "quality/knowledge/support-history-policy.v1.json",
         "scripts/lib/shoperation-development-runtime.mjs",
         "scripts/lib/shoperation-reference-sync-runtime.mjs",
+        "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
         "scripts/release-manifest.mjs",
         "scripts/shoperation-plan-before-code.mjs",
         "tests/control-plane-ecosystem-chain.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/template-factory-resumable-verification.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -406,7 +424,8 @@
       "proof": [
         "tests/control-plane-ecosystem-chain.test.ts",
         "tests/control-plane-release-decomposition.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/template-factory-resumable-verification.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -589,5 +608,5 @@
       }
     ]
   },
-  "notes": "Unit 2 implementation is authorized only under the unchanged canonical Release Risk Budget. The plan-only exact-head must pass Plan Before Code before any implementation edit; canonical support Knowledge is part of the planned learning scope."
+  "notes": "Unit 2 scope was reconciled after exact-head Template Factory proof exposed a fixed-horizon Preview-anchor false negative. Proof-engine changes remain forbidden until this expanded plan passes Plan Before Code."
 }
