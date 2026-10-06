@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-STAGE1-WORKFORCE-MFA-ACTIVATION-CONTROL",
   "task": "Stage 1 Workforce Identity: add explicit prepared-versus-enforced MFA activation control so the complete TOTP policy remains implemented but interactive workforce MFA stays parked until final audit activation, without changing RBAC, tenant authority, middleware, or parked PR #858.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "00e392d5",
   "changeBaseSha": "3a245d76e7ba62e731ea228805663062629fcaf8",
   "plannedFilePatterns": [
@@ -402,5 +402,18 @@
       }
     ]
   },
-  "notes": "Live exact-head E13 proof on PR #912 exposed an activation mismatch: canonical workforce login correctly follows requiredWorkforceTotpFactors, so the current owner/admin proof account is stopped by TOTP before E13 can run. This is not an E13 defect and must not be hidden by a quality-harness bypass. Product-owner direction remains: MFA/AAL2 is implemented now but enforcement is activated only near final audit. This isolated Auth Core correction separates target policy from activation state. PR #912 remains DRAFT and will be reconstructed from the new verified main; PR #858 remains parked."
+  "notes": "Live exact-head E13 proof on PR #912 exposed an activation mismatch: canonical workforce login correctly follows requiredWorkforceTotpFactors, so the current owner/admin proof account is stopped by TOTP before E13 can run. This is not an E13 defect and must not be hidden by a quality-harness bypass. Product-owner direction remains: MFA/AAL2 is implemented now but enforcement is activated only near final audit. This isolated Auth Core correction separates target policy from activation state. PR #912 remains DRAFT and will be reconstructed from the new verified main; PR #858 remains parked.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "e724bff6ed621541a2002927df02d6d1a340c883",
+    "closedAt": "2026-10-06T04:35:16.918Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-06-MR1-WORKFORCE-MFA-ACTIVATION-CONTROL",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
