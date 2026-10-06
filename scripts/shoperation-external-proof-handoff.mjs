@@ -2,7 +2,7 @@ import {appendFileSync,existsSync,mkdirSync,readFileSync,writeFileSync} from 'no
 import {dirname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {compileGateChain,exactPlannedPaths} from './lib/shoperation-development-runtime.mjs';
-import {deriveTemplateLiveRuntimeOrigin,templateFactoryEvidenceChecksum,validateTemplateLiveProofRecord} from './lib/shoperation-template-factory-resumable-verification.mjs';
+import {deriveTemplateLiveRuntimeOrigin,deriveTemplatePreviewAnchorCandidates,templateFactoryEvidenceChecksum,validateTemplateLiveProofRecord} from './lib/shoperation-template-factory-resumable-verification.mjs';
 
 export const EXTERNAL_PROOF_EVIDENCE_CONTRACT='shoporation.external-proof-evidence.v1';
 export const TEMPLATE_FACTORY_QUALITY_CONTRACT='shoporation.template-factory-quality-evidence.v2';
@@ -48,6 +48,7 @@ export function validateTemplateFactoryExternalProof({
   workflowConclusion='success',
   guardRegistry,
   runtimeOrigin,
+  previewAnchorCandidates,
 }={}){
   const issues=[];
   if(workflowName!=='Template Factory Quality Gate v2')issues.push({code:'EXTERNAL_PROOF_WORKFLOW_IDENTITY_MISMATCH',expected:'Template Factory Quality Gate v2',actual:workflowName});
@@ -89,6 +90,23 @@ export function validateTemplateFactoryExternalProof({
       const expectedFallbackPatterns=JSON.stringify(verifiedRuntimeOrigin.safetyFallbackRuntimePatterns??[]);
       const actualFallbackPatterns=JSON.stringify(manifest.liveProof?.runtimeSafetyFallbackPatterns??[]);
       if(expectedFallbackPatterns!==actualFallbackPatterns)issues.push({code:'EXTERNAL_PROOF_RUNTIME_FALLBACK_PATTERNS_MISMATCH',expected:verifiedRuntimeOrigin.safetyFallbackRuntimePatterns??[],actual:manifest.liveProof?.runtimeSafetyFallbackPatterns??[]});
+      const verifiedAnchors=previewAnchorCandidates??deriveTemplatePreviewAnchorCandidates({
+        registry,
+        runtimeSourceCommit:verifiedRuntimeOrigin.runtimeSourceCommit,
+        maxCandidates:40,
+      });
+      if(verifiedAnchors?.decision!=='PASS'){
+        issues.push({code:'EXTERNAL_PROOF_PREVIEW_ANCHOR_CANDIDATES_UNPROVEN',issues:verifiedAnchors?.issues??[]});
+      }else{
+        const deploymentSourceCommit=manifest.liveProof?.deploymentSourceCommit??null;
+        const matchedAnchor=(verifiedAnchors.candidates??[]).find(item=>item.deploymentSourceCommit===deploymentSourceCommit);
+        if(!matchedAnchor){
+          issues.push({code:'EXTERNAL_PROOF_PREVIEW_ANCHOR_NOT_EQUIVALENT',runtimeSourceCommit:verifiedRuntimeOrigin.runtimeSourceCommit,deploymentSourceCommit});
+        }else{
+          if(manifest.liveProof?.deploymentAnchorMode!==matchedAnchor.mode)issues.push({code:'EXTERNAL_PROOF_PREVIEW_ANCHOR_MODE_MISMATCH',expected:matchedAnchor.mode,actual:manifest.liveProof?.deploymentAnchorMode??null});
+          if(manifest.liveProof?.deploymentRuntimeEquivalenceProven!==true||matchedAnchor.runtimeEquivalenceProven!==true)issues.push({code:'EXTERNAL_PROOF_PREVIEW_ANCHOR_EQUIVALENCE_UNPROVEN'});
+        }
+      }
     }
   }
   if(!String(runId??'').trim())issues.push({code:'EXTERNAL_PROOF_RUN_ID_MISSING'});
@@ -121,6 +139,11 @@ export function validateTemplateFactoryExternalProof({
         runtimeOriginDecision:verifiedRuntimeOrigin?.decision??null,
         runtimeClassifierChanged:manifest.liveProof?.runtimeClassifierChanged===true,
         runtimeSafetyFallbackApplied:manifest.liveProof?.runtimeSafetyFallbackApplied===true,
+        deploymentSourceCommit:manifest.liveProof?.deploymentSourceCommit??null,
+        deploymentAnchorMode:manifest.liveProof?.deploymentAnchorMode??null,
+        deploymentRuntimeEquivalenceProven:manifest.liveProof?.deploymentRuntimeEquivalenceProven===true,
+        deploymentEnvironment:manifest.liveProof?.deploymentEnvironment??null,
+        deploymentId:manifest.liveProof?.deploymentId??null,
       },
     }:null,
   };
