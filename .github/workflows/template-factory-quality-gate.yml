@@ -391,6 +391,8 @@ jobs:
             const {owner,repo}=context.repo;
             const proofHead=context.payload.pull_request?.head?.sha??context.sha;
             const sha='${{ steps.live-proof.outputs.runtime_sha }}';
+            const runtimeMode='${{ steps.live-proof.outputs.mode }}';
+            const maxAttempts=runtimeMode==='CURRENT_HEAD'?90:1;
             const fail=(code,reason,actual)=>{
               fs.mkdirSync('artifacts/shoperation-command-diagnostics',{recursive:true});
               fs.writeFileSync('artifacts/shoperation-command-diagnostics/engine-functional-preview.json',JSON.stringify({
@@ -399,14 +401,20 @@ jobs:
                 decision:'FAIL',
                 sourceCommit:proofHead,
                 runtimeSourceCommit:sha,
-                errors:[{code,reason,expected:'Vercel deployment for the Atlas-selected runtime source with environment URL ready before engine proof',actual:actual??reason,evidence:[`proofHead=${proofHead}`,`runtimeSha=${sha}`]}]
+                errors:[{code,reason,expected:'non-production Vercel Preview deployment for the Atlas-selected runtime source with environment URL ready before engine proof',actual:actual??reason,evidence:[`proofHead=${proofHead}`,`runtimeSha=${sha}`]}]
               },null,2)+'\n');
               core.setFailed(code);
             };
             try{
-              for(let attempt=0;attempt<90;attempt+=1){
+              for(let attempt=0;attempt<maxAttempts;attempt+=1){
                 const deployments=await github.paginate(github.rest.repos.listDeployments,{owner,repo,sha,per_page:100});
                 for(const deployment of deployments){
+                  const environment=String(deployment.environment??'').trim().toLowerCase();
+                  const production=deployment.production_environment===true||environment==='production';
+                  if(production){
+                    core.info(`Rejecting production deployment ${deployment.id} for live proof: runtimeSha=${sha}.`);
+                    continue;
+                  }
                   const statuses=await github.paginate(github.rest.repos.listDeploymentStatuses,{owner,repo,deployment_id:deployment.id,per_page:100});
                   const ready=statuses.find(status=>{
                     if(status.state!=='success'||!status.environment_url)return false;
@@ -426,7 +434,8 @@ jobs:
                 }
                 await sleep(5000);
               }
-              fail('ENGINE_FUNCTIONAL_RUNTIME_PREVIEW_NOT_READY','Runtime-source Vercel deployment did not expose a ready environment URL before timeout','timeout');
+              if(runtimeMode==='CURRENT_HEAD')fail('ENGINE_FUNCTIONAL_RUNTIME_PREVIEW_NOT_READY','Current runtime-source Vercel Preview did not expose a ready environment URL before timeout','timeout');
+              else fail('ENGINE_FUNCTIONAL_RUNTIME_PREVIEW_ANCHOR_MISSING','No safe non-production Vercel Preview anchor exists for the Atlas-selected equivalent runtime source','preview-anchor-missing');
             }catch(error){
               fail('ENGINE_FUNCTIONAL_RUNTIME_PREVIEW_RESOLUTION_EXCEPTION',error instanceof Error?error.message:String(error),'exception');
             }
@@ -547,6 +556,8 @@ jobs:
             const {owner,repo}=context.repo;
             const proofHead=context.payload.pull_request?.head?.sha??context.sha;
             const sha='${{ steps.live-proof.outputs.runtime_sha }}';
+            const runtimeMode='${{ steps.live-proof.outputs.mode }}';
+            const maxAttempts=runtimeMode==='CURRENT_HEAD'?90:1;
             const fail=(code,reason,actual)=>{
               fs.mkdirSync('artifacts/shoperation-command-diagnostics',{recursive:true});
               fs.writeFileSync('artifacts/shoperation-command-diagnostics/product-owner-preview.json',JSON.stringify({
@@ -555,14 +566,20 @@ jobs:
                 decision:'FAIL',
                 sourceCommit:proofHead,
                 runtimeSourceCommit:sha,
-                errors:[{code,reason,expected:'Vercel deployment for the Atlas-selected runtime source with environment URL ready',actual:actual??reason,evidence:[`proofHead=${proofHead}`,`runtimeSha=${sha}`]}]
+                errors:[{code,reason,expected:'non-production Vercel Preview deployment for the Atlas-selected runtime source with environment URL ready',actual:actual??reason,evidence:[`proofHead=${proofHead}`,`runtimeSha=${sha}`]}]
               },null,2)+'\n');
               core.setFailed(code);
             };
             try{
-              for(let attempt=0;attempt<90;attempt+=1){
+              for(let attempt=0;attempt<maxAttempts;attempt+=1){
                 const deployments=await github.paginate(github.rest.repos.listDeployments,{owner,repo,sha,per_page:100});
                 for(const deployment of deployments){
+                  const environment=String(deployment.environment??'').trim().toLowerCase();
+                  const production=deployment.production_environment===true||environment==='production';
+                  if(production){
+                    core.info(`Rejecting production deployment ${deployment.id} for live proof: runtimeSha=${sha}.`);
+                    continue;
+                  }
                   const statuses=await github.paginate(github.rest.repos.listDeploymentStatuses,{owner,repo,deployment_id:deployment.id,per_page:100});
                   const ready=statuses.find(status=>{
                     if(status.state!=='success'||!status.environment_url)return false;
@@ -583,7 +600,8 @@ jobs:
                 if(vercel?.state==='success')core.info('GitHub deployment status is successful; waiting for the exact deployment environment URL instead of using a branch-specific alias.');
                 await sleep(5000);
               }
-              fail('RUNTIME_VERCEL_PREVIEW_NOT_READY','Runtime-source Vercel deployment did not expose a ready environment URL before timeout','timeout');
+              if(runtimeMode==='CURRENT_HEAD')fail('RUNTIME_VERCEL_PREVIEW_NOT_READY','Current runtime-source Vercel Preview did not expose a ready environment URL before timeout','timeout');
+              else fail('RUNTIME_VERCEL_PREVIEW_ANCHOR_MISSING','No safe non-production Vercel Preview anchor exists for the Atlas-selected equivalent runtime source','preview-anchor-missing');
             }catch(error){
               fail('RUNTIME_VERCEL_PREVIEW_RESOLUTION_EXCEPTION',error instanceof Error?error.message:String(error),'exception');
             }
