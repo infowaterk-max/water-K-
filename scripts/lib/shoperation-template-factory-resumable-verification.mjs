@@ -13,14 +13,7 @@ export function templateFactoryEvidenceChecksum(manifest){
 
 export function templateLiveProofInputPatterns(registry){
   const guard=(registry?.guards??[]).find(item=>item?.id==='GUARD-TEMPLATE-FACTORY');
-  return uniq([
-    ...(guard?.verification?.semanticInputs??[]),
-    ...(guard?.verification?.configurationInputs??[]),
-    ...(guard?.verification?.authorityInputs??[]),
-    ...(registry?.verificationReuse?.globalAuthorityInputs??[]),
-    ...(registry?.verificationReuse?.globalToolchainInputs??[]),
-    ...(registry?.verificationReuse?.promotion?.engineInputs??[]),
-  ].filter(Boolean)).sort();
+  return uniq([...(guard?.verification?.liveProofInputs??[])].filter(Boolean)).sort();
 }
 
 export function templateLiveProofInputContractDigest(registry){return digestObject({contract:'shoporation.template-factory-live-proof-inputs.v1',patterns:templateLiveProofInputPatterns(registry)});}
@@ -37,6 +30,22 @@ export function deriveTemplateLiveProofDecision({
 }={}){
   const inputPatterns=templateLiveProofInputPatterns(registry);
   const inputContractDigest=templateLiveProofInputContractDigest(registry);
+  if(!inputPatterns.length)return{
+    contract:'shoporation.template-factory-live-proof-decision.v1',
+    decision:'PASS',
+    mode:'REQUIRED',
+    reason:'live-proof-input-contract-missing',
+    sourceCommit:currentHead||null,
+    branch:currentBranch||null,
+    originSourceCommit:priorManifest?.sourceCommit??null,
+    originRunId:priorManifest?.runId??null,
+    originWorkflowConclusion:originWorkflowConclusion||null,
+    ancestorProven:Boolean(ancestorProven),
+    inputEquivalenceProven:false,
+    inputContractDigest,
+    changedFilesSinceOrigin:uniq(changedFilesSinceOrigin.filter(Boolean)).sort(),
+    affectedInputs:[],
+  };
   const changedFiles=uniq(changedFilesSinceOrigin.filter(Boolean)).sort();
   const affectedInputs=changedFiles.filter(file=>inputPatterns.some(pattern=>globToRegExp(pattern).test(file))).sort();
   const required=(reason,extra={})=>({
@@ -87,7 +96,9 @@ export function deriveTemplateLiveProofDecision({
 export function validateTemplateLiveProofRecord(record,{currentHead='',currentBranch='',currentRunId='',registry}={}){
   const issues=[];
   const mode=String(record?.mode??'').toUpperCase();
+  const inputPatterns=templateLiveProofInputPatterns(registry);
   const expectedDigest=templateLiveProofInputContractDigest(registry);
+  if(!inputPatterns.length)issues.push({code:'TEMPLATE_LIVE_PROOF_INPUT_CONTRACT_MISSING'});
   if(record?.contract!=='shoporation.template-factory-live-proof.v1')issues.push({code:'TEMPLATE_LIVE_PROOF_CONTRACT_INVALID'});
   if(record?.decision!=='PASS')issues.push({code:'TEMPLATE_LIVE_PROOF_DECISION_NOT_PASS'});
   if(record?.sourceCommit!==currentHead)issues.push({code:'TEMPLATE_LIVE_PROOF_HEAD_MISMATCH',expected:currentHead,actual:record?.sourceCommit??null});
