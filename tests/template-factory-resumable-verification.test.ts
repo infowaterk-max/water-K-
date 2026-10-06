@@ -43,8 +43,9 @@ describe('Template Factory resumable browser verification',()=>{
     expect(qualityGate).toContain('canonicalizeTemplateFactoryInfrastructureInput(file,readFileSync(file))');
   });
 
-  it('derives deployed runtime scope from canonical entrypoints plus Atlas forward dependencies',()=>{
-    const closure=deriveTemplateLiveRuntimeClosure({registry});
+  it('derives deployed runtime scope from canonical entrypoints plus the exact-head Atlas snapshot',()=>{
+    const atlas=JSON.parse(readFileSync('artifacts/shoperation-atlas/codebase-atlas.json','utf8'));
+    const closure=deriveTemplateLiveRuntimeClosure({registry,atlas});
     expect(closure.decision,JSON.stringify(closure.issues)).toBe('PASS');
     expect(closure.entrypoints).toContain('src/app/admin/platform/page.tsx');
     expect(closure.entrypoints).toContain('src/app/api/auth/workforce-login/page.tsx');
@@ -53,7 +54,7 @@ describe('Template Factory resumable browser verification',()=>{
     expect(closure.files.length).toBeGreaterThan(closure.entrypoints.length);
     expect(closure.files).not.toContain('.github/workflows/template-factory-quality-gate.yml');
     expect(closure.files).not.toContain('scripts/template-factory-quality-gate.mjs');
-  },30000);
+  });
 
   it('selects the latest runtime-changing commit while ignoring newer proof-engine-only commits',()=>{
     const runtimeFile='src/app/admin/platform/page.tsx';
