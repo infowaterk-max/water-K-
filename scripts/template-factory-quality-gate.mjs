@@ -724,7 +724,7 @@ const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   reason:liveProofReason||null,
 };
 if(liveProofMode!=='NOT_APPLICABLE'){
-  const liveValidation=validateTemplateLiveProofRecord(liveProof,{currentHead:headSha==='HEAD'?'':headSha,currentBranch,registry});
+  const liveValidation=validateTemplateLiveProofRecord(liveProof,{currentHead:headSha==='HEAD'?'':headSha,currentBranch,currentRunId,registry});
   if(!liveValidation.ok)errors.push(...liveValidation.issues.map(issue=>({code:issue.code,scope:'live-proof-provenance',...issue})));
 }
 const evidence={
