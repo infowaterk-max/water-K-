@@ -204,6 +204,10 @@ jobs:
           restore-keys: |
             template-factory-browser-v2-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-
 
+      - name: Resolve release-unit child transaction context
+        if: github.event_name == 'pull_request'
+        run: node scripts/release-unit-ci-context.mjs --check
+
       - name: Knowledge Before Build preflight
         id: knowledge
         env:
