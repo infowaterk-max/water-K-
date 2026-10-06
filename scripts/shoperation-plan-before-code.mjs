@@ -94,7 +94,8 @@ const releaseDecomposition=decomposeReleaseScope({
   targetBaseSha:plan.changeBaseSha,
 });
 if(projectedReleaseRisk.decision!=='PASS')issues.push({
-  code:releaseDecomposition.decision==='PASS'?'DEV_PLAN_RELEASE_DECOMPOSITION_REQUIRED':'DEV_PLAN_NO_SAFE_RELEASE_DECOMPOSITION',
+  code:'DEV_PLAN_PROJECTED_RELEASE_RISK_BLOCK',
+  releaseDisposition:releaseDecomposition.decision==='PASS'?'DECOMPOSITION_REQUIRED':'NO_SAFE_DECOMPOSITION',
   violations:projectedReleaseRisk.violations,
   score:projectedReleaseRisk.score,
   maxPoints:projectedReleaseRisk.maxPoints,
