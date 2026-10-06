@@ -46,10 +46,7 @@
     "SQ-NK-003",
     "SQ-NK-005",
     "SQ-NK-010",
-    "SQ-NK-011",
     "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -401,5 +398,5 @@
       }
     ]
   },
-  "notes": "Created from bounded rehearsal Failure Intake #982 after trusted executor run 37534207237 proved the missing Knowledge/Atlas → Release Risk producer-consumer edge. This is plan-only; no workflow implementation is authorized until Plan Before Code reconciles the exact projected scope/digest. Plan-only run 37534693459 projected 2 material files, release-infrastructure only, Release Risk 2/5, guard digest 128614ad, the reconciled 19 Known Failure IDs and 16 negative-knowledge IDs. Critical assurance depth is expanded to the canonical required technique/challenge/specialist profile before implementation."
+  "notes": "Created from bounded rehearsal Failure Intake #982 after trusted executor run 37534207237 proved the missing Knowledge/Atlas → Release Risk producer-consumer edge. This is plan-only; no workflow implementation is authorized until Plan Before Code reconciles the exact projected scope/digest. Plan-only run 37534693459 projected 2 material files, release-infrastructure only, Release Risk 2/5, guard digest 128614ad, the reconciled 19 Known Failure IDs and 16 negative-knowledge IDs. Critical assurance depth is expanded to the canonical required technique/challenge/specialist profile before implementation. Second plan-only projection confirmed all reconciled fields except negative-knowledge acknowledgement: projected applicability is the narrower 13-ID set now recorded here."
 }
