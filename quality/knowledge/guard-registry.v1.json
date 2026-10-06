@@ -99,7 +99,7 @@
           "scripts/release-unit-materialize.mjs",
           "scripts/release-unit-orchestrate.mjs",
           "scripts/release-unit-ci-context.mjs",
-          "scripts/lib/shoperation-release-unit-github-runtime.mjs",
+          "scripts/release-unit-github-runtime.mjs",
           "scripts/release-unit-execute.mjs"
         ],
         "configurationInputs": [
