@@ -695,7 +695,33 @@
         ],
         "produces": [
           "template.factory-proof"
-        ]
+        ],
+        "liveRuntime": {
+          "contract": "shoporation.template-factory-live-runtime.v1",
+          "dependencyAuthority": "codebase-atlas.forward-import-closure",
+          "entrypoints": [
+            "src/app/admin/platform/page.tsx",
+            "src/app/api/auth/workforce-login/page.tsx",
+            "src/app/storefront-template-preview/engine-proof/checkout/page.tsx",
+            "src/app/admin/platform/acceptance/[instanceId]/checkout/page.tsx",
+            "src/app/storefront-template-preview/page.tsx",
+            "src/app/storefront-template-preview-login/page.tsx",
+            "src/app/penztar/page.tsx",
+            "src/app/api/checkout/quote/route.ts"
+          ],
+          "includeAncestorLayouts": true,
+          "globalRuntimeInputs": [
+            "src/middleware.ts",
+            "src/app/layout.tsx",
+            "src/app/globals.css",
+            "next.config.*",
+            "vercel.json",
+            "package.json",
+            "package-lock.json"
+          ],
+          "unknownPolicy": "require-live",
+          "proofEngineInputsRemainIndependent": true
+        }
       }
     },
     {
