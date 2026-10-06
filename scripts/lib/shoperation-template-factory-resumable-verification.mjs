@@ -89,12 +89,11 @@ export function selectTemplateLiveRuntimeOrigin({baseSha='',currentHead='',runti
   if(!files.size)issues.push({code:'TEMPLATE_LIVE_RUNTIME_FILE_CLOSURE_EMPTY'});
   if(issues.length)return{contract:'shoporation.template-factory-live-runtime-origin.v1',decision:'BLOCK',issues,runtimeSourceCommit:null,mode:'UNKNOWN',changedFilesSinceOrigin:[],affectedInputs:[]};
   const history=(commitHistory??[]).filter(item=>item?.sha);
-  const latest=history.find(item=>(item.files??[]).some(file=>files.has(file)))??null;
+  const latestIndex=history.findIndex(item=>(item.files??[]).some(file=>files.has(file)));
+  const latest=latestIndex>=0?history[latestIndex]:null;
   const runtimeSourceCommit=latest?.sha??baseSha;
-  const changedFilesSinceOrigin=uniq(history
-    .filter(item=>item.sha!==runtimeSourceCommit)
-    .flatMap(item=>item.files??[]))
-    .sort();
+  const commitsAfterOrigin=latestIndex>=0?history.slice(0,latestIndex):history;
+  const changedFilesSinceOrigin=uniq(commitsAfterOrigin.flatMap(item=>item.files??[])).sort();
   const affectedInputs=changedFilesSinceOrigin.filter(file=>files.has(file)).sort();
   if(affectedInputs.length)issues.push({code:'TEMPLATE_LIVE_RUNTIME_ORIGIN_NOT_LATEST',runtimeSourceCommit,affectedInputs});
   return{
