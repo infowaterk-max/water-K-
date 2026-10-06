@@ -123,6 +123,13 @@ describe('Control Plane ecosystem chain',()=>{
     expect(requiredExternalCompletionGuards({activePlan,verificationPlan,guardRegistry:registry})).toContain('GUARD-TEMPLATE-FACTORY');
   });
 
+  it('keeps external-proof detection and resumable reconciliation on the same canonical requirement derivation',()=>{
+    const checkpoint=readFileSync('scripts/shoperation-verification-checkpoint.mjs','utf8');
+    expect(checkpoint).toContain('requiredExternalCompletionGuards({activePlan,verificationPlan:plan,guardRegistry})');
+    expect(checkpoint).toContain('...completionEvidenceGuardIds(activePlan),...derivedExternalGuardIds');
+    expect(checkpoint).not.toContain('requiredIds:completionEvidenceGuardIds(activePlan)');
+  });
+
   it('makes future plan generation write transaction identity, implementation skeleton and downstream proof obligations before code',()=>{
     const guard=readFileSync('scripts/shoperation-development-guard.mjs','utf8');
     const plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
