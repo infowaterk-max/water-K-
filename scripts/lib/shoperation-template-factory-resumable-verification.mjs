@@ -1,5 +1,6 @@
 import {createHash} from 'node:crypto';
 import {globToRegExp} from './shoperation-development-runtime.mjs';
+import {buildCodebaseAtlas} from './shoperation-codebase-atlas-runtime.mjs';
 import {canonicalizeVerificationEngineInput,classifySemanticUnits,digestObject} from './shoperation-verification-reuse.mjs';
 
 const uniq=values=>[...new Set(values)];
@@ -11,22 +12,98 @@ export function templateFactoryEvidenceChecksum(manifest){
   return createHash('sha256').update(canonicalJson(copy)).digest('hex');
 }
 
-export function templateLiveProofInputPatterns(registry){
+export function templateLiveRuntimeContract(registry){
   const guard=(registry?.guards??[]).find(item=>item?.id==='GUARD-TEMPLATE-FACTORY');
-  return uniq([
-    ...(guard?.verification?.semanticInputs??[]),
-    ...(guard?.verification?.configurationInputs??[]),
-    ...(guard?.verification?.authorityInputs??[]),
-    ...(registry?.verificationReuse?.globalAuthorityInputs??[]),
-    ...(registry?.verificationReuse?.globalToolchainInputs??[]),
-    ...(registry?.verificationReuse?.promotion?.engineInputs??[]),
-  ].filter(Boolean)).sort();
+  return guard?.chain?.liveRuntime??null;
 }
 
-export function templateLiveProofInputContractDigest(registry){return digestObject({contract:'shoporation.template-factory-live-proof-inputs.v1',patterns:templateLiveProofInputPatterns(registry)});}
+function ancestorLayoutCandidates(file){
+  if(!String(file).startsWith('src/app/'))return[];
+  const parts=String(file).split('/').slice(0,-1),out=[];
+  while(parts.length>=2){
+    const dir=parts.join('/');
+    for(const name of ['layout.tsx','layout.ts','layout.jsx','layout.js'])out.push(dir+'/'+name);
+    if(dir==='src/app')break;
+    parts.pop();
+  }
+  return out;
+}
+
+export function deriveTemplateLiveRuntimeClosure({registry,atlas}={}){
+  const contract=templateLiveRuntimeContract(registry);
+  const runtimeAtlas=atlas??buildCodebaseAtlas();
+  const byPath=new Map((runtimeAtlas?.nodes??[]).map(node=>[node.path,node]));
+  if(!contract)return{
+    contract:'shoporation.template-factory-live-runtime-closure.v1',
+    decision:'BLOCK',issues:[{code:'TEMPLATE_LIVE_RUNTIME_CONTRACT_MISSING'}],
+    entrypoints:[],ancestorLayouts:[],dependencyFiles:[],globalFiles:[],files:[],unresolvedImports:[],
+  };
+  const entrypoints=uniq(contract.entrypoints??[]).sort();
+  const missingEntrypoints=entrypoints.filter(file=>!byPath.has(file));
+  const start=entrypoints.filter(file=>byPath.has(file));
+  const ancestorLayouts=contract.includeAncestorLayouts===true
+    ?uniq(start.flatMap(ancestorLayoutCandidates).filter(file=>byPath.has(file))).sort()
+    :[];
+  const queue=[...new Set([...start,...ancestorLayouts])],visited=new Set(queue);
+  while(queue.length){
+    const current=queue.shift(),node=byPath.get(current);
+    for(const target of node?.imports??[]){
+      if(visited.has(target))continue;
+      visited.add(target);queue.push(target);
+    }
+  }
+  const globalMatchers=(contract.globalRuntimeInputs??[]).map(pattern=>({pattern,matcher:globToRegExp(pattern)}));
+  const globalFiles=(runtimeAtlas?.nodes??[])
+    .map(node=>node.path)
+    .filter(file=>globalMatchers.some(item=>item.matcher.test(file)))
+    .sort();
+  for(const file of globalFiles)visited.add(file);
+  const unresolvedImports=(runtimeAtlas?.unresolvedInternalImports??[]).filter(item=>visited.has(item.from));
+  const issues=[
+    ...missingEntrypoints.map(file=>({code:'TEMPLATE_LIVE_RUNTIME_ENTRYPOINT_MISSING',file})),
+    ...unresolvedImports.map(item=>({code:'TEMPLATE_LIVE_RUNTIME_IMPORT_UNRESOLVED',from:item.from,specifier:item.specifier})),
+  ];
+  const dependencyFiles=[...visited].filter(file=>!entrypoints.includes(file)&&!ancestorLayouts.includes(file)&&!globalFiles.includes(file)).sort();
+  return{
+    contract:'shoporation.template-factory-live-runtime-closure.v1',
+    authority:contract.dependencyAuthority??'codebase-atlas.forward-import-closure',
+    decision:issues.length?'BLOCK':'PASS',
+    issues,
+    entrypoints,
+    ancestorLayouts,
+    dependencyFiles,
+    globalPatterns:[...(contract.globalRuntimeInputs??[])],
+    globalFiles,
+    files:[...visited].sort(),
+    unresolvedImports,
+  };
+}
+
+export function templateLiveProofInputPatterns(registry){
+  const contract=templateLiveRuntimeContract(registry);
+  return uniq([...(contract?.entrypoints??[]),...(contract?.globalRuntimeInputs??[])]).sort();
+}
+
+export function templateLiveProofInputContractDigest(registry,runtimeClosure){
+  const closure=runtimeClosure??deriveTemplateLiveRuntimeClosure({registry});
+  return digestObject({
+    contract:'shoporation.template-factory-live-proof-inputs.v2',
+    runtimeContract:templateLiveRuntimeContract(registry),
+    closure:{
+      authority:closure.authority??null,
+      entrypoints:closure.entrypoints??[],
+      ancestorLayouts:closure.ancestorLayouts??[],
+      dependencyFiles:closure.dependencyFiles??[],
+      globalPatterns:closure.globalPatterns??[],
+      globalFiles:closure.globalFiles??[],
+      files:closure.files??[],
+    },
+  });
+}
 
 export function deriveTemplateLiveProofDecision({
   registry,
+  runtimeClosure,
   priorManifest=null,
   priorManifestChecksumValid=false,
   currentHead='',
@@ -35,10 +112,11 @@ export function deriveTemplateLiveProofDecision({
   originWorkflowConclusion='',
   changedFilesSinceOrigin=[],
 }={}){
-  const inputPatterns=templateLiveProofInputPatterns(registry);
-  const inputContractDigest=templateLiveProofInputContractDigest(registry);
+  const closure=runtimeClosure??deriveTemplateLiveRuntimeClosure({registry});
+  const inputContractDigest=templateLiveProofInputContractDigest(registry,closure);
   const changedFiles=uniq(changedFilesSinceOrigin.filter(Boolean)).sort();
-  const affectedInputs=changedFiles.filter(file=>inputPatterns.some(pattern=>globToRegExp(pattern).test(file))).sort();
+  const runtimeFiles=new Set(closure.files??[]);
+  const affectedInputs=changedFiles.filter(file=>runtimeFiles.has(file)).sort();
   const required=(reason,extra={})=>({
     contract:'shoporation.template-factory-live-proof-decision.v1',
     decision:'PASS',
@@ -52,10 +130,17 @@ export function deriveTemplateLiveProofDecision({
     ancestorProven:Boolean(ancestorProven),
     inputEquivalenceProven:false,
     inputContractDigest,
+    runtimeClosureDecision:closure.decision,
+    runtimeEntrypoints:closure.entrypoints??[],
+    runtimeAncestorLayouts:closure.ancestorLayouts??[],
+    runtimeDependencyFiles:closure.dependencyFiles??[],
+    runtimeGlobalFiles:closure.globalFiles??[],
+    runtimeUnknowns:closure.issues??[],
     changedFilesSinceOrigin:changedFiles,
     affectedInputs,
     ...extra,
   });
+  if(closure.decision!=='PASS')return required('template-live-runtime-closure-unproven');
   if(!priorManifest)return required('prior-live-proof-manifest-missing');
   if(priorManifest.contract!=='shoporation.template-factory-quality-evidence.v2')return required('prior-live-proof-contract-invalid');
   if(priorManifest.complete!==true||(priorManifest.errors??[]).length)return required('prior-live-proof-incomplete');
@@ -65,12 +150,12 @@ export function deriveTemplateLiveProofDecision({
   if(!priorManifest.sourceCommit||priorManifest.sourceCommit===currentHead)return required('prior-live-proof-origin-not-ancestor');
   if(!ancestorProven)return required('prior-live-proof-ancestry-unproven');
   if(String(originWorkflowConclusion).toLowerCase()!=='success')return required('prior-live-proof-workflow-not-success');
-  if(affectedInputs.length)return required('template-live-proof-input-changed');
+  if(affectedInputs.length)return required('template-live-runtime-input-changed');
   return{
     contract:'shoporation.template-factory-live-proof-decision.v1',
     decision:'PASS',
     mode:'REUSE',
-    reason:'template-live-proof-inputs-equivalent',
+    reason:'template-live-runtime-inputs-equivalent',
     sourceCommit:currentHead,
     branch:currentBranch,
     originSourceCommit:priorManifest.sourceCommit,
@@ -79,15 +164,23 @@ export function deriveTemplateLiveProofDecision({
     ancestorProven:true,
     inputEquivalenceProven:true,
     inputContractDigest,
+    runtimeClosureDecision:closure.decision,
+    runtimeEntrypoints:closure.entrypoints??[],
+    runtimeAncestorLayouts:closure.ancestorLayouts??[],
+    runtimeDependencyFiles:closure.dependencyFiles??[],
+    runtimeGlobalFiles:closure.globalFiles??[],
+    runtimeUnknowns:[],
     changedFilesSinceOrigin:changedFiles,
     affectedInputs:[],
   };
 }
 
-export function validateTemplateLiveProofRecord(record,{currentHead='',currentBranch='',currentRunId='',registry}={}){
+export function validateTemplateLiveProofRecord(record,{currentHead='',currentBranch='',currentRunId='',registry,runtimeClosure}={}){
   const issues=[];
   const mode=String(record?.mode??'').toUpperCase();
-  const expectedDigest=templateLiveProofInputContractDigest(registry);
+  const closure=runtimeClosure??deriveTemplateLiveRuntimeClosure({registry});
+  const expectedDigest=templateLiveProofInputContractDigest(registry,closure);
+  if(closure.decision!=='PASS')issues.push({code:'TEMPLATE_LIVE_RUNTIME_CLOSURE_UNPROVEN',issues:closure.issues});
   if(record?.contract!=='shoporation.template-factory-live-proof.v1')issues.push({code:'TEMPLATE_LIVE_PROOF_CONTRACT_INVALID'});
   if(record?.decision!=='PASS')issues.push({code:'TEMPLATE_LIVE_PROOF_DECISION_NOT_PASS'});
   if(record?.sourceCommit!==currentHead)issues.push({code:'TEMPLATE_LIVE_PROOF_HEAD_MISMATCH',expected:currentHead,actual:record?.sourceCommit??null});
@@ -103,6 +196,8 @@ export function validateTemplateLiveProofRecord(record,{currentHead='',currentBr
     if(record?.originWorkflowConclusion!=='success')issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_WORKFLOW_NOT_SUCCESS'});
     if(record?.ancestorProven!==true)issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_ANCESTRY_UNPROVEN'});
     if(record?.inputEquivalenceProven!==true)issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_INPUT_EQUIVALENCE_UNPROVEN'});
+    if(record?.runtimeClosureDecision!=='PASS')issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_RUNTIME_CLOSURE_UNPROVEN',actual:record?.runtimeClosureDecision??null});
+    if(!Array.isArray(record?.runtimeEntrypoints)||!record.runtimeEntrypoints.length)issues.push({code:'TEMPLATE_LIVE_PROOF_RUNTIME_ENTRYPOINTS_MISSING'});
     if(!Array.isArray(record?.affectedInputs)||record.affectedInputs.length)issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_AFFECTED_INPUTS_PRESENT',affectedInputs:record?.affectedInputs??null});
   }else{
     issues.push({code:'TEMPLATE_LIVE_PROOF_MODE_INVALID',actual:record?.mode??null});
