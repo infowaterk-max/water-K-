@@ -707,7 +707,9 @@
         "deploy/**",
         "scripts/release-**",
         "**/next.config.ts",
-        "scripts/smoke.mjs"
+        "scripts/smoke.mjs",
+        "package.json",
+        "package-lock.json"
       ],
       "evidenceObligations": [
         "Release Risk Budget",
