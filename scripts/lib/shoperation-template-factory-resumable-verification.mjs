@@ -313,6 +313,15 @@ export function validateTemplateLiveProofRecord(record,{currentHead='',currentBr
     else if(currentRunId&&String(record.originRunId)!==String(currentRunId))issues.push({code:'TEMPLATE_LIVE_PROOF_LIVE_RUN_MISMATCH',expected:String(currentRunId),actual:String(record.originRunId)});
     if(!String(record?.runtimeSourceCommit??'').trim())issues.push({code:'TEMPLATE_LIVE_PROOF_RUNTIME_SOURCE_MISSING'});
     if(!String(record?.runtimeOriginMode??'').trim())issues.push({code:'TEMPLATE_LIVE_PROOF_RUNTIME_MODE_MISSING'});
+    if(!String(record?.deploymentSourceCommit??'').trim())issues.push({code:'TEMPLATE_LIVE_PROOF_DEPLOYMENT_SOURCE_MISSING'});
+    if(!String(record?.deploymentAnchorMode??'').trim())issues.push({code:'TEMPLATE_LIVE_PROOF_DEPLOYMENT_ANCHOR_MODE_MISSING'});
+    if(record?.deploymentRuntimeEquivalenceProven!==true)issues.push({code:'TEMPLATE_LIVE_PROOF_DEPLOYMENT_EQUIVALENCE_UNPROVEN'});
+    if(String(record?.deploymentEnvironment??'').trim().toLowerCase()!=='preview')issues.push({code:'TEMPLATE_LIVE_PROOF_DEPLOYMENT_NOT_PREVIEW',actual:record?.deploymentEnvironment??null});
+    if(!String(record?.deploymentId??'').trim())issues.push({code:'TEMPLATE_LIVE_PROOF_DEPLOYMENT_ID_MISSING'});
+    if(record?.deploymentSourceCommit&&record?.runtimeSourceCommit){
+      const expectedAnchorMode=record.deploymentSourceCommit===record.runtimeSourceCommit?'EXACT_RUNTIME':'ANCESTOR_EQUIVALENT';
+      if(record.deploymentAnchorMode!==expectedAnchorMode)issues.push({code:'TEMPLATE_LIVE_PROOF_DEPLOYMENT_ANCHOR_MODE_MISMATCH',expected:expectedAnchorMode,actual:record.deploymentAnchorMode??null});
+    }
     if(record?.runtimeSourceCommit&&record.runtimeSourceCommit!==currentHead&&record?.runtimeEquivalenceProven!==true)issues.push({code:'TEMPLATE_LIVE_PROOF_RUNTIME_EQUIVALENCE_UNPROVEN'});
     if(Array.isArray(record?.affectedInputs)&&record.affectedInputs.length)issues.push({code:'TEMPLATE_LIVE_PROOF_RUNTIME_AFFECTED_INPUTS_PRESENT',affectedInputs:record.affectedInputs});
   }else if(mode==='REUSED'){
