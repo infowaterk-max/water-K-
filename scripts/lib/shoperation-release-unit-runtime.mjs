@@ -355,12 +355,351 @@ export function materializeReleaseUnit({manifest,sourceCommit=null,targetRef='re
       git(cwd,['update-index','--add','--cacheinfo',`${desired.fileMode},${desired.blobSha},${operation.file}`],{env});applied.push(operation);
     }
     const tree=git(cwd,['write-tree'],{env}),baseTree=git(cwd,['rev-parse',`${sealed.targetBaseSha}^{tree}`]);
-    if(tree===baseTree)return{contract:'shoporation.release-unit-materialization.v1',status:'ALREADY_APPLIED',releaseUnitId:sealed.releaseUnitId,targetBaseSha:sealed.targetBaseSha,commitSha:null,applied,alreadyApplied};
+    if(tree===baseTree)return{contract:'shoporation.release-unit-materialization.v1',status:'ALREADY_APPLIED',releaseUnitId:sealed.releaseUnitId,targetBaseSha:sealed.targetBaseSha,commitSha:null,materializedHeadSha:sealed.targetBaseSha,manifestDigest:sealed.manifestDigest,sourceCommit:sealed.sourceIdentity.sourceCommit,applied,alreadyApplied};
     const commitMessage=message??`Materialize ${sealed.releaseUnitId}`;
     const commit=git(cwd,['commit-tree',tree,'-p',sealed.targetBaseSha,'-m',commitMessage]);
     if(updateRef)git(cwd,['update-ref',targetRef,commit,sealed.targetBaseSha]);
-    return{contract:'shoporation.release-unit-materialization.v1',status:updateRef?'APPLIED':'PREPARED',releaseUnitId:sealed.releaseUnitId,targetBaseSha:sealed.targetBaseSha,commitSha:commit,treeSha:tree,applied,alreadyApplied};
+    return{contract:'shoporation.release-unit-materialization.v1',status:updateRef?'APPLIED':'PREPARED',releaseUnitId:sealed.releaseUnitId,targetBaseSha:sealed.targetBaseSha,commitSha:commit,materializedHeadSha:commit,treeSha:tree,manifestDigest:sealed.manifestDigest,sourceCommit:sealed.sourceIdentity.sourceCommit,applied,alreadyApplied};
   }finally{rmSync(temp,{recursive:true,force:true});}
+}
+
+
+export const RELEASE_UNIT_EXECUTION_CONTRACT='shoporation.release-unit-execution.v1';
+export const RELEASE_PARENT_EXECUTION_CONTRACT='shoporation.release-parent-execution.v1';
+export const RELEASE_UNIT_EXECUTION_STATES=Object.freeze(['PLANNED','BLOCKED','READY','MATERIALIZED','PR_OPEN','VERIFIED','MERGED','STALE','FAILED','CLOSED']);
+
+const executionClone=value=>structuredClone(value);
+const sameJson=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const requiredText=(value,code)=>{const normalized=String(value??'').trim();if(!normalized)throw new Error(code);return normalized;};
+const executionError=(code,details={})=>{const error=new Error(code);error.code=code;error.details=details;throw error;};
+const sortedObjects=(items=[])=>[...items].map(item=>executionClone(item)).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)));
+const normalizedEvidence=value=>({
+  gateIds:uniq(value?.gateIds??[]),
+  proofFiles:uniq(value?.proofFiles??[]),
+  externalGateIds:uniq(value?.externalGateIds??[]),
+});
+const normalizedExecutionObligations=manifest=>({
+  releaseUnitId:manifest?.releaseUnitId??null,
+  parentTransactionId:manifest?.transaction?.parentTransactionId??manifest?.transaction?.id??null,
+  order:Number(manifest?.order??0),
+  intendedFiles:uniq(manifest?.intendedFiles??[]),
+  operations:sortedObjects(manifest?.operations??[]),
+  requiredDependencyFiles:uniq(manifest?.requiredDependencyFiles??[]),
+  authorities:uniq(manifest?.authorities??[]),
+  subsystems:uniq(manifest?.subsystems??[]),
+  requiredGates:uniq(manifest?.requiredGates??[]),
+  requiredEvidence:normalizedEvidence(manifest?.requiredEvidence),
+  forbiddenPaths:uniq(manifest?.forbiddenPaths??[]),
+  readOnlyPaths:uniq(manifest?.readOnlyPaths??[]),
+  generatedArtifactSemantics:sortedObjects(manifest?.generatedArtifactSemantics??[]),
+  predecessorUnits:uniq(manifest?.predecessorUnits??[]),
+  projectedRiskDecision:manifest?.projectedRisk?.decision??null,
+});
+const obligationDrift=(before,after)=>{
+  const a=normalizedExecutionObligations(before),b=normalizedExecutionObligations(after);
+  return Object.keys(a).filter(key=>!sameJson(a[key],b[key])).map(key=>({field:key,before:a[key],after:b[key]}));
+};
+const unitBlock=(execution,state,code,details={})=>({
+  ...executionClone(execution),
+  state,
+  blocker:{code,details},
+  lastTransition:{to:state,code},
+});
+
+export function projectReleaseUnitTransaction(manifest){
+  if(manifest?.contract!==RELEASE_UNIT_MANIFEST_CONTRACT)executionError('RELEASE_UNIT_MANIFEST_CONTRACT_INVALID');
+  const releaseUnitId=requiredText(manifest.releaseUnitId,'RELEASE_UNIT_ID_REQUIRED');
+  return{
+    contract:'shoporation.release-unit-transaction-projection.v1',
+    releaseUnitId,
+    parentTransactionId:manifest.transaction?.parentTransactionId??manifest.transaction?.id??null,
+    branchRef:'release-unit/'+releaseUnitId.toLowerCase().replace(/[^a-z0-9._/-]+/g,'-'),
+    changeBaseSha:manifest.targetBaseSha??null,
+    manifestDigest:manifest.manifestDigest??null,
+    plannedFilePatterns:uniq(manifest.intendedFiles??[]),
+    operations:executionClone(manifest.operations??[]),
+    authorities:uniq(manifest.authorities??[]),
+    subsystems:uniq(manifest.subsystems??[]),
+    requiredGates:uniq(manifest.requiredGates??[]),
+    requiredEvidence:normalizedEvidence(manifest.requiredEvidence),
+    forbiddenPaths:uniq(manifest.forbiddenPaths??[]),
+    readOnlyPaths:uniq(manifest.readOnlyPaths??[]),
+    sourceIdentity:executionClone(manifest.sourceIdentity??null),
+  };
+}
+
+export function createReleaseUnitExecution(manifest){
+  if(manifest?.contract!==RELEASE_UNIT_MANIFEST_CONTRACT)executionError('RELEASE_UNIT_MANIFEST_CONTRACT_INVALID');
+  if(manifest.decision!=='PASS')executionError('RELEASE_UNIT_MANIFEST_NOT_PASS');
+  requiredText(manifest.releaseUnitId,'RELEASE_UNIT_ID_REQUIRED');
+  requiredText(manifest.manifestDigest,'RELEASE_UNIT_MANIFEST_DIGEST_REQUIRED');
+  return{
+    contract:RELEASE_UNIT_EXECUTION_CONTRACT,
+    releaseUnitId:manifest.releaseUnitId,
+    parentTransactionId:manifest.transaction?.parentTransactionId??manifest.transaction?.id??null,
+    order:Number(manifest.order??0),
+    state:'PLANNED',
+    manifest:executionClone(manifest),
+    executionTransaction:projectReleaseUnitTransaction(manifest),
+    authorization:null,
+    materialization:null,
+    pullRequest:null,
+    verification:null,
+    merge:null,
+    closeReceipt:null,
+    blocker:null,
+    lastTransition:{to:'PLANNED',code:'RELEASE_UNIT_PLANNED'},
+  };
+}
+
+export function createReleaseParentExecution(decomposition){
+  if(decomposition?.contract!==RELEASE_DECOMPOSITION_CONTRACT)executionError('RELEASE_DECOMPOSITION_CONTRACT_INVALID');
+  if(decomposition.decision!=='PASS')executionError('RELEASE_DECOMPOSITION_NOT_PASS');
+  const manifests=[...(decomposition.releaseUnits??[])].sort((a,b)=>Number(a.order)-Number(b.order));
+  if(!manifests.length)executionError('RELEASE_PARENT_UNITS_REQUIRED');
+  const ordering=validateReleaseUnitOrder(manifests);
+  if(ordering.decision!=='PASS')executionError('RELEASE_PARENT_UNIT_ORDER_INVALID',{ordering});
+  const units=manifests.map(createReleaseUnitExecution);
+  const parentTransactionId=units[0].parentTransactionId;
+  if(!parentTransactionId||units.some(unit=>unit.parentTransactionId!==parentTransactionId))executionError('RELEASE_PARENT_TRANSACTION_ID_DRIFT');
+  return{
+    contract:RELEASE_PARENT_EXECUTION_CONTRACT,
+    parentTransactionId,
+    decompositionContract:decomposition.contract,
+    manifestChainDigest:digest(manifests.map(item=>({id:item.releaseUnitId,digest:item.manifestDigest,order:item.order}))),
+    lifecyclePhase:'EXECUTE',
+    unitIds:units.map(unit=>unit.releaseUnitId),
+    activeUnitId:units[0].releaseUnitId,
+    units,
+    blocker:null,
+    closureEligible:false,
+    closureComplete:false,
+    closedReceipt:null,
+  };
+}
+
+const unitById=(parent,id)=>{
+  if(parent?.contract!==RELEASE_PARENT_EXECUTION_CONTRACT)executionError('RELEASE_PARENT_EXECUTION_CONTRACT_INVALID');
+  const unit=(parent.units??[]).find(item=>item.releaseUnitId===id);
+  if(!unit)executionError('RELEASE_PARENT_UNIT_UNKNOWN',{releaseUnitId:id});
+  return unit;
+};
+
+export function synchronizeReleaseParentExecution(parent,nextUnit){
+  const next=executionClone(parent);
+  const index=(next.units??[]).findIndex(item=>item.releaseUnitId===nextUnit?.releaseUnitId);
+  if(index<0)executionError('RELEASE_PARENT_UNIT_UNKNOWN',{releaseUnitId:nextUnit?.releaseUnitId});
+  next.units[index]=executionClone(nextUnit);
+  const terminalBlock=next.units.find(item=>['BLOCKED','STALE','FAILED'].includes(item.state));
+  const firstOpen=next.units.find(item=>item.state!=='CLOSED');
+  next.activeUnitId=firstOpen?.releaseUnitId??null;
+  next.blocker=terminalBlock?{releaseUnitId:terminalBlock.releaseUnitId,...executionClone(terminalBlock.blocker)}:null;
+  next.closureEligible=next.units.length>0&&next.units.every(item=>item.state==='CLOSED');
+  next.lifecyclePhase=next.closureEligible?'TRUTH_GATE':'EXECUTE';
+  if(!next.closureEligible)next.closureComplete=false;
+  return next;
+}
+
+function predecessorResult(execution,{currentMainSha,predecessorExecutions=[]}={}){
+  const required=uniq(execution.manifest?.predecessorUnits??[]);
+  if(!required.length)return{decision:'PASS',sequence:null};
+  const byId=new Map((predecessorExecutions??[]).map(item=>[item.releaseUnitId,item]));
+  for(const id of required){
+    const predecessor=byId.get(id);
+    if(!predecessor)return{decision:'BLOCK',code:'RELEASE_UNIT_PREDECESSOR_RECEIPT_MISSING',details:{predecessor:id}};
+    if(predecessor.state!=='CLOSED')return{decision:'BLOCK',code:'RELEASE_UNIT_PREDECESSOR_NOT_CLOSED',details:{predecessor:id,state:predecessor.state}};
+    if(!predecessor.merge?.mergedMainSha||!predecessor.merge?.sourceHeadSha)return{decision:'BLOCK',code:'RELEASE_UNIT_PREDECESSOR_MERGE_RECEIPT_MISSING',details:{predecessor:id}};
+    if(predecessor.verification?.truthStatus!=='VERIFIED'||predecessor.verification?.lifecycleState!=='LEARN')return{decision:'BLOCK',code:'RELEASE_UNIT_PREDECESSOR_PROOF_INCOMPLETE',details:{predecessor:id}};
+  }
+  const sequence=[...byId.values()].find(item=>required.includes(item.releaseUnitId)&&Number(item.order)===Number(execution.order)-1)??null;
+  if(!sequence)return{decision:'BLOCK',code:'RELEASE_UNIT_SEQUENCE_PREDECESSOR_MISSING',details:{order:execution.order}};
+  if(sequence.merge.mergedMainSha!==currentMainSha)return{decision:'STALE',code:'RELEASE_UNIT_MAIN_DRIFT',details:{expected:sequence.merge.mergedMainSha,actual:currentMainSha}};
+  return{decision:'PASS',sequence};
+}
+
+export function reconcileSuccessorReleaseUnit({execution,freshManifest,currentMainSha,predecessorExecutions=[],allFreshManifests=[]}={}){
+  if(execution?.contract!==RELEASE_UNIT_EXECUTION_CONTRACT)executionError('RELEASE_UNIT_EXECUTION_CONTRACT_INVALID');
+  if(execution.state!=='PLANNED')executionError('RELEASE_UNIT_RECONCILIATION_STATE_INVALID',{state:execution.state});
+  if(freshManifest?.contract!==RELEASE_UNIT_MANIFEST_CONTRACT)return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_FRESH_MANIFEST_REQUIRED',details:{}};
+  if(freshManifest.releaseUnitId!==execution.releaseUnitId)return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_FRESH_MANIFEST_IDENTITY_MISMATCH',details:{expected:execution.releaseUnitId,actual:freshManifest.releaseUnitId}};
+  if((freshManifest.transaction?.parentTransactionId??freshManifest.transaction?.id)!==execution.parentTransactionId)return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_PARENT_IDENTITY_MISMATCH',details:{}};
+  if(freshManifest.decision!=='PASS')return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_FRESH_MANIFEST_NOT_PASS',details:{decision:freshManifest.decision,reason:freshManifest.reason??null}};
+  if(freshManifest.projectedRisk?.decision!=='PASS')return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_FRESH_RISK_BLOCK',details:{risk:freshManifest.projectedRisk??null}};
+  if(!currentMainSha||freshManifest.targetBaseSha!==currentMainSha||freshManifest.lease?.expectedBaseSha!==currentMainSha)return{decision:'STALE',state:'STALE',code:'RELEASE_UNIT_FRESH_BASE_STALE',details:{currentMainSha,targetBaseSha:freshManifest.targetBaseSha,lease:freshManifest.lease??null}};
+  const predecessor=predecessorResult(execution,{currentMainSha,predecessorExecutions});
+  if(predecessor.decision!=='PASS')return{decision:predecessor.decision,state:predecessor.decision==='STALE'?'STALE':'BLOCKED',code:predecessor.code,details:predecessor.details};
+  if((execution.manifest?.predecessorUnits??[]).length&&freshManifest.lease?.reconciled!==true)return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_FRESH_RECONCILIATION_REQUIRED',details:{lease:freshManifest.lease??null}};
+  const blocked=forbiddenHits(freshManifest.operations??[],freshManifest.forbiddenPaths??[],freshManifest.readOnlyPaths??[]);
+  if(blocked.length)return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_FRESH_FORBIDDEN_SCOPE',details:{blocked}};
+  const manifests=allFreshManifests?.length?allFreshManifests:[freshManifest];
+  if(manifests.length>1){
+    const ordering=validateReleaseUnitOrder(manifests);
+    if(ordering.decision!=='PASS')return{decision:'FAIL',state:'FAILED',code:'RELEASE_UNIT_RECONCILIATION_CYCLE',details:{ordering}};
+  }
+  const drift=obligationDrift(execution.manifest,freshManifest);
+  if(drift.length)return{decision:'STALE',state:'STALE',code:'RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT',details:{drift}};
+  return{decision:'PASS',state:'READY',code:'RELEASE_UNIT_RECONCILED',details:{currentMainSha},manifest:executionClone(freshManifest)};
+}
+
+export function authorizeReleaseUnit(execution,context={}){
+  const result=reconcileSuccessorReleaseUnit({execution,...context});
+  if(result.decision!=='PASS')return unitBlock(execution,result.state,result.code,result.details);
+  const next=executionClone(execution);
+  next.manifest=result.manifest;
+  next.executionTransaction=projectReleaseUnitTransaction(result.manifest);
+  next.state='READY';
+  next.authorization={
+    manifestDigest:result.manifest.manifestDigest,
+    targetBaseSha:result.manifest.targetBaseSha,
+    currentMainSha:context.currentMainSha,
+    predecessorUnitIds:uniq(result.manifest.predecessorUnits??[]),
+  };
+  next.blocker=null;
+  next.lastTransition={to:'READY',code:'RELEASE_UNIT_AUTHORIZED'};
+  return next;
+}
+
+export function recordReleaseUnitMaterialization(execution,receipt){
+  if(execution?.contract!==RELEASE_UNIT_EXECUTION_CONTRACT)executionError('RELEASE_UNIT_EXECUTION_CONTRACT_INVALID');
+  if(execution.state==='MATERIALIZED'){
+    if(sameJson(execution.materialization,receipt))return executionClone(execution);
+    executionError('RELEASE_UNIT_MATERIALIZATION_CONFLICT');
+  }
+  if(execution.state!=='READY')executionError('RELEASE_UNIT_MATERIALIZATION_STATE_INVALID',{state:execution.state});
+  if(receipt?.contract!=='shoporation.release-unit-materialization.v1')executionError('RELEASE_UNIT_MATERIALIZATION_RECEIPT_INVALID');
+  if(receipt.releaseUnitId!==execution.releaseUnitId)executionError('RELEASE_UNIT_MATERIALIZATION_UNIT_MISMATCH');
+  if(receipt.targetBaseSha!==execution.manifest.targetBaseSha)executionError('RELEASE_UNIT_MATERIALIZATION_BASE_MISMATCH');
+  if(receipt.manifestDigest!==execution.manifest.manifestDigest)executionError('RELEASE_UNIT_MATERIALIZATION_MANIFEST_MISMATCH');
+  if(!['PREPARED','APPLIED','ALREADY_APPLIED'].includes(receipt.status))executionError('RELEASE_UNIT_MATERIALIZATION_STATUS_INVALID');
+  const materializedHeadSha=receipt.materializedHeadSha??receipt.commitSha??(receipt.status==='ALREADY_APPLIED'?receipt.targetBaseSha:null);
+  requiredText(materializedHeadSha,'RELEASE_UNIT_MATERIALIZATION_HEAD_REQUIRED');
+  requiredText(receipt.sourceCommit,'RELEASE_UNIT_MATERIALIZATION_SOURCE_REQUIRED');
+  const next=executionClone(execution);
+  next.state='MATERIALIZED';
+  next.materialization={...executionClone(receipt),materializedHeadSha};
+  next.lastTransition={to:'MATERIALIZED',code:'RELEASE_UNIT_MATERIALIZED'};
+  return next;
+}
+
+export function recordReleaseUnitPullRequest(execution,receipt){
+  if(execution.state!=='MATERIALIZED')executionError('RELEASE_UNIT_PR_STATE_INVALID',{state:execution.state});
+  if(!Number.isInteger(Number(receipt?.number))||Number(receipt.number)<1)executionError('RELEASE_UNIT_PR_NUMBER_REQUIRED');
+  if(receipt.headSha!==execution.materialization.materializedHeadSha)executionError('RELEASE_UNIT_PR_HEAD_MISMATCH',{expected:execution.materialization.materializedHeadSha,actual:receipt.headSha});
+  if(receipt.baseSha!==execution.manifest.targetBaseSha)executionError('RELEASE_UNIT_PR_BASE_MISMATCH');
+  if(receipt.manifestDigest!==execution.manifest.manifestDigest)executionError('RELEASE_UNIT_PR_MANIFEST_MISMATCH');
+  if(receipt.sourceCommit!==execution.materialization.sourceCommit)executionError('RELEASE_UNIT_PR_SOURCE_IDENTITY_MISMATCH');
+  const next=executionClone(execution);
+  next.state='PR_OPEN';
+  next.pullRequest=executionClone(receipt);
+  next.lastTransition={to:'PR_OPEN',code:'RELEASE_UNIT_PR_OPEN'};
+  return next;
+}
+
+export function recordReleaseUnitVerification(execution,{truth,lifecyclePlan}={}){
+  if(execution.state!=='PR_OPEN')executionError('RELEASE_UNIT_VERIFICATION_STATE_INVALID',{state:execution.state});
+  const head=execution.pullRequest.headSha;
+  if(truth?.decision!=='PASS'||truth?.truthStatus!=='VERIFIED'||truth?.internalState!=='VERIFIED_DONE')executionError('RELEASE_UNIT_TRUTH_NOT_VERIFIED',{truthStatus:truth?.truthStatus,internalState:truth?.internalState});
+  if(truth.currentExactState?.head!==head)executionError('RELEASE_UNIT_TRUTH_HEAD_MISMATCH',{expected:head,actual:truth.currentExactState?.head});
+  if(lifecyclePlan?.status!=='closed'||lifecyclePlan?.lifecycle?.state!=='LEARN'||lifecyclePlan?.lifecycle?.truthStatus!=='VERIFIED')executionError('RELEASE_UNIT_LIFECYCLE_NOT_CLOSED');
+  if(lifecyclePlan.lifecycle.verifiedImplementationHead!==head)executionError('RELEASE_UNIT_LIFECYCLE_HEAD_MISMATCH',{expected:head,actual:lifecyclePlan.lifecycle.verifiedImplementationHead});
+  const next=executionClone(execution);
+  next.state='VERIFIED';
+  next.verification={
+    sourceHeadSha:head,
+    truthContract:truth.contract??null,
+    truthStatus:truth.truthStatus,
+    internalState:truth.internalState,
+    lifecycleState:lifecyclePlan.lifecycle.state,
+    lifecycleTruthStatus:lifecyclePlan.lifecycle.truthStatus,
+    verifiedImplementationHead:lifecyclePlan.lifecycle.verifiedImplementationHead,
+  };
+  next.lastTransition={to:'VERIFIED',code:'RELEASE_UNIT_EXACT_HEAD_VERIFIED'};
+  return next;
+}
+
+export function recordReleaseUnitMerge(execution,receipt){
+  if(execution.state!=='VERIFIED')executionError('RELEASE_UNIT_MERGE_STATE_INVALID',{state:execution.state});
+  if(receipt?.sourceHeadSha!==execution.verification.sourceHeadSha)executionError('RELEASE_UNIT_MERGE_SOURCE_HEAD_MISMATCH');
+  if(Number(receipt?.prNumber)!==Number(execution.pullRequest?.number))executionError('RELEASE_UNIT_MERGE_PR_MISMATCH');
+  requiredText(receipt?.mergedMainSha,'RELEASE_UNIT_MERGED_MAIN_SHA_REQUIRED');
+  if(!['merge','squash','rebase'].includes(String(receipt?.mergeMethod??'')))executionError('RELEASE_UNIT_MERGE_METHOD_INVALID');
+  const next=executionClone(execution);
+  next.state='MERGED';
+  next.merge=executionClone(receipt);
+  next.lastTransition={to:'MERGED',code:'RELEASE_UNIT_MERGED'};
+  return next;
+}
+
+export function closeReleaseUnitExecution(execution,{currentMainSha}={}){
+  if(execution.state!=='MERGED')executionError('RELEASE_UNIT_CLOSE_STATE_INVALID',{state:execution.state});
+  if(!currentMainSha||currentMainSha!==execution.merge.mergedMainSha)executionError('RELEASE_UNIT_POST_MERGE_MAIN_DRIFT',{expected:execution.merge.mergedMainSha,actual:currentMainSha??null});
+  const next=executionClone(execution);
+  next.state='CLOSED';
+  next.closeReceipt={
+    contract:'shoporation.release-unit-close-receipt.v1',
+    releaseUnitId:execution.releaseUnitId,
+    sourceHeadSha:execution.merge.sourceHeadSha,
+    mergedMainSha:execution.merge.mergedMainSha,
+    manifestDigest:execution.manifest.manifestDigest,
+    truthStatus:execution.verification.truthStatus,
+    lifecycleState:execution.verification.lifecycleState,
+    decision:'PASS',
+  };
+  next.lastTransition={to:'CLOSED',code:'RELEASE_UNIT_CLOSED'};
+  return next;
+}
+
+export function failReleaseUnitExecution(execution,{code='RELEASE_UNIT_EXECUTION_FAILED',details={}}={}){
+  if(execution.state==='CLOSED')executionError('RELEASE_UNIT_CLOSED_CANNOT_FAIL');
+  return unitBlock(execution,'FAILED',code,details);
+}
+
+export function authorizeParentReleaseUnit(parent,releaseUnitId,context={}){
+  if(parent.activeUnitId!==releaseUnitId)executionError('RELEASE_PARENT_UNIT_SKIP_FORBIDDEN',{activeUnitId:parent.activeUnitId,requested:releaseUnitId});
+  const current=unitById(parent,releaseUnitId);
+  const predecessors=(parent.units??[]).filter(item=>(current.manifest.predecessorUnits??[]).includes(item.releaseUnitId));
+  const nextUnit=authorizeReleaseUnit(current,{...context,predecessorExecutions:context.predecessorExecutions??predecessors});
+  return synchronizeReleaseParentExecution(parent,nextUnit);
+}
+
+export function applyReleaseUnitEvent(parent,event){
+  const releaseUnitId=requiredText(event?.releaseUnitId,'RELEASE_UNIT_EVENT_UNIT_REQUIRED');
+  if(event.type==='AUTHORIZE')return authorizeParentReleaseUnit(parent,releaseUnitId,event);
+  const current=unitById(parent,releaseUnitId);
+  if(parent.activeUnitId!==releaseUnitId)executionError('RELEASE_PARENT_UNIT_SKIP_FORBIDDEN',{activeUnitId:parent.activeUnitId,requested:releaseUnitId});
+  let nextUnit;
+  if(event.type==='MATERIALIZED')nextUnit=recordReleaseUnitMaterialization(current,event.receipt);
+  else if(event.type==='PR_OPEN')nextUnit=recordReleaseUnitPullRequest(current,event.receipt);
+  else if(event.type==='VERIFIED')nextUnit=recordReleaseUnitVerification(current,{truth:event.truth,lifecyclePlan:event.lifecyclePlan});
+  else if(event.type==='MERGED')nextUnit=recordReleaseUnitMerge(current,event.receipt);
+  else if(event.type==='CLOSED')nextUnit=closeReleaseUnitExecution(current,{currentMainSha:event.currentMainSha});
+  else if(event.type==='FAILED')nextUnit=failReleaseUnitExecution(current,{code:event.code,details:event.details});
+  else executionError('RELEASE_UNIT_EVENT_TYPE_INVALID',{type:event.type});
+  return synchronizeReleaseParentExecution(parent,nextUnit);
+}
+
+export function recordReleaseParentClosure(parent,{truth,lifecyclePlan,currentMainSha}={}){
+  if(parent?.contract!==RELEASE_PARENT_EXECUTION_CONTRACT)executionError('RELEASE_PARENT_EXECUTION_CONTRACT_INVALID');
+  if(!parent.closureEligible||parent.activeUnitId!==null||!parent.units?.every(item=>item.state==='CLOSED'))executionError('RELEASE_PARENT_NOT_CLOSURE_ELIGIBLE');
+  const last=[...parent.units].sort((a,b)=>a.order-b.order).at(-1);
+  const exact=currentMainSha??last?.merge?.mergedMainSha;
+  if(!exact||last?.merge?.mergedMainSha!==exact)executionError('RELEASE_PARENT_FINAL_MAIN_MISMATCH');
+  if(truth?.decision!=='PASS'||truth?.truthStatus!=='VERIFIED'||truth?.internalState!=='VERIFIED_DONE'||truth?.currentExactState?.head!==exact)executionError('RELEASE_PARENT_TRUTH_NOT_VERIFIED');
+  if(lifecyclePlan?.status!=='closed'||lifecyclePlan?.lifecycle?.state!=='LEARN'||lifecyclePlan?.lifecycle?.truthStatus!=='VERIFIED'||lifecyclePlan?.lifecycle?.verifiedImplementationHead!==exact)executionError('RELEASE_PARENT_LIFECYCLE_NOT_CLOSED');
+  if(truth.taskId&&truth.taskId!==parent.parentTransactionId)executionError('RELEASE_PARENT_TRUTH_TASK_MISMATCH');
+  const next=executionClone(parent);
+  next.lifecyclePhase='LEARN';
+  next.closureComplete=true;
+  next.closedReceipt={
+    contract:'shoporation.release-parent-close-receipt.v1',
+    parentTransactionId:parent.parentTransactionId,
+    finalMainSha:exact,
+    truthStatus:truth.truthStatus,
+    lifecycleState:lifecyclePlan.lifecycle.state,
+    unitCloseReceiptDigests:next.units.map(item=>digest(item.closeReceipt)),
+    decision:'PASS',
+  };
+  return next;
 }
 
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){

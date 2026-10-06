@@ -21,7 +21,9 @@
     "Development-branch Release Risk is risk analysis bound to the canonical Development Transaction; PASS or BLOCK never grants deployment or production-release authority by itself.",
     "Downstream Control Plane consumers must use matching upstream canonical data products when available; recomputation requires an explicit fallback provenance marker.",
     "Release-unit materialization must validate every operation and exact target-base lease before one atomic ref update; partial application may never be reported as success.",
-    "External proof applicability must remain a subset of the authoritative producer workflow trigger scope; a consumer may not require an exact-context artifact that the producer is intentionally unable to emit."
+    "External proof applicability must remain a subset of the authoritative producer workflow trigger scope; a consumer may not require an exact-context artifact that the producer is intentionally unable to emit.",
+    "Release-unit orchestration must consume Unit 2 release-unit manifests and freshly produced Plan Before Code successor manifests as canonical inputs; it may compare/enforce those facts but may not independently recalculate Atlas, Release Risk, gate, proof, authority or generated-artifact truth.",
+    "A successor release unit is authorization-eligible only after its sequence predecessor is exact-head VERIFIED, Development Lifecycle CLOSED/LEARN, MERGED with an explicit source-head-to-main receipt, and the successor has been freshly reconciled against that resulting main; the parent Development Transaction is closure-eligible only after every declared unit is CLOSED and still closes through the existing Completion Truth and Lifecycle authorities."
   ],
   "intentMatchers": [
     {

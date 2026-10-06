@@ -96,7 +96,8 @@
           "scripts/lib/shoperation-development-runtime.mjs",
           "scripts/lib/shoperation-operational-intelligence.mjs",
           "scripts/lib/shoperation-release-unit-runtime.mjs",
-          "scripts/release-unit-materialize.mjs"
+          "scripts/release-unit-materialize.mjs",
+          "scripts/release-unit-orchestrate.mjs"
         ],
         "configurationInputs": [
           ".github/workflows/ci.yml"
@@ -1238,6 +1239,14 @@
       "release.unit-manifests": {
         "producer": "GUARD-PLAN-BEFORE-CODE",
         "authority": "release-infrastructure"
+      },
+      "release.unit-execution": {
+        "producer": "release-unit-orchestrator",
+        "authority": "release-infrastructure"
+      },
+      "release.parent-execution": {
+        "producer": "release-unit-orchestrator",
+        "authority": "release-infrastructure"
       }
     },
     "releaseDecomposition": {
@@ -1248,7 +1257,31 @@
       "atomicity": "atlas-scc-plus-proof-ownership",
       "materialization": "manifest-driven-single-git-tree-commit",
       "successorPolicy": "reconcile-from-merged-predecessor-main",
-      "noSafeDecomposition": "FAIL_CLOSED"
+      "noSafeDecomposition": "FAIL_CLOSED",
+      "orchestration": {
+        "contract": "shoporation.release-unit-execution.v1",
+        "parentContract": "shoporation.release-parent-execution.v1",
+        "consumer": "scripts/release-unit-orchestrate.mjs",
+        "scopeAuthority": "release.unit-manifests",
+        "successorRefreshAuthority": "GUARD-PLAN-BEFORE-CODE",
+        "riskAuthority": "GUARD-RELEASE-RISK",
+        "truthAuthority": "GUARD-COMPLETION-TRUTH",
+        "lifecycleAuthority": "existing-development-lifecycle",
+        "mergeIdentity": "verified-source-head-to-resulting-main-receipt",
+        "parentClosure": "all-release-units-closed-then-existing-parent-truth-and-lifecycle",
+        "failClosedOn": [
+          "predecessor-incomplete",
+          "main-drift",
+          "manifest-stale",
+          "risk-block",
+          "gate-or-proof-drift",
+          "forbidden-or-read-only-drift",
+          "generated-artifact-identity-drift",
+          "dependency-cycle",
+          "exact-head-mismatch",
+          "operator-unit-skip"
+        ]
+      }
     }
   }
 }
