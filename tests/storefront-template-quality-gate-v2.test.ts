@@ -126,7 +126,7 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(route).toContain('pageFingerprints:pageFingerprints(build.package)');
     expect(runner).toContain("contract:'shoporation.template-factory-quality-evidence.v2'");
     expect(runner).toContain("reconciliationContract:'shoporation.template-factory-page-evidence-reuse.v1'");
-    expect(runner).toContain('manifest.checksum!==manifestChecksum(manifest)');
+    expect(runner).toContain('manifest.checksum!==templateFactoryEvidenceChecksum(manifest)');
     expect(runner).toContain("manifest.branch!==currentBranch");
     expect(runner).toContain('isAncestor(manifest.sourceCommit,headSha)');
     expect(runner).toContain("evidenceExecution:'REUSED'");
