@@ -37,6 +37,88 @@ export function aggregateGateDecision({localBlocking=false,childDecisions=[]}={}
 export function guardFindingFingerprint(finding){return stableDigest({ruleId:finding?.ruleId??null,file:finding?.file??null,line:Number(finding?.line??0),code:finding?.code??'',message:finding?.message??''});}
 export function matchGuardException(finding,exceptions=[]){const findingFingerprint=guardFindingFingerprint(finding);const exception=(exceptions??[]).find(item=>item?.ruleId===finding?.ruleId&&item?.file===finding?.file&&item?.findingFingerprint===findingFingerprint)??null;return{findingFingerprint,exception};}
 
+
+function hasGlobPattern(value){return /[*?[\]{}]/.test(String(value??''));}
+export function exactPlannedPaths(patterns=[]){return [...new Set((patterns??[]).map(value=>String(value??'').trim()).filter(value=>value&&!hasGlobPattern(value)))].sort();}
+function patternsMayOverlap(left,right){
+  const a=String(left??''),b=String(right??'');
+  if(!a||!b)return false;
+  if(!hasGlobPattern(a))return globToRegExp(b).test(a);
+  if(!hasGlobPattern(b))return globToRegExp(a).test(b);
+  const prefix=value=>value.slice(0,Math.max(0,...['*','?','[','{'].map(token=>{const index=value.indexOf(token);return index<0?value.length:index;})));
+  const ap=prefix(a),bp=prefix(b);
+  return !ap||!bp||ap.startsWith(bp)||bp.startsWith(ap);
+}
+export function evaluateReleaseRiskFiles(files,{policy=releasePolicy}={}){
+  const unique=[...new Set((files??[]).map(value=>String(value??'').trim()).filter(Boolean))].sort();
+  const neutral=(policy.neutralPatterns??[]).map(globToRegExp);
+  const subsystems=(policy.subsystems??[]).map(item=>({...item,matchers:(item.patterns??[]).map(globToRegExp)}));
+  const classified=unique.map(file=>{
+    if(neutral.some(matcher=>matcher.test(file)))return{file,subsystem:'evidence-neutral',risk:'neutral',points:0};
+    const match=subsystems.find(item=>item.matchers.some(matcher=>matcher.test(file)));
+    const risk=match?.risk??policy.fallback?.risk??'medium';
+    return{file,subsystem:match?.name??policy.fallback?.subsystem??'unclassified-change',risk,points:Number(policy.riskWeights?.[risk]??0)};
+  });
+  const scoredSubsystems=[...new Map(classified.filter(item=>item.points>0).map(item=>[item.subsystem,{subsystem:item.subsystem,risk:item.risk,points:item.points}])).values()];
+  const score=scoredSubsystems.reduce((sum,item)=>sum+item.points,0),highRisk=scoredSubsystems.filter(item=>item.risk==='high'),violations=[];
+  if(score>Number(policy.maxPoints??0))violations.push({code:'PROJECTED_RELEASE_RISK_POINTS_EXCEEDED',score,maxPoints:policy.maxPoints});
+  if(scoredSubsystems.length>Number(policy.maxSubsystems??0))violations.push({code:'PROJECTED_RELEASE_RISK_SUBSYSTEMS_EXCEEDED',subsystemCount:scoredSubsystems.length,maxSubsystems:policy.maxSubsystems});
+  if(highRisk.length>1)violations.push({code:'PROJECTED_RELEASE_RISK_MULTIPLE_HIGH',subsystems:highRisk.map(item=>item.subsystem)});
+  if(highRisk.length===1&&scoredSubsystems.length>1)violations.push({code:'PROJECTED_RELEASE_RISK_HIGH_NOT_ISOLATED',subsystem:highRisk[0].subsystem});
+  return{contract:'shoporation.projected-release-risk.v1',score,maxPoints:policy.maxPoints,subsystemCount:scoredSubsystems.length,maxSubsystems:policy.maxSubsystems,subsystems:scoredSubsystems,files:classified,violations,decision:violations.length?'BLOCK':'PASS'};
+}
+export function deriveImplementationSkeleton({plannedFilePatterns=[],atlasFiles=[],executionRoute={},plannedDeletions=[],forbiddenPatterns=[]}={}){
+  const atlasSet=new Set(atlasFiles??[]),deletions=new Set(plannedDeletions??[]);
+  const mustCreate=exactPlannedPaths(plannedFilePatterns).filter(file=>!atlasSet.has(file)&&!deletions.has(file));
+  const mustEdit=[...new Set([...(executionRoute?.MUST_EDIT??[]),...(executionRoute?.INSTRUCTION_REQUIRED??[])])].filter(file=>!mustCreate.includes(file)).sort();
+  const mayEdit=[...new Set(executionRoute?.MAY_EDIT??[])].filter(file=>!mustEdit.includes(file)&&!mustCreate.includes(file)).sort();
+  const impactedReadOnly=[...new Set(executionRoute?.IMPACTED_READ_ONLY??[])].filter(file=>!mustEdit.includes(file)&&!mayEdit.includes(file)&&!mustCreate.includes(file)).sort();
+  const forbidden=[...new Set([...(executionRoute?.FORBIDDEN_ROUTE_TOMBSTONES??[]),...(executionRoute?.PLANNED_FORBIDDEN_ROUTE_DELETIONS??[]),...(forbiddenPatterns??[])])].sort();
+  return{contract:'shoporation.implementation-skeleton.v1',mustEdit,mayEdit,impactedReadOnly,mustCreate,forbidden,proof:[...new Set(executionRoute?.PROOF??[])].sort(),authority:[...new Set(executionRoute?.AUTHORITY??[])].sort(),unknown:[...(executionRoute?.UNKNOWN??[])]};
+}
+function guardInputPatterns(guard){return [...new Set([...(guard?.verification?.semanticInputs??[]),...(guard?.verification?.configurationInputs??[]),...(guard?.verification?.authorityInputs??[])])];}
+export function guardAppliesToFiles(guard,files=[]){
+  if(guard?.chain?.alwaysApplicable===true)return true;
+  const inputs=guardInputPatterns(guard);
+  return (files??[]).some(file=>inputs.some(pattern=>patternsMayOverlap(file,pattern)));
+}
+export function compileGateChain({guardRegistry,plannedFiles=[],phase='PLAN',explicitGuardIds=[]}={}){
+  const guards=(guardRegistry?.guards??[]).filter(item=>item?.blocking===true),byId=new Map(guards.map(item=>[item.id,item])),selected=new Set(),issues=[];
+  const explicit=new Set(explicitGuardIds??[]);
+  for(const guard of guards)if(explicit.has(guard.id)||guardAppliesToFiles(guard,plannedFiles))selected.add(guard.id);
+  const queue=[...selected];
+  while(queue.length){
+    const id=queue.shift(),guard=byId.get(id);
+    if(!guard){issues.push({code:'GATE_CHAIN_GUARD_UNKNOWN',guardId:id});continue;}
+    if(!guard.chain)issues.push({code:'GATE_CHAIN_CONTRACT_MISSING',guardId:id});
+    for(const dep of guard.verification?.dependsOn??[]){
+      if(!byId.has(dep)){issues.push({code:'GATE_CHAIN_DEPENDENCY_MISSING',guardId:id,dependency:dep});continue;}
+      if(!selected.has(dep)){selected.add(dep);queue.push(dep);}
+    }
+  }
+  const products=guardRegistry?.ecosystem?.dataProducts??{},producerIssues=[];
+  for(const id of selected){
+    const guard=byId.get(id);if(!guard?.chain)continue;
+    for(const input of guard.chain.consumes??[])if(!products[input]?.producer)producerIssues.push({code:'GATE_CHAIN_INPUT_PRODUCER_MISSING',guardId:id,input});
+    for(const output of guard.chain.produces??[])if(products[output]?.producer&&products[output].producer!==id)producerIssues.push({code:'GATE_CHAIN_OUTPUT_PRODUCER_CONFLICT',guardId:id,output,declaredProducer:products[output].producer});
+  }
+  issues.push(...producerIssues);
+  const ordered=[],visiting=new Set(),visited=new Set();
+  const visit=id=>{
+    if(visited.has(id))return;
+    if(visiting.has(id)){issues.push({code:'GATE_CHAIN_DEPENDENCY_CYCLE',guardId:id});return;}
+    visiting.add(id);
+    const guard=byId.get(id);
+    for(const dep of guard?.verification?.dependsOn??[])if(selected.has(dep))visit(dep);
+    visiting.delete(id);visited.add(id);ordered.push(id);
+  };
+  for(const id of [...selected].sort())visit(id);
+  const currentPhaseGateIds=ordered.filter(id=>(byId.get(id)?.chain?.phases??[]).includes(phase));
+  const futureGateIds=ordered.filter(id=>!currentPhaseGateIds.includes(id));
+  const externalGateIds=ordered.filter(id=>byId.get(id)?.chain?.execution==='external');
+  return{contract:'shoporation.gate-chain.v1',phase,orderedGateIds:ordered,currentPhaseGateIds,futureGateIds,externalGateIds,issues,decision:issues.length?'BLOCK':'PASS'};
+}
+
 export function parseTemplateFactoryFailures(){
   const source=readFileSync('src/lib/builder/template-factory/knowledge-registry.ts','utf8');
   const matches=[...source.matchAll(/id:'(TF-KF-\d+)'/g)],items=[];
