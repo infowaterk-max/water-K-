@@ -1,18 +1,22 @@
 import {execFileSync} from 'node:child_process';
-import {mkdtempSync,readdirSync,readFileSync,rmSync,statSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,readdirSync,readFileSync,rmSync,statSync,writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
   applyReleaseUnitEvent,
   createReleaseParentExecution,
   materializeReleaseUnit,
+  reconcileReleaseUnitManifest,
+  refreshReleaseUnitIdentity,
   sealReleaseUnitManifest,
+  synchronizeReleaseParentExecution,
 } from './shoperation-release-unit-runtime.mjs';
 import {encodeReleaseUnitContextEnvelope,RELEASE_UNIT_CI_CONTEXT_CONTRACT} from '../release-unit-ci-context.mjs';
 
 const text=value=>String(value??'').trim();
 const parse=value=>JSON.parse(String(value??'null'));
-const defaultRun=(command,args,{cwd=process.cwd(),input=null}={})=>execFileSync(command,args,{cwd,encoding:'utf8',input:input??undefined,stdio:['pipe','pipe','pipe']}).trim();
+const defaultRun=(command,args,{cwd=process.cwd(),input=null,env={}}={})=>execFileSync(command,args,{cwd,encoding:'utf8',input:input??undefined,stdio:['pipe','pipe','pipe'],env:{...process.env,...env}}).trim();
+const uniq=values=>[...new Set((values??[]).filter(Boolean))].sort();
 
 export const stateRefFor=parentTransactionId=>'refs/heads/control-plane/release-state/'+text(parentTransactionId).toLowerCase().replace(/[^a-z0-9._/-]+/g,'-');
 
@@ -144,6 +148,67 @@ export function mergeExactPullRequest({prNumber,sourceHeadSha,repo=null,run=defa
   if(main!==result.sha)throw new Error('RELEASE_UNIT_POST_MERGE_MAIN_DRIFT:'+result.sha+':'+main);
   return{prNumber,sourceHeadSha,mergedMainSha:main,mergeMethod};
 }
+export function reevaluateSuccessorManifest({state,execution,currentMainSha,sourceCommit,run=defaultRun,cwd=process.cwd()}={}){
+  const predecessorReceipts=(state.units??[])
+    .filter(item=>(execution.manifest.predecessorUnits??[]).includes(item.releaseUnitId))
+    .map(item=>({releaseUnitId:item.releaseUnitId,status:item.state==='CLOSED'?'MERGED':item.state,mergedMainSha:item.merge?.mergedMainSha??null}));
+  let reconciled=reconcileReleaseUnitManifest(execution.manifest,{newBaseSha:currentMainSha,predecessorReceipts});
+  const sealed=sealReleaseUnitManifest(reconciled,{sourceCommit,cwd});
+  const candidate=materializeReleaseUnit({manifest:sealed,targetRef:'refs/remotes/origin/main',cwd,updateRef:false,message:releaseUnitCommitMessage(sealed)});
+  const candidateHead=candidate.materializedHeadSha;
+  const worktree=mkdtempSync(path.join(os.tmpdir(),'shoperation-release-unit-reeval-'));
+  try{
+    run('git',['worktree','add','--detach',worktree,candidateHead],{cwd});
+    const planPath=path.join(worktree,'artifacts','shoperation-development-guard','release-unit-reevaluation-plan.json');
+    mkdirSync(path.dirname(planPath),{recursive:true});
+    writeFileSync(planPath,JSON.stringify(sealed.childDevelopmentTransaction.plan,null,2)+'\n');
+    try{
+      run(process.execPath,['scripts/shoperation-plan-before-code.mjs','--check'],{
+        cwd:worktree,
+        env:{
+          SHOPERATION_ACTIVE_PLAN:planPath,
+          DEVELOPMENT_BASE_SHA:currentMainSha,
+          QUALITY_BASE_SHA:currentMainSha,
+          RELEASE_BASE_SHA:currentMainSha,
+          DEVELOPMENT_HEAD_SHA:candidateHead,
+          QUALITY_HEAD_SHA:candidateHead,
+          RELEASE_HEAD_SHA:candidateHead,
+          SHOPERATION_REPLAY_HEAD:candidateHead,
+        },
+      });
+    }catch(error){
+      return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK',error:String(error?.stderr??error?.message??error)};
+    }
+    const reportPath=path.join(worktree,'artifacts','shoperation-development-guard','plan-before-code.json');
+    const report=parse(readFileSync(reportPath,'utf8'));
+    if(report.decision!=='PASS')return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK',report};
+    const projected=(report.releaseDecomposition?.releaseUnits??[])[0];
+    if(!projected)return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_MANIFEST_MISSING',report};
+    const next=structuredClone(reconciled);
+    next.operations=(projected.operations??next.operations??[]).map(operation=>{const copy={...operation};delete copy.source;return copy;});
+    next.requiredDependencyFiles=[...(projected.requiredDependencyFiles??[])];
+    next.authorities=[...(projected.authorities??[])];
+    next.subsystems=[...(projected.subsystems??[])];
+    next.projectedRisk=structuredClone(projected.projectedRisk??report.projectedReleaseRisk??next.projectedRisk);
+    next.requiredGates=[...(report.gateChain?.orderedGateIds??projected.requiredGates??[])];
+    next.requiredEvidence=structuredClone(projected.requiredEvidence??next.requiredEvidence);
+    next.forbiddenPaths=[...(projected.forbiddenPaths??next.forbiddenPaths??[])];
+    next.readOnlyPaths=[...(projected.readOnlyPaths??next.readOnlyPaths??[])];
+    next.generatedArtifactSemantics=structuredClone(projected.generatedArtifactSemantics??next.generatedArtifactSemantics??[]);
+    const dependencyUnits=(state.units??[])
+      .filter(item=>item.releaseUnitId!==next.releaseUnitId&&(next.requiredDependencyFiles??[]).some(file=>(item.manifest?.intendedFiles??[]).includes(file)))
+      .map(item=>item.releaseUnitId);
+    next.predecessorUnits=uniq([...(execution.manifest.predecessorUnits??[]),...dependencyUnits]);
+    next.prerequisites=[...next.predecessorUnits];
+    next.sourceIdentity={sourceCommit:null,sealed:false};
+    const refreshed=refreshReleaseUnitIdentity(next);
+    return{decision:'PASS',manifest:refreshed,report,candidateHead};
+  }finally{
+    try{run('git',['worktree','remove','--force',worktree],{cwd});}catch{}
+    try{rmSync(worktree,{recursive:true,force:true});}catch{}
+  }
+}
+
 export function initializeExecutionState({decomposition,sourceCommit}={}){
   const state=createReleaseParentExecution(decomposition);
   state.executionSourceCommit=sourceCommit;
@@ -152,7 +217,17 @@ export function initializeExecutionState({decomposition,sourceCommit}={}){
 export function prepareActiveUnit({state,currentMainSha,sourceCommit,run=defaultRun,cwd=process.cwd()}={}){
   const active=state.units.find(item=>item.releaseUnitId===state.activeUnitId);
   if(!active)throw new Error('RELEASE_UNIT_ACTIVE_REQUIRED');
-  let next=applyReleaseUnitEvent(state,{type:'AUTHORIZE',releaseUnitId:active.releaseUnitId,freshManifest:active.manifest,currentMainSha,allFreshManifests:state.units.map(item=>item.manifest)});
+  let freshManifest=active.manifest;
+  if(Number(active.order)>1||freshManifest.targetBaseSha!==currentMainSha){
+    const reevaluated=reevaluateSuccessorManifest({state,execution:active,currentMainSha,sourceCommit,run,cwd});
+    if(reevaluated.decision!=='PASS'){
+      const blocked={...active,state:'STALE',blocker:{code:reevaluated.code,details:{error:reevaluated.error??null}},lastTransition:{to:'STALE',code:reevaluated.code}};
+      return{state:synchronizeReleaseParentExecution(state,blocked),decision:'BLOCK',reason:blocked.blocker};
+    }
+    freshManifest=reevaluated.manifest;
+  }
+  const allFreshManifests=state.units.map(item=>item.releaseUnitId===active.releaseUnitId?freshManifest:item.manifest);
+  let next=applyReleaseUnitEvent(state,{type:'AUTHORIZE',releaseUnitId:active.releaseUnitId,freshManifest,currentMainSha,allFreshManifests});
   let execution=next.units.find(item=>item.releaseUnitId===active.releaseUnitId);
   if(execution.state!=='READY')return{state:next,decision:'BLOCK',reason:execution.blocker};
   const sealed=sealReleaseUnitManifest(execution.manifest,{sourceCommit,cwd});
@@ -161,7 +236,10 @@ export function prepareActiveUnit({state,currentMainSha,sourceCommit,run=default
   const branch=execution.executionTransaction.branchRef;
   const receipt=materializeReleaseUnit({manifest:sealed,targetRef:'refs/remotes/origin/main',cwd,updateRef:false,message:releaseUnitCommitMessage(sealed)});
   next=applyReleaseUnitEvent(next,{type:'MATERIALIZED',releaseUnitId:execution.releaseUnitId,receipt});
-  if(receipt.status==='ALREADY_APPLIED')return{state:next,decision:'ALREADY_APPLIED',branch,manifest:sealed,receipt};
+  if(receipt.status==='ALREADY_APPLIED'){
+    const blocked={...next.units.find(item=>item.releaseUnitId===execution.releaseUnitId),state:'STALE',blocker:{code:'RELEASE_UNIT_ALREADY_APPLIED_REQUIRES_PARENT_RECONCILIATION',details:{targetBaseSha:sealed.targetBaseSha}},lastTransition:{to:'STALE',code:'RELEASE_UNIT_ALREADY_APPLIED_REQUIRES_PARENT_RECONCILIATION'}};
+    return{state:synchronizeReleaseParentExecution(next,blocked),decision:'BLOCK',reason:blocked.blocker,branch,manifest:sealed,receipt};
+  }
   pushExactMaterializedCommit({commitSha:receipt.materializedHeadSha,branch,run,cwd});
   const pr=ensureExactPullRequest({manifest:sealed,materializedHeadSha:receipt.materializedHeadSha,branch,run,cwd});
   next=applyReleaseUnitEvent(next,{type:'PR_OPEN',releaseUnitId:execution.releaseUnitId,receipt:pr});
