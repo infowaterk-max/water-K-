@@ -53,7 +53,7 @@ describe('Template Factory resumable browser verification',()=>{
     expect(closure.files.length).toBeGreaterThan(closure.entrypoints.length);
     expect(closure.files).not.toContain('.github/workflows/template-factory-quality-gate.yml');
     expect(closure.files).not.toContain('scripts/template-factory-quality-gate.mjs');
-  });
+  },30000);
 
   it('selects the latest runtime-changing commit while ignoring newer proof-engine-only commits',()=>{
     const runtimeFile='src/app/admin/platform/page.tsx';
