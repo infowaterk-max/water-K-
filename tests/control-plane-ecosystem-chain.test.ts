@@ -146,7 +146,12 @@ describe('Control Plane ecosystem chain',()=>{
     expect(workflow).toContain('PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT');
     expect(workflow).toContain('TEMPLATE_QUALITY_LIVE_PROOF_DECISION');
     expect(workflow).toContain("deployment.production_environment===true||environment==='production'");
-    expect(workflow).toContain('RUNTIME_VERCEL_PREVIEW_ANCHOR_MISSING');
+    expect(workflow).toContain("deployment.production_environment!==true&&environment==='preview'");
+    expect((workflow.match(/repos\\.listDeployments/g)??[])).toHaveLength(1);
+    expect((workflow.match(/id: runtime-preview/g)??[])).toHaveLength(1);
+    expect(workflow).not.toContain('id: product-owner-preview');
+    expect(workflow).not.toContain('id: engine-functional-preview');
+    expect(workflow).toContain('ENGINE_FUNCTIONAL_RUNTIME_PREVIEW_ANCHOR_MISSING');
     expect(qualityGate).toContain('liveProofDecision?.runtimeSourceCommit');
     expect(qualityGate).toContain("contract:'shoporation.template-factory-live-proof.v1'");
     expect(handoff).toContain('PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT');
