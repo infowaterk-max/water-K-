@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
 import {globToRegExp} from './shoperation-development-runtime.mjs';
 import {buildCodebaseAtlas} from './shoperation-codebase-atlas-runtime.mjs';
 import {canonicalizeVerificationEngineInput,classifySemanticUnits,digestObject} from './shoperation-verification-reuse.mjs';
@@ -77,6 +78,69 @@ export function deriveTemplateLiveRuntimeClosure({registry,atlas}={}){
     files:[...visited].sort(),
     unresolvedImports,
   };
+}
+
+
+export function selectTemplateLiveRuntimeOrigin({baseSha='',currentHead='',runtimeFiles=[],commitHistory=[]}={}){
+  const files=new Set(runtimeFiles??[]);
+  const issues=[];
+  if(!baseSha)issues.push({code:'TEMPLATE_LIVE_RUNTIME_BASE_SHA_MISSING'});
+  if(!currentHead)issues.push({code:'TEMPLATE_LIVE_RUNTIME_HEAD_SHA_MISSING'});
+  if(!files.size)issues.push({code:'TEMPLATE_LIVE_RUNTIME_FILE_CLOSURE_EMPTY'});
+  if(issues.length)return{contract:'shoporation.template-factory-live-runtime-origin.v1',decision:'BLOCK',issues,runtimeSourceCommit:null,mode:'UNKNOWN',changedFilesSinceOrigin:[],affectedInputs:[]};
+  const history=(commitHistory??[]).filter(item=>item?.sha);
+  const latest=history.find(item=>(item.files??[]).some(file=>files.has(file)))??null;
+  const runtimeSourceCommit=latest?.sha??baseSha;
+  const changedFilesSinceOrigin=uniq(history
+    .filter(item=>item.sha!==runtimeSourceCommit)
+    .flatMap(item=>item.files??[]))
+    .sort();
+  const affectedInputs=changedFilesSinceOrigin.filter(file=>files.has(file)).sort();
+  if(affectedInputs.length)issues.push({code:'TEMPLATE_LIVE_RUNTIME_ORIGIN_NOT_LATEST',runtimeSourceCommit,affectedInputs});
+  return{
+    contract:'shoporation.template-factory-live-runtime-origin.v1',
+    decision:issues.length?'BLOCK':'PASS',
+    issues,
+    runtimeSourceCommit,
+    mode:runtimeSourceCommit===currentHead?'CURRENT_HEAD':runtimeSourceCommit===baseSha?'BASE_RUNTIME':'ANCESTOR_RUNTIME',
+    changedFilesSinceOrigin,
+    affectedInputs,
+  };
+}
+
+function gitTemplateLiveRuntimeHistory({baseSha,currentHead}={}){
+  if(!baseSha||!currentHead||baseSha===currentHead)return[];
+  const range=baseSha+'..'+currentHead;
+  let raw='';
+  try{
+    raw=execFileSync('git',['log','--format=__COMMIT__%H','--name-only','--no-renames',range],{encoding:'utf8'});
+  }catch{
+    return[];
+  }
+  const out=[];let current=null;
+  for(const line of raw.split(/\r?\n/)){
+    if(line.startsWith('__COMMIT__')){
+      if(current)out.push(current);
+      current={sha:line.slice('__COMMIT__'.length).trim(),files:[]};
+      continue;
+    }
+    if(current&&line.trim())current.files.push(line.trim());
+  }
+  if(current)out.push(current);
+  return out.map(item=>({...item,files:uniq(item.files).sort()}));
+}
+
+export function deriveTemplateLiveRuntimeOrigin({registry,atlas,baseSha='',currentHead=''}={}){
+  const closure=deriveTemplateLiveRuntimeClosure({registry,atlas});
+  if(closure.decision!=='PASS')return{
+    contract:'shoporation.template-factory-live-runtime-origin.v1',
+    decision:'BLOCK',
+    issues:[{code:'TEMPLATE_LIVE_RUNTIME_CLOSURE_UNPROVEN',details:closure.issues}],
+    runtimeSourceCommit:null,mode:'UNKNOWN',changedFilesSinceOrigin:[],affectedInputs:[],runtimeClosure:closure,
+  };
+  const commitHistory=gitTemplateLiveRuntimeHistory({baseSha,currentHead});
+  const selected=selectTemplateLiveRuntimeOrigin({baseSha,currentHead,runtimeFiles:closure.files,commitHistory});
+  return{...selected,runtimeClosure:closure,commitHistory};
 }
 
 export function templateLiveProofInputPatterns(registry){
