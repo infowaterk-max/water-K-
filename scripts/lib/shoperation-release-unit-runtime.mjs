@@ -145,6 +145,30 @@ export function releaseUnitChildPlanDigest(plan){return strongDigest(childPlanDi
 export function releaseUnitContextBindingDigest({manifestDigest,childPlanDigest,operationDigest,releaseUnitId,parentTransactionId,targetBaseSha}={}){
   return strongDigest({manifestDigest,childPlanDigest,operationDigest,releaseUnitId,parentTransactionId,targetBaseSha});
 }
+export const RELEASE_UNIT_CI_CONTEXT_CONTRACT='shoporation.release-unit-ci-context.v1';
+const RELEASE_UNIT_CI_CONTEXT_PREFIX='<!-- shoperation-release-unit-context:v1:';
+const RELEASE_UNIT_CI_CONTEXT_SUFFIX=' -->';
+const releaseUnitText=value=>String(value??'').trim();
+export function encodeReleaseUnitContextEnvelope(envelope){return RELEASE_UNIT_CI_CONTEXT_PREFIX+Buffer.from(JSON.stringify(envelope)).toString('base64url')+RELEASE_UNIT_CI_CONTEXT_SUFFIX;}
+export function decodeReleaseUnitContextEnvelope(body){
+  const source=String(body??''),start=source.indexOf(RELEASE_UNIT_CI_CONTEXT_PREFIX);if(start<0)return null;
+  const end=source.indexOf(RELEASE_UNIT_CI_CONTEXT_SUFFIX,start+RELEASE_UNIT_CI_CONTEXT_PREFIX.length);if(end<0)throw new Error('RELEASE_UNIT_CI_CONTEXT_MARKER_MALFORMED');
+  return JSON.parse(Buffer.from(source.slice(start+RELEASE_UNIT_CI_CONTEXT_PREFIX.length,end).trim(),'base64url').toString('utf8'));
+}
+export function validateReleaseUnitCiContext({envelope,headSha,baseSha,commitMessage}={}){
+  if(!envelope)return{decision:'ROOT',plan:null,envelope:null};
+  if(envelope.contract!==RELEASE_UNIT_CI_CONTEXT_CONTRACT)throw new Error('RELEASE_UNIT_CI_CONTEXT_CONTRACT_INVALID');
+  const plan=envelope.childPlan;if(plan?.releaseUnitContext?.contract!==RELEASE_UNIT_CHILD_TRANSACTION_CONTRACT)throw new Error('RELEASE_UNIT_CI_CHILD_PLAN_REQUIRED');
+  const childPlanDigest=releaseUnitChildPlanDigest(plan);if(childPlanDigest!==envelope.childPlanDigest)throw new Error('RELEASE_UNIT_CI_CHILD_PLAN_DIGEST_MISMATCH');
+  const bindingDigest=releaseUnitContextBindingDigest({manifestDigest:envelope.manifestDigest,childPlanDigest:envelope.childPlanDigest,operationDigest:envelope.operationDigest,releaseUnitId:envelope.releaseUnitId,parentTransactionId:envelope.parentTransactionId,targetBaseSha:envelope.targetBaseSha});
+  if(bindingDigest!==envelope.bindingDigest)throw new Error('RELEASE_UNIT_CI_BINDING_DIGEST_MISMATCH');
+  if(releaseUnitText(baseSha)!==releaseUnitText(envelope.targetBaseSha))throw new Error('RELEASE_UNIT_CI_BASE_MISMATCH');
+  for(const trailer of ['Shoperation-Release-Unit-Manifest: '+envelope.manifestDigest,'Shoperation-Release-Unit-Child-Plan: '+envelope.childPlanDigest,'Shoperation-Release-Unit-Binding: '+envelope.bindingDigest])if(!String(commitMessage??'').includes(trailer))throw new Error('RELEASE_UNIT_CI_COMMIT_TRAILER_MISMATCH:'+trailer.split(':')[0]);
+  const runtimePlan=structuredClone(plan);runtimePlan.releaseUnitContext={...(runtimePlan.releaseUnitContext??{}),manifestDigest:envelope.manifestDigest,childPlanDigest:envelope.childPlanDigest,bindingDigest:envelope.bindingDigest,materializedHeadSha:releaseUnitText(headSha),targetBaseSha:envelope.targetBaseSha};
+  if(runtimePlan.taskId!==envelope.childTaskId)throw new Error('RELEASE_UNIT_CI_CHILD_TASK_MISMATCH');
+  if(runtimePlan.releaseUnitContext.releaseUnitId!==envelope.releaseUnitId||runtimePlan.releaseUnitContext.parentTransactionId!==envelope.parentTransactionId)throw new Error('RELEASE_UNIT_CI_TRANSACTION_IDENTITY_MISMATCH');
+  return{decision:'CHILD',plan:runtimePlan,envelope};
+}
 export function refreshReleaseUnitIdentity(manifest){
   const next=structuredClone(manifest);
   if(next.childDevelopmentTransaction)next.childDevelopmentTransaction.bindingDigest=null;

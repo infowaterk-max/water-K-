@@ -10,8 +10,9 @@ import {
   refreshReleaseUnitIdentity,
   sealReleaseUnitManifest,
   synchronizeReleaseParentExecution,
+  encodeReleaseUnitContextEnvelope,
+  RELEASE_UNIT_CI_CONTEXT_CONTRACT,
 } from './shoperation-release-unit-runtime.mjs';
-import {encodeReleaseUnitContextEnvelope,RELEASE_UNIT_CI_CONTEXT_CONTRACT} from '../release-unit-ci-context.mjs';
 
 const text=value=>String(value??'').trim();
 const parse=value=>JSON.parse(String(value??'null'));

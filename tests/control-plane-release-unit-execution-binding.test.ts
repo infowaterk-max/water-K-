@@ -8,6 +8,8 @@ import {
   recordReleaseUnitVerification,
   releaseUnitChildPlanDigest,
   releaseUnitContextBindingDigest,
+  decodeReleaseUnitContextEnvelope,
+  validateReleaseUnitCiContext,
 } from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 import {
   buildReleaseUnitCiEnvelope,
@@ -17,7 +19,6 @@ import {
   stateRefFor,
   validateExactPullRequest,
 } from '../scripts/lib/shoperation-release-unit-github-runtime.mjs';
-import {decodeReleaseUnitContextEnvelope,validateReleaseUnitCiContext} from '../scripts/release-unit-ci-context.mjs';
 
 const A='a'.repeat(40),H='1'.repeat(40);
 const parentPlan:any={

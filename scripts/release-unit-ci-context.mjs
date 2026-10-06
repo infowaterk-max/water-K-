@@ -1,11 +1,9 @@
 import {execFileSync} from 'node:child_process';
 import {appendFileSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
-import {RELEASE_UNIT_CHILD_TRANSACTION_CONTRACT,releaseUnitChildPlanDigest,releaseUnitContextBindingDigest} from './lib/shoperation-release-unit-runtime.mjs';
+import {decodeReleaseUnitContextEnvelope,RELEASE_UNIT_CI_CONTEXT_CONTRACT,validateReleaseUnitCiContext} from './lib/shoperation-release-unit-runtime.mjs';
+export {decodeReleaseUnitContextEnvelope,encodeReleaseUnitContextEnvelope,RELEASE_UNIT_CI_CONTEXT_CONTRACT,validateReleaseUnitCiContext} from './lib/shoperation-release-unit-runtime.mjs';
 
-export const RELEASE_UNIT_CI_CONTEXT_CONTRACT='shoporation.release-unit-ci-context.v1';
-const PREFIX='<!-- shoperation-release-unit-context:v1:';
-const SUFFIX=' -->';
 const text=value=>String(value??'').trim();
 
 export function encodeReleaseUnitContextEnvelope(envelope){
