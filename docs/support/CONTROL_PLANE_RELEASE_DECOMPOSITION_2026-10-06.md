@@ -31,3 +31,4 @@ Generated artifacts require either explicit regeneration command semantics or se
 - Plan Before Code consumes the exact-head Atlas + Change Impact snapshot produced by Knowledge Before Build when available; stale upstream evidence is a blocking orchestration defect.
 - A classifier or scope resolver may not narrow itself in a way that hides runtime dependencies.
 - Failure Intake → reconciliation → Known Failure / Negative Knowledge / graph learning remains the only promotion path for newly observed recurring defects; this unit does not create a parallel learning registry.
+- Reference Sync must not infer a repository-wide required edit from lexical coincidence of a local executable implementation expression; only a real machine reference/semantic identity or source assertion may make that expression blocking.

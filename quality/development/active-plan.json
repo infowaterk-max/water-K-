@@ -14,7 +14,9 @@
     "scripts/shoperation-release-unit-materializer.mjs",
     "scripts/release-manifest.mjs",
     "tests/control-plane-release-decomposition.test.ts",
-    "docs/support/CONTROL_PLANE_RELEASE_DECOMPOSITION_2026-10-06.md"
+    "docs/support/CONTROL_PLANE_RELEASE_DECOMPOSITION_2026-10-06.md",
+    "scripts/lib/shoperation-reference-sync-runtime.mjs",
+    "tests/shoperation-semantic-execution-intelligence.test.ts"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -379,7 +381,9 @@
         "quality/knowledge/support-history-policy.v1.json",
         "scripts/lib/shoperation-development-runtime.mjs",
         "scripts/shoperation-plan-before-code.mjs",
-        "scripts/release-manifest.mjs"
+        "scripts/release-manifest.mjs",
+        "scripts/lib/shoperation-reference-sync-runtime.mjs",
+        "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -398,7 +402,8 @@
         "src/middleware.ts"
       ],
       "proof": [
-        "tests/control-plane-release-decomposition.test.ts"
+        "tests/control-plane-release-decomposition.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
