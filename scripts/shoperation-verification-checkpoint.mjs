@@ -1,6 +1,6 @@
 import {appendFileSync,existsSync,readFileSync,writeFileSync} from 'node:fs';
 import {atomicWriteJson,checkpointChecksum,finalizeVerification,loadCheckpoint} from './lib/shoperation-verification-reuse.mjs';
-import {completionEvidenceGuardIds,mergeExternalCompletionEvidence,EXTERNAL_PROOF_EVIDENCE_CONTRACT} from './shoperation-external-proof-handoff.mjs';
+import {completionEvidenceGuardIds,mergeExternalCompletionEvidence,requiredExternalCompletionGuards,EXTERNAL_PROOF_EVIDENCE_CONTRACT} from './shoperation-external-proof-handoff.mjs';
 
 const planPath=process.env.SHOPERATION_REPLAY_PLAN||'artifacts/shoperation-development-guard/resumable-verification-plan.json';
 const checkpointPath=process.env.SHOPERATION_REPLAY_CHECKPOINT||'artifacts/shoperation-verification-cache/checkpoint.json';
@@ -69,6 +69,7 @@ const stateVersion=env('SHOPERATION_TRUTH_STATE_VERSION')||'shoporation-ci.v1';
 const producerReconciliation=reconcileProducerDecisions({outcomes,sourceRevision:plan.sourceRevision,artifactRecords:loadProducerArtifacts()});
 const final=finalizeVerification({plan,outcomes:producerReconciliation.outcomes,priorCheckpoint,runId,stateVersion});
 const activePlan=existsSync(activePlanPath)?JSON.parse(readFileSync(activePlanPath,'utf8')):{status:'unknown',completionContract:{requirements:[]}};
+const guardRegistry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
 let externalEnvelope=null,externalRecords=[];
 if(existsSync(externalEvidencePath)){
   try{
@@ -78,10 +79,11 @@ if(existsSync(externalEvidencePath)){
   }catch(error){externalEnvelope={contract:'unreadable',decision:'BLOCK',issues:[{code:'EXTERNAL_EVIDENCE_ENVELOPE_UNREADABLE',error:String(error)}],evidence:[]};}
 }
 const currentExactState={head:plan.sourceRevision,branch:plan.branch,stateVersion};
+const derivedExternalGuardIds=requiredExternalCompletionGuards({activePlan,verificationPlan:plan,guardRegistry});
 const externalMerge=mergeExternalCompletionEvidence({
   truthEvidence:final.manifest.truthEvidence,
   externalEvidence:externalRecords,
-  requiredIds:completionEvidenceGuardIds(activePlan),
+  requiredIds:[...new Set([...completionEvidenceGuardIds(activePlan),...derivedExternalGuardIds])],
   currentExactState,
 });
 if(externalEnvelope?.decision==='BLOCK')externalMerge.issues.push(...(externalEnvelope.issues??[{code:'EXTERNAL_EVIDENCE_ENVELOPE_BLOCK'}]));

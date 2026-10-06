@@ -38,22 +38,46 @@ describe('Template Factory shared engine functional proof runner',()=>{
     const matrix=workflow.indexOf('Run scoped Template Factory browser proof (acceptance requires reconciled 14x3)');
     expect(engine).toBeGreaterThan(0);
     expect(matrix).toBeGreaterThan(engine);
-    expect(workflow).toContain('PRODUCT_OWNER_PREVIEW_URL: "${{ steps.engine-functional-preview.outputs.base-url }}/platform"');
+    expect(workflow).toContain('PRODUCT_OWNER_PREVIEW_URL: "${{ steps.runtime-preview.outputs.base-url }}/platform"');
     expect(workflow).toContain('PRODUCT_OWNER_ENGINE_FUNCTIONAL_ONLY: "true"');
     expect(workflow).toContain('TEMPLATE_HANDOFF_OUTPUT_DIR: artifacts/template-engine-functional-proof');
     expect(workflow).toContain('ENGINE_FUNCTIONAL_PROOF_FAILED=artifacts/template-engine-functional-proof/proof.json');
   });
 
-  it('feeds the exact-head engine proof into the existing Product Owner journey contract',()=>{
+  it('binds current proof, canonical runtime and actual Preview deployment identities separately through E13 and Product Owner proof',()=>{
     expect(workflow).toContain('PRODUCT_OWNER_ENGINE_FUNCTIONAL_PROOF: artifacts/template-engine-functional-proof/proof.json');
     expect(runner).toContain("PRODUCT_OWNER_ENGINE_FUNCTIONAL_PROOF");
-    expect(runner).toContain("checks.engineFunctionalProofPassed=contractOk&&engineOk&&commitOk&&engineProof?.passed===true");
+    expect(runner).toContain("checks.engineFunctionalProofPassed=contractOk&&engineOk&&commitOk&&runtimeCommitOk&&deploymentCommitOk&&engineProof?.passed===true");
     expect(runner).toContain("engineProof?.sourceCommit===sourceCommit");
+    expect(runner).toContain("engineProof?.runtimeSourceCommit===runtimeSourceCommit");
+    expect(runner).toContain("engineProof?.deploymentSourceCommit===deploymentSourceCommit");
+    expect(runner).toContain("PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT");
+    expect(runner).toContain("PRODUCT_OWNER_DEPLOYMENT_SOURCE_COMMIT");
+    expect(workflow).toContain('PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.runtime-source-commit }}');
+    expect(workflow).toContain('PRODUCT_OWNER_DEPLOYMENT_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.deployment-source-commit }}');
+    expect(workflow).toContain("const sha='${{ steps.live-proof.outputs.runtime_sha }}'");
     expect(runner).toContain("ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:proof artifact missing");
   });
 
+  it('uses one canonical Preview resolver, rejects production/non-preview targets, and fails closed without an anchor',()=>{
+    expect((workflow.match(/repos\.listDeployments/g)??[])).toHaveLength(1);
+    expect((workflow.match(/id: runtime-preview/g)??[])).toHaveLength(1);
+    expect(workflow).not.toContain('id: product-owner-preview');
+    expect(workflow).not.toContain('id: engine-functional-preview');
+    expect(workflow).toContain("deployment.production_environment===true||environment==='production'");
+    expect(workflow).toContain("deployment.production_environment!==true&&environment==='preview'");
+    expect(workflow).toContain('Rejecting non-preview deployment');
+    expect(workflow).toContain("const maxAttempts=runtimeMode==='CURRENT_HEAD'?90:1");
+    expect(workflow).toContain('TEMPLATE_LIVE_RUNTIME_PREVIEW_ANCHOR_MISSING');
+    expect(workflow).toContain('deriveTemplatePreviewAnchorCandidates');
+    expect(workflow).toContain("core.setOutput('deployment-source-commit',deploymentSha)");
+    expect(workflow).toContain("core.setOutput('deployment-equivalence-proven',String(candidate.runtimeEquivalenceProven===true))");
+    expect(workflow).toContain('non-production Vercel Preview deployment for the Atlas-selected runtime source');
+    expect(workflow).toContain('PRODUCT_OWNER_PREVIEW_URL: "${{ steps.runtime-preview.outputs.base-url }}/storefront-template-preview?');
+  });
+
   it('does not replace the existing Product Owner visual handoff',()=>{
-    expect(workflow).toContain('Prove exact-head Product Owner login journey');
+    expect(workflow).toContain('Prove Product Owner login journey on selected runtime');
     expect(workflow).toContain('TEMPLATE_HANDOFF_OUTPUT_DIR: artifacts/template-factory-handoff');
     expect(runner).toContain("shoporation.template-factory-product-owner-handoff.v2");
   });

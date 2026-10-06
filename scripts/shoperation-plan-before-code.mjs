@@ -1,5 +1,5 @@
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
-import {getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
+import {compileGateChain,deriveImplementationSkeleton,evaluateReleaseRiskFiles,exactPlannedPaths,getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
 import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,classifyAtlasPath,resolveAtlasArchitectureForPath,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
 import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
 
@@ -30,6 +30,7 @@ const projectedFiles=[...new Set([
   ...atlas.nodes
     .map(node=>node.path)
     .filter(file=>file!=='quality/development/active-plan.json'&&planMatchers.some(m=>m.test(file))),
+  ...exactPlannedPaths(plan.plannedFilePatterns??[]).filter(file=>file!=='quality/development/active-plan.json'),
   ...deletedFiles.filter(file=>planMatchers.some(m=>m.test(file))),
 ])].sort();
 if(!projectedFiles.length)issues.push({code:'DEV_PLAN_PROJECTION_EMPTY',plannedFilePatterns:plan.plannedFilePatterns});
@@ -39,11 +40,35 @@ const declaredPlannedDeletions=[...new Set(declaredExecutionRoute?.plannedDeleti
 for(const file of declaredPlannedDeletions)if(!planMatchers.some(m=>m.test(file)))issues.push({code:'DEV_PLAN_PLANNED_DELETION_OUTSIDE_PLAN',file});
 const actualExecutionRoute=buildExecutionRoute(atlas,plan.plannedFilePatterns??[],{tombstones:deletedFiles});
 const generatedExecutionRoute=buildExecutionRoute(atlas,plan.plannedFilePatterns??[],{tombstones:deletedFiles,plannedDeletions:declaredPlannedDeletions});
+const implementationSkeleton=deriveImplementationSkeleton({
+  plannedFilePatterns:plan.plannedFilePatterns??[],
+  atlasFiles:atlas.nodes.map(node=>node.path),
+  executionRoute:generatedExecutionRoute,
+  plannedDeletions:declaredPlannedDeletions,
+  forbiddenPatterns:declaredExecutionRoute?.forbidden??[],
+});
+const projectedReleaseRisk=evaluateReleaseRiskFiles(projectedFiles);
+if(projectedReleaseRisk.decision!=='PASS')issues.push({code:'DEV_PLAN_PROJECTED_RELEASE_RISK_BLOCK',violations:projectedReleaseRisk.violations,score:projectedReleaseRisk.score,maxPoints:projectedReleaseRisk.maxPoints,subsystems:projectedReleaseRisk.subsystems});
+const completionGuardIds=[...new Set((plan.completionContract?.requirements??[]).flatMap(requirement=>[
+  ...(requirement?.evidence?.implementation??[]),
+  ...(requirement?.evidence?.outcome??[]),
+  ...(requirement?.forbiddenRegressions??[]).flatMap(negative=>negative?.evidence??[]),
+]))];
+const gateChain=compileGateChain({guardRegistry,plannedFiles:projectedFiles,phase:'PLAN',explicitGuardIds:completionGuardIds});
+for(const chainIssue of gateChain.issues)issues.push({code:'DEV_PLAN_GATE_CHAIN_INVALID',chainIssue});
 const unauthorizedPlannedDeletions=declaredPlannedDeletions.filter(file=>!(generatedExecutionRoute.PLANNED_FORBIDDEN_ROUTE_DELETIONS??[]).includes(file)&&!deletedFiles.includes(file));
 if(unauthorizedPlannedDeletions.length)issues.push({code:'DEV_PLAN_PLANNED_DELETION_UNAUTHORIZED',files:unauthorizedPlannedDeletions});
 if(plan.operationalIntelligence?.riskTier==='critical'){
   const declaredMustEdit=[...(declaredExecutionRoute?.mustEdit??[])];
-  for(const file of declaredMustEdit)if(!generatedExecutionRoute.MUST_EDIT.includes(file)&&!generatedExecutionRoute.INSTRUCTION_REQUIRED.includes(file))issues.push({code:'DEV_PLAN_SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE',file});
+  for(const file of declaredMustEdit)if(!implementationSkeleton.mustEdit.includes(file))issues.push({code:'DEV_PLAN_SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE',file});
+  const declaredMustCreate=[...(declaredExecutionRoute?.mustCreate??[])].sort();
+  const generatedMustCreate=[...implementationSkeleton.mustCreate].sort();
+  const actuallyAdded=new Set((diff.changes??[]).filter(change=>change.status==='A').map(change=>change.file));
+  const fulfilledMustCreate=declaredMustCreate.filter(file=>actuallyAdded.has(file)).sort();
+  const expectedMustCreateDeclaration=[...new Set([...generatedMustCreate,...fulfilledMustCreate])].sort();
+  implementationSkeleton.mustCreateObligations=declaredMustCreate;
+  implementationSkeleton.fulfilledMustCreate=fulfilledMustCreate;
+  if(JSON.stringify(declaredMustCreate)!==JSON.stringify(expectedMustCreateDeclaration))issues.push({code:'DEV_PLAN_SEMANTIC_MUST_CREATE_DRIFT',expected:expectedMustCreateDeclaration,actual:declaredMustCreate,fulfilled:fulfilledMustCreate});
   const missingInstructionRequired=generatedExecutionRoute.INSTRUCTION_REQUIRED.filter(file=>!declaredMustEdit.includes(file));
   if(missingInstructionRequired.length)issues.push({code:'DEV_PLAN_PO_INSTRUCTION_REQUIRED_CHANGE_UNDECLARED',files:missingInstructionRequired,instructionIds:generatedExecutionRoute.PO_INSTRUCTIONS});
   if(generatedExecutionRoute.UNKNOWN.length)issues.push({code:'DEV_PLAN_SEMANTIC_EXECUTION_UNKNOWN',unknown:generatedExecutionRoute.UNKNOWN});
@@ -136,6 +161,9 @@ const report={
   projectedFiles,
   actualScope,
   projectedScope,
+  implementationSkeleton,
+  projectedReleaseRisk,
+  gateChain,
   architectureImpact:{
     actual:{directDomains:actualDomains,directAuthorities:actualAuthorities,unresolvedFiles:actualUnresolved},
     projected:{directDomains:projectedDomains,directAuthorities:projectedAuthorities,unresolvedFiles:projectedUnresolved},
@@ -156,6 +184,6 @@ const report={
 };
 mkdirSync('artifacts/shoperation-development-guard',{recursive:true});
 writeFileSync('artifacts/shoperation-development-guard/plan-before-code.json',JSON.stringify(report,null,2)+'\n');
-console.log(`Plan Before Code: ${report.decision}; mode=${report.evaluationMode}; changedFiles=${changedFiles.length}; projectedFiles=${projectedFiles.length}; failures=${projectedFailures.length}.`);
+console.log(`Plan Before Code: ${report.decision}; mode=${report.evaluationMode}; changedFiles=${changedFiles.length}; projectedFiles=${projectedFiles.length}; failures=${projectedFailures.length}; projectedRisk=${projectedReleaseRisk.score}/${projectedReleaseRisk.maxPoints}; gateChain=${gateChain.decision}.`);
 for(const issue of issues)console.error(JSON.stringify(issue));
 if(report.decision!=='PASS'&&process.argv.includes('--check'))process.exit(1);

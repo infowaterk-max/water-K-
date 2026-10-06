@@ -84,6 +84,9 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(workflow).toContain('QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}');
     expect(workflow).toContain('ref: ${{ github.event.pull_request.head.sha || github.sha }}');
     expect(runner).toContain('process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA');
+    expect(runner).toContain('deriveTemplateLiveRuntimeClosure({registry:guardRegistry})');
+    expect(runner).toContain('templateLiveProofInputContractDigest(guardRegistry,liveRuntimeClosure)');
+    expect(runner).not.toMatch(/deriveTemplateLiveRuntimeClosure\(\{registry\}\)/);
     expect(workflow).toContain("src/lib/auth/storefront-return-target.ts");
     expect(workflow).toContain("src/app/api/orders/claim/**");
     expect(workflow).toContain('tests/storefront-auth-return-target.test.ts');
@@ -126,7 +129,7 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(route).toContain('pageFingerprints:pageFingerprints(build.package)');
     expect(runner).toContain("contract:'shoporation.template-factory-quality-evidence.v2'");
     expect(runner).toContain("reconciliationContract:'shoporation.template-factory-page-evidence-reuse.v1'");
-    expect(runner).toContain('manifest.checksum!==manifestChecksum(manifest)');
+    expect(runner).toContain('manifest.checksum!==templateFactoryEvidenceChecksum(manifest)');
     expect(runner).toContain("manifest.branch!==currentBranch");
     expect(runner).toContain('isAncestor(manifest.sourceCommit,headSha)');
     expect(runner).toContain("evidenceExecution:'REUSED'");

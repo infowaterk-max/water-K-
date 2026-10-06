@@ -1,7 +1,8 @@
-import {createHash} from 'node:crypto';
 import {appendFileSync,existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {dirname} from 'node:path';
 import {pathToFileURL} from 'node:url';
+import {compileGateChain,exactPlannedPaths} from './lib/shoperation-development-runtime.mjs';
+import {deriveTemplateLiveRuntimeClosure,deriveTemplateLiveRuntimeOrigin,deriveTemplatePreviewAnchorCandidates,templateFactoryEvidenceChecksum,validateTemplateLiveProofRecord} from './lib/shoperation-template-factory-resumable-verification.mjs';
 
 export const EXTERNAL_PROOF_EVIDENCE_CONTRACT='shoporation.external-proof-evidence.v1';
 export const TEMPLATE_FACTORY_QUALITY_CONTRACT='shoporation.template-factory-quality-evidence.v2';
@@ -9,8 +10,6 @@ const PASS=new Set(['pass','passed','success','succeeded','ok','green']);
 const normalize=value=>String(value??'').trim().toLowerCase().replaceAll(' ','_');
 const uniq=values=>[...new Set(values.filter(Boolean))];
 const readJson=path=>JSON.parse(readFileSync(path,'utf8'));
-const canonicalJson=value=>Array.isArray(value)?'['+value.map(canonicalJson).join(',')+']':value&&typeof value==='object'?'{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}':JSON.stringify(value);
-const sha256=value=>createHash('sha256').update(String(value)).digest('hex');
 const writeOutput=(key,value)=>{if(process.env.GITHUB_OUTPUT)appendFileSync(process.env.GITHUB_OUTPUT,key+'='+String(value)+'\n');};
 
 export function completionEvidenceGuardIds(plan){
@@ -23,10 +22,20 @@ export function completionEvidenceGuardIds(plan){
   return uniq(refs);
 }
 
-export function requiredExternalCompletionGuards({activePlan,verificationPlan}={}){
-  const required=completionEvidenceGuardIds(activePlan);
+export function requiredExternalCompletionGuards({activePlan,verificationPlan,guardRegistry}={}){
+  if(activePlan?.status==='closed')return[];
+  const explicit=completionEvidenceGuardIds(activePlan);
   const local=new Set(Object.keys(verificationPlan?.gates??{}));
-  return required.filter(id=>!local.has(id));
+  const declaredRoute=activePlan?.operationalIntelligence?.semanticExecutionRoute??{};
+  const plannedFiles=[...new Set([
+    ...exactPlannedPaths(activePlan?.plannedFilePatterns??[]),
+    ...(declaredRoute.mustEdit??[]),
+    ...(declaredRoute.mustCreate??[]),
+  ])].filter(file=>file!=='quality/development/active-plan.json').sort();
+  const registry=guardRegistry??readJson('quality/knowledge/guard-registry.v1.json');
+  const chain=compileGateChain({guardRegistry:registry,plannedFiles,phase:'VERIFY',explicitGuardIds:explicit});
+  if(chain.decision!=='PASS')return [...new Set([...explicit.filter(id=>!local.has(id)),...chain.externalGateIds])];
+  return [...new Set([...explicit.filter(id=>!local.has(id)),...chain.externalGateIds.filter(id=>!local.has(id))])].sort();
 }
 
 export function validateTemplateFactoryExternalProof({
@@ -37,6 +46,10 @@ export function validateTemplateFactoryExternalProof({
   runId,
   workflowName='Template Factory Quality Gate v2',
   workflowConclusion='success',
+  guardRegistry,
+  runtimeOrigin,
+  previewAnchorCandidates,
+  runtimeClosure,
 }={}){
   const issues=[];
   if(workflowName!=='Template Factory Quality Gate v2')issues.push({code:'EXTERNAL_PROOF_WORKFLOW_IDENTITY_MISMATCH',expected:'Template Factory Quality Gate v2',actual:workflowName});
@@ -51,10 +64,55 @@ export function validateTemplateFactoryExternalProof({
   const incomplete=proofs.filter(item=>item?.browserMatrixPassed!==true||item?.browserMatrixComplete!==true);
   if(incomplete.length)issues.push({code:'EXTERNAL_PROOF_BROWSER_MATRIX_INCOMPLETE',templates:incomplete.map(item=>item?.templateKey??'unknown')});
   if(manifest?.checksum){
-    const copy={...manifest};delete copy.checksum;
-    const actual=sha256(canonicalJson(copy));
+    const actual=templateFactoryEvidenceChecksum(manifest);
     if(actual!==manifest.checksum)issues.push({code:'EXTERNAL_PROOF_CHECKSUM_INVALID',expected:manifest.checksum,actual});
   }else issues.push({code:'EXTERNAL_PROOF_CHECKSUM_MISSING'});
+  let verifiedRuntimeOrigin=null;
+  if(manifest&&manifest.contract===TEMPLATE_FACTORY_QUALITY_CONTRACT){
+    const registry=guardRegistry??readJson('quality/knowledge/guard-registry.v1.json');
+    const atlasPath='artifacts/shoperation-atlas/codebase-atlas.json';
+    const atlasSnapshot=existsSync(atlasPath)?readJson(atlasPath):undefined;
+    const resolvedRuntimeClosure=runtimeClosure??deriveTemplateLiveRuntimeClosure({registry,atlas:atlasSnapshot});
+    const liveValidation=validateTemplateLiveProofRecord(manifest.liveProof,{currentHead:expectedHead,currentBranch:expectedBranch,currentRunId:String(runId??''),registry,runtimeClosure:resolvedRuntimeClosure});
+    for(const liveIssue of liveValidation.issues)issues.push({code:liveIssue.code,scope:'template-live-proof',...liveIssue});
+    verifiedRuntimeOrigin=runtimeOrigin??deriveTemplateLiveRuntimeOrigin({registry,atlas:atlasSnapshot,baseSha:String(manifest.baseSha??'').trim(),currentHead:expectedHead});
+    if(verifiedRuntimeOrigin?.decision!=='PASS')issues.push({code:'EXTERNAL_PROOF_RUNTIME_ORIGIN_UNPROVEN',issues:verifiedRuntimeOrigin?.issues??[]});
+    else{
+      if(manifest.liveProof?.runtimeSourceCommit!==verifiedRuntimeOrigin.runtimeSourceCommit)issues.push({code:'EXTERNAL_PROOF_RUNTIME_SOURCE_MISMATCH',expected:verifiedRuntimeOrigin.runtimeSourceCommit,actual:manifest.liveProof?.runtimeSourceCommit??null});
+      if(manifest.liveProof?.runtimeOriginMode!==verifiedRuntimeOrigin.mode)issues.push({code:'EXTERNAL_PROOF_RUNTIME_MODE_MISMATCH',expected:verifiedRuntimeOrigin.mode,actual:manifest.liveProof?.runtimeOriginMode??null});
+      const expectedChanged=JSON.stringify(verifiedRuntimeOrigin.changedFilesSinceOrigin??[]);
+      const actualChanged=JSON.stringify(manifest.liveProof?.changedFilesSinceOrigin??[]);
+      if(expectedChanged!==actualChanged)issues.push({code:'EXTERNAL_PROOF_RUNTIME_CHANGED_FILES_MISMATCH',expected:verifiedRuntimeOrigin.changedFilesSinceOrigin??[],actual:manifest.liveProof?.changedFilesSinceOrigin??[]});
+      const expectedAffected=JSON.stringify(verifiedRuntimeOrigin.affectedInputs??[]);
+      const actualAffected=JSON.stringify(manifest.liveProof?.affectedInputs??[]);
+      if(expectedAffected!==actualAffected)issues.push({code:'EXTERNAL_PROOF_RUNTIME_AFFECTED_INPUTS_MISMATCH',expected:verifiedRuntimeOrigin.affectedInputs??[],actual:manifest.liveProof?.affectedInputs??[]});
+      if(Boolean(manifest.liveProof?.runtimeClassifierChanged)!==Boolean(verifiedRuntimeOrigin.classifierChanged))issues.push({code:'EXTERNAL_PROOF_RUNTIME_CLASSIFIER_CHANGE_MISMATCH',expected:Boolean(verifiedRuntimeOrigin.classifierChanged),actual:Boolean(manifest.liveProof?.runtimeClassifierChanged)});
+      if(Boolean(manifest.liveProof?.runtimeSafetyFallbackApplied)!==Boolean(verifiedRuntimeOrigin.safetyFallbackApplied))issues.push({code:'EXTERNAL_PROOF_RUNTIME_FALLBACK_MISMATCH',expected:Boolean(verifiedRuntimeOrigin.safetyFallbackApplied),actual:Boolean(manifest.liveProof?.runtimeSafetyFallbackApplied)});
+      const expectedClassifierInputs=JSON.stringify(verifiedRuntimeOrigin.classifierInputs??[]);
+      const actualClassifierInputs=JSON.stringify(manifest.liveProof?.runtimeClassifierInputs??[]);
+      if(expectedClassifierInputs!==actualClassifierInputs)issues.push({code:'EXTERNAL_PROOF_RUNTIME_CLASSIFIER_INPUTS_MISMATCH',expected:verifiedRuntimeOrigin.classifierInputs??[],actual:manifest.liveProof?.runtimeClassifierInputs??[]});
+      const expectedFallbackPatterns=JSON.stringify(verifiedRuntimeOrigin.safetyFallbackRuntimePatterns??[]);
+      const actualFallbackPatterns=JSON.stringify(manifest.liveProof?.runtimeSafetyFallbackPatterns??[]);
+      if(expectedFallbackPatterns!==actualFallbackPatterns)issues.push({code:'EXTERNAL_PROOF_RUNTIME_FALLBACK_PATTERNS_MISMATCH',expected:verifiedRuntimeOrigin.safetyFallbackRuntimePatterns??[],actual:manifest.liveProof?.runtimeSafetyFallbackPatterns??[]});
+      const verifiedAnchors=previewAnchorCandidates??deriveTemplatePreviewAnchorCandidates({
+        registry,
+        runtimeSourceCommit:verifiedRuntimeOrigin.runtimeSourceCommit,
+        maxCandidates:40,
+      });
+      if(verifiedAnchors?.decision!=='PASS'){
+        issues.push({code:'EXTERNAL_PROOF_PREVIEW_ANCHOR_CANDIDATES_UNPROVEN',issues:verifiedAnchors?.issues??[]});
+      }else{
+        const deploymentSourceCommit=manifest.liveProof?.deploymentSourceCommit??null;
+        const matchedAnchor=(verifiedAnchors.candidates??[]).find(item=>item.deploymentSourceCommit===deploymentSourceCommit);
+        if(!matchedAnchor){
+          issues.push({code:'EXTERNAL_PROOF_PREVIEW_ANCHOR_NOT_EQUIVALENT',runtimeSourceCommit:verifiedRuntimeOrigin.runtimeSourceCommit,deploymentSourceCommit});
+        }else{
+          if(manifest.liveProof?.deploymentAnchorMode!==matchedAnchor.mode)issues.push({code:'EXTERNAL_PROOF_PREVIEW_ANCHOR_MODE_MISMATCH',expected:matchedAnchor.mode,actual:manifest.liveProof?.deploymentAnchorMode??null});
+          if(manifest.liveProof?.deploymentRuntimeEquivalenceProven!==true||matchedAnchor.runtimeEquivalenceProven!==true)issues.push({code:'EXTERNAL_PROOF_PREVIEW_ANCHOR_EQUIVALENCE_UNPROVEN'});
+        }
+      }
+    }
+  }
   if(!String(runId??'').trim())issues.push({code:'EXTERNAL_PROOF_RUN_ID_MISSING'});
   const ok=issues.length===0;
   return{
@@ -64,7 +122,7 @@ export function validateTemplateFactoryExternalProof({
       id:'GUARD-TEMPLATE-FACTORY',
       status:'PASS',
       sourceCommit:expectedHead,
-      originSourceCommit:manifest.sourceCommit,
+      originSourceCommit:manifest.liveProof?.originSourceCommit??manifest.sourceCommit,
       branch:expectedBranch,
       stateVersion,
       runId:String(runId),
@@ -75,6 +133,21 @@ export function validateTemplateFactoryExternalProof({
         artifactChecksum:manifest.checksum,
         browserMatrixCount:proofs.reduce((sum,item)=>sum+Number(item?.browserMatrixCaseCount??0),0),
         acceptanceProofCount:proofs.length,
+        liveProofMode:manifest.liveProof?.mode??null,
+        liveProofOriginSourceCommit:manifest.liveProof?.originSourceCommit??null,
+        liveProofOriginRunId:manifest.liveProof?.originRunId??null,
+        liveProofInputContractDigest:manifest.liveProof?.inputContractDigest??null,
+        runtimeSourceCommit:manifest.liveProof?.runtimeSourceCommit??null,
+        runtimeOriginMode:manifest.liveProof?.runtimeOriginMode??null,
+        runtimeEquivalenceProven:manifest.liveProof?.runtimeEquivalenceProven===true,
+        runtimeOriginDecision:verifiedRuntimeOrigin?.decision??null,
+        runtimeClassifierChanged:manifest.liveProof?.runtimeClassifierChanged===true,
+        runtimeSafetyFallbackApplied:manifest.liveProof?.runtimeSafetyFallbackApplied===true,
+        deploymentSourceCommit:manifest.liveProof?.deploymentSourceCommit??null,
+        deploymentAnchorMode:manifest.liveProof?.deploymentAnchorMode??null,
+        deploymentRuntimeEquivalenceProven:manifest.liveProof?.deploymentRuntimeEquivalenceProven===true,
+        deploymentEnvironment:manifest.liveProof?.deploymentEnvironment??null,
+        deploymentId:manifest.liveProof?.deploymentId??null,
       },
     }:null,
   };
@@ -113,7 +186,8 @@ function requirementsCli(){
   const activePlan=readJson(process.env.SHOPERATION_ACTIVE_PLAN||'quality/development/active-plan.json');
   const verificationPath=process.env.SHOPERATION_REPLAY_PLAN||'artifacts/shoperation-development-guard/resumable-verification-plan.json';
   const verificationPlan=existsSync(verificationPath)?readJson(verificationPath):{gates:{}};
-  const required=requiredExternalCompletionGuards({activePlan,verificationPlan});
+  const guardRegistry=readJson('quality/knowledge/guard-registry.v1.json');
+  const required=requiredExternalCompletionGuards({activePlan,verificationPlan,guardRegistry});
   const unsupported=required.filter(id=>id!=='GUARD-TEMPLATE-FACTORY');
   const templateFactory=required.includes('GUARD-TEMPLATE-FACTORY');
   writeOutput('required',required.length?'true':'false');

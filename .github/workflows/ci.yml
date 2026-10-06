@@ -261,17 +261,29 @@ jobs:
             const {owner,repo}=context.repo;
             const sha=context.payload.pull_request?.head?.sha??context.sha;
             const workflowName='Template Factory Quality Gate v2';
+            const expectedEvent=context.eventName==='pull_request'?'pull_request':'push';
+            const expectedBranch=context.payload.pull_request?.head?.ref??context.ref.replace('refs/heads/','');
+            const expectedPrNumber=context.payload.pull_request?.number??null;
+            const sameExecutionContext=run=>{
+              if(run.name!==workflowName||run.head_sha!==sha)return false;
+              if(run.event!==expectedEvent||run.head_branch!==expectedBranch)return false;
+              if(expectedPrNumber===null)return true;
+              return (run.pull_requests??[]).some(pr=>pr.number===expectedPrNumber);
+            };
             for(let attempt=0;attempt<180;attempt+=1){
               const response=await github.rest.actions.listWorkflowRunsForRepo({owner,repo,head_sha:sha,per_page:100});
-              const candidates=(response.data.workflow_runs??[])
-                .filter(run=>run.name===workflowName&&run.head_sha===sha)
+              const allExactHead=(response.data.workflow_runs??[])
+                .filter(run=>run.name===workflowName&&run.head_sha===sha);
+              const candidates=allExactHead
+                .filter(sameExecutionContext)
                 .sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at));
+              const rejected=allExactHead.filter(run=>!sameExecutionContext(run));
               const successful=candidates.find(run=>run.status==='completed'&&run.conclusion==='success');
               if(successful){
                 core.setOutput('run_id',String(successful.id));
                 core.setOutput('conclusion',successful.conclusion);
                 core.setOutput('workflow_name',workflowName);
-                core.info(`Exact-head Template Factory proof resolved from run ${successful.id}.`);
+                core.info(`Exact-context Template Factory proof resolved from run ${successful.id}; event=${successful.event}; branch=${successful.head_branch}; pr=${expectedPrNumber??'none'}.`);
                 return;
               }
               const active=candidates.some(run=>run.status==='queued'||run.status==='in_progress'||run.status==='waiting'||run.status==='requested'||run.status==='pending');
@@ -281,7 +293,10 @@ jobs:
                 core.setFailed(`EXTERNAL_TEMPLATE_FACTORY_RUN_NOT_SUCCESS:${actual}`);
                 return;
               }
-              if(attempt%12===0)core.info(`Waiting for exact-head Template Factory proof for ${sha}; candidates=${candidates.length}.`);
+              if(attempt%12===0){
+                const rejectedContext=rejected.map(run=>`${run.id}:${run.event}:${run.head_branch}`).join(',')||'none';
+                core.info(`Waiting for exact-context Template Factory proof for ${sha}; event=${expectedEvent}; branch=${expectedBranch}; pr=${expectedPrNumber??'none'}; candidates=${candidates.length}; rejected=${rejectedContext}.`);
+              }
               await sleep(5000);
             }
             core.setFailed('EXTERNAL_TEMPLATE_FACTORY_PROOF_TIMEOUT');

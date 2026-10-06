@@ -3,6 +3,10 @@ import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {
   canonicalizeTemplateFactoryInfrastructureInput,
+  deriveTemplateLiveRuntimeClosure,
+  deriveTemplatePreviewAnchorCandidates,
+  selectTemplateLiveRuntimeOrigin,
+  templatePreviewAnchorEquivalence,
   deriveTemplateReplayDecision,
   reusableTemplateBrowserCase,
   templateBrowserCaseFingerprint,
@@ -38,6 +42,132 @@ describe('Template Factory resumable browser verification',()=>{
     const qualityGate=readFileSync('scripts/template-factory-quality-gate.mjs','utf8');
     expect(qualityGate).toContain('canonicalizeTemplateFactoryInfrastructureInput(file,readFileSync(file))');
   });
+
+  it('derives deployed runtime scope from canonical entrypoints plus the exact-head Atlas snapshot',()=>{
+    const atlas=JSON.parse(readFileSync('artifacts/shoperation-atlas/codebase-atlas.json','utf8'));
+    const closure=deriveTemplateLiveRuntimeClosure({registry,atlas});
+    expect(closure.decision,JSON.stringify(closure.issues)).toBe('PASS');
+    expect(closure.entrypoints).toContain('src/app/admin/platform/page.tsx');
+    expect(closure.entrypoints).toContain('src/app/api/auth/workforce-login/page.tsx');
+    expect(closure.entrypoints).toContain('src/app/api/checkout/quote/route.ts');
+    expect(closure.globalFiles).toContain('src/middleware.ts');
+    expect(closure.files.length).toBeGreaterThan(closure.entrypoints.length);
+    expect(closure.files).not.toContain('.github/workflows/template-factory-quality-gate.yml');
+    expect(closure.files).not.toContain('scripts/template-factory-quality-gate.mjs');
+  });
+
+  it('selects the latest runtime-changing commit while ignoring newer proof-engine-only commits',()=>{
+    const runtimeFile='src/app/admin/platform/page.tsx';
+    const proofFile='.github/workflows/template-factory-quality-gate.yml';
+    const base='base-sha';
+    const proofOnly=selectTemplateLiveRuntimeOrigin({
+      baseSha:base,currentHead:'head-proof',runtimeFiles:[runtimeFile],
+      commitHistory:[{sha:'head-proof',files:[proofFile]}],
+    });
+    expect(proofOnly).toMatchObject({decision:'PASS',runtimeSourceCommit:base,mode:'BASE_RUNTIME',affectedInputs:[],runtimeEquivalenceProven:true});
+
+    const ancestorRuntime=selectTemplateLiveRuntimeOrigin({
+      baseSha:base,currentHead:'head-proof-2',runtimeFiles:[runtimeFile],
+      commitHistory:[
+        {sha:'head-proof-2',files:[proofFile]},
+        {sha:'runtime-1',files:[runtimeFile]},
+      ],
+    });
+    expect(ancestorRuntime).toMatchObject({decision:'PASS',runtimeSourceCommit:'runtime-1',mode:'ANCESTOR_RUNTIME',affectedInputs:[],runtimeEquivalenceProven:true});
+    expect(ancestorRuntime.changedFilesSinceOrigin).toEqual([proofFile]);
+
+    const currentRuntime=selectTemplateLiveRuntimeOrigin({
+      baseSha:base,currentHead:'head-runtime',runtimeFiles:[runtimeFile],
+      commitHistory:[
+        {sha:'head-runtime',files:[runtimeFile]},
+        {sha:'proof-before',files:[proofFile]},
+      ],
+    });
+    expect(currentRuntime).toMatchObject({decision:'PASS',runtimeSourceCommit:'head-runtime',mode:'CURRENT_HEAD',affectedInputs:[]});
+  });
+
+  it('activates a conservative runtime fallback when the classifier changes so self-narrowing cannot hide runtime drift',()=>{
+    const runtimeFile='src/app/admin/platform/page.tsx';
+    const omittedRuntimeFile='src/lib/hidden-runtime.ts';
+    const classifierFile='scripts/lib/shoperation-template-factory-resumable-verification.mjs';
+    const proofFile='.github/workflows/template-factory-quality-gate.yml';
+    const base='base-sha';
+
+    const classifierOnly=selectTemplateLiveRuntimeOrigin({
+      baseSha:base,currentHead:'head-classifier',
+      runtimeFiles:[runtimeFile],
+      classifierInputs:[classifierFile,proofFile],
+      safetyFallbackRuntimePatterns:['src/**','public/**','package.json'],
+      commitHistory:[{sha:'head-classifier',files:[classifierFile]}],
+    });
+    expect(classifierOnly).toMatchObject({
+      decision:'PASS',runtimeSourceCommit:base,mode:'BASE_RUNTIME',
+      classifierChanged:true,safetyFallbackApplied:true,affectedInputs:[],
+    });
+
+    const selfNarrowingAttempt=selectTemplateLiveRuntimeOrigin({
+      baseSha:base,currentHead:'head-classifier',
+      runtimeFiles:[runtimeFile],
+      classifierInputs:[classifierFile,proofFile],
+      safetyFallbackRuntimePatterns:['src/**','public/**','package.json'],
+      commitHistory:[
+        {sha:'head-classifier',files:[classifierFile]},
+        {sha:'runtime-hidden',files:[omittedRuntimeFile]},
+      ],
+    });
+    expect(selfNarrowingAttempt).toMatchObject({
+      decision:'PASS',runtimeSourceCommit:'runtime-hidden',mode:'ANCESTOR_RUNTIME',
+      classifierChanged:true,safetyFallbackApplied:true,affectedInputs:[],
+    });
+    expect(selfNarrowingAttempt.changedFilesSinceOrigin).toEqual([classifierFile]);
+  });
+
+  it('accepts only ancestor Preview anchors with zero conservative runtime drift',()=>{
+    const runtime='runtime-main';
+    const docsOnly=templatePreviewAnchorEquivalence({
+      registry,runtimeSourceCommit:runtime,candidateSourceCommit:'ancestor-preview',ancestorProven:true,
+      changedFiles:['quality/development/active-plan.json','docs/example.md'],
+    });
+    expect(docsOnly).toMatchObject({decision:'PASS',mode:'ANCESTOR_EQUIVALENT',runtimeEquivalenceProven:true,affectedRuntimeFiles:[]});
+
+    const runtimeDrift=templatePreviewAnchorEquivalence({
+      registry,runtimeSourceCommit:runtime,candidateSourceCommit:'ancestor-preview',ancestorProven:true,
+      changedFiles:['src/app/platform/page.tsx'],
+    });
+    expect(runtimeDrift.decision).toBe('BLOCK');
+    expect(runtimeDrift.issues.map(item=>item.code)).toContain('TEMPLATE_PREVIEW_ANCHOR_RUNTIME_DRIFT');
+
+    const unrelated=templatePreviewAnchorEquivalence({
+      registry,runtimeSourceCommit:runtime,candidateSourceCommit:'not-an-ancestor',ancestorProven:false,
+      changedFiles:[],
+    });
+    expect(unrelated.decision).toBe('BLOCK');
+    expect(unrelated.issues.map(item=>item.code)).toContain('TEMPLATE_PREVIEW_ANCHOR_ANCESTRY_UNPROVEN');
+  });
+
+  it('recognizes the existing Stage 1 Preview head as a runtime-equivalent anchor for the current main merge',()=>{
+    const candidates=deriveTemplatePreviewAnchorCandidates({
+      registry,
+      runtimeSourceCommit:'42e60510de935efd6f95d0dbe92ed57f5a3377ac',
+      maxCandidates:12,
+    });
+    expect(candidates.decision,JSON.stringify(candidates.issues)).toBe('PASS');
+    expect(candidates.candidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        deploymentSourceCommit:'33ed65d17cd4f12a4456351276f01001982f6f39',
+        mode:'ANCESTOR_EQUIVALENT',
+        runtimeEquivalenceProven:true,
+        affectedRuntimeFiles:[],
+      }),
+    ]));
+  });
+
+  it('fails closed when runtime origin identity is incomplete',()=>{
+    expect(selectTemplateLiveRuntimeOrigin({baseSha:'',currentHead:'head',runtimeFiles:['src/app/page.tsx'],commitHistory:[]}).decision).toBe('BLOCK');
+    expect(selectTemplateLiveRuntimeOrigin({baseSha:'base',currentHead:'',runtimeFiles:['src/app/page.tsx'],commitHistory:[]}).decision).toBe('BLOCK');
+    expect(selectTemplateLiveRuntimeOrigin({baseSha:'base',currentHead:'head',runtimeFiles:[],commitHistory:[]}).decision).toBe('BLOCK');
+  });
+
   it('reruns only FAQ x 3 viewports and reuses the other 39 matrix cases',()=>{
     const previous=fingerprints();
     const current={...previous,faq:'faq-v2'};

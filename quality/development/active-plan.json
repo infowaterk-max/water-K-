@@ -1,41 +1,41 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-STAGE1-WORKFORCE-ENTRYPOINT-DELEGATORS",
-  "task": "Stage 1 MR1 workforce entrypoint convergence: make the active platform, customer-account bridge, template-preview and workforce invitation surfaces consume the already-verified canonical Workforce Auth Core without changing identity primitives, role/tenant authority, middleware or parked AAL2 enforcement.",
+  "taskId": "DEV-CONTROL-PLANE-ECOSYSTEM-CHAIN-V1",
+  "task": "Control Plane ecosystem chain foundation: connect gate contracts, projected risk, proof obligations, repository relationship mapping and implementation skeleton before code execution.",
   "status": "closed",
-  "guardDigest": "2cec38ff",
-  "changeBaseSha": "b2d5d4f4b3a0831aa2879bdb9bf6f14b55361c46",
+  "guardDigest": "efe9d183",
+  "changeBaseSha": "42e60510de935efd6f95d0dbe92ed57f5a3377ac",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "src/app/platform/page.tsx",
-    "src/app/fiokom/page.tsx",
-    "src/app/storefront-template-preview-login/page.tsx",
-    "src/app/admin/platform/webaruhazak/actions.ts",
-    "tests/workforce-auth-ux.test.ts",
-    "tests/workforce-admin-entry-bridge.test.ts",
-    "tests/platform-auth-portal.test.ts",
-    "tests/platform-invite-production-redirect.test.ts",
-    "tests/platform-owner-zero-tenant-hotfix.test.ts",
-    "tests/workforce-entrypoint-convergence.test.ts",
-    "tests/storefront-template-preview-runtime.test.ts"
+    "quality/knowledge/guard-registry.v1.json",
+    "scripts/lib/shoperation-development-runtime.mjs",
+    "scripts/shoperation-development-guard.mjs",
+    "scripts/shoperation-plan-before-code.mjs",
+    "scripts/shoperation-external-proof-handoff.mjs",
+    "scripts/shoperation-verification-checkpoint.mjs",
+    "tests/control-plane-ecosystem-chain.test.ts",
+    "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+    ".github/workflows/template-factory-quality-gate.yml",
+    "tests/template-factory-resumable-verification.test.ts",
+    "scripts/template-factory-quality-gate.mjs",
+    "tests/shoperation-external-proof-handoff.test.ts",
+    "tests/storefront-template-quality-gate-v2.test.ts",
+    "scripts/template-factory-product-owner-handoff.mjs",
+    "tests/template-factory-engine-functional-proof-runner.test.ts",
+    "tests/control-plane-diagnostic-coverage.test.ts",
+    ".github/workflows/ci.yml"
   ],
   "expectedSubsystems": [
-    "admin-operations",
-    "auth-access-authority",
-    "builder-template-system",
-    "customer-account",
-    "shared-storefront",
-    "storefront-ui"
+    "quality-infrastructure",
+    "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-ADMIN",
-    "DOMAIN-BUILDER",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "admin-operations",
-    "builder-template-system",
-    "shared-storefront"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -43,7 +43,10 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -52,9 +55,13 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -83,38 +90,46 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
-    "SQ-NK-004",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
+    "SQ-NK-005",
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [
-    {
-      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
-      "file": "src/app/fiokom/layout.tsx",
-      "findingFingerprint": "18b6e8f2",
-      "reason": "Exact-fingerprint review only: the customer account layout intentionally continues to render StorefrontAccountShell for shopper account presentation. The changed workforce-only template preview login removed that shell because it now delegates immediately to canonical workforce authentication; the customer layout is not a workforce authentication or authorization consumer."
-    },
-    {
-      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
-      "file": "src/app/fiokom/layout.tsx",
-      "findingFingerprint": "2a254433",
-      "reason": "Exact-fingerprint review only: the closing StorefrontAccountShell expression belongs to the unchanged shopper account layout. It is intentionally independent from the workforce-only preview-login route and does not consume or override workforce login, role, tenant or MFA authority."
-    }
-  ],
+  "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-ENTRYPOINT-DELEGATORS",
-    "riskTier": "high",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-ECOSYSTEM-CHAIN",
+    "riskTier": "critical",
+    "problemStatement": "The Control Plane gates are individually strict but their deterministic knowledge, downstream requirements, phase state and release implications are not yet propagated as one canonical development chain, causing foreseeable failures to be discovered late and forcing avoidable manual reconciliation.",
+    "observableOutcomes": [
+      "Before implementation starts, the active plan exposes one machine-derived implementation skeleton covering repository relationships, applicable gates, downstream obligations and projected release risk.",
+      "Every applicable downstream guard requirement that is deterministically knowable from planned scope is visible upstream before code execution rather than first appearing as a later CI failure.",
+      "External proof applicability is derived from canonical guard semantics and affected scope so Completion Truth cannot report a locally complete claim while a required external proof is absent."
+    ],
+    "unresolvedRisks": [
+      "Some guard semanticInputs are intentionally broad, so initial automatic applicability may expose over-broad contracts that must be corrected at the owning guard rather than suppressed locally.",
+      "Atlas cannot infer genuinely new runtime relationships that do not yet exist, so MUST_CREATE declarations require fail-closed reconciliation after the first implementation diff.",
+      "Phase-aware execution and lifecycle-only CI optimization depend on a later workflow release unit and are intentionally not activated by this foundation commit."
+    ],
+    "scope": {
+      "in": [
+        "Canonical gate contract and dependency-chain semantics for development orchestration.",
+        "Machine-derived implementation skeleton from Atlas relationships plus planned file intent.",
+        "Projected Release Risk calculation during planning using the existing production risk policy.",
+        "Backward propagation of proof obligations including external proof applicability.",
+        "Separate Template Factory proof-engine inputs from deployed live-runtime inputs; derive the latter from canonical runtime entrypoints plus Atlas dependency closure."
+      ],
+      "out": [
+        "No authentication, authorization, tenant, storefront or business-runtime behavior changes.",
+        "No weakening of Release Risk Budget, Sentinel, Completion Truth or existing blocking guards.",
+        "No CI workflow phase-skipping or lifecycle auto-commit in this first release unit.",
+        "No activation or merge of parked workforce AAL2 enforcement."
+      ]
+    },
     "assuranceCeiling": {
-      "level": "strong-behavioral-proof",
-      "rationale": "The canonical Workforce Auth Core is already exact-head VERIFIED on main. This transaction changes only active ADMIN, BUILDER and STOREFRONT entrypoint/delegator surfaces so they consume that authority. A defect could preserve an alternate privileged password surface, route preview users through shopper authentication, misroute workforce invitations, or reopen the high-risk auth release scope.",
+      "level": "critical-practical",
+      "rationale": "This change modifies the Control Plane authority that decides what future work may edit, what evidence is required and when a development transaction is considered complete. A false PASS could affect every later subsystem, so the strongest practical assurance profile is required while keeping final production and external proofs independently authoritative.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -124,37 +139,55 @@
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
-        "fault-injection"
+        "fault-injection",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "The active /platform page no longer imports or renders legacy PlatformAuthForm; existing workforce users delegate to canonical workforce login and owner activation consumes the verified auth-owned activation primitive.",
-        "The template-preview login route no longer renders customer AuthForm or StorefrontAccountShell; it delegates to canonical workforce login with the exact sanitized preview target.",
-        "Explicit /fiokom workforce intent bridges allowed admin and exact template-preview targets through the shared workforce return-target helper before storefront instance resolution; ordinary shopper sign-in remains unchanged.",
-        "Platform-created workforce invitations redirect to the verified workforce-owned credential completion route instead of shopper /fiokom onboarding.",
-        "All four active delegates consume the merged Workforce Auth Core from main; no Auth Core implementation file is modified in this transaction.",
-        "No role, tenant, middleware authorization authority or AAL2 enforcement is added, weakened or activated.",
-        "The delegator release consumes the current main Workforce Auth contract including prepared/enforced MFA activation semantics; it does not configure WORKFORCE_MFA_MODE, alter target factor policy, or activate server-side AAL2 enforcement."
+        "The guard registry can declare machine-readable gate dependencies, consumed inputs, produced outputs, applicable phases and proof obligations without creating a second guard authority.",
+        "The Development Guard writes changeBaseSha and a machine-derived implementation skeleton before coding, including MUST_EDIT, MAY_EDIT, IMPACTED_READ_ONLY, MUST_CREATE and FORBIDDEN categories.",
+        "Plan Before Code evaluates projected Release Risk from planned scope using the canonical release-risk policy and blocks a plan that is predictably over budget before implementation starts.",
+        "Plan Before Code produces an ordered applicable gate chain and blocks dependency cycles, missing producers and unresolved downstream obligations.",
+        "External completion proof requirements are derived from affected scope and guard semantics in addition to explicit PO completion references, so relevant external proof cannot be omitted accidentally.",
+        "Existing blocking gates remain authoritative and final exact-diff Release Risk, exact-head evidence and Completion Truth are not weakened or replaced.",
+        "Resumable Verification consumes the same canonical derived external-proof obligations as the external-proof detector, so a validated required proof cannot be rejected downstream as unrequested.",
+        "Template Factory live-preview proof may be reused only when a prior complete proof is same-branch ancestor evidence and no changed file since that proof intersects the canonical GUARD-TEMPLATE-FACTORY semantic, configuration, authority or global verification inputs; otherwise live exact-head proof remains mandatory.",
+        "The current-head Template Factory manifest records live-proof provenance explicitly: LIVE uses the current runtime source, while REUSED names the successful ancestor workflow/source and a machine-proven empty set of affected live-proof inputs.",
+        "Template Factory live proof separates current proof HEAD/run identity from deployed runtime source identity so an Atlas-proven ancestor deployment can be tested by the current harness without falsifying provenance."
       ],
       "invariants": [
-        "Supabase Auth remains the only session/password/MFA authority.",
-        "The merged Workforce Auth Core on main is read-only in this release unit.",
-        "Server-owned platform operator, role and tenant authorities remain unchanged.",
-        "Customer AuthForm remains shopper-owned and is not used by workforce-only preview or invitation flows.",
-        "PR #858 remains parked and untouched.",
-        "The release transaction contains no substantive src/lib/auth or src/app/api/auth implementation edits.",
-        "WORKFORCE_MFA_MODE remains server-owned Auth Core configuration inherited from main; this delegator transaction must not set, expose publicly, or override it."
+        "One canonical guard registry remains the authority for gate identity and dependency semantics.",
+        "Atlas and existing domain authorities remain the source of repository relationship truth; the ecosystem layer consumes them rather than duplicating them.",
+        "Projected Release Risk is advisory-before-code but blocking when predictably invalid; actual Release Risk remains the final release authority.",
+        "Unknown producer, dependency cycle, unknown relationship and stale transaction identity fail closed.",
+        "Machine-derivable data is generated upstream and must not require manual re-entry downstream.",
+        "Ignored Vercel builds are never interpreted as proof success; they may only cause proof reuse when an independently validated semantic-equivalence decision names the prior proof origin and changed-file set.",
+        "A proof-engine/configuration change must invalidate the proof producer itself, but must not force a new Vercel deployment when the Atlas-derived deployed-runtime closure is unchanged.",
+        "Live-proof reuse is permitted only from a successful same-branch ancestor whose runtime evidence is complete and whose Atlas-derived runtime closure has no changed file; proof-engine reuse and runtime-proof reuse are separate decisions.",
+        "Runtime-equivalent proof orchestration reuses a proven deployment target, not an opaque prior proof result: the current workflow/harness must execute live against that target unless a later separately proven evidence-reuse policy authorizes physical proof skipping.",
+        "A change to the live-runtime classifier or its canonical contract cannot self-approve a narrower runtime scope: classifier-authority drift activates a conservative application-runtime fallback over the whole release history.",
+        "Template Factory live E13/Product Owner proof may target only a non-production Vercel Preview deployment; production deployment fallback is forbidden even when the runtime SHA is equivalent.",
+        "Template Factory E13 and Product Owner live proof must consume one canonical safe Preview deployment resolution per run; duplicate deployment lookup authorities are forbidden.",
+        "A safe Preview deploymentSourceCommit may differ from runtimeSourceCommit only when it is an ancestor of the runtime source and a conservative runtime diff proves zero runtime changes between them."
       ],
       "forbiddenStates": [
-        "active-platform-route-legacy-direct-password-login",
-        "template-preview-customer-authform",
-        "workforce-invite-customer-account-onboarding",
-        "duplicated-workforce-return-target-policy",
-        "auth-core-reopened-in-delegator-release",
-        "middleware-authz-authority",
-        "aal2-enforcement-activation"
+        "parallel-gate-registry",
+        "manual-downstream-requirement-copy",
+        "late-deterministic-release-risk-discovery",
+        "completion-truth-with-omitted-applicable-external-proof",
+        "ecosystem-cycle-accepted",
+        "gate-requirement-without-producer",
+        "control-plane-gate-weakened-for-speed",
+        "template-factory-preview-wait-on-semantically-unchanged-head",
+        "template-factory-proof-reuse-without-ancestor-and-input-equivalence",
+        "template-live-preview-required-only-because-proof-engine-changed",
+        "proof-engine-change-hidden-by-old-live-proof-result-reuse",
+        "runtime-classifier-self-narrowing-hides-runtime-change",
+        "template-proof-executes-against-production-deployment",
+        "duplicate-runtime-preview-resolution-authority",
+        "preview-anchor-without-runtime-equivalence-proof"
       ]
     },
     "model": {
@@ -186,41 +219,42 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The platform page keeps PlatformAuthForm or another direct privileged signInWithPassword path.",
-        "The template-preview login still renders customer AuthForm/StorefrontAccountShell rather than delegating to workforce login.",
-        "The /fiokom workforce bridge only handles /admin and loses the exact preview return target supported by the verified Auth Core.",
-        "A platform invitation still redirects to shopper /fiokom invite UX instead of workforce credential completion.",
-        "A delegator reimplements redirect allowlisting locally and diverges from the shared fail-closed workforce helper.",
-        "The change edits Auth Core, require-admin, middleware or tenant resolution and accidentally reopens authority/AAL2 semantics.",
-        "The release reintroduces the combined-branch Release Risk Budget failure by mixing substantive auth implementation with ADMIN/BUILDER/STOREFRONT delegates."
+        "A downstream guard requires data that an upstream guard already knew but did not persist into the transaction.",
+        "The planned file set is already over Release Risk Budget but the block is discovered only after implementation.",
+        "A plan-only transaction is interpreted as failed implementation because phase applicability is not represented explicitly.",
+        "Completion Truth verifies only locally declared evidence while an applicable external proof is missing.",
+        "A new file duplicates an existing canonical capability because repository relationship mapping was not consulted before implementation.",
+        "A gate dependency graph contains a cycle or a required input has no authoritative producer.",
+        "The external-proof detector derives a required guard correctly, but the Resumable Verification handoff recomputes requirements from only manual Completion Contract references and rejects the valid proof as unrequested.",
+        "A control-plane-only descendant commit triggers Template Factory due cumulative PR paths, Vercel correctly ignores the build, and the workflow waits for an exact-head preview that should not exist."
       ],
       "edgeCases": [
-        "Existing shopper flows through /fiokom remain shopper-owned unless reason=login and the normalized target is workforce-allowed.",
-        "Exact /storefront-template-preview with query parameters survives the bridge; preview-login loops and external targets remain rejected by the merged helper.",
-        "An already authenticated user opening preview login still traverses canonical workforce login/context processing rather than bypassing it.",
-        "First-owner activation continues through the merged auth-owned activation component and then canonical workforce login.",
-        "Invite redirects preserve next=/admin in encoded form for credential completion.",
-        "Legacy PlatformAuthForm may remain as dead source but must have zero active App Router references."
+        "A planned file does not yet exist and must be represented as MUST_CREATE rather than silently omitted from projection.",
+        "A planned rename or deletion must retain old-path dependency information so consumers are reconciled before edit completion.",
+        "A broad semantic input pattern may make an external guard applicable; the system must surface the reason instead of hiding it.",
+        "A high-risk subsystem projected together with any other substantive subsystem must be split before implementation.",
+        "A neutral test or evidence file must not increase release risk while still participating in proof obligations.",
+        "A closed lifecycle plan must remain read-only and preserve verified-head ancestry semantics."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-MERGE-COMBINED-BRANCH",
-        "summary": "Merge the original combined Auth Core plus delegator branch.",
+        "id": "ALT-PATCH-INDIVIDUAL-GATES",
+        "summary": "Patch each observed Stage 1 friction point independently inside its current script.",
         "disposition": "rejected",
-        "reason": "That transaction already proved 10/5 Release Risk Budget and would discard the successful isolation of Auth Core."
+        "reason": "This would preserve the same fragmented knowledge flow and require future missing handoffs to be rediscovered one by one."
       },
       {
-        "id": "ALT-DUPLICATE-DELEGATOR-AUTH",
-        "summary": "Keep route-local login/redirect logic in platform, account and preview surfaces.",
+        "id": "ALT-NEW-CONTROL-PLANE",
+        "summary": "Build a separate orchestration system beside the existing Control Plane and migrate gates later.",
         "disposition": "rejected",
-        "reason": "That preserves parallel privileged entry authorities and allows drift from the verified Workforce Auth Core."
+        "reason": "A second authority would violate canonical ownership and create exactly the ecosystem fragmentation this work is intended to remove."
       },
       {
-        "id": "ALT-THIN-DELEGATORS",
-        "summary": "Change only ADMIN, BUILDER and STOREFRONT callers so they consume the already-verified Workforce Auth Core.",
+        "id": "ALT-EVOLVE-CANONICAL-CHAIN",
+        "summary": "Extend the existing registry, Atlas consumers and development transaction so current gates form one dependency-aware chain.",
         "disposition": "selected",
-        "reason": "This completes convergence without reopening high-risk identity implementation and keeps release scope dependency-closed."
+        "reason": "This reuses proven authorities, makes requirements flow through one transaction and improves the current system without weakening or duplicating any gate."
       }
     ],
     "specialistReviews": [
@@ -228,144 +262,237 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "ADMIN, BUILDER and STOREFRONT presentation surfaces must consume DOMAIN-IDENTITY contracts rather than own privileged authentication policy.",
-        "resolution": "The four active surfaces become thin delegators; merged Auth Core files remain read-only.",
+        "finding": "The missing capability is orchestration across existing authorities, not another standalone engine.",
+        "resolution": "Keep guard identity in guard-registry.v1.json and derive the chain from existing Atlas, plan and release policies.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json",
-          "src/lib/auth/workforce-return-target.ts",
-          "src/app/api/auth/workforce-login/page.tsx"
-        ]
-      },
-      {
-        "role": "Security",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Delegation is unsafe if any surface retains customer AuthForm/direct password behavior or locally broadens return-target acceptance.",
-        "resolution": "Source-contract regressions require zero active PlatformAuthForm reference, no preview customer AuthForm, workforce-owned invite completion and shared return-target consumption.",
-        "evidence": [
-          "tests/workforce-entrypoint-convergence.test.ts",
-          "tests/platform-auth-portal.test.ts",
-          "tests/storefront-template-preview-runtime.test.ts"
+          "quality/knowledge/guard-registry.v1.json",
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+          "scripts/lib/shoperation-development-runtime.mjs"
         ]
       },
       {
         "role": "Release",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The original combined change exceeded Release Risk Budget because Auth Core and three presentation/operations subsystems shipped together.",
-        "resolution": "Auth Core was merged separately in PR #911; this second transaction contains only delegator callers and neutral proof files.",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Projected risk must not become a replacement for exact-diff Release Risk because planned scope can differ from the final diff.",
+        "resolution": "Projected risk blocks predictably invalid plans early while scripts/release-risk-budget.mjs remains the final release authority until the later shared-runtime adapter is proven.",
         "evidence": [
           "deploy/release-risk-policy.json",
-          "tests/workforce-entrypoint-convergence.test.ts"
+          "scripts/release-risk-budget.mjs",
+          "scripts/shoperation-plan-before-code.mjs"
+        ]
+      },
+      {
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The Stage 1 delay demonstrates a missing-edge class: deterministic downstream obligations were discovered after the phase where they could have prevented rework.",
+        "resolution": "Introduce ecosystem integrity findings for missing producer, cycle, late discovery and redundant recomputation, then cover them with one regression suite.",
+        "evidence": [
+          "quality/knowledge/development-guard-policy.v1.json",
+          "tests/shoperation-development-guard.test.ts"
+        ]
+      },
+      {
+        "role": "Operations",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The plan generator currently leaves transaction identity and many machine-derivable obligations for manual completion.",
+        "resolution": "Generate changeBaseSha and the implementation skeleton automatically so operators only supply genuinely human decisions.",
+        "evidence": [
+          "scripts/shoperation-development-guard.mjs",
+          "quality/development/active-plan.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-DELEGATOR-1",
-        "scenario": "A platform operator opens /platform with an existing workforce account.",
-        "finding": "Keeping PlatformAuthForm would preserve a parallel direct-password privileged entrypoint.",
-        "resolution": "The page imports workforceLoginHref and PlatformActivationForm only; active App Router modules have zero PlatformAuthForm references.",
+        "id": "CH-ECO-1",
+        "scenario": "A plan contains one high-risk auth file and three medium presentation files before any implementation exists.",
+        "finding": "Without projected risk the plan can be semantically valid yet guaranteed to fail Release Risk after code is written.",
+        "resolution": "Compute projected risk from the planned file envelope and require decomposition before execution when policy would block.",
         "status": "resolved"
       },
       {
-        "id": "CH-DELEGATOR-2",
-        "scenario": "An unauthenticated operator opens a template preview deep link.",
-        "finding": "Rendering customer AuthForm would mix shopper and workforce UX.",
-        "resolution": "Preview login validates the preview request and redirects to canonical workforce login with the sanitized preview target.",
+        "id": "CH-ECO-2",
+        "scenario": "A plan-only commit has no implementation diff but CI executes Edit-Time and Truth as if execution were complete.",
+        "finding": "The gate result is technically correct but phase-inappropriate and creates a false red development signal.",
+        "resolution": "Foundation emits canonical phase applicability; the subsequent CI unit will consume it and represent later gates as not-applicable-yet rather than failed.",
         "status": "resolved"
       },
       {
-        "id": "CH-DELEGATOR-3",
-        "scenario": "A merchant owner/admin accepts a platform-generated invitation.",
-        "finding": "Redirecting to /fiokom would mix workforce credential establishment with shopper onboarding.",
-        "resolution": "Invitation redirect targets /api/auth/workforce-credential?flow=invite and then the merged Auth Core owns credential completion.",
+        "id": "CH-ECO-3",
+        "scenario": "A Template Factory relevant file changes but the PO Completion Contract forgets to name GUARD-TEMPLATE-FACTORY.",
+        "finding": "Local Completion Truth can overclaim because external proof applicability currently depends on manual evidence references.",
+        "resolution": "Derive external proof applicability from guard semantic inputs and affected scope, fail closed on missing required evidence, and expose the reason upstream.",
         "status": "resolved"
       },
       {
-        "id": "CH-DELEGATOR-4",
-        "scenario": "A legacy workforce bridge enters through /fiokom with a preview target rather than /admin.",
-        "finding": "An admin-only local condition would drop a legitimate exact preview target or diverge from canonical allowlisting.",
-        "resolution": "The bridge calls normalizeWorkforceReturnTarget and workforceLoginHref before storefront instance resolution.",
+        "id": "CH-ECO-4",
+        "scenario": "A new implementation file is planned but does not yet exist in the Atlas node set.",
+        "finding": "Current projection can omit the file entirely and therefore cannot tell coding that creation is an explicit obligation.",
+        "resolution": "Represent unmatched exact planned paths as MUST_CREATE and reconcile them against the first actual diff.",
         "status": "resolved"
       },
       {
-        "id": "CH-DELEGATOR-5",
-        "scenario": "A caller supplies an unsafe or looping next target.",
-        "finding": "Route-local prefix logic could broaden the safe set.",
-        "resolution": "Delegators do not implement a second allowlist; they consume the exact merged auth-owned helper, whose regression remains in the proof set.",
+        "id": "CH-ECO-5",
+        "scenario": "A task edits a file whose consumers require companion changes in an existing canonical module.",
+        "finding": "A file-list-only plan can miss the existing related implementation point and create a local workaround.",
+        "resolution": "Build the implementation skeleton from Atlas consumers, authorities and semantic route categories before coding starts.",
         "status": "resolved"
       },
       {
-        "id": "CH-DELEGATOR-6",
-        "scenario": "Entrypoint convergence is mistaken for authorization/MFA enforcement.",
-        "finding": "Editing requireAdmin, middleware or tenant resolution would alter authority before final audit.",
-        "resolution": "Those files remain impacted-read-only and #858 stays parked.",
+        "id": "CH-ECO-6",
+        "scenario": "Two gate contracts depend on each other's output.",
+        "finding": "A naive pipeline can deadlock or rely on incidental execution order.",
+        "resolution": "Compile a directed dependency graph and block cycles or unresolved producers before execution authorization.",
         "status": "resolved"
       },
       {
-        "id": "CH-DELEGATOR-7",
-        "scenario": "The second release accidentally includes substantive Auth Core edits.",
-        "finding": "That would recreate the Release Risk Budget violation already proven on the combined branch.",
-        "resolution": "Plan envelope excludes auth implementation files and Release Risk Budget is a required CAP-RELEASE proof.",
+        "id": "CH-ECO-7",
+        "scenario": "Two gates independently recompute the same deterministic fact and disagree.",
+        "finding": "Independent recomputation creates competing truth and makes later diagnostics ambiguous.",
+        "resolution": "Name one producer for each canonical transaction datum and require downstream consumers to read the produced value.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-8",
+        "scenario": "A broad guard semantic input makes a costly external proof applicable to a seemingly small change.",
+        "finding": "Silently suppressing the proof would weaken assurance while blindly accepting the broad pattern can create unnecessary cost.",
+        "resolution": "Surface applicability provenance in the plan; if the pattern is over-broad, repair the owning guard contract in a later reviewed change rather than bypassing the proof.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-9",
+        "scenario": "The exact-head Template Factory proof is semantically required, downloaded and validated successfully, then Resumable Verification receives the same evidence.",
+        "finding": "The previous checkpoint reconciler used completionEvidenceGuardIds(activePlan) instead of the canonical derived external requirement set and produced EXTERNAL_EVIDENCE_UNREQUESTED.",
+        "resolution": "Make checkpoint reconciliation consume requiredExternalCompletionGuards with the same active plan, verification plan and guard registry used by requirement detection; add regression coverage for this handoff.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-10",
+        "scenario": "A descendant HEAD changes only verification-checkpoint logic and tests after a successful Template Factory proof on the same PR branch.",
+        "finding": "Vercel Ignored Build Step correctly produces no preview for a control-plane/proof-engine-only descendant, but the first live-proof reuse implementation used the whole GUARD-TEMPLATE-FACTORY semantic/config/toolchain input set as if it were the deployed application runtime dependency set.",
+        "resolution": "Separate proof-producer invalidation from deployed-runtime invalidation. Derive the runtime origin from canonical entrypoints plus Atlas forward dependency closure. If runtime is unchanged after an ancestor commit, reuse that ancestor deployment target but rerun the current E13/Product Owner proof harness; only runtime changes require a new exact-head deployment.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-11",
+        "scenario": "A current Template Factory workflow reuses an ancestor live E13/PO proof because application runtime inputs are unchanged.",
+        "finding": "Without provenance in the current manifest, workflow success alone would hide whether live behavior ran on the current deployment or was reused from an ancestor.",
+        "resolution": "Persist a checksummed liveProof record in the current Template Factory evidence and make external handoff validation reject missing, stale or unproven reuse provenance.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-12",
+        "scenario": "The current exact HEAD changes only Control Plane/Template Factory proof orchestration. Vercel records only ignored/canceled deployments, while the Template Factory workflow demands an exact-head live preview because its reuse classifier treats proof infrastructure as application runtime input.",
+        "finding": "This creates a deterministic deadlock: the deployment authority correctly says no runtime build is required, while the proof workflow waits for a deployment that should not exist.",
+        "resolution": "Introduce a canonical live-runtime subproof contract on GUARD-TEMPLATE-FACTORY. Runtime entrypoints are resolved through the existing Atlas dependency graph; only changes intersecting that closure (or explicit framework-global runtime roots) require a new Vercel live proof. Proof scripts/workflows remain proof-engine inputs and still rerun their own local verification.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-13",
+        "scenario": "The proof harness/workflow changes while the deployed application runtime is byte-semantically unchanged and Vercel correctly ignores the new HEAD.",
+        "finding": "Reusing the old proof result would hide regressions in the new proof harness, while demanding a new deployment wastes a build and can deadlock when the deployment is intentionally ignored.",
+        "resolution": "Compute the latest runtime-origin commit from the Atlas-derived runtime file closure. Resolve that commit's existing Vercel deployment once, then execute the current workflow's E13 and Product Owner live proofs against it. Record current proof run identity separately from deployment source identity.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-14",
+        "scenario": "The current proof harness runs against an Atlas-proven ancestor Vercel deployment, but PRODUCT_OWNER_SOURCE_COMMIT is used both as proof identity and expected page/deployment provenance.",
+        "finding": "Using current HEAD makes runtime provenance assertions fail; using ancestor SHA makes the generated proof artifact falsely claim it was produced for the ancestor transaction.",
+        "resolution": "Split proofSourceCommit and runtimeSourceCommit. Generated proof artifacts bind to the current development HEAD/run, while page/template/engine provenance assertions bind to runtimeSourceCommit. Cross-artifact checks require both identities and their declared runtime-equivalence relation.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-15",
+        "scenario": "A PR changes the live-runtime classifier/contract and also changes application runtime code that the new, narrower classifier would omit.",
+        "finding": "Using only the current classifier to compute its own runtime closure would let a classifier change self-approve the omission and reuse an older deployment incorrectly.",
+        "resolution": "Treat classifier/contract inputs as authority-bearing. If any changes in the release history, widen runtime-impact detection to conservative application/runtime patterns (src/**, public/**, Next/Vercel/package inputs) in addition to the Atlas closure. Record fallback activation in provenance and fail closed on unknown identity.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-16",
+        "scenario": "The Atlas-selected runtime source is current main and Vercel has only a READY production deployment for that SHA.",
+        "finding": "Reusing the production deployment would run acceptance/auth/checkout proof against production and violates environment isolation even though the source code is runtime-equivalent.",
+        "resolution": "Deployment resolution must require a non-production Preview environment and reject production_environment=true / production targets. If no safe preview anchor exists, fail closed with a dedicated diagnostic; preview-anchor materialization remains a separate controlled operation rather than a production fallback.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-17",
+        "scenario": "E13 and Product Owner proof independently resolve the same Atlas-selected runtime SHA to Vercel environments.",
+        "finding": "Duplicated polling can disagree transiently, doubles API work, and creates two deployment-resolution authorities inside one proof chain.",
+        "resolution": "Create one canonical runtime-preview resolver after runtime-origin selection. It must accept only successful non-production Preview deployments and emit baseUrl + runtimeSourceCommit once; both E13 and Product Owner proofs consume that exact output.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-18",
+        "scenario": "The Atlas-selected runtimeSourceCommit is a merge/main SHA with only production deployment, while an ancestor commit has an existing READY Preview and no repository/runtime content difference.",
+        "finding": "Requiring a Preview on the exact runtimeSourceCommit wastes a build even though an equivalent Preview anchor already exists; using an arbitrary ancestor would be unsafe.",
+        "resolution": "Resolve a deploymentSourceCommit separately. Search runtimeSourceCommit then bounded ancestors; accept only a successful non-production Preview whose commit is ancestor-related and has zero conservative runtime diff (src/**, public/**, Next/Vercel/package inputs) versus runtimeSourceCommit. Record both SHAs and the equivalence proof.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code on this exact plan-only head before any delegate implementation edit.",
-      "Apply only the four active delegator changes and the seven targeted regression-test changes from the preserved combined reference branch.",
-      "Run Edit-Time / Reference Sync and Incremental Known Failure Replay on the implementation head.",
-      "Require Release Risk Budget PASS without substantive Auth Core scope.",
-      "Run full Quality Tests, TypeScript and Production Build.",
-      "Require exact-head Completion Truth VERIFIED and lifecycle closure before merge.",
-      "Require the exact-head E13/Template Factory browser proof to traverse canonical workforce entry under prepared MFA activation and retain its existing fail-closed side-effect assertions."
+      "Require Plan Before Code PASS on the plan-only head with exact changeBaseSha, full Known Failure replay scope and no implementation files changed.",
+      "Add focused regression coverage for gate-chain ordering, cycle detection, missing producer detection, MUST_CREATE projection and projected risk classification.",
+      "Verify external proof applicability is derived from semanticInputs even when the PO Completion Contract omits the external guard identifier.",
+      "Verify Resumable Verification requests the same semantically derived external guard set as the detector and accepts exact-head Template Factory evidence instead of reporting EXTERNAL_EVIDENCE_UNREQUESTED.",
+      "Run Edit-Time Guard and Incremental Replay after the implementation batch and require no expanded unplanned subsystem or authority.",
+      "Prove a control-plane/proof-engine-only descendant resolves to an Atlas-proven ancestor runtime deployment target and reruns the current E13/Product Owner harness without requesting a new Vercel build; prove a runtime-changing descendant resolves to the latest runtime-changing commit deployment.",
+      "Require actual Release Risk Budget PASS without changing its thresholds or classification rules.",
+      "Run full Quality Tests, TypeScript and Production Build on the implementation head.",
+      "Require exact-head Completion Truth VERIFIED and preserve external proof as an independent blocking authority where semantically applicable.",
+      "Close lifecycle only after the verified implementation head is recorded; workflow optimization is deferred to the dedicated later release unit.",
+      "Prove the live-runtime classifier reports its canonical entrypoints, Atlas dependency closure, explicit global runtime roots, changed files and affected runtime inputs in the provenance record so reuse cannot be an opaque skip.",
+      "Prove deployment source identity and current proof-run identity are both preserved in liveProof provenance, and that a missing/unready runtime-origin deployment fails closed rather than silently falling back.",
+      "Verify Template Factory E13/Product Owner handoff artifacts record current proof sourceCommit and separate runtimeSourceCommit, assert deployment/page provenance against runtimeSourceCommit, and reject mismatched engine-proof runtime identity.",
+      "Adversarially prove that a classifier-authority change plus a runtime file outside a narrowed current Atlas closure still selects that runtime-changing commit via the conservative fallback, while a classifier-only change can reuse the prior runtime deployment.",
+      "Verify both E13 and Product Owner deployment resolvers reject production deployments and only accept successful Vercel Preview environment URLs for the Atlas-selected runtime SHA; missing preview anchor must fail closed.",
+      "Verify exactly one canonical runtime-preview resolution step exists in the Template Factory workflow, rejects production deployments, and both E13 and Product Owner proofs consume its base URL and runtime source SHA.",
+      "Verify a runtimeSourceCommit with production-only deployment can select a READY Preview from a runtime-equivalent ancestor (for current main, 42e60510 -> 33ed65d has zero file diff), while any ancestor with runtime drift is rejected."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-05-MR1-WORKFORCE-ENTRYPOINT-DELEGATORS",
+      "request": "PO-2026-10-06-CONTROL-PLANE-ECOSYSTEM-CHAIN",
       "authority": [
-        "admin-operations",
-        "builder-template-system",
-        "shared-storefront"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        "src/app/platform/page.tsx",
-        "src/app/fiokom/page.tsx",
-        "src/app/storefront-template-preview-login/page.tsx",
-        "src/app/admin/platform/webaruhazak/actions.ts"
+        "quality/knowledge/guard-registry.v1.json",
+        "scripts/lib/shoperation-development-runtime.mjs",
+        "scripts/shoperation-development-guard.mjs",
+        "scripts/shoperation-plan-before-code.mjs",
+        "scripts/shoperation-external-proof-handoff.mjs",
+        "scripts/shoperation-verification-checkpoint.mjs",
+        "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+        ".github/workflows/template-factory-quality-gate.yml",
+        "scripts/template-factory-quality-gate.mjs",
+        "scripts/template-factory-product-owner-handoff.mjs",
+        ".github/workflows/ci.yml"
       ],
-      "mayEdit": [
-        "tests/workforce-auth-ux.test.ts",
-        "tests/workforce-admin-entry-bridge.test.ts",
-        "tests/platform-auth-portal.test.ts",
-        "tests/platform-invite-production-redirect.test.ts",
-        "tests/platform-owner-zero-tenant-hotfix.test.ts",
-        "tests/workforce-entrypoint-convergence.test.ts",
-        "tests/storefront-template-preview-runtime.test.ts"
-      ],
+      "mayEdit": [],
       "impactedReadOnly": [
-        "src/lib/auth/workforce-return-target.ts",
-        "src/app/api/auth/workforce-login/page.tsx",
-        "src/lib/auth/workforce-auth-form.tsx",
-        "src/app/api/auth/workforce-credential/page.tsx",
-        "src/lib/auth/workforce-credential-form.tsx",
-        "src/lib/auth/platform-activation-form.tsx",
-        "src/components/auth/auth-form.tsx",
-        "src/components/auth/platform-auth-form.tsx",
-        "src/lib/auth/admin-api.ts",
-        "src/lib/auth/require-admin.ts",
-        "src/lib/instances/access.ts",
+        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        "deploy/release-risk-policy.json",
+        ".github/workflows/ci.yml"
+      ],
+      "mustCreate": [
+        "tests/control-plane-ecosystem-chain.test.ts"
+      ],
+      "forbidden": [
+        "src/lib/auth/**",
+        "src/app/api/auth/**",
         "src/middleware.ts",
-        "quality/knowledge/living-roadmap.v2.json"
+        "deploy/release-risk-policy.json"
       ],
       "proof": [
-        "tests/workforce-auth-ux.test.ts",
-        "tests/workforce-admin-entry-bridge.test.ts",
-        "tests/platform-auth-portal.test.ts",
-        "tests/platform-invite-production-redirect.test.ts",
-        "tests/platform-owner-zero-tenant-hotfix.test.ts",
-        "tests/workforce-entrypoint-convergence.test.ts",
-        "tests/storefront-template-preview-runtime.test.ts",
-        "tests/workforce-auth-core-isolation.test.ts"
+        "tests/control-plane-ecosystem-chain.test.ts",
+        "tests/template-factory-resumable-verification.test.ts",
+        "tests/shoperation-external-proof-handoff.test.ts",
+        "tests/storefront-template-quality-gate-v2.test.ts",
+        "tests/template-factory-engine-functional-proof-runner.test.ts",
+        "tests/control-plane-diagnostic-coverage.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -374,29 +501,48 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-ENTRYPOINT-DELEGATORS",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-ECOSYSTEM-CHAIN",
+    "systemObligations": {
+      "derivation": "canonical-gate-chain",
+      "requiredGuards": [
+        "GUARD-KNOWLEDGE-PREFLIGHT",
+        "GUARD-PLAN-BEFORE-CODE",
+        "GUARD-EDIT-TIME",
+        "GUARD-INCREMENTAL-REPLAY",
+        "GUARD-RELEASE-RISK",
+        "GUARD-QUALITY-TESTS",
+        "GUARD-TYPECHECK",
+        "GUARD-PRODUCTION-BUILD",
+        "GUARD-TEMPLATE-FACTORY"
+      ],
+      "externalGuards": [
+        "GUARD-TEMPLATE-FACTORY"
+      ],
+      "phase": "PLAN"
+    },
     "requirements": [
       {
-        "id": "REQ-WORKFORCE-ENTRYPOINT-DELEGATORS",
-        "requirement": "Active platform, account-bridge, template-preview and workforce-invitation entrypoints consume the verified canonical Workforce Auth Core while shopper authentication, server RBAC/tenant authority and parked AAL2 enforcement remain separate and unchanged.",
+        "id": "REQ-ECOSYSTEM-GATE-CHAIN",
+        "requirement": "The existing Control Plane guards form one dependency-aware chain whose upstream outputs and downstream requirements are machine-readable before implementation.",
         "claimScope": {
-          "capability": "CAP-AUTH",
-          "breadth": "workforce-entrypoint-delegators",
+          "capability": "CAP-QUALITY",
+          "breadth": "control-plane-gate-chain",
           "strength": 2,
           "dimensions": [
-            "tests",
-            "types",
-            "build",
-            "forbidden-state"
+            "plan",
+            "scope",
+            "proof",
+            "missing-edge",
+            "reconcile"
           ]
         },
         "requiredCapabilities": [
-          "CAP-AUTH"
+          "CAP-QUALITY"
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
             "GUARD-PRODUCTION-BUILD"
@@ -404,29 +550,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-ALTERNATE-WORKFORCE-PASSWORD-ENTRY",
-            "statement": "Platform and Builder preview surfaces must not retain a separate privileged signInWithPassword/customer AuthForm path.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-CUSTOMER-WORKFORCE-MIX",
-            "statement": "Workforce invitation/login continuation must not require shopper AuthForm semantics.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-DELEGATOR-RETURN-TARGET-DRIFT",
-            "statement": "Delegators must consume the canonical workforce return-target authority rather than broadening or duplicating it.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-AAL2-ACTIVATION",
-            "statement": "This release must not merge, weaken or activate the parked AAL2 authorization enforcement.",
+            "id": "NEG-PARALLEL-GATE-AUTHORITY",
+            "statement": "The change must not create a second guard registry or independent orchestration truth.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -434,11 +559,48 @@
         ]
       },
       {
-        "id": "REQ-WORKFORCE-ENTRYPOINT-DELEGATORS-RELEASE-SCOPE",
-        "requirement": "The second convergence release remains isolated from substantive Auth Core implementation and satisfies the canonical Release Risk Budget.",
+        "id": "REQ-ATLAS-IMPLEMENTATION-SKELETON",
+        "requirement": "Before coding, repository relationships and planned intent produce one implementation skeleton covering existing required edits, read-only impacts and explicit new-file obligations.",
+        "claimScope": {
+          "capability": "CAP-ATLAS",
+          "breadth": "implementation-skeleton",
+          "strength": 2,
+          "dimensions": [
+            "scope",
+            "authority",
+            "symbols",
+            "consumers",
+            "unknowns"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-ATLAS"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-UNMAPPED-NEW-FILE",
+            "statement": "A planned exact new file must not disappear from the pre-code implementation route.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-PROJECTED-RELEASE-RISK",
+        "requirement": "A release scope that is predictably outside the canonical Release Risk Budget is blocked during planning before implementation work begins.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "workforce-entrypoint-delegator-release-scope",
+          "breadth": "planned-release-risk",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -450,7 +612,7 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-RELEASE-RISK"
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
             "GUARD-RELEASE-RISK"
@@ -458,24 +620,59 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-AUTH-CORE-REOPENED",
-            "statement": "The delegator release must not include substantive Auth Core implementation changes or recreate the original mixed high-risk release.",
+            "id": "NEG-RISK-POLICY-DIVERGENCE",
+            "statement": "Projected classification must not weaken or fork the canonical production release-risk policy.",
             "evidence": [
               "GUARD-RELEASE-RISK"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-PROOF-APPLICABILITY",
+        "requirement": "Applicable downstream and external proof obligations are derived from affected scope so omission from manually authored completion evidence cannot create a false completion claim.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "proof-applicability",
+          "strength": 2,
+          "dimensions": [
+            "claim-scope",
+            "evidence-scope",
+            "proven-scope",
+            "missing-edge"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-OMITTED-EXTERNAL-PROOF",
+            "statement": "A semantically applicable external blocking guard must not become optional merely because it was omitted from the manual Completion Contract.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Auth Core was isolated and merged in PR #911. E13 proof-harness compatibility was then merged to main, and PR #922 added the verified server-owned WORKFORCE_MFA_MODE prepared/enforced activation control at main b2d5d4f4b3a0831aa2879bdb9bf6f14b55361c46. This reconstructed second transaction reapplies only the four ADMIN/BUILDER/STOREFRONT delegator changes plus their seven targeted regressions on top of that verified main. MFA target policy remains intact; default interactive activation remains prepared. PR #858 stays parked and AAL2 server enforcement stays inactive. The preserved combined reference branch must not be merged.",
+  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Runtime proof on implementation HEAD 00d36f7 exposed a missing handoff: requirement detection requested and validated GUARD-TEMPLATE-FACTORY, while Resumable Verification still used manual Completion Contract refs and rejected the proof as EXTERNAL_EVIDENCE_UNREQUESTED. Scope is expanded canonically to the checkpoint reconciler before editing it. The current descendant HEAD 45dd558c has only canceled Vercel deployments because Ignored Build Step correctly classified it as non-runtime. Template Factory nevertheless waits for exact-head preview because PR cumulative path selection re-triggers the workflow. Scope is expanded to canonical Template Factory resumable-proof orchestration and workflow only; reuse must be evidence-based, never a skip. Manifest producer is now explicitly in scope so live sub-proof reuse is visible to external Completion Truth rather than being an implicit workflow skip. External handoff regression coverage is explicitly added to proof scope because live-proof provenance validation changes its acceptance contract. The existing Template Factory v2 authority-envelope regression is explicitly added to proof scope because checksum ownership moved from a runner-local helper to the canonical shared Template Factory evidence checksum. Runtime-proof reconciliation refined after Vercel evidence on d9400f4d showed three ignored/canceled deployments while the Template Factory workflow waited for exact-head preview. Proof-engine invalidation and deployed-runtime invalidation are now explicitly separate concerns. Live proof reuse semantics tightened: reuse means runtime deployment target reuse with current-harness execution, not opaque reuse of a prior proof result. Handoff producer added to MUST_EDIT after runtime-target reuse exposed a dual-use sourceCommit field; current proof transaction identity and deployed runtime identity must be separated. Added classifier self-approval protection: any live-runtime classifier/contract drift activates conservative runtime fallback patterns for origin selection. Production reuse explicitly forbidden after Vercel inspection showed base main 42e60510 has only a READY production deployment; live proof requires a safe Preview anchor. Safe Preview proof boundary tightened to one canonical runtime-preview resolver consumed by both E13 and Product Owner proof, eliminating duplicate deployment lookup authority. Safe Preview anchor semantics expanded: deploymentSourceCommit may use a runtime-equivalent ancestor Preview, with explicit ancestry + conservative runtime-diff proof; production fallback remains forbidden. Diagnostic coverage regression added to canonical proof scope after Plan Before Code correctly blocked the marker-sync change as DEV_PLAN_UNPLANNED_FILE. Cross-workflow proof identity incident on exact head 006c9385 showed CI could consume a successful Template Factory push run from a temporary work branch while the PR-context run for the same SHA was still active. Scope is expanded canonically to CI orchestration so external proof selection binds SHA, workflow, event, head branch and PR identity rather than SHA alone.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "ce00ba6cfdbb87591704e7f071112d69c516129b",
-    "closedAt": "2026-10-06T04:57:01.683Z",
+    "verifiedImplementationHead": "1b6864cea62f27bacd482bd882df93a3fb883e75",
+    "closedAt": "2026-10-06T10:10:54.859Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-ENTRYPOINT-DELEGATORS",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-ECOSYSTEM-CHAIN",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
