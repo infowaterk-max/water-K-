@@ -3,7 +3,6 @@ import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {
   canonicalizeTemplateFactoryInfrastructureInput,
-  deriveTemplateLiveProofDecision,
   deriveTemplateLiveRuntimeClosure,
   selectTemplateLiveRuntimeOrigin,
   deriveTemplateReplayDecision,
@@ -40,19 +39,6 @@ describe('Template Factory resumable browser verification',()=>{
     expect(canonicalizeTemplateFactoryInfrastructureInput(file,JSON.stringify(a))).not.toBe(canonicalizeTemplateFactoryInfrastructureInput(file,JSON.stringify(semantic)));
     const qualityGate=readFileSync('scripts/template-factory-quality-gate.mjs','utf8');
     expect(qualityGate).toContain('canonicalizeTemplateFactoryInfrastructureInput(file,readFileSync(file))');
-  });
-
-  it('reuses live proof only for a successful same-branch ancestor with zero canonical input changes',()=>{
-    const prior={
-      contract:'shoporation.template-factory-quality-evidence.v2',complete:true,errors:[],checksum:'valid',
-      sourceCommit:'ancestor-1',branch:'feature/test',runId:'123',
-    };
-    const reused=deriveTemplateLiveProofDecision({
-      registry,priorManifest:prior,priorManifestChecksumValid:true,currentHead:'head-2',currentBranch:'feature/test',
-      ancestorProven:true,originWorkflowConclusion:'success',changedFilesSinceOrigin:['quality/development/active-plan.json'],
-    });
-    expect(reused).toMatchObject({mode:'REUSE',decision:'PASS',ancestorProven:true,inputEquivalenceProven:true,affectedInputs:[]});
-    expect(reused.inputContractDigest).toBeTruthy();
   });
 
   it('derives deployed runtime scope from canonical entrypoints plus Atlas forward dependencies',()=>{
@@ -95,6 +81,42 @@ describe('Template Factory resumable browser verification',()=>{
       ],
     });
     expect(currentRuntime).toMatchObject({decision:'PASS',runtimeSourceCommit:'head-runtime',mode:'CURRENT_HEAD',affectedInputs:[]});
+  });
+
+  it('activates a conservative runtime fallback when the classifier changes so self-narrowing cannot hide runtime drift',()=>{
+    const runtimeFile='src/app/admin/platform/page.tsx';
+    const omittedRuntimeFile='src/lib/hidden-runtime.ts';
+    const classifierFile='scripts/lib/shoperation-template-factory-resumable-verification.mjs';
+    const proofFile='.github/workflows/template-factory-quality-gate.yml';
+    const base='base-sha';
+
+    const classifierOnly=selectTemplateLiveRuntimeOrigin({
+      baseSha:base,currentHead:'head-classifier',
+      runtimeFiles:[runtimeFile],
+      classifierInputs:[classifierFile,proofFile],
+      safetyFallbackRuntimePatterns:['src/**','public/**','package.json'],
+      commitHistory:[{sha:'head-classifier',files:[classifierFile]}],
+    });
+    expect(classifierOnly).toMatchObject({
+      decision:'PASS',runtimeSourceCommit:base,mode:'BASE_RUNTIME',
+      classifierChanged:true,safetyFallbackApplied:true,affectedInputs:[],
+    });
+
+    const selfNarrowingAttempt=selectTemplateLiveRuntimeOrigin({
+      baseSha:base,currentHead:'head-classifier',
+      runtimeFiles:[runtimeFile],
+      classifierInputs:[classifierFile,proofFile],
+      safetyFallbackRuntimePatterns:['src/**','public/**','package.json'],
+      commitHistory:[
+        {sha:'head-classifier',files:[classifierFile]},
+        {sha:'runtime-hidden',files:[omittedRuntimeFile]},
+      ],
+    });
+    expect(selfNarrowingAttempt).toMatchObject({
+      decision:'PASS',runtimeSourceCommit:'runtime-hidden',mode:'ANCESTOR_RUNTIME',
+      classifierChanged:true,safetyFallbackApplied:true,affectedInputs:[],
+    });
+    expect(selfNarrowingAttempt.changedFilesSinceOrigin).toEqual([classifierFile]);
   });
 
   it('fails closed when runtime origin identity is incomplete',()=>{
