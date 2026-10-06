@@ -387,6 +387,7 @@ jobs:
         with:
           script: |
             const fs=require('fs');
+            const {pathToFileURL}=require('url');
             const sleep=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
             const {owner,repo}=context.repo;
             const proofHead=context.payload.pull_request?.head?.sha??context.sha;
@@ -405,29 +406,44 @@ jobs:
               },null,2)+'\n');
               core.setFailed(code);
             };
+            const moduleUrl=pathToFileURL(process.cwd()+'/scripts/lib/shoperation-template-factory-resumable-verification.mjs').href;
+            const {deriveTemplatePreviewAnchorCandidates}=await import(moduleUrl);
+            const registry=JSON.parse(fs.readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
+            const candidatePlan=deriveTemplatePreviewAnchorCandidates({registry,runtimeSourceCommit:sha,maxCandidates:40});
+            if(candidatePlan.decision!=='PASS'){
+              fail('TEMPLATE_LIVE_RUNTIME_PREVIEW_CANDIDATES_BLOCK','No provably runtime-equivalent Preview anchor candidates could be derived',JSON.stringify(candidatePlan.issues??[]));
+              return;
+            }
+            const previewCandidates=candidatePlan.candidates;
             try{
               for(let attempt=0;attempt<maxAttempts;attempt+=1){
-                const deployments=await github.paginate(github.rest.repos.listDeployments,{owner,repo,sha,per_page:100});
-                for(const deployment of deployments){
-                  const environment=String(deployment.environment??'').trim().toLowerCase();
-                  const production=deployment.production_environment===true||environment==='production';
-                  const explicitPreview=deployment.production_environment!==true&&environment==='preview';
-                  if(production||!explicitPreview){
-                    core.info(`Rejecting non-preview deployment ${deployment.id} for live proof: environment=${deployment.environment??'unknown'}; production=${String(deployment.production_environment??'unknown')}; runtimeSha=${sha}.`);
-                    continue;
-                  }
-                  const statuses=await github.paginate(github.rest.repos.listDeploymentStatuses,{owner,repo,deployment_id:deployment.id,per_page:100});
-                  const ready=statuses.find(status=>{
-                    if(status.state!=='success'||!status.environment_url)return false;
-                    try{return new URL(status.environment_url).hostname.endsWith('.vercel.app')}catch{return false}
-                  });
-                  if(ready){
-                    core.info(`Canonical Vercel Preview runtime ready: proofHead=${proofHead}; runtimeSha=${sha}.`);
-                    core.setOutput('base-url',new URL(ready.environment_url).origin);
-                    core.setOutput('runtime-source-commit',sha);
-                    core.setOutput('deployment-id',String(deployment.id));
-                    core.setOutput('environment',String(deployment.environment??'Preview'));
-                    return;
+                for(const candidate of previewCandidates){
+                  const deploymentSha=candidate.deploymentSourceCommit;
+                  const deployments=await github.paginate(github.rest.repos.listDeployments,{owner,repo,sha:deploymentSha,per_page:100});
+                  for(const deployment of deployments){
+                    const environment=String(deployment.environment??'').trim().toLowerCase();
+                    const production=deployment.production_environment===true||environment==='production';
+                    const explicitPreview=deployment.production_environment!==true&&environment==='preview';
+                    if(production||!explicitPreview){
+                      core.info(`Rejecting non-preview deployment ${deployment.id}: deploymentSha=${deploymentSha}; environment=${deployment.environment??'unknown'}; production=${String(deployment.production_environment??'unknown')}.`);
+                      continue;
+                    }
+                    const statuses=await github.paginate(github.rest.repos.listDeploymentStatuses,{owner,repo,deployment_id:deployment.id,per_page:100});
+                    const ready=statuses.find(status=>{
+                      if(status.state!=='success'||!status.environment_url)return false;
+                      try{return new URL(status.environment_url).hostname.endsWith('.vercel.app')}catch{return false}
+                    });
+                    if(ready){
+                      core.info(`Canonical safe Preview ready: proofHead=${proofHead}; runtimeSha=${sha}; deploymentSha=${deploymentSha}; anchorMode=${candidate.mode}.`);
+                      core.setOutput('base-url',new URL(ready.environment_url).origin);
+                      core.setOutput('runtime-source-commit',sha);
+                      core.setOutput('deployment-source-commit',deploymentSha);
+                      core.setOutput('deployment-equivalence-proven',String(candidate.runtimeEquivalenceProven===true));
+                      core.setOutput('anchor-mode',candidate.mode);
+                      core.setOutput('deployment-id',String(deployment.id));
+                      core.setOutput('environment',String(deployment.environment??'Preview'));
+                      return;
+                    }
                   }
                 }
                 const combined=await github.rest.repos.getCombinedStatusForRef({owner,repo,ref:sha});
@@ -452,6 +468,7 @@ jobs:
           PRODUCT_OWNER_ENGINE_FUNCTIONAL_ONLY: "true"
           PRODUCT_OWNER_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.runtime-source-commit }}
+          PRODUCT_OWNER_DEPLOYMENT_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.deployment-source-commit }}
           PRODUCT_OWNER_TEST_EMAIL: ${{ secrets.PRODUCT_OWNER_TEST_EMAIL }}
           PRODUCT_OWNER_TEST_PASSWORD: ${{ secrets.PRODUCT_OWNER_TEST_PASSWORD }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
@@ -472,6 +489,11 @@ jobs:
         env:
           TEMPLATE_QUALITY_LIVE_PROOF_MODE: ${{ github.event_name == 'pull_request' && steps.live-proof.outputs.manifest_mode || 'NOT_APPLICABLE' }}
           TEMPLATE_QUALITY_LIVE_PROOF_DECISION: artifacts/template-factory-quality/live-proof-decision.json
+          TEMPLATE_QUALITY_DEPLOYMENT_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.deployment-source-commit }}
+          TEMPLATE_QUALITY_DEPLOYMENT_ANCHOR_MODE: ${{ steps.runtime-preview.outputs.anchor-mode }}
+          TEMPLATE_QUALITY_DEPLOYMENT_EQUIVALENCE_PROVEN: ${{ steps.runtime-preview.outputs.deployment-equivalence-proven }}
+          TEMPLATE_QUALITY_DEPLOYMENT_ENVIRONMENT: ${{ steps.runtime-preview.outputs.environment }}
+          TEMPLATE_QUALITY_DEPLOYMENT_ID: ${{ steps.runtime-preview.outputs.deployment-id }}
           TEMPLATE_QUALITY_LIVE_PROOF_REASON: ${{ steps.live-proof.outputs.reason || 'non-pull-request-local-proof' }}
           TEMPLATE_QUALITY_LIVE_PROOF_ORIGIN_SHA: ${{ steps.live-proof.outputs.origin_sha || '' }}
           TEMPLATE_QUALITY_LIVE_PROOF_ORIGIN_RUN_ID: ${{ steps.live-proof.outputs.origin_run_id || '' }}
@@ -558,6 +580,7 @@ jobs:
           PRODUCT_OWNER_TEMPLATE_VERSION: "${{ steps.product-owner-target.outputs.template_version }}"
           PRODUCT_OWNER_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.runtime-source-commit }}
+          PRODUCT_OWNER_DEPLOYMENT_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.deployment-source-commit }}
           PRODUCT_OWNER_TEST_EMAIL: ${{ secrets.PRODUCT_OWNER_TEST_EMAIL }}
           PRODUCT_OWNER_TEST_PASSWORD: ${{ secrets.PRODUCT_OWNER_TEST_PASSWORD }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
