@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-DECOMPOSITION-V2",
   "task": "Control Plane release decomposition and manifest-driven split/transplant using Atlas relationships, gate obligations, atomic release-unit manifests, lease-safe batch materialization, and sequential main reconciliation.",
   "status": "ready-for-implementation",
-  "guardDigest": "efe9d183",
+  "guardDigest": "540e4ce8",
   "changeBaseSha": "f8a22cc4a014c2d0fb293b8b327736a1138309b0",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -19,7 +19,6 @@
     "tests/release-unit-materialization.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -608,5 +607,5 @@
       }
     ]
   },
-  "notes": "Unit 2 extends the already merged Control Plane ecosystem chain. The broad Development Transaction remains distinct from Release Transactions: if projected risk is blocked, the original plan must not become executable merely because decomposition exists. Instead the system emits canonical unit manifests; a unit-specific transaction reconciles from exact main and final Release Risk remains independently authoritative. Prior Unit 1 lessons about execution-context proof identity, proof/runtime identity separation, proof-engine/runtime-input separation, upstream-data reuse, exact-head Atlas reuse and classifier self-narrowing are preserved through the existing canonical Knowledge mechanism rather than a new parallel registry."
+  "notes": "Unit 2 extends the already merged Control Plane ecosystem chain. The broad Development Transaction remains distinct from Release Transactions: if projected risk is blocked, the original plan must not become executable merely because decomposition exists. Instead the system emits canonical unit manifests; a unit-specific transaction reconciles from exact main and final Release Risk remains independently authoritative. Prior Unit 1 lessons about execution-context proof identity, proof/runtime identity separation, proof-engine/runtime-input separation, upstream-data reuse, exact-head Atlas reuse and classifier self-narrowing are preserved through the existing canonical Knowledge mechanism rather than a new parallel registry. Plan-only CI 37454384741 proved the canonical scope resolver classifies the Knowledge Infrastructure paths as infrastructure metadata rather than a substantive quality-infrastructure subsystem; projected scope is therefore release-infrastructure only, while Atlas domain authority remains DOMAIN-QUALITY + DOMAIN-RELEASE."
 }
