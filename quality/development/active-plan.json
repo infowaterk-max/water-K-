@@ -238,7 +238,7 @@
         ]
       },
       {
-        "role": "Product Architecture",
+        "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "A new managed no-Builder launch mode could be treated as optional UX and therefore excluded from the hard maturity backbone.",
