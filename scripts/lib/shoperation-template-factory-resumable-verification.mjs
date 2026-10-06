@@ -84,7 +84,7 @@ export function deriveTemplateLiveProofDecision({
   };
 }
 
-export function validateTemplateLiveProofRecord(record,{currentHead='',currentBranch='',registry}={}){
+export function validateTemplateLiveProofRecord(record,{currentHead='',currentBranch='',currentRunId='',registry}={}){
   const issues=[];
   const mode=String(record?.mode??'').toUpperCase();
   const expectedDigest=templateLiveProofInputContractDigest(registry);
@@ -96,6 +96,7 @@ export function validateTemplateLiveProofRecord(record,{currentHead='',currentBr
   if(mode==='LIVE'){
     if(record?.originSourceCommit!==currentHead)issues.push({code:'TEMPLATE_LIVE_PROOF_LIVE_ORIGIN_MISMATCH'});
     if(!String(record?.originRunId??'').trim())issues.push({code:'TEMPLATE_LIVE_PROOF_LIVE_RUN_MISSING'});
+    else if(currentRunId&&String(record.originRunId)!==String(currentRunId))issues.push({code:'TEMPLATE_LIVE_PROOF_LIVE_RUN_MISMATCH',expected:String(currentRunId),actual:String(record.originRunId)});
   }else if(mode==='REUSED'){
     if(!String(record?.originSourceCommit??'').trim()||record.originSourceCommit===currentHead)issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_ORIGIN_INVALID'});
     if(!String(record?.originRunId??'').trim())issues.push({code:'TEMPLATE_LIVE_PROOF_REUSE_RUN_MISSING'});
