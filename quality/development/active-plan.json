@@ -16,7 +16,7 @@
     "scripts/shoperation-truth-gate.mjs",
     "scripts/shoperation-close-development-plan.mjs",
     "scripts/release-unit-ci-context.mjs",
-    "scripts/release-unit-github-runtime.mjs",
+    "scripts/lib/shoperation-release-unit-github-runtime.mjs",
     "scripts/release-unit-execute.mjs",
     ".github/workflows/ci.yml",
     ".github/workflows/template-factory-quality-gate.yml",
@@ -500,7 +500,7 @@
       ],
       "mustCreate": [
         "scripts/release-unit-ci-context.mjs",
-        "scripts/release-unit-github-runtime.mjs",
+        "scripts/lib/shoperation-release-unit-github-runtime.mjs",
         "scripts/release-unit-execute.mjs",
         "tests/control-plane-release-unit-execution-binding.test.ts"
       ],
@@ -655,5 +655,5 @@
       }
     ]
   },
-  "notes": "Continuation/hardening of merged Unit 3 after capability-closure audit. The audit proved two remaining canonical edges: PR/merge receipts had no repository producer, and intermediate unit lifecycle evidence was not bound to a distinct child Development Transaction. This transaction closes those edges inside existing Release Transaction/Control Plane authorities. No Knowledge promotion is pre-written. Plan-only PR #958 run 37501003926 resolved canonical scope to quality-infrastructure + release-infrastructure, retained DOMAIN-QUALITY + DOMAIN-RELEASE authorities, canonical Negative Knowledge SQ-NK-002/003/005/010/012/016-023, guard digest 9a67776f, projected Release Risk 4/5 PASS, and a mandatory two-unit decomposition caused by the canonical 12-file unit limit. Consumer audit found scripts/shoperation-sentinel-integrity-probe.mjs as an additional active-plan reader reachable from Control Plane replay. Canonical scope expanded before implementation; a new Plan Before Code PASS is required. Child-plan projection audit found create-only release units cannot satisfy the current critical semantic route without fabricating mustEdit. Scope expanded to operational-intelligence validator with a child-only mustEdit-or-mustCreate rule; root critical validation remains unchanged. Verification binding necessarily changes the existing Unit 3 orchestration proof fixture. Added tests/control-plane-release-unit-orchestration.test.ts to canonical proof scope; no legacy unbound verification compatibility is permitted. Replay-proven Atlas failure ATLAS_AUTHORITY_DEPENDENCY_DRIFT on head 162fcb15 showed the GitHub adapter was placed under DOMAIN-QUALITY by scripts/lib/shoperation-** canonical ownership while its declared responsibility is release-infrastructure. Root cause is corrected by canonical path placement, not by adding an authority exception."
+  "notes": "Continuation/hardening of merged Unit 3 after capability-closure audit. The audit proved two remaining canonical edges: PR/merge receipts had no repository producer, and intermediate unit lifecycle evidence was not bound to a distinct child Development Transaction. This transaction closes those edges inside existing Release Transaction/Control Plane authorities. No Knowledge promotion is pre-written. Plan-only PR #958 run 37501003926 resolved canonical scope to quality-infrastructure + release-infrastructure, retained DOMAIN-QUALITY + DOMAIN-RELEASE authorities, canonical Negative Knowledge SQ-NK-002/003/005/010/012/016-023, guard digest 9a67776f, projected Release Risk 4/5 PASS, and a mandatory two-unit decomposition caused by the canonical 12-file unit limit. Consumer audit found scripts/shoperation-sentinel-integrity-probe.mjs as an additional active-plan reader reachable from Control Plane replay. Canonical scope expanded before implementation; a new Plan Before Code PASS is required. Child-plan projection audit found create-only release units cannot satisfy the current critical semantic route without fabricating mustEdit. Scope expanded to operational-intelligence validator with a child-only mustEdit-or-mustCreate rule; root critical validation remains unchanged. Verification binding necessarily changes the existing Unit 3 orchestration proof fixture. Added tests/control-plane-release-unit-orchestration.test.ts to canonical proof scope; no legacy unbound verification compatibility is permitted. Replay-proven Atlas failure ATLAS_AUTHORITY_DEPENDENCY_DRIFT on head 162fcb15 showed the GitHub adapter was placed under DOMAIN-QUALITY by scripts/lib/shoperation-** canonical ownership while its declared responsibility is release-infrastructure. Root cause is corrected by canonical path placement, not by adding an authority exception. Exact-head Plan Before Code identified the GitHub execution runtime path as scripts/lib/shoperation-release-unit-github-runtime.mjs; the stale non-lib path declaration was reconciled without changing subsystem, domain, authority, risk, or proof scope."
 }
