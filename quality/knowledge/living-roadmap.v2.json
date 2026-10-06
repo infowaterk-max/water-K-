@@ -25,6 +25,7 @@
       "CORE-OPERATIONAL-ADVERSARIAL-PROOF",
       "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE",
       "TEMPLATE-CAPABILITY-CENSUS-42",
+      "MANAGED-TEMPLATE-QUICK-START",
       "BUILDER-PRODUCTION-COMPLETE",
       "BUILDER-ADVERSARIAL-ACCEPTANCE",
       "TEMPLATE-PRODUCTION-SYSTEM",
@@ -360,7 +361,11 @@
         "default onboarding for every new Shoperation store, not trial-only",
         "resumable guided launch",
         "pre-launch validation bound to canonical readiness authorities",
-        "Shoperation Knowledge integration without creating a second launch gate"
+        "Shoperation Knowledge integration without creating a second launch gate",
+        "linear wizard is the default first-run path: a merchant must be able to reach launch readiness without hunting through admin navigation or opening Visual Builder",
+        "wizard covers business/store identity, template and brand setup, initial storefront content, products/categories, payment, shipping, legal/compliance, domain, test order and final readiness review; optional steps may be deferred only where policy permits",
+        "checkpoint completion is derived from canonical system state, never from self-attested checkbox completion; any failed mandatory checkpoint blocks public store opening",
+        "wizard is resumable and re-entrant, and may deep-link to the canonical owning surface when an advanced correction is required"
       ],
       "evidenceRefs": [],
       "dependsOn": [
@@ -1289,6 +1294,33 @@
       "evidenceRefs": []
     },
     {
+      "id": "CONTEXTUAL-GUIDED-LEARNING",
+      "title": "Contextual Help + Guided Learning",
+      "status": "accepted",
+      "phase": "product-experience",
+      "order": 520,
+      "targetWindow": "stage-3-before-market-ready",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-ADMIN",
+        "CAP-QUALITY",
+        "CAP-AUTH"
+      ],
+      "scope": [
+        "persistent in-product help after launch setup: explain what a surface/function does in the user's current context",
+        "task-oriented guided walkthroughs for common merchant operations without requiring the user to discover the correct admin route first",
+        "reuse canonical route, permission and checkpoint authorities where applicable; do not create duplicate business logic or a second launch gate",
+        "help and guided learning remain distinct from the mandatory Guided Launch flow and from the post-Market-Ready interactive demo simulator",
+        "AI is not required for the baseline capability; later AI Support may layer on top of the same Shoperation Knowledge authority"
+      ],
+      "evidenceRefs": [],
+      "dependsOn": [
+        "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE",
+        "GUIDED-LAUNCH-PRELAUNCH",
+        "ADMIN-IA-V3"
+      ]
+    },
+    {
       "id": "TEMPLATE-CAPABILITY-CENSUS-42",
       "title": "42-template Builder Capability Census",
       "status": "accepted",
@@ -1311,6 +1343,37 @@
         "Builder Production Complete is forbidden while any capability required by the accepted 42-design corpus is missing or represented only by manual source-code escape hatches"
       ],
       "evidenceRefs": []
+    },
+    {
+      "id": "MANAGED-TEMPLATE-QUICK-START",
+      "title": "Managed Template Quick Start / No-Builder Launch Mode",
+      "status": "accepted",
+      "phase": "builder-discovery",
+      "order": 650,
+      "targetWindow": "stage-4-before-builder-production-complete",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-STOREFRONT",
+        "CAP-BUILDER",
+        "CAP-ADMIN"
+      ],
+      "scope": [
+        "the default template experience is a ready-made managed webshop: choose a design, provide store data/content/brand assets and obtain a complete storefront without opening the visual canvas",
+        "use the same canonical Page Schema, storefront runtime and template family as advanced Builder authoring; no second static-template engine, renderer or template fork is allowed",
+        "each template exposes a machine-readable Template Content Contract for the guided setup flow, including applicable store name, logo, brand tokens, hero/content fields, navigation/contact/social data and template-specific content slots",
+        "Guided Launch fills the Template Content Contract and canonical store/catalog data; the template renders those bindings into its fixed accepted composition",
+        "every launch template must be usable and visually complete from canonical store/catalog/brand/content data alone; manual section construction is not required for ordinary launch",
+        "advanced VX Builder authoring remains an optional escalation path over the same page/runtime state, not a different webshop type; entering advanced authoring must not fork merchant data or business authority",
+        "managed content may be revisited through guided/settings forms without exposing grid, section, breakpoint, spacing or low-level composition controls",
+        "the same 42 design families serve managed and advanced modes; do not create separate Basic/Pro or static/Builder template portfolios"
+      ],
+      "evidenceRefs": [],
+      "dependsOn": [
+        "TEMPLATE-CAPABILITY-CENSUS-42",
+        "STORE-FRONT-RUNTIME",
+        "GUIDED-LAUNCH-PRELAUNCH",
+        "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE"
+      ]
     },
     {
       "id": "VISUAL-BUILDER",
@@ -1337,7 +1400,8 @@
         "Global Header/Footer, linked/shared components, shared Product Card authority, design tokens and typography",
         "undo/redo, draft/save/preview/publish/rollback, real commerce bindings, schema validation and round-trip fidelity",
         "Fit/Zoom remains a desktop Builder capability",
-        "Builder canvas uses the actual storefront runtime; no second renderer"
+        "Builder canvas uses the actual storefront runtime; no second renderer",
+        "Visual Builder is the advanced authoring layer, not a prerequisite for launching a store that uses Managed Template Quick Start"
       ],
       "evidenceRefs": [],
       "dependsOn": [
@@ -1462,7 +1526,8 @@
       "targetWindow": "stage-7",
       "priority": "P0",
       "dependsOn": [
-        "BUILDER-ADVERSARIAL-ACCEPTANCE"
+        "BUILDER-ADVERSARIAL-ACCEPTANCE",
+        "MANAGED-TEMPLATE-QUICK-START"
       ],
       "scope": [
         "Template DNA Manifest and archetype registry",
@@ -1472,7 +1537,8 @@
         "exact-head quality/browser/Builder-editability gates",
         "Factory is a production accelerator/compiler above the completed Builder, never a substitute for missing Builder capability",
         "revalidate Template DNA, archetype registry, Genome/generator, constraint planning, media planning/compiler, anti-clone, lineage, Known Failure and proof/gate behavior against the completed Builder",
-        "repeat adversarial/stress proof so historical Factory PASS states cannot stand in for current Stage 7 maturity"
+        "repeat adversarial/stress proof so historical Factory PASS states cannot stand in for current Stage 7 maturity",
+        "Factory revalidation must prove each produced template's Template Content Contract and managed/no-Builder launch behavior in addition to Builder editability"
       ],
       "notes": "Earlier Template Factory implementation and Brabus-era hardening remain historical implementation work. Production continuation is intentionally frozen until Builder Adversarial Acceptance; Stage 7 revalidates and improves the existing factory against the completed Builder rather than replacing it."
     },
@@ -1500,7 +1566,8 @@
         "42 designs, not 84 Basic/Pro forks",
         "each design includes all 14 canonical pages",
         "Desktop/Tablet/Mobile storefront acceptance is mandatory for every design",
-        "template capability differences are entitlement/configuration, not duplicated business engines"
+        "template capability differences are entitlement/configuration, not duplicated business engines",
+        "every launch template must pass Managed Template Quick Start acceptance: complete storefront from canonical merchant/catalog/brand/content data without opening Visual Builder"
       ],
       "evidenceRefs": []
     },
@@ -1553,7 +1620,8 @@
         "AI-BUILDER-DARK-LAUNCH",
         "SURFACE-REDUCTION",
         "CORE-OPERATIONAL-ADVERSARIAL-PROOF",
-        "BUILDER-ADVERSARIAL-ACCEPTANCE"
+        "BUILDER-ADVERSARIAL-ACCEPTANCE",
+        "CONTEXTUAL-GUIDED-LEARNING"
       ],
       "scope": [
         "privacy/GDPR and data lifecycle compliance",
@@ -1646,6 +1714,38 @@
       "evidenceRefs": [],
       "dependsOn": [
         "MARKET-READY-1-0"
+      ]
+    },
+    {
+      "id": "INTERACTIVE-DEMO-SIMULATOR",
+      "title": "Interactive Shoperation Demo Simulator",
+      "status": "post-launch",
+      "phase": "post-launch",
+      "order": 1325,
+      "targetWindow": "post-market-ready-commercial-onboarding",
+      "priority": "P2",
+      "capabilities": [
+        "CAP-ADMIN",
+        "CAP-COMMERCE",
+        "CAP-STOREFRONT",
+        "CAP-TENANT",
+        "CAP-QUALITY"
+      ],
+      "scope": [
+        "AI-free first release based on deterministic scenarios/state machines; AI is optional later, not a baseline dependency",
+        "resettable isolated demo tenant/session with synthetic products, customers, inventory, orders, returns, B2B events and operational notifications",
+        "synthetic events exercise the real canonical Shoperation business engines and admin/storefront surfaces rather than a separate fake-demo implementation",
+        "demo mode is server-side fail-closed for external side effects: real payment/refund, carrier dispatch, email, webhook and other provider mutations are blocked or explicitly simulated",
+        "scenario library may include normal trading day, campaign/traffic spike, stock shortage, return handling, B2B request and multi-location fulfillment demonstrations",
+        "visitor can experience template behavior and merchant operations without first creating a real webshop; safe ephemeral access may be offered where abuse controls permit",
+        "demo simulator does not replace Guided Launch or Contextual Help/Guided Learning; it is a commercial evaluation surface after Market Ready"
+      ],
+      "evidenceRefs": [],
+      "dependsOn": [
+        "MARKET-READY-1-0",
+        "MANAGED-TEMPLATE-QUICK-START",
+        "GUIDED-LAUNCH-PRELAUNCH",
+        "STORE-FRONT-RUNTIME"
       ]
     },
     {
