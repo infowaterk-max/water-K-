@@ -1,65 +1,92 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-STAGE1-WORKFORCE-AUTH-CORE",
-  "task": "Stage 1 MR1 Workforce Identity core: implement canonical workforce sign-in return targets, credential completion, password recovery, MFA entry UX, and owner activation primitives under the existing identity authority. No permission or AAL2 enforcement changes.",
+  "taskId": "DEV-SOURCE-MAP-JS-SECURITY-REMEDIATION",
+  "task": "Remediate the source-map-js high-severity dependency vulnerability by pinning the transitive dependency to 1.2.2 while preserving dependency manifest authority and existing runtime behavior.",
   "status": "closed",
-  "guardDigest": "00e392d5",
-  "changeBaseSha": "b3139b0fa2629ca4759b40116ccc4c38e260b396",
+  "guardDigest": "2a712d14",
+  "changeBaseSha": "c8fa6a37b7a69fe8f9b946c83a25678545a34b38",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "src/lib/auth/workforce-return-target.ts",
-    "src/app/api/auth/workforce-login/page.tsx",
-    "src/lib/auth/workforce-auth-form.tsx",
-    "src/app/api/auth/workforce-credential/page.tsx",
-    "src/lib/auth/workforce-credential-form.tsx",
-    "src/lib/auth/platform-activation-form.tsx",
-    "tests/workforce-auth-ux.test.ts",
-    "tests/workforce-auth-core-isolation.test.ts"
+    "quality/knowledge/domain-foundations.v1.json",
+    "tests/shoperation-semantic-execution-intelligence.test.ts",
+    "package.json",
+    "package-lock.json",
+    "tests/dependency-security-contract.test.ts"
   ],
   "expectedSubsystems": [
-    "auth-access-authority",
-    "customer-account",
-    "storefront-ui"
+    "dependency-contract"
   ],
   "expectedDomains": [
-    "DOMAIN-IDENTITY"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "auth-access-authority"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
+    "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
+    "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
+    "TF-KF-001",
     "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
     "TF-KF-006",
+    "TF-KF-007",
     "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
     "TF-KF-012",
-    "TF-KF-020"
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-006",
-    "SQ-NK-008",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-AUTH-CORE",
+    "sourceRef": "PO-2026-10-06-SOURCE-MAP-JS-SECURITY-REMEDIATION",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "This isolated high-risk transaction changes workforce authentication primitives only. A defect could create an unsafe return target, mix shopper and workforce credential state, break privileged password recovery, or create a second session/MFA authority. Active non-auth entrypoint delegates and parked AAL2 enforcement are explicitly excluded.",
+      "rationale": "A current high-severity npm advisory blocks every release. The patch is a transitive dependency update, but it affects the locked install contract and therefore must remain deterministic, exact-version pinned, Atlas-resolved and proven by the real npm audit rather than an exception.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -75,31 +102,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Workforce return targets are normalized by one auth-owned fail-closed helper that permits only /admin, /admin/* and exact /storefront-template-preview paths.",
-        "The dedicated workforce login accepts the shared safe workforce return target and WorkforceAuthForm uses the same authority when completing the flow.",
-        "Workforce password recovery redirects to a workforce-owned credential completion route rather than shopper AuthForm recovery.",
-        "Workforce credential completion accepts invite/recovery modes, requires Supabase callback evidence, updates the Supabase password and re-enters canonical workforce login.",
-        "An auth-owned owner-activation primitive can create an eligible owner account and hands an immediate authenticated session back to canonical workforce login.",
-        "No active /platform, /fiokom, template-preview or admin invitation delegate is changed in this release unit.",
-        "No role, tenant, middleware authorization authority or AAL2 enforcement is added, weakened or activated."
+        "Root dependency manifests remain canonically classified as DOMAIN-RELEASE.",
+        "package.json explicitly overrides source-map-js to exactly 1.2.2.",
+        "package-lock.json resolves node_modules/source-map-js to version 1.2.2 with the matching registry artifact and integrity.",
+        "PostCSS remains on the existing 8.5.28 contract and continues to consume a compatible source-map-js version.",
+        "The real CI security-audit job no longer reports GHSA-68fv-2mgg-jv7q / the source-map-js 1.2.1 high-severity finding.",
+        "Quality, TypeScript and production build remain green; no product runtime/auth/AAL2 behavior is changed."
       ],
       "invariants": [
-        "Supabase Auth remains the only session, password and MFA authority.",
-        "Server-owned role and tenant authorities remain unchanged.",
-        "Customer AuthForm remains shopper-owned and is not imported by workforce credential completion.",
-        "A pre-existing arbitrary Supabase session is insufficient to authorize workforce credential completion without invite/recovery callback evidence.",
-        "PR #858 remains parked and untouched.",
-        "The Auth Core release diff contains no substantive non-auth authority changes."
+        "Security audit is not disabled, downgraded, allowlisted or bypassed.",
+        "The fix uses the patched dependency version rather than suppressing npm audit output.",
+        "No unrelated dependency is intentionally upgraded.",
+        "The lockfile remains deterministic and compatible with npm ci.",
+        "The package authority classification proven in the first coherent batch remains intact."
       ],
       "forbiddenStates": [
-        "external-workforce-return-target",
-        "workforce-return-loop-to-preview-login",
-        "customer-session-alone-authorizes-workforce-credential-change",
-        "customer-authform-imported-by-workforce-credential-flow",
-        "second-session-or-mfa-authority",
-        "middleware-authz-authority",
-        "aal2-enforcement-activation",
-        "non-auth-entrypoint-delegate-change"
+        "source-map-js-1.2.1-locked",
+        "security-audit-exception",
+        "unbounded-source-map-js-override",
+        "unrelated-dependency-upgrade",
+        "package-manifest-unclassified",
+        "product-runtime-change",
+        "aal2-enforcement-activation"
       ]
     },
     "model": {
@@ -131,172 +155,160 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A crafted protocol-relative or external next target escapes the workforce login origin.",
-        "The shared return-target helper accepts the preview-login route and creates an authentication loop.",
-        "Password recovery sends privileged users through the shopper credential flow.",
-        "An already signed-in shopper manually opens the workforce credential page and changes credentials without invite/recovery link evidence.",
-        "Owner activation bypasses the server-side eligibility claim or navigates directly into privileged UI instead of canonical workforce login.",
-        "The change accidentally activates the parked AAL2 authorization enforcement or changes role/tenant authority.",
-        "The isolated release unintentionally edits a non-auth route and violates the release risk budget."
+        "Only package.json is changed and package-lock.json continues installing vulnerable 1.2.1.",
+        "Only the lockfile is changed and a future lock regeneration falls back to a vulnerable transitive version.",
+        "An audit ignore/allowlist makes CI green without removing the vulnerable package.",
+        "The override uses a loose range and later resolves to an unreviewed version.",
+        "The lockfile integrity/resolved tuple does not match 1.2.2 and npm ci fails.",
+        "The dependency fix triggers unrelated transitive package churn.",
+        "Package manifests regress to unresolved Atlas ownership."
       ],
       "edgeCases": [
-        "next=/admin and nested admin URLs with query strings are preserved.",
-        "Exact /storefront-template-preview with query parameters is preserved.",
-        "/storefront-template-preview-login, /fiokom, //evil.example and https://evil.example are rejected.",
-        "Recovery without callback evidence fails closed even when a shopper session already exists.",
-        "Invite/recovery with valid Supabase callback evidence can set a password and continue through canonical workforce login.",
-        "Owner activation without an eligible claim fails closed.",
-        "No active caller is required to consume the new activation/credential primitives until the second release unit."
+        "PostCSS declares ^1.2.1, so 1.2.2 remains semver-compatible.",
+        "source-map-js is transitive rather than a direct runtime dependency.",
+        "The newly published 1.2.2 package must be pinned exactly despite the parent range.",
+        "Existing postcss override remains unchanged.",
+        "Security proof is accepted only from the actual exact-head security-audit job, not from source assertions alone."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-AUTH-PLUS-DELEGATORS",
-        "summary": "Ship auth primitives and all active route delegator changes together.",
+        "id": "ALT-AUDIT-IGNORE",
+        "summary": "Suppress or allowlist the new npm audit advisory.",
         "disposition": "rejected",
-        "reason": "Release Risk Budget proved 10/5 points across four subsystems; high-risk auth authority must be isolated."
+        "reason": "That weakens the security gate and leaves the vulnerable package installed."
       },
       {
-        "id": "ALT-RISK-POLICY-EXCEPTION",
-        "summary": "Raise or bypass the release risk budget for the combined change.",
+        "id": "ALT-POSTCSS-UPGRADE",
+        "summary": "Upgrade PostCSS or broader dependency groups to chase the transitive dependency.",
         "disposition": "rejected",
-        "reason": "The budget is a canonical production control and the change can be dependency-closed through sequential releases without weakening it."
+        "reason": "PostCSS already allows the patched source-map-js patch; broader churn is unnecessary."
       },
       {
-        "id": "ALT-ISOLATED-AUTH-CORE",
-        "summary": "Ship only auth-owned primitives first, then rebase non-auth entrypoint delegators on the verified main.",
+        "id": "ALT-EXACT-TRANSITIVE-PIN",
+        "summary": "Add an exact source-map-js 1.2.2 root override and update only its lock entry.",
         "disposition": "selected",
-        "reason": "This keeps the high-risk auth release at one substantive subsystem while preserving the already designed convergence path."
+        "reason": "This is the smallest deterministic remediation compatible with the existing PostCSS contract."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Architecture",
+        "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Authentication primitives belong to DOMAIN-IDENTITY; active presentation delegates can consume them in a later release.",
-        "resolution": "This unit edits only canonical auth paths plus neutral tests.",
+        "finding": "Exact-head npm audit reports a high-severity source-map-js 1.2.1 vulnerability.",
+        "resolution": "Replace the installed transitive package with patched 1.2.2; no audit exception is permitted.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json",
-          "src/lib/auth/workforce-return-target.ts",
-          "src/app/api/auth/workforce-login/page.tsx"
+          "package.json",
+          "package-lock.json"
         ]
       },
       {
-        "role": "Security",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "A generic existing session must not be treated as invite/recovery authorization.",
-        "resolution": "Credential completion requires explicit Supabase callback evidence before the form becomes ready.",
+        "role": "Architecture",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Dependency manifests are now explicitly owned by DOMAIN-RELEASE and may be safely included in the planned projection.",
+        "resolution": "Retain exact release-domain ownership and its Atlas regression.",
         "evidence": [
-          "src/lib/auth/workforce-credential-form.tsx",
-          "tests/workforce-auth-core-isolation.test.ts"
+          "quality/knowledge/domain-foundations.v1.json",
+          "tests/shoperation-semantic-execution-intelligence.test.ts"
         ]
       },
       {
         "role": "Release",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The combined convergence branch exceeded Release Risk Budget because high-risk auth was mixed with three other subsystems.",
-        "resolution": "Auth Core is split into its own release transaction; non-auth delegates remain unchanged until a second unit.",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "A broad npm update could change unrelated dependency truth.",
+        "resolution": "Pin exactly 1.2.2 and change only the source-map-js lock entry plus the explicit override.",
         "evidence": [
-          "deploy/release-risk-policy.json",
-          "scripts/release-risk-budget.mjs"
+          "package.json",
+          "package-lock.json",
+          "tests/dependency-security-contract.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-AUTH-1",
-        "scenario": "An attacker supplies //evil.example or https://evil.example as next.",
-        "finding": "A local-looking redirect helper can become an open redirect if origin semantics are ambiguous.",
-        "resolution": "Normalize against a fixed local origin and allowlist only canonical workforce destinations.",
+        "id": "CH-SEC-1",
+        "scenario": "The audit is silenced without changing the package.",
+        "finding": "CI could turn green while the vulnerable code remains.",
+        "resolution": "No audit configuration changes are in scope; exact-head npm audit must pass naturally.",
         "status": "resolved"
       },
       {
-        "id": "CH-AUTH-2",
-        "scenario": "A caller supplies /storefront-template-preview-login or /fiokom as next.",
-        "finding": "A broad prefix rule can create a loop or cross into shopper account UX.",
-        "resolution": "Allow exact preview runtime path only; reject preview-login and shopper account paths.",
+        "id": "CH-SEC-2",
+        "scenario": "Only package-lock.json is updated.",
+        "finding": "Future regeneration could select another vulnerable version allowed by the parent range.",
+        "resolution": "Add exact root override source-map-js=1.2.2.",
         "status": "resolved"
       },
       {
-        "id": "CH-AUTH-3",
-        "scenario": "A workforce user requests password recovery.",
-        "finding": "Using shopper recovery would recreate split credential authority.",
-        "resolution": "WorkforceAuthForm sends recovery directly to the workforce-owned credential route.",
+        "id": "CH-SEC-3",
+        "scenario": "Only package.json is updated.",
+        "finding": "npm ci requires the locked install graph to agree.",
+        "resolution": "Update the source-map-js lock entry to 1.2.2 as the same coherent batch.",
         "status": "resolved"
       },
       {
-        "id": "CH-AUTH-4",
-        "scenario": "A shopper session already exists and the user manually opens flow=invite or flow=recovery.",
-        "finding": "Session presence alone does not prove possession of a workforce invite/recovery link.",
-        "resolution": "Require matching hash type, PKCE code/token hash, or access/refresh token callback evidence before credential update.",
+        "id": "CH-SEC-4",
+        "scenario": "npm update changes unrelated transitive packages.",
+        "finding": "Security remediation becomes an unbounded dependency release.",
+        "resolution": "Do not regenerate the full graph; modify only the exact transitive lock record required by the override.",
         "status": "resolved"
       },
       {
-        "id": "CH-AUTH-5",
-        "scenario": "An owner activation email is not eligible.",
-        "finding": "Client signup without the server owner-claim gate could create an unauthorized owner identity.",
-        "resolution": "Activation must call /api/platform/activation and fail closed unless eligible=true.",
+        "id": "CH-SEC-5",
+        "scenario": "1.2.2 is incompatible with PostCSS.",
+        "finding": "Build/runtime tooling could regress.",
+        "resolution": "PostCSS 8.5.28 declares ^1.2.1, which includes 1.2.2; full tests/build remain mandatory.",
         "status": "resolved"
       },
       {
-        "id": "CH-AUTH-6",
-        "scenario": "Auth Core work is mistaken for AAL2 authorization enforcement.",
-        "finding": "Changing requireAdmin/middleware would alter runtime enforcement before the planned final audit.",
-        "resolution": "Those authorities remain read-only; tests prohibit workforceAssuranceSatisfied/AAL2 enforcement in this unit.",
+        "id": "CH-SEC-6",
+        "scenario": "The integrity value is wrong.",
+        "finding": "npm ci fails or artifact identity is unproven.",
+        "resolution": "Use the published 1.2.2 registry URL and package integrity and prove through npm ci in CI.",
         "status": "resolved"
       },
       {
-        "id": "CH-AUTH-7",
-        "scenario": "The high-risk auth release also changes active platform/account/preview/admin delegates.",
-        "finding": "That would reproduce the Release Risk Budget violation.",
-        "resolution": "The plan envelope excludes all non-auth delegates and the release gate must report 5/5 points with one scored subsystem.",
+        "id": "CH-SEC-7",
+        "scenario": "The package files lose domain classification.",
+        "finding": "A future dependency security edit becomes semantically unresolved again.",
+        "resolution": "Keep the exact DOMAIN-RELEASE classification regression in the final release.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code on the exact plan-only Auth Core head before implementation.",
-      "Add deterministic return-target, recovery, credential-evidence and activation source-contract tests.",
-      "Run Edit-Time / Reference Sync and Incremental Known Failure Replay after the auth-only implementation commit.",
-      "Require Release Risk Budget PASS at 5/5 points with exactly one substantive subsystem.",
-      "Run full Quality Tests, TypeScript and Production Build.",
-      "Require exact-head Completion Truth VERIFIED and lifecycle closure before merging Auth Core to main."
+      "Run Plan Before Code again on this expanded exact-head plan before editing package.json or package-lock.json.",
+      "Add exact root override source-map-js=1.2.2 and update only the source-map-js lock record.",
+      "Add a deterministic dependency-security contract test asserting the override and locked 1.2.2 artifact.",
+      "Run Edit-Time and full Incremental Known Failure Replay.",
+      "Require Release Risk Budget PASS for the combined quality-infrastructure plus dependency-contract release diff.",
+      "Require the exact-head security-audit job to PASS with no audit exception.",
+      "Run full Quality Tests, TypeScript and Production Build, then Completion Truth and lifecycle closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-AUTH-CORE",
+      "request": "PO-2026-10-06-SOURCE-MAP-JS-SECURITY-REMEDIATION",
       "authority": [
-        "auth-access-authority"
+        "quality-knowledge-system",
+        "release-infrastructure"
       ],
       "mustEdit": [
-        "src/lib/auth/workforce-return-target.ts",
-        "src/app/api/auth/workforce-login/page.tsx",
-        "src/lib/auth/workforce-auth-form.tsx",
-        "src/app/api/auth/workforce-credential/page.tsx",
-        "src/lib/auth/workforce-credential-form.tsx",
-        "src/lib/auth/platform-activation-form.tsx"
+        "package.json",
+        "package-lock.json"
       ],
       "mayEdit": [
-        "tests/workforce-auth-ux.test.ts",
-        "tests/workforce-auth-core-isolation.test.ts"
+        "tests/dependency-security-contract.test.ts"
       ],
       "impactedReadOnly": [
-        "src/app/platform/page.tsx",
-        "src/app/fiokom/page.tsx",
-        "src/app/storefront-template-preview-login/page.tsx",
-        "src/app/admin/platform/webaruhazak/actions.ts",
-        "src/components/auth/auth-form.tsx",
-        "src/components/auth/platform-auth-form.tsx",
-        "src/lib/auth/admin-api.ts",
-        "src/lib/auth/require-admin.ts",
-        "src/lib/instances/access.ts",
-        "src/middleware.ts",
-        "quality/knowledge/living-roadmap.v2.json"
+        "src/**",
+        ".github/workflows/ci.yml",
+        "deploy/release-risk-policy.json",
+        "quality/knowledge/development-guard-policy.v1.json"
       ],
       "proof": [
-        "tests/workforce-auth-ux.test.ts",
-        "tests/workforce-auth-core-isolation.test.ts"
+        "tests/dependency-security-contract.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -305,72 +317,64 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-AUTH-CORE",
+    "sourceRef": "PO-2026-10-06-SOURCE-MAP-JS-SECURITY-REMEDIATION",
     "requirements": [
       {
-        "id": "REQ-WORKFORCE-AUTH-CORE",
-        "requirement": "Canonical workforce authentication primitives provide safe return targeting, workforce-owned recovery/credential completion and owner activation handoff while existing role, tenant, shopper and parked AAL2 authorities remain unchanged.",
+        "id": "REQ-SOURCE-MAP-JS-SECURITY",
+        "requirement": "The locked dependency contract installs source-map-js 1.2.2 instead of vulnerable 1.2.1 without weakening audit enforcement or changing product runtime behavior.",
         "claimScope": {
-          "capability": "CAP-AUTH",
-          "breadth": "workforce-auth-core",
+          "capability": "CAP-QUALITY",
+          "breadth": "dependency-security-contract",
           "strength": 2,
           "dimensions": [
             "tests",
-            "types",
-            "build",
-            "forbidden-state"
+            "scope",
+            "forbidden-state",
+            "truth"
           ]
         },
         "requiredCapabilities": [
-          "CAP-AUTH"
+          "CAP-QUALITY"
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
+            "GUARD-EDIT-TIME"
           ],
           "outcome": [
-            "GUARD-PRODUCTION-BUILD"
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-WORKFORCE-REDIRECT-ESCAPE",
-            "statement": "Workforce return targets must not escape to external, shopper-account or preview-login routes.",
+            "id": "NEG-AUDIT-BYPASS",
+            "statement": "The security remediation must not disable, suppress or allowlist the npm audit finding.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-CUSTOMER-SESSION-CREDENTIAL-BYPASS",
-            "statement": "An arbitrary existing customer session must not authorize workforce credential completion without callback evidence.",
+            "id": "NEG-VULNERABLE-LOCK",
+            "statement": "The lockfile must not retain source-map-js 1.2.1.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-SECOND-AUTH-AUTHORITY",
-            "statement": "The Auth Core must continue to use Supabase Auth and existing workforce MFA primitives rather than creating another credential/session authority.",
+            "id": "NEG-DEPENDENCY-CHURN",
+            "statement": "The remediation must not intentionally upgrade unrelated dependencies.",
             "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-TYPECHECK"
-            ]
-          },
-          {
-            "id": "NEG-AAL2-ACTIVATION",
-            "statement": "This release must not activate or weaken the parked AAL2 authorization enforcement.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-EDIT-TIME"
             ]
           }
         ]
       },
       {
-        "id": "REQ-WORKFORCE-AUTH-CORE-RELEASE-ISOLATION",
-        "requirement": "The high-risk workforce Auth Core ships as an isolated release transaction within the canonical Release Risk Budget.",
+        "id": "REQ-DEPENDENCY-SECURITY-RELEASE",
+        "requirement": "The dependency security remediation stays within the canonical release risk budget and preserves release-domain manifest ownership.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "workforce-auth-core-release-isolation",
+          "breadth": "dependency-security-release",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -390,8 +394,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-HIGH-RISK-MIXED-RELEASE",
-            "statement": "The high-risk Auth Core release must not be mixed with substantive non-auth subsystems or exceed the canonical release risk budget.",
+            "id": "NEG-OVERBROAD-SECURITY-RELEASE",
+            "statement": "The security release must not expand into unrelated product or dependency subsystems.",
             "evidence": [
               "GUARD-RELEASE-RISK"
             ]
@@ -400,14 +404,14 @@
       }
     ]
   },
-  "notes": "Release Risk Budget on combined workforce convergence head 9565aee4 proved the implementation was too broad: 10/5 points across four subsystems, while Plan Before Code, Edit-Time Guard and Incremental Replay all passed. This transaction is the required first split: high-risk Auth Core only. The already-developed non-auth platform/account/preview/admin delegators remain on the combined reference branch and will be re-applied from verified main as a second release unit. PR #858 remains parked and AAL2 enforcement is not activated. Sentinel integrity correctly rejected CAP-RELEASE evidence embedded inside the CAP-AUTH completion claim. Release isolation is now modeled as a separate CAP-RELEASE requirement proven by GUARD-RELEASE-RISK; the release gate itself remains mandatory and unchanged. Plan Before Code required explicit implementation evidence and negative verification for the CAP-RELEASE claim; both are bound to GUARD-RELEASE-RISK, whose canonical proof semantics are CAP-RELEASE with risk/release-scope dimensions.",
+  "notes": "A new high-severity npm advisory surfaced after the E13 quality release had already reached Completion Truth. Main currently locks source-map-js 1.2.1 through PostCSS 8.5.28 (^1.2.1). The first coherent batch on this branch established exact DOMAIN-RELEASE ownership for package.json/package-lock.json and passed Plan Before Code, Edit-Time and full Replay. This expanded plan now authorizes only the patched 1.2.2 dependency remediation; security-audit remains fully enforced.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "b49d521a9e4e4928074289afcc32c97eb94e6060",
-    "closedAt": "2026-10-05T17:57:49.713Z",
+    "verifiedImplementationHead": "338b0d24db19878e9e751926f70ce7096f5698d1",
+    "closedAt": "2026-10-06T03:41:43.329Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-IDENTITY-AUTH-CORE",
+    "sourceRef": "PO-2026-10-06-SOURCE-MAP-JS-SECURITY-REMEDIATION",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

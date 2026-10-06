@@ -91,6 +91,11 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     expect(qualityHelper.domains).toEqual(['DOMAIN-QUALITY']);
     expect(qualityHelper.authorities).toEqual(['quality-knowledge-system']);
 
+    for(const dependencyManifest of ['package.json','package-lock.json']){
+      const classified=classifyAtlasPath(dependencyManifest);
+      expect(classified.domains).toEqual(['DOMAIN-RELEASE']);
+      expect(classified.authorities).toEqual(['release-infrastructure']);
+    }
     const preview=classifyAtlasPath('src/app/storefront-preview/[token]/page.tsx');
     expect(preview.domains).toEqual(['DOMAIN-BUILDER']);
     expect(preview.authorities).toEqual(['builder-template-system']);
