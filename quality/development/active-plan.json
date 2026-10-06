@@ -1,62 +1,120 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-STAGE1-WORKFORCE-MFA-ACTIVATION-CONTROL",
-  "task": "Stage 1 Workforce Identity: add explicit prepared-versus-enforced MFA activation control so the complete TOTP policy remains implemented but interactive workforce MFA stays parked until final audit activation, without changing RBAC, tenant authority, middleware, or parked PR #858.",
+  "taskId": "DEV-STAGE1-WORKFORCE-ENTRYPOINT-DELEGATORS",
+  "task": "Stage 1 MR1 workforce entrypoint convergence: make the active platform, customer-account bridge, template-preview and workforce invitation surfaces consume the already-verified canonical Workforce Auth Core without changing identity primitives, role/tenant authority, middleware or parked AAL2 enforcement.",
   "status": "closed",
-  "guardDigest": "00e392d5",
-  "changeBaseSha": "3a245d76e7ba62e731ea228805663062629fcaf8",
+  "guardDigest": "2cec38ff",
+  "changeBaseSha": "b2d5d4f4b3a0831aa2879bdb9bf6f14b55361c46",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "src/lib/auth/workforce-assurance-policy.ts",
-    "src/app/api/auth/workforce-context/route.ts",
-    "tests/workforce-identity-aal2-primitives.test.ts",
+    "src/app/platform/page.tsx",
+    "src/app/fiokom/page.tsx",
+    "src/app/storefront-template-preview-login/page.tsx",
+    "src/app/admin/platform/webaruhazak/actions.ts",
     "tests/workforce-auth-ux.test.ts",
-    "tests/workforce-mfa-activation-control.test.ts"
+    "tests/workforce-admin-entry-bridge.test.ts",
+    "tests/platform-auth-portal.test.ts",
+    "tests/platform-invite-production-redirect.test.ts",
+    "tests/platform-owner-zero-tenant-hotfix.test.ts",
+    "tests/workforce-entrypoint-convergence.test.ts",
+    "tests/storefront-template-preview-runtime.test.ts"
   ],
   "expectedSubsystems": [
+    "admin-operations",
     "auth-access-authority",
+    "builder-template-system",
     "customer-account",
+    "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-IDENTITY"
+    "DOMAIN-ADMIN",
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "auth-access-authority"
+    "admin-operations",
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
     "SQ-KF-005",
     "SQ-KF-007",
+    "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-019",
+    "SQ-KF-020",
     "SQ-KF-022",
+    "TF-KF-001",
     "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
     "TF-KF-006",
+    "TF-KF-007",
     "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
     "TF-KF-012",
-    "TF-KF-020"
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-004",
     "SQ-NK-006",
+    "SQ-NK-007",
     "SQ-NK-008",
+    "SQ-NK-009",
+    "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [],
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/app/fiokom/layout.tsx",
+      "findingFingerprint": "18b6e8f2",
+      "reason": "Exact-fingerprint review only: the customer account layout intentionally continues to render StorefrontAccountShell for shopper account presentation. The changed workforce-only template preview login removed that shell because it now delegates immediately to canonical workforce authentication; the customer layout is not a workforce authentication or authorization consumer."
+    },
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "file": "src/app/fiokom/layout.tsx",
+      "findingFingerprint": "2a254433",
+      "reason": "Exact-fingerprint review only: the closing StorefrontAccountShell expression belongs to the unchanged shopper account layout. It is intentionally independent from the workforce-only preview-login route and does not consume or override workforce login, role, tenant or MFA authority."
+    }
+  ],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-MR1-WORKFORCE-MFA-ACTIVATION-CONTROL",
+    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-ENTRYPOINT-DELEGATORS",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "The existing TOTP policy is security-sensitive and already implemented, but the active workforce login currently applies it immediately. The product-owner decision is to keep MFA prepared but non-blocking during ongoing visual/functional audit work and activate enforcement only near final audit. This transaction must separate policy truth from activation state without weakening the target policy or activating parked server-side AAL2 enforcement.",
+      "rationale": "The canonical Workforce Auth Core is already exact-head VERIFIED on main. This transaction changes only active ADMIN, BUILDER and STOREFRONT entrypoint/delegator surfaces so they consume that authority. A defect could preserve an alternate privileged password surface, route preview users through shopper authentication, misroute workforce invitations, or reopen the high-risk auth release scope.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -72,31 +130,31 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The canonical target TOTP policy remains unchanged: platform owner requires two factors, platform admin one, store owner/admin one, sensitive operations one, low-risk roles zero.",
-        "A canonical prepared/enforced activation mode is introduced under DOMAIN-IDENTITY without creating a second authentication authority.",
-        "Prepared mode is the default when no explicit activation value is configured and produces an effective interactive workforce TOTP requirement of zero while preserving the target policy value.",
-        "Enforced mode produces the effective TOTP requirement from the unchanged target policy.",
-        "The workforce-context route returns both effective and policy TOTP requirements plus the activation mode from server-owned configuration.",
-        "The canonical workforce login therefore remains usable for current visual/functional audits without mandatory TOTP enrollment/challenge while the activation mode is prepared.",
-        "No role, tenant, middleware authorization authority or parked PR #858 server-side AAL2 enforcement is added, weakened, merged or activated."
+        "The active /platform page no longer imports or renders legacy PlatformAuthForm; existing workforce users delegate to canonical workforce login and owner activation consumes the verified auth-owned activation primitive.",
+        "The template-preview login route no longer renders customer AuthForm or StorefrontAccountShell; it delegates to canonical workforce login with the exact sanitized preview target.",
+        "Explicit /fiokom workforce intent bridges allowed admin and exact template-preview targets through the shared workforce return-target helper before storefront instance resolution; ordinary shopper sign-in remains unchanged.",
+        "Platform-created workforce invitations redirect to the verified workforce-owned credential completion route instead of shopper /fiokom onboarding.",
+        "All four active delegates consume the merged Workforce Auth Core from main; no Auth Core implementation file is modified in this transaction.",
+        "No role, tenant, middleware authorization authority or AAL2 enforcement is added, weakened or activated.",
+        "The delegator release consumes the current main Workforce Auth contract including prepared/enforced MFA activation semantics; it does not configure WORKFORCE_MFA_MODE, alter target factor policy, or activate server-side AAL2 enforcement."
       ],
       "invariants": [
         "Supabase Auth remains the only session/password/MFA authority.",
-        "requiredWorkforceTotpFactors remains the canonical Market Ready target-policy function and retains existing owner/admin semantics.",
-        "Activation state changes only the effective interactive login requirement; it does not alter role membership, tenant resolution or authorization decisions.",
-        "Unknown or absent activation configuration resolves to prepared, never silently to enforced.",
-        "Final enforcement requires an explicit future activation transaction; this release does not claim Market Ready AAL2 enforcement.",
-        "PR #858 remains open/draft and untouched.",
-        "The active delegator PR #912 remains separate and is not merged or modified by this Auth Core transaction."
+        "The merged Workforce Auth Core on main is read-only in this release unit.",
+        "Server-owned platform operator, role and tenant authorities remain unchanged.",
+        "Customer AuthForm remains shopper-owned and is not used by workforce-only preview or invitation flows.",
+        "PR #858 remains parked and untouched.",
+        "The release transaction contains no substantive src/lib/auth or src/app/api/auth implementation edits.",
+        "WORKFORCE_MFA_MODE remains server-owned Auth Core configuration inherited from main; this delegator transaction must not set, expose publicly, or override it."
       ],
       "forbiddenStates": [
-        "target-mfa-policy-weakened",
-        "mfa-enforced-by-default-before-final-audit",
-        "client-owned-mfa-activation-authority",
-        "role-or-tenant-authority-change",
+        "active-platform-route-legacy-direct-password-login",
+        "template-preview-customer-authform",
+        "workforce-invite-customer-account-onboarding",
+        "duplicated-workforce-return-target-policy",
+        "auth-core-reopened-in-delegator-release",
         "middleware-authz-authority",
-        "aal2-server-enforcement-activation",
-        "delegator-release-mixed-into-auth-correction"
+        "aal2-enforcement-activation"
       ]
     },
     "model": {
@@ -128,176 +186,185 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The implementation changes owner/admin target factor counts to zero instead of separating policy from activation.",
-        "A missing environment value accidentally enables MFA and makes every visual audit require TOTP.",
-        "A client-visible/public environment flag becomes the authority for security activation.",
-        "Prepared mode suppresses the target policy value entirely, making final activation unverifiable or easy to forget.",
-        "The workforce-context route continues returning the raw target policy as the effective login requirement and still blocks the E13/visual audit login flow.",
-        "The fix edits requireAdmin, middleware, tenant resolution or PR #858 and prematurely activates server enforcement.",
-        "The activation correction is mixed into PR #912 and recreates the high-risk mixed-release budget failure."
+        "The platform page keeps PlatformAuthForm or another direct privileged signInWithPassword path.",
+        "The template-preview login still renders customer AuthForm/StorefrontAccountShell rather than delegating to workforce login.",
+        "The /fiokom workforce bridge only handles /admin and loses the exact preview return target supported by the verified Auth Core.",
+        "A platform invitation still redirects to shopper /fiokom invite UX instead of workforce credential completion.",
+        "A delegator reimplements redirect allowlisting locally and diverges from the shared fail-closed workforce helper.",
+        "The change edits Auth Core, require-admin, middleware or tenant resolution and accidentally reopens authority/AAL2 semantics.",
+        "The release reintroduces the combined-branch Release Risk Budget failure by mixing substantive auth implementation with ADMIN/BUILDER/STOREFRONT delegates."
       ],
       "edgeCases": [
-        "Undefined, empty, whitespace and unknown activation values resolve to prepared.",
-        "Only the exact canonical enforced value activates the target policy.",
-        "Prepared owner context reports policyRequiredFactors=2 but requiredFactors=0.",
-        "Prepared admin context reports policyRequiredFactors=1 but requiredFactors=0.",
-        "Enforced owner/admin contexts report effective values identical to the target policy.",
-        "Low-risk operator remains zero in both prepared and enforced modes.",
-        "Existing verified TOTP factors remain untouched in Supabase; prepared mode does not unenroll or mutate them."
+        "Existing shopper flows through /fiokom remain shopper-owned unless reason=login and the normalized target is workforce-allowed.",
+        "Exact /storefront-template-preview with query parameters survives the bridge; preview-login loops and external targets remain rejected by the merged helper.",
+        "An already authenticated user opening preview login still traverses canonical workforce login/context processing rather than bypassing it.",
+        "First-owner activation continues through the merged auth-owned activation component and then canonical workforce login.",
+        "Invite redirects preserve next=/admin in encoded form for credential completion.",
+        "Legacy PlatformAuthForm may remain as dead source but must have zero active App Router references."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-WEAKEN-TARGET-POLICY",
-        "summary": "Change requiredWorkforceTotpFactors so owner/admin temporarily return zero.",
+        "id": "ALT-MERGE-COMBINED-BRANCH",
+        "summary": "Merge the original combined Auth Core plus delegator branch.",
         "disposition": "rejected",
-        "reason": "That destroys the canonical Market Ready policy and conflates target security requirements with activation timing."
+        "reason": "That transaction already proved 10/5 Release Risk Budget and would discard the successful isolation of Auth Core."
       },
       {
-        "id": "ALT-PROOF-HARNESS-BYPASS",
-        "summary": "Teach E13/visual proof tooling to bypass the workforce MFA state machine.",
+        "id": "ALT-DUPLICATE-DELEGATOR-AUTH",
+        "summary": "Keep route-local login/redirect logic in platform, account and preview surfaces.",
         "disposition": "rejected",
-        "reason": "That would hide a real product activation mismatch and create special test authentication semantics."
+        "reason": "That preserves parallel privileged entry authorities and allows drift from the verified Workforce Auth Core."
       },
       {
-        "id": "ALT-MERGE-PARKED-AAL2",
-        "summary": "Activate PR #858 and force full AAL2 now.",
-        "disposition": "rejected",
-        "reason": "This contradicts the accepted audit workflow and would make routine visual/functional audit access unnecessarily burdensome."
-      },
-      {
-        "id": "ALT-PREPARED-ENFORCED-ACTIVATION",
-        "summary": "Preserve target policy but derive the effective login requirement from an explicit server-owned prepared/enforced activation mode.",
+        "id": "ALT-THIN-DELEGATORS",
+        "summary": "Change only ADMIN, BUILDER and STOREFRONT callers so they consume the already-verified Workforce Auth Core.",
         "disposition": "selected",
-        "reason": "This keeps the complete security design implemented and testable while honoring the deliberate activation timing boundary."
+        "reason": "This completes convergence without reopening high-risk identity implementation and keeps release scope dependency-closed."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Security",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Defaulting owner/admin target policy itself to zero would weaken security truth.",
-        "resolution": "Keep requiredWorkforceTotpFactors unchanged; introduce a separate effective activation calculation with target policy still observable.",
-        "evidence": [
-          "src/lib/auth/workforce-assurance-policy.ts",
-          "tests/workforce-identity-aal2-primitives.test.ts"
-        ]
-      },
-      {
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "MFA activation belongs to DOMAIN-IDENTITY and must not be owned by preview, storefront, middleware or quality harness code.",
-        "resolution": "Only auth policy/context plus neutral regressions are editable; #912 delegates consume the resulting canonical contract later.",
+        "finding": "ADMIN, BUILDER and STOREFRONT presentation surfaces must consume DOMAIN-IDENTITY contracts rather than own privileged authentication policy.",
+        "resolution": "The four active surfaces become thin delegators; merged Auth Core files remain read-only.",
         "evidence": [
           "quality/knowledge/domain-foundations.v1.json",
-          "src/app/api/auth/workforce-context/route.ts"
+          "src/lib/auth/workforce-return-target.ts",
+          "src/app/api/auth/workforce-login/page.tsx"
+        ]
+      },
+      {
+        "role": "Security",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Delegation is unsafe if any surface retains customer AuthForm/direct password behavior or locally broadens return-target acceptance.",
+        "resolution": "Source-contract regressions require zero active PlatformAuthForm reference, no preview customer AuthForm, workforce-owned invite completion and shared return-target consumption.",
+        "evidence": [
+          "tests/workforce-entrypoint-convergence.test.ts",
+          "tests/platform-auth-portal.test.ts",
+          "tests/storefront-template-preview-runtime.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Mixing the activation correction into the ADMIN/BUILDER/STOREFRONT delegator release would reopen the release-risk problem.",
-        "resolution": "Ship this as an isolated Auth Core transaction first; reconstruct #912 from verified main afterward.",
+        "finding": "The original combined change exceeded Release Risk Budget because Auth Core and three presentation/operations subsystems shipped together.",
+        "resolution": "Auth Core was merged separately in PR #911; this second transaction contains only delegator callers and neutral proof files.",
         "evidence": [
           "deploy/release-risk-policy.json",
-          "quality/development/active-plan.json"
+          "tests/workforce-entrypoint-convergence.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-MFA-ACT-1",
-        "scenario": "WORKFORCE_MFA_MODE is unset during current audits.",
-        "finding": "Raw target policy would force owner/admin enrollment or challenge immediately.",
-        "resolution": "Canonical mode resolver returns prepared and effective requiredFactors=0.",
+        "id": "CH-DELEGATOR-1",
+        "scenario": "A platform operator opens /platform with an existing workforce account.",
+        "finding": "Keeping PlatformAuthForm would preserve a parallel direct-password privileged entrypoint.",
+        "resolution": "The page imports workforceLoginHref and PlatformActivationForm only; active App Router modules have zero PlatformAuthForm references.",
         "status": "resolved"
       },
       {
-        "id": "CH-MFA-ACT-2",
-        "scenario": "A typo or unknown activation value is deployed.",
-        "finding": "Silently treating unknown input as enforced would unexpectedly lock audit users behind MFA.",
-        "resolution": "Only exact enforced activates; all other values resolve to prepared in this pre-final-audit release.",
+        "id": "CH-DELEGATOR-2",
+        "scenario": "An unauthenticated operator opens a template preview deep link.",
+        "finding": "Rendering customer AuthForm would mix shopper and workforce UX.",
+        "resolution": "Preview login validates the preview request and redirects to canonical workforce login with the sanitized preview target.",
         "status": "resolved"
       },
       {
-        "id": "CH-MFA-ACT-3",
-        "scenario": "A developer solves the audit problem by changing owner/admin target factor counts.",
-        "finding": "Market Ready security policy truth would be lost.",
-        "resolution": "Regression tests keep owner=2/admin=1 and test activation separately.",
+        "id": "CH-DELEGATOR-3",
+        "scenario": "A merchant owner/admin accepts a platform-generated invitation.",
+        "finding": "Redirecting to /fiokom would mix workforce credential establishment with shopper onboarding.",
+        "resolution": "Invitation redirect targets /api/auth/workforce-credential?flow=invite and then the merged Auth Core owns credential completion.",
         "status": "resolved"
       },
       {
-        "id": "CH-MFA-ACT-4",
-        "scenario": "Prepared mode hides the future required factor count.",
-        "finding": "The system could appear to have no MFA policy and final activation could overclaim readiness.",
-        "resolution": "Context exposes both policyRequiredFactors and effective requiredFactors plus mfaMode.",
+        "id": "CH-DELEGATOR-4",
+        "scenario": "A legacy workforce bridge enters through /fiokom with a preview target rather than /admin.",
+        "finding": "An admin-only local condition would drop a legitimate exact preview target or diverge from canonical allowlisting.",
+        "resolution": "The bridge calls normalizeWorkforceReturnTarget and workforceLoginHref before storefront instance resolution.",
         "status": "resolved"
       },
       {
-        "id": "CH-MFA-ACT-5",
-        "scenario": "The E13 proof account is owner/admin.",
-        "finding": "Canonical login currently stops on TOTP before E13 proof, proving activation is already operationally enforced.",
-        "resolution": "Prepared mode lets canonical password/context flow complete without test-only bypass; E13 can then prove the real engine.",
+        "id": "CH-DELEGATOR-5",
+        "scenario": "A caller supplies an unsafe or looping next target.",
+        "finding": "Route-local prefix logic could broaden the safe set.",
+        "resolution": "Delegators do not implement a second allowlist; they consume the exact merged auth-owned helper, whose regression remains in the proof set.",
         "status": "resolved"
       },
       {
-        "id": "CH-MFA-ACT-6",
-        "scenario": "The correction edits requireAdmin/middleware or merges #858.",
-        "finding": "Server-side AAL2 authorization enforcement would become active before the planned final audit.",
-        "resolution": "Those authorities remain impacted-read-only and dedicated regressions retain the parked boundary.",
+        "id": "CH-DELEGATOR-6",
+        "scenario": "Entrypoint convergence is mistaken for authorization/MFA enforcement.",
+        "finding": "Editing requireAdmin, middleware or tenant resolution would alter authority before final audit.",
+        "resolution": "Those files remain impacted-read-only and #858 stays parked.",
         "status": "resolved"
       },
       {
-        "id": "CH-MFA-ACT-7",
-        "scenario": "The correction is committed directly into #912.",
-        "finding": "High-risk auth and three non-auth subsystems would again become one mixed release.",
-        "resolution": "Use an isolated Auth Core branch and merge to main before reconstructing #912.",
+        "id": "CH-DELEGATOR-7",
+        "scenario": "The second release accidentally includes substantive Auth Core edits.",
+        "finding": "That would recreate the Release Risk Budget violation already proven on the combined branch.",
+        "resolution": "Plan envelope excludes auth implementation files and Release Risk Budget is a required CAP-RELEASE proof.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code on the exact plan-only head before implementation.",
-      "Add pure prepared/enforced activation semantics while preserving requiredWorkforceTotpFactors target-policy behavior.",
-      "Update workforce-context to derive effective factors server-side and expose target/effective/mode evidence.",
-      "Add deterministic policy/activation/source-contract regressions, including no parked AAL2 enforcement.",
-      "Run Edit-Time Guard and Incremental Known Failure Replay.",
-      "Require Release Risk Budget PASS for the isolated Auth Core transaction.",
+      "Run Plan Before Code on this exact plan-only head before any delegate implementation edit.",
+      "Apply only the four active delegator changes and the seven targeted regression-test changes from the preserved combined reference branch.",
+      "Run Edit-Time / Reference Sync and Incremental Known Failure Replay on the implementation head.",
+      "Require Release Risk Budget PASS without substantive Auth Core scope.",
       "Run full Quality Tests, TypeScript and Production Build.",
-      "Require exact-head Completion Truth VERIFIED and lifecycle closure before merge to main; only then reconstruct #912."
+      "Require exact-head Completion Truth VERIFIED and lifecycle closure before merge.",
+      "Require the exact-head E13/Template Factory browser proof to traverse canonical workforce entry under prepared MFA activation and retain its existing fail-closed side-effect assertions."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-06-MR1-WORKFORCE-MFA-ACTIVATION-CONTROL",
+      "request": "PO-2026-10-05-MR1-WORKFORCE-ENTRYPOINT-DELEGATORS",
       "authority": [
-        "auth-access-authority"
+        "admin-operations",
+        "builder-template-system",
+        "shared-storefront"
       ],
       "mustEdit": [
-        "src/lib/auth/workforce-assurance-policy.ts",
-        "src/app/api/auth/workforce-context/route.ts"
+        "src/app/platform/page.tsx",
+        "src/app/fiokom/page.tsx",
+        "src/app/storefront-template-preview-login/page.tsx",
+        "src/app/admin/platform/webaruhazak/actions.ts"
       ],
       "mayEdit": [
-        "tests/workforce-identity-aal2-primitives.test.ts",
         "tests/workforce-auth-ux.test.ts",
-        "tests/workforce-mfa-activation-control.test.ts"
+        "tests/workforce-admin-entry-bridge.test.ts",
+        "tests/platform-auth-portal.test.ts",
+        "tests/platform-invite-production-redirect.test.ts",
+        "tests/platform-owner-zero-tenant-hotfix.test.ts",
+        "tests/workforce-entrypoint-convergence.test.ts",
+        "tests/storefront-template-preview-runtime.test.ts"
       ],
       "impactedReadOnly": [
+        "src/lib/auth/workforce-return-target.ts",
+        "src/app/api/auth/workforce-login/page.tsx",
         "src/lib/auth/workforce-auth-form.tsx",
-        "src/lib/auth/workforce-mfa-client.ts",
+        "src/app/api/auth/workforce-credential/page.tsx",
+        "src/lib/auth/workforce-credential-form.tsx",
+        "src/lib/auth/platform-activation-form.tsx",
+        "src/components/auth/auth-form.tsx",
+        "src/components/auth/platform-auth-form.tsx",
         "src/lib/auth/admin-api.ts",
         "src/lib/auth/require-admin.ts",
         "src/lib/instances/access.ts",
         "src/middleware.ts",
-        "src/app/platform/page.tsx",
-        "src/app/storefront-template-preview-login/page.tsx",
-        "src/app/admin/platform/webaruhazak/actions.ts",
         "quality/knowledge/living-roadmap.v2.json"
       ],
       "proof": [
-        "tests/workforce-identity-aal2-primitives.test.ts",
         "tests/workforce-auth-ux.test.ts",
-        "tests/workforce-mfa-activation-control.test.ts",
+        "tests/workforce-admin-entry-bridge.test.ts",
+        "tests/platform-auth-portal.test.ts",
+        "tests/platform-invite-production-redirect.test.ts",
+        "tests/platform-owner-zero-tenant-hotfix.test.ts",
+        "tests/workforce-entrypoint-convergence.test.ts",
+        "tests/storefront-template-preview-runtime.test.ts",
         "tests/workforce-auth-core-isolation.test.ts"
       ],
       "unknown": [],
@@ -307,14 +374,14 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-MR1-WORKFORCE-MFA-ACTIVATION-CONTROL",
+    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-ENTRYPOINT-DELEGATORS",
     "requirements": [
       {
-        "id": "REQ-WORKFORCE-MFA-ACTIVATION-CONTROL",
-        "requirement": "Workforce MFA keeps the canonical Market Ready target policy fully implemented while an explicit server-owned prepared/enforced activation mode controls the effective interactive login requirement; current default remains prepared until final audit.",
+        "id": "REQ-WORKFORCE-ENTRYPOINT-DELEGATORS",
+        "requirement": "Active platform, account-bridge, template-preview and workforce-invitation entrypoints consume the verified canonical Workforce Auth Core while shopper authentication, server RBAC/tenant authority and parked AAL2 enforcement remain separate and unchanged.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "workforce-mfa-activation-control",
+          "breadth": "workforce-entrypoint-delegators",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -337,30 +404,29 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-MFA-TARGET-POLICY-WEAKENED",
-            "statement": "Owner/admin target TOTP policy must remain 2/1 and must not be reduced to solve activation timing.",
+            "id": "NEG-ALTERNATE-WORKFORCE-PASSWORD-ENTRY",
+            "statement": "Platform and Builder preview surfaces must not retain a separate privileged signInWithPassword/customer AuthForm path.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-MFA-PREMATURE-ENFORCEMENT",
-            "statement": "Absent or non-enforced activation configuration must not force TOTP during current audit workflows.",
+            "id": "NEG-CUSTOMER-WORKFORCE-MIX",
+            "statement": "Workforce invitation/login continuation must not require shopper AuthForm semantics.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-CLIENT-MFA-ACTIVATION-AUTHORITY",
-            "statement": "MFA activation must remain server-owned and must not be delegated to client/public configuration.",
+            "id": "NEG-DELEGATOR-RETURN-TARGET-DRIFT",
+            "statement": "Delegators must consume the canonical workforce return-target authority rather than broadening or duplicating it.",
             "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-TYPECHECK"
+              "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-AAL2-SERVER-ACTIVATION",
-            "statement": "This release must not activate requireAdmin/middleware AAL2 enforcement or merge parked PR #858.",
+            "id": "NEG-AAL2-ACTIVATION",
+            "statement": "This release must not merge, weaken or activate the parked AAL2 authorization enforcement.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -368,11 +434,11 @@
         ]
       },
       {
-        "id": "REQ-WORKFORCE-MFA-ACTIVATION-RELEASE-ISOLATION",
-        "requirement": "The high-risk MFA activation-control change ships as an isolated auth release within the canonical Release Risk Budget and does not mix with #912 delegator changes.",
+        "id": "REQ-WORKFORCE-ENTRYPOINT-DELEGATORS-RELEASE-SCOPE",
+        "requirement": "The second convergence release remains isolated from substantive Auth Core implementation and satisfies the canonical Release Risk Budget.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "workforce-mfa-activation-release-isolation",
+          "breadth": "workforce-entrypoint-delegator-release-scope",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -392,8 +458,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-MFA-MIXED-DELEGATOR-RELEASE",
-            "statement": "The activation-control release must not contain substantive ADMIN/BUILDER/STOREFRONT delegator changes or recreate the original mixed release.",
+            "id": "NEG-AUTH-CORE-REOPENED",
+            "statement": "The delegator release must not include substantive Auth Core implementation changes or recreate the original mixed high-risk release.",
             "evidence": [
               "GUARD-RELEASE-RISK"
             ]
@@ -402,14 +468,14 @@
       }
     ]
   },
-  "notes": "Live exact-head E13 proof on PR #912 exposed an activation mismatch: canonical workforce login correctly follows requiredWorkforceTotpFactors, so the current owner/admin proof account is stopped by TOTP before E13 can run. This is not an E13 defect and must not be hidden by a quality-harness bypass. Product-owner direction remains: MFA/AAL2 is implemented now but enforcement is activated only near final audit. This isolated Auth Core correction separates target policy from activation state. PR #912 remains DRAFT and will be reconstructed from the new verified main; PR #858 remains parked.",
+  "notes": "Auth Core was isolated and merged in PR #911. E13 proof-harness compatibility was then merged to main, and PR #922 added the verified server-owned WORKFORCE_MFA_MODE prepared/enforced activation control at main b2d5d4f4b3a0831aa2879bdb9bf6f14b55361c46. This reconstructed second transaction reapplies only the four ADMIN/BUILDER/STOREFRONT delegator changes plus their seven targeted regressions on top of that verified main. MFA target policy remains intact; default interactive activation remains prepared. PR #858 stays parked and AAL2 server enforcement stays inactive. The preserved combined reference branch must not be merged.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "e724bff6ed621541a2002927df02d6d1a340c883",
-    "closedAt": "2026-10-06T04:35:16.918Z",
+    "verifiedImplementationHead": "ce00ba6cfdbb87591704e7f071112d69c516129b",
+    "closedAt": "2026-10-06T04:57:01.683Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-06-MR1-WORKFORCE-MFA-ACTIVATION-CONTROL",
+    "sourceRef": "PO-2026-10-05-MR1-WORKFORCE-ENTRYPOINT-DELEGATORS",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

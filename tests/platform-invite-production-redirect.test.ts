@@ -29,7 +29,8 @@ describe('platform merchant invite production redirect',()=>{
     expect(action).toContain("import { getServerPublicSiteUrl } from '@/lib/runtime/public-site-url'");
     expect(action).toContain('const site=getServerPublicSiteUrl()');
     expect(action).toContain("if(!site){console.error('platform webshop invite failed: public site URL unavailable')");
-    expect(action).toContain('redirectTo:`${site}/fiokom?auth_flow=invite&next=/admin`');
+    expect(action).toContain('redirectTo:`${site}/api/auth/workforce-credential?flow=invite&next=%2Fadmin`');
+    expect(action).not.toContain('/fiokom?auth_flow=invite');
     expect(action).not.toContain("const site=(process.env.NEXT_PUBLIC_SITE_URL??'')");
   });
 
@@ -47,4 +48,12 @@ describe('platform merchant invite production redirect',()=>{
     expect(form.indexOf("function safeRequestedNext()")).toBeLessThan(form.indexOf("window.history.replaceState(null,'','/fiokom')"));
     expect(form).toContain("errorCode==='otp_expired'");
   });
+  it('uses workforce-owned credential completion for workforce invite and recovery',()=>{
+    const workforceForm=read('src/lib/auth/workforce-credential-form.tsx');
+    expect(workforceForm).toContain("type Flow='invite'|'recovery'");
+    expect(workforceForm).toContain('hasLinkEvidence');
+    expect(workforceForm).toContain('supabase.auth.updateUser({password})');
+    expect(workforceForm).toContain('window.location.replace(workforceLoginHref(target))');
+  });
+
 });
