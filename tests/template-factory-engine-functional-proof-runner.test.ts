@@ -56,6 +56,15 @@ describe('Template Factory shared engine functional proof runner',()=>{
     expect(runner).toContain("ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:proof artifact missing");
   });
 
+  it('rejects production deployments and fails closed when an equivalent runtime has no Preview anchor',()=>{
+    expect(workflow).toContain("deployment.production_environment===true||environment==='production'");
+    expect(workflow).toContain('Rejecting production deployment');
+    expect(workflow).toContain("const maxAttempts=runtimeMode==='CURRENT_HEAD'?90:1");
+    expect(workflow).toContain('ENGINE_FUNCTIONAL_RUNTIME_PREVIEW_ANCHOR_MISSING');
+    expect(workflow).toContain('RUNTIME_VERCEL_PREVIEW_ANCHOR_MISSING');
+    expect(workflow).toContain('non-production Vercel Preview deployment for the Atlas-selected runtime source');
+  });
+
   it('does not replace the existing Product Owner visual handoff',()=>{
     expect(workflow).toContain('Prove Product Owner login journey on selected runtime');
     expect(workflow).toContain('TEMPLATE_HANDOFF_OUTPUT_DIR: artifacts/template-factory-handoff');
