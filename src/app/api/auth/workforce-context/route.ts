@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getWorkforceRequestContext } from '@/lib/auth/admin-api';
-import { requiredWorkforceTotpFactors,type WorkforcePlatformRole,type WorkforceStoreRole } from '@/lib/auth/workforce-assurance-policy';
+import { resolveWorkforceMfaRequirement,type WorkforcePlatformRole,type WorkforceStoreRole } from '@/lib/auth/workforce-assurance-policy';
 
 export const dynamic='force-dynamic';
 
@@ -25,11 +25,16 @@ export async function GET(){
   if(context.status!=='authorized')return NextResponse.json({error:'WORKFORCE_CONTEXT_UNAVAILABLE'},{status:503});
 
   const storeRoles=context.storeRoles as WorkforceStoreRole[];
-  const requiredFactors=requiredWorkforceTotpFactors({platformRole:context.platformRole,storeRoles});
+  const assurance=resolveWorkforceMfaRequirement(
+    {platformRole:context.platformRole,storeRoles},
+    process.env.WORKFORCE_MFA_MODE,
+  );
   return NextResponse.json({
     platformRole:context.platformRole,
     storeRoles,
-    requiredFactors,
+    requiredFactors:assurance.requiredFactors,
+    policyRequiredFactors:assurance.policyRequiredFactors,
+    mfaMode:assurance.mfaMode,
     roleLabel:roleLabel(context.platformRole,storeRoles),
     instanceName:context.instanceName,
   });

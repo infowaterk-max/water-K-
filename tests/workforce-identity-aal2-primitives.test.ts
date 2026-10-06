@@ -1,5 +1,5 @@
 import{describe,expect,it}from'vitest';
-import{requiredWorkforceTotpFactors,resolveWorkforceMfaStep}from'@/lib/auth/workforce-assurance-policy';
+import{requiredWorkforceTotpFactors,resolveWorkforceMfaRequirement,resolveWorkforceMfaStep}from'@/lib/auth/workforce-assurance-policy';
 import{readFileSync}from'node:fs';
 import{resolve}from'node:path';
 
@@ -25,6 +25,35 @@ describe('workforce identity AAL2 primitives',()=>{
   it('raises low-risk staff to AAL2 at an explicitly sensitive boundary',()=>{
     expect(requiredWorkforceTotpFactors({storeRoles:['support'],sensitiveBoundary:'security'})).toBe(1);
     expect(requiredWorkforceTotpFactors({platformRole:'operator',sensitiveBoundary:'integration-api'})).toBe(1);
+  });
+
+  it('keeps target MFA policy intact while prepared mode parks interactive enforcement',()=>{
+    expect(resolveWorkforceMfaRequirement({platformRole:'owner'},undefined)).toEqual({
+      mfaMode:'prepared',
+      policyRequiredFactors:2,
+      requiredFactors:0,
+    });
+    expect(resolveWorkforceMfaRequirement({platformRole:'admin'},'')).toEqual({
+      mfaMode:'prepared',
+      policyRequiredFactors:1,
+      requiredFactors:0,
+    });
+    expect(resolveWorkforceMfaRequirement({storeRoles:['owner']},'invalid')).toEqual({
+      mfaMode:'prepared',
+      policyRequiredFactors:1,
+      requiredFactors:0,
+    });
+  });
+
+  it('activates the unchanged target MFA policy only for explicit enforced mode',()=>{
+    expect(resolveWorkforceMfaRequirement({platformRole:'owner'},'enforced')).toEqual({
+      mfaMode:'enforced',
+      policyRequiredFactors:2,
+      requiredFactors:2,
+    });
+    expect(resolveWorkforceMfaRequirement({platformRole:'admin'},'enforced').requiredFactors).toBe(1);
+    expect(resolveWorkforceMfaRequirement({platformRole:'operator'},'enforced').requiredFactors).toBe(0);
+    expect(resolveWorkforceMfaRequirement({platformRole:'owner'},'ENFORCED').requiredFactors).toBe(0);
   });
 
   it('models enroll, challenge and ready without weakening the factor-count rule',()=>{
