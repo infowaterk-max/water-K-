@@ -1,28 +1,23 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-SOURCE-MAP-JS-SECURITY-REMEDIATION",
-  "task": "Remediate the source-map-js high-severity dependency vulnerability by pinning the transitive dependency to 1.2.2 while preserving dependency manifest authority and existing runtime behavior.",
+  "taskId": "DEV-STAGE1-E13-WORKFORCE-PROOF-HANDOFF",
+  "task": "E13 PO handoff proof adapter ownership alignment under quality knowledge; no runtime behavior changes.",
   "status": "closed",
-  "guardDigest": "2a712d14",
-  "changeBaseSha": "c8fa6a37b7a69fe8f9b946c83a25678545a34b38",
+  "guardDigest": "62903da6",
+  "changeBaseSha": "ff42402e1cc18e8592ee1219bdd67dbdf18267da",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "quality/knowledge/domain-foundations.v1.json",
-    "tests/shoperation-semantic-execution-intelligence.test.ts",
-    "package.json",
-    "package-lock.json",
-    "tests/dependency-security-contract.test.ts"
+    "scripts/template-factory-product-owner-handoff.mjs",
+    "quality/knowledge/domain-foundations.v1.json"
   ],
   "expectedSubsystems": [
-    "dependency-contract"
+    "quality-knowledge-system"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -77,52 +72,50 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-010",
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-SOURCE-MAP-JS-SECURITY-REMEDIATION",
-    "riskTier": "high",
+    "sourceRef": "PO-2026-10-06-E13-WORKFORCE-PROOF-HANDOFF",
+    "riskTier": "medium",
     "assuranceCeiling": {
-      "level": "strong-behavioral-proof",
-      "rationale": "A current high-severity npm advisory blocks every release. The patch is a transitive dependency update, but it affects the locked install contract and therefore must remain deterministic, exact-version pinned, Atlas-resolved and proven by the real npm audit rather than an exception.",
+      "level": "state-and-failure-review",
+      "rationale": "The change updates an exact-head browser proof adapter and its canonical Atlas ownership only. It must follow the already-verified workforce entry contract without changing product runtime behavior, and must not let proof infrastructure remain unowned or silently stale.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "what-if-matrix",
         "adversarial-scenarios",
-        "boundary-cases",
-        "pairwise-interactions",
-        "threat-failure-model",
-        "fault-injection"
+        "boundary-cases"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "Root dependency manifests remain canonically classified as DOMAIN-RELEASE.",
-        "package.json explicitly overrides source-map-js to exactly 1.2.2.",
-        "package-lock.json resolves node_modules/source-map-js to version 1.2.2 with the matching registry artifact and integrity.",
-        "PostCSS remains on the existing 8.5.28 contract and continues to consume a compatible source-map-js version.",
-        "The real CI security-audit job no longer reports GHSA-68fv-2mgg-jv7q / the source-map-js 1.2.1 high-severity finding.",
-        "Quality, TypeScript and production build remain green; no product runtime/auth/AAL2 behavior is changed."
+        "E13 product-owner handoff navigates directly to the canonical workforce entry route with next=/admin/platform instead of relying on the legacy /platform password surface.",
+        "The handoff locates and submits the canonical workforce-auth form rather than legacy PlatformAuthForm labels/selectors.",
+        "scripts/template-factory-product-owner-handoff.mjs is explicitly classified under DOMAIN-QUALITY.",
+        "No product runtime authentication, authorization, tenant, storefront, builder or admin implementation file changes in this transaction.",
+        "Release Risk Budget remains within the canonical limit as an isolated quality-infrastructure change."
       ],
       "invariants": [
-        "Security audit is not disabled, downgraded, allowlisted or bypassed.",
-        "The fix uses the patched dependency version rather than suppressing npm audit output.",
-        "No unrelated dependency is intentionally upgraded.",
-        "The lockfile remains deterministic and compatible with npm ci.",
-        "The package authority classification proven in the first coherent batch remains intact."
+        "The merged Workforce Auth Core remains read-only.",
+        "The E13 harness is proof infrastructure, not a second authentication authority.",
+        "DOMAIN-QUALITY owns the proof adapter; product domains remain consumers/subjects of proof only.",
+        "PR #858 remains parked and AAL2 enforcement is not activated.",
+        "The delegator release remains separate and is not merged as part of this transaction."
       ],
       "forbiddenStates": [
-        "source-map-js-1.2.1-locked",
-        "security-audit-exception",
-        "unbounded-source-map-js-override",
-        "unrelated-dependency-upgrade",
-        "package-manifest-unclassified",
-        "product-runtime-change",
+        "e13-targets-legacy-platform-password-surface",
+        "e13-uses-legacy-platformauthform-selectors",
+        "proof-adapter-unowned-by-domain-registry",
+        "proof-harness-changes-product-runtime",
+        "delegator-runtime-mixed-into-proof-release",
         "aal2-enforcement-activation"
       ]
     },
@@ -155,160 +148,113 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Only package.json is changed and package-lock.json continues installing vulnerable 1.2.1.",
-        "Only the lockfile is changed and a future lock regeneration falls back to a vulnerable transitive version.",
-        "An audit ignore/allowlist makes CI green without removing the vulnerable package.",
-        "The override uses a loose range and later resolves to an unreviewed version.",
-        "The lockfile integrity/resolved tuple does not match 1.2.2 and npm ci fails.",
-        "The dependency fix triggers unrelated transitive package churn.",
-        "Package manifests regress to unresolved Atlas ownership."
+        "E13 still opens /platform and waits for a login UI that the runtime convergence removes.",
+        "E13 reaches canonical workforce entry but still searches for legacy input/button selectors.",
+        "The proof script remains Atlas-unowned, so an isolated quality transaction cannot declare canonical authority.",
+        "The quality fix accidentally edits runtime entrypoint code and recreates the Release Risk Budget violation.",
+        "The domain registration is broadened beyond the exact proof-script family and captures unrelated scripts."
       ],
       "edgeCases": [
-        "PostCSS declares ^1.2.1, so 1.2.2 remains semver-compatible.",
-        "source-map-js is transitive rather than a direct runtime dependency.",
-        "The newly published 1.2.2 package must be pinned exactly despite the parent range.",
-        "Existing postcss override remains unchanged.",
-        "Security proof is accepted only from the actual exact-head security-audit job, not from source assertions alone."
+        "The workforce entry route may render before full page load; the harness waits for the canonical data-workforce-auth root.",
+        "The next target remains exact /admin/platform and is encoded by URLSearchParams rather than string concatenation.",
+        "Credentials continue to come from the existing E13 proof environment; the change does not alter secrets or identity authority.",
+        "The proof adapter remains valid even after /platform becomes a thin delegator because it no longer depends on that presentation route."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-AUDIT-IGNORE",
-        "summary": "Suppress or allowlist the new npm audit advisory.",
+        "id": "ALT-KEEP-LEGACY-E13",
+        "summary": "Keep E13 pointed at /platform and preserve legacy selectors.",
         "disposition": "rejected",
-        "reason": "That weakens the security gate and leaves the vulnerable package installed."
+        "reason": "That would make proof depend on an entry surface the Stage 1 convergence intentionally removes."
       },
       {
-        "id": "ALT-POSTCSS-UPGRADE",
-        "summary": "Upgrade PostCSS or broader dependency groups to chase the transitive dependency.",
-        "disposition": "rejected",
-        "reason": "PostCSS already allows the patched source-map-js patch; broader churn is unnecessary."
-      },
-      {
-        "id": "ALT-EXACT-TRANSITIVE-PIN",
-        "summary": "Add an exact source-map-js 1.2.2 root override and update only its lock entry.",
+        "id": "ALT-ISOLATED-QUALITY-HANDOFF",
+        "summary": "Update only the E13 proof adapter and register its DOMAIN-QUALITY ownership.",
         "disposition": "selected",
-        "reason": "This is the smallest deterministic remediation compatible with the existing PostCSS contract."
+        "reason": "This repairs proof compatibility without reopening product runtime scope and keeps Release Risk within budget."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Security",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Exact-head npm audit reports a high-severity source-map-js 1.2.1 vulnerability.",
-        "resolution": "Replace the installed transitive package with patched 1.2.2; no audit exception is permitted.",
-        "evidence": [
-          "package.json",
-          "package-lock.json"
-        ]
-      },
-      {
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Dependency manifests are now explicitly owned by DOMAIN-RELEASE and may be safely included in the planned projection.",
-        "resolution": "Retain exact release-domain ownership and its Atlas regression.",
+        "finding": "A product-owner proof harness is engineering evidence and requires explicit quality authority rather than implicit ownership.",
+        "resolution": "Register the exact proof script under DOMAIN-QUALITY and keep runtime domains read-only.",
         "evidence": [
           "quality/knowledge/domain-foundations.v1.json",
-          "tests/shoperation-semantic-execution-intelligence.test.ts"
+          "scripts/template-factory-product-owner-handoff.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A broad npm update could change unrelated dependency truth.",
-        "resolution": "Pin exactly 1.2.2 and change only the source-map-js lock entry plus the explicit override.",
+        "finding": "Mixing this quality-infrastructure edit with the delegator runtime diff raises the release to 7/5 points and 4/3 subsystems.",
+        "resolution": "Ship the proof-harness alignment first as its own quality release, then base the runtime delegator release on the new main.",
         "evidence": [
-          "package.json",
-          "package-lock.json",
-          "tests/dependency-security-contract.test.ts"
+          "deploy/release-risk-policy.json",
+          "scripts/release-risk-budget.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-SEC-1",
-        "scenario": "The audit is silenced without changing the package.",
-        "finding": "CI could turn green while the vulnerable code remains.",
-        "resolution": "No audit configuration changes are in scope; exact-head npm audit must pass naturally.",
+        "id": "CH-E13-1",
+        "scenario": "Runtime convergence removes the legacy platform password UI.",
+        "finding": "The old E13 harness cannot locate its expected fields/button and produces a false product failure.",
+        "resolution": "Navigate to canonical workforce entry and scope selectors under data-workforce-auth.",
         "status": "resolved"
       },
       {
-        "id": "CH-SEC-2",
-        "scenario": "Only package-lock.json is updated.",
-        "finding": "Future regeneration could select another vulnerable version allowed by the parent range.",
-        "resolution": "Add exact root override source-map-js=1.2.2.",
+        "id": "CH-E13-2",
+        "scenario": "The proof fix is committed together with runtime delegators.",
+        "finding": "Release Risk becomes 7/5 across four subsystems.",
+        "resolution": "Isolate quality-infrastructure from runtime release; do not weaken the budget.",
         "status": "resolved"
       },
       {
-        "id": "CH-SEC-3",
-        "scenario": "Only package.json is updated.",
-        "finding": "npm ci requires the locked install graph to agree.",
-        "resolution": "Update the source-map-js lock entry to 1.2.2 as the same coherent batch.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-SEC-4",
-        "scenario": "npm update changes unrelated transitive packages.",
-        "finding": "Security remediation becomes an unbounded dependency release.",
-        "resolution": "Do not regenerate the full graph; modify only the exact transitive lock record required by the override.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-SEC-5",
-        "scenario": "1.2.2 is incompatible with PostCSS.",
-        "finding": "Build/runtime tooling could regress.",
-        "resolution": "PostCSS 8.5.28 declares ^1.2.1, which includes 1.2.2; full tests/build remain mandatory.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-SEC-6",
-        "scenario": "The integrity value is wrong.",
-        "finding": "npm ci fails or artifact identity is unproven.",
-        "resolution": "Use the published 1.2.2 registry URL and package integrity and prove through npm ci in CI.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-SEC-7",
-        "scenario": "The package files lose domain classification.",
-        "finding": "A future dependency security edit becomes semantically unresolved again.",
-        "resolution": "Keep the exact DOMAIN-RELEASE classification regression in the final release.",
+        "id": "CH-E13-3",
+        "scenario": "The proof script is isolated but has no canonical domain owner.",
+        "finding": "Plan/Atlas authority becomes ambiguous for a standalone quality transaction.",
+        "resolution": "Add the exact proof script to DOMAIN-QUALITY canonical paths.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code again on this expanded exact-head plan before editing package.json or package-lock.json.",
-      "Add exact root override source-map-js=1.2.2 and update only the source-map-js lock record.",
-      "Add a deterministic dependency-security contract test asserting the override and locked 1.2.2 artifact.",
-      "Run Edit-Time and full Incremental Known Failure Replay.",
-      "Require Release Risk Budget PASS for the combined quality-infrastructure plus dependency-contract release diff.",
-      "Require the exact-head security-audit job to PASS with no audit exception.",
-      "Run full Quality Tests, TypeScript and Production Build, then Completion Truth and lifecycle closure."
+      "Run Plan Before Code on the exact plan-only head before changing the proof script or domain registry.",
+      "Change only the E13 handoff adapter and exact DOMAIN-QUALITY canonical-path registration.",
+      "Run Edit-Time Guard and full Known Failure replay because quality knowledge changes force full replay.",
+      "Require Release Risk Budget PASS for the isolated quality-infrastructure diff.",
+      "Require Quality Tests, TypeScript, Production Build and exact-head E13/Template Factory workflow success.",
+      "Require Completion Truth VERIFIED and lifecycle closure before merge."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-06-SOURCE-MAP-JS-SECURITY-REMEDIATION",
+      "request": "PO-2026-10-06-E13-WORKFORCE-PROOF-HANDOFF",
       "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        "package.json",
-        "package-lock.json"
+        "scripts/template-factory-product-owner-handoff.mjs",
+        "quality/knowledge/domain-foundations.v1.json"
       ],
-      "mayEdit": [
-        "tests/dependency-security-contract.test.ts"
-      ],
+      "mayEdit": [],
       "impactedReadOnly": [
-        "src/**",
-        ".github/workflows/ci.yml",
-        "deploy/release-risk-policy.json",
-        "quality/knowledge/development-guard-policy.v1.json"
+        "src/lib/auth/workforce-return-target.ts",
+        "src/app/api/auth/workforce-login/page.tsx",
+        "src/lib/auth/workforce-auth-form.tsx",
+        "src/app/platform/page.tsx",
+        "src/app/fiokom/page.tsx",
+        "src/app/storefront-template-preview-login/page.tsx",
+        "src/app/admin/platform/webaruhazak/actions.ts",
+        "src/lib/auth/require-admin.ts",
+        "src/middleware.ts"
       ],
       "proof": [
-        "tests/dependency-security-contract.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "tests/shoperation-operational-intelligence.test.ts",
+        "tests/shoperation-proof-semantics.test.ts",
+        "tests/storefront-template-quality-gate-v2.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -317,20 +263,20 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-SOURCE-MAP-JS-SECURITY-REMEDIATION",
+    "sourceRef": "PO-2026-10-06-E13-WORKFORCE-PROOF-HANDOFF",
     "requirements": [
       {
-        "id": "REQ-SOURCE-MAP-JS-SECURITY",
-        "requirement": "The locked dependency contract installs source-map-js 1.2.2 instead of vulnerable 1.2.1 without weakening audit enforcement or changing product runtime behavior.",
+        "id": "REQ-E13-WORKFORCE-PROOF-HANDOFF",
+        "requirement": "The E13 product-owner handoff proof follows the current workforce entry contract and is governed as DOMAIN-QUALITY evidence without modifying product runtime authority.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "dependency-security-contract",
+          "breadth": "e13-workforce-proof-handoff",
           "strength": 2,
           "dimensions": [
-            "tests",
             "scope",
-            "forbidden-state",
-            "truth"
+            "authority",
+            "regression",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -338,43 +284,38 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-EDIT-TIME"
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY"
           ],
           "outcome": [
-            "GUARD-INCREMENTAL-REPLAY",
             "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-AUDIT-BYPASS",
-            "statement": "The security remediation must not disable, suppress or allowlist the npm audit finding.",
+            "id": "NEG-E13-LEGACY-ENTRY",
+            "statement": "E13 must not depend on the removed legacy platform password surface or selectors.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-VULNERABLE-LOCK",
-            "statement": "The lockfile must not retain source-map-js 1.2.1.",
+            "id": "NEG-PROOF-RUNTIME-MIX",
+            "statement": "The proof alignment must not edit product runtime entrypoint or authorization implementation.",
             "evidence": [
+              "GUARD-EDIT-TIME",
               "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-DEPENDENCY-CHURN",
-            "statement": "The remediation must not intentionally upgrade unrelated dependencies.",
-            "evidence": [
-              "GUARD-EDIT-TIME"
             ]
           }
         ]
       },
       {
-        "id": "REQ-DEPENDENCY-SECURITY-RELEASE",
-        "requirement": "The dependency security remediation stays within the canonical release risk budget and preserves release-domain manifest ownership.",
+        "id": "REQ-E13-PROOF-RELEASE-ISOLATION",
+        "requirement": "The E13 proof-handoff alignment ships as an isolated quality-infrastructure release within the canonical Release Risk Budget.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "dependency-security-release",
+          "breadth": "e13-proof-release-isolation",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -394,8 +335,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-OVERBROAD-SECURITY-RELEASE",
-            "statement": "The security release must not expand into unrelated product or dependency subsystems.",
+            "id": "NEG-E13-MIXED-RELEASE",
+            "statement": "The proof-harness release must not include the runtime delegator transaction.",
             "evidence": [
               "GUARD-RELEASE-RISK"
             ]
@@ -404,14 +345,14 @@
       }
     ]
   },
-  "notes": "A new high-severity npm advisory surfaced after the E13 quality release had already reached Completion Truth. Main currently locks source-map-js 1.2.1 through PostCSS 8.5.28 (^1.2.1). The first coherent batch on this branch established exact DOMAIN-RELEASE ownership for package.json/package-lock.json and passed Plan Before Code, Edit-Time and full Replay. This expanded plan now authorizes only the patched 1.2.2 dependency remediation; security-audit remains fully enforced.",
+  "notes": "The runtime delegator PR #912 exposed a proof-harness compatibility problem after Stage 1 Workforce Auth Core merged. Adding the E13 proof fix directly to #912 raised Release Risk to 7/5 points and 4/3 subsystems. This separate transaction owns only the proof adapter plus its missing DOMAIN-QUALITY classification. After merge, #912 will be rebuilt from the new main without a quality-infrastructure diff. Main sync: dependency security remediation PR #918 merged at ff42402e1cc18e8592ee1219bdd67dbdf18267da. Sentinel proof-semantics reconciliation adds GUARD-PLAN-BEFORE-CODE as the authority-dimension producer for the E13 quality claim; no runtime scope expansion.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "338b0d24db19878e9e751926f70ce7096f5698d1",
-    "closedAt": "2026-10-06T03:41:43.329Z",
+    "verifiedImplementationHead": "9b947b62554dd74b505ef67cc96fa2ac97a88ed9",
+    "closedAt": "2026-10-06T03:57:23.004Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-06-SOURCE-MAP-JS-SECURITY-REMEDIATION",
+    "sourceRef": "PO-2026-10-06-E13-WORKFORCE-PROOF-HANDOFF",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
