@@ -4,6 +4,8 @@ import {describe,expect,it} from 'vitest';
 import {
   canonicalizeTemplateFactoryInfrastructureInput,
   deriveTemplateLiveProofDecision,
+  deriveTemplateLiveRuntimeClosure,
+  selectTemplateLiveRuntimeOrigin,
   deriveTemplateReplayDecision,
   reusableTemplateBrowserCase,
   templateBrowserCaseFingerprint,
@@ -53,24 +55,52 @@ describe('Template Factory resumable browser verification',()=>{
     expect(reused.inputContractDigest).toBeTruthy();
   });
 
-  it('requires live proof whenever a canonical Template Factory input changes or provenance is unproven',()=>{
-    const prior={contract:'shoporation.template-factory-quality-evidence.v2',complete:true,errors:[],sourceCommit:'ancestor-1',branch:'feature/test',runId:'123'};
-    const changed=deriveTemplateLiveProofDecision({
-      registry,priorManifest:prior,priorManifestChecksumValid:true,currentHead:'head-2',currentBranch:'feature/test',
-      ancestorProven:true,originWorkflowConclusion:'success',changedFilesSinceOrigin:['.github/workflows/template-factory-quality-gate.yml'],
+  it('derives deployed runtime scope from canonical entrypoints plus Atlas forward dependencies',()=>{
+    const closure=deriveTemplateLiveRuntimeClosure({registry});
+    expect(closure.decision,JSON.stringify(closure.issues)).toBe('PASS');
+    expect(closure.entrypoints).toContain('src/app/admin/platform/page.tsx');
+    expect(closure.entrypoints).toContain('src/app/api/auth/workforce-login/page.tsx');
+    expect(closure.entrypoints).toContain('src/app/api/checkout/quote/route.ts');
+    expect(closure.globalFiles).toContain('src/middleware.ts');
+    expect(closure.files.length).toBeGreaterThan(closure.entrypoints.length);
+    expect(closure.files).not.toContain('.github/workflows/template-factory-quality-gate.yml');
+    expect(closure.files).not.toContain('scripts/template-factory-quality-gate.mjs');
+  });
+
+  it('selects the latest runtime-changing commit while ignoring newer proof-engine-only commits',()=>{
+    const runtimeFile='src/app/admin/platform/page.tsx';
+    const proofFile='.github/workflows/template-factory-quality-gate.yml';
+    const base='base-sha';
+    const proofOnly=selectTemplateLiveRuntimeOrigin({
+      baseSha:base,currentHead:'head-proof',runtimeFiles:[runtimeFile],
+      commitHistory:[{sha:'head-proof',files:[proofFile]}],
     });
-    expect(changed.mode).toBe('REQUIRED');
-    expect(changed.affectedInputs).toContain('.github/workflows/template-factory-quality-gate.yml');
-    const stale=deriveTemplateLiveProofDecision({
-      registry,priorManifest:prior,priorManifestChecksumValid:true,currentHead:'head-2',currentBranch:'feature/test',
-      ancestorProven:false,originWorkflowConclusion:'success',changedFilesSinceOrigin:[],
+    expect(proofOnly).toMatchObject({decision:'PASS',runtimeSourceCommit:base,mode:'BASE_RUNTIME',affectedInputs:[],runtimeEquivalenceProven:true});
+
+    const ancestorRuntime=selectTemplateLiveRuntimeOrigin({
+      baseSha:base,currentHead:'head-proof-2',runtimeFiles:[runtimeFile],
+      commitHistory:[
+        {sha:'head-proof-2',files:[proofFile]},
+        {sha:'runtime-1',files:[runtimeFile]},
+      ],
     });
-    expect(stale).toMatchObject({mode:'REQUIRED',reason:'prior-live-proof-ancestry-unproven'});
-    const failedRun=deriveTemplateLiveProofDecision({
-      registry,priorManifest:prior,priorManifestChecksumValid:true,currentHead:'head-2',currentBranch:'feature/test',
-      ancestorProven:true,originWorkflowConclusion:'failure',changedFilesSinceOrigin:[],
+    expect(ancestorRuntime).toMatchObject({decision:'PASS',runtimeSourceCommit:'runtime-1',mode:'ANCESTOR_RUNTIME',affectedInputs:[],runtimeEquivalenceProven:true});
+    expect(ancestorRuntime.changedFilesSinceOrigin).toEqual([proofFile]);
+
+    const currentRuntime=selectTemplateLiveRuntimeOrigin({
+      baseSha:base,currentHead:'head-runtime',runtimeFiles:[runtimeFile],
+      commitHistory:[
+        {sha:'head-runtime',files:[runtimeFile]},
+        {sha:'proof-before',files:[proofFile]},
+      ],
     });
-    expect(failedRun).toMatchObject({mode:'REQUIRED',reason:'prior-live-proof-workflow-not-success'});
+    expect(currentRuntime).toMatchObject({decision:'PASS',runtimeSourceCommit:'head-runtime',mode:'CURRENT_HEAD',affectedInputs:[]});
+  });
+
+  it('fails closed when runtime origin identity is incomplete',()=>{
+    expect(selectTemplateLiveRuntimeOrigin({baseSha:'',currentHead:'head',runtimeFiles:['src/app/page.tsx'],commitHistory:[]}).decision).toBe('BLOCK');
+    expect(selectTemplateLiveRuntimeOrigin({baseSha:'base',currentHead:'',runtimeFiles:['src/app/page.tsx'],commitHistory:[]}).decision).toBe('BLOCK');
+    expect(selectTemplateLiveRuntimeOrigin({baseSha:'base',currentHead:'head',runtimeFiles:[],commitHistory:[]}).decision).toBe('BLOCK');
   });
 
   it('reruns only FAQ x 3 viewports and reuses the other 39 matrix cases',()=>{
