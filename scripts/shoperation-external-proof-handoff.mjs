@@ -78,7 +78,7 @@ export function validateTemplateFactoryExternalProof({
       id:'GUARD-TEMPLATE-FACTORY',
       status:'PASS',
       sourceCommit:expectedHead,
-      originSourceCommit:manifest.sourceCommit,
+      originSourceCommit:manifest.liveProof?.originSourceCommit??manifest.sourceCommit,
       branch:expectedBranch,
       stateVersion,
       runId:String(runId),
