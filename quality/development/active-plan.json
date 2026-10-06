@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
   "task": "Close the trusted Release Unit Execution Atlas evidence gap so canonical Release Risk can be recomputed against exact source HEAD without trusting source-controlled proof artifacts or weakening Atlas/Release Risk authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "1395803e",
+  "guardDigest": "128614ad",
   "changeBaseSha": "7e7ec558fa470fae2b11c1ed2bce0a5ec205045c",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -11,7 +11,6 @@
     "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -30,10 +29,7 @@
     "SQ-KF-014",
     "SQ-KF-018",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-005",
     "TF-KF-007",
@@ -102,9 +98,13 @@
         "explicit-specification",
         "invariants",
         "state-model",
+        "what-if-matrix",
         "adversarial-scenarios",
         "boundary-cases",
+        "pairwise-interactions",
         "threat-failure-model",
+        "fault-injection",
+        "finite-state-exhaustion",
         "proof-obligation"
       ],
       "deferredTechniques": []
@@ -198,8 +198,8 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The missing edge is producer-consumer composition inside the trusted executor, not a missing authority.",
-        "resolution": "Insert the existing trusted Knowledge/Atlas producer before the existing Release Risk consumer.",
+        "finding": "The trusted executor has a missing producer-consumer edge: Release Risk consumes canonical Atlas change-impact, but the trusted execution workflow does not invoke the existing producer.",
+        "resolution": "Run the existing Knowledge/Atlas producer with trusted default-branch code and exact source transaction identity before Release Risk; create no new authority.",
         "evidence": [
           ".github/workflows/release-unit-execution.yml",
           "scripts/shoperation-knowledge-preflight.mjs",
@@ -210,8 +210,8 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A write-capable job must not trust source-generated evidence or unnecessarily expose write tokens to proof subprocesses.",
-        "resolution": "Recompute with trusted main code and keep proof-only invocation non-mutating; do not consume source artifacts.",
+        "finding": "The executor has repository write credentials, so using a source-generated proof artifact or needlessly exposing the write token to evidence recomputation would weaken the trust boundary.",
+        "resolution": "Recompute evidence from trusted main code, do not download source proof artifacts, and explicitly scrub GH_TOKEN/GITHUB_TOKEN for the proof-only Knowledge/Atlas step.",
         "evidence": [
           ".github/workflows/release-unit-execution.yml"
         ]
@@ -220,40 +220,80 @@
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Release Risk already correctly blocks missing Atlas evidence.",
-        "resolution": "Preserve the block; supply its canonical prerequisite rather than changing policy.",
+        "finding": "Release Risk behaved correctly by blocking when Atlas evidence was absent; the policy itself is not defective.",
+        "resolution": "Preserve release-risk-budget.mjs and deploy/release-risk-policy.json unchanged; satisfy the existing prerequisite before invoking it.",
         "evidence": [
-          "scripts/release-risk-budget.mjs"
+          "scripts/release-risk-budget.mjs",
+          "deploy/release-risk-policy.json"
+        ]
+      },
+      {
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The live rehearsal exposed an integration gap only at the trusted executor boundary after source CI had already proved the same risk score successfully.",
+        "resolution": "Add regression coverage for trusted Knowledge/Atlas → Release Risk ordering and exact-source identity so the edge cannot regress silently.",
+        "evidence": [
+          "tests/control-plane-release-unit-production-surface.test.ts",
+          "quality/knowledge/development-guard-policy.v1.json"
         ]
       }
     ],
     "challenge": [
       {
         "id": "CH-REA-01",
-        "scenario": "Source CI supplies a forged change-impact artifact.",
-        "finding": "Trusted executor must not use it.",
-        "resolution": "Recompute the artifact with default-branch producer code.",
+        "scenario": "A malicious or buggy release-execution/source branch uploads a forged change-impact.json that claims a smaller diff.",
+        "finding": "Consuming that artifact in the write-capable executor would let source-controlled output influence release authorization.",
+        "resolution": "Never download source CI Atlas proof; recompute change-impact with trusted main producer code from exact SOURCE_SHA.",
         "status": "resolved"
       },
       {
         "id": "CH-REA-02",
-        "scenario": "Knowledge/Atlas recomputation fails.",
-        "finding": "Driver must not start.",
-        "resolution": "Keep sequential shell step failure semantics before Release Risk/driver.",
+        "scenario": "Trusted Knowledge/Atlas recomputation exits non-zero or emits BLOCK before Release Risk.",
+        "finding": "Continuing to Release Risk or the driver would turn missing/invalid prerequisite evidence into an implicit bypass.",
+        "resolution": "Keep the producer as an ordinary sequential failing step before Release Risk and driver; no continue-on-error.",
         "status": "resolved"
       },
       {
         "id": "CH-REA-03",
-        "scenario": "Exact source HEAD differs from main checkout.",
-        "finding": "Evidence must bind to source.",
-        "resolution": "Pass explicit DEVELOPMENT/QUALITY/RELEASE/REPLAY head variables equal to SOURCE_SHA and source plan path.",
+        "scenario": "The executor checkout HEAD is main while the admitted transaction HEAD is a different source SHA.",
+        "finding": "A producer using implicit HEAD would generate change-impact for main instead of the admitted source diff.",
+        "resolution": "Pass DEVELOPMENT_HEAD_SHA, QUALITY_HEAD_SHA, RELEASE_HEAD_SHA and SHOPERATION_REPLAY_HEAD explicitly as SOURCE_SHA and use the fetched source plan path.",
         "status": "resolved"
       },
       {
         "id": "CH-REA-04",
-        "scenario": "Release Risk finds a real violation after Atlas evidence exists.",
-        "finding": "It must still BLOCK.",
-        "resolution": "Do not modify release-risk-budget.mjs or policy.",
+        "scenario": "Canonical Release Risk finds a real policy violation after valid Atlas evidence has been generated.",
+        "finding": "The integration fix must not reinterpret or suppress that BLOCK.",
+        "resolution": "Leave release-risk-budget.mjs and its policy untouched and require its normal zero exit before driver execution.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-REA-05",
+        "scenario": "The Knowledge/Atlas producer runs inside a job whose default GITHUB_TOKEN can write contents and pull requests.",
+        "finding": "Proof-only logic does not need mutation capability and should not inherit write credentials unnecessarily.",
+        "resolution": "Override GH_TOKEN and GITHUB_TOKEN to empty for the Knowledge/Atlas recompute step while retaining exact git data already fetched locally.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-REA-06",
+        "scenario": "The source plan path is omitted and trusted Knowledge preflight reads main's closed active plan.",
+        "finding": "Atlas change-impact would be computed against the wrong Development Transaction envelope even if SOURCE_SHA is explicit.",
+        "resolution": "Bind SHOPERATION_ACTIVE_PLAN to artifacts/release-execution/source-plan.json for trusted Knowledge/Atlas recomputation.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-REA-07",
+        "scenario": "A later refactor reorders the trusted workflow so Release Risk executes before the Knowledge/Atlas producer.",
+        "finding": "The original missing edge would recur while each individual script still exists and works.",
+        "resolution": "Add regression assertions for step presence and ordering in the existing production release surface test.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-REA-08",
+        "scenario": "Trusted Knowledge/Atlas recomputation succeeds but emits change-impact bound to a SHA or file set other than the exact admitted source.",
+        "finding": "Release Risk must fail closed on stale or mismatched evidence rather than accepting producer success alone.",
+        "resolution": "Rely on the unchanged release-risk-budget.mjs exact source SHA and changed-file-set checks, and regression-prove the workflow passes SOURCE_SHA explicitly.",
         "status": "resolved"
       }
     ],
@@ -361,5 +401,5 @@
       }
     ]
   },
-  "notes": "Created from bounded rehearsal Failure Intake #982 after trusted executor run 37534207237 proved the missing Knowledge/Atlas → Release Risk producer-consumer edge. This is plan-only; no workflow implementation is authorized until Plan Before Code reconciles the exact projected scope/digest."
+  "notes": "Created from bounded rehearsal Failure Intake #982 after trusted executor run 37534207237 proved the missing Knowledge/Atlas → Release Risk producer-consumer edge. This is plan-only; no workflow implementation is authorized until Plan Before Code reconciles the exact projected scope/digest. Plan-only run 37534693459 projected 2 material files, release-infrastructure only, Release Risk 2/5, guard digest 128614ad, the reconciled 19 Known Failure IDs and 16 negative-knowledge IDs. Critical assurance depth is expanded to the canonical required technique/challenge/specialist profile before implementation."
 }
