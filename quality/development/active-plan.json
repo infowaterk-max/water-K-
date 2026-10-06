@@ -3,7 +3,7 @@
   "taskId": "DEV-ROADMAP-MANAGED-QUICK-START-BACKBONE-FIX",
   "task": "Reconcile Living Roadmap v2 maturity backbone after the accepted Managed Template Quick Start insertion so dependency order and architecture-health proof remain canonical.",
   "status": "ready-for-implementation",
-  "guardDigest": "d2e2bbba",
+  "guardDigest": "821c8020",
   "changeBaseSha": "5f74a0f1a084c82b58ceb2681c6484a03eae0fc4",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -11,15 +11,17 @@
     "tests/architecture-health.test.ts"
   ],
   "expectedSubsystems": [
-    "release-infrastructure"
+    "builder-template-system",
+    "customer-account",
+    "dependency-contract",
+    "payment-checkout-order-authority",
+    "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -74,23 +76,25 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
-    "SQ-NK-005",
+    "SQ-NK-004",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012",
-    "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
     "SQ-NK-021",
     "SQ-NK-022"
   ],
   "exceptions": [],
   "operationalIntelligence": {
-    "sourceKind": "main-ci-failure-reconciliation",
-    "sourceRef": "MAIN-CI-37476878160-ROADMAP-BACKBONE",
+    "sourceKind": "product-owner-request",
+    "sourceRef": "PO-2026-10-06-RESTORE-MAIN-ROADMAP-BACKBONE",
     "riskTier": "medium",
     "problemStatement": "Main commit 5f74a0f1 legitimately inserted MANAGED-TEMPLATE-QUICK-START into the canonical maturity backbone, but left BUILDER-PRODUCTION-COMPLETE without a dependency on the new predecessor and left architecture-health proof hard-coded to the previous nine-element backbone, causing exact-head main Quality Tests to fail.",
     "observableOutcomes": [
@@ -121,6 +125,8 @@
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
+        "state-model",
+        "adversarial-scenarios",
         "boundary-cases",
         "regression-proof"
       ],
@@ -154,7 +160,10 @@
       "phases": [
         "OBSERVE",
         "DEFINE",
+        "MODEL",
         "PLAN",
+        "CHALLENGE",
+        "IMPROVE",
         "PROVE_PLAN",
         "EXECUTE",
         "VERIFY",
@@ -164,8 +173,11 @@
       ],
       "transitions": [
         "OBSERVE->DEFINE",
-        "DEFINE->PLAN",
-        "PLAN->PROVE_PLAN",
+        "DEFINE->MODEL",
+        "MODEL->PLAN",
+        "PLAN->CHALLENGE",
+        "CHALLENGE->IMPROVE",
+        "IMPROVE->PROVE_PLAN",
         "PROVE_PLAN->EXECUTE",
         "EXECUTE->VERIFY",
         "VERIFY->TRUTH_GATE",
@@ -224,6 +236,17 @@
           "CI run 37476878160",
           "main 5f74a0f1a084c82b58ceb2681c6484a03eae0fc4"
         ]
+      },
+      {
+        "role": "Product Architecture",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "A new managed no-Builder launch mode could be treated as optional UX and therefore excluded from the hard maturity backbone.",
+        "resolution": "The roadmap itself marks it P0 and stage-4-before-builder-production-complete, and its scope says ordinary launch must work without Visual Builder on the same canonical runtime. Therefore Builder production maturity may not bypass it.",
+        "evidence": [
+          "quality/knowledge/living-roadmap.v2.json",
+          "MAIN-CI-37476878160"
+        ]
       }
     ],
     "challenge": [
@@ -239,6 +262,13 @@
         "scenario": "Remove the new backbone item to restore the previous test.",
         "finding": "That would silently discard accepted managed-template launch sequencing.",
         "resolution": "Preserve the accepted item and reconcile the chain.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RM-03",
+        "scenario": "The new roadmap node is inserted into the backbone and the successor dependency is added, but another existing BUILDER-PRODUCTION-COMPLETE dependency is accidentally removed during reconciliation.",
+        "finding": "A narrowly targeted edge fix can still regress independent prerequisite authority if it replaces rather than augments the dependency list.",
+        "resolution": "Make the dependency update additive and keep existing VISUAL-BUILDER, GUARDED-VISUAL-SECTION-LIBRARY and TEMPLATE-CAPABILITY-CENSUS-42 prerequisites; regression proof continues to validate the maturity predecessor separately.",
         "status": "resolved"
       }
     ],
@@ -280,8 +310,8 @@
     "executionAuthorized": true
   },
   "completionContract": {
-    "sourceKind": "main-ci-failure-reconciliation",
-    "sourceRef": "MAIN-CI-37476878160-ROADMAP-BACKBONE",
+    "sourceKind": "product-owner-request",
+    "sourceRef": "PO-2026-10-06-RESTORE-MAIN-ROADMAP-BACKBONE",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -334,5 +364,5 @@
       }
     ]
   },
-  "notes": "Separate recovery transaction for the unrelated roadmap commit that landed after Unit 2 was merged. Unit 2 remains closed and untouched."
+  "notes": "Separate recovery transaction for the unrelated roadmap commit that landed after Unit 2 was merged. Unit 2 remains closed and untouched. Plan-only CI 37478243393 reconciled exact canonical scope: DOMAIN-QUALITY; authority quality-knowledge-system; subsystems builder-template-system, customer-account, dependency-contract, payment-checkout-order-authority, shared-storefront; Negative Knowledge and assurance requirements updated exactly from Plan Before Code diagnostics."
 }
