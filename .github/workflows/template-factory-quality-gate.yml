@@ -380,9 +380,9 @@ jobs:
             core.setOutput('changed_files',JSON.stringify(decision.changedFilesSinceOrigin??[]));
             core.setOutput('affected_inputs',JSON.stringify(decision.affectedInputs??[]));
 
-      - name: Resolve Vercel deployment for Engine Functional Proof runtime
+      - name: Resolve canonical safe Vercel Preview runtime
         if: github.event_name == 'pull_request' && steps.qa-runtime.outcome == 'success' && steps.live-proof.outcome == 'success'
-        id: engine-functional-preview
+        id: runtime-preview
         uses: actions/github-script@v7
         with:
           script: |
@@ -411,8 +411,9 @@ jobs:
                 for(const deployment of deployments){
                   const environment=String(deployment.environment??'').trim().toLowerCase();
                   const production=deployment.production_environment===true||environment==='production';
-                  if(production){
-                    core.info(`Rejecting production deployment ${deployment.id} for live proof: runtimeSha=${sha}.`);
+                  const explicitPreview=deployment.production_environment!==true&&environment==='preview';
+                  if(production||!explicitPreview){
+                    core.info(`Rejecting non-preview deployment ${deployment.id} for live proof: environment=${deployment.environment??'unknown'}; production=${String(deployment.production_environment??'unknown')}; runtimeSha=${sha}.`);
                     continue;
                   }
                   const statuses=await github.paginate(github.rest.repos.listDeploymentStatuses,{owner,repo,deployment_id:deployment.id,per_page:100});
@@ -423,6 +424,9 @@ jobs:
                   if(ready){
                     core.info(`Vercel runtime deployment ready for E13 proof: proofHead=${proofHead}; runtimeSha=${sha}.`);
                     core.setOutput('base-url',new URL(ready.environment_url).origin);
+                    core.setOutput('runtime-source-commit',sha);
+                    core.setOutput('deployment-id',String(deployment.id));
+                    core.setOutput('environment',String(deployment.environment??'Preview'));
                     return;
                   }
                 }
@@ -442,12 +446,12 @@ jobs:
 
       - name: Prove shared E13 engine functionality before visual matrix
         id: engine-functional-proof
-        if: github.event_name == 'pull_request' && steps.engine-functional-preview.outcome == 'success'
+        if: github.event_name == 'pull_request' && steps.runtime-preview.outcome == 'success'
         env:
-          PRODUCT_OWNER_PREVIEW_URL: "${{ steps.engine-functional-preview.outputs.base-url }}/platform"
+          PRODUCT_OWNER_PREVIEW_URL: "${{ steps.runtime-preview.outputs.base-url }}/platform"
           PRODUCT_OWNER_ENGINE_FUNCTIONAL_ONLY: "true"
           PRODUCT_OWNER_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
-          PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT: ${{ steps.live-proof.outputs.runtime_sha }}
+          PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.runtime-source-commit }}
           PRODUCT_OWNER_TEST_EMAIL: ${{ secrets.PRODUCT_OWNER_TEST_EMAIL }}
           PRODUCT_OWNER_TEST_PASSWORD: ${{ secrets.PRODUCT_OWNER_TEST_PASSWORD }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
@@ -545,76 +549,15 @@ jobs:
           retention-days: 30
 
 
-      - name: Resolve Vercel deployment for Product Owner proof runtime
-        if: github.event_name == 'pull_request' && steps.product-owner-target.outputs.ready == 'true' && steps.live-proof.outcome == 'success'
-        id: product-owner-preview
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs=require('fs');
-            const sleep=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
-            const {owner,repo}=context.repo;
-            const proofHead=context.payload.pull_request?.head?.sha??context.sha;
-            const sha='${{ steps.live-proof.outputs.runtime_sha }}';
-            const runtimeMode='${{ steps.live-proof.outputs.mode }}';
-            const maxAttempts=runtimeMode==='CURRENT_HEAD'?90:1;
-            const fail=(code,reason,actual)=>{
-              fs.mkdirSync('artifacts/shoperation-command-diagnostics',{recursive:true});
-              fs.writeFileSync('artifacts/shoperation-command-diagnostics/product-owner-preview.json',JSON.stringify({
-                contract:'shoporation.command-diagnostic.v1',
-                gateId:'product-owner-preview',
-                decision:'FAIL',
-                sourceCommit:proofHead,
-                runtimeSourceCommit:sha,
-                errors:[{code,reason,expected:'non-production Vercel Preview deployment for the Atlas-selected runtime source with environment URL ready',actual:actual??reason,evidence:[`proofHead=${proofHead}`,`runtimeSha=${sha}`]}]
-              },null,2)+'\n');
-              core.setFailed(code);
-            };
-            try{
-              for(let attempt=0;attempt<maxAttempts;attempt+=1){
-                const deployments=await github.paginate(github.rest.repos.listDeployments,{owner,repo,sha,per_page:100});
-                for(const deployment of deployments){
-                  const environment=String(deployment.environment??'').trim().toLowerCase();
-                  const production=deployment.production_environment===true||environment==='production';
-                  if(production){
-                    core.info(`Rejecting production deployment ${deployment.id} for live proof: runtimeSha=${sha}.`);
-                    continue;
-                  }
-                  const statuses=await github.paginate(github.rest.repos.listDeploymentStatuses,{owner,repo,deployment_id:deployment.id,per_page:100});
-                  const ready=statuses.find(status=>{
-                    if(status.state!=='success'||!status.environment_url)return false;
-                    try{return new URL(status.environment_url).hostname.endsWith('.vercel.app')}catch{return false}
-                  });
-                  if(ready){
-                    core.info(`Vercel runtime deployment ready for Product Owner proof: proofHead=${proofHead}; runtimeSha=${sha}.`);
-                    core.setOutput('base-url',new URL(ready.environment_url).origin);
-                    return;
-                  }
-                }
-                const combined=await github.rest.repos.getCombinedStatusForRef({owner,repo,ref:sha});
-                const vercel=combined.data.statuses.find(status=>status.context==='Vercel');
-                if(vercel&&['failure','error'].includes(vercel.state)){
-                  fail(`EXACT_HEAD_VERCEL_DEPLOYMENT_${vercel.state.toUpperCase()}`,'Vercel deployment status failed',vercel.state);
-                  return;
-                }
-                if(vercel?.state==='success')core.info('GitHub deployment status is successful; waiting for the exact deployment environment URL instead of using a branch-specific alias.');
-                await sleep(5000);
-              }
-              if(runtimeMode==='CURRENT_HEAD')fail('RUNTIME_VERCEL_PREVIEW_NOT_READY','Current runtime-source Vercel Preview did not expose a ready environment URL before timeout','timeout');
-              else fail('RUNTIME_VERCEL_PREVIEW_ANCHOR_MISSING','No safe non-production Vercel Preview anchor exists for the Atlas-selected equivalent runtime source','preview-anchor-missing');
-            }catch(error){
-              fail('RUNTIME_VERCEL_PREVIEW_RESOLUTION_EXCEPTION',error instanceof Error?error.message:String(error),'exception');
-            }
-
       - name: Prove Product Owner login journey on selected runtime
         id: product-owner-handoff
-        if: github.event_name == 'pull_request' && steps.product-owner-target.outputs.ready == 'true' && steps.product-owner-preview.outcome == 'success'
+        if: github.event_name == 'pull_request' && steps.product-owner-target.outputs.ready == 'true' && steps.runtime-preview.outcome == 'success'
         env:
-          PRODUCT_OWNER_PREVIEW_URL: "${{ steps.product-owner-preview.outputs.base-url }}/storefront-template-preview?template=${{ steps.product-owner-target.outputs.template_key }}&version=${{ steps.product-owner-target.outputs.template_version }}&page=home&viewport=desktop&factory=1"
+          PRODUCT_OWNER_PREVIEW_URL: "${{ steps.runtime-preview.outputs.base-url }}/storefront-template-preview?template=${{ steps.product-owner-target.outputs.template_key }}&version=${{ steps.product-owner-target.outputs.template_version }}&page=home&viewport=desktop&factory=1"
           PRODUCT_OWNER_TEMPLATE_KEY: "${{ steps.product-owner-target.outputs.template_key }}"
           PRODUCT_OWNER_TEMPLATE_VERSION: "${{ steps.product-owner-target.outputs.template_version }}"
           PRODUCT_OWNER_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
-          PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT: ${{ steps.live-proof.outputs.runtime_sha }}
+          PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.runtime-source-commit }}
           PRODUCT_OWNER_TEST_EMAIL: ${{ secrets.PRODUCT_OWNER_TEST_EMAIL }}
           PRODUCT_OWNER_TEST_PASSWORD: ${{ secrets.PRODUCT_OWNER_TEST_PASSWORD }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
@@ -645,10 +588,9 @@ jobs:
           BUILD_OUTCOME: ${{ steps.runtime-build.outcome }}
           MATRIX_OUTCOME: ${{ steps.browser-matrix.outcome }}
           QA_RUNTIME_OUTCOME: ${{ steps.qa-runtime.outcome }}
-          ENGINE_FUNCTIONAL_PREVIEW_OUTCOME: ${{ steps.engine-functional-preview.outcome }}
+          RUNTIME_PREVIEW_OUTCOME: ${{ steps.runtime-preview.outcome }}
           ENGINE_FUNCTIONAL_OUTCOME: ${{ steps.engine-functional-proof.outcome }}
           TARGET_OUTCOME: ${{ steps.product-owner-target.outcome }}
-          PREVIEW_OUTCOME: ${{ steps.product-owner-preview.outcome }}
           HANDOFF_OUTCOME: ${{ steps.product-owner-handoff.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_FAILURE_SOURCE: template-factory
@@ -667,7 +609,6 @@ jobs:
             ENGINE_FUNCTIONAL_PREVIEW_FAILED=artifacts/shoperation-command-diagnostics/engine-functional-preview.json;
             ENGINE_FUNCTIONAL_PROOF_FAILED=artifacts/template-engine-functional-proof/proof.json;
             FACTORY_PRODUCT_OWNER_TARGET_FAILED=artifacts/shoperation-command-diagnostics/product-owner-target.json;
-            EXACT_HEAD_VERCEL_PREVIEW_FAILED=artifacts/shoperation-command-diagnostics/product-owner-preview.json
           SHOPERATION_TEMPLATE_KEY: "${{ steps.product-owner-target.outputs.template_key || '' }}"
           SHOPERATION_TEMPLATE_VERSION: "${{ steps.product-owner-target.outputs.template_version || '' }}"
           SHOPERATION_TEMPLATE_QUALITY_MANIFEST: artifacts/template-factory-quality/manifest.json
@@ -683,10 +624,9 @@ jobs:
           [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
           [ "$MATRIX_OUTCOME" != "failure" ] || codes="${codes}QUALITY_GATE_FAILED;"
           [ "$QA_RUNTIME_OUTCOME" != "failure" ] || codes="${codes}FACTORY_QA_RUNTIME_FAILED;"
-          [ "$ENGINE_FUNCTIONAL_PREVIEW_OUTCOME" != "failure" ] || codes="${codes}ENGINE_FUNCTIONAL_PREVIEW_FAILED;"
+          [ "$RUNTIME_PREVIEW_OUTCOME" != "failure" ] || codes="${codes}ENGINE_FUNCTIONAL_PREVIEW_FAILED;"
           [ "$ENGINE_FUNCTIONAL_OUTCOME" != "failure" ] || codes="${codes}ENGINE_FUNCTIONAL_PROOF_FAILED;"
           [ "$TARGET_OUTCOME" != "failure" ] || codes="${codes}FACTORY_PRODUCT_OWNER_TARGET_FAILED;"
-          [ "$PREVIEW_OUTCOME" != "failure" ] || codes="${codes}EXACT_HEAD_VERCEL_PREVIEW_FAILED;"
           [ "$HANDOFF_OUTCOME" != "failure" ] || codes="${codes}PRODUCT_OWNER_JOURNEY_FAILED;"
           SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
 
