@@ -1,13 +1,13 @@
 import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,readdirSync,writeFileSync} from 'node:fs';
 import path from 'node:path';
-import {getChangedFiles} from './lib/shoperation-development-runtime.mjs';
+import {activeDevelopmentPlanPath,getChangedFiles} from './lib/shoperation-development-runtime.mjs';
 import {releaseClosureForAtlasPatterns} from './lib/shoperation-codebase-atlas-runtime.mjs';
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 execFileSync(process.execPath,['scripts/shoperation-support-history-backfill.mjs','--check'],{stdio:'inherit',env:process.env});
 execFileSync(process.execPath,['scripts/shoperation-codebase-atlas.mjs','--check'],{stdio:'inherit',env:process.env});
 const codebaseAtlas=readJson('artifacts/shoperation-atlas/codebase-atlas.json');
-const developmentPlan=readJson('quality/development/active-plan.json'),knowledge=readJson('quality/knowledge/shoperation-quality-knowledge.v1.json'),ledger=readJson('quality/knowledge/failure-intake-ledger.v1.json'),riskPolicy=readJson('deploy/release-risk-policy.json'),scopePolicy=readJson('quality/knowledge/knowledge-scope-policy.v1.json'),developmentGuardPolicy=readJson('quality/knowledge/development-guard-policy.v1.json'),historicalBackfill=readJson('artifacts/shoperation-quality/support-history-backfill.json');
+const developmentPlan=readJson(activeDevelopmentPlanPath()),knowledge=readJson('quality/knowledge/shoperation-quality-knowledge.v1.json'),ledger=readJson('quality/knowledge/failure-intake-ledger.v1.json'),riskPolicy=readJson('deploy/release-risk-policy.json'),scopePolicy=readJson('quality/knowledge/knowledge-scope-policy.v1.json'),developmentGuardPolicy=readJson('quality/knowledge/development-guard-policy.v1.json'),historicalBackfill=readJson('artifacts/shoperation-quality/support-history-backfill.json');
 const forceFull=process.env.SHOPERATION_KNOWLEDGE_FORCE_FULL==='1';
 function globToRegExp(glob){let out='^';for(let i=0;i<glob.length;i+=1){const ch=glob[i];if(ch==='*'){const next=glob[i+1];if(next==='*'){i+=1;if(glob[i+1]==='/'){i+=1;out+='(?:.*/)?';}else out+='.*';}else out+='[^/]*';}else if(ch==='?')out+='[^/]';else if('\\.^$+{}()|[]'.includes(ch))out+=`\\${ch}`;else out+=ch;}return new RegExp(`${out}$`);}
 const neutral=riskPolicy.neutralPatterns.map(globToRegExp),matchers=riskPolicy.subsystems.map(item=>({...item,matchers:item.patterns.map(globToRegExp)}));

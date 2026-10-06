@@ -1,20 +1,34 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-ORCHESTRATION-V1",
-  "task": "Control Plane Unit 3: consume canonical release-unit manifests through a fail-closed sequential execution lifecycle, exact-identity PR/proof/merge receipts, successor re-evaluation, and parent Development Transaction closure without creating parallel Truth, risk, or quality authority.",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-EXECUTION-BINDING-V1",
+  "task": "Close the remaining Control Plane Unit 3 execution gap by binding every release unit to a canonical child Development Transaction and by adding a thin GitHub-bound execution adapter that consumes the Unit 2 manifest, existing materializer, existing Truth/Lifecycle receipts and exact merge identity without closing the parent transaction early or creating parallel release/proof authority.",
   "status": "closed",
-  "guardDigest": "56a6f85c",
-  "changeBaseSha": "146abe7f6e6e8efa561bbb591695eff4c1b8f17b",
+  "guardDigest": "9a67776f",
+  "changeBaseSha": "693e684607544fed13059ac357e0a3b517393dfb",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "quality/knowledge/development-guard-policy.v1.json",
     "quality/knowledge/guard-registry.v1.json",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
-    "scripts/release-unit-orchestrate.mjs",
-    "tests/control-plane-release-unit-orchestration.test.ts"
+    "scripts/lib/shoperation-development-runtime.mjs",
+    "scripts/shoperation-plan-before-code.mjs",
+    "scripts/shoperation-edit-time-guard.mjs",
+    "scripts/shoperation-knowledge-preflight.mjs",
+    "scripts/shoperation-truth-gate.mjs",
+    "scripts/shoperation-close-development-plan.mjs",
+    "scripts/release-unit-ci-context.mjs",
+    "scripts/release-unit-github-runtime.mjs",
+    "scripts/release-unit-execute.mjs",
+    ".github/workflows/ci.yml",
+    ".github/workflows/template-factory-quality-gate.yml",
+    "tests/control-plane-release-unit-execution-binding.test.ts",
+    "scripts/shoperation-sentinel-integrity-probe.mjs",
+    "scripts/lib/shoperation-operational-intelligence.mjs",
+    "tests/control-plane-release-unit-orchestration.test.ts",
+    "tests/shoperation-operational-intelligence.test.ts",
+    "tests/shoperation-development-guard.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system",
+    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -82,10 +96,7 @@
     "SQ-NK-003",
     "SQ-NK-005",
     "SQ-NK-010",
-    "SQ-NK-011",
     "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -98,37 +109,53 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-ORCHESTRATION",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-EXECUTION-BINDING",
     "riskTier": "critical",
-    "problemStatement": "Unit 2 can deterministically decompose unsafe development scope and atomically materialize a release-unit manifest, but no canonical consumer currently carries those manifests through authorization, exact materialization identity, PR proof, merge, successor re-evaluation, and final parent transaction closure; operators therefore still have to reconstruct execution state by hand.",
+    "problemStatement": "Merged Unit 3 provides a fail-closed release-unit state machine and validates materialization, PR, Truth/Lifecycle and merge receipts, but it still consumes operator-supplied execution events rather than producing them. More critically, intermediate unit verification accepts any closed Lifecycle receipt at the PR head without binding that receipt to a distinct child Development Transaction, so a unit can only be represented by either falsely closing the parent plan or by consuming an unbound synthetic child lifecycle. The required end-to-end multi-unit Development Transaction is therefore not yet machine-executable without manual branch/plan/receipt reconstruction.",
     "observableOutcomes": [
-      "A multi-unit Development Transaction has one machine-readable parent execution state that identifies the active release unit, completed units, blockers, and closure eligibility without replacing Completion Truth or the existing lifecycle authority.",
-      "Every release unit advances only through fail-closed transitions bound to its canonical manifest digest, exact target-base lease, materialized commit, PR head, existing Completion Truth result, existing Lifecycle closure, and merge receipt.",
-      "After each predecessor merge, the successor consumes a freshly re-evaluated canonical manifest and refuses authorization when Atlas-derived relationships, Release Risk, gate/proof obligations, forbidden or read-only scope, generated-artifact identity, or main identity changed unsafely.",
-      "Three or more sequential units can proceed from U1 authorization to final parent closure without an operator manually reconstructing branch, plan, scope, proof, or predecessor state."
+      "Each release-unit manifest carries a canonical child Development Transaction projection produced upstream by Plan Before Code before sealing, so downstream execution does not rediscover scope, risk, gates, proof ownership, domain/authority, Known Failure or Negative Knowledge obligations.",
+      "A release-unit PR can run the existing Knowledge, Plan Before Code, Edit-Time, Incremental Replay, Release Risk, Quality, TypeScript, Build, external-proof applicability, Completion Truth and Lifecycle machinery against an ephemeral manifest-bound child plan while the parent Development Transaction remains open.",
+      "Unit verification rejects Truth or Lifecycle evidence whose task/parent/unit/manifest identity does not match the exact child transaction and exact PR head.",
+      "A thin GitHub-bound adapter uses the existing atomic release-unit materializer, pushes the exact materialized commit, creates an exact-base PR, consumes exact-head canonical proof artifacts, records the merge receipt, reconciles the resulting main and advances only the next authorized unit.",
+      "Execution state is persisted with compare-and-swap identity so interruption/resume never requires an operator to reconstruct branch, child plan, PR, proof or predecessor state by hand.",
+      "After U1/U2 child lifecycle closure the parent stays in EXECUTE; only all unit CLOSED states permit the existing parent Completion Truth/Lifecycle closure."
     ],
     "unresolvedRisks": [
-      "GitHub merge strategies can produce a merged main commit that differs from the verified PR head, so successor rebasing must consume an explicit merge receipt rather than equating merged-main identity with source-head identity.",
-      "A successor can remain path-identical while its semantic dependency, proof ownership, authority, generated-artifact source, or Release Risk obligations change after a predecessor merge; equality of filenames alone is therefore insufficient reconciliation evidence.",
-      "The existing Development Plan and Completion Truth models are transaction-scoped rather than release-unit-scoped, so child execution state must reuse their verified receipts without inventing a second truth vocabulary or falsely closing the parent early."
+      "A child plan must be usable by existing guards without becoming a second repository-wide active-plan authority or being accidentally merged over the parent plan.",
+      "PR metadata is mutable, so any transport for an ephemeral child plan must be cryptographically bound to the exact materialized commit and sealed manifest rather than trusted as free-form operator input.",
+      "GitHub merge/squash/rebase can produce a new main SHA distinct from the verified PR head, so the adapter must preserve the existing explicit source-head-to-resulting-main receipt semantics.",
+      "A persisted orchestration state ref can race with retries or a second operator; state updates therefore require exact expected-ref compare-and-swap and fail closed on drift.",
+      "The GitHub adapter must reuse existing gh/Git credentials and may not become a new token/permission authority or bypass branch/CI policy."
     ],
     "scope": {
       "in": [
-        "Extend the existing release-unit runtime with a deterministic orchestration state machine that consumes Unit 2 manifests and existing canonical proof/lifecycle receipts.",
-        "Add successor reconciliation that compares a freshly produced canonical successor manifest against the prior authorized manifest and fails closed on unsafe semantic drift instead of merely rebinding the base SHA.",
-        "Track parent Development Transaction progress across ordered release units and expose closure eligibility only after every unit is merged and closed.",
-        "Provide one thin CLI adapter for machine execution and adversarial regression coverage for normal, stale, failed, skipped, duplicate, rename, generated-artifact, proof-ownership, exact-head, merge-strategy and cycle cases."
+        "Extend Plan Before Code release-unit manifests with a sealed child Development Transaction projection and digest before manifestDigest is finalized.",
+        "Allow the existing core development guard scripts to consume an explicit SHOPERATION_ACTIVE_PLAN path while preserving the root active-plan default and canonical semantics.",
+        "Add a release-unit CI context resolver that accepts only a manifest-bound, exact-head child plan envelope and exports the alternate active-plan path for existing gates.",
+        "Add child-lifecycle mode to the existing closure machinery so an ephemeral release-unit child plan closes into an execution receipt/artifact rather than requiring a repository active-plan commit; parent closure semantics remain unchanged.",
+        "Strengthen release-unit verification so Truth/Lifecycle task identity, parent transaction identity, releaseUnitId, manifestDigest and exact source head must match the projected child transaction.",
+        "Add a thin GitHub-bound execution adapter over existing materializeReleaseUnit plus git/gh: state-ref CAS, exact unit branch push, PR create/read, exact-head proof receipt import, exact-head merge, resulting-main receipt and successor authorization/reconciliation.",
+        "Add adversarial regressions for parent/child lifecycle separation, tampered PR context, stale state ref, wrong proof task, wrong PR head/base/source, GitHub/gh failure, merge drift, duplicate retries, successor obligation drift and interruption/resume.",
+        "Route Sentinel integrity probe plan consumption through the same validated alternate child-plan path so Incremental Replay cannot silently inspect the parent plan during a child Development Transaction.",
+        "Preserve critical semantic-route assurance for create-only child release units by allowing a manifest-bound child transaction to satisfy the route target requirement through mustCreate when mustEdit is empty; root critical transactions retain the existing mustEdit requirement.",
+        "Upgrade the existing Unit 3 orchestration regression fixtures to the mandatory child transaction identity so no legacy unbound verification path remains accepted.",
+        "Place the GitHub-bound release execution runtime under the canonical DOMAIN-RELEASE scripts/release-** ownership path; do not add a DOMAIN-QUALITY→DOMAIN-RELEASE exception merely to preserve an incorrectly located helper.",
+        "Synchronize the existing Operational Intelligence lifecycle regression with the new child-lifecycle branch so Reference Sync proves both root BLOCK_UNTIL_COMMITTED semantics and child receipt emission semantics.",
+        "Update the canonical Operational Intelligence lifecycle regression so root transactions retain BLOCK_UNTIL_COMMITTED/candidate-emitted closure while manifest-bound release-unit child transactions prove artifact-only PASS closure without mutating the parent active plan.",
+        "Update canonical Development Guard transaction-authority regressions to prove the root active-plan default plus validated release-unit child alternate-plan authority, without allowing event refs or arbitrary environment paths to reinterpret transaction base/head identity.",
+        "Synchronize the existing Development Guard transaction-authority regressions with validated alternate child-plan routing while preserving the root active-plan default and exact stacked-branch identity contract."
       ],
       "out": [
-        "No new CI/CD platform, deployment manager, Completion Truth authority, Release Risk authority, Sentinel authority, Atlas authority, or quality authority.",
-        "No Release Risk Budget threshold, subsystem weighting, gate requirement, exact-head rule, Template Factory rule, or lifecycle closure rule is weakened.",
-        "No product runtime, authentication, commerce, database, storefront, Builder, tenant, or production deployment behavior is changed.",
-        "No automatic GitHub merge is authorized merely by orchestration state; merge receipts remain explicit execution evidence."
+        "No new Completion Truth, Lifecycle, Release Risk, Atlas, Sentinel, CI/CD, deployment or production release authority.",
+        "No weakening of branch protection, exact-head evidence, Security Audit, Template Factory applicability, Release Risk Budget, Known Failure replay or Failure Intake.",
+        "No per-file GitHub Contents API materialization; Unit 2 atomic Git tree/commit materialization remains the only code transplant path.",
+        "No automatic production deployment, Supabase mutation, product runtime change, auth change, commerce change, Builder/template change or Vercel promotion.",
+        "No automatic Knowledge/Negative Knowledge promotion solely because this hardening is implemented."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This block changes the machinery that decides whether a decomposed change may advance from one release unit to the next. A false READY, VERIFIED, MERGED, or parent-closed state could bypass exact-head proof or release-risk boundaries, so the strongest practical deterministic assurance is required while existing Truth and Release Risk remain independently authoritative.",
+      "rationale": "This change controls execution provenance across child transactions, PR creation, proof import and merge progression. A false binding could allow a green but unrelated PR or lifecycle receipt to advance a multi-unit parent, so deterministic identity, adversarial state-machine proof, exact-head provenance and fail-closed external command behavior are mandatory.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -145,37 +172,48 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "A release unit is READY only when its predecessor requirements, current main lease, canonical manifest identity, and current re-evaluated obligations are all valid.",
-        "A materialization receipt is accepted only for the authorized manifest and exact base, and a PR receipt is accepted only when its head equals the materialized commit identity.",
-        "VERIFIED requires the existing Completion Truth to be VERIFIED on the exact PR head and the existing Development Lifecycle to be closed at that same head; green CI alone is insufficient.",
-        "MERGED requires a verified unit plus an explicit merge receipt that binds source head and resulting main SHA while supporting merge, squash, or rebase identity.",
-        "A successor cannot become READY until the predecessor is MERGED and CLOSED and a fresh canonical successor manifest has been reconciled against the resulting main.",
-        "Parent execution never reports completion after an intermediate unit and becomes closure-eligible only when every declared release unit is CLOSED.",
-        "Unsafe fresh successor drift in dependencies, risk, gates, proof, authorities, forbidden/read-only scope, generated identity, operations, or ordering produces BLOCKED/STALE/FAILED rather than silent authorization.",
-        "The mandatory adversarial matrix proves the sequential lifecycle and operator-skip defenses without adding a parallel Truth or release-risk implementation."
+        "Every release unit receives a deterministic child taskId and child-plan digest that is included in the canonical release-unit manifest before manifestDigest/sealing.",
+        "Child Plan Before Code consumes upstream manifest-projected scope facts and rejects context/plan/manifest drift; it does not silently reconstruct a wider or different unit.",
+        "Existing guards read an explicit alternate child-plan path only when a validated release-unit CI context enables it; ordinary repository transactions continue to use quality/development/active-plan.json unchanged.",
+        "Child Completion Truth and Lifecycle closure are exact-head and exact-task bound, and Unit 3 recordReleaseUnitVerification rejects parent-plan or foreign-unit receipts.",
+        "Closing U1/U2 child transactions never marks the parent Development Transaction closed or LEARN.",
+        "The GitHub adapter can initialize/resume exact persisted execution state, materialize the current authorized unit, push the exact commit, create/read the matching PR, import exact proof, merge only the verified source head and record resulting main SHA.",
+        "A stale execution state ref, stale main, mutable/tampered PR context, PR head/base drift, missing gh authentication, non-success proof, missing child closure, or merge result drift blocks without advancing state.",
+        "After merge, a successor can advance only from a freshly produced/reconciled manifest and child transaction bound to the new main.",
+        "A three-unit integration replay completes U1→U2→U3 with separate child closures while parent closureEligible remains false until U3 closes and parent Completion Truth/Lifecycle remains the sole final closure authority.",
+        "Sentinel integrity checks executed inside a child transaction consume the validated child plan path; root/default runs remain bound to quality/development/active-plan.json.",
+        "A create-only release unit can form a valid critical child Development Transaction without inventing a fake mustEdit target, while non-child critical plans still require canonical mustEdit coverage.",
+        "Legacy release-unit executions without canonical childDevelopmentTransaction identity are rejected by VERIFIED transition rather than grandfathered through a compatibility bypass.",
+        "Atlas classifies scripts/release-unit-github-runtime.mjs as DOMAIN-RELEASE/release-infrastructure and authority reconciliation contains no policy exception for the former scripts/lib/shoperation-* location.",
+        "The lifecycle regression asserts that root plans still emit BLOCK_UNTIL_COMMITTED/candidate behavior while manifest-bound child plans emit a PASS child lifecycle receipt without mutating the parent/root active plan.",
+        "Operational Intelligence tests prove both lifecycle modes: ordinary/root plans still require the emitted closed plan to be committed, while validated release-unit child plans close only into child execution artifacts and never overwrite the parent active plan.",
+        "Development Guard regressions continue to prove one canonical transaction base/head authority: ordinary runs resolve quality/development/active-plan.json, while child runs may use SHOPERATION_ACTIVE_PLAN only after release-unit CI context validation.",
+        "Development Guard regression coverage proves Plan Before Code, Knowledge Preflight and Edit-Time all consume activeDevelopmentPlanPath(), whose default remains quality/development/active-plan.json and whose child override is established only by validated release-unit CI context."
       ],
       "invariants": [
-        "Unit 2 release-unit manifest remains the execution-scope authority and no transition may widen its operations by operator input.",
-        "Existing Completion Truth and Development Lifecycle receipts are consumed as authoritative facts; orchestration never recalculates or substitutes their verdicts.",
-        "Existing Release Risk and fresh Plan Before Code manifest production remain authoritative for successor re-evaluation; orchestration only compares and enforces those products.",
-        "A release unit may move forward monotonically through the canonical execution states; retry is idempotent only for the same exact receipt identity.",
-        "The parent Development Transaction is not complete while any release unit is unmerged, unclosed, blocked, stale, or failed.",
-        "Merge strategy may change resulting main SHA but may not break the binding between verified source head, merge receipt, and successor base.",
-        "Unknown or missing predecessor, truth, lifecycle, manifest, source, PR-head, merge, or reconciliation identity fails closed."
+        "Unit 2 manifest remains code scope authority; the GitHub adapter cannot add product operations beyond the sealed manifest.",
+        "Child transaction metadata is derived by the Plan Before Code producer and cryptographically bound to manifest/commit identity; free-form PR text is never authority.",
+        "Child lifecycle closure is not parent lifecycle closure and cannot mutate the canonical parent plan status.",
+        "The exact materialized commit equals the PR source HEAD used for proof; any later code commit invalidates verification.",
+        "The merge receipt separately binds verified sourceHeadSha and resulting mergedMainSha for merge/squash/rebase semantics.",
+        "Persistent execution-state updates require exact expected-ref CAS; concurrent or stale writers fail closed.",
+        "The adapter uses existing git/gh authentication and never stores or invents credentials.",
+        "Successor risk/gate/proof/authority/generated-artifact/dependency obligations come from a fresh canonical producer result, not adapter-side recomputation.",
+        "Completion claim dimensions may not exceed their authoritative producer semantics; release-risk authority remains risk/release-scope only, while exact transaction identity is proven by executed adversarial Quality Tests."
       ],
       "forbiddenStates": [
-        "successor-ready-before-predecessor-closed",
-        "verified-from-green-ci-without-completion-truth",
-        "verified-without-closed-development-lifecycle",
-        "pr-head-different-from-materialized-commit",
-        "merge-receipt-source-different-from-verified-head",
-        "successor-authorized-from-stale-manifest",
-        "parent-closed-after-intermediate-unit",
-        "operator-skips-release-unit",
-        "manifest-scope-widened-by-orchestrator",
-        "release-risk-budget-weakened-for-successor",
-        "generated-artifact-source-drift-ignored",
-        "new-forbidden-or-read-only-scope-ignored"
+        "child-truth-accepted-for-parent-task",
+        "child-lifecycle-closes-parent-plan",
+        "pr-context-not-bound-to-materialized-head",
+        "operator-freeform-scope-widens-manifest",
+        "pr-head-differs-from-materialized-commit",
+        "pr-base-differs-from-unit-lease",
+        "proof-from-other-task-or-head-accepted",
+        "merge-before-child-lifecycle-closed",
+        "state-ref-overwritten-without-cas",
+        "successor-authorized-from-predecessor-pr-head-instead-of-resulting-main",
+        "github-command-failure-reported-as-success",
+        "parent-closure-before-all-units-closed"
       ]
     },
     "model": {
@@ -207,39 +245,40 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A unit with a green PR is treated as verified even though Completion Truth is missing or stale.",
-        "The predecessor merge changes main and a successor is materialized from its original lease without fresh canonical reconciliation.",
-        "A fresh successor manifest adds a dependency or proof obligation but an orchestrator compares only filenames and authorizes the stale unit.",
-        "A squash or rebase merge is rejected incorrectly because the system assumes merged main SHA must equal the PR head SHA.",
-        "A failed middle unit leaves the parent transaction appearing complete because only the last observed successful unit is considered.",
-        "A duplicate materialization or PR receipt with different identity is accepted as an idempotent retry."
+        "Unit verification consumes the parent active-plan closure receipt or another unit's green Truth because task identity is not checked.",
+        "The adapter creates a PR from a branch whose head changed after materialization.",
+        "A PR body child-plan envelope is edited without changing code and a workflow consumes the mutated plan as authority.",
+        "Two resumed operators write different next states to the execution ref and the later writer silently overwrites the first.",
+        "GitHub reports PR merge success but main no longer equals the merge result by the time successor reconciliation begins.",
+        "A predecessor merge changes current-main obligations but successor reuses the old child plan/manifest.",
+        "gh/git is unavailable or unauthenticated and the adapter manufactures a local receipt instead of stopping."
       ],
       "edgeCases": [
-        "A materialization reports ALREADY_APPLIED because predecessor work already produced the exact content and must remain identity-safe without manufacturing a duplicate commit.",
-        "A predecessor rename makes a successor operation path stale even if the intended semantic capability remains the same.",
-        "A generated artifact keeps the same path while its sealed source identity changes between predecessor and successor.",
-        "A release-unit dependency cycle is introduced only by fresh reconciliation after earlier manifests were acyclic.",
-        "Unrelated main drift occurs after merge and must not be silently folded into a successor lease."
+        "ALREADY_APPLIED unit materialization where the exact base already contains all unit operations must still bind a deterministic execution/proof identity or fail closed if no distinct PR is meaningful.",
+        "Squash/rebase merge returns a main SHA different from source head but still has valid exact source-head provenance.",
+        "External Template Factory proof is applicable for one child unit but not another; child gate obligations must follow each canonical manifest.",
+        "A unit contains only tests/control-plane files and remains a real child transaction rather than being silently collapsed into parent metadata.",
+        "Execution resumes after process interruption with an existing PR or already merged predecessor and must be idempotent only when all exact identities match."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-MANUAL-RELEASE-UNIT-RUNBOOK",
-        "summary": "Keep Unit 2 manifests as artifacts and rely on an operator runbook for branch, PR, proof, merge and successor sequencing.",
+        "id": "ALT-REWRITE-PARENT-ACTIVE-PLAN-PER-UNIT",
+        "summary": "Commit each child plan into quality/development/active-plan.json on the release-unit branch and restore the parent around merge.",
         "disposition": "rejected",
-        "reason": "It repeats machine-known state by hand, cannot enforce exact receipt identity, and leaves the core Unit 2 execution gap unresolved."
+        "reason": "It makes PR HEAD contain control metadata outside the Unit 2 code scope, risks merging a child plan over the parent, and couples child closure to repository-plan commits."
       },
       {
-        "id": "ALT-PARALLEL-RELEASE-MANAGER",
-        "summary": "Introduce a separate release manager with its own lifecycle, risk verdicts, proof status and parent completion model.",
+        "id": "ALT-PARALLEL-UNIT-TRUTH",
+        "summary": "Keep parent active-plan unchanged and let the release-unit orchestrator issue its own VERIFIED/CLOSED verdicts.",
         "disposition": "rejected",
-        "reason": "It would duplicate existing Control Plane authorities and create drift between manifest, Release Risk, Completion Truth and lifecycle state."
+        "reason": "It creates the parallel Truth/Lifecycle authority explicitly forbidden by the ecosystem design."
       },
       {
-        "id": "ALT-CANONICAL-MANIFEST-CONSUMER",
-        "summary": "Extend the existing release-unit runtime with a thin deterministic state machine that consumes canonical manifests and existing Truth, lifecycle, risk and merge receipts.",
+        "id": "ALT-MANIFEST-BOUND-EPHEMERAL-CHILD",
+        "summary": "Have Plan Before Code project a child transaction into the canonical manifest, transport it as exact-head-bound CI context, and run existing guards/Truth/Lifecycle against that alternate plan while persisting orchestration receipts separately.",
         "disposition": "selected",
-        "reason": "It closes the missing producer-to-consumer edge while preserving current authorities and gives fail-closed machine sequencing without redefining proof or release semantics."
+        "reason": "It preserves the parent plan, keeps Unit 2 as scope authority, reuses existing proof engines, and enables exact machine execution without product-scope widening."
       }
     ],
     "specialistReviews": [
@@ -247,232 +286,301 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The missing capability is an execution consumer between release.unit-manifests and existing transaction closure, not a missing release authority.",
-        "resolution": "Extend the existing release-unit runtime and register execution data products under release-infrastructure rather than adding a parallel lifecycle system.",
+        "finding": "The missing capability is producer/consumer integration and child transaction identity, not a new release manager.",
+        "resolution": "Extend the existing release-unit manifest/runtime and development-plan path plumbing; keep Release Transaction and Completion Truth authorities unchanged.",
+        "evidence": [
+          "quality/knowledge/living-roadmap.v2.json",
+          "scripts/lib/shoperation-release-unit-runtime.mjs"
+        ]
+      },
+      {
+        "role": "Data Integrity",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Current recordReleaseUnitVerification accepts a closed lifecycle at the correct head without checking that Truth/Lifecycle belong to the release unit; tests can therefore inject a synthetic closed plan and accidentally model parent closure.",
+        "resolution": "Introduce deterministic child task identity and require truth.taskId plus lifecycle child binding to match releaseUnit execution identity before VERIFIED.",
         "evidence": [
           "scripts/lib/shoperation-release-unit-runtime.mjs",
-          "quality/knowledge/guard-registry.v1.json"
+          "tests/control-plane-release-unit-orchestration.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Current reconciliation validates predecessor MERGED and rebinds targetBaseSha but does not prove fresh risk, dependency, proof, forbidden or generated-artifact obligations.",
-        "resolution": "Require a fresh canonical successor manifest and compare all execution-bearing obligations before READY; merge receipts bind verified source head to resulting main SHA.",
+        "finding": "Current orchestrator consumes PR/merge receipts but no repository producer creates those receipts, leaving manual branch/PR/merge reconstruction.",
+        "resolution": "Add a thin exact-identity git/gh adapter over the existing materializer and persist execution state with CAS; do not implement another materializer or release-risk evaluator.",
         "evidence": [
-          "scripts/lib/shoperation-release-unit-runtime.mjs",
-          "tests/control-plane-release-decomposition.test.ts"
+          "scripts/release-unit-orchestrate.mjs",
+          "scripts/release-unit-materialize.mjs"
         ]
       },
       {
-        "role": "Data Integrity",
+        "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Materialization already provides atomic tree/commit semantics and exact base leases, so orchestration must not revert to per-file mutation or accept partial receipts.",
-        "resolution": "Treat Unit 2 materialization receipt as an immutable transition input and make retries idempotent only when receipt identity matches exactly.",
+        "finding": "Mutable PR metadata cannot itself be execution authority and GitHub credentials must not become repository data.",
+        "resolution": "Bind child-plan context digest into the materialized commit and sealed manifest; validate PR head/context equality and use only existing gh/git credential channels.",
         "evidence": [
-          "scripts/lib/shoperation-release-unit-runtime.mjs",
-          "tests/release-unit-materialization.test.ts"
-        ]
-      },
-      {
-        "role": "Known Failure",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Adding orchestration states risks creating a second Truth system whose VERIFIED or CLOSED labels could drift from Completion Truth and Development Lifecycle.",
-        "resolution": "Execution states encode only release-transaction milestones; VERIFIED is derived exclusively from existing exact-head Completion Truth plus existing Lifecycle closure, and parent closure remains only eligibility for the canonical parent Truth/Lifecycle step.",
-        "evidence": [
-          "scripts/lib/shoperation-operational-intelligence.mjs",
-          "docs/architecture/CONTROL_PLANE_OPERATIONAL_INTELLIGENCE.md"
+          ".github/workflows/ci.yml",
+          "scripts/lib/shoperation-release-unit-runtime.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-RUO-01",
-        "scenario": "U1 is green in CI but Completion Truth is missing.",
-        "finding": "Treating CI success as unit verification would bypass the canonical completion authority.",
-        "resolution": "VERIFIED transition requires Completion Truth decision PASS, truthStatus VERIFIED and internalState VERIFIED_DONE on the exact materialized PR head.",
+        "id": "CH-RUEB-01",
+        "scenario": "U1 Truth is VERIFIED at the right SHA but taskId is the parent transaction.",
+        "finding": "Current Unit 3 could accept it and conflate child completion with parent completion.",
+        "resolution": "Unit verification requires exact child taskId, parentTransactionId, releaseUnitId and manifestDigest binding.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-02",
-        "scenario": "U1 Completion Truth is VERIFIED but its Development Lifecycle is not CLOSED/LEARN.",
-        "finding": "Truth alone would allow advancement before canonical lifecycle closure.",
-        "resolution": "Verification receipt must also carry a closed active plan with lifecycle LEARN, truthStatus VERIFIED and matching verifiedImplementationHead.",
+        "id": "CH-RUEB-02",
+        "scenario": "U1 lifecycle plan is closed/LEARN but belongs to U2.",
+        "finding": "Head equality alone is not sufficient provenance.",
+        "resolution": "Child lifecycle receipt must expose and match child task/release-unit identity plus exact verifiedImplementationHead.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-03",
-        "scenario": "U1 merges and an unrelated commit moves main before U2 authorization.",
-        "finding": "Rebinding U2 to the newest main without proof could silently absorb unreviewed drift.",
-        "resolution": "Successor reconciliation requires the explicit predecessor mergedMainSha as the current base and fails STALE on any different main identity.",
+        "id": "CH-RUEB-03",
+        "scenario": "Child plan is transported in PR metadata and edited after materialization.",
+        "finding": "Mutable metadata could silently alter gates/scope without changing PR HEAD.",
+        "resolution": "Canonical child-plan/context digest is produced before materialization, carried in manifest and commit trailer, and CI rejects any envelope whose digest differs.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-04",
-        "scenario": "Fresh U2 analysis adds a repository dependency toward U3.",
-        "finding": "Filename equality would conceal a changed execution order and dependency closure.",
-        "resolution": "Compare fresh predecessor/dependency obligations and reject the stale manifest when ordering or dependency semantics change.",
+        "id": "CH-RUEB-04",
+        "scenario": "Adapter is asked to add an extra code file while opening the PR.",
+        "finding": "That would widen Unit 2 manifest authority.",
+        "resolution": "PR branch is pushed directly from the atomic materialized commit; adapter accepts no arbitrary file mutation input.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-05",
-        "scenario": "Fresh U2 Release Risk is now BLOCK.",
-        "finding": "The original PASS cannot authorize a changed current-base release transaction.",
-        "resolution": "READY requires the fresh canonical manifest projectedRisk decision PASS and rejects BLOCK without changing the RRB policy.",
+        "id": "CH-RUEB-05",
+        "scenario": "PR branch receives another commit after materialization.",
+        "finding": "A green PR could no longer prove the authorized materialized transaction.",
+        "resolution": "All PR create/read/proof/merge transitions require headSha equal materializedHeadSha; mismatch is STALE/BLOCK.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-06",
-        "scenario": "A predecessor rename makes a successor intended path obsolete.",
-        "finding": "Applying the old operation could recreate a removed authority path or duplicate truth.",
-        "resolution": "Operation and intended-file identity must match the fresh canonical manifest; path drift marks the successor STALE.",
+        "id": "CH-RUEB-06",
+        "scenario": "CI is green but child Truth artifact is absent or task-mismatched.",
+        "finding": "Workflow success is weaker than Completion Truth.",
+        "resolution": "Adapter imports and validates existing Truth + child lifecycle artifacts; status checks alone never set VERIFIED.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-07",
-        "scenario": "A generated artifact path is unchanged but its sealed source identity changes.",
-        "finding": "Path-only reconciliation could transplant content produced from a different generator/source state.",
-        "resolution": "Compare generated-artifact and sealed source identities; changed identity requires a fresh authorized manifest and cannot inherit READY.",
+        "id": "CH-RUEB-07",
+        "scenario": "Two processes resume the same parent state and both attempt U2.",
+        "finding": "Parallel writers can fork activeUnit/state.",
+        "resolution": "Persistent execution state has an exact expected state-ref commit lease and compare-and-swap update.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-08",
-        "scenario": "Operator attempts to authorize U3 while U2 is not CLOSED.",
-        "finding": "Manual unit skipping would break the declared sequential dependency chain.",
-        "resolution": "Parent activeUnitId and predecessor receipts are machine-enforced; only the next declared unit can authorize.",
+        "id": "CH-RUEB-08",
+        "scenario": "gh is missing, unauthenticated, or returns malformed JSON.",
+        "finding": "Fabricating a receipt would break provenance.",
+        "resolution": "External command adapter treats missing/nonzero/malformed responses as failure and never advances persisted state.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-09",
-        "scenario": "The same unit is materialized twice with a different commit receipt.",
-        "finding": "Calling both attempts idempotent would permit source identity substitution.",
-        "resolution": "Exact duplicate receipts are no-op retries; any conflicting materialization identity fails closed.",
+        "id": "CH-RUEB-09",
+        "scenario": "PR merge API returns success using squash and source head differs from resulting main.",
+        "finding": "Equality of source and main would reject valid strategy or lose successor base.",
+        "resolution": "Keep existing explicit merge receipt with sourceHeadSha and mergedMainSha; successor binds only to mergedMainSha.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-10",
-        "scenario": "PR head differs from the commit produced by manifest materialization.",
-        "finding": "Proof could then cover code that did not originate from the authorized release-unit transaction.",
-        "resolution": "PR_OPEN requires headSha equal materializedCommitSha and matching manifest digest/source identity.",
+        "id": "CH-RUEB-10",
+        "scenario": "Main advances after merge result before successor authorization.",
+        "finding": "Successor could absorb unrelated drift.",
+        "resolution": "Fresh main must equal predecessor mergedMainSha at reconciliation; otherwise STALE/fail closed.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-11",
-        "scenario": "Squash or rebase merge produces a main SHA different from the verified PR head.",
-        "finding": "Requiring equality would reject legitimate merge strategies while dropping the actual successor base.",
-        "resolution": "Merge receipt separately binds verified sourceHeadSha and mergedMainSha; successor leases use mergedMainSha.",
+        "id": "CH-RUEB-11",
+        "scenario": "U1 child plan closes successfully.",
+        "finding": "Parent must not become DONE/LEARN.",
+        "resolution": "Child closure is stored only as unit verification receipt; synchronizeReleaseParentExecution keeps parent lifecyclePhase EXECUTE while any unit is not CLOSED.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-12",
-        "scenario": "Fresh reconciliation introduces a release-unit dependency cycle.",
-        "finding": "An originally acyclic plan can become unsafe after predecessor changes.",
-        "resolution": "Fresh unit ordering is revalidated and a cycle fails closed before successor authorization.",
+        "id": "CH-RUEB-12",
+        "scenario": "Fresh U2 manifest changes gates/proof/dependencies/generated identity.",
+        "finding": "Old child plan is stale even if branch path names are unchanged.",
+        "resolution": "Successor child transaction must be projected from the fresh canonical manifest after merge, and old digest cannot authorize the new unit.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-13",
-        "scenario": "Fresh authority classification makes a successor path forbidden or read-only.",
-        "finding": "Old manifest authorization would cross a newly recognized authority boundary.",
-        "resolution": "Fresh forbidden/read-only results are execution-bearing obligations; any new hit blocks authorization.",
+        "id": "CH-RUEB-13",
+        "scenario": "Adapter resumes and finds the exact PR already open.",
+        "finding": "Duplicate PR creation is unnecessary but should not force failure.",
+        "resolution": "Resume is idempotent only when PR number/head/base/context/source identity all match; otherwise fail closed.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-14",
-        "scenario": "Proof ownership changes between predecessor merge and successor analysis.",
-        "finding": "The old unit could separate implementation from the proof now canonically bound to it.",
-        "resolution": "Required evidence/proof ownership is compared from the fresh manifest and semantic drift invalidates the successor.",
+        "id": "CH-RUEB-14",
+        "scenario": "Adapter resumes after the exact PR is already merged.",
+        "finding": "Re-merging is invalid but state may lag.",
+        "resolution": "It may reconcile only from an authoritative matching merged PR receipt/resulting main; mismatched merge provenance blocks.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-15",
-        "scenario": "A middle release unit fails permanently.",
-        "finding": "A parent model based on the latest successful observation could incorrectly appear done.",
-        "resolution": "Parent closure eligibility is a conjunction over every declared unit CLOSED state and any FAILED/BLOCKED/STALE unit keeps the parent open.",
+        "id": "CH-RUEB-15",
+        "scenario": "Final U3 is closed but parent Truth is not VERIFIED.",
+        "finding": "Unit chain completion is not parent completion.",
+        "resolution": "Parent becomes closureEligible only; existing parent Truth/Lifecycle remains required for closureComplete.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-16",
-        "scenario": "A successor change is already partially present on main.",
-        "finding": "Blind materialization could duplicate or overwrite content while a simplistic ALREADY_APPLIED result could hide mixed state.",
-        "resolution": "Unit 2 materializer remains authoritative for per-operation already-applied detection; orchestration accepts only its complete receipt and never infers partial success itself.",
+        "id": "CH-RUEB-16",
+        "scenario": "A release unit is ALREADY_APPLIED on current main.",
+        "finding": "There may be no meaningful code PR head distinct from main.",
+        "resolution": "Adapter must handle this as an explicit no-code completion/reconciliation path only when every operation is atomically already-applied and proof obligations can be satisfied at exact current main; otherwise block rather than fabricate a PR.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-17",
-        "scenario": "The predecessor PR was created from a different source identity than the sealed manifest.",
-        "finding": "Matching paths and green proof would not establish provenance from the authorized transaction.",
-        "resolution": "PR receipt must bind the manifest digest, source identity and exact materialized commit before verification can start.",
+        "id": "CH-RUEB-17",
+        "scenario": "Incremental Replay invokes Sentinel integrity while CI has activated a release-unit child plan.",
+        "finding": "A hardcoded root active-plan consumer would compare child execution evidence against the parent transaction and could either false-block or falsely validate the wrong authority.",
+        "resolution": "Sentinel probe consumes the same SHOPERATION_ACTIVE_PLAN path after CI context validation, while the default path remains unchanged outside child mode.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-18",
-        "scenario": "Predecessor merge exists but its canonical merge receipt is missing.",
-        "finding": "Reading branch history ad hoc would force downstream rediscovery and permit ambiguous merge provenance.",
-        "resolution": "Successor authorization requires an explicit predecessor execution receipt with source head, resulting main and CLOSED state.",
+        "id": "CH-RUEB-18",
+        "scenario": "A decomposed release unit contains only first-class create operations and therefore has no legitimate existing file in mustEdit.",
+        "finding": "Requiring a non-empty mustEdit would force scope fabrication or make valid Unit 2 create-only units impossible to execute through child Plan Before Code.",
+        "resolution": "Operational Intelligence recognizes manifest-bound releaseUnitContext and accepts a non-empty mustCreate route as the critical execution target; ordinary parent/root critical plans continue to require mustEdit.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-19",
-        "scenario": "Fresh successor decomposition reports no safe decomposition.",
-        "finding": "Trying to keep the original sequence would override new canonical risk/dependency truth.",
-        "resolution": "Orchestration reports BLOCKED/FAILED with no next authorization and requires a new parent planning transaction.",
+        "id": "CH-RUEB-19",
+        "scenario": "Existing Unit 3 tests construct manifests without childDevelopmentTransaction and verification is left backward-compatible for those fixtures.",
+        "finding": "A compatibility branch would preserve exactly the unbound Truth/Lifecycle acceptance path this hardening is intended to eliminate.",
+        "resolution": "Make child transaction identity mandatory for VERIFIED and upgrade the canonical Unit 3 regression fixtures instead of adding a legacy exception.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUO-20",
-        "scenario": "All but the final unit are CLOSED and an operator requests parent completion.",
-        "finding": "Intermediate success must not collapse the broader PO Development Transaction.",
-        "resolution": "Parent reports closureEligible false until every declared release unit is CLOSED; only then may existing parent Completion Truth/Lifecycle execute.",
+        "id": "CH-RUEB-20",
+        "scenario": "Atlas reports a missing DOMAIN-QUALITY to DOMAIN-RELEASE edge because the GitHub execution adapter was created under scripts/lib/shoperation-**.",
+        "finding": "The path itself assigns DOMAIN-QUALITY ownership even though the adapter owns release PR/merge/provenance execution; adding an allow edge would encode the wrong authority placement.",
+        "resolution": "Move the branch-only runtime to scripts/release-unit-github-runtime.mjs, update consumers and registry references, and let the existing DOMAIN-RELEASE canonical path classify it without an execution-policy exception.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUEB-20",
+        "scenario": "Child lifecycle support changes implementation expressions in shoperation-close-development-plan.mjs but the existing Operational Intelligence regression still asserts only the old root-only expression literals.",
+        "finding": "Reference Sync correctly reports a stale machine consumer; leaving it unchanged would make proof semantics and implementation diverge.",
+        "resolution": "Update the existing lifecycle regression to assert the preserved root branch plus the explicit child branch and child lifecycle artifact contract.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUEB-20",
+        "scenario": "Child lifecycle support replaces the existing root lifecycle assertions instead of extending them.",
+        "finding": "That would silently weaken the canonical repository plan closure requirement for ordinary Development Transactions.",
+        "resolution": "Keep the existing root BLOCK_UNTIL_COMMITTED and candidate-emitted assertions and add explicit child-closed-artifact/PASS assertions for release-unit child mode.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUEB-21",
+        "scenario": "Tests are loosened from literal root-plan assertions without adding an equivalent invariant for the alternate child-plan path.",
+        "finding": "That could hide arbitrary environment-driven transaction reinterpretation.",
+        "resolution": "Replace brittle import/string assertions with explicit checks for activeDevelopmentPlanPath default authority, validated SHOPERATION_ACTIVE_PLAN plumbing, and unchanged changeBaseSha/event-head ancestry validation.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUEB-21",
+        "scenario": "Development Guard tests continue asserting literal root-plan imports and a single fixed root authority after child-plan routing is introduced.",
+        "finding": "Incremental Replay fails because those machine-consumer assertions are stale; keeping them would also incorrectly forbid the manifest-bound child transaction authority.",
+        "resolution": "Update the existing regression to assert the common activeDevelopmentPlanPath consumer plus root fallback and releaseUnitContext.planAuthority semantics, while retaining base/head mismatch and ancestry fail-closed assertions.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUEB-22",
+        "scenario": "A CAP-RELEASE requirement cites GUARD-QUALITY-TESTS alongside Release Risk as outcome evidence.",
+        "finding": "Sentinel correctly blocks because a CAP-QUALITY producer cannot prove the release-authority claim, even though the same adapter also needs behavioral regression proof.",
+        "resolution": "Split release authority and execution identity into separate CAP-RELEASE and CAP-QUALITY completion requirements so each claim consumes only an authoritative producer for its capability.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUEB-23",
+        "scenario": "The PR body carries the child transaction as a base64url envelope but validateExactPullRequest searches for the raw binding digest as plaintext.",
+        "finding": "A valid canonical PR fails context validation because encoded evidence cannot satisfy a plaintext substring check; weakening the check would lose provenance.",
+        "resolution": "Decode the canonical release-unit context envelope from the PR body and compare its binding digest exactly; malformed, absent or mismatched envelopes remain fail closed.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUEB-24",
+        "scenario": "Sentinel evaluates the split Completion Contract and finds transaction-identity unproven while the CAP-RELEASE claim still asks Release Risk to prove freshness and forbidden-state semantics.",
+        "finding": "The claim scopes exceeded their authoritative producers: GUARD-RELEASE-RISK only proves risk and release-scope, while exact transaction identity is exercised by the canonical Quality Test Suite but was not declared in its proof semantics.",
+        "resolution": "Keep CAP-RELEASE strictly risk/release-scope, move freshness/identity/forbidden execution behavior to the CAP-QUALITY execution-identity requirement, and declare transaction-identity on GUARD-QUALITY-TESTS only after the adversarial suite proves it.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUEB-24",
+        "scenario": "Sentinel evaluates the refined Completion Contract and finds transaction-identity uncovered while the Release Risk claim also asks that producer to prove freshness and generic forbidden-state semantics.",
+        "finding": "The claims exceed current producer dimensions: GUARD-RELEASE-RISK canonically proves risk and release-scope only, while the new exact PR/child proof regressions genuinely prove transaction identity through GUARD-QUALITY-TESTS but that proof dimension is not yet declared.",
+        "resolution": "Narrow the CAP-RELEASE claim to risk and release-scope, and extend GUARD-QUALITY-TESTS proof semantics with transaction-identity because the exact child task, manifest, binding, PR head/base and lifecycle adversarial tests execute under that producer.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Require exact-head Plan Before Code PASS on the plan-only branch before any implementation commit.",
-      "Exercise a three-unit normal sequence from READY through materialization, PR identity, exact-head Truth/Lifecycle verification, merge, successor reconciliation and final parent closure eligibility.",
-      "Replay all twenty adversarial scenarios covering drift, risk block, missing Truth/Lifecycle, receipt loss, duplicate execution, already-applied content, rename, generated identity, proof ownership, forbidden scope, source identity, exact PR head, merge strategy, cycles, parent failure and unit skipping.",
-      "Run Edit-Time Guard and Incremental Replay after implementation so Known Failure and reference synchronization remain authoritative.",
-      "Run unchanged Release Risk Budget, full Quality Tests, TypeScript and Production Build on the exact implementation head.",
-      "Require Template Factory external proof only if the canonical guard registry classifies this exact scope as producer-applicable.",
-      "Require Completion Truth VERIFIED and Lifecycle Closure on the exact implementation head before merge.",
-      "After merge, verify current main exact head and successor reconciliation semantics without weakening any gate."
+      "Require plan-only Plan Before Code PASS on exact branch head before implementation.",
+      "Prove child-plan projection is sealed into manifest identity and changes to child scope/gates/proof alter manifestDigest deterministically.",
+      "Run existing child-capable Knowledge/Plan/Edit-Time/Replay/Risk/Quality/TypeScript/Build/Truth/Lifecycle paths using an alternate plan path and prove ordinary root-plan transactions remain byte-compatible.",
+      "Replay parent/child identity attacks: parent Truth for child, foreign child lifecycle, mutable PR context, wrong head/base/source, stale state-ref, duplicate/open/merged PR retries, gh/git failures and merge/main drift.",
+      "Run a three-unit simulated GitHub adapter integration with injected deterministic git/gh responses, exact state-ref CAS and successor fresh-manifest replacement.",
+      "Run Edit-Time Guard and Incremental Replay, unchanged Release Risk Budget, full Quality Tests, TypeScript and Production Build.",
+      "Use external Template Factory proof only where canonical child manifest applicability requires it; producer scope remains authoritative.",
+      "Require Completion Truth VERIFIED and Lifecycle Closure for this hardening implementation itself before merge, then verify fresh main push CI/Template Factory.",
+      "After merge, run a bounded production-like release-unit rehearsal using the new adapter against non-product fixture scope before declaring the original end-to-end multi-unit objective closed."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-ORCHESTRATION",
+      "request": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-EXECUTION-BINDING",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        "quality/knowledge/development-guard-policy.v1.json",
         "quality/knowledge/guard-registry.v1.json",
-        "scripts/lib/shoperation-release-unit-runtime.mjs"
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/lib/shoperation-development-runtime.mjs",
+        "scripts/shoperation-plan-before-code.mjs",
+        "scripts/shoperation-edit-time-guard.mjs",
+        "scripts/shoperation-knowledge-preflight.mjs",
+        "scripts/shoperation-truth-gate.mjs",
+        "scripts/shoperation-close-development-plan.mjs",
+        ".github/workflows/ci.yml",
+        ".github/workflows/template-factory-quality-gate.yml",
+        "scripts/shoperation-sentinel-integrity-probe.mjs",
+        "scripts/lib/shoperation-operational-intelligence.mjs"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
         "deploy/release-risk-policy.json",
+        "scripts/release-unit-materialize.mjs",
+        "scripts/shoperation-verification-checkpoint.mjs",
+        "scripts/shoperation-external-proof-handoff.mjs",
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "scripts/lib/shoperation-development-runtime.mjs",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/release-risk-budget.mjs",
-        "scripts/shoperation-plan-before-code.mjs",
-        "scripts/shoperation-truth-gate.mjs"
+        "quality/knowledge/living-roadmap.v2.json"
       ],
       "mustCreate": [
-        "scripts/release-unit-orchestrate.mjs",
-        "tests/control-plane-release-unit-orchestration.test.ts"
+        "scripts/release-unit-ci-context.mjs",
+        "scripts/release-unit-github-runtime.mjs",
+        "scripts/release-unit-execute.mjs",
+        "tests/control-plane-release-unit-execution-binding.test.ts"
       ],
       "forbidden": [
-        "src/lib/auth/**",
-        "src/app/api/auth/**",
-        "src/middleware.ts",
-        "deploy/release-risk-policy.json"
+        "deploy/release-risk-policy.json",
+        "src/**",
+        "supabase/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-orchestration.test.ts"
+        "tests/control-plane-release-unit-execution-binding.test.ts",
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/shoperation-operational-intelligence.test.ts",
+        "tests/shoperation-development-guard.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -483,7 +591,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-ORCHESTRATION",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-EXECUTION-BINDING",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -504,88 +612,18 @@
     },
     "requirements": [
       {
-        "id": "REQ-RELEASE-UNIT-SEQUENTIAL-LIFECYCLE",
-        "requirement": "Canonical release-unit manifests advance through one deterministic fail-closed execution lifecycle whose READY, materialized, PR, verified, merged and closed milestones are bound to exact receipts and cannot be skipped.",
-        "claimScope": {
-          "capability": "CAP-RELEASE",
-          "breadth": "release-unit-sequential-execution",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "lifecycle",
-            "behavioral-proof",
-            "forbidden-state"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-RELEASE"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-UNIT-SKIP",
-            "statement": "No operator or retry may skip a predecessor, substitute a different materialized/PR identity, or advance from green CI without exact canonical Truth and Lifecycle evidence.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-SUCCESSOR-FRESH-RECONCILIATION",
-        "requirement": "After every predecessor merge, successor authorization consumes a fresh canonical manifest for the resulting main state and fails closed when execution-bearing dependency, risk, proof, authority, forbidden, generated-artifact, operation or ordering semantics changed unsafely.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "successor-current-main-reconciliation",
-          "strength": 2,
-          "dimensions": [
-            "scope",
-            "reconcile",
-            "missing-edge",
-            "unknowns"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-STALE-SUCCESSOR-AUTHORIZATION",
-            "statement": "A successor must not inherit authorization from its original manifest after current-main semantic obligations have changed or cannot be proven equivalent.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-PARENT-TRANSACTION-CLOSURE",
-        "requirement": "The parent Development Transaction tracks the complete ordered release-unit chain and becomes closure-eligible only when every declared unit is closed; an intermediate failure, stale unit or partial success keeps the parent open.",
+        "id": "REQ-RELEASE-UNIT-CHILD-TRANSACTION",
+        "requirement": "Each release unit is bound to a deterministic manifest-sealed child Development Transaction whose existing Truth/Lifecycle evidence is exact-task and exact-head scoped while the parent transaction remains open.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "parent-development-transaction-release-chain",
+          "breadth": "release-unit-child-development-transaction",
           "strength": 2,
           "dimensions": [
             "status",
             "lifecycle",
             "truth",
-            "close"
+            "transaction-identity",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -593,7 +631,8 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS"
@@ -601,8 +640,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PARENT-EARLY-CLOSE",
-            "statement": "The parent transaction must never become completion-eligible after an intermediate unit or while any unit is BLOCKED, STALE, FAILED, unmerged or unclosed.",
+            "id": "NEG-CHILD-PARENT-LIFECYCLE-CONFLATION",
+            "statement": "No release unit may consume parent/foreign lifecycle evidence or close the parent Development Transaction as a side effect of child verification.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -610,11 +649,11 @@
         ]
       },
       {
-        "id": "REQ-RISK-AUTHORITY-PRESERVED",
-        "requirement": "Release-unit orchestration preserves the unchanged Release Risk authority: every current-base unit must carry canonical PASS risk evidence and orchestration cannot raise, reinterpret or bypass the configured budget.",
+        "id": "REQ-RELEASE-UNIT-GITHUB-RELEASE-AUTHORITY",
+        "requirement": "The GitHub-bound release-unit adapter preserves the canonical Release Risk authority and exact manifest release scope; it cannot reinterpret or bypass a canonical Release Risk BLOCK while producing materialization, PR or merge transactions.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "release-unit-risk-authority",
+          "breadth": "github-bound-release-unit-authority",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -634,10 +673,81 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RRB-ORCHESTRATOR-BYPASS",
-            "statement": "No orchestration transition may convert a canonical Release Risk BLOCK into READY or MERGED by local policy.",
+            "id": "NEG-GITHUB-EXECUTION-RISK-BYPASS",
+            "statement": "No GitHub execution transition may reinterpret or convert a canonical Release Risk BLOCK into an authorized release unit.",
             "evidence": [
-              "GUARD-RELEASE-RISK",
+              "GUARD-RELEASE-RISK"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-RELEASE-UNIT-GITHUB-EXECUTION-IDENTITY",
+        "requirement": "The GitHub-bound release-unit adapter binds materialized commit, PR body context, PR head/base, exact child proof, CAS state and merge receipt to one manifest-sealed child transaction and fails closed on any mismatched or mutable identity.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "github-bound-release-unit-execution-identity",
+          "strength": 2,
+          "dimensions": [
+            "status",
+            "idempotency",
+            "freshness",
+            "transaction-identity",
+            "forbidden-state"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-EDIT-TIME"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-MANUAL-RECEIPT-AUTHORITY",
+            "statement": "Free-form operator PR, proof or merge data cannot advance canonical release-unit state without exact manifest, binding, head, base and producer identity.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-PARENT-SEQUENTIAL-CLOSURE-INTEGRATION",
+        "requirement": "A multi-unit parent remains in EXECUTE through intermediate child closures, advances only the next unit from freshly reconciled main, and reaches closureEligible only after every unit is CLOSED before existing parent Truth/Lifecycle closure.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "parent-sequential-release-execution",
+          "strength": 2,
+          "dimensions": [
+            "lifecycle",
+            "reconcile",
+            "missing-edge",
+            "close",
+            "truth"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-EDIT-TIME"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-PARENT-EARLY-CLOSE-CHILD",
+            "statement": "Child Truth/Lifecycle completion must never imply parent Completion Truth/Lifecycle completion.",
+            "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           }
@@ -645,14 +755,14 @@
       }
     ]
   },
-  "notes": "Unit 3 follows the audited Unit 2 gap: release.unit-manifests currently have no canonical execution consumer. This plan extends the existing release-infrastructure runtime only; Completion Truth, Development Lifecycle, Release Risk, Atlas, Sentinel and CI remain authoritative producers. No Knowledge promotion is pre-written; only replay-proven new missing edges may enter Failure Intake and later canonical Knowledge. Plan-only PR-context Plan Before Code run 37489216955 resolved the canonical projected scope to quality-knowledge-system + release-infrastructure, added applicable SQ-NK-011/014/015, and produced guard digest 56a6f85c; no gate or risk policy changed. Successor/main reconciliation after security prerequisite PR #956: target base rebound from 51dfcada763fc039b34e83c63ebea1e9006160a6 to 146abe7f6e6e8efa561bbb591695eff4c1b8f17b. The Unit 3 implementation scope is not widened; implementation files are intentionally absent from this reconciliation commit until Plan Before Code re-authorizes execution on the fresh main.",
+  "notes": "Continuation/hardening of merged Unit 3 after capability-closure audit. The audit proved two remaining canonical edges: PR/merge receipts had no repository producer, and intermediate unit lifecycle evidence was not bound to a distinct child Development Transaction. This transaction closes those edges inside existing Release Transaction/Control Plane authorities. No Knowledge promotion is pre-written. Plan-only PR #958 run 37501003926 resolved canonical scope to quality-infrastructure + release-infrastructure, retained DOMAIN-QUALITY + DOMAIN-RELEASE authorities, canonical Negative Knowledge SQ-NK-002/003/005/010/012/016-023, guard digest 9a67776f, projected Release Risk 4/5 PASS, and a mandatory two-unit decomposition caused by the canonical 12-file unit limit. Consumer audit found scripts/shoperation-sentinel-integrity-probe.mjs as an additional active-plan reader reachable from Control Plane replay. Canonical scope expanded before implementation; a new Plan Before Code PASS is required. Child-plan projection audit found create-only release units cannot satisfy the current critical semantic route without fabricating mustEdit. Scope expanded to operational-intelligence validator with a child-only mustEdit-or-mustCreate rule; root critical validation remains unchanged. Verification binding necessarily changes the existing Unit 3 orchestration proof fixture. Added tests/control-plane-release-unit-orchestration.test.ts to canonical proof scope; no legacy unbound verification compatibility is permitted. Replay-proven Atlas failure ATLAS_AUTHORITY_DEPENDENCY_DRIFT on head 162fcb15 showed the GitHub adapter was placed under DOMAIN-QUALITY by scripts/lib/shoperation-** canonical ownership while its declared responsibility is release-infrastructure. Root cause is corrected by canonical path placement, not by adding an authority exception. Exact-head Plan Before Code identified the GitHub execution runtime path as scripts/lib/shoperation-release-unit-github-runtime.mjs; the stale non-lib path declaration was reconciled without changing subsystem, domain, authority, risk, or proof scope. Current Atlas-compatible implementation places the thin GitHub-bound adapter in the release-domain scripts root. Canonical plan path reconciled to scripts/release-unit-github-runtime.mjs; no capability, risk or authority scope changed. Exact-head Edit-Time/Reference Sync on 337ccb03 found tests/shoperation-operational-intelligence.test.ts as a stale lifecycle consumer after child closure support. Added it to canonical proof scope before editing. Edit-Time Reference Sync identified tests/shoperation-operational-intelligence.test.ts as the canonical consumer of lifecycle transition semantics. Added to proof scope before editing; root closure semantics remain unchanged. Incremental Replay identified tests/shoperation-development-guard.test.ts as a stale canonical consumer of direct active-plan imports/authority text. Added to proof scope before editing; transaction identity invariants remain fail closed. Incremental Replay on 512b12de exposed tests/shoperation-development-guard.test.ts as a stale source-contract consumer after alternate child-plan routing. Added to canonical proof scope before editing; root active-plan fallback remains mandatory. Quality/Sentinel on 498ce89a exposed a proof-capability mismatch in REQ-RELEASE-UNIT-GITHUB-EXECUTION. Split CAP-RELEASE authority from CAP-QUALITY execution identity without removing any gate. The same Quality run also proved PR context validation must decode the base64url canonical envelope rather than search for a plaintext digest. Exact-head Quality/Sentinel on 4ca6e1ba proved two proof-semantics edges: CAP-RELEASE overclaimed freshness/forbidden-state beyond GUARD-RELEASE-RISK, and GUARD-QUALITY-TESTS lacked the transaction-identity dimension now directly exercised by release-unit adversarial tests. Canonical claim scope is narrowed before registry semantics are updated. Quality/Sentinel analysis on 4ca6e1ba resolved remaining dimension drift: CAP-RELEASE is narrowed to risk/release-scope; GUARD-QUALITY-TESTS will declare transaction-identity only because exact child/PR/lifecycle identity adversarial regressions now execute under that producer. No gate or scope strength is weakened.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "2f21e770c4b983a9021107c9d254e18d47599f6c",
-    "closedAt": "2026-10-06T16:39:23.869Z",
+    "verifiedImplementationHead": "c33c12a8d48094ecf4b329777eb59a62687f5929",
+    "closedAt": "2026-10-06T18:36:55.073Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-ORCHESTRATION",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-EXECUTION-BINDING",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

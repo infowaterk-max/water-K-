@@ -95,6 +95,10 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
 
+      - name: Resolve release-unit child transaction context
+        if: github.event_name == 'pull_request'
+        run: node scripts/release-unit-ci-context.mjs --check
+
       - name: Bind canonical Development Transaction identity
         env:
           CI_EVENT_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
@@ -379,6 +383,8 @@ jobs:
             artifacts/shoperation-development-guard/truth-gate.md
             artifacts/shoperation-development-guard/lifecycle-transition.json
             artifacts/shoperation-development-guard/active-plan.closed.json
+            artifacts/shoperation-development-guard/release-unit-child-lifecycle.json
+            artifacts/shoperation-development-guard/release-unit-ci-context.json
           if-no-files-found: warn
           retention-days: 30
 

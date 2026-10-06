@@ -1,9 +1,9 @@
 import {execFileSync} from 'node:child_process';
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
-import {aggregateGateDecision,getChangedFiles,globToRegExp,guardPolicy,matchGuardException} from './lib/shoperation-development-runtime.mjs';
+import {activeDevelopmentPlanPath,aggregateGateDecision,getChangedFiles,globToRegExp,guardPolicy,matchGuardException} from './lib/shoperation-development-runtime.mjs';
 import {evaluateReferenceSynchronization} from './lib/shoperation-reference-sync-runtime.mjs';
 import {buildCodebaseAtlas,buildExecutionRoute,evaluatePoInstructionStates} from './lib/shoperation-codebase-atlas-runtime.mjs';
-const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8')),diff=getChangedFiles({baseSha:plan.changeBaseSha}),exceptionList=[...(plan.exceptions??[])],git=args=>execFileSync('git',args,{encoding:'utf8'});
+const plan=JSON.parse(readFileSync(activeDevelopmentPlanPath(),'utf8')),diff=getChangedFiles({baseSha:plan.changeBaseSha}),exceptionList=[...(plan.exceptions??[])],git=args=>execFileSync('git',args,{encoding:'utf8'});
 let patch='';if(diff.base){try{patch=git(['diff','--unified=0','--no-color',diff.base,diff.head,'--']);}catch{}}if(!patch){try{patch=git(['diff','--unified=0','--no-color','--']);}catch{}}
 const findings=[];let currentFile=null,newLine=0;
 const declaredSemanticRequired=[...(plan.operationalIntelligence?.semanticExecutionRoute?.mustEdit??[])];

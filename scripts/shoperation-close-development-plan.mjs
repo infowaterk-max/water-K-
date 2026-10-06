@@ -2,7 +2,7 @@ import {execFileSync} from 'node:child_process';
 import {appendFileSync,existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {buildClosedDevelopmentPlan} from './lib/shoperation-operational-intelligence.mjs';
 
-const PLAN_PATH='quality/development/active-plan.json';
+const PLAN_PATH=String(process.env.SHOPERATION_ACTIVE_PLAN??'').trim()||'quality/development/active-plan.json';
 const DEFAULT_TRUTH_PATH='artifacts/shoperation-development-guard/truth-gate.json';
 const DEFAULT_CANDIDATE_PATH='artifacts/shoperation-development-guard/active-plan.closed.json';
 const DEFAULT_REPORT_PATH='artifacts/shoperation-development-guard/lifecycle-transition.json';
@@ -52,12 +52,14 @@ if(plan.status==='closed'){
     closedAt:truth.generatedAt,
   });
   writeFileSync(candidatePath,JSON.stringify(closedPlan,null,2)+'\n');
-  if(arg('--apply'))writeFileSync(PLAN_PATH,JSON.stringify(closedPlan,null,2)+'\n');
+  const childTransaction=plan.releaseUnitContext?.contract==='shoporation.release-unit-child-transaction.v1';
+  if(arg('--apply')&&!childTransaction)writeFileSync(PLAN_PATH,JSON.stringify(closedPlan,null,2)+'\n');
+  if(childTransaction)writeFileSync('artifacts/shoperation-development-guard/release-unit-child-lifecycle.json',JSON.stringify({contract:'shoporation.release-unit-child-lifecycle.v1',decision:'PASS',taskId:plan.taskId,releaseUnitContext:closedPlan.releaseUnitContext,lifecycle:closedPlan.lifecycle},null,2)+'\n');
   report={
     contract:'shoporation.development-lifecycle-transition.v1',
-    decision:'BLOCK_UNTIL_COMMITTED',
-    action:arg('--apply')?'applied':'candidate-emitted',
-    closureRequired:!arg('--apply'),
+    decision:childTransaction?'PASS':'BLOCK_UNTIL_COMMITTED',
+    action:childTransaction?'child-receipt-emitted':(arg('--apply')?'applied':'candidate-emitted'),
+    closureRequired:childTransaction?false:!arg('--apply'),
     taskId:plan.taskId,
     currentHead,
     verifiedImplementationHead:currentHead,

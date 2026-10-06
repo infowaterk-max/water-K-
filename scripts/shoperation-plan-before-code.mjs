@@ -1,10 +1,10 @@
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
-import {compileGateChain,deriveImplementationSkeleton,evaluateReleaseRiskFiles,exactPlannedPaths,getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
+import {activeDevelopmentPlanPath,compileGateChain,deriveImplementationSkeleton,evaluateReleaseRiskFiles,exactPlannedPaths,getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
 import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,classifyAtlasPath,resolveAtlasArchitectureForPath,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
 import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
-import {decomposeReleaseScope,derivePlannedOperations} from './lib/shoperation-release-unit-runtime.mjs';
+import {bindReleaseUnitChildTransaction,decomposeReleaseScope,derivePlannedOperations} from './lib/shoperation-release-unit-runtime.mjs';
 
-const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
+const plan=JSON.parse(readFileSync(activeDevelopmentPlanPath(),'utf8'));
 const guardRegistry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
 const diff=getChangedFiles({baseSha:plan.changeBaseSha});
 const changedFiles=[...(diff.materialFiles??[])];
@@ -83,7 +83,7 @@ const releaseOperations=derivePlannedOperations({
   generatedArtifacts:plannedGeneratedArtifacts,
 });
 const releaseDecomposition=decomposeReleaseScope({
-  transaction:{taskId:plan.taskId,parentTransactionId:plan.taskId,sourceRef:plan.operationalIntelligence?.sourceRef,changeBaseSha:plan.changeBaseSha},
+  transaction:{taskId:plan.releaseUnitContext?.releaseUnitId??plan.taskId,parentTransactionId:plan.releaseUnitContext?.parentTransactionId??plan.taskId,sourceRef:plan.operationalIntelligence?.sourceRef,changeBaseSha:plan.changeBaseSha},
   operations:releaseOperations,
   atlas,
   gateChain,
@@ -193,6 +193,49 @@ for(const exception of plan.exceptions??[]){
 
 const digest=stableDigest({failureIds:projectedFailures,subsystems:projectedSubsystems,negativeKnowledgeIds:projectedNegative});
 if(plan.guardDigest!==digest)issues.push({code:'DEV_PLAN_GUARD_DIGEST_DRIFT',expected:plan.guardDigest,actual:digest});
+
+if(!plan.releaseUnitContext&&releaseDecomposition.decision==='PASS'){
+  releaseDecomposition.releaseUnits=(releaseDecomposition.releaseUnits??[]).map(unit=>{
+    const unitFiles=[...(unit.intendedFiles??[])];
+    const unitDeletes=(unit.operations??[]).filter(item=>item.operation==='delete').map(item=>item.file);
+    const unitRenames=(unit.operations??[]).filter(item=>item.operation==='rename').map(item=>({from:item.previousFile,to:item.file}));
+    const unitGenerated=(unit.generatedArtifactSemantics??[]).map(item=>({...item}));
+    const unitRoute=buildExecutionRoute(atlas,unitFiles,{plannedDeletions:unitDeletes});
+    const unitSkeleton=deriveImplementationSkeleton({plannedFilePatterns:unitFiles,atlasFiles:atlas.nodes.map(node=>node.path),executionRoute:unitRoute,plannedDeletions:unitDeletes,forbiddenPatterns:unit.forbiddenPaths??[]});
+    const unitArchitectureFor=file=>resolveAtlasArchitectureForPath(atlas,file,{plannedDeletions:unitDeletes,executionRoute:unitRoute});
+    const unitDomains=domainsFor(unitFiles,unitArchitectureFor);
+    const unitAuthorities=authoritiesFor(unitDomains);
+    const unitScope=resolveDevelopmentScope({files:unitFiles,task:plan.task});
+    const unitNegative=negativeFor(unitScope);
+    const unitInstructions=applicablePoInstructions(atlas,unitFiles).map(item=>item.id).sort();
+    const unitGuardDigest=stableDigest({failureIds:[...unitScope.activeFailureIds].sort(),subsystems:[...unitScope.impactedSubsystems].sort(),negativeKnowledgeIds:unitNegative});
+    const semanticExecutionRoute={
+      request:declaredExecutionRoute?.request??plan.operationalIntelligence?.sourceRef,
+      authority:unitAuthorities,
+      mustEdit:[...unitSkeleton.mustEdit],
+      mayEdit:[...unitSkeleton.mayEdit],
+      impactedReadOnly:[...unitSkeleton.impactedReadOnly],
+      mustCreate:[...unitSkeleton.mustCreate],
+      forbidden:[...unitSkeleton.forbidden],
+      proof:[...new Set([...(unitSkeleton.proof??[]),...(unit.requiredEvidence?.proofFiles??[])])].sort(),
+      unknown:[...(unitSkeleton.unknown??[])],
+      plannedDeletions:unitDeletes,
+      plannedRenames:unitRenames,
+      generatedArtifacts:unitGenerated,
+    };
+    return bindReleaseUnitChildTransaction(unit,{
+      parentPlan:plan,
+      guardDigest:unitGuardDigest,
+      expectedSubsystems:[...unitScope.impactedSubsystems].sort(),
+      expectedDomains:unitDomains,
+      expectedAuthorities:unitAuthorities,
+      expectedKnownFailureIds:[...unitScope.activeFailureIds].sort(),
+      acknowledgedPoInstructionIds:unitInstructions,
+      acknowledgedNegativeKnowledgeIds:unitNegative,
+      semanticExecutionRoute,
+    });
+  });
+}
 
 const operationalValidation=validateOperationalIntelligence({plan,policy:guardPolicy,guardIds:(guardRegistry.guards??[]).map(item=>item.id)});
 issues.push(...operationalValidation.issues);

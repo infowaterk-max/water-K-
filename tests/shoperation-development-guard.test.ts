@@ -25,8 +25,11 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(runtime).toContain('export function resolveDevelopmentBase');
     expect(plan).toContain('getChangedFiles({baseSha:plan.changeBaseSha})');
     expect(edit).toContain('getChangedFiles({baseSha:plan.changeBaseSha})');
-    expect(preflight).toContain("import {getChangedFiles} from './lib/shoperation-development-runtime.mjs'");
+    expect(preflight).toContain("import {activeDevelopmentPlanPath,getChangedFiles} from './lib/shoperation-development-runtime.mjs'");
+    expect(preflight).toContain('const developmentPlan=readJson(activeDevelopmentPlanPath())');
     expect(preflight).toContain('getChangedFiles({baseSha:developmentPlan.changeBaseSha})');
+    expect(runtime).toContain("export const activeDevelopmentPlanPath=()=>String(process.env.SHOPERATION_ACTIVE_PLAN??'').trim()||'quality/development/active-plan.json'");
+    expect(runtime).toContain('export const readActiveDevelopmentPlan=()=>readJson(activeDevelopmentPlanPath())');
     expect(preflight).toContain('transaction.materialFiles??[]');
     expect(preflight).not.toContain("developmentPlan.changeBaseSha?.trim()||process.env.QUALITY_BASE_SHA");
   });
@@ -79,7 +82,10 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(workflow).not.toContain('RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}');
     expect(runtime).toContain('CI_TRANSACTION_BASE_MISMATCH');
     expect(runtime).toContain('CI_TRANSACTION_ANCESTRY_INVALID');
-    expect(runtime).toContain("authority:'quality/development/active-plan.json#changeBaseSha'");
+    expect(runtime).toContain("const authority=plan?.releaseUnitContext?.planAuthority??'quality/development/active-plan.json#changeBaseSha'");
+    expect(runtime).toContain("authority}");
+    expect(workflow).toContain('Resolve release-unit child transaction context');
+    expect(workflow.indexOf('Resolve release-unit child transaction context')).toBeLessThan(workflow.indexOf('Bind canonical Development Transaction identity'));
   });
   it('wires development-time guards into development proof CI while preserving post-merge replay and evidence',()=>{for(const file of ['.github/workflows/ci.yml','.github/workflows/template-factory-quality-gate.yml']){const workflow=readFileSync(file,'utf8');expect(workflow).toContain('Plan Before Code Gate');expect(workflow).toContain('Edit-Time Known Failure Guard');expect(workflow).toContain('Incremental Known Failure Replay');expect(workflow).toContain('shoperation-plan-before-code.mjs --check');expect(workflow).toContain('shoperation-edit-time-guard.mjs --check');expect(workflow).toContain('shoperation-incremental-replay.mjs --check');expect(workflow).toContain('INCREMENTAL_OUTCOME');expect(workflow).toContain('INCREMENTAL_REPLAY_FAILED');expect(workflow).toContain('Upload Development Guard evidence');}});
   it('runs A/B Reference Sync before replay and catches stale source assertions plus deleted asset paths',()=>{const output=execFileSync(process.execPath,['scripts/lib/shoperation-reference-sync-runtime.mjs','--self-test'],{encoding:'utf8'});expect(output).toContain('Reference Sync self-test: PASS');expect(output).toContain('bare-object-key=IGNORED');expect(output).toContain('coverage-overflow=BLOCK');const refSource=readFileSync('scripts/lib/shoperation-reference-sync-runtime.mjs','utf8');expect(refSource).toContain('diffData(base,head)');expect(refSource).toContain('grep(patterns,head)');expect(refSource).toContain('REFERENCE_SYNC_CHECKOUT_HEAD_MISMATCH');const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');expect(edit).toContain('evaluateReferenceSynchronization');expect(edit).toContain('DEV-BLOCK-REFERENCE-SYNC');expect(edit).toContain('DEV-REVIEW-REFERENCE-SYNC');expect(edit).toContain('reference-sync.json');expect(policy.generalRules.some(rule=>rule.includes('repository-wide Reference Sync closure'))).toBe(true);});

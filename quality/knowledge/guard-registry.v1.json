@@ -97,7 +97,10 @@
           "scripts/lib/shoperation-operational-intelligence.mjs",
           "scripts/lib/shoperation-release-unit-runtime.mjs",
           "scripts/release-unit-materialize.mjs",
-          "scripts/release-unit-orchestrate.mjs"
+          "scripts/release-unit-orchestrate.mjs",
+          "scripts/release-unit-ci-context.mjs",
+          "scripts/release-unit-github-runtime.mjs",
+          "scripts/release-unit-execute.mjs"
         ],
         "configurationInputs": [
           ".github/workflows/ci.yml"
@@ -529,7 +532,8 @@
           "resumable",
           "known-failure",
           "deep-atlas",
-          "sentinel"
+          "sentinel",
+          "transaction-identity"
         ]
       },
       "chain": {
@@ -1247,6 +1251,14 @@
       "release.parent-execution": {
         "producer": "release-unit-orchestrator",
         "authority": "release-infrastructure"
+      },
+      "release.unit-child-transaction": {
+        "producer": "GUARD-PLAN-BEFORE-CODE",
+        "authority": "quality-knowledge-system"
+      },
+      "release.unit-github-execution": {
+        "producer": "release-unit-execution-adapter",
+        "authority": "release-infrastructure"
       }
     },
     "releaseDecomposition": {
@@ -1281,6 +1293,17 @@
           "exact-head-mismatch",
           "operator-unit-skip"
         ]
+      },
+      "executionBinding": {
+        "childTransactionContract": "shoporation.release-unit-child-transaction.v1",
+        "childPlanProducer": "GUARD-PLAN-BEFORE-CODE",
+        "ciContextConsumer": "scripts/release-unit-ci-context.mjs",
+        "githubExecutionAdapter": "scripts/release-unit-execute.mjs",
+        "materializer": "scripts/lib/shoperation-release-unit-runtime.mjs#materializeReleaseUnit",
+        "proofAuthority": "GUARD-COMPLETION-TRUTH",
+        "lifecycleAuthority": "existing-development-lifecycle",
+        "statePersistence": "git-ref-force-with-lease-cas",
+        "parentClosure": "existing-parent-completion-truth-and-lifecycle-only"
       }
     }
   }
