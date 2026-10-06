@@ -1,8 +1,7 @@
 import{notFound,redirect}from'next/navigation';
-import{AuthForm}from'@/components/auth/auth-form';
-import{StorefrontAccountShell}from'@/components/account/storefront-account-shell';
 import{createClient}from'@/lib/supabase/server';
 import{normalizeStorefrontReturnTarget}from'@/lib/auth/storefront-return-target';
+import{normalizeWorkforceReturnTarget,workforceLoginHref}from'@/lib/auth/workforce-return-target';
 import{resolveStorefrontTemplatePreviewPackage}from'@/lib/builder/storefront-template-preview-auth';
 import{STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType}from'@/lib/builder/storefront-foundation';
 
@@ -12,7 +11,8 @@ const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES)
 
 function previewTarget(input:{templateKey:string;templateVersion:number;pageType:StorefrontBuilderPageType;viewport:string;requested?:string;factoryCandidate:boolean}){
  const requested=normalizeStorefrontReturnTarget(input.requested);
- if(requested?.startsWith('/storefront-template-preview?'))return requested;
+ const workforceRequested=normalizeWorkforceReturnTarget(requested);
+ if(workforceRequested&&(workforceRequested==='/storefront-template-preview'||workforceRequested.startsWith('/storefront-template-preview?')))return workforceRequested;
  const params=new URLSearchParams({
   template:input.templateKey,
   version:String(input.templateVersion),
@@ -42,16 +42,7 @@ export default async function StorefrontTemplatePreviewLogin({searchParams}:Prop
  });
  const supabase=await createClient();
  const{data:{user}}=await supabase.auth.getUser();
- if(user)redirect(target);
- return <StorefrontAccountShell
-  customerId={null}
-  fallbackNavigation={null}
-  previewTemplate={{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,factoryCandidate}}
- >
-  <main className="section accountPage storefrontSignedOutAccount" data-template-preview-auth="true">
-   <div className="shell">
-    <AuthForm instanceId={null} initialMode="login" returnTo={target}/>
-   </div>
-  </main>
- </StorefrontAccountShell>;
+ const destination=workforceLoginHref(target);
+ if(user)redirect(destination);
+ redirect(destination);
 }

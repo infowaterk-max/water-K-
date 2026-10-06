@@ -33,8 +33,9 @@ describe('storefront template preview runtime',()=>{
     expect(preview).toContain('data-compile-source={compileSource}');
     expect(preview).toContain('data-foundation-template={foundationTemplate}');
     expect(preview).toContain('data-source-commit={sourceCommit}');
-    expect(login).toContain("import{AuthForm}from'@/components/auth/auth-form'");
-    expect(login).toContain('previewTemplate={{templateKey:template.manifest.templateKey');
+    expect(login).toContain('normalizeWorkforceReturnTarget(requested)');
+    expect(login).toContain('redirect(destination)');
+    expect(login).not.toContain("import{AuthForm}from'@/components/auth/auth-form'");
     expect(login).toContain("if(input.factoryCandidate)params.set('factory','1')");
     expect(shell).toContain('resolveStorefrontTemplateAccountPreviewRuntimePage');
     expect(shell).toContain('data-storefront-account-shell={runtime.source}');

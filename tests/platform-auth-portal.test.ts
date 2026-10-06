@@ -8,7 +8,11 @@ describe('Shoperation platform auth portal',()=>{
   it('keeps platform auth separate from shopper registration',()=>{
     const page=read('src/app/platform/page.tsx');
     const form=read('src/components/auth/platform-auth-form.tsx');
+    const activation=read('src/lib/auth/platform-activation-form.tsx');
     expect(page).toContain('Rendszerszintű belépés');
+    expect(page).toContain("workforceLoginHref('/admin/platform')");
+    expect(page).not.toContain('PlatformAuthForm');
+    expect(activation).not.toContain('signInWithPassword');
     expect(form).toContain('Első aktiválás');
     expect(form).not.toContain('Lakossági vásárló');
     expect(form).not.toContain('Viszonteladói partner');
@@ -16,9 +20,11 @@ describe('Shoperation platform auth portal',()=>{
 
   it('checks the server-side owner claim before signup',()=>{
     const form=read('src/components/auth/platform-auth-form.tsx');
+    const activation=read('src/lib/auth/platform-activation-form.tsx');
     const route=read('src/app/api/platform/activation/route.ts');
     const migration=read('supabase/migrations/20260901125500_platform_owner_activation_gate.sql');
     expect(form).toContain("fetch('/api/platform/activation'");
+    expect(activation).toContain("fetch('/api/platform/activation'");
     expect(route).toContain("rpc('platform_owner_claim_available'");
     expect(migration).toContain('private.platform_owner_claims');
     expect(migration).toContain('grant execute on function public.platform_owner_claim_available(text) to service_role');

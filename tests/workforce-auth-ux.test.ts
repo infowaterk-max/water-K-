@@ -16,9 +16,11 @@ describe('Stage 1 workforce login and MFA UX',()=>{
   it('provides a dedicated auth-owned workforce entry point with a safe admin-only return target',()=>{
     expect(page).toContain('Staff és admin belépés');
     expect(page).toContain('normalizeStorefrontReturnTarget(rawNext)');
-    expect(page).toContain("normalized==='/admin'||normalized.startsWith('/admin/')");
+    expect(page).toContain('normalizeWorkforceReturnTarget(normalized)');
     expect(page).toContain('<WorkforceAuthForm returnTo={returnTo}/>');
     expect(requireAdmin).toContain('/api/auth/workforce-login?next=');
+    expect(form).toContain('/api/auth/workforce-credential?flow=recovery&next=');
+    expect(form).toContain('workforceLoginHref(target)');
   });
 
   it('derives workforce requirements through the canonical identity-to-tenancy boundary',()=>{
