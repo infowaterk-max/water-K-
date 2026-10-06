@@ -1,15 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-SOURCE-LIFECYCLE-ADMISSION-V1",
-  "task": "Close the live rehearsal integration gap where release-execution/source admission CI reaches exact-head Truth VERIFIED but the ordinary Lifecycle Closure Gate requires parent closure before the trusted multi-unit executor can run, and ensure lifecycle-gate failures enter canonical Failure Intake.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
+  "task": "Close the trusted Release Unit Execution Atlas evidence gap so canonical Release Risk can be recomputed against exact source HEAD without trusting source-controlled proof artifacts or weakening Atlas/Release Risk authority.",
+  "status": "ready-for-implementation",
   "guardDigest": "1395803e",
-  "changeBaseSha": "a157c1c291d5ef2f1b65b6452a771b6e130ea7ba",
+  "changeBaseSha": "7e7ec558fa470fae2b11c1ed2bce0a5ec205045c",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    ".github/workflows/ci.yml",
-    "tests/control-plane-release-unit-production-surface.test.ts",
-    "tests/shoperation-operational-intelligence.test.ts"
+    ".github/workflows/release-unit-execution.yml",
+    "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
     "quality-knowledge-system",
@@ -67,72 +66,70 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-SOURCE-LIFECYCLE-ADMISSION-V1",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
     "riskTier": "critical",
-    "problemStatement": "Live source CI run 37528716724 on exact source head 0722b638464da13c540f54d603ee17fea807f51e passed Knowledge, Plan, Edit-Time, Replay, Release Risk, tests, typecheck, build and Completion Truth, then failed DEV_LIFECYCLE_CLOSE_REQUIRED because generic branch lifecycle semantics attempted to close the parent before the trusted release-unit executor could start. The same workflow omitted lifecycle-closure outcome from Failure Intake and produced zero records.",
+    "problemStatement": "Live bounded rehearsal executor run 37534207237 consumed exact source HEAD 1a3cdb897fc1ed2dab7b04e270a7762cbb23b579 with trusted main code and recomputed Plan Before Code PASS, but canonical Release Risk blocked because artifacts/shoperation-quality/change-impact.json was absent. release-risk-budget.mjs requires Atlas change-impact evidence; the executor currently invokes Plan and Release Risk but omits the existing trusted Knowledge/Atlas producer.",
     "observableOutcomes": [
-      "Ordinary feature/PR lifecycle closure semantics remain unchanged and continue to require a committed closed active plan after exact-head Truth.",
-      "Only push CI on release-execution/source/** may treat parent lifecycle closure as deferred to the already-merged trusted Release Unit Execution workflow, allowing source admission CI to finish successfully without closing the parent.",
-      "The source-admission exception does not grant write permission, does not close lifecycle locally and does not alter Completion Truth, Release Risk, decomposition or executor authority.",
-      "A failed Lifecycle Closure Gate is included in canonical Failure Intake with DEV_LIFECYCLE_CLOSE_REQUIRED so future lifecycle failures cannot disappear as zero-record intake.",
-      "Regression tests prove both narrow source-only deferral and ordinary-branch fail-closed lifecycle behavior."
+      "Trusted Release Unit Execution recomputes existing Knowledge/Atlas evidence with default-branch code against the exact admitted source SHA before canonical Release Risk recomputation.",
+      "The produced change-impact evidence is exact-head and matches the source diff; Release Risk remains unchanged and consumes the existing canonical artifact.",
+      "The executor does not trust or download source-controlled Knowledge/Atlas proof artifacts as authoritative evidence.",
+      "Proof subprocesses used only to recompute evidence do not gain an independent write authority and repository write tokens are not required for the Knowledge/Atlas producer.",
+      "Regression proof locks the ordering: fetch source → trusted Knowledge/Atlas evidence → trusted Plan → trusted Release Risk → driver."
     ],
     "unresolvedRisks": [
-      "A broad lifecycle exemption could weaken ordinary Development Transaction closure.",
-      "A source branch could be misclassified by event/ref and bypass lifecycle outside the dedicated namespace.",
-      "Failure Intake could report lifecycle failures under an ambiguous generic code unless the workflow maps the exact step outcome.",
-      "Changing CI admission must not change the default-branch executor or any write-capable permission."
+      "Running Knowledge preflight against trusted main checkout must still evaluate the exact source diff rather than main.",
+      "A write-capable job must not accidentally expose its repository token to proof logic that does not need writes.",
+      "The fix must not create a second Atlas or Release Risk authority or consume untrusted source artifacts.",
+      "The executor must remain blocked if trusted Knowledge/Atlas or Release Risk recomputation fails."
     ],
     "scope": {
       "in": [
-        "Adjust only existing CI lifecycle admission logic so release-execution/source/** push runs defer parent lifecycle closure to the trusted executor after exact-head Truth.",
-        "Add lifecycle-closure outcome to the existing Failure Intake code assembly using DEV_LIFECYCLE_CLOSE_REQUIRED.",
-        "Add regression assertions in existing Control Plane/operational intelligence tests."
+        "Wire the existing shoperation-knowledge-preflight.mjs into the trusted default-branch Release Unit Execution workflow before Release Risk recomputation, bound to exact source HEAD and source plan.",
+        "Ensure the existing change-impact artifact is produced in the trusted workspace for release-risk-budget.mjs.",
+        "Add regression assertions in the existing production release surface test."
       ],
       "out": [
-        "No change to Release Unit Execution workflow write permissions, release-unit runtime, decomposition policy, Release Risk, Completion Truth, Lifecycle authority, CAS state or parent-close adapter.",
-        "No manual parent closure, receipt synthesis, state mutation or rehearsal child creation.",
+        "No change to release-risk-budget.mjs policy or scoring.",
+        "No change to Atlas authority/graph semantics, decomposition, CAS state, child PR execution, Completion Truth or Lifecycle authority.",
+        "No source-CI proof artifact promotion into trusted executor evidence.",
         "No storefront, admin, database, auth, payment, inventory, Builder or template behavior change."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "The fix changes CI admission semantics adjacent to lifecycle and a write-capable downstream executor; the exception must be namespace- and event-bounded while preserving existing authorities.",
+      "rationale": "The change sits inside a write-capable trusted executor immediately before canonical release authorization, so exact source identity, evidence provenance and authority separation must remain fail closed.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "what-if-matrix",
         "adversarial-scenarios",
         "boundary-cases",
-        "pairwise-interactions",
         "threat-failure-model",
-        "fault-injection",
-        "finite-state-exhaustion"
+        "proof-obligation"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "A release-execution/source/** push whose exact-head canonical guards and Completion Truth pass is not required to persist the parent closed plan before Release Unit Execution starts.",
-        "The same lifecycle deferral is unavailable to pull_request, feature/**, fix/**, roadmap/** and other non-main branch CI contexts.",
-        "Normal Lifecycle Closure Gate behavior remains unchanged for ordinary Development Transactions.",
-        "Any lifecycle-closure failure is surfaced to shoperation-failure-intake.mjs as DEV_LIFECYCLE_CLOSE_REQUIRED.",
-        "Exact-head CI for this fix is green, Completion Truth is VERIFIED and this fix transaction itself reaches normal Lifecycle Closure before merge."
+        "On an admitted release-execution/source/** run, trusted-main Knowledge/Atlas recomputation produces artifacts/shoperation-quality/change-impact.json bound to the exact source SHA before release-risk-budget.mjs executes.",
+        "Canonical Release Risk consumes that artifact and remains free to BLOCK; no bypass or policy change is introduced.",
+        "Trusted executor does not treat the source CI Knowledge artifact as trusted evidence.",
+        "A failed trusted Knowledge/Atlas recomputation prevents the driver from starting.",
+        "Exact-head CI for this fix is green, Completion Truth VERIFIED, normal Lifecycle closure committed, then merge and rehearsal replay."
       ],
       "invariants": [
-        "release-execution/source/** CI remains contents:read and cannot perform repository writes.",
-        "The trusted default-branch Release Unit Execution workflow remains the sole repository write surface for rehearsal execution.",
-        "Source admission never records parent lifecycle closure or closureEligible state.",
-        "Completion Truth and Lifecycle authority implementations are not modified.",
-        "Failure Intake addition records failures only; it cannot convert failure into success."
+        "Atlas and Release Risk remain existing canonical authorities.",
+        "SOURCE_SHA remains the admitted source workflow_run head SHA.",
+        "Trusted executor code remains checked out from main.",
+        "Driver cannot start unless trusted evidence recomputation and Release Risk both pass.",
+        "No child PR/state/receipt is created by the fix transaction itself."
       ],
       "forbiddenStates": [
-        "ordinary-feature-lifecycle-deferral",
-        "pull-request-lifecycle-deferral",
-        "source-ci-parent-closed-before-release-units",
-        "lifecycle-failure-with-zero-intake-record",
-        "write-permission-added-to-ci"
+        "release-risk-run-without-trusted-change-impact",
+        "source-artifact-promoted-as-trusted-atlas-proof",
+        "release-risk-bypass",
+        "atlas-authority-duplication",
+        "driver-start-after-trusted-evidence-failure"
       ]
     },
     "model": {
@@ -164,36 +161,36 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Source admission CI incorrectly requires parent closure and blocks executor trigger.",
-        "Lifecycle deferral matches branches beyond release-execution/source/**.",
-        "Lifecycle gate fails but Failure Intake omits the outcome.",
-        "A workflow edit unintentionally widens permissions or alters trusted executor behavior."
+        "Trusted Release Risk executes before change-impact evidence exists.",
+        "Knowledge preflight evaluates main instead of source HEAD.",
+        "Untrusted source artifact is mistaken for trusted evidence.",
+        "Proof failure is ignored and driver still starts."
       ],
       "edgeCases": [
-        "Source CI reaches Truth VERIFIED while parent active plan remains implementation-ready by design.",
-        "A fix/** branch reaches Truth VERIFIED and must still require ordinary lifecycle closure.",
-        "Lifecycle transition itself fails before Lifecycle Closure Gate.",
-        "Release-execution/closure/** must not inherit source-admission deferral."
+        "Source diff contains only quality fixtures and an evidence-neutral test.",
+        "Source SHA differs from trusted main checkout HEAD.",
+        "Knowledge producer needs no repository mutation.",
+        "Release Risk still blocks for an unrelated canonical policy violation."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-NARROW-SOURCE-ADMISSION",
-        "summary": "Keep ordinary lifecycle closure intact but explicitly defer parent closure only for release-execution/source/** push admission CI.",
+        "id": "ALT-TRUSTED-KNOWLEDGE-RECOMPUTE",
+        "summary": "Run the existing Knowledge/Atlas producer with trusted main code against exact source HEAD before trusted Release Risk.",
         "disposition": "selected",
-        "reason": "This matches the existing trusted workflow_run architecture and preserves parent closure for the executor after child units close."
+        "reason": "Preserves canonical producer/consumer chain and trusted provenance."
       },
       {
-        "id": "ALT-CLOSE-PARENT-ON-SOURCE",
-        "summary": "Commit active-plan.closed.json on the source branch before executor start.",
+        "id": "ALT-DOWNLOAD-SOURCE-ARTIFACT",
+        "summary": "Download change-impact.json from the successful source CI.",
         "disposition": "rejected",
-        "reason": "That would close the parent before child release units execute and directly violates the rehearsal lifecycle invariant."
+        "reason": "Would make source-controlled proof output authoritative inside the write-capable executor."
       },
       {
-        "id": "ALT-SKIP-LIFECYCLE-GLOBALLY",
-        "summary": "Disable Lifecycle Closure Gate for all non-main pushes.",
+        "id": "ALT-SKIP-ATLAS-RISK-CHECK",
+        "summary": "Allow Release Risk to proceed when Atlas evidence is absent.",
         "disposition": "rejected",
-        "reason": "That would weaken the canonical Development Transaction lifecycle authority far beyond the bounded source-admission problem."
+        "reason": "Would weaken the canonical Release Risk/Atlas contract."
       }
     ],
     "specialistReviews": [
@@ -201,139 +198,97 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The gap is CI admission composition, not a missing lifecycle authority.",
-        "resolution": "Preserve existing lifecycle producer and downstream parent-close adapter; alter only source admission conditions.",
+        "finding": "The missing edge is producer-consumer composition inside the trusted executor, not a missing authority.",
+        "resolution": "Insert the existing trusted Knowledge/Atlas producer before the existing Release Risk consumer.",
         "evidence": [
-          ".github/workflows/ci.yml",
-          ".github/workflows/release-unit-execution.yml"
+          ".github/workflows/release-unit-execution.yml",
+          "scripts/shoperation-knowledge-preflight.mjs",
+          "scripts/release-risk-budget.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Any broad branch exemption could create a lifecycle bypass.",
-        "resolution": "Require push event plus exact release-execution/source/ namespace and retain contents:read in ordinary CI.",
+        "finding": "A write-capable job must not trust source-generated evidence or unnecessarily expose write tokens to proof subprocesses.",
+        "resolution": "Recompute with trusted main code and keep proof-only invocation non-mutating; do not consume source artifacts.",
         "evidence": [
-          ".github/workflows/ci.yml"
+          ".github/workflows/release-unit-execution.yml"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "workflow_run executor can only start after source CI success, so source CI cannot simultaneously require final parent closure.",
-        "resolution": "Treat source CI as admission proof; parent lifecycle remains executor-owned after all units close.",
+        "finding": "Release Risk already correctly blocks missing Atlas evidence.",
+        "resolution": "Preserve the block; supply its canonical prerequisite rather than changing policy.",
         "evidence": [
-          ".github/workflows/release-unit-execution.yml",
-          "scripts/release-unit-parent-close.mjs"
-        ]
-      },
-      {
-        "role": "Known Failure",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Lifecycle closure failure was absent from generic Failure Intake assembly.",
-        "resolution": "Map lifecycle-closure outcome to DEV_LIFECYCLE_CLOSE_REQUIRED in the existing Failure Intake invocation.",
-        "evidence": [
-          ".github/workflows/ci.yml",
-          "scripts/shoperation-failure-intake.mjs"
+          "scripts/release-risk-budget.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-RSLA-01",
-        "scenario": "A feature branch uses the same ready-for-implementation plan state.",
-        "finding": "It must not receive source-admission lifecycle deferral.",
-        "resolution": "Bound deferral to push plus startsWith(github.ref_name, 'release-execution/source/').",
+        "id": "CH-REA-01",
+        "scenario": "Source CI supplies a forged change-impact artifact.",
+        "finding": "Trusted executor must not use it.",
+        "resolution": "Recompute the artifact with default-branch producer code.",
         "status": "resolved"
       },
       {
-        "id": "CH-RSLA-02",
-        "scenario": "A source CI guard before lifecycle fails.",
-        "finding": "The executor must remain blocked.",
-        "resolution": "No change to workflow_run success condition; only a fully successful source CI can trigger execution.",
+        "id": "CH-REA-02",
+        "scenario": "Knowledge/Atlas recomputation fails.",
+        "finding": "Driver must not start.",
+        "resolution": "Keep sequential shell step failure semantics before Release Risk/driver.",
         "status": "resolved"
       },
       {
-        "id": "CH-RSLA-03",
-        "scenario": "Lifecycle Closure Gate fails in an ordinary transaction.",
-        "finding": "Current Failure Intake can silently produce zero records.",
-        "resolution": "Add lifecycle step outcome to the existing generic failure code assembly.",
+        "id": "CH-REA-03",
+        "scenario": "Exact source HEAD differs from main checkout.",
+        "finding": "Evidence must bind to source.",
+        "resolution": "Pass explicit DEVELOPMENT/QUALITY/RELEASE/REPLAY head variables equal to SOURCE_SHA and source plan path.",
         "status": "resolved"
       },
       {
-        "id": "CH-RSLA-04",
-        "scenario": "Closure persistence branch matches a non-main branch.",
-        "finding": "It must use ordinary lifecycle semantics and must not re-enter source execution.",
-        "resolution": "The exemption matches only release-execution/source/**, never release-execution/closure/**.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RSLA-05",
-        "scenario": "A release-execution/source push has a failing guard before Completion Truth.",
-        "finding": "Lifecycle deferral must not turn a failed source admission into executor eligibility.",
-        "resolution": "The trusted workflow_run still requires the whole CI workflow conclusion to be success; no gate outcome is rewritten.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RSLA-06",
-        "scenario": "A release-execution/source push modifies CI or executor code.",
-        "finding": "Untrusted source content must not control downstream write-capable code.",
-        "resolution": "The existing default-branch workflow_run executor continues to check out main; this fix changes only admission conditions in read-only CI.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RSLA-07",
-        "scenario": "The lifecycle transition producer returns a non-closure failure rather than closure_required=true.",
-        "finding": "A source-specific deferral must not hide producer failure.",
-        "resolution": "Defer only the expected parent-closure-required state after successful Completion Truth; producer execution errors remain failures.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RSLA-08",
-        "scenario": "Failure Intake sees lifecycle closure failure together with another failing gate.",
-        "finding": "The lifecycle signal must coexist with other diagnostic codes without replacing them.",
-        "resolution": "Append DEV_LIFECYCLE_CLOSE_REQUIRED to the existing semicolon-delimited generic failures only when lifecycle-closure outcome is failure.",
+        "id": "CH-REA-04",
+        "scenario": "Release Risk finds a real violation after Atlas evidence exists.",
+        "finding": "It must still BLOCK.",
+        "resolution": "Do not modify release-risk-budget.mjs or policy.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Open this plan-only transaction from exact main and require Plan Before Code PASS before editing CI or tests.",
-      "Add regression assertions that ordinary Lifecycle Closure Gate remains and source admission deferral requires both push and release-execution/source/**.",
-      "Assert CI remains contents:read and Release Unit Execution retains separate write authority.",
-      "Assert Failure Intake includes steps.lifecycle-closure.outcome and maps failure to DEV_LIFECYCLE_CLOSE_REQUIRED.",
-      "Run exact-head Knowledge, Plan, Edit-Time, Replay, Release Risk, full tests, typecheck, build, Completion Truth and normal Lifecycle closure for this fix transaction.",
-      "Merge only after exact-head proof, verify fresh main CI, then replay the rehearsal from fresh main without manual state reconstruction."
+      "Open plan-only fix transaction from exact main and require Plan Before Code PASS before workflow implementation.",
+      "Regression-test trusted evidence producer ordering and source exact-head environment binding.",
+      "Run exact-head Knowledge, Plan, Edit-Time, Replay, Release Risk, full tests, typecheck, build, Completion Truth and normal Lifecycle closure.",
+      "Merge exact head, verify fresh main CI, then replay the original rehearsal without manual state reconstruction."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-06-CONTROL-PLANE-RELEASE-SOURCE-LIFECYCLE-ADMISSION-V1",
+      "request": "PO-2026-10-06-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
       "authority": [
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/ci.yml"
+        ".github/workflows/release-unit-execution.yml"
       ],
       "mayEdit": [
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts"
+        "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "impactedReadOnly": [
-        ".github/workflows/release-unit-execution.yml",
-        "scripts/shoperation-failure-intake.mjs",
-        "scripts/shoperation-close-development-plan.mjs",
-        "scripts/release-unit-parent-close.mjs"
+        "scripts/shoperation-knowledge-preflight.mjs",
+        "scripts/release-risk-budget.mjs",
+        ".github/workflows/ci.yml"
       ],
       "mustCreate": [],
       "forbidden": [
         "deploy/release-risk-policy.json",
+        "scripts/release-risk-budget.mjs",
+        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
         "src/**",
         "supabase/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts"
+        "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -344,7 +299,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-SOURCE-LIFECYCLE-ADMISSION-V1",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -362,17 +317,18 @@
     },
     "requirements": [
       {
-        "id": "REQ-SOURCE-LIFECYCLE-ADMISSION",
-        "requirement": "Dedicated release-execution/source admission CI can finish after exact-head Truth without prematurely closing the parent, while ordinary transaction lifecycle closure remains mandatory.",
+        "id": "REQ-TRUSTED-EXECUTOR-ATLAS-EVIDENCE",
+        "requirement": "Trusted Release Unit Execution must produce canonical exact-source Knowledge/Atlas change-impact evidence before Release Risk and remain fail closed if that producer fails.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-source-lifecycle-admission",
+          "breadth": "trusted-executor-atlas-evidence-chain",
           "strength": 2,
           "dimensions": [
-            "lifecycle",
             "status",
+            "behavioral-proof",
             "transaction-identity",
-            "forbidden-state"
+            "forbidden-state",
+            "coverage"
           ]
         },
         "requiredCapabilities": [
@@ -388,43 +344,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-BROAD-LIFECYCLE-DEFERRAL",
-            "statement": "No non-source CI context may receive lifecycle deferral.",
+            "id": "NEG-UNTRUSTED-ATLAS-PROOF",
+            "statement": "Source-controlled proof artifacts may not replace trusted executor recomputation.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-LIFECYCLE-FAILURE-INTAKE",
-        "requirement": "Lifecycle Closure Gate failures are represented in the existing Failure Intake path instead of disappearing as zero-record failures.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "lifecycle-failure-intake",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "coverage",
-            "forbidden-state",
-            "behavioral-proof"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-EDIT-TIME"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
+          },
           {
-            "id": "NEG-ZERO-RECORD-LIFECYCLE-FAILURE",
-            "statement": "A failed lifecycle closure step must not yield an empty generic Failure Intake solely because its outcome was omitted.",
+            "id": "NEG-RISK-WITHOUT-ATLAS",
+            "statement": "Trusted Release Risk may not execute successfully without canonical change-impact evidence.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -433,18 +361,5 @@
       }
     ]
   },
-  "notes": "Created from live bounded rehearsal Failure Intake #973 after source run 37528716724 proved the source-admission/lifecycle ordering gap. No implementation edit is authorized until Plan Before Code reconciles this scope. Plan-only run 37530106020 projected exactly 3 material files, Release Risk 2/5, DOMAIN-RELEASE/release-infrastructure authority, quality-knowledge-system + release-infrastructure subsystems, guard digest 1395803e, and the expanded failure/negative-knowledge sets now recorded in this reconciliation. Implementation remains prohibited until the reconciled plan passes. Sentinel exact-head regression on 2790ae460fcedb802fc071fb7701962923e7918f correctly blocked an overclaimed completion scope: REQ-LIFECYCLE-FAILURE-INTAKE used unsupported `failure`/`evidence` dimensions. The claim is narrowed to status/coverage/forbidden-state/behavioral-proof, all declared by GUARD-QUALITY-TESTS; Sentinel/proof authority is unchanged.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "7987f179567ab594f99f82ab444bdcf838fd2c28",
-    "closedAt": "2026-10-06T21:09:16.625Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-SOURCE-LIFECYCLE-ADMISSION-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Created from bounded rehearsal Failure Intake #982 after trusted executor run 37534207237 proved the missing Knowledge/Atlas → Release Risk producer-consumer edge. This is plan-only; no workflow implementation is authorized until Plan Before Code reconciles the exact projected scope/digest."
 }
