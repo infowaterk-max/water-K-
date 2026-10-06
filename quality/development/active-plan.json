@@ -157,7 +157,8 @@
         "Projected Release Risk is advisory-before-code but blocking when predictably invalid; actual Release Risk remains the final release authority.",
         "Unknown producer, dependency cycle, unknown relationship and stale transaction identity fail closed.",
         "Machine-derivable data is generated upstream and must not require manual re-entry downstream.",
-        "Ignored Vercel builds are never interpreted as proof success; they may only cause proof reuse when an independently validated semantic-equivalence decision names the prior proof origin and changed-file set."
+        "Ignored Vercel builds are never interpreted as proof success; they may only cause proof reuse when an independently validated semantic-equivalence decision names the prior proof origin and changed-file set.",
+        "Remote live-behavior evidence and proof-engine correctness are separate proof scopes: deployed-runtime input changes invalidate remote proof, while verifier/workflow changes invalidate local proof-engine evidence but do not fabricate an application runtime change."
       ],
       "forbiddenStates": [
         "parallel-gate-registry",
@@ -363,6 +364,13 @@
         "finding": "Without provenance in the current manifest, workflow success alone would hide whether live behavior ran on the current deployment or was reused from an ancestor.",
         "resolution": "Persist a checksummed liveProof record in the current Template Factory evidence and make external handoff validation reject missing, stale or unproven reuse provenance.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-12",
+        "scenario": "The Template Factory proof engine, workflow or regression tests change while deployed application/runtime inputs remain byte-identical to a previously successful same-branch live proof.",
+        "finding": "Treating proof-infrastructure inputs as deployed-runtime inputs forces an exact-head Vercel preview that the canonical Ignored Build Step intentionally suppresses, conflating verifier change with application behavior change.",
+        "resolution": "Declare deployed-runtime liveProofInputs in the canonical GUARD-TEMPLATE-FACTORY contract. Remote E13/PO behavior proof is reusable only when those deployed-runtime inputs are unchanged and ancestor/run provenance is proven; proof-engine changes remain independently invalidating for local exact-head regressions, typecheck, build, browser matrix and handoff validation.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -375,7 +383,8 @@
       "Require actual Release Risk Budget PASS without changing its thresholds or classification rules.",
       "Run full Quality Tests, TypeScript and Production Build on the implementation head.",
       "Require exact-head Completion Truth VERIFIED and preserve external proof as an independent blocking authority where semantically applicable.",
-      "Close lifecycle only after the verified implementation head is recorded; workflow optimization is deferred to the dedicated later release unit."
+      "Close lifecycle only after the verified implementation head is recorded; workflow optimization is deferred to the dedicated later release unit.",
+      "Prove canonical GUARD-TEMPLATE-FACTORY liveProofInputs include deployed application/runtime and build dependency surfaces but exclude Control Plane/proof-engine-only files; verify such proof-engine-only descendants resolve REUSE while src/public/supabase/package runtime changes resolve REQUIRED."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-06-CONTROL-PLANE-ECOSYSTEM-CHAIN",
@@ -586,5 +595,5 @@
       }
     ]
   },
-  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Runtime proof on implementation HEAD 00d36f7 exposed a missing handoff: requirement detection requested and validated GUARD-TEMPLATE-FACTORY, while Resumable Verification still used manual Completion Contract refs and rejected the proof as EXTERNAL_EVIDENCE_UNREQUESTED. Scope is expanded canonically to the checkpoint reconciler before editing it. The current descendant HEAD 45dd558c has only canceled Vercel deployments because Ignored Build Step correctly classified it as non-runtime. Template Factory nevertheless waits for exact-head preview because PR cumulative path selection re-triggers the workflow. Scope is expanded to canonical Template Factory resumable-proof orchestration and workflow only; reuse must be evidence-based, never a skip. Manifest producer is now explicitly in scope so live sub-proof reuse is visible to external Completion Truth rather than being an implicit workflow skip. External handoff regression coverage is explicitly added to proof scope because live-proof provenance validation changes its acceptance contract. The existing Template Factory v2 authority-envelope regression is explicitly added to proof scope because checksum ownership moved from a runner-local helper to the canonical shared Template Factory evidence checksum."
+  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Runtime proof on implementation HEAD 00d36f7 exposed a missing handoff: requirement detection requested and validated GUARD-TEMPLATE-FACTORY, while Resumable Verification still used manual Completion Contract refs and rejected the proof as EXTERNAL_EVIDENCE_UNREQUESTED. Scope is expanded canonically to the checkpoint reconciler before editing it. The current descendant HEAD 45dd558c has only canceled Vercel deployments because Ignored Build Step correctly classified it as non-runtime. Template Factory nevertheless waits for exact-head preview because PR cumulative path selection re-triggers the workflow. Scope is expanded to canonical Template Factory resumable-proof orchestration and workflow only; reuse must be evidence-based, never a skip. Manifest producer is now explicitly in scope so live sub-proof reuse is visible to external Completion Truth rather than being an implicit workflow skip. External handoff regression coverage is explicitly added to proof scope because live-proof provenance validation changes its acceptance contract. The existing Template Factory v2 authority-envelope regression is explicitly added to proof scope because checksum ownership moved from a runner-local helper to the canonical shared Template Factory evidence checksum. CH-ECO-12 separates remote deployed-runtime proof invalidation from proof-engine verification after Vercel proved that Ignored Build Step also applies to forced Git deployments; the global ignore policy remains unchanged."
 }
