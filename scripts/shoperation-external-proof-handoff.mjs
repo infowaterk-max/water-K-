@@ -2,7 +2,7 @@ import {appendFileSync,existsSync,mkdirSync,readFileSync,writeFileSync} from 'no
 import {dirname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {compileGateChain,exactPlannedPaths} from './lib/shoperation-development-runtime.mjs';
-import {deriveTemplateLiveRuntimeOrigin,deriveTemplatePreviewAnchorCandidates,templateFactoryEvidenceChecksum,validateTemplateLiveProofRecord} from './lib/shoperation-template-factory-resumable-verification.mjs';
+import {deriveTemplateLiveRuntimeClosure,deriveTemplateLiveRuntimeOrigin,deriveTemplatePreviewAnchorCandidates,templateFactoryEvidenceChecksum,validateTemplateLiveProofRecord} from './lib/shoperation-template-factory-resumable-verification.mjs';
 
 export const EXTERNAL_PROOF_EVIDENCE_CONTRACT='shoporation.external-proof-evidence.v1';
 export const TEMPLATE_FACTORY_QUALITY_CONTRACT='shoporation.template-factory-quality-evidence.v2';
@@ -49,6 +49,7 @@ export function validateTemplateFactoryExternalProof({
   guardRegistry,
   runtimeOrigin,
   previewAnchorCandidates,
+  runtimeClosure,
 }={}){
   const issues=[];
   if(workflowName!=='Template Factory Quality Gate v2')issues.push({code:'EXTERNAL_PROOF_WORKFLOW_IDENTITY_MISMATCH',expected:'Template Factory Quality Gate v2',actual:workflowName});
@@ -69,9 +70,12 @@ export function validateTemplateFactoryExternalProof({
   let verifiedRuntimeOrigin=null;
   if(manifest&&manifest.contract===TEMPLATE_FACTORY_QUALITY_CONTRACT){
     const registry=guardRegistry??readJson('quality/knowledge/guard-registry.v1.json');
-    const liveValidation=validateTemplateLiveProofRecord(manifest.liveProof,{currentHead:expectedHead,currentBranch:expectedBranch,currentRunId:String(runId??''),registry});
+    const atlasPath='artifacts/shoperation-atlas/codebase-atlas.json';
+    const atlasSnapshot=existsSync(atlasPath)?readJson(atlasPath):undefined;
+    const resolvedRuntimeClosure=runtimeClosure??deriveTemplateLiveRuntimeClosure({registry,atlas:atlasSnapshot});
+    const liveValidation=validateTemplateLiveProofRecord(manifest.liveProof,{currentHead:expectedHead,currentBranch:expectedBranch,currentRunId:String(runId??''),registry,runtimeClosure:resolvedRuntimeClosure});
     for(const liveIssue of liveValidation.issues)issues.push({code:liveIssue.code,scope:'template-live-proof',...liveIssue});
-    verifiedRuntimeOrigin=runtimeOrigin??deriveTemplateLiveRuntimeOrigin({registry,baseSha:String(manifest.baseSha??'').trim(),currentHead:expectedHead});
+    verifiedRuntimeOrigin=runtimeOrigin??deriveTemplateLiveRuntimeOrigin({registry,atlas:atlasSnapshot,baseSha:String(manifest.baseSha??'').trim(),currentHead:expectedHead});
     if(verifiedRuntimeOrigin?.decision!=='PASS')issues.push({code:'EXTERNAL_PROOF_RUNTIME_ORIGIN_UNPROVEN',issues:verifiedRuntimeOrigin?.issues??[]});
     else{
       if(manifest.liveProof?.runtimeSourceCommit!==verifiedRuntimeOrigin.runtimeSourceCommit)issues.push({code:'EXTERNAL_PROOF_RUNTIME_SOURCE_MISMATCH',expected:verifiedRuntimeOrigin.runtimeSourceCommit,actual:manifest.liveProof?.runtimeSourceCommit??null});
