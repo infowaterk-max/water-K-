@@ -13,6 +13,7 @@ const headSha=(process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').tri
 const currentBranch=(process.env.QUALITY_BRANCH??process.env.GITHUB_HEAD_REF??process.env.GITHUB_REF_NAME??'').trim();
 const currentRunId=(process.env.GITHUB_RUN_ID??'local').trim();
 const previousManifestPath=(process.env.TEMPLATE_QUALITY_PREVIOUS_MANIFEST??'').trim();
+const liveProofDecisionPath=(process.env.TEMPLATE_QUALITY_LIVE_PROOF_DECISION??'artifacts/template-factory-quality/live-proof-decision.json').trim();
 const liveProofMode=(process.env.TEMPLATE_QUALITY_LIVE_PROOF_MODE??'NOT_APPLICABLE').trim().toUpperCase();
 const liveProofReason=(process.env.TEMPLATE_QUALITY_LIVE_PROOF_REASON??'').trim();
 const liveProofOriginSourceCommit=(process.env.TEMPLATE_QUALITY_LIVE_PROOF_ORIGIN_SHA??'').trim();
@@ -692,7 +693,17 @@ const acceptanceProofs=scope.selected.map(selected=>{
 });
 
 const templatePageFingerprints=Object.fromEntries(scope.selected.map(selected=>[selected.template.templateKey,{templateVersion:selected.template.templateVersion,pages:selected.template.pageFingerprints??{}}]));
-const liveRuntimeClosure=deriveTemplateLiveRuntimeClosure({registry});
+let liveProofDecision=null;
+if(liveProofMode!=='NOT_APPLICABLE'){
+  if(!liveProofDecisionPath||!existsSync(liveProofDecisionPath))errors.push({code:'TEMPLATE_LIVE_PROOF_DECISION_MISSING',path:liveProofDecisionPath||null});
+  else{
+    try{liveProofDecision=JSON.parse(readFileSync(liveProofDecisionPath,'utf8'));}
+    catch(error){errors.push({code:'TEMPLATE_LIVE_PROOF_DECISION_UNREADABLE',error:String(error)});}
+  }
+  if(liveProofDecision&&liveProofDecision.decision!=='PASS')errors.push({code:'TEMPLATE_LIVE_PROOF_DECISION_BLOCK',issues:liveProofDecision.issues??[]});
+}
+const liveRuntimeClosure=liveProofDecision?.runtimeClosure??deriveTemplateLiveRuntimeClosure({registry});
+const runtimeSourceCommit=liveProofDecision?.runtimeSourceCommit??(headSha==='HEAD'?null:headSha);
 const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   contract:'shoporation.template-factory-live-proof.v1',
   mode:'NOT_APPLICABLE',
@@ -723,8 +734,8 @@ const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   originSourceCommit:liveProofMode==='LIVE'?(headSha==='HEAD'?null:headSha):liveProofOriginSourceCommit||null,
   originRunId:liveProofMode==='LIVE'?currentRunId:liveProofOriginRunId||null,
   originWorkflowConclusion:liveProofMode==='LIVE'?'current-workflow':liveProofOriginWorkflowConclusion||null,
-  ancestorProven:liveProofMode==='LIVE'?true:liveProofAncestorProven,
-  inputEquivalenceProven:liveProofMode==='LIVE'?false:liveProofInputEquivalenceProven,
+  ancestorProven:liveProofMode==='LIVE'?Boolean(liveProofDecision?.ancestorProven):liveProofAncestorProven,
+  inputEquivalenceProven:liveProofMode==='LIVE'?Boolean(liveProofDecision?.runtimeEquivalenceProven):liveProofInputEquivalenceProven,
   inputContractDigest:templateLiveProofInputContractDigest(registry,liveRuntimeClosure),
   runtimeClosureDecision:liveRuntimeClosure.decision,
   runtimeEntrypoints:liveRuntimeClosure.entrypoints,
@@ -732,9 +743,12 @@ const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   runtimeDependencyFiles:liveRuntimeClosure.dependencyFiles,
   runtimeGlobalFiles:liveRuntimeClosure.globalFiles,
   runtimeUnknowns:liveRuntimeClosure.issues,
-  changedFilesSinceOrigin:liveProofChangedFiles,
-  affectedInputs:liveProofAffectedInputs,
-  reason:liveProofReason||null,
+  runtimeSourceCommit,
+  runtimeOriginMode:liveProofDecision?.mode??(runtimeSourceCommit===(headSha==='HEAD'?null:headSha)?'CURRENT_HEAD':'UNKNOWN'),
+  runtimeEquivalenceProven:Boolean(liveProofDecision?.runtimeEquivalenceProven),
+  changedFilesSinceOrigin:liveProofDecision?.changedFilesSinceOrigin??liveProofChangedFiles,
+  affectedInputs:liveProofDecision?.affectedInputs??liveProofAffectedInputs,
+  reason:liveProofDecision?.reason??liveProofReason??null,
 };
 if(liveProofMode!=='NOT_APPLICABLE'){
   const liveValidation=validateTemplateLiveProofRecord(liveProof,{currentHead:headSha==='HEAD'?'':headSha,currentBranch,currentRunId,registry,runtimeClosure:liveRuntimeClosure});
