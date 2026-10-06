@@ -3,7 +3,7 @@
   "taskId": "DEV-SHARP-LIBRSVG-CVE-2026-96889",
   "task": "Remediate the high-severity sharp/librsvg CVE-2026-96889 dependency finding by moving the locked optional Next.js sharp chain from 0.35.4/libvips bundle 1.3.3 to the current patched 0.35.5/libvips bundle 1.3.4 without weakening npm audit or changing product behavior.",
   "status": "ready-for-implementation",
-  "guardDigest": "PENDING-CANONICAL-RECONCILIATION",
+  "guardDigest": "2c38ea91",
   "changeBaseSha": "51dfcada763fc039b34e83c63ebea1e9006160a6",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -12,26 +12,22 @@
     "tests/dependency-security-contract.test.ts"
   ],
   "expectedSubsystems": [
-    "dependency-contract"
+    "dependency-contract",
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -40,28 +36,13 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
-    "TF-KF-003",
     "TF-KF-004",
-    "TF-KF-005",
     "TF-KF-006",
-    "TF-KF-007",
-    "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
     "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
     "TF-KF-016",
     "TF-KF-017",
     "TF-KF-018",
@@ -75,6 +56,13 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-004",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-012"
   ],
   "exceptions": [],
@@ -312,7 +300,6 @@
     "semanticExecutionRoute": {
       "request": "PO-2026-10-06-SHARP-LIBRSVG-SECURITY-REMEDIATION",
       "authority": [
-        "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
@@ -440,5 +427,5 @@
       }
     ]
   },
-  "notes": "Separate fail-closed prerequisite hotfix discovered by Unit 3 exact-head Security Audit. It is intentionally isolated from PR #955. After merge, Unit 3 must reconcile against the new main rather than silently absorbing drift."
+  "notes": "Separate fail-closed prerequisite hotfix discovered by Unit 3 exact-head Security Audit. It is intentionally isolated from PR #955. After merge, Unit 3 must reconcile against the new main rather than silently absorbing drift. PR-context Plan Before Code run 37492799838 resolved the canonical dependency projection to DOMAIN-RELEASE/release-infrastructure with dependency-contract + shared-storefront + storefront-ui impact, the exact 30 Known Failures and SQ-NK-001/002/004/006/007/008/009/012, producing guard digest 2c38ea91."
 }
