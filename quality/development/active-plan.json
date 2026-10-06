@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-DECOMPOSITION-V1",
   "task": "Control Plane Unit 2: release decomposition, canonical release-unit manifests, and batch transplant orchestration.",
   "status": "ready-for-implementation",
-  "guardDigest": "540e4ce8",
+  "guardDigest": "ce5f805d",
   "changeBaseSha": "f8a22cc4a014c2d0fb293b8b327736a1138309b0",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -16,6 +16,8 @@
     "docs/support/CONTROL_PLANE_RELEASE_DECOMPOSITION_2026-10-06.md"
   ],
   "expectedSubsystems": [
+    "dependency-contract",
+    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
