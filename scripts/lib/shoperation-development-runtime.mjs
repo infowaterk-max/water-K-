@@ -84,6 +84,11 @@ export function guardAppliesToFiles(guard,files=[]){
 }
 export function compileGateChain({guardRegistry,plannedFiles=[],phase='PLAN',explicitGuardIds=[]}={}){
   const guards=(guardRegistry?.guards??[]).filter(item=>item?.blocking===true),byId=new Map(guards.map(item=>[item.id,item])),selected=new Set(),issues=[];
+  const products=guardRegistry?.ecosystem?.dataProducts??{};
+  const dependenciesFor=guard=>[...new Set([
+    ...(guard?.verification?.dependsOn??[]),
+    ...(guard?.chain?.consumes??[]).map(input=>products[input]?.producer).filter(producer=>byId.has(producer)&&producer!==guard?.id),
+  ])];
   const explicit=new Set(explicitGuardIds??[]);
   for(const guard of guards)if(explicit.has(guard.id)||guardAppliesToFiles(guard,plannedFiles))selected.add(guard.id);
   const queue=[...selected];
@@ -91,12 +96,12 @@ export function compileGateChain({guardRegistry,plannedFiles=[],phase='PLAN',exp
     const id=queue.shift(),guard=byId.get(id);
     if(!guard){issues.push({code:'GATE_CHAIN_GUARD_UNKNOWN',guardId:id});continue;}
     if(!guard.chain)issues.push({code:'GATE_CHAIN_CONTRACT_MISSING',guardId:id});
-    for(const dep of guard.verification?.dependsOn??[]){
+    for(const dep of dependenciesFor(guard)){
       if(!byId.has(dep)){issues.push({code:'GATE_CHAIN_DEPENDENCY_MISSING',guardId:id,dependency:dep});continue;}
       if(!selected.has(dep)){selected.add(dep);queue.push(dep);}
     }
   }
-  const products=guardRegistry?.ecosystem?.dataProducts??{},producerIssues=[];
+  const producerIssues=[];
   for(const id of selected){
     const guard=byId.get(id);if(!guard?.chain)continue;
     for(const input of guard.chain.consumes??[])if(!products[input]?.producer)producerIssues.push({code:'GATE_CHAIN_INPUT_PRODUCER_MISSING',guardId:id,input});
@@ -109,7 +114,7 @@ export function compileGateChain({guardRegistry,plannedFiles=[],phase='PLAN',exp
     if(visiting.has(id)){issues.push({code:'GATE_CHAIN_DEPENDENCY_CYCLE',guardId:id});return;}
     visiting.add(id);
     const guard=byId.get(id);
-    for(const dep of guard?.verification?.dependsOn??[])if(selected.has(dep))visit(dep);
+    for(const dep of dependenciesFor(guard))if(selected.has(dep))visit(dep);
     visiting.delete(id);visited.add(id);ordered.push(id);
   };
   for(const id of [...selected].sort())visit(id);
