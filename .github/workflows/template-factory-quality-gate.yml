@@ -349,8 +349,79 @@ jobs:
           NODE
           exit 1
 
-      - name: Resolve exact-head Vercel preview for Engine Functional Proof
+      - name: Resolve Template Factory live-proof mode
         if: github.event_name == 'pull_request' && steps.qa-runtime.outcome == 'success'
+        id: live-proof
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const {execFileSync}=require('child_process');
+            const {pathToFileURL}=require('url');
+            const moduleUrl=pathToFileURL(process.cwd()+'/scripts/lib/shoperation-template-factory-resumable-verification.mjs').href;
+            const {deriveTemplateLiveProofDecision,templateFactoryEvidenceChecksum}=await import(moduleUrl);
+            const registry=JSON.parse(fs.readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
+            const manifestPath='artifacts/template-factory-checkpoint/manifest.json';
+            const sha=context.payload.pull_request?.head?.sha??context.sha;
+            const branch=context.payload.pull_request?.head?.ref??context.ref.replace('refs/heads/','');
+            let prior=null,checksumValid=false,ancestorProven=false,originWorkflowConclusion='',changedFiles=[];
+            if(fs.existsSync(manifestPath)){
+              try{
+                prior=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
+                checksumValid=Boolean(prior?.checksum&&prior.checksum===templateFactoryEvidenceChecksum(prior));
+                if(prior?.sourceCommit){
+                  try{
+                    execFileSync('git',['merge-base','--is-ancestor',prior.sourceCommit,sha],{stdio:'ignore'});
+                    ancestorProven=true;
+                  }catch{}
+                  if(ancestorProven){
+                    try{
+                      const raw=execFileSync('git',['diff','--name-only','--diff-filter=ACMRD',prior.sourceCommit,sha,'--'],{encoding:'utf8'}).trim();
+                      changedFiles=raw?raw.split(/\r?\n/).filter(Boolean):[];
+                    }catch{}
+                  }
+                }
+                if(prior?.runId){
+                  try{
+                    const run=await github.rest.actions.getWorkflowRun({...context.repo,run_id:Number(prior.runId)});
+                    const exactIdentity=run.data.name==='Template Factory Quality Gate v2'
+                      &&run.data.head_sha===prior.sourceCommit
+                      &&run.data.head_branch===prior.branch;
+                    originWorkflowConclusion=exactIdentity?String(run.data.conclusion??''):'identity-mismatch';
+                  }catch(error){
+                    core.warning('Prior Template Factory workflow lookup failed: '+String(error));
+                  }
+                }
+              }catch(error){
+                core.warning('Prior Template Factory manifest unreadable: '+String(error));
+              }
+            }
+            const decision=deriveTemplateLiveProofDecision({
+              registry,
+              priorManifest:prior,
+              priorManifestChecksumValid:checksumValid,
+              currentHead:sha,
+              currentBranch:branch,
+              ancestorProven,
+              originWorkflowConclusion,
+              changedFilesSinceOrigin:changedFiles,
+            });
+            fs.mkdirSync('artifacts/template-factory-quality',{recursive:true});
+            fs.writeFileSync('artifacts/template-factory-quality/live-proof-decision.json',JSON.stringify(decision,null,2)+'\n');
+            core.info('Template Factory live proof: '+decision.mode+' — '+decision.reason);
+            core.setOutput('mode',decision.mode);
+            core.setOutput('manifest_mode',decision.mode==='REUSE'?'REUSED':'LIVE');
+            core.setOutput('reason',decision.reason);
+            core.setOutput('origin_sha',decision.originSourceCommit??'');
+            core.setOutput('origin_run_id',decision.originRunId??'');
+            core.setOutput('origin_conclusion',decision.originWorkflowConclusion??'');
+            core.setOutput('ancestor_proven',String(decision.ancestorProven===true));
+            core.setOutput('input_equivalence',String(decision.inputEquivalenceProven===true));
+            core.setOutput('changed_files',JSON.stringify(decision.changedFilesSinceOrigin??[]));
+            core.setOutput('affected_inputs',JSON.stringify(decision.affectedInputs??[]));
+
+      - name: Resolve exact-head Vercel preview for Engine Functional Proof
+        if: github.event_name == 'pull_request' && steps.qa-runtime.outcome == 'success' && steps.live-proof.outputs.mode != 'REUSE'
         id: engine-functional-preview
         uses: actions/github-script@v7
         with:
@@ -400,7 +471,7 @@ jobs:
 
       - name: Prove shared E13 engine functionality before visual matrix
         id: engine-functional-proof
-        if: github.event_name == 'pull_request' && steps.engine-functional-preview.outcome == 'success'
+        if: github.event_name == 'pull_request' && steps.live-proof.outputs.mode != 'REUSE' && steps.engine-functional-preview.outcome == 'success'
         env:
           PRODUCT_OWNER_PREVIEW_URL: "${{ steps.engine-functional-preview.outputs.base-url }}/platform"
           PRODUCT_OWNER_ENGINE_FUNCTIONAL_ONLY: "true"
@@ -422,6 +493,16 @@ jobs:
 
       - name: Run scoped Template Factory browser proof (acceptance requires reconciled 14x3)
         id: browser-matrix
+        env:
+          TEMPLATE_QUALITY_LIVE_PROOF_MODE: ${{ github.event_name == 'pull_request' && steps.live-proof.outputs.manifest_mode || 'NOT_APPLICABLE' }}
+          TEMPLATE_QUALITY_LIVE_PROOF_REASON: ${{ steps.live-proof.outputs.reason || 'non-pull-request-local-proof' }}
+          TEMPLATE_QUALITY_LIVE_PROOF_ORIGIN_SHA: ${{ steps.live-proof.outputs.origin_sha || '' }}
+          TEMPLATE_QUALITY_LIVE_PROOF_ORIGIN_RUN_ID: ${{ steps.live-proof.outputs.origin_run_id || '' }}
+          TEMPLATE_QUALITY_LIVE_PROOF_ORIGIN_CONCLUSION: ${{ steps.live-proof.outputs.origin_conclusion || '' }}
+          TEMPLATE_QUALITY_LIVE_PROOF_ANCESTOR_PROVEN: ${{ steps.live-proof.outputs.ancestor_proven || 'false' }}
+          TEMPLATE_QUALITY_LIVE_PROOF_INPUT_EQUIVALENCE: ${{ steps.live-proof.outputs.input_equivalence || 'false' }}
+          TEMPLATE_QUALITY_LIVE_PROOF_CHANGED_FILES: ${{ steps.live-proof.outputs.changed_files || '[]' }}
+          TEMPLATE_QUALITY_LIVE_PROOF_AFFECTED_INPUTS: ${{ steps.live-proof.outputs.affected_inputs || '[]' }}
         run: node scripts/template-factory-quality-gate.mjs
 
       - name: Stage Template Factory browser evidence checkpoint
@@ -492,7 +573,7 @@ jobs:
 
 
       - name: Resolve exact-head Vercel preview for Product Owner proof
-        if: github.event_name == 'pull_request' && steps.product-owner-target.outputs.ready == 'true'
+        if: github.event_name == 'pull_request' && steps.product-owner-target.outputs.ready == 'true' && steps.live-proof.outputs.mode != 'REUSE'
         id: product-owner-preview
         uses: actions/github-script@v7
         with:
@@ -543,7 +624,7 @@ jobs:
 
       - name: Prove exact-head Product Owner login journey
         id: product-owner-handoff
-        if: github.event_name == 'pull_request' && steps.product-owner-target.outputs.ready == 'true'
+        if: github.event_name == 'pull_request' && steps.product-owner-target.outputs.ready == 'true' && steps.live-proof.outputs.mode != 'REUSE'
         env:
           PRODUCT_OWNER_PREVIEW_URL: "${{ steps.product-owner-preview.outputs.base-url }}/storefront-template-preview?template=${{ steps.product-owner-target.outputs.template_key }}&version=${{ steps.product-owner-target.outputs.template_version }}&page=home&viewport=desktop&factory=1"
           PRODUCT_OWNER_TEMPLATE_KEY: "${{ steps.product-owner-target.outputs.template_key }}"
