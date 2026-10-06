@@ -208,36 +208,87 @@ export function templatePreviewAnchorEquivalence({
   };
 }
 
+function templatePreviewRuntimeBoundary({registry,runtimeSourceCommit}={}){
+  const patterns=[...(templateLiveRuntimeContract(registry)?.safetyFallbackRuntimePatterns??[])];
+  if(!patterns.length)return{decision:'BLOCK',issues:[{code:'TEMPLATE_PREVIEW_EQUIVALENCE_SCOPE_MISSING'}],boundarySourceCommit:null,pathspecs:[]};
+  const pathspecs=uniq(patterns.map(pattern=>{
+    const value=String(pattern??'').trim();
+    if(value.endsWith('/**'))return value.slice(0,-3);
+    if(/[*?[\]{}]/.test(value))return ':(glob)'+value;
+    return value;
+  }).filter(Boolean));
+  try{
+    const boundarySourceCommit=execFileSync('git',['log','-1','--format=%H',runtimeSourceCommit,'--',...pathspecs],{encoding:'utf8'}).trim();
+    if(!boundarySourceCommit)return{decision:'BLOCK',issues:[{code:'TEMPLATE_PREVIEW_RUNTIME_BOUNDARY_MISSING'}],boundarySourceCommit:null,pathspecs};
+    return{decision:'PASS',issues:[],boundarySourceCommit,pathspecs};
+  }catch(error){
+    return{decision:'BLOCK',issues:[{code:'TEMPLATE_PREVIEW_RUNTIME_BOUNDARY_RESOLUTION_FAILED',error:String(error)}],boundarySourceCommit:null,pathspecs};
+  }
+}
+
 export function deriveTemplatePreviewAnchorCandidates({
   registry,
   runtimeSourceCommit='',
   maxCandidates=40,
+  maxScanCommits=1000,
 }={}){
   const issues=[];
   if(!runtimeSourceCommit)return{
-    contract:'shoporation.template-factory-preview-anchor-candidates.v1',
+    contract:'shoporation.template-factory-preview-anchor-candidates.v2',
     decision:'BLOCK',
     issues:[{code:'TEMPLATE_PREVIEW_RUNTIME_SOURCE_MISSING'}],
     runtimeSourceCommit:null,
     candidates:[],
     rejected:[],
+    scan:{limit:Number(maxScanCommits)||null,scannedCommitCount:0,boundaryReached:false,boundarySourceCommit:null},
+  };
+  const scanLimit=Number(maxScanCommits);
+  if(!Number.isInteger(scanLimit)||scanLimit<1||scanLimit>5000)return{
+    contract:'shoporation.template-factory-preview-anchor-candidates.v2',
+    decision:'BLOCK',
+    issues:[{code:'TEMPLATE_PREVIEW_ANCESTRY_SCAN_LIMIT_INVALID',actual:maxScanCommits}],
+    runtimeSourceCommit,
+    candidates:[],
+    rejected:[],
+    scan:{limit:Number.isFinite(scanLimit)?scanLimit:null,scannedCommitCount:0,boundaryReached:false,boundarySourceCommit:null},
+  };
+  const diagnosticLimit=Number.isInteger(Number(maxCandidates))&&Number(maxCandidates)>0?Number(maxCandidates):40;
+  const boundary=templatePreviewRuntimeBoundary({registry,runtimeSourceCommit});
+  if(boundary.decision!=='PASS')return{
+    contract:'shoporation.template-factory-preview-anchor-candidates.v2',
+    decision:'BLOCK',
+    issues:boundary.issues,
+    runtimeSourceCommit,
+    candidates:[],
+    rejected:[],
+    scan:{limit:scanLimit,scannedCommitCount:0,boundaryReached:false,boundarySourceCommit:boundary.boundarySourceCommit??null,pathspecs:boundary.pathspecs??[]},
   };
   let history=[];
   try{
-    history=execFileSync('git',['rev-list','--topo-order','--max-count='+String(maxCandidates),runtimeSourceCommit],{encoding:'utf8'})
+    history=execFileSync('git',['rev-list','--topo-order','--max-count='+String(scanLimit),runtimeSourceCommit],{encoding:'utf8'})
       .split(/\r?\n/).map(value=>value.trim()).filter(Boolean);
   }catch(error){
     return{
-      contract:'shoporation.template-factory-preview-anchor-candidates.v1',
+      contract:'shoporation.template-factory-preview-anchor-candidates.v2',
       decision:'BLOCK',
       issues:[{code:'TEMPLATE_PREVIEW_ANCESTRY_ENUMERATION_FAILED',error:String(error)}],
       runtimeSourceCommit,
       candidates:[],
       rejected:[],
+      scan:{limit:scanLimit,scannedCommitCount:0,boundaryReached:false,boundarySourceCommit:boundary.boundarySourceCommit,pathspecs:boundary.pathspecs},
     };
   }
+  const boundaryIndex=history.indexOf(boundary.boundarySourceCommit);
+  const boundaryReached=boundaryIndex>=0;
+  const segment=boundaryReached?history.slice(0,boundaryIndex+1):history;
+  if(!boundaryReached)issues.push({
+    code:'TEMPLATE_PREVIEW_EQUIVALENT_ANCESTRY_SCAN_OVERFLOW',
+    scanLimit,
+    scannedCommitCount:history.length,
+    boundarySourceCommit:boundary.boundarySourceCommit,
+  });
   const candidates=[],rejected=[];
-  for(const candidateSourceCommit of history){
+  for(const candidateSourceCommit of segment){
     let ancestorProven=candidateSourceCommit===runtimeSourceCommit;
     if(!ancestorProven){
       try{
@@ -263,12 +314,22 @@ export function deriveTemplatePreviewAnchorCandidates({
   }
   if(!candidates.length)issues.push({code:'TEMPLATE_PREVIEW_EQUIVALENT_ANCESTOR_MISSING'});
   return{
-    contract:'shoporation.template-factory-preview-anchor-candidates.v1',
+    contract:'shoporation.template-factory-preview-anchor-candidates.v2',
     decision:issues.length?'BLOCK':'PASS',
     issues,
     runtimeSourceCommit,
     candidates,
-    rejected:rejected.slice(0,40),
+    rejected:rejected.slice(0,diagnosticLimit),
+    scan:{
+      authority:'runtime-safety-fallback-path-history',
+      limit:scanLimit,
+      scannedCommitCount:segment.length,
+      enumeratedCommitCount:history.length,
+      boundaryReached,
+      boundarySourceCommit:boundary.boundarySourceCommit,
+      pathspecs:boundary.pathspecs,
+      legacyDiagnosticLimit:diagnosticLimit,
+    },
   };
 }
 

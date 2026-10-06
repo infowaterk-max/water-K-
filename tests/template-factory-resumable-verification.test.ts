@@ -149,7 +149,7 @@ describe('Template Factory resumable browser verification',()=>{
     const candidates=deriveTemplatePreviewAnchorCandidates({
       registry,
       runtimeSourceCommit:'42e60510de935efd6f95d0dbe92ed57f5a3377ac',
-      maxCandidates:12,
+      maxScanCommits:1000,
     });
     expect(candidates.decision,JSON.stringify(candidates.issues)).toBe('PASS');
     expect(candidates.candidates).toEqual(expect.arrayContaining([
@@ -160,6 +160,41 @@ describe('Template Factory resumable browser verification',()=>{
         affectedRuntimeFiles:[],
       }),
     ]));
+  });
+
+  it('does not lose a valid Preview anchor behind more than forty quality-only commits',()=>{
+    const candidates=deriveTemplatePreviewAnchorCandidates({
+      registry,
+      runtimeSourceCommit:'f8a22cc4a014c2d0fb293b8b327736a1138309b0',
+      maxCandidates:40,
+      maxScanCommits:1000,
+    });
+    expect(candidates.decision,JSON.stringify(candidates.issues)).toBe('PASS');
+    expect(candidates.scan.boundaryReached).toBe(true);
+    expect(candidates.scan.scannedCommitCount).toBeGreaterThan(40);
+    expect(candidates.candidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        deploymentSourceCommit:'33ed65d17cd4f12a4456351276f01001982f6f39',
+        mode:'ANCESTOR_EQUIVALENT',
+        runtimeEquivalenceProven:true,
+        affectedRuntimeFiles:[],
+      }),
+    ]));
+    const workflow=readFileSync('.github/workflows/template-factory-quality-gate.yml','utf8');
+    expect(workflow).toContain('maxScanCommits:1000');
+  });
+
+  it('fails closed when the runtime-equivalence boundary is outside the ancestry safety cap',()=>{
+    const blocked=deriveTemplatePreviewAnchorCandidates({
+      registry,
+      runtimeSourceCommit:'f8a22cc4a014c2d0fb293b8b327736a1138309b0',
+      maxScanCommits:10,
+    });
+    expect(blocked.decision).toBe('BLOCK');
+    expect(blocked.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({code:'TEMPLATE_PREVIEW_EQUIVALENT_ANCESTRY_SCAN_OVERFLOW'}),
+    ]));
+    expect(blocked.scan.boundaryReached).toBe(false);
   });
 
   it('fails closed when runtime origin identity is incomplete',()=>{

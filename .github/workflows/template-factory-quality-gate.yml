@@ -409,7 +409,7 @@ jobs:
             const moduleUrl=pathToFileURL(process.cwd()+'/scripts/lib/shoperation-template-factory-resumable-verification.mjs').href;
             const {deriveTemplatePreviewAnchorCandidates}=await import(moduleUrl);
             const registry=JSON.parse(fs.readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
-            const candidatePlan=deriveTemplatePreviewAnchorCandidates({registry,runtimeSourceCommit:sha,maxCandidates:40});
+            const candidatePlan=deriveTemplatePreviewAnchorCandidates({registry,runtimeSourceCommit:sha,maxScanCommits:1000});
             if(candidatePlan.decision!=='PASS'){
               fail('TEMPLATE_LIVE_RUNTIME_PREVIEW_CANDIDATES_BLOCK','No provably runtime-equivalent Preview anchor candidates could be derived',JSON.stringify(candidatePlan.issues??[]));
               return;
