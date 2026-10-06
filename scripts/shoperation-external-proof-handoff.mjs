@@ -2,6 +2,7 @@ import {createHash} from 'node:crypto';
 import {appendFileSync,existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {dirname} from 'node:path';
 import {pathToFileURL} from 'node:url';
+import {compileGateChain,exactPlannedPaths} from './lib/shoperation-development-runtime.mjs';
 
 export const EXTERNAL_PROOF_EVIDENCE_CONTRACT='shoporation.external-proof-evidence.v1';
 export const TEMPLATE_FACTORY_QUALITY_CONTRACT='shoporation.template-factory-quality-evidence.v2';
@@ -23,10 +24,20 @@ export function completionEvidenceGuardIds(plan){
   return uniq(refs);
 }
 
-export function requiredExternalCompletionGuards({activePlan,verificationPlan}={}){
-  const required=completionEvidenceGuardIds(activePlan);
+export function requiredExternalCompletionGuards({activePlan,verificationPlan,guardRegistry}={}){
+  if(activePlan?.status==='closed')return[];
+  const explicit=completionEvidenceGuardIds(activePlan);
   const local=new Set(Object.keys(verificationPlan?.gates??{}));
-  return required.filter(id=>!local.has(id));
+  const declaredRoute=activePlan?.operationalIntelligence?.semanticExecutionRoute??{};
+  const plannedFiles=[...new Set([
+    ...exactPlannedPaths(activePlan?.plannedFilePatterns??[]),
+    ...(declaredRoute.mustEdit??[]),
+    ...(declaredRoute.mustCreate??[]),
+  ])].filter(file=>file!=='quality/development/active-plan.json').sort();
+  const registry=guardRegistry??readJson('quality/knowledge/guard-registry.v1.json');
+  const chain=compileGateChain({guardRegistry:registry,plannedFiles,phase:'VERIFY',explicitGuardIds:explicit});
+  if(chain.decision!=='PASS')return [...new Set([...explicit.filter(id=>!local.has(id)),...chain.externalGateIds])];
+  return [...new Set([...explicit.filter(id=>!local.has(id)),...chain.externalGateIds.filter(id=>!local.has(id))])].sort();
 }
 
 export function validateTemplateFactoryExternalProof({
@@ -113,7 +124,8 @@ function requirementsCli(){
   const activePlan=readJson(process.env.SHOPERATION_ACTIVE_PLAN||'quality/development/active-plan.json');
   const verificationPath=process.env.SHOPERATION_REPLAY_PLAN||'artifacts/shoperation-development-guard/resumable-verification-plan.json';
   const verificationPlan=existsSync(verificationPath)?readJson(verificationPath):{gates:{}};
-  const required=requiredExternalCompletionGuards({activePlan,verificationPlan});
+  const guardRegistry=readJson('quality/knowledge/guard-registry.v1.json');
+  const required=requiredExternalCompletionGuards({activePlan,verificationPlan,guardRegistry});
   const unsupported=required.filter(id=>id!=='GUARD-TEMPLATE-FACTORY');
   const templateFactory=required.includes('GUARD-TEMPLATE-FACTORY');
   writeOutput('required',required.length?'true':'false');
