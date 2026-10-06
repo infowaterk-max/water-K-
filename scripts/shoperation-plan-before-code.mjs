@@ -1,7 +1,8 @@
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {compileGateChain,deriveImplementationSkeleton,evaluateReleaseRiskFiles,exactPlannedPaths,getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
 import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,classifyAtlasPath,resolveAtlasArchitectureForPath,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
-import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';\nimport {decomposeReleaseScope,derivePlannedOperations} from './lib/shoperation-release-unit-runtime.mjs';
+import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
+import {decomposeReleaseScope,derivePlannedOperations} from './lib/shoperation-release-unit-runtime.mjs';
 
 const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
 const guardRegistry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
@@ -21,7 +22,21 @@ if(!Array.isArray(plan.plannedFilePatterns)||!plan.plannedFilePatterns.length)is
 const planMatchers=(plan.plannedFilePatterns??[]).map(globToRegExp);
 for(const file of changedFiles)if(!planMatchers.some(m=>m.test(file)))issues.push({code:'DEV_PLAN_UNPLANNED_FILE',file});
 
-const atlas=buildCodebaseAtlas();
+let atlas=null,atlasSource={mode:'REBUILT_FALLBACK',sourceCommit:null,changeImpactContract:null};
+const upstreamAtlasPath='artifacts/shoperation-atlas/codebase-atlas.json';
+const upstreamImpactPath='artifacts/shoperation-quality/change-impact.json';
+if(existsSync(upstreamAtlasPath)&&existsSync(upstreamImpactPath)){
+  try{
+    const candidate=JSON.parse(readFileSync(upstreamAtlasPath,'utf8'));
+    const impact=JSON.parse(readFileSync(upstreamImpactPath,'utf8'));
+    const exactHead=diff.head==='HEAD'?null:diff.head;
+    if(exactHead&&candidate.contract==='shoporation.codebase-atlas.v2'&&impact.contract==='shoporation.change-impact.v1'&&impact.decision==='PASS'&&impact.sourceCommit===exactHead){
+      atlas=candidate;
+      atlasSource={mode:'UPSTREAM_EXACT_HEAD',sourceCommit:impact.sourceCommit,changeImpactContract:impact.contract};
+    }
+  }catch{}
+}
+if(!atlas)atlas=buildCodebaseAtlas();
 const atlasValidation=validateCodebaseAtlas(atlas);
 const atlasNodes=new Map(atlas.nodes.map(node=>[node.path,node]));
 if(!atlasValidation.ok)issues.push({code:'DEV_PLAN_ATLAS_INVALID',issues:atlasValidation.issues});
@@ -48,13 +63,42 @@ const implementationSkeleton=deriveImplementationSkeleton({
   forbiddenPatterns:declaredExecutionRoute?.forbidden??[],
 });
 const projectedReleaseRisk=evaluateReleaseRiskFiles(projectedFiles);
-if(projectedReleaseRisk.decision!=='PASS')issues.push({code:'DEV_PLAN_PROJECTED_RELEASE_RISK_BLOCK',violations:projectedReleaseRisk.violations,score:projectedReleaseRisk.score,maxPoints:projectedReleaseRisk.maxPoints,subsystems:projectedReleaseRisk.subsystems});
 const completionGuardIds=[...new Set((plan.completionContract?.requirements??[]).flatMap(requirement=>[
   ...(requirement?.evidence?.implementation??[]),
   ...(requirement?.evidence?.outcome??[]),
   ...(requirement?.forbiddenRegressions??[]).flatMap(negative=>negative?.evidence??[]),
 ]))];
 const gateChain=compileGateChain({guardRegistry,plannedFiles:projectedFiles,phase:'PLAN',explicitGuardIds:completionGuardIds});
+const plannedRenames=[...(declaredExecutionRoute?.plannedRenames??[])];
+const plannedGeneratedArtifacts=[...(declaredExecutionRoute?.generatedArtifacts??[])];
+const releaseOperations=derivePlannedOperations({
+  projectedFiles,
+  atlas,
+  plannedDeletions:declaredPlannedDeletions,
+  plannedRenames,
+  generatedArtifacts:plannedGeneratedArtifacts,
+});
+const releaseDecomposition=decomposeReleaseScope({
+  transaction:{taskId:plan.taskId,parentTransactionId:plan.taskId,sourceRef:plan.operationalIntelligence?.sourceRef,changeBaseSha:plan.changeBaseSha},
+  operations:releaseOperations,
+  atlas,
+  gateChain,
+  projectedRisk:projectedReleaseRisk,
+  forbiddenPatterns:declaredExecutionRoute?.forbidden??[],
+  readOnlyPaths:implementationSkeleton.impactedReadOnly,
+  maxFilesPerUnit:Number(guardRegistry.ecosystem?.releaseDecomposition?.maxFilesPerUnit??12),
+  targetBaseSha:plan.changeBaseSha,
+});
+if(projectedReleaseRisk.decision!=='PASS')issues.push({
+  code:releaseDecomposition.decision==='PASS'?'DEV_PLAN_RELEASE_DECOMPOSITION_REQUIRED':'DEV_PLAN_NO_SAFE_RELEASE_DECOMPOSITION',
+  violations:projectedReleaseRisk.violations,
+  score:projectedReleaseRisk.score,
+  maxPoints:projectedReleaseRisk.maxPoints,
+  subsystems:projectedReleaseRisk.subsystems,
+  decompositionDecision:releaseDecomposition.decision,
+  decompositionReason:releaseDecomposition.reason??null,
+  releaseUnitIds:(releaseDecomposition.releaseUnits??[]).map(unit=>unit.releaseUnitId),
+});
 for(const chainIssue of gateChain.issues)issues.push({code:'DEV_PLAN_GATE_CHAIN_INVALID',chainIssue});
 const unauthorizedPlannedDeletions=declaredPlannedDeletions.filter(file=>!(generatedExecutionRoute.PLANNED_FORBIDDEN_ROUTE_DELETIONS??[]).includes(file)&&!deletedFiles.includes(file));
 if(unauthorizedPlannedDeletions.length)issues.push({code:'DEV_PLAN_PLANNED_DELETION_UNAUTHORIZED',files:unauthorizedPlannedDeletions});
@@ -163,6 +207,8 @@ const report={
   projectedScope,
   implementationSkeleton,
   projectedReleaseRisk,
+  releaseDecomposition,
+  atlasSource,
   gateChain,
   architectureImpact:{
     actual:{directDomains:actualDomains,directAuthorities:actualAuthorities,unresolvedFiles:actualUnresolved},
@@ -184,6 +230,11 @@ const report={
 };
 mkdirSync('artifacts/shoperation-development-guard',{recursive:true});
 writeFileSync('artifacts/shoperation-development-guard/plan-before-code.json',JSON.stringify(report,null,2)+'\n');
+mkdirSync('artifacts/shoperation-development-guard/release-units',{recursive:true});
+writeFileSync('artifacts/shoperation-development-guard/release-decomposition.json',JSON.stringify(releaseDecomposition,null,2)+'\n');
+for(const unit of releaseDecomposition.releaseUnits??[]){
+  writeFileSync(`artifacts/shoperation-development-guard/release-units/${String(unit.order).padStart(2,'0')}-${unit.releaseUnitId}.json`,JSON.stringify(unit,null,2)+'\n');
+}
 console.log(`Plan Before Code: ${report.decision}; mode=${report.evaluationMode}; changedFiles=${changedFiles.length}; projectedFiles=${projectedFiles.length}; failures=${projectedFailures.length}; projectedRisk=${projectedReleaseRisk.score}/${projectedReleaseRisk.maxPoints}; gateChain=${gateChain.decision}.`);
 for(const issue of issues)console.error(JSON.stringify(issue));
 if(report.decision!=='PASS'&&process.argv.includes('--check'))process.exit(1);

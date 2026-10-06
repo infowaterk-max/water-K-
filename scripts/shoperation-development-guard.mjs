@@ -2,7 +2,8 @@ import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {compileGateChain,deriveImplementationSkeleton,evaluateReleaseRiskFiles,getAllFailures,guardPolicy,knowledge,resolveDevelopmentScope,stableDigest} from './lib/shoperation-development-runtime.mjs';
 import {buildCodebaseAtlas,buildExecutionRoute,impactForAtlasPattern,writeCodebaseAtlasArtifacts} from './lib/shoperation-codebase-atlas-runtime.mjs';
-import {buildClosedDevelopmentPlan} from './lib/shoperation-operational-intelligence.mjs';\nimport {decomposeReleaseScope,derivePlannedOperations} from './lib/shoperation-release-unit-runtime.mjs';
+import {buildClosedDevelopmentPlan} from './lib/shoperation-operational-intelligence.mjs';
+import {decomposeReleaseScope,derivePlannedOperations} from './lib/shoperation-release-unit-runtime.mjs';
 
 const args=process.argv.slice(2),value=name=>{const i=args.indexOf(name);return i>=0?args[i+1]??'':null;},has=name=>args.includes(name);
 if(has('--close-plan')){
@@ -36,7 +37,19 @@ const guardRegistry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1
 const implementationSkeleton=deriveImplementationSkeleton({plannedFilePatterns:files,atlasFiles:atlas.nodes.map(node=>node.path),executionRoute:semanticRoute});
 const projectedFiles=[...new Set([...implementationSkeleton.mustEdit,...implementationSkeleton.mustCreate])].sort();
 const projectedReleaseRisk=evaluateReleaseRiskFiles(projectedFiles);
-const gateChain=compileGateChain({guardRegistry,plannedFiles:projectedFiles,phase:'PLAN'});\nconst releaseOperations=derivePlannedOperations({projectedFiles,atlas});\nconst releaseDecomposition=decomposeReleaseScope({transaction:{taskId:'DEVELOPMENT-GUARD',parentTransactionId:'DEVELOPMENT-GUARD',sourceRef,changeBaseSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()},operations:releaseOperations,atlas,gateChain,projectedRisk:projectedReleaseRisk,forbiddenPatterns:implementationSkeleton.forbidden,readOnlyPaths:implementationSkeleton.impactedReadOnly,maxFilesPerUnit:Number(guardRegistry.ecosystem?.releaseDecomposition?.maxFilesPerUnit??12),targetBaseSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()});
+const gateChain=compileGateChain({guardRegistry,plannedFiles:projectedFiles,phase:'PLAN'});
+const releaseOperations=derivePlannedOperations({projectedFiles,atlas});
+const releaseDecomposition=decomposeReleaseScope({
+  transaction:{taskId:'DEVELOPMENT-GUARD',parentTransactionId:'DEVELOPMENT-GUARD',sourceRef,changeBaseSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()},
+  operations:releaseOperations,
+  atlas,
+  gateChain,
+  projectedRisk:projectedReleaseRisk,
+  forbiddenPatterns:implementationSkeleton.forbidden,
+  readOnlyPaths:implementationSkeleton.impactedReadOnly,
+  maxFilesPerUnit:Number(guardRegistry.ecosystem?.releaseDecomposition?.maxFilesPerUnit??12),
+  targetBaseSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
+});
 const expectedDomains=[...new Set(atlasContext.flatMap(item=>item.directDomains??[]))].sort();
 const expectedAuthorities=[...new Set(atlasContext.flatMap(item=>item.authorities??[]))].sort();
 const scope=resolveDevelopmentScope({files,task}),allFailures=getAllFailures(),failureById=new Map(allFailures.map(f=>[f.id,f]));
@@ -95,6 +108,7 @@ if(has('--write-plan')){
         phase:'PLAN',
         implementationSkeleton,
         projectedReleaseRisk,
+        releaseDecomposition,
         gateChain,
       },
       executionAuthorized:false,
