@@ -31,6 +31,8 @@ async function failManifest({code,reason,expected=null,actual=null,evidence=[]})
 const riskPath='artifacts/release-risk-budget.json';
 const releaseRisk=existsSync(riskPath)?JSON.parse(await readFile(riskPath,'utf8')):null;
 let riskEvidenceHash=null;
+const releaseUnitPath=(process.env.RELEASE_UNIT_MANIFEST||'').trim();
+let releaseUnit=null,releaseUnitEvidenceHash=null;
 
 if(releaseRisk){
   const riskHead=String(releaseRisk.head??'').trim();
@@ -66,6 +68,39 @@ if(releaseRisk){
   riskEvidenceHash=createHash('sha256').update(JSON.stringify(releaseRisk)).digest('hex');
 }
 
+if(releaseUnitPath){
+  if(!existsSync(releaseUnitPath))await failManifest({
+    code:'RELEASE_MANIFEST_UNIT_MISSING',
+    reason:'Configured release unit manifest does not exist.',
+    expected:releaseUnitPath,
+    actual:'missing',
+    evidence:[`artifact=${releaseUnitPath}`],
+  });
+  releaseUnit=JSON.parse(await readFile(releaseUnitPath,'utf8'));
+  if(releaseUnit.contract!=='shoporation.release-unit-manifest.v1')await failManifest({
+    code:'RELEASE_MANIFEST_UNIT_CONTRACT_INVALID',
+    reason:'Release unit manifest contract is invalid.',
+    expected:'shoporation.release-unit-manifest.v1',
+    actual:releaseUnit.contract??'missing',
+    evidence:[`artifact=${releaseUnitPath}`],
+  });
+  if(releaseUnit.projectedRisk?.decision!=='PASS')await failManifest({
+    code:'RELEASE_MANIFEST_UNIT_RISK_NOT_PASS',
+    reason:'Release unit projected risk is not PASS.',
+    expected:'PASS',
+    actual:releaseUnit.projectedRisk?.decision??'missing',
+    evidence:[`artifact=${releaseUnitPath}`],
+  });
+  if(releaseUnit.targetBaseLease?.mode!=='EXACT'||!releaseUnit.targetBaseLease?.sha)await failManifest({
+    code:'RELEASE_MANIFEST_UNIT_LEASE_NOT_EXACT',
+    reason:'Release unit must be reconciled to an exact target-base lease before final release binding.',
+    expected:'EXACT',
+    actual:releaseUnit.targetBaseLease?.mode??'missing',
+    evidence:[`artifact=${releaseUnitPath}`],
+  });
+  releaseUnitEvidenceHash=createHash('sha256').update(JSON.stringify(releaseUnit)).digest('hex');
+}
+
 const identity=[
   repository,
   sha,
@@ -76,6 +111,8 @@ const identity=[
   releaseRisk?.score??'na',
   releaseRisk?.policyVersion??'na',
   riskEvidenceHash??'no-risk-evidence',
+  releaseUnit?.releaseUnitId??'no-release-unit',
+  releaseUnitEvidenceHash??'no-release-unit-evidence',
 ].join('|');
 
 const manifest={
@@ -87,6 +124,7 @@ const manifest={
   ciRunId,
   ciWorkflow,
   generatedAt,
+  releaseUnit:releaseUnit?{releaseUnitId:releaseUnit.releaseUnitId,order:releaseUnit.order,targetBaseSha:releaseUnit.targetBaseSha,lease:releaseUnit.targetBaseLease,projectedRiskDecision:releaseUnit.projectedRisk?.decision??null,evidenceHash:releaseUnitEvidenceHash}:null,
   releaseRisk:releaseRisk?{
     decision:releaseRisk.decision,
     head:releaseRisk.head,

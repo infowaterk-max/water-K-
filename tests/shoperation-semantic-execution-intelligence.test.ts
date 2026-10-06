@@ -16,6 +16,33 @@ import {
 } from '../scripts/lib/shoperation-reference-sync-runtime.mjs';
 
 describe('Semantic Execution Intelligence adversarial closure',()=>{
+  it('does not promote identical executable implementation expressions into repository-wide required edits',()=>{
+    const atlasExpression=['const atlas=','buildCodebaseAtlas()'].join('');
+    const candidate={kind:'implementation-expression',value:atlasExpression,severity:'block',originFile:'scripts/shoperation-plan-before-code.mjs'};
+    const executable=evaluateCandidateConsumers(
+      [candidate],
+      [{file:'scripts/shoperation-codebase-atlas.mjs',line:3,text:atlasExpression}],
+      [{file:'scripts/shoperation-codebase-atlas.mjs',line:3,text:atlasExpression}],
+    )[0];
+    expect(executable.staleConsumers).toEqual([]);
+    expect(executable.reviewConsumers).toEqual([]);
+    expect(executable.afterConsumers).toEqual([expect.objectContaining({file:'scripts/shoperation-codebase-atlas.mjs',classification:'ignored'})]);
+
+    const assertion=evaluateCandidateConsumers(
+      [candidate],
+      [],
+      [{file:'tests/atlas-source.test.ts',line:7,text:"expect(source).toContain('"+atlasExpression+"')"}],
+    )[0];
+    expect(assertion.staleConsumers).toEqual([expect.objectContaining({file:'tests/atlas-source.test.ts'})]);
+
+    const semantic=evaluateCandidateConsumers(
+      [candidate],
+      [],
+      [{file:'scripts/linked-consumer.mjs',line:0,text:'[semantic:implementation-expression] '+atlasExpression,source:'semantic'}],
+    )[0];
+    expect(semantic.staleConsumers).toEqual([expect.objectContaining({file:'scripts/linked-consumer.mjs'})]);
+  });
+
   it('discovers a semantic consumer with no direct import edge',()=>{
     const atlas:any={
       nodes:[

@@ -1,29 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-ECOSYSTEM-CHAIN-V1",
-  "task": "Control Plane ecosystem chain foundation: connect gate contracts, projected risk, proof obligations, repository relationship mapping and implementation skeleton before code execution.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-DECOMPOSITION-V1",
+  "task": "Control Plane Unit 2: release decomposition, canonical release-unit manifests, and batch transplant orchestration.",
+  "status": "ready-for-implementation",
   "guardDigest": "efe9d183",
-  "changeBaseSha": "42e60510de935efd6f95d0dbe92ed57f5a3377ac",
+  "changeBaseSha": "f8a22cc4a014c2d0fb293b8b327736a1138309b0",
   "plannedFilePatterns": [
+    ".github/workflows/template-factory-quality-gate.yml",
+    "docs/support/CONTROL_PLANE_RELEASE_DECOMPOSITION_2026-10-06.md",
     "quality/development/active-plan.json",
     "quality/knowledge/guard-registry.v1.json",
+    "quality/knowledge/support-history-policy.v1.json",
     "scripts/lib/shoperation-development-runtime.mjs",
-    "scripts/shoperation-development-guard.mjs",
-    "scripts/shoperation-plan-before-code.mjs",
-    "scripts/shoperation-external-proof-handoff.mjs",
-    "scripts/shoperation-verification-checkpoint.mjs",
-    "tests/control-plane-ecosystem-chain.test.ts",
+    "scripts/lib/shoperation-reference-sync-runtime.mjs",
     "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-    ".github/workflows/template-factory-quality-gate.yml",
-    "tests/template-factory-resumable-verification.test.ts",
-    "scripts/template-factory-quality-gate.mjs",
-    "tests/shoperation-external-proof-handoff.test.ts",
-    "tests/storefront-template-quality-gate-v2.test.ts",
-    "scripts/template-factory-product-owner-handoff.mjs",
-    "tests/template-factory-engine-functional-proof-runner.test.ts",
-    "tests/control-plane-diagnostic-coverage.test.ts",
-    ".github/workflows/ci.yml"
+    "scripts/release-manifest.mjs",
+    "scripts/shoperation-plan-before-code.mjs",
+    "scripts/shoperation-release-unit-materializer.mjs",
+    "tests/control-plane-ecosystem-chain.test.ts",
+    "tests/control-plane-release-decomposition.test.ts",
+    "tests/shoperation-semantic-execution-intelligence.test.ts",
+    "tests/template-factory-resumable-verification.test.ts"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -99,37 +96,39 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-ECOSYSTEM-CHAIN",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-DECOMPOSITION",
     "riskTier": "critical",
-    "problemStatement": "The Control Plane gates are individually strict but their deterministic knowledge, downstream requirements, phase state and release implications are not yet propagated as one canonical development chain, causing foreseeable failures to be discovered late and forcing avoidable manual reconciliation.",
+    "problemStatement": "Projected Release Risk can already identify an invalid pre-code scope, but the Control Plane cannot yet convert that blocked scope into dependency-safe executable release units with canonical manifests and leased batch materialization, so operators must manually split work and can accidentally separate runtime, proof, authority or generated-artifact obligations.",
     "observableOutcomes": [
-      "Before implementation starts, the active plan exposes one machine-derived implementation skeleton covering repository relationships, applicable gates, downstream obligations and projected release risk.",
-      "Every applicable downstream guard requirement that is deterministically knowable from planned scope is visible upstream before code execution rather than first appearing as a later CI failure.",
-      "External proof applicability is derived from canonical guard semantics and affected scope so Completion Truth cannot report a locally complete claim while a required external proof is absent."
+      "A planned scope that violates the unchanged Release Risk Budget is classified before implementation and either decomposed into valid release units or rejected with a fail-closed reason.",
+      "Every generated release unit manifest carries transaction identity, target-base lease, ordered file operations, dependency files, authorities, subsystems, required gates and proof, forbidden paths, prerequisites, expected state and reconciliation policy.",
+      "Files connected by repository dependency, proof, authority or explicit generated-artifact obligations remain in the same atomic release component whenever separation would make the unit non-functional or non-provable.",
+      "Materialization validates the entire manifest before mutation, rejects main drift, rename/delete/read-only violations and stale generated artifacts, and never reports partial application as success.",
+      "A successor unit can be reconciled against the newly merged predecessor main state without reusing the predecessor target-base lease."
     ],
     "unresolvedRisks": [
-      "Some guard semanticInputs are intentionally broad, so initial automatic applicability may expose over-broad contracts that must be corrected at the owning guard rather than suppressed locally.",
-      "Atlas cannot infer genuinely new runtime relationships that do not yet exist, so MUST_CREATE declarations require fail-closed reconciliation after the first implementation diff.",
-      "Phase-aware execution and lifecycle-only CI optimization depend on a later workflow release unit and are intentionally not activated by this foundation commit."
+      "Atlas relationships can contain broad consumer edges that make a component conservatively larger than a human would choose; Unit 2 must prefer a fail-closed oversized component over silently weakening dependency safety.",
+      "Generated artifacts do not all share one regeneration command today, so the manifest contract must support explicit regenerate semantics or a sealed source identity instead of guessing how to recreate them.",
+      "Repository materialization is intentionally local Git transaction preparation in this unit; remote merge authority and final production release authority remain outside the materializer and continue to require existing gates."
     ],
     "scope": {
       "in": [
-        "Canonical gate contract and dependency-chain semantics for development orchestration.",
-        "Machine-derived implementation skeleton from Atlas relationships plus planned file intent.",
-        "Projected Release Risk calculation during planning using the existing production risk policy.",
-        "Backward propagation of proof obligations including external proof applicability.",
-        "Separate Template Factory proof-engine inputs from deployed live-runtime inputs; derive the latter from canonical runtime entrypoints plus Atlas dependency closure."
+        "Extend the existing projected Release Risk producer with dependency-aware release decomposition using the existing Atlas semantic/import graph and canonical risk policy.",
+        "Produce canonical release-unit manifests containing ordered create/modify/rename/delete operations, dependency/proof/authority obligations and predecessor reconciliation metadata.",
+        "Add one repository-level manifest-driven materializer that preflights the whole unit, enforces target-base lease and forbidden/read-only scope, detects already-applied operations and applies the unit as one controlled batch.",
+        "Bind decomposition outputs into the existing gate ecosystem and release manifest without creating a parallel truth, risk or quality authority.",
+        "Add adversarial regression coverage for the Product Owner scenarios including 30-file split, inseparable dependency scope, cycles, drift, rename/delete, generated artifacts, already-applied changes and proof co-location."
       ],
       "out": [
-        "No authentication, authorization, tenant, storefront or business-runtime behavior changes.",
-        "No weakening of Release Risk Budget, Sentinel, Completion Truth or existing blocking guards.",
-        "No CI workflow phase-skipping or lifecycle auto-commit in this first release unit.",
-        "No activation or merge of parked workforce AAL2 enforcement."
+        "Do not change Release Risk Budget thresholds, weights, subsystem limits or high-risk isolation rules.",
+        "Do not weaken Completion Truth, Sentinel, Atlas exact-head requirements or any existing blocking guard.",
+        "Do not activate parked workforce AAL2 enforcement or edit Auth Core business runtime.",
+        "Do not auto-merge release units or grant the materializer production deployment authority."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This change modifies the Control Plane authority that decides what future work may edit, what evidence is required and when a development transaction is considered complete. A false PASS could affect every later subsystem, so the strongest practical assurance profile is required while keeping final production and external proofs independently authoritative.",
+      "rationale": "Release decomposition becomes an execution-routing authority: a false split can create non-functional intermediate main states, detach proof from the capability it proves, or transplant protected authority files. Therefore the strongest practical planning, adversarial and exact-state proof profile is required, while final merge, Release Risk, Completion Truth and production proof remain independently authoritative.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -146,48 +145,38 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The guard registry can declare machine-readable gate dependencies, consumed inputs, produced outputs, applicable phases and proof obligations without creating a second guard authority.",
-        "The Development Guard writes changeBaseSha and a machine-derived implementation skeleton before coding, including MUST_EDIT, MAY_EDIT, IMPACTED_READ_ONLY, MUST_CREATE and FORBIDDEN categories.",
-        "Plan Before Code evaluates projected Release Risk from planned scope using the canonical release-risk policy and blocks a plan that is predictably over budget before implementation starts.",
-        "Plan Before Code produces an ordered applicable gate chain and blocks dependency cycles, missing producers and unresolved downstream obligations.",
-        "External completion proof requirements are derived from affected scope and guard semantics in addition to explicit PO completion references, so relevant external proof cannot be omitted accidentally.",
-        "Existing blocking gates remain authoritative and final exact-diff Release Risk, exact-head evidence and Completion Truth are not weakened or replaced.",
-        "Resumable Verification consumes the same canonical derived external-proof obligations as the external-proof detector, so a validated required proof cannot be rejected downstream as unrequested.",
-        "Template Factory live-preview proof may be reused only when a prior complete proof is same-branch ancestor evidence and no changed file since that proof intersects the canonical GUARD-TEMPLATE-FACTORY semantic, configuration, authority or global verification inputs; otherwise live exact-head proof remains mandatory.",
-        "The current-head Template Factory manifest records live-proof provenance explicitly: LIVE uses the current runtime source, while REUSED names the successful ancestor workflow/source and a machine-proven empty set of affected live-proof inputs.",
-        "Template Factory live proof separates current proof HEAD/run identity from deployed runtime source identity so an Atlas-proven ancestor deployment can be tested by the current harness without falsifying provenance."
+        "Projected Release Risk BLOCK produces a deterministic decomposition attempt before implementation rather than only a late error.",
+        "Decomposition groups dependency/proof/authority-coupled files into atomic components and never splits a proof file away from the capability files it proves when the Atlas relationship is known.",
+        "Every accepted release unit independently satisfies the unchanged canonical Release Risk Budget and names its predecessor and target-base reconciliation rule.",
+        "No-safe-decomposition, atomic-component-over-budget and cyclic release-unit dependency states fail closed with machine-readable diagnostics.",
+        "Release unit manifests explicitly represent create, modify, rename and delete operations plus required dependencies, authorities, subsystems, gates, evidence, forbidden paths, generated-artifact semantics and expected post-unit state.",
+        "Materialization refuses a stale target-base lease, an operation outside manifest scope, forbidden/read-only paths, unresolved rename/delete sources and generated artifacts without regenerate or sealed identity semantics.",
+        "Already-applied operations are recognized idempotently, but mixed partial state cannot be reported as a successful fresh application.",
+        "Successor-unit reconciliation replaces the predecessor lease with the newly observed main SHA and recomputes applicability rather than copying stale predecessor facts.",
+        "Runtime-equivalent Preview anchor discovery scans the complete equivalence segment back to the first runtime-drift boundary instead of truncating at an arbitrary short commit window; a safety-cap overflow fails closed."
       ],
       "invariants": [
-        "One canonical guard registry remains the authority for gate identity and dependency semantics.",
-        "Atlas and existing domain authorities remain the source of repository relationship truth; the ecosystem layer consumes them rather than duplicating them.",
-        "Projected Release Risk is advisory-before-code but blocking when predictably invalid; actual Release Risk remains the final release authority.",
-        "Unknown producer, dependency cycle, unknown relationship and stale transaction identity fail closed.",
-        "Machine-derivable data is generated upstream and must not require manual re-entry downstream.",
-        "Ignored Vercel builds are never interpreted as proof success; they may only cause proof reuse when an independently validated semantic-equivalence decision names the prior proof origin and changed-file set.",
-        "A proof-engine/configuration change must invalidate the proof producer itself, but must not force a new Vercel deployment when the Atlas-derived deployed-runtime closure is unchanged.",
-        "Live-proof reuse is permitted only from a successful same-branch ancestor whose runtime evidence is complete and whose Atlas-derived runtime closure has no changed file; proof-engine reuse and runtime-proof reuse are separate decisions.",
-        "Runtime-equivalent proof orchestration reuses a proven deployment target, not an opaque prior proof result: the current workflow/harness must execute live against that target unless a later separately proven evidence-reuse policy authorizes physical proof skipping.",
-        "A change to the live-runtime classifier or its canonical contract cannot self-approve a narrower runtime scope: classifier-authority drift activates a conservative application-runtime fallback over the whole release history.",
-        "Template Factory live E13/Product Owner proof may target only a non-production Vercel Preview deployment; production deployment fallback is forbidden even when the runtime SHA is equivalent.",
-        "Template Factory E13 and Product Owner live proof must consume one canonical safe Preview deployment resolution per run; duplicate deployment lookup authorities are forbidden.",
-        "A safe Preview deploymentSourceCommit may differ from runtimeSourceCommit only when it is an ancestor of the runtime source and a conservative runtime diff proves zero runtime changes between them."
+        "deploy/release-risk-policy.json remains the sole Release Risk threshold and subsystem classification authority.",
+        "Atlas remains the repository relationship authority; decomposition consumes its graph and must not maintain a second dependency map.",
+        "Guard registry remains the gate identity and producer/consumer authority; release-unit manifests reference its results rather than inventing duplicate gate definitions.",
+        "A release unit must be independently buildable or provable with every machine-known required companion file assigned to that unit or an already-merged predecessor.",
+        "Target-base SHA is a lease, not documentation: any mismatch with current HEAD blocks materialization.",
+        "Rename and delete are first-class operations and preserve source-path identity for reconciliation and proof.",
+        "Generated artifacts require either a declared regeneration instruction or sealed source identity; opaque copy semantics are forbidden.",
+        "A materializer may touch only paths named by its manifest and may never silently broaden scope.",
+        "Final exact-diff Release Risk, exact-head proof, Completion Truth and Lifecycle remain authoritative after decomposition.",
+        "A runtime-equivalent READY Preview that is an ancestor of the selected runtime source cannot disappear solely because more quality-only commits were added after it."
       ],
       "forbiddenStates": [
-        "parallel-gate-registry",
-        "manual-downstream-requirement-copy",
-        "late-deterministic-release-risk-discovery",
-        "completion-truth-with-omitted-applicable-external-proof",
-        "ecosystem-cycle-accepted",
-        "gate-requirement-without-producer",
-        "control-plane-gate-weakened-for-speed",
-        "template-factory-preview-wait-on-semantically-unchanged-head",
-        "template-factory-proof-reuse-without-ancestor-and-input-equivalence",
-        "template-live-preview-required-only-because-proof-engine-changed",
-        "proof-engine-change-hidden-by-old-live-proof-result-reuse",
-        "runtime-classifier-self-narrowing-hides-runtime-change",
-        "template-proof-executes-against-production-deployment",
-        "duplicate-runtime-preview-resolution-authority",
-        "preview-anchor-without-runtime-equivalence-proof"
+        "release-unit-split-by-file-count-only",
+        "atomic-dependency-component-split-across-units",
+        "proof-file-separated-from-proven-capability",
+        "materialize-on-stale-target-base",
+        "partial-application-reported-success",
+        "forbidden-or-read-only-path-transplanted",
+        "generated-artifact-copied-without-provenance",
+        "release-risk-budget-weakened-to-fit-unit",
+        "synthetic-decomposition-when-no-safe-split-exists"
       ]
     },
     "model": {
@@ -219,42 +208,43 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A downstream guard requires data that an upstream guard already knew but did not persist into the transaction.",
-        "The planned file set is already over Release Risk Budget but the block is discovered only after implementation.",
-        "A plan-only transaction is interpreted as failed implementation because phase applicability is not represented explicitly.",
-        "Completion Truth verifies only locally declared evidence while an applicable external proof is missing.",
-        "A new file duplicates an existing canonical capability because repository relationship mapping was not consulted before implementation.",
-        "A gate dependency graph contains a cycle or a required input has no authoritative producer.",
-        "The external-proof detector derives a required guard correctly, but the Resumable Verification handoff recomputes requirements from only manual Completion Contract references and rejects the valid proof as unrequested.",
-        "A control-plane-only descendant commit triggers Template Factory due cumulative PR paths, Vercel correctly ignores the build, and the workflow waits for an exact-head preview that should not exist."
+        "A 30-file development envelope exceeds the risk budget and a naive chunker separates a runtime file from its required dependency or proof.",
+        "A single dependency-connected atomic component contains a high-risk subsystem plus another substantive subsystem and cannot legally fit any release unit.",
+        "Two candidate release units depend on each other after grouping, producing a cyclic predecessor graph with no safe first unit.",
+        "Main advances after unit one merges but unit two still targets the predecessor base and would overwrite or omit intervening changes.",
+        "A rename or delete is flattened into create/modify semantics and leaves the old path or stale consumers behind.",
+        "A generated artifact is copied from an obsolete source identity instead of being regenerated or sealed.",
+        "The predecessor already applied the same content and the successor materializer duplicates the change instead of treating it as idempotently satisfied.",
+        "A protected Auth Core or other read-only authority path enters a generated unit through dependency closure and would be transplanted without explicit authorization.",
+        "A fixed commit-count Preview candidate horizon expires after many quality-only commits even though an older READY Preview is still runtime-equivalent and previously proved."
       ],
       "edgeCases": [
-        "A planned file does not yet exist and must be represented as MUST_CREATE rather than silently omitted from projection.",
-        "A planned rename or deletion must retain old-path dependency information so consumers are reconciled before edit completion.",
-        "A broad semantic input pattern may make an external guard applicable; the system must surface the reason instead of hiding it.",
-        "A high-risk subsystem projected together with any other substantive subsystem must be split before implementation.",
-        "A neutral test or evidence file must not increase release risk while still participating in proof obligations.",
-        "A closed lifecycle plan must remain read-only and preserve verified-head ancestry semantics."
+        "Thirty neutral test/evidence files may travel with substantive components without increasing risk, but must still follow proof co-location requirements.",
+        "Several medium-risk subsystems may each be legal alone while their combined score exceeds the budget and therefore require deterministic binning.",
+        "A rename whose destination is already identical can be already-applied only if the source path is absent as expected.",
+        "A delete already absent at the reconciled target base is idempotently satisfied only when predecessor history or manifest policy permits already-applied recognition.",
+        "A successor manifest generated before its predecessor merge must be reconciled and re-leased rather than materialized unchanged.",
+        "The valid Preview anchor may be more than forty quality-only commits behind the runtime source while the runtime closure is byte-equivalent."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-PATCH-INDIVIDUAL-GATES",
-        "summary": "Patch each observed Stage 1 friction point independently inside its current script.",
+        "id": "ALT-FILE-COUNT-CHUNKING",
+        "summary": "Split blocked development scope into fixed-size groups of files.",
         "disposition": "rejected",
-        "reason": "This would preserve the same fragmented knowledge flow and require future missing handoffs to be rediscovered one by one."
+        "reason": "File counts contain no dependency, authority, proof or risk semantics and can create invalid intermediate states."
       },
       {
-        "id": "ALT-NEW-CONTROL-PLANE",
-        "summary": "Build a separate orchestration system beside the existing Control Plane and migrate gates later.",
+        "id": "ALT-MANUAL-PO-SLICING",
+        "summary": "Keep projected risk as a blocker and require the operator to hand-author every release slice.",
         "disposition": "rejected",
-        "reason": "A second authority would violate canonical ownership and create exactly the ecosystem fragmentation this work is intended to remove."
+        "reason": "This repeats machine-known Atlas and gate reasoning downstream, is slow for large scopes and cannot guarantee reproducible manifests."
       },
       {
-        "id": "ALT-EVOLVE-CANONICAL-CHAIN",
-        "summary": "Extend the existing registry, Atlas consumers and development transaction so current gates form one dependency-aware chain.",
+        "id": "ALT-CANONICAL-ATOMIC-DECOMPOSITION",
+        "summary": "Extend the existing Control Plane chain with Atlas-coupled atomic components, RRB-constrained release units and canonical leased manifests.",
         "disposition": "selected",
-        "reason": "This reuses proven authorities, makes requirements flow through one transaction and improves the current system without weakening or duplicating any gate."
+        "reason": "It preserves existing authorities, moves deterministic split knowledge upstream and enables safe batch execution without a parallel quality system."
       }
     ],
     "specialistReviews": [
@@ -262,246 +252,196 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The missing capability is orchestration across existing authorities, not another standalone engine.",
-        "resolution": "Keep guard identity in guard-registry.v1.json and derive the chain from existing Atlas, plan and release policies.",
+        "finding": "Release decomposition must consume Atlas semantic/import relationships and guard producer-consumer contracts rather than introducing a separate dependency registry.",
+        "resolution": "Build atomic components from existing graph edges and canonical proof/authority obligations, with unresolved relationships failing closed.",
         "evidence": [
-          "quality/knowledge/guard-registry.v1.json",
           "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-          "scripts/lib/shoperation-development-runtime.mjs"
+          "quality/knowledge/guard-registry.v1.json"
         ]
       },
       {
         "role": "Release",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Projected risk must not become a replacement for exact-diff Release Risk because planned scope can differ from the final diff.",
-        "resolution": "Projected risk blocks predictably invalid plans early while scripts/release-risk-budget.mjs remains the final release authority until the later shared-runtime adapter is proven.",
+        "finding": "Automatic splitting could become a hidden bypass of the Release Risk Budget if a decomposer optimizes toward PASS by altering classification or omitting companion files.",
+        "resolution": "Treat deploy/release-risk-policy.json as immutable input; evaluate every atomic component and resulting unit through the existing evaluateReleaseRiskFiles semantics and reject any component that cannot legally fit.",
         "evidence": [
           "deploy/release-risk-policy.json",
           "scripts/release-risk-budget.mjs",
-          "scripts/shoperation-plan-before-code.mjs"
+          "scripts/lib/shoperation-development-runtime.mjs"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The Stage 1 delay demonstrates a missing-edge class: deterministic downstream obligations were discovered after the phase where they could have prevented rework.",
-        "resolution": "Introduce ecosystem integrity findings for missing producer, cycle, late discovery and redundant recomputation, then cover them with one regression suite.",
+        "finding": "Recent Control Plane failures came from downstream recomputation, stale identity and classifier self-narrowing; decomposition can repeat those failure classes if manifests recalculate upstream facts independently.",
+        "resolution": "Persist upstream Atlas/risk/gate provenance into release manifests and require successor reconciliation against fresh main rather than copying stale calculated state.",
         "evidence": [
-          "quality/knowledge/development-guard-policy.v1.json",
-          "tests/shoperation-development-guard.test.ts"
+          "quality/development/active-plan.json",
+          "tests/control-plane-ecosystem-chain.test.ts"
         ]
       },
       {
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The plan generator currently leaves transaction identity and many machine-derivable obligations for manual completion.",
-        "resolution": "Generate changeBaseSha and the implementation skeleton automatically so operators only supply genuinely human decisions.",
+        "finding": "Twenty or thirty per-file API operations are operationally fragile and can leave ambiguous partial state after interruption.",
+        "resolution": "Use one manifest-driven repository batch materializer with whole-unit preflight, leased base identity and explicit idempotency status before any mutation.",
         "evidence": [
-          "scripts/shoperation-development-guard.mjs",
-          "quality/development/active-plan.json"
+          "scripts/release-manifest.mjs",
+          "AGENTS.md"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-ECO-1",
-        "scenario": "A plan contains one high-risk auth file and three medium presentation files before any implementation exists.",
-        "finding": "Without projected risk the plan can be semantically valid yet guaranteed to fail Release Risk after code is written.",
-        "resolution": "Compute projected risk from the planned file envelope and require decomposition before execution when policy would block.",
+        "id": "CH-RD-01",
+        "scenario": "A planned envelope contains 30 files across multiple legal medium/low subsystems.",
+        "finding": "Fixed-size chunks can exceed RRB or sever dependency/proof companions despite equal file counts.",
+        "resolution": "Create atomic dependency groups first, then deterministically pack those groups under unchanged RRB constraints.",
         "status": "resolved"
       },
       {
-        "id": "CH-ECO-2",
-        "scenario": "A plan-only commit has no implementation diff but CI executes Edit-Time and Truth as if execution were complete.",
-        "finding": "The gate result is technically correct but phase-inappropriate and creates a false red development signal.",
-        "resolution": "Foundation emits canonical phase applicability; the subsequent CI unit will consume it and represent later gates as not-applicable-yet rather than failed.",
+        "id": "CH-RD-02",
+        "scenario": "One high-risk subsystem is planned together with another substantive subsystem.",
+        "finding": "The current policy requires high-risk isolation, so preserving the original scope in one release is invalid.",
+        "resolution": "Place the high-risk atomic component in an isolated unit and move unrelated components to successor units; fail if a required companion creates an inseparable cross-subsystem component.",
         "status": "resolved"
       },
       {
-        "id": "CH-ECO-3",
-        "scenario": "A Template Factory relevant file changes but the PO Completion Contract forgets to name GUARD-TEMPLATE-FACTORY.",
-        "finding": "Local Completion Truth can overclaim because external proof applicability currently depends on manual evidence references.",
-        "resolution": "Derive external proof applicability from guard semantic inputs and affected scope, fail closed on missing required evidence, and expose the reason upstream.",
+        "id": "CH-RD-03",
+        "scenario": "Several medium-risk subsystems collectively exceed maxPoints while every subsystem is individually legal.",
+        "finding": "Subsystem-count-only decomposition can still produce a score violation.",
+        "resolution": "Evaluate candidate unit risk after every atomic-component placement and start a new unit when the next component would block.",
         "status": "resolved"
       },
       {
-        "id": "CH-ECO-4",
-        "scenario": "A new implementation file is planned but does not yet exist in the Atlas node set.",
-        "finding": "Current projection can omit the file entirely and therefore cannot tell coding that creation is an explicit obligation.",
-        "resolution": "Represent unmatched exact planned paths as MUST_CREATE and reconcile them against the first actual diff.",
+        "id": "CH-RD-04",
+        "scenario": "Two files are coupled by Atlas imports and the consumer is required for the planned capability.",
+        "finding": "Separating them can leave an intermediate main state that compiles but does not implement or prove the intended behavior.",
+        "resolution": "Union dependency/proof-required files into one atomic component before risk packing.",
         "status": "resolved"
       },
       {
-        "id": "CH-ECO-5",
-        "scenario": "A task edits a file whose consumers require companion changes in an existing canonical module.",
-        "finding": "A file-list-only plan can miss the existing related implementation point and create a local workaround.",
-        "resolution": "Build the implementation skeleton from Atlas consumers, authorities and semantic route categories before coding starts.",
+        "id": "CH-RD-05",
+        "scenario": "Release-unit prerequisites form A -> B -> A after grouping.",
+        "finding": "No unit has a valid predecessor-free execution order and arbitrary ordering would hide a cycle.",
+        "resolution": "Topologically validate the unit graph and return FAIL_CLOSED with a cycle diagnostic.",
         "status": "resolved"
       },
       {
-        "id": "CH-ECO-6",
-        "scenario": "Two gate contracts depend on each other's output.",
-        "finding": "A naive pipeline can deadlock or rely on incidental execution order.",
-        "resolution": "Compile a directed dependency graph and block cycles or unresolved producers before execution authorization.",
+        "id": "CH-RD-06",
+        "scenario": "Unit one merges and main changes before unit two materialization.",
+        "finding": "The old unit-two lease no longer proves the target repository state.",
+        "resolution": "Require successor reconciliation to the observed new main SHA and block unchanged stale manifests.",
         "status": "resolved"
       },
       {
-        "id": "CH-ECO-7",
-        "scenario": "Two gates independently recompute the same deterministic fact and disagree.",
-        "finding": "Independent recomputation creates competing truth and makes later diagnostics ambiguous.",
-        "resolution": "Name one producer for each canonical transaction datum and require downstream consumers to read the produced value.",
+        "id": "CH-RD-07",
+        "scenario": "The manifest contains rename and delete operations plus already-applied content from a predecessor.",
+        "finding": "Flattening operations loses source identity while blindly replaying duplicates can corrupt history or fail unnecessarily.",
+        "resolution": "Model operation types explicitly and classify each as pending or already-applied during whole-manifest preflight.",
         "status": "resolved"
       },
       {
-        "id": "CH-ECO-8",
-        "scenario": "A broad guard semantic input makes a costly external proof applicable to a seemingly small change.",
-        "finding": "Silently suppressing the proof would weaken assurance while blindly accepting the broad pattern can create unnecessary cost.",
-        "resolution": "Surface applicability provenance in the plan; if the pattern is over-broad, repair the owning guard contract in a later reviewed change rather than bypassing the proof.",
+        "id": "CH-RD-08",
+        "scenario": "Dependency closure pulls an Auth Core/read-only authority file into a proposed unit or leaves a proof file in another unit.",
+        "finding": "Automatic closure can accidentally grant write scope to protected authority or make a unit unverifiable.",
+        "resolution": "Protected paths remain forbidden even when referenced; proof/required companion edges co-locate writable files, while protected dependencies must already exist in the target base or decomposition fails.",
         "status": "resolved"
       },
       {
-        "id": "CH-ECO-9",
-        "scenario": "The exact-head Template Factory proof is semantically required, downloaded and validated successfully, then Resumable Verification receives the same evidence.",
-        "finding": "The previous checkpoint reconciler used completionEvidenceGuardIds(activePlan) instead of the canonical derived external requirement set and produced EXTERNAL_EVIDENCE_UNREQUESTED.",
-        "resolution": "Make checkpoint reconciliation consume requiredExternalCompletionGuards with the same active plan, verification plan and guard registry used by requirement detection; add regression coverage for this handoff.",
+        "id": "CH-RD-09",
+        "scenario": "A generated artifact is present but its source identity is stale or no regeneration instruction is known.",
+        "finding": "Copying it would create a structurally valid but semantically stale unit.",
+        "resolution": "Require regenerate semantics or an explicit sealed source hash/source commit and fail closed otherwise.",
         "status": "resolved"
       },
       {
-        "id": "CH-ECO-10",
-        "scenario": "A descendant HEAD changes only verification-checkpoint logic and tests after a successful Template Factory proof on the same PR branch.",
-        "finding": "Vercel Ignored Build Step correctly produces no preview for a control-plane/proof-engine-only descendant, but the first live-proof reuse implementation used the whole GUARD-TEMPLATE-FACTORY semantic/config/toolchain input set as if it were the deployed application runtime dependency set.",
-        "resolution": "Separate proof-producer invalidation from deployed-runtime invalidation. Derive the runtime origin from canonical entrypoints plus Atlas forward dependency closure. If runtime is unchanged after an ancestor commit, reuse that ancestor deployment target but rerun the current E13/Product Owner proof harness; only runtime changes require a new exact-head deployment.",
+        "id": "CH-RD-10",
+        "scenario": "No partition of the atomic components can satisfy the unchanged Release Risk Budget.",
+        "finding": "Forcing any split would create a knowingly invalid release topology.",
+        "resolution": "Return NO_SAFE_DECOMPOSITION and keep execution unauthorized for that scope rather than weakening a gate.",
         "status": "resolved"
       },
       {
-        "id": "CH-ECO-11",
-        "scenario": "A current Template Factory workflow reuses an ancestor live E13/PO proof because application runtime inputs are unchanged.",
-        "finding": "Without provenance in the current manifest, workflow success alone would hide whether live behavior ran on the current deployment or was reused from an ancestor.",
-        "resolution": "Persist a checksummed liveProof record in the current Template Factory evidence and make external handoff validation reject missing, stale or unproven reuse provenance.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ECO-12",
-        "scenario": "The current exact HEAD changes only Control Plane/Template Factory proof orchestration. Vercel records only ignored/canceled deployments, while the Template Factory workflow demands an exact-head live preview because its reuse classifier treats proof infrastructure as application runtime input.",
-        "finding": "This creates a deterministic deadlock: the deployment authority correctly says no runtime build is required, while the proof workflow waits for a deployment that should not exist.",
-        "resolution": "Introduce a canonical live-runtime subproof contract on GUARD-TEMPLATE-FACTORY. Runtime entrypoints are resolved through the existing Atlas dependency graph; only changes intersecting that closure (or explicit framework-global runtime roots) require a new Vercel live proof. Proof scripts/workflows remain proof-engine inputs and still rerun their own local verification.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ECO-13",
-        "scenario": "The proof harness/workflow changes while the deployed application runtime is byte-semantically unchanged and Vercel correctly ignores the new HEAD.",
-        "finding": "Reusing the old proof result would hide regressions in the new proof harness, while demanding a new deployment wastes a build and can deadlock when the deployment is intentionally ignored.",
-        "resolution": "Compute the latest runtime-origin commit from the Atlas-derived runtime file closure. Resolve that commit's existing Vercel deployment once, then execute the current workflow's E13 and Product Owner live proofs against it. Record current proof run identity separately from deployment source identity.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ECO-14",
-        "scenario": "The current proof harness runs against an Atlas-proven ancestor Vercel deployment, but PRODUCT_OWNER_SOURCE_COMMIT is used both as proof identity and expected page/deployment provenance.",
-        "finding": "Using current HEAD makes runtime provenance assertions fail; using ancestor SHA makes the generated proof artifact falsely claim it was produced for the ancestor transaction.",
-        "resolution": "Split proofSourceCommit and runtimeSourceCommit. Generated proof artifacts bind to the current development HEAD/run, while page/template/engine provenance assertions bind to runtimeSourceCommit. Cross-artifact checks require both identities and their declared runtime-equivalence relation.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ECO-15",
-        "scenario": "A PR changes the live-runtime classifier/contract and also changes application runtime code that the new, narrower classifier would omit.",
-        "finding": "Using only the current classifier to compute its own runtime closure would let a classifier change self-approve the omission and reuse an older deployment incorrectly.",
-        "resolution": "Treat classifier/contract inputs as authority-bearing. If any changes in the release history, widen runtime-impact detection to conservative application/runtime patterns (src/**, public/**, Next/Vercel/package inputs) in addition to the Atlas closure. Record fallback activation in provenance and fail closed on unknown identity.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ECO-16",
-        "scenario": "The Atlas-selected runtime source is current main and Vercel has only a READY production deployment for that SHA.",
-        "finding": "Reusing the production deployment would run acceptance/auth/checkout proof against production and violates environment isolation even though the source code is runtime-equivalent.",
-        "resolution": "Deployment resolution must require a non-production Preview environment and reject production_environment=true / production targets. If no safe preview anchor exists, fail closed with a dedicated diagnostic; preview-anchor materialization remains a separate controlled operation rather than a production fallback.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ECO-17",
-        "scenario": "E13 and Product Owner proof independently resolve the same Atlas-selected runtime SHA to Vercel environments.",
-        "finding": "Duplicated polling can disagree transiently, doubles API work, and creates two deployment-resolution authorities inside one proof chain.",
-        "resolution": "Create one canonical runtime-preview resolver after runtime-origin selection. It must accept only successful non-production Preview deployments and emit baseUrl + runtimeSourceCommit once; both E13 and Product Owner proofs consume that exact output.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ECO-18",
-        "scenario": "The Atlas-selected runtimeSourceCommit is a merge/main SHA with only production deployment, while an ancestor commit has an existing READY Preview and no repository/runtime content difference.",
-        "finding": "Requiring a Preview on the exact runtimeSourceCommit wastes a build even though an equivalent Preview anchor already exists; using an arbitrary ancestor would be unsafe.",
-        "resolution": "Resolve a deploymentSourceCommit separately. Search runtimeSourceCommit then bounded ancestors; accept only a successful non-production Preview whose commit is ancestor-related and has zero conservative runtime diff (src/**, public/**, Next/Vercel/package inputs) versus runtimeSourceCommit. Record both SHAs and the equivalence proof.",
+        "id": "CH-RD-11",
+        "scenario": "The current runtime source has no Preview because quality-only commits are intentionally Vercel-cancelled, while a previously successful runtime-equivalent Preview is fifty-seven commits behind it.",
+        "finding": "A fixed forty-commit candidate horizon falsely reports TEMPLATE_LIVE_RUNTIME_PREVIEW_ANCHOR_MISSING even though ancestry and zero runtime drift prove a safe Preview exists.",
+        "resolution": "Walk the runtime-equivalent ancestry until the first runtime-drift boundary, retain all equivalent candidate SHAs within a high safety cap, and fail closed if the semantic boundary cannot be reached before that cap.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Require Plan Before Code PASS on the plan-only head with exact changeBaseSha, full Known Failure replay scope and no implementation files changed.",
-      "Add focused regression coverage for gate-chain ordering, cycle detection, missing producer detection, MUST_CREATE projection and projected risk classification.",
-      "Verify external proof applicability is derived from semanticInputs even when the PO Completion Contract omits the external guard identifier.",
-      "Verify Resumable Verification requests the same semantically derived external guard set as the detector and accepts exact-head Template Factory evidence instead of reporting EXTERNAL_EVIDENCE_UNREQUESTED.",
-      "Run Edit-Time Guard and Incremental Replay after the implementation batch and require no expanded unplanned subsystem or authority.",
-      "Prove a control-plane/proof-engine-only descendant resolves to an Atlas-proven ancestor runtime deployment target and reruns the current E13/Product Owner harness without requesting a new Vercel build; prove a runtime-changing descendant resolves to the latest runtime-changing commit deployment.",
-      "Require actual Release Risk Budget PASS without changing its thresholds or classification rules.",
-      "Run full Quality Tests, TypeScript and Production Build on the implementation head.",
-      "Require exact-head Completion Truth VERIFIED and preserve external proof as an independent blocking authority where semantically applicable.",
-      "Close lifecycle only after the verified implementation head is recorded; workflow optimization is deferred to the dedicated later release unit.",
-      "Prove the live-runtime classifier reports its canonical entrypoints, Atlas dependency closure, explicit global runtime roots, changed files and affected runtime inputs in the provenance record so reuse cannot be an opaque skip.",
-      "Prove deployment source identity and current proof-run identity are both preserved in liveProof provenance, and that a missing/unready runtime-origin deployment fails closed rather than silently falling back.",
-      "Verify Template Factory E13/Product Owner handoff artifacts record current proof sourceCommit and separate runtimeSourceCommit, assert deployment/page provenance against runtimeSourceCommit, and reject mismatched engine-proof runtime identity.",
-      "Adversarially prove that a classifier-authority change plus a runtime file outside a narrowed current Atlas closure still selects that runtime-changing commit via the conservative fallback, while a classifier-only change can reuse the prior runtime deployment.",
-      "Verify both E13 and Product Owner deployment resolvers reject production deployments and only accept successful Vercel Preview environment URLs for the Atlas-selected runtime SHA; missing preview anchor must fail closed.",
-      "Verify exactly one canonical runtime-preview resolution step exists in the Template Factory workflow, rejects production deployments, and both E13 and Product Owner proofs consume its base URL and runtime source SHA.",
-      "Verify a runtimeSourceCommit with production-only deployment can select a READY Preview from a runtime-equivalent ancestor (for current main, 42e60510 -> 33ed65d has zero file diff), while any ancestor with runtime drift is rejected."
+      "Require Plan Before Code PASS on the plan-only head before the first implementation edit and preserve the exact main base lease.",
+      "Add adversarial unit tests covering 30-file decomposition, high-risk isolation, medium-score overflow, inseparable dependencies and no-safe-decomposition failure.",
+      "Prove cyclic release-unit prerequisites fail closed and deterministic legal units receive a stable predecessor order.",
+      "Prove rename, delete, generated artifact and already-applied operations retain explicit first-class manifest semantics.",
+      "Prove target-base drift blocks materialization before any worktree mutation and a successor reconcile operation replaces the stale lease.",
+      "Prove forbidden/read-only Auth Core paths cannot be materialized even when they appear through dependency closure.",
+      "Prove proof files and machine-required companion files remain co-located with the capability unit or are satisfied by an already-merged predecessor.",
+      "Require Edit-Time Guard, Incremental Replay and final Release Risk PASS without any policy threshold or classifier weakening.",
+      "Run full Quality Tests, TypeScript and Production Build on the exact implementation head.",
+      "Require exact-head Completion Truth VERIFIED, Lifecycle Closure PASS and Template Factory external proof when canonical guard applicability requires it.",
+      "Prove Preview-anchor discovery includes a runtime-equivalent candidate beyond forty metadata-only commits, stops at the first runtime-drift boundary, and fails closed on ancestry-scan overflow rather than silently truncating."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-06-CONTROL-PLANE-ECOSYSTEM-CHAIN",
+      "request": "PO-2026-10-06-CONTROL-PLANE-RELEASE-DECOMPOSITION",
       "authority": [
-        "quality-knowledge-system"
+        "quality-knowledge-system",
+        "release-infrastructure"
       ],
       "mustEdit": [
-        "quality/knowledge/guard-registry.v1.json",
-        "scripts/lib/shoperation-development-runtime.mjs",
-        "scripts/shoperation-development-guard.mjs",
-        "scripts/shoperation-plan-before-code.mjs",
-        "scripts/shoperation-external-proof-handoff.mjs",
-        "scripts/shoperation-verification-checkpoint.mjs",
-        "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
         ".github/workflows/template-factory-quality-gate.yml",
-        "scripts/template-factory-quality-gate.mjs",
-        "scripts/template-factory-product-owner-handoff.mjs",
-        ".github/workflows/ci.yml"
+        "quality/knowledge/guard-registry.v1.json",
+        "quality/knowledge/support-history-policy.v1.json",
+        "scripts/lib/shoperation-development-runtime.mjs",
+        "scripts/lib/shoperation-reference-sync-runtime.mjs",
+        "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+        "scripts/release-manifest.mjs",
+        "scripts/shoperation-plan-before-code.mjs",
+        "tests/control-plane-ecosystem-chain.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/template-factory-resumable-verification.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "deploy/release-risk-policy.json",
-        ".github/workflows/ci.yml"
+        "deploy/release-risk-policy.json"
       ],
       "mustCreate": [
-        "tests/control-plane-ecosystem-chain.test.ts"
+        "docs/support/CONTROL_PLANE_RELEASE_DECOMPOSITION_2026-10-06.md",
+        "scripts/shoperation-release-unit-materializer.mjs",
+        "tests/control-plane-release-decomposition.test.ts"
       ],
       "forbidden": [
+        "deploy/release-risk-policy.json",
         "src/lib/auth/**",
         "src/app/api/auth/**",
-        "src/middleware.ts",
-        "deploy/release-risk-policy.json"
+        "src/middleware.ts"
       ],
       "proof": [
         "tests/control-plane-ecosystem-chain.test.ts",
-        "tests/template-factory-resumable-verification.test.ts",
-        "tests/shoperation-external-proof-handoff.test.ts",
-        "tests/storefront-template-quality-gate-v2.test.ts",
-        "tests/template-factory-engine-functional-proof-runner.test.ts",
-        "tests/control-plane-diagnostic-coverage.test.ts"
+        "tests/control-plane-release-decomposition.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/template-factory-resumable-verification.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
+    },
+    "ecosystem": {
+      "contract": "shoporation.development-ecosystem.v1",
+      "phase": "PLAN",
+      "implementationSkeleton": null,
+      "projectedReleaseRisk": null,
+      "gateChain": null
     },
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-ECOSYSTEM-CHAIN",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-DECOMPOSITION",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -522,89 +462,17 @@
     },
     "requirements": [
       {
-        "id": "REQ-ECOSYSTEM-GATE-CHAIN",
-        "requirement": "The existing Control Plane guards form one dependency-aware chain whose upstream outputs and downstream requirements are machine-readable before implementation.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "control-plane-gate-chain",
-          "strength": 2,
-          "dimensions": [
-            "plan",
-            "scope",
-            "proof",
-            "missing-edge",
-            "reconcile"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-PARALLEL-GATE-AUTHORITY",
-            "statement": "The change must not create a second guard registry or independent orchestration truth.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-ATLAS-IMPLEMENTATION-SKELETON",
-        "requirement": "Before coding, repository relationships and planned intent produce one implementation skeleton covering existing required edits, read-only impacts and explicit new-file obligations.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "implementation-skeleton",
-          "strength": 2,
-          "dimensions": [
-            "scope",
-            "authority",
-            "symbols",
-            "consumers",
-            "unknowns"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-UNMAPPED-NEW-FILE",
-            "statement": "A planned exact new file must not disappear from the pre-code implementation route.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-PROJECTED-RELEASE-RISK",
-        "requirement": "A release scope that is predictably outside the canonical Release Risk Budget is blocked during planning before implementation work begins.",
+        "id": "REQ-RELEASE-DECOMPOSITION",
+        "requirement": "An over-budget planned scope is decomposed before implementation into dependency-safe release units or fails closed when no legal decomposition exists.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "planned-release-risk",
+          "breadth": "release-decomposition-control-plane",
           "strength": 2,
           "dimensions": [
             "risk",
-            "release-scope"
+            "release-scope",
+            "tests",
+            "regression"
           ]
         },
         "requiredCapabilities": [
@@ -612,34 +480,36 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-RELEASE-RISK"
           ],
           "outcome": [
-            "GUARD-RELEASE-RISK"
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RISK-POLICY-DIVERGENCE",
-            "statement": "Projected classification must not weaken or fork the canonical production release-risk policy.",
+            "id": "NEG-RELEASE-DECOMPOSITION-BYPASS",
+            "statement": "Decomposition must not weaken or bypass the canonical Release Risk Budget.",
             "evidence": [
-              "GUARD-RELEASE-RISK"
+              "GUARD-RELEASE-RISK",
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       },
       {
-        "id": "REQ-PROOF-APPLICABILITY",
-        "requirement": "Applicable downstream and external proof obligations are derived from affected scope so omission from manually authored completion evidence cannot create a false completion claim.",
+        "id": "REQ-RELEASE-MANIFEST",
+        "requirement": "Every release unit receives a canonical manifest with leased base identity, explicit file operations, dependencies, authority, gate, proof, forbidden-path and reconciliation semantics.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "proof-applicability",
+          "breadth": "canonical-release-unit-manifest",
           "strength": 2,
           "dimensions": [
-            "claim-scope",
-            "evidence-scope",
-            "proven-scope",
-            "missing-edge"
+            "plan",
+            "scope",
+            "authority",
+            "proof",
+            "tests"
           ]
         },
         "requiredCapabilities": [
@@ -647,7 +517,7 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-PLAN-BEFORE-CODE"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS"
@@ -655,9 +525,82 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-OMITTED-EXTERNAL-PROOF",
-            "statement": "A semantically applicable external blocking guard must not become optional merely because it was omitted from the manual Completion Contract.",
+            "id": "NEG-MANIFEST-MANUAL-TRUTH",
+            "statement": "The release unit manifest may not become a second manually maintained dependency or gate authority.",
             "evidence": [
+              "GUARD-PLAN-BEFORE-CODE",
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-MATERIALIZATION-LEASE",
+        "requirement": "Manifest-driven batch materialization validates the whole unit and target-base lease before mutation, supports create/modify/rename/delete and never reports partial application as success.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "repository-materialization-transaction",
+          "strength": 2,
+          "dimensions": [
+            "positive-state",
+            "forbidden-state",
+            "tests",
+            "regression"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-EDIT-TIME"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-MATERIALIZATION-PARTIAL",
+            "statement": "Stale lease, protected scope or partial mutation must never be accepted as a successful unit materialization.",
+            "evidence": [
+              "GUARD-EDIT-TIME",
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-SUCCESSOR-RECONCILIATION",
+        "requirement": "A successor release unit reconciles against the newly merged predecessor main state and cannot reuse a stale target-base lease or stale machine-derived obligations.",
+        "claimScope": {
+          "capability": "CAP-ATLAS",
+          "breadth": "successor-unit-reconciliation",
+          "strength": 2,
+          "dimensions": [
+            "scope",
+            "atlas-impact",
+            "reconcile",
+            "tests"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-ATLAS"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-KNOWLEDGE-PREFLIGHT"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-SUCCESSOR-STALE-LEASE",
+            "statement": "A successor unit may not materialize from the predecessor's obsolete base identity.",
+            "evidence": [
+              "GUARD-KNOWLEDGE-PREFLIGHT",
               "GUARD-QUALITY-TESTS"
             ]
           }
@@ -665,18 +608,5 @@
       }
     ]
   },
-  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Runtime proof on implementation HEAD 00d36f7 exposed a missing handoff: requirement detection requested and validated GUARD-TEMPLATE-FACTORY, while Resumable Verification still used manual Completion Contract refs and rejected the proof as EXTERNAL_EVIDENCE_UNREQUESTED. Scope is expanded canonically to the checkpoint reconciler before editing it. The current descendant HEAD 45dd558c has only canceled Vercel deployments because Ignored Build Step correctly classified it as non-runtime. Template Factory nevertheless waits for exact-head preview because PR cumulative path selection re-triggers the workflow. Scope is expanded to canonical Template Factory resumable-proof orchestration and workflow only; reuse must be evidence-based, never a skip. Manifest producer is now explicitly in scope so live sub-proof reuse is visible to external Completion Truth rather than being an implicit workflow skip. External handoff regression coverage is explicitly added to proof scope because live-proof provenance validation changes its acceptance contract. The existing Template Factory v2 authority-envelope regression is explicitly added to proof scope because checksum ownership moved from a runner-local helper to the canonical shared Template Factory evidence checksum. Runtime-proof reconciliation refined after Vercel evidence on d9400f4d showed three ignored/canceled deployments while the Template Factory workflow waited for exact-head preview. Proof-engine invalidation and deployed-runtime invalidation are now explicitly separate concerns. Live proof reuse semantics tightened: reuse means runtime deployment target reuse with current-harness execution, not opaque reuse of a prior proof result. Handoff producer added to MUST_EDIT after runtime-target reuse exposed a dual-use sourceCommit field; current proof transaction identity and deployed runtime identity must be separated. Added classifier self-approval protection: any live-runtime classifier/contract drift activates conservative runtime fallback patterns for origin selection. Production reuse explicitly forbidden after Vercel inspection showed base main 42e60510 has only a READY production deployment; live proof requires a safe Preview anchor. Safe Preview proof boundary tightened to one canonical runtime-preview resolver consumed by both E13 and Product Owner proof, eliminating duplicate deployment lookup authority. Safe Preview anchor semantics expanded: deploymentSourceCommit may use a runtime-equivalent ancestor Preview, with explicit ancestry + conservative runtime-diff proof; production fallback remains forbidden. Diagnostic coverage regression added to canonical proof scope after Plan Before Code correctly blocked the marker-sync change as DEV_PLAN_UNPLANNED_FILE. Cross-workflow proof identity incident on exact head 006c9385 showed CI could consume a successful Template Factory push run from a temporary work branch while the PR-context run for the same SHA was still active. Scope is expanded canonically to CI orchestration so external proof selection binds SHA, workflow, event, head branch and PR identity rather than SHA alone.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "1b6864cea62f27bacd482bd882df93a3fb883e75",
-    "closedAt": "2026-10-06T10:10:54.859Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-ECOSYSTEM-CHAIN",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Unit 2 scope was reconciled after exact-head Template Factory proof exposed a fixed-horizon Preview-anchor false negative. Proof-engine changes remain forbidden until this expanded plan passes Plan Before Code."
 }

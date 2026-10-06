@@ -140,7 +140,9 @@
           "development.scope",
           "development.implementation-skeleton",
           "development.gate-chain",
-          "release.projected-risk"
+          "release.projected-risk",
+          "release.decomposition",
+          "release.unit-manifests"
         ]
       }
     },
@@ -1226,6 +1228,14 @@
       "completion.truth": {
         "producer": "GUARD-COMPLETION-TRUTH",
         "authority": "quality-knowledge-system"
+      },
+      "release.decomposition": {
+        "producer": "GUARD-PLAN-BEFORE-CODE",
+        "authority": "release-infrastructure"
+      },
+      "release.unit-manifests": {
+        "producer": "GUARD-PLAN-BEFORE-CODE",
+        "authority": "release-infrastructure"
       }
     }
   }
