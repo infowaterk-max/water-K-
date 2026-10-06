@@ -13,6 +13,7 @@ const headSha=(process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').tri
 const currentBranch=(process.env.QUALITY_BRANCH??process.env.GITHUB_HEAD_REF??process.env.GITHUB_REF_NAME??'').trim();
 const currentRunId=(process.env.GITHUB_RUN_ID??'local').trim();
 const previousManifestPath=(process.env.TEMPLATE_QUALITY_PREVIOUS_MANIFEST??'').trim();
+const liveProofDecisionPath=(process.env.TEMPLATE_FACTORY_LIVE_PROOF_DECISION??'artifacts/template-factory-live-proof-decision.json').trim();
 const viewportProfiles=Object.freeze({
   desktop:{width:1200,height:1000},
   tablet:{width:768,height:1024},
@@ -488,6 +489,25 @@ const browser=await chromium.launch({headless:true});
 const cases=[];
 const errors=[];
 const warnings=[];
+let liveProof=null;
+if(liveProofDecisionPath&&await exists(liveProofDecisionPath)){
+  try{
+    liveProof=JSON.parse(await readFile(liveProofDecisionPath,'utf8'));
+    if(liveProof?.contract!=='shoporation.template-factory-live-proof-decision.v1')errors.push({code:'TEMPLATE_FACTORY_LIVE_PROOF_CONTRACT_INVALID',actual:liveProof?.contract??null});
+    if(liveProof?.currentSourceCommit!==(headSha==='HEAD'?null:headSha))errors.push({code:'TEMPLATE_FACTORY_LIVE_PROOF_HEAD_MISMATCH',expected:headSha==='HEAD'?null:headSha,actual:liveProof?.currentSourceCommit??null});
+    if(liveProof?.passed!==true)errors.push({code:'TEMPLATE_FACTORY_LIVE_PROOF_NOT_PASSED',mode:liveProof?.mode??null,reason:liveProof?.reason??null});
+    if(liveProof?.mode==='REUSED'){
+      if(liveProof?.equivalenceProven!==true||liveProof?.originHeadIsAncestor!==true||liveProof?.priorManifestChecksumValid!==true||(liveProof?.affectedLiveProofInputs??[]).length){
+        errors.push({code:'TEMPLATE_FACTORY_LIVE_PROOF_REUSE_UNPROVEN'});
+      }
+      if(!liveProof?.originSourceCommit||!liveProof?.originRunId||liveProof?.originWorkflowConclusion!=='success')errors.push({code:'TEMPLATE_FACTORY_LIVE_PROOF_REUSE_PROVENANCE_INCOMPLETE'});
+    }else if(liveProof?.mode==='LIVE'){
+      if(liveProof?.originSourceCommit!==(headSha==='HEAD'?null:headSha))errors.push({code:'TEMPLATE_FACTORY_LIVE_PROOF_LIVE_ORIGIN_MISMATCH',expected:headSha==='HEAD'?null:headSha,actual:liveProof?.originSourceCommit??null});
+    }else errors.push({code:'TEMPLATE_FACTORY_LIVE_PROOF_MODE_INVALID',actual:liveProof?.mode??null});
+  }catch(error){
+    errors.push({code:'TEMPLATE_FACTORY_LIVE_PROOF_UNREADABLE',error:String(error)});
+  }
+}
 for(const selected of scope.selected){
   if(!selected.prior||!['partial','reuse'].includes(selected.mode))continue;
   const rerunPages=new Set(selected.pages);
@@ -697,6 +717,7 @@ const evidence={
   toolchainHash,
   complete:errors.length===0,
   previousEvidence:{status:previousResult.reason,sourceCommit:previousManifest?.sourceCommit??null,runId:previousManifest?.runId??null},
+  liveProof,
   changes,
   selection:scope.reasons,
   legacyTemplateChanges:scope.legacyTemplateChanges,
