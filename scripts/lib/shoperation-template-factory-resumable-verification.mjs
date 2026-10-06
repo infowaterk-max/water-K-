@@ -23,6 +23,8 @@ export function templateLiveProofInputPatterns(registry){
   ].filter(Boolean)).sort();
 }
 
+export function templateLiveProofInputContractDigest(registry){return digestObject({contract:'shoporation.template-factory-live-proof-inputs.v1',patterns:templateLiveProofInputPatterns(registry)});}
+
 export function deriveTemplateLiveProofDecision({
   registry,
   priorManifest=null,
@@ -34,7 +36,7 @@ export function deriveTemplateLiveProofDecision({
   changedFilesSinceOrigin=[],
 }={}){
   const inputPatterns=templateLiveProofInputPatterns(registry);
-  const inputContractDigest=digestObject({contract:'shoporation.template-factory-live-proof-inputs.v1',patterns:inputPatterns});
+  const inputContractDigest=templateLiveProofInputContractDigest(registry);
   const changedFiles=uniq(changedFilesSinceOrigin.filter(Boolean)).sort();
   const affectedInputs=changedFiles.filter(file=>inputPatterns.some(pattern=>globToRegExp(pattern).test(file))).sort();
   const required=(reason,extra={})=>({
@@ -85,7 +87,7 @@ export function deriveTemplateLiveProofDecision({
 export function validateTemplateLiveProofRecord(record,{currentHead='',currentBranch='',registry}={}){
   const issues=[];
   const mode=String(record?.mode??'').toUpperCase();
-  const expectedDigest=digestObject({contract:'shoporation.template-factory-live-proof-inputs.v1',patterns:templateLiveProofInputPatterns(registry)});
+  const expectedDigest=templateLiveProofInputContractDigest(registry);
   if(record?.contract!=='shoporation.template-factory-live-proof.v1')issues.push({code:'TEMPLATE_LIVE_PROOF_CONTRACT_INVALID'});
   if(record?.decision!=='PASS')issues.push({code:'TEMPLATE_LIVE_PROOF_DECISION_NOT_PASS'});
   if(record?.sourceCommit!==currentHead)issues.push({code:'TEMPLATE_LIVE_PROOF_HEAD_MISMATCH',expected:currentHead,actual:record?.sourceCommit??null});
