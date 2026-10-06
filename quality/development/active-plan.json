@@ -160,7 +160,8 @@
         "Machine-derivable data is generated upstream and must not require manual re-entry downstream.",
         "Ignored Vercel builds are never interpreted as proof success; they may only cause proof reuse when an independently validated semantic-equivalence decision names the prior proof origin and changed-file set.",
         "A proof-engine/configuration change must invalidate the proof producer itself, but must not force a new Vercel deployment when the Atlas-derived deployed-runtime closure is unchanged.",
-        "Live-proof reuse is permitted only from a successful same-branch ancestor whose runtime evidence is complete and whose Atlas-derived runtime closure has no changed file; proof-engine reuse and runtime-proof reuse are separate decisions."
+        "Live-proof reuse is permitted only from a successful same-branch ancestor whose runtime evidence is complete and whose Atlas-derived runtime closure has no changed file; proof-engine reuse and runtime-proof reuse are separate decisions.",
+        "Runtime-equivalent proof orchestration reuses a proven deployment target, not an opaque prior proof result: the current workflow/harness must execute live against that target unless a later separately proven evidence-reuse policy authorizes physical proof skipping."
       ],
       "forbiddenStates": [
         "parallel-gate-registry",
@@ -172,7 +173,8 @@
         "control-plane-gate-weakened-for-speed",
         "template-factory-preview-wait-on-semantically-unchanged-head",
         "template-factory-proof-reuse-without-ancestor-and-input-equivalence",
-        "template-live-preview-required-only-because-proof-engine-changed"
+        "template-live-preview-required-only-because-proof-engine-changed",
+        "proof-engine-change-hidden-by-old-live-proof-result-reuse"
       ]
     },
     "model": {
@@ -358,7 +360,7 @@
         "id": "CH-ECO-10",
         "scenario": "A descendant HEAD changes only verification-checkpoint logic and tests after a successful Template Factory proof on the same PR branch.",
         "finding": "Vercel Ignored Build Step correctly produces no preview for a control-plane/proof-engine-only descendant, but the first live-proof reuse implementation used the whole GUARD-TEMPLATE-FACTORY semantic/config/toolchain input set as if it were the deployed application runtime dependency set.",
-        "resolution": "Separate Template Factory proof-producer invalidation from live deployed-runtime invalidation. Derive live runtime impact from canonical application entrypoints plus Atlas forward dependency closure and explicit framework-global runtime roots; proof-engine changes rerun local proof while runtime-equivalent descendants reuse prior successful live evidence with provenance.",
+        "resolution": "Separate proof-producer invalidation from deployed-runtime invalidation. Derive the runtime origin from canonical entrypoints plus Atlas forward dependency closure. If runtime is unchanged after an ancestor commit, reuse that ancestor deployment target but rerun the current E13/Product Owner proof harness; only runtime changes require a new exact-head deployment.",
         "status": "resolved"
       },
       {
@@ -374,6 +376,13 @@
         "finding": "This creates a deterministic deadlock: the deployment authority correctly says no runtime build is required, while the proof workflow waits for a deployment that should not exist.",
         "resolution": "Introduce a canonical live-runtime subproof contract on GUARD-TEMPLATE-FACTORY. Runtime entrypoints are resolved through the existing Atlas dependency graph; only changes intersecting that closure (or explicit framework-global runtime roots) require a new Vercel live proof. Proof scripts/workflows remain proof-engine inputs and still rerun their own local verification.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-13",
+        "scenario": "The proof harness/workflow changes while the deployed application runtime is byte-semantically unchanged and Vercel correctly ignores the new HEAD.",
+        "finding": "Reusing the old proof result would hide regressions in the new proof harness, while demanding a new deployment wastes a build and can deadlock when the deployment is intentionally ignored.",
+        "resolution": "Compute the latest runtime-origin commit from the Atlas-derived runtime file closure. Resolve that commit's existing Vercel deployment once, then execute the current workflow's E13 and Product Owner live proofs against it. Record current proof run identity separately from deployment source identity.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -382,12 +391,13 @@
       "Verify external proof applicability is derived from semanticInputs even when the PO Completion Contract omits the external guard identifier.",
       "Verify Resumable Verification requests the same semantically derived external guard set as the detector and accepts exact-head Template Factory evidence instead of reporting EXTERNAL_EVIDENCE_UNREQUESTED.",
       "Run Edit-Time Guard and Incremental Replay after the implementation batch and require no expanded unplanned subsystem or authority.",
-      "Prove a control-plane/proof-engine-only descendant of a valid Template Factory live proof resolves LIVE_PROOF=REUSE when the Atlas-derived deployed-runtime closure is unchanged, while a change to a runtime entrypoint, one of its transitive dependencies, middleware/global runtime root, or deployment-relevant package input resolves LIVE_PROOF=REQUIRED.",
+      "Prove a control-plane/proof-engine-only descendant resolves to an Atlas-proven ancestor runtime deployment target and reruns the current E13/Product Owner harness without requesting a new Vercel build; prove a runtime-changing descendant resolves to the latest runtime-changing commit deployment.",
       "Require actual Release Risk Budget PASS without changing its thresholds or classification rules.",
       "Run full Quality Tests, TypeScript and Production Build on the implementation head.",
       "Require exact-head Completion Truth VERIFIED and preserve external proof as an independent blocking authority where semantically applicable.",
       "Close lifecycle only after the verified implementation head is recorded; workflow optimization is deferred to the dedicated later release unit.",
-      "Prove the live-runtime classifier reports its canonical entrypoints, Atlas dependency closure, explicit global runtime roots, changed files and affected runtime inputs in the provenance record so reuse cannot be an opaque skip."
+      "Prove the live-runtime classifier reports its canonical entrypoints, Atlas dependency closure, explicit global runtime roots, changed files and affected runtime inputs in the provenance record so reuse cannot be an opaque skip.",
+      "Prove deployment source identity and current proof-run identity are both preserved in liveProof provenance, and that a missing/unready runtime-origin deployment fails closed rather than silently falling back."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-06-CONTROL-PLANE-ECOSYSTEM-CHAIN",
@@ -598,5 +608,5 @@
       }
     ]
   },
-  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Runtime proof on implementation HEAD 00d36f7 exposed a missing handoff: requirement detection requested and validated GUARD-TEMPLATE-FACTORY, while Resumable Verification still used manual Completion Contract refs and rejected the proof as EXTERNAL_EVIDENCE_UNREQUESTED. Scope is expanded canonically to the checkpoint reconciler before editing it. The current descendant HEAD 45dd558c has only canceled Vercel deployments because Ignored Build Step correctly classified it as non-runtime. Template Factory nevertheless waits for exact-head preview because PR cumulative path selection re-triggers the workflow. Scope is expanded to canonical Template Factory resumable-proof orchestration and workflow only; reuse must be evidence-based, never a skip. Manifest producer is now explicitly in scope so live sub-proof reuse is visible to external Completion Truth rather than being an implicit workflow skip. External handoff regression coverage is explicitly added to proof scope because live-proof provenance validation changes its acceptance contract. The existing Template Factory v2 authority-envelope regression is explicitly added to proof scope because checksum ownership moved from a runner-local helper to the canonical shared Template Factory evidence checksum. Runtime-proof reconciliation refined after Vercel evidence on d9400f4d showed three ignored/canceled deployments while the Template Factory workflow waited for exact-head preview. Proof-engine invalidation and deployed-runtime invalidation are now explicitly separate concerns."
+  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Runtime proof on implementation HEAD 00d36f7 exposed a missing handoff: requirement detection requested and validated GUARD-TEMPLATE-FACTORY, while Resumable Verification still used manual Completion Contract refs and rejected the proof as EXTERNAL_EVIDENCE_UNREQUESTED. Scope is expanded canonically to the checkpoint reconciler before editing it. The current descendant HEAD 45dd558c has only canceled Vercel deployments because Ignored Build Step correctly classified it as non-runtime. Template Factory nevertheless waits for exact-head preview because PR cumulative path selection re-triggers the workflow. Scope is expanded to canonical Template Factory resumable-proof orchestration and workflow only; reuse must be evidence-based, never a skip. Manifest producer is now explicitly in scope so live sub-proof reuse is visible to external Completion Truth rather than being an implicit workflow skip. External handoff regression coverage is explicitly added to proof scope because live-proof provenance validation changes its acceptance contract. The existing Template Factory v2 authority-envelope regression is explicitly added to proof scope because checksum ownership moved from a runner-local helper to the canonical shared Template Factory evidence checksum. Runtime-proof reconciliation refined after Vercel evidence on d9400f4d showed three ignored/canceled deployments while the Template Factory workflow waited for exact-head preview. Proof-engine invalidation and deployed-runtime invalidation are now explicitly separate concerns. Live proof reuse semantics tightened: reuse means runtime deployment target reuse with current-harness execution, not opaque reuse of a prior proof result."
 }
