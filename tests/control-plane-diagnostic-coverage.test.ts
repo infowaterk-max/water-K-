@@ -38,9 +38,9 @@ describe('Control Plane diagnostic coverage',()=>{
     const handoff=read('scripts/template-factory-product-owner-handoff.mjs');
     const intake=read('scripts/shoperation-failure-intake.mjs');
     for(const marker of[
-      'id: qa-runtime','QA_RUNTIME_OUTCOME','TARGET_OUTCOME','PREVIEW_OUTCOME','HANDOFF_OUTCOME',
+      'id: qa-runtime','QA_RUNTIME_OUTCOME','TARGET_OUTCOME','RUNTIME_PREVIEW_OUTCOME','HANDOFF_OUTCOME',
       'SHOPERATION_HANDOFF_PROOF: artifacts/template-factory-handoff/proof.json',
-      'product-owner-preview.json','product-owner-target.json','template-qa-runtime.json',
+      'runtime-preview.json','product-owner-target.json','template-qa-runtime.json',
       'PRODUCT_OWNER_JOURNEY_FAILED',
     ])expect(workflow).toContain(marker);
     expect(handoff).toContain('diagnostics,');
