@@ -138,6 +138,8 @@ describe('Control Plane ecosystem chain',()=>{
     const guard=registry.guards.find((item:any)=>item.id==='GUARD-TEMPLATE-FACTORY');
     expect(guard?.chain?.liveRuntime?.contract).toBe('shoporation.template-factory-live-runtime.v1');
     expect(guard?.chain?.liveRuntime?.dependencyAuthority).toBe('codebase-atlas.forward-import-closure');
+    expect(guard?.chain?.liveRuntime?.classifierInputs).toContain('scripts/lib/shoperation-template-factory-resumable-verification.mjs');
+    expect(guard?.chain?.liveRuntime?.safetyFallbackRuntimePatterns).toContain('src/**');
     expect(workflow).toContain('deriveTemplateLiveRuntimeOrigin');
     expect(workflow).toContain('steps.live-proof.outputs.runtime_sha');
     expect(workflow).not.toContain("steps.live-proof.outputs.mode != 'REUSE'");
