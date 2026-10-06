@@ -130,6 +130,18 @@ describe('Control Plane ecosystem chain',()=>{
     expect(checkpoint).not.toContain('requiredIds:completionEvidenceGuardIds(activePlan)');
   });
 
+  it('routes Template Factory live preview through canonical proof-reuse provenance instead of unconditional Vercel polling',()=>{
+    const workflow=readFileSync('.github/workflows/template-factory-quality-gate.yml','utf8');
+    const qualityGate=readFileSync('scripts/template-factory-quality-gate.mjs','utf8');
+    const external=readFileSync('scripts/shoperation-external-proof-handoff.mjs','utf8');
+    expect(workflow).toContain('Resolve Template Factory live-proof mode');
+    expect(workflow).toContain("steps.live-proof.outputs.mode != 'REUSE'");
+    expect(workflow).toContain('TEMPLATE_QUALITY_LIVE_PROOF_MODE');
+    expect(qualityGate).toContain("contract:'shoporation.template-factory-live-proof.v1'");
+    expect(qualityGate).toContain('liveProof,');
+    expect(external).toContain('validateTemplateLiveProofRecord(manifest.liveProof');
+  });
+
   it('makes future plan generation write transaction identity, implementation skeleton and downstream proof obligations before code',()=>{
     const guard=readFileSync('scripts/shoperation-development-guard.mjs','utf8');
     const plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
