@@ -18,7 +18,7 @@ import {
   selectExactSuccessfulCiRun,
   stateRefFor,
   validateExactPullRequest,
-} from '../scripts/lib/shoperation-release-unit-github-runtime.mjs';
+} from '../scripts/release-unit-github-runtime.mjs';
 
 const A='a'.repeat(40),H='1'.repeat(40);
 const parentPlan:any={
