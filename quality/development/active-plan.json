@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-EXECUTION-BINDING-V1",
   "task": "Close the remaining Control Plane Unit 3 execution gap by binding every release unit to a canonical child Development Transaction and by adding a thin GitHub-bound execution adapter that consumes the Unit 2 manifest, existing materializer, existing Truth/Lifecycle receipts and exact merge identity without closing the parent transaction early or creating parallel release/proof authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "PENDING-CANONICAL-RECONCILIATION",
+  "guardDigest": "9a67776f",
   "changeBaseSha": "693e684607544fed13059ac357e0a3b517393dfb",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -23,7 +23,7 @@
     "tests/control-plane-release-unit-execution-binding.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system",
+    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -91,10 +91,7 @@
     "SQ-NK-003",
     "SQ-NK-005",
     "SQ-NK-010",
-    "SQ-NK-011",
     "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -275,7 +272,7 @@
         ]
       },
       {
-        "role": "Proof Semantics",
+        "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "Current recordReleaseUnitVerification accepts a closed lifecycle at the correct head without checking that Truth/Lifecycle belong to the release unit; tests can therefore inject a synthetic closed plan and accidentally model parent closure.",
@@ -616,5 +613,5 @@
       }
     ]
   },
-  "notes": "Continuation/hardening of merged Unit 3 after capability-closure audit. The audit proved two remaining canonical edges: PR/merge receipts had no repository producer, and intermediate unit lifecycle evidence was not bound to a distinct child Development Transaction. This transaction closes those edges inside existing Release Transaction/Control Plane authorities. No Knowledge promotion is pre-written."
+  "notes": "Continuation/hardening of merged Unit 3 after capability-closure audit. The audit proved two remaining canonical edges: PR/merge receipts had no repository producer, and intermediate unit lifecycle evidence was not bound to a distinct child Development Transaction. This transaction closes those edges inside existing Release Transaction/Control Plane authorities. No Knowledge promotion is pre-written. Plan-only PR #958 run 37501003926 resolved canonical scope to quality-infrastructure + release-infrastructure, retained DOMAIN-QUALITY + DOMAIN-RELEASE authorities, canonical Negative Knowledge SQ-NK-002/003/005/010/012/016-023, guard digest 9a67776f, projected Release Risk 4/5 PASS, and a mandatory two-unit decomposition caused by the canonical 12-file unit limit."
 }
