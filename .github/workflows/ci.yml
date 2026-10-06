@@ -395,9 +395,14 @@ jobs:
         env:
           CLOSURE_REQUIRED: ${{ steps.lifecycle-transition.outputs.closure_required }}
           VERIFIED_IMPLEMENTATION_HEAD: ${{ steps.lifecycle-transition.outputs.verified_head }}
+          RELEASE_EXECUTION_SOURCE_ADMISSION: ${{ github.event_name == 'push' && startsWith(github.ref_name, 'release-execution/source/') }}
         shell: bash
         run: |
           if [ "$CLOSURE_REQUIRED" = "true" ]; then
+            if [ "$RELEASE_EXECUTION_SOURCE_ADMISSION" = "true" ]; then
+              echo "Development lifecycle closure: DEFERRED_TO_RELEASE_UNIT_EXECUTOR at $VERIFIED_IMPLEMENTATION_HEAD"
+              exit 0
+            fi
             echo "DEV_LIFECYCLE_CLOSE_REQUIRED: exact-head Truth is VERIFIED at $VERIFIED_IMPLEMENTATION_HEAD, but active-plan.json is still implementation-ready."
             echo "Commit only the emitted artifacts/shoperation-development-guard/active-plan.closed.json as quality/development/active-plan.json, then rerun exact-head CI."
             exit 1
@@ -437,6 +442,7 @@ jobs:
           EXTERNAL_PROOF_OUTCOME: ${{ steps.external-template-factory-proof.outcome }}
           MANIFEST_OUTCOME: ${{ steps.release-manifest.outcome }}
           TRUTH_OUTCOME: ${{ steps.completion-truth.outcome }}
+          LIFECYCLE_OUTCOME: ${{ steps.lifecycle-closure.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_FAILURE_SOURCE: ci
           SHOPERATION_ENVIRONMENT: ci
@@ -454,6 +460,7 @@ jobs:
             TYPECHECK_FAILED=artifacts/shoperation-command-diagnostics/typecheck.json;
             BUILD_FAILED=artifacts/shoperation-command-diagnostics/production-build.json;
             TRUTH_GATE_FAILED=artifacts/shoperation-development-guard/truth-gate.json;
+            DEV_LIFECYCLE_CLOSE_REQUIRED=artifacts/shoperation-development-guard/lifecycle-transition.json;
             RELEASE_MANIFEST_FAILED=artifacts/release-manifest-diagnostic.json
         run: |
           codes=""
@@ -469,6 +476,7 @@ jobs:
           [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
           [ "$EXTERNAL_PROOF_OUTCOME" != "failure" ] || codes="${codes}EXTERNAL_COMPLETION_PROOF_FAILED;"
           [ "$TRUTH_OUTCOME" != "failure" ] || codes="${codes}TRUTH_GATE_FAILED;"
+          [ "$LIFECYCLE_OUTCOME" != "failure" ] || codes="${codes}DEV_LIFECYCLE_CLOSE_REQUIRED;"
           [ "$MANIFEST_OUTCOME" != "failure" ] || codes="${codes}RELEASE_MANIFEST_FAILED;"
           SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
 
@@ -482,6 +490,7 @@ jobs:
             artifacts/shoperation-command-diagnostics/**
             artifacts/release-manifest-diagnostic.json
             artifacts/shoperation-development-guard/truth-gate.*
+            artifacts/shoperation-development-guard/lifecycle-transition.json
           if-no-files-found: warn
           retention-days: 90
 

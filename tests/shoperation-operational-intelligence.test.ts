@@ -93,6 +93,9 @@ describe('Control Plane Operational Intelligence',()=>{
     expect(ci).toContain('Prepare CLOSE to LEARN lifecycle transition');
     expect(ci).toContain('Lifecycle Closure Gate');
     expect(ci).toContain('DEV_LIFECYCLE_CLOSE_REQUIRED');
+    expect(ci).toContain('RELEASE_EXECUTION_SOURCE_ADMISSION');
+    expect(ci).toContain("startsWith(github.ref_name, 'release-execution/source/')");
+    expect(ci).toContain('DEFERRED_TO_RELEASE_UNIT_EXECUTOR');
     expect(ci).toContain('active-plan.closed.json');
     expect(lifecycle).toContain('buildClosedDevelopmentPlan');
     expect(lifecycle).toContain("decision:childTransaction?'PASS':'BLOCK_UNTIL_COMMITTED'");
@@ -115,6 +118,9 @@ describe('Control Plane Operational Intelligence',()=>{
     expect(ci).toContain('node scripts/shoperation-truth-gate.mjs --check');
     expect(ci).toContain('TRUTH_GATE_FAILED=artifacts/shoperation-development-guard/truth-gate.json');
     expect(ci).toContain('TRUTH_OUTCOME: ${{ steps.completion-truth.outcome }}');
+    expect(ci).toContain('LIFECYCLE_OUTCOME: ${{ steps.lifecycle-closure.outcome }}');
+    expect(ci).toContain('DEV_LIFECYCLE_CLOSE_REQUIRED=artifacts/shoperation-development-guard/lifecycle-transition.json');
+    expect(ci).toContain('codes="${codes}DEV_LIFECYCLE_CLOSE_REQUIRED;"');
     expect(intake).toContain('learningReview');
     expect(intake).toContain('pending-missed-thinking-review');
     expect(intake).toContain('noDefectLocalGate:true');
