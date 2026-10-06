@@ -64,6 +64,8 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
       'src/app/sitemap.ts',
       'src/app/storefront-preview/[token]/page.tsx',
       'scripts/lib/shoperation-codebase-atlas-runtime.mjs',
+      'scripts/template-factory-product-owner-handoff.mjs',
+      'scripts/template-factory-quality-gate.mjs',
     ];
     for(const path of paths){
       const node=atlas.nodes.find((item:any)=>item.path===path);
@@ -90,6 +92,15 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     expect(qualityHelper.surfaces).toContain('quality-system');
     expect(qualityHelper.domains).toEqual(['DOMAIN-QUALITY']);
     expect(qualityHelper.authorities).toEqual(['quality-knowledge-system']);
+
+    for(const qualityScript of [
+      'scripts/template-factory-product-owner-handoff.mjs',
+      'scripts/template-factory-quality-gate.mjs',
+    ]){
+      const classified=classifyAtlasPath(qualityScript);
+      expect(classified.domains).toEqual(['DOMAIN-QUALITY']);
+      expect(classified.authorities).toEqual(['quality-knowledge-system']);
+    }
 
     for(const dependencyManifest of ['package.json','package-lock.json']){
       const classified=classifyAtlasPath(dependencyManifest);
