@@ -1,9 +1,9 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-DECOMPOSITION-V1",
-  "task": "Control Plane Unit 2: decompose projected over-budget development scope into dependency-safe canonical release-unit manifests, reconcile sequential units against fresh main, and materialize or transplant each unit with a fail-closed target-base lease.",
+  "task": "Control Plane Unit 2: release decomposition, canonical release-unit manifests, and batch transplant orchestration.",
   "status": "ready-for-implementation",
-  "guardDigest": "efe9d183",
+  "guardDigest": "540e4ce8",
   "changeBaseSha": "f8a22cc4a014c2d0fb293b8b327736a1138309b0",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -12,10 +12,10 @@
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/shoperation-release-unit-materializer.mjs",
     "scripts/release-manifest.mjs",
-    "tests/control-plane-release-decomposition.test.ts"
+    "tests/control-plane-release-decomposition.test.ts",
+    "docs/support/CONTROL_PLANE_RELEASE_DECOMPOSITION_2026-10-06.md"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -384,6 +384,7 @@
         "deploy/release-risk-policy.json"
       ],
       "mustCreate": [
+        "docs/support/CONTROL_PLANE_RELEASE_DECOMPOSITION_2026-10-06.md",
         "scripts/shoperation-release-unit-materializer.mjs",
         "tests/control-plane-release-decomposition.test.ts"
       ],
@@ -577,5 +578,5 @@
       }
     ]
   },
-  "notes": "Unit 2 implementation is authorized only under the unchanged canonical Release Risk Budget. Plan Before Code must pass on this plan-only head before implementation edits."
+  "notes": "Unit 2 implementation is authorized only under the unchanged canonical Release Risk Budget. The plan-only exact-head must pass Plan Before Code before any implementation edit; canonical support Knowledge is part of the planned learning scope."
 }
