@@ -707,7 +707,7 @@ if(liveProofMode!=='NOT_APPLICABLE'){
   }
   if(liveProofDecision&&liveProofDecision.decision!=='PASS')errors.push({code:'TEMPLATE_LIVE_PROOF_DECISION_BLOCK',issues:liveProofDecision.issues??[]});
 }
-const liveRuntimeClosure=liveProofDecision?.runtimeClosure??deriveTemplateLiveRuntimeClosure({registry});
+const liveRuntimeClosure=liveProofDecision?.runtimeClosure??deriveTemplateLiveRuntimeClosure({registry:guardRegistry});
 const runtimeSourceCommit=liveProofDecision?.runtimeSourceCommit??(headSha==='HEAD'?null:headSha);
 const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   contract:'shoporation.template-factory-live-proof.v1',
@@ -720,7 +720,7 @@ const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   originWorkflowConclusion:null,
   ancestorProven:false,
   inputEquivalenceProven:false,
-  inputContractDigest:templateLiveProofInputContractDigest(registry,liveRuntimeClosure),
+  inputContractDigest:templateLiveProofInputContractDigest(guardRegistry,liveRuntimeClosure),
   runtimeClosureDecision:liveRuntimeClosure.decision,
   runtimeEntrypoints:liveRuntimeClosure.entrypoints,
   runtimeAncestorLayouts:liveRuntimeClosure.ancestorLayouts,
@@ -746,7 +746,7 @@ const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   originWorkflowConclusion:liveProofMode==='LIVE'?'current-workflow':liveProofOriginWorkflowConclusion||null,
   ancestorProven:liveProofMode==='LIVE'?Boolean(liveProofDecision?.ancestorProven):liveProofAncestorProven,
   inputEquivalenceProven:liveProofMode==='LIVE'?Boolean(liveProofDecision?.runtimeEquivalenceProven):liveProofInputEquivalenceProven,
-  inputContractDigest:templateLiveProofInputContractDigest(registry,liveRuntimeClosure),
+  inputContractDigest:templateLiveProofInputContractDigest(guardRegistry,liveRuntimeClosure),
   runtimeClosureDecision:liveRuntimeClosure.decision,
   runtimeEntrypoints:liveRuntimeClosure.entrypoints,
   runtimeAncestorLayouts:liveRuntimeClosure.ancestorLayouts,
@@ -770,7 +770,7 @@ const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   reason:liveProofDecision?.reason??liveProofReason??null,
 };
 if(liveProofMode!=='NOT_APPLICABLE'){
-  const liveValidation=validateTemplateLiveProofRecord(liveProof,{currentHead:headSha==='HEAD'?'':headSha,currentBranch,currentRunId,registry,runtimeClosure:liveRuntimeClosure});
+  const liveValidation=validateTemplateLiveProofRecord(liveProof,{currentHead:headSha==='HEAD'?'':headSha,currentBranch,currentRunId,registry:guardRegistry,runtimeClosure:liveRuntimeClosure});
   if(!liveValidation.ok)errors.push(...liveValidation.issues.map(issue=>({code:issue.code,scope:'live-proof-provenance',...issue})));
 }
 const evidence={
