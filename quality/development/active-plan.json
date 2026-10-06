@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-SOURCE-LIFECYCLE-ADMISSION-V1",
   "task": "Close the live rehearsal integration gap where release-execution/source admission CI reaches exact-head Truth VERIFIED but the ordinary Lifecycle Closure Gate requires parent closure before the trusted multi-unit executor can run, and ensure lifecycle-gate failures enter canonical Failure Intake.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "1395803e",
   "changeBaseSha": "a157c1c291d5ef2f1b65b6452a771b6e130ea7ba",
   "plannedFilePatterns": [
@@ -433,5 +433,18 @@
       }
     ]
   },
-  "notes": "Created from live bounded rehearsal Failure Intake #973 after source run 37528716724 proved the source-admission/lifecycle ordering gap. No implementation edit is authorized until Plan Before Code reconciles this scope. Plan-only run 37530106020 projected exactly 3 material files, Release Risk 2/5, DOMAIN-RELEASE/release-infrastructure authority, quality-knowledge-system + release-infrastructure subsystems, guard digest 1395803e, and the expanded failure/negative-knowledge sets now recorded in this reconciliation. Implementation remains prohibited until the reconciled plan passes. Sentinel exact-head regression on 2790ae460fcedb802fc071fb7701962923e7918f correctly blocked an overclaimed completion scope: REQ-LIFECYCLE-FAILURE-INTAKE used unsupported `failure`/`evidence` dimensions. The claim is narrowed to status/coverage/forbidden-state/behavioral-proof, all declared by GUARD-QUALITY-TESTS; Sentinel/proof authority is unchanged."
+  "notes": "Created from live bounded rehearsal Failure Intake #973 after source run 37528716724 proved the source-admission/lifecycle ordering gap. No implementation edit is authorized until Plan Before Code reconciles this scope. Plan-only run 37530106020 projected exactly 3 material files, Release Risk 2/5, DOMAIN-RELEASE/release-infrastructure authority, quality-knowledge-system + release-infrastructure subsystems, guard digest 1395803e, and the expanded failure/negative-knowledge sets now recorded in this reconciliation. Implementation remains prohibited until the reconciled plan passes. Sentinel exact-head regression on 2790ae460fcedb802fc071fb7701962923e7918f correctly blocked an overclaimed completion scope: REQ-LIFECYCLE-FAILURE-INTAKE used unsupported `failure`/`evidence` dimensions. The claim is narrowed to status/coverage/forbidden-state/behavioral-proof, all declared by GUARD-QUALITY-TESTS; Sentinel/proof authority is unchanged.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "7987f179567ab594f99f82ab444bdcf838fd2c28",
+    "closedAt": "2026-10-06T21:09:16.625Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-SOURCE-LIFECYCLE-ADMISSION-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
