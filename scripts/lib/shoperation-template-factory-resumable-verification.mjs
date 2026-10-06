@@ -176,6 +176,102 @@ export function deriveTemplateLiveRuntimeOrigin({registry,atlas,baseSha='',curre
   return{...selected,runtimeClosure:closure,commitHistory};
 }
 
+export function templatePreviewAnchorEquivalence({
+  registry,
+  runtimeSourceCommit='',
+  candidateSourceCommit='',
+  ancestorProven=false,
+  changedFiles=[],
+}={}){
+  const contract=templateLiveRuntimeContract(registry);
+  const patterns=[...(contract?.safetyFallbackRuntimePatterns??[])];
+  const issues=[];
+  if(!runtimeSourceCommit)issues.push({code:'TEMPLATE_PREVIEW_RUNTIME_SOURCE_MISSING'});
+  if(!candidateSourceCommit)issues.push({code:'TEMPLATE_PREVIEW_DEPLOYMENT_SOURCE_MISSING'});
+  if(!patterns.length)issues.push({code:'TEMPLATE_PREVIEW_EQUIVALENCE_SCOPE_MISSING'});
+  if(candidateSourceCommit!==runtimeSourceCommit&&ancestorProven!==true)issues.push({code:'TEMPLATE_PREVIEW_ANCHOR_ANCESTRY_UNPROVEN'});
+  const matchers=patterns.map(pattern=>globToRegExp(pattern));
+  const affectedRuntimeFiles=uniq((changedFiles??[]).filter(Boolean).filter(file=>matchers.some(m=>m.test(file)))).sort();
+  if(affectedRuntimeFiles.length)issues.push({code:'TEMPLATE_PREVIEW_ANCHOR_RUNTIME_DRIFT',affectedRuntimeFiles});
+  return{
+    contract:'shoporation.template-factory-preview-anchor-equivalence.v1',
+    decision:issues.length?'BLOCK':'PASS',
+    issues,
+    runtimeSourceCommit:runtimeSourceCommit||null,
+    deploymentSourceCommit:candidateSourceCommit||null,
+    mode:candidateSourceCommit===runtimeSourceCommit?'EXACT_RUNTIME':'ANCESTOR_EQUIVALENT',
+    ancestorProven:candidateSourceCommit===runtimeSourceCommit?true:Boolean(ancestorProven),
+    equivalencePatterns:patterns,
+    changedFiles:uniq(changedFiles??[]).sort(),
+    affectedRuntimeFiles,
+    runtimeEquivalenceProven:issues.length===0,
+  };
+}
+
+export function deriveTemplatePreviewAnchorCandidates({
+  registry,
+  runtimeSourceCommit='',
+  maxCandidates=40,
+}={}){
+  const issues=[];
+  if(!runtimeSourceCommit)return{
+    contract:'shoporation.template-factory-preview-anchor-candidates.v1',
+    decision:'BLOCK',
+    issues:[{code:'TEMPLATE_PREVIEW_RUNTIME_SOURCE_MISSING'}],
+    runtimeSourceCommit:null,
+    candidates:[],
+    rejected:[],
+  };
+  let history=[];
+  try{
+    history=execFileSync('git',['rev-list','--topo-order','--max-count='+String(maxCandidates),runtimeSourceCommit],{encoding:'utf8'})
+      .split(/\r?\n/).map(value=>value.trim()).filter(Boolean);
+  }catch(error){
+    return{
+      contract:'shoporation.template-factory-preview-anchor-candidates.v1',
+      decision:'BLOCK',
+      issues:[{code:'TEMPLATE_PREVIEW_ANCESTRY_ENUMERATION_FAILED',error:String(error)}],
+      runtimeSourceCommit,
+      candidates:[],
+      rejected:[],
+    };
+  }
+  const candidates=[],rejected=[];
+  for(const candidateSourceCommit of history){
+    let ancestorProven=candidateSourceCommit===runtimeSourceCommit;
+    if(!ancestorProven){
+      try{
+        execFileSync('git',['merge-base','--is-ancestor',candidateSourceCommit,runtimeSourceCommit],{stdio:'ignore'});
+        ancestorProven=true;
+      }catch{}
+    }
+    let changedFiles=[];
+    if(candidateSourceCommit!==runtimeSourceCommit){
+      try{
+        const raw=execFileSync('git',['diff','--name-only','--diff-filter=ACMRD',candidateSourceCommit,runtimeSourceCommit,'--'],{encoding:'utf8'}).trim();
+        changedFiles=raw?raw.split(/\r?\n/).filter(Boolean):[];
+      }catch(error){
+        rejected.push({candidateSourceCommit,reason:'diff-unavailable',error:String(error)});
+        continue;
+      }
+    }
+    const equivalence=templatePreviewAnchorEquivalence({
+      registry,runtimeSourceCommit,candidateSourceCommit,ancestorProven,changedFiles,
+    });
+    if(equivalence.decision==='PASS')candidates.push(equivalence);
+    else rejected.push({candidateSourceCommit,issues:equivalence.issues,affectedRuntimeFiles:equivalence.affectedRuntimeFiles});
+  }
+  if(!candidates.length)issues.push({code:'TEMPLATE_PREVIEW_EQUIVALENT_ANCESTOR_MISSING'});
+  return{
+    contract:'shoporation.template-factory-preview-anchor-candidates.v1',
+    decision:issues.length?'BLOCK':'PASS',
+    issues,
+    runtimeSourceCommit,
+    candidates,
+    rejected:rejected.slice(0,40),
+  };
+}
+
 export function templateLiveProofInputPatterns(registry){
   const contract=templateLiveRuntimeContract(registry);
   return uniq([...(contract?.entrypoints??[]),...(contract?.globalRuntimeInputs??[])]).sort();
