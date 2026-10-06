@@ -67,6 +67,268 @@ export function evaluateReleaseRiskFiles(files,{policy=releasePolicy}={}){
   if(highRisk.length===1&&scoredSubsystems.length>1)violations.push({code:'PROJECTED_RELEASE_RISK_HIGH_NOT_ISOLATED',subsystem:highRisk[0].subsystem});
   return{contract:'shoporation.projected-release-risk.v1',score,maxPoints:policy.maxPoints,subsystemCount:scoredSubsystems.length,maxSubsystems:policy.maxSubsystems,subsystems:scoredSubsystems,files:classified,violations,decision:violations.length?'BLOCK':'PASS'};
 }
+function normalizeReleasePath(value){return String(value??'').trim().replaceAll('\\','/');}
+function releaseOperationFootprint(operation){
+  const paths=[normalizeReleasePath(operation?.path)];
+  if(operation?.type==='rename')paths.push(normalizeReleasePath(operation?.sourcePath));
+  return [...new Set(paths.filter(Boolean))].sort();
+}
+function normalizeReleaseOperation(operation){
+  const type=String(operation?.type??'').trim().toLowerCase();
+  return{
+    ...operation,
+    type,
+    path:normalizeReleasePath(operation?.path),
+    ...(operation?.sourcePath?{sourcePath:normalizeReleasePath(operation.sourcePath)}:{}),
+    ...(operation?.sourcePathAtSource?{sourcePathAtSource:normalizeReleasePath(operation.sourcePathAtSource)}:{}),
+    dependsOnFiles:[...new Set((operation?.dependsOnFiles??[]).map(normalizeReleasePath).filter(Boolean))].sort(),
+    atomicWith:[...new Set((operation?.atomicWith??[]).map(normalizeReleasePath).filter(Boolean))].sort(),
+  };
+}
+function releasePathMatches(file,patterns=[]){return (patterns??[]).some(pattern=>globToRegExp(pattern).test(file));}
+function releaseEdgeKey(from,to){return `${from}\u0000${to}`;}
+function releasePairKey(left,right){return left<right?`${left}\u0000${right}`:`${right}\u0000${left}`;}
+function releaseAtlasNodeMap(atlas){return new Map((atlas?.nodes??[]).map(node=>[node.path,node]));}
+function releaseRequiredDependencies(atlas,unitFiles,allPlannedFiles){
+  const unit=new Set(unitFiles),planned=new Set(allPlannedFiles),byPath=releaseAtlasNodeMap(atlas),out=new Set();
+  for(const file of unitFiles)for(const dependency of byPath.get(file)?.imports??[])if(!unit.has(dependency))out.add(dependency);
+  return [...out].sort().map(file=>({file,state:planned.has(file)?'planned-predecessor-or-peer':'existing-base-dependency'}));
+}
+function releaseProofFiles(atlas,unitFiles){
+  const unit=new Set(unitFiles),byPath=releaseAtlasNodeMap(atlas),proof=new Set();
+  for(const file of unitFiles)if(byPath.get(file)?.kind==='test')proof.add(file);
+  for(const file of unitFiles)for(const consumer of atlas?.reverseImports?.[file]??[])if(byPath.get(consumer)?.kind==='test')proof.add(consumer);
+  for(const edge of atlas?.semanticGraph?.edges??[]){
+    const from=edge?.fromFile,to=edge?.toFile;
+    if(!from||!to)continue;
+    if(unit.has(from)&&byPath.get(to)?.kind==='test')proof.add(to);
+    if(unit.has(to)&&byPath.get(from)?.kind==='test')proof.add(from);
+  }
+  return [...proof].sort();
+}
+function releaseAtomicEdges({atlas,files,operations,atomicEdges=[],proofEdges=[]}){
+  const planned=new Set(files),edges=new Map(),add=(from,to,reason)=>{
+    from=normalizeReleasePath(from);to=normalizeReleasePath(to);
+    if(!from||!to||from===to||!planned.has(from)||!planned.has(to))return;
+    const key=releasePairKey(from,to);if(!edges.has(key))edges.set(key,{from,to,reason});
+  };
+  for(const node of atlas?.nodes??[])if(planned.has(node.path))for(const dependency of node.imports??[])add(node.path,dependency,'atlas-import');
+  for(const edge of atlas?.semanticGraph?.edges??[])if(edge?.fromFile&&edge?.toFile)add(edge.fromFile,edge.toFile,`semantic:${edge.type??'relationship'}`);
+  for(const operation of operations??[])for(const other of operation.atomicWith??[])add(operation.path,other,'manifest-atomic-with');
+  for(const edge of [...(atomicEdges??[]),...(proofEdges??[])])add(edge.from,edge.to,edge.reason??'explicit-atomic');
+  return [...edges.values()].sort((a,b)=>releasePairKey(a.from,a.to).localeCompare(releasePairKey(b.from,b.to)));
+}
+function releaseComponents(files,edges){
+  const parent=new Map(files.map(file=>[file,file]));
+  const find=file=>{let root=file;while(parent.get(root)!==root)root=parent.get(root);let current=file;while(parent.get(current)!==current){const next=parent.get(current);parent.set(current,root);current=next;}return root;};
+  const union=(a,b)=>{const ra=find(a),rb=find(b);if(ra===rb)return;const [small,large]=ra<rb?[ra,rb]:[rb,ra];parent.set(large,small);};
+  for(const edge of edges)union(edge.from,edge.to);
+  const grouped=new Map();
+  for(const file of files){const root=find(file);if(!grouped.has(root))grouped.set(root,[]);grouped.get(root).push(file);}
+  return [...grouped.values()].map(groupFiles=>groupFiles.sort()).sort((a,b)=>a[0].localeCompare(b[0])).map((groupFiles,index)=>({componentId:`RC-${String(index+1).padStart(2,'0')}-${stableDigest(groupFiles)}`,files:groupFiles}));
+}
+function releaseComponentOrder(components,componentByFile,prerequisiteEdges){
+  const ids=components.map(item=>item.componentId),outgoing=new Map(ids.map(id=>[id,new Set()])),indegree=new Map(ids.map(id=>[id,0])),issues=[],edgeMap=new Map();
+  const add=(dependency,dependent,reason)=>{
+    dependency=normalizeReleasePath(dependency);dependent=normalizeReleasePath(dependent);
+    const from=componentByFile.get(dependency),to=componentByFile.get(dependent);
+    if(!from||!to||from===to)return;
+    const key=releaseEdgeKey(from,to);if(edgeMap.has(key))return;
+    edgeMap.set(key,{from,to,dependency,dependent,reason});
+    outgoing.get(from).add(to);indegree.set(to,(indegree.get(to)??0)+1);
+  };
+  for(const edge of prerequisiteEdges??[])add(edge.from,edge.to,edge.reason??'explicit-prerequisite');
+  const ready=ids.filter(id=>indegree.get(id)===0).sort(),ordered=[];
+  while(ready.length){
+    const id=ready.shift();ordered.push(id);
+    for(const to of [...outgoing.get(id)].sort()){indegree.set(to,indegree.get(to)-1);if(indegree.get(to)===0){ready.push(to);ready.sort();}}
+  }
+  if(ordered.length!==ids.length)issues.push({code:'RELEASE_DECOMPOSITION_DEPENDENCY_CYCLE',componentIds:ids.filter(id=>!ordered.includes(id)).sort(),edges:[...edgeMap.values()]});
+  return{ordered,edges:[...edgeMap.values()],issues};
+}
+export function validateReleaseUnitManifest(manifest){
+  const issues=[];
+  if(manifest?.contract!=='shoporation.release-unit-manifest.v1')issues.push({code:'RELEASE_UNIT_MANIFEST_CONTRACT_INVALID'});
+  if(!manifest?.releaseUnitId)issues.push({code:'RELEASE_UNIT_ID_REQUIRED'});
+  if(!Number.isInteger(manifest?.order)||manifest.order<1)issues.push({code:'RELEASE_UNIT_ORDER_INVALID'});
+  if(!Array.isArray(manifest?.intendedFiles)||!manifest.intendedFiles.length)issues.push({code:'RELEASE_UNIT_FILES_REQUIRED'});
+  if(!Array.isArray(manifest?.operations)||!manifest.operations.length)issues.push({code:'RELEASE_UNIT_OPERATIONS_REQUIRED'});
+  if(manifest?.projectedRisk?.decision!=='PASS')issues.push({code:'RELEASE_UNIT_PROJECTED_RISK_NOT_PASS'});
+  const lease=manifest?.targetBaseLease;
+  if(!lease||!['EXACT','RECONCILE_AFTER_PREDECESSOR'].includes(lease.mode))issues.push({code:'RELEASE_UNIT_TARGET_BASE_LEASE_INVALID'});
+  if(lease?.mode==='EXACT'&&!lease.sha)issues.push({code:'RELEASE_UNIT_TARGET_BASE_SHA_REQUIRED'});
+  if(lease?.mode==='RECONCILE_AFTER_PREDECESSOR'&&!lease.predecessorUnitId)issues.push({code:'RELEASE_UNIT_PREDECESSOR_REQUIRED'});
+  const intended=new Set(manifest?.intendedFiles??[]);
+  for(const operation of manifest?.operations??[]){
+    if(!['create','modify','rename','delete'].includes(operation.type))issues.push({code:'RELEASE_UNIT_OPERATION_INVALID',operation});
+    if(!operation.path)issues.push({code:'RELEASE_UNIT_OPERATION_PATH_REQUIRED',operation});
+    for(const file of releaseOperationFootprint(operation))if(!intended.has(file))issues.push({code:'RELEASE_UNIT_OPERATION_OUTSIDE_SCOPE',file});
+    if(operation.type==='rename'&&!operation.sourcePath)issues.push({code:'RELEASE_UNIT_RENAME_SOURCE_REQUIRED',operation});
+    if(operation.generatedArtifact&&!['regenerate','sealed'].includes(operation.generatedArtifact.mode))issues.push({code:'RELEASE_UNIT_GENERATED_SEMANTICS_INVALID',file:operation.path});
+  }
+  return{contract:'shoporation.release-unit-manifest-validation.v1',issues,decision:issues.length?'BLOCK':'PASS'};
+}
+export function sealReleaseUnitManifest(manifest,{sourceCommit}={}){
+  const issues=[];
+  if(!sourceCommit)issues.push({code:'RELEASE_UNIT_SOURCE_COMMIT_REQUIRED'});
+  const validation=validateReleaseUnitManifest(manifest);issues.push(...validation.issues);
+  if(issues.length)return{decision:'BLOCK',issues,manifest:null};
+  const sealed=JSON.parse(JSON.stringify(manifest));
+  sealed.operations=sealed.operations.map(operation=>{
+    if(operation.type==='delete'||operation.generatedArtifact?.mode==='regenerate')return operation;
+    const generated=operation.generatedArtifact?.mode==='sealed'?{...operation.generatedArtifact,sourceCommit:operation.generatedArtifact.sourceCommit??sourceCommit}:operation.generatedArtifact;
+    return{...operation,sourceCommit:operation.sourceCommit??sourceCommit,...(generated?{generatedArtifact:generated}:{})};
+  });
+  sealed.materialization={...(sealed.materialization??{}),state:'SEALED',sourceCommit};
+  return{decision:'PASS',issues:[],manifest:sealed};
+}
+export function reconcileReleaseUnitManifest(manifest,{newBaseSha,predecessorUnitId,recomputedUnit}={}){
+  const issues=[],lease=manifest?.targetBaseLease??{};
+  if(lease.mode!=='RECONCILE_AFTER_PREDECESSOR')issues.push({code:'RELEASE_UNIT_RECONCILIATION_NOT_REQUIRED',mode:lease.mode??null});
+  if(!newBaseSha)issues.push({code:'RELEASE_UNIT_RECONCILIATION_BASE_REQUIRED'});
+  if(!predecessorUnitId||predecessorUnitId!==lease.predecessorUnitId)issues.push({code:'RELEASE_UNIT_RECONCILIATION_PREDECESSOR_MISMATCH',expected:lease.predecessorUnitId??null,actual:predecessorUnitId??null});
+  if(!recomputedUnit||recomputedUnit.projectedRisk?.decision!=='PASS'||recomputedUnit.requiredGates?.decision!=='PASS')issues.push({code:'RELEASE_UNIT_RECONCILIATION_RECOMPUTE_NOT_PASS'});
+  if(issues.length)return{decision:'BLOCK',issues,manifest:null};
+  const reconciled=JSON.parse(JSON.stringify(manifest));
+  reconciled.targetBaseSha=newBaseSha;
+  reconciled.targetBaseLease={contract:'shoporation.target-base-lease.v1',mode:'EXACT',sha:newBaseSha,reconciledFrom:{predecessorUnitId,previousMode:lease.mode}};
+  reconciled.projectedRisk=recomputedUnit.projectedRisk;
+  reconciled.requiredGates=recomputedUnit.requiredGates;
+  reconciled.requiredEvidence=recomputedUnit.requiredEvidence;
+  reconciled.requiredDependencyFiles=recomputedUnit.requiredDependencyFiles;
+  reconciled.authorities=recomputedUnit.authorities;
+  reconciled.subsystems=recomputedUnit.subsystems;
+  reconciled.expectedPostUnitState=recomputedUnit.expectedPostUnitState;
+  reconciled.reconciliationPolicy={...(reconciled.reconciliationPolicy??{}),mode:'EXACT_BASE_AFTER_RECONCILIATION',reconciledPredecessorUnitId:predecessorUnitId,recomputeRequired:true};
+  return{decision:'PASS',issues:[],manifest:reconciled};
+}
+export function decomposeReleaseScope({
+  transactionIdentity={},
+  parentTransactionIdentity=null,
+  baseSha=null,
+  files=[],
+  operations=[],
+  atlas={},
+  guardRegistry=null,
+  explicitGuardIds=[],
+  implementationSkeleton={},
+  fileMetadata={},
+  plannedDeletions=[],
+  forbiddenPatterns=[],
+  readOnlyPaths=[],
+  atomicEdges=[],
+  proofEdges=[],
+  prerequisiteEdges=[],
+  generatedArtifacts={},
+}={}){
+  const atlasPaths=new Set((atlas?.nodes??[]).map(node=>node.path)),deletions=new Set((plannedDeletions??[]).map(normalizeReleasePath));
+  const explicit=(operations??[]).map(normalizeReleaseOperation),operationPaths=new Set(explicit.flatMap(releaseOperationFootprint));
+  const allFiles=[...new Set([...(files??[]).map(normalizeReleasePath),...operationPaths].filter(Boolean))].sort();
+  const normalizedOperations=[...explicit];
+  for(const file of allFiles)if(!operationPaths.has(file))normalizedOperations.push(normalizeReleaseOperation({
+    type:deletions.has(file)?'delete':atlasPaths.has(file)?'modify':'create',
+    path:file,
+    ...(generatedArtifacts?.[file]?{generatedArtifact:generatedArtifacts[file]}:{}),
+  }));
+  const forbidden=[...new Set([...(forbiddenPatterns??[]),...(implementationSkeleton?.forbidden??[])])];
+  const readOnly=[...new Set(readOnlyPaths??implementationSkeleton?.impactedReadOnly??[])];
+  const issues=[];
+  for(const operation of normalizedOperations)for(const file of releaseOperationFootprint(operation)){
+    if(releasePathMatches(file,forbidden))issues.push({code:'RELEASE_DECOMPOSITION_FORBIDDEN_OPERATION',file,operation:operation.type});
+    if(releasePathMatches(file,readOnly))issues.push({code:'RELEASE_DECOMPOSITION_READ_ONLY_OPERATION',file,operation:operation.type});
+  }
+  if(!allFiles.length)issues.push({code:'RELEASE_DECOMPOSITION_SCOPE_EMPTY'});
+  const overallRisk=evaluateReleaseRiskFiles(allFiles);
+  const couplingEdges=releaseAtomicEdges({atlas,files:allFiles,operations:normalizedOperations,atomicEdges,proofEdges});
+  const components=releaseComponents(allFiles,couplingEdges),componentByFile=new Map();
+  for(const component of components)for(const file of component.files)componentByFile.set(file,component.componentId);
+  const prereqs=[...(prerequisiteEdges??[])];
+  for(const operation of normalizedOperations)for(const dependency of operation.dependsOnFiles??[])prereqs.push({from:dependency,to:operation.path,reason:'operation-dependency'});
+  const ordering=releaseComponentOrder(components,componentByFile,prereqs);issues.push(...ordering.issues);
+  const byComponent=new Map(components.map(component=>[component.componentId,{...component,projectedRisk:evaluateReleaseRiskFiles(component.files)}]));
+  for(const component of byComponent.values())if(component.projectedRisk.decision!=='PASS')issues.push({code:'RELEASE_DECOMPOSITION_ATOMIC_COMPONENT_BLOCKED',componentId:component.componentId,files:component.files,violations:component.projectedRisk.violations});
+  if(issues.length)return{contract:'shoporation.release-decomposition.v1',required:overallRisk.decision==='BLOCK',overallRisk,atomicEdges:couplingEdges,atomicComponents:[...byComponent.values()],issues,decision:'FAIL_CLOSED',unitCount:0,manifests:[]};
+
+  const buckets=[];
+  for(const componentId of ordering.ordered){
+    const component=byComponent.get(componentId),current=buckets.at(-1);
+    if(!current){buckets.push({componentIds:[componentId],files:[...component.files]});continue;}
+    const candidateFiles=[...new Set([...current.files,...component.files])].sort(),candidateRisk=evaluateReleaseRiskFiles(candidateFiles);
+    if(candidateRisk.decision==='PASS'){current.componentIds.push(componentId);current.files=candidateFiles;}
+    else buckets.push({componentIds:[componentId],files:[...component.files]});
+  }
+  const componentUnit=new Map();buckets.forEach((bucket,index)=>bucket.componentIds.forEach(id=>componentUnit.set(id,index)));
+  const unitPrerequisites=buckets.map(()=>new Set());
+  for(const edge of ordering.edges){
+    const from=componentUnit.get(edge.from),to=componentUnit.get(edge.to);
+    if(from!==to)unitPrerequisites[to].add(from);
+  }
+  const atlasByPath=releaseAtlasNodeMap(atlas),taskId=transactionIdentity?.taskId??'DEVELOPMENT-TRANSACTION';
+  const manifests=buckets.map((bucket,index)=>{
+    const releaseUnitId=`${taskId}-RU-${String(index+1).padStart(2,'0')}`,prior=index>0?`${taskId}-RU-${String(index).padStart(2,'0')}`:null;
+    const operationSet=normalizedOperations.filter(operation=>bucket.files.includes(operation.path)||(operation.sourcePath&&bucket.files.includes(operation.sourcePath)));
+    const intendedFiles=[...new Set(operationSet.flatMap(releaseOperationFootprint))].sort();
+    const projectedRisk=evaluateReleaseRiskFiles(intendedFiles);
+    const requiredGates=guardRegistry?compileGateChain({guardRegistry,plannedFiles:intendedFiles,phase:'PLAN',explicitGuardIds}):{contract:'shoporation.gate-chain.v1',phase:'PLAN',orderedGateIds:[],externalGateIds:[],issues:[],decision:'PASS'};
+    const dependencies=releaseRequiredDependencies(atlas,intendedFiles,allFiles);
+    const proofFiles=releaseProofFiles(atlas,intendedFiles);
+    const authorities=[...new Set(intendedFiles.flatMap(file=>fileMetadata?.[file]?.authorities??atlasByPath.get(file)?.authorities??[]))].sort();
+    const semanticPrerequisites=[...unitPrerequisites[index]].map(unitIndex=>`${taskId}-RU-${String(unitIndex+1).padStart(2,'0')}`);
+    const predecessorUnits=[...new Set([...(prior?[prior]:[]),...semanticPrerequisites])].sort();
+    const targetBaseLease=index===0
+      ?{contract:'shoporation.target-base-lease.v1',mode:'EXACT',sha:baseSha}
+      :{contract:'shoporation.target-base-lease.v1',mode:'RECONCILE_AFTER_PREDECESSOR',sha:null,predecessorUnitId:prior};
+    return{
+      contract:'shoporation.release-unit-manifest.v1',
+      transactionIdentity,
+      parentTransactionIdentity:parentTransactionIdentity??transactionIdentity,
+      releaseUnitId,
+      order:index+1,
+      targetBaseSha:index===0?baseSha:null,
+      targetBaseLease,
+      intendedFiles,
+      operations:operationSet,
+      requiredDependencyFiles:dependencies,
+      authorities,
+      subsystems:projectedRisk.subsystems.map(item=>item.subsystem),
+      projectedRisk,
+      requiredGates,
+      requiredEvidence:{proofFiles,externalGuardIds:[...(requiredGates.externalGateIds??[])]},
+      forbiddenPaths:forbidden,
+      readOnlyPaths:readOnly,
+      generatedArtifactSemantics:operationSet.filter(item=>item.generatedArtifact).map(item=>({path:item.path,...item.generatedArtifact})),
+      prerequisites:predecessorUnits,
+      predecessorUnits,
+      materialization:{state:'UNSEALED',sourceCommit:null},
+      expectedPostUnitState:{operationCount:operationSet.length,projectedRiskDecision:projectedRisk.decision,requiredGateDecision:requiredGates.decision,requiresSuccessorReconciliation:index<buckets.length-1},
+      reconciliationPolicy:index===0
+        ?{mode:'EXACT_BASE_REQUIRED',failOnMainDrift:true,recomputeRequired:false}
+        :{mode:'RECONCILE_AFTER_PREDECESSOR',predecessorUnitId:prior,failOnMainDrift:true,recomputeRequired:true,recompute:['atlas','projected-risk','gate-chain','required-dependencies']},
+    };
+  });
+  for(const manifest of manifests){
+    const validation=validateReleaseUnitManifest(manifest);
+    if(validation.decision!=='PASS')for(const issue of validation.issues)issues.push({...issue,releaseUnitId:manifest.releaseUnitId});
+    if(manifest.requiredGates?.decision!=='PASS')issues.push({code:'RELEASE_DECOMPOSITION_UNIT_GATE_CHAIN_BLOCK',releaseUnitId:manifest.releaseUnitId,gateIssues:manifest.requiredGates.issues});
+  }
+  return{
+    contract:'shoporation.release-decomposition.v1',
+    required:overallRisk.decision==='BLOCK',
+    reason:overallRisk.decision==='BLOCK'?'PROJECTED_RELEASE_RISK_BLOCK_DECOMPOSED':'SINGLE_OR_MULTI_UNIT_WITHIN_CANONICAL_BUDGET',
+    transactionIdentity,
+    parentTransactionIdentity:parentTransactionIdentity??transactionIdentity,
+    baseSha,
+    overallRisk,
+    atomicEdges:couplingEdges,
+    prerequisiteEdges:ordering.edges,
+    atomicComponents:[...byComponent.values()],
+    issues,
+    decision:issues.length?'FAIL_CLOSED':'PASS',
+    unitCount:issues.length?0:manifests.length,
+    manifests:issues.length?[]:manifests,
+  };
+}
+
 export function deriveImplementationSkeleton({plannedFilePatterns=[],atlasFiles=[],executionRoute={},plannedDeletions=[],forbiddenPatterns=[]}={}){
   const atlasSet=new Set(atlasFiles??[]),deletions=new Set(plannedDeletions??[]);
   const mustCreate=exactPlannedPaths(plannedFilePatterns).filter(file=>!atlasSet.has(file)&&!deletions.has(file));
