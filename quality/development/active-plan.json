@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-ECOSYSTEM-CHAIN-V1",
   "task": "Control Plane ecosystem chain foundation: connect gate contracts, projected risk, proof obligations, repository relationship mapping and implementation skeleton before code execution.",
   "status": "ready-for-implementation",
-  "guardDigest": "1640ee1f",
+  "guardDigest": "efe9d183",
   "changeBaseSha": "42e60510de935efd6f95d0dbe92ed57f5a3377ac",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -13,16 +13,22 @@
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/shoperation-external-proof-handoff.mjs",
     "scripts/shoperation-verification-checkpoint.mjs",
-    "tests/control-plane-ecosystem-chain.test.ts"
+    "tests/control-plane-ecosystem-chain.test.ts",
+    "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+    ".github/workflows/template-factory-quality-gate.yml",
+    "tests/template-factory-resumable-verification.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure"
+    "quality-infrastructure",
+    "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -77,6 +83,10 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
+    "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
@@ -134,14 +144,16 @@
         "Plan Before Code produces an ordered applicable gate chain and blocks dependency cycles, missing producers and unresolved downstream obligations.",
         "External completion proof requirements are derived from affected scope and guard semantics in addition to explicit PO completion references, so relevant external proof cannot be omitted accidentally.",
         "Existing blocking gates remain authoritative and final exact-diff Release Risk, exact-head evidence and Completion Truth are not weakened or replaced.",
-        "Resumable Verification consumes the same canonical derived external-proof obligations as the external-proof detector, so a validated required proof cannot be rejected downstream as unrequested."
+        "Resumable Verification consumes the same canonical derived external-proof obligations as the external-proof detector, so a validated required proof cannot be rejected downstream as unrequested.",
+        "Template Factory live-preview proof may be reused only when a prior complete proof is same-branch ancestor evidence and no changed file since that proof intersects the canonical GUARD-TEMPLATE-FACTORY semantic, configuration, authority or global verification inputs; otherwise live exact-head proof remains mandatory."
       ],
       "invariants": [
         "One canonical guard registry remains the authority for gate identity and dependency semantics.",
         "Atlas and existing domain authorities remain the source of repository relationship truth; the ecosystem layer consumes them rather than duplicating them.",
         "Projected Release Risk is advisory-before-code but blocking when predictably invalid; actual Release Risk remains the final release authority.",
         "Unknown producer, dependency cycle, unknown relationship and stale transaction identity fail closed.",
-        "Machine-derivable data is generated upstream and must not require manual re-entry downstream."
+        "Machine-derivable data is generated upstream and must not require manual re-entry downstream.",
+        "Ignored Vercel builds are never interpreted as proof success; they may only cause proof reuse when an independently validated semantic-equivalence decision names the prior proof origin and changed-file set."
       ],
       "forbiddenStates": [
         "parallel-gate-registry",
@@ -150,7 +162,9 @@
         "completion-truth-with-omitted-applicable-external-proof",
         "ecosystem-cycle-accepted",
         "gate-requirement-without-producer",
-        "control-plane-gate-weakened-for-speed"
+        "control-plane-gate-weakened-for-speed",
+        "template-factory-preview-wait-on-semantically-unchanged-head",
+        "template-factory-proof-reuse-without-ancestor-and-input-equivalence"
       ]
     },
     "model": {
@@ -188,7 +202,8 @@
         "Completion Truth verifies only locally declared evidence while an applicable external proof is missing.",
         "A new file duplicates an existing canonical capability because repository relationship mapping was not consulted before implementation.",
         "A gate dependency graph contains a cycle or a required input has no authoritative producer.",
-        "The external-proof detector derives a required guard correctly, but the Resumable Verification handoff recomputes requirements from only manual Completion Contract references and rejects the valid proof as unrequested."
+        "The external-proof detector derives a required guard correctly, but the Resumable Verification handoff recomputes requirements from only manual Completion Contract references and rejects the valid proof as unrequested.",
+        "A control-plane-only descendant commit triggers Template Factory due cumulative PR paths, Vercel correctly ignores the build, and the workflow waits for an exact-head preview that should not exist."
       ],
       "edgeCases": [
         "A planned file does not yet exist and must be represented as MUST_CREATE rather than silently omitted from projection.",
@@ -330,6 +345,13 @@
         "finding": "The previous checkpoint reconciler used completionEvidenceGuardIds(activePlan) instead of the canonical derived external requirement set and produced EXTERNAL_EVIDENCE_UNREQUESTED.",
         "resolution": "Make checkpoint reconciliation consume requiredExternalCompletionGuards with the same active plan, verification plan and guard registry used by requirement detection; add regression coverage for this handoff.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-10",
+        "scenario": "A descendant HEAD changes only verification-checkpoint logic and tests after a successful Template Factory proof on the same PR branch.",
+        "finding": "Vercel Ignored Build Step correctly produces no preview, but the Template Factory workflow currently polls for an exact-head Vercel URL for up to the timeout and cannot consume the already-proven runtime-equivalent ancestor state.",
+        "resolution": "Add a fail-closed live-proof reuse decision based on prior manifest checksum, same-branch ancestry and canonical GUARD-TEMPLATE-FACTORY plus global verification input equivalence. Only REUSE bypasses preview polling; UNKNOWN or affected input requires LIVE proof.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -338,6 +360,7 @@
       "Verify external proof applicability is derived from semanticInputs even when the PO Completion Contract omits the external guard identifier.",
       "Verify Resumable Verification requests the same semantically derived external guard set as the detector and accepts exact-head Template Factory evidence instead of reporting EXTERNAL_EVIDENCE_UNREQUESTED.",
       "Run Edit-Time Guard and Incremental Replay after the implementation batch and require no expanded unplanned subsystem or authority.",
+      "Prove a control-plane-only descendant of a valid Template Factory checkpoint resolves LIVE_PROOF=REUSE without waiting for Vercel, while any GUARD-TEMPLATE-FACTORY semantic/config/toolchain input change resolves LIVE_PROOF=REQUIRED.",
       "Require actual Release Risk Budget PASS without changing its thresholds or classification rules.",
       "Run full Quality Tests, TypeScript and Production Build on the implementation head.",
       "Require exact-head Completion Truth VERIFIED and preserve external proof as an independent blocking authority where semantically applicable.",
@@ -354,7 +377,9 @@
         "scripts/shoperation-development-guard.mjs",
         "scripts/shoperation-plan-before-code.mjs",
         "scripts/shoperation-external-proof-handoff.mjs",
-        "scripts/shoperation-verification-checkpoint.mjs"
+        "scripts/shoperation-verification-checkpoint.mjs",
+        "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+        ".github/workflows/template-factory-quality-gate.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -373,7 +398,8 @@
         "deploy/release-risk-policy.json"
       ],
       "proof": [
-        "tests/control-plane-ecosystem-chain.test.ts"
+        "tests/control-plane-ecosystem-chain.test.ts",
+        "tests/template-factory-resumable-verification.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -546,5 +572,5 @@
       }
     ]
   },
-  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Runtime proof on implementation HEAD 00d36f7 exposed a missing handoff: requirement detection requested and validated GUARD-TEMPLATE-FACTORY, while Resumable Verification still used manual Completion Contract refs and rejected the proof as EXTERNAL_EVIDENCE_UNREQUESTED. Scope is expanded canonically to the checkpoint reconciler before editing it."
+  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Runtime proof on implementation HEAD 00d36f7 exposed a missing handoff: requirement detection requested and validated GUARD-TEMPLATE-FACTORY, while Resumable Verification still used manual Completion Contract refs and rejected the proof as EXTERNAL_EVIDENCE_UNREQUESTED. Scope is expanded canonically to the checkpoint reconciler before editing it. The current descendant HEAD 45dd558c has only canceled Vercel deployments because Ignored Build Step correctly classified it as non-runtime. Template Factory nevertheless waits for exact-head preview because PR cumulative path selection re-triggers the workflow. Scope is expanded to canonical Template Factory resumable-proof orchestration and workflow only; reuse must be evidence-based, never a skip."
 }
