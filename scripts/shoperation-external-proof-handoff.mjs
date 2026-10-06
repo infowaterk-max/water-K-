@@ -1,8 +1,8 @@
-import {createHash} from 'node:crypto';
 import {appendFileSync,existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {dirname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {compileGateChain,exactPlannedPaths} from './lib/shoperation-development-runtime.mjs';
+import {templateFactoryEvidenceChecksum,validateTemplateLiveProofRecord} from './lib/shoperation-template-factory-resumable-verification.mjs';
 
 export const EXTERNAL_PROOF_EVIDENCE_CONTRACT='shoporation.external-proof-evidence.v1';
 export const TEMPLATE_FACTORY_QUALITY_CONTRACT='shoporation.template-factory-quality-evidence.v2';
@@ -10,8 +10,6 @@ const PASS=new Set(['pass','passed','success','succeeded','ok','green']);
 const normalize=value=>String(value??'').trim().toLowerCase().replaceAll(' ','_');
 const uniq=values=>[...new Set(values.filter(Boolean))];
 const readJson=path=>JSON.parse(readFileSync(path,'utf8'));
-const canonicalJson=value=>Array.isArray(value)?'['+value.map(canonicalJson).join(',')+']':value&&typeof value==='object'?'{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}':JSON.stringify(value);
-const sha256=value=>createHash('sha256').update(String(value)).digest('hex');
 const writeOutput=(key,value)=>{if(process.env.GITHUB_OUTPUT)appendFileSync(process.env.GITHUB_OUTPUT,key+'='+String(value)+'\n');};
 
 export function completionEvidenceGuardIds(plan){
@@ -48,6 +46,7 @@ export function validateTemplateFactoryExternalProof({
   runId,
   workflowName='Template Factory Quality Gate v2',
   workflowConclusion='success',
+  guardRegistry,
 }={}){
   const issues=[];
   if(workflowName!=='Template Factory Quality Gate v2')issues.push({code:'EXTERNAL_PROOF_WORKFLOW_IDENTITY_MISMATCH',expected:'Template Factory Quality Gate v2',actual:workflowName});
@@ -62,10 +61,14 @@ export function validateTemplateFactoryExternalProof({
   const incomplete=proofs.filter(item=>item?.browserMatrixPassed!==true||item?.browserMatrixComplete!==true);
   if(incomplete.length)issues.push({code:'EXTERNAL_PROOF_BROWSER_MATRIX_INCOMPLETE',templates:incomplete.map(item=>item?.templateKey??'unknown')});
   if(manifest?.checksum){
-    const copy={...manifest};delete copy.checksum;
-    const actual=sha256(canonicalJson(copy));
+    const actual=templateFactoryEvidenceChecksum(manifest);
     if(actual!==manifest.checksum)issues.push({code:'EXTERNAL_PROOF_CHECKSUM_INVALID',expected:manifest.checksum,actual});
   }else issues.push({code:'EXTERNAL_PROOF_CHECKSUM_MISSING'});
+  if(manifest&&manifest.contract===TEMPLATE_FACTORY_QUALITY_CONTRACT){
+    const registry=guardRegistry??readJson('quality/knowledge/guard-registry.v1.json');
+    const liveValidation=validateTemplateLiveProofRecord(manifest.liveProof,{currentHead:expectedHead,currentBranch:expectedBranch,registry});
+    for(const liveIssue of liveValidation.issues)issues.push({code:liveIssue.code,scope:'template-live-proof',...liveIssue});
+  }
   if(!String(runId??'').trim())issues.push({code:'EXTERNAL_PROOF_RUN_ID_MISSING'});
   const ok=issues.length===0;
   return{
@@ -86,6 +89,10 @@ export function validateTemplateFactoryExternalProof({
         artifactChecksum:manifest.checksum,
         browserMatrixCount:proofs.reduce((sum,item)=>sum+Number(item?.browserMatrixCaseCount??0),0),
         acceptanceProofCount:proofs.length,
+        liveProofMode:manifest.liveProof?.mode??null,
+        liveProofOriginSourceCommit:manifest.liveProof?.originSourceCommit??null,
+        liveProofOriginRunId:manifest.liveProof?.originRunId??null,
+        liveProofInputContractDigest:manifest.liveProof?.inputContractDigest??null,
       },
     }:null,
   };
