@@ -682,6 +682,28 @@
             "mobile"
           ],
           "visualProof": true
+        },
+        "liveProofInputs": [
+          "src/**",
+          "public/**",
+          "supabase/**",
+          "package.json",
+          "package-lock.json",
+          "next.config.*",
+          "tsconfig.json",
+          "vercel.json"
+        ],
+        "liveProofPolicy": {
+          "contract": "shoporation.template-factory-live-proof-input-policy.v1",
+          "subject": "deployed-application-runtime-behavior",
+          "proofEngineScope": "exact-head-local-verification",
+          "reuseRequires": [
+            "same-branch-ancestor",
+            "successful-origin-template-factory-workflow",
+            "valid-origin-manifest-checksum",
+            "zero-liveProofInput-changes"
+          ],
+          "unknownPolicy": "REQUIRED"
         }
       },
       "chain": {
