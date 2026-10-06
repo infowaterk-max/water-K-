@@ -381,9 +381,12 @@
         "GUARD-RELEASE-RISK",
         "GUARD-QUALITY-TESTS",
         "GUARD-TYPECHECK",
-        "GUARD-PRODUCTION-BUILD"
+        "GUARD-PRODUCTION-BUILD",
+        "GUARD-TEMPLATE-FACTORY"
       ],
-      "externalGuards": [],
+      "externalGuards": [
+        "GUARD-TEMPLATE-FACTORY"
+      ],
       "phase": "PLAN"
     },
     "requirements": [
@@ -531,5 +534,5 @@
       }
     ]
   },
-  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling."
+  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement."
 }
