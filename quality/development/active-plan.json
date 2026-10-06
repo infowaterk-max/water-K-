@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-PRODUCTION-SURFACE-CLOSURE-V1",
   "task": "Close the post-#958 Control Plane release-unit execution gaps by binding the existing GitHub adapter to a least-privilege repository execution surface, implementing the canonical ALREADY_APPLIED no-code path, and automating final parent Completion Truth/Lifecycle consumption without creating a parallel release, proof or lifecycle authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "9a67776f",
+  "guardDigest": "a41cfd0c",
   "changeBaseSha": "108501e6b0cc6d1fb5653d4cc1720085b9db9f2a",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -11,11 +11,13 @@
     "scripts/release-unit-github-runtime.mjs",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
     "scripts/release-unit-execute.mjs",
+    "scripts/shoperation-edit-time-guard.mjs",
     "scripts/release-unit-parent-close.mjs",
     "tests/control-plane-release-unit-execution-binding.test.ts",
     "tests/control-plane-release-unit-production-surface.test.ts",
     "tests/shoperation-operational-intelligence.test.ts",
-    "tests/control-plane-release-unit-orchestration.test.ts"
+    "tests/control-plane-release-unit-orchestration.test.ts",
+    "tests/shoperation-development-guard.test.ts"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -124,7 +126,8 @@
         "Implement the previously specified ALREADY_APPLIED no-code path inside the existing release-unit runtime/adapter without synthesizing a PR when exact current-main proof is sufficient.",
         "Add a thin parent-close adapter that reuses existing Knowledge, Plan Before Code, Edit-Time, Incremental Replay, Release Risk, Quality/Type/Build evidence, Completion Truth, lifecycle emission and recordReleaseParentClosure semantics at the last merged implementation main.",
         "Persist the canonical closed parent plan only after parent Truth/Lifecycle are verified at the final implementation main; the plan-closure commit may advance main afterward without changing the recorded implementation head.",
-        "Add adversarial regression coverage for trigger scope, permission scope, stale source/main/state ref, interruption/resume, ALREADY_APPLIED safe and unsafe states, parent early-close, final-main mismatch, closure-branch recursion and mutable receipt attacks."
+        "Add adversarial regression coverage for trigger scope, permission scope, stale source/main/state ref, interruption/resume, ALREADY_APPLIED safe and unsafe states, parent early-close, final-main mismatch, closure-branch recursion and mutable receipt attacks.",
+        "Extend the existing Edit-Time Guard with a release-unit ALREADY_APPLIED evidence mode that validates the sealed materialization receipt against the exact child manifest/current main so Completion Truth receives canonical implementation evidence without inventing a parallel no-code gate."
       ],
       "out": [
         "No new Completion Truth, Lifecycle, Release Risk, Atlas, Sentinel, Knowledge, CI/CD platform or deployment authority.",
@@ -168,7 +171,8 @@
         "GitHub write permission is job-scoped and namespace-scoped; ordinary CI retains contents read and cannot become a general merge bot.",
         "CAS state persistence remains monotonic and a stale expected state commit can never be overwritten by a retry or second runner.",
         "Parent closure evidence is bound to the final implementation main SHA recorded by the last CLOSED release unit, never to an arbitrary later main.",
-        "Security Audit, Sentinel and external proof applicability are not weakened by execution automation."
+        "Security Audit, Sentinel and external proof applicability are not weakened by execution automation.",
+        "ALREADY_APPLIED implementation evidence is emitted only by the existing Edit-Time authority after exact manifest/receipt/main validation; the execution adapter may not fabricate GUARD-EDIT-TIME success."
       ],
       "forbiddenStates": [
         "write-capable-release-job-on-ordinary-feature-branch",
@@ -364,6 +368,13 @@
         "finding": "Free-form execution parameters would widen Unit 2 scope authority and make audit provenance mutable.",
         "resolution": "Derive source SHA from the workflow commit, base from origin/main and scope from Plan Before Code output only; do not expose file, base or merge-target inputs.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RUPSC-11",
+        "scenario": "The driver marks GUARD-EDIT-TIME successful for an already-applied unit without running the canonical Edit-Time producer.",
+        "finding": "Completion Truth could accept fabricated implementation completeness even though no child PR diff exists.",
+        "resolution": "Add an explicit receipt-backed no-code mode to the existing Edit-Time Guard, validate all manifest operations as already applied at exact current main, and consume that producer artifact through normal verification checkpoint semantics.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -371,6 +382,7 @@
       "Prove job-level permission isolation and branch namespace guards so normal CI stays contents:read and no pull_request event can enter release execution.",
       "Add finite-state/adversarial tests for driver resume, stale CAS, pending/foreign child proof, merge/main drift and parent early-close rejection.",
       "Add explicit ALREADY_APPLIED tests for all-applied exact-main PASS versus partial, stale, generated-identity or proof-incomplete BLOCK.",
+      "Run the existing Edit-Time Guard in sealed ALREADY_APPLIED mode and prove tampered receipt, partial operation coverage, wrong manifest/binding digest and wrong exact main all BLOCK before Completion Truth.",
       "Prove parent closure consumes existing verification checkpoint, Completion Truth and lifecycle artifacts at the exact last implementation main and records recordReleaseParentClosure without a local verdict.",
       "Run Edit-Time Guard, Incremental Replay, unchanged Release Risk, Quality Tests, TypeScript, Production Build and any canonically applicable external proof on the exact implementation head.",
       "Require Completion Truth VERIFIED and Lifecycle Closure for this hardening transaction, merge it, and verify fresh main CI plus Template Factory applicability exactly as produced.",
@@ -387,12 +399,14 @@
         ".github/workflows/ci.yml",
         "scripts/lib/shoperation-release-unit-runtime.mjs",
         "scripts/release-unit-github-runtime.mjs",
-        "scripts/release-unit-execute.mjs"
+        "scripts/release-unit-execute.mjs",
+        "scripts/shoperation-edit-time-guard.mjs"
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-execution-binding.test.ts",
         "tests/shoperation-operational-intelligence.test.ts",
-        "tests/control-plane-release-unit-orchestration.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/shoperation-development-guard.test.ts"
       ],
       "impactedReadOnly": [
         "quality/knowledge/guard-registry.v1.json",
@@ -585,5 +599,5 @@
       }
     ]
   },
-  "notes": "Capability-closure audit after merged PR #958 found three concrete remaining edges before the promised production-like rehearsal: no GitHub workflow/job invokes scripts/release-unit-execute.mjs; prepareActiveUnit still turns every ALREADY_APPLIED result into STALE despite the canonical no-code requirement; and the GitHub execution CLI stops at PARENT_CLOSURE_ELIGIBLE without consuming the existing parent Truth/Lifecycle closure path. This transaction closes only those integration gaps. It does not pre-promote Knowledge and does not yet claim the overall Release Unit Orchestration program end-to-end complete; a separate real multi-unit fixture rehearsal is mandatory after merge. Plan-only PR #969 run 37518329190 correctly failed closed on projected-scope reconciliation. Canonical projection resolved the implementation to release-infrastructure / DOMAIN-RELEASE / release-infrastructure authority, active failure set SQ-KF-003/004/006/008/009/013/014/018/020/022 plus TF-KF-001/005/007/009/010/011/013/014/015, projected Release Risk 2/5, and guard digest 128614ad. The plan is reconciled to those upstream facts before any implementation edit. Pre-implementation state-machine audit proved the ALREADY_APPLIED no-code path cannot be implemented solely in the GitHub adapter because canonical verification currently requires PR_OPEN and canonical merge/close currently requires a PR-backed MERGED state. Scope therefore expands before the first implementation edit to scripts/lib/shoperation-release-unit-runtime.mjs plus its orchestration regression consumer; Plan Before Code must pass again before code changes."
+  "notes": "Capability-closure audit after merged PR #958 found three concrete remaining edges before the promised production-like rehearsal: no GitHub workflow/job invokes scripts/release-unit-execute.mjs; prepareActiveUnit still turns every ALREADY_APPLIED result into STALE despite the canonical no-code requirement; and the GitHub execution CLI stops at PARENT_CLOSURE_ELIGIBLE without consuming the existing parent Truth/Lifecycle closure path. This transaction closes only those integration gaps. It does not pre-promote Knowledge and does not yet claim the overall Release Unit Orchestration program end-to-end complete; a separate real multi-unit fixture rehearsal is mandatory after merge. Plan-only PR #969 run 37518329190 correctly failed closed on projected-scope reconciliation. Canonical projection resolved the implementation to release-infrastructure / DOMAIN-RELEASE / release-infrastructure authority, active failure set SQ-KF-003/004/006/008/009/013/014/018/020/022 plus TF-KF-001/005/007/009/010/011/013/014/015, projected Release Risk 2/5, and guard digest 128614ad. The plan is reconciled to those upstream facts before any implementation edit. Pre-implementation state-machine audit proved the ALREADY_APPLIED no-code path cannot be implemented solely in the GitHub adapter because canonical verification currently requires PR_OPEN and canonical merge/close currently requires a PR-backed MERGED state. Scope therefore expands before the first implementation edit to scripts/lib/shoperation-release-unit-runtime.mjs plus its orchestration regression consumer; Plan Before Code must pass again before code changes. No-code proof analysis further showed that Completion Truth cannot accept a manually asserted implementation outcome when no child PR diff exists. The existing Edit-Time Guard must therefore gain a sealed materialization-receipt mode and remains the implementation-evidence producer. Scope expands to scripts/shoperation-edit-time-guard.mjs plus its regression consumer before implementation; no new guard ID or Truth authority is introduced."
 }
