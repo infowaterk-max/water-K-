@@ -136,6 +136,9 @@ describe('release-unit execution binding hardening',()=>{
     const m=manifest(),body=releaseUnitPullRequestBody(m);
     expect(validateExactPullRequest({number:7,head:{sha:H},base:{sha:A},body},{headSha:H,baseSha:A,bindingDigest:m.childDevelopmentTransaction.bindingDigest}).number).toBe(7);
     expect(()=>validateExactPullRequest({number:7,head:{sha:'2'.repeat(40)},base:{sha:A},body},{headSha:H,baseSha:A,bindingDigest:m.childDevelopmentTransaction.bindingDigest})).toThrow(/HEAD_MISMATCH/);
+    expect(()=>validateExactPullRequest({number:7,head:{sha:H},base:{sha:A},body:'no canonical envelope'},{headSha:H,baseSha:A,bindingDigest:m.childDevelopmentTransaction.bindingDigest})).toThrow(/CONTEXT_MISMATCH/);
+    const tamperedBody=releaseUnitPullRequestBody({...m,childDevelopmentTransaction:{...m.childDevelopmentTransaction,bindingDigest:'f'.repeat(64)}});
+    expect(()=>validateExactPullRequest({number:7,head:{sha:H},base:{sha:A},body:tamperedBody},{headSha:H,baseSha:A,bindingDigest:m.childDevelopmentTransaction.bindingDigest})).toThrow(/CONTEXT_MISMATCH/);
     expect(selectExactSuccessfulCiRun([{databaseId:1,headSha:H,headBranch:'release-unit/dev',status:'completed',conclusion:'success'}],{headSha:H,headBranch:'release-unit/dev'}).databaseId).toBe(1);
     expect(selectExactSuccessfulCiRun([{databaseId:2,headSha:H,headBranch:'other',status:'completed',conclusion:'success'}],{headSha:H,headBranch:'release-unit/dev'})).toBeNull();
     expect(stateRefFor('DEV Parent 1')).toBe('refs/heads/control-plane/release-state/dev-parent-1');
