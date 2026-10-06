@@ -18,7 +18,8 @@
     ".github/workflows/template-factory-quality-gate.yml",
     "tests/template-factory-resumable-verification.test.ts",
     "scripts/template-factory-quality-gate.mjs",
-    "tests/shoperation-external-proof-handoff.test.ts"
+    "tests/shoperation-external-proof-handoff.test.ts",
+    "tests/storefront-template-quality-gate-v2.test.ts"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -411,7 +412,8 @@
       "proof": [
         "tests/control-plane-ecosystem-chain.test.ts",
         "tests/template-factory-resumable-verification.test.ts",
-        "tests/shoperation-external-proof-handoff.test.ts"
+        "tests/shoperation-external-proof-handoff.test.ts",
+        "tests/storefront-template-quality-gate-v2.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -584,5 +586,5 @@
       }
     ]
   },
-  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Runtime proof on implementation HEAD 00d36f7 exposed a missing handoff: requirement detection requested and validated GUARD-TEMPLATE-FACTORY, while Resumable Verification still used manual Completion Contract refs and rejected the proof as EXTERNAL_EVIDENCE_UNREQUESTED. Scope is expanded canonically to the checkpoint reconciler before editing it. The current descendant HEAD 45dd558c has only canceled Vercel deployments because Ignored Build Step correctly classified it as non-runtime. Template Factory nevertheless waits for exact-head preview because PR cumulative path selection re-triggers the workflow. Scope is expanded to canonical Template Factory resumable-proof orchestration and workflow only; reuse must be evidence-based, never a skip. Manifest producer is now explicitly in scope so live sub-proof reuse is visible to external Completion Truth rather than being an implicit workflow skip. External handoff regression coverage is explicitly added to proof scope because live-proof provenance validation changes its acceptance contract."
+  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Runtime proof on implementation HEAD 00d36f7 exposed a missing handoff: requirement detection requested and validated GUARD-TEMPLATE-FACTORY, while Resumable Verification still used manual Completion Contract refs and rejected the proof as EXTERNAL_EVIDENCE_UNREQUESTED. Scope is expanded canonically to the checkpoint reconciler before editing it. The current descendant HEAD 45dd558c has only canceled Vercel deployments because Ignored Build Step correctly classified it as non-runtime. Template Factory nevertheless waits for exact-head preview because PR cumulative path selection re-triggers the workflow. Scope is expanded to canonical Template Factory resumable-proof orchestration and workflow only; reuse must be evidence-based, never a skip. Manifest producer is now explicitly in scope so live sub-proof reuse is visible to external Completion Truth rather than being an implicit workflow skip. External handoff regression coverage is explicitly added to proof scope because live-proof provenance validation changes its acceptance contract. The existing Template Factory v2 authority-envelope regression is explicitly added to proof scope because checksum ownership moved from a runner-local helper to the canonical shared Template Factory evidence checksum."
 }
