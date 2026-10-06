@@ -357,67 +357,26 @@ jobs:
         with:
           script: |
             const fs=require('fs');
-            const {execFileSync}=require('child_process');
             const {pathToFileURL}=require('url');
             const moduleUrl=pathToFileURL(process.cwd()+'/scripts/lib/shoperation-template-factory-resumable-verification.mjs').href;
-            const {deriveTemplateLiveProofDecision,templateFactoryEvidenceChecksum}=await import(moduleUrl);
+            const {deriveTemplateLiveRuntimeOrigin}=await import(moduleUrl);
             const registry=JSON.parse(fs.readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
-            const manifestPath='artifacts/template-factory-checkpoint/manifest.json';
-            const sha=context.payload.pull_request?.head?.sha??context.sha;
-            const branch=context.payload.pull_request?.head?.ref??context.ref.replace('refs/heads/','');
-            let prior=null,checksumValid=false,ancestorProven=false,originWorkflowConclusion='',changedFiles=[];
-            if(fs.existsSync(manifestPath)){
-              try{
-                prior=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
-                checksumValid=Boolean(prior?.checksum&&prior.checksum===templateFactoryEvidenceChecksum(prior));
-                if(prior?.sourceCommit){
-                  try{
-                    execFileSync('git',['merge-base','--is-ancestor',prior.sourceCommit,sha],{stdio:'ignore'});
-                    ancestorProven=true;
-                  }catch{}
-                  if(ancestorProven){
-                    try{
-                      const raw=execFileSync('git',['diff','--name-only','--diff-filter=ACMRD',prior.sourceCommit,sha,'--'],{encoding:'utf8'}).trim();
-                      changedFiles=raw?raw.split(/\r?\n/).filter(Boolean):[];
-                    }catch{}
-                  }
-                }
-                if(prior?.runId){
-                  try{
-                    const run=await github.rest.actions.getWorkflowRun({...context.repo,run_id:Number(prior.runId)});
-                    const exactIdentity=run.data.name==='Template Factory Quality Gate v2'
-                      &&run.data.head_sha===prior.sourceCommit
-                      &&run.data.head_branch===prior.branch;
-                    originWorkflowConclusion=exactIdentity?String(run.data.conclusion??''):'identity-mismatch';
-                  }catch(error){
-                    core.warning('Prior Template Factory workflow lookup failed: '+String(error));
-                  }
-                }
-              }catch(error){
-                core.warning('Prior Template Factory manifest unreadable: '+String(error));
-              }
-            }
-            const decision=deriveTemplateLiveProofDecision({
-              registry,
-              priorManifest:prior,
-              priorManifestChecksumValid:checksumValid,
-              currentHead:sha,
-              currentBranch:branch,
-              ancestorProven,
-              originWorkflowConclusion,
-              changedFilesSinceOrigin:changedFiles,
-            });
+            const head=context.payload.pull_request?.head?.sha??context.sha;
+            const base=context.payload.pull_request?.base?.sha??process.env.QUALITY_BASE_SHA??'';
+            const decision=deriveTemplateLiveRuntimeOrigin({registry,baseSha:base,currentHead:head});
             fs.mkdirSync('artifacts/template-factory-quality',{recursive:true});
             fs.writeFileSync('artifacts/template-factory-quality/live-proof-decision.json',JSON.stringify(decision,null,2)+'\n');
-            core.info('Template Factory live proof: '+decision.mode+' — '+decision.reason);
+            if(decision.decision!=='PASS'){
+              core.setFailed('TEMPLATE_LIVE_RUNTIME_ORIGIN_UNPROVEN');
+              return;
+            }
+            core.info('Template Factory runtime target: '+decision.mode+' — '+decision.runtimeSourceCommit+' — '+decision.reason);
             core.setOutput('mode',decision.mode);
-            core.setOutput('manifest_mode',decision.mode==='REUSE'?'REUSED':'LIVE');
+            core.setOutput('manifest_mode','LIVE');
             core.setOutput('reason',decision.reason);
-            core.setOutput('origin_sha',decision.originSourceCommit??'');
-            core.setOutput('origin_run_id',decision.originRunId??'');
-            core.setOutput('origin_conclusion',decision.originWorkflowConclusion??'');
+            core.setOutput('runtime_sha',decision.runtimeSourceCommit??'');
             core.setOutput('ancestor_proven',String(decision.ancestorProven===true));
-            core.setOutput('input_equivalence',String(decision.inputEquivalenceProven===true));
+            core.setOutput('runtime_equivalence',String(decision.runtimeEquivalenceProven===true));
             core.setOutput('changed_files',JSON.stringify(decision.changedFilesSinceOrigin??[]));
             core.setOutput('affected_inputs',JSON.stringify(decision.affectedInputs??[]));
 
