@@ -7,6 +7,7 @@ const templateKey=(process.env.PRODUCT_OWNER_TEMPLATE_KEY??'').trim();
 const templateVersion=Number(process.env.PRODUCT_OWNER_TEMPLATE_VERSION??'');
 const sourceCommit=(process.env.PRODUCT_OWNER_SOURCE_COMMIT??'').trim()||null;
 const runtimeSourceCommit=(process.env.PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT??'').trim()||sourceCommit;
+const deploymentSourceCommit=(process.env.PRODUCT_OWNER_DEPLOYMENT_SOURCE_COMMIT??'').trim()||runtimeSourceCommit;
 const email=(process.env.PRODUCT_OWNER_TEST_EMAIL??'').trim();
 const password=process.env.PRODUCT_OWNER_TEST_PASSWORD??'';
 const storageState=(process.env.PRODUCT_OWNER_STORAGE_STATE??'').trim();
@@ -326,18 +327,21 @@ if(!engineFunctionalOnly){
       checks.engineFunctionalProofEngine=engineProof?.engine??null;
       checks.engineFunctionalProofSourceCommit=engineProof?.sourceCommit??null;
       checks.engineFunctionalProofRuntimeSourceCommit=engineProof?.runtimeSourceCommit??null;
+      checks.engineFunctionalProofDeploymentSourceCommit=engineProof?.deploymentSourceCommit??null;
       checks.engineFunctionalProofArtifactPassed=engineProof?.passed===true;
       const contractOk=engineProof?.contract==='shoporation.shared-engine-functional-proof.v1';
       const engineOk=engineProof?.engine==='E13';
       const commitOk=!sourceCommit||engineProof?.sourceCommit===sourceCommit;
       const runtimeCommitOk=!runtimeSourceCommit||engineProof?.runtimeSourceCommit===runtimeSourceCommit;
-      checks.engineFunctionalProofPassed=contractOk&&engineOk&&commitOk&&runtimeCommitOk&&engineProof?.passed===true;
+      const deploymentCommitOk=!deploymentSourceCommit||engineProof?.deploymentSourceCommit===deploymentSourceCommit;
+      checks.engineFunctionalProofPassed=contractOk&&engineOk&&commitOk&&runtimeCommitOk&&deploymentCommitOk&&engineProof?.passed===true;
       if(!checks.engineFunctionalProofPassed){
         const detail=[
           contractOk?'contract=ok':`contract=${engineProof?.contract??'missing'}`,
           engineOk?'engine=E13':`engine=${engineProof?.engine??'missing'}`,
           commitOk?'sourceCommit=ok':`sourceCommit=${engineProof?.sourceCommit??'missing'}`,
           runtimeCommitOk?'runtimeSourceCommit=ok':`runtimeSourceCommit=${engineProof?.runtimeSourceCommit??'missing'}`,
+          deploymentCommitOk?'deploymentSourceCommit=ok':`deploymentSourceCommit=${engineProof?.deploymentSourceCommit??'missing'}`,
           engineProof?.passed===true?'passed=true':'passed=false',
         ].join(',');
         errors.push(`ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:${detail}`);
@@ -475,7 +479,7 @@ try{
       if(provenance.templateRecipe!==`${templateKey}@${templateVersion}`)errors.push('PREVIEW_RECIPE_IDENTITY_MISMATCH');
       if(provenance.compileSource!=='template-factory')errors.push('PREVIEW_COMPILE_SOURCE_MISMATCH');
       if(!provenance.foundationTemplate||provenance.foundationTemplate==='none')errors.push('PREVIEW_FOUNDATION_PROVENANCE_MISSING');
-      if(runtimeSourceCommit&&provenance.sourceCommit!==runtimeSourceCommit)errors.push('PREVIEW_SOURCE_COMMIT_MISMATCH');
+      if(deploymentSourceCommit&&provenance.sourceCommit!==deploymentSourceCommit)errors.push('PREVIEW_SOURCE_COMMIT_MISMATCH');
       await root.first().screenshot({path:path.join(outputDir,'product-owner-preview.png'),animations:'disabled',timeout:25000});
     }
 
@@ -493,7 +497,7 @@ try{
         sourceCommit:element.getAttribute('data-source-commit'),
       }));
       if(provenance.compileSource!=='template-factory')throw new Error(`CANDIDATE_PRESENTATION_AUTHORITY_MISMATCH:${label}`);
-      if(runtimeSourceCommit&&provenance.sourceCommit!==runtimeSourceCommit)throw new Error(`CANDIDATE_ROUTE_SOURCE_COMMIT_MISMATCH:${label}`);
+      if(deploymentSourceCommit&&provenance.sourceCommit!==deploymentSourceCommit)throw new Error(`CANDIDATE_ROUTE_SOURCE_COMMIT_MISMATCH:${label}`);
       return candidateRoot;
     };
     const visitCandidate=async(pageType,label,extra={})=>{
@@ -634,12 +638,12 @@ try{
 const diagnosticRoute=cleanUrl(previewUrl);
 const diagnostics=errors.map(rawValue=>{
   const raw=String(rawValue),code=raw.split(':')[0],detail=raw.includes(':')?raw.slice(raw.indexOf(':')+1):raw;
-  const base={code,reason:raw,route:diagnosticRoute,contract:engineFunctionalOnly?'shoporation.shared-engine-functional-proof.v1':'shoporation.template-factory-product-owner-handoff.v2',expected:engineFunctionalOnly?'Shared engine functional proof PASS':'Product Owner journey check PASS',actual:detail,evidence:engineFunctionalOnly?[`engine=E13`,`sourceCommit=${sourceCommit??'unknown'}`,`runtimeSourceCommit=${runtimeSourceCommit??'unknown'}`]:[`template=${templateKey}@${templateVersion}`,`sourceCommit=${sourceCommit??'unknown'}`,`runtimeSourceCommit=${runtimeSourceCommit??'unknown'}`]};
+  const base={code,reason:raw,route:diagnosticRoute,contract:engineFunctionalOnly?'shoporation.shared-engine-functional-proof.v1':'shoporation.template-factory-product-owner-handoff.v2',expected:engineFunctionalOnly?'Shared engine functional proof PASS':'Product Owner journey check PASS',actual:detail,evidence:engineFunctionalOnly?[`engine=E13`,`sourceCommit=${sourceCommit??'unknown'}`,`runtimeSourceCommit=${runtimeSourceCommit??'unknown'}`,`deploymentSourceCommit=${deploymentSourceCommit??'unknown'}`]:[`template=${templateKey}@${templateVersion}`,`sourceCommit=${sourceCommit??'unknown'}`,`runtimeSourceCommit=${runtimeSourceCommit??'unknown'}`,`deploymentSourceCommit=${deploymentSourceCommit??'unknown'}`]};
   if(code==='TEMPLATE_AWARE_AUTH_SHELL_MISSING')return{...base,contract:'template-aware-auth-shell',expected:'exactly one template-aware preview auth shell',actual:`count=${checks.templateAwareAuthShellCount??0}`};
   if(code==='TEMPLATE_AUTH_STYLE_IDENTITY_MISSING')return{...base,contract:'template-versioned-auth-style',expected:'template/version-aware auth style marker present',actual:'marker missing'};
   if(code==='VISIBLE_SHARED_AUTH_SURFACE_NOT_UNIQUE')return{...base,contract:'visible-auth-surface',expected:'exactly one visible shared auth surface',actual:`count=${checks.visibleAuthSurfaceCount??'unknown'}`};
   if(code==='SOURCE_COMMIT_MISMATCH')return{...base,contract:'exact-head-proof-provenance',expected:sourceCommit??'exact proof source commit',actual:raw};
-  if(code==='PREVIEW_SOURCE_COMMIT_MISMATCH'||code.startsWith('CANDIDATE_ROUTE_SOURCE_COMMIT_MISMATCH'))return{...base,contract:'runtime-deployment-provenance',expected:runtimeSourceCommit??'runtime source commit',actual:raw};
+  if(code==='PREVIEW_SOURCE_COMMIT_MISMATCH'||code.startsWith('CANDIDATE_ROUTE_SOURCE_COMMIT_MISMATCH'))return{...base,contract:'runtime-deployment-provenance',expected:deploymentSourceCommit??'deployment source commit',actual:raw};
   if(code==='ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN')return{...base,contract:'shoporation.shared-engine-functional-proof.v1',expected:'E13 real /penztar journey PASS with authoritative quote and fail-closed submit',actual:detail};
   return base;
 });
@@ -648,6 +652,7 @@ const proof=engineFunctionalOnly?{
   engine:'E13',
   sourceCommit,
   runtimeSourceCommit,
+  deploymentSourceCommit,
   previewUrl:cleanUrl(previewUrl),
   checks,
   errors,
@@ -661,6 +666,7 @@ const proof=engineFunctionalOnly?{
   templateVersion,
   sourceCommit,
   runtimeSourceCommit,
+  deploymentSourceCommit,
   previewUrl:cleanUrl(previewUrl),
   checks,
   errors,
