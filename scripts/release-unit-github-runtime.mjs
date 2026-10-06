@@ -11,6 +11,7 @@ import {
   sealReleaseUnitManifest,
   synchronizeReleaseParentExecution,
   encodeReleaseUnitContextEnvelope,
+  decodeReleaseUnitContextEnvelope,
   RELEASE_UNIT_CI_CONTEXT_CONTRACT,
 } from './lib/shoperation-release-unit-runtime.mjs';
 
