@@ -7,16 +7,18 @@
   "changeBaseSha": "f8a22cc4a014c2d0fb293b8b327736a1138309b0",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
+    "quality/knowledge/development-guard-policy.v1.json",
     "quality/knowledge/guard-registry.v1.json",
     "quality/knowledge/shoperation-quality-knowledge.v1.json",
-    "quality/knowledge/development-guard-policy.v1.json",
-    "scripts/shoperation-knowledge-preflight.mjs",
-    "scripts/shoperation-development-guard.mjs",
-    "scripts/shoperation-plan-before-code.mjs",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
+    "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
     "scripts/release-unit-materialize.mjs",
+    "scripts/shoperation-development-guard.mjs",
+    "scripts/shoperation-knowledge-preflight.mjs",
+    "scripts/shoperation-plan-before-code.mjs",
     "tests/control-plane-release-decomposition.test.ts",
-    "tests/release-unit-materialization.test.ts"
+    "tests/release-unit-materialization.test.ts",
+    "tests/template-factory-resumable-verification.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
@@ -385,6 +387,13 @@
         "finding": "A splitter optimized to always return units could invent a semantically false boundary.",
         "resolution": "Return FAIL_CLOSED with diagnostic reasons and no materializable manifests when no safe decomposition exists.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RD-14",
+        "scenario": "The selected runtime source is a merge whose long feature-parent ancestry exceeds the bounded preview-candidate window while a safe equivalent Preview exists on another near parent lineage.",
+        "finding": "Topological max-count enumeration can spend the whole candidate budget on one merged lineage and never evaluate a graph-near safe ancestor, causing a false TEMPLATE_LIVE_RUNTIME_PREVIEW_ANCHOR_MISSING.",
+        "resolution": "Enumerate bounded ancestry fairly by graph distance across every parent using deterministic breadth-first traversal; keep equivalence and non-production Preview checks unchanged and fail closed if no BFS candidate is safe.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -399,7 +408,8 @@
       "Require actual Release Risk Budget PASS for the Unit 2 implementation itself under unchanged policy.",
       "Run full Quality Tests, TypeScript and Production Build on the implementation head.",
       "Require exact-head Completion Truth VERIFIED and external Template Factory proof whenever canonical guard semantics derive it as applicable.",
-      "Close lifecycle only after the verified implementation head is recorded and then rerun exact-head CI for Lifecycle Closure PASS."
+      "Close lifecycle only after the verified implementation head is recorded and then rerun exact-head CI for Lifecycle Closure PASS.",
+      "Add a merge-DAG regression where one parent lineage is deeper than the candidate budget and prove breadth-first ancestry still surfaces the safe runtime-equivalent Preview ancestor without increasing the candidate limit."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-06-CONTROL-PLANE-RELEASE-DECOMPOSITION",
@@ -408,9 +418,10 @@
         "release-infrastructure"
       ],
       "mustEdit": [
+        "quality/knowledge/development-guard-policy.v1.json",
         "quality/knowledge/guard-registry.v1.json",
         "quality/knowledge/shoperation-quality-knowledge.v1.json",
-        "quality/knowledge/development-guard-policy.v1.json",
+        "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
         "scripts/shoperation-development-guard.mjs",
         "scripts/shoperation-plan-before-code.mjs"
       ],
@@ -438,7 +449,8 @@
       ],
       "proof": [
         "tests/control-plane-release-decomposition.test.ts",
-        "tests/release-unit-materialization.test.ts"
+        "tests/release-unit-materialization.test.ts",
+        "tests/template-factory-resumable-verification.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -614,5 +626,5 @@
       }
     ]
   },
-  "notes": "Unit 2 extends the already merged Control Plane ecosystem chain. The broad Development Transaction remains distinct from Release Transactions: if projected risk is blocked, the original plan must not become executable merely because decomposition exists. Instead the system emits canonical unit manifests; a unit-specific transaction reconciles from exact main and final Release Risk remains independently authoritative. Prior Unit 1 lessons about execution-context proof identity, proof/runtime identity separation, proof-engine/runtime-input separation, upstream-data reuse, exact-head Atlas reuse and classifier self-narrowing are preserved through the existing canonical Knowledge mechanism rather than a new parallel registry. Plan-only CI 37454384741 proved the canonical scope resolver classifies the Knowledge Infrastructure paths as infrastructure metadata rather than a substantive quality-infrastructure subsystem; projected scope is therefore release-infrastructure only, while Atlas domain authority remains DOMAIN-QUALITY + DOMAIN-RELEASE. Unit 2 implementation records prior Unit 1 proof/runtime and recomputation lessons as canonical Negative Knowledge and makes release.decomposition + release.unit-manifests first-class outputs of the existing Plan Before Code producer. Edit-Time Reference Sync confirmed the historical Atlas build expression is a repository-wide high-signal implementation identity; Plan Before Code therefore preserves it inside an explicit fallback helper while exact-head upstream snapshots remain the preferred path. Knowledge Preflight is corrected from MUST_EDIT to impacted read-only producer."
+  "notes": "Unit 2 extends the already merged Control Plane ecosystem chain. The broad Development Transaction remains distinct from Release Transactions: if projected risk is blocked, the original plan must not become executable merely because decomposition exists. Instead the system emits canonical unit manifests; a unit-specific transaction reconciles from exact main and final Release Risk remains independently authoritative. Prior Unit 1 lessons about execution-context proof identity, proof/runtime identity separation, proof-engine/runtime-input separation, upstream-data reuse, exact-head Atlas reuse and classifier self-narrowing are preserved through the existing canonical Knowledge mechanism rather than a new parallel registry. Plan-only CI 37454384741 proved the canonical scope resolver classifies the Knowledge Infrastructure paths as infrastructure metadata rather than a substantive quality-infrastructure subsystem; projected scope is therefore release-infrastructure only, while Atlas domain authority remains DOMAIN-QUALITY + DOMAIN-RELEASE. Unit 2 implementation records prior Unit 1 proof/runtime and recomputation lessons as canonical Negative Knowledge and makes release.decomposition + release.unit-manifests first-class outputs of the existing Plan Before Code producer. Edit-Time Reference Sync confirmed the historical Atlas build expression is a repository-wide high-signal implementation identity; Plan Before Code therefore preserves it inside an explicit fallback helper while exact-head upstream snapshots remain the preferred path. Knowledge Preflight is corrected from MUST_EDIT to impacted read-only producer. External PR-context proof on run 37460205095 exposed a merge-DAG starvation bug in bounded Preview-anchor enumeration: c34d7ac is 55 commits ahead of 42e60510, so rev-list --topo-order --max-count=40 can omit the graph-near 42e/33ed parent lineage. Scope expands canonically to the existing Template Factory resumable-verification runtime and its regression test; the fix must change traversal fairness, not increase the candidate budget or relax Preview equivalence."
 }
