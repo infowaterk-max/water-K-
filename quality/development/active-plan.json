@@ -20,7 +20,8 @@
     "scripts/release-unit-execute.mjs",
     ".github/workflows/ci.yml",
     ".github/workflows/template-factory-quality-gate.yml",
-    "tests/control-plane-release-unit-execution-binding.test.ts"
+    "tests/control-plane-release-unit-execution-binding.test.ts",
+    "scripts/shoperation-sentinel-integrity-probe.mjs"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -130,7 +131,8 @@
         "Add child-lifecycle mode to the existing closure machinery so an ephemeral release-unit child plan closes into an execution receipt/artifact rather than requiring a repository active-plan commit; parent closure semantics remain unchanged.",
         "Strengthen release-unit verification so Truth/Lifecycle task identity, parent transaction identity, releaseUnitId, manifestDigest and exact source head must match the projected child transaction.",
         "Add a thin GitHub-bound execution adapter over existing materializeReleaseUnit plus git/gh: state-ref CAS, exact unit branch push, PR create/read, exact-head proof receipt import, exact-head merge, resulting-main receipt and successor authorization/reconciliation.",
-        "Add adversarial regressions for parent/child lifecycle separation, tampered PR context, stale state ref, wrong proof task, wrong PR head/base/source, GitHub/gh failure, merge drift, duplicate retries, successor obligation drift and interruption/resume."
+        "Add adversarial regressions for parent/child lifecycle separation, tampered PR context, stale state ref, wrong proof task, wrong PR head/base/source, GitHub/gh failure, merge drift, duplicate retries, successor obligation drift and interruption/resume.",
+        "Route Sentinel integrity probe plan consumption through the same validated alternate child-plan path so Incremental Replay cannot silently inspect the parent plan during a child Development Transaction."
       ],
       "out": [
         "No new Completion Truth, Lifecycle, Release Risk, Atlas, Sentinel, CI/CD, deployment or production release authority.",
@@ -167,7 +169,8 @@
         "The GitHub adapter can initialize/resume exact persisted execution state, materialize the current authorized unit, push the exact commit, create/read the matching PR, import exact proof, merge only the verified source head and record resulting main SHA.",
         "A stale execution state ref, stale main, mutable/tampered PR context, PR head/base drift, missing gh authentication, non-success proof, missing child closure, or merge result drift blocks without advancing state.",
         "After merge, a successor can advance only from a freshly produced/reconciled manifest and child transaction bound to the new main.",
-        "A three-unit integration replay completes U1→U2→U3 with separate child closures while parent closureEligible remains false until U3 closes and parent Completion Truth/Lifecycle remains the sole final closure authority."
+        "A three-unit integration replay completes U1→U2→U3 with separate child closures while parent closureEligible remains false until U3 closes and parent Completion Truth/Lifecycle remains the sole final closure authority.",
+        "Sentinel integrity checks executed inside a child transaction consume the validated child plan path; root/default runs remain bound to quality/development/active-plan.json."
       ],
       "invariants": [
         "Unit 2 manifest remains code scope authority; the GitHub adapter cannot add product operations beyond the sealed manifest.",
@@ -417,6 +420,13 @@
         "finding": "There may be no meaningful code PR head distinct from main.",
         "resolution": "Adapter must handle this as an explicit no-code completion/reconciliation path only when every operation is atomically already-applied and proof obligations can be satisfied at exact current main; otherwise block rather than fabricate a PR.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RUEB-17",
+        "scenario": "Incremental Replay invokes Sentinel integrity while CI has activated a release-unit child plan.",
+        "finding": "A hardcoded root active-plan consumer would compare child execution evidence against the parent transaction and could either false-block or falsely validate the wrong authority.",
+        "resolution": "Sentinel probe consumes the same SHOPERATION_ACTIVE_PLAN path after CI context validation, while the default path remains unchanged outside child mode.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -446,7 +456,8 @@
         "scripts/shoperation-truth-gate.mjs",
         "scripts/shoperation-close-development-plan.mjs",
         ".github/workflows/ci.yml",
-        ".github/workflows/template-factory-quality-gate.yml"
+        ".github/workflows/template-factory-quality-gate.yml",
+        "scripts/shoperation-sentinel-integrity-probe.mjs"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -613,5 +624,5 @@
       }
     ]
   },
-  "notes": "Continuation/hardening of merged Unit 3 after capability-closure audit. The audit proved two remaining canonical edges: PR/merge receipts had no repository producer, and intermediate unit lifecycle evidence was not bound to a distinct child Development Transaction. This transaction closes those edges inside existing Release Transaction/Control Plane authorities. No Knowledge promotion is pre-written. Plan-only PR #958 run 37501003926 resolved canonical scope to quality-infrastructure + release-infrastructure, retained DOMAIN-QUALITY + DOMAIN-RELEASE authorities, canonical Negative Knowledge SQ-NK-002/003/005/010/012/016-023, guard digest 9a67776f, projected Release Risk 4/5 PASS, and a mandatory two-unit decomposition caused by the canonical 12-file unit limit."
+  "notes": "Continuation/hardening of merged Unit 3 after capability-closure audit. The audit proved two remaining canonical edges: PR/merge receipts had no repository producer, and intermediate unit lifecycle evidence was not bound to a distinct child Development Transaction. This transaction closes those edges inside existing Release Transaction/Control Plane authorities. No Knowledge promotion is pre-written. Plan-only PR #958 run 37501003926 resolved canonical scope to quality-infrastructure + release-infrastructure, retained DOMAIN-QUALITY + DOMAIN-RELEASE authorities, canonical Negative Knowledge SQ-NK-002/003/005/010/012/016-023, guard digest 9a67776f, projected Release Risk 4/5 PASS, and a mandatory two-unit decomposition caused by the canonical 12-file unit limit. Consumer audit found scripts/shoperation-sentinel-integrity-probe.mjs as an additional active-plan reader reachable from Control Plane replay. Canonical scope expanded before implementation; a new Plan Before Code PASS is required."
 }
