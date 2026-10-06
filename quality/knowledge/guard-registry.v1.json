@@ -695,7 +695,26 @@
         ],
         "produces": [
           "template.factory-proof"
-        ]
+        ],
+        "liveProofInputs": [
+          "src/**",
+          "public/**",
+          "supabase/**",
+          "package.json",
+          "package-lock.json",
+          "next.config.*",
+          "vercel.json",
+          "deploy/**",
+          "scripts/template-factory-product-owner-handoff.mjs"
+        ],
+        "liveProofReuse": {
+          "mode": "same-branch-ancestor-runtime-equivalence",
+          "unknownPolicy": "LIVE_REQUIRED",
+          "requirePriorWorkflowSuccess": true,
+          "requirePriorManifestChecksum": true,
+          "requireAncestor": true,
+          "requireNoAffectedLiveProofInputs": true
+        }
       }
     },
     {
@@ -1115,7 +1134,8 @@
       "deterministicFactsHaveOneProducer": true,
       "phaseApplicabilityIsExplicit": true,
       "missingProducerFailsClosed": true,
-      "dependencyCycleFailsClosed": true
+      "dependencyCycleFailsClosed": true,
+      "reusedEvidenceNamesOrigin": true
     },
     "dataProducts": {
       "repository.change-impact": {
