@@ -72,13 +72,17 @@ async function authenticatePlatformOperator(page){
     if(response&&new URL(page.url()).pathname==='/admin/platform')return true;
   }
   if(!email||!password)throw new Error('ENGINE_FUNCTIONAL_PLATFORM_CREDENTIALS_REQUIRED');
-  const response=await page.goto(new URL('/platform',origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
+  const loginUrl=new URL('/api/auth/workforce-login',origin);
+  loginUrl.searchParams.set('next','/admin/platform');
+  const response=await page.goto(loginUrl.toString(),{waitUntil:'domcontentloaded',timeout:30000});
   if(!response)throw new Error('ENGINE_FUNCTIONAL_PLATFORM_LOGIN_NO_RESPONSE');
   await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
   await dismissCookieConsent(page);
-  const emailInput=page.locator('input[name="email"]:visible').first();
-  const passwordInput=page.locator('input[name="password"]:visible').first();
-  const submit=page.getByRole('button',{name:'Belépés a Shoperationbe',exact:true});
+  const workforceRoot=page.locator('[data-workforce-auth="true"]');
+  await workforceRoot.waitFor({state:'visible',timeout:10000});
+  const emailInput=workforceRoot.locator('input[type="email"]:visible').first();
+  const passwordInput=workforceRoot.locator('input[type="password"]:visible').first();
+  const submit=workforceRoot.getByRole('button',{name:'Tovább a biztonsági ellenőrzéshez',exact:true});
   await emailInput.waitFor({state:'visible',timeout:10000});
   await passwordInput.waitFor({state:'visible',timeout:10000});
   await emailInput.fill(email);
