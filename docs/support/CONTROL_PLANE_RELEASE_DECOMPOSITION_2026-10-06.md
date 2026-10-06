@@ -32,3 +32,4 @@ Generated artifacts require either explicit regeneration command semantics or se
 - A classifier or scope resolver may not narrow itself in a way that hides runtime dependencies.
 - Failure Intake → reconciliation → Known Failure / Negative Knowledge / graph learning remains the only promotion path for newly observed recurring defects; this unit does not create a parallel learning registry.
 - Reference Sync must not infer a repository-wide required edit from lexical coincidence of a local executable implementation expression; only a real machine reference/semantic identity or source assertion may make that expression blocking.
+- Reference Sync regression fixtures must construct synthetic reference values at runtime instead of embedding the exact production candidate as a raw source literal; otherwise the fixture becomes its own machine consumer.

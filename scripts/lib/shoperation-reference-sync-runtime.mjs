@@ -244,16 +244,17 @@ if(process.argv.includes('--self-test')){
   ];
   const stale=evaluateCandidateConsumers(candidates,[],after).flatMap(item=>item.staleConsumers);
   if(stale.length!==3||stale.some(item=>item.file.includes('negative')))throw new Error('REFERENCE_SYNC_SELF_TEST_FAILED');
+  const atlasExpression=['const atlas=','buildCodebaseAtlas()'].join('');
   const executableCoincidence=evaluateCandidateConsumers(
-    [{kind:'implementation-expression',value:'const atlas=buildCodebaseAtlas()',severity:'block',originFile:'scripts/shoperation-plan-before-code.mjs'}],
-    [{file:'scripts/shoperation-codebase-atlas.mjs',line:3,text:'const atlas=buildCodebaseAtlas()'}],
-    [{file:'scripts/shoperation-codebase-atlas.mjs',line:3,text:'const atlas=buildCodebaseAtlas()'}],
+    [{kind:'implementation-expression',value:atlasExpression,severity:'block',originFile:'scripts/shoperation-plan-before-code.mjs'}],
+    [{file:'scripts/shoperation-codebase-atlas.mjs',line:3,text:atlasExpression}],
+    [{file:'scripts/shoperation-codebase-atlas.mjs',line:3,text:atlasExpression}],
   )[0];
   if((executableCoincidence?.staleConsumers??[]).length!==0||(executableCoincidence?.reviewConsumers??[]).length!==1)throw new Error('REFERENCE_SYNC_EXECUTABLE_COINCIDENCE_FALSE_BLOCK');
   const assertionConsumer=evaluateCandidateConsumers(
-    [{kind:'implementation-expression',value:'const atlas=buildCodebaseAtlas()',severity:'block',originFile:'scripts/shoperation-plan-before-code.mjs'}],
+    [{kind:'implementation-expression',value:atlasExpression,severity:'block',originFile:'scripts/shoperation-plan-before-code.mjs'}],
     [],
-    [{file:'tests/atlas-consumer.test.ts',line:1,text:"expect(source).toContain('const atlas=buildCodebaseAtlas()')"}],
+    [{file:'tests/atlas-consumer.test.ts',line:1,text:"expect(source).toContain('"+atlasExpression+"')"}],
   )[0];
   if((assertionConsumer?.staleConsumers??[]).length!==1)throw new Error('REFERENCE_SYNC_ASSERTION_CONSUMER_FALSE_NEGATIVE');
   const before='export async function startPlatformPilotAcceptanceAction(){}\nexport const KEEP_ME=1;';

@@ -17,11 +17,12 @@ import {
 
 describe('Semantic Execution Intelligence adversarial closure',()=>{
   it('does not promote identical executable implementation expressions into repository-wide required edits',()=>{
-    const candidate={kind:'implementation-expression',value:'const atlas=buildCodebaseAtlas()',severity:'block',originFile:'scripts/shoperation-plan-before-code.mjs'};
+    const atlasExpression=['const atlas=','buildCodebaseAtlas()'].join('');
+    const candidate={kind:'implementation-expression',value:atlasExpression,severity:'block',originFile:'scripts/shoperation-plan-before-code.mjs'};
     const executable=evaluateCandidateConsumers(
       [candidate],
-      [{file:'scripts/shoperation-codebase-atlas.mjs',line:3,text:'const atlas=buildCodebaseAtlas()'}],
-      [{file:'scripts/shoperation-codebase-atlas.mjs',line:3,text:'const atlas=buildCodebaseAtlas()'}],
+      [{file:'scripts/shoperation-codebase-atlas.mjs',line:3,text:atlasExpression}],
+      [{file:'scripts/shoperation-codebase-atlas.mjs',line:3,text:atlasExpression}],
     )[0];
     expect(executable.staleConsumers).toEqual([]);
     expect(executable.reviewConsumers).toEqual([expect.objectContaining({file:'scripts/shoperation-codebase-atlas.mjs'})]);
@@ -29,7 +30,7 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     const assertion=evaluateCandidateConsumers(
       [candidate],
       [],
-      [{file:'tests/atlas-source.test.ts',line:7,text:"expect(source).toContain('const atlas=buildCodebaseAtlas()')"}],
+      [{file:'tests/atlas-source.test.ts',line:7,text:"expect(source).toContain('"+atlasExpression+"')"}],
     )[0];
     expect(assertion.staleConsumers).toEqual([expect.objectContaining({file:'tests/atlas-source.test.ts'})]);
   });
