@@ -1,4 +1,5 @@
 import {execFileSync,spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import {mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -8,6 +9,7 @@ import {evaluateReleaseRiskFiles,globToRegExp} from './shoperation-development-r
 export const RELEASE_DECOMPOSITION_CONTRACT='shoporation.release-decomposition.v1';
 export const RELEASE_UNIT_MANIFEST_CONTRACT='shoporation.release-unit-manifest.v1';
 export const DEFAULT_MAX_FILES_PER_UNIT=12;
+export const RELEASE_UNIT_CHILD_TRANSACTION_CONTRACT='shoporation.release-unit-child-transaction.v1';
 
 const uniq=values=>[...new Set((values??[]).filter(Boolean))].sort();
 const operationPaths=operation=>uniq([operation.file,operation.previousFile]);
@@ -128,6 +130,114 @@ function digest(value){
   for(let i=0;i<text.length;i+=1){hash^=text.charCodeAt(i);hash=Math.imul(hash,16777619);}
   return (hash>>>0).toString(16).padStart(8,'0');
 }
+export function strongDigest(value){return createHash('sha256').update(JSON.stringify(value)).digest('hex');}
+function childPlanDigestValue(plan){
+  const next=structuredClone(plan??{});
+  if(next.releaseUnitContext){
+    delete next.releaseUnitContext.manifestDigest;
+    delete next.releaseUnitContext.bindingDigest;
+    delete next.releaseUnitContext.childPlanDigest;
+    delete next.releaseUnitContext.materializedHeadSha;
+  }
+  return next;
+}
+export function releaseUnitChildPlanDigest(plan){return strongDigest(childPlanDigestValue(plan));}
+export function releaseUnitContextBindingDigest({manifestDigest,childPlanDigest,operationDigest,releaseUnitId,parentTransactionId,targetBaseSha}={}){
+  return strongDigest({manifestDigest,childPlanDigest,operationDigest,releaseUnitId,parentTransactionId,targetBaseSha});
+}
+export function refreshReleaseUnitIdentity(manifest){
+  const next=structuredClone(manifest);
+  if(next.childDevelopmentTransaction)next.childDevelopmentTransaction.bindingDigest=null;
+  next.manifestDigest=null;
+  next.manifestDigest=digest(next);
+  const child=next.childDevelopmentTransaction;
+  if(child){
+    child.operationDigest=strongDigest(next.operations??[]);
+    child.bindingDigest=releaseUnitContextBindingDigest({
+      manifestDigest:next.manifestDigest,
+      childPlanDigest:child.planDigest,
+      operationDigest:child.operationDigest,
+      releaseUnitId:next.releaseUnitId,
+      parentTransactionId:next.transaction?.parentTransactionId??next.transaction?.id??null,
+      targetBaseSha:next.targetBaseSha,
+    });
+  }
+  return next;
+}
+export function bindReleaseUnitChildTransaction(manifest,{parentPlan,guardDigest,expectedSubsystems=[],expectedDomains=[],expectedAuthorities=[],expectedKnownFailureIds=[],acknowledgedPoInstructionIds=[],acknowledgedNegativeKnowledgeIds=[],semanticExecutionRoute={}}={}){
+  if(manifest?.contract!==RELEASE_UNIT_MANIFEST_CONTRACT)throw new Error('RELEASE_UNIT_MANIFEST_CONTRACT_INVALID');
+  if(!parentPlan?.taskId)throw new Error('RELEASE_UNIT_PARENT_PLAN_REQUIRED');
+  const taskId=manifest.releaseUnitId+'-TX';
+  const sourceRef=parentPlan.completionContract?.sourceRef??parentPlan.operationalIntelligence?.sourceRef??manifest.transaction?.sourceRef??null;
+  const childPlan=structuredClone(parentPlan);
+  delete childPlan.lifecycle;
+  childPlan.taskId=taskId;
+  childPlan.task='Execute canonical release unit '+manifest.releaseUnitId+' of '+parentPlan.taskId+' without widening the manifest-authorized scope.';
+  childPlan.status='ready-for-implementation';
+  childPlan.guardDigest=guardDigest;
+  childPlan.changeBaseSha=manifest.targetBaseSha;
+  childPlan.plannedFilePatterns=[...(manifest.intendedFiles??[])];
+  childPlan.expectedSubsystems=[...expectedSubsystems];
+  childPlan.expectedDomains=[...expectedDomains];
+  childPlan.expectedAuthorities=[...expectedAuthorities];
+  childPlan.expectedKnownFailureIds=[...expectedKnownFailureIds];
+  childPlan.acknowledgedPoInstructionIds=[...acknowledgedPoInstructionIds];
+  childPlan.acknowledgedNegativeKnowledgeIds=[...acknowledgedNegativeKnowledgeIds];
+  childPlan.exceptions=(parentPlan.exceptions??[]).filter(item=>(manifest.intendedFiles??[]).includes(item?.file));
+  childPlan.operationalIntelligence={
+    ...structuredClone(parentPlan.operationalIntelligence??{}),
+    sourceKind:'product-owner-request',
+    sourceRef,
+    problemStatement:'Execute release unit '+manifest.releaseUnitId+' as the exact manifest-authorized child transaction of '+parentPlan.taskId+' while preserving parent lifecycle separation and all canonical gate obligations.',
+    observableOutcomes:[
+      'The exact files and operations authorized by release unit '+manifest.releaseUnitId+' are the only material changes present in the child PR.',
+      'All canonical child gate obligations pass on the exact materialized PR head before any merge receipt can be accepted.',
+      'Child Truth and Lifecycle evidence remain bound to '+manifest.releaseUnitId+' and cannot close parent transaction '+(manifest.transaction?.parentTransactionId??parentPlan.taskId)+'.'
+    ],
+    unresolvedRisks:[
+      'Repository or authority drift after predecessor merge can invalidate this child projection and must fail closed during fresh successor reconciliation.',
+      'Mutable PR metadata is not authority; CI context must remain cryptographically bound to the exact materialized commit and child plan digest.',
+      'A merge strategy may change resulting main identity, so successor base remains the explicit merged-main receipt rather than the PR source head.'
+    ],
+    semanticExecutionRoute:structuredClone(semanticExecutionRoute),
+    executionAuthorized:true,
+  };
+  childPlan.completionContract={
+    sourceKind:'product-owner-request',
+    sourceRef,
+    systemObligations:{derivation:'release-unit-manifest',requiredGuards:[...(manifest.requiredGates??[])],externalGuards:[...(manifest.requiredEvidence?.externalGateIds??[])],phase:'EXECUTE'},
+    requirements:[
+      {
+        id:'REQ-RELEASE-UNIT-TRANSACTION-INTEGRITY',
+        requirement:'Release unit '+manifest.releaseUnitId+' must implement only its manifest-authorized scope and pass exact-head child transaction verification without parent lifecycle conflation.',
+        claimScope:{capability:'CAP-QUALITY',breadth:'release-unit-transaction-integrity',strength:2,dimensions:['scope','positive-state','forbidden-state','lifecycle','actual-subset-plan','required-subset-actual']},
+        requiredCapabilities:['CAP-QUALITY'],
+        evidence:{implementation:['GUARD-EDIT-TIME'],outcome:['GUARD-QUALITY-TESTS']},
+        forbiddenRegressions:[{id:'NEG-RELEASE-UNIT-SCOPE-WIDEN',statement:'The child PR must not contain material changes outside the release-unit manifest scope or accept foreign parent or unit lifecycle evidence.',evidence:['GUARD-QUALITY-TESTS']}],
+      },
+      {
+        id:'REQ-RELEASE-UNIT-RISK-INTEGRITY',
+        requirement:'Release unit '+manifest.releaseUnitId+' must remain within the unchanged canonical Release Risk Budget on its exact target-base transaction.',
+        claimScope:{capability:'CAP-RELEASE',breadth:'release-unit-risk-integrity',strength:2,dimensions:['risk','release-scope']},
+        requiredCapabilities:['CAP-RELEASE'],
+        evidence:{implementation:['GUARD-RELEASE-RISK'],outcome:['GUARD-RELEASE-RISK']},
+        forbiddenRegressions:[{id:'NEG-RELEASE-UNIT-RISK-BYPASS',statement:'No child transaction may reinterpret a canonical Release Risk BLOCK as executable.',evidence:['GUARD-RELEASE-RISK']}],
+      }
+    ],
+  };
+  childPlan.releaseUnitContext={
+    contract:RELEASE_UNIT_CHILD_TRANSACTION_CONTRACT,
+    parentTransactionId:manifest.transaction?.parentTransactionId??parentPlan.taskId,
+    releaseUnitId:manifest.releaseUnitId,
+    order:manifest.order,
+    targetBaseSha:manifest.targetBaseSha,
+    planAuthority:'release-unit-manifest#childDevelopmentTransaction',
+  };
+  const planDigest=releaseUnitChildPlanDigest(childPlan);
+  const next=structuredClone(manifest);
+  next.childDevelopmentTransaction={contract:RELEASE_UNIT_CHILD_TRANSACTION_CONTRACT,taskId,planDigest,operationDigest:null,bindingDigest:null,plan:childPlan};
+  return refreshReleaseUnitIdentity(next);
+}
 
 export function validateReleaseUnitOrder(manifests=[]){
   const ids=new Set(manifests.map(unit=>unit.releaseUnitId)),edges=new Map(manifests.map(unit=>[unit.releaseUnitId,uniq(unit.predecessorUnits??[]).filter(id=>ids.has(id))]));
@@ -233,7 +343,7 @@ export function decomposeReleaseScope({
       decision:'PASS',
     };
   });
-  for(const unit of releaseUnits)unit.manifestDigest=digest({...unit,manifestDigest:null});
+  for(let index=0;index<releaseUnits.length;index+=1)releaseUnits[index]=refreshReleaseUnitIdentity(releaseUnits[index]);
   const ordering=validateReleaseUnitOrder(releaseUnits);
   if(ordering.decision!=='PASS')return{contract:RELEASE_DECOMPOSITION_CONTRACT,decision:'FAIL_CLOSED',reason:'CYCLIC_RELEASE_UNIT_DEPENDENCY',originalRisk,releaseUnits:[],ordering};
   return{
@@ -268,8 +378,12 @@ export function reconcileReleaseUnitManifest(manifest,{newBaseSha,predecessorRec
   next.targetBaseSha=newBaseSha;
   next.lease={expectedBaseSha:newBaseSha,failOnDrift:true,reconciled:true,reconciledFromSha:manifest.targetBaseSha??null};
   next.reconciliationPolicy={...next.reconciliationPolicy,reconciledAtBaseSha:newBaseSha};
-  next.manifestDigest=digest({...next,manifestDigest:null});
-  return next;
+  if(next.childDevelopmentTransaction?.plan){
+    next.childDevelopmentTransaction.plan.changeBaseSha=newBaseSha;
+    next.childDevelopmentTransaction.plan.releaseUnitContext={...(next.childDevelopmentTransaction.plan.releaseUnitContext??{}),targetBaseSha:newBaseSha};
+    next.childDevelopmentTransaction.planDigest=releaseUnitChildPlanDigest(next.childDevelopmentTransaction.plan);
+  }
+  return refreshReleaseUnitIdentity(next);
 }
 
 function git(cwd,args,options={}){
@@ -295,8 +409,7 @@ export function sealReleaseUnitManifest(manifest,{sourceCommit,cwd=process.cwd()
     return{...operation,source:{mode:'sealed',commit:sourceCommit,blobSha,fileMode:modeAt(cwd,sourceCommit,operation.file)}};
   });
   sealed.sourceIdentity={sourceCommit,sealed:true};
-  sealed.manifestDigest=digest({...sealed,manifestDigest:null});
-  return sealed;
+  return refreshReleaseUnitIdentity(sealed);
 }
 
 function validateMaterializationManifest(manifest){
@@ -355,11 +468,11 @@ export function materializeReleaseUnit({manifest,sourceCommit=null,targetRef='re
       git(cwd,['update-index','--add','--cacheinfo',`${desired.fileMode},${desired.blobSha},${operation.file}`],{env});applied.push(operation);
     }
     const tree=git(cwd,['write-tree'],{env}),baseTree=git(cwd,['rev-parse',`${sealed.targetBaseSha}^{tree}`]);
-    if(tree===baseTree)return{contract:'shoporation.release-unit-materialization.v1',status:'ALREADY_APPLIED',releaseUnitId:sealed.releaseUnitId,targetBaseSha:sealed.targetBaseSha,commitSha:null,materializedHeadSha:sealed.targetBaseSha,manifestDigest:sealed.manifestDigest,sourceCommit:sealed.sourceIdentity.sourceCommit,applied,alreadyApplied};
+    if(tree===baseTree)return{contract:'shoporation.release-unit-materialization.v1',status:'ALREADY_APPLIED',releaseUnitId:sealed.releaseUnitId,targetBaseSha:sealed.targetBaseSha,commitSha:null,materializedHeadSha:sealed.targetBaseSha,manifestDigest:sealed.manifestDigest,bindingDigest:sealed.childDevelopmentTransaction?.bindingDigest??null,sourceCommit:sealed.sourceIdentity.sourceCommit,applied,alreadyApplied};
     const commitMessage=message??`Materialize ${sealed.releaseUnitId}`;
     const commit=git(cwd,['commit-tree',tree,'-p',sealed.targetBaseSha,'-m',commitMessage]);
     if(updateRef)git(cwd,['update-ref',targetRef,commit,sealed.targetBaseSha]);
-    return{contract:'shoporation.release-unit-materialization.v1',status:updateRef?'APPLIED':'PREPARED',releaseUnitId:sealed.releaseUnitId,targetBaseSha:sealed.targetBaseSha,commitSha:commit,materializedHeadSha:commit,treeSha:tree,manifestDigest:sealed.manifestDigest,sourceCommit:sealed.sourceIdentity.sourceCommit,applied,alreadyApplied};
+    return{contract:'shoporation.release-unit-materialization.v1',status:updateRef?'APPLIED':'PREPARED',releaseUnitId:sealed.releaseUnitId,targetBaseSha:sealed.targetBaseSha,commitSha:commit,materializedHeadSha:commit,treeSha:tree,manifestDigest:sealed.manifestDigest,bindingDigest:sealed.childDevelopmentTransaction?.bindingDigest??null,sourceCommit:sealed.sourceIdentity.sourceCommit,applied,alreadyApplied};
   }finally{rmSync(temp,{recursive:true,force:true});}
 }
 
@@ -392,6 +505,8 @@ const normalizedExecutionObligations=manifest=>({
   forbiddenPaths:uniq(manifest?.forbiddenPaths??[]),
   readOnlyPaths:uniq(manifest?.readOnlyPaths??[]),
   generatedArtifactSemantics:sortedObjects(manifest?.generatedArtifactSemantics??[]),
+  childPlanDigest:manifest?.childDevelopmentTransaction?.planDigest??null,
+  childOperationDigest:manifest?.childDevelopmentTransaction?.operationDigest??null,
   predecessorUnits:uniq(manifest?.predecessorUnits??[]),
   projectedRiskDecision:manifest?.projectedRisk?.decision??null,
 });
@@ -425,6 +540,9 @@ export function projectReleaseUnitTransaction(manifest){
     forbiddenPaths:uniq(manifest.forbiddenPaths??[]),
     readOnlyPaths:uniq(manifest.readOnlyPaths??[]),
     sourceIdentity:executionClone(manifest.sourceIdentity??null),
+    childTaskId:manifest.childDevelopmentTransaction?.taskId??null,
+    childPlanDigest:manifest.childDevelopmentTransaction?.planDigest??null,
+    bindingDigest:manifest.childDevelopmentTransaction?.bindingDigest??null,
   };
 }
 
@@ -570,6 +688,7 @@ export function recordReleaseUnitMaterialization(execution,receipt){
   if(receipt.releaseUnitId!==execution.releaseUnitId)executionError('RELEASE_UNIT_MATERIALIZATION_UNIT_MISMATCH');
   if(receipt.targetBaseSha!==execution.manifest.targetBaseSha)executionError('RELEASE_UNIT_MATERIALIZATION_BASE_MISMATCH');
   if(receipt.manifestDigest!==execution.manifest.manifestDigest)executionError('RELEASE_UNIT_MATERIALIZATION_MANIFEST_MISMATCH');
+  if(execution.manifest.childDevelopmentTransaction?.bindingDigest&&receipt.bindingDigest!==execution.manifest.childDevelopmentTransaction.bindingDigest)executionError('RELEASE_UNIT_MATERIALIZATION_BINDING_MISMATCH');
   if(!['PREPARED','APPLIED','ALREADY_APPLIED'].includes(receipt.status))executionError('RELEASE_UNIT_MATERIALIZATION_STATUS_INVALID');
   const materializedHeadSha=receipt.materializedHeadSha??receipt.commitSha??(receipt.status==='ALREADY_APPLIED'?receipt.targetBaseSha:null);
   requiredText(materializedHeadSha,'RELEASE_UNIT_MATERIALIZATION_HEAD_REQUIRED');
@@ -587,6 +706,7 @@ export function recordReleaseUnitPullRequest(execution,receipt){
   if(receipt.headSha!==execution.materialization.materializedHeadSha)executionError('RELEASE_UNIT_PR_HEAD_MISMATCH',{expected:execution.materialization.materializedHeadSha,actual:receipt.headSha});
   if(receipt.baseSha!==execution.manifest.targetBaseSha)executionError('RELEASE_UNIT_PR_BASE_MISMATCH');
   if(receipt.manifestDigest!==execution.manifest.manifestDigest)executionError('RELEASE_UNIT_PR_MANIFEST_MISMATCH');
+  if(execution.manifest.childDevelopmentTransaction?.bindingDigest&&receipt.bindingDigest!==execution.manifest.childDevelopmentTransaction.bindingDigest)executionError('RELEASE_UNIT_PR_BINDING_MISMATCH');
   if(receipt.sourceCommit!==execution.materialization.sourceCommit)executionError('RELEASE_UNIT_PR_SOURCE_IDENTITY_MISMATCH');
   const next=executionClone(execution);
   next.state='PR_OPEN';
@@ -598,9 +718,17 @@ export function recordReleaseUnitPullRequest(execution,receipt){
 export function recordReleaseUnitVerification(execution,{truth,lifecyclePlan}={}){
   if(execution.state!=='PR_OPEN')executionError('RELEASE_UNIT_VERIFICATION_STATE_INVALID',{state:execution.state});
   const head=execution.pullRequest.headSha;
+  const child=execution.manifest?.childDevelopmentTransaction;
+  if(!child?.taskId||!child?.planDigest||!child?.bindingDigest)executionError('RELEASE_UNIT_CHILD_TRANSACTION_REQUIRED');
+  if(truth?.taskId!==child.taskId)executionError('RELEASE_UNIT_TRUTH_TASK_MISMATCH',{expected:child.taskId,actual:truth?.taskId??null});
+  const truthContext=truth?.releaseUnitContext??{};
+  if(truthContext.parentTransactionId!==execution.parentTransactionId||truthContext.releaseUnitId!==execution.releaseUnitId||truthContext.manifestDigest!==execution.manifest.manifestDigest||truthContext.childPlanDigest!==child.planDigest||truthContext.bindingDigest!==child.bindingDigest)executionError('RELEASE_UNIT_TRUTH_CONTEXT_MISMATCH');
   if(truth?.decision!=='PASS'||truth?.truthStatus!=='VERIFIED'||truth?.internalState!=='VERIFIED_DONE')executionError('RELEASE_UNIT_TRUTH_NOT_VERIFIED',{truthStatus:truth?.truthStatus,internalState:truth?.internalState});
   if(truth.currentExactState?.head!==head)executionError('RELEASE_UNIT_TRUTH_HEAD_MISMATCH',{expected:head,actual:truth.currentExactState?.head});
   if(lifecyclePlan?.status!=='closed'||lifecyclePlan?.lifecycle?.state!=='LEARN'||lifecyclePlan?.lifecycle?.truthStatus!=='VERIFIED')executionError('RELEASE_UNIT_LIFECYCLE_NOT_CLOSED');
+  if(lifecyclePlan.taskId!==child.taskId)executionError('RELEASE_UNIT_LIFECYCLE_TASK_MISMATCH');
+  const lifecycleContext=lifecyclePlan.releaseUnitContext??{};
+  if(lifecycleContext.parentTransactionId!==execution.parentTransactionId||lifecycleContext.releaseUnitId!==execution.releaseUnitId||lifecycleContext.manifestDigest!==execution.manifest.manifestDigest||lifecycleContext.childPlanDigest!==child.planDigest||lifecycleContext.bindingDigest!==child.bindingDigest)executionError('RELEASE_UNIT_LIFECYCLE_CONTEXT_MISMATCH');
   if(lifecyclePlan.lifecycle.verifiedImplementationHead!==head)executionError('RELEASE_UNIT_LIFECYCLE_HEAD_MISMATCH',{expected:head,actual:lifecyclePlan.lifecycle.verifiedImplementationHead});
   const next=executionClone(execution);
   next.state='VERIFIED';
@@ -612,6 +740,9 @@ export function recordReleaseUnitVerification(execution,{truth,lifecyclePlan}={}
     lifecycleState:lifecyclePlan.lifecycle.state,
     lifecycleTruthStatus:lifecyclePlan.lifecycle.truthStatus,
     verifiedImplementationHead:lifecyclePlan.lifecycle.verifiedImplementationHead,
+    childTaskId:child.taskId,
+    childPlanDigest:child.planDigest,
+    bindingDigest:child.bindingDigest,
   };
   next.lastTransition={to:'VERIFIED',code:'RELEASE_UNIT_EXACT_HEAD_VERIFIED'};
   return next;
@@ -643,6 +774,9 @@ export function closeReleaseUnitExecution(execution,{currentMainSha}={}){
     manifestDigest:execution.manifest.manifestDigest,
     truthStatus:execution.verification.truthStatus,
     lifecycleState:execution.verification.lifecycleState,
+    childTaskId:execution.verification.childTaskId,
+    childPlanDigest:execution.verification.childPlanDigest,
+    bindingDigest:execution.verification.bindingDigest,
     decision:'PASS',
   };
   next.lastTransition={to:'CLOSED',code:'RELEASE_UNIT_CLOSED'};
