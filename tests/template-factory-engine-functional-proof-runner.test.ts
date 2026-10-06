@@ -19,6 +19,12 @@ describe('Template Factory shared engine functional proof runner',()=>{
     expect(runner).toContain("waitUntil:'commit'");
     expect(runner).toContain("ENGINE_FUNCTIONAL_PLATFORM_ROLE_REQUIRED");
     expect(runner).toContain("dismissCookieConsent(page)");
+    expect(runner).toContain("const loginUrl=new URL('/api/auth/workforce-login',origin)");
+    expect(runner).toContain("loginUrl.searchParams.set('next','/admin/platform')");
+    expect(runner).toContain("page.locator('[data-workforce-auth=\"true\"]')");
+    expect(runner).toContain("name:'Tovább a biztonsági ellenőrzéshez'");
+    expect(runner).not.toContain("page.goto(new URL('/platform',origin)");
+    expect(runner).not.toContain("name:'Belépés a Shoperationbe'");
     expect(runner).toContain("name:'Csak szükséges'");
     expect(runner).toContain("ENGINE_ACCEPTANCE_ENTRY_CARDINALITY_INVALID");
     expect(runner).toContain("document.querySelectorAll(selector).length===1");

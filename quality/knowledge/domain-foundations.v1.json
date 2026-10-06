@@ -601,7 +601,9 @@
         "scripts/lib/shoperation-architecture-health.mjs",
         "tests/architecture-health.test.ts",
         "src/lib/builder/template-factory/knowledge-registry.ts",
-        "scripts/lib/shoperation-**"
+        "scripts/lib/shoperation-**",
+        "scripts/template-factory-product-owner-handoff.mjs",
+        "scripts/template-factory-quality-gate.mjs"
       ],
       "evidenceObligations": [
         "guard-selection proof",
