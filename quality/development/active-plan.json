@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-SOURCE-LIFECYCLE-ADMISSION-V1",
   "task": "Close the live rehearsal integration gap where release-execution/source admission CI reaches exact-head Truth VERIFIED but the ordinary Lifecycle Closure Gate requires parent closure before the trusted multi-unit executor can run, and ensure lifecycle-gate failures enter canonical Failure Intake.",
   "status": "ready-for-implementation",
-  "guardDigest": "a41cfd0c",
+  "guardDigest": "1395803e",
   "changeBaseSha": "a157c1c291d5ef2f1b65b6452a771b6e130ea7ba",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -12,14 +12,13 @@
     "tests/shoperation-operational-intelligence.test.ts"
   ],
   "expectedSubsystems": [
+    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
@@ -32,7 +31,10 @@
     "SQ-KF-014",
     "SQ-KF-018",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-005",
     "TF-KF-007",
@@ -49,7 +51,10 @@
     "SQ-NK-003",
     "SQ-NK-005",
     "SQ-NK-010",
+    "SQ-NK-011",
     "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -61,8 +66,8 @@
   ],
   "exceptions": [],
   "operationalIntelligence": {
-    "sourceKind": "failure-intake",
-    "sourceRef": "SQ-FP-B39379154D88E01D",
+    "sourceKind": "product-owner-request",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-SOURCE-LIFECYCLE-ADMISSION-V1",
     "riskTier": "critical",
     "problemStatement": "Live source CI run 37528716724 on exact source head 0722b638464da13c540f54d603ee17fea807f51e passed Knowledge, Plan, Edit-Time, Replay, Release Risk, tests, typecheck, build and Completion Truth, then failed DEV_LIFECYCLE_CLOSE_REQUIRED because generic branch lifecycle semantics attempted to close the parent before the trusted release-unit executor could start. The same workflow omitted lifecycle-closure outcome from Failure Intake and produced zero records.",
     "observableOutcomes": [
@@ -100,7 +105,10 @@
         "what-if-matrix",
         "adversarial-scenarios",
         "boundary-cases",
-        "threat-failure-model"
+        "pairwise-interactions",
+        "threat-failure-model",
+        "fault-injection",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
@@ -261,6 +269,34 @@
         "finding": "It must use ordinary lifecycle semantics and must not re-enter source execution.",
         "resolution": "The exemption matches only release-execution/source/**, never release-execution/closure/**.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RSLA-05",
+        "scenario": "A release-execution/source push has a failing guard before Completion Truth.",
+        "finding": "Lifecycle deferral must not turn a failed source admission into executor eligibility.",
+        "resolution": "The trusted workflow_run still requires the whole CI workflow conclusion to be success; no gate outcome is rewritten.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RSLA-06",
+        "scenario": "A release-execution/source push modifies CI or executor code.",
+        "finding": "Untrusted source content must not control downstream write-capable code.",
+        "resolution": "The existing default-branch workflow_run executor continues to check out main; this fix changes only admission conditions in read-only CI.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RSLA-07",
+        "scenario": "The lifecycle transition producer returns a non-closure failure rather than closure_required=true.",
+        "finding": "A source-specific deferral must not hide producer failure.",
+        "resolution": "Defer only the expected parent-closure-required state after successful Completion Truth; producer execution errors remain failures.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RSLA-08",
+        "scenario": "Failure Intake sees lifecycle closure failure together with another failing gate.",
+        "finding": "The lifecycle signal must coexist with other diagnostic codes without replacing them.",
+        "resolution": "Append DEV_LIFECYCLE_CLOSE_REQUIRED to the existing semicolon-delimited generic failures only when lifecycle-closure outcome is failure.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -272,10 +308,9 @@
       "Merge only after exact-head proof, verify fresh main CI, then replay the rehearsal from fresh main without manual state reconstruction."
     ],
     "semanticExecutionRoute": {
-      "request": "SQ-FP-B39379154D88E01D",
+      "request": "PO-2026-10-06-CONTROL-PLANE-RELEASE-SOURCE-LIFECYCLE-ADMISSION-V1",
       "authority": [
-        "release-infrastructure",
-        "quality-knowledge-system"
+        "release-infrastructure"
       ],
       "mustEdit": [
         ".github/workflows/ci.yml"
@@ -304,11 +339,12 @@
       "plannedDeletions": [],
       "plannedRenames": [],
       "generatedArtifacts": []
-    }
+    },
+    "executionAuthorized": true
   },
   "completionContract": {
-    "sourceKind": "failure-intake",
-    "sourceRef": "SQ-FP-B39379154D88E01D",
+    "sourceKind": "product-owner-request",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-SOURCE-LIFECYCLE-ADMISSION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -396,5 +432,5 @@
       }
     ]
   },
-  "notes": "Created from live bounded rehearsal Failure Intake #973 after source run 37528716724 proved the source-admission/lifecycle ordering gap. No implementation edit is authorized until Plan Before Code reconciles this scope."
+  "notes": "Created from live bounded rehearsal Failure Intake #973 after source run 37528716724 proved the source-admission/lifecycle ordering gap. No implementation edit is authorized until Plan Before Code reconciles this scope. Plan-only run 37530106020 projected exactly 3 material files, Release Risk 2/5, DOMAIN-RELEASE/release-infrastructure authority, quality-knowledge-system + release-infrastructure subsystems, guard digest 1395803e, and the expanded failure/negative-knowledge sets now recorded in this reconciliation. Implementation remains prohibited until the reconciled plan passes."
 }
