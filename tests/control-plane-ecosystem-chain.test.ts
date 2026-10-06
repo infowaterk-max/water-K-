@@ -130,15 +130,22 @@ describe('Control Plane ecosystem chain',()=>{
     expect(checkpoint).not.toContain('requiredIds:completionEvidenceGuardIds(activePlan)');
   });
 
-  it('routes Template Factory live preview through canonical proof-reuse provenance instead of unconditional Vercel polling',()=>{
+  it('routes Template Factory live proof through Atlas-derived runtime identity without hiding current proof execution',()=>{
     const workflow=readFileSync('.github/workflows/template-factory-quality-gate.yml','utf8');
     const qualityGate=readFileSync('scripts/template-factory-quality-gate.mjs','utf8');
     const external=readFileSync('scripts/shoperation-external-proof-handoff.mjs','utf8');
-    expect(workflow).toContain('Resolve Template Factory live-proof mode');
-    expect(workflow).toContain("steps.live-proof.outputs.mode != 'REUSE'");
-    expect(workflow).toContain('TEMPLATE_QUALITY_LIVE_PROOF_MODE');
+    const handoff=readFileSync('scripts/template-factory-product-owner-handoff.mjs','utf8');
+    const guard=registry.guards.find((item:any)=>item.id==='GUARD-TEMPLATE-FACTORY');
+    expect(guard?.chain?.liveRuntime?.contract).toBe('shoporation.template-factory-live-runtime.v1');
+    expect(guard?.chain?.liveRuntime?.dependencyAuthority).toBe('codebase-atlas.forward-import-closure');
+    expect(workflow).toContain('deriveTemplateLiveRuntimeOrigin');
+    expect(workflow).toContain('steps.live-proof.outputs.runtime_sha');
+    expect(workflow).not.toContain("steps.live-proof.outputs.mode != 'REUSE'");
+    expect(workflow).toContain('PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT');
+    expect(workflow).toContain('TEMPLATE_QUALITY_LIVE_PROOF_DECISION');
+    expect(qualityGate).toContain('liveProofDecision.runtimeSourceCommit');
     expect(qualityGate).toContain("contract:'shoporation.template-factory-live-proof.v1'");
-    expect(qualityGate).toContain('liveProof,');
+    expect(handoff).toContain('PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT');
     expect(external).toContain('validateTemplateLiveProofRecord(manifest.liveProof');
   });
 
