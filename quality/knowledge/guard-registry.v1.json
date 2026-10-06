@@ -52,6 +52,25 @@
           "reconcile",
           "human-promotion"
         ]
+      },
+      "chain": {
+        "phases": [
+          "OBSERVE",
+          "DEFINE",
+          "MODEL",
+          "PLAN",
+          "PROVE_PLAN",
+          "EXECUTE",
+          "VERIFY"
+        ],
+        "execution": "local",
+        "alwaysApplicable": true,
+        "consumes": [
+          "development.actual-diff"
+        ],
+        "produces": [
+          "repository.change-impact"
+        ]
       }
     },
     {
@@ -104,6 +123,24 @@
           "alternatives",
           "challenge",
           "proof"
+        ]
+      },
+      "chain": {
+        "phases": [
+          "PLAN",
+          "PROVE_PLAN"
+        ],
+        "execution": "local",
+        "alwaysApplicable": true,
+        "consumes": [
+          "repository.change-impact"
+        ],
+        "produces": [
+          "development.plan",
+          "development.scope",
+          "development.implementation-skeleton",
+          "development.gate-chain",
+          "release.projected-risk"
         ]
       }
     },
@@ -158,6 +195,20 @@
           "forbidden-state",
           "lifecycle"
         ]
+      },
+      "chain": {
+        "phases": [
+          "EXECUTE"
+        ],
+        "execution": "local",
+        "consumes": [
+          "development.plan",
+          "development.implementation-skeleton",
+          "development.actual-diff"
+        ],
+        "produces": [
+          "development.edit-validation"
+        ]
       }
     },
     {
@@ -207,6 +258,20 @@
           "deep-atlas",
           "sentinel"
         ]
+      },
+      "chain": {
+        "phases": [
+          "EXECUTE",
+          "VERIFY"
+        ],
+        "execution": "local",
+        "consumes": [
+          "development.edit-validation",
+          "repository.change-impact"
+        ],
+        "produces": [
+          "development.replay"
+        ]
       }
     },
     {
@@ -239,6 +304,21 @@
         ],
         "authorityInputs": [
           "AGENTS.md"
+        ]
+      },
+      "chain": {
+        "phases": [
+          "TRUTH_GATE"
+        ],
+        "execution": "local",
+        "consumes": [
+          "development.replay",
+          "verification.tests",
+          "verification.types",
+          "verification.build"
+        ],
+        "produces": [
+          "completion.truth"
         ]
       }
     },
@@ -274,6 +354,22 @@
           "risk",
           "release-scope"
         ]
+      },
+      "chain": {
+        "phases": [
+          "PLAN",
+          "VERIFY"
+        ],
+        "execution": "local",
+        "alwaysApplicable": true,
+        "consumes": [
+          "development.scope",
+          "development.actual-diff",
+          "repository.change-impact"
+        ],
+        "produces": [
+          "release.risk"
+        ]
       }
     },
     {
@@ -298,6 +394,18 @@
         ],
         "configurationInputs": [
           "package.json"
+        ]
+      },
+      "chain": {
+        "phases": [
+          "VERIFY"
+        ],
+        "execution": "local",
+        "consumes": [
+          "development.actual-diff"
+        ],
+        "produces": [
+          "customer.baseline"
         ]
       }
     },
@@ -325,6 +433,19 @@
         ],
         "configurationInputs": [
           "package.json"
+        ]
+      },
+      "chain": {
+        "phases": [
+          "VERIFY"
+        ],
+        "execution": "local",
+        "consumes": [
+          "customer.baseline",
+          "development.actual-diff"
+        ],
+        "produces": [
+          "market.ready"
         ]
       }
     },
@@ -405,6 +526,18 @@
           "deep-atlas",
           "sentinel"
         ]
+      },
+      "chain": {
+        "phases": [
+          "VERIFY"
+        ],
+        "execution": "local",
+        "consumes": [
+          "development.actual-diff"
+        ],
+        "produces": [
+          "verification.tests"
+        ]
       }
     },
     {
@@ -442,6 +575,18 @@
         "scope": "typescript-static-check",
         "dimensions": [
           "types"
+        ]
+      },
+      "chain": {
+        "phases": [
+          "VERIFY"
+        ],
+        "execution": "local",
+        "consumes": [
+          "development.actual-diff"
+        ],
+        "produces": [
+          "verification.types"
         ]
       }
     },
@@ -485,6 +630,19 @@
         "dimensions": [
           "build"
         ]
+      },
+      "chain": {
+        "phases": [
+          "VERIFY"
+        ],
+        "execution": "local",
+        "consumes": [
+          "verification.types",
+          "development.actual-diff"
+        ],
+        "produces": [
+          "verification.build"
+        ]
       }
     },
     {
@@ -525,6 +683,19 @@
           ],
           "visualProof": true
         }
+      },
+      "chain": {
+        "phases": [
+          "VERIFY"
+        ],
+        "execution": "external",
+        "consumes": [
+          "verification.build",
+          "development.actual-diff"
+        ],
+        "produces": [
+          "template.factory-proof"
+        ]
       }
     },
     {
@@ -921,5 +1092,100 @@
         "reason": "Template-owned shared header/footer shell changed."
       }
     ]
+  },
+  "ecosystem": {
+    "contract": "shoporation.gate-ecosystem.v1",
+    "phaseSequence": [
+      "OBSERVE",
+      "DEFINE",
+      "MODEL",
+      "PLAN",
+      "CHALLENGE",
+      "IMPROVE",
+      "PROVE_PLAN",
+      "EXECUTE",
+      "VERIFY",
+      "TRUTH_GATE",
+      "CLOSE",
+      "LEARN"
+    ],
+    "principles": {
+      "upstreamProducesDownstreamConsumes": true,
+      "downstreamRequirementsPropagateBeforeCode": true,
+      "deterministicFactsHaveOneProducer": true,
+      "phaseApplicabilityIsExplicit": true,
+      "missingProducerFailsClosed": true,
+      "dependencyCycleFailsClosed": true
+    },
+    "dataProducts": {
+      "repository.change-impact": {
+        "producer": "GUARD-KNOWLEDGE-PREFLIGHT",
+        "authority": "quality-knowledge-system"
+      },
+      "development.plan": {
+        "producer": "GUARD-PLAN-BEFORE-CODE",
+        "authority": "quality-knowledge-system"
+      },
+      "development.scope": {
+        "producer": "GUARD-PLAN-BEFORE-CODE",
+        "authority": "quality-knowledge-system"
+      },
+      "development.implementation-skeleton": {
+        "producer": "GUARD-PLAN-BEFORE-CODE",
+        "authority": "quality-knowledge-system"
+      },
+      "development.gate-chain": {
+        "producer": "GUARD-PLAN-BEFORE-CODE",
+        "authority": "quality-knowledge-system"
+      },
+      "release.projected-risk": {
+        "producer": "GUARD-PLAN-BEFORE-CODE",
+        "authority": "release-infrastructure"
+      },
+      "development.actual-diff": {
+        "producer": "repository-git",
+        "authority": "repository"
+      },
+      "development.edit-validation": {
+        "producer": "GUARD-EDIT-TIME",
+        "authority": "quality-knowledge-system"
+      },
+      "development.replay": {
+        "producer": "GUARD-INCREMENTAL-REPLAY",
+        "authority": "quality-knowledge-system"
+      },
+      "release.risk": {
+        "producer": "GUARD-RELEASE-RISK",
+        "authority": "release-infrastructure"
+      },
+      "customer.baseline": {
+        "producer": "GUARD-CUSTOMER-BASELINE",
+        "authority": "database-schema"
+      },
+      "market.ready": {
+        "producer": "GUARD-MARKET-READY",
+        "authority": "release-infrastructure"
+      },
+      "verification.tests": {
+        "producer": "GUARD-QUALITY-TESTS",
+        "authority": "quality-knowledge-system"
+      },
+      "verification.types": {
+        "producer": "GUARD-TYPECHECK",
+        "authority": "release-infrastructure"
+      },
+      "verification.build": {
+        "producer": "GUARD-PRODUCTION-BUILD",
+        "authority": "release-infrastructure"
+      },
+      "template.factory-proof": {
+        "producer": "GUARD-TEMPLATE-FACTORY",
+        "authority": "builder-template-system"
+      },
+      "completion.truth": {
+        "producer": "GUARD-COMPLETION-TRUTH",
+        "authority": "quality-knowledge-system"
+      }
+    }
   }
 }
