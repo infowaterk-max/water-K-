@@ -12,6 +12,7 @@
     "scripts/shoperation-development-guard.mjs",
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/shoperation-external-proof-handoff.mjs",
+    "scripts/shoperation-verification-checkpoint.mjs",
     "tests/control-plane-ecosystem-chain.test.ts"
   ],
   "expectedSubsystems": [
@@ -132,7 +133,8 @@
         "Plan Before Code evaluates projected Release Risk from planned scope using the canonical release-risk policy and blocks a plan that is predictably over budget before implementation starts.",
         "Plan Before Code produces an ordered applicable gate chain and blocks dependency cycles, missing producers and unresolved downstream obligations.",
         "External completion proof requirements are derived from affected scope and guard semantics in addition to explicit PO completion references, so relevant external proof cannot be omitted accidentally.",
-        "Existing blocking gates remain authoritative and final exact-diff Release Risk, exact-head evidence and Completion Truth are not weakened or replaced."
+        "Existing blocking gates remain authoritative and final exact-diff Release Risk, exact-head evidence and Completion Truth are not weakened or replaced.",
+        "Resumable Verification consumes the same canonical derived external-proof obligations as the external-proof detector, so a validated required proof cannot be rejected downstream as unrequested."
       ],
       "invariants": [
         "One canonical guard registry remains the authority for gate identity and dependency semantics.",
@@ -185,7 +187,8 @@
         "A plan-only transaction is interpreted as failed implementation because phase applicability is not represented explicitly.",
         "Completion Truth verifies only locally declared evidence while an applicable external proof is missing.",
         "A new file duplicates an existing canonical capability because repository relationship mapping was not consulted before implementation.",
-        "A gate dependency graph contains a cycle or a required input has no authoritative producer."
+        "A gate dependency graph contains a cycle or a required input has no authoritative producer.",
+        "The external-proof detector derives a required guard correctly, but the Resumable Verification handoff recomputes requirements from only manual Completion Contract references and rejects the valid proof as unrequested."
       ],
       "edgeCases": [
         "A planned file does not yet exist and must be represented as MUST_CREATE rather than silently omitted from projection.",
@@ -320,12 +323,20 @@
         "finding": "Silently suppressing the proof would weaken assurance while blindly accepting the broad pattern can create unnecessary cost.",
         "resolution": "Surface applicability provenance in the plan; if the pattern is over-broad, repair the owning guard contract in a later reviewed change rather than bypassing the proof.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-ECO-9",
+        "scenario": "The exact-head Template Factory proof is semantically required, downloaded and validated successfully, then Resumable Verification receives the same evidence.",
+        "finding": "The previous checkpoint reconciler used completionEvidenceGuardIds(activePlan) instead of the canonical derived external requirement set and produced EXTERNAL_EVIDENCE_UNREQUESTED.",
+        "resolution": "Make checkpoint reconciliation consume requiredExternalCompletionGuards with the same active plan, verification plan and guard registry used by requirement detection; add regression coverage for this handoff.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
       "Require Plan Before Code PASS on the plan-only head with exact changeBaseSha, full Known Failure replay scope and no implementation files changed.",
       "Add focused regression coverage for gate-chain ordering, cycle detection, missing producer detection, MUST_CREATE projection and projected risk classification.",
       "Verify external proof applicability is derived from semanticInputs even when the PO Completion Contract omits the external guard identifier.",
+      "Verify Resumable Verification requests the same semantically derived external guard set as the detector and accepts exact-head Template Factory evidence instead of reporting EXTERNAL_EVIDENCE_UNREQUESTED.",
       "Run Edit-Time Guard and Incremental Replay after the implementation batch and require no expanded unplanned subsystem or authority.",
       "Require actual Release Risk Budget PASS without changing its thresholds or classification rules.",
       "Run full Quality Tests, TypeScript and Production Build on the implementation head.",
@@ -342,7 +353,8 @@
         "scripts/lib/shoperation-development-runtime.mjs",
         "scripts/shoperation-development-guard.mjs",
         "scripts/shoperation-plan-before-code.mjs",
-        "scripts/shoperation-external-proof-handoff.mjs"
+        "scripts/shoperation-external-proof-handoff.mjs",
+        "scripts/shoperation-verification-checkpoint.mjs"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -534,5 +546,5 @@
       }
     ]
   },
-  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement."
+  "notes": "Foundation release unit for the accepted Control Plane ecosystem evolution. No business runtime behavior is in scope; later release units will consume the emitted phase, risk and obligation data in CI/lifecycle/release tooling. The foundation itself now records GUARD-TEMPLATE-FACTORY as a derived external obligation because the canonical guard registry/runtime are Template Factory proof inputs; this is not a manual bypass or new acceptance requirement. Runtime proof on implementation HEAD 00d36f7 exposed a missing handoff: requirement detection requested and validated GUARD-TEMPLATE-FACTORY, while Resumable Verification still used manual Completion Contract refs and rejected the proof as EXTERNAL_EVIDENCE_UNREQUESTED. Scope is expanded canonically to the checkpoint reconciler before editing it."
 }
