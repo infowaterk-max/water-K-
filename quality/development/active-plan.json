@@ -1,33 +1,40 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-SHARP-LIBRSVG-CVE-2026-96889",
-  "task": "Remediate the high-severity sharp/librsvg CVE-2026-96889 dependency finding by moving the locked optional Next.js sharp chain from 0.35.4/libvips bundle 1.3.3 to the current patched 0.35.5/libvips bundle 1.3.4 without weakening npm audit or changing product behavior.",
-  "status": "closed",
-  "guardDigest": "2c38ea91",
-  "changeBaseSha": "51dfcada763fc039b34e83c63ebea1e9006160a6",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-ORCHESTRATION-V1",
+  "task": "Control Plane Unit 3: consume canonical release-unit manifests through a fail-closed sequential execution lifecycle, exact-identity PR/proof/merge receipts, successor re-evaluation, and parent Development Transaction closure without creating parallel Truth, risk, or quality authority.",
+  "status": "ready-for-implementation",
+  "guardDigest": "56a6f85c",
+  "changeBaseSha": "146abe7f6e6e8efa561bbb591695eff4c1b8f17b",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "package.json",
-    "package-lock.json",
-    "tests/dependency-security-contract.test.ts"
+    "quality/knowledge/development-guard-policy.v1.json",
+    "quality/knowledge/guard-registry.v1.json",
+    "scripts/lib/shoperation-release-unit-runtime.mjs",
+    "scripts/release-unit-orchestrate.mjs",
+    "tests/control-plane-release-unit-orchestration.test.ts"
   ],
   "expectedSubsystems": [
-    "dependency-contract",
-    "shared-storefront",
-    "storefront-ui"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedDomains": [
+    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -36,13 +43,28 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
+    "TF-KF-003",
     "TF-KF-004",
+    "TF-KF-005",
     "TF-KF-006",
+    "TF-KF-007",
+    "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
     "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
     "TF-KF-016",
     "TF-KF-017",
     "TF-KF-018",
@@ -56,49 +78,57 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-002",
-    "SQ-NK-004",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
-    "SQ-NK-012"
+    "SQ-NK-003",
+    "SQ-NK-005",
+    "SQ-NK-010",
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015",
+    "SQ-NK-016",
+    "SQ-NK-017",
+    "SQ-NK-018",
+    "SQ-NK-019",
+    "SQ-NK-020",
+    "SQ-NK-021",
+    "SQ-NK-022",
+    "SQ-NK-023"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-SHARP-LIBRSVG-SECURITY-REMEDIATION",
-    "riskTier": "high",
-    "problemStatement": "Exact-head CI now fails its non-bypassable production dependency audit because the lockfile installs sharp 0.35.4 with the vulnerable librsvg-bearing prebuilt dependency chain, while the supported patched sharp release is 0.35.5; this external security drift blocks Unit 3 even though Unit 3 itself does not alter dependencies.",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-ORCHESTRATION",
+    "riskTier": "critical",
+    "problemStatement": "Unit 2 can deterministically decompose unsafe development scope and atomically materialize a release-unit manifest, but no canonical consumer currently carries those manifests through authorization, exact materialization identity, PR proof, merge, successor re-evaluation, and final parent transaction closure; operators therefore still have to reconstruct execution state by hand.",
     "observableOutcomes": [
-      "package.json deterministically constrains the transitive Next.js sharp dependency to patched sharp 0.35.5 without changing Next.js, React or application runtime contracts.",
-      "package-lock.json resolves sharp and its platform/libvips optional packages to the exact 0.35.5 / 1.3.4 patched artifact family and npm ci remains deterministic.",
-      "The real exact-head Security Audit passes naturally with no advisory suppression, timeout increase, allowlist, or audit-level downgrade.",
-      "Quality Tests, TypeScript and Production Build remain green and Unit 3 can subsequently rebase/reconcile from the new main."
+      "A multi-unit Development Transaction has one machine-readable parent execution state that identifies the active release unit, completed units, blockers, and closure eligibility without replacing Completion Truth or the existing lifecycle authority.",
+      "Every release unit advances only through fail-closed transitions bound to its canonical manifest digest, exact target-base lease, materialized commit, PR head, existing Completion Truth result, existing Lifecycle closure, and merge receipt.",
+      "After each predecessor merge, the successor consumes a freshly re-evaluated canonical manifest and refuses authorization when Atlas-derived relationships, Release Risk, gate/proof obligations, forbidden or read-only scope, generated-artifact identity, or main identity changed unsafely.",
+      "Three or more sequential units can proceed from U1 authorization to final parent closure without an operator manually reconstructing branch, plan, scope, proof, or predecessor state."
     ],
     "unresolvedRisks": [
-      "Sharp is an optional transitive dependency of Next.js image optimization, so a broad npm update could unintentionally churn unrelated platform packages.",
-      "Native prebuilt package identity spans sharp plus @img/sharp-* and @img/sharp-libvips-* packages; updating only the top-level lock entry would create an inconsistent install graph.",
-      "Security advisory feeds are external to repository state, so a previously green commit can become release-blocked without source changes and must still fail closed."
+      "GitHub merge strategies can produce a merged main commit that differs from the verified PR head, so successor rebasing must consume an explicit merge receipt rather than equating merged-main identity with source-head identity.",
+      "A successor can remain path-identical while its semantic dependency, proof ownership, authority, generated-artifact source, or Release Risk obligations change after a predecessor merge; equality of filenames alone is therefore insufficient reconciliation evidence.",
+      "The existing Development Plan and Completion Truth models are transaction-scoped rather than release-unit-scoped, so child execution state must reuse their verified receipts without inventing a second truth vocabulary or falsely closing the parent early."
     ],
     "scope": {
       "in": [
-        "Add an exact root override for sharp 0.35.5.",
-        "Regenerate/update only the lockfile dependency graph required by that override.",
-        "Extend the existing dependency-security contract regression to assert patched sharp/libvips identities.",
-        "Prove the real exact-head npm security audit plus normal quality/type/build gates."
+        "Extend the existing release-unit runtime with a deterministic orchestration state machine that consumes Unit 2 manifests and existing canonical proof/lifecycle receipts.",
+        "Add successor reconciliation that compares a freshly produced canonical successor manifest against the prior authorized manifest and fails closed on unsafe semantic drift instead of merely rebinding the base SHA.",
+        "Track parent Development Transaction progress across ordered release units and expose closure eligibility only after every unit is merged and closed.",
+        "Provide one thin CLI adapter for machine execution and adversarial regression coverage for normal, stale, failed, skipped, duplicate, rename, generated-artifact, proof-ownership, exact-head, merge-strategy and cycle cases."
       ],
       "out": [
-        "No audit suppression, allowlist, severity downgrade or workflow change.",
-        "No Next.js, React, Supabase, product runtime, auth, commerce, database, Builder or storefront source change.",
-        "No broad dependency refresh beyond the sharp native/prebuilt dependency family required by the patched release.",
-        "No Unit 3 orchestration code changes on this security hotfix branch."
+        "No new CI/CD platform, deployment manager, Completion Truth authority, Release Risk authority, Sentinel authority, Atlas authority, or quality authority.",
+        "No Release Risk Budget threshold, subsystem weighting, gate requirement, exact-head rule, Template Factory rule, or lifecycle closure rule is weakened.",
+        "No product runtime, authentication, commerce, database, storefront, Builder, tenant, or production deployment behavior is changed.",
+        "No automatic GitHub merge is authorized merely by orchestration state; merge receipts remain explicit execution evidence."
       ]
     },
     "assuranceCeiling": {
-      "level": "strong-behavioral-proof",
-      "rationale": "A high-severity native image-processing dependency finding blocks release and can affect server-side processing of attacker-influenced image inputs. The remediation is small but changes the deterministic install graph and native binary family, so it requires exact versioning, bounded lockfile churn, real npm audit proof, and full build regression without weakening any security gate.",
+      "level": "critical-practical",
+      "rationale": "This block changes the machinery that decides whether a decomposed change may advance from one release unit to the next. A false READY, VERIFIED, MERGED, or parent-closed state could bypass exact-head proof or release-risk boundaries, so the strongest practical deterministic assurance is required while existing Truth and Release Risk remain independently authoritative.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -108,34 +138,44 @@
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
-        "fault-injection"
+        "fault-injection",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "package.json pins sharp exactly to 0.35.5 through the existing overrides authority.",
-        "package-lock.json installs node_modules/sharp at 0.35.5 and the corresponding @img/sharp platform packages at 0.35.5.",
-        "package-lock.json installs the corresponding @img/sharp-libvips platform packages at 1.3.4.",
-        "No unrelated direct dependency version changes are introduced.",
-        "The exact-head npm security audit no longer reports GHSA-wq5f-xc86-pv6w / CVE-2026-96889.",
-        "Full Quality Tests, TypeScript and Production Build remain green."
+        "A release unit is READY only when its predecessor requirements, current main lease, canonical manifest identity, and current re-evaluated obligations are all valid.",
+        "A materialization receipt is accepted only for the authorized manifest and exact base, and a PR receipt is accepted only when its head equals the materialized commit identity.",
+        "VERIFIED requires the existing Completion Truth to be VERIFIED on the exact PR head and the existing Development Lifecycle to be closed at that same head; green CI alone is insufficient.",
+        "MERGED requires a verified unit plus an explicit merge receipt that binds source head and resulting main SHA while supporting merge, squash, or rebase identity.",
+        "A successor cannot become READY until the predecessor is MERGED and CLOSED and a fresh canonical successor manifest has been reconciled against the resulting main.",
+        "Parent execution never reports completion after an intermediate unit and becomes closure-eligible only when every declared release unit is CLOSED.",
+        "Unsafe fresh successor drift in dependencies, risk, gates, proof, authorities, forbidden/read-only scope, generated identity, operations, or ordering produces BLOCKED/STALE/FAILED rather than silent authorization.",
+        "The mandatory adversarial matrix proves the sequential lifecycle and operator-skip defenses without adding a parallel Truth or release-risk implementation."
       ],
       "invariants": [
-        "Security audit enforcement remains unchanged and authoritative.",
-        "The fix removes the vulnerable installed dependency rather than hiding its finding.",
-        "The lockfile remains npm-ci reproducible.",
-        "Next.js remains pinned at 15.5.24 and application dependencies remain otherwise unchanged.",
-        "Only the sharp native/prebuilt package family may change as a transitive consequence of the exact override."
+        "Unit 2 release-unit manifest remains the execution-scope authority and no transition may widen its operations by operator input.",
+        "Existing Completion Truth and Development Lifecycle receipts are consumed as authoritative facts; orchestration never recalculates or substitutes their verdicts.",
+        "Existing Release Risk and fresh Plan Before Code manifest production remain authoritative for successor re-evaluation; orchestration only compares and enforces those products.",
+        "A release unit may move forward monotonically through the canonical execution states; retry is idempotent only for the same exact receipt identity.",
+        "The parent Development Transaction is not complete while any release unit is unmerged, unclosed, blocked, stale, or failed.",
+        "Merge strategy may change resulting main SHA but may not break the binding between verified source head, merge receipt, and successor base.",
+        "Unknown or missing predecessor, truth, lifecycle, manifest, source, PR-head, merge, or reconciliation identity fails closed."
       ],
       "forbiddenStates": [
-        "sharp-0.35.4-remains-installed",
-        "libvips-1.3.3-remains-installed",
-        "security-audit-bypass",
-        "security-audit-timeout-increase",
-        "loose-sharp-override",
-        "broad-dependency-churn",
-        "product-runtime-change"
+        "successor-ready-before-predecessor-closed",
+        "verified-from-green-ci-without-completion-truth",
+        "verified-without-closed-development-lifecycle",
+        "pr-head-different-from-materialized-commit",
+        "merge-receipt-source-different-from-verified-head",
+        "successor-authorized-from-stale-manifest",
+        "parent-closed-after-intermediate-unit",
+        "operator-skips-release-unit",
+        "manifest-scope-widened-by-orchestrator",
+        "release-risk-budget-weakened-for-successor",
+        "generated-artifact-source-drift-ignored",
+        "new-forbidden-or-read-only-scope-ignored"
       ]
     },
     "model": {
@@ -167,161 +207,272 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Only package.json is changed and npm ci still installs vulnerable lock entries.",
-        "Only sharp top-level lock entry changes while platform-native/libvips package identities remain stale.",
-        "A broad npm update changes unrelated transitive dependencies and expands release risk.",
-        "The audit is silenced rather than the vulnerable dependency being removed.",
-        "A loose version range later resolves to an unreviewed native binary.",
-        "The patched native dependency family fails installation or Next.js production build."
+        "A unit with a green PR is treated as verified even though Completion Truth is missing or stale.",
+        "The predecessor merge changes main and a successor is materialized from its original lease without fresh canonical reconciliation.",
+        "A fresh successor manifest adds a dependency or proof obligation but an orchestrator compares only filenames and authorizes the stale unit.",
+        "A squash or rebase merge is rejected incorrectly because the system assumes merged main SHA must equal the PR head SHA.",
+        "A failed middle unit leaves the parent transaction appearing complete because only the last observed successful unit is considered.",
+        "A duplicate materialization or PR receipt with different identity is accepted as an idempotent retry."
       ],
       "edgeCases": [
-        "Next.js declares sharp as an optional dependency with range ^0.34.3 || ^0.35.3, so exact 0.35.5 remains compatible.",
-        "The repository does not directly import sharp in package.json; the root override controls the transitive optional dependency.",
-        "Platform-specific @img packages are optional but are part of lockfile integrity across supported environments.",
-        "The advisory may not affect every image format equally, but the release gate treats the installed high-severity dependency as blocking."
+        "A materialization reports ALREADY_APPLIED because predecessor work already produced the exact content and must remain identity-safe without manufacturing a duplicate commit.",
+        "A predecessor rename makes a successor operation path stale even if the intended semantic capability remains the same.",
+        "A generated artifact keeps the same path while its sealed source identity changes between predecessor and successor.",
+        "A release-unit dependency cycle is introduced only by fresh reconciliation after earlier manifests were acyclic.",
+        "Unrelated main drift occurs after merge and must not be silently folded into a successor lease."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-AUDIT-SUPPRESSION",
-        "summary": "Suppress or allowlist the new npm audit advisory.",
+        "id": "ALT-MANUAL-RELEASE-UNIT-RUNBOOK",
+        "summary": "Keep Unit 2 manifests as artifacts and rely on an operator runbook for branch, PR, proof, merge and successor sequencing.",
         "disposition": "rejected",
-        "reason": "This weakens the blocking security authority and leaves the vulnerable package installed."
+        "reason": "It repeats machine-known state by hand, cannot enforce exact receipt identity, and leaves the core Unit 2 execution gap unresolved."
       },
       {
-        "id": "ALT-NEXT-UPGRADE",
-        "summary": "Upgrade Next.js or the broader framework dependency set to obtain a newer sharp transitively.",
+        "id": "ALT-PARALLEL-RELEASE-MANAGER",
+        "summary": "Introduce a separate release manager with its own lifecycle, risk verdicts, proof status and parent completion model.",
         "disposition": "rejected",
-        "reason": "Next.js 15.5.24 already accepts sharp 0.35.5; a framework upgrade would add unnecessary product/runtime scope."
+        "reason": "It would duplicate existing Control Plane authorities and create drift between manifest, Release Risk, Completion Truth and lifecycle state."
       },
       {
-        "id": "ALT-EXACT-SHARP-OVERRIDE",
-        "summary": "Pin sharp exactly to 0.35.5 and update only its native/prebuilt lockfile family plus the existing dependency security regression.",
+        "id": "ALT-CANONICAL-MANIFEST-CONSUMER",
+        "summary": "Extend the existing release-unit runtime with a thin deterministic state machine that consumes canonical manifests and existing Truth, lifecycle, risk and merge receipts.",
         "disposition": "selected",
-        "reason": "This is the smallest deterministic remediation that removes the affected dependency while preserving existing framework and product contracts."
+        "reason": "It closes the missing producer-to-consumer edge while preserving current authorities and gives fail-closed machine sequencing without redefining proof or release semantics."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Security",
+        "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Exact-head npm audit reports high-severity CVE-2026-96889 through sharp 0.35.4 and does not classify the failure as transient network noise.",
-        "resolution": "Install the current patched sharp 0.35.5 dependency family; no audit exception or severity downgrade is allowed.",
+        "finding": "The missing capability is an execution consumer between release.unit-manifests and existing transaction closure, not a missing release authority.",
+        "resolution": "Extend the existing release-unit runtime and register execution data products under release-infrastructure rather than adding a parallel lifecycle system.",
         "evidence": [
-          "CI run 37491384547 security-audit job 112364713465",
-          "package-lock.json"
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "quality/knowledge/guard-registry.v1.json"
         ]
       },
       {
         "role": "Release",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "A normal npm update can rewrite a large optional native dependency graph and unintentionally change unrelated release inputs.",
-        "resolution": "Constrain the edit to an exact sharp override and accept lock churn only inside sharp/@img sharp native packages; full diff and Release Risk remain blocking.",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Current reconciliation validates predecessor MERGED and rebinds targetBaseSha but does not prove fresh risk, dependency, proof, forbidden or generated-artifact obligations.",
+        "resolution": "Require a fresh canonical successor manifest and compare all execution-bearing obligations before READY; merge receipts bind verified source head to resulting main SHA.",
         "evidence": [
-          "package.json",
-          "package-lock.json",
-          "deploy/release-risk-policy.json"
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "tests/control-plane-release-decomposition.test.ts"
         ]
       },
       {
-        "role": "Architecture",
+        "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Dependency manifests are already canonical DOMAIN-RELEASE inputs and do not require a new dependency authority.",
-        "resolution": "Reuse the existing dependency-contract subsystem, release-domain ownership and dependency-security regression instead of adding a new security subsystem.",
+        "finding": "Materialization already provides atomic tree/commit semantics and exact base leases, so orchestration must not revert to per-file mutation or accept partial receipts.",
+        "resolution": "Treat Unit 2 materialization receipt as an immutable transition input and make retries idempotent only when receipt identity matches exactly.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json",
-          "tests/dependency-security-contract.test.ts"
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "tests/release-unit-materialization.test.ts"
+        ]
+      },
+      {
+        "role": "Known Failure",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Adding orchestration states risks creating a second Truth system whose VERIFIED or CLOSED labels could drift from Completion Truth and Development Lifecycle.",
+        "resolution": "Execution states encode only release-transaction milestones; VERIFIED is derived exclusively from existing exact-head Completion Truth plus existing Lifecycle closure, and parent closure remains only eligibility for the canonical parent Truth/Lifecycle step.",
+        "evidence": [
+          "scripts/lib/shoperation-operational-intelligence.mjs",
+          "docs/architecture/CONTROL_PLANE_OPERATIONAL_INTELLIGENCE.md"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-SHARP-01",
-        "scenario": "The audit is made green by changing workflow flags.",
-        "finding": "The vulnerable native dependency would remain installed.",
-        "resolution": "Workflow files are out of scope; exact-head npm audit must pass unchanged.",
+        "id": "CH-RUO-01",
+        "scenario": "U1 is green in CI but Completion Truth is missing.",
+        "finding": "Treating CI success as unit verification would bypass the canonical completion authority.",
+        "resolution": "VERIFIED transition requires Completion Truth decision PASS, truthStatus VERIFIED and internalState VERIFIED_DONE on the exact materialized PR head.",
         "status": "resolved"
       },
       {
-        "id": "CH-SHARP-02",
-        "scenario": "Only package.json gets an override while the lockfile remains 0.35.4.",
-        "finding": "npm ci uses lock authority and either rejects the mismatch or retains stale dependency identity.",
-        "resolution": "package.json and package-lock.json form one coherent dependency transaction.",
+        "id": "CH-RUO-02",
+        "scenario": "U1 Completion Truth is VERIFIED but its Development Lifecycle is not CLOSED/LEARN.",
+        "finding": "Truth alone would allow advancement before canonical lifecycle closure.",
+        "resolution": "Verification receipt must also carry a closed active plan with lifecycle LEARN, truthStatus VERIFIED and matching verifiedImplementationHead.",
         "status": "resolved"
       },
       {
-        "id": "CH-SHARP-03",
-        "scenario": "Only node_modules/sharp is bumped in the lockfile.",
-        "finding": "Its exact @img/sharp and @img/sharp-libvips optional dependencies could remain inconsistent with the patched release.",
-        "resolution": "The complete sharp-native family required by 0.35.5 is updated as one bounded lock graph.",
+        "id": "CH-RUO-03",
+        "scenario": "U1 merges and an unrelated commit moves main before U2 authorization.",
+        "finding": "Rebinding U2 to the newest main without proof could silently absorb unreviewed drift.",
+        "resolution": "Successor reconciliation requires the explicit predecessor mergedMainSha as the current base and fails STALE on any different main identity.",
         "status": "resolved"
       },
       {
-        "id": "CH-SHARP-04",
-        "scenario": "A broad npm update refreshes unrelated packages.",
-        "finding": "The hotfix becomes an uncontrolled dependency release.",
-        "resolution": "Diff review and contract test require unchanged direct dependencies and bounded sharp-family churn.",
+        "id": "CH-RUO-04",
+        "scenario": "Fresh U2 analysis adds a repository dependency toward U3.",
+        "finding": "Filename equality would conceal a changed execution order and dependency closure.",
+        "resolution": "Compare fresh predecessor/dependency obligations and reject the stale manifest when ordering or dependency semantics change.",
         "status": "resolved"
       },
       {
-        "id": "CH-SHARP-05",
-        "scenario": "The override uses ^0.35.5.",
-        "finding": "A future lock regeneration could silently select a later unreviewed native dependency version.",
-        "resolution": "Pin the root override exactly to 0.35.5.",
+        "id": "CH-RUO-05",
+        "scenario": "Fresh U2 Release Risk is now BLOCK.",
+        "finding": "The original PASS cannot authorize a changed current-base release transaction.",
+        "resolution": "READY requires the fresh canonical manifest projectedRisk decision PASS and rejects BLOCK without changing the RRB policy.",
         "status": "resolved"
       },
       {
-        "id": "CH-SHARP-06",
-        "scenario": "Patched sharp is incompatible with the current Next.js line.",
-        "finding": "Production build or image optimization installation could regress.",
-        "resolution": "Next.js current optional range includes ^0.35.3; exact-head npm ci, TypeScript and Production Build remain mandatory.",
+        "id": "CH-RUO-06",
+        "scenario": "A predecessor rename makes a successor intended path obsolete.",
+        "finding": "Applying the old operation could recreate a removed authority path or duplicate truth.",
+        "resolution": "Operation and intended-file identity must match the fresh canonical manifest; path drift marks the successor STALE.",
         "status": "resolved"
       },
       {
-        "id": "CH-SHARP-07",
-        "scenario": "Unit 3 code is modified together with the security hotfix.",
-        "finding": "The emergency dependency remediation would lose bounded scope and obscure proof attribution.",
-        "resolution": "Security branch touches only plan, dependency manifests and the existing dependency security test; Unit 3 remains isolated until this hotfix merges.",
+        "id": "CH-RUO-07",
+        "scenario": "A generated artifact path is unchanged but its sealed source identity changes.",
+        "finding": "Path-only reconciliation could transplant content produced from a different generator/source state.",
+        "resolution": "Compare generated-artifact and sealed source identities; changed identity requires a fresh authorized manifest and cannot inherit READY.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUO-08",
+        "scenario": "Operator attempts to authorize U3 while U2 is not CLOSED.",
+        "finding": "Manual unit skipping would break the declared sequential dependency chain.",
+        "resolution": "Parent activeUnitId and predecessor receipts are machine-enforced; only the next declared unit can authorize.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUO-09",
+        "scenario": "The same unit is materialized twice with a different commit receipt.",
+        "finding": "Calling both attempts idempotent would permit source identity substitution.",
+        "resolution": "Exact duplicate receipts are no-op retries; any conflicting materialization identity fails closed.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUO-10",
+        "scenario": "PR head differs from the commit produced by manifest materialization.",
+        "finding": "Proof could then cover code that did not originate from the authorized release-unit transaction.",
+        "resolution": "PR_OPEN requires headSha equal materializedCommitSha and matching manifest digest/source identity.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUO-11",
+        "scenario": "Squash or rebase merge produces a main SHA different from the verified PR head.",
+        "finding": "Requiring equality would reject legitimate merge strategies while dropping the actual successor base.",
+        "resolution": "Merge receipt separately binds verified sourceHeadSha and mergedMainSha; successor leases use mergedMainSha.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUO-12",
+        "scenario": "Fresh reconciliation introduces a release-unit dependency cycle.",
+        "finding": "An originally acyclic plan can become unsafe after predecessor changes.",
+        "resolution": "Fresh unit ordering is revalidated and a cycle fails closed before successor authorization.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUO-13",
+        "scenario": "Fresh authority classification makes a successor path forbidden or read-only.",
+        "finding": "Old manifest authorization would cross a newly recognized authority boundary.",
+        "resolution": "Fresh forbidden/read-only results are execution-bearing obligations; any new hit blocks authorization.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUO-14",
+        "scenario": "Proof ownership changes between predecessor merge and successor analysis.",
+        "finding": "The old unit could separate implementation from the proof now canonically bound to it.",
+        "resolution": "Required evidence/proof ownership is compared from the fresh manifest and semantic drift invalidates the successor.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUO-15",
+        "scenario": "A middle release unit fails permanently.",
+        "finding": "A parent model based on the latest successful observation could incorrectly appear done.",
+        "resolution": "Parent closure eligibility is a conjunction over every declared unit CLOSED state and any FAILED/BLOCKED/STALE unit keeps the parent open.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUO-16",
+        "scenario": "A successor change is already partially present on main.",
+        "finding": "Blind materialization could duplicate or overwrite content while a simplistic ALREADY_APPLIED result could hide mixed state.",
+        "resolution": "Unit 2 materializer remains authoritative for per-operation already-applied detection; orchestration accepts only its complete receipt and never infers partial success itself.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUO-17",
+        "scenario": "The predecessor PR was created from a different source identity than the sealed manifest.",
+        "finding": "Matching paths and green proof would not establish provenance from the authorized transaction.",
+        "resolution": "PR receipt must bind the manifest digest, source identity and exact materialized commit before verification can start.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUO-18",
+        "scenario": "Predecessor merge exists but its canonical merge receipt is missing.",
+        "finding": "Reading branch history ad hoc would force downstream rediscovery and permit ambiguous merge provenance.",
+        "resolution": "Successor authorization requires an explicit predecessor execution receipt with source head, resulting main and CLOSED state.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUO-19",
+        "scenario": "Fresh successor decomposition reports no safe decomposition.",
+        "finding": "Trying to keep the original sequence would override new canonical risk/dependency truth.",
+        "resolution": "Orchestration reports BLOCKED/FAILED with no next authorization and requires a new parent planning transaction.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-RUO-20",
+        "scenario": "All but the final unit are CLOSED and an operator requests parent completion.",
+        "finding": "Intermediate success must not collapse the broader PO Development Transaction.",
+        "resolution": "Parent reports closureEligible false until every declared release unit is CLOSED; only then may existing parent Completion Truth/Lifecycle execute.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Require Plan Before Code PASS on this plan-only security branch before dependency edits.",
-      "Pin sharp exactly to 0.35.5 and update only the corresponding sharp/@img native lockfile family.",
-      "Extend tests/dependency-security-contract.test.ts to assert exact sharp 0.35.5 and representative libvips 1.3.4 identities while preserving the source-map-js regression.",
-      "Run Edit-Time Guard and Incremental Replay.",
-      "Require unchanged Release Risk Budget PASS.",
-      "Require exact-head Security Audit PASS with no exception.",
-      "Run full Quality Tests, TypeScript and Production Build, then Completion Truth and Lifecycle Closure before merge."
+      "Require exact-head Plan Before Code PASS on the plan-only branch before any implementation commit.",
+      "Exercise a three-unit normal sequence from READY through materialization, PR identity, exact-head Truth/Lifecycle verification, merge, successor reconciliation and final parent closure eligibility.",
+      "Replay all twenty adversarial scenarios covering drift, risk block, missing Truth/Lifecycle, receipt loss, duplicate execution, already-applied content, rename, generated identity, proof ownership, forbidden scope, source identity, exact PR head, merge strategy, cycles, parent failure and unit skipping.",
+      "Run Edit-Time Guard and Incremental Replay after implementation so Known Failure and reference synchronization remain authoritative.",
+      "Run unchanged Release Risk Budget, full Quality Tests, TypeScript and Production Build on the exact implementation head.",
+      "Require Template Factory external proof only if the canonical guard registry classifies this exact scope as producer-applicable.",
+      "Require Completion Truth VERIFIED and Lifecycle Closure on the exact implementation head before merge.",
+      "After merge, verify current main exact head and successor reconciliation semantics without weakening any gate."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-06-SHARP-LIBRSVG-SECURITY-REMEDIATION",
+      "request": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-ORCHESTRATION",
       "authority": [
+        "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        "package.json",
-        "package-lock.json",
-        "tests/dependency-security-contract.test.ts"
+        "quality/knowledge/development-guard-policy.v1.json",
+        "quality/knowledge/guard-registry.v1.json",
+        "scripts/lib/shoperation-release-unit-runtime.mjs"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "src/**",
-        ".github/workflows/ci.yml",
         "deploy/release-risk-policy.json",
-        "quality/knowledge/development-guard-policy.v1.json"
+        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+        "scripts/lib/shoperation-development-runtime.mjs",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        "scripts/release-risk-budget.mjs",
+        "scripts/shoperation-plan-before-code.mjs",
+        "scripts/shoperation-truth-gate.mjs"
       ],
-      "mustCreate": [],
+      "mustCreate": [
+        "scripts/release-unit-orchestrate.mjs",
+        "tests/control-plane-release-unit-orchestration.test.ts"
+      ],
       "forbidden": [
-        ".github/workflows/**",
-        "deploy/release-risk-policy.json",
-        "src/**"
+        "src/lib/auth/**",
+        "src/app/api/auth/**",
+        "src/middleware.ts",
+        "deploy/release-risk-policy.json"
       ],
       "proof": [
-        "tests/dependency-security-contract.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -332,7 +483,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-SHARP-LIBRSVG-SECURITY-REMEDIATION",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-UNIT-ORCHESTRATION",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -343,32 +494,35 @@
         "GUARD-RELEASE-RISK",
         "GUARD-QUALITY-TESTS",
         "GUARD-TYPECHECK",
-        "GUARD-PRODUCTION-BUILD"
+        "GUARD-PRODUCTION-BUILD",
+        "GUARD-TEMPLATE-FACTORY"
       ],
-      "externalGuards": [],
+      "externalGuards": [
+        "GUARD-TEMPLATE-FACTORY"
+      ],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-SHARP-CVE-REMEDIATION",
-        "requirement": "The deterministic dependency contract installs patched sharp 0.35.5 and corresponding libvips bundle 1.3.4 instead of the vulnerable sharp 0.35.4 chain, with unchanged audit enforcement.",
+        "id": "REQ-RELEASE-UNIT-SEQUENTIAL-LIFECYCLE",
+        "requirement": "Canonical release-unit manifests advance through one deterministic fail-closed execution lifecycle whose READY, materialized, PR, verified, merged and closed milestones are bound to exact receipts and cannot be skipped.",
         "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "dependency-security-contract",
+          "capability": "CAP-RELEASE",
+          "breadth": "release-unit-sequential-execution",
           "strength": 2,
           "dimensions": [
-            "tests",
-            "scope",
-            "forbidden-state",
-            "truth"
+            "status",
+            "lifecycle",
+            "behavioral-proof",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
-          "CAP-QUALITY"
+          "CAP-RELEASE"
         ],
         "evidence": {
           "implementation": [
-            "GUARD-EDIT-TIME"
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS"
@@ -376,15 +530,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SHARP-AUDIT-BYPASS",
-            "statement": "The remediation must not disable, suppress, allowlist or downgrade the security audit.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-SHARP-VULNERABLE-LOCK",
-            "statement": "The lockfile must not retain sharp 0.35.4 or its vulnerable libvips 1.3.3 package family.",
+            "id": "NEG-UNIT-SKIP",
+            "statement": "No operator or retry may skip a predecessor, substitute a different materialized/PR identity, or advance from green CI without exact canonical Truth and Lifecycle evidence.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -392,11 +539,82 @@
         ]
       },
       {
-        "id": "REQ-SHARP-BOUNDED-RELEASE",
-        "requirement": "The security remediation remains a bounded dependency-contract release under the unchanged Release Risk authority and does not expand into product runtime or unrelated dependency upgrades.",
+        "id": "REQ-SUCCESSOR-FRESH-RECONCILIATION",
+        "requirement": "After every predecessor merge, successor authorization consumes a fresh canonical manifest for the resulting main state and fails closed when execution-bearing dependency, risk, proof, authority, forbidden, generated-artifact, operation or ordering semantics changed unsafely.",
+        "claimScope": {
+          "capability": "CAP-ATLAS",
+          "breadth": "successor-current-main-reconciliation",
+          "strength": 2,
+          "dimensions": [
+            "scope",
+            "reconcile",
+            "missing-edge",
+            "unknowns"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-ATLAS"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-STALE-SUCCESSOR-AUTHORIZATION",
+            "statement": "A successor must not inherit authorization from its original manifest after current-main semantic obligations have changed or cannot be proven equivalent.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-PARENT-TRANSACTION-CLOSURE",
+        "requirement": "The parent Development Transaction tracks the complete ordered release-unit chain and becomes closure-eligible only when every declared unit is closed; an intermediate failure, stale unit or partial success keeps the parent open.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "parent-development-transaction-release-chain",
+          "strength": 2,
+          "dimensions": [
+            "status",
+            "lifecycle",
+            "truth",
+            "close"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-PARENT-EARLY-CLOSE",
+            "statement": "The parent transaction must never become completion-eligible after an intermediate unit or while any unit is BLOCKED, STALE, FAILED, unmerged or unclosed.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-RISK-AUTHORITY-PRESERVED",
+        "requirement": "Release-unit orchestration preserves the unchanged Release Risk authority: every current-base unit must carry canonical PASS risk evidence and orchestration cannot raise, reinterpret or bypass the configured budget.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "dependency-security-release",
+          "breadth": "release-unit-risk-authority",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -416,28 +634,16 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SHARP-DEPENDENCY-CHURN",
-            "statement": "The remediation must not intentionally upgrade unrelated product or dependency subsystems.",
+            "id": "NEG-RRB-ORCHESTRATOR-BYPASS",
+            "statement": "No orchestration transition may convert a canonical Release Risk BLOCK into READY or MERGED by local policy.",
             "evidence": [
-              "GUARD-RELEASE-RISK"
+              "GUARD-RELEASE-RISK",
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Separate fail-closed prerequisite hotfix discovered by Unit 3 exact-head Security Audit. It is intentionally isolated from PR #955. After merge, Unit 3 must reconcile against the new main rather than silently absorbing drift. PR-context Plan Before Code run 37492799838 resolved the canonical dependency projection to DOMAIN-RELEASE/release-infrastructure with dependency-contract + shared-storefront + storefront-ui impact, the exact 30 Known Failures and SQ-NK-001/002/004/006/007/008/009/012, producing guard digest 2c38ea91. Exact-head Quality run dd15161a exposed a valid Sentinel proof-capability finding: CAP-RELEASE negative evidence referenced GUARD-EDIT-TIME. The Completion Contract is corrected so NEG-SHARP-DEPENDENCY-CHURN is proven only by the canonical GUARD-RELEASE-RISK producer; Sentinel implementation is unchanged. Exact-head Quality Tests on dd15161a exposed a Sentinel proof-capability mismatch: GUARD-EDIT-TIME cannot prove CAP-RELEASE. NEG-SHARP-DEPENDENCY-CHURN now consumes only the canonical GUARD-RELEASE-RISK producer for the release-scope claim.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "a0246f9a2cb9b5bbaeb9f690e02da78550f68b5f",
-    "closedAt": "2026-10-06T16:19:51.883Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-06-SHARP-LIBRSVG-SECURITY-REMEDIATION",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Unit 3 follows the audited Unit 2 gap: release.unit-manifests currently have no canonical execution consumer. This plan extends the existing release-infrastructure runtime only; Completion Truth, Development Lifecycle, Release Risk, Atlas, Sentinel and CI remain authoritative producers. No Knowledge promotion is pre-written; only replay-proven new missing edges may enter Failure Intake and later canonical Knowledge. Plan-only PR-context Plan Before Code run 37489216955 resolved the canonical projected scope to quality-knowledge-system + release-infrastructure, added applicable SQ-NK-011/014/015, and produced guard digest 56a6f85c; no gate or risk policy changed. Successor/main reconciliation after security prerequisite PR #956: target base rebound from 51dfcada763fc039b34e83c63ebea1e9006160a6 to 146abe7f6e6e8efa561bbb591695eff4c1b8f17b. The Unit 3 implementation scope is not widened; implementation files are intentionally absent from this reconciliation commit until Plan Before Code re-authorizes execution on the fresh main."
 }
