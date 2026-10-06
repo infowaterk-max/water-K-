@@ -66,7 +66,7 @@ export function validateTemplateFactoryExternalProof({
   }else issues.push({code:'EXTERNAL_PROOF_CHECKSUM_MISSING'});
   if(manifest&&manifest.contract===TEMPLATE_FACTORY_QUALITY_CONTRACT){
     const registry=guardRegistry??readJson('quality/knowledge/guard-registry.v1.json');
-    const liveValidation=validateTemplateLiveProofRecord(manifest.liveProof,{currentHead:expectedHead,currentBranch:expectedBranch,registry});
+    const liveValidation=validateTemplateLiveProofRecord(manifest.liveProof,{currentHead:expectedHead,currentBranch:expectedBranch,currentRunId:String(runId??''),registry});
     for(const liveIssue of liveValidation.issues)issues.push({code:liveIssue.code,scope:'template-live-proof',...liveIssue});
   }
   if(!String(runId??'').trim())issues.push({code:'EXTERNAL_PROOF_RUN_ID_MISSING'});
