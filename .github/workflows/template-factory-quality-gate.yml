@@ -395,13 +395,13 @@ jobs:
             const maxAttempts=runtimeMode==='CURRENT_HEAD'?90:1;
             const fail=(code,reason,actual)=>{
               fs.mkdirSync('artifacts/shoperation-command-diagnostics',{recursive:true});
-              fs.writeFileSync('artifacts/shoperation-command-diagnostics/engine-functional-preview.json',JSON.stringify({
+              fs.writeFileSync('artifacts/shoperation-command-diagnostics/runtime-preview.json',JSON.stringify({
                 contract:'shoporation.command-diagnostic.v1',
-                gateId:'engine-functional-preview',
+                gateId:'template-live-runtime-preview',
                 decision:'FAIL',
                 sourceCommit:proofHead,
                 runtimeSourceCommit:sha,
-                errors:[{code,reason,expected:'non-production Vercel Preview deployment for the Atlas-selected runtime source with environment URL ready before engine proof',actual:actual??reason,evidence:[`proofHead=${proofHead}`,`runtimeSha=${sha}`]}]
+                errors:[{code,reason,expected:'non-production Vercel Preview deployment for the Atlas-selected runtime source with environment URL ready before live proof',actual:actual??reason,evidence:[`proofHead=${proofHead}`,`runtimeSha=${sha}`]}]
               },null,2)+'\n');
               core.setFailed(code);
             };
@@ -422,7 +422,7 @@ jobs:
                     try{return new URL(status.environment_url).hostname.endsWith('.vercel.app')}catch{return false}
                   });
                   if(ready){
-                    core.info(`Vercel runtime deployment ready for E13 proof: proofHead=${proofHead}; runtimeSha=${sha}.`);
+                    core.info(`Canonical Vercel Preview runtime ready: proofHead=${proofHead}; runtimeSha=${sha}.`);
                     core.setOutput('base-url',new URL(ready.environment_url).origin);
                     core.setOutput('runtime-source-commit',sha);
                     core.setOutput('deployment-id',String(deployment.id));
@@ -433,15 +433,15 @@ jobs:
                 const combined=await github.rest.repos.getCombinedStatusForRef({owner,repo,ref:sha});
                 const vercel=combined.data.statuses.find(status=>status.context==='Vercel');
                 if(vercel&&['failure','error'].includes(vercel.state)){
-                  fail(`ENGINE_FUNCTIONAL_EXACT_HEAD_VERCEL_${vercel.state.toUpperCase()}`,'Vercel deployment status failed',vercel.state);
+                  fail(`TEMPLATE_LIVE_RUNTIME_VERCEL_${vercel.state.toUpperCase()}`,'Vercel deployment status failed',vercel.state);
                   return;
                 }
                 await sleep(5000);
               }
-              if(runtimeMode==='CURRENT_HEAD')fail('ENGINE_FUNCTIONAL_RUNTIME_PREVIEW_NOT_READY','Current runtime-source Vercel Preview did not expose a ready environment URL before timeout','timeout');
-              else fail('ENGINE_FUNCTIONAL_RUNTIME_PREVIEW_ANCHOR_MISSING','No safe non-production Vercel Preview anchor exists for the Atlas-selected equivalent runtime source','preview-anchor-missing');
+              if(runtimeMode==='CURRENT_HEAD')fail('TEMPLATE_LIVE_RUNTIME_PREVIEW_NOT_READY','Current runtime-source Vercel Preview did not expose a ready environment URL before timeout','timeout');
+              else fail('TEMPLATE_LIVE_RUNTIME_PREVIEW_ANCHOR_MISSING','No safe non-production Vercel Preview anchor exists for the Atlas-selected equivalent runtime source','preview-anchor-missing');
             }catch(error){
-              fail('ENGINE_FUNCTIONAL_RUNTIME_PREVIEW_RESOLUTION_EXCEPTION',error instanceof Error?error.message:String(error),'exception');
+              fail('TEMPLATE_LIVE_RUNTIME_PREVIEW_RESOLUTION_EXCEPTION',error instanceof Error?error.message:String(error),'exception');
             }
 
       - name: Prove shared E13 engine functionality before visual matrix
@@ -606,7 +606,7 @@ jobs:
             TYPECHECK_FAILED=artifacts/shoperation-command-diagnostics/template-typecheck.json;
             BUILD_FAILED=artifacts/shoperation-command-diagnostics/template-runtime-build.json;
             FACTORY_QA_RUNTIME_FAILED=artifacts/shoperation-command-diagnostics/template-qa-runtime.json;
-            ENGINE_FUNCTIONAL_PREVIEW_FAILED=artifacts/shoperation-command-diagnostics/engine-functional-preview.json;
+            TEMPLATE_LIVE_RUNTIME_PREVIEW_FAILED=artifacts/shoperation-command-diagnostics/runtime-preview.json;
             ENGINE_FUNCTIONAL_PROOF_FAILED=artifacts/template-engine-functional-proof/proof.json;
             FACTORY_PRODUCT_OWNER_TARGET_FAILED=artifacts/shoperation-command-diagnostics/product-owner-target.json;
           SHOPERATION_TEMPLATE_KEY: "${{ steps.product-owner-target.outputs.template_key || '' }}"
@@ -624,7 +624,7 @@ jobs:
           [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
           [ "$MATRIX_OUTCOME" != "failure" ] || codes="${codes}QUALITY_GATE_FAILED;"
           [ "$QA_RUNTIME_OUTCOME" != "failure" ] || codes="${codes}FACTORY_QA_RUNTIME_FAILED;"
-          [ "$RUNTIME_PREVIEW_OUTCOME" != "failure" ] || codes="${codes}ENGINE_FUNCTIONAL_PREVIEW_FAILED;"
+          [ "$RUNTIME_PREVIEW_OUTCOME" != "failure" ] || codes="${codes}TEMPLATE_LIVE_RUNTIME_PREVIEW_FAILED;"
           [ "$ENGINE_FUNCTIONAL_OUTCOME" != "failure" ] || codes="${codes}ENGINE_FUNCTIONAL_PROOF_FAILED;"
           [ "$TARGET_OUTCOME" != "failure" ] || codes="${codes}FACTORY_PRODUCT_OWNER_TARGET_FAILED;"
           [ "$HANDOFF_OUTCOME" != "failure" ] || codes="${codes}PRODUCT_OWNER_JOURNEY_FAILED;"
