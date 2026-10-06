@@ -405,8 +405,9 @@
           "strength": 2,
           "dimensions": [
             "status",
-            "failure",
-            "evidence"
+            "coverage",
+            "forbidden-state",
+            "behavioral-proof"
           ]
         },
         "requiredCapabilities": [
@@ -432,5 +433,5 @@
       }
     ]
   },
-  "notes": "Created from live bounded rehearsal Failure Intake #973 after source run 37528716724 proved the source-admission/lifecycle ordering gap. No implementation edit is authorized until Plan Before Code reconciles this scope. Plan-only run 37530106020 projected exactly 3 material files, Release Risk 2/5, DOMAIN-RELEASE/release-infrastructure authority, quality-knowledge-system + release-infrastructure subsystems, guard digest 1395803e, and the expanded failure/negative-knowledge sets now recorded in this reconciliation. Implementation remains prohibited until the reconciled plan passes."
+  "notes": "Created from live bounded rehearsal Failure Intake #973 after source run 37528716724 proved the source-admission/lifecycle ordering gap. No implementation edit is authorized until Plan Before Code reconciles this scope. Plan-only run 37530106020 projected exactly 3 material files, Release Risk 2/5, DOMAIN-RELEASE/release-infrastructure authority, quality-knowledge-system + release-infrastructure subsystems, guard digest 1395803e, and the expanded failure/negative-knowledge sets now recorded in this reconciliation. Implementation remains prohibited until the reconciled plan passes. Sentinel exact-head regression on 2790ae460fcedb802fc071fb7701962923e7918f correctly blocked an overclaimed completion scope: REQ-LIFECYCLE-FAILURE-INTAKE used unsupported `failure`/`evidence` dimensions. The claim is narrowed to status/coverage/forbidden-state/behavioral-proof, all declared by GUARD-QUALITY-TESTS; Sentinel/proof authority is unchanged."
 }
