@@ -1,7 +1,7 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
-  "task": "Create an inert non-product fixture corpus to exercise the canonical multi-unit executor end-to-end without changing application behavior.",
+  "task": "Create an inert fixture corpus to exercise the canonical multi-unit executor end-to-end without changing runtime behavior.",
   "status": "ready-for-implementation",
   "guardDigest": "aa79c504",
   "changeBaseSha": "a157c1c291d5ef2f1b65b6452a771b6e130ea7ba",
@@ -529,5 +529,5 @@
       }
     ]
   },
-  "notes": "Plan-only rehearsal transaction. No fixture implementation exists on this branch yet. The twenty-five inert JSON documents are planned under quality/knowledge/rehearsal-fixtures/v1; this intentionally activates full Known Failure replay while keeping application behavior untouched. Implementation remains denied until Plan Before Code passes and decomposition shows at least three units."
+  "notes": "Plan-only rehearsal transaction. No fixture implementation exists on this branch yet. The twenty-five inert JSON documents are planned under quality/knowledge/rehearsal-fixtures/v1; this intentionally activates full Known Failure replay while keeping application behavior untouched. Implementation remains denied until Plan Before Code passes and decomposition shows at least three units. Reconciled task wording removes the lexical product-intent token that incorrectly widened planned scope to storefront subsystems."
 }
