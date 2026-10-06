@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {
   canonicalizeTemplateFactoryInfrastructureInput,
+  deriveTemplateLiveProofDecision,
   deriveTemplateReplayDecision,
   reusableTemplateBrowserCase,
   templateBrowserCaseFingerprint,
@@ -38,6 +39,40 @@ describe('Template Factory resumable browser verification',()=>{
     const qualityGate=readFileSync('scripts/template-factory-quality-gate.mjs','utf8');
     expect(qualityGate).toContain('canonicalizeTemplateFactoryInfrastructureInput(file,readFileSync(file))');
   });
+
+  it('reuses live proof only for a successful same-branch ancestor with zero canonical input changes',()=>{
+    const prior={
+      contract:'shoporation.template-factory-quality-evidence.v2',complete:true,errors:[],checksum:'valid',
+      sourceCommit:'ancestor-1',branch:'feature/test',runId:'123',
+    };
+    const reused=deriveTemplateLiveProofDecision({
+      registry,priorManifest:prior,priorManifestChecksumValid:true,currentHead:'head-2',currentBranch:'feature/test',
+      ancestorProven:true,originWorkflowConclusion:'success',changedFilesSinceOrigin:['quality/development/active-plan.json'],
+    });
+    expect(reused).toMatchObject({mode:'REUSE',decision:'PASS',ancestorProven:true,inputEquivalenceProven:true,affectedInputs:[]});
+    expect(reused.inputContractDigest).toBeTruthy();
+  });
+
+  it('requires live proof whenever a canonical Template Factory input changes or provenance is unproven',()=>{
+    const prior={contract:'shoporation.template-factory-quality-evidence.v2',complete:true,errors:[],sourceCommit:'ancestor-1',branch:'feature/test',runId:'123'};
+    const changed=deriveTemplateLiveProofDecision({
+      registry,priorManifest:prior,priorManifestChecksumValid:true,currentHead:'head-2',currentBranch:'feature/test',
+      ancestorProven:true,originWorkflowConclusion:'success',changedFilesSinceOrigin:['.github/workflows/template-factory-quality-gate.yml'],
+    });
+    expect(changed.mode).toBe('REQUIRED');
+    expect(changed.affectedInputs).toContain('.github/workflows/template-factory-quality-gate.yml');
+    const stale=deriveTemplateLiveProofDecision({
+      registry,priorManifest:prior,priorManifestChecksumValid:true,currentHead:'head-2',currentBranch:'feature/test',
+      ancestorProven:false,originWorkflowConclusion:'success',changedFilesSinceOrigin:[],
+    });
+    expect(stale).toMatchObject({mode:'REQUIRED',reason:'prior-live-proof-ancestry-unproven'});
+    const failedRun=deriveTemplateLiveProofDecision({
+      registry,priorManifest:prior,priorManifestChecksumValid:true,currentHead:'head-2',currentBranch:'feature/test',
+      ancestorProven:true,originWorkflowConclusion:'failure',changedFilesSinceOrigin:[],
+    });
+    expect(failedRun).toMatchObject({mode:'REQUIRED',reason:'prior-live-proof-workflow-not-success'});
+  });
+
   it('reruns only FAQ x 3 viewports and reuses the other 39 matrix cases',()=>{
     const previous=fingerprints();
     const current={...previous,faq:'faq-v2'};
