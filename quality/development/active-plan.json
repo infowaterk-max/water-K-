@@ -8,6 +8,7 @@
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     ".github/workflows/ci.yml",
+    ".github/workflows/release-unit-execution.yml",
     "scripts/release-unit-github-runtime.mjs",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
     "scripts/release-unit-execute.mjs",
@@ -120,7 +121,7 @@
     ],
     "scope": {
       "in": [
-        "Bind the existing release-unit GitHub adapter to a narrowly triggered job inside the existing CI workflow with job-level contents/pull-request/actions permissions and no repository-wide permission widening.",
+        "Bind the existing release-unit GitHub adapter to a narrowly triggered trusted default-branch workflow_run executor. The ordinary CI workflow only admits the dedicated source namespace; write authority exists only in the default-branch executor, which treats the source commit as data and runs trusted main executor code.",
         "Add a thin bounded execution driver mode that initializes or resumes the existing CAS state, repeatedly invokes the existing adapter, waits only for authoritative exact-head child proof, and stops/fails closed on unsupported state or drift.",
         "Implement the previously specified ALREADY_APPLIED no-code path inside the existing release-unit runtime/adapter without synthesizing a PR when exact current-main proof is sufficient.",
         "Add a thin parent-close adapter that reuses existing Knowledge, Plan Before Code, Edit-Time, Incremental Replay, Release Risk, Quality/Type/Build evidence, Completion Truth, lifecycle emission and recordReleaseParentClosure semantics at the last merged implementation main.",
@@ -155,7 +156,7 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Only release-execution source branches can enter the write-capable execution job; normal feature, pull_request and main CI keep their existing read-only content permission model.",
+        "Only completed CI workflow runs whose event is push and whose head branch is under release-execution/source/** can enter the write-capable executor; the executor workflow is loaded from the default branch and checks out trusted main executor code rather than executing source-branch release scripts with its token.",
         "The job cannot widen Unit 2 scope: source commit, target base, manifest digest, child binding digest, PR head/base and state-ref CAS identity are exact and fail closed.",
         "A production execution can be resumed after interruption without an operator recreating branch, child plan, PR number, proof receipt, merge receipt or successor manifest.",
         "ALREADY_APPLIED completes without a synthetic code PR only when all canonical operations are atomically already present at exact current main and child/parent proof obligations remain satisfiable there.",
@@ -167,7 +168,7 @@
       "invariants": [
         "Unit 2 release-unit manifest remains the exclusive execution-scope authority and neither workflow nor driver may add or reinterpret an operation.",
         "Release Risk, exact-head child Completion Truth and existing lifecycle receipts remain authoritative producers; execution only validates and consumes them.",
-        "GitHub write permission is job-scoped and namespace-scoped; ordinary CI retains contents read and cannot become a general merge bot.",
+        "GitHub write permission is workflow/job-scoped on a default-branch workflow_run executor; source-branch workflow code and source-branch scripts never execute with the write-capable token.",
         "CAS state persistence remains monotonic and a stale expected state commit can never be overwritten by a retry or second runner.",
         "Parent closure evidence is bound to the final implementation main SHA recorded by the last CLOSED release unit, never to an arbitrary later main.",
         "Security Audit, Sentinel and external proof applicability are not weakened by execution automation.",
@@ -267,10 +268,11 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Giving the ordinary CI workflow repository write permission would turn every feature branch into a potential merge-capable execution context.",
-        "resolution": "Retain top-level contents:read and grant write permissions only on the release-execution job, restrict that job to a dedicated source namespace, exact repository identity and sealed Plan Before Code scope, and accept no arbitrary file/target inputs.",
+        "finding": "A write-capable push job defined by the release source branch is insufficiently isolated: the same source commit could alter the workflow or executor script that receives GITHUB_TOKEN.",
+        "resolution": "Use a separate default-branch workflow_run executor with job-scoped contents/pull-requests/actions permissions. It checks out trusted main executor code, fetches the source commit only as data, re-runs trusted Plan Before Code/Release Risk projection against that source, and never executes source-branch release scripts with the write token.",
         "evidence": [
           ".github/workflows/ci.yml",
+          ".github/workflows/release-unit-execution.yml",
           "quality/knowledge/development-guard-policy.v1.json"
         ]
       },
@@ -374,10 +376,18 @@
         "finding": "Completion Truth could accept fabricated implementation completeness even though no child PR diff exists.",
         "resolution": "Add an explicit receipt-backed no-code mode to the existing Edit-Time Guard, validate all manifest operations as already applied at exact current main, and consume that producer artifact through normal verification checkpoint semantics.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-RUPSC-12",
+        "scenario": "A release-execution/source branch modifies its own workflow or release driver before a push and thereby controls code that receives contents:write and pull-requests:write.",
+        "finding": "Branch-local job-level permissions alone do not establish a trustworthy execution boundary because workflow code is itself part of the untrusted source revision.",
+        "resolution": "The write-capable executor is a separate workflow_run workflow loaded from default branch; it checks out main for executable tooling, fetches the source SHA only as a git data object, regenerates canonical decomposition with trusted main tooling, and rejects non-source workflow_run contexts.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
       "Open a plan-only PR from the exact current main and require Plan Before Code PASS before editing CI, runtime or tests.",
+      "Prove the write-capable workflow is workflow_run/default-branch owned, rejects non-push and non-release-execution/source/** runs, checks out trusted main executor code, and never runs source-branch release scripts under its token.",
       "Prove job-level permission isolation and branch namespace guards so normal CI stays contents:read and no pull_request event can enter release execution.",
       "Add finite-state/adversarial tests for driver resume, stale CAS, pending/foreign child proof, merge/main drift and parent early-close rejection.",
       "Add explicit ALREADY_APPLIED tests for all-applied exact-main PASS versus partial, stale, generated-identity or proof-incomplete BLOCK.",
@@ -417,6 +427,7 @@
         "scripts/shoperation-close-development-plan.mjs"
       ],
       "mustCreate": [
+        ".github/workflows/release-unit-execution.yml",
         "scripts/release-unit-parent-close.mjs",
         "tests/control-plane-release-unit-production-surface.test.ts"
       ],
@@ -598,5 +609,5 @@
       }
     ]
   },
-  "notes": "Capability-closure audit after merged PR #958 found three concrete remaining edges before the promised production-like rehearsal: no GitHub workflow/job invokes scripts/release-unit-execute.mjs; prepareActiveUnit still turns every ALREADY_APPLIED result into STALE despite the canonical no-code requirement; and the GitHub execution CLI stops at PARENT_CLOSURE_ELIGIBLE without consuming the existing parent Truth/Lifecycle closure path. This transaction closes only those integration gaps. It does not pre-promote Knowledge and does not yet claim the overall Release Unit Orchestration program end-to-end complete; a separate real multi-unit fixture rehearsal is mandatory after merge. Plan-only PR #969 run 37518329190 correctly failed closed on projected-scope reconciliation. Canonical projection resolved the implementation to release-infrastructure / DOMAIN-RELEASE / release-infrastructure authority, active failure set SQ-KF-003/004/006/008/009/013/014/018/020/022 plus TF-KF-001/005/007/009/010/011/013/014/015, projected Release Risk 2/5, and guard digest 128614ad. The plan is reconciled to those upstream facts before any implementation edit. Pre-implementation state-machine audit proved the ALREADY_APPLIED no-code path cannot be implemented solely in the GitHub adapter because canonical verification currently requires PR_OPEN and canonical merge/close currently requires a PR-backed MERGED state. Scope therefore expands before the first implementation edit to scripts/lib/shoperation-release-unit-runtime.mjs plus its orchestration regression consumer; Plan Before Code must pass again before code changes. No-code proof analysis further showed that Completion Truth cannot accept a manually asserted implementation outcome when no child PR diff exists. The existing Edit-Time Guard must therefore gain a sealed materialization-receipt mode and remains the implementation-evidence producer. Scope expands to scripts/shoperation-edit-time-guard.mjs plus its regression consumer before implementation; no new guard ID or Truth authority is introduced. Plan-only PR #969 run 37519048754 narrowed the final projected subsystem to release-infrastructure while retaining DOMAIN-QUALITY + DOMAIN-RELEASE authorities, guard digest a41cfd0c, the broadened Known Failure set, and projected Release Risk 4/5. The plan is reconciled to that canonical projection before the first implementation edit."
+  "notes": "Capability-closure audit after merged PR #958 found three concrete remaining edges before the promised production-like rehearsal: no GitHub workflow/job invokes scripts/release-unit-execute.mjs; prepareActiveUnit still turns every ALREADY_APPLIED result into STALE despite the canonical no-code requirement; and the GitHub execution CLI stops at PARENT_CLOSURE_ELIGIBLE without consuming the existing parent Truth/Lifecycle closure path. This transaction closes only those integration gaps. It does not pre-promote Knowledge and does not yet claim the overall Release Unit Orchestration program end-to-end complete; a separate real multi-unit fixture rehearsal is mandatory after merge. Plan-only PR #969 run 37518329190 correctly failed closed on projected-scope reconciliation. Canonical projection resolved the implementation to release-infrastructure / DOMAIN-RELEASE / release-infrastructure authority, active failure set SQ-KF-003/004/006/008/009/013/014/018/020/022 plus TF-KF-001/005/007/009/010/011/013/014/015, projected Release Risk 2/5, and guard digest 128614ad. The plan is reconciled to those upstream facts before any implementation edit. Pre-implementation state-machine audit proved the ALREADY_APPLIED no-code path cannot be implemented solely in the GitHub adapter because canonical verification currently requires PR_OPEN and canonical merge/close currently requires a PR-backed MERGED state. Scope therefore expands before the first implementation edit to scripts/lib/shoperation-release-unit-runtime.mjs plus its orchestration regression consumer; Plan Before Code must pass again before code changes. No-code proof analysis further showed that Completion Truth cannot accept a manually asserted implementation outcome when no child PR diff exists. The existing Edit-Time Guard must therefore gain a sealed materialization-receipt mode and remains the implementation-evidence producer. Scope expands to scripts/shoperation-edit-time-guard.mjs plus its regression consumer before implementation; no new guard ID or Truth authority is introduced. Plan-only PR #969 run 37519048754 narrowed the final projected subsystem to release-infrastructure while retaining DOMAIN-QUALITY + DOMAIN-RELEASE authorities, guard digest a41cfd0c, the broadened Known Failure set, and projected Release Risk 4/5. The plan is reconciled to that canonical projection before the first implementation edit. Pre-implementation security review found that a write-capable push job defined by the source branch would let that same source revision control token-bearing workflow/script code. The execution surface is therefore hardened before implementation to a separate default-branch workflow_run executor. .github/workflows/release-unit-execution.yml is added to canonical mustCreate scope; ordinary CI remains read-only and only provides the source-run trigger/admission context."
 }
