@@ -2,7 +2,7 @@ import {appendFileSync,existsSync,mkdirSync,readFileSync,writeFileSync} from 'no
 import {dirname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {compileGateChain,exactPlannedPaths} from './lib/shoperation-development-runtime.mjs';
-import {templateFactoryEvidenceChecksum,validateTemplateLiveProofRecord} from './lib/shoperation-template-factory-resumable-verification.mjs';
+import {deriveTemplateLiveRuntimeOrigin,templateFactoryEvidenceChecksum,validateTemplateLiveProofRecord} from './lib/shoperation-template-factory-resumable-verification.mjs';
 
 export const EXTERNAL_PROOF_EVIDENCE_CONTRACT='shoporation.external-proof-evidence.v1';
 export const TEMPLATE_FACTORY_QUALITY_CONTRACT='shoporation.template-factory-quality-evidence.v2';
@@ -47,6 +47,7 @@ export function validateTemplateFactoryExternalProof({
   workflowName='Template Factory Quality Gate v2',
   workflowConclusion='success',
   guardRegistry,
+  runtimeOrigin,
 }={}){
   const issues=[];
   if(workflowName!=='Template Factory Quality Gate v2')issues.push({code:'EXTERNAL_PROOF_WORKFLOW_IDENTITY_MISMATCH',expected:'Template Factory Quality Gate v2',actual:workflowName});
@@ -64,10 +65,23 @@ export function validateTemplateFactoryExternalProof({
     const actual=templateFactoryEvidenceChecksum(manifest);
     if(actual!==manifest.checksum)issues.push({code:'EXTERNAL_PROOF_CHECKSUM_INVALID',expected:manifest.checksum,actual});
   }else issues.push({code:'EXTERNAL_PROOF_CHECKSUM_MISSING'});
+  let verifiedRuntimeOrigin=null;
   if(manifest&&manifest.contract===TEMPLATE_FACTORY_QUALITY_CONTRACT){
     const registry=guardRegistry??readJson('quality/knowledge/guard-registry.v1.json');
     const liveValidation=validateTemplateLiveProofRecord(manifest.liveProof,{currentHead:expectedHead,currentBranch:expectedBranch,currentRunId:String(runId??''),registry});
     for(const liveIssue of liveValidation.issues)issues.push({code:liveIssue.code,scope:'template-live-proof',...liveIssue});
+    verifiedRuntimeOrigin=runtimeOrigin??deriveTemplateLiveRuntimeOrigin({registry,baseSha:String(manifest.baseSha??'').trim(),currentHead:expectedHead});
+    if(verifiedRuntimeOrigin?.decision!=='PASS')issues.push({code:'EXTERNAL_PROOF_RUNTIME_ORIGIN_UNPROVEN',issues:verifiedRuntimeOrigin?.issues??[]});
+    else{
+      if(manifest.liveProof?.runtimeSourceCommit!==verifiedRuntimeOrigin.runtimeSourceCommit)issues.push({code:'EXTERNAL_PROOF_RUNTIME_SOURCE_MISMATCH',expected:verifiedRuntimeOrigin.runtimeSourceCommit,actual:manifest.liveProof?.runtimeSourceCommit??null});
+      if(manifest.liveProof?.runtimeOriginMode!==verifiedRuntimeOrigin.mode)issues.push({code:'EXTERNAL_PROOF_RUNTIME_MODE_MISMATCH',expected:verifiedRuntimeOrigin.mode,actual:manifest.liveProof?.runtimeOriginMode??null});
+      const expectedChanged=JSON.stringify(verifiedRuntimeOrigin.changedFilesSinceOrigin??[]);
+      const actualChanged=JSON.stringify(manifest.liveProof?.changedFilesSinceOrigin??[]);
+      if(expectedChanged!==actualChanged)issues.push({code:'EXTERNAL_PROOF_RUNTIME_CHANGED_FILES_MISMATCH',expected:verifiedRuntimeOrigin.changedFilesSinceOrigin??[],actual:manifest.liveProof?.changedFilesSinceOrigin??[]});
+      const expectedAffected=JSON.stringify(verifiedRuntimeOrigin.affectedInputs??[]);
+      const actualAffected=JSON.stringify(manifest.liveProof?.affectedInputs??[]);
+      if(expectedAffected!==actualAffected)issues.push({code:'EXTERNAL_PROOF_RUNTIME_AFFECTED_INPUTS_MISMATCH',expected:verifiedRuntimeOrigin.affectedInputs??[],actual:manifest.liveProof?.affectedInputs??[]});
+    }
   }
   if(!String(runId??'').trim())issues.push({code:'EXTERNAL_PROOF_RUN_ID_MISSING'});
   const ok=issues.length===0;
@@ -93,6 +107,10 @@ export function validateTemplateFactoryExternalProof({
         liveProofOriginSourceCommit:manifest.liveProof?.originSourceCommit??null,
         liveProofOriginRunId:manifest.liveProof?.originRunId??null,
         liveProofInputContractDigest:manifest.liveProof?.inputContractDigest??null,
+        runtimeSourceCommit:manifest.liveProof?.runtimeSourceCommit??null,
+        runtimeOriginMode:manifest.liveProof?.runtimeOriginMode??null,
+        runtimeEquivalenceProven:manifest.liveProof?.runtimeEquivalenceProven===true,
+        runtimeOriginDecision:verifiedRuntimeOrigin?.decision??null,
       },
     }:null,
   };
