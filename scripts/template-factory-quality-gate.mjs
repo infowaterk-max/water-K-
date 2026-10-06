@@ -3,7 +3,7 @@ import {existsSync,readFileSync} from 'node:fs';
 import {access,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
-import {canonicalizeTemplateFactoryInfrastructureInput,deriveTemplateReplayDecision,reusableTemplateBrowserCase,templateBrowserCaseFingerprint,templateFactoryEvidenceChecksum,templateFactoryInfrastructureSemanticallyEquivalent,templateLiveProofInputContractDigest,validateTemplateLiveProofRecord} from './lib/shoperation-template-factory-resumable-verification.mjs';
+import {canonicalizeTemplateFactoryInfrastructureInput,deriveTemplateLiveRuntimeClosure,deriveTemplateReplayDecision,reusableTemplateBrowserCase,templateBrowserCaseFingerprint,templateFactoryEvidenceChecksum,templateFactoryInfrastructureSemanticallyEquivalent,templateLiveProofInputContractDigest,validateTemplateLiveProofRecord} from './lib/shoperation-template-factory-resumable-verification.mjs';
 import {DEFAULT_LOCAL_GOLDEN_POLICY,localGoldenMismatch} from './lib/shoperation-template-factory-golden-semantics.mjs';
 
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
@@ -13,6 +13,12 @@ const headSha=(process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').tri
 const currentBranch=(process.env.QUALITY_BRANCH??process.env.GITHUB_HEAD_REF??process.env.GITHUB_REF_NAME??'').trim();
 const currentRunId=(process.env.GITHUB_RUN_ID??'local').trim();
 const previousManifestPath=(process.env.TEMPLATE_QUALITY_PREVIOUS_MANIFEST??'').trim();
+const liveProofDecisionPath=(process.env.TEMPLATE_QUALITY_LIVE_PROOF_DECISION??'artifacts/template-factory-quality/live-proof-decision.json').trim();
+const deploymentSourceCommit=(process.env.TEMPLATE_QUALITY_DEPLOYMENT_SOURCE_COMMIT??'').trim()||null;
+const deploymentAnchorMode=(process.env.TEMPLATE_QUALITY_DEPLOYMENT_ANCHOR_MODE??'').trim()||null;
+const deploymentEquivalenceProven=(process.env.TEMPLATE_QUALITY_DEPLOYMENT_EQUIVALENCE_PROVEN??'').trim()==='true';
+const deploymentEnvironment=(process.env.TEMPLATE_QUALITY_DEPLOYMENT_ENVIRONMENT??'').trim()||null;
+const deploymentId=(process.env.TEMPLATE_QUALITY_DEPLOYMENT_ID??'').trim()||null;
 const liveProofMode=(process.env.TEMPLATE_QUALITY_LIVE_PROOF_MODE??'NOT_APPLICABLE').trim().toUpperCase();
 const liveProofReason=(process.env.TEMPLATE_QUALITY_LIVE_PROOF_REASON??'').trim();
 const liveProofOriginSourceCommit=(process.env.TEMPLATE_QUALITY_LIVE_PROOF_ORIGIN_SHA??'').trim();
@@ -692,6 +698,17 @@ const acceptanceProofs=scope.selected.map(selected=>{
 });
 
 const templatePageFingerprints=Object.fromEntries(scope.selected.map(selected=>[selected.template.templateKey,{templateVersion:selected.template.templateVersion,pages:selected.template.pageFingerprints??{}}]));
+let liveProofDecision=null;
+if(liveProofMode!=='NOT_APPLICABLE'){
+  if(!liveProofDecisionPath||!existsSync(liveProofDecisionPath))errors.push({code:'TEMPLATE_LIVE_PROOF_DECISION_MISSING',path:liveProofDecisionPath||null});
+  else{
+    try{liveProofDecision=JSON.parse(readFileSync(liveProofDecisionPath,'utf8'));}
+    catch(error){errors.push({code:'TEMPLATE_LIVE_PROOF_DECISION_UNREADABLE',error:String(error)});}
+  }
+  if(liveProofDecision&&liveProofDecision.decision!=='PASS')errors.push({code:'TEMPLATE_LIVE_PROOF_DECISION_BLOCK',issues:liveProofDecision.issues??[]});
+}
+const liveRuntimeClosure=liveProofDecision?.runtimeClosure??deriveTemplateLiveRuntimeClosure({registry});
+const runtimeSourceCommit=liveProofDecision?.runtimeSourceCommit??(headSha==='HEAD'?null:headSha);
 const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   contract:'shoporation.template-factory-live-proof.v1',
   mode:'NOT_APPLICABLE',
@@ -703,7 +720,18 @@ const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   originWorkflowConclusion:null,
   ancestorProven:false,
   inputEquivalenceProven:false,
-  inputContractDigest:templateLiveProofInputContractDigest(registry),
+  inputContractDigest:templateLiveProofInputContractDigest(registry,liveRuntimeClosure),
+  runtimeClosureDecision:liveRuntimeClosure.decision,
+  runtimeEntrypoints:liveRuntimeClosure.entrypoints,
+  runtimeAncestorLayouts:liveRuntimeClosure.ancestorLayouts,
+  runtimeDependencyFiles:liveRuntimeClosure.dependencyFiles,
+  runtimeGlobalFiles:liveRuntimeClosure.globalFiles,
+  runtimeUnknowns:liveRuntimeClosure.issues,
+  deploymentSourceCommit:null,
+  deploymentAnchorMode:null,
+  deploymentRuntimeEquivalenceProven:false,
+  deploymentEnvironment:null,
+  deploymentId:null,
   changedFilesSinceOrigin:[],
   affectedInputs:[],
   reason:liveProofReason||'non-pull-request-local-proof',
@@ -716,15 +744,33 @@ const liveProof=liveProofMode==='NOT_APPLICABLE'?{
   originSourceCommit:liveProofMode==='LIVE'?(headSha==='HEAD'?null:headSha):liveProofOriginSourceCommit||null,
   originRunId:liveProofMode==='LIVE'?currentRunId:liveProofOriginRunId||null,
   originWorkflowConclusion:liveProofMode==='LIVE'?'current-workflow':liveProofOriginWorkflowConclusion||null,
-  ancestorProven:liveProofMode==='LIVE'?true:liveProofAncestorProven,
-  inputEquivalenceProven:liveProofMode==='LIVE'?false:liveProofInputEquivalenceProven,
-  inputContractDigest:templateLiveProofInputContractDigest(registry),
-  changedFilesSinceOrigin:liveProofChangedFiles,
-  affectedInputs:liveProofAffectedInputs,
-  reason:liveProofReason||null,
+  ancestorProven:liveProofMode==='LIVE'?Boolean(liveProofDecision?.ancestorProven):liveProofAncestorProven,
+  inputEquivalenceProven:liveProofMode==='LIVE'?Boolean(liveProofDecision?.runtimeEquivalenceProven):liveProofInputEquivalenceProven,
+  inputContractDigest:templateLiveProofInputContractDigest(registry,liveRuntimeClosure),
+  runtimeClosureDecision:liveRuntimeClosure.decision,
+  runtimeEntrypoints:liveRuntimeClosure.entrypoints,
+  runtimeAncestorLayouts:liveRuntimeClosure.ancestorLayouts,
+  runtimeDependencyFiles:liveRuntimeClosure.dependencyFiles,
+  runtimeGlobalFiles:liveRuntimeClosure.globalFiles,
+  runtimeUnknowns:liveRuntimeClosure.issues,
+  runtimeSourceCommit,
+  runtimeOriginMode:liveProofDecision?.mode??(runtimeSourceCommit===(headSha==='HEAD'?null:headSha)?'CURRENT_HEAD':'UNKNOWN'),
+  deploymentSourceCommit,
+  deploymentAnchorMode,
+  deploymentRuntimeEquivalenceProven:deploymentEquivalenceProven,
+  deploymentEnvironment,
+  deploymentId,
+  runtimeEquivalenceProven:Boolean(liveProofDecision?.runtimeEquivalenceProven),
+  runtimeClassifierChanged:Boolean(liveProofDecision?.classifierChanged),
+  runtimeSafetyFallbackApplied:Boolean(liveProofDecision?.safetyFallbackApplied),
+  runtimeClassifierInputs:liveProofDecision?.classifierInputs??liveRuntimeClosure.classifierInputs??[],
+  runtimeSafetyFallbackPatterns:liveProofDecision?.safetyFallbackRuntimePatterns??liveRuntimeClosure.safetyFallbackRuntimePatterns??[],
+  changedFilesSinceOrigin:liveProofDecision?.changedFilesSinceOrigin??liveProofChangedFiles,
+  affectedInputs:liveProofDecision?.affectedInputs??liveProofAffectedInputs,
+  reason:liveProofDecision?.reason??liveProofReason??null,
 };
 if(liveProofMode!=='NOT_APPLICABLE'){
-  const liveValidation=validateTemplateLiveProofRecord(liveProof,{currentHead:headSha==='HEAD'?'':headSha,currentBranch,currentRunId,registry});
+  const liveValidation=validateTemplateLiveProofRecord(liveProof,{currentHead:headSha==='HEAD'?'':headSha,currentBranch,currentRunId,registry,runtimeClosure:liveRuntimeClosure});
   if(!liveValidation.ok)errors.push(...liveValidation.issues.map(issue=>({code:issue.code,scope:'live-proof-provenance',...issue})));
 }
 const evidence={

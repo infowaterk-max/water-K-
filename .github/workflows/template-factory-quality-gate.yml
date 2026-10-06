@@ -357,126 +357,118 @@ jobs:
         with:
           script: |
             const fs=require('fs');
-            const {execFileSync}=require('child_process');
             const {pathToFileURL}=require('url');
             const moduleUrl=pathToFileURL(process.cwd()+'/scripts/lib/shoperation-template-factory-resumable-verification.mjs').href;
-            const {deriveTemplateLiveProofDecision,templateFactoryEvidenceChecksum}=await import(moduleUrl);
+            const {deriveTemplateLiveRuntimeOrigin}=await import(moduleUrl);
             const registry=JSON.parse(fs.readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
-            const manifestPath='artifacts/template-factory-checkpoint/manifest.json';
-            const sha=context.payload.pull_request?.head?.sha??context.sha;
-            const branch=context.payload.pull_request?.head?.ref??context.ref.replace('refs/heads/','');
-            let prior=null,checksumValid=false,ancestorProven=false,originWorkflowConclusion='',changedFiles=[];
-            if(fs.existsSync(manifestPath)){
-              try{
-                prior=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
-                checksumValid=Boolean(prior?.checksum&&prior.checksum===templateFactoryEvidenceChecksum(prior));
-                if(prior?.sourceCommit){
-                  try{
-                    execFileSync('git',['merge-base','--is-ancestor',prior.sourceCommit,sha],{stdio:'ignore'});
-                    ancestorProven=true;
-                  }catch{}
-                  if(ancestorProven){
-                    try{
-                      const raw=execFileSync('git',['diff','--name-only','--diff-filter=ACMRD',prior.sourceCommit,sha,'--'],{encoding:'utf8'}).trim();
-                      changedFiles=raw?raw.split(/\r?\n/).filter(Boolean):[];
-                    }catch{}
-                  }
-                }
-                if(prior?.runId){
-                  try{
-                    const run=await github.rest.actions.getWorkflowRun({...context.repo,run_id:Number(prior.runId)});
-                    const exactIdentity=run.data.name==='Template Factory Quality Gate v2'
-                      &&run.data.head_sha===prior.sourceCommit
-                      &&run.data.head_branch===prior.branch;
-                    originWorkflowConclusion=exactIdentity?String(run.data.conclusion??''):'identity-mismatch';
-                  }catch(error){
-                    core.warning('Prior Template Factory workflow lookup failed: '+String(error));
-                  }
-                }
-              }catch(error){
-                core.warning('Prior Template Factory manifest unreadable: '+String(error));
-              }
-            }
-            const decision=deriveTemplateLiveProofDecision({
-              registry,
-              priorManifest:prior,
-              priorManifestChecksumValid:checksumValid,
-              currentHead:sha,
-              currentBranch:branch,
-              ancestorProven,
-              originWorkflowConclusion,
-              changedFilesSinceOrigin:changedFiles,
-            });
+            const head=context.payload.pull_request?.head?.sha??context.sha;
+            const base=context.payload.pull_request?.base?.sha??process.env.QUALITY_BASE_SHA??'';
+            const decision=deriveTemplateLiveRuntimeOrigin({registry,baseSha:base,currentHead:head});
             fs.mkdirSync('artifacts/template-factory-quality',{recursive:true});
             fs.writeFileSync('artifacts/template-factory-quality/live-proof-decision.json',JSON.stringify(decision,null,2)+'\n');
-            core.info('Template Factory live proof: '+decision.mode+' — '+decision.reason);
+            if(decision.decision!=='PASS'){
+              core.setFailed('TEMPLATE_LIVE_RUNTIME_ORIGIN_UNPROVEN');
+              return;
+            }
+            core.info('Template Factory runtime target: '+decision.mode+' — '+decision.runtimeSourceCommit+' — '+decision.reason);
             core.setOutput('mode',decision.mode);
-            core.setOutput('manifest_mode',decision.mode==='REUSE'?'REUSED':'LIVE');
+            core.setOutput('manifest_mode','LIVE');
             core.setOutput('reason',decision.reason);
-            core.setOutput('origin_sha',decision.originSourceCommit??'');
-            core.setOutput('origin_run_id',decision.originRunId??'');
-            core.setOutput('origin_conclusion',decision.originWorkflowConclusion??'');
+            core.setOutput('runtime_sha',decision.runtimeSourceCommit??'');
             core.setOutput('ancestor_proven',String(decision.ancestorProven===true));
-            core.setOutput('input_equivalence',String(decision.inputEquivalenceProven===true));
+            core.setOutput('runtime_equivalence',String(decision.runtimeEquivalenceProven===true));
             core.setOutput('changed_files',JSON.stringify(decision.changedFilesSinceOrigin??[]));
             core.setOutput('affected_inputs',JSON.stringify(decision.affectedInputs??[]));
 
-      - name: Resolve exact-head Vercel preview for Engine Functional Proof
-        if: github.event_name == 'pull_request' && steps.qa-runtime.outcome == 'success' && steps.live-proof.outputs.mode != 'REUSE'
-        id: engine-functional-preview
+      - name: Resolve canonical safe Vercel Preview runtime
+        if: github.event_name == 'pull_request' && steps.qa-runtime.outcome == 'success' && steps.live-proof.outcome == 'success'
+        id: runtime-preview
         uses: actions/github-script@v7
         with:
           script: |
             const fs=require('fs');
+            const {pathToFileURL}=require('url');
             const sleep=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
             const {owner,repo}=context.repo;
-            const sha=context.payload.pull_request?.head?.sha??context.sha;
+            const proofHead=context.payload.pull_request?.head?.sha??context.sha;
+            const sha='${{ steps.live-proof.outputs.runtime_sha }}';
+            const runtimeMode='${{ steps.live-proof.outputs.mode }}';
+            const maxAttempts=runtimeMode==='CURRENT_HEAD'?90:1;
             const fail=(code,reason,actual)=>{
               fs.mkdirSync('artifacts/shoperation-command-diagnostics',{recursive:true});
-              fs.writeFileSync('artifacts/shoperation-command-diagnostics/engine-functional-preview.json',JSON.stringify({
+              fs.writeFileSync('artifacts/shoperation-command-diagnostics/runtime-preview.json',JSON.stringify({
                 contract:'shoporation.command-diagnostic.v1',
-                gateId:'engine-functional-preview',
+                gateId:'template-live-runtime-preview',
                 decision:'FAIL',
-                sourceCommit:sha,
-                errors:[{code,reason,expected:'exact-head Vercel preview with environment URL ready before engine proof',actual:actual??reason,evidence:[`sha=${sha}`]}]
+                sourceCommit:proofHead,
+                runtimeSourceCommit:sha,
+                errors:[{code,reason,expected:'non-production Vercel Preview deployment for the Atlas-selected runtime source with environment URL ready before live proof',actual:actual??reason,evidence:[`proofHead=${proofHead}`,`runtimeSha=${sha}`]}]
               },null,2)+'\n');
               core.setFailed(code);
             };
+            const moduleUrl=pathToFileURL(process.cwd()+'/scripts/lib/shoperation-template-factory-resumable-verification.mjs').href;
+            const {deriveTemplatePreviewAnchorCandidates}=await import(moduleUrl);
+            const registry=JSON.parse(fs.readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
+            const candidatePlan=deriveTemplatePreviewAnchorCandidates({registry,runtimeSourceCommit:sha,maxCandidates:40});
+            if(candidatePlan.decision!=='PASS'){
+              fail('TEMPLATE_LIVE_RUNTIME_PREVIEW_CANDIDATES_BLOCK','No provably runtime-equivalent Preview anchor candidates could be derived',JSON.stringify(candidatePlan.issues??[]));
+              return;
+            }
+            const previewCandidates=candidatePlan.candidates;
             try{
-              for(let attempt=0;attempt<90;attempt+=1){
-                const deployments=await github.paginate(github.rest.repos.listDeployments,{owner,repo,sha,per_page:100});
-                for(const deployment of deployments){
-                  const statuses=await github.paginate(github.rest.repos.listDeploymentStatuses,{owner,repo,deployment_id:deployment.id,per_page:100});
-                  const ready=statuses.find(status=>{
-                    if(status.state!=='success'||!status.environment_url)return false;
-                    try{return new URL(status.environment_url).hostname.endsWith('.vercel.app')}catch{return false}
-                  });
-                  if(ready){
-                    core.info(`Exact-head Vercel preview ready for E13 proof on ${sha}.`);
-                    core.setOutput('base-url',new URL(ready.environment_url).origin);
-                    return;
+              for(let attempt=0;attempt<maxAttempts;attempt+=1){
+                for(const candidate of previewCandidates){
+                  const deploymentSha=candidate.deploymentSourceCommit;
+                  const deployments=await github.paginate(github.rest.repos.listDeployments,{owner,repo,sha:deploymentSha,per_page:100});
+                  for(const deployment of deployments){
+                    const environment=String(deployment.environment??'').trim().toLowerCase();
+                    const production=deployment.production_environment===true||environment==='production';
+                    const explicitPreview=deployment.production_environment!==true&&environment==='preview';
+                    if(production||!explicitPreview){
+                      core.info(`Rejecting non-preview deployment ${deployment.id}: deploymentSha=${deploymentSha}; environment=${deployment.environment??'unknown'}; production=${String(deployment.production_environment??'unknown')}.`);
+                      continue;
+                    }
+                    const statuses=await github.paginate(github.rest.repos.listDeploymentStatuses,{owner,repo,deployment_id:deployment.id,per_page:100});
+                    const ready=statuses.find(status=>{
+                      if(status.state!=='success'||!status.environment_url)return false;
+                      try{return new URL(status.environment_url).hostname.endsWith('.vercel.app')}catch{return false}
+                    });
+                    if(ready){
+                      core.info(`Canonical safe Preview ready: proofHead=${proofHead}; runtimeSha=${sha}; deploymentSha=${deploymentSha}; anchorMode=${candidate.mode}.`);
+                      core.setOutput('base-url',new URL(ready.environment_url).origin);
+                      core.setOutput('runtime-source-commit',sha);
+                      core.setOutput('deployment-source-commit',deploymentSha);
+                      core.setOutput('deployment-equivalence-proven',String(candidate.runtimeEquivalenceProven===true));
+                      core.setOutput('anchor-mode',candidate.mode);
+                      core.setOutput('deployment-id',String(deployment.id));
+                      core.setOutput('environment',String(deployment.environment??'Preview'));
+                      return;
+                    }
                   }
                 }
                 const combined=await github.rest.repos.getCombinedStatusForRef({owner,repo,ref:sha});
                 const vercel=combined.data.statuses.find(status=>status.context==='Vercel');
                 if(vercel&&['failure','error'].includes(vercel.state)){
-                  fail(`ENGINE_FUNCTIONAL_EXACT_HEAD_VERCEL_${vercel.state.toUpperCase()}`,'Vercel deployment status failed',vercel.state);
+                  fail(`TEMPLATE_LIVE_RUNTIME_VERCEL_${vercel.state.toUpperCase()}`,'Vercel deployment status failed',vercel.state);
                   return;
                 }
                 await sleep(5000);
               }
-              fail('ENGINE_FUNCTIONAL_EXACT_HEAD_PREVIEW_NOT_READY','Exact-head Vercel preview did not expose a ready environment URL before timeout','timeout');
+              if(runtimeMode==='CURRENT_HEAD')fail('TEMPLATE_LIVE_RUNTIME_PREVIEW_NOT_READY','Current runtime-source Vercel Preview did not expose a ready environment URL before timeout','timeout');
+              else fail('TEMPLATE_LIVE_RUNTIME_PREVIEW_ANCHOR_MISSING','No safe non-production Vercel Preview anchor exists for the Atlas-selected equivalent runtime source','preview-anchor-missing');
             }catch(error){
-              fail('ENGINE_FUNCTIONAL_EXACT_HEAD_PREVIEW_RESOLUTION_EXCEPTION',error instanceof Error?error.message:String(error),'exception');
+              fail('TEMPLATE_LIVE_RUNTIME_PREVIEW_RESOLUTION_EXCEPTION',error instanceof Error?error.message:String(error),'exception');
             }
 
       - name: Prove shared E13 engine functionality before visual matrix
         id: engine-functional-proof
-        if: github.event_name == 'pull_request' && steps.live-proof.outputs.mode != 'REUSE' && steps.engine-functional-preview.outcome == 'success'
+        if: github.event_name == 'pull_request' && steps.runtime-preview.outcome == 'success'
         env:
-          PRODUCT_OWNER_PREVIEW_URL: "${{ steps.engine-functional-preview.outputs.base-url }}/platform"
+          PRODUCT_OWNER_PREVIEW_URL: "${{ steps.runtime-preview.outputs.base-url }}/platform"
           PRODUCT_OWNER_ENGINE_FUNCTIONAL_ONLY: "true"
           PRODUCT_OWNER_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.runtime-source-commit }}
+          PRODUCT_OWNER_DEPLOYMENT_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.deployment-source-commit }}
           PRODUCT_OWNER_TEST_EMAIL: ${{ secrets.PRODUCT_OWNER_TEST_EMAIL }}
           PRODUCT_OWNER_TEST_PASSWORD: ${{ secrets.PRODUCT_OWNER_TEST_PASSWORD }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
@@ -496,6 +488,12 @@ jobs:
         id: browser-matrix
         env:
           TEMPLATE_QUALITY_LIVE_PROOF_MODE: ${{ github.event_name == 'pull_request' && steps.live-proof.outputs.manifest_mode || 'NOT_APPLICABLE' }}
+          TEMPLATE_QUALITY_LIVE_PROOF_DECISION: artifacts/template-factory-quality/live-proof-decision.json
+          TEMPLATE_QUALITY_DEPLOYMENT_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.deployment-source-commit }}
+          TEMPLATE_QUALITY_DEPLOYMENT_ANCHOR_MODE: ${{ steps.runtime-preview.outputs.anchor-mode }}
+          TEMPLATE_QUALITY_DEPLOYMENT_EQUIVALENCE_PROVEN: ${{ steps.runtime-preview.outputs.deployment-equivalence-proven }}
+          TEMPLATE_QUALITY_DEPLOYMENT_ENVIRONMENT: ${{ steps.runtime-preview.outputs.environment }}
+          TEMPLATE_QUALITY_DEPLOYMENT_ID: ${{ steps.runtime-preview.outputs.deployment-id }}
           TEMPLATE_QUALITY_LIVE_PROOF_REASON: ${{ steps.live-proof.outputs.reason || 'non-pull-request-local-proof' }}
           TEMPLATE_QUALITY_LIVE_PROOF_ORIGIN_SHA: ${{ steps.live-proof.outputs.origin_sha || '' }}
           TEMPLATE_QUALITY_LIVE_PROOF_ORIGIN_RUN_ID: ${{ steps.live-proof.outputs.origin_run_id || '' }}
@@ -573,64 +571,16 @@ jobs:
           retention-days: 30
 
 
-      - name: Resolve exact-head Vercel preview for Product Owner proof
-        if: github.event_name == 'pull_request' && steps.product-owner-target.outputs.ready == 'true' && steps.live-proof.outputs.mode != 'REUSE'
-        id: product-owner-preview
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs=require('fs');
-            const sleep=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
-            const {owner,repo}=context.repo;
-            const sha=context.payload.pull_request?.head?.sha??context.sha;
-            const fail=(code,reason,actual)=>{
-              fs.mkdirSync('artifacts/shoperation-command-diagnostics',{recursive:true});
-              fs.writeFileSync('artifacts/shoperation-command-diagnostics/product-owner-preview.json',JSON.stringify({
-                contract:'shoporation.command-diagnostic.v1',
-                gateId:'product-owner-preview',
-                decision:'FAIL',
-                sourceCommit:sha,
-                errors:[{code,reason,expected:'exact-head Vercel preview with environment URL ready',actual:actual??reason,evidence:[`sha=${sha}`]}]
-              },null,2)+'\n');
-              core.setFailed(code);
-            };
-            try{
-              for(let attempt=0;attempt<90;attempt+=1){
-                const deployments=await github.paginate(github.rest.repos.listDeployments,{owner,repo,sha,per_page:100});
-                for(const deployment of deployments){
-                  const statuses=await github.paginate(github.rest.repos.listDeploymentStatuses,{owner,repo,deployment_id:deployment.id,per_page:100});
-                  const ready=statuses.find(status=>{
-                    if(status.state!=='success'||!status.environment_url)return false;
-                    try{return new URL(status.environment_url).hostname.endsWith('.vercel.app')}catch{return false}
-                  });
-                  if(ready){
-                    core.info(`Exact-head Vercel preview ready for ${sha}.`);
-                    core.setOutput('base-url',new URL(ready.environment_url).origin);
-                    return;
-                  }
-                }
-                const combined=await github.rest.repos.getCombinedStatusForRef({owner,repo,ref:sha});
-                const vercel=combined.data.statuses.find(status=>status.context==='Vercel');
-                if(vercel&&['failure','error'].includes(vercel.state)){
-                  fail(`EXACT_HEAD_VERCEL_DEPLOYMENT_${vercel.state.toUpperCase()}`,'Vercel deployment status failed',vercel.state);
-                  return;
-                }
-                if(vercel?.state==='success')core.info('GitHub deployment status is successful; waiting for the exact deployment environment URL instead of using a branch-specific alias.');
-                await sleep(5000);
-              }
-              fail('EXACT_HEAD_VERCEL_PREVIEW_NOT_READY','Exact-head Vercel preview did not expose a ready environment URL before timeout','timeout');
-            }catch(error){
-              fail('EXACT_HEAD_VERCEL_PREVIEW_RESOLUTION_EXCEPTION',error instanceof Error?error.message:String(error),'exception');
-            }
-
-      - name: Prove exact-head Product Owner login journey
+      - name: Prove Product Owner login journey on selected runtime
         id: product-owner-handoff
-        if: github.event_name == 'pull_request' && steps.product-owner-target.outputs.ready == 'true' && steps.live-proof.outputs.mode != 'REUSE'
+        if: github.event_name == 'pull_request' && steps.product-owner-target.outputs.ready == 'true' && steps.runtime-preview.outcome == 'success'
         env:
-          PRODUCT_OWNER_PREVIEW_URL: "${{ steps.product-owner-preview.outputs.base-url }}/storefront-template-preview?template=${{ steps.product-owner-target.outputs.template_key }}&version=${{ steps.product-owner-target.outputs.template_version }}&page=home&viewport=desktop&factory=1"
+          PRODUCT_OWNER_PREVIEW_URL: "${{ steps.runtime-preview.outputs.base-url }}/storefront-template-preview?template=${{ steps.product-owner-target.outputs.template_key }}&version=${{ steps.product-owner-target.outputs.template_version }}&page=home&viewport=desktop&factory=1"
           PRODUCT_OWNER_TEMPLATE_KEY: "${{ steps.product-owner-target.outputs.template_key }}"
           PRODUCT_OWNER_TEMPLATE_VERSION: "${{ steps.product-owner-target.outputs.template_version }}"
           PRODUCT_OWNER_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          PRODUCT_OWNER_RUNTIME_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.runtime-source-commit }}
+          PRODUCT_OWNER_DEPLOYMENT_SOURCE_COMMIT: ${{ steps.runtime-preview.outputs.deployment-source-commit }}
           PRODUCT_OWNER_TEST_EMAIL: ${{ secrets.PRODUCT_OWNER_TEST_EMAIL }}
           PRODUCT_OWNER_TEST_PASSWORD: ${{ secrets.PRODUCT_OWNER_TEST_PASSWORD }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
@@ -661,10 +611,9 @@ jobs:
           BUILD_OUTCOME: ${{ steps.runtime-build.outcome }}
           MATRIX_OUTCOME: ${{ steps.browser-matrix.outcome }}
           QA_RUNTIME_OUTCOME: ${{ steps.qa-runtime.outcome }}
-          ENGINE_FUNCTIONAL_PREVIEW_OUTCOME: ${{ steps.engine-functional-preview.outcome }}
+          RUNTIME_PREVIEW_OUTCOME: ${{ steps.runtime-preview.outcome }}
           ENGINE_FUNCTIONAL_OUTCOME: ${{ steps.engine-functional-proof.outcome }}
           TARGET_OUTCOME: ${{ steps.product-owner-target.outcome }}
-          PREVIEW_OUTCOME: ${{ steps.product-owner-preview.outcome }}
           HANDOFF_OUTCOME: ${{ steps.product-owner-handoff.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_FAILURE_SOURCE: template-factory
@@ -680,10 +629,9 @@ jobs:
             TYPECHECK_FAILED=artifacts/shoperation-command-diagnostics/template-typecheck.json;
             BUILD_FAILED=artifacts/shoperation-command-diagnostics/template-runtime-build.json;
             FACTORY_QA_RUNTIME_FAILED=artifacts/shoperation-command-diagnostics/template-qa-runtime.json;
-            ENGINE_FUNCTIONAL_PREVIEW_FAILED=artifacts/shoperation-command-diagnostics/engine-functional-preview.json;
+            TEMPLATE_LIVE_RUNTIME_PREVIEW_FAILED=artifacts/shoperation-command-diagnostics/runtime-preview.json;
             ENGINE_FUNCTIONAL_PROOF_FAILED=artifacts/template-engine-functional-proof/proof.json;
             FACTORY_PRODUCT_OWNER_TARGET_FAILED=artifacts/shoperation-command-diagnostics/product-owner-target.json;
-            EXACT_HEAD_VERCEL_PREVIEW_FAILED=artifacts/shoperation-command-diagnostics/product-owner-preview.json
           SHOPERATION_TEMPLATE_KEY: "${{ steps.product-owner-target.outputs.template_key || '' }}"
           SHOPERATION_TEMPLATE_VERSION: "${{ steps.product-owner-target.outputs.template_version || '' }}"
           SHOPERATION_TEMPLATE_QUALITY_MANIFEST: artifacts/template-factory-quality/manifest.json
@@ -699,10 +647,9 @@ jobs:
           [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
           [ "$MATRIX_OUTCOME" != "failure" ] || codes="${codes}QUALITY_GATE_FAILED;"
           [ "$QA_RUNTIME_OUTCOME" != "failure" ] || codes="${codes}FACTORY_QA_RUNTIME_FAILED;"
-          [ "$ENGINE_FUNCTIONAL_PREVIEW_OUTCOME" != "failure" ] || codes="${codes}ENGINE_FUNCTIONAL_PREVIEW_FAILED;"
+          [ "$RUNTIME_PREVIEW_OUTCOME" != "failure" ] || codes="${codes}TEMPLATE_LIVE_RUNTIME_PREVIEW_FAILED;"
           [ "$ENGINE_FUNCTIONAL_OUTCOME" != "failure" ] || codes="${codes}ENGINE_FUNCTIONAL_PROOF_FAILED;"
           [ "$TARGET_OUTCOME" != "failure" ] || codes="${codes}FACTORY_PRODUCT_OWNER_TARGET_FAILED;"
-          [ "$PREVIEW_OUTCOME" != "failure" ] || codes="${codes}EXACT_HEAD_VERCEL_PREVIEW_FAILED;"
           [ "$HANDOFF_OUTCOME" != "failure" ] || codes="${codes}PRODUCT_OWNER_JOURNEY_FAILED;"
           SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
 
