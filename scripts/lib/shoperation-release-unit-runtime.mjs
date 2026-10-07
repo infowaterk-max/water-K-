@@ -271,15 +271,15 @@ export function reprojectReleaseUnitChildTransaction(manifest,projection){
   if(child?.contract!==RELEASE_UNIT_CHILD_TRANSACTION_CONTRACT||!child.plan)throw new Error('RELEASE_UNIT_CHILD_TRANSACTION_REQUIRED');
   if(projection?.contract!==RELEASE_UNIT_CHILD_PLAN_PROJECTION_CONTRACT)throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_CONTRACT_INVALID');
   if(!String(projection.guardDigest??'').trim())throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_GUARD_DIGEST_REQUIRED');
-  for(const field of ['expectedSubsystems','expectedDomains','expectedAuthorities','expectedKnownFailureIds','acknowledgedPoInstructionIds','acknowledgedNegativeKnowledgeIds','requiredEvidenceProofFiles','requiredGates','externalGateIds']){
+  for(const field of ['expectedSubsystems','expectedDomains','expectedAuthorities','expectedKnownFailureIds','acknowledgedPoInstructionIds','acknowledgedNegativeKnowledgeIds','requiredGates','externalGateIds']){
     if(!Array.isArray(projection[field]))throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_FIELD_REQUIRED:'+field);
   }
   const route=projection.semanticExecutionRoute;
   if(!route||!Array.isArray(route.authority)||!Array.isArray(route.mustEdit)||!Array.isArray(route.mayEdit)||!Array.isArray(route.impactedReadOnly)||!Array.isArray(route.mustCreate)||!Array.isArray(route.forbidden)||!Array.isArray(route.proof)||!Array.isArray(route.unknown)||!Array.isArray(route.plannedDeletions)||!Array.isArray(route.plannedRenames)||!Array.isArray(route.generatedArtifacts)){
     throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_ROUTE_INVALID');
   }
-  const proofFiles=uniq(projection.requiredEvidenceProofFiles);
-  if(JSON.stringify(uniq(route.proof))!==JSON.stringify(proofFiles))throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_PROOF_DRIFT');
+  const proofFiles=uniq(projection.requiredEvidenceProofFiles??route.proof);
+  if(Array.isArray(projection.requiredEvidenceProofFiles)&&JSON.stringify(uniq(route.proof))!==JSON.stringify(proofFiles))throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_PROOF_DRIFT');
   const next=structuredClone(manifest);
   next.requiredEvidence={...(next.requiredEvidence??{}),proofFiles:[...proofFiles]};
   const plan=structuredClone(next.childDevelopmentTransaction.plan);
