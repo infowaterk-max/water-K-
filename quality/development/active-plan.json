@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION-V1",
   "task": "Make fresh release-unit successor reevaluation reproject stale child Development Plan metadata from the current canonical Plan/Atlas projection before any strict authorization check, then require a second exact-candidate strict PASS before release execution can proceed.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "2ee350f6",
   "changeBaseSha": "b6302a7c5a91d6994d7f53102853a547eac8ac97",
   "plannedFilePatterns": [
@@ -459,5 +459,18 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #1007 after replay job 112651631798 proved that STALE recovery reaches fresh reevaluation but the persisted child Development Plan envelope is stale relative to current Plan/Atlas/Knowledge policy. This commit is plan-only. Plan-only projection 37578829840 reconciled subsystem scope to auth-access-authority + customer-account + release-infrastructure, added SQ-NK-006 to applicable negative knowledge, and set canonical guard digest 2ee350f6."
+  "notes": "Created from live Failure Intake #1007 after replay job 112651631798 proved that STALE recovery reaches fresh reevaluation but the persisted child Development Plan envelope is stale relative to current Plan/Atlas/Knowledge policy. This commit is plan-only. Plan-only projection 37578829840 reconciled subsystem scope to auth-access-authority + customer-account + release-infrastructure, added SQ-NK-006 to applicable negative knowledge, and set canonical guard digest 2ee350f6.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "d093d46b7c1eed1ed1df01ee34324d4443b13f12",
+    "closedAt": "2026-10-07T06:07:38.584Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
