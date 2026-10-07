@@ -1,14 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-OPERATION-AWARE-MAIN-OVERLAP-V1",
-  "task": "Allow trusted successor reevaluation to proceed across only revalidatable main-overlap classes—read-only dependency changes and explicit modify operations—while preserving fail-closed behavior for unsafe intended-operation overlap and all non-fast-forward main drift.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
+  "task": "Add a canonical, exact-identity conflict-resolution receipt path for release-unit modify conflicts so true three-way conflicts remain fail-closed but can be resumed after a separately reviewed main resolution without mutating immutable source or child PR state.",
+  "status": "ready-for-implementation",
   "guardDigest": "baea580e",
-  "changeBaseSha": "bc6c11e0ad880fd41404dbac4b2c1fd8d7700893",
+  "changeBaseSha": "d73c7b5a4d7214a4301eab895fd1ebbee5316dd4",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/release-unit-github-runtime.mjs",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
+    "scripts/release-unit-github-runtime.mjs",
     "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
@@ -93,48 +93,52 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-OPERATION-AWARE-MAIN-OVERLAP-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
     "riskTier": "critical",
-    "problemStatement": "The bounded rehearsal now has U01 and U02 merged. U03 is STALE with RELEASE_UNIT_MAIN_DRIFT because main advanced from 1bf9ced0... to bc6c11e0... while touching two files in U03 scope: scripts/lib/shoperation-release-unit-runtime.mjs as a required dependency and tests/control-plane-release-unit-production-surface.test.ts as an explicit modify operation. The newly merged modify-patch materializer can safely reconcile the intended modify via exact three-way patch or fail closed on conflict, and fresh successor reevaluation is designed to re-prove changed dependencies. However proveTrustedMainAdvance blocks any scope overlap before either mechanism can run. The guard therefore needs operation-aware overlap classification rather than unconditional file-level overlap rejection.",
+    "problemStatement": "The bounded multi-release-unit rehearsal has U01 and U02 closed. After the operation-aware main-overlap fix, U03 now reaches the correct downstream three-way materializer and fails with RELEASE_UNIT_MODIFY_PATCH_CONFLICT on tests/control-plane-release-unit-production-surface.test.ts. This is a real same-hunk conflict: the immutable source delta is not already present in current main, and automatic source-wins/target-wins resolution remains forbidden. The Control Plane currently has no canonical continuation path for such a legitimate conflict: the workflow aborts with a stack trace, the release-state cannot carry a structured exact conflict identity, and there is no machine-verifiable way for a separately reviewed main resolution to be recognized on replay. The missing capability is therefore a conflict-resolution receipt, not a broader auto-merge engine.",
     "observableOutcomes": [
-      "Fast-forward main advance with no scope overlap remains PASS.",
-      "Overlap only on requiredDependencyFiles that are not intended writes may proceed as revalidation-required dependency overlap.",
-      "Overlap on intended files proceeds only when the manifest declares that exact file as operation=modify.",
-      "Create/delete/rename/regenerate or otherwise unclassified intended overlap remains RELEASE_UNIT_MAIN_DRIFT.",
-      "The trusted main-advance proof records exact overlap categories and the runtime validator recomputes and verifies them from the manifest; the proof cannot self-assert a safe category.",
-      "Modify overlap is not auto-accepted as merged content: successor reevaluation must still materialize the source delta onto current main, and RELEASE_UNIT_MODIFY_PATCH_CONFLICT remains blocking.",
-      "Dependency overlap is not treated as unchanged: fresh semantic projection/Plan Gate continues to run against current main before authorization.",
-      "Replaying the immutable rehearsal source allows U03 to reach three-way materialization instead of being blocked by coarse scope-overlap detection."
+      "A modify three-way conflict returns structured RELEASE_UNIT_MODIFY_PATCH_CONFLICT details containing releaseUnitId, file, source parent, source commit, source patch digest, target base SHA, target blob SHA and deterministic resolution-record path.",
+      "Successor reevaluation catches the structured materialization conflict and persists it as a normal STALE blocker instead of terminating the workflow before canonical state persistence.",
+      "The deterministic resolution-record path is derived from immutable conflict identity and cannot be chosen by the record author.",
+      "A main-merged resolution record is accepted only if its contract, releaseUnitId, file, source parent/commit, patch digest and resolution base are exact and the current target blob/file mode equal the record's resolved blob/mode.",
+      "A valid resolution record is consulted only after ordinary three-way application fails; it cannot bypass a cleanly applicable source patch.",
+      "When a valid record proves the current-main blob is the reviewed resolution, materialization preserves that blob and records the modify operation as already applied via conflict resolution.",
+      "Missing, stale, forged or mismatched resolution records remain fail-closed.",
+      "No source-wins, target-wins, conflict-marker, fuzzy patch or manual child-PR mutation path is introduced.",
+      "The capability exposes enough exact metadata to create a separate Plan/CI/Truth-governed U03 resolution PR after this generic fix merges."
     ],
     "unresolvedRisks": [
-      "Allowing all dependency overlap could hide a dependency change if fresh reevaluation were accidentally skipped.",
-      "A file that is both dependency and intended write must be classified by its write operation, not receive a dependency-only bypass.",
-      "A malicious or stale proof could claim safe overlap categories unless the runtime validator recomputes them independently.",
-      "A modify overlap could still conflict semantically and must remain blocked by the patch materializer.",
-      "Rename source/target overlap must not be misclassified as modify.",
-      "The existing zero-overlap proof contract and tests must be upgraded without weakening ancestry or exact-SHA checks."
+      "A resolution record could become a bypass if it is accepted without exact source patch identity.",
+      "A later main edit of the resolved file could make an old record stale while still leaving the record present.",
+      "A record authored against a non-ancestor resolution base must not be accepted.",
+      "The runtime must not consult a resolution record before proving ordinary three-way application actually conflicts.",
+      "A structured blocker that is thrown rather than returned could still prevent release-state persistence.",
+      "The resolved blob may preserve syntax while violating semantic source intent; final authority therefore remains the separately reviewed resolution PR plus normal CI/Truth, not the receipt alone.",
+      "A resolution record must not authorize writes outside the single declared modify file."
     ],
     "scope": {
       "in": [
-        "Refine proveTrustedMainAdvance in scripts/release-unit-github-runtime.mjs to classify overlap as dependency-only, modify-intended, or unsafe.",
-        "Refine validateReleaseUnitMainAdvanceProof in scripts/lib/shoperation-release-unit-runtime.mjs to independently recompute and validate the exact overlap categories.",
-        "Keep fast-forward ancestry and exact fromSha/toSha requirements unchanged.",
-        "Permit proof PASS only when unsafeOverlapFiles is empty.",
-        "Add regressions proving dependency-only and modify overlap PASS, and create/delete/rename/non-fast-forward overlap BLOCK.",
-        "Add proof-tamper regressions showing the runtime validator rejects fabricated overlap categories."
+        "Add shoporation.release-unit-conflict-resolution.v1 identity/path/validation primitives in scripts/lib/shoperation-release-unit-runtime.mjs.",
+        "Derive source patch digest from the immutable source parent→source commit exact per-file patch.",
+        "On three-way modify conflict, look up only the deterministic resolution record in the exact target-base tree.",
+        "Accept a resolution only when target-base ancestry and current target blob/file mode match the exact record.",
+        "Return resolution metadata in alreadyApplied materialization evidence.",
+        "Change scripts/release-unit-github-runtime.mjs successor materialization error handling so structured release-unit materialization errors become canonical BLOCK/STALE results with exact details.",
+        "Add behavioral regressions for no-record conflict, valid resolution receipt, forged blob, stale/non-ancestor base and unchanged clean three-way behavior."
       ],
       "out": [
-        "No bypass of three-way modify patch conflict handling.",
-        "No change to immutable source SHA or release-state branch by hand.",
-        "No manual repair of PR #1074.",
-        "No acceptance of create/delete/rename/regenerate intended overlap.",
-        "No relaxation of exact predecessor merge receipt, main ancestry, child CI, Truth or Lifecycle requirements.",
-        "No storefront, template, Supabase or deployment changes."
+        "No automatic source-wins/target-wins conflict resolution.",
+        "No LLM or heuristic merge inside the trusted runtime.",
+        "No fuzzy patch application, conflict-marker commit or partial materialization.",
+        "No manual edit of U03 child PR or control-plane release-state.",
+        "No immutable source rewrite.",
+        "No change to create/delete/rename/regenerate materialization semantics.",
+        "No storefront, template, Supabase or deployment change."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This proof controls whether a successor may reconcile onto a main that changed within its declared scope. Over-permission could hide real write conflicts; under-permission deadlocks the already-safe reevaluation and patch materialization paths. The proof producer and consumer must therefore derive the same categories independently.",
+      "rationale": "This capability creates the only allowed escape hatch from an intentional fail-closed source-vs-main conflict. A weak receipt could become arbitrary code-substitution authority, so every accepted resolution must be cryptographically and historically bound to the immutable source delta and exact main state.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -151,37 +155,39 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "proveTrustedMainAdvance still requires fromSha to be an ancestor of toSha.",
-        "No-overlap fast-forward behavior and proof contract remain valid.",
-        "A changed file that exists only in requiredDependencyFiles may be categorized as dependencyOverlapFiles.",
-        "A changed intended file may be categorized as modifyOverlapFiles only when its declared operation is exactly modify.",
-        "A file that is both intended and dependency follows intended-operation classification and cannot use the dependency-only allowance.",
-        "Any overlap for create/delete/rename/regenerate or for an intended file without exactly one modify operation is unsafe and blocks with RELEASE_UNIT_MAIN_ADVANCE_SCOPE_OVERLAP.",
-        "Proof contains changedFiles, scopeFiles, overlapFiles, dependencyOverlapFiles, modifyOverlapFiles and unsafeOverlapFiles.",
-        "validateReleaseUnitMainAdvanceProof independently recomputes expected categories from changedFiles and manifest and rejects any mismatch or non-empty unsafe overlap.",
-        "Fresh successor reevaluation and modify materialization remain mandatory after trusted main-advance PASS.",
+        "The deterministic resolution key/path depends on releaseUnitId, file, sourceCommit, sourceParent and sourcePatchDigest.",
+        "RELEASE_UNIT_MODIFY_PATCH_CONFLICT exposes that exact identity plus targetBaseSha and targetBlobSha.",
+        "A missing record preserves RELEASE_UNIT_MODIFY_PATCH_CONFLICT and creates no materialized commit.",
+        "A valid record requires contract shoporation.release-unit-conflict-resolution.v1, exact identity fields, non-empty resolutionPlanTaskId, a resolutionBaseSha that is an ancestor of targetBaseSha, and resolvedBlobSha/fileMode equal to the exact file currently present at targetBaseSha.",
+        "A valid record is considered only after git apply --3way --index failed for the immutable source patch.",
+        "A valid record causes the target blob to be preserved and the operation to appear in alreadyApplied evidence with resolution metadata; no file content is taken from the record.",
+        "A forged patch digest, source commit, source parent, file, blob, file mode or non-ancestor resolution base is rejected with an explicit RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID blocker.",
+        "Successor reevaluation catches structured materialization errors and returns decision=BLOCK/code/details so prepareActiveUnit can persist STALE canonical release-state.",
+        "Existing clean three-way merge, current-main preservation, create semantics and conflict fail-closed regressions remain PASS.",
         "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge.",
-        "After merge, immutable rehearsal replay advances U03 beyond current RELEASE_UNIT_MAIN_DRIFT without editing persisted U03 state manually."
+        "After generic merge, replay immutable source to obtain the exact U03 resolution identity, then resolve U03 only through a separate governed main PR plus receipt and replay again."
       ],
       "invariants": [
-        "Non-fast-forward main advance never passes.",
-        "The proof issuer cannot choose its own safe overlap classification without runtime recomputation.",
-        "Dependency-only overlap never grants write authority to that dependency file.",
-        "Modify overlap never bypasses three-way conflict detection.",
-        "Unsafe intended operation overlap remains fail-closed.",
-        "Exact predecessor/current main SHAs remain bound into the proof.",
-        "The fresh projection remains the authority for successor plan/dependency semantics."
+        "Immutable source commit and source patch remain the authority for what conflict is being resolved.",
+        "The resolution receipt never supplies executable file content; it only attests that the exact current-main blob is the approved resolution.",
+        "Only one deterministic receipt path exists for a given exact conflict identity.",
+        "A receipt cannot authorize a different file, source delta or target blob.",
+        "Ordinary clean three-way application wins over any receipt; receipt is fallback-only.",
+        "No thrown conflict may bypass canonical STALE state persistence.",
+        "Resolution approval occurs through normal main Plan/CI/Truth governance, not mutable PR metadata."
       ],
       "forbiddenStates": [
-        "non-fast-forward-overlap-pass",
-        "create-overlap-pass",
-        "delete-overlap-pass",
-        "rename-overlap-pass",
-        "regenerate-overlap-pass",
-        "dependency-file-written-through-overlap-proof",
-        "fabricated-overlap-proof-accepted",
-        "modify-conflict-bypassed",
-        "manual-u03-state-mutation"
+        "source-wins-auto-resolution",
+        "target-wins-auto-resolution",
+        "fuzzy-conflict-auto-merge",
+        "record-supplied-file-content",
+        "wrong-source-patch-receipt-accepted",
+        "wrong-target-blob-receipt-accepted",
+        "non-ancestor-resolution-base-accepted",
+        "resolution-record-used-before-real-conflict",
+        "manual-u03-child-pr-repair",
+        "manual-release-state-mutation",
+        "partial-materialization-after-conflict"
       ]
     },
     "model": {
@@ -213,52 +219,64 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Dependency-only overlap remains blocked before fresh reevaluation.",
-        "Modify overlap remains blocked before three-way materialization.",
-        "Unsafe create/delete/rename overlap is accidentally accepted.",
-        "Runtime validator accepts a proof whose categorized overlap arrays do not match the manifest.",
-        "File listed as both dependency and intended write is incorrectly treated as dependency-only.",
-        "Proof producer and proof validator normalize paths differently and disagree nondeterministically."
+        "Conflict still escapes as an uncaught workflow exception and release-state is not persisted.",
+        "Receipt lookup path can be influenced independently of conflict identity.",
+        "Receipt with a different patch digest or source commit is accepted.",
+        "Receipt points to a resolved blob different from current target-base file.",
+        "Receipt resolutionBaseSha is unrelated to current main history.",
+        "Receipt is used even though three-way patch would apply cleanly.",
+        "Valid receipt marks operation applied but materialization accidentally stages or commits the conflicting file anyway.",
+        "Existing create/delete/rename/regenerate behavior changes."
       ],
       "edgeCases": [
-        "no changed files",
-        "changed files outside all successor scope",
-        "required dependency only overlap",
-        "single intended modify overlap",
-        "both dependency and intended modify same file",
-        "intended create overlap",
-        "rename previousFile overlap",
-        "multiple operations for same file",
-        "mixed safe and unsafe overlap",
-        "fabricated proof omits one overlap file",
-        "same overlap arrays in different ordering",
-        "non-fast-forward history with otherwise safe modify overlap"
+        "no resolution record",
+        "malformed JSON record",
+        "wrong contract",
+        "wrong releaseUnitId",
+        "wrong file",
+        "wrong sourceParent",
+        "wrong sourceCommit",
+        "wrong sourcePatchDigest",
+        "wrong resolvedBlobSha",
+        "wrong resolvedFileMode",
+        "resolutionBaseSha not ancestor of targetBaseSha",
+        "resolutionBaseSha equals an older valid ancestor",
+        "clean three-way apply with stale record present",
+        "multiple later main commits after a valid resolution while file blob remains unchanged",
+        "later main edit changes resolved file blob while old record remains",
+        "binary or mode-only modify conflict"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-OPERATION-AWARE-MAIN-OVERLAP",
-        "summary": "Permit only dependency-read and explicit modify overlap in the trusted main-advance proof, then rely on mandatory fresh reevaluation and patch conflict checks.",
+        "id": "ALT-CANONICAL-MAIN-RESOLUTION-RECEIPT",
+        "summary": "Keep three-way conflict fail-closed, persist exact conflict identity, and allow replay only after a separately governed main resolution is bound by a deterministic exact receipt.",
         "disposition": "selected",
-        "reason": "Reuses existing stronger downstream proofs instead of blocking before they can run, without granting general overlap authority."
+        "reason": "Preserves immutable-source authority and normal code-review/CI governance without teaching the trusted runtime to invent semantic merge resolutions."
       },
       {
-        "id": "ALT-ALLOW-ALL-SCOPE-OVERLAP",
-        "summary": "Remove the overlap prohibition and trust fresh reevaluation for every operation type.",
+        "id": "ALT-AUTO-SOURCE-WINS",
+        "summary": "On conflict, overwrite target with source content.",
         "disposition": "rejected",
-        "reason": "Would unnecessarily expose create/delete/rename/regenerate write conflicts to later stages and weaken the current fail-closed boundary."
+        "reason": "PR #1089 already proved this can delete hundreds of lines of later main evolution."
       },
       {
-        "id": "ALT-KEEP-ZERO-OVERLAP",
-        "summary": "Keep current rule and manually avoid main changes to U03 scope.",
+        "id": "ALT-AUTO-TARGET-WINS",
+        "summary": "Ignore the source hunk on conflict and keep target content.",
         "disposition": "rejected",
-        "reason": "The rehearsal itself requires Control Plane repairs that legitimately evolve dependencies and modify targets; this would make resumability self-defeating."
+        "reason": "Would silently drop immutable release-unit intent."
       },
       {
-        "id": "ALT-MANUAL-REBASE-U03",
-        "summary": "Manually rebuild or rebase PR #1074 onto current main.",
+        "id": "ALT-FUZZY-OR-AST-MERGE",
+        "summary": "Use heuristic/fuzzy/AST conflict resolution inside the trusted executor.",
         "disposition": "rejected",
-        "reason": "Would bypass the generic orchestration defect and invalidate the rehearsal proof."
+        "reason": "Would create an uncontrolled semantic code-authoring authority inside release infrastructure."
+      },
+      {
+        "id": "ALT-MANUAL-CHILD-PR-EDIT",
+        "summary": "Edit the U03 child branch until it passes.",
+        "disposition": "rejected",
+        "reason": "Breaks deterministic materialization and resumable proof."
       }
     ],
     "specialistReviews": [
@@ -266,142 +284,148 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Allowing overlap can blur the boundary between proof of main ancestry and proof of merge safety.",
-        "resolution": "Main-advance proof only categorizes which overlap classes are eligible for downstream proof; modify merge safety is still decided by materializeReleaseUnit, and dependency semantics by fresh Plan reevaluation.",
+        "finding": "A conflict-resolution mechanism can easily become a hidden general merge engine.",
+        "resolution": "The runtime never computes resolution content. It only validates a separately governed current-main blob against an exact deterministic receipt after genuine three-way failure.",
         "evidence": [
-          "proveTrustedMainAdvance",
-          "materializeReleaseUnit",
-          "runSuccessorReevaluationProjection"
+          "PR #1089",
+          "RELEASE_UNIT_MODIFY_PATCH_CONFLICT",
+          "scripts/lib/shoperation-release-unit-runtime.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A self-declared safe overlap list would be forgeable.",
-        "resolution": "validateReleaseUnitMainAdvanceProof must independently recompute overlap categories from manifest and changedFiles.",
+        "finding": "A receipt must not become arbitrary blob-substitution authority.",
+        "resolution": "Bind it to source parent, source commit, exact patch digest, release unit, file, ancestor resolution base and exact current-main blob/file mode; the record contains no executable content.",
         "evidence": [
-          "RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT",
-          "validateReleaseUnitMainAdvanceProof"
+          "sealReleaseUnitManifest",
+          "git object identity",
+          "protected main"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The U03 dependency file changed only because trusted materialization infrastructure was repaired, while the intended test file changed in both main and source intent.",
-        "resolution": "Dependency-only overlap proceeds to fresh semantic proof; intended modify overlap proceeds to exact three-way patch or conflict.",
+        "finding": "Current U03 conflict is real and source intent is not already present in main.",
+        "resolution": "Preserve fail-closed conflict until a reviewed main resolution exists; then use exact blob equality to recognize the resolved state without rewriting it.",
         "evidence": [
-          "release-state U03",
-          "main bc6c11e0ad880fd41404dbac4b2c1fd8d7700893"
+          "Release Unit Execution #217",
+          "tests/control-plane-release-unit-production-surface.test.ts",
+          "source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "U01 and U02 are closed and U03 is the only remaining child. Current blocker is pre-materialization RELEASE_UNIT_MAIN_DRIFT.",
-        "resolution": "Repair trusted-main overlap classification, then replay unchanged immutable source and require U03 child proof.",
+        "finding": "U01 and U02 are closed; U03 is final child and now blocked by legitimate modify conflict after operation-aware overlap correctly allowed downstream proof.",
+        "resolution": "Add canonical conflict handoff/receipt, then resolve U03 in a separate main PR and replay immutable source.",
         "evidence": [
           "PR #1053",
           "PR #1073",
-          "Release Unit Execution #208"
+          "PR #1092",
+          "Release Unit Execution #217"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The live rehearsal exposed an interaction between trusted main advance and the later-added patch-aware materializer.",
-        "resolution": "Add explicit regression matrix covering both producer and validator so the overlap boundary remains durable.",
+        "finding": "Previous plans modeled fail-closed conflict detection but not resumable continuation after a legitimate conflict.",
+        "resolution": "Promote structured conflict identity and governed resolution receipt into permanent regression coverage.",
         "evidence": [
-          "RELEASE_UNIT_MAIN_ADVANCE_SCOPE_OVERLAP",
-          "PR #1089"
+          "DEV-CONTROL-PLANE-RELEASE-UNIT-MODIFY-PATCH-MATERIALIZATION-V1",
+          "CH-PATCH-02",
+          "CH-PATCH-05"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-OVERLAP-01",
-        "scenario": "Main changes only a required dependency.",
-        "finding": "Zero-overlap rule blocks before fresh semantic reevaluation.",
-        "resolution": "Classify as dependencyOverlapFiles and require downstream fresh projection.",
+        "id": "CH-RES-01",
+        "scenario": "Three-way apply succeeds and a stale resolution record also exists.",
+        "finding": "Receipt must not override normal source patch semantics.",
+        "resolution": "Consult resolution only after actual three-way failure.",
         "status": "resolved"
       },
       {
-        "id": "CH-OVERLAP-02",
-        "scenario": "Main changes an intended modify file.",
-        "finding": "Patch materializer cannot run because main-advance guard blocks first.",
-        "resolution": "Classify as modifyOverlapFiles and defer actual merge safety to three-way materialization.",
+        "id": "CH-RES-02",
+        "scenario": "Three-way conflict with no receipt.",
+        "finding": "Current behavior aborts workflow before a reusable exact handoff exists.",
+        "resolution": "Throw/return structured conflict code and persist STALE with deterministic receipt path.",
         "status": "resolved"
       },
       {
-        "id": "CH-OVERLAP-03",
-        "scenario": "Main changes an intended create file.",
-        "finding": "Target existence/content may conflict with source create.",
-        "resolution": "Keep unsafe overlap BLOCK.",
+        "id": "CH-RES-03",
+        "scenario": "Receipt matches file but references another source patch.",
+        "finding": "Could launder unrelated code as conflict resolution.",
+        "resolution": "Exact source parent/commit/patch digest are mandatory.",
         "status": "resolved"
       },
       {
-        "id": "CH-OVERLAP-04",
-        "scenario": "Main changes an intended delete or rename path.",
-        "finding": "Deletion/rename semantics can invalidate target identity.",
-        "resolution": "Keep unsafe overlap BLOCK.",
+        "id": "CH-RES-04",
+        "scenario": "Receipt resolved blob differs from target-base blob.",
+        "finding": "Main changed after approval or record is forged.",
+        "resolution": "Fail RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID.",
         "status": "resolved"
       },
       {
-        "id": "CH-OVERLAP-05",
-        "scenario": "File is both dependency and intended modify.",
-        "finding": "Dependency allowance must not override write semantics.",
-        "resolution": "Classify intended writes first; only explicit modify may pass.",
+        "id": "CH-RES-05",
+        "scenario": "Resolution base is not an ancestor of current target base.",
+        "finding": "Receipt came from unrelated history.",
+        "resolution": "Require git merge-base --is-ancestor resolutionBaseSha targetBaseSha.",
         "status": "resolved"
       },
       {
-        "id": "CH-OVERLAP-06",
-        "scenario": "Proof claims safe categories that do not match changedFiles/manifest.",
-        "finding": "Could forge authority if consumer trusts producer arrays.",
-        "resolution": "Runtime validator recomputes all categories and compares exact normalized arrays.",
+        "id": "CH-RES-06",
+        "scenario": "Main advances after valid resolution without touching resolved file.",
+        "finding": "Exact target-base SHA equality would make a durable resolution unnecessarily stale.",
+        "resolution": "Allow descendant target bases only while current file blob/mode still equal receipt.",
         "status": "resolved"
       },
       {
-        "id": "CH-OVERLAP-07",
-        "scenario": "Modify overlap later conflicts at patch application.",
-        "finding": "Main-advance PASS must not imply merge PASS.",
-        "resolution": "RELEASE_UNIT_MODIFY_PATCH_CONFLICT remains terminal blocker.",
+        "id": "CH-RES-07",
+        "scenario": "Main later edits resolved file.",
+        "finding": "Old approval no longer proves current content.",
+        "resolution": "Blob/mode mismatch invalidates receipt and requires a new exact resolution.",
         "status": "resolved"
       },
       {
-        "id": "CH-OVERLAP-08",
-        "scenario": "Dependency overlap changes execution semantics.",
-        "finding": "Read-only dependency cannot be assumed harmless.",
-        "resolution": "Fresh successor projection/Plan Gate remains mandatory before authorization.",
+        "id": "CH-RES-08",
+        "scenario": "Conflict occurs after another operation was staged in temp index.",
+        "finding": "No partial child commit may survive.",
+        "resolution": "Existing transactional temp-index/worktree semantics remain; resolution lookup changes only the conflicted operation result.",
         "status": "resolved"
       },
       {
-        "id": "CH-OVERLAP-09",
-        "scenario": "Mixed dependency, modify and create overlap.",
-        "finding": "One safe category must not mask one unsafe file.",
-        "resolution": "Any unsafeOverlapFiles entry makes proveTrustedMainAdvance BLOCK.",
+        "id": "CH-RES-09",
+        "scenario": "Structured materialization conflict is thrown inside successor reevaluation.",
+        "finding": "Workflow currently terminates before parent state can persist blocker details.",
+        "resolution": "Catch release-unit materialization errors and return BLOCK/code/details through prepareActiveUnit.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS before runtime edits.",
-      "Modify scripts/release-unit-github-runtime.mjs producer and scripts/lib/shoperation-release-unit-runtime.mjs consumer together in one atomic implementation commit.",
-      "Extend tests/control-plane-release-unit-production-surface.test.ts with zero-overlap, dependency-only, modify-only, mixed unsafe, non-fast-forward and proof-tamper cases.",
+      "Commit this plan only and require Plan Before Code PASS before implementation.",
+      "Implement deterministic resolution identity/path and exact record validation in scripts/lib/shoperation-release-unit-runtime.mjs.",
+      "Catch structured successor materialization errors in scripts/release-unit-github-runtime.mjs and preserve code/details through canonical STALE state.",
+      "Extend tests/control-plane-release-unit-production-surface.test.ts with real temporary Git repositories proving no-record conflict, valid receipt, record tamper/staleness, clean-patch precedence and structured blocker propagation.",
       "Require exact-head Knowledge/Plan/Edit-Time/Incremental/Release Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
       "Merge only after exact PR-head SUCCESS and green main CI.",
-      "Replay immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and require U03 to reach patch materialization/child proof without manual PR or release-state edits."
+      "Replay immutable source to obtain the exact U03 conflict identity from the new structured blocker.",
+      "Create a separate Plan/CI/Truth-governed main resolution PR containing only the conflict-resolved current-main file plus its exact resolution receipt, merge it, replay immutable source, and require U03 child proof/merge plus parent closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-07-CONTROL-PLANE-OPERATION-AWARE-MAIN-OVERLAP-V1",
+      "request": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        "scripts/release-unit-github-runtime.mjs",
-        "scripts/lib/shoperation-release-unit-runtime.mjs"
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/release-unit-github-runtime.mjs"
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-production-surface.test.ts"
@@ -430,7 +454,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-OPERATION-AWARE-MAIN-OVERLAP-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -448,11 +472,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-OPERATION-AWARE-TRUSTED-MAIN-OVERLAP",
-        "requirement": "Trusted successor main-advance proof must permit only overlap classes that are re-proven downstream—read-only dependencies and explicit modify operations—while unsafe write overlap and non-fast-forward history remain fail closed.",
+        "id": "REQ-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT",
+        "requirement": "A real release-unit modify conflict must remain fail-closed yet resumable only through a separately governed exact current-main resolution bound to the immutable source delta by a deterministic machine-verifiable receipt.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-operation-aware-main-overlap",
+          "breadth": "release-unit-conflict-resolution-receipt",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -478,29 +502,22 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-UNSAFE-MAIN-OVERLAP-ACCEPTED",
-            "statement": "Create/delete/rename/regenerate or otherwise unsafe intended overlap may not pass trusted main advance.",
+            "id": "NEG-CONFLICT-AUTO-MERGE",
+            "statement": "The trusted runtime may not invent source-wins, target-wins, fuzzy or AST merge resolutions.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-MAIN-ADVANCE-PROOF-TAMPER",
-            "statement": "A fabricated overlap category in the proof may not be accepted by the runtime validator.",
+            "id": "NEG-RESOLUTION-RECEIPT-TAMPER",
+            "statement": "A receipt with mismatched source patch identity, main ancestry or resolved blob may not be accepted.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-MODIFY-CONFLICT-BYPASS",
-            "statement": "Modify overlap permission may not bypass downstream three-way conflict detection.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-DEPENDENCY-REVALIDATION-BYPASS",
-            "statement": "Dependency overlap permission may not bypass fresh successor semantic reevaluation.",
+            "id": "NEG-CONFLICT-STATE-LOSS",
+            "statement": "A structured release-unit materialization conflict may not abort before canonical STALE blocker persistence.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -509,18 +526,5 @@
       }
     ]
   },
-  "notes": "Live evidence: U01 PR #1053 and U02 PR #1073 are merged. U03 is STALE with RELEASE_UNIT_MAIN_DRIFT after immutable source replay attempt 8 / Release Unit Execution #208. Main advanced 1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100→bc6c11e0ad880fd41404dbac4b2c1fd8d7700893 touching quality/development/active-plan.json, scripts/lib/shoperation-release-unit-runtime.mjs and tests/control-plane-release-unit-production-surface.test.ts. U03 scope contains fixture-25 create, production-surface test modify, and runtime as requiredDependencyFile. The current zero-overlap guard blocks before fresh dependency projection and before the newly proven three-way modify materializer can decide merge safety. Plan Gate #9105 canonicalized projected subsystem ownership to dependency-contract + release-infrastructure and guardDigest baea580e; domains/authorities remain unchanged.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "8eb98b2bf5374e48ab725e4f1eb0f9a71025df83",
-    "closedAt": "2026-10-07T18:42:33.106Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-OPERATION-AWARE-MAIN-OVERLAP-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Live evidence: immutable rehearsal source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; U01 and U02 already closed. After PR #1092 operation-aware trusted main overlap merged, replay attempt 9 / Release Unit Execution #217 advanced beyond RELEASE_UNIT_MAIN_DRIFT and reached the intended downstream materializer, which failed with RELEASE_UNIT_MODIFY_PATCH_CONFLICT on tests/control-plane-release-unit-production-surface.test.ts. The source delta is not already present in current main. Prior modify-materialization governance explicitly forbids automatic side preference and manual child-PR repair, but no canonical reviewed conflict-resolution receipt/handoff currently exists."
 }
