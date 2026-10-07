@@ -58,8 +58,8 @@
   ],
   "exceptions": [],
   "operationalIntelligence": {
-    "sourceKind": "failure-intake",
-    "sourceRef": "SQ-CAND-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
+    "sourceKind": "product-owner-request",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
     "riskTier": "critical",
     "problemStatement": "Trusted executor rerun 37566854069 / job 112621423551 encountered an already-existing canonical U01 branch from the previous attempt, regenerated the same logical materialization as a different commit SHA, and blindly pushed it. Git rejected the non-fast-forward update before child PR creation, proving the executor is not resumable across the materialization-to-PR persistence gap.",
     "observableOutcomes": [
@@ -97,7 +97,9 @@
         "boundary-cases",
         "threat-failure-model",
         "fault-injection",
-        "proof-obligation"
+        "proof-obligation",
+        "pairwise-interactions",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
@@ -262,6 +264,27 @@
         "finding": "Recovery logic must not change first-attempt semantics.",
         "resolution": "Use existing normal pushExactMaterializedCommit path unchanged.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-MR-06",
+        "scenario": "Existing remote branch has the expected tree and message but two parents.",
+        "finding": "A merge-shaped child commit would not represent the canonical single-base materialization.",
+        "resolution": "Require exactly one parent and require that sole parent to equal targetBaseSha.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-MR-07",
+        "scenario": "The existing branch is exact but the local prepared receipt belongs to another manifest or binding.",
+        "finding": "Remote validation must not paper over a local transaction identity mismatch.",
+        "resolution": "Require receipt target base, manifest digest and binding digest to match the sealed manifest before any remote reuse check.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-MR-08",
+        "scenario": "The prior attempt pushed exact U01 but state remained PLANNED because failure happened before persistence.",
+        "finding": "Recovery must reconstruct the MATERIALIZED/PR_OPEN state from verifiable repository reality rather than fabricate state.",
+        "resolution": "Reuse the exact remote head, then pass it through the existing MATERIALIZED and PR_OPEN event functions and CAS persistence path.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -304,8 +327,8 @@
     "executionAuthorized": true
   },
   "completionContract": {
-    "sourceKind": "failure-intake",
-    "sourceRef": "SQ-CAND-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
+    "sourceKind": "product-owner-request",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
