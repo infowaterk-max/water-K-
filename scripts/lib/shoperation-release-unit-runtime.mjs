@@ -626,11 +626,43 @@ export const RELEASE_UNIT_EXECUTION_STATES=Object.freeze(['PLANNED','BLOCKED','R
 
 const executionClone=value=>structuredClone(value);
 const sameJson=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
-const mainAdvanceScopeFiles=manifest=>uniq([...(manifest?.intendedFiles??[]),...(manifest?.requiredDependencyFiles??[])]);
+const classifyReleaseUnitMainAdvanceOverlap=(manifest,changedFiles)=>{
+  const intendedFiles=uniq(manifest?.intendedFiles??[]);
+  const requiredDependencyFiles=uniq(manifest?.requiredDependencyFiles??[]);
+  const scopeFiles=uniq([...intendedFiles,...requiredDependencyFiles]);
+  const overlapFiles=uniq(changedFiles).filter(file=>scopeFiles.includes(file));
+  const intended=new Set(intendedFiles),dependencies=new Set(requiredDependencyFiles);
+  const operations=manifest?.operations??[];
+  const dependencyOverlapFiles=[],modifyOverlapFiles=[],unsafeOverlapFiles=[];
+  for(const file of overlapFiles){
+    if(intended.has(file)){
+      const declared=operations.filter(operation=>String(operation?.file??'').trim()===file);
+      if(declared.length===1&&declared[0]?.operation==='modify')modifyOverlapFiles.push(file);
+      else unsafeOverlapFiles.push(file);
+      continue;
+    }
+    if(dependencies.has(file))dependencyOverlapFiles.push(file);
+    else unsafeOverlapFiles.push(file);
+  }
+  return{
+    scopeFiles,
+    overlapFiles:uniq(overlapFiles),
+    dependencyOverlapFiles:uniq(dependencyOverlapFiles),
+    modifyOverlapFiles:uniq(modifyOverlapFiles),
+    unsafeOverlapFiles:uniq(unsafeOverlapFiles),
+  };
+};
 export function validateReleaseUnitMainAdvanceProof(proof,{fromSha,toSha,manifest}={}){
-  const scopeFiles=mainAdvanceScopeFiles(manifest);
   const changedFiles=uniq(proof?.changedFiles??[]);
-  const expectedOverlap=changedFiles.filter(file=>scopeFiles.includes(file));
+  const expected=classifyReleaseUnitMainAdvanceOverlap(manifest,changedFiles);
+  const categorizedProof=Array.isArray(proof?.dependencyOverlapFiles)
+    &&Array.isArray(proof?.modifyOverlapFiles)
+    &&Array.isArray(proof?.unsafeOverlapFiles);
+  const categoryMatch=categorizedProof
+    ? sameJson(uniq(proof.dependencyOverlapFiles),expected.dependencyOverlapFiles)
+      &&sameJson(uniq(proof.modifyOverlapFiles),expected.modifyOverlapFiles)
+      &&sameJson(uniq(proof.unsafeOverlapFiles),expected.unsafeOverlapFiles)
+    : expected.overlapFiles.length===0;
   return proof?.contract===RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT
     &&proof?.issuer==='release-unit-github-runtime'
     &&proof?.decision==='PASS'
@@ -640,9 +672,10 @@ export function validateReleaseUnitMainAdvanceProof(proof,{fromSha,toSha,manifes
     &&Array.isArray(proof?.changedFiles)
     &&Array.isArray(proof?.scopeFiles)
     &&Array.isArray(proof?.overlapFiles)
-    &&sameJson(uniq(proof.scopeFiles),scopeFiles)
-    &&sameJson(uniq(proof.overlapFiles),expectedOverlap)
-    &&expectedOverlap.length===0;
+    &&sameJson(uniq(proof.scopeFiles),expected.scopeFiles)
+    &&sameJson(uniq(proof.overlapFiles),expected.overlapFiles)
+    &&categoryMatch
+    &&expected.unsafeOverlapFiles.length===0;
 }
 const requiredText=(value,code)=>{const normalized=String(value??'').trim();if(!normalized)throw new Error(code);return normalized;};
 const executionError=(code,details={})=>{const error=new Error(code);error.code=code;error.details=details;throw error;};
