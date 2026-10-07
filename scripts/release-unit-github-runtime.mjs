@@ -364,6 +364,7 @@ export function prepareActiveUnit({state,currentMainSha,sourceCommit,run=default
   if(!active)throw new Error('RELEASE_UNIT_ACTIVE_REQUIRED');
   if(!['PLANNED','STALE'].includes(active.state))throw new Error('RELEASE_UNIT_PREPARE_STATE_INVALID:'+String(active.state));
   let freshManifest=active.manifest;
+  let trustedFreshProjection=false;
   if(needsFreshReleaseUnitReevaluation(active,currentMainSha)){
     const reevaluated=reevaluateSuccessorManifest({state,execution:active,currentMainSha,sourceCommit,run,cwd});
     if(reevaluated.decision!=='PASS'){
@@ -371,9 +372,10 @@ export function prepareActiveUnit({state,currentMainSha,sourceCommit,run=default
       return{state:synchronizeReleaseParentExecution(state,blocked),decision:'BLOCK',reason:blocked.blocker};
     }
     freshManifest=reevaluated.manifest;
+    trustedFreshProjection=true;
   }
   const allFreshManifests=state.units.map(item=>item.releaseUnitId===active.releaseUnitId?freshManifest:item.manifest);
-  let next=applyReleaseUnitEvent(state,{type:'AUTHORIZE',releaseUnitId:active.releaseUnitId,freshManifest,currentMainSha,allFreshManifests});
+  let next=applyReleaseUnitEvent(state,{type:'AUTHORIZE',releaseUnitId:active.releaseUnitId,freshManifest,currentMainSha,allFreshManifests,trustedFreshProjection});
   let execution=next.units.find(item=>item.releaseUnitId===active.releaseUnitId);
   if(execution.state!=='READY')return{state:next,decision:'BLOCK',reason:execution.blocker};
   const sealed=sealReleaseUnitManifest(execution.manifest,{sourceCommit,cwd});

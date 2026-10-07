@@ -10,6 +10,7 @@ import {
   releaseUnitChildPlanDigest,
   releaseUnitContextBindingDigest,
   decodeReleaseUnitContextEnvelope,
+  derivePlannedOperations,
   validateReleaseUnitCiContext,
 } from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 import {
@@ -95,6 +96,31 @@ const manifest=()=>bindReleaseUnitChildTransaction(baseManifest,{
 });
 
 describe('release-unit execution binding hardening',()=>{
+  it('keeps exact base-to-head operation kinds authoritative over candidate Atlas existence',()=>{
+    const atlas={nodes:[
+      {path:'scripts/new.mjs'},
+      {path:'scripts/existing.mjs'},
+      {path:'scripts/renamed.mjs'},
+    ]};
+    const operations=derivePlannedOperations({
+      projectedFiles:['scripts/new.mjs','scripts/existing.mjs','scripts/deleted.mjs','scripts/renamed.mjs'],
+      atlas,
+      transactionChanges:[
+        {status:'A',file:'scripts/new.mjs'},
+        {status:'M',file:'scripts/existing.mjs'},
+        {status:'D',file:'scripts/deleted.mjs'},
+        {status:'R',previousFile:'scripts/old.mjs',file:'scripts/renamed.mjs'},
+      ],
+    });
+    expect(operations).toEqual([
+      {operation:'delete',file:'scripts/deleted.mjs'},
+      {operation:'modify',file:'scripts/existing.mjs',generated:null},
+      {operation:'create',file:'scripts/new.mjs',generated:null},
+      {operation:'rename',previousFile:'scripts/old.mjs',file:'scripts/renamed.mjs',generated:null},
+    ]);
+    expect(derivePlannedOperations({projectedFiles:['scripts/new.mjs'],atlas})[0].operation).toBe('modify');
+  });
+
   it('seals child plan and operation identity into a strong context binding',()=>{
     const m=manifest(),child=m.childDevelopmentTransaction;
     expect(child.planDigest).toHaveLength(64);

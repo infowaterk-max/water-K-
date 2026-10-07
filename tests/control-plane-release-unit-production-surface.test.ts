@@ -324,6 +324,24 @@ describe('Control Plane production release surface',()=>{
     expect(calls).toHaveLength(2);
   });
 
+  it('uses transaction-relative operation projection and establishes trusted freshness only after canonical reevaluation',()=>{
+    const plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
+    expect(plan).toContain('materialTransactionChanges');
+    expect(plan).toContain('transactionChanges:materialTransactionChanges');
+    const runtime=readFileSync('scripts/release-unit-github-runtime.mjs','utf8');
+    const start=runtime.indexOf('export function prepareActiveUnit');
+    const end=runtime.indexOf('export function finishActiveUnit',start);
+    const body=runtime.slice(start,end);
+    const reevaluate=body.indexOf('reevaluateSuccessorManifest');
+    const trust=body.indexOf('trustedFreshProjection=true');
+    const authorize=body.indexOf("type:'AUTHORIZE'");
+    expect(body).toContain('let trustedFreshProjection=false');
+    expect(reevaluate).toBeGreaterThanOrEqual(0);
+    expect(trust).toBeGreaterThan(reevaluate);
+    expect(authorize).toBeGreaterThan(trust);
+    expect(body).toContain('trustedFreshProjection');
+  });
+
   it('forces fresh semantic reevaluation for STALE even when order and base would otherwise look current',()=>{
     expect(needsFreshReleaseUnitReevaluation({state:'STALE',order:1,manifest:{targetBaseSha:A}},A)).toBe(true);
     expect(needsFreshReleaseUnitReevaluation({state:'PLANNED',order:1,manifest:{targetBaseSha:A}},A)).toBe(false);

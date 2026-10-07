@@ -9,6 +9,8 @@ const guardRegistry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1
 const diff=getChangedFiles({baseSha:plan.changeBaseSha});
 const changedFiles=[...(diff.materialFiles??[])];
 const deletedFiles=[...(diff.materialDeletedFiles??[])];
+const metadataFiles=new Set(diff.metadataFiles??[]);
+const materialTransactionChanges=(diff.changes??[]).filter(change=>!metadataFiles.has(change?.file)&&!metadataFiles.has(change?.previousFile));
 const issues=[];
 if(diff.baseResolution==='UNRESOLVED'||!diff.base)issues.push({code:'DEV_PLAN_TRANSACTION_BASE_UNRESOLVED',requestedBase:diff.requestedBase??plan.changeBaseSha??null});
 if(diff.headResolution==='UNRESOLVED_EXPLICIT'||!diff.head)issues.push({code:'DEV_PLAN_TRANSACTION_HEAD_UNRESOLVED',requestedHead:diff.requestedHead??null,headSource:diff.headSource??null});
@@ -81,6 +83,7 @@ const releaseOperations=derivePlannedOperations({
   plannedDeletions:declaredPlannedDeletions,
   plannedRenames,
   generatedArtifacts:plannedGeneratedArtifacts,
+  transactionChanges:materialTransactionChanges,
 });
 const releaseDecomposition=decomposeReleaseScope({
   transaction:{taskId:plan.releaseUnitContext?.releaseUnitId??plan.taskId,parentTransactionId:plan.releaseUnitContext?.parentTransactionId??plan.taskId,sourceRef:plan.operationalIntelligence?.sourceRef,changeBaseSha:plan.changeBaseSha},
