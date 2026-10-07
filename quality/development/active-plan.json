@@ -1,18 +1,20 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-STALE-RESUME-V1",
-  "task": "Allow a recoverable STALE release unit to re-enter the existing fresh successor reconciliation path after a previously blocking integration edge is repaired, without making BLOCKED or FAILED states auto-resumable or weakening exact-main, risk, scope, proof, CAS, or lifecycle authority.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION-V1",
+  "task": "Make fresh release-unit successor reevaluation reproject stale child Development Plan metadata from the current canonical Plan/Atlas projection before any strict authorization check, then require a second exact-candidate strict PASS before release execution can proceed.",
+  "status": "ready-for-implementation",
   "guardDigest": "a41cfd0c",
-  "changeBaseSha": "9453ef3270fd37ec85d4eb7b38793b713bcc105e",
+  "changeBaseSha": "b6302a7c5a91d6994d7f53102853a547eac8ac97",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/release-unit-execute.mjs",
-    "scripts/release-unit-github-runtime.mjs",
+    "scripts/shoperation-plan-before-code.mjs",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
-    "tests/control-plane-release-unit-production-surface.test.ts"
+    "scripts/release-unit-github-runtime.mjs",
+    "tests/control-plane-release-unit-production-surface.test.ts",
+    "tests/control-plane-release-unit-execution-binding.test.ts"
   ],
   "expectedSubsystems": [
+    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -93,39 +95,43 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-STALE-RESUME-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION-V1",
     "riskTier": "critical",
-    "problemStatement": "Live bounded rehearsal run 37566854069 / job 112643423251 used trusted main 9453ef3270fd37ec85d4eb7b38793b713bcc105e and passed source fetch, trusted Knowledge/Atlas, Plan, Release Risk and reevaluation dependency bootstrap. The persisted active U01 remained STALE from the earlier fail-closed reevaluation attempt. The top-level driver accepts only PLANNED or PR_OPEN and threw RELEASE_UNIT_EXECUTION_STATE_UNSUPPORTED:STALE before fresh reevaluation could run. The core reconciliation function also currently rejects every non-PLANNED state, so merely widening driver dispatch would still fail.",
+    "problemStatement": "Live bounded rehearsal replay job 112651631798 proved STALE resumability and dependency bootstrap closure, then failed inside fresh successor reevaluation because the persisted U01 child Development Plan envelope still contained scope metadata projected under an older Knowledge/Atlas/Plan policy. The candidate material scope was valid, but strict Plan Before Code rejected stale subsystem, negative-knowledge, guard-digest and semantic-route declarations before a fresh child transaction could be authorized.",
     "observableOutcomes": [
-      "A persisted STALE active unit is dispatched through prepareActiveUnit exactly like a unit needing fresh authorization, with current origin/main fetched first.",
-      "Core successor reconciliation accepts only PLANNED or STALE as entry states; BLOCKED, FAILED, READY, MATERIALIZED, PR_OPEN, VERIFIED, MERGED and CLOSED remain invalid reconciliation entry states.",
-      "A STALE unit can transition to READY only after the same fresh manifest, exact current-main lease, predecessor, risk, forbidden-scope, ordering and obligation-drift checks pass.",
-      "Successful authorization clears the previous blocker via the existing authorizeReleaseUnit transition rather than manual state mutation.",
-      "If fresh reevaluation or reconciliation blocks again, the unit remains fail-closed and the newly persisted blocker replaces the stale diagnostic through the existing event/state path."
+      "Fresh successor reevaluation first produces a non-authorizing canonical projection on the exact candidate head and fresh current-main base.",
+      "The projection exposes one machine-readable child-plan projection envelope containing the current guard digest, scope sets, negative knowledge, PO instructions and semantic execution route.",
+      "The child Development Plan is reprojected only from that machine output; no error-string parsing or hard-coded rehearsal metadata is used.",
+      "Child plan digest and release-unit binding identity are recomputed after reprojection.",
+      "A second strict Plan Before Code --check runs on the reprojected exact candidate and only strict PASS can return a fresh successor manifest.",
+      "Missing projection fields, UNKNOWN route relationships, projection command failure or strict second-pass failure remains fail-closed and creates no child PR."
     ],
     "unresolvedRisks": [
-      "Over-broad resume support could accidentally make FAILED or policy-BLOCKED states retryable.",
-      "A STALE state caused by obligation drift rather than infrastructure incompleteness must not be silently converted to READY unless fresh reconciliation actually resolves all drift.",
-      "The driver and core state-machine eligibility must stay aligned so one layer cannot admit a state the other rejects.",
-      "Repeated retries must preserve CAS semantics and must not duplicate child PRs or bypass exact-head materialization checks."
+      "Treating the first projection as authorization would bypass strict plan validation.",
+      "Reprojecting only some fields could leave hidden stale authority or knowledge declarations in the child plan.",
+      "Parsing human-readable failure messages would couple release authority to unstable diagnostics.",
+      "Changing child plan digest without refreshing manifest/binding identity would break exact transaction identity.",
+      "A projection route with no proof obligation could still fail the current critical child execution contract."
     ],
     "scope": {
       "in": [
-        "Teach the release-unit driver to route active STALE units into the existing prepareActiveUnit path.",
-        "Force prepareActiveUnit to run fresh reevaluateSuccessorManifest whenever the active unit is STALE, even when order and target-base conditions would otherwise skip reevaluation.",
-        "Allow reconcileSuccessorReleaseUnit to accept STALE as a recoverable reevaluation entry state while retaining every existing reconciliation proof and fail-closed check.",
-        "Add regression proof for STALE->READY after valid fresh reconciliation, mandatory reevaluation on same-base STALE, and rejection of BLOCKED/FAILED resume.",
-        "Add production-surface regression proof that the driver dispatches PLANNED or STALE to prepareActiveUnit and does not manually clear blocker/state."
+        "Expose the canonical current plan projection envelope in Plan Before Code report output.",
+        "Add a release-unit child-plan reprojection helper that updates only projection-derived scope/route metadata and recomputes child plan and manifest binding identity.",
+        "Split successor reevaluation into dependency bootstrap, non-authorizing projection, reprojection, then strict Plan check on the same exact candidate worktree.",
+        "Preserve scrubbed GitHub credentials for both projection and strict proof subprocesses.",
+        "Add positive and fail-closed regression coverage for stale child metadata, projection identity and strict second-pass authority."
       ],
       "out": [
-        "No manual persisted state edit or blocker clearing.",
-        "No auto-resume for BLOCKED or FAILED units.",
-        "No changes to reevaluation dependency bootstrap, materialization identity, PR creation, merge authority, parent closure, Release Risk, Atlas, storefront, database, deployment, authentication, Builder or templates."
+        "No manual child-plan field constants tied to this rehearsal.",
+        "No parsing of stderr issue strings as authoritative metadata.",
+        "No weakening of Plan Before Code, Atlas, Release Risk, CAS, PR, merge, Truth or Lifecycle authority.",
+        "No direct persisted release-state edit, blocker deletion, child PR creation or receipt fabrication.",
+        "No storefront, database, auth, payment, inventory, Builder, template or deployment change."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This is a trusted release state-machine transition. A too-wide eligibility change could resurrect failed or policy-blocked release units, so the repair must explicitly constrain resumability to STALE and prove all existing fresh reconciliation obligations remain authoritative.",
+      "rationale": "This repair changes the trusted release executor's pre-authorization evidence refresh path. It must distinguish projection from authorization and preserve exact transaction identity across a current-policy reprojection.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -143,28 +149,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Driver invokes prepareActiveUnit for active state PLANNED or STALE and still fetches current origin/main immediately before preparation.",
-        "prepareActiveUnit invokes fresh reevaluateSuccessorManifest whenever active.state is STALE, including order-1 same-base retries.",
-        "Core reconcileSuccessorReleaseUnit accepts PLANNED and STALE only.",
-        "Valid fresh reconciliation from STALE produces READY with blocker cleared and refreshed manifest/transaction identity.",
-        "BLOCKED and FAILED remain rejected with RELEASE_UNIT_RECONCILIATION_STATE_INVALID or driver unsupported-state behavior.",
-        "A repeated fresh reevaluation BLOCK from STALE remains persisted fail-closed; no PR is created.",
-        "Exact-head CI passes all canonical guards, Completion Truth verifies, Lifecycle closes, fix merges, then the unchanged rehearsal resumes from persisted CAS state."
+        "Plan Before Code report emits a deterministic canonical child projection derived from the same projected files, Atlas, scope, Knowledge and execution-route computation used by its strict gate.",
+        "Projection includes guardDigest, expectedSubsystems, expectedDomains, expectedAuthorities, expectedKnownFailureIds, acknowledgedPoInstructionIds, acknowledgedNegativeKnowledgeIds and semanticExecutionRoute.",
+        "Successor reevaluation runs projection without --check only as data production; that result alone cannot authorize or return PASS.",
+        "Child reprojection refreshes plan metadata and recomputes child planDigest plus manifest/binding identity before strict validation.",
+        "Strict Plan Before Code --check runs after reprojection on the same candidate head and fresh current-main base; only strict PASS continues.",
+        "Projection missing required fields, route UNKNOWN, dependency failure, reprojection identity failure or strict failure remains RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK.",
+        "Exact-head CI, Completion Truth and Lifecycle close before merge; unchanged rehearsal then resumes from persisted state d4720b3689833facc40ae27a56094880279e42ba."
       ],
       "invariants": [
-        "STALE is recoverable only through full fresh semantic reevaluation, never by direct state reset or same-base shortcut.",
-        "BLOCKED and FAILED are not automatic retry states.",
-        "Current-main lease, predecessor receipts, risk, forbidden scope, ordering and obligation-drift checks remain unchanged.",
-        "Existing CAS persistence is the only authoritative state write path.",
-        "Child materialization/PR identity and parent lifecycle rules remain unchanged."
+        "Projection is evidence input, never authorization.",
+        "No child manifest is authorized with stale plan projection metadata.",
+        "No scope metadata is derived from diagnostic text.",
+        "Reprojected child plan remains bound to the same releaseUnitId, parentTransactionId, intended files and fresh target base.",
+        "Plan digest, manifest digest, operation digest and binding digest remain internally consistent after reprojection.",
+        "Both projection and strict proof subprocesses execute with GH_TOKEN and GITHUB_TOKEN scrubbed."
       ],
       "forbiddenStates": [
-        "manual-stale-to-planned-reset",
-        "failed-unit-auto-resume",
-        "blocked-unit-auto-resume",
-        "stale-unit-ready-without-fresh-reconciliation",
-        "resume-without-current-main-fetch",
-        "duplicate-child-pr-after-resume"
+        "projection-pass-treated-as-authorization",
+        "strict-check-skipped-after-reprojection",
+        "error-string-derived-child-authority",
+        "stale-child-digest-after-reprojection",
+        "manual-release-state-or-pr-bypass"
       ]
     },
     "model": {
@@ -196,44 +202,45 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Persisted STALE unit cannot be dispatched by driver.",
-        "Driver admits STALE but core reconciliation still rejects it.",
-        "Eligibility widens accidentally to FAILED or BLOCKED.",
-        "Fresh manifest still contains base, risk, scope, predecessor or obligation drift.",
-        "Concurrent executor attempt advances state and CAS rejects the stale writer."
+        "Old child plan blocks before current scope can be adopted.",
+        "Projection report omits one metadata family required by strict Plan validation.",
+        "Reprojection changes planDigest but manifest/binding digest remains stale.",
+        "Projection and strict pass accidentally run against different candidate heads or bases.",
+        "First projection fails to execute or emits malformed/non-canonical data.",
+        "Strict second pass still blocks because canonical route proof is incomplete."
       ],
       "edgeCases": [
-        "U01 is STALE before any accepted materialization/PR state is persisted.",
-        "A later successor is STALE after a predecessor merge.",
-        "STALE reevaluation passes but materialization is already present remotely and exact reuse path is required.",
-        "STALE reevaluation blocks again with a different diagnostic.",
-        "Unit is BLOCKED or FAILED and must not enter resume path."
+        "Child intended files are unchanged but Knowledge applicability expands.",
+        "Current Plan policy changes guard digest without material source scope change.",
+        "A critical child consists only of added fixture files and requires a non-empty proof route.",
+        "Fresh successor is U02/U03 after predecessor main changes.",
+        "Projection succeeds but strict second pass detects real semantic UNKNOWN or obligation drift."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-STALE-FRESH-RECONCILE",
-        "summary": "Treat STALE as the only additional recoverable entry state and rerun the complete existing fresh reconciliation path.",
+        "id": "ALT-TWO-PASS-CANONICAL-REPROJECTION",
+        "summary": "Run current Plan projection as non-authorizing data, reproject child plan from its machine envelope, then run strict Plan validation.",
         "disposition": "selected",
-        "reason": "Preserves fail-closed authority while making an intentionally recoverable state actually resumable."
+        "reason": "Reuses the canonical Plan computation while preserving an explicit authorization boundary."
       },
       {
-        "id": "ALT-RESET-STALE-TO-PLANNED",
-        "summary": "Rewrite persisted STALE units back to PLANNED before rerun.",
+        "id": "ALT-PARSE-PLAN-ERRORS",
+        "summary": "Parse DEV_PLAN_* error messages and patch only failing fields.",
         "disposition": "rejected",
-        "reason": "Would mutate authoritative history and erase the blocker rather than proving recovery."
+        "reason": "Diagnostics are not an authority contract and this would miss silent stale fields."
       },
       {
-        "id": "ALT-ALL-NONTERMINAL-RETRY",
-        "summary": "Route any non-closed unit back through preparation.",
+        "id": "ALT-TRUST-OLD-CHILD-PLAN",
+        "summary": "Grandfather persisted child plan metadata after parent source admission.",
         "disposition": "rejected",
-        "reason": "Would make BLOCKED/FAILED and partially executed states dangerously auto-resumable."
+        "reason": "Would defeat fresh successor reevaluation when Knowledge/Atlas/Plan policy evolves."
       },
       {
-        "id": "ALT-NEW-RESUME-EVENT",
-        "summary": "Introduce a second state transition/event solely for STALE recovery.",
+        "id": "ALT-MANUAL-U01-METADATA-PATCH",
+        "summary": "Patch the rehearsal U01 plan/state directly.",
         "disposition": "rejected",
-        "reason": "The existing AUTHORIZE transition already clears blocker and refreshes identity after valid reconciliation; a parallel authority is unnecessary."
+        "reason": "Would solve one fixture but invalidate the generic production-like rehearsal and bypass canonical state authority."
       }
     ],
     "specialistReviews": [
@@ -241,21 +248,22 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The missing edge is dispatch/state eligibility between persisted STALE and the existing fresh reconciliation path.",
-        "resolution": "Align driver and core eligibility on exactly PLANNED|STALE and reuse existing authorization/event semantics.",
+        "finding": "The missing edge is projection freshness between persistent release-unit manifests and an evolving Control Plane policy, not release-unit material decomposition.",
+        "resolution": "Make current Plan projection an explicit machine contract and refresh child plan metadata before strict authorization.",
         "evidence": [
-          "scripts/release-unit-execute.mjs",
-          "scripts/lib/shoperation-release-unit-runtime.mjs"
+          "scripts/shoperation-plan-before-code.mjs",
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "scripts/release-unit-github-runtime.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Broad retry semantics could resurrect FAILED or policy-BLOCKED units and bypass operator/release authority.",
-        "resolution": "Whitelist STALE only and add negative regression proof for BLOCKED and FAILED.",
+        "finding": "A non-check Plan run could be mistaken for an authorization result and silently weaken the release boundary.",
+        "resolution": "Label projection as non-authorizing, require a separate strict --check after reprojection, and expose no path that returns PASS from projection alone.",
         "evidence": [
-          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "scripts/release-unit-github-runtime.mjs",
           "tests/control-plane-release-unit-production-surface.test.ts"
         ]
       },
@@ -263,105 +271,109 @@
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "STALE represents stale/reconcilable evidence, so recovery must recompute current-main authorization rather than restore old authorization.",
-        "resolution": "Fetch current main and execute prepareActiveUnit/reconcileSuccessorReleaseUnit unchanged apart from STALE eligibility.",
+        "finding": "Child plan identity changes during reprojection, so all downstream manifest and binding identities must be refreshed before materialization or PR creation.",
+        "resolution": "Centralize reprojection in release-unit runtime and recompute child planDigest through refreshReleaseUnitIdentity before authorization.",
         "evidence": [
-          "scripts/release-unit-execute.mjs",
-          "scripts/release-unit-github-runtime.mjs"
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "tests/control-plane-release-unit-execution-binding.test.ts"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The live rehearsal proved two repaired edges can still leave authoritative STALE state that the orchestration loop cannot consume.",
-        "resolution": "Record #1004 and lock the exact resume state matrix with regression tests before replaying the persisted transaction.",
+        "finding": "The live rehearsal sequentially exposed dependency bootstrap, STALE recovery, then stale child-envelope freshness, proving the integration chain rather than isolated unit behavior.",
+        "resolution": "Add two-pass reprojection regression and replay the unchanged persisted rehearsal after merge.",
         "evidence": [
-          "tests/control-plane-release-unit-production-surface.test.ts",
-          "https://github.com/infowaterk-max/water-K-/issues/1004"
+          "https://github.com/infowaterk-max/water-K-/issues/1007",
+          "tests/control-plane-release-unit-production-surface.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-SR-01",
-        "scenario": "A previous executor attempt persisted STALE because semantic reevaluation lacked a dependency; the dependency defect is later repaired but the state branch is intentionally left untouched.",
-        "finding": "The driver currently exits before recomputing fresh evidence, making a fail-closed recoverable state permanently terminal.",
-        "resolution": "Dispatch STALE into prepareActiveUnit, which recomputes the candidate against current main before any authorization.",
+        "id": "CH-CP-01",
+        "scenario": "The old child plan has a stale guardDigest but otherwise valid material scope.",
+        "finding": "A single strict run blocks before the runtime can refresh metadata, so the executor cannot distinguish stale envelope from invalid material scope.",
+        "resolution": "Run an explicitly non-authorizing projection first, consume only its structured canonical projection, then require a second strict check.",
         "status": "resolved"
       },
       {
-        "id": "CH-SR-02",
-        "scenario": "A unit is FAILED because an accepted execution step violated an invariant rather than because evidence became stale.",
-        "finding": "Treating FAILED as retryable could discard a terminal integrity failure and create a second execution history.",
-        "resolution": "Keep FAILED outside both driver resume eligibility and reconcileSuccessorReleaseUnit accepted states; prove rejection in tests.",
+        "id": "CH-CP-02",
+        "scenario": "The projection report is BLOCK because declared metadata is stale.",
+        "finding": "BLOCK diagnostics do not imply the projected scope computation itself is unavailable; however human error strings are not stable authority.",
+        "resolution": "Emit the canonical projection fields as structured report data regardless of decision, and never parse diagnostic strings for reprojection.",
         "status": "resolved"
       },
       {
-        "id": "CH-SR-03",
-        "scenario": "A unit is BLOCKED by canonical risk/scope/predecessor policy.",
-        "finding": "Blind retry semantics could turn an explicit policy denial into repeated execution attempts.",
-        "resolution": "Keep BLOCKED non-resumable automatically; only STALE may enter fresh reconciliation.",
+        "id": "CH-CP-03",
+        "scenario": "Knowledge adds a newly applicable negative-knowledge rule while release-unit files remain unchanged.",
+        "finding": "Persisted acknowledgedNegativeKnowledgeIds becomes stale without any material file drift.",
+        "resolution": "Projection envelope carries the current negativeKnowledgeIds derived from current scope and the child plan replaces its acknowledgement set before strict check.",
         "status": "resolved"
       },
       {
-        "id": "CH-SR-04",
-        "scenario": "A STALE order-1 unit is retried while its targetBaseSha already equals current main, for example after a transient reevaluation service or dependency failure that did not require a repository commit.",
-        "finding": "If prepareActiveUnit reevaluates only successors or base drift, the old manifest could flow directly into AUTHORIZE and the prior semantic failure would be bypassed despite the state still being STALE.",
-        "resolution": "Make active.state==='STALE' an independent mandatory reevaluation condition in prepareActiveUnit before any AUTHORIZE call; reuse the existing reevaluation result and fail closed again if it is not PASS.",
+        "id": "CH-CP-04",
+        "scenario": "Current Atlas changes semantic route authority/proof requirements for the child.",
+        "finding": "Keeping the old semanticExecutionRoute can either over-authorize or fail current critical route validation.",
+        "resolution": "Projection envelope rebuilds route categories from the current execution skeleton and current architecture authority; strict pass remains the final validator.",
         "status": "resolved"
       },
       {
-        "id": "CH-SR-05",
-        "scenario": "Two executor attempts resume the same STALE state concurrently.",
-        "finding": "Both may compute valid next state, but only one may authoritatively persist it.",
-        "resolution": "Leave expectedStateCommit force-with-lease CAS unchanged; stale writer rejection remains mandatory.",
+        "id": "CH-CP-05",
+        "scenario": "Reprojection updates child planDigest but not bindingDigest or manifestDigest.",
+        "finding": "PR context and Completion Truth could be bound to different transaction identities.",
+        "resolution": "Use a runtime helper that recomputes child planDigest then refreshes release-unit identity and binding atomically before sealing/materialization.",
         "status": "resolved"
       },
       {
-        "id": "CH-SR-06",
-        "scenario": "STALE recovery finds an exact existing remote materialization from an earlier attempt.",
-        "finding": "Creating a replacement commit or duplicate PR would break idempotency.",
-        "resolution": "After successful fresh authorization, continue through the existing exact materialization reconciliation/reuse logic without special-case bypass.",
+        "id": "CH-CP-06",
+        "scenario": "Projection runs on candidate A but strict pass runs after candidate/base moved.",
+        "finding": "Metadata could be authorized against a different exact state.",
+        "resolution": "Both passes occur inside the same detached exact candidate worktree with fixed currentMainSha/candidateHead environment; any base drift remains blocked by normal reconciliation.",
         "status": "resolved"
       },
       {
-        "id": "CH-SR-07",
-        "scenario": "A future refactor updates driver eligibility but not core reconciliation eligibility.",
-        "finding": "The same unsupported-state failure would reappear one layer deeper.",
-        "resolution": "Regression-test both the driver dispatch contract and core PLANNED|STALE state matrix.",
+        "id": "CH-CP-07",
+        "scenario": "Projection envelope is incomplete or contains semantic UNKNOWN.",
+        "finding": "Filling missing fields with old values would silently preserve stale authority.",
+        "resolution": "Validate projection contract completeness and reject UNKNOWN/noncanonical projection fail-closed before rewriting the child plan.",
         "status": "resolved"
       },
       {
-        "id": "CH-SR-08",
-        "scenario": "Fresh reevaluation of STALE fails again after the repair.",
-        "finding": "A resume feature must not assume retry success or clear the prior blocker prematurely.",
-        "resolution": "Return/persist the newly produced fail-closed STALE blocker through the existing synchronize/persist path and create no child PR.",
+        "id": "CH-CP-08",
+        "scenario": "Projection passes structurally but the reprojected child still violates current Plan policy.",
+        "finding": "Projection freshness does not prove execution readiness.",
+        "resolution": "Always rerun Plan Before Code with --check after reprojection; only that strict PASS can continue to fresh manifest authorization.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS before state-machine implementation.",
-      "Implement the minimal driver, prepareActiveUnit and core reconciliation eligibility changes plus positive/negative/same-base regression tests.",
-      "Require exact-head Knowledge, Plan, Edit-Time, Incremental Replay, Release Risk, full tests, typecheck, build and Completion Truth PASS.",
+      "Commit this plan only and require Plan Before Code PASS before implementation.",
+      "Add structured canonical child projection output, child reprojection identity helper and two-pass successor reevaluation.",
+      "Add unit/regression tests for structured projection, digest refresh, token scrubbing, projection-not-authority and strict second-pass failure.",
+      "Require exact-head Knowledge, Plan, Edit-Time, Incremental Replay, Release Risk, full tests, TypeScript, build and Completion Truth PASS.",
       "Commit only canonical lifecycle closure metadata and require final exact-head CI PASS.",
-      "Merge the exact fix head, verify fresh main CI, then rerun the unchanged rehearsal from persisted STALE CAS state and accept only canonical U01 progression."
+      "Merge, verify fresh main CI, then rerun the unchanged bounded rehearsal from persisted STALE CAS state and accept only canonical U01 progression."
     ],
     "semanticExecutionRoute": {
-      "request": "SQ-CAND-RELEASE-EXECUTOR-STALE-RESUME-V1",
+      "request": "SQ-CAND-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION-V1",
       "authority": [
+        "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        "scripts/release-unit-execute.mjs",
-        "scripts/release-unit-github-runtime.mjs",
-        "scripts/lib/shoperation-release-unit-runtime.mjs"
+        "scripts/shoperation-plan-before-code.mjs",
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/release-unit-github-runtime.mjs"
       ],
       "mayEdit": [
-        "tests/control-plane-release-unit-production-surface.test.ts"
+        "tests/control-plane-release-unit-production-surface.test.ts",
+        "tests/control-plane-release-unit-execution-binding.test.ts"
       ],
       "impactedReadOnly": [
-        ".github/workflows/release-unit-execution.yml"
+        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+        "scripts/lib/shoperation-development-runtime.mjs"
       ],
       "mustCreate": [],
       "forbidden": [
@@ -371,7 +383,8 @@
         "supabase/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-production-surface.test.ts"
+        "tests/control-plane-release-unit-production-surface.test.ts",
+        "tests/control-plane-release-unit-execution-binding.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -382,7 +395,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-STALE-RESUME-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -400,11 +413,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-RELEASE-EXECUTOR-STALE-RESUME",
-        "requirement": "Trusted release-unit execution must be able to recover a persisted STALE unit only by re-running the complete fresh successor reconciliation path, while keeping BLOCKED and FAILED states non-resumable.",
+        "id": "REQ-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION",
+        "requirement": "Fresh successor reevaluation must refresh stale child Development Plan projection metadata from current canonical machine evidence and still require an independent strict Plan PASS before authorization.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-stale-resume",
+          "breadth": "release-unit-child-plan-reprojection",
           "strength": 2,
           "dimensions": [
             "status",
@@ -427,15 +440,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-STALE-DIRECT-RESET",
-            "statement": "STALE may not be cleared or converted to READY without full fresh reconciliation.",
+            "id": "NEG-PROJECTION-AUTHORITY",
+            "statement": "A non-authorizing projection may not itself authorize a release unit.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-FAILED-BLOCKED-AUTO-RESUME",
-            "statement": "FAILED or BLOCKED units may not enter automatic resume dispatch.",
+            "id": "NEG-STALE-CHILD-IDENTITY",
+            "statement": "A reprojected child plan may not retain stale plan or binding identity.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -444,18 +457,5 @@
       }
     ]
   },
-  "notes": "Plan-only transaction from live Failure Intake #1004. Persisted rehearsal state remains untouched at state commit 62844d329776ecbfbde6ed32b065cd08ba5b14f1; no U01 PR exists. No implementation is authorized until Plan Before Code reconciles this exact scope. Plan refinement: generic STALE recovery must force semantic reevaluation even for order-1 same-base retries, so scripts/release-unit-github-runtime.mjs is implementation scope rather than read-only impact. Plan-only projection 37575802163 reconciled the exact planned scope to DOMAIN-QUALITY + DOMAIN-RELEASE, authorities quality-knowledge-system + release-infrastructure, all 49 applicable Known Failure IDs, and canonical guard digest a41cfd0c. No implementation was present during this reconciliation. Plan projection 37575897302 over the final four implementation files reconciled domains to DOMAIN-QUALITY+DOMAIN-RELEASE, authorities to quality-knowledge-system+release-infrastructure, full Known Failure applicability, projected risk 4/5, and guard digest a41cfd0c.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "02c1e65f6a12ec7d4b07a1ba427c1830206d3328",
-    "closedAt": "2026-10-07T05:30:44.256Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-STALE-RESUME-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Created from live Failure Intake #1007 after replay job 112651631798 proved that STALE recovery reaches fresh reevaluation but the persisted child Development Plan envelope is stale relative to current Plan/Atlas/Knowledge policy. This commit is plan-only."
 }
