@@ -1,23 +1,25 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
-  "task": "Repair release-unit successor obligation drift classification so the first canonical sealing of unchanged operations is treated as trusted reprojectable provenance enrichment while any semantic operation change or resealing/tamper remains material fail-closed drift.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-TRUSTED-MAIN-ADVANCE-V1",
+  "task": "Allow release-unit successor reevaluation to rebase onto a proven fast-forward main advance only when Git ancestry, successor scope isolation, trusted fresh projection and exact obligation reconciliation all pass; preserve fail-closed behavior for unproven or overlapping main drift.",
+  "status": "ready-for-implementation",
   "guardDigest": "a41cfd0c",
-  "changeBaseSha": "12447f0cfd73abe8728209ea3f35cb132a9b06d4",
+  "changeBaseSha": "1d868b19a8517142a435c649c3adacb79d804d96",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
-    "tests/control-plane-release-unit-orchestration.test.ts"
+    "scripts/release-unit-github-runtime.mjs",
+    "tests/control-plane-release-unit-orchestration.test.ts",
+    "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -89,42 +91,47 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-TRUSTED-MAIN-ADVANCE-V1",
     "riskTier": "critical",
-    "problemStatement": "The bounded multi-release-unit rehearsal successfully merged U01 through trusted exact-head child proof, then U02 failed closed with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT because fresh successor projection canonically sealed otherwise unchanged create operations with source commit/blob/fileMode provenance. The current classifier compares raw operation JSON and therefore cannot distinguish deterministic first-time sealing from a real operation mutation. This blocks resumable successor execution even though the immutable parent source and semantic operation set are unchanged.",
+    "problemStatement": "The bounded multi-release-unit rehearsal successfully merged U01 and then repaired U02 canonical sealing obligation reprojection. After that repair merged to main, the same immutable parent source replay reached U02 successor reevaluation but failed before fresh projection with RELEASE_UNIT_MAIN_DRIFT because the sequence predecessor merged at 12447f0c... while current main had safely advanced to 1d868b19... through Control Plane repair commits. The current runtime requires exact equality between predecessor merge SHA and current main before it can compute the trusted fresh successor projection, so legitimate resumable execution deadlocks whenever main advances after a predecessor merge. The fix must permit only a cryptographically/procedurally proven fast-forward main advance with no successor-scope overlap and then still require the existing trusted fresh projection plus obligation reconciliation.",
     "observableOutcomes": [
-      "A successor whose unsealed operations are enriched only by canonical sealing metadata from the immutable parent source is classified as reprojectable rather than material drift.",
-      "The associated childOperationDigest change is reprojectable only when both the before and after digests exactly match their own operation sets and the operation delta is canonical first sealing.",
-      "Any semantic operation change such as file, operation type, rename source, generated semantics or intended content remains material fail-closed drift.",
-      "Any already-sealed operation whose source commit, blob SHA or file mode changes remains material fail-closed drift.",
-      "Trusted fresh projection is still required before a reprojectable sealing enrichment can be accepted.",
-      "The live rehearsal can resume at U02 without modifying the immutable parent source or bypassing release-unit proof."
+      "A successor may reevaluate on a newer main only when the predecessor mergedMainSha is an ancestor of current main.",
+      "The executor records the exact changed-file set between predecessor merge and current main.",
+      "If any changed file overlaps the successor intendedFiles or requiredDependencyFiles, the advance remains blocked as RELEASE_UNIT_MAIN_DRIFT.",
+      "If ancestry and non-overlap pass, the runtime carries an explicit trusted main-advance proof into reconciliation.",
+      "The pure release-unit runtime accepts a predecessor/main mismatch only when the trusted proof exactly binds fromSha, toSha and relationship=FAST_FORWARD.",
+      "Trusted main advance does not itself authorize the unit; the existing trustedFreshProjection and obligation-drift checks must still pass.",
+      "Non-fast-forward, missing-proof, forged-proof and scope-overlap cases remain fail closed.",
+      "The live U02 rehearsal advances beyond RELEASE_UNIT_MAIN_DRIFT without editing persisted release state or restarting the parent transaction."
     ],
     "unresolvedRisks": [
-      "Blindly stripping source metadata from comparison would permit sealed-source tampering.",
-      "Treating childOperationDigest as reprojectable without verifying both operation digests would weaken binding integrity.",
-      "Allowing resealing from one source identity to another could silently substitute content.",
-      "A helper that compares operations by position rather than stable operation identity could produce false acceptance when ordering changes.",
-      "The fix must not weaken existing tests that intentionally classify real operation path drift as material."
+      "Allowing any descendant main without changed-file scope checks could hide concurrent modifications to successor files.",
+      "Allowing a boolean bypass without binding exact from/to SHAs could permit forged ancestry claims.",
+      "Checking ancestry but not successor dependencies could miss indirect runtime conflicts.",
+      "Accepting trusted main advance before fresh projection could bypass authority, gate or dependency drift.",
+      "Persisting proof data into the manifest incorrectly could perturb manifest digests or child bindings."
     ],
     "scope": {
       "in": [
-        "Refine release-unit obligation drift classification in scripts/lib/shoperation-release-unit-runtime.mjs.",
-        "Recognize only first canonical sealing provenance enrichment where semantic operation identity is unchanged and fresh sealing is internally coherent.",
-        "Classify childOperationDigest as reprojectable only when the corresponding operation change is canonical sealing and both digests match their own operation arrays.",
-        "Add regression coverage for accepted first sealing, untrusted projection rejection, semantic operation drift, resealing/tamper and digest mismatch."
+        "Add a narrowly-scoped trusted main-advance proof contract to release-unit reconciliation.",
+        "Prove fast-forward ancestry in the GitHub runtime using git merge-base --is-ancestor.",
+        "Compute changed files between predecessor merged main and current main and block overlap with successor intendedFiles/requiredDependencyFiles.",
+        "Pass the exact proof through reevaluateSuccessorManifest -> prepareActiveUnit -> AUTHORIZE -> reconcileSuccessorReleaseUnit.",
+        "Keep reconcileReleaseUnitManifest and predecessorResult fail-closed unless the exact trusted proof matches.",
+        "Add positive and adversarial unit/production-surface regressions."
       ],
       "out": [
-        "No change to sealReleaseUnitManifest source/blob derivation.",
-        "No change to materializeReleaseUnit write behavior.",
-        "No global removal or ignoring of operation source metadata.",
-        "No relaxation of forbidden/read-only path checks, predecessor receipts, main lease, Truth, Lifecycle or child CI proof.",
-        "No change to storefront, template, Supabase or deployment code."
+        "No global relaxation of requireExactMainLease.",
+        "No removal of failOnUnrelatedMainDrift semantics for untrusted paths.",
+        "No acceptance of non-fast-forward history, force-push ancestry or missing predecessor receipts.",
+        "No overlap allowance for intended/dependency files.",
+        "No change to release-unit source sealing, materialization, child CI proof, Truth or Lifecycle semantics.",
+        "No manual mutation of control-plane/release-state or rehearsal source."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This classifier decides whether persisted release obligations may be safely reprojected after predecessor merge. A permissive mistake could permit source substitution or operation tampering; an over-strict mistake deadlocks valid resumable execution. The fix therefore needs provenance-specific invariants and negative tamper cases.",
+      "rationale": "This logic decides whether a successor can execute on a main SHA different from its predecessor merge receipt. A permissive error could execute against unreviewed or conflicting code; an over-strict error breaks resumability. The repair therefore requires exact SHA binding, ancestry proof, changed-file isolation and independent trusted reprojection.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -141,32 +148,34 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Unsealed operations plus canonical source metadata only are identified as provenance enrichment, not semantic operation mutation.",
-        "Canonical enrichment requires after.sourceIdentity.sealed=true and a non-empty immutable sourceCommit.",
-        "Every fresh operation must preserve all non-source fields exactly.",
-        "Fresh sealed/regenerate/delete source metadata must match the canonical source contract for its operation kind.",
-        "Before and after child operation digests must each equal strongDigest of their own operation arrays before digest drift can be considered reprojectable.",
-        "Trusted fresh projection remains mandatory to accept the reprojectable drift.",
-        "Already-sealed source identity changes remain material drift.",
-        "Existing genuine operation-drift regression remains fail closed.",
-        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge."
+        "A trusted main-advance proof has a canonical contract, PASS decision, FAST_FORWARD relationship, fromSha and toSha.",
+        "GitHub runtime creates the proof only after git merge-base --is-ancestor(fromSha,toSha) succeeds.",
+        "GitHub runtime computes git diff --name-only fromSha..toSha and blocks if any changed file intersects successor intendedFiles or requiredDependencyFiles.",
+        "reconcileReleaseUnitManifest accepts predecessor/current mismatch only when trusted proof exactly matches expected predecessor SHA and newBaseSha.",
+        "predecessorResult/reconcileSuccessorReleaseUnit accept the same mismatch only with the same exact proof.",
+        "trustedFreshProjection remains independently required for reprojectable obligation drift.",
+        "Existing test for unrelated main drift without proof still returns RELEASE_UNIT_MAIN_DRIFT.",
+        "Forged fromSha/toSha, non-fast-forward ancestry and scope overlap remain blocked.",
+        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge.",
+        "After merge, immutable rehearsal replay advances U02 beyond the current main-drift blocker."
       ],
       "invariants": [
-        "Semantic operation scope is never widened by provenance reconciliation.",
-        "Source provenance is never ignored globally.",
-        "Only the first transition from unsealed to canonical sealed provenance may be reprojectable.",
-        "A sealed source commit/blob/fileMode may not mutate through this path.",
-        "Operation digests remain cryptographically bound to the exact operations they summarize.",
-        "Trusted fresh projection provenance is required for acceptance."
+        "Predecessor merge receipts remain authoritative and immutable.",
+        "A main advance proof is valid only for the exact predecessor mergedMainSha -> currentMainSha pair.",
+        "Successor intended and required dependency files may not have changed during the accepted main advance.",
+        "Fast-forward proof never replaces trusted fresh projection.",
+        "Fast-forward proof never replaces material obligation drift checks.",
+        "Non-fast-forward or unverifiable ancestry remains fail closed."
       ],
       "forbiddenStates": [
-        "operation-path-change-accepted-as-sealing",
-        "operation-type-change-accepted-as-sealing",
-        "sealed-commit-substitution-accepted",
-        "sealed-blob-substitution-accepted",
-        "digest-mismatch-reprojected",
-        "untrusted-sealing-reprojection-pass",
-        "source-metadata-globally-ignored"
+        "boolean-main-drift-bypass",
+        "non-fast-forward-main-accepted",
+        "scope-overlap-main-accepted",
+        "forged-from-sha-accepted",
+        "forged-to-sha-accepted",
+        "trusted-projection-skipped",
+        "predecessor-receipt-rewritten",
+        "release-state-manually-mutated"
       ]
     },
     "model": {
@@ -198,50 +207,50 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Classifier still marks canonical first sealing as material drift.",
-        "Classifier accepts a real operation mutation because source metadata also changed.",
-        "Classifier accepts resealing to a different immutable source.",
-        "Classifier accepts an operationDigest not derived from the corresponding operations.",
-        "Classifier accepts reprojectable drift without trusted fresh projection.",
-        "Ordering-only differences create false semantic mutation."
+        "Exact predecessor/main equality remains hard-coded before fresh projection and replay still deadlocks.",
+        "Proof contract can be forged without exact SHA equality.",
+        "Ancestry succeeds but overlapping successor files are ignored.",
+        "Main advance proof is accepted but trustedFreshProjection=false.",
+        "Pure runtime and GitHub runtime disagree about proof semantics.",
+        "A non-fast-forward branch relation is misclassified as safe."
       ],
       "edgeCases": [
-        "before operation has no source; after has sealed source with same non-source fields",
-        "delete operation gains source:null",
-        "regenerate operation gains mode=regenerate source metadata",
-        "before and after are both sealed and identical",
-        "before sealed commit A; after sealed commit B",
-        "same commit but different blobSha",
-        "same operations but incorrect after operationDigest",
-        "same operations/provenance but different ordering",
-        "operation file path changes during sealing",
-        "operation type changes create→modify"
+        "predecessor mergedMainSha equals current main exactly",
+        "current main is one fast-forward commit ahead with no scope overlap",
+        "current main is multiple fast-forward commits ahead with no scope overlap",
+        "current main fast-forward changes one intended successor file",
+        "current main fast-forward changes one required dependency file",
+        "current main is not descendant of predecessor merge",
+        "proof fromSha does not equal sequence predecessor receipt",
+        "proof toSha does not equal current main",
+        "proof relationship is not FAST_FORWARD",
+        "trustedFreshProjection is false despite a valid main-advance proof"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-CANONICAL-SEALING-ENRICHMENT",
-        "summary": "Detect a narrowly defined first canonical sealing transition, verify provenance and operation digests, and classify only that delta as reprojectable under trusted fresh projection.",
+        "id": "ALT-TRUSTED-FAST-FORWARD-PROOF",
+        "summary": "Bind a fast-forward ancestry + changed-file non-overlap proof to exact predecessor/current SHAs, then still require fresh projection and obligation reconciliation.",
         "disposition": "selected",
-        "reason": "Preserves immutable source security while allowing the intended successor re-evaluation lifecycle."
+        "reason": "Preserves exact receipt authority while enabling safe resumability after independent main advances."
       },
       {
-        "id": "ALT-IGNORE-SOURCE-IN-OPERATIONS",
-        "summary": "Strip source metadata before all operation comparisons.",
+        "id": "ALT-DISABLE-MAIN-DRIFT-GUARD",
+        "summary": "Remove exact predecessor/current main comparison for successors.",
         "disposition": "rejected",
-        "reason": "Would hide source commit/blob/fileMode tampering and weaken the sealed-source contract."
+        "reason": "Would allow arbitrary concurrent main changes without proof."
       },
       {
-        "id": "ALT-MAKE-OPERATIONS-REPROJECTABLE",
-        "summary": "Add operations and childOperationDigest to the global reprojectable field set.",
+        "id": "ALT-RESTART-PARENT-TRANSACTION",
+        "summary": "Discard persisted rehearsal progress and begin the parent release again after every Control Plane fix.",
         "disposition": "rejected",
-        "reason": "Would permit real material operation changes under trusted projection and defeat the hard obligation boundary."
+        "reason": "Defeats resumability and hides the systemic gap instead of repairing it."
       },
       {
-        "id": "ALT-MUTATE-PERSISTED-U02",
-        "summary": "Manually rewrite the persisted rehearsal U02 obligation to match the fresh manifest.",
+        "id": "ALT-REWRITE-PREDECESSOR-RECEIPT",
+        "summary": "Update U01 mergedMainSha to the new main SHA.",
         "disposition": "rejected",
-        "reason": "Would bypass the general defect instead of repairing resumable execution semantics."
+        "reason": "Would falsify the immutable merge receipt."
       }
     ],
     "specialistReviews": [
@@ -249,146 +258,150 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Treating all operation source metadata as non-semantic would erase an important source-integrity boundary.",
-        "resolution": "Permit only first canonical sealing with exact non-source equality and immutable source contract checks; already-sealed changes remain material.",
+        "finding": "A generic descendant-main exception would weaken the sequential release authority model.",
+        "resolution": "Require a typed proof bound to exact SHAs, non-overlap and trusted fresh projection; all unproven cases retain RELEASE_UNIT_MAIN_DRIFT.",
         "evidence": [
-          "scripts/lib/shoperation-release-unit-runtime.mjs",
-          "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT"
+          "reconcileReleaseUnitManifest",
+          "predecessorResult",
+          "reconcileSuccessorReleaseUnit"
         ]
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Blob/commit provenance is security-sensitive and must remain fail closed after sealing.",
-        "resolution": "Require before unsealed, after sealed, one canonical sourceCommit, valid per-operation source shape and digest self-consistency.",
+        "finding": "Git history relationship must be independently proven rather than inferred from commit strings.",
+        "resolution": "Use git merge-base --is-ancestor in the trusted default-branch executor and carry only the resulting exact proof.",
         "evidence": [
-          "sealReleaseUnitManifest",
-          "materializeReleaseUnit"
+          "scripts/release-unit-github-runtime.mjs",
+          "git merge-base --is-ancestor"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "childOperationDigest changed only because canonical provenance was added, but digest acceptance must not become independent of operation identity.",
-        "resolution": "Reproject the digest only as a dependent consequence of a verified canonical sealing transition and self-consistent before/after digests.",
+        "finding": "Predecessor receipts cannot be rewritten to current main just to satisfy the lease.",
+        "resolution": "Keep receipts immutable and represent current-main advancement as a separate proof object.",
         "evidence": [
-          "refreshReleaseUnitIdentity",
-          "releaseUnitContextBindingDigest"
+          "release-unit merge receipt",
+          "control-plane release-state"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "U01 exact trusted child proof #9077 succeeded and PR #1053 merged; the next blocker is isolated to U02 successor reconciliation.",
-        "resolution": "Repair classifier generically, merge it on exact proof, then replay the same immutable parent source and require U02 to advance without manual state mutation.",
+        "finding": "U01 is already merged and U02 is blocked only because Control Plane fixes advanced main after that merge.",
+        "resolution": "Permit safe reprojection only after exact ancestry/scope proof, then require the existing successor projection and obligation gates.",
         "evidence": [
-          "Release Unit Execution #184",
           "PR #1053",
-          "release-state U02 STALE"
+          "Release Unit Execution #192",
+          "RELEASE_UNIT_MAIN_DRIFT"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The live rehearsal exposed a previously untested interaction between source sealing and successor obligation drift classification.",
-        "resolution": "Add positive and adversarial regression cases before replaying the rehearsal.",
+        "finding": "The live rehearsal exposed an untested interaction between sequential merge receipts and Control Plane self-repair during a resumable parent execution.",
+        "resolution": "Add direct unit and production-surface regressions for both accepted and rejected main-advance paths.",
         "evidence": [
-          "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT",
-          "tests/control-plane-release-unit-orchestration.test.ts"
+          "tests/control-plane-release-unit-orchestration.test.ts",
+          "tests/control-plane-release-unit-production-surface.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-SEAL-01",
-        "scenario": "Unsealed create operation gains canonical sealed commit/blob/fileMode and nothing else changes.",
-        "finding": "Current raw JSON comparison reports material drift.",
-        "resolution": "Classify as sealing enrichment only after full provenance validation.",
+        "id": "CH-MAIN-01",
+        "scenario": "Current main equals predecessor merge SHA.",
+        "finding": "No advance proof is necessary.",
+        "resolution": "Preserve current exact-match behavior unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-SEAL-02",
-        "scenario": "Same first sealing occurs but trustedFreshProjection=false.",
-        "finding": "Fresh provenance has not been authorized by trusted projection.",
-        "resolution": "Keep it STALE until trusted fresh projection is true.",
+        "id": "CH-MAIN-02",
+        "scenario": "Current main is a fast-forward descendant and changed files do not overlap successor scope.",
+        "finding": "Current code blocks before trusted projection can run.",
+        "resolution": "Create exact trusted main-advance proof and allow reevaluation to proceed.",
         "status": "resolved"
       },
       {
-        "id": "CH-SEAL-03",
-        "scenario": "File path changes while source metadata is added.",
-        "finding": "This is semantic operation drift disguised as sealing.",
-        "resolution": "Non-source operation equality must fail and keep material drift.",
+        "id": "CH-MAIN-03",
+        "scenario": "Fast-forward changes an intended successor file.",
+        "finding": "Fresh projection alone should not silently normalize concurrent edits.",
+        "resolution": "Block the main advance before reprojection with RELEASE_UNIT_MAIN_DRIFT details including overlap.",
         "status": "resolved"
       },
       {
-        "id": "CH-SEAL-04",
-        "scenario": "Already-sealed operation changes source commit.",
-        "finding": "Would permit source substitution.",
-        "resolution": "First-sealing predicate requires before.sourceIdentity.sealed!==true; resealing remains material.",
+        "id": "CH-MAIN-04",
+        "scenario": "Fast-forward changes a required dependency file.",
+        "finding": "Indirect successor behavior may change.",
+        "resolution": "Treat dependency overlap the same as intended-file overlap and block.",
         "status": "resolved"
       },
       {
-        "id": "CH-SEAL-05",
-        "scenario": "Already-sealed operation keeps commit but changes blobSha/fileMode.",
-        "finding": "Would permit content or mode substitution.",
-        "resolution": "Already-sealed provenance changes remain raw material operation drift.",
+        "id": "CH-MAIN-05",
+        "scenario": "Current main is not a descendant of predecessor merge.",
+        "finding": "History may have been rewritten or a divergent base selected.",
+        "resolution": "No proof; fail closed.",
         "status": "resolved"
       },
       {
-        "id": "CH-SEAL-06",
-        "scenario": "Operations look like valid first sealing but after operationDigest is forged.",
-        "finding": "Digest/binding integrity would diverge.",
-        "resolution": "Require both before and after childOperationDigest to equal strongDigest of their own operation arrays.",
+        "id": "CH-MAIN-06",
+        "scenario": "A proof object names the wrong predecessor SHA.",
+        "finding": "Could detach authorization from the actual receipt.",
+        "resolution": "Pure runtime must exact-match proof.fromSha to sequence.merge.mergedMainSha.",
         "status": "resolved"
       },
       {
-        "id": "CH-SEAL-07",
-        "scenario": "Delete/regenerate operations have different canonical source shapes.",
-        "finding": "One generic sealed-source shape would reject valid cases or accept invalid ones.",
-        "resolution": "Validate delete source:null, regenerate source.mode=regenerate, ordinary operations source.mode=sealed.",
+        "id": "CH-MAIN-07",
+        "scenario": "Proof names a different toSha from current main.",
+        "finding": "Could authorize a stale base.",
+        "resolution": "Exact-match proof.toSha to currentMainSha/newBaseSha.",
         "status": "resolved"
       },
       {
-        "id": "CH-SEAL-08",
-        "scenario": "Operation array order changes but semantic operations are identical.",
-        "finding": "Order-only drift should not become a hidden material mutation or bypass.",
-        "resolution": "Use the same stable sorted-object comparison already authoritative for obligations while validating one-to-one semantic operation identity.",
+        "id": "CH-MAIN-08",
+        "scenario": "Valid ancestry proof exists but trustedFreshProjection=false.",
+        "finding": "Safe history relationship does not prove current obligations.",
+        "resolution": "Obligation reprojection remains blocked unless trustedFreshProjection=true.",
         "status": "resolved"
       },
       {
-        "id": "CH-SEAL-09",
-        "scenario": "Fresh projection changes authorities/evidence plus canonical sealing in the same successor pass.",
-        "finding": "Live U02 contains both reprojectable policy drift and provenance enrichment.",
-        "resolution": "Both categories may be reprojectable under trustedFreshProjection; any independent material field still blocks.",
+        "id": "CH-MAIN-09",
+        "scenario": "Main advances only through Control Plane files as in the live rehearsal.",
+        "finding": "No successor fixture/dependency overlap exists.",
+        "resolution": "Ancestry + non-overlap proof allows U02 fresh projection against current main.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only on the fresh branch from main 12447f0cfd73abe8728209ea3f35cb132a9b06d4 and require Plan Before Code PASS before runtime edits.",
-      "Modify only scripts/lib/shoperation-release-unit-runtime.mjs and tests/control-plane-release-unit-orchestration.test.ts after plan authorization.",
-      "Add direct classifier/orchestration regressions for canonical first sealing, untrusted projection, digest mismatch, resealing/tamper and true semantic operation drift.",
+      "Commit this plan only on the fresh branch from main 1d868b19a8517142a435c649c3adacb79d804d96 and require Plan Before Code PASS before runtime edits.",
+      "Modify the pure release-unit runtime to validate an explicit trusted main-advance proof rather than a boolean bypass.",
+      "Modify the GitHub runtime to prove ancestry and changed-file non-overlap before calling successor reconciliation.",
+      "Add unit regressions preserving the existing no-proof RELEASE_UNIT_MAIN_DRIFT case and covering exact-proof acceptance/forgery rejection.",
+      "Add production-surface regressions for git ancestry and scope-overlap proof construction.",
       "Require full exact-head Knowledge/Plan/Edit-Time/Incremental/Release Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
       "Merge only after exact PR-head success.",
-      "Replay immutable source release-execution/source/control-plane-multi-unit-rehearsal-v1 at SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and verify U02 advances beyond the previous RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT without manual release-state edits."
+      "Replay immutable source release-execution/source/control-plane-multi-unit-rehearsal-v1 at SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and verify U02 advances beyond RELEASE_UNIT_MAIN_DRIFT without release-state edits."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-07-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
+      "request": "PO-2026-10-07-CONTROL-PLANE-TRUSTED-MAIN-ADVANCE-V1",
       "authority": [
-        "quality-knowledge-system"
+        "release-infrastructure"
       ],
       "mustEdit": [
-        "scripts/lib/shoperation-release-unit-runtime.mjs"
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/release-unit-github-runtime.mjs"
       ],
       "mayEdit": [
-        "tests/control-plane-release-unit-orchestration.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "impactedReadOnly": [
         "scripts/release-unit-execute.mjs",
-        "scripts/release-unit-github-runtime.mjs",
         "quality/knowledge/development-guard-policy.v1.json",
         "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
       ],
@@ -399,7 +412,8 @@
         "deploy/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-orchestration.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -410,7 +424,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-TRUSTED-MAIN-ADVANCE-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -428,11 +442,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-CANONICAL-SEALING-OBLIGATION-REPROJECTION",
-        "requirement": "Successor reconciliation must distinguish canonical first-time sealed provenance enrichment from real material operation drift without weakening immutable source integrity.",
+        "id": "REQ-TRUSTED-MAIN-ADVANCE",
+        "requirement": "Successor execution may reconcile onto a newer main only through an exact trusted fast-forward ancestry and scope-isolation proof, followed by the existing trusted fresh projection and obligation checks.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-successor-sealing-reprojection",
+          "breadth": "release-unit-successor-trusted-main-advance",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -458,22 +472,22 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SEALED-SOURCE-TAMPER-ACCEPTED",
-            "statement": "An already-sealed operation may not change source commit/blob/fileMode through successor reprojection.",
+            "id": "NEG-UNPROVEN-MAIN-DRIFT-ACCEPTED",
+            "statement": "A successor may not accept predecessor/current main mismatch without an exact trusted proof.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-MATERIAL-OPERATION-DRIFT-ACCEPTED",
-            "statement": "A semantic operation change may not be reclassified as canonical sealing enrichment.",
+            "id": "NEG-SCOPE-OVERLAP-MAIN-ADVANCE",
+            "statement": "A main advance touching successor intended or required dependency files may not be accepted.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-UNTRUSTED-SEALING-REPROJECTION",
-            "statement": "Canonical sealing enrichment may not be accepted without trusted fresh projection provenance.",
+            "id": "NEG-NON-FAST-FORWARD-MAIN-ADVANCE",
+            "statement": "A non-fast-forward or unverifiable main relationship may not be accepted.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -482,18 +496,5 @@
       }
     ]
   },
-  "notes": "Live bounded multi-release-unit rehearsal evidence: U01 trusted workflow_dispatch CI #9077 passed and PR #1053 merged at main 12447f0cfd73abe8728209ea3f35cb132a9b06d4. Release Unit Execution #184 then failed at U02 with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT because initial unsealed operations were canonically enriched with sealed source metadata, changing both raw operations JSON and childOperationDigest. This plan repairs the generic classifier; it does not mutate persisted rehearsal state or weaken operation/source integrity. Plan Gate #9080 canonicalized planned projection metadata: DOMAIN-QUALITY, quality-knowledge-system authority, negative knowledge [SQ-NK-002, SQ-NK-003, SQ-NK-005, SQ-NK-010, SQ-NK-012, SQ-NK-016..023], and guardDigest a41cfd0c.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "5985f840a80321b23a0b005548bbcadad104cd73",
-    "closedAt": "2026-10-07T15:59:26.450Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Live evidence: U01 exact trusted child proof passed and PR #1053 merged at 12447f0cfd73abe8728209ea3f35cb132a9b06d4. Canonical sealing reprojection repair then merged to main 1d868b19a8517142a435c649c3adacb79d804d96. Immutable rehearsal replay attempt 6 triggered Release Unit Execution #192, which failed during reevaluateSuccessorManifest before fresh projection with RELEASE_UNIT_MAIN_DRIFT:12447f0cfd73abe8728209ea3f35cb132a9b06d4:1d868b19a8517142a435c649c3adacb79d804d96. This plan preserves immutable predecessor receipts and repairs only the missing trusted fast-forward reprojection path."
 }
