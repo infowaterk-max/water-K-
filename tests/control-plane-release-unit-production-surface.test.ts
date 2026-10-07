@@ -2,7 +2,7 @@
 import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {applyReleaseUnitEvent,createReleaseParentExecution,recordReleaseParentClosure} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
-import {reconcileExactMaterializedCommit,releaseUnitCommitMessage,runSuccessorReevaluationPlan} from '../scripts/release-unit-github-runtime.mjs';
+import {needsFreshReleaseUnitReevaluation,reconcileExactMaterializedCommit,releaseUnitCommitMessage,runSuccessorReevaluationPlan} from '../scripts/release-unit-github-runtime.mjs';
 
 const A='a'.repeat(40);
 const manifest={
@@ -235,6 +235,53 @@ describe('Control Plane production release surface',()=>{
     expect(result.code).toBe('RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK');
     expect(result.error).toContain('PLAN_REEVALUATION_BLOCK');
     expect(calls).toHaveLength(2);
+  });
+
+  it('forces fresh semantic reevaluation for STALE even when order and base would otherwise look current',()=>{
+    expect(needsFreshReleaseUnitReevaluation({state:'STALE',order:1,manifest:{targetBaseSha:A}},A)).toBe(true);
+    expect(needsFreshReleaseUnitReevaluation({state:'PLANNED',order:1,manifest:{targetBaseSha:A}},A)).toBe(false);
+    expect(needsFreshReleaseUnitReevaluation({state:'PLANNED',order:1,manifest:{targetBaseSha:'b'.repeat(40)}},A)).toBe(true);
+    expect(needsFreshReleaseUnitReevaluation({state:'PLANNED',order:2,manifest:{targetBaseSha:A}},A)).toBe(true);
+  });
+
+  it('re-authorizes a persisted STALE unit only through the normal fresh reconciliation event path',()=>{
+    let state=createReleaseParentExecution({contract:'shoporation.release-decomposition.v1',decision:'PASS',releaseUnits:[structuredClone(manifest)],ordering:{decision:'PASS'}});
+    state.units[0].state='STALE';
+    state.units[0].blocker={code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK',details:{error:'prior transient proof environment failure'}};
+    state.units[0].lastTransition={to:'STALE',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK'};
+    const next=applyReleaseUnitEvent(state,{
+      type:'AUTHORIZE',
+      releaseUnitId:manifest.releaseUnitId,
+      freshManifest:structuredClone(manifest),
+      currentMainSha:A,
+      allFreshManifests:[structuredClone(manifest)],
+    });
+    expect(next.units[0].state).toBe('READY');
+    expect(next.units[0].blocker).toBeNull();
+    expect(next.units[0].authorization.currentMainSha).toBe(A);
+    expect(next.units[0].lastTransition.code).toBe('RELEASE_UNIT_AUTHORIZED');
+  });
+
+  it('keeps BLOCKED and FAILED units outside automatic fresh reconciliation',()=>{
+    for(const blockedState of ['BLOCKED','FAILED']){
+      const state=createReleaseParentExecution({contract:'shoporation.release-decomposition.v1',decision:'PASS',releaseUnits:[structuredClone(manifest)],ordering:{decision:'PASS'}});
+      state.units[0].state=blockedState;
+      state.units[0].blocker={code:'POLICY_BLOCK',details:{}};
+      expect(()=>applyReleaseUnitEvent(state,{
+        type:'AUTHORIZE',
+        releaseUnitId:manifest.releaseUnitId,
+        freshManifest:structuredClone(manifest),
+        currentMainSha:A,
+        allFreshManifests:[structuredClone(manifest)],
+      })).toThrow(/RELEASE_UNIT_RECONCILIATION_STATE_INVALID/);
+    }
+  });
+
+  it('dispatches only PLANNED or STALE units into driver preparation',()=>{
+    const driver=readFileSync('scripts/release-unit-execute.mjs','utf8');
+    expect(driver.match(/\['PLANNED','STALE'\]\.includes\(active\?\.state\)/g)?.length).toBe(2);
+    expect(driver).not.toContain("['PLANNED','STALE','BLOCKED']");
+    expect(driver).not.toContain("['PLANNED','STALE','FAILED']");
   });
 
   it('scrubs write tokens from proof subprocesses',()=>{

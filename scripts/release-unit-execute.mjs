@@ -48,7 +48,7 @@ if(has('--drive')){
       result=closeParentReleaseExecution({state,sourceCommit:source});
     }else{
       const active=state.units.find(item=>item.releaseUnitId===state.activeUnitId);
-      if(active?.state==='PLANNED'){
+      if(['PLANNED','STALE'].includes(active?.state)){
         execFileSync('git',['fetch','--quiet','origin','main']);
         const currentMain=execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim();
         result=prepareActiveUnit({state,currentMainSha:currentMain,sourceCommit:source});
@@ -88,7 +88,7 @@ const loaded=loadRemoteExecutionState({stateRef});
 if(!loaded.state)throw new Error('RELEASE_UNIT_STATE_NOT_FOUND');
 let result;
 const active=loaded.state.units.find(item=>item.releaseUnitId===loaded.state.activeUnitId);
-if(active?.state==='PLANNED'){
+if(['PLANNED','STALE'].includes(active?.state)){
   execFileSync('git',['fetch','--quiet','origin','main']);
   const currentMain=execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim();
   result=prepareActiveUnit({state:loaded.state,currentMainSha:currentMain,sourceCommit:source});
