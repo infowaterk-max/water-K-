@@ -112,6 +112,38 @@ export function pushExactMaterializedCommit({commitSha,branch,expectedRemoteSha=
   run('git',args,{cwd});
   return{branch,commitSha};
 }
+
+function remoteMaterializedBranchHead({branch,run=defaultRun,cwd=process.cwd()}={}){
+  const ref='refs/heads/'+branch;
+  try{
+    const line=text(run('git',['ls-remote','origin',ref],{cwd}).split(/\n/)[0]);
+    if(!line)return null;
+    const [sha,remoteRef]=line.split(/\s+/);
+    return remoteRef===ref?sha:null;
+  }catch{return null;}
+}
+export function reconcileExactMaterializedCommit({manifest,receipt,branch,run=defaultRun,cwd=process.cwd()}={}){
+  if(receipt?.status==='ALREADY_APPLIED')return receipt;
+  if(!manifest||!branch||!receipt||!['PREPARED','APPLIED'].includes(receipt.status))throw new Error('RELEASE_UNIT_MATERIALIZATION_RECONCILIATION_INPUT_INVALID');
+  if(receipt.targetBaseSha!==manifest.targetBaseSha||receipt.manifestDigest!==manifest.manifestDigest||receipt.bindingDigest!==(manifest.childDevelopmentTransaction?.bindingDigest??null))throw new Error('RELEASE_UNIT_MATERIALIZATION_RECONCILIATION_IDENTITY_MISMATCH');
+  const remoteSha=remoteMaterializedBranchHead({branch,run,cwd});
+  if(!remoteSha){
+    pushExactMaterializedCommit({commitSha:receipt.materializedHeadSha,branch,run,cwd});
+    return receipt;
+  }
+  const ref='refs/heads/'+branch;
+  run('git',['fetch','--quiet','origin',ref],{cwd});
+  const fetched=text(run('git',['rev-parse','FETCH_HEAD'],{cwd}));
+  if(fetched!==remoteSha)throw new Error('RELEASE_UNIT_REMOTE_BRANCH_MOVED:'+remoteSha+':'+fetched);
+  const lineage=text(run('git',['rev-list','--parents','-n','1',remoteSha],{cwd})).split(/\s+/);
+  if(lineage.length!==2||lineage[0]!==remoteSha||lineage[1]!==manifest.targetBaseSha)throw new Error('RELEASE_UNIT_REMOTE_BRANCH_BASE_DRIFT:'+remoteSha+':'+String(lineage.slice(1).join(',')));
+  const remoteTree=text(run('git',['rev-parse',remoteSha+'^{tree}'],{cwd}));
+  if(remoteTree!==receipt.treeSha)throw new Error('RELEASE_UNIT_REMOTE_BRANCH_TREE_DRIFT:'+remoteSha+':'+remoteTree+':'+String(receipt.treeSha??''));
+  const remoteMessage=text(run('git',['show','-s','--format=%B',remoteSha],{cwd}));
+  const expectedMessage=releaseUnitCommitMessage(manifest);
+  if(remoteMessage!==expectedMessage)throw new Error('RELEASE_UNIT_REMOTE_BRANCH_IDENTITY_DRIFT:'+remoteSha);
+  return{...receipt,commitSha:remoteSha,materializedHeadSha:remoteSha,reusedRemote:true};
+}
 export function ensureExactPullRequest({manifest,materializedHeadSha,branch,repo=null,run=defaultRun,cwd=process.cwd()}={}){
   const repository=repo??repoName(run,cwd),owner=ownerOf(repository);
   const list=ghApi(run,cwd,['repos/'+repository+'/pulls?head='+encodeURIComponent(owner+':'+branch)+'&state=all&per_page=20']);
@@ -300,7 +332,8 @@ export function prepareActiveUnit({state,currentMainSha,sourceCommit,run=default
   execution={...execution,manifest:sealed,executionTransaction:{...execution.executionTransaction,manifestDigest:sealed.manifestDigest,bindingDigest:sealed.childDevelopmentTransaction?.bindingDigest??null,sourceIdentity:sealed.sourceIdentity}};
   next={...next,units:next.units.map(item=>item.releaseUnitId===execution.releaseUnitId?execution:item)};
   const branch=execution.executionTransaction.branchRef;
-  const receipt=materializeReleaseUnit({manifest:sealed,targetRef:'refs/remotes/origin/main',cwd,updateRef:false,message:releaseUnitCommitMessage(sealed)});
+  let receipt=materializeReleaseUnit({manifest:sealed,targetRef:'refs/remotes/origin/main',cwd,updateRef:false,message:releaseUnitCommitMessage(sealed)});
+  if(receipt.status!=='ALREADY_APPLIED')receipt=reconcileExactMaterializedCommit({manifest:sealed,receipt,branch,run,cwd});
   next=applyReleaseUnitEvent(next,{type:'MATERIALIZED',releaseUnitId:execution.releaseUnitId,receipt});
   if(receipt.status==='ALREADY_APPLIED'){
     const proof=proveAlreadyAppliedChild({manifest:sealed,receipt,currentMainSha,run,cwd});
@@ -311,7 +344,6 @@ export function prepareActiveUnit({state,currentMainSha,sourceCommit,run=default
     next=applyReleaseUnitEvent(next,{type:'ALREADY_APPLIED_VERIFIED',releaseUnitId:execution.releaseUnitId,truth:proof.truth,lifecyclePlan:proof.lifecyclePlan,currentMainSha});
     return{state:next,decision:next.closureEligible?'PARENT_CLOSURE_ELIGIBLE':'UNIT_CLOSED',branch,manifest:sealed,receipt,noCode:true};
   }
-  pushExactMaterializedCommit({commitSha:receipt.materializedHeadSha,branch,run,cwd});
   const pr=ensureExactPullRequest({manifest:sealed,materializedHeadSha:receipt.materializedHeadSha,branch,run,cwd});
   next=applyReleaseUnitEvent(next,{type:'PR_OPEN',releaseUnitId:execution.releaseUnitId,receipt:pr});
   return{state:next,decision:'PR_OPEN',branch,manifest:sealed,receipt:pr};

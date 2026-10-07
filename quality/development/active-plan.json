@@ -1,13 +1,13 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
-  "task": "Close the trusted Release Unit Execution Atlas evidence gap so canonical Release Risk can be recomputed against exact source HEAD without trusting source-controlled proof artifacts or weakening Atlas/Release Risk authority.",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
+  "task": "Make trusted release-unit execution resumable when an earlier attempt already pushed the exact child materialization branch but failed before PR/state persistence, reusing only a provably equivalent remote materialization and failing closed on drift.",
   "status": "closed",
   "guardDigest": "128614ad",
-  "changeBaseSha": "7e7ec558fa470fae2b11c1ed2bce0a5ec205045c",
+  "changeBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    ".github/workflows/release-unit-execution.yml",
+    "scripts/release-unit-github-runtime.mjs",
     "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
@@ -59,38 +59,35 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
     "riskTier": "critical",
-    "problemStatement": "Live bounded rehearsal executor run 37534207237 consumed exact source HEAD 1a3cdb897fc1ed2dab7b04e270a7762cbb23b579 with trusted main code and recomputed Plan Before Code PASS, but canonical Release Risk blocked because artifacts/shoperation-quality/change-impact.json was absent. release-risk-budget.mjs requires Atlas change-impact evidence; the executor currently invokes Plan and Release Risk but omits the existing trusted Knowledge/Atlas producer.",
+    "problemStatement": "Trusted executor rerun 37566854069 / job 112621423551 encountered an already-existing canonical U01 branch from the previous attempt, regenerated the same logical materialization as a different commit SHA, and blindly pushed it. Git rejected the non-fast-forward update before child PR creation, proving the executor is not resumable across the materialization-to-PR persistence gap.",
     "observableOutcomes": [
-      "Trusted Release Unit Execution recomputes existing Knowledge/Atlas evidence with default-branch code against the exact admitted source SHA before canonical Release Risk recomputation.",
-      "The produced change-impact evidence is exact-head and matches the source diff; Release Risk remains unchanged and consumes the existing canonical artifact.",
-      "The executor does not trust or download source-controlled Knowledge/Atlas proof artifacts as authoritative evidence.",
-      "Proof subprocesses used only to recompute evidence do not gain an independent write authority and repository write tokens are not required for the Knowledge/Atlas producer.",
-      "Regression proof locks the ordering: fetch source → trusted Knowledge/Atlas evidence → trusted Plan → trusted Release Risk → driver."
+      "If the release-unit branch does not exist, the executor pushes the prepared materialization normally.",
+      "If the branch exists and its sole parent equals targetBaseSha, tree equals the newly prepared tree, and canonical release-unit commit message identity matches, the executor reuses the existing remote head without pushing.",
+      "If any existing remote branch base, tree, or canonical identity differs, execution fails closed and does not force-push or create a PR.",
+      "The reused remote head becomes the persisted materialization/PR head so subsequent exact CI proof remains bound to the actually existing branch commit."
     ],
     "unresolvedRisks": [
-      "Running Knowledge preflight against trusted main checkout must still evaluate the exact source diff rather than main.",
-      "A write-capable job must not accidentally expose its repository token to proof logic that does not need writes.",
-      "The fix must not create a second Atlas or Release Risk authority or consume untrusted source artifacts.",
-      "The executor must remain blocked if trusted Knowledge/Atlas or Release Risk recomputation fails."
+      "A stale or operator-modified remote branch must never be silently accepted.",
+      "Remote branch movement between discovery and fetch must block.",
+      "Reuse must not weaken child PR exact-head, manifest, binding, CAS, Truth or Lifecycle checks."
     ],
     "scope": {
       "in": [
-        "Wire the existing shoperation-knowledge-preflight.mjs into the trusted default-branch Release Unit Execution workflow before Release Risk recomputation, bound to exact source HEAD and source plan.",
-        "Ensure the existing change-impact artifact is produced in the trusted workspace for release-risk-budget.mjs.",
-        "Add regression assertions in the existing production release surface test."
+        "Add exact remote materialization reconciliation to scripts/release-unit-github-runtime.mjs.",
+        "Reuse an existing equivalent remote branch head on rerun and preserve fail-closed drift checks.",
+        "Add regression proof for exact reuse without push and tree-drift blocking."
       ],
       "out": [
-        "No change to release-risk-budget.mjs policy or scoring.",
-        "No change to Atlas authority/graph semantics, decomposition, CAS state, child PR execution, Completion Truth or Lifecycle authority.",
-        "No source-CI proof artifact promotion into trusted executor evidence.",
-        "No storefront, admin, database, auth, payment, inventory, Builder or template behavior change."
+        "No force push of release-unit branches.",
+        "No manual child PR creation or state fabrication.",
+        "No changes to release decomposition, Release Risk, Atlas, Completion Truth, Lifecycle, storefront, database or product runtime."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "The change sits inside a write-capable trusted executor immediately before canonical release authorization, so exact source identity, evidence provenance and authority separation must remain fail closed.",
+      "rationale": "This code holds write authority in the trusted release executor and must safely distinguish resumable equivalent state from branch drift.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -98,35 +95,33 @@
         "what-if-matrix",
         "adversarial-scenarios",
         "boundary-cases",
-        "pairwise-interactions",
         "threat-failure-model",
         "fault-injection",
-        "finite-state-exhaustion",
-        "proof-obligation"
+        "proof-obligation",
+        "pairwise-interactions",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "On an admitted release-execution/source/** run, trusted-main Knowledge/Atlas recomputation produces artifacts/shoperation-quality/change-impact.json bound to the exact source SHA before release-risk-budget.mjs executes.",
-        "Canonical Release Risk consumes that artifact and remains free to BLOCK; no bypass or policy change is introduced.",
-        "Trusted executor does not treat the source CI Knowledge artifact as trusted evidence.",
-        "A failed trusted Knowledge/Atlas recomputation prevents the driver from starting.",
-        "Exact-head CI for this fix is green, Completion Truth VERIFIED, normal Lifecycle closure committed, then merge and rehearsal replay."
+        "Exact pre-existing U01 remote materialization is reused without git push and returned as materializedHeadSha.",
+        "Different remote tree blocks with RELEASE_UNIT_REMOTE_BRANCH_TREE_DRIFT.",
+        "Different base or canonical identity also blocks before PR creation.",
+        "Exact-head CI passes all canonical guards and Completion Truth/Lifecycle before merge.",
+        "After merge, rerunning the original rehearsal advances canonically from the persisted CAS state and existing U01 branch."
       ],
       "invariants": [
-        "Atlas and Release Risk remain existing canonical authorities.",
-        "SOURCE_SHA remains the admitted source workflow_run head SHA.",
-        "Trusted executor code remains checked out from main.",
-        "Driver cannot start unless trusted evidence recomputation and Release Risk both pass.",
-        "No child PR/state/receipt is created by the fix transaction itself."
+        "No force push is introduced.",
+        "Existing remote state is authoritative only after exact base+tree+identity proof.",
+        "Child PR validation still binds exact head, base and binding digest.",
+        "Parent CAS state and source commit identity remain unchanged."
       ],
       "forbiddenStates": [
-        "release-risk-run-without-trusted-change-impact",
-        "source-artifact-promoted-as-trusted-atlas-proof",
-        "release-risk-bypass",
-        "atlas-authority-duplication",
-        "driver-start-after-trusted-evidence-failure"
+        "blind-non-fast-forward-materialization-push",
+        "reuse-of-drifted-remote-branch",
+        "force-push-over-existing-release-unit",
+        "manual-child-pr-bypass"
       ]
     },
     "model": {
@@ -158,36 +153,36 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Trusted Release Risk executes before change-impact evidence exists.",
-        "Knowledge preflight evaluates main instead of source HEAD.",
-        "Untrusted source artifact is mistaken for trusted evidence.",
-        "Proof failure is ignored and driver still starts."
+        "Previous attempt pushed branch but failed before state persisted.",
+        "Rerun creates same tree/message with a different commit timestamp SHA.",
+        "Remote branch was modified and no longer represents the prepared unit.",
+        "Remote branch moves between ls-remote and fetch."
       ],
       "edgeCases": [
-        "Source diff contains only quality fixtures and an evidence-neutral test.",
-        "Source SHA differs from trusted main checkout HEAD.",
-        "Knowledge producer needs no repository mutation.",
-        "Release Risk still blocks for an unrelated canonical policy violation."
+        "No remote branch exists.",
+        "Exact remote branch exists with different SHA but equivalent tree/message/base.",
+        "Remote branch has multiple parents.",
+        "Remote branch has same tree but wrong manifest/binding message."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-TRUSTED-KNOWLEDGE-RECOMPUTE",
-        "summary": "Run the existing Knowledge/Atlas producer with trusted main code against exact source HEAD before trusted Release Risk.",
+        "id": "ALT-EXACT-REMOTE-REUSE",
+        "summary": "Reconcile and reuse existing remote materialization only after exact base/tree/identity proof.",
         "disposition": "selected",
-        "reason": "Preserves canonical producer/consumer chain and trusted provenance."
+        "reason": "Makes rerun resumable without weakening branch integrity."
       },
       {
-        "id": "ALT-DOWNLOAD-SOURCE-ARTIFACT",
-        "summary": "Download change-impact.json from the successful source CI.",
+        "id": "ALT-FORCE-PUSH",
+        "summary": "Force-push newly generated materialization over existing branch.",
         "disposition": "rejected",
-        "reason": "Would make source-controlled proof output authoritative inside the write-capable executor."
+        "reason": "Would destroy prior execution evidence and weaken fail-closed semantics."
       },
       {
-        "id": "ALT-SKIP-ATLAS-RISK-CHECK",
-        "summary": "Allow Release Risk to proceed when Atlas evidence is absent.",
+        "id": "ALT-MANUAL-PR",
+        "summary": "Manually create the child PR from the existing branch.",
         "disposition": "rejected",
-        "reason": "Would weaken the canonical Release Risk/Atlas contract."
+        "reason": "Would bypass canonical trusted executor orchestration and invalidate the rehearsal."
       }
     ],
     "specialistReviews": [
@@ -195,132 +190,129 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The trusted executor has a missing producer-consumer edge: Release Risk consumes canonical Atlas change-impact, but the trusted execution workflow does not invoke the existing producer.",
-        "resolution": "Run the existing Knowledge/Atlas producer with trusted default-branch code and exact source transaction identity before Release Risk; create no new authority.",
+        "finding": "The failure is a missing resume edge between remote materialization and persisted PR state.",
+        "resolution": "Reconcile existing branch before state transition using base/tree/canonical identity.",
         "evidence": [
-          ".github/workflows/release-unit-execution.yml",
-          "scripts/shoperation-knowledge-preflight.mjs",
-          "scripts/release-risk-budget.mjs"
+          "scripts/release-unit-github-runtime.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "The executor has repository write credentials, so using a source-generated proof artifact or needlessly exposing the write token to evidence recomputation would weaken the trust boundary.",
-        "resolution": "Recompute evidence from trusted main code, do not download source proof artifacts, and explicitly scrub GH_TOKEN/GITHUB_TOKEN for the proof-only Knowledge/Atlas step.",
+        "finding": "Accepting an existing branch by name alone would allow stale or modified code into trusted execution.",
+        "resolution": "Require exact sole parent, exact tree, exact canonical commit message and stable fetched head; otherwise block.",
         "evidence": [
-          ".github/workflows/release-unit-execution.yml"
+          "scripts/release-unit-github-runtime.mjs",
+          "tests/control-plane-release-unit-production-surface.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Release Risk behaved correctly by blocking when Atlas evidence was absent; the policy itself is not defective.",
-        "resolution": "Preserve release-risk-budget.mjs and deploy/release-risk-policy.json unchanged; satisfy the existing prerequisite before invoking it.",
+        "finding": "Normal push is correct only when the release-unit branch is absent.",
+        "resolution": "Preserve normal push on absence and reuse exact remote head on equivalent pre-existence.",
         "evidence": [
-          "scripts/release-risk-budget.mjs",
-          "deploy/release-risk-policy.json"
+          "scripts/release-unit-github-runtime.mjs"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The live rehearsal exposed an integration gap only at the trusted executor boundary after source CI had already proved the same risk score successfully.",
-        "resolution": "Add regression coverage for trusted Knowledge/Atlas → Release Risk ordering and exact-source identity so the edge cannot regress silently.",
+        "finding": "Live rehearsal exposed non-idempotent materialization recovery after an earlier PR-policy failure.",
+        "resolution": "Lock both reuse and drift-block semantics with regression tests.",
         "evidence": [
           "tests/control-plane-release-unit-production-surface.test.ts",
-          "quality/knowledge/development-guard-policy.v1.json"
+          "https://github.com/infowaterk-max/water-K-/issues/988"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-REA-01",
-        "scenario": "A malicious or buggy release-execution/source branch uploads a forged change-impact.json that claims a smaller diff.",
-        "finding": "Consuming that artifact in the write-capable executor would let source-controlled output influence release authorization.",
-        "resolution": "Never download source CI Atlas proof; recompute change-impact with trusted main producer code from exact SOURCE_SHA.",
+        "id": "CH-MR-01",
+        "scenario": "Existing branch points to arbitrary code with the expected branch name.",
+        "finding": "Branch-name-only reuse is unsafe.",
+        "resolution": "Require exact base/tree/canonical message before reuse.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-02",
-        "scenario": "Trusted Knowledge/Atlas recomputation exits non-zero or emits BLOCK before Release Risk.",
-        "finding": "Continuing to Release Risk or the driver would turn missing/invalid prerequisite evidence into an implicit bypass.",
-        "resolution": "Keep the producer as an ordinary sequential failing step before Release Risk and driver; no continue-on-error.",
+        "id": "CH-MR-02",
+        "scenario": "Equivalent materialization is regenerated with a different commit SHA because commit metadata differs.",
+        "finding": "SHA equality is too strict for recovery when the tree and canonical identity are identical.",
+        "resolution": "Compare base, tree and canonical message; reuse the existing remote SHA as the execution head.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-03",
-        "scenario": "The executor checkout HEAD is main while the admitted transaction HEAD is a different source SHA.",
-        "finding": "A producer using implicit HEAD would generate change-impact for main instead of the admitted source diff.",
-        "resolution": "Pass DEVELOPMENT_HEAD_SHA, QUALITY_HEAD_SHA, RELEASE_HEAD_SHA and SHOPERATION_REPLAY_HEAD explicitly as SOURCE_SHA and use the fetched source plan path.",
+        "id": "CH-MR-03",
+        "scenario": "Remote head changes after ls-remote.",
+        "finding": "A TOCTOU race could validate one head but use another.",
+        "resolution": "Fetch the branch and require FETCH_HEAD to equal the discovered remote SHA.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-04",
-        "scenario": "Canonical Release Risk finds a real policy violation after valid Atlas evidence has been generated.",
-        "finding": "The integration fix must not reinterpret or suppress that BLOCK.",
-        "resolution": "Leave release-risk-budget.mjs and its policy untouched and require its normal zero exit before driver execution.",
+        "id": "CH-MR-04",
+        "scenario": "Existing branch has same tree but wrong release-unit manifest/binding identity.",
+        "finding": "Tree equality alone does not prove transaction identity.",
+        "resolution": "Require exact canonical release-unit commit message generated from the sealed manifest.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-05",
-        "scenario": "The Knowledge/Atlas producer runs inside a job whose default GITHUB_TOKEN can write contents and pull requests.",
-        "finding": "Proof-only logic does not need mutation capability and should not inherit write credentials unnecessarily.",
-        "resolution": "Override GH_TOKEN and GITHUB_TOKEN to empty for the Knowledge/Atlas recompute step while retaining exact git data already fetched locally.",
+        "id": "CH-MR-05",
+        "scenario": "No existing branch is present.",
+        "finding": "Recovery logic must not change first-attempt semantics.",
+        "resolution": "Use existing normal pushExactMaterializedCommit path unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-06",
-        "scenario": "The source plan path is omitted and trusted Knowledge preflight reads main's closed active plan.",
-        "finding": "Atlas change-impact would be computed against the wrong Development Transaction envelope even if SOURCE_SHA is explicit.",
-        "resolution": "Bind SHOPERATION_ACTIVE_PLAN to artifacts/release-execution/source-plan.json for trusted Knowledge/Atlas recomputation.",
+        "id": "CH-MR-06",
+        "scenario": "Existing remote branch has the expected tree and message but two parents.",
+        "finding": "A merge-shaped child commit would not represent the canonical single-base materialization.",
+        "resolution": "Require exactly one parent and require that sole parent to equal targetBaseSha.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-07",
-        "scenario": "A later refactor reorders the trusted workflow so Release Risk executes before the Knowledge/Atlas producer.",
-        "finding": "The original missing edge would recur while each individual script still exists and works.",
-        "resolution": "Add regression assertions for step presence and ordering in the existing production release surface test.",
+        "id": "CH-MR-07",
+        "scenario": "The existing branch is exact but the local prepared receipt belongs to another manifest or binding.",
+        "finding": "Remote validation must not paper over a local transaction identity mismatch.",
+        "resolution": "Require receipt target base, manifest digest and binding digest to match the sealed manifest before any remote reuse check.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-08",
-        "scenario": "Trusted Knowledge/Atlas recomputation succeeds but emits change-impact bound to a SHA or file set other than the exact admitted source.",
-        "finding": "Release Risk must fail closed on stale or mismatched evidence rather than accepting producer success alone.",
-        "resolution": "Rely on the unchanged release-risk-budget.mjs exact source SHA and changed-file-set checks, and regression-prove the workflow passes SOURCE_SHA explicitly.",
+        "id": "CH-MR-08",
+        "scenario": "The prior attempt pushed exact U01 but state remained PLANNED because failure happened before persistence.",
+        "finding": "Recovery must reconstruct the MATERIALIZED/PR_OPEN state from verifiable repository reality rather than fabricate state.",
+        "resolution": "Reuse the exact remote head, then pass it through the existing MATERIALIZED and PR_OPEN event functions and CAS persistence path.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Open plan-only fix transaction from exact main and require Plan Before Code PASS before workflow implementation.",
-      "Regression-test trusted evidence producer ordering and source exact-head environment binding.",
-      "Run exact-head Knowledge, Plan, Edit-Time, Replay, Release Risk, full tests, typecheck, build, Completion Truth and normal Lifecycle closure.",
-      "Merge exact head, verify fresh main CI, then replay the original rehearsal without manual state reconstruction."
+      "Run exact-head Plan Before Code with active plan covering runtime and regression test.",
+      "Require Edit-Time, Incremental Replay, Release Risk, full tests, typecheck and build PASS.",
+      "Require Completion Truth VERIFIED and normal Lifecycle closure.",
+      "Merge exact fix head to main and verify fresh main CI.",
+      "Rerun the original trusted executor from the unchanged rehearsal source and persisted CAS state; accept only canonical child PR/state progression."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-06-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
+      "request": "SQ-CAND-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
       "authority": [
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/release-unit-execution.yml"
+        "scripts/release-unit-github-runtime.mjs"
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "impactedReadOnly": [
-        "scripts/shoperation-knowledge-preflight.mjs",
-        "scripts/release-risk-budget.mjs",
-        ".github/workflows/ci.yml"
+        "scripts/release-unit-execute.mjs",
+        "scripts/lib/shoperation-release-unit-runtime.mjs"
       ],
       "mustCreate": [],
       "forbidden": [
-        "deploy/release-risk-policy.json",
-        "scripts/release-risk-budget.mjs",
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+        ".github/workflows/**",
+        "deploy/**",
         "src/**",
         "supabase/**"
       ],
@@ -336,7 +328,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -354,11 +346,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-TRUSTED-EXECUTOR-ATLAS-EVIDENCE",
-        "requirement": "Trusted Release Unit Execution must produce canonical exact-source Knowledge/Atlas change-impact evidence before Release Risk and remain fail closed if that producer fails.",
+        "id": "REQ-RELEASE-EXECUTOR-MATERIALIZATION-RESUME",
+        "requirement": "Trusted release-unit execution must resume across an already-pushed exact child materialization without destructive push or manual bypass, and must block on incompatible remote state.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "trusted-executor-atlas-evidence-chain",
+          "breadth": "release-unit-materialization-resume",
           "strength": 2,
           "dimensions": [
             "status",
@@ -381,15 +373,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-UNTRUSTED-ATLAS-PROOF",
-            "statement": "Source-controlled proof artifacts may not replace trusted executor recomputation.",
+            "id": "NEG-MATERIALIZATION-BLIND-PUSH",
+            "statement": "Rerun may not blindly push a regenerated commit over an existing release-unit branch.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-RISK-WITHOUT-ATLAS",
-            "statement": "Trusted Release Risk may not execute successfully without canonical change-impact evidence.",
+            "id": "NEG-MATERIALIZATION-DRIFT-REUSE",
+            "statement": "Existing remote materialization may not be reused unless base, tree and canonical identity match.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -398,14 +390,14 @@
       }
     ]
   },
-  "notes": "Created from bounded rehearsal Failure Intake #982 after trusted executor run 37534207237 proved the missing Knowledge/Atlas → Release Risk producer-consumer edge. This is plan-only; no workflow implementation is authorized until Plan Before Code reconciles the exact projected scope/digest. Plan-only run 37534693459 projected 2 material files, release-infrastructure only, Release Risk 2/5, guard digest 128614ad, the reconciled 19 Known Failure IDs and 16 negative-knowledge IDs. Critical assurance depth is expanded to the canonical required technique/challenge/specialist profile before implementation. Second plan-only projection confirmed all reconciled fields except negative-knowledge acknowledgement: projected applicability is the narrower 13-ID set now recorded here.",
+  "notes": "Created from live rehearsal Failure Intake #988 after trusted executor rerun job 112621423551 proved a missing resumability edge: U01 branch af0365ec... already existed, but the driver generated fb11f556... and attempted a non-fast-forward push. Fix is deliberately narrow: exact remote reuse after base/tree/message proof, otherwise fail closed.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "12b67719f013b9f31ecfb55a704f0a420290b995",
-    "closedAt": "2026-10-07T03:08:37.214Z",
+    "verifiedImplementationHead": "a673c04fb8d1d8ec469fc25a97ed25051804f834",
+    "closedAt": "2026-10-07T04:01:37.276Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
