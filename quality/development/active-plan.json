@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-FRESH-OBLIGATION-RECONCILIATION-V1",
   "task": "Make fresh release-unit reevaluation transaction-relative for operation kinds and allow only trusted canonical governance/evidence reprojection to refresh a persisted STALE child while material execution obligations remain unchanged.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "63122b700f394dc94472e545163f72271d3c841d",
   "plannedFilePatterns": [
@@ -496,5 +496,18 @@
       }
     ]
   },
-  "notes": "Plan-only transaction created from live Failure Intake #1013. No implementation is authorized until Plan Before Code passes. Plan projection 37586400919 required fault-injection for critical assurance; added without changing implementation scope. CI 37587084439 / Failure Intake #1014 exposed Completion proof-semantics overclaim in the active plan, not a Sentinel implementation regression: the original single claim required CAP-RELEASE+CAP-QUALITY and an unsupported authorization dimension from heterogeneous guards. This revision splits Quality behavioral proof from Release Risk proof and uses only registry-declared dimensions."
+  "notes": "Plan-only transaction created from live Failure Intake #1013. No implementation is authorized until Plan Before Code passes. Plan projection 37586400919 required fault-injection for critical assurance; added without changing implementation scope. CI 37587084439 / Failure Intake #1014 exposed Completion proof-semantics overclaim in the active plan, not a Sentinel implementation regression: the original single claim required CAP-RELEASE+CAP-QUALITY and an unsupported authorization dimension from heterogeneous guards. This revision splits Quality behavioral proof from Release Risk proof and uses only registry-declared dimensions.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "bfc6f80c324f0b943ca53d1c0a6712528d37f064",
+    "closedAt": "2026-10-07T07:35:46.557Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-FRESH-OBLIGATION-RECONCILIATION-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
