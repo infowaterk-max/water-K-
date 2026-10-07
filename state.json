@@ -1,0 +1,2443 @@
+{
+  "contract": "shoporation.release-parent-execution.v1",
+  "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+  "decompositionContract": "shoporation.release-decomposition.v1",
+  "manifestChainDigest": "8985512e",
+  "lifecyclePhase": "EXECUTE",
+  "unitIds": [
+    "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
+    "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02",
+    "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03"
+  ],
+  "activeUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
+  "units": [
+    {
+      "contract": "shoporation.release-unit-execution.v1",
+      "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
+      "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+      "order": 1,
+      "state": "PLANNED",
+      "manifest": {
+        "contract": "shoporation.release-unit-manifest.v1",
+        "transaction": {
+          "id": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+          "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+          "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+          "developmentBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8"
+        },
+        "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
+        "order": 1,
+        "targetBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+        "lease": {
+          "expectedBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+          "failOnDrift": true,
+          "reconciled": true,
+          "reconciledFromSha": null
+        },
+        "intendedFiles": [
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json"
+        ],
+        "operations": [
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+            "generated": null
+          }
+        ],
+        "requiredDependencyFiles": [],
+        "authorities": [],
+        "subsystems": [
+          "quality-infrastructure"
+        ],
+        "projectedRisk": {
+          "contract": "shoporation.projected-release-risk.v1",
+          "score": 2,
+          "maxPoints": 5,
+          "subsystemCount": 1,
+          "maxSubsystems": 3,
+          "subsystems": [
+            {
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            }
+          ],
+          "files": [
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            }
+          ],
+          "violations": [],
+          "decision": "PASS"
+        },
+        "requiredGates": [
+          "GUARD-EDIT-TIME",
+          "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-KNOWLEDGE-PREFLIGHT",
+          "GUARD-PLAN-BEFORE-CODE",
+          "GUARD-QUALITY-TESTS",
+          "GUARD-RELEASE-RISK",
+          "GUARD-TYPECHECK"
+        ],
+        "requiredEvidence": {
+          "gateIds": [
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS",
+            "GUARD-RELEASE-RISK",
+            "GUARD-TYPECHECK"
+          ],
+          "proofFiles": [],
+          "externalGateIds": []
+        },
+        "forbiddenPaths": [
+          "src/app/**",
+          "src/components/**",
+          "supabase/**",
+          ".github/workflows/**",
+          "deploy/**"
+        ],
+        "readOnlyPaths": [],
+        "generatedArtifactSemantics": [],
+        "prerequisites": [],
+        "predecessorUnits": [],
+        "expectedPostUnitState": {
+          "filesPresent": [
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json"
+          ],
+          "filesAbsent": []
+        },
+        "reconciliationPolicy": {
+          "mode": "merged-main-sequential",
+          "requireExactMainLease": true,
+          "requirePredecessorReceipts": false,
+          "requiresReconciliationAfterPredecessor": false,
+          "failOnUnrelatedMainDrift": true
+        },
+        "sourceIdentity": {
+          "sourceCommit": null,
+          "sealed": false
+        },
+        "manifestDigest": "dddc04c5",
+        "decision": "PASS",
+        "childDevelopmentTransaction": {
+          "contract": "shoporation.release-unit-child-transaction.v1",
+          "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01-TX",
+          "planDigest": "c7589b2d38289888acd577c68e38abac26ca71bfc2081e8bd1da04941a89b8eb",
+          "operationDigest": "8ba6af0084a158a078e6ad22318017a69b995a6d05c70f941205cd7425f3fa32",
+          "bindingDigest": "09c4b42d5e47503e4579a7942f07d8afb3ea8c48e82dd6dc63902736a3db5544",
+          "plan": {
+            "contract": "shoporation.development-plan.v1",
+            "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01-TX",
+            "task": "Execute canonical release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01 of DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1 without widening the manifest-authorized scope.",
+            "status": "ready-for-implementation",
+            "guardDigest": "aa79c504",
+            "changeBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+            "plannedFilePatterns": [
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json"
+            ],
+            "expectedSubsystems": [],
+            "expectedDomains": [
+              "DOMAIN-QUALITY"
+            ],
+            "expectedAuthorities": [
+              "quality-knowledge-system"
+            ],
+            "expectedKnownFailureIds": [
+              "SQ-KF-001",
+              "SQ-KF-002",
+              "SQ-KF-003",
+              "SQ-KF-004",
+              "SQ-KF-005",
+              "SQ-KF-006",
+              "SQ-KF-007",
+              "SQ-KF-008",
+              "SQ-KF-009",
+              "SQ-KF-010",
+              "SQ-KF-011",
+              "SQ-KF-012",
+              "SQ-KF-013",
+              "SQ-KF-014",
+              "SQ-KF-015",
+              "SQ-KF-016",
+              "SQ-KF-017",
+              "SQ-KF-018",
+              "SQ-KF-019",
+              "SQ-KF-020",
+              "SQ-KF-021",
+              "SQ-KF-022",
+              "SQ-KF-023",
+              "SQ-KF-024",
+              "TF-KF-001",
+              "TF-KF-002",
+              "TF-KF-003",
+              "TF-KF-004",
+              "TF-KF-005",
+              "TF-KF-006",
+              "TF-KF-007",
+              "TF-KF-008",
+              "TF-KF-009",
+              "TF-KF-010",
+              "TF-KF-011",
+              "TF-KF-012",
+              "TF-KF-013",
+              "TF-KF-014",
+              "TF-KF-015",
+              "TF-KF-016",
+              "TF-KF-017",
+              "TF-KF-018",
+              "TF-KF-019",
+              "TF-KF-020",
+              "TF-KF-021",
+              "TF-KF-022",
+              "TF-KF-023",
+              "TF-KF-024",
+              "TF-KF-025"
+            ],
+            "acknowledgedPoInstructionIds": [],
+            "acknowledgedNegativeKnowledgeIds": [
+              "SQ-NK-012"
+            ],
+            "exceptions": [],
+            "operationalIntelligence": {
+              "sourceKind": "product-owner-request",
+              "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+              "riskTier": "critical",
+              "problemStatement": "Execute release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01 as the exact manifest-authorized child transaction of DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1 while preserving parent lifecycle separation and all canonical gate obligations.",
+              "observableOutcomes": [
+                "The exact files and operations authorized by release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01 are the only material changes present in the child PR.",
+                "All canonical child gate obligations pass on the exact materialized PR head before any merge receipt can be accepted.",
+                "Child Truth and Lifecycle evidence remain bound to DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01 and cannot close parent transaction DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1."
+              ],
+              "unresolvedRisks": [
+                "Repository or authority drift after predecessor merge can invalidate this child projection and must fail closed during fresh successor reconciliation.",
+                "Mutable PR metadata is not authority; CI context must remain cryptographically bound to the exact materialized commit and child plan digest.",
+                "A merge strategy may change resulting main identity, so successor base remains the explicit merged-main receipt rather than the PR source head."
+              ],
+              "scope": {
+                "in": [
+                  "Create twenty-five inert JSON rehearsal fixtures under a dedicated quality knowledge rehearsal-fixtures directory that is not consumed by application runtime.",
+                  "Add one regression assertion to the existing production-surface Control Plane test.",
+                  "Use the unchanged canonical decomposition, child proof, state persistence, merge and parent closure paths.",
+                  "Stop and route any newly discovered live execution gap through existing Failure Intake."
+                ],
+                "out": [
+                  "No storefront, admin, database, authentication, payment, inventory, Builder, template or deployment behavior change.",
+                  "No change to release risk, truth, lifecycle, decomposition limits, workflow permissions, Atlas or Sentinel authority.",
+                  "No manual receipt fabrication or direct state editing to force the rehearsal forward."
+                ]
+              },
+              "assuranceCeiling": {
+                "level": "critical-practical",
+                "rationale": "This proof drives real repository branch, pull-request, CI, merge and persisted orchestration state while deliberately restricting material changes to non-product fixtures. Exact identity, fail-closed transitions and final closure therefore require the strongest practical bounded assurance.",
+                "selectedTechniques": [
+                  "explicit-specification",
+                  "invariants",
+                  "state-model",
+                  "what-if-matrix",
+                  "adversarial-scenarios",
+                  "boundary-cases",
+                  "pairwise-interactions",
+                  "threat-failure-model",
+                  "fault-injection",
+                  "finite-state-exhaustion"
+                ],
+                "deferredTechniques": []
+              },
+              "definition": {
+                "acceptanceCriteria": [
+                  "The plan-only revision passes Plan Before Code before any rehearsal fixture is created.",
+                  "The canonical decomposition contains at least three ordered units and only planned rehearsal material.",
+                  "Every child is proven on its exact materialized head before merge or canonical no-code closure.",
+                  "Every successor uses fresh merged-main reconciliation rather than the original parent base.",
+                  "Parent truth and lifecycle run only after all units are closed at the exact final implementation main.",
+                  "Any live missing edge blocks execution and is recorded rather than bypassed."
+                ],
+                "invariants": [
+                  "Fixture documents contain inert rehearsal metadata only and are not consumed by application runtime code.",
+                  "Unit manifests remain the exclusive material scope authority for each child.",
+                  "Persisted execution state advances monotonically through the existing CAS contract.",
+                  "Exact-head child proof remains mandatory before merge or no-code completion.",
+                  "Parent closure cannot precede complete child closure."
+                ],
+                "forbiddenStates": [
+                  "rehearsal material outside the declared fixture and proof files",
+                  "fewer than three canonical child units",
+                  "child merge without exact child proof",
+                  "successor authorization against stale main",
+                  "stale persisted-state writer accepted",
+                  "parent closure before every child is closed"
+                ]
+              },
+              "model": {
+                "phases": [
+                  "OBSERVE",
+                  "DEFINE",
+                  "MODEL",
+                  "PLAN",
+                  "CHALLENGE",
+                  "IMPROVE",
+                  "PROVE_PLAN",
+                  "EXECUTE",
+                  "VERIFY",
+                  "TRUTH_GATE",
+                  "CLOSE",
+                  "LEARN"
+                ],
+                "transitions": [
+                  "OBSERVE->DEFINE",
+                  "DEFINE->MODEL",
+                  "MODEL->PLAN",
+                  "PLAN->CHALLENGE",
+                  "CHALLENGE->IMPROVE",
+                  "IMPROVE->PROVE_PLAN",
+                  "PROVE_PLAN->EXECUTE",
+                  "EXECUTE->VERIFY",
+                  "VERIFY->TRUTH_GATE",
+                  "TRUTH_GATE->CLOSE",
+                  "CLOSE->LEARN"
+                ],
+                "failureModes": [
+                  "Planning resolves an unexpected domain or subsystem.",
+                  "Decomposition produces fewer than three children.",
+                  "Exact child evidence cannot be imported from the matching CI head.",
+                  "Merged main drifts before successor reconciliation.",
+                  "Persisted execution state rejects a stale transition.",
+                  "Parent proof cannot bind to the final implementation main."
+                ],
+                "edgeCases": [
+                  "Twenty-six material files pack across at least three units under the unchanged twelve-file limit.",
+                  "A child CI remains pending across repeated executor polls.",
+                  "A squash merge produces a main SHA different from the child source SHA.",
+                  "A fixture is already present and exercises the canonical no-code branch.",
+                  "An unrelated main change appears between child transitions.",
+                  "The closure metadata commit advances main after parent truth."
+                ]
+              },
+              "alternatives": [
+                {
+                  "id": "ALT-REAL-FIXTURE",
+                  "summary": "Run the real executor against a bounded inert multi-unit fixture corpus.",
+                  "disposition": "selected",
+                  "reason": "This directly proves GitHub orchestration while keeping application behavior untouched and material scope narrow."
+                },
+                {
+                  "id": "ALT-MOCK-ONLY",
+                  "summary": "Rely only on additional mocked state-machine and adapter regression tests.",
+                  "disposition": "rejected",
+                  "reason": "Mocks cannot prove real pull-request metadata, Actions artifact lookup, merge receipts or persisted remote state behavior."
+                },
+                {
+                  "id": "ALT-PRODUCT-CHANGE",
+                  "summary": "Use an ordinary application feature change as the first end-to-end execution proof.",
+                  "disposition": "rejected",
+                  "reason": "That adds avoidable product risk before the newly connected execution surface has completed a bounded rehearsal."
+                }
+              ],
+              "specialistReviews": [
+                {
+                  "role": "Architecture",
+                  "mode": "review",
+                  "verdict": "pass",
+                  "finding": "The remaining evidence gap is end-to-end execution behavior rather than another missing authority.",
+                  "resolution": "Reuse the merged executor unchanged and constrain material changes to the rehearsal fixture contract.",
+                  "evidence": [
+                    "scripts/release-unit-execute.mjs",
+                    "scripts/release-unit-github-runtime.mjs"
+                  ]
+                },
+                {
+                  "role": "Security",
+                  "mode": "dissent",
+                  "verdict": "challenge-resolved",
+                  "finding": "A real orchestration rehearsal can still cause repository mutation even when application scope is inert.",
+                  "resolution": "Use only the already merged trusted execution path and reject any material operation outside the approved fixture and proof files.",
+                  "evidence": [
+                    ".github/workflows/release-unit-execution.yml",
+                    "deploy/release-risk-policy.json"
+                  ]
+                },
+                {
+                  "role": "Release",
+                  "mode": "review",
+                  "verdict": "pass",
+                  "finding": "A valid rehearsal must prove multiple successor transitions and final parent closure, not only decomposition output.",
+                  "resolution": "Require three or more real children with exact proof, merge receipts, fresh reconciliation and parent close evidence.",
+                  "evidence": [
+                    "scripts/lib/shoperation-release-unit-runtime.mjs",
+                    "scripts/release-unit-parent-close.mjs"
+                  ]
+                },
+                {
+                  "role": "Known Failure",
+                  "mode": "review",
+                  "verdict": "pass",
+                  "finding": "The rehearsal would be invalid if a live block were bypassed because the changed data is non-product.",
+                  "resolution": "Treat any live block as authoritative Failure Intake evidence and stop instead of reconstructing state manually.",
+                  "evidence": [
+                    "scripts/shoperation-failure-intake.mjs",
+                    "quality/knowledge/development-guard-policy.v1.json"
+                  ]
+                }
+              ],
+              "challenge": [
+                {
+                  "id": "CH-RH-01",
+                  "scenario": "Planned fixtures resolve outside the expected quality authority.",
+                  "finding": "Unexpected classification would invalidate the claimed bounded scope.",
+                  "resolution": "Require exact Plan Before Code scope reconciliation before creating any fixture implementation.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-02",
+                  "scenario": "Dependencies collapse the planned material into fewer than three units.",
+                  "finding": "The run would not exercise successor orchestration deeply enough.",
+                  "resolution": "Use independent inert JSON fixture documents with no repository dependencies and inspect decomposition count before source execution.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-03",
+                  "scenario": "A child has green CI but its exact transaction proof artifact is absent.",
+                  "finding": "Generic workflow success cannot prove the child transaction.",
+                  "resolution": "Keep exact artifact and child identity matching mandatory before any merge transition.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-04",
+                  "scenario": "Main changes after one child merges but before the next child is authorized.",
+                  "finding": "The successor could otherwise materialize against stale repository state.",
+                  "resolution": "Require fresh successor reconciliation against current merged main and fail on unrelated drift.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-05",
+                  "scenario": "Two attempts try to advance the same persisted parent state.",
+                  "finding": "A stale writer could duplicate or reorder transitions.",
+                  "resolution": "Preserve force-with-lease CAS and accept stale-writer rejection as the only safe outcome.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-06",
+                  "scenario": "One planned operation is already present at current main.",
+                  "finding": "Creating a meaningless child pull request would weaken idempotent execution semantics.",
+                  "resolution": "Allow only the existing exact-main no-code path with canonical child proof and complete operation coverage.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-07",
+                  "scenario": "All children close but parent proof runs after a later metadata commit.",
+                  "finding": "Parent truth would be bound to the wrong implementation state.",
+                  "resolution": "Use the existing parent-close adapter that proves the last child merged-main before closure persistence.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-08",
+                  "scenario": "A live orchestration defect appears after an earlier child already merged.",
+                  "finding": "Manual continuation could hide the actual missing edge.",
+                  "resolution": "Stop at the authoritative blocked state, record Failure Intake, reconcile separately and replay only after repair.",
+                  "status": "resolved"
+                }
+              ],
+              "proofPlan": [
+                "Open this plan-only transaction and require Plan Before Code PASS before fixture implementation.",
+                "Inspect the generated decomposition and require at least three ordered units within the approved material scope.",
+                "Create the approved fixture implementation only after the plan proof is green.",
+                "Run the source revision through the existing repository execution surface and observe each real child transaction.",
+                "Require exact child verification, merge receipt and fresh successor reconciliation for every ordered child.",
+                "Inspect persisted execution state for monotonic identity and any observed stale-writer rejection.",
+                "Require parent Completion Truth and Lifecycle closure at the final implementation main.",
+                "Verify the later closure metadata commit and final main CI without claiming any unobserved fault scenario."
+              ],
+              "semanticExecutionRoute": {
+                "request": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+                "authority": [
+                  "quality-knowledge-system"
+                ],
+                "mustEdit": [],
+                "mayEdit": [],
+                "impactedReadOnly": [],
+                "mustCreate": [
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json"
+                ],
+                "forbidden": [
+                  ".github/workflows/**",
+                  "deploy/**",
+                  "src/app/**",
+                  "src/components/**",
+                  "supabase/**"
+                ],
+                "proof": [],
+                "unknown": [],
+                "plannedDeletions": [],
+                "plannedRenames": [],
+                "generatedArtifacts": []
+              },
+              "executionAuthorized": true
+            },
+            "completionContract": {
+              "sourceKind": "product-owner-request",
+              "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+              "systemObligations": {
+                "derivation": "release-unit-manifest",
+                "requiredGuards": [
+                  "GUARD-EDIT-TIME",
+                  "GUARD-INCREMENTAL-REPLAY",
+                  "GUARD-KNOWLEDGE-PREFLIGHT",
+                  "GUARD-PLAN-BEFORE-CODE",
+                  "GUARD-QUALITY-TESTS",
+                  "GUARD-RELEASE-RISK",
+                  "GUARD-TYPECHECK"
+                ],
+                "externalGuards": [],
+                "phase": "EXECUTE"
+              },
+              "requirements": [
+                {
+                  "id": "REQ-RELEASE-UNIT-TRANSACTION-INTEGRITY",
+                  "requirement": "Release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01 must implement only its manifest-authorized scope and pass exact-head child transaction verification without parent lifecycle conflation.",
+                  "claimScope": {
+                    "capability": "CAP-QUALITY",
+                    "breadth": "release-unit-transaction-integrity",
+                    "strength": 2,
+                    "dimensions": [
+                      "scope",
+                      "positive-state",
+                      "forbidden-state",
+                      "lifecycle",
+                      "actual-subset-plan",
+                      "required-subset-actual"
+                    ]
+                  },
+                  "requiredCapabilities": [
+                    "CAP-QUALITY"
+                  ],
+                  "evidence": {
+                    "implementation": [
+                      "GUARD-EDIT-TIME"
+                    ],
+                    "outcome": [
+                      "GUARD-QUALITY-TESTS"
+                    ]
+                  },
+                  "forbiddenRegressions": [
+                    {
+                      "id": "NEG-RELEASE-UNIT-SCOPE-WIDEN",
+                      "statement": "The child PR must not contain material changes outside the release-unit manifest scope or accept foreign parent or unit lifecycle evidence.",
+                      "evidence": [
+                        "GUARD-QUALITY-TESTS"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "REQ-RELEASE-UNIT-RISK-INTEGRITY",
+                  "requirement": "Release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01 must remain within the unchanged canonical Release Risk Budget on its exact target-base transaction.",
+                  "claimScope": {
+                    "capability": "CAP-RELEASE",
+                    "breadth": "release-unit-risk-integrity",
+                    "strength": 2,
+                    "dimensions": [
+                      "risk",
+                      "release-scope"
+                    ]
+                  },
+                  "requiredCapabilities": [
+                    "CAP-RELEASE"
+                  ],
+                  "evidence": {
+                    "implementation": [
+                      "GUARD-RELEASE-RISK"
+                    ],
+                    "outcome": [
+                      "GUARD-RELEASE-RISK"
+                    ]
+                  },
+                  "forbiddenRegressions": [
+                    {
+                      "id": "NEG-RELEASE-UNIT-RISK-BYPASS",
+                      "statement": "No child transaction may reinterpret a canonical Release Risk BLOCK as executable.",
+                      "evidence": [
+                        "GUARD-RELEASE-RISK"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "notes": "Plan-only rehearsal transaction. No fixture implementation exists on this branch yet. The twenty-five inert JSON documents are planned under quality/knowledge/rehearsal-fixtures/v1; this intentionally activates full Known Failure replay while keeping application behavior untouched. Implementation remains denied until Plan Before Code passes and decomposition shows at least three units. Reconciled task wording removes the lexical product-intent token that incorrectly widened planned scope to storefront subsystems. Reconciled after targeted source-lifecycle admission fix PR #974 merged at main 7e7ec558fa470fae2b11c1ed2bce0a5ec205045c. Rehearsal scope, authority, 25-fixture material set and three-unit decomposition intent are unchanged; only canonical base/provenance is refreshed before replay. Reconciled after targeted trusted-executor Atlas evidence fix PR #983 merged at main 199f21f274524a7b3688f50e09d2d0e3039f86c8. Rehearsal scope, authority, 25-fixture material set and three-unit decomposition intent are unchanged; only canonical base/provenance is refreshed before replay.",
+            "releaseUnitContext": {
+              "contract": "shoporation.release-unit-child-transaction.v1",
+              "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+              "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
+              "order": 1,
+              "targetBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+              "planAuthority": "release-unit-manifest#childDevelopmentTransaction"
+            }
+          }
+        }
+      },
+      "executionTransaction": {
+        "contract": "shoporation.release-unit-transaction-projection.v1",
+        "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
+        "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+        "branchRef": "release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01",
+        "changeBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+        "manifestDigest": "dddc04c5",
+        "plannedFilePatterns": [
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json"
+        ],
+        "operations": [
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+            "generated": null
+          }
+        ],
+        "authorities": [],
+        "subsystems": [
+          "quality-infrastructure"
+        ],
+        "requiredGates": [
+          "GUARD-EDIT-TIME",
+          "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-KNOWLEDGE-PREFLIGHT",
+          "GUARD-PLAN-BEFORE-CODE",
+          "GUARD-QUALITY-TESTS",
+          "GUARD-RELEASE-RISK",
+          "GUARD-TYPECHECK"
+        ],
+        "requiredEvidence": {
+          "gateIds": [
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS",
+            "GUARD-RELEASE-RISK",
+            "GUARD-TYPECHECK"
+          ],
+          "proofFiles": [],
+          "externalGateIds": []
+        },
+        "forbiddenPaths": [
+          ".github/workflows/**",
+          "deploy/**",
+          "src/app/**",
+          "src/components/**",
+          "supabase/**"
+        ],
+        "readOnlyPaths": [],
+        "sourceIdentity": {
+          "sourceCommit": null,
+          "sealed": false
+        },
+        "childTaskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01-TX",
+        "childPlanDigest": "c7589b2d38289888acd577c68e38abac26ca71bfc2081e8bd1da04941a89b8eb",
+        "bindingDigest": "09c4b42d5e47503e4579a7942f07d8afb3ea8c48e82dd6dc63902736a3db5544"
+      },
+      "authorization": null,
+      "materialization": null,
+      "pullRequest": null,
+      "verification": null,
+      "merge": null,
+      "closeReceipt": null,
+      "blocker": null,
+      "lastTransition": {
+        "to": "PLANNED",
+        "code": "RELEASE_UNIT_PLANNED"
+      }
+    },
+    {
+      "contract": "shoporation.release-unit-execution.v1",
+      "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02",
+      "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+      "order": 2,
+      "state": "PLANNED",
+      "manifest": {
+        "contract": "shoporation.release-unit-manifest.v1",
+        "transaction": {
+          "id": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+          "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+          "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+          "developmentBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8"
+        },
+        "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02",
+        "order": 2,
+        "targetBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+        "lease": {
+          "expectedBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+          "failOnDrift": true,
+          "reconciled": false,
+          "reconciledFromSha": null
+        },
+        "intendedFiles": [
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json"
+        ],
+        "operations": [
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json",
+            "generated": null
+          }
+        ],
+        "requiredDependencyFiles": [],
+        "authorities": [],
+        "subsystems": [
+          "quality-infrastructure"
+        ],
+        "projectedRisk": {
+          "contract": "shoporation.projected-release-risk.v1",
+          "score": 2,
+          "maxPoints": 5,
+          "subsystemCount": 1,
+          "maxSubsystems": 3,
+          "subsystems": [
+            {
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            }
+          ],
+          "files": [
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            }
+          ],
+          "violations": [],
+          "decision": "PASS"
+        },
+        "requiredGates": [
+          "GUARD-EDIT-TIME",
+          "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-KNOWLEDGE-PREFLIGHT",
+          "GUARD-PLAN-BEFORE-CODE",
+          "GUARD-QUALITY-TESTS",
+          "GUARD-RELEASE-RISK",
+          "GUARD-TYPECHECK"
+        ],
+        "requiredEvidence": {
+          "gateIds": [
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS",
+            "GUARD-RELEASE-RISK",
+            "GUARD-TYPECHECK"
+          ],
+          "proofFiles": [],
+          "externalGateIds": []
+        },
+        "forbiddenPaths": [
+          "src/app/**",
+          "src/components/**",
+          "supabase/**",
+          ".github/workflows/**",
+          "deploy/**"
+        ],
+        "readOnlyPaths": [],
+        "generatedArtifactSemantics": [],
+        "prerequisites": [
+          "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01"
+        ],
+        "predecessorUnits": [
+          "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01"
+        ],
+        "expectedPostUnitState": {
+          "filesPresent": [
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json"
+          ],
+          "filesAbsent": []
+        },
+        "reconciliationPolicy": {
+          "mode": "merged-main-sequential",
+          "requireExactMainLease": true,
+          "requirePredecessorReceipts": true,
+          "requiresReconciliationAfterPredecessor": true,
+          "failOnUnrelatedMainDrift": true
+        },
+        "sourceIdentity": {
+          "sourceCommit": null,
+          "sealed": false
+        },
+        "manifestDigest": "fb32deab",
+        "decision": "PASS",
+        "childDevelopmentTransaction": {
+          "contract": "shoporation.release-unit-child-transaction.v1",
+          "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02-TX",
+          "planDigest": "867ed45f59d574280b17e9993e4c7ff7f3020d2582a95ca491ffa5658797ec23",
+          "operationDigest": "5467df7b05aa2162046032700385c7cffa86fd465904b8ea7d46f7eacca2c2bc",
+          "bindingDigest": "6ef264a543fb157c02875359689c14ac79244d8775ac90bc58800358f0e43fbe",
+          "plan": {
+            "contract": "shoporation.development-plan.v1",
+            "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02-TX",
+            "task": "Execute canonical release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02 of DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1 without widening the manifest-authorized scope.",
+            "status": "ready-for-implementation",
+            "guardDigest": "aa79c504",
+            "changeBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+            "plannedFilePatterns": [
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json"
+            ],
+            "expectedSubsystems": [],
+            "expectedDomains": [
+              "DOMAIN-QUALITY"
+            ],
+            "expectedAuthorities": [
+              "quality-knowledge-system"
+            ],
+            "expectedKnownFailureIds": [
+              "SQ-KF-001",
+              "SQ-KF-002",
+              "SQ-KF-003",
+              "SQ-KF-004",
+              "SQ-KF-005",
+              "SQ-KF-006",
+              "SQ-KF-007",
+              "SQ-KF-008",
+              "SQ-KF-009",
+              "SQ-KF-010",
+              "SQ-KF-011",
+              "SQ-KF-012",
+              "SQ-KF-013",
+              "SQ-KF-014",
+              "SQ-KF-015",
+              "SQ-KF-016",
+              "SQ-KF-017",
+              "SQ-KF-018",
+              "SQ-KF-019",
+              "SQ-KF-020",
+              "SQ-KF-021",
+              "SQ-KF-022",
+              "SQ-KF-023",
+              "SQ-KF-024",
+              "TF-KF-001",
+              "TF-KF-002",
+              "TF-KF-003",
+              "TF-KF-004",
+              "TF-KF-005",
+              "TF-KF-006",
+              "TF-KF-007",
+              "TF-KF-008",
+              "TF-KF-009",
+              "TF-KF-010",
+              "TF-KF-011",
+              "TF-KF-012",
+              "TF-KF-013",
+              "TF-KF-014",
+              "TF-KF-015",
+              "TF-KF-016",
+              "TF-KF-017",
+              "TF-KF-018",
+              "TF-KF-019",
+              "TF-KF-020",
+              "TF-KF-021",
+              "TF-KF-022",
+              "TF-KF-023",
+              "TF-KF-024",
+              "TF-KF-025"
+            ],
+            "acknowledgedPoInstructionIds": [],
+            "acknowledgedNegativeKnowledgeIds": [
+              "SQ-NK-012"
+            ],
+            "exceptions": [],
+            "operationalIntelligence": {
+              "sourceKind": "product-owner-request",
+              "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+              "riskTier": "critical",
+              "problemStatement": "Execute release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02 as the exact manifest-authorized child transaction of DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1 while preserving parent lifecycle separation and all canonical gate obligations.",
+              "observableOutcomes": [
+                "The exact files and operations authorized by release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02 are the only material changes present in the child PR.",
+                "All canonical child gate obligations pass on the exact materialized PR head before any merge receipt can be accepted.",
+                "Child Truth and Lifecycle evidence remain bound to DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02 and cannot close parent transaction DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1."
+              ],
+              "unresolvedRisks": [
+                "Repository or authority drift after predecessor merge can invalidate this child projection and must fail closed during fresh successor reconciliation.",
+                "Mutable PR metadata is not authority; CI context must remain cryptographically bound to the exact materialized commit and child plan digest.",
+                "A merge strategy may change resulting main identity, so successor base remains the explicit merged-main receipt rather than the PR source head."
+              ],
+              "scope": {
+                "in": [
+                  "Create twenty-five inert JSON rehearsal fixtures under a dedicated quality knowledge rehearsal-fixtures directory that is not consumed by application runtime.",
+                  "Add one regression assertion to the existing production-surface Control Plane test.",
+                  "Use the unchanged canonical decomposition, child proof, state persistence, merge and parent closure paths.",
+                  "Stop and route any newly discovered live execution gap through existing Failure Intake."
+                ],
+                "out": [
+                  "No storefront, admin, database, authentication, payment, inventory, Builder, template or deployment behavior change.",
+                  "No change to release risk, truth, lifecycle, decomposition limits, workflow permissions, Atlas or Sentinel authority.",
+                  "No manual receipt fabrication or direct state editing to force the rehearsal forward."
+                ]
+              },
+              "assuranceCeiling": {
+                "level": "critical-practical",
+                "rationale": "This proof drives real repository branch, pull-request, CI, merge and persisted orchestration state while deliberately restricting material changes to non-product fixtures. Exact identity, fail-closed transitions and final closure therefore require the strongest practical bounded assurance.",
+                "selectedTechniques": [
+                  "explicit-specification",
+                  "invariants",
+                  "state-model",
+                  "what-if-matrix",
+                  "adversarial-scenarios",
+                  "boundary-cases",
+                  "pairwise-interactions",
+                  "threat-failure-model",
+                  "fault-injection",
+                  "finite-state-exhaustion"
+                ],
+                "deferredTechniques": []
+              },
+              "definition": {
+                "acceptanceCriteria": [
+                  "The plan-only revision passes Plan Before Code before any rehearsal fixture is created.",
+                  "The canonical decomposition contains at least three ordered units and only planned rehearsal material.",
+                  "Every child is proven on its exact materialized head before merge or canonical no-code closure.",
+                  "Every successor uses fresh merged-main reconciliation rather than the original parent base.",
+                  "Parent truth and lifecycle run only after all units are closed at the exact final implementation main.",
+                  "Any live missing edge blocks execution and is recorded rather than bypassed."
+                ],
+                "invariants": [
+                  "Fixture documents contain inert rehearsal metadata only and are not consumed by application runtime code.",
+                  "Unit manifests remain the exclusive material scope authority for each child.",
+                  "Persisted execution state advances monotonically through the existing CAS contract.",
+                  "Exact-head child proof remains mandatory before merge or no-code completion.",
+                  "Parent closure cannot precede complete child closure."
+                ],
+                "forbiddenStates": [
+                  "rehearsal material outside the declared fixture and proof files",
+                  "fewer than three canonical child units",
+                  "child merge without exact child proof",
+                  "successor authorization against stale main",
+                  "stale persisted-state writer accepted",
+                  "parent closure before every child is closed"
+                ]
+              },
+              "model": {
+                "phases": [
+                  "OBSERVE",
+                  "DEFINE",
+                  "MODEL",
+                  "PLAN",
+                  "CHALLENGE",
+                  "IMPROVE",
+                  "PROVE_PLAN",
+                  "EXECUTE",
+                  "VERIFY",
+                  "TRUTH_GATE",
+                  "CLOSE",
+                  "LEARN"
+                ],
+                "transitions": [
+                  "OBSERVE->DEFINE",
+                  "DEFINE->MODEL",
+                  "MODEL->PLAN",
+                  "PLAN->CHALLENGE",
+                  "CHALLENGE->IMPROVE",
+                  "IMPROVE->PROVE_PLAN",
+                  "PROVE_PLAN->EXECUTE",
+                  "EXECUTE->VERIFY",
+                  "VERIFY->TRUTH_GATE",
+                  "TRUTH_GATE->CLOSE",
+                  "CLOSE->LEARN"
+                ],
+                "failureModes": [
+                  "Planning resolves an unexpected domain or subsystem.",
+                  "Decomposition produces fewer than three children.",
+                  "Exact child evidence cannot be imported from the matching CI head.",
+                  "Merged main drifts before successor reconciliation.",
+                  "Persisted execution state rejects a stale transition.",
+                  "Parent proof cannot bind to the final implementation main."
+                ],
+                "edgeCases": [
+                  "Twenty-six material files pack across at least three units under the unchanged twelve-file limit.",
+                  "A child CI remains pending across repeated executor polls.",
+                  "A squash merge produces a main SHA different from the child source SHA.",
+                  "A fixture is already present and exercises the canonical no-code branch.",
+                  "An unrelated main change appears between child transitions.",
+                  "The closure metadata commit advances main after parent truth."
+                ]
+              },
+              "alternatives": [
+                {
+                  "id": "ALT-REAL-FIXTURE",
+                  "summary": "Run the real executor against a bounded inert multi-unit fixture corpus.",
+                  "disposition": "selected",
+                  "reason": "This directly proves GitHub orchestration while keeping application behavior untouched and material scope narrow."
+                },
+                {
+                  "id": "ALT-MOCK-ONLY",
+                  "summary": "Rely only on additional mocked state-machine and adapter regression tests.",
+                  "disposition": "rejected",
+                  "reason": "Mocks cannot prove real pull-request metadata, Actions artifact lookup, merge receipts or persisted remote state behavior."
+                },
+                {
+                  "id": "ALT-PRODUCT-CHANGE",
+                  "summary": "Use an ordinary application feature change as the first end-to-end execution proof.",
+                  "disposition": "rejected",
+                  "reason": "That adds avoidable product risk before the newly connected execution surface has completed a bounded rehearsal."
+                }
+              ],
+              "specialistReviews": [
+                {
+                  "role": "Architecture",
+                  "mode": "review",
+                  "verdict": "pass",
+                  "finding": "The remaining evidence gap is end-to-end execution behavior rather than another missing authority.",
+                  "resolution": "Reuse the merged executor unchanged and constrain material changes to the rehearsal fixture contract.",
+                  "evidence": [
+                    "scripts/release-unit-execute.mjs",
+                    "scripts/release-unit-github-runtime.mjs"
+                  ]
+                },
+                {
+                  "role": "Security",
+                  "mode": "dissent",
+                  "verdict": "challenge-resolved",
+                  "finding": "A real orchestration rehearsal can still cause repository mutation even when application scope is inert.",
+                  "resolution": "Use only the already merged trusted execution path and reject any material operation outside the approved fixture and proof files.",
+                  "evidence": [
+                    ".github/workflows/release-unit-execution.yml",
+                    "deploy/release-risk-policy.json"
+                  ]
+                },
+                {
+                  "role": "Release",
+                  "mode": "review",
+                  "verdict": "pass",
+                  "finding": "A valid rehearsal must prove multiple successor transitions and final parent closure, not only decomposition output.",
+                  "resolution": "Require three or more real children with exact proof, merge receipts, fresh reconciliation and parent close evidence.",
+                  "evidence": [
+                    "scripts/lib/shoperation-release-unit-runtime.mjs",
+                    "scripts/release-unit-parent-close.mjs"
+                  ]
+                },
+                {
+                  "role": "Known Failure",
+                  "mode": "review",
+                  "verdict": "pass",
+                  "finding": "The rehearsal would be invalid if a live block were bypassed because the changed data is non-product.",
+                  "resolution": "Treat any live block as authoritative Failure Intake evidence and stop instead of reconstructing state manually.",
+                  "evidence": [
+                    "scripts/shoperation-failure-intake.mjs",
+                    "quality/knowledge/development-guard-policy.v1.json"
+                  ]
+                }
+              ],
+              "challenge": [
+                {
+                  "id": "CH-RH-01",
+                  "scenario": "Planned fixtures resolve outside the expected quality authority.",
+                  "finding": "Unexpected classification would invalidate the claimed bounded scope.",
+                  "resolution": "Require exact Plan Before Code scope reconciliation before creating any fixture implementation.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-02",
+                  "scenario": "Dependencies collapse the planned material into fewer than three units.",
+                  "finding": "The run would not exercise successor orchestration deeply enough.",
+                  "resolution": "Use independent inert JSON fixture documents with no repository dependencies and inspect decomposition count before source execution.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-03",
+                  "scenario": "A child has green CI but its exact transaction proof artifact is absent.",
+                  "finding": "Generic workflow success cannot prove the child transaction.",
+                  "resolution": "Keep exact artifact and child identity matching mandatory before any merge transition.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-04",
+                  "scenario": "Main changes after one child merges but before the next child is authorized.",
+                  "finding": "The successor could otherwise materialize against stale repository state.",
+                  "resolution": "Require fresh successor reconciliation against current merged main and fail on unrelated drift.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-05",
+                  "scenario": "Two attempts try to advance the same persisted parent state.",
+                  "finding": "A stale writer could duplicate or reorder transitions.",
+                  "resolution": "Preserve force-with-lease CAS and accept stale-writer rejection as the only safe outcome.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-06",
+                  "scenario": "One planned operation is already present at current main.",
+                  "finding": "Creating a meaningless child pull request would weaken idempotent execution semantics.",
+                  "resolution": "Allow only the existing exact-main no-code path with canonical child proof and complete operation coverage.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-07",
+                  "scenario": "All children close but parent proof runs after a later metadata commit.",
+                  "finding": "Parent truth would be bound to the wrong implementation state.",
+                  "resolution": "Use the existing parent-close adapter that proves the last child merged-main before closure persistence.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-08",
+                  "scenario": "A live orchestration defect appears after an earlier child already merged.",
+                  "finding": "Manual continuation could hide the actual missing edge.",
+                  "resolution": "Stop at the authoritative blocked state, record Failure Intake, reconcile separately and replay only after repair.",
+                  "status": "resolved"
+                }
+              ],
+              "proofPlan": [
+                "Open this plan-only transaction and require Plan Before Code PASS before fixture implementation.",
+                "Inspect the generated decomposition and require at least three ordered units within the approved material scope.",
+                "Create the approved fixture implementation only after the plan proof is green.",
+                "Run the source revision through the existing repository execution surface and observe each real child transaction.",
+                "Require exact child verification, merge receipt and fresh successor reconciliation for every ordered child.",
+                "Inspect persisted execution state for monotonic identity and any observed stale-writer rejection.",
+                "Require parent Completion Truth and Lifecycle closure at the final implementation main.",
+                "Verify the later closure metadata commit and final main CI without claiming any unobserved fault scenario."
+              ],
+              "semanticExecutionRoute": {
+                "request": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+                "authority": [
+                  "quality-knowledge-system"
+                ],
+                "mustEdit": [],
+                "mayEdit": [],
+                "impactedReadOnly": [],
+                "mustCreate": [
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json"
+                ],
+                "forbidden": [
+                  ".github/workflows/**",
+                  "deploy/**",
+                  "src/app/**",
+                  "src/components/**",
+                  "supabase/**"
+                ],
+                "proof": [],
+                "unknown": [],
+                "plannedDeletions": [],
+                "plannedRenames": [],
+                "generatedArtifacts": []
+              },
+              "executionAuthorized": true
+            },
+            "completionContract": {
+              "sourceKind": "product-owner-request",
+              "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+              "systemObligations": {
+                "derivation": "release-unit-manifest",
+                "requiredGuards": [
+                  "GUARD-EDIT-TIME",
+                  "GUARD-INCREMENTAL-REPLAY",
+                  "GUARD-KNOWLEDGE-PREFLIGHT",
+                  "GUARD-PLAN-BEFORE-CODE",
+                  "GUARD-QUALITY-TESTS",
+                  "GUARD-RELEASE-RISK",
+                  "GUARD-TYPECHECK"
+                ],
+                "externalGuards": [],
+                "phase": "EXECUTE"
+              },
+              "requirements": [
+                {
+                  "id": "REQ-RELEASE-UNIT-TRANSACTION-INTEGRITY",
+                  "requirement": "Release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02 must implement only its manifest-authorized scope and pass exact-head child transaction verification without parent lifecycle conflation.",
+                  "claimScope": {
+                    "capability": "CAP-QUALITY",
+                    "breadth": "release-unit-transaction-integrity",
+                    "strength": 2,
+                    "dimensions": [
+                      "scope",
+                      "positive-state",
+                      "forbidden-state",
+                      "lifecycle",
+                      "actual-subset-plan",
+                      "required-subset-actual"
+                    ]
+                  },
+                  "requiredCapabilities": [
+                    "CAP-QUALITY"
+                  ],
+                  "evidence": {
+                    "implementation": [
+                      "GUARD-EDIT-TIME"
+                    ],
+                    "outcome": [
+                      "GUARD-QUALITY-TESTS"
+                    ]
+                  },
+                  "forbiddenRegressions": [
+                    {
+                      "id": "NEG-RELEASE-UNIT-SCOPE-WIDEN",
+                      "statement": "The child PR must not contain material changes outside the release-unit manifest scope or accept foreign parent or unit lifecycle evidence.",
+                      "evidence": [
+                        "GUARD-QUALITY-TESTS"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "REQ-RELEASE-UNIT-RISK-INTEGRITY",
+                  "requirement": "Release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02 must remain within the unchanged canonical Release Risk Budget on its exact target-base transaction.",
+                  "claimScope": {
+                    "capability": "CAP-RELEASE",
+                    "breadth": "release-unit-risk-integrity",
+                    "strength": 2,
+                    "dimensions": [
+                      "risk",
+                      "release-scope"
+                    ]
+                  },
+                  "requiredCapabilities": [
+                    "CAP-RELEASE"
+                  ],
+                  "evidence": {
+                    "implementation": [
+                      "GUARD-RELEASE-RISK"
+                    ],
+                    "outcome": [
+                      "GUARD-RELEASE-RISK"
+                    ]
+                  },
+                  "forbiddenRegressions": [
+                    {
+                      "id": "NEG-RELEASE-UNIT-RISK-BYPASS",
+                      "statement": "No child transaction may reinterpret a canonical Release Risk BLOCK as executable.",
+                      "evidence": [
+                        "GUARD-RELEASE-RISK"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "notes": "Plan-only rehearsal transaction. No fixture implementation exists on this branch yet. The twenty-five inert JSON documents are planned under quality/knowledge/rehearsal-fixtures/v1; this intentionally activates full Known Failure replay while keeping application behavior untouched. Implementation remains denied until Plan Before Code passes and decomposition shows at least three units. Reconciled task wording removes the lexical product-intent token that incorrectly widened planned scope to storefront subsystems. Reconciled after targeted source-lifecycle admission fix PR #974 merged at main 7e7ec558fa470fae2b11c1ed2bce0a5ec205045c. Rehearsal scope, authority, 25-fixture material set and three-unit decomposition intent are unchanged; only canonical base/provenance is refreshed before replay. Reconciled after targeted trusted-executor Atlas evidence fix PR #983 merged at main 199f21f274524a7b3688f50e09d2d0e3039f86c8. Rehearsal scope, authority, 25-fixture material set and three-unit decomposition intent are unchanged; only canonical base/provenance is refreshed before replay.",
+            "releaseUnitContext": {
+              "contract": "shoporation.release-unit-child-transaction.v1",
+              "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+              "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02",
+              "order": 2,
+              "targetBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+              "planAuthority": "release-unit-manifest#childDevelopmentTransaction"
+            }
+          }
+        }
+      },
+      "executionTransaction": {
+        "contract": "shoporation.release-unit-transaction-projection.v1",
+        "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02",
+        "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+        "branchRef": "release-unit/dev-control-plane-multi-unit-rehearsal-v1-u02",
+        "changeBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+        "manifestDigest": "fb32deab",
+        "plannedFilePatterns": [
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json"
+        ],
+        "operations": [
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+            "generated": null
+          },
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json",
+            "generated": null
+          }
+        ],
+        "authorities": [],
+        "subsystems": [
+          "quality-infrastructure"
+        ],
+        "requiredGates": [
+          "GUARD-EDIT-TIME",
+          "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-KNOWLEDGE-PREFLIGHT",
+          "GUARD-PLAN-BEFORE-CODE",
+          "GUARD-QUALITY-TESTS",
+          "GUARD-RELEASE-RISK",
+          "GUARD-TYPECHECK"
+        ],
+        "requiredEvidence": {
+          "gateIds": [
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS",
+            "GUARD-RELEASE-RISK",
+            "GUARD-TYPECHECK"
+          ],
+          "proofFiles": [],
+          "externalGateIds": []
+        },
+        "forbiddenPaths": [
+          ".github/workflows/**",
+          "deploy/**",
+          "src/app/**",
+          "src/components/**",
+          "supabase/**"
+        ],
+        "readOnlyPaths": [],
+        "sourceIdentity": {
+          "sourceCommit": null,
+          "sealed": false
+        },
+        "childTaskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02-TX",
+        "childPlanDigest": "867ed45f59d574280b17e9993e4c7ff7f3020d2582a95ca491ffa5658797ec23",
+        "bindingDigest": "6ef264a543fb157c02875359689c14ac79244d8775ac90bc58800358f0e43fbe"
+      },
+      "authorization": null,
+      "materialization": null,
+      "pullRequest": null,
+      "verification": null,
+      "merge": null,
+      "closeReceipt": null,
+      "blocker": null,
+      "lastTransition": {
+        "to": "PLANNED",
+        "code": "RELEASE_UNIT_PLANNED"
+      }
+    },
+    {
+      "contract": "shoporation.release-unit-execution.v1",
+      "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
+      "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+      "order": 3,
+      "state": "PLANNED",
+      "manifest": {
+        "contract": "shoporation.release-unit-manifest.v1",
+        "transaction": {
+          "id": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+          "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+          "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+          "developmentBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8"
+        },
+        "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
+        "order": 3,
+        "targetBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+        "lease": {
+          "expectedBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+          "failOnDrift": true,
+          "reconciled": false,
+          "reconciledFromSha": null
+        },
+        "intendedFiles": [
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+          "tests/control-plane-release-unit-production-surface.test.ts"
+        ],
+        "operations": [
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+            "generated": null
+          },
+          {
+            "operation": "modify",
+            "file": "tests/control-plane-release-unit-production-surface.test.ts",
+            "generated": null
+          }
+        ],
+        "requiredDependencyFiles": [
+          "scripts/lib/shoperation-release-unit-runtime.mjs"
+        ],
+        "authorities": [],
+        "subsystems": [
+          "quality-infrastructure"
+        ],
+        "projectedRisk": {
+          "contract": "shoporation.projected-release-risk.v1",
+          "score": 2,
+          "maxPoints": 5,
+          "subsystemCount": 1,
+          "maxSubsystems": 3,
+          "subsystems": [
+            {
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            }
+          ],
+          "files": [
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "tests/control-plane-release-unit-production-surface.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            }
+          ],
+          "violations": [],
+          "decision": "PASS"
+        },
+        "requiredGates": [
+          "GUARD-EDIT-TIME",
+          "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-KNOWLEDGE-PREFLIGHT",
+          "GUARD-PLAN-BEFORE-CODE",
+          "GUARD-QUALITY-TESTS",
+          "GUARD-RELEASE-RISK",
+          "GUARD-TYPECHECK"
+        ],
+        "requiredEvidence": {
+          "gateIds": [
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS",
+            "GUARD-RELEASE-RISK",
+            "GUARD-TYPECHECK"
+          ],
+          "proofFiles": [
+            "tests/control-plane-release-unit-production-surface.test.ts"
+          ],
+          "externalGateIds": []
+        },
+        "forbiddenPaths": [
+          "src/app/**",
+          "src/components/**",
+          "supabase/**",
+          ".github/workflows/**",
+          "deploy/**"
+        ],
+        "readOnlyPaths": [],
+        "generatedArtifactSemantics": [],
+        "prerequisites": [
+          "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02"
+        ],
+        "predecessorUnits": [
+          "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02"
+        ],
+        "expectedPostUnitState": {
+          "filesPresent": [
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+            "tests/control-plane-release-unit-production-surface.test.ts"
+          ],
+          "filesAbsent": []
+        },
+        "reconciliationPolicy": {
+          "mode": "merged-main-sequential",
+          "requireExactMainLease": true,
+          "requirePredecessorReceipts": true,
+          "requiresReconciliationAfterPredecessor": true,
+          "failOnUnrelatedMainDrift": true
+        },
+        "sourceIdentity": {
+          "sourceCommit": null,
+          "sealed": false
+        },
+        "manifestDigest": "052a29a1",
+        "decision": "PASS",
+        "childDevelopmentTransaction": {
+          "contract": "shoporation.release-unit-child-transaction.v1",
+          "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03-TX",
+          "planDigest": "b3eb493dd25655b16a15984b1b35d7aeae5b9fd43df24fbaef1e5990953796e5",
+          "operationDigest": "e1c05ec09138ff554e2866ab547ad6f0e2d8d3724a1724d0c6322ffef7915234",
+          "bindingDigest": "085c4b99c0e2a97c1df4a4c09f58c89003da98c8c8f7d7c32635d4aacacf9e0b",
+          "plan": {
+            "contract": "shoporation.development-plan.v1",
+            "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03-TX",
+            "task": "Execute canonical release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03 of DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1 without widening the manifest-authorized scope.",
+            "status": "ready-for-implementation",
+            "guardDigest": "aa79c504",
+            "changeBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+            "plannedFilePatterns": [
+              "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+              "tests/control-plane-release-unit-production-surface.test.ts"
+            ],
+            "expectedSubsystems": [],
+            "expectedDomains": [
+              "DOMAIN-QUALITY"
+            ],
+            "expectedAuthorities": [
+              "quality-knowledge-system"
+            ],
+            "expectedKnownFailureIds": [
+              "SQ-KF-001",
+              "SQ-KF-002",
+              "SQ-KF-003",
+              "SQ-KF-004",
+              "SQ-KF-005",
+              "SQ-KF-006",
+              "SQ-KF-007",
+              "SQ-KF-008",
+              "SQ-KF-009",
+              "SQ-KF-010",
+              "SQ-KF-011",
+              "SQ-KF-012",
+              "SQ-KF-013",
+              "SQ-KF-014",
+              "SQ-KF-015",
+              "SQ-KF-016",
+              "SQ-KF-017",
+              "SQ-KF-018",
+              "SQ-KF-019",
+              "SQ-KF-020",
+              "SQ-KF-021",
+              "SQ-KF-022",
+              "SQ-KF-023",
+              "SQ-KF-024",
+              "TF-KF-001",
+              "TF-KF-002",
+              "TF-KF-003",
+              "TF-KF-004",
+              "TF-KF-005",
+              "TF-KF-006",
+              "TF-KF-007",
+              "TF-KF-008",
+              "TF-KF-009",
+              "TF-KF-010",
+              "TF-KF-011",
+              "TF-KF-012",
+              "TF-KF-013",
+              "TF-KF-014",
+              "TF-KF-015",
+              "TF-KF-016",
+              "TF-KF-017",
+              "TF-KF-018",
+              "TF-KF-019",
+              "TF-KF-020",
+              "TF-KF-021",
+              "TF-KF-022",
+              "TF-KF-023",
+              "TF-KF-024",
+              "TF-KF-025"
+            ],
+            "acknowledgedPoInstructionIds": [],
+            "acknowledgedNegativeKnowledgeIds": [
+              "SQ-NK-012"
+            ],
+            "exceptions": [],
+            "operationalIntelligence": {
+              "sourceKind": "product-owner-request",
+              "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+              "riskTier": "critical",
+              "problemStatement": "Execute release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03 as the exact manifest-authorized child transaction of DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1 while preserving parent lifecycle separation and all canonical gate obligations.",
+              "observableOutcomes": [
+                "The exact files and operations authorized by release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03 are the only material changes present in the child PR.",
+                "All canonical child gate obligations pass on the exact materialized PR head before any merge receipt can be accepted.",
+                "Child Truth and Lifecycle evidence remain bound to DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03 and cannot close parent transaction DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1."
+              ],
+              "unresolvedRisks": [
+                "Repository or authority drift after predecessor merge can invalidate this child projection and must fail closed during fresh successor reconciliation.",
+                "Mutable PR metadata is not authority; CI context must remain cryptographically bound to the exact materialized commit and child plan digest.",
+                "A merge strategy may change resulting main identity, so successor base remains the explicit merged-main receipt rather than the PR source head."
+              ],
+              "scope": {
+                "in": [
+                  "Create twenty-five inert JSON rehearsal fixtures under a dedicated quality knowledge rehearsal-fixtures directory that is not consumed by application runtime.",
+                  "Add one regression assertion to the existing production-surface Control Plane test.",
+                  "Use the unchanged canonical decomposition, child proof, state persistence, merge and parent closure paths.",
+                  "Stop and route any newly discovered live execution gap through existing Failure Intake."
+                ],
+                "out": [
+                  "No storefront, admin, database, authentication, payment, inventory, Builder, template or deployment behavior change.",
+                  "No change to release risk, truth, lifecycle, decomposition limits, workflow permissions, Atlas or Sentinel authority.",
+                  "No manual receipt fabrication or direct state editing to force the rehearsal forward."
+                ]
+              },
+              "assuranceCeiling": {
+                "level": "critical-practical",
+                "rationale": "This proof drives real repository branch, pull-request, CI, merge and persisted orchestration state while deliberately restricting material changes to non-product fixtures. Exact identity, fail-closed transitions and final closure therefore require the strongest practical bounded assurance.",
+                "selectedTechniques": [
+                  "explicit-specification",
+                  "invariants",
+                  "state-model",
+                  "what-if-matrix",
+                  "adversarial-scenarios",
+                  "boundary-cases",
+                  "pairwise-interactions",
+                  "threat-failure-model",
+                  "fault-injection",
+                  "finite-state-exhaustion"
+                ],
+                "deferredTechniques": []
+              },
+              "definition": {
+                "acceptanceCriteria": [
+                  "The plan-only revision passes Plan Before Code before any rehearsal fixture is created.",
+                  "The canonical decomposition contains at least three ordered units and only planned rehearsal material.",
+                  "Every child is proven on its exact materialized head before merge or canonical no-code closure.",
+                  "Every successor uses fresh merged-main reconciliation rather than the original parent base.",
+                  "Parent truth and lifecycle run only after all units are closed at the exact final implementation main.",
+                  "Any live missing edge blocks execution and is recorded rather than bypassed."
+                ],
+                "invariants": [
+                  "Fixture documents contain inert rehearsal metadata only and are not consumed by application runtime code.",
+                  "Unit manifests remain the exclusive material scope authority for each child.",
+                  "Persisted execution state advances monotonically through the existing CAS contract.",
+                  "Exact-head child proof remains mandatory before merge or no-code completion.",
+                  "Parent closure cannot precede complete child closure."
+                ],
+                "forbiddenStates": [
+                  "rehearsal material outside the declared fixture and proof files",
+                  "fewer than three canonical child units",
+                  "child merge without exact child proof",
+                  "successor authorization against stale main",
+                  "stale persisted-state writer accepted",
+                  "parent closure before every child is closed"
+                ]
+              },
+              "model": {
+                "phases": [
+                  "OBSERVE",
+                  "DEFINE",
+                  "MODEL",
+                  "PLAN",
+                  "CHALLENGE",
+                  "IMPROVE",
+                  "PROVE_PLAN",
+                  "EXECUTE",
+                  "VERIFY",
+                  "TRUTH_GATE",
+                  "CLOSE",
+                  "LEARN"
+                ],
+                "transitions": [
+                  "OBSERVE->DEFINE",
+                  "DEFINE->MODEL",
+                  "MODEL->PLAN",
+                  "PLAN->CHALLENGE",
+                  "CHALLENGE->IMPROVE",
+                  "IMPROVE->PROVE_PLAN",
+                  "PROVE_PLAN->EXECUTE",
+                  "EXECUTE->VERIFY",
+                  "VERIFY->TRUTH_GATE",
+                  "TRUTH_GATE->CLOSE",
+                  "CLOSE->LEARN"
+                ],
+                "failureModes": [
+                  "Planning resolves an unexpected domain or subsystem.",
+                  "Decomposition produces fewer than three children.",
+                  "Exact child evidence cannot be imported from the matching CI head.",
+                  "Merged main drifts before successor reconciliation.",
+                  "Persisted execution state rejects a stale transition.",
+                  "Parent proof cannot bind to the final implementation main."
+                ],
+                "edgeCases": [
+                  "Twenty-six material files pack across at least three units under the unchanged twelve-file limit.",
+                  "A child CI remains pending across repeated executor polls.",
+                  "A squash merge produces a main SHA different from the child source SHA.",
+                  "A fixture is already present and exercises the canonical no-code branch.",
+                  "An unrelated main change appears between child transitions.",
+                  "The closure metadata commit advances main after parent truth."
+                ]
+              },
+              "alternatives": [
+                {
+                  "id": "ALT-REAL-FIXTURE",
+                  "summary": "Run the real executor against a bounded inert multi-unit fixture corpus.",
+                  "disposition": "selected",
+                  "reason": "This directly proves GitHub orchestration while keeping application behavior untouched and material scope narrow."
+                },
+                {
+                  "id": "ALT-MOCK-ONLY",
+                  "summary": "Rely only on additional mocked state-machine and adapter regression tests.",
+                  "disposition": "rejected",
+                  "reason": "Mocks cannot prove real pull-request metadata, Actions artifact lookup, merge receipts or persisted remote state behavior."
+                },
+                {
+                  "id": "ALT-PRODUCT-CHANGE",
+                  "summary": "Use an ordinary application feature change as the first end-to-end execution proof.",
+                  "disposition": "rejected",
+                  "reason": "That adds avoidable product risk before the newly connected execution surface has completed a bounded rehearsal."
+                }
+              ],
+              "specialistReviews": [
+                {
+                  "role": "Architecture",
+                  "mode": "review",
+                  "verdict": "pass",
+                  "finding": "The remaining evidence gap is end-to-end execution behavior rather than another missing authority.",
+                  "resolution": "Reuse the merged executor unchanged and constrain material changes to the rehearsal fixture contract.",
+                  "evidence": [
+                    "scripts/release-unit-execute.mjs",
+                    "scripts/release-unit-github-runtime.mjs"
+                  ]
+                },
+                {
+                  "role": "Security",
+                  "mode": "dissent",
+                  "verdict": "challenge-resolved",
+                  "finding": "A real orchestration rehearsal can still cause repository mutation even when application scope is inert.",
+                  "resolution": "Use only the already merged trusted execution path and reject any material operation outside the approved fixture and proof files.",
+                  "evidence": [
+                    ".github/workflows/release-unit-execution.yml",
+                    "deploy/release-risk-policy.json"
+                  ]
+                },
+                {
+                  "role": "Release",
+                  "mode": "review",
+                  "verdict": "pass",
+                  "finding": "A valid rehearsal must prove multiple successor transitions and final parent closure, not only decomposition output.",
+                  "resolution": "Require three or more real children with exact proof, merge receipts, fresh reconciliation and parent close evidence.",
+                  "evidence": [
+                    "scripts/lib/shoperation-release-unit-runtime.mjs",
+                    "scripts/release-unit-parent-close.mjs"
+                  ]
+                },
+                {
+                  "role": "Known Failure",
+                  "mode": "review",
+                  "verdict": "pass",
+                  "finding": "The rehearsal would be invalid if a live block were bypassed because the changed data is non-product.",
+                  "resolution": "Treat any live block as authoritative Failure Intake evidence and stop instead of reconstructing state manually.",
+                  "evidence": [
+                    "scripts/shoperation-failure-intake.mjs",
+                    "quality/knowledge/development-guard-policy.v1.json"
+                  ]
+                }
+              ],
+              "challenge": [
+                {
+                  "id": "CH-RH-01",
+                  "scenario": "Planned fixtures resolve outside the expected quality authority.",
+                  "finding": "Unexpected classification would invalidate the claimed bounded scope.",
+                  "resolution": "Require exact Plan Before Code scope reconciliation before creating any fixture implementation.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-02",
+                  "scenario": "Dependencies collapse the planned material into fewer than three units.",
+                  "finding": "The run would not exercise successor orchestration deeply enough.",
+                  "resolution": "Use independent inert JSON fixture documents with no repository dependencies and inspect decomposition count before source execution.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-03",
+                  "scenario": "A child has green CI but its exact transaction proof artifact is absent.",
+                  "finding": "Generic workflow success cannot prove the child transaction.",
+                  "resolution": "Keep exact artifact and child identity matching mandatory before any merge transition.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-04",
+                  "scenario": "Main changes after one child merges but before the next child is authorized.",
+                  "finding": "The successor could otherwise materialize against stale repository state.",
+                  "resolution": "Require fresh successor reconciliation against current merged main and fail on unrelated drift.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-05",
+                  "scenario": "Two attempts try to advance the same persisted parent state.",
+                  "finding": "A stale writer could duplicate or reorder transitions.",
+                  "resolution": "Preserve force-with-lease CAS and accept stale-writer rejection as the only safe outcome.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-06",
+                  "scenario": "One planned operation is already present at current main.",
+                  "finding": "Creating a meaningless child pull request would weaken idempotent execution semantics.",
+                  "resolution": "Allow only the existing exact-main no-code path with canonical child proof and complete operation coverage.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-07",
+                  "scenario": "All children close but parent proof runs after a later metadata commit.",
+                  "finding": "Parent truth would be bound to the wrong implementation state.",
+                  "resolution": "Use the existing parent-close adapter that proves the last child merged-main before closure persistence.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-RH-08",
+                  "scenario": "A live orchestration defect appears after an earlier child already merged.",
+                  "finding": "Manual continuation could hide the actual missing edge.",
+                  "resolution": "Stop at the authoritative blocked state, record Failure Intake, reconcile separately and replay only after repair.",
+                  "status": "resolved"
+                }
+              ],
+              "proofPlan": [
+                "Open this plan-only transaction and require Plan Before Code PASS before fixture implementation.",
+                "Inspect the generated decomposition and require at least three ordered units within the approved material scope.",
+                "Create the approved fixture implementation only after the plan proof is green.",
+                "Run the source revision through the existing repository execution surface and observe each real child transaction.",
+                "Require exact child verification, merge receipt and fresh successor reconciliation for every ordered child.",
+                "Inspect persisted execution state for monotonic identity and any observed stale-writer rejection.",
+                "Require parent Completion Truth and Lifecycle closure at the final implementation main.",
+                "Verify the later closure metadata commit and final main CI without claiming any unobserved fault scenario."
+              ],
+              "semanticExecutionRoute": {
+                "request": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+                "authority": [
+                  "quality-knowledge-system"
+                ],
+                "mustEdit": [
+                  "tests/control-plane-release-unit-production-surface.test.ts"
+                ],
+                "mayEdit": [],
+                "impactedReadOnly": [],
+                "mustCreate": [
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json"
+                ],
+                "forbidden": [
+                  ".github/workflows/**",
+                  "deploy/**",
+                  "src/app/**",
+                  "src/components/**",
+                  "supabase/**"
+                ],
+                "proof": [
+                  "tests/control-plane-release-unit-production-surface.test.ts"
+                ],
+                "unknown": [],
+                "plannedDeletions": [],
+                "plannedRenames": [],
+                "generatedArtifacts": []
+              },
+              "executionAuthorized": true
+            },
+            "completionContract": {
+              "sourceKind": "product-owner-request",
+              "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+              "systemObligations": {
+                "derivation": "release-unit-manifest",
+                "requiredGuards": [
+                  "GUARD-EDIT-TIME",
+                  "GUARD-INCREMENTAL-REPLAY",
+                  "GUARD-KNOWLEDGE-PREFLIGHT",
+                  "GUARD-PLAN-BEFORE-CODE",
+                  "GUARD-QUALITY-TESTS",
+                  "GUARD-RELEASE-RISK",
+                  "GUARD-TYPECHECK"
+                ],
+                "externalGuards": [],
+                "phase": "EXECUTE"
+              },
+              "requirements": [
+                {
+                  "id": "REQ-RELEASE-UNIT-TRANSACTION-INTEGRITY",
+                  "requirement": "Release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03 must implement only its manifest-authorized scope and pass exact-head child transaction verification without parent lifecycle conflation.",
+                  "claimScope": {
+                    "capability": "CAP-QUALITY",
+                    "breadth": "release-unit-transaction-integrity",
+                    "strength": 2,
+                    "dimensions": [
+                      "scope",
+                      "positive-state",
+                      "forbidden-state",
+                      "lifecycle",
+                      "actual-subset-plan",
+                      "required-subset-actual"
+                    ]
+                  },
+                  "requiredCapabilities": [
+                    "CAP-QUALITY"
+                  ],
+                  "evidence": {
+                    "implementation": [
+                      "GUARD-EDIT-TIME"
+                    ],
+                    "outcome": [
+                      "GUARD-QUALITY-TESTS"
+                    ]
+                  },
+                  "forbiddenRegressions": [
+                    {
+                      "id": "NEG-RELEASE-UNIT-SCOPE-WIDEN",
+                      "statement": "The child PR must not contain material changes outside the release-unit manifest scope or accept foreign parent or unit lifecycle evidence.",
+                      "evidence": [
+                        "GUARD-QUALITY-TESTS"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "REQ-RELEASE-UNIT-RISK-INTEGRITY",
+                  "requirement": "Release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03 must remain within the unchanged canonical Release Risk Budget on its exact target-base transaction.",
+                  "claimScope": {
+                    "capability": "CAP-RELEASE",
+                    "breadth": "release-unit-risk-integrity",
+                    "strength": 2,
+                    "dimensions": [
+                      "risk",
+                      "release-scope"
+                    ]
+                  },
+                  "requiredCapabilities": [
+                    "CAP-RELEASE"
+                  ],
+                  "evidence": {
+                    "implementation": [
+                      "GUARD-RELEASE-RISK"
+                    ],
+                    "outcome": [
+                      "GUARD-RELEASE-RISK"
+                    ]
+                  },
+                  "forbiddenRegressions": [
+                    {
+                      "id": "NEG-RELEASE-UNIT-RISK-BYPASS",
+                      "statement": "No child transaction may reinterpret a canonical Release Risk BLOCK as executable.",
+                      "evidence": [
+                        "GUARD-RELEASE-RISK"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "notes": "Plan-only rehearsal transaction. No fixture implementation exists on this branch yet. The twenty-five inert JSON documents are planned under quality/knowledge/rehearsal-fixtures/v1; this intentionally activates full Known Failure replay while keeping application behavior untouched. Implementation remains denied until Plan Before Code passes and decomposition shows at least three units. Reconciled task wording removes the lexical product-intent token that incorrectly widened planned scope to storefront subsystems. Reconciled after targeted source-lifecycle admission fix PR #974 merged at main 7e7ec558fa470fae2b11c1ed2bce0a5ec205045c. Rehearsal scope, authority, 25-fixture material set and three-unit decomposition intent are unchanged; only canonical base/provenance is refreshed before replay. Reconciled after targeted trusted-executor Atlas evidence fix PR #983 merged at main 199f21f274524a7b3688f50e09d2d0e3039f86c8. Rehearsal scope, authority, 25-fixture material set and three-unit decomposition intent are unchanged; only canonical base/provenance is refreshed before replay.",
+            "releaseUnitContext": {
+              "contract": "shoporation.release-unit-child-transaction.v1",
+              "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+              "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
+              "order": 3,
+              "targetBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+              "planAuthority": "release-unit-manifest#childDevelopmentTransaction"
+            }
+          }
+        }
+      },
+      "executionTransaction": {
+        "contract": "shoporation.release-unit-transaction-projection.v1",
+        "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
+        "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+        "branchRef": "release-unit/dev-control-plane-multi-unit-rehearsal-v1-u03",
+        "changeBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+        "manifestDigest": "052a29a1",
+        "plannedFilePatterns": [
+          "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+          "tests/control-plane-release-unit-production-surface.test.ts"
+        ],
+        "operations": [
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+            "generated": null
+          },
+          {
+            "operation": "modify",
+            "file": "tests/control-plane-release-unit-production-surface.test.ts",
+            "generated": null
+          }
+        ],
+        "authorities": [],
+        "subsystems": [
+          "quality-infrastructure"
+        ],
+        "requiredGates": [
+          "GUARD-EDIT-TIME",
+          "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-KNOWLEDGE-PREFLIGHT",
+          "GUARD-PLAN-BEFORE-CODE",
+          "GUARD-QUALITY-TESTS",
+          "GUARD-RELEASE-RISK",
+          "GUARD-TYPECHECK"
+        ],
+        "requiredEvidence": {
+          "gateIds": [
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS",
+            "GUARD-RELEASE-RISK",
+            "GUARD-TYPECHECK"
+          ],
+          "proofFiles": [
+            "tests/control-plane-release-unit-production-surface.test.ts"
+          ],
+          "externalGateIds": []
+        },
+        "forbiddenPaths": [
+          ".github/workflows/**",
+          "deploy/**",
+          "src/app/**",
+          "src/components/**",
+          "supabase/**"
+        ],
+        "readOnlyPaths": [],
+        "sourceIdentity": {
+          "sourceCommit": null,
+          "sealed": false
+        },
+        "childTaskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03-TX",
+        "childPlanDigest": "b3eb493dd25655b16a15984b1b35d7aeae5b9fd43df24fbaef1e5990953796e5",
+        "bindingDigest": "085c4b99c0e2a97c1df4a4c09f58c89003da98c8c8f7d7c32635d4aacacf9e0b"
+      },
+      "authorization": null,
+      "materialization": null,
+      "pullRequest": null,
+      "verification": null,
+      "merge": null,
+      "closeReceipt": null,
+      "blocker": null,
+      "lastTransition": {
+        "to": "PLANNED",
+        "code": "RELEASE_UNIT_PLANNED"
+      }
+    }
+  ],
+  "blocker": null,
+  "closureEligible": false,
+  "closureComplete": false,
+  "closedReceipt": null,
+  "executionSourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65"
+}
