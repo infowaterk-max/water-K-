@@ -14,12 +14,10 @@
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -381,8 +379,7 @@
     "semanticExecutionRoute": {
       "request": "PO-2026-10-07-RELEASE-UNIT-MODIFY-PATCH-MATERIALIZATION-V1",
       "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
         "scripts/lib/shoperation-release-unit-runtime.mjs"
@@ -488,5 +485,5 @@
       }
     ]
   },
-  "notes": "Live evidence: immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 changed tests/control-plane-release-unit-production-surface.test.ts by +18/-1 relative to parent b79f8805d9718961a5cb41d4babaf11fd85dda5a. U03 materialization PR #1074 against main 1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100 produced +19/-580 because modify wrote the historical sealed blob. Trusted child CI #9095 correctly failed Edit-Time Reference Sync before merge. The fix targets modify materialization; Reference Sync remains authoritative."
+  "notes": "Live evidence: immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 changed tests/control-plane-release-unit-production-surface.test.ts by +18/-1 relative to parent b79f8805d9718961a5cb41d4babaf11fd85dda5a. U03 materialization PR #1074 against main 1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100 produced +19/-580 because modify wrote the historical sealed blob. Trusted child CI #9095 correctly failed Edit-Time Reference Sync before merge. The fix targets modify materialization; Reference Sync remains authoritative. Plan Gate CI #9098 / run 37661223250 canonicalized the projected scope to DOMAIN-QUALITY with quality-knowledge-system authority only; this revision adopts that projection without changing the modify-patch materialization intent."
 }
