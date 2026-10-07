@@ -311,7 +311,9 @@
     ],
     "semanticExecutionRoute": {
       "request": "SQ-FP-6228AC79A5A40E53",
-      "authority": [],
+      "authority": [
+        "release-infrastructure"
+      ],
       "mustEdit": [
         "tests/shoperation-sentinel-integrity.test.ts"
       ],
@@ -405,5 +407,5 @@
       }
     ]
   },
-  "notes": "Plan-only transaction from live U01 child proof CI #9052. Exact failure fingerprint SQ-FP-6228AC79A5A40E53. Proven mechanism: the test reads quality/development/active-plan.json to create synthetic evidence, while spawnSync inherits SHOPERATION_ACTIVE_PLAN=artifacts/shoperation-development-guard/release-unit-active-plan.json from child CI; normalizeSentinelControlPlaneEvidence then compares child plan changeBaseSha with repository-plan-derived edit-time evidence and correctly emits transaction identity drift. Production Sentinel semantics remain authoritative and unchanged. Plan gate CI #9055 / run 37628258801 reconciled the projected test-only material scope to subsystem release-infrastructure with no domain/authority classifier assignments and rejected the noncanonical Sentinel specialist role. This revision adopts those canonical classifications without changing the intended test-isolation fix. Prerequisite Control Plane neutral critical ownership fix merged via PR #1045 at main 22c11e6a724d374295c7cd95d6333e8ba8352104; this fresh projection now truthfully declares empty domain/authority ownership for the neutral test-only material scope while preserving release-infrastructure intent classification."
+  "notes": "Plan-only transaction from live U01 child proof CI #9052. Exact failure fingerprint SQ-FP-6228AC79A5A40E53. Proven mechanism: the test reads quality/development/active-plan.json to create synthetic evidence, while spawnSync inherits SHOPERATION_ACTIVE_PLAN=artifacts/shoperation-development-guard/release-unit-active-plan.json from child CI; normalizeSentinelControlPlaneEvidence then compares child plan changeBaseSha with repository-plan-derived edit-time evidence and correctly emits transaction identity drift. Production Sentinel semantics remain authoritative and unchanged. Plan gate CI #9055 / run 37628258801 reconciled the projected test-only material scope to subsystem release-infrastructure with no domain/authority classifier assignments and rejected the noncanonical Sentinel specialist role. This revision adopts those canonical classifications without changing the intended test-isolation fix. Prerequisite Control Plane neutral critical ownership fix merged via PR #1045 at main 22c11e6a724d374295c7cd95d6333e8ba8352104; this fresh projection now truthfully declares empty domain/authority ownership for the neutral test-only material scope while preserving release-infrastructure intent classification. Plan gate CI #9063 / run 37633441458 confirmed neutral expectedAuthorities=[] is valid after PR #1045, while the critical semantic execution route still requires an explicit execution authority category; route.authority is therefore bound to release-infrastructure without inventing projected ownership."
 }
