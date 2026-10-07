@@ -2720,7 +2720,7 @@
       "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
       "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
       "order": 3,
-      "state": "PLANNED",
+      "state": "PR_OPEN",
       "manifest": {
         "contract": "shoporation.release-unit-manifest.v1",
         "transaction": {
@@ -2731,12 +2731,12 @@
         },
         "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
         "order": 3,
-        "targetBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+        "targetBaseSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
         "lease": {
-          "expectedBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+          "expectedBaseSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
           "failOnDrift": true,
-          "reconciled": false,
-          "reconciledFromSha": null
+          "reconciled": true,
+          "reconciledFromSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8"
         },
         "intendedFiles": [
           "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
@@ -2746,18 +2746,32 @@
           {
             "operation": "create",
             "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
-            "generated": null
+            "generated": null,
+            "source": {
+              "mode": "sealed",
+              "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+              "blobSha": "94bfc8c0e36b042642b5c570ab4870d39ce281ff",
+              "fileMode": "100644"
+            }
           },
           {
             "operation": "modify",
             "file": "tests/control-plane-release-unit-production-surface.test.ts",
-            "generated": null
+            "generated": null,
+            "source": {
+              "mode": "sealed",
+              "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+              "blobSha": "7d731a1b3f3a7b1e8fe31d1df77929103f47c354",
+              "fileMode": "100644"
+            }
           }
         ],
         "requiredDependencyFiles": [
           "scripts/lib/shoperation-release-unit-runtime.mjs"
         ],
-        "authorities": [],
+        "authorities": [
+          "quality-knowledge-system"
+        ],
         "subsystems": [
           "quality-infrastructure"
         ],
@@ -2792,10 +2806,10 @@
           "decision": "PASS"
         },
         "requiredGates": [
-          "GUARD-EDIT-TIME",
-          "GUARD-INCREMENTAL-REPLAY",
           "GUARD-KNOWLEDGE-PREFLIGHT",
           "GUARD-PLAN-BEFORE-CODE",
+          "GUARD-EDIT-TIME",
+          "GUARD-INCREMENTAL-REPLAY",
           "GUARD-QUALITY-TESTS",
           "GUARD-RELEASE-RISK",
           "GUARD-TYPECHECK"
@@ -2811,16 +2825,52 @@
             "GUARD-TYPECHECK"
           ],
           "proofFiles": [
-            "tests/control-plane-release-unit-production-surface.test.ts"
+            "tests/admin-mobile-desktop-compat.test.ts",
+            "tests/block4-ia-navigation-reporting.test.ts",
+            "tests/commerce-pricing.test.ts",
+            "tests/core-checkout-quote.test.ts",
+            "tests/customer-baseline-proof-contract.test.ts",
+            "tests/customer-baseline-target-postflight.test.ts",
+            "tests/digital-commerce-customer-baseline-parity.test.ts",
+            "tests/incident-intelligence-schema.test.ts",
+            "tests/navigation-workflows.test.ts",
+            "tests/operational-tenant-isolation.test.ts",
+            "tests/order-lifecycle-contracts.test.ts",
+            "tests/pilot-acceptance-access.test.ts",
+            "tests/platform-owner-zero-tenant-hotfix.test.ts",
+            "tests/rollout-readiness.test.ts",
+            "tests/shoperation-development-guard.test.ts",
+            "tests/shoperation-failure-intake-reconcile.test.ts",
+            "tests/shoperation-historical-support-backfill.test.ts",
+            "tests/shoperation-quality-knowledge.test.ts",
+            "tests/sql-migration-syntax-guard.test.ts",
+            "tests/storefront-account-capability-navigation.test.tsx",
+            "tests/storefront-auth-surface.test.ts",
+            "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+            "tests/storefront-preview-demo-content-routing.test.ts",
+            "tests/storefront-responsive-isolation.test.ts",
+            "tests/storefront-runtime-persistence.test.ts",
+            "tests/storefront-template-persistence.test.ts",
+            "tests/storefront-template-preview-access.test.ts",
+            "tests/storefront-template-preview-runtime.test.ts",
+            "tests/storefront-template-quality-gate-v2.test.ts",
+            "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+            "tests/template-factory-engine-functional-proof.test.ts",
+            "tests/template-factory-loot-vault-v2.test.ts",
+            "tests/template-factory-procedural-memory.test.ts",
+            "tests/template-factory-scaffold-v1.test.ts",
+            "tests/template-factory-storefront-contract.test.ts",
+            "tests/template-golden-baseline-promotion-policy.test.ts",
+            "tests/visual-builder-mobile-isolation.test.ts"
           ],
           "externalGateIds": []
         },
         "forbiddenPaths": [
+          ".github/workflows/**",
+          "deploy/**",
           "src/app/**",
           "src/components/**",
-          "supabase/**",
-          ".github/workflows/**",
-          "deploy/**"
+          "supabase/**"
         ],
         "readOnlyPaths": [],
         "generatedArtifactSemantics": [],
@@ -2842,32 +2892,35 @@
           "requireExactMainLease": true,
           "requirePredecessorReceipts": true,
           "requiresReconciliationAfterPredecessor": true,
-          "failOnUnrelatedMainDrift": true
+          "failOnUnrelatedMainDrift": true,
+          "reconciledAtBaseSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100"
         },
         "sourceIdentity": {
-          "sourceCommit": null,
-          "sealed": false
+          "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+          "sealed": true
         },
-        "manifestDigest": "052a29a1",
+        "manifestDigest": "de435bed",
         "decision": "PASS",
         "childDevelopmentTransaction": {
           "contract": "shoporation.release-unit-child-transaction.v1",
           "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03-TX",
-          "planDigest": "b3eb493dd25655b16a15984b1b35d7aeae5b9fd43df24fbaef1e5990953796e5",
-          "operationDigest": "e1c05ec09138ff554e2866ab547ad6f0e2d8d3724a1724d0c6322ffef7915234",
-          "bindingDigest": "085c4b99c0e2a97c1df4a4c09f58c89003da98c8c8f7d7c32635d4aacacf9e0b",
+          "planDigest": "d8a02a8a77627b16969b249f869e3cb69796af564e3b88aa45540a98ee2310d0",
+          "operationDigest": "83aab84c9d0d4bf82c3f5846dc75fd54a997b8cb61971dbade9be63386ad06e9",
+          "bindingDigest": "560b23a6bbef4374b700de8a17cdaed13b33744ba9de3df9e924bdfcf5f00923",
           "plan": {
             "contract": "shoporation.development-plan.v1",
             "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03-TX",
             "task": "Execute canonical release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03 of DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1 without widening the manifest-authorized scope.",
             "status": "ready-for-implementation",
-            "guardDigest": "aa79c504",
-            "changeBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+            "guardDigest": "a41cfd0c",
+            "changeBaseSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
             "plannedFilePatterns": [
               "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
               "tests/control-plane-release-unit-production-surface.test.ts"
             ],
-            "expectedSubsystems": [],
+            "expectedSubsystems": [
+              "release-infrastructure"
+            ],
             "expectedDomains": [
               "DOMAIN-QUALITY"
             ],
@@ -2927,7 +2980,19 @@
             ],
             "acknowledgedPoInstructionIds": [],
             "acknowledgedNegativeKnowledgeIds": [
-              "SQ-NK-012"
+              "SQ-NK-002",
+              "SQ-NK-003",
+              "SQ-NK-005",
+              "SQ-NK-010",
+              "SQ-NK-012",
+              "SQ-NK-016",
+              "SQ-NK-017",
+              "SQ-NK-018",
+              "SQ-NK-019",
+              "SQ-NK-020",
+              "SQ-NK-021",
+              "SQ-NK-022",
+              "SQ-NK-023"
             ],
             "exceptions": [],
             "operationalIntelligence": {
@@ -3185,6 +3250,7 @@
                   "quality-knowledge-system"
                 ],
                 "mustEdit": [
+                  "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
                   "tests/control-plane-release-unit-production-surface.test.ts"
                 ],
                 "mayEdit": [],
@@ -3200,7 +3266,43 @@
                   "supabase/**"
                 ],
                 "proof": [
-                  "tests/control-plane-release-unit-production-surface.test.ts"
+                  "tests/admin-mobile-desktop-compat.test.ts",
+                  "tests/block4-ia-navigation-reporting.test.ts",
+                  "tests/commerce-pricing.test.ts",
+                  "tests/core-checkout-quote.test.ts",
+                  "tests/customer-baseline-proof-contract.test.ts",
+                  "tests/customer-baseline-target-postflight.test.ts",
+                  "tests/digital-commerce-customer-baseline-parity.test.ts",
+                  "tests/incident-intelligence-schema.test.ts",
+                  "tests/navigation-workflows.test.ts",
+                  "tests/operational-tenant-isolation.test.ts",
+                  "tests/order-lifecycle-contracts.test.ts",
+                  "tests/pilot-acceptance-access.test.ts",
+                  "tests/platform-owner-zero-tenant-hotfix.test.ts",
+                  "tests/rollout-readiness.test.ts",
+                  "tests/shoperation-development-guard.test.ts",
+                  "tests/shoperation-failure-intake-reconcile.test.ts",
+                  "tests/shoperation-historical-support-backfill.test.ts",
+                  "tests/shoperation-quality-knowledge.test.ts",
+                  "tests/sql-migration-syntax-guard.test.ts",
+                  "tests/storefront-account-capability-navigation.test.tsx",
+                  "tests/storefront-auth-surface.test.ts",
+                  "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+                  "tests/storefront-preview-demo-content-routing.test.ts",
+                  "tests/storefront-responsive-isolation.test.ts",
+                  "tests/storefront-runtime-persistence.test.ts",
+                  "tests/storefront-template-persistence.test.ts",
+                  "tests/storefront-template-preview-access.test.ts",
+                  "tests/storefront-template-preview-runtime.test.ts",
+                  "tests/storefront-template-quality-gate-v2.test.ts",
+                  "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+                  "tests/template-factory-engine-functional-proof.test.ts",
+                  "tests/template-factory-loot-vault-v2.test.ts",
+                  "tests/template-factory-procedural-memory.test.ts",
+                  "tests/template-factory-scaffold-v1.test.ts",
+                  "tests/template-factory-storefront-contract.test.ts",
+                  "tests/template-golden-baseline-promotion-policy.test.ts",
+                  "tests/visual-builder-mobile-isolation.test.ts"
                 ],
                 "unknown": [],
                 "plannedDeletions": [],
@@ -3305,7 +3407,7 @@
               "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
               "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
               "order": 3,
-              "targetBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+              "targetBaseSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
               "planAuthority": "release-unit-manifest#childDevelopmentTransaction"
             }
           }
@@ -3316,8 +3418,8 @@
         "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
         "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
         "branchRef": "release-unit/dev-control-plane-multi-unit-rehearsal-v1-u03",
-        "changeBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
-        "manifestDigest": "052a29a1",
+        "changeBaseSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
+        "manifestDigest": "de435bed",
         "plannedFilePatterns": [
           "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
           "tests/control-plane-release-unit-production-surface.test.ts"
@@ -3326,15 +3428,29 @@
           {
             "operation": "create",
             "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
-            "generated": null
+            "generated": null,
+            "source": {
+              "mode": "sealed",
+              "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+              "blobSha": "94bfc8c0e36b042642b5c570ab4870d39ce281ff",
+              "fileMode": "100644"
+            }
           },
           {
             "operation": "modify",
             "file": "tests/control-plane-release-unit-production-surface.test.ts",
-            "generated": null
+            "generated": null,
+            "source": {
+              "mode": "sealed",
+              "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+              "blobSha": "7d731a1b3f3a7b1e8fe31d1df77929103f47c354",
+              "fileMode": "100644"
+            }
           }
         ],
-        "authorities": [],
+        "authorities": [
+          "quality-knowledge-system"
+        ],
         "subsystems": [
           "quality-infrastructure"
         ],
@@ -3358,7 +3474,43 @@
             "GUARD-TYPECHECK"
           ],
           "proofFiles": [
-            "tests/control-plane-release-unit-production-surface.test.ts"
+            "tests/admin-mobile-desktop-compat.test.ts",
+            "tests/block4-ia-navigation-reporting.test.ts",
+            "tests/commerce-pricing.test.ts",
+            "tests/core-checkout-quote.test.ts",
+            "tests/customer-baseline-proof-contract.test.ts",
+            "tests/customer-baseline-target-postflight.test.ts",
+            "tests/digital-commerce-customer-baseline-parity.test.ts",
+            "tests/incident-intelligence-schema.test.ts",
+            "tests/navigation-workflows.test.ts",
+            "tests/operational-tenant-isolation.test.ts",
+            "tests/order-lifecycle-contracts.test.ts",
+            "tests/pilot-acceptance-access.test.ts",
+            "tests/platform-owner-zero-tenant-hotfix.test.ts",
+            "tests/rollout-readiness.test.ts",
+            "tests/shoperation-development-guard.test.ts",
+            "tests/shoperation-failure-intake-reconcile.test.ts",
+            "tests/shoperation-historical-support-backfill.test.ts",
+            "tests/shoperation-quality-knowledge.test.ts",
+            "tests/sql-migration-syntax-guard.test.ts",
+            "tests/storefront-account-capability-navigation.test.tsx",
+            "tests/storefront-auth-surface.test.ts",
+            "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+            "tests/storefront-preview-demo-content-routing.test.ts",
+            "tests/storefront-responsive-isolation.test.ts",
+            "tests/storefront-runtime-persistence.test.ts",
+            "tests/storefront-template-persistence.test.ts",
+            "tests/storefront-template-preview-access.test.ts",
+            "tests/storefront-template-preview-runtime.test.ts",
+            "tests/storefront-template-quality-gate-v2.test.ts",
+            "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+            "tests/template-factory-engine-functional-proof.test.ts",
+            "tests/template-factory-loot-vault-v2.test.ts",
+            "tests/template-factory-procedural-memory.test.ts",
+            "tests/template-factory-scaffold-v1.test.ts",
+            "tests/template-factory-storefront-contract.test.ts",
+            "tests/template-golden-baseline-promotion-policy.test.ts",
+            "tests/visual-builder-mobile-isolation.test.ts"
           ],
           "externalGateIds": []
         },
@@ -3371,23 +3523,75 @@
         ],
         "readOnlyPaths": [],
         "sourceIdentity": {
-          "sourceCommit": null,
-          "sealed": false
+          "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+          "sealed": true
         },
         "childTaskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03-TX",
-        "childPlanDigest": "b3eb493dd25655b16a15984b1b35d7aeae5b9fd43df24fbaef1e5990953796e5",
-        "bindingDigest": "085c4b99c0e2a97c1df4a4c09f58c89003da98c8c8f7d7c32635d4aacacf9e0b"
+        "childPlanDigest": "d8a02a8a77627b16969b249f869e3cb69796af564e3b88aa45540a98ee2310d0",
+        "bindingDigest": "560b23a6bbef4374b700de8a17cdaed13b33744ba9de3df9e924bdfcf5f00923"
       },
-      "authorization": null,
-      "materialization": null,
-      "pullRequest": null,
+      "authorization": {
+        "manifestDigest": "1270f5c7",
+        "targetBaseSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
+        "currentMainSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
+        "predecessorUnitIds": [
+          "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02"
+        ]
+      },
+      "materialization": {
+        "contract": "shoporation.release-unit-materialization.v1",
+        "status": "PREPARED",
+        "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
+        "targetBaseSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
+        "commitSha": "5583377b37f2abd588e2dd313d5573f4f3072b29",
+        "materializedHeadSha": "5583377b37f2abd588e2dd313d5573f4f3072b29",
+        "treeSha": "2cc9be1aed9b7321916e050d92072c1e548584fd",
+        "manifestDigest": "de435bed",
+        "bindingDigest": "560b23a6bbef4374b700de8a17cdaed13b33744ba9de3df9e924bdfcf5f00923",
+        "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+        "applied": [
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+            "generated": null,
+            "source": {
+              "mode": "sealed",
+              "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+              "blobSha": "94bfc8c0e36b042642b5c570ab4870d39ce281ff",
+              "fileMode": "100644"
+            }
+          },
+          {
+            "operation": "modify",
+            "file": "tests/control-plane-release-unit-production-surface.test.ts",
+            "generated": null,
+            "source": {
+              "mode": "sealed",
+              "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+              "blobSha": "7d731a1b3f3a7b1e8fe31d1df77929103f47c354",
+              "fileMode": "100644"
+            }
+          }
+        ],
+        "alreadyApplied": [],
+        "branchRef": "release-unit/dev-control-plane-multi-unit-rehearsal-v1-u03"
+      },
+      "pullRequest": {
+        "number": 1074,
+        "headSha": "5583377b37f2abd588e2dd313d5573f4f3072b29",
+        "baseSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
+        "manifestDigest": "de435bed",
+        "bindingDigest": "560b23a6bbef4374b700de8a17cdaed13b33744ba9de3df9e924bdfcf5f00923",
+        "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+        "url": "https://github.com/infowaterk-max/water-K-/pull/1074"
+      },
       "verification": null,
       "merge": null,
       "closeReceipt": null,
       "blocker": null,
       "lastTransition": {
-        "to": "PLANNED",
-        "code": "RELEASE_UNIT_PLANNED"
+        "to": "PR_OPEN",
+        "code": "RELEASE_UNIT_PR_OPEN"
       }
     }
   ],
