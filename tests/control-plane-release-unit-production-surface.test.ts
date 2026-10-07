@@ -4,9 +4,9 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe,expect,it} from 'vitest';
 import {applyReleaseUnitEvent,createReleaseParentExecution,recordReleaseParentClosure} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
-import {materializationSupersedingBranch,needsFreshReleaseUnitReevaluation,reconcileExactMaterializedCommit,reconcileMaterializationBranch,releaseUnitCommitMessage,runSuccessorReevaluationPlan,runSuccessorReevaluationProjection} from '../scripts/release-unit-github-runtime.mjs';
+import {materializationSupersedingBranch,needsFreshReleaseUnitReevaluation,proveTrustedMainAdvance,reconcileExactMaterializedCommit,reconcileMaterializationBranch,releaseUnitCommitMessage,runSuccessorReevaluationPlan,runSuccessorReevaluationProjection} from '../scripts/release-unit-github-runtime.mjs';
 
-const A='a'.repeat(40);
+const A='a'.repeat(40),B='b'.repeat(40);
 const manifest={
   contract:'shoporation.release-unit-manifest.v1',decision:'PASS',releaseUnitId:'DEV-NOCODE-U01',order:1,
   transaction:{id:'DEV-NOCODE',parentTransactionId:'DEV-NOCODE',sourceRef:'PO-NOCODE'},targetBaseSha:A,
@@ -580,6 +580,44 @@ describe('Control Plane production release surface',()=>{
     expect(calls).toHaveLength(2);
   });
 
+  it('proves trusted fast-forward main advance only after ancestry and successor-scope isolation',()=>{
+    const calls=[];
+    const safeManifest={...structuredClone(manifest),intendedFiles:['scripts/already.mjs'],requiredDependencyFiles:['scripts/dep.mjs']};
+    const run=(command,args,options={})=>{
+      calls.push({command,args,options});
+      if(args[0]==='merge-base')return '';
+      if(args[0]==='diff')return 'scripts/control-plane-only.mjs\nquality/development/active-plan.json\n';
+      throw new Error('unexpected git command');
+    };
+    const result=proveTrustedMainAdvance({fromSha:A,toSha:B,manifest:safeManifest,run,cwd:'/repo'});
+    expect(result.decision).toBe('PASS');
+    expect(result.proof.contract).toBe('shoporation.release-unit-main-advance-proof.v1');
+    expect(result.proof.fromSha).toBe(A);
+    expect(result.proof.toSha).toBe(B);
+    expect(result.proof.scopeFiles).toEqual(['scripts/already.mjs','scripts/dep.mjs']);
+    expect(result.proof.overlapFiles).toEqual([]);
+    expect(calls[0].args).toEqual(['merge-base','--is-ancestor',A,B]);
+    expect(calls[1].args).toEqual(['diff','--name-only','--diff-filter=ACMRD',A,B]);
+  });
+
+  it('blocks trusted main advance on scope overlap or non-fast-forward history',()=>{
+    const safeManifest={...structuredClone(manifest),intendedFiles:['scripts/already.mjs'],requiredDependencyFiles:[]};
+    const overlap=proveTrustedMainAdvance({
+      fromSha:A,toSha:B,manifest:safeManifest,cwd:'/repo',
+      run:(command,args)=>args[0]==='merge-base'?'':'scripts/already.mjs\n',
+    });
+    expect(overlap.decision).toBe('BLOCK');
+    expect(overlap.code).toBe('RELEASE_UNIT_MAIN_DRIFT');
+    expect(overlap.error).toContain('RELEASE_UNIT_MAIN_ADVANCE_SCOPE_OVERLAP');
+    const diverged=proveTrustedMainAdvance({
+      fromSha:A,toSha:B,manifest:safeManifest,cwd:'/repo',
+      run:(command,args)=>{if(args[0]==='merge-base')throw new Error('not ancestor');return '';},
+    });
+    expect(diverged.decision).toBe('BLOCK');
+    expect(diverged.code).toBe('RELEASE_UNIT_MAIN_DRIFT');
+    expect(diverged.error).toContain('RELEASE_UNIT_MAIN_ADVANCE_NON_FAST_FORWARD');
+  });
+
   it('uses transaction-relative operation projection and establishes trusted freshness only after canonical reevaluation',()=>{
     const plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
     expect(plan).toContain('materialTransactionChanges');
@@ -590,12 +628,16 @@ describe('Control Plane production release surface',()=>{
     const body=runtime.slice(start,end);
     const reevaluate=body.indexOf('reevaluateSuccessorManifest');
     const trust=body.indexOf('trustedFreshProjection=true');
+    const mainAdvance=body.indexOf('trustedMainAdvance=reevaluated.trustedMainAdvance??null');
     const authorize=body.indexOf("type:'AUTHORIZE'");
     expect(body).toContain('let trustedFreshProjection=false');
+    expect(body).toContain('let trustedMainAdvance=null');
     expect(reevaluate).toBeGreaterThanOrEqual(0);
     expect(trust).toBeGreaterThan(reevaluate);
-    expect(authorize).toBeGreaterThan(trust);
+    expect(mainAdvance).toBeGreaterThan(trust);
+    expect(authorize).toBeGreaterThan(mainAdvance);
     expect(body).toContain('trustedFreshProjection');
+    expect(body).toContain('trustedMainAdvance');
   });
 
   it('forces fresh semantic reevaluation for STALE even when order and base would otherwise look current',()=>{

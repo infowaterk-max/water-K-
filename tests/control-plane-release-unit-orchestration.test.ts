@@ -1,6 +1,6 @@
 // @ts-nocheck
 import {describe,expect,it} from 'vitest';
-import {applyReleaseUnitEvent,classifyReleaseUnitObligationDrift,createReleaseParentExecution,createReleaseUnitExecution,reconcileSuccessorReleaseUnit,recordReleaseParentClosure,refreshReleaseUnitIdentity,reprojectReleaseUnitChildTransaction,strongDigest} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
+import {applyReleaseUnitEvent,classifyReleaseUnitObligationDrift,createReleaseParentExecution,createReleaseUnitExecution,reconcileReleaseUnitManifest,reconcileSuccessorReleaseUnit,recordReleaseParentClosure,refreshReleaseUnitIdentity,reprojectReleaseUnitChildTransaction,strongDigest} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 
 const sha=char=>char.repeat(40);
 const A=sha('a'),B=sha('b'),C=sha('c'),D=sha('d'),X=sha('e');
@@ -115,6 +115,47 @@ describe('Control Plane release-unit orchestration',()=>{
     p=applyReleaseUnitEvent(p,{type:'AUTHORIZE',releaseUnitId:u2.releaseUnitId,freshManifest:fresh(u2,X,'x'),currentMainSha:X});
     expect(byId(p,u2.releaseUnitId).state).toBe('STALE');expect(byId(p,u2.releaseUnitId).blocker.code).toBe('RELEASE_UNIT_MAIN_DRIFT');
   });
+  it('accepts exact trusted fast-forward main advance while preserving the no-proof MAIN_DRIFT guard',()=>{
+    let p=parent();const [u1,u2]=p.units.map((x:any)=>x.manifest);p=complete(p,u1.releaseUnitId,u1,A,sha('1'),B,1);
+    const freshManifest=fresh(u2,C,'c');
+    const scopeFiles=[...new Set([...(freshManifest.intendedFiles??[]),...(freshManifest.requiredDependencyFiles??[])])].sort();
+    const proof={contract:'shoporation.release-unit-main-advance-proof.v1',issuer:'release-unit-github-runtime',decision:'PASS',relationship:'FAST_FORWARD',fromSha:B,toSha:C,changedFiles:['scripts/control-plane-only.mjs'],scopeFiles,overlapFiles:[]};
+    const accepted=applyReleaseUnitEvent(p,{type:'AUTHORIZE',releaseUnitId:u2.releaseUnitId,freshManifest,currentMainSha:C,trustedFreshProjection:true,trustedMainAdvance:proof});
+    expect(byId(accepted,u2.releaseUnitId).state).toBe('READY');
+    const noProof=applyReleaseUnitEvent(p,{type:'AUTHORIZE',releaseUnitId:u2.releaseUnitId,freshManifest,currentMainSha:C,trustedFreshProjection:true});
+    expect(byId(noProof,u2.releaseUnitId).state).toBe('STALE');
+    expect(byId(noProof,u2.releaseUnitId).blocker.code).toBe('RELEASE_UNIT_MAIN_DRIFT');
+  });
+
+  it('rejects forged or scope-overlapping trusted main advance proofs',()=>{
+    let p=parent();const [u1,u2]=p.units.map((x:any)=>x.manifest);p=complete(p,u1.releaseUnitId,u1,A,sha('1'),B,1);
+    const freshManifest=fresh(u2,C,'c');
+    const scopeFiles=[...new Set([...(freshManifest.intendedFiles??[]),...(freshManifest.requiredDependencyFiles??[])])].sort();
+    const baseProof={contract:'shoporation.release-unit-main-advance-proof.v1',issuer:'release-unit-github-runtime',decision:'PASS',relationship:'FAST_FORWARD',fromSha:B,toSha:C,changedFiles:['scripts/control-plane-only.mjs'],scopeFiles,overlapFiles:[]};
+    for(const proof of [
+      {...baseProof,fromSha:A},
+      {...baseProof,toSha:D},
+      {...baseProof,relationship:'DIVERGED'},
+      {...baseProof,changedFiles:[freshManifest.intendedFiles[0]],overlapFiles:[freshManifest.intendedFiles[0]]},
+    ]){
+      const next=applyReleaseUnitEvent(structuredClone(p),{type:'AUTHORIZE',releaseUnitId:u2.releaseUnitId,freshManifest,currentMainSha:C,trustedFreshProjection:true,trustedMainAdvance:proof});
+      expect(byId(next,u2.releaseUnitId).state).toBe('STALE');
+      expect(byId(next,u2.releaseUnitId).blocker.code).toBe('RELEASE_UNIT_MAIN_DRIFT');
+    }
+  });
+
+  it('allows manifest base reconciliation only with a proof bound to the immutable predecessor receipt',()=>{
+    const [,u2]=manifests();
+    const scopeFiles=[...new Set([...(u2.intendedFiles??[]),...(u2.requiredDependencyFiles??[])])].sort();
+    const proof={contract:'shoporation.release-unit-main-advance-proof.v1',issuer:'release-unit-github-runtime',decision:'PASS',relationship:'FAST_FORWARD',fromSha:B,toSha:C,changedFiles:['scripts/control-plane-only.mjs'],scopeFiles,overlapFiles:[]};
+    const receipts=[{releaseUnitId:'DEV-ORCH-U01',status:'MERGED',mergedMainSha:B}];
+    expect(()=>reconcileReleaseUnitManifest(u2,{newBaseSha:C,predecessorReceipts:receipts})).toThrow(/RELEASE_UNIT_MAIN_DRIFT/);
+    const reconciled=reconcileReleaseUnitManifest(u2,{newBaseSha:C,predecessorReceipts:receipts,trustedMainAdvance:proof});
+    expect(reconciled.targetBaseSha).toBe(C);
+    expect(reconciled.lease.reconciled).toBe(true);
+    expect(()=>reconcileReleaseUnitManifest(u2,{newBaseSha:C,predecessorReceipts:receipts,trustedMainAdvance:{...proof,fromSha:A}})).toThrow(/RELEASE_UNIT_MAIN_DRIFT/);
+  });
+
   it('3. marks a successor stale when fresh Atlas-derived dependency obligations change',()=>{
     let p=parent();const [u1,u2]=p.units.map((x:any)=>x.manifest);p=complete(p,u1.releaseUnitId,u1,A,sha('1'),B,1);
     const f2={...fresh(u2,B,'b'),requiredDependencyFiles:['scripts/new-dependency.mjs']};p=applyReleaseUnitEvent(p,{type:'AUTHORIZE',releaseUnitId:u2.releaseUnitId,freshManifest:f2,currentMainSha:B});

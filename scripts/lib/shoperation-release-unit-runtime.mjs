@@ -10,6 +10,7 @@ export const RELEASE_DECOMPOSITION_CONTRACT='shoporation.release-decomposition.v
 export const RELEASE_UNIT_MANIFEST_CONTRACT='shoporation.release-unit-manifest.v1';
 export const DEFAULT_MAX_FILES_PER_UNIT=12;
 export const RELEASE_UNIT_CHILD_TRANSACTION_CONTRACT='shoporation.release-unit-child-transaction.v1';
+export const RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT='shoporation.release-unit-main-advance-proof.v1';
 
 const uniq=values=>[...new Set((values??[]).filter(Boolean))].sort();
 const operationPaths=operation=>uniq([operation.file,operation.previousFile]);
@@ -453,7 +454,7 @@ export function decomposeReleaseScope({
   };
 }
 
-export function reconcileReleaseUnitManifest(manifest,{newBaseSha,predecessorReceipts=[]}={}){
+export function reconcileReleaseUnitManifest(manifest,{newBaseSha,predecessorReceipts=[],trustedMainAdvance=null}={}){
   if(manifest?.contract!==RELEASE_UNIT_MANIFEST_CONTRACT)throw new Error('RELEASE_UNIT_MANIFEST_CONTRACT_INVALID');
   const required=uniq(manifest.predecessorUnits??[]);
   const byId=new Map((predecessorReceipts??[]).map(item=>[item.releaseUnitId,item]));
@@ -466,7 +467,9 @@ export function reconcileReleaseUnitManifest(manifest,{newBaseSha,predecessorRec
       ?`${String(manifest.releaseUnitId).replace(/U\d+$/,'')}U${String(manifest.order-1).padStart(2,'0')}`
       :required.at(-1);
     const expected=byId.get(sequencePredecessor)?.mergedMainSha;
-    if(expected&&expected!==newBaseSha)throw new Error(`RELEASE_UNIT_MAIN_DRIFT:${expected}:${newBaseSha}`);
+    if(expected&&expected!==newBaseSha&&!validateReleaseUnitMainAdvanceProof(trustedMainAdvance,{fromSha:expected,toSha:newBaseSha,manifest})){
+      throw new Error(`RELEASE_UNIT_MAIN_DRIFT:${expected}:${newBaseSha}`);
+    }
   }
   const next=structuredClone(manifest);
   next.targetBaseSha=newBaseSha;
@@ -577,6 +580,24 @@ export const RELEASE_UNIT_EXECUTION_STATES=Object.freeze(['PLANNED','BLOCKED','R
 
 const executionClone=value=>structuredClone(value);
 const sameJson=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const mainAdvanceScopeFiles=manifest=>uniq([...(manifest?.intendedFiles??[]),...(manifest?.requiredDependencyFiles??[])]);
+export function validateReleaseUnitMainAdvanceProof(proof,{fromSha,toSha,manifest}={}){
+  const scopeFiles=mainAdvanceScopeFiles(manifest);
+  const changedFiles=uniq(proof?.changedFiles??[]);
+  const expectedOverlap=changedFiles.filter(file=>scopeFiles.includes(file));
+  return proof?.contract===RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT
+    &&proof?.issuer==='release-unit-github-runtime'
+    &&proof?.decision==='PASS'
+    &&proof?.relationship==='FAST_FORWARD'
+    &&String(proof?.fromSha??'')===String(fromSha??'')
+    &&String(proof?.toSha??'')===String(toSha??'')
+    &&Array.isArray(proof?.changedFiles)
+    &&Array.isArray(proof?.scopeFiles)
+    &&Array.isArray(proof?.overlapFiles)
+    &&sameJson(uniq(proof.scopeFiles),scopeFiles)
+    &&sameJson(uniq(proof.overlapFiles),expectedOverlap)
+    &&expectedOverlap.length===0;
+}
 const requiredText=(value,code)=>{const normalized=String(value??'').trim();if(!normalized)throw new Error(code);return normalized;};
 const executionError=(code,details={})=>{const error=new Error(code);error.code=code;error.details=details;throw error;};
 const sortedObjects=(items=[])=>[...items].map(item=>executionClone(item)).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)));
@@ -752,7 +773,7 @@ export function synchronizeReleaseParentExecution(parent,nextUnit){
   return next;
 }
 
-function predecessorResult(execution,{currentMainSha,predecessorExecutions=[]}={}){
+function predecessorResult(execution,{currentMainSha,predecessorExecutions=[],trustedMainAdvance=null,scopeManifest=null}={}){
   const required=uniq(execution.manifest?.predecessorUnits??[]);
   if(!required.length)return{decision:'PASS',sequence:null};
   const byId=new Map((predecessorExecutions??[]).map(item=>[item.releaseUnitId,item]));
@@ -765,11 +786,13 @@ function predecessorResult(execution,{currentMainSha,predecessorExecutions=[]}={
   }
   const sequence=[...byId.values()].find(item=>required.includes(item.releaseUnitId)&&Number(item.order)===Number(execution.order)-1)??null;
   if(!sequence)return{decision:'BLOCK',code:'RELEASE_UNIT_SEQUENCE_PREDECESSOR_MISSING',details:{order:execution.order}};
-  if(sequence.merge.mergedMainSha!==currentMainSha)return{decision:'STALE',code:'RELEASE_UNIT_MAIN_DRIFT',details:{expected:sequence.merge.mergedMainSha,actual:currentMainSha}};
+  if(sequence.merge.mergedMainSha!==currentMainSha&&!validateReleaseUnitMainAdvanceProof(trustedMainAdvance,{fromSha:sequence.merge.mergedMainSha,toSha:currentMainSha,manifest:scopeManifest??execution.manifest})){
+    return{decision:'STALE',code:'RELEASE_UNIT_MAIN_DRIFT',details:{expected:sequence.merge.mergedMainSha,actual:currentMainSha}};
+  }
   return{decision:'PASS',sequence};
 }
 
-export function reconcileSuccessorReleaseUnit({execution,freshManifest,currentMainSha,predecessorExecutions=[],allFreshManifests=[],trustedFreshProjection=false}={}){
+export function reconcileSuccessorReleaseUnit({execution,freshManifest,currentMainSha,predecessorExecutions=[],allFreshManifests=[],trustedFreshProjection=false,trustedMainAdvance=null}={}){
   if(execution?.contract!==RELEASE_UNIT_EXECUTION_CONTRACT)executionError('RELEASE_UNIT_EXECUTION_CONTRACT_INVALID');
   if(!['PLANNED','STALE'].includes(execution.state))executionError('RELEASE_UNIT_RECONCILIATION_STATE_INVALID',{state:execution.state});
   if(freshManifest?.contract!==RELEASE_UNIT_MANIFEST_CONTRACT)return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_FRESH_MANIFEST_REQUIRED',details:{}};
@@ -778,7 +801,7 @@ export function reconcileSuccessorReleaseUnit({execution,freshManifest,currentMa
   if(freshManifest.decision!=='PASS')return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_FRESH_MANIFEST_NOT_PASS',details:{decision:freshManifest.decision,reason:freshManifest.reason??null}};
   if(freshManifest.projectedRisk?.decision!=='PASS')return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_FRESH_RISK_BLOCK',details:{risk:freshManifest.projectedRisk??null}};
   if(!currentMainSha||freshManifest.targetBaseSha!==currentMainSha||freshManifest.lease?.expectedBaseSha!==currentMainSha)return{decision:'STALE',state:'STALE',code:'RELEASE_UNIT_FRESH_BASE_STALE',details:{currentMainSha,targetBaseSha:freshManifest.targetBaseSha,lease:freshManifest.lease??null}};
-  const predecessor=predecessorResult(execution,{currentMainSha,predecessorExecutions});
+  const predecessor=predecessorResult(execution,{currentMainSha,predecessorExecutions,trustedMainAdvance,scopeManifest:freshManifest});
   if(predecessor.decision!=='PASS')return{decision:predecessor.decision,state:predecessor.decision==='STALE'?'STALE':'BLOCKED',code:predecessor.code,details:predecessor.details};
   if((execution.manifest?.predecessorUnits??[]).length&&freshManifest.lease?.reconciled!==true)return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_FRESH_RECONCILIATION_REQUIRED',details:{lease:freshManifest.lease??null}};
   const blocked=forbiddenHits(freshManifest.operations??[],freshManifest.forbiddenPaths??[],freshManifest.readOnlyPaths??[]);
