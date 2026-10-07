@@ -387,11 +387,13 @@ describe('Control Plane production release surface',()=>{
     const projection=body.indexOf('runSuccessorReevaluationProjection');
     const reprojection=body.indexOf('reprojectReleaseUnitChildTransaction(reconciled');
     const strict=body.indexOf('runSuccessorReevaluationPlan({worktree,planPath,currentMainSha,candidateHead,run,install:false})');
-    const pass=body.indexOf("return{decision:'PASS',manifest:refreshed");
+    const reseal=body.indexOf('sealReleaseUnitManifest(refreshed,{sourceCommit,cwd})');
+    const pass=body.indexOf("return{decision:'PASS',manifest:finalSealed");
     expect(projection).toBeGreaterThanOrEqual(0);
     expect(reprojection).toBeGreaterThan(projection);
     expect(strict).toBeGreaterThan(reprojection);
-    expect(pass).toBeGreaterThan(strict);
+    expect(reseal).toBeGreaterThan(strict);
+    expect(pass).toBeGreaterThan(reseal);
     expect(body).toContain("projectionResult.decision!=='PROJECTED'");
     expect(body).toContain("report.decision!=='PASS'");
   });

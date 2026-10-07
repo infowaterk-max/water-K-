@@ -462,7 +462,8 @@ export function reevaluateSuccessorManifest({state,execution,currentMainSha,sour
     }catch(error){
       return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_CHILD_PLAN_REPROJECTION_BLOCK',error:String(error?.message??error)};
     }
-    return{decision:'PASS',manifest:refreshed,report,candidateHead};
+    const finalSealed=sealReleaseUnitManifest(refreshed,{sourceCommit,cwd});
+    return{decision:'PASS',manifest:finalSealed,report,candidateHead};
   }finally{
     try{run('git',['worktree','remove','--force',worktree],{cwd});}catch{}
     try{rmSync(worktree,{recursive:true,force:true});}catch{}
