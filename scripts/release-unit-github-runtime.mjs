@@ -415,6 +415,32 @@ export function runSuccessorReevaluationPlan({worktree,planPath,currentMainSha,c
   }
 }
 
+const classifyTrustedMainAdvanceOverlap=(manifest,changedFiles)=>{
+  const intendedFiles=uniq(manifest?.intendedFiles??[]);
+  const requiredDependencyFiles=uniq(manifest?.requiredDependencyFiles??[]);
+  const scopeFiles=uniq([...intendedFiles,...requiredDependencyFiles]);
+  const overlapFiles=uniq(changedFiles).filter(file=>scopeFiles.includes(file));
+  const intended=new Set(intendedFiles),dependencies=new Set(requiredDependencyFiles);
+  const operations=manifest?.operations??[];
+  const dependencyOverlapFiles=[],modifyOverlapFiles=[],unsafeOverlapFiles=[];
+  for(const file of overlapFiles){
+    if(intended.has(file)){
+      const declared=operations.filter(operation=>text(operation?.file)===file);
+      if(declared.length===1&&declared[0]?.operation==='modify')modifyOverlapFiles.push(file);
+      else unsafeOverlapFiles.push(file);
+      continue;
+    }
+    if(dependencies.has(file))dependencyOverlapFiles.push(file);
+    else unsafeOverlapFiles.push(file);
+  }
+  return{
+    scopeFiles,
+    overlapFiles:uniq(overlapFiles),
+    dependencyOverlapFiles:uniq(dependencyOverlapFiles),
+    modifyOverlapFiles:uniq(modifyOverlapFiles),
+    unsafeOverlapFiles:uniq(unsafeOverlapFiles),
+  };
+};
 export function proveTrustedMainAdvance({fromSha,toSha,manifest,run=defaultRun,cwd=process.cwd()}={}){
   const from=text(fromSha),to=text(toSha);
   if(!from||!to)return{decision:'BLOCK',code:'RELEASE_UNIT_MAIN_DRIFT',error:'RELEASE_UNIT_MAIN_ADVANCE_SHA_REQUIRED'};
@@ -428,9 +454,13 @@ export function proveTrustedMainAdvance({fromSha,toSha,manifest,run=defaultRun,c
   }catch(error){
     return{decision:'BLOCK',code:'RELEASE_UNIT_MAIN_DRIFT',error:`RELEASE_UNIT_MAIN_ADVANCE_DIFF_FAILED:${String(error?.message??error)}`};
   }
-  const scopeFiles=uniq([...(manifest?.intendedFiles??[]),...(manifest?.requiredDependencyFiles??[])]);
-  const scope=new Set(scopeFiles),overlapFiles=changedFiles.filter(file=>scope.has(file));
-  if(overlapFiles.length)return{decision:'BLOCK',code:'RELEASE_UNIT_MAIN_DRIFT',error:`RELEASE_UNIT_MAIN_ADVANCE_SCOPE_OVERLAP:${overlapFiles.join(',')}`,details:{fromSha:from,toSha:to,changedFiles,scopeFiles,overlapFiles}};
+  const categories=classifyTrustedMainAdvanceOverlap(manifest,changedFiles);
+  if(categories.unsafeOverlapFiles.length)return{
+    decision:'BLOCK',
+    code:'RELEASE_UNIT_MAIN_DRIFT',
+    error:`RELEASE_UNIT_MAIN_ADVANCE_SCOPE_OVERLAP:${categories.unsafeOverlapFiles.join(',')}`,
+    details:{fromSha:from,toSha:to,changedFiles,...categories},
+  };
   return{
     decision:'PASS',
     proof:{
@@ -441,8 +471,7 @@ export function proveTrustedMainAdvance({fromSha,toSha,manifest,run=defaultRun,c
       fromSha:from,
       toSha:to,
       changedFiles,
-      scopeFiles,
-      overlapFiles:[],
+      ...categories,
     },
   };
 }

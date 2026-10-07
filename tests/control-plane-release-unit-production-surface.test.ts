@@ -4,7 +4,7 @@ import {mkdirSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe,expect,it} from 'vitest';
-import {applyReleaseUnitEvent,createReleaseParentExecution,materializeReleaseUnit,recordReleaseParentClosure,sealReleaseUnitManifest} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
+import {applyReleaseUnitEvent,createReleaseParentExecution,materializeReleaseUnit,recordReleaseParentClosure,sealReleaseUnitManifest,validateReleaseUnitMainAdvanceProof} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 import {materializationSupersedingBranch,needsFreshReleaseUnitReevaluation,proveTrustedMainAdvance,reconcileExactMaterializedCommit,reconcileMaterializationBranch,releaseUnitCommitMessage,runSuccessorReevaluationPlan,runSuccessorReevaluationProjection} from '../scripts/release-unit-github-runtime.mjs';
 
 const A='a'.repeat(40),B='b'.repeat(40);
@@ -684,9 +684,9 @@ describe('Control Plane production release surface',()=>{
     expect(calls).toHaveLength(2);
   });
 
-  it('proves trusted fast-forward main advance only after ancestry and successor-scope isolation',()=>{
+  it('proves trusted fast-forward main advance with explicit empty overlap categories',()=>{
     const calls=[];
-    const safeManifest={...structuredClone(manifest),intendedFiles:['scripts/already.mjs'],requiredDependencyFiles:['scripts/dep.mjs']};
+    const safeManifest={...structuredClone(manifest),intendedFiles:['scripts/already.mjs'],operations:[{operation:'modify',file:'scripts/already.mjs'}],requiredDependencyFiles:['scripts/dep.mjs']};
     const run=(command,args,options={})=>{
       calls.push({command,args,options});
       if(args[0]==='merge-base')return '';
@@ -700,21 +700,71 @@ describe('Control Plane production release surface',()=>{
     expect(result.proof.toSha).toBe(B);
     expect(result.proof.scopeFiles).toEqual(['scripts/already.mjs','scripts/dep.mjs']);
     expect(result.proof.overlapFiles).toEqual([]);
+    expect(result.proof.dependencyOverlapFiles).toEqual([]);
+    expect(result.proof.modifyOverlapFiles).toEqual([]);
+    expect(result.proof.unsafeOverlapFiles).toEqual([]);
+    expect(validateReleaseUnitMainAdvanceProof(result.proof,{fromSha:A,toSha:B,manifest:safeManifest})).toBe(true);
     expect(calls[0].args).toEqual(['merge-base','--is-ancestor',A,B]);
     expect(calls[1].args).toEqual(['diff','--name-only','--diff-filter=ACMRD',A,B]);
   });
 
-  it('blocks trusted main advance on scope overlap or non-fast-forward history',()=>{
-    const safeManifest={...structuredClone(manifest),intendedFiles:['scripts/already.mjs'],requiredDependencyFiles:[]};
-    const overlap=proveTrustedMainAdvance({
+  it('allows dependency-only and explicit modify overlap while binding exact overlap categories',()=>{
+    const safeManifest={...structuredClone(manifest),intendedFiles:['scripts/already.mjs'],operations:[{operation:'modify',file:'scripts/already.mjs'}],requiredDependencyFiles:['scripts/dep.mjs']};
+    const result=proveTrustedMainAdvance({
       fromSha:A,toSha:B,manifest:safeManifest,cwd:'/repo',
+      run:(command,args)=>args[0]==='merge-base'?'':'scripts/dep.mjs\nscripts/already.mjs\n',
+    });
+    expect(result.decision).toBe('PASS');
+    expect(result.proof.overlapFiles).toEqual(['scripts/already.mjs','scripts/dep.mjs']);
+    expect(result.proof.dependencyOverlapFiles).toEqual(['scripts/dep.mjs']);
+    expect(result.proof.modifyOverlapFiles).toEqual(['scripts/already.mjs']);
+    expect(result.proof.unsafeOverlapFiles).toEqual([]);
+    expect(validateReleaseUnitMainAdvanceProof(result.proof,{fromSha:A,toSha:B,manifest:safeManifest})).toBe(true);
+
+    const forged=structuredClone(result.proof);
+    forged.dependencyOverlapFiles=['scripts/already.mjs','scripts/dep.mjs'];
+    forged.modifyOverlapFiles=[];
+    expect(validateReleaseUnitMainAdvanceProof(forged,{fromSha:A,toSha:B,manifest:safeManifest})).toBe(false);
+  });
+
+  it('classifies intended files before dependency allowance and keeps non-modify overlap fail-closed',()=>{
+    const overlappingManifest={
+      ...structuredClone(manifest),
+      intendedFiles:['scripts/already.mjs'],
+      operations:[{operation:'create',file:'scripts/already.mjs'}],
+      requiredDependencyFiles:['scripts/already.mjs'],
+    };
+    const overlap=proveTrustedMainAdvance({
+      fromSha:A,toSha:B,manifest:overlappingManifest,cwd:'/repo',
       run:(command,args)=>args[0]==='merge-base'?'':'scripts/already.mjs\n',
     });
     expect(overlap.decision).toBe('BLOCK');
     expect(overlap.code).toBe('RELEASE_UNIT_MAIN_DRIFT');
     expect(overlap.error).toContain('RELEASE_UNIT_MAIN_ADVANCE_SCOPE_OVERLAP');
+    expect(overlap.details.dependencyOverlapFiles).toEqual([]);
+    expect(overlap.details.modifyOverlapFiles).toEqual([]);
+    expect(overlap.details.unsafeOverlapFiles).toEqual(['scripts/already.mjs']);
+  });
+
+  it('rejects ambiguous modify declarations and non-fast-forward history',()=>{
+    const ambiguousManifest={
+      ...structuredClone(manifest),
+      intendedFiles:['scripts/already.mjs'],
+      operations:[
+        {operation:'modify',file:'scripts/already.mjs'},
+        {operation:'modify',file:'scripts/already.mjs'},
+      ],
+      requiredDependencyFiles:[],
+    };
+    const overlap=proveTrustedMainAdvance({
+      fromSha:A,toSha:B,manifest:ambiguousManifest,cwd:'/repo',
+      run:(command,args)=>args[0]==='merge-base'?'':'scripts/already.mjs\n',
+    });
+    expect(overlap.decision).toBe('BLOCK');
+    expect(overlap.details.unsafeOverlapFiles).toEqual(['scripts/already.mjs']);
+
     const diverged=proveTrustedMainAdvance({
-      fromSha:A,toSha:B,manifest:safeManifest,cwd:'/repo',
+      fromSha:A,toSha:B,manifest:ambiguousManifest,cwd:'/repo',
       run:(command,args)=>{if(args[0]==='merge-base')throw new Error('not ancestor');return '';},
     });
     expect(diverged.decision).toBe('BLOCK');
