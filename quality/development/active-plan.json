@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-U03-EXACT-CONFLICT-RESOLUTION-V1",
   "task": "Resolve the exact U03 rehearsal modify conflict on current main through a separately governed main resolution that preserves immutable U03 intent, adds the exact missing fixture-25 source artifact, and records the deterministic release-unit conflict-resolution receipt bound to the reviewed resolved blob.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "575d39689b6ba5215d0bee61bbc0c9ee9361622a",
   "plannedFilePatterns": [
@@ -486,5 +486,18 @@
       }
     ]
   },
-  "notes": "Live exact conflict identity from Release Unit Execution #225: releaseUnitId DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03; file tests/control-plane-release-unit-production-surface.test.ts; sourceParent b79f8805d9718961a5cb41d4babaf11fd85dda5a; sourceCommit 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; sourcePatchDigest 1569812908caffa0f770724401c4db6973f98ae963353806cade53690cb5446d; targetBaseSha 6c897234b6c890f8ee38f86c08dc86f7b9f68fa2; old targetBlobSha 48548e4838cd2bdfeb0fe66876af771843282978; targetFileMode 100644; deterministic receipt path quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json. Plan Gate #9120 canonicalized expectedSubsystems to release-infrastructure, required finite-state-exhaustion for critical assurance, and rejected the prior manual-child-repair alternative as non-distinct. This revision adopts those exact planner outputs without changing the selected resolution design. Reprojected after PR #1103 merged to main 575d39689b6ba5215d0bee61bbc0c9ee9361622a. Exact conflict identity, receipt path, immutable source intent, resolutionBaseSha and planned material scope are unchanged; only the development transaction base/provenance is refreshed before implementation."
+  "notes": "Live exact conflict identity from Release Unit Execution #225: releaseUnitId DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03; file tests/control-plane-release-unit-production-surface.test.ts; sourceParent b79f8805d9718961a5cb41d4babaf11fd85dda5a; sourceCommit 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; sourcePatchDigest 1569812908caffa0f770724401c4db6973f98ae963353806cade53690cb5446d; targetBaseSha 6c897234b6c890f8ee38f86c08dc86f7b9f68fa2; old targetBlobSha 48548e4838cd2bdfeb0fe66876af771843282978; targetFileMode 100644; deterministic receipt path quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json. Plan Gate #9120 canonicalized expectedSubsystems to release-infrastructure, required finite-state-exhaustion for critical assurance, and rejected the prior manual-child-repair alternative as non-distinct. This revision adopts those exact planner outputs without changing the selected resolution design. Reprojected after PR #1103 merged to main 575d39689b6ba5215d0bee61bbc0c9ee9361622a. Exact conflict identity, receipt path, immutable source intent, resolutionBaseSha and planned material scope are unchanged; only the development transaction base/provenance is refreshed before implementation.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "039501b56c85aaa06c48e65d76fb384ffcff6ad9",
+    "closedAt": "2026-10-07T21:30:53.212Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-U03-EXACT-CONFLICT-RESOLUTION-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
