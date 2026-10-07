@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
   "task": "Repair the current main Plan Before Code quality gate so critical proof-only transactions whose projected files are exclusively neutral/test or knowledge-infrastructure paths may truthfully use empty domain/authority projections while architecture-bearing projected files remain fail-closed.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "85d0ad2a",
   "changeBaseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
   "plannedFilePatterns": [
@@ -434,5 +434,18 @@
       }
     ]
   },
-  "notes": "Current-main port of the bounded invariant previously proven on historical draft PR #798. Live need reproduced by Sentinel plan-isolation CI #9056: projected neutral test scope has canonical projectedDomains=[] and projectedAuthorities=[], but current main unconditionally emits DEV_PLAN_EXPECTED_DOMAINS_REQUIRED and DEV_PLAN_EXPECTED_AUTHORITIES_REQUIRED. This prerequisite fix remains separate from the downstream Sentinel test-isolation implementation."
+  "notes": "Current-main port of the bounded invariant previously proven on historical draft PR #798. Live need reproduced by Sentinel plan-isolation CI #9056: projected neutral test scope has canonical projectedDomains=[] and projectedAuthorities=[], but current main unconditionally emits DEV_PLAN_EXPECTED_DOMAINS_REQUIRED and DEV_PLAN_EXPECTED_AUTHORITIES_REQUIRED. This prerequisite fix remains separate from the downstream Sentinel test-isolation implementation.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "52a509201137b76ebbdd91c7bc3e4ca492b1d214",
+    "closedAt": "2026-10-07T13:42:00.305Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
