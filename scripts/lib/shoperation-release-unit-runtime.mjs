@@ -661,7 +661,7 @@ function predecessorResult(execution,{currentMainSha,predecessorExecutions=[]}={
 
 export function reconcileSuccessorReleaseUnit({execution,freshManifest,currentMainSha,predecessorExecutions=[],allFreshManifests=[]}={}){
   if(execution?.contract!==RELEASE_UNIT_EXECUTION_CONTRACT)executionError('RELEASE_UNIT_EXECUTION_CONTRACT_INVALID');
-  if(execution.state!=='PLANNED')executionError('RELEASE_UNIT_RECONCILIATION_STATE_INVALID',{state:execution.state});
+  if(!['PLANNED','STALE'].includes(execution.state))executionError('RELEASE_UNIT_RECONCILIATION_STATE_INVALID',{state:execution.state});
   if(freshManifest?.contract!==RELEASE_UNIT_MANIFEST_CONTRACT)return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_FRESH_MANIFEST_REQUIRED',details:{}};
   if(freshManifest.releaseUnitId!==execution.releaseUnitId)return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_FRESH_MANIFEST_IDENTITY_MISMATCH',details:{expected:execution.releaseUnitId,actual:freshManifest.releaseUnitId}};
   if((freshManifest.transaction?.parentTransactionId??freshManifest.transaction?.id)!==execution.parentTransactionId)return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_PARENT_IDENTITY_MISMATCH',details:{}};
