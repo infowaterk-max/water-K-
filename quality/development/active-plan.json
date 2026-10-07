@@ -1,10 +1,10 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
-  "task": "Make trusted release-unit execution resumable when an earlier attempt already pushed the exact child materialization branch but failed before PR/state persistence, reusing only a provably equivalent remote materialization and failing closed on drift.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-REEVALUATION-DEPS-V1",
+  "task": "Make isolated release-unit successor reevaluation resolve the exact locked dependency graph required by trusted semantic Plan/Atlas validation, while remaining fail-closed and preserving token/authority isolation.",
+  "status": "ready-for-implementation",
   "guardDigest": "128614ad",
-  "changeBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
+  "changeBaseSha": "fb436df11ae3dbc7c348e50fbc656e18a94f83cf",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/release-unit-github-runtime.mjs",
@@ -59,35 +59,39 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-REEVALUATION-DEPS-V1",
     "riskTier": "critical",
-    "problemStatement": "Trusted executor rerun 37566854069 / job 112621423551 encountered an already-existing canonical U01 branch from the previous attempt, regenerated the same logical materialization as a different commit SHA, and blindly pushed it. Git rejected the non-fast-forward update before child PR creation, proving the executor is not resumable across the materialization-to-PR persistence gap.",
+    "problemStatement": "Live bounded multi-unit rehearsal run 37566854069 / job 112629917634 correctly entered fresh release-unit reevaluation after main advanced to fb436df11ae3dbc7c348e50fbc656e18a94f83cf, but the isolated reevaluation worktree could not resolve the trusted repository dependency graph. Plan/Atlas loading failed with ERR_MODULE_NOT_FOUND for typescript, persisting U01 as STALE with RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK.",
     "observableOutcomes": [
-      "If the release-unit branch does not exist, the executor pushes the prepared materialization normally.",
-      "If the branch exists and its sole parent equals targetBaseSha, tree equals the newly prepared tree, and canonical release-unit commit message identity matches, the executor reuses the existing remote head without pushing.",
-      "If any existing remote branch base, tree, or canonical identity differs, execution fails closed and does not force-push or create a PR.",
-      "The reused remote head becomes the persisted materialization/PR head so subsequent exact CI proof remains bound to the actually existing branch commit."
+      "Reevaluation prepares a deterministic locked dependency environment before invoking shoperation-plan-before-code.mjs.",
+      "Dependency preparation is bound to the candidate worktree package-lock/package manifests and fails closed on install/preparation failure.",
+      "Proof subprocesses continue to receive empty GH_TOKEN and GITHUB_TOKEN and gain no repository mutation authority.",
+      "Semantic Plan/Atlas reevaluation still runs against the exact candidate head and fresh current-main base.",
+      "A real reevaluation semantic failure still returns RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK rather than being reinterpreted as executable."
     ],
     "unresolvedRisks": [
-      "A stale or operator-modified remote branch must never be silently accepted.",
-      "Remote branch movement between discovery and fetch must block.",
-      "Reuse must not weaken child PR exact-head, manifest, binding, CAS, Truth or Lifecycle checks."
+      "A candidate dependency manifest change could make reuse of the trusted root node_modules stale.",
+      "Installing dependencies with lifecycle scripts could grant unnecessary execution surface inside a proof-only worktree.",
+      "Network/package-registry failure must not silently downgrade semantic validation.",
+      "Dependency setup must precede Plan/Atlas execution and must not modify repository-controlled tracked files."
     ],
     "scope": {
       "in": [
-        "Add exact remote materialization reconciliation to scripts/release-unit-github-runtime.mjs.",
-        "Reuse an existing equivalent remote branch head on rerun and preserve fail-closed drift checks.",
-        "Add regression proof for exact reuse without push and tree-drift blocking."
+        "Add deterministic locked dependency bootstrap to release-unit reevaluation before semantic Plan/Atlas validation.",
+        "Use npm ci with the candidate worktree lockfile and no audit/fund; suppress package lifecycle scripts for this proof-only environment unless a proven repository requirement says otherwise.",
+        "Preserve GH_TOKEN/GITHUB_TOKEN scrubbing for dependency and proof subprocesses.",
+        "Add regression coverage for dependency-bootstrap ordering, token scrubbing, and fail-closed reevaluation behavior."
       ],
       "out": [
-        "No force push of release-unit branches.",
-        "No manual child PR creation or state fabrication.",
-        "No changes to release decomposition, Release Risk, Atlas, Completion Truth, Lifecycle, storefront, database or product runtime."
+        "No bypass of successor reevaluation or Atlas/Plan authority.",
+        "No manual clearing of persisted STALE state.",
+        "No manual child PR creation, receipt fabrication, or release-state edits.",
+        "No storefront, database, deployment, template, Builder, payment, inventory, authentication or product-runtime changes."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This code holds write authority in the trusted release executor and must safely distinguish resumable equivalent state from branch drift.",
+      "rationale": "This code runs inside the trusted write-capable release executor immediately before successor authorization. Environment completeness must be restored without weakening exact-head proof, authority isolation, or fail-closed behavior.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -105,22 +109,24 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Exact pre-existing U01 remote materialization is reused without git push and returned as materializedHeadSha.",
-        "Different remote tree blocks with RELEASE_UNIT_REMOTE_BRANCH_TREE_DRIFT.",
-        "Different base or canonical identity also blocks before PR creation.",
-        "Exact-head CI passes all canonical guards and Completion Truth/Lifecycle before merge.",
-        "After merge, rerunning the original rehearsal advances canonically from the persisted CAS state and existing U01 branch."
+        "Reevaluation dependency bootstrap occurs after candidate worktree creation and before shoperation-plan-before-code.mjs.",
+        "The bootstrap uses the candidate worktree locked dependency graph and fails closed on non-zero exit.",
+        "GH_TOKEN and GITHUB_TOKEN remain scrubbed for bootstrap and semantic proof subprocesses.",
+        "Regression proof verifies bootstrap ordering and that a bootstrap failure returns RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK.",
+        "Exact-head CI passes all canonical guards, Completion Truth becomes VERIFIED, Lifecycle closes, then the fix is merged and the unchanged rehearsal is replayed from persisted state."
       ],
       "invariants": [
-        "No force push is introduced.",
-        "Existing remote state is authoritative only after exact base+tree+identity proof.",
-        "Child PR validation still binds exact head, base and binding digest.",
-        "Parent CAS state and source commit identity remain unchanged."
+        "No trusted semantic proof is executed in an environment missing its declared locked dependencies.",
+        "No write credential is exposed to dependency/bootstrap or semantic proof subprocesses.",
+        "No dependency bootstrap failure is ignored.",
+        "Candidate head/base identity and successor reconciliation semantics remain unchanged.",
+        "Persisted release-state is advanced only through the existing CAS/event path."
       ],
       "forbiddenStates": [
-        "blind-non-fast-forward-materialization-push",
-        "reuse-of-drifted-remote-branch",
-        "force-push-over-existing-release-unit",
+        "semantic-reevaluation-with-missing-dependencies",
+        "reevaluation-dependency-failure-ignored",
+        "proof-subprocess-write-token-exposure",
+        "manual-stale-state-clear",
         "manual-child-pr-bypass"
       ]
     },
@@ -153,36 +159,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Previous attempt pushed branch but failed before state persisted.",
-        "Rerun creates same tree/message with a different commit timestamp SHA.",
-        "Remote branch was modified and no longer represents the prepared unit.",
-        "Remote branch moves between ls-remote and fetch."
+        "Temporary worktree lacks node_modules and Atlas cannot import typescript.",
+        "Locked dependency installation fails or registry is unavailable.",
+        "Candidate package-lock differs from trusted root dependencies.",
+        "Proof subprocess accidentally inherits write-capable GitHub credentials.",
+        "Dependency setup succeeds but semantic reevaluation legitimately blocks."
       ],
       "edgeCases": [
-        "No remote branch exists.",
-        "Exact remote branch exists with different SHA but equivalent tree/message/base.",
-        "Remote branch has multiple parents.",
-        "Remote branch has same tree but wrong manifest/binding message."
+        "Candidate does not change package manifests.",
+        "Candidate changes package.json/package-lock.json.",
+        "npm ci exits non-zero before Plan execution.",
+        "Plan/Atlas exits non-zero after successful dependency bootstrap.",
+        "Temporary worktree cleanup runs after either success or failure."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-EXACT-REMOTE-REUSE",
-        "summary": "Reconcile and reuse existing remote materialization only after exact base/tree/identity proof.",
+        "id": "ALT-LOCKED-NPM-CI",
+        "summary": "Install exact candidate dependencies in the isolated reevaluation worktree with npm ci and token scrubbing.",
         "disposition": "selected",
-        "reason": "Makes rerun resumable without weakening branch integrity."
+        "reason": "Uses the candidate lockfile, avoids stale root dependency reuse, and fails closed if the exact proof environment cannot be established."
       },
       {
-        "id": "ALT-FORCE-PUSH",
-        "summary": "Force-push newly generated materialization over existing branch.",
+        "id": "ALT-ROOT-NODE-MODULES-SYMLINK",
+        "summary": "Link trusted executor root node_modules into the candidate worktree.",
         "disposition": "rejected",
-        "reason": "Would destroy prior execution evidence and weaken fail-closed semantics."
+        "reason": "Could be stale when package manifests change and would make candidate dependency identity implicit rather than exact."
       },
       {
-        "id": "ALT-MANUAL-PR",
-        "summary": "Manually create the child PR from the existing branch.",
+        "id": "ALT-SKIP-ATLAS-REEVALUATION",
+        "summary": "Reuse prior source admission evidence instead of running semantic reevaluation.",
         "disposition": "rejected",
-        "reason": "Would bypass canonical trusted executor orchestration and invalidate the rehearsal."
+        "reason": "Would bypass fresh successor reconciliation and invalidate release authority."
+      },
+      {
+        "id": "ALT-MANUAL-STATE-RECOVERY",
+        "summary": "Clear STALE state and continue the rehearsal manually.",
+        "disposition": "rejected",
+        "reason": "Would fabricate authoritative execution progress and invalidate the rehearsal."
       }
     ],
     "specialistReviews": [
@@ -190,8 +204,8 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The failure is a missing resume edge between remote materialization and persisted PR state.",
-        "resolution": "Reconcile existing branch before state transition using base/tree/canonical identity.",
+        "finding": "The missing edge is environment bootstrap inside an isolated reevaluation workspace, not missing release logic.",
+        "resolution": "Prepare exact candidate locked dependencies before semantic reevaluation.",
         "evidence": [
           "scripts/release-unit-github-runtime.mjs"
         ]
@@ -200,8 +214,8 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Accepting an existing branch by name alone would allow stale or modified code into trusted execution.",
-        "resolution": "Require exact sole parent, exact tree, exact canonical commit message and stable fetched head; otherwise block.",
+        "finding": "Installing dependencies inside a write-capable executor can unnecessarily expose credentials or lifecycle-script execution.",
+        "resolution": "Scrub GH_TOKEN/GITHUB_TOKEN and use proof-only npm ci with lifecycle scripts disabled; fail closed if this environment cannot be prepared.",
         "evidence": [
           "scripts/release-unit-github-runtime.mjs",
           "tests/control-plane-release-unit-production-surface.test.ts"
@@ -211,8 +225,8 @@
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Normal push is correct only when the release-unit branch is absent.",
-        "resolution": "Preserve normal push on absence and reuse exact remote head on equivalent pre-existence.",
+        "finding": "Fresh successor reevaluation must remain exact-base and exact-candidate before authorization.",
+        "resolution": "Change only environment preparation; retain existing reconcile, Plan/Atlas and event/CAS semantics.",
         "evidence": [
           "scripts/release-unit-github-runtime.mjs"
         ]
@@ -221,81 +235,81 @@
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Live rehearsal exposed non-idempotent materialization recovery after an earlier PR-policy failure.",
-        "resolution": "Lock both reuse and drift-block semantics with regression tests.",
+        "finding": "Live rehearsal exposed a dependency-resolution gap that unit mocks did not exercise.",
+        "resolution": "Lock bootstrap ordering/failure semantics with regression tests and replay the same persisted rehearsal state after merge.",
         "evidence": [
           "tests/control-plane-release-unit-production-surface.test.ts",
-          "https://github.com/infowaterk-max/water-K-/issues/988"
+          "https://github.com/infowaterk-max/water-K-/issues/997"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-MR-01",
-        "scenario": "Existing branch points to arbitrary code with the expected branch name.",
-        "finding": "Branch-name-only reuse is unsafe.",
-        "resolution": "Require exact base/tree/canonical message before reuse.",
+        "id": "CH-RD-01",
+        "scenario": "Candidate worktree has no node_modules.",
+        "finding": "Semantic Atlas import fails before authoritative reevaluation can run.",
+        "resolution": "Bootstrap locked candidate dependencies before Plan/Atlas.",
         "status": "resolved"
       },
       {
-        "id": "CH-MR-02",
-        "scenario": "Equivalent materialization is regenerated with a different commit SHA because commit metadata differs.",
-        "finding": "SHA equality is too strict for recovery when the tree and canonical identity are identical.",
-        "resolution": "Compare base, tree and canonical message; reuse the existing remote SHA as the execution head.",
+        "id": "CH-RD-02",
+        "scenario": "Candidate changes package-lock.json.",
+        "finding": "Root node_modules reuse could validate against the wrong dependency graph.",
+        "resolution": "Use candidate-local npm ci rather than root node_modules reuse.",
         "status": "resolved"
       },
       {
-        "id": "CH-MR-03",
-        "scenario": "Remote head changes after ls-remote.",
-        "finding": "A TOCTOU race could validate one head but use another.",
-        "resolution": "Fetch the branch and require FETCH_HEAD to equal the discovered remote SHA.",
+        "id": "CH-RD-03",
+        "scenario": "npm lifecycle scripts execute arbitrary candidate-controlled hooks.",
+        "finding": "Proof environment would gain an unnecessary execution surface.",
+        "resolution": "Use --ignore-scripts for reevaluation dependency bootstrap; if canonical tooling later proves a lifecycle-script dependency, address it explicitly rather than silently broadening authority.",
         "status": "resolved"
       },
       {
-        "id": "CH-MR-04",
-        "scenario": "Existing branch has same tree but wrong release-unit manifest/binding identity.",
-        "finding": "Tree equality alone does not prove transaction identity.",
-        "resolution": "Require exact canonical release-unit commit message generated from the sealed manifest.",
+        "id": "CH-RD-04",
+        "scenario": "Registry/install fails transiently.",
+        "finding": "Running Plan anyway would turn missing prerequisite environment into implicit bypass.",
+        "resolution": "Treat bootstrap failure as RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK.",
         "status": "resolved"
       },
       {
-        "id": "CH-MR-05",
-        "scenario": "No existing branch is present.",
-        "finding": "Recovery logic must not change first-attempt semantics.",
-        "resolution": "Use existing normal pushExactMaterializedCommit path unchanged.",
+        "id": "CH-RD-05",
+        "scenario": "Executor job has write-capable GitHub token.",
+        "finding": "Child npm/proof commands do not need repository mutation authority.",
+        "resolution": "Override GH_TOKEN and GITHUB_TOKEN to empty for bootstrap and Plan subprocesses.",
         "status": "resolved"
       },
       {
-        "id": "CH-MR-06",
-        "scenario": "Existing remote branch has the expected tree and message but two parents.",
-        "finding": "A merge-shaped child commit would not represent the canonical single-base materialization.",
-        "resolution": "Require exactly one parent and require that sole parent to equal targetBaseSha.",
+        "id": "CH-RD-06",
+        "scenario": "Bootstrap passes but Plan detects true successor drift.",
+        "finding": "Environment repair must not convert semantic BLOCK into PASS.",
+        "resolution": "Keep existing Plan error handling and BLOCK contract unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-MR-07",
-        "scenario": "The existing branch is exact but the local prepared receipt belongs to another manifest or binding.",
-        "finding": "Remote validation must not paper over a local transaction identity mismatch.",
-        "resolution": "Require receipt target base, manifest digest and binding digest to match the sealed manifest before any remote reuse check.",
+        "id": "CH-RD-07",
+        "scenario": "Temporary worktree is removed after failure.",
+        "finding": "Cleanup must not mask the authoritative blocker.",
+        "resolution": "Return BLOCK inside try/catch and retain finally cleanup exactly as today.",
         "status": "resolved"
       },
       {
-        "id": "CH-MR-08",
-        "scenario": "The prior attempt pushed exact U01 but state remained PLANNED because failure happened before persistence.",
-        "finding": "Recovery must reconstruct the MATERIALIZED/PR_OPEN state from verifiable repository reality rather than fabricate state.",
-        "resolution": "Reuse the exact remote head, then pass it through the existing MATERIALIZED and PR_OPEN event functions and CAS persistence path.",
+        "id": "CH-RD-08",
+        "scenario": "Persisted U01 is already STALE from the live failure.",
+        "finding": "Repair cannot manually rewrite authoritative state.",
+        "resolution": "Merge the executor fix, then resume/reconcile only through canonical driver logic from persisted CAS state.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run exact-head Plan Before Code with active plan covering runtime and regression test.",
-      "Require Edit-Time, Incremental Replay, Release Risk, full tests, typecheck and build PASS.",
-      "Require Completion Truth VERIFIED and normal Lifecycle closure.",
-      "Merge exact fix head to main and verify fresh main CI.",
-      "Rerun the original trusted executor from the unchanged rehearsal source and persisted CAS state; accept only canonical child PR/state progression."
+      "Commit this plan only and require Plan Before Code PASS before implementation.",
+      "Implement dependency bootstrap in reevaluateSuccessorManifest and regression tests only.",
+      "Require exact-head Knowledge, Plan, Edit-Time, Incremental Replay, Release Risk, full tests, typecheck, build and Completion Truth PASS.",
+      "Commit only canonical lifecycle closure metadata and require final exact-head CI PASS.",
+      "Merge the fix, verify fresh main CI, then replay the unchanged multi-unit rehearsal from persisted CAS state without manual state edits."
     ],
     "semanticExecutionRoute": {
-      "request": "SQ-CAND-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
+      "request": "SQ-CAND-RELEASE-EXECUTOR-REEVALUATION-DEPS-V1",
       "authority": [
         "release-infrastructure"
       ],
@@ -328,7 +342,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-REEVALUATION-DEPS-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -346,11 +360,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-RELEASE-EXECUTOR-MATERIALIZATION-RESUME",
-        "requirement": "Trusted release-unit execution must resume across an already-pushed exact child materialization without destructive push or manual bypass, and must block on incompatible remote state.",
+        "id": "REQ-RELEASE-EXECUTOR-REEVALUATION-DEPS",
+        "requirement": "Trusted release-unit reevaluation must establish the exact locked candidate dependency environment before semantic Plan/Atlas validation and must fail closed if that environment cannot be established.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-materialization-resume",
+          "breadth": "release-unit-reevaluation-dependency-bootstrap",
           "strength": 2,
           "dimensions": [
             "status",
@@ -373,15 +387,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-MATERIALIZATION-BLIND-PUSH",
-            "statement": "Rerun may not blindly push a regenerated commit over an existing release-unit branch.",
+            "id": "NEG-REEVAL-MISSING-DEPS",
+            "statement": "Successor reevaluation may not execute semantic Plan/Atlas with unresolved declared dependencies.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-MATERIALIZATION-DRIFT-REUSE",
-            "statement": "Existing remote materialization may not be reused unless base, tree and canonical identity match.",
+            "id": "NEG-REEVAL-TOKEN-LEAK",
+            "statement": "Dependency/bootstrap and semantic proof subprocesses may not inherit repository write tokens.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -390,18 +404,5 @@
       }
     ]
   },
-  "notes": "Created from live rehearsal Failure Intake #988 after trusted executor rerun job 112621423551 proved a missing resumability edge: U01 branch af0365ec... already existed, but the driver generated fb11f556... and attempted a non-fast-forward push. Fix is deliberately narrow: exact remote reuse after base/tree/message proof, otherwise fail closed.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "a673c04fb8d1d8ec469fc25a97ed25051804f834",
-    "closedAt": "2026-10-07T04:01:37.276Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Created from live Failure Intake #997/#998 after bounded rehearsal replay persisted U01 as STALE because isolated successor reevaluation could not import typescript. This commit is plan-only; no executor implementation is authorized until Plan Before Code reconciles the exact projected scope."
 }
