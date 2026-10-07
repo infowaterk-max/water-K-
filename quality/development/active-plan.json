@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
   "task": "Repair release-unit successor obligation drift classification so the first canonical sealing of unchanged operations is treated as trusted reprojectable provenance enrichment while any semantic operation change or resealing/tamper remains material fail-closed drift.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "12447f0cfd73abe8728209ea3f35cb132a9b06d4",
   "plannedFilePatterns": [
@@ -482,5 +482,18 @@
       }
     ]
   },
-  "notes": "Live bounded multi-release-unit rehearsal evidence: U01 trusted workflow_dispatch CI #9077 passed and PR #1053 merged at main 12447f0cfd73abe8728209ea3f35cb132a9b06d4. Release Unit Execution #184 then failed at U02 with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT because initial unsealed operations were canonically enriched with sealed source metadata, changing both raw operations JSON and childOperationDigest. This plan repairs the generic classifier; it does not mutate persisted rehearsal state or weaken operation/source integrity. Plan Gate #9080 canonicalized planned projection metadata: DOMAIN-QUALITY, quality-knowledge-system authority, negative knowledge [SQ-NK-002, SQ-NK-003, SQ-NK-005, SQ-NK-010, SQ-NK-012, SQ-NK-016..023], and guardDigest a41cfd0c."
+  "notes": "Live bounded multi-release-unit rehearsal evidence: U01 trusted workflow_dispatch CI #9077 passed and PR #1053 merged at main 12447f0cfd73abe8728209ea3f35cb132a9b06d4. Release Unit Execution #184 then failed at U02 with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT because initial unsealed operations were canonically enriched with sealed source metadata, changing both raw operations JSON and childOperationDigest. This plan repairs the generic classifier; it does not mutate persisted rehearsal state or weaken operation/source integrity. Plan Gate #9080 canonicalized planned projection metadata: DOMAIN-QUALITY, quality-knowledge-system authority, negative knowledge [SQ-NK-002, SQ-NK-003, SQ-NK-005, SQ-NK-010, SQ-NK-012, SQ-NK-016..023], and guardDigest a41cfd0c.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "5985f840a80321b23a0b005548bbcadad104cd73",
+    "closedAt": "2026-10-07T15:59:26.450Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
