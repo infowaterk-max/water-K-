@@ -1,9 +1,10 @@
 // @ts-nocheck
+import {execFileSync} from 'node:child_process';
 import {mkdirSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe,expect,it} from 'vitest';
-import {applyReleaseUnitEvent,createReleaseParentExecution,recordReleaseParentClosure} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
+import {applyReleaseUnitEvent,createReleaseParentExecution,materializeReleaseUnit,recordReleaseParentClosure,sealReleaseUnitManifest} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 import {materializationSupersedingBranch,needsFreshReleaseUnitReevaluation,proveTrustedMainAdvance,reconcileExactMaterializedCommit,reconcileMaterializationBranch,releaseUnitCommitMessage,runSuccessorReevaluationPlan,runSuccessorReevaluationProjection} from '../scripts/release-unit-github-runtime.mjs';
 
 const A='a'.repeat(40),B='b'.repeat(40);
@@ -32,7 +33,110 @@ const materialized=(alreadyApplied=[{operation:'modify',file:'scripts/already.mj
   sourceCommit:'source',applied:[],alreadyApplied,
 });
 
+const gitRun=(cwd:string,args:string[])=>execFileSync('git',args,{cwd,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+const initGitRepo=(prefix:string)=>{
+  const dir=mkdtempSync(join(tmpdir(),prefix));
+  gitRun(dir,['init','-q']);
+  gitRun(dir,['config','user.email','release-unit-test@example.invalid']);
+  gitRun(dir,['config','user.name','Release Unit Test']);
+  return dir;
+};
+
 describe('Control Plane production release surface',()=>{
+  it('materializes modify as an immutable source patch without deleting later target-base additions',()=>{
+    const dir=initGitRepo('release-unit-modify-preserve-'),file='scripts/already.mjs';
+    try{
+      mkdirSync(join(dir,'scripts'),{recursive:true});
+      writeFileSync(join(dir,file),"export const before='base';\nexport const stable='keep';\n");
+      gitRun(dir,['add','.']);gitRun(dir,['commit','-qm','base']);
+      const sourceParent=gitRun(dir,['rev-parse','HEAD']);
+      writeFileSync(join(dir,file),"export const before='source';\nexport const stable='keep';\n");
+      gitRun(dir,['commit','-qam','source']);
+      const sourceCommit=gitRun(dir,['rev-parse','HEAD']);
+      gitRun(dir,['checkout','-qb','target',sourceParent]);
+      writeFileSync(join(dir,file),"export const before='base';\nexport const stable='keep';\nexport const laterMain='preserve-me';\n");
+      gitRun(dir,['commit','-qam','target']);
+      const targetBase=gitRun(dir,['rev-parse','HEAD']);
+      const draft={
+        ...structuredClone(manifest),
+        targetBaseSha:targetBase,
+        lease:{...structuredClone(manifest.lease),expectedBaseSha:targetBase,reconciled:true},
+        intendedFiles:[file],
+        operations:[{operation:'modify',file}],
+        requiredDependencyFiles:[],
+        reconciliationPolicy:{...structuredClone(manifest.reconciliationPolicy),requiresReconciliationAfterPredecessor:false},
+      };
+      const sealed=sealReleaseUnitManifest(draft,{sourceCommit,cwd:dir});
+      const result=materializeReleaseUnit({manifest:sealed,sourceCommit,targetRef:targetBase,cwd:dir});
+      expect(result.status).toBe('PREPARED');
+      const merged=gitRun(dir,['show',`${result.materializedHeadSha}:${file}`]);
+      expect(merged).toContain("export const before='source';");
+      expect(merged).toContain("export const stable='keep';");
+      expect(merged).toContain("export const laterMain='preserve-me';");
+      expect(merged.match(/before='source'/g)?.length).toBe(1);
+    }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+
+  it('fails closed when modify patch conflicts with a later target-base edit of the same hunk',()=>{
+    const dir=initGitRepo('release-unit-modify-conflict-'),file='scripts/already.mjs';
+    try{
+      mkdirSync(join(dir,'scripts'),{recursive:true});
+      writeFileSync(join(dir,file),"export const value='base';\n");
+      gitRun(dir,['add','.']);gitRun(dir,['commit','-qm','base']);
+      const sourceParent=gitRun(dir,['rev-parse','HEAD']);
+      writeFileSync(join(dir,file),"export const value='source';\n");
+      gitRun(dir,['commit','-qam','source']);
+      const sourceCommit=gitRun(dir,['rev-parse','HEAD']);
+      gitRun(dir,['checkout','-qb','target',sourceParent]);
+      writeFileSync(join(dir,file),"export const value='target';\n");
+      gitRun(dir,['commit','-qam','target']);
+      const targetBase=gitRun(dir,['rev-parse','HEAD']);
+      const draft={
+        ...structuredClone(manifest),
+        targetBaseSha:targetBase,
+        lease:{...structuredClone(manifest.lease),expectedBaseSha:targetBase,reconciled:true},
+        intendedFiles:[file],
+        operations:[{operation:'modify',file}],
+        requiredDependencyFiles:[],
+        reconciliationPolicy:{...structuredClone(manifest.reconciliationPolicy),requiresReconciliationAfterPredecessor:false},
+      };
+      const sealed=sealReleaseUnitManifest(draft,{sourceCommit,cwd:dir});
+      expect(()=>materializeReleaseUnit({manifest:sealed,sourceCommit,targetRef:targetBase,cwd:dir})).toThrow(`RELEASE_UNIT_MODIFY_PATCH_CONFLICT:${file}`);
+      expect(gitRun(dir,['rev-parse','target'])).toBe(targetBase);
+    }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+
+  it('keeps create materialization on exact sealed source blob semantics',()=>{
+    const dir=initGitRepo('release-unit-create-sealed-'),file='scripts/new-unit.mjs';
+    try{
+      mkdirSync(join(dir,'scripts'),{recursive:true});
+      writeFileSync(join(dir,'scripts/base.mjs'),"export const base=true;\n");
+      gitRun(dir,['add','.']);gitRun(dir,['commit','-qm','base']);
+      const sourceParent=gitRun(dir,['rev-parse','HEAD']);
+      writeFileSync(join(dir,file),"export const sourceOnly='exact';\n");
+      gitRun(dir,['add',file]);gitRun(dir,['commit','-qm','source']);
+      const sourceCommit=gitRun(dir,['rev-parse','HEAD']);
+      gitRun(dir,['checkout','-qb','target',sourceParent]);
+      writeFileSync(join(dir,'scripts/base.mjs'),"export const base=true;\nexport const later=true;\n");
+      gitRun(dir,['commit','-qam','target']);
+      const targetBase=gitRun(dir,['rev-parse','HEAD']);
+      const draft={
+        ...structuredClone(manifest),
+        targetBaseSha:targetBase,
+        lease:{...structuredClone(manifest.lease),expectedBaseSha:targetBase,reconciled:true},
+        intendedFiles:[file],
+        operations:[{operation:'create',file}],
+        requiredDependencyFiles:[],
+        reconciliationPolicy:{...structuredClone(manifest.reconciliationPolicy),requiresReconciliationAfterPredecessor:false},
+      };
+      const sealed=sealReleaseUnitManifest(draft,{sourceCommit,cwd:dir});
+      const result=materializeReleaseUnit({manifest:sealed,sourceCommit,targetRef:targetBase,cwd:dir});
+      expect(gitRun(dir,['show',`${result.materializedHeadSha}:${file}`])).toBe("export const sourceOnly='exact';");
+      expect(sealed.operations[0].source.mode).toBe('sealed');
+      expect(sealed.operations[0].source.blobSha).toBe(gitRun(dir,['rev-parse',`${sourceCommit}:${file}`]));
+    }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+
   it('dispatches bot-created child proof explicitly and surfaces terminal CI without poll-timeout masking',()=>{
     const ci=readFileSync('.github/workflows/ci.yml','utf8');
     const runtime=readFileSync('scripts/release-unit-github-runtime.mjs','utf8');

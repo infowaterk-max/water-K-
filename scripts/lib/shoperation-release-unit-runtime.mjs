@@ -536,6 +536,46 @@ function regeneratedBlob({cwd,sourceCommit,operation}){
   }
 }
 
+function releaseUnitModifySourceParent({cwd,sourceCommit,operation}){
+  const lineage=git(cwd,['rev-list','--parents','-n','1',sourceCommit]).split(/\s+/).filter(Boolean);
+  const parents=lineage.slice(1);
+  if(parents.length!==1)throw new Error(`RELEASE_UNIT_MODIFY_SOURCE_PARENT_INVALID:${operation.file}:${parents.length}`);
+  return parents[0];
+}
+function releaseUnitStageEntry(cwd,file){
+  const line=git(cwd,['ls-files','--stage','--',file]);
+  const [fileMode,blobSha,stage]=line.split(/\s+/);
+  if(!fileMode||!blobSha||stage!=='0')throw new Error(`RELEASE_UNIT_MODIFY_STAGE_INVALID:${file}`);
+  return{blobSha,fileMode};
+}
+function modifiedBlob({cwd,targetBaseSha,sourceCommit,operation}){
+  const file=operation.file;
+  const sourceParent=releaseUnitModifySourceParent({cwd,sourceCommit,operation});
+  const parentBlob=blobAt(cwd,sourceParent,file);
+  const sourceBlob=blobAt(cwd,sourceCommit,file);
+  const targetBlob=blobAt(cwd,targetBaseSha,file);
+  if(!parentBlob)throw new Error(`RELEASE_UNIT_MODIFY_SOURCE_PARENT_BLOB_MISSING:${file}`);
+  if(!sourceBlob)throw new Error(`RELEASE_UNIT_MODIFY_SOURCE_BLOB_MISSING:${file}`);
+  if(!targetBlob)throw new Error(`RELEASE_UNIT_MODIFY_TARGET_BLOB_MISSING:${file}`);
+  if(operation.source?.mode!=='sealed'||operation.source?.commit!==sourceCommit||operation.source?.blobSha!==sourceBlob)throw new Error(`RELEASE_UNIT_MODIFY_SOURCE_IDENTITY_MISMATCH:${file}`);
+  const patch=execFileSync('git',['diff','--binary','--full-index',sourceParent,sourceCommit,'--',file],{cwd,stdio:['ignore','pipe','pipe']});
+  if(!patch?.length)throw new Error(`RELEASE_UNIT_MODIFY_SOURCE_DELTA_EMPTY:${file}`);
+  const worktree=mkdtempSync(path.join(os.tmpdir(),'shoperation-release-unit-modify-'));
+  try{
+    git(cwd,['worktree','add','--detach',worktree,targetBaseSha]);
+    const applied=spawnSync('git',['apply','--3way','--index','--binary','-'],{
+      cwd:worktree,input:patch,encoding:'utf8',env:{...process.env,GH_TOKEN:'',GITHUB_TOKEN:''},
+    });
+    if(applied.status!==0)throw new Error(`RELEASE_UNIT_MODIFY_PATCH_CONFLICT:${file}:${String(applied.stderr||applied.stdout||'').trim()}`);
+    const staged=git(worktree,['diff','--cached','--name-only','--']).split('\n').filter(Boolean);
+    if(staged.some(item=>item!==file))throw new Error(`RELEASE_UNIT_MODIFY_PATCH_SCOPE_DRIFT:${file}:${staged.join(',')}`);
+    return releaseUnitStageEntry(worktree,file);
+  }finally{
+    try{git(cwd,['worktree','remove','--force',worktree]);}catch{}
+    try{rmSync(worktree,{recursive:true,force:true});}catch{}
+  }
+}
+
 export function materializeReleaseUnit({manifest,sourceCommit=null,targetRef='refs/heads/main',cwd=process.cwd(),updateRef=false,message=null}={}){
   validateMaterializationManifest(manifest);
   const sealed=manifest.sourceIdentity?.sealed?manifest:sealReleaseUnitManifest(manifest,{sourceCommit,cwd});
@@ -559,7 +599,13 @@ export function materializeReleaseUnit({manifest,sourceCommit=null,targetRef='re
         git(cwd,['update-index','--force-remove','--',operation.previousFile],{env});
         git(cwd,['update-index','--add','--cacheinfo',`${desired.fileMode},${desired.blobSha},${operation.file}`],{env});applied.push(operation);continue;
       }
-      const desired=operation.generated?.mode==='regenerate'?regeneratedBlob({cwd,sourceCommit:sealed.sourceIdentity.sourceCommit,operation}):{blobSha:operation.source?.blobSha,fileMode:operation.source?.fileMode??'100644'};
+      let desired;
+      if(operation.operation==='modify'&&operation.generated?.mode!=='regenerate'){
+        if(targetBlob===operation.source?.blobSha){alreadyApplied.push({file:operation.file,operation:'modify'});continue;}
+        desired=modifiedBlob({cwd,targetBaseSha:sealed.targetBaseSha,sourceCommit:sealed.sourceIdentity.sourceCommit,operation});
+      }else{
+        desired=operation.generated?.mode==='regenerate'?regeneratedBlob({cwd,sourceCommit:sealed.sourceIdentity.sourceCommit,operation}):{blobSha:operation.source?.blobSha,fileMode:operation.source?.fileMode??'100644'};
+      }
       if(!desired.blobSha)throw new Error(`RELEASE_UNIT_SOURCE_IDENTITY_MISSING:${operation.file}`);
       if(targetBlob===desired.blobSha){alreadyApplied.push({file:operation.file,operation:operation.operation});continue;}
       git(cwd,['update-index','--add','--cacheinfo',`${desired.fileMode},${desired.blobSha},${operation.file}`],{env});applied.push(operation);
