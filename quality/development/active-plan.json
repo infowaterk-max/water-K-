@@ -1,96 +1,136 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
-  "task": "Close the trusted Release Unit Execution Atlas evidence gap so canonical Release Risk can be recomputed against exact source HEAD without trusting source-controlled proof artifacts or weakening Atlas/Release Risk authority.",
-  "status": "closed",
-  "guardDigest": "128614ad",
-  "changeBaseSha": "7e7ec558fa470fae2b11c1ed2bce0a5ec205045c",
+  "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+  "task": "Create an inert fixture corpus to exercise the canonical multi-unit executor end-to-end without changing runtime behavior.",
+  "status": "ready-for-implementation",
+  "guardDigest": "aa79c504",
+  "changeBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    ".github/workflows/release-unit-execution.yml",
-    "tests/control-plane-release-unit-production-surface.test.ts"
+    "tests/control-plane-release-unit-production-surface.test.ts",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json",
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json"
   ],
-  "expectedSubsystems": [
-    "release-infrastructure"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-001",
+    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
+    "SQ-KF-005",
     "SQ-KF-006",
+    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
     "SQ-KF-018",
+    "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
     "TF-KF-005",
+    "TF-KF-006",
     "TF-KF-007",
+    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
+    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015"
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-016",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
     "riskTier": "critical",
-    "problemStatement": "Live bounded rehearsal executor run 37534207237 consumed exact source HEAD 1a3cdb897fc1ed2dab7b04e270a7762cbb23b579 with trusted main code and recomputed Plan Before Code PASS, but canonical Release Risk blocked because artifacts/shoperation-quality/change-impact.json was absent. release-risk-budget.mjs requires Atlas change-impact evidence; the executor currently invokes Plan and Release Risk but omits the existing trusted Knowledge/Atlas producer.",
+    "problemStatement": "The canonical multi-unit executor is merged and individually proven, but it still lacks one bounded real GitHub transaction demonstrating three or more ordered child units, exact child evidence, sequential merges, persisted state and final parent closure.",
     "observableOutcomes": [
-      "Trusted Release Unit Execution recomputes existing Knowledge/Atlas evidence with default-branch code against the exact admitted source SHA before canonical Release Risk recomputation.",
-      "The produced change-impact evidence is exact-head and matches the source diff; Release Risk remains unchanged and consumes the existing canonical artifact.",
-      "The executor does not trust or download source-controlled Knowledge/Atlas proof artifacts as authoritative evidence.",
-      "Proof subprocesses used only to recompute evidence do not gain an independent write authority and repository write tokens are not required for the Knowledge/Atlas producer.",
-      "Regression proof locks the ordering: fetch source → trusted Knowledge/Atlas evidence → trusted Plan → trusted Release Risk → driver."
+      "Canonical planning decomposes the bounded fixture change into at least three ordered child units without changing decomposition policy.",
+      "Each child reaches closure only after its exact materialized head passes the existing child verification and lifecycle authorities.",
+      "Every successor is reconciled against the merged predecessor main identity before materialization.",
+      "The parent closes only after all declared children close and remains bound to the final implementation main.",
+      "All material changes remain confined to the rehearsal fixture prefix and one Control Plane regression test."
     ],
     "unresolvedRisks": [
-      "Running Knowledge preflight against trusted main checkout must still evaluate the exact source diff rather than main.",
-      "A write-capable job must not accidentally expose its repository token to proof logic that does not need writes.",
-      "The fix must not create a second Atlas or Release Risk authority or consume untrusted source artifacts.",
-      "The executor must remain blocked if trusted Knowledge/Atlas or Release Risk recomputation fails."
+      "Live GitHub timing can expose proof-import or state-transition gaps that mocked orchestration tests cannot reproduce.",
+      "A stale executor attempt may race the persisted state and must fail without advancing authoritative state.",
+      "An unexpected architecture classification could widen scope and must block before fixture implementation.",
+      "A later metadata closure commit must not change the implementation head used by parent truth."
     ],
     "scope": {
       "in": [
-        "Wire the existing shoperation-knowledge-preflight.mjs into the trusted default-branch Release Unit Execution workflow before Release Risk recomputation, bound to exact source HEAD and source plan.",
-        "Ensure the existing change-impact artifact is produced in the trusted workspace for release-risk-budget.mjs.",
-        "Add regression assertions in the existing production release surface test."
+        "Create twenty-five inert JSON rehearsal fixtures under a dedicated quality knowledge rehearsal-fixtures directory that is not consumed by application runtime.",
+        "Add one regression assertion to the existing production-surface Control Plane test.",
+        "Use the unchanged canonical decomposition, child proof, state persistence, merge and parent closure paths.",
+        "Stop and route any newly discovered live execution gap through existing Failure Intake."
       ],
       "out": [
-        "No change to release-risk-budget.mjs policy or scoring.",
-        "No change to Atlas authority/graph semantics, decomposition, CAS state, child PR execution, Completion Truth or Lifecycle authority.",
-        "No source-CI proof artifact promotion into trusted executor evidence.",
-        "No storefront, admin, database, auth, payment, inventory, Builder or template behavior change."
+        "No storefront, admin, database, authentication, payment, inventory, Builder, template or deployment behavior change.",
+        "No change to release risk, truth, lifecycle, decomposition limits, workflow permissions, Atlas or Sentinel authority.",
+        "No manual receipt fabrication or direct state editing to force the rehearsal forward."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "The change sits inside a write-capable trusted executor immediately before canonical release authorization, so exact source identity, evidence provenance and authority separation must remain fail closed.",
+      "rationale": "This proof drives real repository branch, pull-request, CI, merge and persisted orchestration state while deliberately restricting material changes to non-product fixtures. Exact identity, fail-closed transitions and final closure therefore require the strongest practical bounded assurance.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -101,32 +141,33 @@
         "pairwise-interactions",
         "threat-failure-model",
         "fault-injection",
-        "finite-state-exhaustion",
-        "proof-obligation"
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "On an admitted release-execution/source/** run, trusted-main Knowledge/Atlas recomputation produces artifacts/shoperation-quality/change-impact.json bound to the exact source SHA before release-risk-budget.mjs executes.",
-        "Canonical Release Risk consumes that artifact and remains free to BLOCK; no bypass or policy change is introduced.",
-        "Trusted executor does not treat the source CI Knowledge artifact as trusted evidence.",
-        "A failed trusted Knowledge/Atlas recomputation prevents the driver from starting.",
-        "Exact-head CI for this fix is green, Completion Truth VERIFIED, normal Lifecycle closure committed, then merge and rehearsal replay."
+        "The plan-only revision passes Plan Before Code before any rehearsal fixture is created.",
+        "The canonical decomposition contains at least three ordered units and only planned rehearsal material.",
+        "Every child is proven on its exact materialized head before merge or canonical no-code closure.",
+        "Every successor uses fresh merged-main reconciliation rather than the original parent base.",
+        "Parent truth and lifecycle run only after all units are closed at the exact final implementation main.",
+        "Any live missing edge blocks execution and is recorded rather than bypassed."
       ],
       "invariants": [
-        "Atlas and Release Risk remain existing canonical authorities.",
-        "SOURCE_SHA remains the admitted source workflow_run head SHA.",
-        "Trusted executor code remains checked out from main.",
-        "Driver cannot start unless trusted evidence recomputation and Release Risk both pass.",
-        "No child PR/state/receipt is created by the fix transaction itself."
+        "Fixture documents contain inert rehearsal metadata only and are not consumed by application runtime code.",
+        "Unit manifests remain the exclusive material scope authority for each child.",
+        "Persisted execution state advances monotonically through the existing CAS contract.",
+        "Exact-head child proof remains mandatory before merge or no-code completion.",
+        "Parent closure cannot precede complete child closure."
       ],
       "forbiddenStates": [
-        "release-risk-run-without-trusted-change-impact",
-        "source-artifact-promoted-as-trusted-atlas-proof",
-        "release-risk-bypass",
-        "atlas-authority-duplication",
-        "driver-start-after-trusted-evidence-failure"
+        "rehearsal material outside the declared fixture and proof files",
+        "fewer than three canonical child units",
+        "child merge without exact child proof",
+        "successor authorization against stale main",
+        "stale persisted-state writer accepted",
+        "parent closure before every child is closed"
       ]
     },
     "model": {
@@ -158,36 +199,40 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Trusted Release Risk executes before change-impact evidence exists.",
-        "Knowledge preflight evaluates main instead of source HEAD.",
-        "Untrusted source artifact is mistaken for trusted evidence.",
-        "Proof failure is ignored and driver still starts."
+        "Planning resolves an unexpected domain or subsystem.",
+        "Decomposition produces fewer than three children.",
+        "Exact child evidence cannot be imported from the matching CI head.",
+        "Merged main drifts before successor reconciliation.",
+        "Persisted execution state rejects a stale transition.",
+        "Parent proof cannot bind to the final implementation main."
       ],
       "edgeCases": [
-        "Source diff contains only quality fixtures and an evidence-neutral test.",
-        "Source SHA differs from trusted main checkout HEAD.",
-        "Knowledge producer needs no repository mutation.",
-        "Release Risk still blocks for an unrelated canonical policy violation."
+        "Twenty-six material files pack across at least three units under the unchanged twelve-file limit.",
+        "A child CI remains pending across repeated executor polls.",
+        "A squash merge produces a main SHA different from the child source SHA.",
+        "A fixture is already present and exercises the canonical no-code branch.",
+        "An unrelated main change appears between child transitions.",
+        "The closure metadata commit advances main after parent truth."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-TRUSTED-KNOWLEDGE-RECOMPUTE",
-        "summary": "Run the existing Knowledge/Atlas producer with trusted main code against exact source HEAD before trusted Release Risk.",
+        "id": "ALT-REAL-FIXTURE",
+        "summary": "Run the real executor against a bounded inert multi-unit fixture corpus.",
         "disposition": "selected",
-        "reason": "Preserves canonical producer/consumer chain and trusted provenance."
+        "reason": "This directly proves GitHub orchestration while keeping application behavior untouched and material scope narrow."
       },
       {
-        "id": "ALT-DOWNLOAD-SOURCE-ARTIFACT",
-        "summary": "Download change-impact.json from the successful source CI.",
+        "id": "ALT-MOCK-ONLY",
+        "summary": "Rely only on additional mocked state-machine and adapter regression tests.",
         "disposition": "rejected",
-        "reason": "Would make source-controlled proof output authoritative inside the write-capable executor."
+        "reason": "Mocks cannot prove real pull-request metadata, Actions artifact lookup, merge receipts or persisted remote state behavior."
       },
       {
-        "id": "ALT-SKIP-ATLAS-RISK-CHECK",
-        "summary": "Allow Release Risk to proceed when Atlas evidence is absent.",
+        "id": "ALT-PRODUCT-CHANGE",
+        "summary": "Use an ordinary application feature change as the first end-to-end execution proof.",
         "disposition": "rejected",
-        "reason": "Would weaken the canonical Release Risk/Atlas contract."
+        "reason": "That adds avoidable product risk before the newly connected execution surface has completed a bounded rehearsal."
       }
     ],
     "specialistReviews": [
@@ -195,134 +240,158 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The trusted executor has a missing producer-consumer edge: Release Risk consumes canonical Atlas change-impact, but the trusted execution workflow does not invoke the existing producer.",
-        "resolution": "Run the existing Knowledge/Atlas producer with trusted default-branch code and exact source transaction identity before Release Risk; create no new authority.",
+        "finding": "The remaining evidence gap is end-to-end execution behavior rather than another missing authority.",
+        "resolution": "Reuse the merged executor unchanged and constrain material changes to the rehearsal fixture contract.",
         "evidence": [
-          ".github/workflows/release-unit-execution.yml",
-          "scripts/shoperation-knowledge-preflight.mjs",
-          "scripts/release-risk-budget.mjs"
+          "scripts/release-unit-execute.mjs",
+          "scripts/release-unit-github-runtime.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "The executor has repository write credentials, so using a source-generated proof artifact or needlessly exposing the write token to evidence recomputation would weaken the trust boundary.",
-        "resolution": "Recompute evidence from trusted main code, do not download source proof artifacts, and explicitly scrub GH_TOKEN/GITHUB_TOKEN for the proof-only Knowledge/Atlas step.",
+        "finding": "A real orchestration rehearsal can still cause repository mutation even when application scope is inert.",
+        "resolution": "Use only the already merged trusted execution path and reject any material operation outside the approved fixture and proof files.",
         "evidence": [
-          ".github/workflows/release-unit-execution.yml"
+          ".github/workflows/release-unit-execution.yml",
+          "deploy/release-risk-policy.json"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Release Risk behaved correctly by blocking when Atlas evidence was absent; the policy itself is not defective.",
-        "resolution": "Preserve release-risk-budget.mjs and deploy/release-risk-policy.json unchanged; satisfy the existing prerequisite before invoking it.",
+        "finding": "A valid rehearsal must prove multiple successor transitions and final parent closure, not only decomposition output.",
+        "resolution": "Require three or more real children with exact proof, merge receipts, fresh reconciliation and parent close evidence.",
         "evidence": [
-          "scripts/release-risk-budget.mjs",
-          "deploy/release-risk-policy.json"
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "scripts/release-unit-parent-close.mjs"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The live rehearsal exposed an integration gap only at the trusted executor boundary after source CI had already proved the same risk score successfully.",
-        "resolution": "Add regression coverage for trusted Knowledge/Atlas → Release Risk ordering and exact-source identity so the edge cannot regress silently.",
+        "finding": "The rehearsal would be invalid if a live block were bypassed because the changed data is non-product.",
+        "resolution": "Treat any live block as authoritative Failure Intake evidence and stop instead of reconstructing state manually.",
         "evidence": [
-          "tests/control-plane-release-unit-production-surface.test.ts",
+          "scripts/shoperation-failure-intake.mjs",
           "quality/knowledge/development-guard-policy.v1.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-REA-01",
-        "scenario": "A malicious or buggy release-execution/source branch uploads a forged change-impact.json that claims a smaller diff.",
-        "finding": "Consuming that artifact in the write-capable executor would let source-controlled output influence release authorization.",
-        "resolution": "Never download source CI Atlas proof; recompute change-impact with trusted main producer code from exact SOURCE_SHA.",
+        "id": "CH-RH-01",
+        "scenario": "Planned fixtures resolve outside the expected quality authority.",
+        "finding": "Unexpected classification would invalidate the claimed bounded scope.",
+        "resolution": "Require exact Plan Before Code scope reconciliation before creating any fixture implementation.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-02",
-        "scenario": "Trusted Knowledge/Atlas recomputation exits non-zero or emits BLOCK before Release Risk.",
-        "finding": "Continuing to Release Risk or the driver would turn missing/invalid prerequisite evidence into an implicit bypass.",
-        "resolution": "Keep the producer as an ordinary sequential failing step before Release Risk and driver; no continue-on-error.",
+        "id": "CH-RH-02",
+        "scenario": "Dependencies collapse the planned material into fewer than three units.",
+        "finding": "The run would not exercise successor orchestration deeply enough.",
+        "resolution": "Use independent inert JSON fixture documents with no repository dependencies and inspect decomposition count before source execution.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-03",
-        "scenario": "The executor checkout HEAD is main while the admitted transaction HEAD is a different source SHA.",
-        "finding": "A producer using implicit HEAD would generate change-impact for main instead of the admitted source diff.",
-        "resolution": "Pass DEVELOPMENT_HEAD_SHA, QUALITY_HEAD_SHA, RELEASE_HEAD_SHA and SHOPERATION_REPLAY_HEAD explicitly as SOURCE_SHA and use the fetched source plan path.",
+        "id": "CH-RH-03",
+        "scenario": "A child has green CI but its exact transaction proof artifact is absent.",
+        "finding": "Generic workflow success cannot prove the child transaction.",
+        "resolution": "Keep exact artifact and child identity matching mandatory before any merge transition.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-04",
-        "scenario": "Canonical Release Risk finds a real policy violation after valid Atlas evidence has been generated.",
-        "finding": "The integration fix must not reinterpret or suppress that BLOCK.",
-        "resolution": "Leave release-risk-budget.mjs and its policy untouched and require its normal zero exit before driver execution.",
+        "id": "CH-RH-04",
+        "scenario": "Main changes after one child merges but before the next child is authorized.",
+        "finding": "The successor could otherwise materialize against stale repository state.",
+        "resolution": "Require fresh successor reconciliation against current merged main and fail on unrelated drift.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-05",
-        "scenario": "The Knowledge/Atlas producer runs inside a job whose default GITHUB_TOKEN can write contents and pull requests.",
-        "finding": "Proof-only logic does not need mutation capability and should not inherit write credentials unnecessarily.",
-        "resolution": "Override GH_TOKEN and GITHUB_TOKEN to empty for the Knowledge/Atlas recompute step while retaining exact git data already fetched locally.",
+        "id": "CH-RH-05",
+        "scenario": "Two attempts try to advance the same persisted parent state.",
+        "finding": "A stale writer could duplicate or reorder transitions.",
+        "resolution": "Preserve force-with-lease CAS and accept stale-writer rejection as the only safe outcome.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-06",
-        "scenario": "The source plan path is omitted and trusted Knowledge preflight reads main's closed active plan.",
-        "finding": "Atlas change-impact would be computed against the wrong Development Transaction envelope even if SOURCE_SHA is explicit.",
-        "resolution": "Bind SHOPERATION_ACTIVE_PLAN to artifacts/release-execution/source-plan.json for trusted Knowledge/Atlas recomputation.",
+        "id": "CH-RH-06",
+        "scenario": "One planned operation is already present at current main.",
+        "finding": "Creating a meaningless child pull request would weaken idempotent execution semantics.",
+        "resolution": "Allow only the existing exact-main no-code path with canonical child proof and complete operation coverage.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-07",
-        "scenario": "A later refactor reorders the trusted workflow so Release Risk executes before the Knowledge/Atlas producer.",
-        "finding": "The original missing edge would recur while each individual script still exists and works.",
-        "resolution": "Add regression assertions for step presence and ordering in the existing production release surface test.",
+        "id": "CH-RH-07",
+        "scenario": "All children close but parent proof runs after a later metadata commit.",
+        "finding": "Parent truth would be bound to the wrong implementation state.",
+        "resolution": "Use the existing parent-close adapter that proves the last child merged-main before closure persistence.",
         "status": "resolved"
       },
       {
-        "id": "CH-REA-08",
-        "scenario": "Trusted Knowledge/Atlas recomputation succeeds but emits change-impact bound to a SHA or file set other than the exact admitted source.",
-        "finding": "Release Risk must fail closed on stale or mismatched evidence rather than accepting producer success alone.",
-        "resolution": "Rely on the unchanged release-risk-budget.mjs exact source SHA and changed-file-set checks, and regression-prove the workflow passes SOURCE_SHA explicitly.",
+        "id": "CH-RH-08",
+        "scenario": "A live orchestration defect appears after an earlier child already merged.",
+        "finding": "Manual continuation could hide the actual missing edge.",
+        "resolution": "Stop at the authoritative blocked state, record Failure Intake, reconcile separately and replay only after repair.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Open plan-only fix transaction from exact main and require Plan Before Code PASS before workflow implementation.",
-      "Regression-test trusted evidence producer ordering and source exact-head environment binding.",
-      "Run exact-head Knowledge, Plan, Edit-Time, Replay, Release Risk, full tests, typecheck, build, Completion Truth and normal Lifecycle closure.",
-      "Merge exact head, verify fresh main CI, then replay the original rehearsal without manual state reconstruction."
+      "Open this plan-only transaction and require Plan Before Code PASS before fixture implementation.",
+      "Inspect the generated decomposition and require at least three ordered units within the approved material scope.",
+      "Create the approved fixture implementation only after the plan proof is green.",
+      "Run the source revision through the existing repository execution surface and observe each real child transaction.",
+      "Require exact child verification, merge receipt and fresh successor reconciliation for every ordered child.",
+      "Inspect persisted execution state for monotonic identity and any observed stale-writer rejection.",
+      "Require parent Completion Truth and Lifecycle closure at the final implementation main.",
+      "Verify the later closure metadata commit and final main CI without claiming any unobserved fault scenario."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-06-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
+      "request": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
       "authority": [
-        "release-infrastructure"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        ".github/workflows/release-unit-execution.yml"
-      ],
-      "mayEdit": [
         "tests/control-plane-release-unit-production-surface.test.ts"
       ],
-      "impactedReadOnly": [
-        "scripts/shoperation-knowledge-preflight.mjs",
-        "scripts/release-risk-budget.mjs",
-        ".github/workflows/ci.yml"
+      "mayEdit": [],
+      "impactedReadOnly": [],
+      "mustCreate": [
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json"
       ],
-      "mustCreate": [],
       "forbidden": [
-        "deploy/release-risk-policy.json",
-        "scripts/release-risk-budget.mjs",
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "src/**",
-        "supabase/**"
+        "src/app/**",
+        "src/components/**",
+        "supabase/**",
+        ".github/workflows/**",
+        "deploy/**"
       ],
       "proof": [
         "tests/control-plane-release-unit-production-surface.test.ts"
@@ -336,7 +405,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -354,18 +423,17 @@
     },
     "requirements": [
       {
-        "id": "REQ-TRUSTED-EXECUTOR-ATLAS-EVIDENCE",
-        "requirement": "Trusted Release Unit Execution must produce canonical exact-source Knowledge/Atlas change-impact evidence before Release Risk and remain fail closed if that producer fails.",
+        "id": "REQ-REAL-MULTI-UNIT-EXECUTION",
+        "requirement": "The bounded rehearsal must execute three or more canonical child units with exact transaction identity and no material scope widening.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "trusted-executor-atlas-evidence-chain",
+          "breadth": "multi-unit-execution",
           "strength": 2,
           "dimensions": [
             "status",
-            "behavioral-proof",
             "transaction-identity",
-            "forbidden-state",
-            "coverage"
+            "idempotency",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -381,15 +449,78 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-UNTRUSTED-ATLAS-PROOF",
-            "statement": "Source-controlled proof artifacts may not replace trusted executor recomputation.",
+            "id": "NEG-REHEARSAL-SCOPE-WIDEN",
+            "statement": "No rehearsal operation may escape the approved material scope or bypass exact child verification.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "id": "REQ-REHEARSAL-RISK-INTEGRITY",
+        "requirement": "Every child must remain within the unchanged canonical release risk and release scope decision.",
+        "claimScope": {
+          "capability": "CAP-RELEASE",
+          "breadth": "rehearsal-risk-integrity",
+          "strength": 2,
+          "dimensions": [
+            "risk",
+            "release-scope"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-RELEASE"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-RELEASE-RISK"
+          ],
+          "outcome": [
+            "GUARD-RELEASE-RISK"
+          ]
+        },
+        "forbiddenRegressions": [
           {
-            "id": "NEG-RISK-WITHOUT-ATLAS",
-            "statement": "Trusted Release Risk may not execute successfully without canonical change-impact evidence.",
+            "id": "NEG-REHEARSAL-RISK-BYPASS",
+            "statement": "No blocked risk or scope decision may be reinterpreted as executable.",
+            "evidence": [
+              "GUARD-RELEASE-RISK"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-REHEARSAL-PARENT-CLOSURE",
+        "requirement": "Parent truth and lifecycle may close only after every child closes and at the exact final implementation main.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "multi-unit-parent-closure",
+          "strength": 2,
+          "dimensions": [
+            "lifecycle",
+            "truth",
+            "status",
+            "transaction-identity",
+            "close"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-REHEARSAL-EARLY-CLOSE",
+            "statement": "Parent closure must not occur before all child units close or against a nonfinal main SHA.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -398,18 +529,5 @@
       }
     ]
   },
-  "notes": "Created from bounded rehearsal Failure Intake #982 after trusted executor run 37534207237 proved the missing Knowledge/Atlas → Release Risk producer-consumer edge. This is plan-only; no workflow implementation is authorized until Plan Before Code reconciles the exact projected scope/digest. Plan-only run 37534693459 projected 2 material files, release-infrastructure only, Release Risk 2/5, guard digest 128614ad, the reconciled 19 Known Failure IDs and 16 negative-knowledge IDs. Critical assurance depth is expanded to the canonical required technique/challenge/specialist profile before implementation. Second plan-only projection confirmed all reconciled fields except negative-knowledge acknowledgement: projected applicability is the narrower 13-ID set now recorded here.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "12b67719f013b9f31ecfb55a704f0a420290b995",
-    "closedAt": "2026-10-07T03:08:37.214Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Plan-only rehearsal transaction. No fixture implementation exists on this branch yet. The twenty-five inert JSON documents are planned under quality/knowledge/rehearsal-fixtures/v1; this intentionally activates full Known Failure replay while keeping application behavior untouched. Implementation remains denied until Plan Before Code passes and decomposition shows at least three units. Reconciled task wording removes the lexical product-intent token that incorrectly widened planned scope to storefront subsystems. Reconciled after targeted source-lifecycle admission fix PR #974 merged at main 7e7ec558fa470fae2b11c1ed2bce0a5ec205045c. Rehearsal scope, authority, 25-fixture material set and three-unit decomposition intent are unchanged; only canonical base/provenance is refreshed before replay. Reconciled after targeted trusted-executor Atlas evidence fix PR #983 merged at main 199f21f274524a7b3688f50e09d2d0e3039f86c8. Rehearsal scope, authority, 25-fixture material set and three-unit decomposition intent are unchanged; only canonical base/provenance is refreshed before replay."
 }
