@@ -142,7 +142,8 @@
         "threat-failure-model",
         "proof-obligation",
         "pairwise-interactions",
-        "finite-state-exhaustion"
+        "finite-state-exhaustion",
+        "fault-injection"
       ],
       "deferredTechniques": []
     },
@@ -463,5 +464,5 @@
       }
     ]
   },
-  "notes": "Plan-only transaction created from live Failure Intake #1013. No implementation is authorized until Plan Before Code passes."
+  "notes": "Plan-only transaction created from live Failure Intake #1013. No implementation is authorized until Plan Before Code passes. Plan projection 37586400919 required fault-injection for critical assurance; added without changing implementation scope."
 }
