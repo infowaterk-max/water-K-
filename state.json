@@ -3589,54 +3589,42 @@
       "merge": null,
       "closeReceipt": null,
       "blocker": {
-        "code": "RELEASE_UNIT_MAIN_DRIFT",
+        "code": "RELEASE_UNIT_MODIFY_PATCH_CONFLICT",
         "details": {
-          "error": "RELEASE_UNIT_MAIN_ADVANCE_SCOPE_OVERLAP:scripts/lib/shoperation-release-unit-runtime.mjs,tests/control-plane-release-unit-production-surface.test.ts",
-          "fromSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
-          "toSha": "bc6c11e0ad880fd41404dbac4b2c1fd8d7700893",
-          "changedFiles": [
-            "quality/development/active-plan.json",
-            "scripts/lib/shoperation-release-unit-runtime.mjs",
-            "tests/control-plane-release-unit-production-surface.test.ts"
-          ],
-          "scopeFiles": [
-            "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
-            "scripts/lib/shoperation-release-unit-runtime.mjs",
-            "tests/control-plane-release-unit-production-surface.test.ts"
-          ],
-          "overlapFiles": [
-            "scripts/lib/shoperation-release-unit-runtime.mjs",
-            "tests/control-plane-release-unit-production-surface.test.ts"
-          ]
+          "error": "RELEASE_UNIT_MODIFY_PATCH_CONFLICT:tests/control-plane-release-unit-production-surface.test.ts",
+          "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
+          "file": "tests/control-plane-release-unit-production-surface.test.ts",
+          "sourceParent": "b79f8805d9718961a5cb41d4babaf11fd85dda5a",
+          "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+          "sourcePatchDigest": "1569812908caffa0f770724401c4db6973f98ae963353806cade53690cb5446d",
+          "targetBaseSha": "6c897234b6c890f8ee38f86c08dc86f7b9f68fa2",
+          "targetBlobSha": "48548e4838cd2bdfeb0fe66876af771843282978",
+          "targetFileMode": "100644",
+          "resolutionRecordPath": "quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json",
+          "gitApplyError": "Applied patch to 'tests/control-plane-release-unit-production-surface.test.ts' with conflicts.\nU tests/control-plane-release-unit-production-surface.test.ts"
         }
       },
       "lastTransition": {
         "to": "STALE",
-        "code": "RELEASE_UNIT_MAIN_DRIFT"
+        "code": "RELEASE_UNIT_MODIFY_PATCH_CONFLICT"
       }
     }
   ],
   "blocker": {
     "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
-    "code": "RELEASE_UNIT_MAIN_DRIFT",
+    "code": "RELEASE_UNIT_MODIFY_PATCH_CONFLICT",
     "details": {
-      "error": "RELEASE_UNIT_MAIN_ADVANCE_SCOPE_OVERLAP:scripts/lib/shoperation-release-unit-runtime.mjs,tests/control-plane-release-unit-production-surface.test.ts",
-      "fromSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
-      "toSha": "bc6c11e0ad880fd41404dbac4b2c1fd8d7700893",
-      "changedFiles": [
-        "quality/development/active-plan.json",
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "tests/control-plane-release-unit-production-surface.test.ts"
-      ],
-      "scopeFiles": [
-        "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "tests/control-plane-release-unit-production-surface.test.ts"
-      ],
-      "overlapFiles": [
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "tests/control-plane-release-unit-production-surface.test.ts"
-      ]
+      "error": "RELEASE_UNIT_MODIFY_PATCH_CONFLICT:tests/control-plane-release-unit-production-surface.test.ts",
+      "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
+      "file": "tests/control-plane-release-unit-production-surface.test.ts",
+      "sourceParent": "b79f8805d9718961a5cb41d4babaf11fd85dda5a",
+      "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+      "sourcePatchDigest": "1569812908caffa0f770724401c4db6973f98ae963353806cade53690cb5446d",
+      "targetBaseSha": "6c897234b6c890f8ee38f86c08dc86f7b9f68fa2",
+      "targetBlobSha": "48548e4838cd2bdfeb0fe66876af771843282978",
+      "targetFileMode": "100644",
+      "resolutionRecordPath": "quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json",
+      "gitApplyError": "Applied patch to 'tests/control-plane-release-unit-production-surface.test.ts' with conflicts.\nU tests/control-plane-release-unit-production-surface.test.ts"
     }
   },
   "closureEligible": false,
