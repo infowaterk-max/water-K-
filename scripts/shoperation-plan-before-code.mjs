@@ -205,6 +205,8 @@ const childPlanProjection={
   expectedKnownFailureIds:[...projectedFailures],
   acknowledgedPoInstructionIds:[...expectedInstructionIds],
   acknowledgedNegativeKnowledgeIds:[...projectedNegative],
+  requiredGates:[...(gateChain.orderedGateIds??[])],
+  externalGateIds:[...(gateChain.externalGateIds??[])],
   semanticExecutionRoute:{
     request:declaredExecutionRoute?.request??plan.operationalIntelligence?.sourceRef??null,
     authority:[...projectedAuthorities],
