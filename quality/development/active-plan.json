@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-PRIOR-SUPERSESSION-RESUME-V1",
   "task": "Make release-unit materialization resumable when persisted execution already points at a canonical superseding branch and main advances again.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "128614ad",
   "changeBaseSha": "72154b099c5fd1e3fc9f57bf9410b11f7f05fcb2",
   "plannedFilePatterns": [
@@ -444,5 +444,18 @@
       }
     ]
   },
-  "notes": "Plan-only transaction created from live Release Unit Execution #144 failure on main 72154b099c5fd1e3fc9f57bf9410b11f7f05fcb2. Exact blocker: RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH with persisted branch release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-a96074891ce8-ab2e09fcc439a199. No implementation is authorized until Plan Before Code passes. Plan gate CI #9038 / run 37610210980 blocked the first plan-only revision with DEV_PLAN_GUARD_DIGEST_DRIFT (expected 128614ad) and vacuous challenge findings at indices 5 and 7. This revision adopts the canonical digest and makes interrupted exact-successor reuse plus repeated-main-drift lineage explicit."
+  "notes": "Plan-only transaction created from live Release Unit Execution #144 failure on main 72154b099c5fd1e3fc9f57bf9410b11f7f05fcb2. Exact blocker: RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH with persisted branch release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-a96074891ce8-ab2e09fcc439a199. No implementation is authorized until Plan Before Code passes. Plan gate CI #9038 / run 37610210980 blocked the first plan-only revision with DEV_PLAN_GUARD_DIGEST_DRIFT (expected 128614ad) and vacuous challenge findings at indices 5 and 7. This revision adopts the canonical digest and makes interrupted exact-successor reuse plus repeated-main-drift lineage explicit.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "0d5cefcf27cc360d87a9d1098763d7e29f763774",
+    "closedAt": "2026-10-07T11:16:29.370Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-PRIOR-SUPERSESSION-RESUME-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
