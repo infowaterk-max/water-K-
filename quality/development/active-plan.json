@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-SEALED-OBLIGATION-PROVENANCE-V1",
   "task": "Preserve sealed release-unit source provenance across trusted fresh reevaluation so canonical material obligation comparison stays stable without weakening real drift detection.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "128614ad",
   "changeBaseSha": "95b0e429e5e7d23b361fa3644f0899e07b6e7ac0",
   "plannedFilePatterns": [
@@ -443,5 +443,18 @@
       }
     ]
   },
-  "notes": "Plan-only transaction created from live persisted rehearsal state after main 95b0e429e5e7d23b361fa3644f0899e07b6e7ac0. U01 is STALE with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT solely because trusted fresh reevaluation removes sealed operation.source provenance and changes childOperationDigest. No implementation is authorized until Plan Before Code passes. Plan gate 37605855553 correctly blocked the first revision: planned projection resolved only DOMAIN-RELEASE/release-infrastructure and critical assurance required 8 challenge cases. This plan revision narrows expected scope to the projected authority and adds three adversarial cases without widening implementation scope."
+  "notes": "Plan-only transaction created from live persisted rehearsal state after main 95b0e429e5e7d23b361fa3644f0899e07b6e7ac0. U01 is STALE with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT solely because trusted fresh reevaluation removes sealed operation.source provenance and changes childOperationDigest. No implementation is authorized until Plan Before Code passes. Plan gate 37605855553 correctly blocked the first revision: planned projection resolved only DOMAIN-RELEASE/release-infrastructure and critical assurance required 8 challenge cases. This plan revision narrows expected scope to the projected authority and adds three adversarial cases without widening implementation scope.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "9ef6d01ddbc581e415daebea4df7dbdda9663910",
+    "closedAt": "2026-10-07T10:23:34.899Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-SEALED-OBLIGATION-PROVENANCE-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
