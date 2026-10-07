@@ -313,6 +313,10 @@ export function reevaluateSuccessorManifest({state,execution,currentMainSha,sour
   }
 }
 
+export function needsFreshReleaseUnitReevaluation(active,currentMainSha){
+  return active?.state==='STALE'||Number(active?.order)>1||active?.manifest?.targetBaseSha!==currentMainSha;
+}
+
 export function initializeExecutionState({decomposition,sourceCommit}={}){
   const state=createReleaseParentExecution(decomposition);
   state.executionSourceCommit=sourceCommit;
@@ -321,8 +325,9 @@ export function initializeExecutionState({decomposition,sourceCommit}={}){
 export function prepareActiveUnit({state,currentMainSha,sourceCommit,run=defaultRun,cwd=process.cwd()}={}){
   const active=state.units.find(item=>item.releaseUnitId===state.activeUnitId);
   if(!active)throw new Error('RELEASE_UNIT_ACTIVE_REQUIRED');
+  if(!['PLANNED','STALE'].includes(active.state))throw new Error('RELEASE_UNIT_PREPARE_STATE_INVALID:'+String(active.state));
   let freshManifest=active.manifest;
-  if(Number(active.order)>1||freshManifest.targetBaseSha!==currentMainSha){
+  if(needsFreshReleaseUnitReevaluation(active,currentMainSha)){
     const reevaluated=reevaluateSuccessorManifest({state,execution:active,currentMainSha,sourceCommit,run,cwd});
     if(reevaluated.decision!=='PASS'){
       const blocked={...active,state:'STALE',blocker:{code:reevaluated.code,details:{error:reevaluated.error??null}},lastTransition:{to:'STALE',code:reevaluated.code}};
