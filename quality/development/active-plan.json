@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-REEVALUATION-DEPS-V1",
   "task": "Make isolated release-unit successor reevaluation resolve the exact locked dependency graph required by trusted semantic Plan/Atlas validation, while remaining fail-closed and preserving token/authority isolation.",
   "status": "ready-for-implementation",
-  "guardDigest": "128614ad",
+  "guardDigest": "2446fb5f",
   "changeBaseSha": "fb436df11ae3dbc7c348e50fbc656e18a94f83cf",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -11,6 +11,7 @@
     "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
+    "dependency-contract",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -253,9 +254,9 @@
       },
       {
         "id": "CH-RD-02",
-        "scenario": "Candidate changes package-lock.json.",
-        "finding": "Root node_modules reuse could validate against the wrong dependency graph.",
-        "resolution": "Use candidate-local npm ci rather than root node_modules reuse.",
+        "scenario": "A release unit legitimately modifies package.json and package-lock.json while current main still has the executor's previously installed dependency tree.",
+        "finding": "Reusing the executor root node_modules would make Atlas and Plan load modules from the old main dependency graph, so a candidate could be semantically evaluated with packages or versions that are not declared by its own exact head.",
+        "resolution": "Build the reevaluation environment from the candidate worktree itself with npm ci reading that candidate package-lock.json; never symlink or inherit root node_modules as reevaluation authority.",
         "status": "resolved"
       },
       {
@@ -267,9 +268,9 @@
       },
       {
         "id": "CH-RD-04",
-        "scenario": "Registry/install fails transiently.",
-        "finding": "Running Plan anyway would turn missing prerequisite environment into implicit bypass.",
-        "resolution": "Treat bootstrap failure as RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK.",
+        "scenario": "The package registry is unavailable, lockfile integrity verification fails, or npm ci exits non-zero while preparing the isolated candidate worktree.",
+        "finding": "Without a complete dependency graph the semantic Plan/Atlas result is unknowable; continuing to shoperation-plan-before-code.mjs would falsely convert missing prerequisite evidence into an authorization attempt.",
+        "resolution": "Catch the bootstrap command failure inside reevaluateSuccessorManifest and return RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK with the installation error; do not invoke Plan, authorize the unit, mutate persisted state beyond the blocker, or create a child PR.",
         "status": "resolved"
       },
       {
@@ -404,5 +405,5 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #997/#998 after bounded rehearsal replay persisted U01 as STALE because isolated successor reevaluation could not import typescript. This commit is plan-only; no executor implementation is authorized until Plan Before Code reconciles the exact projected scope."
+  "notes": "Created from live Failure Intake #997/#998 after bounded rehearsal replay persisted U01 as STALE because isolated successor reevaluation could not import typescript. This commit is plan-only; no executor implementation is authorized until Plan Before Code reconciles the exact projected scope. Plan-only projection 37573408409 reported subsystem expansion to dependency-contract, canonical guard digest 2446fb5f, and two challenge-specificity defects; this revision reconciles only those machine-reported planning fields."
 }
