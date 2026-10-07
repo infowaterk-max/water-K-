@@ -58,6 +58,18 @@ jobs:
           mkdir -p artifacts/release-execution
           git show "$SOURCE_SHA:quality/development/active-plan.json" > artifacts/release-execution/source-plan.json
 
+      - name: Recompute trusted Knowledge/Atlas evidence for exact source
+        env:
+          SHOPERATION_ACTIVE_PLAN: artifacts/release-execution/source-plan.json
+          DEVELOPMENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          QUALITY_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RELEASE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          SHOPERATION_REPLAY_HEAD: ${{ github.event.workflow_run.head_sha }}
+          SHOPERATION_REPLAY_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          GH_TOKEN: ''
+          GITHUB_TOKEN: ''
+        run: node scripts/shoperation-knowledge-preflight.mjs
+
       - name: Recompute canonical source plan with trusted executor
         env:
           SHOPERATION_ACTIVE_PLAN: artifacts/release-execution/source-plan.json
