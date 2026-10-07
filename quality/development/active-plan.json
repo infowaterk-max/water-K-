@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
   "task": "Close the trusted Release Unit Execution Atlas evidence gap so canonical Release Risk can be recomputed against exact source HEAD without trusting source-controlled proof artifacts or weakening Atlas/Release Risk authority.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "128614ad",
   "changeBaseSha": "7e7ec558fa470fae2b11c1ed2bce0a5ec205045c",
   "plannedFilePatterns": [
@@ -398,5 +398,18 @@
       }
     ]
   },
-  "notes": "Created from bounded rehearsal Failure Intake #982 after trusted executor run 37534207237 proved the missing Knowledge/Atlas → Release Risk producer-consumer edge. This is plan-only; no workflow implementation is authorized until Plan Before Code reconciles the exact projected scope/digest. Plan-only run 37534693459 projected 2 material files, release-infrastructure only, Release Risk 2/5, guard digest 128614ad, the reconciled 19 Known Failure IDs and 16 negative-knowledge IDs. Critical assurance depth is expanded to the canonical required technique/challenge/specialist profile before implementation. Second plan-only projection confirmed all reconciled fields except negative-knowledge acknowledgement: projected applicability is the narrower 13-ID set now recorded here."
+  "notes": "Created from bounded rehearsal Failure Intake #982 after trusted executor run 37534207237 proved the missing Knowledge/Atlas → Release Risk producer-consumer edge. This is plan-only; no workflow implementation is authorized until Plan Before Code reconciles the exact projected scope/digest. Plan-only run 37534693459 projected 2 material files, release-infrastructure only, Release Risk 2/5, guard digest 128614ad, the reconciled 19 Known Failure IDs and 16 negative-knowledge IDs. Critical assurance depth is expanded to the canonical required technique/challenge/specialist profile before implementation. Second plan-only projection confirmed all reconciled fields except negative-knowledge acknowledgement: projected applicability is the narrower 13-ID set now recorded here.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "12b67719f013b9f31ecfb55a704f0a420290b995",
+    "closedAt": "2026-10-07T03:08:37.214Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-RELEASE-EXECUTOR-ATLAS-EVIDENCE-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
