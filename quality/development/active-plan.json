@@ -1,14 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
-  "task": "Repair the current main Plan Before Code quality gate so critical proof-only transactions whose projected files are exclusively neutral/test or knowledge-infrastructure paths may truthfully use empty domain/authority projections while architecture-bearing projected files remain fail-closed.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-NEUTRAL-SEMANTIC-ROUTE-AUTHORITY-V1",
+  "task": "Repair the Quality Control Plane Operational Intelligence validator so critical semantic execution routes require an explicit authority category that exactly matches expectedAuthorities, allowing an empty authority array only when the canonical expectedAuthorities scope is empty while preserving fail-closed non-empty authority for architecture-bearing work.",
+  "status": "ready-for-implementation",
   "guardDigest": "85d0ad2a",
-  "changeBaseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
+  "changeBaseSha": "22c11e6a724d374295c7cd95d6333e8ba8352104",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/shoperation-plan-before-code.mjs",
-    "tests/shoperation-change-impact-atlas.test.ts"
+    "scripts/lib/shoperation-operational-intelligence.mjs",
+    "tests/shoperation-operational-intelligence.test.ts"
   ],
   "expectedSubsystems": [
     "quality-knowledge-system"
@@ -89,39 +89,40 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-SEMANTIC-ROUTE-AUTHORITY-V1",
     "riskTier": "critical",
-    "problemStatement": "Live Sentinel plan-isolation repair exposed an unsatisfiable current-main Plan Before Code invariant: a critical transaction that projects only a neutral test file correctly resolves projectedDomains=[] and projectedAuthorities=[], yet the gate unconditionally requires both declarations to be non-empty. Historical draft PR #798 already demonstrated and implemented the intended invariant on an older base, but it never reached main. The current main must port only that bounded logic and regression proof without weakening exact domain/authority drift checks for architecture-bearing projected files.",
+    "problemStatement": "Sentinel plan-isolation CI #9063 proved a second neutral-scope contradiction in current main: Plan Before Code now truthfully accepts expectedAuthorities=[] for a neutral test-only projection, but validateOperationalIntelligence still requires semanticExecutionRoute.authority to be non-empty for every critical plan. Supplying a fake authority would corrupt the Authority Graph and let semantic route metadata diverge from the plan's canonical expected authority scope.",
     "observableOutcomes": [
-      "Critical neutral/test-only or knowledge-infrastructure-only projected scopes may declare empty expectedDomains/expectedAuthorities when the canonical architecture projection is empty.",
-      "Any projected architecture-bearing file still requires non-empty expectedDomains/expectedAuthorities.",
-      "Exact projected domain and authority drift comparisons remain unconditional and fail closed.",
-      "The Plan Gate exposes a deterministic architecture-scope self-test covering neutral-only, knowledge-infrastructure-only, product-code and mixed projections.",
-      "The blocked Sentinel plan-isolation branch can subsequently pass Plan Before Code without false metadata."
+      "Critical plans must always declare semanticExecutionRoute.authority as an explicit array.",
+      "When expectedAuthorities is empty, semanticExecutionRoute.authority=[] is accepted as a truthful neutral route category.",
+      "When expectedAuthorities is non-empty, semanticExecutionRoute.authority must also be non-empty.",
+      "Semantic route authority must exactly match expectedAuthorities; invented or missing authorities fail closed with a precise machine code.",
+      "The blocked Sentinel plan-isolation plan can proceed without fabricating release-infrastructure as an authority."
     ],
     "unresolvedRisks": [
-      "A broad exemption could let product-code plans omit ownership.",
-      "Neutral classification drift could accidentally suppress required architecture scope.",
-      "Knowledge-infrastructure paths must remain separately classified from product-code paths.",
-      "Porting the old #798 implementation blindly could overwrite newer current-main Plan Gate logic."
+      "Conditioning only on array presence without exact equality could allow false authority metadata to pass.",
+      "Allowing empty authority too broadly could weaken architecture-bearing critical plans.",
+      "Changing the validator without regression coverage could create a silent mismatch between Plan Before Code scope and Operational Intelligence semantics.",
+      "The new authority-drift diagnostic must remain deterministic for release-unit child plans as well as ordinary critical plans."
     ],
     "scope": {
       "in": [
-        "Port only the neutral architecture-scope prerequisite logic from historical #798 into current main.",
-        "Add/retain the architecture-scope self-test in shoperation-plan-before-code.mjs.",
-        "Add regression coverage in tests/shoperation-change-impact-atlas.test.ts.",
-        "Preserve current-main release decomposition, implementation skeleton, exact-head transaction identity and gate-chain logic."
+        "Refine only the critical semantic execution route authority validation in scripts/lib/shoperation-operational-intelligence.mjs.",
+        "Require explicit authority category presence for every critical route.",
+        "Require exact equality between semanticExecutionRoute.authority and plan.expectedAuthorities.",
+        "Permit an empty route authority array only when expectedAuthorities is canonically empty.",
+        "Add focused regression tests for neutral, missing, false and matching authority cases."
       ],
       "out": [
-        "No broad exemption from domain/authority drift checks.",
-        "No changes to Sentinel evaluator semantics.",
-        "No changes to storefront, Builder, database, authentication, payments or deployment behavior.",
-        "No merge or retarget of the old #798 branch itself."
+        "No change to Plan Before Code domain/authority projection rules.",
+        "No change to Sentinel evaluator semantics.",
+        "No change to release-unit materialization, Truth Gate evidence semantics, product runtime or deployment.",
+        "No relaxation of MUST_EDIT/MUST_CREATE, PROOF or UNKNOWN route requirements."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This change alters a canonical planning prerequisite. A false exemption could permit unowned product changes, while the current bug blocks truthful neutral proof-only repairs. Exact boundary behavior must therefore be proven adversarially.",
+      "rationale": "This validator protects the semantic route authority declaration used by critical Control Plane work. A permissive mistake could allow false authority metadata, while the current unconditional non-empty rule blocks truthful neutral plans. The fix therefore needs exact equality, negative cases and preservation of all other critical route requirements.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -138,28 +139,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Plan Before Code conditionally requires non-empty expectedDomains/expectedAuthorities only when at least one projected file is architecture-bearing.",
-        "Neutral/test-only projection returns architectureScopeRequired=false.",
-        "Knowledge-infrastructure-only projection returns architectureScopeRequired=false.",
-        "Product-code and mixed projections return architectureScopeRequired=true.",
-        "Exact projectedDomains/expectedDomains and projectedAuthorities/expectedAuthorities comparisons remain unchanged and unconditional.",
-        "Regression tests prove both truthful neutral scope and product-code fail-closed behavior.",
+        "Critical semanticExecutionRoute.authority must be present as an array even when empty.",
+        "Neutral critical plan with expectedAuthorities=[] and route.authority=[] passes the authority-category requirement.",
+        "Architecture-bearing critical plan with non-empty expectedAuthorities and route.authority=[] fails closed.",
+        "Any route.authority value that differs from expectedAuthorities fails with a dedicated authority-drift diagnostic.",
+        "Matching non-empty route authority continues to pass.",
+        "MUST_EDIT or child MUST_CREATE, PROOF and UNKNOWN requirements remain unchanged.",
         "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge."
       ],
       "invariants": [
-        "Architecture-bearing projected files may never pass with empty expectedDomains or expectedAuthorities.",
-        "Neutral/test-only proof scope may not be forced to invent false ownership metadata.",
-        "Knowledge-infrastructure-only scope may remain ownership-neutral when the Atlas projection is empty.",
-        "Domain and authority drift detection remains exact.",
-        "Current main logic outside the targeted prerequisite remains unchanged."
+        "Semantic execution authority may never invent an owner absent from expectedAuthorities.",
+        "Semantic execution authority may never omit a canonical expected authority.",
+        "Empty authority is truthful only when expectedAuthorities is empty.",
+        "Critical route target, proof and unknown-category requirements remain fail closed.",
+        "Release-unit child route semantics remain governed by the same authority equality rule."
       ],
       "forbiddenStates": [
-        "product-code-empty-ownership-pass",
-        "mixed-scope-empty-ownership-pass",
-        "domain-drift-check-disabled",
-        "authority-drift-check-disabled",
-        "old-branch-wholesale-port",
-        "sentinel-or-release-risk-bypass"
+        "neutral-plan-fake-authority-required",
+        "architecture-plan-empty-authority-pass",
+        "semantic-authority-plan-authority-drift-pass",
+        "semantic-authority-category-missing",
+        "critical-proof-category-bypass",
+        "critical-unknown-category-bypass"
       ]
     },
     "model": {
@@ -191,47 +192,47 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Neutral projected scope remains unsatisfiable because non-empty ownership is still unconditional.",
-        "Architecture-bearing product scope is accidentally exempted.",
-        "Knowledge-infrastructure classification diverges from unresolved-scope semantics.",
-        "Regression self-test does not exercise mixed architecture-bearing scope.",
-        "Port collides with newer current-main planner logic."
+        "Validator still treats empty neutral authority as missing.",
+        "Validator accepts false non-empty authority for a neutral plan.",
+        "Validator accepts empty route authority while expectedAuthorities is non-empty.",
+        "Authority equality normalization is order-sensitive and creates false drift.",
+        "Child transaction route validation diverges from ordinary critical plan validation."
       ],
       "edgeCases": [
-        "Only tests/proof-only.test.ts is projected.",
-        "Only scripts/shoperation-plan-before-code.mjs is projected.",
-        "Only src/lib/builder/storefront-runtime.ts is projected.",
-        "A neutral test and product runtime file are projected together.",
-        "Projected domains are empty while expected declarations are falsely non-empty.",
-        "Projected domains are non-empty while expected declarations are empty.",
-        "Expected declarations differ from non-empty projected ownership.",
-        "A future neutral-pattern policy change reclassifies the test path."
+        "expectedAuthorities=[] and route.authority=[]",
+        "expectedAuthorities=[] and route.authority=['release-infrastructure']",
+        "expectedAuthorities=['quality-knowledge-system'] and route.authority=[]",
+        "expectedAuthorities=['quality-knowledge-system'] and route.authority=['quality-knowledge-system']",
+        "route.authority is missing entirely",
+        "route.authority contains the same authorities in a different order",
+        "child route uses mustCreate rather than mustEdit",
+        "route.unknown remains non-empty while authority is otherwise valid"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-CONDITIONAL-ARCHITECTURE-REQUIREMENT",
-        "summary": "Require non-empty ownership declarations only when projected files include architecture-bearing scope.",
+        "id": "ALT-EXACT-AUTHORITY-SCOPE",
+        "summary": "Require an explicit authority array and exact normalized equality with expectedAuthorities, allowing empty only when the expected scope is empty.",
         "disposition": "selected",
-        "reason": "Matches truthful Atlas output while preserving exact drift enforcement."
+        "reason": "Preserves truthful neutral semantics and strengthens fail-closed authority coherence."
       },
       {
-        "id": "ALT-FAKE-OWNERSHIP",
-        "summary": "Invent DOMAIN-QUALITY/quality-knowledge-system for neutral-only transactions.",
+        "id": "ALT-FAKE-NEUTRAL-AUTHORITY",
+        "summary": "Keep the validator unchanged and declare a convenient non-empty authority for neutral plans.",
         "disposition": "rejected",
-        "reason": "Would make plan metadata intentionally false."
+        "reason": "Would deliberately corrupt authority metadata and undermine the Authority Graph."
       },
       {
-        "id": "ALT-DUMMY-ARCHITECTURE-FILE",
-        "summary": "Touch a product or architecture file solely to satisfy the prerequisite.",
+        "id": "ALT-ALLOW-ANY-ARRAY",
+        "summary": "Treat any authority array, including false non-empty values, as satisfying the critical route requirement.",
         "disposition": "rejected",
-        "reason": "Would widen material scope and invalidate proof-only intent."
+        "reason": "Would remove the contradiction but permit semantic route authority drift."
       },
       {
-        "id": "ALT-DISABLE-DRIFT-CHECKS",
-        "summary": "Skip domain/authority checks for critical plans.",
+        "id": "ALT-DROP-AUTHORITY-CATEGORY",
+        "summary": "Remove semanticExecutionRoute.authority from critical route requirements.",
         "disposition": "rejected",
-        "reason": "Would weaken Control Plane authority guarantees."
+        "reason": "Would weaken critical execution planning and discard useful machine-checkable authority semantics."
       }
     ],
     "specialistReviews": [
@@ -239,136 +240,136 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Empty ownership cannot become a general critical-plan bypass.",
-        "resolution": "Gate only the non-empty prerequisite on architecture-bearing projected files while retaining exact drift comparison for every plan.",
+        "finding": "Allowing empty route authority can become a general bypass unless it is tied exactly to the canonical expectedAuthorities scope.",
+        "resolution": "Require array presence and exact normalized equality to plan.expectedAuthorities; architecture-bearing scope therefore remains non-empty.",
         "evidence": [
-          "scripts/shoperation-plan-before-code.mjs",
-          "quality/knowledge/domain-foundations.v1.json"
+          "scripts/lib/shoperation-operational-intelligence.mjs",
+          "scripts/shoperation-plan-before-code.mjs"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The contradiction is deterministic when canonical projected ownership is empty but the declaration prerequisite is unconditional.",
-        "resolution": "Reuse the same neutral and knowledge-infrastructure classification already trusted by unresolved-scope logic.",
+        "finding": "The current contradiction is caused by two validators representing empty ownership differently.",
+        "resolution": "Use expectedAuthorities as the canonical authority envelope and validate semantic route data against it exactly.",
         "evidence": [
-          "scripts/lib/shoperation-development-runtime.mjs",
-          "quality/knowledge/knowledge-scope-policy.v1.json"
+          "CI #9063",
+          "quality/development/active-plan.json"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The live Sentinel repair reproduced the old #798 prerequisite gap on current main.",
-        "resolution": "Port the already-proven invariant as a bounded current-main fix and keep the historical branch untouched.",
+        "finding": "The failure is deterministic and appears only after the preceding neutral ownership prerequisite was correctly fixed.",
+        "resolution": "Capture the case with focused positive and negative regression tests before replaying the Sentinel plan.",
         "evidence": [
-          "CI #9056",
-          "PR #798"
+          "DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED",
+          "tests/shoperation-operational-intelligence.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The gate fix is a prerequisite and must not be mixed with the downstream Sentinel test-isolation material change.",
-        "resolution": "Merge this Control Plane repair first, then rebase/reproject the Sentinel repair from fresh main.",
+        "finding": "The fix must remain a standalone Control Plane prerequisite and not be mixed with the downstream Sentinel test implementation.",
+        "resolution": "Prove and merge this validator change first, then reproject the Sentinel branch on fresh main.",
         "evidence": [
           "fix/sentinel-integrity-probe-plan-isolation-v1",
-          "main 6c8006ce653f122c1166725f70e4738dd2d7249a"
+          "main 22c11e6a724d374295c7cd95d6333e8ba8352104"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-NEUTRAL-01",
-        "scenario": "Critical plan projects only a neutral test file.",
-        "finding": "Canonical domains/authorities are empty; unconditional non-empty prerequisite is unsatisfiable.",
-        "resolution": "architectureScopeRequired=false; allow empty declarations but still compare exact arrays.",
+        "id": "CH-ROUTE-AUTH-01",
+        "scenario": "Neutral critical plan has expectedAuthorities=[] and explicit route.authority=[].",
+        "finding": "Current validator incorrectly treats truthful empty authority as absent.",
+        "resolution": "Array presence satisfies category explicitness when expected authority scope is empty.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-02",
-        "scenario": "Critical plan projects only a knowledge-infrastructure planner script.",
-        "finding": "Ownership may be empty by the same scope policy used by unresolved-scope logic.",
-        "resolution": "Treat knowledge-infrastructure as non-architecture-bearing for the prerequisite.",
+        "id": "CH-ROUTE-AUTH-02",
+        "scenario": "Neutral critical plan declares route.authority=['release-infrastructure'].",
+        "finding": "Merely allowing arrays would accept fabricated authority.",
+        "resolution": "Exact normalized equality with expectedAuthorities blocks the false owner.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-03",
-        "scenario": "Critical plan projects product runtime code.",
-        "finding": "Empty ownership would be unsafe.",
-        "resolution": "architectureScopeRequired=true and non-empty declarations remain mandatory.",
+        "id": "CH-ROUTE-AUTH-03",
+        "scenario": "Quality critical plan expects quality-knowledge-system but route.authority=[].",
+        "finding": "Empty authority would under-declare architecture-bearing ownership.",
+        "resolution": "Non-empty expected authority requires matching non-empty route authority.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-04",
-        "scenario": "Projection mixes neutral test and product code.",
-        "finding": "Neutral content must not suppress product ownership.",
-        "resolution": "Use files.some(isArchitectureBearingProjectedFile), so any product file requires ownership.",
+        "id": "CH-ROUTE-AUTH-04",
+        "scenario": "Quality critical plan declares matching quality-knowledge-system authority.",
+        "finding": "Existing legitimate critical planning must remain valid.",
+        "resolution": "Exact equality accepts the matching route.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-05",
-        "scenario": "Expected ownership is non-empty but canonical projected ownership is empty.",
-        "finding": "False metadata must still fail.",
-        "resolution": "Keep exact DOMAIN_SCOPE_DRIFT and AUTHORITY_SCOPE_DRIFT comparisons unconditional.",
+        "id": "CH-ROUTE-AUTH-05",
+        "scenario": "route.authority property is omitted.",
+        "finding": "A missing category is not equivalent to an explicitly neutral category.",
+        "resolution": "Require Array.isArray(route.authority) for every critical route.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-06",
-        "scenario": "Expected ownership is empty but canonical product ownership is non-empty.",
-        "finding": "A conditional prerequisite alone is insufficient.",
-        "resolution": "Exact drift comparison still blocks the mismatch.",
+        "id": "CH-ROUTE-AUTH-06",
+        "scenario": "Multiple expected authorities are declared in different ordering.",
+        "finding": "Order-only differences must not cause semantic drift.",
+        "resolution": "Compare sorted unique authority lists.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-07",
-        "scenario": "Neutral pattern policy changes later.",
-        "finding": "Hard-coded filename exceptions would silently rot.",
-        "resolution": "Reuse isNeutralFile and scopePolicy.knowledgeInfrastructurePrefixes rather than hard-coded current paths.",
+        "id": "CH-ROUTE-AUTH-07",
+        "scenario": "Release-unit child plan uses mustCreate with correct authority.",
+        "finding": "Authority fix must not break child route target semantics.",
+        "resolution": "Retain existing child routeTargets rule and apply the same authority equality check.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-08",
-        "scenario": "Historical #798 code is applied wholesale to current main.",
-        "finding": "Newer planner logic could be lost.",
-        "resolution": "Port only helper/self-test/conditional prerequisite lines plus regression assertions.",
+        "id": "CH-ROUTE-AUTH-08",
+        "scenario": "Authority is correct but route.unknown contains unresolved relationships.",
+        "finding": "Authority coherence must not bypass unresolved semantic relationships.",
+        "resolution": "Retain the existing UNKNOWN non-empty blocking rule unchanged.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require current-main Plan Before Code PASS before implementation.",
-      "Port the minimal #798 neutral-scope helper and conditional prerequisite into current scripts/shoperation-plan-before-code.mjs.",
-      "Add the historical regression assertion pattern to current tests/shoperation-change-impact-atlas.test.ts without overwriting newer tests.",
-      "Require exact-head Knowledge/Plan/Edit-Time/Incremental Replay/Release Risk/full tests/typecheck/build/Completion Truth/Lifecycle PASS.",
-      "Merge only after exact PR-head proof, then resume the Sentinel plan-isolation repair from fresh main."
+      "Commit this plan only against current main and require Plan Before Code PASS.",
+      "Modify only scripts/lib/shoperation-operational-intelligence.mjs and tests/shoperation-operational-intelligence.test.ts.",
+      "Add deterministic self/regression cases for neutral empty, missing authority, false authority, empty architecture authority and matching authority.",
+      "Require full exact-head Knowledge/Plan/Edit-Time/Incremental/Release Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
+      "Merge after exact PR-head success, then reproject and continue the Sentinel plan-isolation repair."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
+      "request": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-SEMANTIC-ROUTE-AUTHORITY-V1",
       "authority": [
         "quality-knowledge-system"
       ],
       "mustEdit": [
-        "scripts/shoperation-plan-before-code.mjs"
+        "scripts/lib/shoperation-operational-intelligence.mjs"
       ],
       "mayEdit": [
-        "tests/shoperation-change-impact-atlas.test.ts"
+        "tests/shoperation-operational-intelligence.test.ts"
       ],
       "impactedReadOnly": [
-        "scripts/lib/shoperation-development-runtime.mjs",
-        "quality/knowledge/domain-foundations.v1.json",
-        "quality/knowledge/knowledge-scope-policy.v1.json",
-        "deploy/release-risk-policy.json"
+        "scripts/shoperation-plan-before-code.mjs",
+        "quality/knowledge/development-guard-policy.v1.json",
+        "quality/knowledge/domain-foundations.v1.json"
       ],
       "mustCreate": [],
       "forbidden": [
         "src/**",
-        "supabase/**"
+        "supabase/**",
+        "deploy/**"
       ],
       "proof": [
-        "tests/shoperation-change-impact-atlas.test.ts"
+        "tests/shoperation-operational-intelligence.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -379,7 +380,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-SEMANTIC-ROUTE-AUTHORITY-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -397,16 +398,18 @@
     },
     "requirements": [
       {
-        "id": "REQ-NEUTRAL-CRITICAL-PLAN-TRUTHFUL-SCOPE",
-        "requirement": "Critical proof-only plans with exclusively neutral or knowledge-infrastructure projections can truthfully use empty domain/authority declarations without bypassing exact scope drift checks.",
+        "id": "REQ-SEMANTIC-ROUTE-AUTHORITY-COHERENCE",
+        "requirement": "Critical semantic execution routes must declare an explicit authority category that exactly matches the plan expectedAuthorities scope, including truthful empty authority for neutral scope.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "plan-before-code-neutral-critical-scope",
+          "breadth": "critical-semantic-route-authority-coherence",
           "strength": 2,
           "dimensions": [
-            "behavioral-proof",
             "scope",
-            "limitations"
+            "authority",
+            "forbidden-state",
+            "behavioral-proof",
+            "lifecycle"
           ]
         },
         "requiredCapabilities": [
@@ -424,8 +427,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PRODUCT-EMPTY-OWNERSHIP",
-            "statement": "Architecture-bearing critical plans cannot pass with empty expectedDomains/expectedAuthorities.",
+            "id": "NEG-ARCHITECTURE-EMPTY-ROUTE-AUTHORITY",
+            "statement": "A critical plan with non-empty expectedAuthorities may not pass with an empty semantic route authority.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-NEUTRAL-FALSE-ROUTE-AUTHORITY",
+            "statement": "A neutral plan may not pass with a fabricated semantic route authority absent from expectedAuthorities.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -434,18 +444,5 @@
       }
     ]
   },
-  "notes": "Current-main port of the bounded invariant previously proven on historical draft PR #798. Live need reproduced by Sentinel plan-isolation CI #9056: projected neutral test scope has canonical projectedDomains=[] and projectedAuthorities=[], but current main unconditionally emits DEV_PLAN_EXPECTED_DOMAINS_REQUIRED and DEV_PLAN_EXPECTED_AUTHORITIES_REQUIRED. This prerequisite fix remains separate from the downstream Sentinel test-isolation implementation.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "52a509201137b76ebbdd91c7bc3e4ca492b1d214",
-    "closedAt": "2026-10-07T13:42:00.305Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Bounded prerequisite discovered by Sentinel plan-isolation CI #9063 after PR #1045 correctly enabled truthful empty expectedAuthorities for neutral critical plans. This transaction changes only Operational Intelligence semantic route authority validation and its regression proof; the downstream Sentinel implementation remains frozen until this prerequisite merges."
 }
