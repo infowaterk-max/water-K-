@@ -1,6 +1,6 @@
 // @ts-nocheck
 import {describe,expect,it} from 'vitest';
-import {applyReleaseUnitEvent,createReleaseParentExecution,recordReleaseParentClosure,reprojectReleaseUnitChildTransaction} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
+import {applyReleaseUnitEvent,classifyReleaseUnitObligationDrift,createReleaseParentExecution,createReleaseUnitExecution,reconcileSuccessorReleaseUnit,recordReleaseParentClosure,refreshReleaseUnitIdentity,reprojectReleaseUnitChildTransaction,strongDigest} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 
 const sha=char=>char.repeat(40);
 const A=sha('a'),B=sha('b'),C=sha('c'),D=sha('d'),X=sha('e');
@@ -220,6 +220,87 @@ describe('Control Plane release-unit orchestration',()=>{
     expect(accepted.units[0].manifest.authorities).toEqual(['quality-knowledge-system']);
     expect(accepted.units[0].manifest.requiredEvidence.proofFiles).toEqual(['tests/current-proof.test.ts']);
     expect(accepted.units[0].manifest.childDevelopmentTransaction.planDigest).toBe('fresh-current-plan');
+  });
+
+  it('classifies canonical first sealing provenance and its derived operation digest as reprojectable',()=>{
+    const sourceCommit=sha('f');
+    const before=refreshReleaseUnitIdentity(structuredClone(manifests()[0]));
+    const afterDraft=structuredClone(before);
+    afterDraft.operations=before.operations.map((operation:any)=>({...operation,source:{mode:'sealed',commit:sourceCommit,blobSha:sha('c'),fileMode:'100644'}}));
+    afterDraft.sourceIdentity={sourceCommit,sealed:true};
+    const after=refreshReleaseUnitIdentity(afterDraft);
+    const drift=classifyReleaseUnitObligationDrift(before,after);
+    expect(drift.material.map((item:any)=>item.field)).not.toContain('operations');
+    expect(drift.material.map((item:any)=>item.field)).not.toContain('childOperationDigest');
+    expect(drift.reprojectable.map((item:any)=>item.field)).toEqual(expect.arrayContaining(['operations','childOperationDigest']));
+    expect(before.childDevelopmentTransaction.operationDigest).toBe(strongDigest(before.operations));
+    expect(after.childDevelopmentTransaction.operationDigest).toBe(strongDigest(after.operations));
+  });
+
+  it('requires trusted fresh projection before accepting canonical first sealing enrichment',()=>{
+    const sourceCommit=sha('f');
+    const before=refreshReleaseUnitIdentity(structuredClone(manifests()[0]));
+    const afterDraft=structuredClone(before);
+    afterDraft.operations=before.operations.map((operation:any)=>({...operation,source:{mode:'sealed',commit:sourceCommit,blobSha:sha('c'),fileMode:'100644'}}));
+    afterDraft.sourceIdentity={sourceCommit,sealed:true};
+    const after=refreshReleaseUnitIdentity(afterDraft);
+    const execution=createReleaseUnitExecution(before);
+    execution.state='STALE';
+    execution.lastTransition={to:'STALE',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK'};
+    const blocked=reconcileSuccessorReleaseUnit({execution,freshManifest:after,currentMainSha:A,allFreshManifests:[after]});
+    expect(blocked.decision).toBe('STALE');
+    expect(blocked.code).toBe('RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT');
+    const accepted=reconcileSuccessorReleaseUnit({execution,freshManifest:after,currentMainSha:A,allFreshManifests:[after],trustedFreshProjection:true});
+    expect(accepted.decision).toBe('PASS');
+    expect(accepted.details.reprojectedFields).toEqual(expect.arrayContaining(['operations','childOperationDigest']));
+  });
+
+  it('accepts the canonical first-sealing source shapes for delete and regenerate operations',()=>{
+    const sourceCommit=sha('f');
+    const draft=structuredClone(manifests()[0]);
+    draft.operations=[
+      {operation:'modify',file:'scripts/unit-1.mjs'},
+      {operation:'delete',file:'scripts/old-unit.mjs'},
+      {operation:'create',file:'scripts/generated-unit.mjs',generated:{mode:'regenerate',command:'node scripts/generate-unit.mjs'}},
+    ];
+    const before=refreshReleaseUnitIdentity(draft);
+    const afterDraft=structuredClone(before);
+    afterDraft.operations=[
+      {...before.operations[0],source:{mode:'sealed',commit:sourceCommit,blobSha:sha('c'),fileMode:'100644'}},
+      {...before.operations[1],source:null},
+      {...before.operations[2],source:{mode:'regenerate',commit:sourceCommit,blobSha:null}},
+    ];
+    afterDraft.sourceIdentity={sourceCommit,sealed:true};
+    const after=refreshReleaseUnitIdentity(afterDraft);
+    const drift=classifyReleaseUnitObligationDrift(before,after);
+    expect(drift.material.map((item:any)=>item.field)).not.toContain('operations');
+    expect(drift.reprojectable.map((item:any)=>item.field)).toEqual(expect.arrayContaining(['operations','childOperationDigest']));
+  });
+
+  it('keeps resealing, semantic mutation and forged operation digest as material drift',()=>{
+    const sourceCommit=sha('f');
+    const before=refreshReleaseUnitIdentity(structuredClone(manifests()[0]));
+    const sealedDraft=structuredClone(before);
+    sealedDraft.operations=before.operations.map((operation:any)=>({...operation,source:{mode:'sealed',commit:sourceCommit,blobSha:sha('c'),fileMode:'100644'}}));
+    sealedDraft.sourceIdentity={sourceCommit,sealed:true};
+    const sealed=refreshReleaseUnitIdentity(sealedDraft);
+
+    const resealedDraft=structuredClone(sealed);
+    resealedDraft.operations[0].source={...resealedDraft.operations[0].source,blobSha:sha('d')};
+    const resealed=refreshReleaseUnitIdentity(resealedDraft);
+    expect(classifyReleaseUnitObligationDrift(sealed,resealed).material.map((item:any)=>item.field)).toContain('operations');
+
+    const mutatedDraft=structuredClone(before);
+    mutatedDraft.operations=[{...before.operations[0],operation:'create',source:{mode:'sealed',commit:sourceCommit,blobSha:sha('c'),fileMode:'100644'}}];
+    mutatedDraft.sourceIdentity={sourceCommit,sealed:true};
+    const mutated=refreshReleaseUnitIdentity(mutatedDraft);
+    expect(classifyReleaseUnitObligationDrift(before,mutated).material.map((item:any)=>item.field)).toContain('operations');
+
+    const forged=structuredClone(sealed);
+    forged.childDevelopmentTransaction.operationDigest='forged-operation-digest';
+    const forgedFields=classifyReleaseUnitObligationDrift(before,forged).material.map((item:any)=>item.field);
+    expect(forgedFields).toContain('operations');
+    expect(forgedFields).toContain('childOperationDigest');
   });
 
   it('keeps material operation drift fail-closed even with trusted fresh projection provenance',()=>{

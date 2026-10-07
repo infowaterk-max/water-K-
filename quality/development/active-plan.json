@@ -1,17 +1,17 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-NEUTRAL-SEMANTIC-ROUTE-AUTHORITY-V1",
-  "task": "Repair the Quality Control Plane Operational Intelligence validator so critical semantic execution routes require an explicit authority category that exactly matches expectedAuthorities, allowing an empty authority array only when the canonical expectedAuthorities scope is empty while preserving fail-closed non-empty authority for architecture-bearing work.",
+  "taskId": "DEV-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
+  "task": "Repair release-unit successor obligation drift classification so the first canonical sealing of unchanged operations is treated as trusted reprojectable provenance enrichment while any semantic operation change or resealing/tamper remains material fail-closed drift.",
   "status": "closed",
-  "guardDigest": "85d0ad2a",
-  "changeBaseSha": "334a2736013461447d4f3269e7ed54e219e60bec",
+  "guardDigest": "a41cfd0c",
+  "changeBaseSha": "12447f0cfd73abe8728209ea3f35cb132a9b06d4",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/lib/shoperation-operational-intelligence.mjs",
-    "tests/shoperation-operational-intelligence.test.ts"
+    "scripts/lib/shoperation-release-unit-runtime.mjs",
+    "tests/control-plane-release-unit-orchestration.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system"
+    "release-infrastructure"
   ],
   "expectedDomains": [
     "DOMAIN-QUALITY"
@@ -72,11 +72,11 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
     "SQ-NK-010",
-    "SQ-NK-011",
     "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -89,40 +89,42 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-SEMANTIC-ROUTE-AUTHORITY-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
     "riskTier": "critical",
-    "problemStatement": "Sentinel plan-isolation CI #9063 proved a second neutral-scope contradiction in current main: Plan Before Code now truthfully accepts expectedAuthorities=[] for a neutral test-only projection, but validateOperationalIntelligence still requires semanticExecutionRoute.authority to be non-empty for every critical plan. Supplying a fake authority would corrupt the Authority Graph and let semantic route metadata diverge from the plan's canonical expected authority scope.",
+    "problemStatement": "The bounded multi-release-unit rehearsal successfully merged U01 through trusted exact-head child proof, then U02 failed closed with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT because fresh successor projection canonically sealed otherwise unchanged create operations with source commit/blob/fileMode provenance. The current classifier compares raw operation JSON and therefore cannot distinguish deterministic first-time sealing from a real operation mutation. This blocks resumable successor execution even though the immutable parent source and semantic operation set are unchanged.",
     "observableOutcomes": [
-      "Critical plans must always declare semanticExecutionRoute.authority as an explicit array.",
-      "When expectedAuthorities is empty, semanticExecutionRoute.authority=[] is accepted as a truthful neutral route category.",
-      "When expectedAuthorities is non-empty, semanticExecutionRoute.authority must also be non-empty.",
-      "Semantic route authority must exactly match expectedAuthorities; invented or missing authorities fail closed with a precise machine code.",
-      "The blocked Sentinel plan-isolation plan can proceed without fabricating release-infrastructure as an authority."
+      "A successor whose unsealed operations are enriched only by canonical sealing metadata from the immutable parent source is classified as reprojectable rather than material drift.",
+      "The associated childOperationDigest change is reprojectable only when both the before and after digests exactly match their own operation sets and the operation delta is canonical first sealing.",
+      "Any semantic operation change such as file, operation type, rename source, generated semantics or intended content remains material fail-closed drift.",
+      "Any already-sealed operation whose source commit, blob SHA or file mode changes remains material fail-closed drift.",
+      "Trusted fresh projection is still required before a reprojectable sealing enrichment can be accepted.",
+      "The live rehearsal can resume at U02 without modifying the immutable parent source or bypassing release-unit proof."
     ],
     "unresolvedRisks": [
-      "Conditioning only on array presence without exact equality could allow false authority metadata to pass.",
-      "Allowing empty authority too broadly could weaken architecture-bearing critical plans.",
-      "Changing the validator without regression coverage could create a silent mismatch between Plan Before Code scope and Operational Intelligence semantics.",
-      "The new authority-drift diagnostic must remain deterministic for release-unit child plans as well as ordinary critical plans."
+      "Blindly stripping source metadata from comparison would permit sealed-source tampering.",
+      "Treating childOperationDigest as reprojectable without verifying both operation digests would weaken binding integrity.",
+      "Allowing resealing from one source identity to another could silently substitute content.",
+      "A helper that compares operations by position rather than stable operation identity could produce false acceptance when ordering changes.",
+      "The fix must not weaken existing tests that intentionally classify real operation path drift as material."
     ],
     "scope": {
       "in": [
-        "Refine only the critical semantic execution route authority validation in scripts/lib/shoperation-operational-intelligence.mjs.",
-        "Require explicit authority category presence for every critical route.",
-        "Require exact equality between semanticExecutionRoute.authority and plan.expectedAuthorities.",
-        "Permit an empty route authority array only when expectedAuthorities is canonically empty.",
-        "Add focused regression tests for neutral, missing, false and matching authority cases."
+        "Refine release-unit obligation drift classification in scripts/lib/shoperation-release-unit-runtime.mjs.",
+        "Recognize only first canonical sealing provenance enrichment where semantic operation identity is unchanged and fresh sealing is internally coherent.",
+        "Classify childOperationDigest as reprojectable only when the corresponding operation change is canonical sealing and both digests match their own operation arrays.",
+        "Add regression coverage for accepted first sealing, untrusted projection rejection, semantic operation drift, resealing/tamper and digest mismatch."
       ],
       "out": [
-        "No change to Plan Before Code domain/authority projection rules.",
-        "No change to Sentinel evaluator semantics.",
-        "No change to release-unit materialization, Truth Gate evidence semantics, product runtime or deployment.",
-        "No relaxation of MUST_EDIT/MUST_CREATE, PROOF or UNKNOWN route requirements."
+        "No change to sealReleaseUnitManifest source/blob derivation.",
+        "No change to materializeReleaseUnit write behavior.",
+        "No global removal or ignoring of operation source metadata.",
+        "No relaxation of forbidden/read-only path checks, predecessor receipts, main lease, Truth, Lifecycle or child CI proof.",
+        "No change to storefront, template, Supabase or deployment code."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This validator protects the semantic route authority declaration used by critical Control Plane work. A permissive mistake could allow false authority metadata, while the current unconditional non-empty rule blocks truthful neutral plans. The fix therefore needs exact equality, negative cases and preservation of all other critical route requirements.",
+      "rationale": "This classifier decides whether persisted release obligations may be safely reprojected after predecessor merge. A permissive mistake could permit source substitution or operation tampering; an over-strict mistake deadlocks valid resumable execution. The fix therefore needs provenance-specific invariants and negative tamper cases.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -139,28 +141,32 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Critical semanticExecutionRoute.authority must be present as an array even when empty.",
-        "Neutral critical plan with expectedAuthorities=[] and route.authority=[] passes the authority-category requirement.",
-        "Architecture-bearing critical plan with non-empty expectedAuthorities and route.authority=[] fails closed.",
-        "Any route.authority value that differs from expectedAuthorities fails with a dedicated authority-drift diagnostic.",
-        "Matching non-empty route authority continues to pass.",
-        "MUST_EDIT or child MUST_CREATE, PROOF and UNKNOWN requirements remain unchanged.",
+        "Unsealed operations plus canonical source metadata only are identified as provenance enrichment, not semantic operation mutation.",
+        "Canonical enrichment requires after.sourceIdentity.sealed=true and a non-empty immutable sourceCommit.",
+        "Every fresh operation must preserve all non-source fields exactly.",
+        "Fresh sealed/regenerate/delete source metadata must match the canonical source contract for its operation kind.",
+        "Before and after child operation digests must each equal strongDigest of their own operation arrays before digest drift can be considered reprojectable.",
+        "Trusted fresh projection remains mandatory to accept the reprojectable drift.",
+        "Already-sealed source identity changes remain material drift.",
+        "Existing genuine operation-drift regression remains fail closed.",
         "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge."
       ],
       "invariants": [
-        "Semantic execution authority may never invent an owner absent from expectedAuthorities.",
-        "Semantic execution authority may never omit a canonical expected authority.",
-        "Empty authority is truthful only when expectedAuthorities is empty.",
-        "Critical route target, proof and unknown-category requirements remain fail closed.",
-        "Release-unit child route semantics remain governed by the same authority equality rule."
+        "Semantic operation scope is never widened by provenance reconciliation.",
+        "Source provenance is never ignored globally.",
+        "Only the first transition from unsealed to canonical sealed provenance may be reprojectable.",
+        "A sealed source commit/blob/fileMode may not mutate through this path.",
+        "Operation digests remain cryptographically bound to the exact operations they summarize.",
+        "Trusted fresh projection provenance is required for acceptance."
       ],
       "forbiddenStates": [
-        "neutral-plan-fake-authority-required",
-        "architecture-plan-empty-authority-pass",
-        "semantic-authority-plan-authority-drift-pass",
-        "semantic-authority-category-missing",
-        "critical-proof-category-bypass",
-        "critical-unknown-category-bypass"
+        "operation-path-change-accepted-as-sealing",
+        "operation-type-change-accepted-as-sealing",
+        "sealed-commit-substitution-accepted",
+        "sealed-blob-substitution-accepted",
+        "digest-mismatch-reprojected",
+        "untrusted-sealing-reprojection-pass",
+        "source-metadata-globally-ignored"
       ]
     },
     "model": {
@@ -192,47 +198,50 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Validator still treats empty neutral authority as missing.",
-        "Validator accepts false non-empty authority for a neutral plan.",
-        "Validator accepts empty route authority while expectedAuthorities is non-empty.",
-        "Authority equality normalization is order-sensitive and creates false drift.",
-        "Child transaction route validation diverges from ordinary critical plan validation."
+        "Classifier still marks canonical first sealing as material drift.",
+        "Classifier accepts a real operation mutation because source metadata also changed.",
+        "Classifier accepts resealing to a different immutable source.",
+        "Classifier accepts an operationDigest not derived from the corresponding operations.",
+        "Classifier accepts reprojectable drift without trusted fresh projection.",
+        "Ordering-only differences create false semantic mutation."
       ],
       "edgeCases": [
-        "expectedAuthorities=[] and route.authority=[]",
-        "expectedAuthorities=[] and route.authority=['release-infrastructure']",
-        "expectedAuthorities=['quality-knowledge-system'] and route.authority=[]",
-        "expectedAuthorities=['quality-knowledge-system'] and route.authority=['quality-knowledge-system']",
-        "route.authority is missing entirely",
-        "route.authority contains the same authorities in a different order",
-        "child route uses mustCreate rather than mustEdit",
-        "route.unknown remains non-empty while authority is otherwise valid"
+        "before operation has no source; after has sealed source with same non-source fields",
+        "delete operation gains source:null",
+        "regenerate operation gains mode=regenerate source metadata",
+        "before and after are both sealed and identical",
+        "before sealed commit A; after sealed commit B",
+        "same commit but different blobSha",
+        "same operations but incorrect after operationDigest",
+        "same operations/provenance but different ordering",
+        "operation file path changes during sealing",
+        "operation type changes create→modify"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-EXACT-AUTHORITY-SCOPE",
-        "summary": "Require an explicit authority array and exact normalized equality with expectedAuthorities, allowing empty only when the expected scope is empty.",
+        "id": "ALT-CANONICAL-SEALING-ENRICHMENT",
+        "summary": "Detect a narrowly defined first canonical sealing transition, verify provenance and operation digests, and classify only that delta as reprojectable under trusted fresh projection.",
         "disposition": "selected",
-        "reason": "Preserves truthful neutral semantics and strengthens fail-closed authority coherence."
+        "reason": "Preserves immutable source security while allowing the intended successor re-evaluation lifecycle."
       },
       {
-        "id": "ALT-FAKE-NEUTRAL-AUTHORITY",
-        "summary": "Keep the validator unchanged and declare a convenient non-empty authority for neutral plans.",
+        "id": "ALT-IGNORE-SOURCE-IN-OPERATIONS",
+        "summary": "Strip source metadata before all operation comparisons.",
         "disposition": "rejected",
-        "reason": "Would deliberately corrupt authority metadata and undermine the Authority Graph."
+        "reason": "Would hide source commit/blob/fileMode tampering and weaken the sealed-source contract."
       },
       {
-        "id": "ALT-ALLOW-ANY-ARRAY",
-        "summary": "Treat any authority array, including false non-empty values, as satisfying the critical route requirement.",
+        "id": "ALT-MAKE-OPERATIONS-REPROJECTABLE",
+        "summary": "Add operations and childOperationDigest to the global reprojectable field set.",
         "disposition": "rejected",
-        "reason": "Would remove the contradiction but permit semantic route authority drift."
+        "reason": "Would permit real material operation changes under trusted projection and defeat the hard obligation boundary."
       },
       {
-        "id": "ALT-DROP-AUTHORITY-CATEGORY",
-        "summary": "Remove semanticExecutionRoute.authority from critical route requirements.",
+        "id": "ALT-MUTATE-PERSISTED-U02",
+        "summary": "Manually rewrite the persisted rehearsal U02 obligation to match the fresh manifest.",
         "disposition": "rejected",
-        "reason": "Would weaken critical execution planning and discard useful machine-checkable authority semantics."
+        "reason": "Would bypass the general defect instead of repairing resumable execution semantics."
       }
     ],
     "specialistReviews": [
@@ -240,127 +249,148 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Allowing empty route authority can become a general bypass unless it is tied exactly to the canonical expectedAuthorities scope.",
-        "resolution": "Require array presence and exact normalized equality to plan.expectedAuthorities; architecture-bearing scope therefore remains non-empty.",
+        "finding": "Treating all operation source metadata as non-semantic would erase an important source-integrity boundary.",
+        "resolution": "Permit only first canonical sealing with exact non-source equality and immutable source contract checks; already-sealed changes remain material.",
         "evidence": [
-          "scripts/lib/shoperation-operational-intelligence.mjs",
-          "scripts/shoperation-plan-before-code.mjs"
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT"
+        ]
+      },
+      {
+        "role": "Security",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Blob/commit provenance is security-sensitive and must remain fail closed after sealing.",
+        "resolution": "Require before unsealed, after sealed, one canonical sourceCommit, valid per-operation source shape and digest self-consistency.",
+        "evidence": [
+          "sealReleaseUnitManifest",
+          "materializeReleaseUnit"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The current contradiction is caused by two validators representing empty ownership differently.",
-        "resolution": "Use expectedAuthorities as the canonical authority envelope and validate semantic route data against it exactly.",
+        "finding": "childOperationDigest changed only because canonical provenance was added, but digest acceptance must not become independent of operation identity.",
+        "resolution": "Reproject the digest only as a dependent consequence of a verified canonical sealing transition and self-consistent before/after digests.",
         "evidence": [
-          "CI #9063",
-          "quality/development/active-plan.json"
-        ]
-      },
-      {
-        "role": "Known Failure",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The failure is deterministic and appears only after the preceding neutral ownership prerequisite was correctly fixed.",
-        "resolution": "Capture the case with focused positive and negative regression tests before replaying the Sentinel plan.",
-        "evidence": [
-          "DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED",
-          "tests/shoperation-operational-intelligence.test.ts"
+          "refreshReleaseUnitIdentity",
+          "releaseUnitContextBindingDigest"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The fix must remain a standalone Control Plane prerequisite and not be mixed with the downstream Sentinel test implementation.",
-        "resolution": "Prove and merge this validator change first, then reproject the Sentinel branch on fresh main.",
+        "finding": "U01 exact trusted child proof #9077 succeeded and PR #1053 merged; the next blocker is isolated to U02 successor reconciliation.",
+        "resolution": "Repair classifier generically, merge it on exact proof, then replay the same immutable parent source and require U02 to advance without manual state mutation.",
         "evidence": [
-          "fix/sentinel-integrity-probe-plan-isolation-v1",
-          "main 22c11e6a724d374295c7cd95d6333e8ba8352104"
+          "Release Unit Execution #184",
+          "PR #1053",
+          "release-state U02 STALE"
+        ]
+      },
+      {
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The live rehearsal exposed a previously untested interaction between source sealing and successor obligation drift classification.",
+        "resolution": "Add positive and adversarial regression cases before replaying the rehearsal.",
+        "evidence": [
+          "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT",
+          "tests/control-plane-release-unit-orchestration.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-ROUTE-AUTH-01",
-        "scenario": "Neutral critical plan has expectedAuthorities=[] and explicit route.authority=[].",
-        "finding": "Current validator incorrectly treats truthful empty authority as absent.",
-        "resolution": "Array presence satisfies category explicitness when expected authority scope is empty.",
+        "id": "CH-SEAL-01",
+        "scenario": "Unsealed create operation gains canonical sealed commit/blob/fileMode and nothing else changes.",
+        "finding": "Current raw JSON comparison reports material drift.",
+        "resolution": "Classify as sealing enrichment only after full provenance validation.",
         "status": "resolved"
       },
       {
-        "id": "CH-ROUTE-AUTH-02",
-        "scenario": "Neutral critical plan declares route.authority=['release-infrastructure'].",
-        "finding": "Merely allowing arrays would accept fabricated authority.",
-        "resolution": "Exact normalized equality with expectedAuthorities blocks the false owner.",
+        "id": "CH-SEAL-02",
+        "scenario": "Same first sealing occurs but trustedFreshProjection=false.",
+        "finding": "Fresh provenance has not been authorized by trusted projection.",
+        "resolution": "Keep it STALE until trusted fresh projection is true.",
         "status": "resolved"
       },
       {
-        "id": "CH-ROUTE-AUTH-03",
-        "scenario": "Quality critical plan expects quality-knowledge-system but route.authority=[].",
-        "finding": "Empty authority would under-declare architecture-bearing ownership.",
-        "resolution": "Non-empty expected authority requires matching non-empty route authority.",
+        "id": "CH-SEAL-03",
+        "scenario": "File path changes while source metadata is added.",
+        "finding": "This is semantic operation drift disguised as sealing.",
+        "resolution": "Non-source operation equality must fail and keep material drift.",
         "status": "resolved"
       },
       {
-        "id": "CH-ROUTE-AUTH-04",
-        "scenario": "Quality critical plan declares matching quality-knowledge-system authority.",
-        "finding": "Existing legitimate critical planning must remain valid.",
-        "resolution": "Exact equality accepts the matching route.",
+        "id": "CH-SEAL-04",
+        "scenario": "Already-sealed operation changes source commit.",
+        "finding": "Would permit source substitution.",
+        "resolution": "First-sealing predicate requires before.sourceIdentity.sealed!==true; resealing remains material.",
         "status": "resolved"
       },
       {
-        "id": "CH-ROUTE-AUTH-05",
-        "scenario": "route.authority property is omitted.",
-        "finding": "A missing category is not equivalent to an explicitly neutral category.",
-        "resolution": "Require Array.isArray(route.authority) for every critical route.",
+        "id": "CH-SEAL-05",
+        "scenario": "Already-sealed operation keeps commit but changes blobSha/fileMode.",
+        "finding": "Would permit content or mode substitution.",
+        "resolution": "Already-sealed provenance changes remain raw material operation drift.",
         "status": "resolved"
       },
       {
-        "id": "CH-ROUTE-AUTH-06",
-        "scenario": "Multiple expected authorities are declared in different ordering.",
-        "finding": "Order-only differences must not cause semantic drift.",
-        "resolution": "Compare sorted unique authority lists.",
+        "id": "CH-SEAL-06",
+        "scenario": "Operations look like valid first sealing but after operationDigest is forged.",
+        "finding": "Digest/binding integrity would diverge.",
+        "resolution": "Require both before and after childOperationDigest to equal strongDigest of their own operation arrays.",
         "status": "resolved"
       },
       {
-        "id": "CH-ROUTE-AUTH-07",
-        "scenario": "Release-unit child plan uses mustCreate with correct authority.",
-        "finding": "Authority fix must not break child route target semantics.",
-        "resolution": "Retain existing child routeTargets rule and apply the same authority equality check.",
+        "id": "CH-SEAL-07",
+        "scenario": "Delete/regenerate operations have different canonical source shapes.",
+        "finding": "One generic sealed-source shape would reject valid cases or accept invalid ones.",
+        "resolution": "Validate delete source:null, regenerate source.mode=regenerate, ordinary operations source.mode=sealed.",
         "status": "resolved"
       },
       {
-        "id": "CH-ROUTE-AUTH-08",
-        "scenario": "Authority is correct but route.unknown contains unresolved relationships.",
-        "finding": "Authority coherence must not bypass unresolved semantic relationships.",
-        "resolution": "Retain the existing UNKNOWN non-empty blocking rule unchanged.",
+        "id": "CH-SEAL-08",
+        "scenario": "Operation array order changes but semantic operations are identical.",
+        "finding": "Order-only drift should not become a hidden material mutation or bypass.",
+        "resolution": "Use the same stable sorted-object comparison already authoritative for obligations while validating one-to-one semantic operation identity.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-SEAL-09",
+        "scenario": "Fresh projection changes authorities/evidence plus canonical sealing in the same successor pass.",
+        "finding": "Live U02 contains both reprojectable policy drift and provenance enrichment.",
+        "resolution": "Both categories may be reprojectable under trustedFreshProjection; any independent material field still blocks.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only against current main and require Plan Before Code PASS.",
-      "Modify only scripts/lib/shoperation-operational-intelligence.mjs and tests/shoperation-operational-intelligence.test.ts.",
-      "Add deterministic self/regression cases for neutral empty, missing authority, false authority, empty architecture authority and matching authority.",
+      "Commit this plan only on the fresh branch from main 12447f0cfd73abe8728209ea3f35cb132a9b06d4 and require Plan Before Code PASS before runtime edits.",
+      "Modify only scripts/lib/shoperation-release-unit-runtime.mjs and tests/control-plane-release-unit-orchestration.test.ts after plan authorization.",
+      "Add direct classifier/orchestration regressions for canonical first sealing, untrusted projection, digest mismatch, resealing/tamper and true semantic operation drift.",
       "Require full exact-head Knowledge/Plan/Edit-Time/Incremental/Release Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
-      "Merge after exact PR-head success, then reproject and continue the Sentinel plan-isolation repair."
+      "Merge only after exact PR-head success.",
+      "Replay immutable source release-execution/source/control-plane-multi-unit-rehearsal-v1 at SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and verify U02 advances beyond the previous RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT without manual release-state edits."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-SEMANTIC-ROUTE-AUTHORITY-V1",
+      "request": "PO-2026-10-07-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
       "authority": [
         "quality-knowledge-system"
       ],
       "mustEdit": [
-        "scripts/lib/shoperation-operational-intelligence.mjs"
+        "scripts/lib/shoperation-release-unit-runtime.mjs"
       ],
       "mayEdit": [
-        "tests/shoperation-operational-intelligence.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts"
       ],
       "impactedReadOnly": [
-        "scripts/shoperation-plan-before-code.mjs",
+        "scripts/release-unit-execute.mjs",
+        "scripts/release-unit-github-runtime.mjs",
         "quality/knowledge/development-guard-policy.v1.json",
-        "quality/knowledge/domain-foundations.v1.json"
+        "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
       ],
       "mustCreate": [],
       "forbidden": [
@@ -369,7 +399,7 @@
         "deploy/**"
       ],
       "proof": [
-        "tests/shoperation-operational-intelligence.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -380,7 +410,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-SEMANTIC-ROUTE-AUTHORITY-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -398,11 +428,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-SEMANTIC-ROUTE-AUTHORITY-COHERENCE",
-        "requirement": "Critical semantic execution routes must declare an explicit authority category that exactly matches the plan expectedAuthorities scope, including truthful empty authority for neutral scope.",
+        "id": "REQ-CANONICAL-SEALING-OBLIGATION-REPROJECTION",
+        "requirement": "Successor reconciliation must distinguish canonical first-time sealed provenance enrichment from real material operation drift without weakening immutable source integrity.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "critical-semantic-route-authority-coherence",
+          "breadth": "release-unit-successor-sealing-reprojection",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -428,15 +458,22 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-ARCHITECTURE-EMPTY-ROUTE-AUTHORITY",
-            "statement": "A critical plan with non-empty expectedAuthorities may not pass with an empty semantic route authority.",
+            "id": "NEG-SEALED-SOURCE-TAMPER-ACCEPTED",
+            "statement": "An already-sealed operation may not change source commit/blob/fileMode through successor reprojection.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-NEUTRAL-FALSE-ROUTE-AUTHORITY",
-            "statement": "A neutral plan may not pass with a fabricated semantic route authority absent from expectedAuthorities.",
+            "id": "NEG-MATERIAL-OPERATION-DRIFT-ACCEPTED",
+            "statement": "A semantic operation change may not be reclassified as canonical sealing enrichment.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-UNTRUSTED-SEALING-REPROJECTION",
+            "statement": "Canonical sealing enrichment may not be accepted without trusted fresh projection provenance.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -445,14 +482,14 @@
       }
     ]
   },
-  "notes": "Bounded prerequisite discovered by Sentinel plan-isolation CI #9063 after PR #1045 correctly enabled truthful empty expectedAuthorities for neutral critical plans. This transaction changes only Operational Intelligence semantic route authority validation and its regression proof; the downstream Sentinel implementation remains frozen until this prerequisite merges. Reprojected from the stale prerequisite plan branch onto fresh main 334a2736013461447d4f3269e7ed54e219e60bec after Sentinel probe plan-isolation PR #1049 merged; scope and proof obligations are unchanged. CI #9072 exposed SENTINEL_INTEGRITY_PROOF_DIMENSION_DRIFT for the authority claim because the Completion Contract referenced only test/type/build guards. The canonical GUARD-PLAN-BEFORE-CODE already proves CAP-QUALITY at scope strength 2 with an explicit authority dimension, so it is added as implementation evidence without weakening the claim.",
+  "notes": "Live bounded multi-release-unit rehearsal evidence: U01 trusted workflow_dispatch CI #9077 passed and PR #1053 merged at main 12447f0cfd73abe8728209ea3f35cb132a9b06d4. Release Unit Execution #184 then failed at U02 with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT because initial unsealed operations were canonically enriched with sealed source metadata, changing both raw operations JSON and childOperationDigest. This plan repairs the generic classifier; it does not mutate persisted rehearsal state or weaken operation/source integrity. Plan Gate #9080 canonicalized planned projection metadata: DOMAIN-QUALITY, quality-knowledge-system authority, negative knowledge [SQ-NK-002, SQ-NK-003, SQ-NK-005, SQ-NK-010, SQ-NK-012, SQ-NK-016..023], and guardDigest a41cfd0c.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "a0b33d70c8e98dc6f60cba2d6d032ef3d0a30d2d",
-    "closedAt": "2026-10-07T14:56:11.174Z",
+    "verifiedImplementationHead": "5985f840a80321b23a0b005548bbcadad104cd73",
+    "closedAt": "2026-10-07T15:59:26.450Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-SEMANTIC-ROUTE-AUTHORITY-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

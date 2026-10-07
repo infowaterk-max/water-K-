@@ -605,13 +605,46 @@ const normalizedExecutionObligations=manifest=>({
   projectedRiskDecision:manifest?.projectedRisk?.decision??null,
 });
 const REPROJECTABLE_OBLIGATION_FIELDS=new Set(['authorities','subsystems','requiredGates','requiredEvidence','childPlanDigest']);
+const operationWithoutSource=operation=>{
+  const next=executionClone(operation??{});
+  delete next.source;
+  return next;
+};
+const normalizedSemanticOperations=manifest=>sortedObjects((manifest?.operations??[]).map(operationWithoutSource));
+const canonicalSourceShape=(operation,sourceCommit)=>{
+  const source=operation?.source;
+  if(operation?.operation==='delete')return source===null;
+  if(operation?.generated?.mode==='regenerate')return source?.mode==='regenerate'&&source?.commit===sourceCommit&&source?.blobSha===null;
+  return source?.mode==='sealed'
+    &&source?.commit===sourceCommit
+    &&/^[0-9a-f]{40}$/i.test(String(source?.blobSha??''))
+    &&/^[0-7]{6}$/.test(String(source?.fileMode??''));
+};
+const canonicalFirstSealingEnrichment=(before,after)=>{
+  const sourceCommit=String(after?.sourceIdentity?.sourceCommit??'').trim();
+  const beforeOperations=before?.operations??[],afterOperations=after?.operations??[];
+  if(before?.sourceIdentity?.sealed===true||after?.sourceIdentity?.sealed!==true)return false;
+  if(String(before?.sourceIdentity?.sourceCommit??'').trim())return false;
+  if(!/^[0-9a-f]{40}$/i.test(sourceCommit))return false;
+  if(!beforeOperations.every(operation=>!Object.prototype.hasOwnProperty.call(operation??{},'source')||operation?.source==null))return false;
+  if(!sameJson(normalizedSemanticOperations(before),normalizedSemanticOperations(after)))return false;
+  if(!afterOperations.every(operation=>canonicalSourceShape(operation,sourceCommit)))return false;
+  const beforeDigest=before?.childDevelopmentTransaction?.operationDigest??null;
+  const afterDigest=after?.childDevelopmentTransaction?.operationDigest??null;
+  return beforeDigest===strongDigest(beforeOperations)&&afterDigest===strongDigest(afterOperations);
+};
 export const classifyReleaseUnitObligationDrift=(before,after)=>{
   const a=normalizedExecutionObligations(before),b=normalizedExecutionObligations(after);
   const all=Object.keys(a).filter(key=>!sameJson(a[key],b[key])).map(key=>({field:key,before:a[key],after:b[key]}));
+  const reprojectableFields=new Set(REPROJECTABLE_OBLIGATION_FIELDS);
+  if(canonicalFirstSealingEnrichment(before,after)){
+    reprojectableFields.add('operations');
+    reprojectableFields.add('childOperationDigest');
+  }
   return{
     all,
-    material:all.filter(item=>!REPROJECTABLE_OBLIGATION_FIELDS.has(item.field)),
-    reprojectable:all.filter(item=>REPROJECTABLE_OBLIGATION_FIELDS.has(item.field)),
+    material:all.filter(item=>!reprojectableFields.has(item.field)),
+    reprojectable:all.filter(item=>reprojectableFields.has(item.field)),
   };
 };
 const obligationDrift=(before,after)=>classifyReleaseUnitObligationDrift(before,after).all;
