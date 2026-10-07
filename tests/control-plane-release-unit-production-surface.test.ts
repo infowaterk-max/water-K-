@@ -2,10 +2,10 @@
 import {execFileSync} from 'node:child_process';
 import {mkdirSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join} from 'node:path';
+import {dirname,join} from 'node:path';
 import {describe,expect,it} from 'vitest';
-import {applyReleaseUnitEvent,createReleaseParentExecution,materializeReleaseUnit,recordReleaseParentClosure,sealReleaseUnitManifest,validateReleaseUnitMainAdvanceProof} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
-import {materializationSupersedingBranch,needsFreshReleaseUnitReevaluation,proveTrustedMainAdvance,reconcileExactMaterializedCommit,reconcileMaterializationBranch,releaseUnitCommitMessage,runSuccessorReevaluationPlan,runSuccessorReevaluationProjection} from '../scripts/release-unit-github-runtime.mjs';
+import {RELEASE_UNIT_CONFLICT_RESOLUTION_CONTRACT,applyReleaseUnitEvent,createReleaseParentExecution,materializeReleaseUnit,recordReleaseParentClosure,releaseUnitModifyConflictIdentity,sealReleaseUnitManifest,validateReleaseUnitMainAdvanceProof} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
+import {materializationSupersedingBranch,needsFreshReleaseUnitReevaluation,proveTrustedMainAdvance,reconcileExactMaterializedCommit,reconcileMaterializationBranch,releaseUnitCommitMessage,runSuccessorReevaluationPlan,runSuccessorReevaluationProjection,structuredReleaseUnitMaterializationBlock} from '../scripts/release-unit-github-runtime.mjs';
 
 const A='a'.repeat(40),B='b'.repeat(40);
 const manifest={
@@ -101,9 +101,148 @@ describe('Control Plane production release surface',()=>{
         reconciliationPolicy:{...structuredClone(manifest.reconciliationPolicy),requiresReconciliationAfterPredecessor:false},
       };
       const sealed=sealReleaseUnitManifest(draft,{sourceCommit,cwd:dir});
-      expect(()=>materializeReleaseUnit({manifest:sealed,sourceCommit,targetRef:targetBase,cwd:dir})).toThrow(`RELEASE_UNIT_MODIFY_PATCH_CONFLICT:${file}`);
+      const identity=releaseUnitModifyConflictIdentity({cwd:dir,releaseUnitId:sealed.releaseUnitId,targetBaseSha:targetBase,sourceCommit,operation:sealed.operations[0]});
+      let caught:any=null;
+      try{materializeReleaseUnit({manifest:sealed,sourceCommit,targetRef:targetBase,cwd:dir});}catch(error){caught=error;}
+      expect(caught?.code).toBe('RELEASE_UNIT_MODIFY_PATCH_CONFLICT');
+      expect(caught?.details).toMatchObject(identity);
+      expect(caught?.details?.resolutionRecordPath).toMatch(/^quality\/development\/release-unit-conflict-resolutions\//);
+      expect(caught?.details?.sourcePatchDigest).toMatch(/^[0-9a-f]{64}$/);
       expect(gitRun(dir,['rev-parse','target'])).toBe(targetBase);
     }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+
+  it('accepts only an exact main-reviewed conflict resolution receipt after real three-way failure',()=>{
+    const dir=initGitRepo('release-unit-modify-resolution-'),file='scripts/already.mjs';
+    try{
+      mkdirSync(join(dir,'scripts'),{recursive:true});
+      writeFileSync(join(dir,file),"export const value='base';\n");
+      gitRun(dir,['add','.']);gitRun(dir,['commit','-qm','base']);
+      const sourceParent=gitRun(dir,['rev-parse','HEAD']);
+      writeFileSync(join(dir,file),"export const value='source';\n");
+      gitRun(dir,['commit','-qam','source']);
+      const sourceCommit=gitRun(dir,['rev-parse','HEAD']);
+      gitRun(dir,['checkout','-qb','target',sourceParent]);
+      writeFileSync(join(dir,file),"export const value='target';\n");
+      gitRun(dir,['commit','-qam','target-conflict']);
+      const resolutionBaseSha=gitRun(dir,['rev-parse','HEAD']);
+      const draft={...structuredClone(manifest),targetBaseSha:resolutionBaseSha,lease:{...structuredClone(manifest.lease),expectedBaseSha:resolutionBaseSha,reconciled:true},intendedFiles:[file],operations:[{operation:'modify',file}],requiredDependencyFiles:[],reconciliationPolicy:{...structuredClone(manifest.reconciliationPolicy),requiresReconciliationAfterPredecessor:false}};
+      const sealedAtConflict=sealReleaseUnitManifest(draft,{sourceCommit,cwd:dir});
+      const identity=releaseUnitModifyConflictIdentity({cwd:dir,releaseUnitId:sealedAtConflict.releaseUnitId,targetBaseSha:resolutionBaseSha,sourceCommit,operation:sealedAtConflict.operations[0]});
+
+      writeFileSync(join(dir,file),"export const value='reviewed-resolution';\n");
+      gitRun(dir,['add',file]);
+      const resolvedBlobSha=gitRun(dir,['rev-parse',`:${file}`]);
+      const record={
+        contract:RELEASE_UNIT_CONFLICT_RESOLUTION_CONTRACT,
+        releaseUnitId:sealedAtConflict.releaseUnitId,
+        file,sourceParent:identity.sourceParent,sourceCommit,sourcePatchDigest:identity.sourcePatchDigest,
+        resolutionPlanTaskId:'DEV-TEST-RESOLUTION-V1',
+        resolutionBaseSha,
+        resolvedBlobSha,
+        resolvedFileMode:'100644',
+      };
+      mkdirSync(dirname(join(dir,identity.resolutionRecordPath)),{recursive:true});
+      writeFileSync(join(dir,identity.resolutionRecordPath),JSON.stringify(record,null,2)+'\n');
+      gitRun(dir,['add',identity.resolutionRecordPath]);
+      gitRun(dir,['commit','-qm','reviewed conflict resolution']);
+      const targetBase=gitRun(dir,['rev-parse','HEAD']);
+      const sealed=sealReleaseUnitManifest({...draft,targetBaseSha:targetBase,lease:{...draft.lease,expectedBaseSha:targetBase}},{sourceCommit,cwd:dir});
+      const result=materializeReleaseUnit({manifest:sealed,sourceCommit,targetRef:targetBase,cwd:dir});
+      expect(result.status).toBe('ALREADY_APPLIED');
+      expect(result.materializedHeadSha).toBe(targetBase);
+      expect(result.alreadyApplied).toEqual(expect.arrayContaining([expect.objectContaining({
+        file,operation:'modify',
+        resolution:expect.objectContaining({
+          contract:RELEASE_UNIT_CONFLICT_RESOLUTION_CONTRACT,
+          resolutionRecordPath:identity.resolutionRecordPath,
+          resolutionPlanTaskId:'DEV-TEST-RESOLUTION-V1',
+          resolutionBaseSha,
+          resolvedBlobSha,
+        }),
+      })]));
+      expect(gitRun(dir,['show',`${targetBase}:${file}`])).toBe("export const value='reviewed-resolution';");
+    }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+
+  it('rejects a forged or stale conflict resolution receipt without staging a replacement blob',()=>{
+    const dir=initGitRepo('release-unit-modify-resolution-invalid-'),file='scripts/already.mjs';
+    try{
+      mkdirSync(join(dir,'scripts'),{recursive:true});
+      writeFileSync(join(dir,file),"export const value='base';\n");
+      gitRun(dir,['add','.']);gitRun(dir,['commit','-qm','base']);
+      const sourceParent=gitRun(dir,['rev-parse','HEAD']);
+      writeFileSync(join(dir,file),"export const value='source';\n");
+      gitRun(dir,['commit','-qam','source']);
+      const sourceCommit=gitRun(dir,['rev-parse','HEAD']);
+      gitRun(dir,['checkout','-qb','target',sourceParent]);
+      writeFileSync(join(dir,file),"export const value='target';\n");
+      gitRun(dir,['commit','-qam','target-conflict']);
+      const resolutionBaseSha=gitRun(dir,['rev-parse','HEAD']);
+      const draft={...structuredClone(manifest),targetBaseSha:resolutionBaseSha,lease:{...structuredClone(manifest.lease),expectedBaseSha:resolutionBaseSha,reconciled:true},intendedFiles:[file],operations:[{operation:'modify',file}],requiredDependencyFiles:[],reconciliationPolicy:{...structuredClone(manifest.reconciliationPolicy),requiresReconciliationAfterPredecessor:false}};
+      const sealedAtConflict=sealReleaseUnitManifest(draft,{sourceCommit,cwd:dir});
+      const identity=releaseUnitModifyConflictIdentity({cwd:dir,releaseUnitId:sealedAtConflict.releaseUnitId,targetBaseSha:resolutionBaseSha,sourceCommit,operation:sealedAtConflict.operations[0]});
+      writeFileSync(join(dir,file),"export const value='reviewed-resolution';\n");
+      gitRun(dir,['add',file]);
+      mkdirSync(dirname(join(dir,identity.resolutionRecordPath)),{recursive:true});
+      writeFileSync(join(dir,identity.resolutionRecordPath),JSON.stringify({
+        contract:RELEASE_UNIT_CONFLICT_RESOLUTION_CONTRACT,
+        releaseUnitId:sealedAtConflict.releaseUnitId,file,sourceParent:identity.sourceParent,sourceCommit,sourcePatchDigest:identity.sourcePatchDigest,
+        resolutionPlanTaskId:'DEV-TEST-RESOLUTION-V1',resolutionBaseSha,
+        resolvedBlobSha:'0'.repeat(40),resolvedFileMode:'100644',
+      },null,2)+'\n');
+      gitRun(dir,['add',identity.resolutionRecordPath]);gitRun(dir,['commit','-qm','forged receipt']);
+      const targetBase=gitRun(dir,['rev-parse','HEAD']);
+      const sealed=sealReleaseUnitManifest({...draft,targetBaseSha:targetBase,lease:{...draft.lease,expectedBaseSha:targetBase}},{sourceCommit,cwd:dir});
+      let caught:any=null;
+      try{materializeReleaseUnit({manifest:sealed,sourceCommit,targetRef:targetBase,cwd:dir});}catch(error){caught=error;}
+      expect(caught?.code).toBe('RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID');
+      expect(caught?.details?.mismatches).toEqual(expect.arrayContaining([expect.objectContaining({field:'resolvedBlobSha'})]));
+      expect(gitRun(dir,['rev-parse','target'])).toBe(targetBase);
+    }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+
+  it('ignores a stale receipt when the immutable source patch applies cleanly',()=>{
+    const dir=initGitRepo('release-unit-modify-resolution-clean-'),file='scripts/already.mjs';
+    try{
+      mkdirSync(join(dir,'scripts'),{recursive:true});
+      writeFileSync(join(dir,file),"export const value='base';\nexport const stable='keep';\n");
+      gitRun(dir,['add','.']);gitRun(dir,['commit','-qm','base']);
+      const sourceParent=gitRun(dir,['rev-parse','HEAD']);
+      writeFileSync(join(dir,file),"export const value='source';\nexport const stable='keep';\n");
+      gitRun(dir,['commit','-qam','source']);
+      const sourceCommit=gitRun(dir,['rev-parse','HEAD']);
+      gitRun(dir,['checkout','-qb','target',sourceParent]);
+      writeFileSync(join(dir,file),"export const value='base';\nexport const stable='keep';\nexport const later=true;\n");
+      gitRun(dir,['commit','-qam','target']);
+      const preRecordBase=gitRun(dir,['rev-parse','HEAD']);
+      const draft={...structuredClone(manifest),targetBaseSha:preRecordBase,lease:{...structuredClone(manifest.lease),expectedBaseSha:preRecordBase,reconciled:true},intendedFiles:[file],operations:[{operation:'modify',file}],requiredDependencyFiles:[],reconciliationPolicy:{...structuredClone(manifest.reconciliationPolicy),requiresReconciliationAfterPredecessor:false}};
+      const sealedAtBase=sealReleaseUnitManifest(draft,{sourceCommit,cwd:dir});
+      const identity=releaseUnitModifyConflictIdentity({cwd:dir,releaseUnitId:sealedAtBase.releaseUnitId,targetBaseSha:preRecordBase,sourceCommit,operation:sealedAtBase.operations[0]});
+      mkdirSync(dirname(join(dir,identity.resolutionRecordPath)),{recursive:true});
+      writeFileSync(join(dir,identity.resolutionRecordPath),'{not-json');
+      gitRun(dir,['add',identity.resolutionRecordPath]);gitRun(dir,['commit','-qm','stale malformed record']);
+      const targetBase=gitRun(dir,['rev-parse','HEAD']);
+      const sealed=sealReleaseUnitManifest({...draft,targetBaseSha:targetBase,lease:{...draft.lease,expectedBaseSha:targetBase}},{sourceCommit,cwd:dir});
+      const result=materializeReleaseUnit({manifest:sealed,sourceCommit,targetRef:targetBase,cwd:dir});
+      expect(result.status).toBe('PREPARED');
+      expect(gitRun(dir,['show',`${result.materializedHeadSha}:${file}`])).toContain("value='source'");
+      expect(gitRun(dir,['show',`${result.materializedHeadSha}:${file}`])).toContain('later=true');
+    }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+
+  it('normalizes structured materialization conflicts into resumable BLOCK results',()=>{
+    const error:any=new Error('RELEASE_UNIT_MODIFY_PATCH_CONFLICT:scripts/already.mjs');
+    error.code='RELEASE_UNIT_MODIFY_PATCH_CONFLICT';
+    error.details={releaseUnitId:'DEV-NOCODE-U03',file:'scripts/already.mjs',resolutionRecordPath:'quality/development/release-unit-conflict-resolutions/dev-nocode-u03/example.json'};
+    expect(structuredReleaseUnitMaterializationBlock(error)).toEqual({
+      decision:'BLOCK',code:'RELEASE_UNIT_MODIFY_PATCH_CONFLICT',error:error.message,details:error.details,
+    });
+    expect(structuredReleaseUnitMaterializationBlock(new Error('ordinary failure'))).toBeNull();
+    const runtime=readFileSync('scripts/release-unit-github-runtime.mjs','utf8');
+    expect(runtime).toContain('const blocked=structuredReleaseUnitMaterializationBlock(error)');
+    expect(runtime).toContain('const materializationBlock=structuredReleaseUnitMaterializationBlock(error)');
+    expect(runtime).toContain("state:'STALE'");
   });
 
   it('keeps create materialization on exact sealed source blob semantics',()=>{
