@@ -1,27 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-BOT-PR-CI-DISPATCH-V1",
-  "task": "Make bot-created release-unit child PR proof automation-safe by explicitly dispatching exact-head CI and fail fast with machine-readable terminal child-CI blockers instead of polling action_required runs until timeout.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-SEALED-OBLIGATION-PROVENANCE-V1",
+  "task": "Preserve sealed release-unit source provenance across trusted fresh reevaluation so canonical material obligation comparison stays stable without weakening real drift detection.",
+  "status": "ready-for-implementation",
   "guardDigest": "128614ad",
-  "changeBaseSha": "a96074891ce8d0ae32d54c325d60cb4ee1076659",
+  "changeBaseSha": "95b0e429e5e7d23b361fa3644f0899e07b6e7ac0",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    ".github/workflows/ci.yml",
-    "scripts/release-unit-ci-context.mjs",
     "scripts/release-unit-github-runtime.mjs",
     "tests/control-plane-release-unit-production-surface.test.ts",
     "tests/control-plane-release-unit-execution-binding.test.ts",
-    "tests/shoperation-development-guard.test.ts",
-    "tests/control-plane-diagnostics-hardening.test.ts"
+    "tests/control-plane-release-unit-orchestration.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
   ],
   "expectedDomains": [
+    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
@@ -64,46 +63,41 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-BOT-PR-CI-DISPATCH-V1",
+    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-SEALED-OBLIGATION-PROVENANCE-V1",
     "riskTier": "critical",
-    "problemStatement": "Live bounded rehearsal reached U01 PR_OPEN and created canonical child PR #1024 at head d9530afd343b66ae157444298ae847f1d12fb8dc. GitHub completed the pull_request CI run 37596487318 immediately as action_required because actor and triggering_actor were github-actions[bot], with no normal CI jobs. importExactChildProof only searches for successful exact CI and otherwise returns PENDING, causing the trusted executor to poll for roughly the full global limit with no concrete blocker surfaced.",
+    "problemStatement": "Live bounded rehearsal persisted U01 as STALE with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT after bot-PR CI dispatch was fixed and main advanced to 95b0e429e5e7d23b361fa3644f0899e07b6e7ac0. The fresh reevaluation projects the same twelve create operations but scripts/release-unit-github-runtime.mjs deliberately deletes operation.source and returns an unsealed fresh manifest. The persisted manifest is sealed to source commit 65e52ffd1fd32f14353467eb7c52b2e06ba1be65, so canonical comparison sees false material operations drift and a different childOperationDigest even though file scope and operation kinds are unchanged.",
     "observableOutcomes": [
-      "Trusted executor explicitly triggers an exact child proof run through workflow_dispatch after creating or confirming the exact child PR, rather than depending solely on its bot-generated pull_request event.",
-      "CI workflow supports a trusted release-unit dispatch mode carrying exact PR number, head SHA, base SHA and head branch, and runs the same canonical gates, Truth and Lifecycle semantics against that exact child head.",
-      "release-unit-ci-context validates dispatch identity against the actual same-repository open PR and its signed release-unit envelope before setting child transaction context.",
-      "importExactChildProof distinguishes queued/in_progress from terminal non-success and returns machine-readable BLOCK codes such as RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED.",
-      "finishActiveUnit persists terminal child proof failures as STALE with the exact blocker instead of waiting until RELEASE_UNIT_EXECUTION_POLL_LIMIT.",
-      "Operator logs/state surface the exact machine blocker without an extra GitHub API query."
+      "Trusted fresh reevaluation returns a manifest sealed to the exact persisted execution source commit before AUTHORIZE obligation comparison.",
+      "For unchanged operations, sealed source provenance (mode, source commit, blob SHA and file mode) is reproduced deterministically and childOperationDigest remains stable.",
+      "Real material operation drift, source blob drift, dependency drift, forbidden/read-only drift and risk BLOCK remain fail-closed.",
+      "Reprojectable child-plan/governance evidence may still refresh only through the trusted two-pass reevaluation path.",
+      "The persisted U01 rehearsal can resume from STALE without manual state edits, receipt fabrication, branch rebasing or gate bypass."
     ],
     "unresolvedRisks": [
-      "A dispatch proof could run on main rather than the exact child head if workflow ref/inputs are not bound correctly.",
-      "Dispatch inputs are untrusted strings unless reconciled to the actual PR and release-unit envelope.",
-      "Accepting any successful CI run for the commit could confuse ordinary pull_request CI with trusted dispatch proof identity.",
-      "Repeated polling must not dispatch duplicate proof runs every cycle.",
-      "Terminal action_required handling must not mark genuine queued/in_progress proof as failed.",
-      "A stale PR must not be merged after main advances; normal fresh reevaluation/superseding branch semantics must remain authoritative."
+      "Normalizing provenance away from drift comparison would weaken tamper detection and is therefore not acceptable.",
+      "Resealing against current main rather than the immutable release execution source would bind the wrong content identity.",
+      "Double sealing must remain deterministic and must not alter already correct source provenance.",
+      "Generated/regenerate and delete operation provenance semantics must remain unchanged.",
+      "The repair must not authorize a stale child when the source blob no longer matches the sealed source commit."
     ],
     "scope": {
       "in": [
-        "Add workflow_dispatch inputs to CI for trusted release-unit proof: PR number, child head SHA, base SHA and head branch.",
-        "Normalize CI effective PR/head/base/branch identity so pull_request and trusted dispatch modes run the same gates/artifacts.",
-        "Extend release-unit-ci-context to resolve trusted dispatch PR identity and validate same repository/open/exact head/base/ref plus release-unit body envelope.",
-        "After ensureExactPullRequest, idempotently ensure an exact workflow_dispatch child proof run exists.",
-        "Classify exact child CI runs into SUCCESS, PENDING or terminal BLOCK with explicit conclusion-derived error codes.",
-        "Persist terminal child proof BLOCK as STALE through canonical parent synchronization.",
-        "Add regression coverage for action_required fail-fast, pending semantics, dispatch idempotency, exact identity and no manual approval bypass."
+        "Reseal the trusted fresh reevaluation manifest against the exact release execution sourceCommit before it is returned for AUTHORIZE comparison.",
+        "Preserve existing source deletion during intermediate semantic projection if needed, but restore canonical sealed provenance before material obligation classification.",
+        "Add regressions proving unchanged sealed operations remain equal after fresh reevaluation and real material/source drift still blocks.",
+        "Replay the live persisted U01 state after merge."
       ],
       "out": [
-        "No manual approval of #1024.",
-        "No manual child PR recreation, state editing, receipt fabrication or merge bypass.",
-        "No PAT/new secret requirement.",
-        "No weakening of Plan/Atlas/Release Risk/Truth/Lifecycle proof.",
-        "No changes to storefront, database, payments, inventory, auth product runtime, Builder or templates."
+        "No removal of source provenance from canonical obligation identity.",
+        "No addition of source fields to REPROJECTABLE_OBLIGATION_FIELDS.",
+        "No threshold, risk, Truth, lifecycle or drift-gate relaxation.",
+        "No manual modification of control-plane/release-state branches or child PR receipts.",
+        "No storefront, Builder, Template Factory, database, auth, payment or inventory changes."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This is a trusted write-capable release execution edge crossing GitHub Actions event semantics. Dispatch identity, exact-head proof selection, terminal-state classification and fail-closed recovery must all remain machine-verifiable.",
+      "rationale": "The defect sits in the trusted release executor between fresh semantic reprojection and material authorization. A false PASS could merge altered material, while a false STALE blocks resumability; exact provenance and fail-closed drift semantics therefore require critical-practical proof.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -121,30 +115,26 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "CI supports workflow_dispatch release-unit proof mode without changing ordinary push/pull_request behavior.",
-        "Dispatch CI checks out the exact supplied child head and uses the supplied exact base/ref/PR identity for all Development/Truth artifact binding.",
-        "release-unit-ci-context fetches and validates the actual PR when invoked in dispatch mode and fails closed on repo/state/head/base/ref mismatch.",
-        "Executor creates at most one active/successful exact dispatch proof per child head/branch/PR identity.",
-        "importExactChildProof returns BLOCK/RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED for the observed action_required terminal run rather than PENDING.",
-        "Queued/in_progress or not-yet-materialized dispatch proof remains PENDING.",
-        "finishActiveUnit writes a terminal proof blocker as STALE and the next canonical executor replay can fresh-reevaluate from current main.",
-        "Exact-head CI, Completion Truth and Lifecycle close before merge; then the unchanged rehearsal resumes without manual approval."
+        "A fresh reevaluation of a sealed release unit with unchanged operations produces equivalent normalized material operations including source provenance.",
+        "The refreshed childOperationDigest equals the persisted digest when material operations and immutable source are unchanged.",
+        "Trusted governance/child-plan reprojection may change allowed reprojectable fields without creating false material drift.",
+        "Changing operation kind, file, source commit, blob SHA or file mode remains material drift and blocks authorization.",
+        "prepareActiveUnit can move the live U01 from STALE to READY/materialization using current main without manually rewriting persisted state.",
+        "Exact-head CI, Completion Truth and Lifecycle close before merge, followed by unchanged rehearsal replay."
       ],
       "invariants": [
-        "Only exact same-repository child PR identity may enter release-unit dispatch proof mode.",
-        "Workflow dispatch is proof execution, not proof bypass: all existing canonical gates and Truth/Lifecycle must still PASS.",
-        "Terminal non-success child CI is never represented as PENDING.",
-        "PENDING never persists a false blocker for genuinely running proof.",
-        "No child merge occurs without exact-head VERIFIED_DONE Truth and closed LEARN lifecycle evidence.",
-        "No state mutation bypasses persisted CAS synchronization."
+        "Sealed source provenance is execution identity, not disposable presentation metadata.",
+        "Fresh reevaluation must bind to executionSourceCommit/sourceCommit, never current-main content.",
+        "Material drift classification remains fail-closed.",
+        "Only trusted fresh projection may refresh reprojectable governance/evidence fields.",
+        "Persisted CAS state remains the sole release execution state authority."
       ],
       "forbiddenStates": [
-        "action-required-treated-as-pending",
-        "dispatch-head-differs-from-pr-head",
-        "dispatch-base-differs-from-pr-base",
-        "foreign-repository-pr-dispatch",
-        "successful-nonexact-ci-imported-as-child-proof",
-        "manual-approval-required-for-normal-release-execution"
+        "unsealed-fresh-manifest-compared-to-sealed-persisted-manifest",
+        "source-provenance-ignored-as-reprojectable",
+        "fresh-manifest-sealed-from-current-main",
+        "changed-source-blob-authorized-as-unchanged",
+        "manual-release-state-edit-to-resume-u01"
       ]
     },
     "model": {
@@ -176,46 +166,39 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Bot-created PR pull_request run concludes action_required with zero canonical jobs.",
-        "Executor waits for success despite terminal child CI.",
-        "workflow_dispatch runs on wrong ref/head.",
-        "Dispatch is triggered repeatedly on every poll.",
-        "Dispatch PR identity cannot be validated because pull request permissions are absent.",
-        "Ordinary pull_request CI behavior regresses after identity normalization."
+        "Fresh semantic projection strips sealed source provenance and causes false operations drift.",
+        "Resealing uses a wrong source commit and silently changes blob identity.",
+        "A real operation/source change is normalized away and incorrectly authorized.",
+        "Generated/delete operation semantics regress during resealing.",
+        "Live persisted STALE state cannot recover after the code fix."
       ],
       "edgeCases": [
-        "Original pull_request CI succeeds before dispatch is needed.",
-        "Original pull_request CI is action_required while dispatch proof succeeds.",
-        "Dispatch proof is queued or in_progress during several executor polls.",
-        "Dispatch proof fails one canonical gate.",
-        "Main advances after child PR is opened and terminal proof forces STALE re-evaluation.",
-        "Multiple CI runs exist for the same child head with different events/conclusions."
+        "All material operations are create operations from one immutable source commit.",
+        "A delete operation legitimately has source:null.",
+        "A generated regenerate operation has regenerate provenance rather than a sealed blob.",
+        "Fresh childPlanDigest changes while operationDigest must remain stable.",
+        "Current main is many commits ahead of the immutable rehearsal source.",
+        "The prior child PR remains open on an obsolete base while a superseding materialization is required."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-WORKFLOW-DISPATCH-EXACT-CHILD",
-        "summary": "Trusted executor explicitly invokes the existing CI workflow in release-unit proof mode on the exact child ref/head.",
+        "id": "ALT-RESEAL-FRESH-MANIFEST",
+        "summary": "Reseal trusted fresh reevaluation output against the immutable execution source before AUTHORIZE comparison.",
         "disposition": "selected",
-        "reason": "GitHub permits workflow_dispatch from GITHUB_TOKEN, preserves the canonical CI/Truth chain and avoids bot PR event approval semantics."
+        "reason": "Preserves exact provenance and digest semantics while keeping all existing material drift checks intact."
       },
       {
-        "id": "ALT-MANUAL-WORKFLOW-APPROVAL",
-        "summary": "Require a human to approve each bot-created child PR workflow.",
+        "id": "ALT-IGNORE-SOURCE-IN-OBLIGATIONS",
+        "summary": "Strip operation.source from normalized obligation comparison and operation digest semantics.",
         "disposition": "rejected",
-        "reason": "Breaks autonomous release-unit execution and leaves the rehearsal dependent on manual intervention."
+        "reason": "Would weaken provenance/tamper detection and erase a material execution identity dimension."
       },
       {
-        "id": "ALT-PAT-OR-APP-SECRET",
-        "summary": "Create child PRs with a separate PAT/GitHub App token so pull_request CI triggers normally.",
+        "id": "ALT-MANUAL-STATE-REWRITE",
+        "summary": "Edit persisted U01 state or manifest to remove sealed source metadata.",
         "disposition": "rejected",
-        "reason": "Adds secret/credential infrastructure not required to close the current execution edge."
-      },
-      {
-        "id": "ALT-LOCAL-PROOF-ONLY",
-        "summary": "Skip GitHub child CI and prove entirely inside the trusted executor worktree.",
-        "disposition": "rejected",
-        "reason": "Would reduce production-like PR proof fidelity and duplicate the canonical CI evidence chain."
+        "reason": "Would bypass the canonical CAS/runtime path and invalidate the production-like rehearsal."
       }
     ],
     "specialistReviews": [
@@ -223,132 +206,107 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The missing edge is event-trigger authority between executor-created PR and child CI, not child materialization or proof semantics.",
-        "resolution": "Add explicit trusted dispatch while keeping the existing CI workflow as the single proof implementation.",
+        "finding": "The false drift is introduced between trusted reevaluation projection and AUTHORIZE, not in decomposition scope.",
+        "resolution": "Restore sealed execution identity at the boundary before comparison.",
         "evidence": [
-          ".github/workflows/ci.yml",
-          "scripts/release-unit-github-runtime.mjs"
+          "scripts/release-unit-github-runtime.mjs",
+          "scripts/lib/shoperation-release-unit-runtime.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "workflow_dispatch inputs could let an arbitrary ref/PR impersonate a release-unit child.",
-        "resolution": "Dispatch mode must fetch actual PR, require same repo/open/exact head/base/ref and validate the signed release-unit body envelope before any child context is accepted.",
+        "finding": "Ignoring source metadata would permit altered source content to look obligation-equivalent.",
+        "resolution": "Keep source provenance material and reseal from the exact immutable sourceCommit.",
         "evidence": [
-          "scripts/release-unit-ci-context.mjs"
+          "scripts/lib/shoperation-release-unit-runtime.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Terminal child workflow conclusions are currently collapsed into PENDING, masking actionable failure and wasting executor time.",
-        "resolution": "Classify terminal conclusions immediately and persist exact blocker as STALE for canonical replay.",
+        "finding": "A stale persisted child must be recoverable after policy/runtime fixes without re-authoring its material intent.",
+        "resolution": "Use trusted reevaluation plus deterministic resealing, then replay persisted U01 through normal AUTHORIZE/materialize/CI/merge.",
         "evidence": [
-          "scripts/release-unit-github-runtime.mjs"
+          "scripts/release-unit-github-runtime.mjs",
+          "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
         ]
       },
       {
-        "role": "Operations",
+        "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Operators currently need separate API/log queries to learn why a proof never progresses.",
-        "resolution": "Emit conclusion-derived machine code into executor error/state so the primary run shows the exact cause.",
+        "finding": "The observed blocker is a newly discovered execution-edge regression and must remain visible until replay proves closure.",
+        "resolution": "Add regression proof and replay the same live rehearsal after merge.",
         "evidence": [
-          "scripts/release-unit-execute.mjs",
-          "scripts/release-unit-github-runtime.mjs",
-          "https://github.com/infowaterk-max/water-K-/issues/1025"
+          "tests/control-plane-release-unit-production-surface.test.ts",
+          "tests/control-plane-release-unit-execution-binding.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-BPCI-01",
-        "scenario": "github-actions[bot] creates an exact same-repo child PR and GitHub marks pull_request CI action_required.",
-        "finding": "Current import returns PENDING forever until poll limit because it only recognizes exact success.",
-        "resolution": "Treat action_required as terminal BLOCK with RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED and separately dispatch trusted proof.",
+        "id": "CH-SOP-01",
+        "scenario": "Persisted manifest is sealed; fresh projection has identical operation kind/file but no source object.",
+        "finding": "Current runtime reports false RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT.",
+        "resolution": "Seal fresh output with the exact sourceCommit before AUTHORIZE.",
         "status": "resolved"
       },
       {
-        "id": "CH-BPCI-02",
-        "scenario": "A dispatch payload names PR #1024 but supplies another head SHA.",
-        "finding": "Running proof against mismatched code would break exact transaction identity.",
-        "resolution": "Fetch PR in child-context step and compare PR number/repository/state/head/base/ref to dispatch payload before decoding envelope.",
+        "id": "CH-SOP-02",
+        "scenario": "Fresh projection changes a file or operation kind.",
+        "finding": "Resealing must not make this look equivalent.",
+        "resolution": "Keep operation list material; only attach provenance to the projected operations and preserve drift comparison.",
         "status": "resolved"
       },
       {
-        "id": "CH-BPCI-03",
-        "scenario": "Both pull_request and dispatch CI exist for one head.",
-        "finding": "Proof importer could select the wrong run or keep reacting to action_required despite a valid dispatch success.",
-        "resolution": "Prefer exact successful trusted dispatch proof; terminal pull_request action_required only blocks when no valid dispatch proof is active/successful.",
+        "id": "CH-SOP-03",
+        "scenario": "Source file content changed at another commit.",
+        "finding": "Using current main would produce a different blob and could conceal source identity error.",
+        "resolution": "Always seal against immutable execution sourceCommit supplied by the executor.",
         "status": "resolved"
       },
       {
-        "id": "CH-BPCI-04",
-        "scenario": "Executor polls while dispatch proof is queued/in_progress.",
-        "finding": "Repeated repository actions could create many identical CI runs.",
-        "resolution": "Before dispatch, list exact workflow_dispatch runs for head/branch and create one only when none is queued/in_progress/successful.",
+        "id": "CH-SOP-04",
+        "scenario": "Fresh child plan is legitimately reprojected due current governance while material files are identical.",
+        "finding": "Plan digest may change even when operation digest should not.",
+        "resolution": "Continue trusted reprojectable-field handling while preserving stable sealed operation digest.",
         "status": "resolved"
       },
       {
-        "id": "CH-BPCI-05",
-        "scenario": "Dispatch CI fails Plan, test, build or Truth gate.",
-        "finding": "The executor needs the exact terminal reason instead of a generic timeout.",
-        "resolution": "Map terminal workflow conclusion to RELEASE_UNIT_CHILD_CI_<CONCLUSION>; preserve run id/head/branch in blocker details and stop polling.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-BPCI-06",
-        "scenario": "Old PR_OPEN child was based on an earlier main and receives terminal proof blocker after this fix merges.",
-        "finding": "Continuing that old branch would miss the new workflow implementation.",
-        "resolution": "Persist STALE on terminal proof; next prepareActiveUnit fresh-reevaluates current main and creates/reuses a superseding canonical child branch containing current workflow code.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-BPCI-07",
-        "scenario": "Dispatch event runs existing CI but github.event.pull_request is absent.",
-        "finding": "Current workflow expressions and release-unit-ci-context would bind main/default event identity rather than child identity.",
-        "resolution": "Normalize effective head/base/ref/PR values for both pull_request and dispatch modes and use them consistently across checkout, gates, artifacts, Truth and lifecycle.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-BPCI-08",
-        "scenario": "No pull_request CI run is created at all.",
-        "finding": "Waiting for a PR-triggered run before dispatch would deadlock.",
-        "resolution": "Explicit dispatch is ensured immediately after PR_OPEN creation/confirmation; pull_request CI becomes optional redundant proof rather than required trigger.",
+        "id": "CH-SOP-05",
+        "scenario": "U01 old PR is still open on a960 base.",
+        "finding": "Reusing it after main advance would violate lease.",
+        "resolution": "Let existing supersession/materialization logic create or select the canonical current-main child after reevaluation passes.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS.",
-      "Implement dispatch-capable CI identity normalization, child-context validation, explicit proof dispatch and terminal-run classifier.",
-      "Add regression tests for observed action_required case, exact dispatch identity, duplicate suppression, PENDING vs BLOCK classification and STALE persistence.",
-      "Require exact-head Knowledge/Plan/Edit-Time/Replay/Risk/full tests/typecheck/build/Completion Truth PASS.",
-      "Commit only canonical lifecycle closure metadata and require final exact-head CI PASS.",
-      "Merge, let the obsolete stuck executor terminate naturally if connector cannot cancel it, then replay the unchanged rehearsal from persisted CAS state."
+      "Commit this plan only and require Plan Before Code PASS before implementation.",
+      "Implement deterministic resealing of the fresh reevaluation manifest against sourceCommit at the trusted reevaluation boundary.",
+      "Add regression proof for stable source provenance/operation digest plus fail-closed real source/material drift.",
+      "Require exact-head Knowledge/Plan/Edit-Time/Incremental Replay/Release Risk/full tests/typecheck/build/Completion Truth/Lifecycle PASS.",
+      "Merge only on exact-head proof, then replay the unchanged persisted multi-unit rehearsal and follow every new blocker through Failure Intake."
     ],
     "semanticExecutionRoute": {
-      "request": "SQ-CAND-RELEASE-UNIT-BOT-PR-CI-DISPATCH-V1",
+      "request": "SQ-CAND-RELEASE-UNIT-SEALED-OBLIGATION-PROVENANCE-V1",
       "authority": [
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/ci.yml",
-        "scripts/release-unit-ci-context.mjs",
         "scripts/release-unit-github-runtime.mjs"
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-production-surface.test.ts",
         "tests/control-plane-release-unit-execution-binding.test.ts",
-        "tests/shoperation-development-guard.test.ts",
-        "tests/control-plane-diagnostics-hardening.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts"
       ],
       "impactedReadOnly": [
-        ".github/workflows/release-unit-execution.yml",
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
         "scripts/release-unit-execute.mjs",
-        "scripts/lib/shoperation-release-unit-runtime.mjs"
+        ".github/workflows/release-unit-execution.yml"
       ],
       "mustCreate": [],
       "forbidden": [
@@ -359,8 +317,7 @@
       "proof": [
         "tests/control-plane-release-unit-production-surface.test.ts",
         "tests/control-plane-release-unit-execution-binding.test.ts",
-        "tests/shoperation-development-guard.test.ts",
-        "tests/control-plane-diagnostics-hardening.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -371,7 +328,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-BOT-PR-CI-DISPATCH-V1",
+    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-SEALED-OBLIGATION-PROVENANCE-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -389,18 +346,19 @@
     },
     "requirements": [
       {
-        "id": "REQ-RELEASE-UNIT-BOT-PR-CI-DISPATCH",
-        "requirement": "Trusted release-unit child proof must execute automatically on the exact child identity even when the bot-created pull_request workflow is action_required, and terminal child workflow states must surface immediately as machine-readable blockers.",
+        "id": "REQ-SEALED-OBLIGATION-PROVENANCE-QUALITY",
+        "requirement": "Trusted fresh release-unit reevaluation must preserve immutable sealed source provenance and stable operation identity when material intent is unchanged, while real operation or source drift remains fail-closed.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-child-ci-trigger-and-diagnostics",
+          "breadth": "release-unit-sealed-obligation-provenance-behavior",
           "strength": 2,
           "dimensions": [
-            "status",
-            "behavioral-proof",
+            "scope",
+            "positive-state",
             "transaction-identity",
+            "behavioral-proof",
             "forbidden-state",
-            "coverage"
+            "lifecycle"
           ]
         },
         "requiredCapabilities": [
@@ -416,35 +374,55 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-CHILD-CI-TIMEOUT-MASKING",
-            "statement": "A terminal exact child CI conclusion may not be represented as PENDING until global poll timeout.",
+            "id": "NEG-SOURCE-PROVENANCE-DROPPED",
+            "statement": "A sealed persisted release-unit operation may not be compared to an unsealed fresh operation as though provenance were disposable.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-DISPATCH-IDENTITY-DRIFT",
-            "statement": "Trusted child proof dispatch may not run against a PR/head/base/ref identity different from the persisted release-unit transaction.",
+            "id": "NEG-REAL-MATERIAL-DRIFT-BYPASS",
+            "statement": "A change to operation kind, file or immutable source identity may not be accepted as a trusted reprojectable governance refresh.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-SEALED-OBLIGATION-PROVENANCE-RELEASE",
+        "requirement": "Fresh authorization after resealing must remain inside the canonical Release Risk Budget and exact current-main lease.",
+        "claimScope": {
+          "capability": "CAP-RELEASE",
+          "breadth": "sealed-obligation-release-integrity",
+          "strength": 2,
+          "dimensions": [
+            "risk",
+            "release-scope"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-RELEASE"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-RELEASE-RISK"
+          ],
+          "outcome": [
+            "GUARD-RELEASE-RISK"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-SEALED-OBLIGATION-RISK-BYPASS",
+            "statement": "Resealing may not authorize a release unit when canonical Release Risk or current-main lease blocks it.",
+            "evidence": [
+              "GUARD-RELEASE-RISK"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Created from live Failure Intake #1025 after U01 reached PR_OPEN and CI run 37596487318 completed action_required under github-actions[bot], while trusted executor run 37566854069 remained polling in Drive canonical release-unit execution. Incremental Replay on d8003946 exposed one stale regression assertion in tests/shoperation-development-guard.test.ts that counted raw pull_request head expressions. The test must now verify canonical SHOPERATION_CI_* effective identity plus preserved pull_request fallback semantics. Full Quality Tests on 132ec189 exposed a second stale diagnostics regression assertion in tests/control-plane-diagnostics-hardening.test.ts that still expected the retired RELEASE_HEAD_SHA workflow variable. Update that proof to assert canonical SHOPERATION_CI_HEAD_SHA exact-head binding without weakening structured diagnostic requirements. Full Quality on exact head 132ec189 exposed a second stale CI identity assertion in tests/control-plane-diagnostics-hardening.test.ts; RELEASE_HEAD_SHA must now be asserted against canonical env.SHOPERATION_CI_HEAD_SHA while preserving exact-head semantics.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "d2fe70c65f33faa8700f5f348479e3e92df95936",
-    "closedAt": "2026-10-07T09:54:33.342Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-BOT-PR-CI-DISPATCH-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Plan-only transaction created from live persisted rehearsal state after main 95b0e429e5e7d23b361fa3644f0899e07b6e7ac0. U01 is STALE with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT solely because trusted fresh reevaluation removes sealed operation.source provenance and changes childOperationDigest. No implementation is authorized until Plan Before Code passes."
 }
