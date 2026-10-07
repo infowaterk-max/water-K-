@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {readFileSync} from 'node:fs';
+import {readFileSync,readdirSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {applyReleaseUnitEvent,createReleaseParentExecution,recordReleaseParentClosure} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 
@@ -118,4 +118,21 @@ describe('Control Plane production release surface',()=>{
     expect(core).toContain("GH_TOKEN:'',GITHUB_TOKEN:''");
     expect(parent).toContain("GH_TOKEN:'',GITHUB_TOKEN:''");
   });
+  it('validates the bounded rehearsal fixture corpus contract',()=>{
+    const directory='quality/knowledge/rehearsal-fixtures/v1';
+    const expected=Array.from({length:25},(_,index)=>`fixture-${String(index+1).padStart(2,'0')}.json`);
+    const files=readdirSync(directory).filter(name=>/^fixture-\d{2}\.json$/.test(name)).sort();
+    expect(files).toEqual(expected);
+    const fixtures=files.map(name=>JSON.parse(readFileSync(`${directory}/${name}`,'utf8')));
+    expect(fixtures).toHaveLength(25);
+    fixtures.forEach((fixture,index)=>{
+      const ordinal=index+1;
+      expect(fixture.contract).toBe('shoporation.release-unit-rehearsal-fixture.v1');
+      expect(fixture.fixtureId).toBe(`fixture-${String(ordinal).padStart(2,'0')}`);
+      expect(fixture.ordinal).toBe(ordinal);
+      expect(fixture.purpose).toBe('bounded production-like multi-release-unit rehearsal');
+      expect(fixture.runtimeImpact).toBe('none');
+    });
+  });
+
 });

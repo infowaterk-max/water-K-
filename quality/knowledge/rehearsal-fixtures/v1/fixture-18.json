@@ -1,0 +1,7 @@
+{
+  "contract": "shoporation.release-unit-rehearsal-fixture.v1",
+  "fixtureId": "fixture-18",
+  "ordinal": 18,
+  "purpose": "bounded production-like multi-release-unit rehearsal",
+  "runtimeImpact": "none"
+}
