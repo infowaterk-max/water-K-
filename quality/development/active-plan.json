@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
   "task": "Repair release-unit successor obligation drift classification so the first canonical sealing of unchanged operations is treated as trusted reprojectable provenance enrichment while any semantic operation change or resealing/tamper remains material fail-closed drift.",
   "status": "ready-for-implementation",
-  "guardDigest": "85d0ad2a",
+  "guardDigest": "a41cfd0c",
   "changeBaseSha": "12447f0cfd73abe8728209ea3f35cb132a9b06d4",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -14,10 +14,10 @@
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -72,11 +72,11 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
     "SQ-NK-010",
-    "SQ-NK-011",
     "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -378,7 +378,7 @@
     "semanticExecutionRoute": {
       "request": "PO-2026-10-07-CONTROL-PLANE-CANONICAL-SEALING-OBLIGATION-REPROJECTION-V1",
       "authority": [
-        "release-infrastructure"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
         "scripts/lib/shoperation-release-unit-runtime.mjs"
@@ -482,5 +482,5 @@
       }
     ]
   },
-  "notes": "Live bounded multi-release-unit rehearsal evidence: U01 trusted workflow_dispatch CI #9077 passed and PR #1053 merged at main 12447f0cfd73abe8728209ea3f35cb132a9b06d4. Release Unit Execution #184 then failed at U02 with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT because initial unsealed operations were canonically enriched with sealed source metadata, changing both raw operations JSON and childOperationDigest. This plan repairs the generic classifier; it does not mutate persisted rehearsal state or weaken operation/source integrity."
+  "notes": "Live bounded multi-release-unit rehearsal evidence: U01 trusted workflow_dispatch CI #9077 passed and PR #1053 merged at main 12447f0cfd73abe8728209ea3f35cb132a9b06d4. Release Unit Execution #184 then failed at U02 with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT because initial unsealed operations were canonically enriched with sealed source metadata, changing both raw operations JSON and childOperationDigest. This plan repairs the generic classifier; it does not mutate persisted rehearsal state or weaken operation/source integrity. Plan Gate #9080 canonicalized planned projection metadata: DOMAIN-QUALITY, quality-knowledge-system authority, negative knowledge [SQ-NK-002, SQ-NK-003, SQ-NK-005, SQ-NK-010, SQ-NK-012, SQ-NK-016..023], and guardDigest a41cfd0c."
 }
