@@ -1,13 +1,13 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-PRIOR-SUPERSESSION-RESUME-V1",
-  "task": "Make release-unit materialization resumable when persisted execution already points at a canonical superseding branch and main advances again.",
-  "status": "closed",
-  "guardDigest": "128614ad",
-  "changeBaseSha": "72154b099c5fd1e3fc9f57bf9410b11f7f05fcb2",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-CHILD-PROOF-DISPATCH-PERMISSION-V1",
+  "task": "Allow the trusted Release Unit Execution workflow to dispatch exact child CI proof runs without widening untrusted workflow authority.",
+  "status": "ready-for-implementation",
+  "guardDigest": "00000000",
+  "changeBaseSha": "ead5039f1711b4b52a1394bac530a9f3ca1ad5be",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/release-unit-github-runtime.mjs",
+    ".github/workflows/release-unit-execution.yml",
     "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
@@ -59,83 +59,76 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-PRIOR-SUPERSESSION-RESUME-V1",
+    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-CHILD-PROOF-DISPATCH-PERMISSION-V1",
     "riskTier": "critical",
-    "problemStatement": "Live bounded rehearsal replay on trusted Release Unit Execution #144 (run 37609591473) failed after all source gates passed with RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH. Persisted U01 already records branchRef release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-a96074891ce8-ab2e09fcc439a199. Fresh AUTHORIZE reprojects executionTransaction and resets branchRef to the root canonical release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01. reconcileMaterializationBranch then inspects/compares the root branch while requiring priorExecution.branchRef to equal it, so a valid previously superseded lineage cannot be resumed when main advances again.",
+    "problemStatement": "Live bounded rehearsal replay on trusted Release Unit Execution #152 (run 37615831101) successfully materialized the fresh U01 superseding branch and created the bot child PR, but exact child proof dispatch failed with RELEASE_UNIT_CHILD_CI_DISPATCH_FAILED because GitHub returned HTTP 403 Resource not accessible by integration when gh workflow run ci.yml attempted workflow_dispatch. The trusted executor workflow currently declares actions: read at both workflow and execute-job level, which is insufficient to create a workflow dispatch event.",
     "observableOutcomes": [
-      "A persisted STALE release unit whose executionTransaction.branchRef is a previously validated superseding branch can be resumed without editing persisted state.",
-      "The runtime validates the actual persisted prior branch against the prior manifest before allowing any further supersession.",
-      "The next branch remains deterministic from the stable root canonical branch plus fresh target-base/binding identity rather than recursively growing supersede suffixes.",
-      "An existing exact next superseding branch is reused idempotently; no duplicate branch, PR or merge is produced.",
-      "Missing, noncanonical, moved, wrong-tree, wrong-base or wrong-identity prior branches remain fail-closed with direct machine-readable errors.",
-      "The unchanged U01 rehearsal proceeds beyond RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH after merge."
+      "The trusted default-branch Release Unit Execution job can dispatch the exact child CI workflow run after bot PR creation.",
+      "The source CI workflow remains read-only and cannot gain write authority.",
+      "Only the trusted executor job receives the minimum GitHub Actions permission required for workflow dispatch.",
+      "The existing exact PR/head/base/branch identity validation and child-proof import remain unchanged and fail closed.",
+      "The unchanged U01 rehearsal proceeds beyond RELEASE_UNIT_CHILD_CI_DISPATCH_FAILED without manual approval, PAT, receipt edit or alternate proof path."
     ],
     "unresolvedRisks": [
-      "Trusting persisted branchRef without reconstructing and validating the prior materialization could authorize foreign branch state.",
-      "Using the prior superseding branch as the naming root could create unbounded nested supersede branch names and unstable identities.",
-      "Inspecting only the root canonical branch can confuse older materialization with the persisted branch actually referenced by state.",
-      "Retry logic must not force-push, delete or mutate an existing branch.",
-      "executionTransaction supersedes metadata must identify the branch actually superseded, not merely the root canonical branch."
+      "Granting actions: write too broadly could allow unrelated workflow mutation or dispatch from an untrusted execution context.",
+      "Changing repository-wide/default permissions would violate least privilege and expand authority beyond the trusted executor.",
+      "A dispatch permission fix without exact-head identity checks could prove the wrong child commit.",
+      "Using a PAT or user token would bypass the canonical GitHub Actions authority model and create unmanaged credentials."
     ],
     "scope": {
       "in": [
-        "Separate the stable canonical naming root from the persisted prior materialization branch during reconciliation.",
-        "Inspect and validate priorExecution.executionTransaction.branchRef when it differs from the root canonical branch.",
-        "Derive the next deterministic superseding branch from the stable canonical root and fresh manifest identity.",
-        "Preserve the actual prior branch in supersedes receipts/transaction metadata.",
-        "Add adversarial regression coverage for supersede-of-supersede resume and fail-closed prior-branch drift.",
-        "Replay the same immutable rehearsal source after merge."
+        "Raise GitHub Actions permission from read to write only where the trusted Release Unit Execution job needs workflow_dispatch.",
+        "Preserve contents: write and pull-requests: write exactly as currently required by materialization and merge.",
+        "Keep source CI contents read-only and preserve explicit bot child proof dispatch.",
+        "Add regression coverage that the trusted executor has actions: write while source CI retains read-only authority.",
+        "Replay the immutable rehearsal source after exact-head proof and merge."
       ],
       "out": [
-        "No manual edit of control-plane/release-state branches.",
-        "No force push, branch deletion, PR rebasing or receipt fabrication.",
-        "No relaxation of remote branch base/tree/message/binding validation.",
-        "No change to release-unit material intent, source provenance or risk thresholds.",
+        "No PAT, fine-grained token, GitHub App token or manual workflow dispatch workaround.",
+        "No repository-wide permission relaxation.",
+        "No change to child proof identity matching, release-state receipts, material operations or risk thresholds.",
         "No Template Factory, Builder, storefront, database, auth, payment or inventory work."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This path decides whether a persisted child release branch is trusted and whether a successor materialization may be created. A false PASS could merge foreign code; a false BLOCK breaks resumability, so branch lineage and identity require critical-practical proof.",
+      "rationale": "This permission controls whether the trusted release executor may trigger CI proof for code it just materialized. Too little permission deadlocks the release path; too much permission widens automation authority. Least-privilege and exact-context proof are therefore required.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "what-if-matrix",
-        "adversarial-scenarios",
-        "boundary-cases",
         "threat-failure-model",
-        "fault-injection",
+        "boundary-cases",
         "proof-obligation",
-        "pairwise-interactions",
-        "finite-state-exhaustion"
+        "adversarial-scenarios",
+        "what-if-matrix",
+        "pairwise-interactions"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "When priorExecution.branchRef already names a canonical superseding branch, reconciliation validates that exact remote against the prior manifest instead of rejecting it solely because it differs from the root canonical branch.",
-        "The next superseding branch is derived from the stable root canonical branch and fresh targetBaseSha/bindingDigest.",
-        "The supersedes receipt records the actual persisted prior branch and head.",
-        "Retrying against an already-created exact next superseding branch reuses it without push.",
-        "A missing or noncanonical persisted prior branch fails closed and does not silently push fresh materialization over another identity.",
-        "Existing first-supersession behavior remains unchanged.",
-        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge, then the immutable rehearsal source is replayed."
+        "Release Unit Execution can invoke gh workflow run ci.yml using the repository GITHUB_TOKEN without HTTP 403.",
+        "The execute job declares actions: write and no broader workflow gains Actions write authority.",
+        "CI continues to expose only read permissions for source-side execution and child proof remains exact-head bound.",
+        "Regression proof asserts both the positive executor permission and the negative source-CI permission boundary.",
+        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge.",
+        "After merge, the immutable rehearsal source reaches child proof dispatch and continues beyond the current blocker."
       ],
       "invariants": [
-        "Persisted release-state remains the authority for which prior materialization branch must be validated.",
-        "The root canonical branch remains the deterministic naming root for future supersessions.",
-        "Remote branch base, tree, commit message, manifest and binding identity remain fail-closed.",
-        "No existing branch is force-updated or deleted.",
-        "A retry must not create duplicate PRs or merges."
+        "Only the trusted default-branch executor may receive actions: write.",
+        "Source revisions remain data; executor code always comes from main.",
+        "Child proof dispatch inputs remain exact PR/head/base/branch identities.",
+        "No manual approval or alternate proof artifact may substitute for canonical child CI.",
+        "No additional repository permission is granted beyond the minimum required action."
       ],
       "forbiddenStates": [
-        "persisted-superseding-branch-rejected-only-because-authorize-reset-branchref",
-        "unvalidated-prior-superseding-branch-trusted",
-        "recursive-supersede-name-growth",
-        "force-pushed-release-unit-branch",
-        "manual-release-state-rewrite",
-        "duplicate-child-pr-or-merge"
+        "actions-write-on-source-ci",
+        "repository-wide-permission-escalation",
+        "pat-or-user-token-dispatch",
+        "manual-child-proof-bypass",
+        "non-exact-child-proof-dispatch",
+        "duplicate-child-proof-authority"
       ]
     },
     "model": {
@@ -167,166 +160,157 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "AUTHORIZE resets branchRef and loses persisted supersession lineage.",
-        "A prior superseding branch is accepted without canonical reconstruction.",
-        "A fresh successor branch is derived from the prior suffix instead of stable root.",
-        "A retry pushes over an existing branch instead of reusing exact state.",
-        "Supersedes metadata records the wrong predecessor branch."
+        "Executor retains actions: read and dispatch continues to fail 403.",
+        "actions: write is granted at repository/workflow scope more broadly than needed.",
+        "Source CI receives write permission and untrusted branch code can dispatch workflows.",
+        "Exact child identity inputs are omitted or altered while changing permissions.",
+        "A credential workaround replaces canonical GITHUB_TOKEN authority."
       ],
       "edgeCases": [
-        "First supersession from the root canonical branch.",
-        "Second or later supersession when persisted branchRef already contains a supersede suffix.",
-        "Prior superseding remote is missing.",
-        "Prior superseding remote has wrong base, tree or commit identity.",
-        "Fresh deterministic successor branch already exists and is exact.",
-        "Fresh deterministic successor branch exists but has drift.",
-        "Materialization is ALREADY_APPLIED and needs no branch.",
-        "Main advances multiple times while the same U01 remains STALE."
+        "Bot-created PR pull_request CI is action_required but explicit workflow_dispatch is allowed.",
+        "Child proof workflow already exists and exact reusable run is found, so no dispatch is needed.",
+        "Dispatch is attempted for an exact same-repository child head.",
+        "Dispatch target branch or head differs and existing validation must reject it.",
+        "Executor retry occurs after an interrupted dispatch attempt.",
+        "Source workflow executes from an untrusted release-execution/source branch and must remain unable to dispatch."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-SEPARATE-PRIOR-AND-ROOT",
-        "summary": "Validate persisted prior branch separately while deriving the next branch from the stable root canonical identity.",
+        "id": "ALT-JOB-ACTIONS-WRITE",
+        "summary": "Grant actions: write only to the trusted execute job that performs workflow_dispatch.",
         "disposition": "selected",
-        "reason": "Preserves lineage, deterministic names and fail-closed validation across repeated supersessions."
+        "reason": "Minimum permission change at the exact authority boundary that performs dispatch."
       },
       {
-        "id": "ALT-PRESERVE-PRIOR-BRANCH-THROUGH-AUTHORIZE",
-        "summary": "Keep prior branchRef as the new canonical branch after AUTHORIZE.",
+        "id": "ALT-WORKFLOW-WIDE-ACTIONS-WRITE",
+        "summary": "Grant actions: write to the entire Release Unit Execution workflow.",
         "disposition": "rejected",
-        "reason": "Would conflate naming root with prior materialization and recursively grow supersede suffixes."
+        "reason": "Broader than necessary because only execute needs the capability."
       },
       {
-        "id": "ALT-RESET-PERSISTED-STATE",
-        "summary": "Rewrite U01 state back to the root branch before replay.",
+        "id": "ALT-PAT-DISPATCH",
+        "summary": "Use a PAT or other user credential for workflow dispatch.",
         "disposition": "rejected",
-        "reason": "Would bypass resumability proof and mutate canonical execution history."
+        "reason": "Creates unmanaged credential authority and bypasses the repository GITHUB_TOKEN trust model."
+      },
+      {
+        "id": "ALT-MANUAL-APPROVAL",
+        "summary": "Require a human to manually start child proof.",
+        "disposition": "rejected",
+        "reason": "Breaks resumability, automation and no-manual-bypass requirements."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Architecture",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The branch parameter currently serves two incompatible roles: canonical naming root and prior remote to validate.",
-        "resolution": "Separate those identities while preserving deterministic root naming.",
-        "evidence": [
-          "scripts/release-unit-github-runtime.mjs"
-        ]
-      },
-      {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Allowing any persisted branchRef without reconstructing prior materialization would weaken branch trust.",
-        "resolution": "Inspect the persisted branch and validate base/tree/commit identity against reconstructed prior manifest before superseding.",
+        "finding": "Actions write can be dangerous if granted to source-controlled or broad workflow contexts.",
+        "resolution": "Grant actions: write only on the trusted default-branch execute job; keep source CI and other jobs read-only.",
         "evidence": [
-          "scripts/release-unit-github-runtime.mjs"
+          ".github/workflows/release-unit-execution.yml",
+          ".github/workflows/ci.yml"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Repeated main drift is normal for resumable execution and must support supersede-of-supersede state without recursive branch naming.",
-        "resolution": "Use root canonical branch for fresh naming and prior state branch for lineage validation.",
+        "finding": "The current runtime already dispatches exact child proof; the 403 is purely missing token permission.",
+        "resolution": "Preserve runtime identity logic and repair only the workflow permission envelope.",
         "evidence": [
-          "tests/control-plane-release-unit-production-surface.test.ts"
+          "run:37615831101",
+          "RELEASE_UNIT_CHILD_CI_DISPATCH_FAILED"
+        ]
+      },
+      {
+        "role": "Architecture",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Dispatch authority belongs to the trusted executor, not the source workflow.",
+        "resolution": "Keep main checkout/executor trust boundary unchanged and modify only the executor job permission.",
+        "evidence": [
+          ".github/workflows/release-unit-execution.yml"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Release Unit Execution #144 gives a deterministic live reproduction with exact machine code.",
-        "resolution": "Add regression before replaying the same immutable source.",
+        "finding": "Run #152 is a deterministic production-like reproduction of the permission failure.",
+        "resolution": "Add regression asserting actions: write at executor job and actions: read/no-write for CI.",
         "evidence": [
-          "run:37609591473",
-          "RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH"
+          "run:37615831101"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-PSR-01",
-        "scenario": "Persisted prior branch equals root canonical branch.",
-        "finding": "Existing first-supersession path must remain unchanged.",
-        "resolution": "Use prior branch for validation and root for naming; they coincide in this case.",
+        "id": "CH-DISP-01",
+        "scenario": "The trusted executor creates a child PR and needs to dispatch CI proof.",
+        "finding": "actions: read cannot create workflow_dispatch and GitHub returns 403.",
+        "resolution": "Grant actions: write on execute job.",
         "status": "resolved"
       },
       {
-        "id": "CH-PSR-02",
-        "scenario": "Persisted prior branch is an older deterministic superseding branch.",
-        "finding": "Current code rejects it before validating the actual referenced remote.",
-        "resolution": "Inspect priorExecution.executionTransaction.branchRef and reconstruct prior manifest against that branch.",
+        "id": "CH-DISP-02",
+        "scenario": "An untrusted source branch runs source CI.",
+        "finding": "If source CI had actions: write, branch-controlled code could gain workflow-dispatch authority.",
+        "resolution": "Keep source CI permissions read-only and regression-test the negative boundary.",
         "status": "resolved"
       },
       {
-        "id": "CH-PSR-03",
-        "scenario": "A second supersession is needed.",
-        "finding": "Deriving from priorBranch recursively lengthens and destabilizes branch identity.",
-        "resolution": "Derive new superseding branch from root canonical branch plus fresh target/binding.",
+        "id": "CH-DISP-03",
+        "scenario": "The exact child proof run already exists after an interrupted executor attempt.",
+        "finding": "A second dispatch is unnecessary and could duplicate proof runs.",
+        "resolution": "Keep ensureExactChildProofDispatch reuse-first behavior unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-PSR-04",
-        "scenario": "Prior persisted branch is missing remotely.",
-        "finding": "Silently falling back to root could sever lineage.",
-        "resolution": "Fail closed with a direct prior-branch-missing machine code when persisted prior differs from root.",
+        "id": "CH-DISP-04",
+        "scenario": "A wrong child head/base/branch is supplied to dispatch.",
+        "finding": "Permission repair must not relax identity validation.",
+        "resolution": "Do not change release-unit-ci-context or runtime identity checks; prove existing exact matching remains referenced.",
         "status": "resolved"
       },
       {
-        "id": "CH-PSR-05",
-        "scenario": "Prior persisted remote exists but tree/base/message differs from reconstructed prior manifest.",
-        "finding": "It may be foreign or mutated.",
-        "resolution": "Keep existing remoteMaterializationDrift reconstruction checks fail-closed.",
+        "id": "CH-DISP-05",
+        "scenario": "A maintainer suggests repository-wide Actions write or PAT as a shortcut.",
+        "finding": "Both widen authority beyond the requirement.",
+        "resolution": "Reject both; job-local GITHUB_TOKEN permission is the only selected path.",
         "status": "resolved"
       },
       {
-        "id": "CH-PSR-06",
-        "scenario": "The fresh deterministic successor branch for current main and binding already exists from an interrupted executor attempt, and its remote head/base/tree/message exactly match the freshly prepared receipt.",
-        "finding": "Creating or pushing another branch would duplicate materialization and break retry idempotency even though the exact canonical successor already exists.",
-        "resolution": "Call reconcileExactMaterializedCommit for the root-derived successor and return its existing remote SHA with reusedRemote=true; assert no git push occurs.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-PSR-07",
-        "scenario": "Fresh deterministic successor exists with drift.",
-        "finding": "Retry must not overwrite it.",
-        "resolution": "Keep exact remote drift failure and prohibit force-push.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-PSR-08",
-        "scenario": "Main advances a second time while U01 remains STALE and persisted branchRef points at the first superseding branch rather than the root canonical branch.",
-        "finding": "Resetting branchRef during AUTHORIZE makes the runtime inspect the wrong remote and emits RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH before validating the persisted lineage.",
-        "resolution": "Use persisted priorExecution.executionTransaction.branchRef only as the remote lineage candidate to reconstruct and validate, while independently deriving the next successor name from projectReleaseUnitTransaction(freshManifest).branchRef.",
+        "id": "CH-DISP-06",
+        "scenario": "workflow-level permissions remain actions: read while job-level execute requests actions: write.",
+        "finding": "GitHub job-level permissions are the effective token permissions for the job and may override workflow defaults; this is the narrowest authority boundary.",
+        "resolution": "Set actions: write only under jobs.execute.permissions and retain workflow default actions: read.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
       "Commit this plan only and require Plan Before Code PASS before implementation.",
-      "Implement separate persisted-prior branch validation and stable-root successor naming without state edits.",
-      "Add regressions for first supersession, supersede-of-supersede resume, exact retry reuse and drift/missing fail-closed behavior.",
+      "Change only the execute job Actions permission from read to write in release-unit-execution.yml.",
+      "Add production-surface regression that executor job has actions: write and CI/source paths do not.",
       "Require exact-head Knowledge/Plan/Edit-Time/Incremental Replay/Release Risk/full tests/typecheck/build/Completion Truth/Lifecycle PASS.",
-      "Merge only on exact-head proof, then rerun immutable source CI 65e52ffd and follow Release Unit Execution through U01."
+      "Merge only on exact-head proof, then replay the same immutable rehearsal source and follow U01 child proof dispatch."
     ],
     "semanticExecutionRoute": {
-      "request": "SQ-CAND-RELEASE-UNIT-PRIOR-SUPERSESSION-RESUME-V1",
+      "request": "SQ-CAND-RELEASE-UNIT-CHILD-PROOF-DISPATCH-PERMISSION-V1",
       "authority": [
         "release-infrastructure"
       ],
       "mustEdit": [
-        "scripts/release-unit-github-runtime.mjs"
+        ".github/workflows/release-unit-execution.yml"
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "impactedReadOnly": [
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/release-unit-execute.mjs",
-        ".github/workflows/release-unit-execution.yml",
+        "scripts/release-unit-github-runtime.mjs",
+        ".github/workflows/ci.yml",
+        "scripts/release-unit-ci-context.mjs",
         "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
       ],
       "mustCreate": [],
@@ -347,7 +331,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-PRIOR-SUPERSESSION-RESUME-V1",
+    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-CHILD-PROOF-DISPATCH-PERMISSION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -365,18 +349,18 @@
     },
     "requirements": [
       {
-        "id": "REQ-PRIOR-SUPERSESSION-RESUME-QUALITY",
-        "requirement": "Release-unit branch reconciliation must resume from a validated persisted superseding branch while preserving deterministic successor identity and fail-closed remote validation.",
+        "id": "REQ-CHILD-PROOF-DISPATCH-PERMISSION-QUALITY",
+        "requirement": "Trusted release execution must be able to dispatch exact child CI proof while untrusted/source CI retains no Actions write authority.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-prior-supersession-resumability",
+          "breadth": "release-unit-child-proof-dispatch-authority",
           "strength": 2,
           "dimensions": [
             "scope",
             "positive-state",
+            "forbidden-state",
             "transaction-identity",
             "behavioral-proof",
-            "forbidden-state",
             "lifecycle"
           ]
         },
@@ -393,15 +377,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PRIOR-BRANCH-TRUST-BYPASS",
-            "statement": "A persisted prior superseding branch may not be trusted without canonical reconstruction and remote identity validation.",
+            "id": "NEG-SOURCE-CI-ACTIONS-WRITE",
+            "statement": "Source CI may not gain Actions write authority.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-RECURSIVE-SUPERSESSION-IDENTITY",
-            "statement": "Repeated supersession may not recursively derive branch names from earlier supersede suffixes.",
+            "id": "NEG-CHILD-PROOF-IDENTITY-BYPASS",
+            "statement": "Permission repair may not weaken exact child proof identity binding.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -409,11 +393,11 @@
         ]
       },
       {
-        "id": "REQ-PRIOR-SUPERSESSION-RESUME-RELEASE",
-        "requirement": "Resumed materialization must remain bound to exact current main, immutable source identity and canonical Release Risk without force-push or duplicate merge.",
+        "id": "REQ-CHILD-PROOF-DISPATCH-PERMISSION-RELEASE",
+        "requirement": "The permission change must preserve trusted default-branch execution, exact current main authority and canonical Release Risk.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "release-unit-supersession-release-integrity",
+          "breadth": "release-unit-child-proof-dispatch-release-integrity",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -433,29 +417,16 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SUPERSESSION-LEASE-BYPASS",
-            "statement": "A resumed unit may not use an obsolete main lease or overwrite an existing materialization branch.",
+            "id": "NEG-BROAD-ACTIONS-AUTHORITY",
+            "statement": "Actions write may not be granted outside the trusted executor job.",
             "evidence": [
-              "GUARD-RELEASE-RISK",
-              "GUARD-QUALITY-TESTS"
+              "GUARD-QUALITY-TESTS",
+              "GUARD-RELEASE-RISK"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Plan-only transaction created from live Release Unit Execution #144 failure on main 72154b099c5fd1e3fc9f57bf9410b11f7f05fcb2. Exact blocker: RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH with persisted branch release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-a96074891ce8-ab2e09fcc439a199. No implementation is authorized until Plan Before Code passes. Plan gate CI #9038 / run 37610210980 blocked the first plan-only revision with DEV_PLAN_GUARD_DIGEST_DRIFT (expected 128614ad) and vacuous challenge findings at indices 5 and 7. This revision adopts the canonical digest and makes interrupted exact-successor reuse plus repeated-main-drift lineage explicit.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "0d5cefcf27cc360d87a9d1098763d7e29f763774",
-    "closedAt": "2026-10-07T11:16:29.370Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-PRIOR-SUPERSESSION-RESUME-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Plan-only transaction created from live Release Unit Execution #152 on main ead5039f1711b4b52a1394bac530a9f3ca1ad5be. Exact blocker: RELEASE_UNIT_CHILD_CI_DISPATCH_FAILED with HTTP 403 Resource not accessible by integration while gh workflow run ci.yml attempted dispatch for U01 child head be5f2b43a2ac35df25120826b83bd50217afb661. Workflow currently has actions: read at workflow and execute-job scope. No permission implementation is authorized until Plan Before Code passes."
 }
