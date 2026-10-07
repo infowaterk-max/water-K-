@@ -2,6 +2,7 @@
 import {describe,expect,it} from 'vitest';
 import {
   bindReleaseUnitChildTransaction,
+  classifyReleaseUnitObligationDrift,
   createReleaseUnitExecution,
   recordReleaseUnitMaterialization,
   recordReleaseUnitPullRequest,
@@ -9,6 +10,7 @@ import {
   reprojectReleaseUnitChildTransaction,
   releaseUnitChildPlanDigest,
   releaseUnitContextBindingDigest,
+  sealReleaseUnitManifest,
   decodeReleaseUnitContextEnvelope,
   derivePlannedOperations,
   validateReleaseUnitCiContext,
@@ -121,6 +123,25 @@ describe('release-unit execution binding hardening',()=>{
       {operation:'rename',previousFile:'scripts/old.mjs',file:'scripts/renamed.mjs',generated:null},
     ]);
     expect(derivePlannedOperations({projectedFiles:['scripts/new.mjs'],atlas})[0].operation).toBe('modify');
+  });
+
+  it('restores deterministic sealed provenance before obligation comparison and keeps source drift material',()=>{
+    const current=manifest();
+    current.intendedFiles=['scripts/release-unit-github-runtime.mjs'];
+    current.operations=[{operation:'modify',file:'scripts/release-unit-github-runtime.mjs'}];
+    current.sourceIdentity={sourceCommit:null,sealed:false};
+    const sealed=sealReleaseUnitManifest(current,{sourceCommit:'HEAD',cwd:process.cwd()});
+    const projected=structuredClone(sealed);
+    projected.operations=projected.operations.map(({source,...operation})=>operation);
+    projected.sourceIdentity={sourceCommit:null,sealed:false};
+    const resealed=sealReleaseUnitManifest(projected,{sourceCommit:'HEAD',cwd:process.cwd()});
+    expect(resealed.operations).toEqual(sealed.operations);
+    expect(resealed.operations[0].source).toMatchObject({mode:'sealed',commit:'HEAD',fileMode:'100644'});
+    expect(resealed.childDevelopmentTransaction.operationDigest).toBe(sealed.childDevelopmentTransaction.operationDigest);
+    const tampered=structuredClone(resealed);
+    tampered.operations[0].source={...tampered.operations[0].source,blobSha:'f'.repeat(40)};
+    const drift=classifyReleaseUnitObligationDrift(resealed,tampered);
+    expect(drift.material.map(item=>item.field)).toContain('operations');
   });
 
   it('seals child plan and operation identity into a strong context binding',()=>{
