@@ -8,6 +8,7 @@
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/release-unit-execute.mjs",
+    "scripts/release-unit-github-runtime.mjs",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
     "tests/control-plane-release-unit-production-surface.test.ts"
   ],
@@ -78,9 +79,10 @@
     ],
     "scope": {
       "in": [
-        "Teach the release-unit driver to route active STALE units into the existing fresh prepareActiveUnit path.",
+        "Teach the release-unit driver to route active STALE units into the existing prepareActiveUnit path.",
+        "Force prepareActiveUnit to run fresh reevaluateSuccessorManifest whenever the active unit is STALE, even when order and target-base conditions would otherwise skip reevaluation.",
         "Allow reconcileSuccessorReleaseUnit to accept STALE as a recoverable reevaluation entry state while retaining every existing reconciliation proof and fail-closed check.",
-        "Add regression proof for STALE->READY after valid fresh reconciliation and rejection of BLOCKED/FAILED resume.",
+        "Add regression proof for STALE->READY after valid fresh reconciliation, mandatory reevaluation on same-base STALE, and rejection of BLOCKED/FAILED resume.",
         "Add production-surface regression proof that the driver dispatches PLANNED or STALE to prepareActiveUnit and does not manually clear blocker/state."
       ],
       "out": [
@@ -109,15 +111,16 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Driver invokes fresh prepareActiveUnit for active state PLANNED or STALE and still fetches current origin/main immediately before preparation.",
+        "Driver invokes prepareActiveUnit for active state PLANNED or STALE and still fetches current origin/main immediately before preparation.",
+        "prepareActiveUnit invokes fresh reevaluateSuccessorManifest whenever active.state is STALE, including order-1 same-base retries.",
         "Core reconcileSuccessorReleaseUnit accepts PLANNED and STALE only.",
         "Valid fresh reconciliation from STALE produces READY with blocker cleared and refreshed manifest/transaction identity.",
-        "BLOCKED and FAILED remain rejected with RELEASE_UNIT_RECONCILIATION_STATE_INVALID.",
+        "BLOCKED and FAILED remain rejected with RELEASE_UNIT_RECONCILIATION_STATE_INVALID or driver unsupported-state behavior.",
         "A repeated fresh reevaluation BLOCK from STALE remains persisted fail-closed; no PR is created.",
         "Exact-head CI passes all canonical guards, Completion Truth verifies, Lifecycle closes, fix merges, then the unchanged rehearsal resumes from persisted CAS state."
       ],
       "invariants": [
-        "STALE is recoverable only through full fresh reconciliation, never by direct state reset.",
+        "STALE is recoverable only through full fresh semantic reevaluation, never by direct state reset or same-base shortcut.",
         "BLOCKED and FAILED are not automatic retry states.",
         "Current-main lease, predecessor receipts, risk, forbidden scope, ordering and obligation-drift checks remain unchanged.",
         "Existing CAS persistence is the only authoritative state write path.",
@@ -271,9 +274,9 @@
       },
       {
         "id": "CH-SR-04",
-        "scenario": "A STALE unit's fresh reevaluation succeeds technically but current main still causes obligation drift.",
-        "finding": "Clearing STALE before full reconciliation would authorize a child against changed obligations.",
-        "resolution": "Do not mutate state first; let reconcileSuccessorReleaseUnit run all existing checks and return STALE/BLOCK unless drift is actually gone.",
+        "scenario": "A STALE order-1 unit is retried while its targetBaseSha already equals current main, for example after a transient reevaluation service or dependency failure that did not require a repository commit.",
+        "finding": "If prepareActiveUnit reevaluates only successors or base drift, the old manifest could flow directly into AUTHORIZE and the prior semantic failure would be bypassed despite the state still being STALE.",
+        "resolution": "Make active.state==='STALE' an independent mandatory reevaluation condition in prepareActiveUnit before any AUTHORIZE call; reuse the existing reevaluation result and fail closed again if it is not PASS.",
         "status": "resolved"
       },
       {
@@ -307,7 +310,7 @@
     ],
     "proofPlan": [
       "Commit this plan only and require Plan Before Code PASS before state-machine implementation.",
-      "Implement the minimal driver and core eligibility changes plus positive/negative regression tests.",
+      "Implement the minimal driver, prepareActiveUnit and core reconciliation eligibility changes plus positive/negative/same-base regression tests.",
       "Require exact-head Knowledge, Plan, Edit-Time, Incremental Replay, Release Risk, full tests, typecheck, build and Completion Truth PASS.",
       "Commit only canonical lifecycle closure metadata and require final exact-head CI PASS.",
       "Merge the exact fix head, verify fresh main CI, then rerun the unchanged rehearsal from persisted STALE CAS state and accept only canonical U01 progression."
@@ -319,13 +322,14 @@
       ],
       "mustEdit": [
         "scripts/release-unit-execute.mjs",
+        "scripts/release-unit-github-runtime.mjs",
         "scripts/lib/shoperation-release-unit-runtime.mjs"
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "impactedReadOnly": [
-        "scripts/release-unit-github-runtime.mjs"
+        ".github/workflows/release-unit-execution.yml"
       ],
       "mustCreate": [],
       "forbidden": [
@@ -408,5 +412,5 @@
       }
     ]
   },
-  "notes": "Plan-only transaction from live Failure Intake #1004. Persisted rehearsal state remains untouched at state commit 62844d329776ecbfbde6ed32b065cd08ba5b14f1; no U01 PR exists. No implementation is authorized until Plan Before Code reconciles this exact scope."
+  "notes": "Plan-only transaction from live Failure Intake #1004. Persisted rehearsal state remains untouched at state commit 62844d329776ecbfbde6ed32b065cd08ba5b14f1; no U01 PR exists. No implementation is authorized until Plan Before Code reconciles this exact scope. Plan refinement: generic STALE recovery must force semantic reevaluation even for order-1 same-base retries, so scripts/release-unit-github-runtime.mjs is implementation scope rather than read-only impact."
 }
