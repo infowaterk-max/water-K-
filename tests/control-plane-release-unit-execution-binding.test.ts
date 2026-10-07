@@ -6,6 +6,7 @@ import {
   recordReleaseUnitMaterialization,
   recordReleaseUnitPullRequest,
   recordReleaseUnitVerification,
+  reprojectReleaseUnitChildTransaction,
   releaseUnitChildPlanDigest,
   releaseUnitContextBindingDigest,
   decodeReleaseUnitContextEnvelope,
@@ -143,4 +144,63 @@ describe('release-unit execution binding hardening',()=>{
     expect(selectExactSuccessfulCiRun([{databaseId:2,headSha:H,headBranch:'other',status:'completed',conclusion:'success'}],{headSha:H,headBranch:'release-unit/dev'})).toBeNull();
     expect(stateRefFor('DEV Parent 1')).toBe('refs/heads/control-plane/release-state/dev-parent-1');
   });
+  it('reprojects child plan metadata and atomically refreshes plan, manifest and binding identity',()=>{
+    const before=manifest();
+    const projection={
+      contract:'shoporation.release-unit-child-plan-projection.v1',
+      guardDigest:'fresh-guard',
+      expectedSubsystems:['release-infrastructure','quality-infrastructure'],
+      expectedDomains:['DOMAIN-QUALITY','DOMAIN-RELEASE'],
+      expectedAuthorities:['quality-knowledge-system','release-infrastructure'],
+      expectedKnownFailureIds:['SQ-KF-001','SQ-KF-024'],
+      acknowledgedPoInstructionIds:['PO-TEST'],
+      acknowledgedNegativeKnowledgeIds:['SQ-NK-002','SQ-NK-012'],
+      requiredGates:['GUARD-PLAN-BEFORE-CODE','GUARD-EDIT-TIME','GUARD-QUALITY-TESTS'],
+      externalGateIds:['EXTERNAL-PROOF'],
+      semanticExecutionRoute:{
+        request:'PO-CHILD',
+        authority:['quality-knowledge-system','release-infrastructure'],
+        mustEdit:['scripts/a.mjs'],
+        mayEdit:[],
+        impactedReadOnly:['tests/a.test.ts'],
+        mustCreate:[],
+        forbidden:[],
+        proof:['tests/a.test.ts'],
+        unknown:[],
+        plannedDeletions:[],
+        plannedRenames:[],
+        generatedArtifacts:[],
+      },
+    };
+    const after=reprojectReleaseUnitChildTransaction(before,projection);
+    expect(after.releaseUnitId).toBe(before.releaseUnitId);
+    expect(after.transaction.parentTransactionId).toBe(before.transaction.parentTransactionId);
+    expect(after.intendedFiles).toEqual(before.intendedFiles);
+    expect(after.targetBaseSha).toBe(before.targetBaseSha);
+    expect(after.childDevelopmentTransaction.plan.guardDigest).toBe('fresh-guard');
+    expect(after.childDevelopmentTransaction.plan.expectedSubsystems).toEqual(['quality-infrastructure','release-infrastructure']);
+    expect(after.childDevelopmentTransaction.plan.acknowledgedNegativeKnowledgeIds).toEqual(['SQ-NK-002','SQ-NK-012']);
+    expect(after.childDevelopmentTransaction.plan.operationalIntelligence.semanticExecutionRoute.proof).toEqual(['tests/a.test.ts']);
+    expect(after.childDevelopmentTransaction.plan.completionContract.systemObligations.requiredGuards).toEqual(['GUARD-EDIT-TIME','GUARD-PLAN-BEFORE-CODE','GUARD-QUALITY-TESTS']);
+    expect(after.childDevelopmentTransaction.plan.completionContract.systemObligations.externalGuards).toEqual(['EXTERNAL-PROOF']);
+    expect(after.childDevelopmentTransaction.planDigest).not.toBe(before.childDevelopmentTransaction.planDigest);
+    expect(after.manifestDigest).not.toBe(before.manifestDigest);
+    expect(after.childDevelopmentTransaction.bindingDigest).not.toBe(before.childDevelopmentTransaction.bindingDigest);
+    expect(releaseUnitChildPlanDigest(after.childDevelopmentTransaction.plan)).toBe(after.childDevelopmentTransaction.planDigest);
+    expect(releaseUnitContextBindingDigest({
+      manifestDigest:after.manifestDigest,
+      childPlanDigest:after.childDevelopmentTransaction.planDigest,
+      operationDigest:after.childDevelopmentTransaction.operationDigest,
+      releaseUnitId:after.releaseUnitId,
+      parentTransactionId:after.transaction.parentTransactionId,
+      targetBaseSha:after.targetBaseSha,
+    })).toBe(after.childDevelopmentTransaction.bindingDigest);
+  });
+
+  it('rejects incomplete child projection envelopes instead of retaining stale metadata',()=>{
+    const before=manifest();
+    expect(()=>reprojectReleaseUnitChildTransaction(before,{contract:'shoporation.release-unit-child-plan-projection.v1',guardDigest:'fresh'})).toThrow(/PROJECTION_FIELD_REQUIRED/);
+    expect(()=>reprojectReleaseUnitChildTransaction(before,{contract:'foreign'})).toThrow(/PROJECTION_CONTRACT_INVALID/);
+  });
+
 });

@@ -263,6 +263,62 @@ export function bindReleaseUnitChildTransaction(manifest,{parentPlan,guardDigest
   return refreshReleaseUnitIdentity(next);
 }
 
+export const RELEASE_UNIT_CHILD_PLAN_PROJECTION_CONTRACT='shoporation.release-unit-child-plan-projection.v1';
+
+export function reprojectReleaseUnitChildTransaction(manifest,projection){
+  if(manifest?.contract!==RELEASE_UNIT_MANIFEST_CONTRACT)throw new Error('RELEASE_UNIT_MANIFEST_CONTRACT_INVALID');
+  const child=manifest.childDevelopmentTransaction;
+  if(child?.contract!==RELEASE_UNIT_CHILD_TRANSACTION_CONTRACT||!child.plan)throw new Error('RELEASE_UNIT_CHILD_TRANSACTION_REQUIRED');
+  if(projection?.contract!==RELEASE_UNIT_CHILD_PLAN_PROJECTION_CONTRACT)throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_CONTRACT_INVALID');
+  if(!String(projection.guardDigest??'').trim())throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_GUARD_DIGEST_REQUIRED');
+  for(const field of ['expectedSubsystems','expectedDomains','expectedAuthorities','expectedKnownFailureIds','acknowledgedPoInstructionIds','acknowledgedNegativeKnowledgeIds','requiredGates','externalGateIds']){
+    if(!Array.isArray(projection[field]))throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_FIELD_REQUIRED:'+field);
+  }
+  const route=projection.semanticExecutionRoute;
+  if(!route||!Array.isArray(route.authority)||!Array.isArray(route.mustEdit)||!Array.isArray(route.mayEdit)||!Array.isArray(route.impactedReadOnly)||!Array.isArray(route.mustCreate)||!Array.isArray(route.forbidden)||!Array.isArray(route.proof)||!Array.isArray(route.unknown)||!Array.isArray(route.plannedDeletions)||!Array.isArray(route.plannedRenames)||!Array.isArray(route.generatedArtifacts)){
+    throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_ROUTE_INVALID');
+  }
+  const next=structuredClone(manifest);
+  const plan=structuredClone(next.childDevelopmentTransaction.plan);
+  if(plan.releaseUnitContext?.releaseUnitId!==next.releaseUnitId)throw new Error('RELEASE_UNIT_CHILD_PLAN_REPROJECTION_UNIT_MISMATCH');
+  const parentTransactionId=next.transaction?.parentTransactionId??next.transaction?.id??null;
+  if(plan.releaseUnitContext?.parentTransactionId!==parentTransactionId)throw new Error('RELEASE_UNIT_CHILD_PLAN_REPROJECTION_PARENT_MISMATCH');
+  delete plan.lifecycle;
+  plan.status='ready-for-implementation';
+  plan.changeBaseSha=next.targetBaseSha;
+  plan.plannedFilePatterns=[...(next.intendedFiles??[])];
+  plan.guardDigest=projection.guardDigest;
+  plan.expectedSubsystems=uniq(projection.expectedSubsystems);
+  plan.expectedDomains=uniq(projection.expectedDomains);
+  plan.expectedAuthorities=uniq(projection.expectedAuthorities);
+  plan.expectedKnownFailureIds=uniq(projection.expectedKnownFailureIds);
+  plan.acknowledgedPoInstructionIds=uniq(projection.acknowledgedPoInstructionIds);
+  plan.acknowledgedNegativeKnowledgeIds=uniq(projection.acknowledgedNegativeKnowledgeIds);
+  plan.operationalIntelligence={
+    ...structuredClone(plan.operationalIntelligence??{}),
+    semanticExecutionRoute:structuredClone(route),
+    executionAuthorized:true,
+  };
+  if(plan.completionContract?.systemObligations){
+    plan.completionContract.systemObligations={
+      ...plan.completionContract.systemObligations,
+      derivation:'release-unit-manifest',
+      requiredGuards:uniq(projection.requiredGates),
+      externalGuards:uniq(projection.externalGateIds),
+      phase:'EXECUTE',
+    };
+  }
+  plan.releaseUnitContext={
+    ...(plan.releaseUnitContext??{}),
+    targetBaseSha:next.targetBaseSha,
+    planAuthority:'release-unit-manifest#childDevelopmentTransaction',
+  };
+  next.childDevelopmentTransaction.plan=plan;
+  next.childDevelopmentTransaction.planDigest=releaseUnitChildPlanDigest(plan);
+  next.childDevelopmentTransaction.bindingDigest=null;
+  return refreshReleaseUnitIdentity(next);
+}
+
 export function validateReleaseUnitOrder(manifests=[]){
   const ids=new Set(manifests.map(unit=>unit.releaseUnitId)),edges=new Map(manifests.map(unit=>[unit.releaseUnitId,uniq(unit.predecessorUnits??[]).filter(id=>ids.has(id))]));
   const visiting=new Set(),visited=new Set(),cycles=[];

@@ -8,6 +8,7 @@ import {
   materializeReleaseUnit,
   reconcileReleaseUnitManifest,
   refreshReleaseUnitIdentity,
+  reprojectReleaseUnitChildTransaction,
   sealReleaseUnitManifest,
   synchronizeReleaseParentExecution,
   encodeReleaseUnitContextEnvelope,
@@ -244,9 +245,8 @@ export function mergeExactPullRequest({prNumber,sourceHeadSha,repo=null,run=defa
   if(main!==result.sha)throw new Error('RELEASE_UNIT_POST_MERGE_MAIN_DRIFT:'+result.sha+':'+main);
   return{prNumber,sourceHeadSha,mergedMainSha:main,mergeMethod};
 }
-export function runSuccessorReevaluationPlan({worktree,planPath,currentMainSha,candidateHead,run=defaultRun}={}){
-  if(!worktree||!planPath||!currentMainSha||!candidateHead)throw new Error('RELEASE_UNIT_SUCCESSOR_REEVALUATION_INPUT_REQUIRED');
-  const proofEnv={
+function successorReevaluationEnv({planPath,currentMainSha,candidateHead}={}){
+  return{
     GH_TOKEN:'',
     GITHUB_TOKEN:'',
     SHOPERATION_ACTIVE_PLAN:planPath,
@@ -258,8 +258,30 @@ export function runSuccessorReevaluationPlan({worktree,planPath,currentMainSha,c
     RELEASE_HEAD_SHA:candidateHead,
     SHOPERATION_REPLAY_HEAD:candidateHead,
   };
+}
+
+export function runSuccessorReevaluationProjection({worktree,planPath,currentMainSha,candidateHead,run=defaultRun}={}){
+  if(!worktree||!planPath||!currentMainSha||!candidateHead)throw new Error('RELEASE_UNIT_SUCCESSOR_REEVALUATION_INPUT_REQUIRED');
+  const proofEnv=successorReevaluationEnv({planPath,currentMainSha,candidateHead});
   try{
     run('npm',['ci','--ignore-scripts','--no-audit','--no-fund'],{cwd:worktree,env:proofEnv});
+    run(process.execPath,['scripts/shoperation-plan-before-code.mjs'],{cwd:worktree,env:proofEnv});
+    const reportPath=path.join(worktree,'artifacts','shoperation-development-guard','plan-before-code.json');
+    const report=parse(readFileSync(reportPath,'utf8'));
+    const projection=report?.childPlanProjection;
+    if(projection?.contract!=='shoporation.release-unit-child-plan-projection.v1')return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_PROJECTION_MISSING',report};
+    if(!Array.isArray(projection.semanticExecutionRoute?.unknown)||projection.semanticExecutionRoute.unknown.length)return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_PROJECTION_UNKNOWN',report};
+    return{decision:'PROJECTED',projection,report};
+  }catch(error){
+    return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK',error:String(error?.stderr??error?.message??error)};
+  }
+}
+
+export function runSuccessorReevaluationPlan({worktree,planPath,currentMainSha,candidateHead,run=defaultRun,install=true}={}){
+  if(!worktree||!planPath||!currentMainSha||!candidateHead)throw new Error('RELEASE_UNIT_SUCCESSOR_REEVALUATION_INPUT_REQUIRED');
+  const proofEnv=successorReevaluationEnv({planPath,currentMainSha,candidateHead});
+  try{
+    if(install)run('npm',['ci','--ignore-scripts','--no-audit','--no-fund'],{cwd:worktree,env:proofEnv});
     run(process.execPath,['scripts/shoperation-plan-before-code.mjs','--check'],{cwd:worktree,env:proofEnv});
     return{decision:'PASS'};
   }catch(error){
@@ -281,14 +303,24 @@ export function reevaluateSuccessorManifest({state,execution,currentMainSha,sour
     const planPath=path.join(worktree,'artifacts','shoperation-development-guard','release-unit-reevaluation-plan.json');
     mkdirSync(path.dirname(planPath),{recursive:true});
     writeFileSync(planPath,JSON.stringify(sealed.childDevelopmentTransaction.plan,null,2)+'\n');
-    const reevaluation=runSuccessorReevaluationPlan({worktree,planPath,currentMainSha,candidateHead,run});
+    const projectionResult=runSuccessorReevaluationProjection({worktree,planPath,currentMainSha,candidateHead,run});
+    if(projectionResult.decision!=='PROJECTED')return projectionResult;
+    let reprojected;
+    try{
+      reprojected=reprojectReleaseUnitChildTransaction(reconciled,projectionResult.projection);
+    }catch(error){
+      return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_CHILD_PLAN_REPROJECTION_BLOCK',error:String(error?.message??error)};
+    }
+    writeFileSync(planPath,JSON.stringify(reprojected.childDevelopmentTransaction.plan,null,2)+'\n');
+    const reevaluation=runSuccessorReevaluationPlan({worktree,planPath,currentMainSha,candidateHead,run,install:false});
     if(reevaluation.decision!=='PASS')return reevaluation;
     const reportPath=path.join(worktree,'artifacts','shoperation-development-guard','plan-before-code.json');
     const report=parse(readFileSync(reportPath,'utf8'));
     if(report.decision!=='PASS')return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK',report};
+    if(report.childPlanProjection?.contract!=='shoporation.release-unit-child-plan-projection.v1')return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_PROJECTION_MISSING',report};
     const projected=(report.releaseDecomposition?.releaseUnits??[])[0];
     if(!projected)return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_MANIFEST_MISSING',report};
-    const next=structuredClone(reconciled);
+    let next=structuredClone(reprojected);
     next.operations=(projected.operations??next.operations??[]).map(operation=>{const copy={...operation};delete copy.source;return copy;});
     next.requiredDependencyFiles=[...(projected.requiredDependencyFiles??[])];
     next.authorities=[...(projected.authorities??[])];
@@ -305,7 +337,12 @@ export function reevaluateSuccessorManifest({state,execution,currentMainSha,sour
     next.predecessorUnits=uniq([...(execution.manifest.predecessorUnits??[]),...dependencyUnits]);
     next.prerequisites=[...next.predecessorUnits];
     next.sourceIdentity={sourceCommit:null,sealed:false};
-    const refreshed=refreshReleaseUnitIdentity(next);
+    let refreshed;
+    try{
+      refreshed=reprojectReleaseUnitChildTransaction(next,report.childPlanProjection);
+    }catch(error){
+      return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_CHILD_PLAN_REPROJECTION_BLOCK',error:String(error?.message??error)};
+    }
     return{decision:'PASS',manifest:refreshed,report,candidateHead};
   }finally{
     try{run('git',['worktree','remove','--force',worktree],{cwd});}catch{}
