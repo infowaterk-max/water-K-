@@ -1079,7 +1079,7 @@ describe('Control Plane production release surface',()=>{
   it('validates the bounded rehearsal fixture corpus contract',()=>{
     const directory='quality/knowledge/rehearsal-fixtures/v1';
     const expected=Array.from({length:25},(_,index)=>`fixture-${String(index+1).padStart(2,'0')}.json`);
-    const files=readdirSync(directory).filter(name=>/^fixture-\\d{2}\\.json$/.test(name)).sort();
+    const files=readdirSync(directory).filter(name=>/^fixture-\d{2}\.json$/.test(name)).sort();
     expect(files).toEqual(expected);
     const fixtures=files.map(name=>JSON.parse(readFileSync(`${directory}/${name}`,'utf8')));
     expect(fixtures).toHaveLength(25);
