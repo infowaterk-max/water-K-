@@ -14,6 +14,7 @@ import {
   encodeReleaseUnitContextEnvelope,
   decodeReleaseUnitContextEnvelope,
   RELEASE_UNIT_CI_CONTEXT_CONTRACT,
+  RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT,
 } from './lib/shoperation-release-unit-runtime.mjs';
 
 const text=value=>String(value??'').trim();
@@ -414,11 +415,51 @@ export function runSuccessorReevaluationPlan({worktree,planPath,currentMainSha,c
   }
 }
 
+export function proveTrustedMainAdvance({fromSha,toSha,manifest,run=defaultRun,cwd=process.cwd()}={}){
+  const from=text(fromSha),to=text(toSha);
+  if(!from||!to)return{decision:'BLOCK',code:'RELEASE_UNIT_MAIN_DRIFT',error:'RELEASE_UNIT_MAIN_ADVANCE_SHA_REQUIRED'};
+  if(from===to)return{decision:'NO_ADVANCE',proof:null};
+  try{run('git',['merge-base','--is-ancestor',from,to],{cwd});}
+  catch{return{decision:'BLOCK',code:'RELEASE_UNIT_MAIN_DRIFT',error:`RELEASE_UNIT_MAIN_ADVANCE_NON_FAST_FORWARD:${from}:${to}`};}
+  let changedFiles;
+  try{
+    const raw=text(run('git',['diff','--name-only','--diff-filter=ACMRD',from,to],{cwd}));
+    changedFiles=uniq(raw?raw.split(/\r?\n/).map(text).filter(Boolean):[]);
+  }catch(error){
+    return{decision:'BLOCK',code:'RELEASE_UNIT_MAIN_DRIFT',error:`RELEASE_UNIT_MAIN_ADVANCE_DIFF_FAILED:${String(error?.message??error)}`};
+  }
+  const scopeFiles=uniq([...(manifest?.intendedFiles??[]),...(manifest?.requiredDependencyFiles??[])]);
+  const scope=new Set(scopeFiles),overlapFiles=changedFiles.filter(file=>scope.has(file));
+  if(overlapFiles.length)return{decision:'BLOCK',code:'RELEASE_UNIT_MAIN_DRIFT',error:`RELEASE_UNIT_MAIN_ADVANCE_SCOPE_OVERLAP:${overlapFiles.join(',')}`,details:{fromSha:from,toSha:to,changedFiles,scopeFiles,overlapFiles}};
+  return{
+    decision:'PASS',
+    proof:{
+      contract:RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT,
+      issuer:'release-unit-github-runtime',
+      decision:'PASS',
+      relationship:'FAST_FORWARD',
+      fromSha:from,
+      toSha:to,
+      changedFiles,
+      scopeFiles,
+      overlapFiles:[],
+    },
+  };
+}
+
 export function reevaluateSuccessorManifest({state,execution,currentMainSha,sourceCommit,run=defaultRun,cwd=process.cwd()}={}){
-  const predecessorReceipts=(state.units??[])
-    .filter(item=>(execution.manifest.predecessorUnits??[]).includes(item.releaseUnitId))
+  const predecessorExecutions=(state.units??[]).filter(item=>(execution.manifest.predecessorUnits??[]).includes(item.releaseUnitId));
+  const predecessorReceipts=predecessorExecutions
     .map(item=>({releaseUnitId:item.releaseUnitId,status:item.state==='CLOSED'?'MERGED':item.state,mergedMainSha:item.merge?.mergedMainSha??null}));
-  let reconciled=reconcileReleaseUnitManifest(execution.manifest,{newBaseSha:currentMainSha,predecessorReceipts});
+  const sequence=predecessorExecutions.find(item=>Number(item.order)===Number(execution.order)-1)??null;
+  const predecessorMainSha=sequence?.merge?.mergedMainSha??null;
+  let trustedMainAdvance=null;
+  if(predecessorMainSha&&predecessorMainSha!==currentMainSha){
+    const advance=proveTrustedMainAdvance({fromSha:predecessorMainSha,toSha:currentMainSha,manifest:execution.manifest,run,cwd});
+    if(advance.decision!=='PASS')return advance;
+    trustedMainAdvance=advance.proof;
+  }
+  let reconciled=reconcileReleaseUnitManifest(execution.manifest,{newBaseSha:currentMainSha,predecessorReceipts,trustedMainAdvance});
   const sealed=sealReleaseUnitManifest(reconciled,{sourceCommit,cwd});
   const candidate=materializeReleaseUnit({manifest:sealed,targetRef:'refs/remotes/origin/main',cwd,updateRef:false,message:releaseUnitCommitMessage(sealed)});
   const candidateHead=candidate.materializedHeadSha;
@@ -469,7 +510,12 @@ export function reevaluateSuccessorManifest({state,execution,currentMainSha,sour
       return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_CHILD_PLAN_REPROJECTION_BLOCK',error:String(error?.message??error)};
     }
     const finalSealed=sealReleaseUnitManifest(refreshed,{sourceCommit,cwd});
-    return{decision:'PASS',manifest:finalSealed,report,candidateHead};
+    if(trustedMainAdvance){
+      const finalAdvance=proveTrustedMainAdvance({fromSha:trustedMainAdvance.fromSha,toSha:currentMainSha,manifest:finalSealed,run,cwd});
+      if(finalAdvance.decision!=='PASS')return finalAdvance;
+      trustedMainAdvance=finalAdvance.proof;
+    }
+    return{decision:'PASS',manifest:finalSealed,report,candidateHead,trustedMainAdvance};
   }finally{
     try{run('git',['worktree','remove','--force',worktree],{cwd});}catch{}
     try{rmSync(worktree,{recursive:true,force:true});}catch{}
@@ -491,17 +537,19 @@ export function prepareActiveUnit({state,currentMainSha,sourceCommit,run=default
   if(!['PLANNED','STALE'].includes(active.state))throw new Error('RELEASE_UNIT_PREPARE_STATE_INVALID:'+String(active.state));
   let freshManifest=active.manifest;
   let trustedFreshProjection=false;
+  let trustedMainAdvance=null;
   if(needsFreshReleaseUnitReevaluation(active,currentMainSha)){
     const reevaluated=reevaluateSuccessorManifest({state,execution:active,currentMainSha,sourceCommit,run,cwd});
     if(reevaluated.decision!=='PASS'){
-      const blocked={...active,state:'STALE',blocker:{code:reevaluated.code,details:{error:reevaluated.error??null}},lastTransition:{to:'STALE',code:reevaluated.code}};
+      const blocked={...active,state:'STALE',blocker:{code:reevaluated.code,details:{error:reevaluated.error??null,...(reevaluated.details??{})}},lastTransition:{to:'STALE',code:reevaluated.code}};
       return{state:synchronizeReleaseParentExecution(state,blocked),decision:'BLOCK',reason:blocked.blocker};
     }
     freshManifest=reevaluated.manifest;
     trustedFreshProjection=true;
+    trustedMainAdvance=reevaluated.trustedMainAdvance??null;
   }
   const allFreshManifests=state.units.map(item=>item.releaseUnitId===active.releaseUnitId?freshManifest:item.manifest);
-  let next=applyReleaseUnitEvent(state,{type:'AUTHORIZE',releaseUnitId:active.releaseUnitId,freshManifest,currentMainSha,allFreshManifests,trustedFreshProjection});
+  let next=applyReleaseUnitEvent(state,{type:'AUTHORIZE',releaseUnitId:active.releaseUnitId,freshManifest,currentMainSha,allFreshManifests,trustedFreshProjection,trustedMainAdvance});
   let execution=next.units.find(item=>item.releaseUnitId===active.releaseUnitId);
   if(execution.state!=='READY')return{state:next,decision:'BLOCK',reason:execution.blocker};
   const sealed=sealReleaseUnitManifest(execution.manifest,{sourceCommit,cwd});
