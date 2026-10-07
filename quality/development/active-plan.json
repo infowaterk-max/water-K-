@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
   "task": "Add a canonical, exact-identity conflict-resolution receipt path for release-unit modify conflicts so true three-way conflicts remain fail-closed but can be resumed after a separately reviewed main resolution without mutating immutable source or child PR state.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "d73c7b5a4d7214a4301eab895fd1ebbee5316dd4",
   "plannedFilePatterns": [
@@ -525,5 +525,18 @@
       }
     ]
   },
-  "notes": "Live evidence: immutable rehearsal source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; U01 and U02 already closed. After PR #1092 operation-aware trusted main overlap merged, replay attempt 9 / Release Unit Execution #217 advanced beyond RELEASE_UNIT_MAIN_DRIFT and reached the intended downstream materializer, which failed with RELEASE_UNIT_MODIFY_PATCH_CONFLICT on tests/control-plane-release-unit-production-surface.test.ts. The source delta is not already present in current main. Prior modify-materialization governance explicitly forbids automatic side preference and manual child-PR repair, but no canonical reviewed conflict-resolution receipt/handoff currently exists. Plan Gate #9113 / run 37673325954 canonicalized expectedSubsystems to release-infrastructure, guardDigest to a41cfd0c, and required a concrete non-vacuous blob-mismatch adversarial challenge. This revision adopts those exact planner outputs without changing the conflict-resolution capability design."
+  "notes": "Live evidence: immutable rehearsal source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; U01 and U02 already closed. After PR #1092 operation-aware trusted main overlap merged, replay attempt 9 / Release Unit Execution #217 advanced beyond RELEASE_UNIT_MAIN_DRIFT and reached the intended downstream materializer, which failed with RELEASE_UNIT_MODIFY_PATCH_CONFLICT on tests/control-plane-release-unit-production-surface.test.ts. The source delta is not already present in current main. Prior modify-materialization governance explicitly forbids automatic side preference and manual child-PR repair, but no canonical reviewed conflict-resolution receipt/handoff currently exists. Plan Gate #9113 / run 37673325954 canonicalized expectedSubsystems to release-infrastructure, guardDigest to a41cfd0c, and required a concrete non-vacuous blob-mismatch adversarial challenge. This revision adopts those exact planner outputs without changing the conflict-resolution capability design.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "66fabb3888a50273474e1a2d8db809813a5961a6",
+    "closedAt": "2026-10-07T19:43:17.208Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
