@@ -107,6 +107,7 @@ if(projectedReleaseRisk.decision!=='PASS')issues.push({
 for(const chainIssue of gateChain.issues)issues.push({code:'DEV_PLAN_GATE_CHAIN_INVALID',chainIssue});
 const unauthorizedPlannedDeletions=declaredPlannedDeletions.filter(file=>!(generatedExecutionRoute.PLANNED_FORBIDDEN_ROUTE_DELETIONS??[]).includes(file)&&!deletedFiles.includes(file));
 if(unauthorizedPlannedDeletions.length)issues.push({code:'DEV_PLAN_PLANNED_DELETION_UNAUTHORIZED',files:unauthorizedPlannedDeletions});
+let canonicalMustCreateDeclaration=[...(implementationSkeleton.mustCreate??[])].sort();
 if(plan.operationalIntelligence?.riskTier==='critical'){
   const declaredMustEdit=[...(declaredExecutionRoute?.mustEdit??[])];
   for(const file of declaredMustEdit)if(!implementationSkeleton.mustEdit.includes(file))issues.push({code:'DEV_PLAN_SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE',file});
@@ -115,6 +116,7 @@ if(plan.operationalIntelligence?.riskTier==='critical'){
   const actuallyAdded=new Set((diff.changes??[]).filter(change=>change.status==='A').map(change=>change.file));
   const fulfilledMustCreate=declaredMustCreate.filter(file=>actuallyAdded.has(file)).sort();
   const expectedMustCreateDeclaration=[...new Set([...generatedMustCreate,...fulfilledMustCreate])].sort();
+  canonicalMustCreateDeclaration=expectedMustCreateDeclaration;
   implementationSkeleton.mustCreateObligations=declaredMustCreate;
   implementationSkeleton.fulfilledMustCreate=fulfilledMustCreate;
   if(JSON.stringify(declaredMustCreate)!==JSON.stringify(expectedMustCreateDeclaration))issues.push({code:'DEV_PLAN_SEMANTIC_MUST_CREATE_DRIFT',expected:expectedMustCreateDeclaration,actual:declaredMustCreate,fulfilled:fulfilledMustCreate});
@@ -194,6 +196,31 @@ for(const exception of plan.exceptions??[]){
 const digest=stableDigest({failureIds:projectedFailures,subsystems:projectedSubsystems,negativeKnowledgeIds:projectedNegative});
 if(plan.guardDigest!==digest)issues.push({code:'DEV_PLAN_GUARD_DIGEST_DRIFT',expected:plan.guardDigest,actual:digest});
 
+const childPlanProjection={
+  contract:'shoporation.release-unit-child-plan-projection.v1',
+  guardDigest:digest,
+  expectedSubsystems:[...projectedSubsystems],
+  expectedDomains:[...projectedDomains],
+  expectedAuthorities:[...projectedAuthorities],
+  expectedKnownFailureIds:[...projectedFailures],
+  acknowledgedPoInstructionIds:[...expectedInstructionIds],
+  acknowledgedNegativeKnowledgeIds:[...projectedNegative],
+  semanticExecutionRoute:{
+    request:declaredExecutionRoute?.request??plan.operationalIntelligence?.sourceRef??null,
+    authority:[...projectedAuthorities],
+    mustEdit:[...(implementationSkeleton.mustEdit??[])].sort(),
+    mayEdit:[...(implementationSkeleton.mayEdit??[])].sort(),
+    impactedReadOnly:[...(implementationSkeleton.impactedReadOnly??[])].sort(),
+    mustCreate:[...canonicalMustCreateDeclaration],
+    forbidden:[...(implementationSkeleton.forbidden??[])].sort(),
+    proof:[...(implementationSkeleton.proof??[])].sort(),
+    unknown:[...(implementationSkeleton.unknown??[])].sort(),
+    plannedDeletions:[...declaredPlannedDeletions],
+    plannedRenames:[...plannedRenames],
+    generatedArtifacts:[...plannedGeneratedArtifacts],
+  },
+};
+
 if(!plan.releaseUnitContext&&releaseDecomposition.decision==='PASS'){
   releaseDecomposition.releaseUnits=(releaseDecomposition.releaseUnits??[]).map(unit=>{
     const unitFiles=[...(unit.intendedFiles??[])];
@@ -272,6 +299,7 @@ const report={
     applicablePoInstructionIds:expectedInstructionIds,
   },
   guardDigest:digest,
+  childPlanProjection,
   operationalIntelligence:{riskTier:plan.operationalIntelligence?.riskTier??null,assuranceLevel:operationalValidation.profile?.assuranceLevel??null,sourceRef:plan.operationalIntelligence?.sourceRef??null,challengeCount:plan.operationalIntelligence?.challenge?.length??0,specialistCount:plan.operationalIntelligence?.specialistReviews?.length??0,completionRequirementIds:(plan.completionContract?.requirements??[]).map(item=>item.id)},
   issues,
   decision:issues.length?'BLOCK':'PASS',
