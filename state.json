@@ -878,14 +878,245 @@
       "merge": null,
       "closeReceipt": null,
       "blocker": {
-        "code": "RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK",
+        "code": "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT",
         "details": {
-          "error": "{\"code\":\"DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED\",\"path\":\"operationalIntelligence.semanticExecutionRoute\",\"message\":\"Critical child execution requires MUST_EDIT or MUST_CREATE plus AUTHORITY, PROOF and UNKNOWN semantic route categories.\"}\n"
+          "drift": [
+            {
+              "field": "operations",
+              "before": [
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+                  "generated": null
+                }
+              ],
+              "after": [
+                {
+                  "operation": "modify",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+                  "generated": null
+                },
+                {
+                  "operation": "modify",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+                  "generated": null
+                },
+                {
+                  "operation": "modify",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+                  "generated": null
+                },
+                {
+                  "operation": "modify",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+                  "generated": null
+                },
+                {
+                  "operation": "modify",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+                  "generated": null
+                },
+                {
+                  "operation": "modify",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+                  "generated": null
+                },
+                {
+                  "operation": "modify",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+                  "generated": null
+                },
+                {
+                  "operation": "modify",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+                  "generated": null
+                },
+                {
+                  "operation": "modify",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+                  "generated": null
+                },
+                {
+                  "operation": "modify",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+                  "generated": null
+                },
+                {
+                  "operation": "modify",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+                  "generated": null
+                },
+                {
+                  "operation": "modify",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+                  "generated": null
+                }
+              ]
+            },
+            {
+              "field": "authorities",
+              "before": [],
+              "after": [
+                "quality-knowledge-system"
+              ]
+            },
+            {
+              "field": "requiredGates",
+              "before": [
+                "GUARD-EDIT-TIME",
+                "GUARD-INCREMENTAL-REPLAY",
+                "GUARD-KNOWLEDGE-PREFLIGHT",
+                "GUARD-PLAN-BEFORE-CODE",
+                "GUARD-QUALITY-TESTS",
+                "GUARD-RELEASE-RISK",
+                "GUARD-TYPECHECK"
+              ],
+              "after": [
+                "GUARD-EDIT-TIME",
+                "GUARD-INCREMENTAL-REPLAY",
+                "GUARD-KNOWLEDGE-PREFLIGHT",
+                "GUARD-PLAN-BEFORE-CODE",
+                "GUARD-QUALITY-TESTS",
+                "GUARD-RELEASE-RISK"
+              ]
+            },
+            {
+              "field": "requiredEvidence",
+              "before": {
+                "gateIds": [
+                  "GUARD-EDIT-TIME",
+                  "GUARD-INCREMENTAL-REPLAY",
+                  "GUARD-KNOWLEDGE-PREFLIGHT",
+                  "GUARD-PLAN-BEFORE-CODE",
+                  "GUARD-QUALITY-TESTS",
+                  "GUARD-RELEASE-RISK",
+                  "GUARD-TYPECHECK"
+                ],
+                "proofFiles": [],
+                "externalGateIds": []
+              },
+              "after": {
+                "gateIds": [
+                  "GUARD-EDIT-TIME",
+                  "GUARD-INCREMENTAL-REPLAY",
+                  "GUARD-KNOWLEDGE-PREFLIGHT",
+                  "GUARD-PLAN-BEFORE-CODE",
+                  "GUARD-QUALITY-TESTS",
+                  "GUARD-RELEASE-RISK"
+                ],
+                "proofFiles": [
+                  "tests/admin-mobile-desktop-compat.test.ts",
+                  "tests/block4-ia-navigation-reporting.test.ts",
+                  "tests/commerce-pricing.test.ts",
+                  "tests/core-checkout-quote.test.ts",
+                  "tests/customer-baseline-proof-contract.test.ts",
+                  "tests/customer-baseline-target-postflight.test.ts",
+                  "tests/digital-commerce-customer-baseline-parity.test.ts",
+                  "tests/incident-intelligence-schema.test.ts",
+                  "tests/navigation-workflows.test.ts",
+                  "tests/operational-tenant-isolation.test.ts",
+                  "tests/order-lifecycle-contracts.test.ts",
+                  "tests/pilot-acceptance-access.test.ts",
+                  "tests/platform-owner-zero-tenant-hotfix.test.ts",
+                  "tests/rollout-readiness.test.ts",
+                  "tests/shoperation-development-guard.test.ts",
+                  "tests/shoperation-failure-intake-reconcile.test.ts",
+                  "tests/shoperation-historical-support-backfill.test.ts",
+                  "tests/shoperation-quality-knowledge.test.ts",
+                  "tests/sql-migration-syntax-guard.test.ts",
+                  "tests/storefront-account-capability-navigation.test.tsx",
+                  "tests/storefront-auth-surface.test.ts",
+                  "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+                  "tests/storefront-preview-demo-content-routing.test.ts",
+                  "tests/storefront-responsive-isolation.test.ts",
+                  "tests/storefront-runtime-persistence.test.ts",
+                  "tests/storefront-template-persistence.test.ts",
+                  "tests/storefront-template-preview-access.test.ts",
+                  "tests/storefront-template-preview-runtime.test.ts",
+                  "tests/storefront-template-quality-gate-v2.test.ts",
+                  "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+                  "tests/template-factory-engine-functional-proof.test.ts",
+                  "tests/template-factory-loot-vault-v2.test.ts",
+                  "tests/template-factory-procedural-memory.test.ts",
+                  "tests/template-factory-scaffold-v1.test.ts",
+                  "tests/template-factory-storefront-contract.test.ts",
+                  "tests/template-golden-baseline-promotion-policy.test.ts",
+                  "tests/visual-builder-mobile-isolation.test.ts"
+                ],
+                "externalGateIds": []
+              }
+            },
+            {
+              "field": "childPlanDigest",
+              "before": "c7589b2d38289888acd577c68e38abac26ca71bfc2081e8bd1da04941a89b8eb",
+              "after": "f9a6bd94b5d2dbfd34a581956f61dbea44d42a891c788436c2bb23049b6aba94"
+            },
+            {
+              "field": "childOperationDigest",
+              "before": "8ba6af0084a158a078e6ad22318017a69b995a6d05c70f941205cd7425f3fa32",
+              "after": "b1e697396210a4ef3e0230378d1ae04822fca541d6eee13bc0bb6292129f5402"
+            }
+          ]
         }
       },
       "lastTransition": {
         "to": "STALE",
-        "code": "RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK"
+        "code": "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT"
       }
     },
     {
@@ -2442,9 +2673,240 @@
   ],
   "blocker": {
     "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
-    "code": "RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK",
+    "code": "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT",
     "details": {
-      "error": "{\"code\":\"DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED\",\"path\":\"operationalIntelligence.semanticExecutionRoute\",\"message\":\"Critical child execution requires MUST_EDIT or MUST_CREATE plus AUTHORITY, PROOF and UNKNOWN semantic route categories.\"}\n"
+      "drift": [
+        {
+          "field": "operations",
+          "before": [
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+              "generated": null
+            }
+          ],
+          "after": [
+            {
+              "operation": "modify",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+              "generated": null
+            },
+            {
+              "operation": "modify",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+              "generated": null
+            },
+            {
+              "operation": "modify",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+              "generated": null
+            },
+            {
+              "operation": "modify",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+              "generated": null
+            },
+            {
+              "operation": "modify",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+              "generated": null
+            },
+            {
+              "operation": "modify",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+              "generated": null
+            },
+            {
+              "operation": "modify",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+              "generated": null
+            },
+            {
+              "operation": "modify",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+              "generated": null
+            },
+            {
+              "operation": "modify",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+              "generated": null
+            },
+            {
+              "operation": "modify",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+              "generated": null
+            },
+            {
+              "operation": "modify",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+              "generated": null
+            },
+            {
+              "operation": "modify",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+              "generated": null
+            }
+          ]
+        },
+        {
+          "field": "authorities",
+          "before": [],
+          "after": [
+            "quality-knowledge-system"
+          ]
+        },
+        {
+          "field": "requiredGates",
+          "before": [
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS",
+            "GUARD-RELEASE-RISK",
+            "GUARD-TYPECHECK"
+          ],
+          "after": [
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS",
+            "GUARD-RELEASE-RISK"
+          ]
+        },
+        {
+          "field": "requiredEvidence",
+          "before": {
+            "gateIds": [
+              "GUARD-EDIT-TIME",
+              "GUARD-INCREMENTAL-REPLAY",
+              "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-PLAN-BEFORE-CODE",
+              "GUARD-QUALITY-TESTS",
+              "GUARD-RELEASE-RISK",
+              "GUARD-TYPECHECK"
+            ],
+            "proofFiles": [],
+            "externalGateIds": []
+          },
+          "after": {
+            "gateIds": [
+              "GUARD-EDIT-TIME",
+              "GUARD-INCREMENTAL-REPLAY",
+              "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-PLAN-BEFORE-CODE",
+              "GUARD-QUALITY-TESTS",
+              "GUARD-RELEASE-RISK"
+            ],
+            "proofFiles": [
+              "tests/admin-mobile-desktop-compat.test.ts",
+              "tests/block4-ia-navigation-reporting.test.ts",
+              "tests/commerce-pricing.test.ts",
+              "tests/core-checkout-quote.test.ts",
+              "tests/customer-baseline-proof-contract.test.ts",
+              "tests/customer-baseline-target-postflight.test.ts",
+              "tests/digital-commerce-customer-baseline-parity.test.ts",
+              "tests/incident-intelligence-schema.test.ts",
+              "tests/navigation-workflows.test.ts",
+              "tests/operational-tenant-isolation.test.ts",
+              "tests/order-lifecycle-contracts.test.ts",
+              "tests/pilot-acceptance-access.test.ts",
+              "tests/platform-owner-zero-tenant-hotfix.test.ts",
+              "tests/rollout-readiness.test.ts",
+              "tests/shoperation-development-guard.test.ts",
+              "tests/shoperation-failure-intake-reconcile.test.ts",
+              "tests/shoperation-historical-support-backfill.test.ts",
+              "tests/shoperation-quality-knowledge.test.ts",
+              "tests/sql-migration-syntax-guard.test.ts",
+              "tests/storefront-account-capability-navigation.test.tsx",
+              "tests/storefront-auth-surface.test.ts",
+              "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+              "tests/storefront-preview-demo-content-routing.test.ts",
+              "tests/storefront-responsive-isolation.test.ts",
+              "tests/storefront-runtime-persistence.test.ts",
+              "tests/storefront-template-persistence.test.ts",
+              "tests/storefront-template-preview-access.test.ts",
+              "tests/storefront-template-preview-runtime.test.ts",
+              "tests/storefront-template-quality-gate-v2.test.ts",
+              "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+              "tests/template-factory-engine-functional-proof.test.ts",
+              "tests/template-factory-loot-vault-v2.test.ts",
+              "tests/template-factory-procedural-memory.test.ts",
+              "tests/template-factory-scaffold-v1.test.ts",
+              "tests/template-factory-storefront-contract.test.ts",
+              "tests/template-golden-baseline-promotion-policy.test.ts",
+              "tests/visual-builder-mobile-isolation.test.ts"
+            ],
+            "externalGateIds": []
+          }
+        },
+        {
+          "field": "childPlanDigest",
+          "before": "c7589b2d38289888acd577c68e38abac26ca71bfc2081e8bd1da04941a89b8eb",
+          "after": "f9a6bd94b5d2dbfd34a581956f61dbea44d42a891c788436c2bb23049b6aba94"
+        },
+        {
+          "field": "childOperationDigest",
+          "before": "8ba6af0084a158a078e6ad22318017a69b995a6d05c70f941205cd7425f3fa32",
+          "after": "b1e697396210a4ef3e0230378d1ae04822fca541d6eee13bc0bb6292129f5402"
+        }
+      ]
     }
   },
   "closureEligible": false,
