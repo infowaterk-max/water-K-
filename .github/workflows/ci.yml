@@ -146,7 +146,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: artifacts/shoperation-verification-cache/checkpoint.json
-          key: shoperation-verification-v1-${{ runner.os }}-pr-${{ env.SHOPERATION_CI_PR_NUMBER }}-${{ github.event.pull_request.head.sha }}
+          key: shoperation-verification-v1-${{ runner.os }}-pr-${{ env.SHOPERATION_CI_PR_NUMBER }}-${{ env.SHOPERATION_CI_HEAD_SHA }}
           restore-keys: |
             shoperation-verification-v1-${{ runner.os }}-pr-${{ env.SHOPERATION_CI_PR_NUMBER }}-
 
@@ -394,7 +394,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: artifacts/shoperation-verification-cache/checkpoint.json
-          key: shoperation-verification-v1-${{ runner.os }}-pr-${{ env.SHOPERATION_CI_PR_NUMBER }}-${{ github.event.pull_request.head.sha }}
+          key: shoperation-verification-v1-${{ runner.os }}-pr-${{ env.SHOPERATION_CI_PR_NUMBER }}-${{ env.SHOPERATION_CI_HEAD_SHA }}
 
       - name: Prepare CLOSE to LEARN lifecycle transition
         if: always() && (env.SHOPERATION_CI_RELEASE_UNIT_PROOF == 'true' || github.ref_name != 'main') && steps.completion-truth.outcome == 'success'
