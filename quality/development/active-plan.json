@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-BOT-PR-CI-DISPATCH-V1",
   "task": "Make bot-created release-unit child PR proof automation-safe by explicitly dispatching exact-head CI and fail fast with machine-readable terminal child-CI blockers instead of polling action_required runs until timeout.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "128614ad",
   "changeBaseSha": "a96074891ce8d0ae32d54c325d60cb4ee1076659",
   "plannedFilePatterns": [
@@ -433,5 +433,18 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #1025 after U01 reached PR_OPEN and CI run 37596487318 completed action_required under github-actions[bot], while trusted executor run 37566854069 remained polling in Drive canonical release-unit execution. Incremental Replay on d8003946 exposed one stale regression assertion in tests/shoperation-development-guard.test.ts that counted raw pull_request head expressions. The test must now verify canonical SHOPERATION_CI_* effective identity plus preserved pull_request fallback semantics. Full Quality Tests on 132ec189 exposed a second stale diagnostics regression assertion in tests/control-plane-diagnostics-hardening.test.ts that still expected the retired RELEASE_HEAD_SHA workflow variable. Update that proof to assert canonical SHOPERATION_CI_HEAD_SHA exact-head binding without weakening structured diagnostic requirements. Full Quality on exact head 132ec189 exposed a second stale CI identity assertion in tests/control-plane-diagnostics-hardening.test.ts; RELEASE_HEAD_SHA must now be asserted against canonical env.SHOPERATION_CI_HEAD_SHA while preserving exact-head semantics."
+  "notes": "Created from live Failure Intake #1025 after U01 reached PR_OPEN and CI run 37596487318 completed action_required under github-actions[bot], while trusted executor run 37566854069 remained polling in Drive canonical release-unit execution. Incremental Replay on d8003946 exposed one stale regression assertion in tests/shoperation-development-guard.test.ts that counted raw pull_request head expressions. The test must now verify canonical SHOPERATION_CI_* effective identity plus preserved pull_request fallback semantics. Full Quality Tests on 132ec189 exposed a second stale diagnostics regression assertion in tests/control-plane-diagnostics-hardening.test.ts that still expected the retired RELEASE_HEAD_SHA workflow variable. Update that proof to assert canonical SHOPERATION_CI_HEAD_SHA exact-head binding without weakening structured diagnostic requirements. Full Quality on exact head 132ec189 exposed a second stale CI identity assertion in tests/control-plane-diagnostics-hardening.test.ts; RELEASE_HEAD_SHA must now be asserted against canonical env.SHOPERATION_CI_HEAD_SHA while preserving exact-head semantics.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "d2fe70c65f33faa8700f5f348479e3e92df95936",
+    "closedAt": "2026-10-07T09:54:33.342Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-BOT-PR-CI-DISPATCH-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
