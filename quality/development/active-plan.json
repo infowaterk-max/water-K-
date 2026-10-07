@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-OPERATION-AWARE-MAIN-OVERLAP-V1",
   "task": "Allow trusted successor reevaluation to proceed across only revalidatable main-overlap classes—read-only dependency changes and explicit modify operations—while preserving fail-closed behavior for unsafe intended-operation overlap and all non-fast-forward main drift.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "baea580e",
   "changeBaseSha": "bc6c11e0ad880fd41404dbac4b2c1fd8d7700893",
   "plannedFilePatterns": [
@@ -509,5 +509,18 @@
       }
     ]
   },
-  "notes": "Live evidence: U01 PR #1053 and U02 PR #1073 are merged. U03 is STALE with RELEASE_UNIT_MAIN_DRIFT after immutable source replay attempt 8 / Release Unit Execution #208. Main advanced 1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100→bc6c11e0ad880fd41404dbac4b2c1fd8d7700893 touching quality/development/active-plan.json, scripts/lib/shoperation-release-unit-runtime.mjs and tests/control-plane-release-unit-production-surface.test.ts. U03 scope contains fixture-25 create, production-surface test modify, and runtime as requiredDependencyFile. The current zero-overlap guard blocks before fresh dependency projection and before the newly proven three-way modify materializer can decide merge safety. Plan Gate #9105 canonicalized projected subsystem ownership to dependency-contract + release-infrastructure and guardDigest baea580e; domains/authorities remain unchanged."
+  "notes": "Live evidence: U01 PR #1053 and U02 PR #1073 are merged. U03 is STALE with RELEASE_UNIT_MAIN_DRIFT after immutable source replay attempt 8 / Release Unit Execution #208. Main advanced 1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100→bc6c11e0ad880fd41404dbac4b2c1fd8d7700893 touching quality/development/active-plan.json, scripts/lib/shoperation-release-unit-runtime.mjs and tests/control-plane-release-unit-production-surface.test.ts. U03 scope contains fixture-25 create, production-surface test modify, and runtime as requiredDependencyFile. The current zero-overlap guard blocks before fresh dependency projection and before the newly proven three-way modify materializer can decide merge safety. Plan Gate #9105 canonicalized projected subsystem ownership to dependency-contract + release-infrastructure and guardDigest baea580e; domains/authorities remain unchanged.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "8eb98b2bf5374e48ab725e4f1eb0f9a71025df83",
+    "closedAt": "2026-10-07T18:42:33.106Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-OPERATION-AWARE-MAIN-OVERLAP-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
