@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-STALE-RESUME-V1",
   "task": "Allow a recoverable STALE release unit to re-enter the existing fresh successor reconciliation path after a previously blocking integration edge is repaired, without making BLOCKED or FAILED states auto-resumable or weakening exact-main, risk, scope, proof, CAS, or lifecycle authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "128614ad",
+  "guardDigest": "a41cfd0c",
   "changeBaseSha": "9453ef3270fd37ec85d4eb7b38793b713bcc105e",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -16,31 +16,63 @@
     "release-infrastructure"
   ],
   "expectedDomains": [
+    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-001",
+    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
+    "SQ-KF-005",
     "SQ-KF-006",
+    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
     "SQ-KF-018",
+    "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
     "TF-KF-005",
+    "TF-KF-006",
     "TF-KF-007",
+    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
+    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015"
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -412,5 +444,5 @@
       }
     ]
   },
-  "notes": "Plan-only transaction from live Failure Intake #1004. Persisted rehearsal state remains untouched at state commit 62844d329776ecbfbde6ed32b065cd08ba5b14f1; no U01 PR exists. No implementation is authorized until Plan Before Code reconciles this exact scope. Plan refinement: generic STALE recovery must force semantic reevaluation even for order-1 same-base retries, so scripts/release-unit-github-runtime.mjs is implementation scope rather than read-only impact."
+  "notes": "Plan-only transaction from live Failure Intake #1004. Persisted rehearsal state remains untouched at state commit 62844d329776ecbfbde6ed32b065cd08ba5b14f1; no U01 PR exists. No implementation is authorized until Plan Before Code reconciles this exact scope. Plan refinement: generic STALE recovery must force semantic reevaluation even for order-1 same-base retries, so scripts/release-unit-github-runtime.mjs is implementation scope rather than read-only impact. Plan-only projection 37575802163 reconciled the exact planned scope to DOMAIN-QUALITY + DOMAIN-RELEASE, authorities quality-knowledge-system + release-infrastructure, all 49 applicable Known Failure IDs, and canonical guard digest a41cfd0c. No implementation was present during this reconciliation."
 }
