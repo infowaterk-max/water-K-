@@ -15,6 +15,7 @@ import {
   decodeReleaseUnitContextEnvelope,
   RELEASE_UNIT_CI_CONTEXT_CONTRACT,
   RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT,
+  releaseUnitExactCreateSourceIdentity,
 } from './lib/shoperation-release-unit-runtime.mjs';
 
 const text=value=>String(value??'').trim();
@@ -420,19 +421,38 @@ export function runSuccessorReevaluationPlan({worktree,planPath,currentMainSha,c
   }
 }
 
-const classifyTrustedMainAdvanceOverlap=(manifest,changedFiles)=>{
+const targetGitObjectIdentity=({toSha,file,run=defaultRun,cwd=process.cwd()}={})=>{
+  try{
+    const raw=text(run('git',['ls-tree',toSha,'--',file],{cwd}));
+    if(!raw)return null;
+    const tab=raw.indexOf('\t');
+    if(tab<0)return null;
+    const [targetFileMode,type,targetBlobSha]=raw.slice(0,tab).trim().split(/\s+/);
+    const listedFile=raw.slice(tab+1);
+    if(type!=='blob'||listedFile!==file||!/^[0-9a-f]{40}$/i.test(targetBlobSha)||!/^[0-7]{6}$/.test(targetFileMode))return null;
+    return{targetBlobSha,targetFileMode};
+  }catch{return null;}
+};
+const classifyTrustedMainAdvanceOverlap=(manifest,changedFiles,{toSha,run=defaultRun,cwd=process.cwd()}={})=>{
   const intendedFiles=uniq(manifest?.intendedFiles??[]);
   const requiredDependencyFiles=uniq(manifest?.requiredDependencyFiles??[]);
   const scopeFiles=uniq([...intendedFiles,...requiredDependencyFiles]);
   const overlapFiles=uniq(changedFiles).filter(file=>scopeFiles.includes(file));
   const intended=new Set(intendedFiles),dependencies=new Set(requiredDependencyFiles);
   const operations=manifest?.operations??[];
-  const dependencyOverlapFiles=[],modifyOverlapFiles=[],unsafeOverlapFiles=[];
+  const dependencyOverlapFiles=[],modifyOverlapFiles=[],exactCreateOverlapFiles=[],exactCreateOverlapIdentities=[],unsafeOverlapFiles=[];
   for(const file of overlapFiles){
     if(intended.has(file)){
       const declared=operations.filter(operation=>text(operation?.file)===file);
       if(declared.length===1&&declared[0]?.operation==='modify')modifyOverlapFiles.push(file);
-      else unsafeOverlapFiles.push(file);
+      else{
+        const source=releaseUnitExactCreateSourceIdentity(manifest,file);
+        const target=source?targetGitObjectIdentity({toSha,file,run,cwd}):null;
+        if(source&&target&&target.targetBlobSha===source.sourceBlobSha&&target.targetFileMode===source.sourceFileMode){
+          exactCreateOverlapFiles.push(file);
+          exactCreateOverlapIdentities.push({...source,...target});
+        }else unsafeOverlapFiles.push(file);
+      }
       continue;
     }
     if(dependencies.has(file))dependencyOverlapFiles.push(file);
@@ -443,6 +463,8 @@ const classifyTrustedMainAdvanceOverlap=(manifest,changedFiles)=>{
     overlapFiles:uniq(overlapFiles),
     dependencyOverlapFiles:uniq(dependencyOverlapFiles),
     modifyOverlapFiles:uniq(modifyOverlapFiles),
+    exactCreateOverlapFiles:uniq(exactCreateOverlapFiles),
+    exactCreateOverlapIdentities:[...exactCreateOverlapIdentities].sort((a,b)=>a.file.localeCompare(b.file)),
     unsafeOverlapFiles:uniq(unsafeOverlapFiles),
   };
 };
@@ -459,7 +481,7 @@ export function proveTrustedMainAdvance({fromSha,toSha,manifest,run=defaultRun,c
   }catch(error){
     return{decision:'BLOCK',code:'RELEASE_UNIT_MAIN_DRIFT',error:`RELEASE_UNIT_MAIN_ADVANCE_DIFF_FAILED:${String(error?.message??error)}`};
   }
-  const categories=classifyTrustedMainAdvanceOverlap(manifest,changedFiles);
+  const categories=classifyTrustedMainAdvanceOverlap(manifest,changedFiles,{toSha:to,run,cwd});
   if(categories.unsafeOverlapFiles.length)return{
     decision:'BLOCK',
     code:'RELEASE_UNIT_MAIN_DRIFT',

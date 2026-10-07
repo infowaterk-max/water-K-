@@ -1,14 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
-  "task": "Add a canonical, exact-identity conflict-resolution receipt path for release-unit modify conflicts so true three-way conflicts remain fail-closed but can be resumed after a separately reviewed main resolution without mutating immutable source or child PR state.",
+  "taskId": "DEV-CONTROL-PLANE-EXACT-CREATE-MAIN-OVERLAP-V1",
+  "task": "Extend trusted main-advance overlap proof with a narrowly bounded exact-create category so a create operation already present on descendant main is safe only when the trusted executor proves the target Git blob and file mode exactly equal the operation's sealed immutable source identity.",
   "status": "closed",
   "guardDigest": "a41cfd0c",
-  "changeBaseSha": "d73c7b5a4d7214a4301eab895fd1ebbee5316dd4",
+  "changeBaseSha": "6c897234b6c890f8ee38f86c08dc86f7b9f68fa2",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/lib/shoperation-release-unit-runtime.mjs",
     "scripts/release-unit-github-runtime.mjs",
+    "scripts/lib/shoperation-release-unit-runtime.mjs",
     "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
@@ -92,52 +92,46 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-EXACT-CREATE-MAIN-OVERLAP-V1",
     "riskTier": "critical",
-    "problemStatement": "The bounded multi-release-unit rehearsal has U01 and U02 closed. After the operation-aware main-overlap fix, U03 now reaches the correct downstream three-way materializer and fails with RELEASE_UNIT_MODIFY_PATCH_CONFLICT on tests/control-plane-release-unit-production-surface.test.ts. This is a real same-hunk conflict: the immutable source delta is not already present in current main, and automatic source-wins/target-wins resolution remains forbidden. The Control Plane currently has no canonical continuation path for such a legitimate conflict: the workflow aborts with a stack trace, the release-state cannot carry a structured exact conflict identity, and there is no machine-verifiable way for a separately reviewed main resolution to be recognized on replay. The missing capability is therefore a conflict-resolution receipt, not a broader auto-merge engine.",
+    "problemStatement": "The U03 exact conflict-resolution transaction must land immutable fixture-25 on main together with the reviewed modify-conflict resolution. The release-unit materializer already treats a create as ALREADY_APPLIED when the target blob equals the sealed source blob. However the earlier trusted-main-advance guard from PR #1092 intentionally classifies every intended create overlap as unsafe before materialization, so replay would stop at RELEASE_UNIT_MAIN_DRIFT even for byte-identical immutable content. The missing capability is not general create overlap allowance; it is an exact Git-object attestation category produced only by the trusted default-branch executor and independently structurally validated by the core runtime.",
     "observableOutcomes": [
-      "A modify three-way conflict returns structured RELEASE_UNIT_MODIFY_PATCH_CONFLICT details containing releaseUnitId, file, source parent, source commit, source patch digest, target base SHA, target blob SHA and deterministic resolution-record path.",
-      "Successor reevaluation catches the structured materialization conflict and persists it as a normal STALE blocker instead of terminating the workflow before canonical state persistence.",
-      "The deterministic resolution-record path is derived from immutable conflict identity and cannot be chosen by the record author.",
-      "A main-merged resolution record is accepted only if its contract, releaseUnitId, file, source parent/commit, patch digest and resolution base are exact and the current target blob/file mode equal the record's resolved blob/mode.",
-      "A valid resolution record is consulted only after ordinary three-way application fails; it cannot bypass a cleanly applicable source patch.",
-      "When a valid record proves the current-main blob is the reviewed resolution, materialization preserves that blob and records the modify operation as already applied via conflict resolution.",
-      "Missing, stale, forged or mismatched resolution records remain fail-closed.",
-      "No source-wins, target-wins, conflict-marker, fuzzy patch or manual child-PR mutation path is introduced.",
-      "The capability exposes enough exact metadata to create a separate Plan/CI/Truth-governed U03 resolution PR after this generic fix merges."
+      "Trusted main-advance proof exposes an explicit exactCreateOverlapFiles category and exact per-file blob/mode attestation for safe create overlaps.",
+      "A create overlap is exact only when there is exactly one declared create operation for the file, the operation has sealed source identity, and target `toSha:file` blob plus mode exactly equal the sealed source blob plus mode.",
+      "Exact-create overlap is not included in unsafeOverlapFiles and may proceed to mandatory fresh semantic reevaluation/materialization.",
+      "A create overlap with missing/unsealed source, target missing, different blob, different file mode, ambiguous duplicate declaration or generated/regenerate semantics remains unsafe and blocks.",
+      "Delete, rename and other non-modify/non-exact-create intended overlaps remain unsafe.",
+      "The core proof validator recomputes operation/category expectations from manifest and rejects fabricated exact-create classifications or identity fields.",
+      "Existing dependency overlap and exactly-one-modify overlap behavior remains unchanged.",
+      "The U03 resolution transaction can later add exact immutable fixture-25 without creating a new main-drift blocker."
     ],
     "unresolvedRisks": [
-      "A resolution record could become a bypass if it is accepted without exact source patch identity.",
-      "A later main edit of the resolved file could make an old record stale while still leaving the record present.",
-      "A record authored against a non-ancestor resolution base must not be accepted.",
-      "The runtime must not consult a resolution record before proving ordinary three-way application actually conflicts.",
-      "A structured blocker that is thrown rather than returned could still prevent release-state persistence.",
-      "The resolved blob may preserve syntax while violating semantic source intent; final authority therefore remains the separately reviewed resolution PR plus normal CI/Truth, not the receipt alone.",
-      "A resolution record must not authorize writes outside the single declared modify file."
+      "Accepting create overlap from filename alone would silently allow unrelated target content.",
+      "Checking blob but not file mode would miss executable/mode drift.",
+      "Trusting caller-supplied exactCreateOverlapFiles without Git-object attestation would turn the category into a bypass.",
+      "Allowing generated/regenerate create semantics through ordinary sealed-blob equality could bypass generator authority.",
+      "Core and GitHub classifiers could diverge and accept a forged proof.",
+      "A duplicate create declaration could make operation identity ambiguous."
     ],
     "scope": {
       "in": [
-        "Add shoporation.release-unit-conflict-resolution.v1 identity/path/validation primitives in scripts/lib/shoperation-release-unit-runtime.mjs.",
-        "Derive source patch digest from the immutable source parent→source commit exact per-file patch.",
-        "On three-way modify conflict, look up only the deterministic resolution record in the exact target-base tree.",
-        "Accept a resolution only when target-base ancestry and current target blob/file mode match the exact record.",
-        "Return resolution metadata in alreadyApplied materialization evidence.",
-        "Change scripts/release-unit-github-runtime.mjs successor materialization error handling so structured release-unit materialization errors become canonical BLOCK/STALE results with exact details.",
-        "Add behavioral regressions for no-record conflict, valid resolution receipt, forged blob, stale/non-ancestor base and unchanged clean three-way behavior."
+        "Add exact-create overlap classification and Git-object attestation to scripts/release-unit-github-runtime.mjs.",
+        "Extend the core main-advance proof contract validator in scripts/lib/shoperation-release-unit-runtime.mjs with the same explicit category and structural identity checks.",
+        "Update production-surface regression coverage for exact create PASS and all fail-closed variants.",
+        "Preserve existing modify/dependency overlap semantics exactly."
       ],
       "out": [
-        "No automatic source-wins/target-wins conflict resolution.",
-        "No LLM or heuristic merge inside the trusted runtime.",
-        "No fuzzy patch application, conflict-marker commit or partial materialization.",
-        "No manual edit of U03 child PR or control-plane release-state.",
-        "No immutable source rewrite.",
-        "No change to create/delete/rename/regenerate materialization semantics.",
+        "No generic permission for create overlap.",
+        "No create/delete/rename/regenerate materializer change.",
+        "No conflict-resolution receipt change.",
+        "No U03 fixture/test/receipt implementation in this prerequisite PR.",
+        "No immutable source or release-state mutation.",
         "No storefront, template, Supabase or deployment change."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This capability creates the only allowed escape hatch from an intentional fail-closed source-vs-main conflict. A weak receipt could become arbitrary code-substitution authority, so every accepted resolution must be cryptographically and historically bound to the immutable source delta and exact main state.",
+      "rationale": "This proof decides whether main history may already contain an intended create without blocking successor execution. A false positive could authorize unrelated content; the only safe exception is exact immutable Git-object identity under the trusted executor.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -154,39 +148,32 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The deterministic resolution key/path depends on releaseUnitId, file, sourceCommit, sourceParent and sourcePatchDigest.",
-        "RELEASE_UNIT_MODIFY_PATCH_CONFLICT exposes that exact identity plus targetBaseSha and targetBlobSha.",
-        "A missing record preserves RELEASE_UNIT_MODIFY_PATCH_CONFLICT and creates no materialized commit.",
-        "A valid record requires contract shoporation.release-unit-conflict-resolution.v1, exact identity fields, non-empty resolutionPlanTaskId, a resolutionBaseSha that is an ancestor of targetBaseSha, and resolvedBlobSha/fileMode equal to the exact file currently present at targetBaseSha.",
-        "A valid record is considered only after git apply --3way --index failed for the immutable source patch.",
-        "A valid record causes the target blob to be preserved and the operation to appear in alreadyApplied evidence with resolution metadata; no file content is taken from the record.",
-        "A forged patch digest, source commit, source parent, file, blob, file mode or non-ancestor resolution base is rejected with an explicit RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID blocker.",
-        "Successor reevaluation catches structured materialization errors and returns decision=BLOCK/code/details so prepareActiveUnit can persist STALE canonical release-state.",
-        "Existing clean three-way merge, current-main preservation, create semantics and conflict fail-closed regressions remain PASS.",
-        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge.",
-        "After generic merge, replay immutable source to obtain the exact U03 resolution identity, then resolve U03 only through a separate governed main PR plus receipt and replay again."
+        "Proof producer records exactCreateOverlapFiles separately from dependencyOverlapFiles, modifyOverlapFiles and unsafeOverlapFiles.",
+        "For each exact create, proof records file, sourceBlobSha, sourceFileMode, targetBlobSha and targetFileMode.",
+        "Producer reads target identity from exact `toSha` Git objects, not working-tree content.",
+        "A safe exact create requires operation.operation=create, exactly one declaration for the file, no generated/regenerate semantics, source.mode=sealed, valid source blob and source file mode, and exact target blob/mode equality.",
+        "Core validator requires exact category arrays and exact identity array coherence with the sealed manifest operation.",
+        "Core validator rejects exact-create proof entries when the file is not a declared create or source identity does not match proof.",
+        "Wrong target blob, wrong mode, missing target, missing/unsealed source and duplicate create declarations all remain RELEASE_UNIT_MAIN_DRIFT.",
+        "Delete, rename and generated/regenerate overlaps remain unsafe.",
+        "Existing dependency and modify overlap tests remain PASS.",
+        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge."
       ],
       "invariants": [
-        "Immutable source commit and source patch remain the authority for what conflict is being resolved.",
-        "The resolution receipt never supplies executable file content; it only attests that the exact current-main blob is the approved resolution.",
-        "Only one deterministic receipt path exists for a given exact conflict identity.",
-        "A receipt cannot authorize a different file, source delta or target blob.",
-        "Ordinary clean three-way application wins over any receipt; receipt is fallback-only.",
-        "No thrown conflict may bypass canonical STALE state persistence.",
-        "Resolution approval occurs through normal main Plan/CI/Truth governance, not mutable PR metadata."
+        "Only trusted exact Git-object equality can convert a create overlap from unsafe to safe.",
+        "Source blob and file mode remain immutable authority for exact-create classification.",
+        "Proof categories are mutually coherent and unsafe overlap remains blocking.",
+        "No operation scope is widened by exact-create attestation.",
+        "Core validator does not independently access mutable working-tree state."
       ],
       "forbiddenStates": [
-        "source-wins-auto-resolution",
-        "target-wins-auto-resolution",
-        "fuzzy-conflict-auto-merge",
-        "record-supplied-file-content",
-        "wrong-source-patch-receipt-accepted",
-        "wrong-target-blob-receipt-accepted",
-        "non-ancestor-resolution-base-accepted",
-        "resolution-record-used-before-real-conflict",
-        "manual-u03-child-pr-repair",
-        "manual-release-state-mutation",
-        "partial-materialization-after-conflict"
+        "create-overlap-allowed-without-sealed-source",
+        "create-overlap-allowed-with-wrong-blob",
+        "create-overlap-allowed-with-wrong-mode",
+        "generated-create-treated-as-exact-create",
+        "duplicate-create-declaration-accepted",
+        "forged-exact-create-proof-accepted",
+        "delete-or-rename-overlap-accepted"
       ]
     },
     "model": {
@@ -218,64 +205,52 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Conflict still escapes as an uncaught workflow exception and release-state is not persisted.",
-        "Receipt lookup path can be influenced independently of conflict identity.",
-        "Receipt with a different patch digest or source commit is accepted.",
-        "Receipt points to a resolved blob different from current target-base file.",
-        "Receipt resolutionBaseSha is unrelated to current main history.",
-        "Receipt is used even though three-way patch would apply cleanly.",
-        "Valid receipt marks operation applied but materialization accidentally stages or commits the conflicting file anyway.",
-        "Existing create/delete/rename/regenerate behavior changes."
+        "Producer classifies exact create from manifest without reading target Git object.",
+        "Producer reads the branch working tree rather than exact toSha.",
+        "Core validator accepts a fabricated exact-create category.",
+        "File mode is omitted from attestation.",
+        "Generated create is incorrectly treated as ordinary sealed create.",
+        "Existing modify overlap becomes stricter or looser unintentionally."
       ],
       "edgeCases": [
-        "no resolution record",
-        "malformed JSON record",
-        "wrong contract",
-        "wrong releaseUnitId",
-        "wrong file",
-        "wrong sourceParent",
-        "wrong sourceCommit",
-        "wrong sourcePatchDigest",
-        "wrong resolvedBlobSha",
-        "wrong resolvedFileMode",
-        "resolutionBaseSha not ancestor of targetBaseSha",
-        "resolutionBaseSha equals an older valid ancestor",
-        "clean three-way apply with stale record present",
-        "multiple later main commits after a valid resolution while file blob remains unchanged",
-        "later main edit changes resolved file blob while old record remains",
-        "binary or mode-only modify conflict"
+        "target blob exactly equals sealed source blob and mode 100644",
+        "same blob but target mode differs",
+        "target blob differs by one byte",
+        "target path absent at toSha",
+        "operation.source missing",
+        "operation.source mode not sealed",
+        "source blob malformed",
+        "two create declarations for one file",
+        "create operation has generated mode regenerate",
+        "file is both intended and dependency",
+        "proof exactCreate identity array contains duplicate or foreign file",
+        "no overlap at all"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-CANONICAL-MAIN-RESOLUTION-RECEIPT",
-        "summary": "Keep three-way conflict fail-closed, persist exact conflict identity, and allow replay only after a separately governed main resolution is bound by a deterministic exact receipt.",
+        "id": "ALT-EXACT-GIT-OBJECT-CREATE-ATTESTATION",
+        "summary": "Allow only exact sealed create overlap proven by trusted `toSha` blob/mode identity and bind it into the signed proof categories.",
         "disposition": "selected",
-        "reason": "Preserves immutable-source authority and normal code-review/CI governance without teaching the trusted runtime to invent semantic merge resolutions."
+        "reason": "Matches existing materializer idempotency while preserving immutable source authority and fail-closed behavior."
       },
       {
-        "id": "ALT-AUTO-SOURCE-WINS",
-        "summary": "On conflict, overwrite target with source content.",
+        "id": "ALT-ALL-CREATE-OVERLAP",
+        "summary": "Treat every create overlap as safe and defer all checks to materialization.",
         "disposition": "rejected",
-        "reason": "PR #1089 already proved this can delete hundreds of lines of later main evolution."
+        "reason": "Would allow unrelated main content to bypass the main-advance boundary and shifts a preventable integrity check too late."
       },
       {
-        "id": "ALT-AUTO-TARGET-WINS",
-        "summary": "Ignore the source hunk on conflict and keep target content.",
+        "id": "ALT-BLOB-ONLY-ATTESTATION",
+        "summary": "Allow create overlap when target blob matches source blob but ignore file mode.",
         "disposition": "rejected",
-        "reason": "Would silently drop immutable release-unit intent."
+        "reason": "Mode drift is part of the sealed source identity and can materially change execution semantics."
       },
       {
-        "id": "ALT-FUZZY-OR-AST-MERGE",
-        "summary": "Use heuristic/fuzzy/AST conflict resolution inside the trusted executor.",
+        "id": "ALT-RESOLUTION-SPECIFIC-ALLOWLIST",
+        "summary": "Special-case fixture-25 or the U03 releaseUnitId in the overlap guard.",
         "disposition": "rejected",
-        "reason": "Would create an uncontrolled semantic code-authoring authority inside release infrastructure."
-      },
-      {
-        "id": "ALT-MANUAL-CHILD-PR-EDIT",
-        "summary": "Edit the U03 child branch until it passes.",
-        "disposition": "rejected",
-        "reason": "Breaks deterministic materialization and resumable proof."
+        "reason": "Would hard-code rehearsal data instead of fixing the generic exact-idempotent create invariant."
       }
     ],
     "specialistReviews": [
@@ -283,155 +258,145 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A conflict-resolution mechanism can easily become a hidden general merge engine.",
-        "resolution": "The runtime never computes resolution content. It only validates a separately governed current-main blob against an exact deterministic receipt after genuine three-way failure.",
+        "finding": "Create overlap was deliberately unsafe in PR #1092 and must not be reopened generically.",
+        "resolution": "Introduce a separate exact-create category that requires immutable Git-object equality; ordinary create remains unsafe.",
         "evidence": [
-          "PR #1089",
-          "RELEASE_UNIT_MODIFY_PATCH_CONFLICT",
-          "scripts/lib/shoperation-release-unit-runtime.mjs"
+          "PR #1092",
+          "materializeReleaseUnit ALREADY_APPLIED semantics"
         ]
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A receipt must not become arbitrary blob-substitution authority.",
-        "resolution": "Bind it to source parent, source commit, exact patch digest, release unit, file, ancestor resolution base and exact current-main blob/file mode; the record contains no executable content.",
+        "finding": "Target content must not be trusted from branch labels or caller metadata.",
+        "resolution": "Trusted executor resolves exact `toSha:file` blob/mode and proof binds them to sealed operation source identity.",
         "evidence": [
-          "sealReleaseUnitManifest",
-          "git object identity",
-          "protected main"
+          "proveTrustedMainAdvance",
+          "issuer release-unit-github-runtime"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Current U03 conflict is real and source intent is not already present in main.",
-        "resolution": "Preserve fail-closed conflict until a reviewed main resolution exists; then use exact blob equality to recognize the resolved state without rewriting it.",
+        "finding": "The U03 fixture-25 resolution case is safe only if the target object is byte/mode identical to immutable source.",
+        "resolution": "Require sourceBlobSha===targetBlobSha and sourceFileMode===targetFileMode for every exact-create proof identity.",
         "evidence": [
-          "Release Unit Execution #217",
-          "tests/control-plane-release-unit-production-surface.test.ts",
-          "source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65"
+          "fixture-25 immutable source",
+          "Git blob identity"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "U01 and U02 are closed; U03 is final child and now blocked by legitimate modify conflict after operation-aware overlap correctly allowed downstream proof.",
-        "resolution": "Add canonical conflict handoff/receipt, then resolve U03 in a separate main PR and replay immutable source.",
+        "finding": "U01/U02 are closed; U03 resolution cannot land fixture-25 until this overlap invariant is represented.",
+        "resolution": "Merge generic prerequisite first, then reproject the already Plan-approved U03 resolution transaction onto fresh main.",
         "evidence": [
-          "PR #1053",
-          "PR #1073",
-          "PR #1092",
-          "Release Unit Execution #217"
+          "Release Unit Execution #225",
+          "U03 resolution Plan #9121"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Previous plans modeled fail-closed conflict detection but not resumable continuation after a legitimate conflict.",
-        "resolution": "Promote structured conflict identity and governed resolution receipt into permanent regression coverage.",
+        "finding": "The prior operation-aware overlap tests intentionally assert non-modify overlap BLOCK and therefore lack the exact-idempotent create boundary case.",
+        "resolution": "Replace the broad create assertion with exact-safe and inexact-fail-closed matrix while preserving other unsafe operation cases.",
         "evidence": [
-          "DEV-CONTROL-PLANE-RELEASE-UNIT-MODIFY-PATCH-MATERIALIZATION-V1",
-          "CH-PATCH-02",
-          "CH-PATCH-05"
+          "tests/control-plane-release-unit-production-surface.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-RES-01",
-        "scenario": "Three-way apply succeeds and a stale resolution record also exists.",
-        "finding": "Receipt must not override normal source patch semantics.",
-        "resolution": "Consult resolution only after actual three-way failure.",
+        "id": "CH-CREATE-01",
+        "scenario": "One sealed create overlaps and target toSha blob/mode exactly equal source.",
+        "finding": "Current classifier blocks even though materializer would return alreadyApplied.",
+        "resolution": "Classify as exactCreate overlap and continue to fresh reevaluation.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-02",
-        "scenario": "Three-way conflict with no receipt.",
-        "finding": "Current behavior aborts workflow before a reusable exact handoff exists.",
-        "resolution": "Throw/return structured conflict code and persist STALE with deterministic receipt path.",
+        "id": "CH-CREATE-02",
+        "scenario": "Target blob differs while file name and operation type match.",
+        "finding": "Could be unrelated or stale content.",
+        "resolution": "Keep unsafe and block main advance.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-03",
-        "scenario": "Receipt matches file but references another source patch.",
-        "finding": "Could launder unrelated code as conflict resolution.",
-        "resolution": "Exact source parent/commit/patch digest are mandatory.",
+        "id": "CH-CREATE-03",
+        "scenario": "Blob matches but target file mode differs.",
+        "finding": "Execution semantics may differ.",
+        "resolution": "Keep unsafe; exact mode equality required.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-04",
-        "scenario": "A conflict-resolution receipt names the correct release unit, file, source parent, source commit and patch digest, but its resolvedBlobSha differs by one byte from the blob currently stored for that exact file at targetBaseSha.",
-        "finding": "Accepting the receipt would authorize a main file version that was never the reviewed conflict resolution and would turn the receipt into arbitrary blob-substitution authority.",
-        "resolution": "Reject with RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID and include expected/actual resolved blob identity; do not stage, commit or mark the modify operation already applied.",
+        "id": "CH-CREATE-04",
+        "scenario": "The main-advance diff includes an intended create file, but the manifest operation either has no source object, uses a non-sealed source mode, or carries a malformed source blob/file-mode identity.",
+        "finding": "Classifying this overlap as exact-create would trust a target object without a canonical immutable source identity and could authorize unrelated or mutable content.",
+        "resolution": "Require exactly one create declaration with source.mode=sealed, a valid 40-hex source blob SHA and valid Git file mode before any target-object comparison; otherwise place the file in unsafeOverlapFiles and block.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-05",
-        "scenario": "Resolution base is not an ancestor of current target base.",
-        "finding": "Receipt came from unrelated history.",
-        "resolution": "Require git merge-base --is-ancestor resolutionBaseSha targetBaseSha.",
+        "id": "CH-CREATE-05",
+        "scenario": "Two create operations declare the same intended file and both appear superficially compatible with the target path on descendant main.",
+        "finding": "The proof cannot establish which operation/source identity is authoritative, so accepting either would make the overlap classification ambiguous and forgeable.",
+        "resolution": "Exact-create classification requires declared.length===1 for the intended file; duplicate or ambiguous create declarations remain unsafe and cause RELEASE_UNIT_MAIN_DRIFT.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-06",
-        "scenario": "Main advances after valid resolution without touching resolved file.",
-        "finding": "Exact target-base SHA equality would make a durable resolution unnecessarily stale.",
-        "resolution": "Allow descendant target bases only while current file blob/mode still equal receipt.",
+        "id": "CH-CREATE-06",
+        "scenario": "Generated/regenerate create target happens to match a blob.",
+        "finding": "Generator semantics are separate authority.",
+        "resolution": "Keep generated create unsafe in this capability.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-07",
-        "scenario": "Main later edits resolved file.",
-        "finding": "Old approval no longer proves current content.",
-        "resolution": "Blob/mode mismatch invalidates receipt and requires a new exact resolution.",
+        "id": "CH-CREATE-07",
+        "scenario": "Proof claims exactCreate for a modify/delete/foreign file.",
+        "finding": "Forged category could bypass unsafe classification.",
+        "resolution": "Core validator recomputes declared operation type/source and rejects proof.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-08",
-        "scenario": "Conflict occurs after another operation was staged in temp index.",
-        "finding": "No partial child commit may survive.",
-        "resolution": "Existing transactional temp-index/worktree semantics remain; resolution lookup changes only the conflicted operation result.",
+        "id": "CH-CREATE-08",
+        "scenario": "Exact create file is also a required dependency.",
+        "finding": "Intended operation authority must take precedence.",
+        "resolution": "Classify once as exactCreate, never dependency overlap.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-09",
-        "scenario": "Structured materialization conflict is thrown inside successor reevaluation.",
-        "finding": "Workflow currently terminates before parent state can persist blocker details.",
-        "resolution": "Catch release-unit materialization errors and return BLOCK/code/details through prepareActiveUnit.",
+        "id": "CH-CREATE-09",
+        "scenario": "No intended overlap exists.",
+        "finding": "New category must not alter legacy proof shape semantically.",
+        "resolution": "Emit empty exactCreate categories/identities and retain all existing PASS behavior.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS before implementation.",
-      "Implement deterministic resolution identity/path and exact record validation in scripts/lib/shoperation-release-unit-runtime.mjs.",
-      "Catch structured successor materialization errors in scripts/release-unit-github-runtime.mjs and preserve code/details through canonical STALE state.",
-      "Extend tests/control-plane-release-unit-production-surface.test.ts with real temporary Git repositories proving no-record conflict, valid receipt, record tamper/staleness, clean-patch precedence and structured blocker propagation.",
+      "Commit this plan only and require Plan Before Code PASS before runtime edits.",
+      "Extend trusted producer and core validator together so proof categories cannot diverge.",
+      "Add regression matrix for exact create PASS, target blob/mode mismatch, missing/unsealed source, duplicate create, generated create, forged proof, and unchanged modify/dependency cases.",
       "Require exact-head Knowledge/Plan/Edit-Time/Incremental/Release Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
       "Merge only after exact PR-head SUCCESS and green main CI.",
-      "Replay immutable source to obtain the exact U03 conflict identity from the new structured blocker.",
-      "Create a separate Plan/CI/Truth-governed main resolution PR containing only the conflict-resolved current-main file plus its exact resolution receipt, merge it, replay immutable source, and require U03 child proof/merge plus parent closure."
+      "Then reproject the U03 exact conflict-resolution plan from fresh main and continue its separately governed resolution."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
+      "request": "PO-2026-10-07-CONTROL-PLANE-EXACT-CREATE-MAIN-OVERLAP-V1",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/release-unit-github-runtime.mjs"
+        "scripts/release-unit-github-runtime.mjs",
+        "scripts/lib/shoperation-release-unit-runtime.mjs"
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "impactedReadOnly": [
         "scripts/release-unit-execute.mjs",
-        "tests/control-plane-release-unit-orchestration.test.ts",
         "quality/knowledge/development-guard-policy.v1.json",
         "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
       ],
@@ -453,7 +418,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-EXACT-CREATE-MAIN-OVERLAP-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -471,11 +436,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT",
-        "requirement": "A real release-unit modify conflict must remain fail-closed yet resumable only through a separately governed exact current-main resolution bound to the immutable source delta by a deterministic machine-verifiable receipt.",
+        "id": "REQ-EXACT-CREATE-MAIN-OVERLAP",
+        "requirement": "Trusted main-advance reconciliation may accept an intended create overlap only when exact target Git blob and file mode are proven identical to the operation's sealed immutable source identity.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-conflict-resolution-receipt",
+          "breadth": "release-unit-exact-create-main-overlap",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -501,22 +466,22 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-CONFLICT-AUTO-MERGE",
-            "statement": "The trusted runtime may not invent source-wins, target-wins, fuzzy or AST merge resolutions.",
+            "id": "NEG-INEXACT-CREATE-OVERLAP-ACCEPTED",
+            "statement": "Create overlap with different blob or mode may not pass trusted main advance.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-RESOLUTION-RECEIPT-TAMPER",
-            "statement": "A receipt with mismatched source patch identity, main ancestry or resolved blob may not be accepted.",
+            "id": "NEG-UNSEALED-CREATE-OVERLAP-ACCEPTED",
+            "statement": "Create overlap without sealed immutable source identity may not pass.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-CONFLICT-STATE-LOSS",
-            "statement": "A structured release-unit materialization conflict may not abort before canonical STALE blocker persistence.",
+            "id": "NEG-FORGED-EXACT-CREATE-PROOF",
+            "statement": "Core validation may not accept fabricated exact-create categories or identities.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -525,14 +490,14 @@
       }
     ]
   },
-  "notes": "Live evidence: immutable rehearsal source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; U01 and U02 already closed. After PR #1092 operation-aware trusted main overlap merged, replay attempt 9 / Release Unit Execution #217 advanced beyond RELEASE_UNIT_MAIN_DRIFT and reached the intended downstream materializer, which failed with RELEASE_UNIT_MODIFY_PATCH_CONFLICT on tests/control-plane-release-unit-production-surface.test.ts. The source delta is not already present in current main. Prior modify-materialization governance explicitly forbids automatic side preference and manual child-PR repair, but no canonical reviewed conflict-resolution receipt/handoff currently exists. Plan Gate #9113 / run 37673325954 canonicalized expectedSubsystems to release-infrastructure, guardDigest to a41cfd0c, and required a concrete non-vacuous blob-mismatch adversarial challenge. This revision adopts those exact planner outputs without changing the conflict-resolution capability design.",
+  "notes": "Prerequisite discovered before implementing the already Plan-approved U03 exact conflict resolution. Current U03 resolution must add immutable fixture-25 to main, but PR #1092's operation-aware overlap deliberately marks all create overlap unsafe. Materializer semantics already prove exact source-identical create as ALREADY_APPLIED. This task aligns trusted main-advance proof with that narrow idempotent invariant without making ordinary create overlap safe. Plan Gate #9123 canonicalized expectedSubsystems to release-infrastructure and required concrete adversarial detail for missing/unsealed-source and duplicate-create cases. This revision adopts those exact planner findings without widening the selected proof design.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "66fabb3888a50273474e1a2d8db809813a5961a6",
-    "closedAt": "2026-10-07T19:43:17.208Z",
+    "verifiedImplementationHead": "3725ad79ccaee6c3d76a7c42541e8b627109a763",
+    "closedAt": "2026-10-07T20:56:28.379Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-EXACT-CREATE-MAIN-OVERLAP-V1",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

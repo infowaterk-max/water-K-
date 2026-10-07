@@ -841,6 +841,8 @@ describe('Control Plane production release surface',()=>{
     expect(result.proof.overlapFiles).toEqual([]);
     expect(result.proof.dependencyOverlapFiles).toEqual([]);
     expect(result.proof.modifyOverlapFiles).toEqual([]);
+    expect(result.proof.exactCreateOverlapFiles).toEqual([]);
+    expect(result.proof.exactCreateOverlapIdentities).toEqual([]);
     expect(result.proof.unsafeOverlapFiles).toEqual([]);
     expect(validateReleaseUnitMainAdvanceProof(result.proof,{fromSha:A,toSha:B,manifest:safeManifest})).toBe(true);
     expect(calls[0].args).toEqual(['merge-base','--is-ancestor',A,B]);
@@ -857,6 +859,8 @@ describe('Control Plane production release surface',()=>{
     expect(result.proof.overlapFiles).toEqual(['scripts/already.mjs','scripts/dep.mjs']);
     expect(result.proof.dependencyOverlapFiles).toEqual(['scripts/dep.mjs']);
     expect(result.proof.modifyOverlapFiles).toEqual(['scripts/already.mjs']);
+    expect(result.proof.exactCreateOverlapFiles).toEqual([]);
+    expect(result.proof.exactCreateOverlapIdentities).toEqual([]);
     expect(result.proof.unsafeOverlapFiles).toEqual([]);
     expect(validateReleaseUnitMainAdvanceProof(result.proof,{fromSha:A,toSha:B,manifest:safeManifest})).toBe(true);
 
@@ -864,6 +868,89 @@ describe('Control Plane production release surface',()=>{
     forged.dependencyOverlapFiles=['scripts/already.mjs','scripts/dep.mjs'];
     forged.modifyOverlapFiles=[];
     expect(validateReleaseUnitMainAdvanceProof(forged,{fromSha:A,toSha:B,manifest:safeManifest})).toBe(false);
+  });
+
+  it('allows only an exact sealed create overlap proven from the exact toSha Git object',()=>{
+    const file='quality/knowledge/rehearsal-fixtures/v1/exact-create.json',blob='c'.repeat(40);
+    const exactManifest={
+      ...structuredClone(manifest),
+      sourceIdentity:{sourceCommit:A,sealed:true},
+      intendedFiles:[file],
+      operations:[{operation:'create',file,generated:null,source:{mode:'sealed',commit:A,blobSha:blob,fileMode:'100644'}}],
+      requiredDependencyFiles:[],
+    };
+    const calls=[];
+    const result=proveTrustedMainAdvance({
+      fromSha:A,toSha:B,manifest:exactManifest,cwd:'/repo',
+      run:(command,args)=>{
+        calls.push({command,args});
+        if(args[0]==='merge-base')return '';
+        if(args[0]==='diff')return file+'\n';
+        if(args[0]==='ls-tree')return '100644 blob '+blob+'\t'+file;
+        throw new Error('unexpected git command');
+      },
+    });
+    expect(result.decision).toBe('PASS');
+    expect(result.proof.exactCreateOverlapFiles).toEqual([file]);
+    expect(result.proof.exactCreateOverlapIdentities).toEqual([{
+      file,sourceBlobSha:blob,sourceFileMode:'100644',targetBlobSha:blob,targetFileMode:'100644',
+    }]);
+    expect(result.proof.unsafeOverlapFiles).toEqual([]);
+    expect(validateReleaseUnitMainAdvanceProof(result.proof,{fromSha:A,toSha:B,manifest:exactManifest})).toBe(true);
+    expect(calls.some(call=>call.args[0]==='ls-tree'&&call.args[1]===B&&call.args[3]===file)).toBe(true);
+
+    const forgedBlob=structuredClone(result.proof);
+    forgedBlob.exactCreateOverlapIdentities[0].targetBlobSha='d'.repeat(40);
+    expect(validateReleaseUnitMainAdvanceProof(forgedBlob,{fromSha:A,toSha:B,manifest:exactManifest})).toBe(false);
+    const forgedMode=structuredClone(result.proof);
+    forgedMode.exactCreateOverlapIdentities[0].targetFileMode='100755';
+    expect(validateReleaseUnitMainAdvanceProof(forgedMode,{fromSha:A,toSha:B,manifest:exactManifest})).toBe(false);
+    const forgedCategory=structuredClone(result.proof);
+    forgedCategory.exactCreateOverlapFiles=[];
+    expect(validateReleaseUnitMainAdvanceProof(forgedCategory,{fromSha:A,toSha:B,manifest:exactManifest})).toBe(false);
+  });
+
+  it('keeps mismatched, missing-source and ambiguous create overlaps fail-closed',()=>{
+    const file='quality/knowledge/rehearsal-fixtures/v1/exact-create.json',blob='c'.repeat(40);
+    const sealed={
+      ...structuredClone(manifest),
+      sourceIdentity:{sourceCommit:A,sealed:true},
+      intendedFiles:[file],
+      operations:[{operation:'create',file,generated:null,source:{mode:'sealed',commit:A,blobSha:blob,fileMode:'100644'}}],
+      requiredDependencyFiles:[],
+    };
+    const prove=(candidateManifest,targetEntry)=>proveTrustedMainAdvance({
+      fromSha:A,toSha:B,manifest:candidateManifest,cwd:'/repo',
+      run:(command,args)=>{
+        if(args[0]==='merge-base')return '';
+        if(args[0]==='diff')return file+'\n';
+        if(args[0]==='ls-tree')return targetEntry;
+        throw new Error('unexpected git command');
+      },
+    });
+    const wrongBlob=prove(sealed,'100644 blob '+('d'.repeat(40))+'\t'+file);
+    expect(wrongBlob.decision).toBe('BLOCK');
+    expect(wrongBlob.details.unsafeOverlapFiles).toEqual([file]);
+    const wrongMode=prove(sealed,'100755 blob '+blob+'\t'+file);
+    expect(wrongMode.decision).toBe('BLOCK');
+    expect(wrongMode.details.unsafeOverlapFiles).toEqual([file]);
+    const missingTarget=prove(sealed,'');
+    expect(missingTarget.decision).toBe('BLOCK');
+
+    const unsealed={...structuredClone(sealed),sourceIdentity:{sourceCommit:A,sealed:false},operations:[{operation:'create',file}]};
+    const missingSource=prove(unsealed,'100644 blob '+blob+'\t'+file);
+    expect(missingSource.decision).toBe('BLOCK');
+    expect(missingSource.details.unsafeOverlapFiles).toEqual([file]);
+
+    const duplicate={...structuredClone(sealed),operations:[...sealed.operations,structuredClone(sealed.operations[0])]};
+    const ambiguous=prove(duplicate,'100644 blob '+blob+'\t'+file);
+    expect(ambiguous.decision).toBe('BLOCK');
+    expect(ambiguous.details.unsafeOverlapFiles).toEqual([file]);
+
+    const generated={...structuredClone(sealed),operations:[{...structuredClone(sealed.operations[0]),generated:{mode:'regenerate',command:'node scripts/generate.mjs'}}]};
+    const generatedOverlap=prove(generated,'100644 blob '+blob+'\t'+file);
+    expect(generatedOverlap.decision).toBe('BLOCK');
+    expect(generatedOverlap.details.unsafeOverlapFiles).toEqual([file]);
   });
 
   it('classifies intended files before dependency allowance and keeps non-modify overlap fail-closed',()=>{
