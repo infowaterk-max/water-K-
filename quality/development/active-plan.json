@@ -1,52 +1,82 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-CHILD-PROOF-DISPATCH-PERMISSION-V1",
-  "task": "Allow the trusted Release Unit Execution workflow to dispatch exact child CI proof runs without widening untrusted workflow authority.",
+  "taskId": "DEV-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
+  "task": "Repair the current main Plan Before Code quality gate so critical proof-only transactions whose projected files are exclusively neutral/test or knowledge-infrastructure paths may truthfully use empty domain/authority projections while architecture-bearing projected files remain fail-closed.",
   "status": "closed",
-  "guardDigest": "128614ad",
-  "changeBaseSha": "ead5039f1711b4b52a1394bac530a9f3ca1ad5be",
+  "guardDigest": "85d0ad2a",
+  "changeBaseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    ".github/workflows/release-unit-execution.yml",
-    "tests/control-plane-release-unit-production-surface.test.ts"
+    "scripts/shoperation-plan-before-code.mjs",
+    "tests/shoperation-change-impact-atlas.test.ts"
   ],
   "expectedSubsystems": [
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedDomains": [
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-001",
+    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
+    "SQ-KF-005",
     "SQ-KF-006",
+    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
     "SQ-KF-018",
+    "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
     "TF-KF-005",
+    "TF-KF-006",
     "TF-KF-007",
+    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
+    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015"
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
     "SQ-NK-010",
+    "SQ-NK-011",
     "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -59,50 +89,48 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-CHILD-PROOF-DISPATCH-PERMISSION-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
     "riskTier": "critical",
-    "problemStatement": "Live bounded rehearsal replay on trusted Release Unit Execution #152 (run 37615831101) successfully materialized the fresh U01 superseding branch and created the bot child PR, but exact child proof dispatch failed with RELEASE_UNIT_CHILD_CI_DISPATCH_FAILED because GitHub returned HTTP 403 Resource not accessible by integration when gh workflow run ci.yml attempted workflow_dispatch. The trusted executor workflow currently declares actions: read at both workflow and execute-job level, which is insufficient to create a workflow dispatch event.",
+    "problemStatement": "Live Sentinel plan-isolation repair exposed an unsatisfiable current-main Plan Before Code invariant: a critical transaction that projects only a neutral test file correctly resolves projectedDomains=[] and projectedAuthorities=[], yet the gate unconditionally requires both declarations to be non-empty. Historical draft PR #798 already demonstrated and implemented the intended invariant on an older base, but it never reached main. The current main must port only that bounded logic and regression proof without weakening exact domain/authority drift checks for architecture-bearing projected files.",
     "observableOutcomes": [
-      "The trusted default-branch Release Unit Execution job can dispatch the exact child CI workflow run after bot PR creation.",
-      "The source CI workflow remains read-only and cannot gain write authority.",
-      "Only the trusted executor job receives the minimum GitHub Actions permission required for workflow dispatch.",
-      "The existing exact PR/head/base/branch identity validation and child-proof import remain unchanged and fail closed.",
-      "The unchanged U01 rehearsal proceeds beyond RELEASE_UNIT_CHILD_CI_DISPATCH_FAILED without manual approval, PAT, receipt edit or alternate proof path."
+      "Critical neutral/test-only or knowledge-infrastructure-only projected scopes may declare empty expectedDomains/expectedAuthorities when the canonical architecture projection is empty.",
+      "Any projected architecture-bearing file still requires non-empty expectedDomains/expectedAuthorities.",
+      "Exact projected domain and authority drift comparisons remain unconditional and fail closed.",
+      "The Plan Gate exposes a deterministic architecture-scope self-test covering neutral-only, knowledge-infrastructure-only, product-code and mixed projections.",
+      "The blocked Sentinel plan-isolation branch can subsequently pass Plan Before Code without false metadata."
     ],
     "unresolvedRisks": [
-      "Granting actions: write too broadly could allow unrelated workflow mutation or dispatch from an untrusted execution context.",
-      "Changing repository-wide/default permissions would violate least privilege and expand authority beyond the trusted executor.",
-      "A dispatch permission fix without exact-head identity checks could prove the wrong child commit.",
-      "Using a PAT or user token would bypass the canonical GitHub Actions authority model and create unmanaged credentials."
+      "A broad exemption could let product-code plans omit ownership.",
+      "Neutral classification drift could accidentally suppress required architecture scope.",
+      "Knowledge-infrastructure paths must remain separately classified from product-code paths.",
+      "Porting the old #798 implementation blindly could overwrite newer current-main Plan Gate logic."
     ],
     "scope": {
       "in": [
-        "Raise GitHub Actions permission from read to write only where the trusted Release Unit Execution job needs workflow_dispatch.",
-        "Preserve contents: write and pull-requests: write exactly as currently required by materialization and merge.",
-        "Keep source CI contents read-only and preserve explicit bot child proof dispatch.",
-        "Add regression coverage that the trusted executor has actions: write while source CI retains read-only authority.",
-        "Replay the immutable rehearsal source after exact-head proof and merge."
+        "Port only the neutral architecture-scope prerequisite logic from historical #798 into current main.",
+        "Add/retain the architecture-scope self-test in shoperation-plan-before-code.mjs.",
+        "Add regression coverage in tests/shoperation-change-impact-atlas.test.ts.",
+        "Preserve current-main release decomposition, implementation skeleton, exact-head transaction identity and gate-chain logic."
       ],
       "out": [
-        "No PAT, fine-grained token, GitHub App token or manual workflow dispatch workaround.",
-        "No repository-wide permission relaxation.",
-        "No change to child proof identity matching, release-state receipts, material operations or risk thresholds.",
-        "No Template Factory, Builder, storefront, database, auth, payment or inventory work."
+        "No broad exemption from domain/authority drift checks.",
+        "No changes to Sentinel evaluator semantics.",
+        "No changes to storefront, Builder, database, authentication, payments or deployment behavior.",
+        "No merge or retarget of the old #798 branch itself."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This permission controls whether the trusted release executor may trigger CI proof for code it just materialized. Too little permission deadlocks the release path; too much permission widens automation authority. Least-privilege and exact-context proof are therefore required.",
+      "rationale": "This change alters a canonical planning prerequisite. A false exemption could permit unowned product changes, while the current bug blocks truthful neutral proof-only repairs. Exact boundary behavior must therefore be proven adversarially.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "threat-failure-model",
-        "boundary-cases",
-        "proof-obligation",
-        "adversarial-scenarios",
         "what-if-matrix",
+        "adversarial-scenarios",
+        "boundary-cases",
         "pairwise-interactions",
+        "threat-failure-model",
         "fault-injection",
         "finite-state-exhaustion"
       ],
@@ -110,27 +138,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Release Unit Execution can invoke gh workflow run ci.yml using the repository GITHUB_TOKEN without HTTP 403.",
-        "The execute job declares actions: write and no broader workflow gains Actions write authority.",
-        "CI continues to expose only read permissions for source-side execution and child proof remains exact-head bound.",
-        "Regression proof asserts both the positive executor permission and the negative source-CI permission boundary.",
-        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge.",
-        "After merge, the immutable rehearsal source reaches child proof dispatch and continues beyond the current blocker."
+        "Plan Before Code conditionally requires non-empty expectedDomains/expectedAuthorities only when at least one projected file is architecture-bearing.",
+        "Neutral/test-only projection returns architectureScopeRequired=false.",
+        "Knowledge-infrastructure-only projection returns architectureScopeRequired=false.",
+        "Product-code and mixed projections return architectureScopeRequired=true.",
+        "Exact projectedDomains/expectedDomains and projectedAuthorities/expectedAuthorities comparisons remain unchanged and unconditional.",
+        "Regression tests prove both truthful neutral scope and product-code fail-closed behavior.",
+        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge."
       ],
       "invariants": [
-        "Only the trusted default-branch executor may receive actions: write.",
-        "Source revisions remain data; executor code always comes from main.",
-        "Child proof dispatch inputs remain exact PR/head/base/branch identities.",
-        "No manual approval or alternate proof artifact may substitute for canonical child CI.",
-        "No additional repository permission is granted beyond the minimum required action."
+        "Architecture-bearing projected files may never pass with empty expectedDomains or expectedAuthorities.",
+        "Neutral/test-only proof scope may not be forced to invent false ownership metadata.",
+        "Knowledge-infrastructure-only scope may remain ownership-neutral when the Atlas projection is empty.",
+        "Domain and authority drift detection remains exact.",
+        "Current main logic outside the targeted prerequisite remains unchanged."
       ],
       "forbiddenStates": [
-        "actions-write-on-source-ci",
-        "repository-wide-permission-escalation",
-        "pat-or-user-token-dispatch",
-        "manual-child-proof-bypass",
-        "non-exact-child-proof-dispatch",
-        "duplicate-child-proof-authority"
+        "product-code-empty-ownership-pass",
+        "mixed-scope-empty-ownership-pass",
+        "domain-drift-check-disabled",
+        "authority-drift-check-disabled",
+        "old-branch-wholesale-port",
+        "sentinel-or-release-risk-bypass"
       ]
     },
     "model": {
@@ -162,181 +191,184 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Executor retains actions: read and dispatch continues to fail 403.",
-        "actions: write is granted at repository/workflow scope more broadly than needed.",
-        "Source CI receives write permission and untrusted branch code can dispatch workflows.",
-        "Exact child identity inputs are omitted or altered while changing permissions.",
-        "A credential workaround replaces canonical GITHUB_TOKEN authority."
+        "Neutral projected scope remains unsatisfiable because non-empty ownership is still unconditional.",
+        "Architecture-bearing product scope is accidentally exempted.",
+        "Knowledge-infrastructure classification diverges from unresolved-scope semantics.",
+        "Regression self-test does not exercise mixed architecture-bearing scope.",
+        "Port collides with newer current-main planner logic."
       ],
       "edgeCases": [
-        "Bot-created PR pull_request CI is action_required but explicit workflow_dispatch is allowed.",
-        "Child proof workflow already exists and exact reusable run is found, so no dispatch is needed.",
-        "Dispatch is attempted for an exact same-repository child head.",
-        "Dispatch target branch or head differs and existing validation must reject it.",
-        "Executor retry occurs after an interrupted dispatch attempt.",
-        "Source workflow executes from an untrusted release-execution/source branch and must remain unable to dispatch."
+        "Only tests/proof-only.test.ts is projected.",
+        "Only scripts/shoperation-plan-before-code.mjs is projected.",
+        "Only src/lib/builder/storefront-runtime.ts is projected.",
+        "A neutral test and product runtime file are projected together.",
+        "Projected domains are empty while expected declarations are falsely non-empty.",
+        "Projected domains are non-empty while expected declarations are empty.",
+        "Expected declarations differ from non-empty projected ownership.",
+        "A future neutral-pattern policy change reclassifies the test path."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-JOB-ACTIONS-WRITE",
-        "summary": "Grant actions: write only to the trusted execute job that performs workflow_dispatch.",
+        "id": "ALT-CONDITIONAL-ARCHITECTURE-REQUIREMENT",
+        "summary": "Require non-empty ownership declarations only when projected files include architecture-bearing scope.",
         "disposition": "selected",
-        "reason": "Minimum permission change at the exact authority boundary that performs dispatch."
+        "reason": "Matches truthful Atlas output while preserving exact drift enforcement."
       },
       {
-        "id": "ALT-WORKFLOW-WIDE-ACTIONS-WRITE",
-        "summary": "Grant actions: write to the entire Release Unit Execution workflow.",
+        "id": "ALT-FAKE-OWNERSHIP",
+        "summary": "Invent DOMAIN-QUALITY/quality-knowledge-system for neutral-only transactions.",
         "disposition": "rejected",
-        "reason": "Broader than necessary because only execute needs the capability."
+        "reason": "Would make plan metadata intentionally false."
       },
       {
-        "id": "ALT-PAT-DISPATCH",
-        "summary": "Use a PAT or other user credential for workflow dispatch.",
+        "id": "ALT-DUMMY-ARCHITECTURE-FILE",
+        "summary": "Touch a product or architecture file solely to satisfy the prerequisite.",
         "disposition": "rejected",
-        "reason": "Creates unmanaged credential authority and bypasses the repository GITHUB_TOKEN trust model."
+        "reason": "Would widen material scope and invalidate proof-only intent."
       },
       {
-        "id": "ALT-MANUAL-APPROVAL",
-        "summary": "Require a human to manually start child proof.",
+        "id": "ALT-DISABLE-DRIFT-CHECKS",
+        "summary": "Skip domain/authority checks for critical plans.",
         "disposition": "rejected",
-        "reason": "Breaks resumability, automation and no-manual-bypass requirements."
+        "reason": "Would weaken Control Plane authority guarantees."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Security",
+        "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Actions write can be dangerous if granted to source-controlled or broad workflow contexts.",
-        "resolution": "Grant actions: write only on the trusted default-branch execute job; keep source CI and other jobs read-only.",
+        "finding": "Empty ownership cannot become a general critical-plan bypass.",
+        "resolution": "Gate only the non-empty prerequisite on architecture-bearing projected files while retaining exact drift comparison for every plan.",
         "evidence": [
-          ".github/workflows/release-unit-execution.yml",
-          ".github/workflows/ci.yml"
+          "scripts/shoperation-plan-before-code.mjs",
+          "quality/knowledge/domain-foundations.v1.json"
         ]
       },
       {
-        "role": "Release",
+        "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The current runtime already dispatches exact child proof; the 403 is purely missing token permission.",
-        "resolution": "Preserve runtime identity logic and repair only the workflow permission envelope.",
+        "finding": "The contradiction is deterministic when canonical projected ownership is empty but the declaration prerequisite is unconditional.",
+        "resolution": "Reuse the same neutral and knowledge-infrastructure classification already trusted by unresolved-scope logic.",
         "evidence": [
-          "run:37615831101",
-          "RELEASE_UNIT_CHILD_CI_DISPATCH_FAILED"
-        ]
-      },
-      {
-        "role": "Architecture",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Dispatch authority belongs to the trusted executor, not the source workflow.",
-        "resolution": "Keep main checkout/executor trust boundary unchanged and modify only the executor job permission.",
-        "evidence": [
-          ".github/workflows/release-unit-execution.yml"
+          "scripts/lib/shoperation-development-runtime.mjs",
+          "quality/knowledge/knowledge-scope-policy.v1.json"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Run #152 is a deterministic production-like reproduction of the permission failure.",
-        "resolution": "Add regression asserting actions: write at executor job and actions: read/no-write for CI.",
+        "finding": "The live Sentinel repair reproduced the old #798 prerequisite gap on current main.",
+        "resolution": "Port the already-proven invariant as a bounded current-main fix and keep the historical branch untouched.",
         "evidence": [
-          "run:37615831101"
+          "CI #9056",
+          "PR #798"
+        ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The gate fix is a prerequisite and must not be mixed with the downstream Sentinel test-isolation material change.",
+        "resolution": "Merge this Control Plane repair first, then rebase/reproject the Sentinel repair from fresh main.",
+        "evidence": [
+          "fix/sentinel-integrity-probe-plan-isolation-v1",
+          "main 6c8006ce653f122c1166725f70e4738dd2d7249a"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-DISP-01",
-        "scenario": "The trusted executor creates a child PR and needs to dispatch CI proof.",
-        "finding": "actions: read cannot create workflow_dispatch and GitHub returns 403.",
-        "resolution": "Grant actions: write on execute job.",
+        "id": "CH-NEUTRAL-01",
+        "scenario": "Critical plan projects only a neutral test file.",
+        "finding": "Canonical domains/authorities are empty; unconditional non-empty prerequisite is unsatisfiable.",
+        "resolution": "architectureScopeRequired=false; allow empty declarations but still compare exact arrays.",
         "status": "resolved"
       },
       {
-        "id": "CH-DISP-02",
-        "scenario": "An untrusted source branch runs source CI.",
-        "finding": "If source CI had actions: write, branch-controlled code could gain workflow-dispatch authority.",
-        "resolution": "Keep source CI permissions read-only and regression-test the negative boundary.",
+        "id": "CH-NEUTRAL-02",
+        "scenario": "Critical plan projects only a knowledge-infrastructure planner script.",
+        "finding": "Ownership may be empty by the same scope policy used by unresolved-scope logic.",
+        "resolution": "Treat knowledge-infrastructure as non-architecture-bearing for the prerequisite.",
         "status": "resolved"
       },
       {
-        "id": "CH-DISP-03",
-        "scenario": "The exact child proof run already exists after an interrupted executor attempt.",
-        "finding": "A second dispatch is unnecessary and could duplicate proof runs.",
-        "resolution": "Keep ensureExactChildProofDispatch reuse-first behavior unchanged.",
+        "id": "CH-NEUTRAL-03",
+        "scenario": "Critical plan projects product runtime code.",
+        "finding": "Empty ownership would be unsafe.",
+        "resolution": "architectureScopeRequired=true and non-empty declarations remain mandatory.",
         "status": "resolved"
       },
       {
-        "id": "CH-DISP-04",
-        "scenario": "A wrong child head/base/branch is supplied to dispatch.",
-        "finding": "Permission repair must not relax identity validation.",
-        "resolution": "Do not change release-unit-ci-context or runtime identity checks; prove existing exact matching remains referenced.",
+        "id": "CH-NEUTRAL-04",
+        "scenario": "Projection mixes neutral test and product code.",
+        "finding": "Neutral content must not suppress product ownership.",
+        "resolution": "Use files.some(isArchitectureBearingProjectedFile), so any product file requires ownership.",
         "status": "resolved"
       },
       {
-        "id": "CH-DISP-05",
-        "scenario": "A maintainer suggests repository-wide Actions write or PAT as a shortcut.",
-        "finding": "Both widen authority beyond the requirement.",
-        "resolution": "Reject both; job-local GITHUB_TOKEN permission is the only selected path.",
+        "id": "CH-NEUTRAL-05",
+        "scenario": "Expected ownership is non-empty but canonical projected ownership is empty.",
+        "finding": "False metadata must still fail.",
+        "resolution": "Keep exact DOMAIN_SCOPE_DRIFT and AUTHORITY_SCOPE_DRIFT comparisons unconditional.",
         "status": "resolved"
       },
       {
-        "id": "CH-DISP-06",
-        "scenario": "workflow-level permissions remain actions: read while job-level execute requests actions: write.",
-        "finding": "GitHub job-level permissions are the effective token permissions for the job and may override workflow defaults; this is the narrowest authority boundary.",
-        "resolution": "Set actions: write only under jobs.execute.permissions and retain workflow default actions: read.",
+        "id": "CH-NEUTRAL-06",
+        "scenario": "Expected ownership is empty but canonical product ownership is non-empty.",
+        "finding": "A conditional prerequisite alone is insufficient.",
+        "resolution": "Exact drift comparison still blocks the mismatch.",
         "status": "resolved"
       },
       {
-        "id": "CH-DISP-07",
-        "scenario": "The executor receives actions: write, but only after a child PR already has a terminal action_required pull_request run.",
-        "finding": "The permission fix must not treat the old action_required pull_request run as success or proof; it must dispatch or reuse an exact trusted workflow_dispatch run and keep terminal non-success fail-closed.",
-        "resolution": "Preserve current classifyExactChildCiRuns and ensureExactChildProofDispatch semantics; the permission change only enables the trusted dispatch call.",
+        "id": "CH-NEUTRAL-07",
+        "scenario": "Neutral pattern policy changes later.",
+        "finding": "Hard-coded filename exceptions would silently rot.",
+        "resolution": "Reuse isNeutralFile and scopePolicy.knowledgeInfrastructurePrefixes rather than hard-coded current paths.",
         "status": "resolved"
       },
       {
-        "id": "CH-DISP-08",
-        "scenario": "The trusted executor is retried after workflow_dispatch succeeded remotely but the executor failed before persisting the resulting child-proof state.",
-        "finding": "A retry with actions: write must not blindly create duplicate proof runs or expand authority because of the previous partial execution.",
-        "resolution": "Keep reuse-first lookup of exact workflow_dispatch runs by child head and branch before issuing a new dispatch, and regression-prove no permission change alters that idempotency path.",
+        "id": "CH-NEUTRAL-08",
+        "scenario": "Historical #798 code is applied wholesale to current main.",
+        "finding": "Newer planner logic could be lost.",
+        "resolution": "Port only helper/self-test/conditional prerequisite lines plus regression assertions.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS before implementation.",
-      "Change only the execute job Actions permission from read to write in release-unit-execution.yml.",
-      "Add production-surface regression that executor job has actions: write and CI/source paths do not.",
+      "Commit this plan only and require current-main Plan Before Code PASS before implementation.",
+      "Port the minimal #798 neutral-scope helper and conditional prerequisite into current scripts/shoperation-plan-before-code.mjs.",
+      "Add the historical regression assertion pattern to current tests/shoperation-change-impact-atlas.test.ts without overwriting newer tests.",
       "Require exact-head Knowledge/Plan/Edit-Time/Incremental Replay/Release Risk/full tests/typecheck/build/Completion Truth/Lifecycle PASS.",
-      "Merge only on exact-head proof, then replay the same immutable rehearsal source and follow U01 child proof dispatch."
+      "Merge only after exact PR-head proof, then resume the Sentinel plan-isolation repair from fresh main."
     ],
     "semanticExecutionRoute": {
-      "request": "SQ-CAND-RELEASE-UNIT-CHILD-PROOF-DISPATCH-PERMISSION-V1",
+      "request": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
       "authority": [
-        "release-infrastructure"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        ".github/workflows/release-unit-execution.yml"
+        "scripts/shoperation-plan-before-code.mjs"
       ],
       "mayEdit": [
-        "tests/control-plane-release-unit-production-surface.test.ts"
+        "tests/shoperation-change-impact-atlas.test.ts"
       ],
       "impactedReadOnly": [
-        "scripts/release-unit-github-runtime.mjs",
-        ".github/workflows/ci.yml",
-        "scripts/release-unit-ci-context.mjs",
-        "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
+        "scripts/lib/shoperation-development-runtime.mjs",
+        "quality/knowledge/domain-foundations.v1.json",
+        "quality/knowledge/knowledge-scope-policy.v1.json",
+        "deploy/release-risk-policy.json"
       ],
       "mustCreate": [],
       "forbidden": [
-        "deploy/**",
         "src/**",
         "supabase/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-production-surface.test.ts"
+        "tests/shoperation-change-impact-atlas.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -347,7 +379,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-CHILD-PROOF-DISPATCH-PERMISSION-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -365,19 +397,16 @@
     },
     "requirements": [
       {
-        "id": "REQ-CHILD-PROOF-DISPATCH-PERMISSION-QUALITY",
-        "requirement": "Trusted release execution must be able to dispatch exact child CI proof while untrusted/source CI retains no Actions write authority.",
+        "id": "REQ-NEUTRAL-CRITICAL-PLAN-TRUTHFUL-SCOPE",
+        "requirement": "Critical proof-only plans with exclusively neutral or knowledge-infrastructure projections can truthfully use empty domain/authority declarations without bypassing exact scope drift checks.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-child-proof-dispatch-authority",
+          "breadth": "plan-before-code-neutral-critical-scope",
           "strength": 2,
           "dimensions": [
-            "scope",
-            "positive-state",
-            "forbidden-state",
-            "transaction-identity",
             "behavioral-proof",
-            "lifecycle"
+            "scope",
+            "limitations"
           ]
         },
         "requiredCapabilities": [
@@ -385,73 +414,34 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-EDIT-TIME"
+            "GUARD-QUALITY-TESTS",
+            "GUARD-TYPECHECK"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-QUALITY-TESTS",
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SOURCE-CI-ACTIONS-WRITE",
-            "statement": "Source CI may not gain Actions write authority.",
+            "id": "NEG-PRODUCT-EMPTY-OWNERSHIP",
+            "statement": "Architecture-bearing critical plans cannot pass with empty expectedDomains/expectedAuthorities.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-CHILD-PROOF-IDENTITY-BYPASS",
-            "statement": "Permission repair may not weaken exact child proof identity binding.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-CHILD-PROOF-DISPATCH-PERMISSION-RELEASE",
-        "requirement": "The permission change must preserve trusted default-branch execution, exact current main authority and canonical Release Risk.",
-        "claimScope": {
-          "capability": "CAP-RELEASE",
-          "breadth": "release-unit-child-proof-dispatch-release-integrity",
-          "strength": 2,
-          "dimensions": [
-            "risk",
-            "release-scope"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-RELEASE"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-RELEASE-RISK"
-          ],
-          "outcome": [
-            "GUARD-RELEASE-RISK"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-BROAD-ACTIONS-AUTHORITY",
-            "statement": "Actions write may not be granted outside the trusted executor job.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-RELEASE-RISK"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Plan-only transaction created from live Release Unit Execution #152 on main ead5039f1711b4b52a1394bac530a9f3ca1ad5be. Exact blocker: RELEASE_UNIT_CHILD_CI_DISPATCH_FAILED with HTTP 403 Resource not accessible by integration while gh workflow run ci.yml attempted dispatch for U01 child head be5f2b43a2ac35df25120826b83bd50217afb661. Workflow currently has actions: read at workflow and execute-job scope. No permission implementation is authorized until Plan Before Code passes. Plan gate CI #9046 / run 37619886067 required canonical guardDigest 128614ad, critical assurance techniques fault-injection and finite-state-exhaustion, and adversarial challenge depth >= 8. This revision adopts those canonical requirements without changing implementation scope.",
+  "notes": "Current-main port of the bounded invariant previously proven on historical draft PR #798. Live need reproduced by Sentinel plan-isolation CI #9056: projected neutral test scope has canonical projectedDomains=[] and projectedAuthorities=[], but current main unconditionally emits DEV_PLAN_EXPECTED_DOMAINS_REQUIRED and DEV_PLAN_EXPECTED_AUTHORITIES_REQUIRED. This prerequisite fix remains separate from the downstream Sentinel test-isolation implementation.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "fdcd82b5213e2dd391e01d373e62a9063acd271b",
-    "closedAt": "2026-10-07T12:26:54.255Z",
+    "verifiedImplementationHead": "52a509201137b76ebbdd91c7bc3e4ca492b1d214",
+    "closedAt": "2026-10-07T13:42:00.305Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-CHILD-PROOF-DISPATCH-PERMISSION-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
