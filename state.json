@@ -2720,7 +2720,7 @@
       "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
       "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
       "order": 3,
-      "state": "PR_OPEN",
+      "state": "STALE",
       "manifest": {
         "contract": "shoporation.release-unit-manifest.v1",
         "transaction": {
@@ -3588,14 +3588,31 @@
       "verification": null,
       "merge": null,
       "closeReceipt": null,
-      "blocker": null,
+      "blocker": {
+        "code": "RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED",
+        "details": {
+          "runId": 37659774022,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "action_required"
+        }
+      },
       "lastTransition": {
-        "to": "PR_OPEN",
-        "code": "RELEASE_UNIT_PR_OPEN"
+        "to": "STALE",
+        "code": "RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED"
       }
     }
   ],
-  "blocker": null,
+  "blocker": {
+    "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
+    "code": "RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED",
+    "details": {
+      "runId": 37659774022,
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "action_required"
+    }
+  },
   "closureEligible": false,
   "closureComplete": false,
   "closedReceipt": null,
