@@ -1,6 +1,6 @@
 // @ts-nocheck
 import {describe,expect,it} from 'vitest';
-import {applyReleaseUnitEvent,createReleaseParentExecution,recordReleaseParentClosure} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
+import {applyReleaseUnitEvent,createReleaseParentExecution,recordReleaseParentClosure,reprojectReleaseUnitChildTransaction} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 
 const sha=char=>char.repeat(40);
 const A=sha('a'),B=sha('b'),C=sha('c'),D=sha('d'),X=sha('e');
@@ -49,6 +49,58 @@ function complete(p:any,id:string,manifest:any,base:string,head:string,merged:st
 }
 
 describe('Control Plane release-unit orchestration',()=>{
+  it('0a. binds canonical fallback proof to route and required evidence without widening material scope',()=>{
+    const before=manifests()[0];
+    const intended=structuredClone(before.intendedFiles),operations=structuredClone(before.operations);
+    const proof=['tests/control-plane-known-failure-a.test.ts','tests/control-plane-known-failure-b.test.ts'];
+    const projection={
+      contract:'shoporation.release-unit-child-plan-projection.v1',
+      guardDigest:'fresh-guard',
+      expectedSubsystems:['release-infrastructure'],
+      expectedDomains:['DOMAIN-RELEASE'],
+      expectedAuthorities:['release-infrastructure'],
+      expectedKnownFailureIds:['SQ-KF-001'],
+      acknowledgedPoInstructionIds:[],
+      acknowledgedNegativeKnowledgeIds:[],
+      requiredEvidenceProofFiles:proof,
+      requiredGates:['GUARD-PLAN-BEFORE-CODE','GUARD-QUALITY-TESTS'],
+      externalGateIds:[],
+      semanticExecutionRoute:{
+        request:'PO-ORCH',authority:['release-infrastructure'],mustEdit:['scripts/unit-1.mjs'],mayEdit:[],impactedReadOnly:[],
+        mustCreate:[],forbidden:[],proof,unknown:[],plannedDeletions:[],plannedRenames:[],generatedArtifacts:[],
+      },
+    };
+    const after=reprojectReleaseUnitChildTransaction(before,projection);
+    expect(after.requiredEvidence.proofFiles).toEqual(proof);
+    expect(after.childDevelopmentTransaction.plan.operationalIntelligence.semanticExecutionRoute.proof).toEqual(proof);
+    expect(after.intendedFiles).toEqual(intended);
+    expect(after.operations).toEqual(operations);
+    expect(after.childDevelopmentTransaction.planDigest).not.toBe(before.childDevelopmentTransaction.planDigest);
+    expect(after.childDevelopmentTransaction.bindingDigest).not.toBe(before.childDevelopmentTransaction.bindingDigest);
+  });
+
+  it('0b. fails closed when projected route proof and manifest proof identity disagree',()=>{
+    const before=manifests()[0];
+    const projection={
+      contract:'shoporation.release-unit-child-plan-projection.v1',
+      guardDigest:'fresh-guard',
+      expectedSubsystems:['release-infrastructure'],
+      expectedDomains:['DOMAIN-RELEASE'],
+      expectedAuthorities:['release-infrastructure'],
+      expectedKnownFailureIds:['SQ-KF-001'],
+      acknowledgedPoInstructionIds:[],
+      acknowledgedNegativeKnowledgeIds:[],
+      requiredEvidenceProofFiles:['tests/a.test.ts'],
+      requiredGates:['GUARD-QUALITY-TESTS'],
+      externalGateIds:[],
+      semanticExecutionRoute:{
+        request:'PO-ORCH',authority:['release-infrastructure'],mustEdit:['scripts/unit-1.mjs'],mayEdit:[],impactedReadOnly:[],
+        mustCreate:[],forbidden:[],proof:['tests/b.test.ts'],unknown:[],plannedDeletions:[],plannedRenames:[],generatedArtifacts:[],
+      },
+    };
+    expect(()=>reprojectReleaseUnitChildTransaction(before,projection)).toThrow(/PROJECTION_PROOF_DRIFT/);
+  });
+
   it('1. executes three release units in order and closes the parent only through existing Truth/Lifecycle receipts',()=>{
     let p=parent();const [u1,u2,u3]=p.units.map((x:any)=>x.manifest);
     p=complete(p,u1.releaseUnitId,u1,A,sha('1'),B,1);expect(p.activeUnitId).toBe(u2.releaseUnitId);expect(p.closureEligible).toBe(false);
