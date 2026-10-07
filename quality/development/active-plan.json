@@ -12,7 +12,6 @@
     "quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -141,7 +140,8 @@
         "what-if-matrix",
         "pairwise-interactions",
         "threat-failure-model",
-        "fault-injection"
+        "fault-injection",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
@@ -248,10 +248,10 @@
         "reason": "Would delete substantial later production-surface test evolution."
       },
       {
-        "id": "ALT-CHILD-PR-MANUAL-REPAIR",
-        "summary": "Edit PR #1074 directly.",
+        "id": "ALT-RUNTIME-FUZZY-MERGE",
+        "summary": "Teach the trusted release-unit runtime to synthesize a semantic/fuzzy merge between immutable source and current main for this conflict.",
         "disposition": "rejected",
-        "reason": "Breaks deterministic release-unit materialization and resumable proof."
+        "reason": "Would move semantic code-authoring authority into release infrastructure, make the result non-reviewable before materialization, and reintroduce the exact auto-merge class PR #1096 intentionally forbids."
       }
     ],
     "specialistReviews": [
@@ -486,5 +486,5 @@
       }
     ]
   },
-  "notes": "Live exact conflict identity from Release Unit Execution #225: releaseUnitId DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03; file tests/control-plane-release-unit-production-surface.test.ts; sourceParent b79f8805d9718961a5cb41d4babaf11fd85dda5a; sourceCommit 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; sourcePatchDigest 1569812908caffa0f770724401c4db6973f98ae963353806cade53690cb5446d; targetBaseSha 6c897234b6c890f8ee38f86c08dc86f7b9f68fa2; old targetBlobSha 48548e4838cd2bdfeb0fe66876af771843282978; targetFileMode 100644; deterministic receipt path quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json."
+  "notes": "Live exact conflict identity from Release Unit Execution #225: releaseUnitId DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03; file tests/control-plane-release-unit-production-surface.test.ts; sourceParent b79f8805d9718961a5cb41d4babaf11fd85dda5a; sourceCommit 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; sourcePatchDigest 1569812908caffa0f770724401c4db6973f98ae963353806cade53690cb5446d; targetBaseSha 6c897234b6c890f8ee38f86c08dc86f7b9f68fa2; old targetBlobSha 48548e4838cd2bdfeb0fe66876af771843282978; targetFileMode 100644; deterministic receipt path quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json. Plan Gate #9120 canonicalized expectedSubsystems to release-infrastructure, required finite-state-exhaustion for critical assurance, and rejected the prior manual-child-repair alternative as non-distinct. This revision adopts those exact planner outputs without changing the selected resolution design."
 }
