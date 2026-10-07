@@ -745,7 +745,8 @@ const normalizedExactCreateIdentity=value=>({
 });
 export function validateReleaseUnitMainAdvanceProof(proof,{fromSha,toSha,manifest}={}){
   const changedFiles=uniq(proof?.changedFiles??[]);
-  const identities=Array.isArray(proof?.exactCreateOverlapIdentities)
+  const hasExactCreateProof=Array.isArray(proof?.exactCreateOverlapFiles)&&Array.isArray(proof?.exactCreateOverlapIdentities);
+  const identities=hasExactCreateProof
     ?proof.exactCreateOverlapIdentities.map(normalizedExactCreateIdentity).sort((a,b)=>a.file.localeCompare(b.file))
     :null;
   const identityFiles=identities?identities.map(item=>item.file):[];
@@ -762,18 +763,26 @@ export function validateReleaseUnitMainAdvanceProof(proof,{fromSha,toSha,manifes
     });
   const exactCreateFiles=identitiesValid?uniq(identityFiles):[];
   const expected=classifyReleaseUnitMainAdvanceOverlap(manifest,changedFiles,exactCreateFiles);
-  const categorizedProof=Array.isArray(proof?.dependencyOverlapFiles)
+  const legacyExpected=classifyReleaseUnitMainAdvanceOverlap(manifest,changedFiles,[]);
+  const legacyCategorized=Array.isArray(proof?.dependencyOverlapFiles)
     &&Array.isArray(proof?.modifyOverlapFiles)
-    &&Array.isArray(proof?.exactCreateOverlapFiles)
-    &&Array.isArray(proof?.exactCreateOverlapIdentities)
     &&Array.isArray(proof?.unsafeOverlapFiles);
-  const categoryMatch=categorizedProof&&identitiesValid
-    ? sameJson(uniq(proof.dependencyOverlapFiles),expected.dependencyOverlapFiles)
-      &&sameJson(uniq(proof.modifyOverlapFiles),expected.modifyOverlapFiles)
-      &&sameJson(uniq(proof.exactCreateOverlapFiles),expected.exactCreateOverlapFiles)
-      &&sameJson(uniq(proof.exactCreateOverlapFiles),exactCreateFiles)
-      &&sameJson(uniq(proof.unsafeOverlapFiles),expected.unsafeOverlapFiles)
-    : false;
+  const exactCategoryMatch=hasExactCreateProof&&legacyCategorized&&identitiesValid
+    &&sameJson(uniq(proof.dependencyOverlapFiles),expected.dependencyOverlapFiles)
+    &&sameJson(uniq(proof.modifyOverlapFiles),expected.modifyOverlapFiles)
+    &&sameJson(uniq(proof.exactCreateOverlapFiles),expected.exactCreateOverlapFiles)
+    &&sameJson(uniq(proof.exactCreateOverlapFiles),exactCreateFiles)
+    &&sameJson(uniq(proof.unsafeOverlapFiles),expected.unsafeOverlapFiles);
+  const legacyCategoryMatch=!hasExactCreateProof&&(
+    legacyCategorized
+      ?sameJson(uniq(proof.dependencyOverlapFiles),legacyExpected.dependencyOverlapFiles)
+        &&sameJson(uniq(proof.modifyOverlapFiles),legacyExpected.modifyOverlapFiles)
+        &&sameJson(uniq(proof.unsafeOverlapFiles),legacyExpected.unsafeOverlapFiles)
+        &&legacyExpected.unsafeOverlapFiles.length===0
+      :legacyExpected.overlapFiles.length===0
+  );
+  const categoryMatch=exactCategoryMatch||legacyCategoryMatch;
+  const effectiveExpected=hasExactCreateProof?expected:legacyExpected;
   return proof?.contract===RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT
     &&proof?.issuer==='release-unit-github-runtime'
     &&proof?.decision==='PASS'
@@ -783,10 +792,10 @@ export function validateReleaseUnitMainAdvanceProof(proof,{fromSha,toSha,manifes
     &&Array.isArray(proof?.changedFiles)
     &&Array.isArray(proof?.scopeFiles)
     &&Array.isArray(proof?.overlapFiles)
-    &&sameJson(uniq(proof.scopeFiles),expected.scopeFiles)
-    &&sameJson(uniq(proof.overlapFiles),expected.overlapFiles)
+    &&sameJson(uniq(proof.scopeFiles),effectiveExpected.scopeFiles)
+    &&sameJson(uniq(proof.overlapFiles),effectiveExpected.overlapFiles)
     &&categoryMatch
-    &&expected.unsafeOverlapFiles.length===0;
+    &&effectiveExpected.unsafeOverlapFiles.length===0;
 }
 const requiredText=(value,code)=>{const normalized=String(value??'').trim();if(!normalized)throw new Error(code);return normalized;};
 const executionError=(code,details={})=>{const error=new Error(code);error.code=code;error.details=details;throw error;};
