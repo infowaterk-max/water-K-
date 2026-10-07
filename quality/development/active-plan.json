@@ -16,12 +16,10 @@
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -352,8 +350,7 @@
     "semanticExecutionRoute": {
       "request": "SQ-CAND-RELEASE-UNIT-PROOF-FALLBACK-V1",
       "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
         "scripts/shoperation-plan-before-code.mjs",
@@ -449,5 +446,5 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #1010 after replay job 112662284959. Plan-only; no implementation until Plan Before Code approves the projected scope. Plan projection 37582641708 reconciled full Known Failure applicability, current negative-knowledge applicability, and canonical guard digest a41cfd0c. Plan-only projection 37582641708 reconciled all 49 Known Failures, 13 applicable negative-knowledge rules, and canonical guard digest a41cfd0c; no implementation-scope drift was reported. Edit-Time guard on afdc6bf6 proved release-unit-github-runtime.mjs was over-declared as MUST_EDIT; this reconciliation removes it from material plan scope and retains it only as impacted read-only context."
+  "notes": "Created from live Failure Intake #1010 after replay job 112662284959. Plan-only; no implementation until Plan Before Code approves the projected scope. Plan projection 37582641708 reconciled full Known Failure applicability, current negative-knowledge applicability, and canonical guard digest a41cfd0c. Plan-only projection 37582641708 reconciled all 49 Known Failures, 13 applicable negative-knowledge rules, and canonical guard digest a41cfd0c; no implementation-scope drift was reported. Edit-Time guard on afdc6bf6 proved release-unit-github-runtime.mjs was over-declared as MUST_EDIT; this reconciliation removes it from material plan scope and retains it only as impacted read-only context. Plan projection 37583336524 after removing the over-declared GitHub runtime reconciled direct architecture scope to DOMAIN-QUALITY / quality-knowledge-system only."
 }
