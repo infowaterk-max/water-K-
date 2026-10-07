@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
   "task": "Make trusted release-unit execution resumable when an earlier attempt already pushed the exact child materialization branch but failed before PR/state persistence, reusing only a provably equivalent remote materialization and failing closed on drift.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "128614ad",
   "changeBaseSha": "199f21f274524a7b3688f50e09d2d0e3039f86c8",
   "plannedFilePatterns": [
@@ -390,5 +390,18 @@
       }
     ]
   },
-  "notes": "Created from live rehearsal Failure Intake #988 after trusted executor rerun job 112621423551 proved a missing resumability edge: U01 branch af0365ec... already existed, but the driver generated fb11f556... and attempted a non-fast-forward push. Fix is deliberately narrow: exact remote reuse after base/tree/message proof, otherwise fail closed."
+  "notes": "Created from live rehearsal Failure Intake #988 after trusted executor rerun job 112621423551 proved a missing resumability edge: U01 branch af0365ec... already existed, but the driver generated fb11f556... and attempted a non-fast-forward push. Fix is deliberately narrow: exact remote reuse after base/tree/message proof, otherwise fail closed.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "a673c04fb8d1d8ec469fc25a97ed25051804f834",
+    "closedAt": "2026-10-07T04:01:37.276Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-RESUME-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
