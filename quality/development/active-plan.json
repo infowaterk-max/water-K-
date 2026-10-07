@@ -1,16 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-SEALED-OBLIGATION-PROVENANCE-V1",
-  "task": "Preserve sealed release-unit source provenance across trusted fresh reevaluation so canonical material obligation comparison stays stable without weakening real drift detection.",
-  "status": "closed",
-  "guardDigest": "128614ad",
-  "changeBaseSha": "95b0e429e5e7d23b361fa3644f0899e07b6e7ac0",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-PRIOR-SUPERSESSION-RESUME-V1",
+  "task": "Make release-unit materialization resumable when persisted execution already points at a canonical superseding branch and main advances again.",
+  "status": "ready-for-implementation",
+  "guardDigest": "7c31a9e4",
+  "changeBaseSha": "72154b099c5fd1e3fc9f57bf9410b11f7f05fcb2",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/release-unit-github-runtime.mjs",
-    "tests/control-plane-release-unit-production-surface.test.ts",
-    "tests/control-plane-release-unit-execution-binding.test.ts",
-    "tests/control-plane-release-unit-orchestration.test.ts"
+    "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
@@ -61,41 +59,44 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-SEALED-OBLIGATION-PROVENANCE-V1",
+    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-PRIOR-SUPERSESSION-RESUME-V1",
     "riskTier": "critical",
-    "problemStatement": "Live bounded rehearsal persisted U01 as STALE with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT after bot-PR CI dispatch was fixed and main advanced to 95b0e429e5e7d23b361fa3644f0899e07b6e7ac0. The fresh reevaluation projects the same twelve create operations but scripts/release-unit-github-runtime.mjs deliberately deletes operation.source and returns an unsealed fresh manifest. The persisted manifest is sealed to source commit 65e52ffd1fd32f14353467eb7c52b2e06ba1be65, so canonical comparison sees false material operations drift and a different childOperationDigest even though file scope and operation kinds are unchanged.",
+    "problemStatement": "Live bounded rehearsal replay on trusted Release Unit Execution #144 (run 37609591473) failed after all source gates passed with RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH. Persisted U01 already records branchRef release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-a96074891ce8-ab2e09fcc439a199. Fresh AUTHORIZE reprojects executionTransaction and resets branchRef to the root canonical release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01. reconcileMaterializationBranch then inspects/compares the root branch while requiring priorExecution.branchRef to equal it, so a valid previously superseded lineage cannot be resumed when main advances again.",
     "observableOutcomes": [
-      "Trusted fresh reevaluation returns a manifest sealed to the exact persisted execution source commit before AUTHORIZE obligation comparison.",
-      "For unchanged operations, sealed source provenance (mode, source commit, blob SHA and file mode) is reproduced deterministically and childOperationDigest remains stable.",
-      "Real material operation drift, source blob drift, dependency drift, forbidden/read-only drift and risk BLOCK remain fail-closed.",
-      "Reprojectable child-plan/governance evidence may still refresh only through the trusted two-pass reevaluation path.",
-      "The persisted U01 rehearsal can resume from STALE without manual state edits, receipt fabrication, branch rebasing or gate bypass."
+      "A persisted STALE release unit whose executionTransaction.branchRef is a previously validated superseding branch can be resumed without editing persisted state.",
+      "The runtime validates the actual persisted prior branch against the prior manifest before allowing any further supersession.",
+      "The next branch remains deterministic from the stable root canonical branch plus fresh target-base/binding identity rather than recursively growing supersede suffixes.",
+      "An existing exact next superseding branch is reused idempotently; no duplicate branch, PR or merge is produced.",
+      "Missing, noncanonical, moved, wrong-tree, wrong-base or wrong-identity prior branches remain fail-closed with direct machine-readable errors.",
+      "The unchanged U01 rehearsal proceeds beyond RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH after merge."
     ],
     "unresolvedRisks": [
-      "Normalizing provenance away from drift comparison would weaken tamper detection and is therefore not acceptable.",
-      "Resealing against current main rather than the immutable release execution source would bind the wrong content identity.",
-      "Double sealing must remain deterministic and must not alter already correct source provenance.",
-      "Generated/regenerate and delete operation provenance semantics must remain unchanged.",
-      "The repair must not authorize a stale child when the source blob no longer matches the sealed source commit."
+      "Trusting persisted branchRef without reconstructing and validating the prior materialization could authorize foreign branch state.",
+      "Using the prior superseding branch as the naming root could create unbounded nested supersede branch names and unstable identities.",
+      "Inspecting only the root canonical branch can confuse older materialization with the persisted branch actually referenced by state.",
+      "Retry logic must not force-push, delete or mutate an existing branch.",
+      "executionTransaction supersedes metadata must identify the branch actually superseded, not merely the root canonical branch."
     ],
     "scope": {
       "in": [
-        "Reseal the trusted fresh reevaluation manifest against the exact release execution sourceCommit before it is returned for AUTHORIZE comparison.",
-        "Preserve existing source deletion during intermediate semantic projection if needed, but restore canonical sealed provenance before material obligation classification.",
-        "Add regressions proving unchanged sealed operations remain equal after fresh reevaluation and real material/source drift still blocks.",
-        "Replay the live persisted U01 state after merge."
+        "Separate the stable canonical naming root from the persisted prior materialization branch during reconciliation.",
+        "Inspect and validate priorExecution.executionTransaction.branchRef when it differs from the root canonical branch.",
+        "Derive the next deterministic superseding branch from the stable canonical root and fresh manifest identity.",
+        "Preserve the actual prior branch in supersedes receipts/transaction metadata.",
+        "Add adversarial regression coverage for supersede-of-supersede resume and fail-closed prior-branch drift.",
+        "Replay the same immutable rehearsal source after merge."
       ],
       "out": [
-        "No removal of source provenance from canonical obligation identity.",
-        "No addition of source fields to REPROJECTABLE_OBLIGATION_FIELDS.",
-        "No threshold, risk, Truth, lifecycle or drift-gate relaxation.",
-        "No manual modification of control-plane/release-state branches or child PR receipts.",
-        "No storefront, Builder, Template Factory, database, auth, payment or inventory changes."
+        "No manual edit of control-plane/release-state branches.",
+        "No force push, branch deletion, PR rebasing or receipt fabrication.",
+        "No relaxation of remote branch base/tree/message/binding validation.",
+        "No change to release-unit material intent, source provenance or risk thresholds.",
+        "No Template Factory, Builder, storefront, database, auth, payment or inventory work."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "The defect sits in the trusted release executor between fresh semantic reprojection and material authorization. A false PASS could merge altered material, while a false STALE blocks resumability; exact provenance and fail-closed drift semantics therefore require critical-practical proof.",
+      "rationale": "This path decides whether a persisted child release branch is trusted and whether a successor materialization may be created. A false PASS could merge foreign code; a false BLOCK breaks resumability, so branch lineage and identity require critical-practical proof.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -113,26 +114,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "A fresh reevaluation of a sealed release unit with unchanged operations produces equivalent normalized material operations including source provenance.",
-        "The refreshed childOperationDigest equals the persisted digest when material operations and immutable source are unchanged.",
-        "Trusted governance/child-plan reprojection may change allowed reprojectable fields without creating false material drift.",
-        "Changing operation kind, file, source commit, blob SHA or file mode remains material drift and blocks authorization.",
-        "prepareActiveUnit can move the live U01 from STALE to READY/materialization using current main without manually rewriting persisted state.",
-        "Exact-head CI, Completion Truth and Lifecycle close before merge, followed by unchanged rehearsal replay."
+        "When priorExecution.branchRef already names a canonical superseding branch, reconciliation validates that exact remote against the prior manifest instead of rejecting it solely because it differs from the root canonical branch.",
+        "The next superseding branch is derived from the stable root canonical branch and fresh targetBaseSha/bindingDigest.",
+        "The supersedes receipt records the actual persisted prior branch and head.",
+        "Retrying against an already-created exact next superseding branch reuses it without push.",
+        "A missing or noncanonical persisted prior branch fails closed and does not silently push fresh materialization over another identity.",
+        "Existing first-supersession behavior remains unchanged.",
+        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge, then the immutable rehearsal source is replayed."
       ],
       "invariants": [
-        "Sealed source provenance is execution identity, not disposable presentation metadata.",
-        "Fresh reevaluation must bind to executionSourceCommit/sourceCommit, never current-main content.",
-        "Material drift classification remains fail-closed.",
-        "Only trusted fresh projection may refresh reprojectable governance/evidence fields.",
-        "Persisted CAS state remains the sole release execution state authority."
+        "Persisted release-state remains the authority for which prior materialization branch must be validated.",
+        "The root canonical branch remains the deterministic naming root for future supersessions.",
+        "Remote branch base, tree, commit message, manifest and binding identity remain fail-closed.",
+        "No existing branch is force-updated or deleted.",
+        "A retry must not create duplicate PRs or merges."
       ],
       "forbiddenStates": [
-        "unsealed-fresh-manifest-compared-to-sealed-persisted-manifest",
-        "source-provenance-ignored-as-reprojectable",
-        "fresh-manifest-sealed-from-current-main",
-        "changed-source-blob-authorized-as-unchanged",
-        "manual-release-state-edit-to-resume-u01"
+        "persisted-superseding-branch-rejected-only-because-authorize-reset-branchref",
+        "unvalidated-prior-superseding-branch-trusted",
+        "recursive-supersede-name-growth",
+        "force-pushed-release-unit-branch",
+        "manual-release-state-rewrite",
+        "duplicate-child-pr-or-merge"
       ]
     },
     "model": {
@@ -164,39 +167,41 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Fresh semantic projection strips sealed source provenance and causes false operations drift.",
-        "Resealing uses a wrong source commit and silently changes blob identity.",
-        "A real operation/source change is normalized away and incorrectly authorized.",
-        "Generated/delete operation semantics regress during resealing.",
-        "Live persisted STALE state cannot recover after the code fix."
+        "AUTHORIZE resets branchRef and loses persisted supersession lineage.",
+        "A prior superseding branch is accepted without canonical reconstruction.",
+        "A fresh successor branch is derived from the prior suffix instead of stable root.",
+        "A retry pushes over an existing branch instead of reusing exact state.",
+        "Supersedes metadata records the wrong predecessor branch."
       ],
       "edgeCases": [
-        "All material operations are create operations from one immutable source commit.",
-        "A delete operation legitimately has source:null.",
-        "A generated regenerate operation has regenerate provenance rather than a sealed blob.",
-        "Fresh childPlanDigest changes while operationDigest must remain stable.",
-        "Current main is many commits ahead of the immutable rehearsal source.",
-        "The prior child PR remains open on an obsolete base while a superseding materialization is required."
+        "First supersession from the root canonical branch.",
+        "Second or later supersession when persisted branchRef already contains a supersede suffix.",
+        "Prior superseding remote is missing.",
+        "Prior superseding remote has wrong base, tree or commit identity.",
+        "Fresh deterministic successor branch already exists and is exact.",
+        "Fresh deterministic successor branch exists but has drift.",
+        "Materialization is ALREADY_APPLIED and needs no branch.",
+        "Main advances multiple times while the same U01 remains STALE."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-RESEAL-FRESH-MANIFEST",
-        "summary": "Reseal trusted fresh reevaluation output against the immutable execution source before AUTHORIZE comparison.",
+        "id": "ALT-SEPARATE-PRIOR-AND-ROOT",
+        "summary": "Validate persisted prior branch separately while deriving the next branch from the stable root canonical identity.",
         "disposition": "selected",
-        "reason": "Preserves exact provenance and digest semantics while keeping all existing material drift checks intact."
+        "reason": "Preserves lineage, deterministic names and fail-closed validation across repeated supersessions."
       },
       {
-        "id": "ALT-IGNORE-SOURCE-IN-OBLIGATIONS",
-        "summary": "Strip operation.source from normalized obligation comparison and operation digest semantics.",
+        "id": "ALT-PRESERVE-PRIOR-BRANCH-THROUGH-AUTHORIZE",
+        "summary": "Keep prior branchRef as the new canonical branch after AUTHORIZE.",
         "disposition": "rejected",
-        "reason": "Would weaken provenance/tamper detection and erase a material execution identity dimension."
+        "reason": "Would conflate naming root with prior materialization and recursively grow supersede suffixes."
       },
       {
-        "id": "ALT-MANUAL-STATE-REWRITE",
-        "summary": "Edit persisted U01 state or manifest to remove sealed source metadata.",
+        "id": "ALT-RESET-PERSISTED-STATE",
+        "summary": "Rewrite U01 state back to the root branch before replay.",
         "disposition": "rejected",
-        "reason": "Would bypass the canonical CAS/runtime path and invalidate the production-like rehearsal."
+        "reason": "Would bypass resumability proof and mutate canonical execution history."
       }
     ],
     "specialistReviews": [
@@ -204,113 +209,111 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The false drift is introduced between trusted reevaluation projection and AUTHORIZE, not in decomposition scope.",
-        "resolution": "Restore sealed execution identity at the boundary before comparison.",
+        "finding": "The branch parameter currently serves two incompatible roles: canonical naming root and prior remote to validate.",
+        "resolution": "Separate those identities while preserving deterministic root naming.",
         "evidence": [
-          "scripts/release-unit-github-runtime.mjs",
-          "scripts/lib/shoperation-release-unit-runtime.mjs"
+          "scripts/release-unit-github-runtime.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Ignoring source metadata would permit altered source content to look obligation-equivalent.",
-        "resolution": "Keep source provenance material and reseal from the exact immutable sourceCommit.",
+        "finding": "Allowing any persisted branchRef without reconstructing prior materialization would weaken branch trust.",
+        "resolution": "Inspect the persisted branch and validate base/tree/commit identity against reconstructed prior manifest before superseding.",
         "evidence": [
-          "scripts/lib/shoperation-release-unit-runtime.mjs"
+          "scripts/release-unit-github-runtime.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A stale persisted child must be recoverable after policy/runtime fixes without re-authoring its material intent.",
-        "resolution": "Use trusted reevaluation plus deterministic resealing, then replay persisted U01 through normal AUTHORIZE/materialize/CI/merge.",
+        "finding": "Repeated main drift is normal for resumable execution and must support supersede-of-supersede state without recursive branch naming.",
+        "resolution": "Use root canonical branch for fresh naming and prior state branch for lineage validation.",
         "evidence": [
-          "scripts/release-unit-github-runtime.mjs",
-          "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
+          "tests/control-plane-release-unit-production-surface.test.ts"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The observed blocker is a newly discovered execution-edge regression and must remain visible until replay proves closure.",
-        "resolution": "Add regression proof and replay the same live rehearsal after merge.",
+        "finding": "Release Unit Execution #144 gives a deterministic live reproduction with exact machine code.",
+        "resolution": "Add regression before replaying the same immutable source.",
         "evidence": [
-          "tests/control-plane-release-unit-production-surface.test.ts",
-          "tests/control-plane-release-unit-execution-binding.test.ts"
+          "run:37609591473",
+          "RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-SOP-01",
-        "scenario": "Persisted manifest is sealed; fresh projection has identical operation kind/file but no source object.",
-        "finding": "Current runtime reports false RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT.",
-        "resolution": "Seal fresh output with the exact sourceCommit before AUTHORIZE.",
+        "id": "CH-PSR-01",
+        "scenario": "Persisted prior branch equals root canonical branch.",
+        "finding": "Existing first-supersession path must remain unchanged.",
+        "resolution": "Use prior branch for validation and root for naming; they coincide in this case.",
         "status": "resolved"
       },
       {
-        "id": "CH-SOP-02",
-        "scenario": "Fresh projection changes a file or operation kind.",
-        "finding": "Resealing must not make this look equivalent.",
-        "resolution": "Keep operation list material; only attach provenance to the projected operations and preserve drift comparison.",
+        "id": "CH-PSR-02",
+        "scenario": "Persisted prior branch is an older deterministic superseding branch.",
+        "finding": "Current code rejects it before validating the actual referenced remote.",
+        "resolution": "Inspect priorExecution.executionTransaction.branchRef and reconstruct prior manifest against that branch.",
         "status": "resolved"
       },
       {
-        "id": "CH-SOP-03",
-        "scenario": "Source file content changed at another commit.",
-        "finding": "Using current main would produce a different blob and could conceal source identity error.",
-        "resolution": "Always seal against immutable execution sourceCommit supplied by the executor.",
+        "id": "CH-PSR-03",
+        "scenario": "A second supersession is needed.",
+        "finding": "Deriving from priorBranch recursively lengthens and destabilizes branch identity.",
+        "resolution": "Derive new superseding branch from root canonical branch plus fresh target/binding.",
         "status": "resolved"
       },
       {
-        "id": "CH-SOP-04",
-        "scenario": "Fresh child plan is legitimately reprojected due current governance while material files are identical.",
-        "finding": "Plan digest may change even when operation digest should not.",
-        "resolution": "Continue trusted reprojectable-field handling while preserving stable sealed operation digest.",
+        "id": "CH-PSR-04",
+        "scenario": "Prior persisted branch is missing remotely.",
+        "finding": "Silently falling back to root could sever lineage.",
+        "resolution": "Fail closed with a direct prior-branch-missing machine code when persisted prior differs from root.",
         "status": "resolved"
       },
       {
-        "id": "CH-SOP-05",
-        "scenario": "U01 old PR is still open on a960 base.",
-        "finding": "Reusing it after main advance would violate lease.",
-        "resolution": "Let existing supersession/materialization logic create or select the canonical current-main child after reevaluation passes.",
+        "id": "CH-PSR-05",
+        "scenario": "Prior persisted remote exists but tree/base/message differs from reconstructed prior manifest.",
+        "finding": "It may be foreign or mutated.",
+        "resolution": "Keep existing remoteMaterializationDrift reconstruction checks fail-closed.",
         "status": "resolved"
       },
       {
-        "id": "CH-SOP-06",
-        "scenario": "A reevaluated operation preserves file and kind but is sealed from a different source commit.",
-        "finding": "Matching material paths alone are insufficient because immutable source provenance changed.",
-        "resolution": "Keep source commit/blob/file mode inside material obligation identity so authorization remains STALE.",
+        "id": "CH-PSR-06",
+        "scenario": "Fresh deterministic successor branch already exists exactly.",
+        "finding": "Retry must not push or create another identity.",
+        "resolution": "Reuse through reconcileExactMaterializedCommit.",
         "status": "resolved"
       },
       {
-        "id": "CH-SOP-07",
-        "scenario": "A trusted fresh projection changes only child-plan/governance evidence while resealing reproduces identical source provenance.",
-        "finding": "Material identity should remain stable while permitted reprojectable fields may update.",
-        "resolution": "Reseal before AUTHORIZE, then rely on existing trustedFreshProjection classification for only the declared reprojectable fields.",
+        "id": "CH-PSR-07",
+        "scenario": "Fresh deterministic successor exists with drift.",
+        "finding": "Retry must not overwrite it.",
+        "resolution": "Keep exact remote drift failure and prohibit force-push.",
         "status": "resolved"
       },
       {
-        "id": "CH-SOP-08",
-        "scenario": "The persisted U01 has an obsolete open PR on an earlier main after the fix merges.",
-        "finding": "Successful provenance reconciliation must not reuse the stale lease or merge the obsolete PR.",
-        "resolution": "Preserve current supersession/materialization logic so a fresh current-main child is created or selected after authorization.",
+        "id": "CH-PSR-08",
+        "scenario": "receipt is ALREADY_APPLIED.",
+        "finding": "No branch lineage mutation is needed.",
+        "resolution": "Retain existing early return semantics.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
       "Commit this plan only and require Plan Before Code PASS before implementation.",
-      "Implement deterministic resealing of the fresh reevaluation manifest against sourceCommit at the trusted reevaluation boundary.",
-      "Add regression proof for stable source provenance/operation digest plus fail-closed real source/material drift.",
+      "Implement separate persisted-prior branch validation and stable-root successor naming without state edits.",
+      "Add regressions for first supersession, supersede-of-supersede resume, exact retry reuse and drift/missing fail-closed behavior.",
       "Require exact-head Knowledge/Plan/Edit-Time/Incremental Replay/Release Risk/full tests/typecheck/build/Completion Truth/Lifecycle PASS.",
-      "Merge only on exact-head proof, then replay the unchanged persisted multi-unit rehearsal and follow every new blocker through Failure Intake."
+      "Merge only on exact-head proof, then rerun immutable source CI 65e52ffd and follow Release Unit Execution through U01."
     ],
     "semanticExecutionRoute": {
-      "request": "SQ-CAND-RELEASE-UNIT-SEALED-OBLIGATION-PROVENANCE-V1",
+      "request": "SQ-CAND-RELEASE-UNIT-PRIOR-SUPERSESSION-RESUME-V1",
       "authority": [
         "release-infrastructure"
       ],
@@ -318,14 +321,13 @@
         "scripts/release-unit-github-runtime.mjs"
       ],
       "mayEdit": [
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/control-plane-release-unit-execution-binding.test.ts",
-        "tests/control-plane-release-unit-orchestration.test.ts"
+        "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "impactedReadOnly": [
         "scripts/lib/shoperation-release-unit-runtime.mjs",
         "scripts/release-unit-execute.mjs",
-        ".github/workflows/release-unit-execution.yml"
+        ".github/workflows/release-unit-execution.yml",
+        "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
       ],
       "mustCreate": [],
       "forbidden": [
@@ -334,9 +336,7 @@
         "supabase/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/control-plane-release-unit-execution-binding.test.ts",
-        "tests/control-plane-release-unit-orchestration.test.ts"
+        "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -347,7 +347,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-SEALED-OBLIGATION-PROVENANCE-V1",
+    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-PRIOR-SUPERSESSION-RESUME-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -365,11 +365,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-SEALED-OBLIGATION-PROVENANCE-QUALITY",
-        "requirement": "Trusted fresh release-unit reevaluation must preserve immutable sealed source provenance and stable operation identity when material intent is unchanged, while real operation or source drift remains fail-closed.",
+        "id": "REQ-PRIOR-SUPERSESSION-RESUME-QUALITY",
+        "requirement": "Release-unit branch reconciliation must resume from a validated persisted superseding branch while preserving deterministic successor identity and fail-closed remote validation.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-sealed-obligation-provenance-behavior",
+          "breadth": "release-unit-prior-supersession-resumability",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -393,15 +393,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SOURCE-PROVENANCE-DROPPED",
-            "statement": "A sealed persisted release-unit operation may not be compared to an unsealed fresh operation as though provenance were disposable.",
+            "id": "NEG-PRIOR-BRANCH-TRUST-BYPASS",
+            "statement": "A persisted prior superseding branch may not be trusted without canonical reconstruction and remote identity validation.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-REAL-MATERIAL-DRIFT-BYPASS",
-            "statement": "A change to operation kind, file or immutable source identity may not be accepted as a trusted reprojectable governance refresh.",
+            "id": "NEG-RECURSIVE-SUPERSESSION-IDENTITY",
+            "statement": "Repeated supersession may not recursively derive branch names from earlier supersede suffixes.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -409,11 +409,11 @@
         ]
       },
       {
-        "id": "REQ-SEALED-OBLIGATION-PROVENANCE-RELEASE",
-        "requirement": "Fresh authorization after resealing must remain inside the canonical Release Risk Budget and exact current-main lease.",
+        "id": "REQ-PRIOR-SUPERSESSION-RESUME-RELEASE",
+        "requirement": "Resumed materialization must remain bound to exact current main, immutable source identity and canonical Release Risk without force-push or duplicate merge.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "sealed-obligation-release-integrity",
+          "breadth": "release-unit-supersession-release-integrity",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -433,28 +433,16 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SEALED-OBLIGATION-RISK-BYPASS",
-            "statement": "Resealing may not authorize a release unit when canonical Release Risk or current-main lease blocks it.",
+            "id": "NEG-SUPERSESSION-LEASE-BYPASS",
+            "statement": "A resumed unit may not use an obsolete main lease or overwrite an existing materialization branch.",
             "evidence": [
-              "GUARD-RELEASE-RISK"
+              "GUARD-RELEASE-RISK",
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Plan-only transaction created from live persisted rehearsal state after main 95b0e429e5e7d23b361fa3644f0899e07b6e7ac0. U01 is STALE with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT solely because trusted fresh reevaluation removes sealed operation.source provenance and changes childOperationDigest. No implementation is authorized until Plan Before Code passes. Plan gate 37605855553 correctly blocked the first revision: planned projection resolved only DOMAIN-RELEASE/release-infrastructure and critical assurance required 8 challenge cases. This plan revision narrows expected scope to the projected authority and adds three adversarial cases without widening implementation scope.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "9ef6d01ddbc581e415daebea4df7dbdda9663910",
-    "closedAt": "2026-10-07T10:23:34.899Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-SEALED-OBLIGATION-PROVENANCE-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Plan-only transaction created from live Release Unit Execution #144 failure on main 72154b099c5fd1e3fc9f57bf9410b11f7f05fcb2. Exact blocker: RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH with persisted branch release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-a96074891ce8-ab2e09fcc439a199. No implementation is authorized until Plan Before Code passes."
 }
