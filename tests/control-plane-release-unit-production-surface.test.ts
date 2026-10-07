@@ -176,7 +176,7 @@ describe('Control Plane production release surface',()=>{
     expect(result.receipt.supersedes.headSha).toBe(oldRemote);
     expect(calls.some(call=>call.includes('push --quiet origin '+prepared+':refs/heads/'+superseding))).toBe(true);
     expect(calls.some(call=>call.includes('--force'))).toBe(false);
-    expect(calls.some(call=>/delete|:\s*refs\/heads/.test(call))).toBe(false);
+    expect(calls.some(call=>call.includes(' --delete ')||/git push(?:\s+--quiet)?\s+origin\s+:refs\/heads\//.test(call))).toBe(false);
   });
 
   it('reuses an exact deterministic superseding branch on retry without pushing',()=>{
@@ -202,7 +202,7 @@ describe('Control Plane production release surface',()=>{
         if(ref==='refs/heads/'+baseBranch)return oldRemote+'\t'+ref;
         if(ref==='refs/heads/'+superseding)return freshRemote+'\t'+ref;
       }
-      if(args[0]==='fetch'){fetchHead=args[2]==='refs/heads/'+baseBranch?oldRemote:freshRemote;return '';}
+      if(args[0]==='fetch'){fetchHead=args[3]==='refs/heads/'+baseBranch?oldRemote:freshRemote;return '';}
       if(args[0]==='rev-parse'&&args[1]==='FETCH_HEAD')return fetchHead;
       if(args[0]==='rev-list'&&args.at(-1)===oldRemote)return oldRemote+' '+oldBase;
       if(args[0]==='rev-list'&&args.at(-1)===freshRemote)return freshRemote+' '+freshBase;
@@ -307,6 +307,7 @@ describe('Control Plane production release surface',()=>{
       if(args[0]==='rev-parse'&&args[1]==='FETCH_HEAD')return remote;
       if(args[0]==='rev-list')return remote+' '+A;
       if(args[0]==='rev-parse'&&args[1]===remote+'^{tree}')return 'e'.repeat(40);
+      if(args[0]==='show')return releaseUnitCommitMessage(manifest);
       throw new Error('unexpected git call: '+args.join(' '));
     };
     expect(()=>reconcileExactMaterializedCommit({manifest,receipt,branch,run,cwd:process.cwd()})).toThrow(/RELEASE_UNIT_REMOTE_BRANCH_TREE_DRIFT/);
