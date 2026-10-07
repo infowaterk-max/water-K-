@@ -16,9 +16,11 @@
     "release-infrastructure"
   ],
   "expectedDomains": [
+    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
@@ -343,9 +345,9 @@
       },
       {
         "id": "CH-MAIN-05",
-        "scenario": "Current main is not a descendant of predecessor merge.",
-        "finding": "History may have been rewritten or a divergent base selected.",
-        "resolution": "No proof; fail closed.",
+        "scenario": "The predecessor merge receipt points to commit A, current main is commit B, and `git merge-base --is-ancestor A B` returns non-zero because history diverged or was rewritten.",
+        "finding": "Without a proven ancestor relationship, B cannot be treated as a continuation of the predecessor merge; accepting it would detach successor authorization from the immutable merge receipt.",
+        "resolution": "Return RELEASE_UNIT_MAIN_DRIFT before candidate materialization, emit no trusted main-advance proof, and require a new canonical release path rather than normalizing divergent history.",
         "status": "resolved"
       },
       {
@@ -390,6 +392,7 @@
     "semanticExecutionRoute": {
       "request": "PO-2026-10-07-CONTROL-PLANE-TRUSTED-MAIN-ADVANCE-V1",
       "authority": [
+        "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
@@ -496,5 +499,5 @@
       }
     ]
   },
-  "notes": "Live evidence: U01 exact trusted child proof passed and PR #1053 merged at 12447f0cfd73abe8728209ea3f35cb132a9b06d4. Canonical sealing reprojection repair then merged to main 1d868b19a8517142a435c649c3adacb79d804d96. Immutable rehearsal replay attempt 6 triggered Release Unit Execution #192, which failed during reevaluateSuccessorManifest before fresh projection with RELEASE_UNIT_MAIN_DRIFT:12447f0cfd73abe8728209ea3f35cb132a9b06d4:1d868b19a8517142a435c649c3adacb79d804d96. This plan preserves immutable predecessor receipts and repairs only the missing trusted fast-forward reprojection path."
+  "notes": "Live evidence: U01 exact trusted child proof passed and PR #1053 merged at 12447f0cfd73abe8728209ea3f35cb132a9b06d4. Canonical sealing reprojection repair then merged to main 1d868b19a8517142a435c649c3adacb79d804d96. Immutable rehearsal replay attempt 6 triggered Release Unit Execution #192, which failed during reevaluateSuccessorManifest before fresh projection with RELEASE_UNIT_MAIN_DRIFT:12447f0cfd73abe8728209ea3f35cb132a9b06d4:1d868b19a8517142a435c649c3adacb79d804d96. This plan preserves immutable predecessor receipts and repairs only the missing trusted fast-forward reprojection path. Plan Gate #9087 expanded canonical projected ownership to DOMAIN-QUALITY + DOMAIN-RELEASE and quality-knowledge-system + release-infrastructure, and required CH-MAIN-05 to state the concrete non-ancestor failure and explicit fail-closed resolution."
 }
