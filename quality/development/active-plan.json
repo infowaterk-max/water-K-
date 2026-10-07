@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-PRIOR-SUPERSESSION-RESUME-V1",
   "task": "Make release-unit materialization resumable when persisted execution already points at a canonical superseding branch and main advances again.",
   "status": "ready-for-implementation",
-  "guardDigest": "7c31a9e4",
+  "guardDigest": "128614ad",
   "changeBaseSha": "72154b099c5fd1e3fc9f57bf9410b11f7f05fcb2",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -285,9 +285,9 @@
       },
       {
         "id": "CH-PSR-06",
-        "scenario": "Fresh deterministic successor branch already exists exactly.",
-        "finding": "Retry must not push or create another identity.",
-        "resolution": "Reuse through reconcileExactMaterializedCommit.",
+        "scenario": "The fresh deterministic successor branch for current main and binding already exists from an interrupted executor attempt, and its remote head/base/tree/message exactly match the freshly prepared receipt.",
+        "finding": "Creating or pushing another branch would duplicate materialization and break retry idempotency even though the exact canonical successor already exists.",
+        "resolution": "Call reconcileExactMaterializedCommit for the root-derived successor and return its existing remote SHA with reusedRemote=true; assert no git push occurs.",
         "status": "resolved"
       },
       {
@@ -299,9 +299,9 @@
       },
       {
         "id": "CH-PSR-08",
-        "scenario": "receipt is ALREADY_APPLIED.",
-        "finding": "No branch lineage mutation is needed.",
-        "resolution": "Retain existing early return semantics.",
+        "scenario": "Main advances a second time while U01 remains STALE and persisted branchRef points at the first superseding branch rather than the root canonical branch.",
+        "finding": "Resetting branchRef during AUTHORIZE makes the runtime inspect the wrong remote and emits RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH before validating the persisted lineage.",
+        "resolution": "Use persisted priorExecution.executionTransaction.branchRef only as the remote lineage candidate to reconstruct and validate, while independently deriving the next successor name from projectReleaseUnitTransaction(freshManifest).branchRef.",
         "status": "resolved"
       }
     ],
@@ -444,5 +444,5 @@
       }
     ]
   },
-  "notes": "Plan-only transaction created from live Release Unit Execution #144 failure on main 72154b099c5fd1e3fc9f57bf9410b11f7f05fcb2. Exact blocker: RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH with persisted branch release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-a96074891ce8-ab2e09fcc439a199. No implementation is authorized until Plan Before Code passes."
+  "notes": "Plan-only transaction created from live Release Unit Execution #144 failure on main 72154b099c5fd1e3fc9f57bf9410b11f7f05fcb2. Exact blocker: RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH with persisted branch release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-a96074891ce8-ab2e09fcc439a199. No implementation is authorized until Plan Before Code passes. Plan gate CI #9038 / run 37610210980 blocked the first plan-only revision with DEV_PLAN_GUARD_DIGEST_DRIFT (expected 128614ad) and vacuous challenge findings at indices 5 and 7. This revision adopts the canonical digest and makes interrupted exact-successor reuse plus repeated-main-drift lineage explicit."
 }
