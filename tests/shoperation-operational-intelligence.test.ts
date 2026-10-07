@@ -1,6 +1,8 @@
 import {execFileSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
+// @ts-ignore JavaScript runtime module intentionally has no separate declaration file.
+import {validateOperationalIntelligence} from '../scripts/lib/shoperation-operational-intelligence.mjs';
 
 const read=(path:string)=>readFileSync(path,'utf8');
 const json=<T=any>(path:string)=>JSON.parse(read(path)) as T;
@@ -132,6 +134,37 @@ describe('Control Plane Operational Intelligence',()=>{
     expect(guard).toContain('executionAuthorized:false');
     expect(guard).toContain("completionContract:{sourceKind:'product-owner-request'");
     expect(guard).toContain("riskTier=(value('--risk')");
+  });
+
+  it('keeps critical semantic route authority exactly coherent with expectedAuthorities, including truthful neutral scope',()=>{
+    const policy=json<any>('quality/knowledge/development-guard-policy.v1.json');
+    const registry=json<any>('quality/knowledge/guard-registry.v1.json');
+    const basePlan=json<any>('quality/development/active-plan.json');
+    const guardIds=registry.guards.map((item:any)=>item.id);
+    const codesFor=(expectedAuthorities:string[],routeAuthority:string[]|undefined)=>{
+      const plan=JSON.parse(JSON.stringify(basePlan));
+      plan.expectedAuthorities=expectedAuthorities;
+      const route={...plan.operationalIntelligence.semanticExecutionRoute};
+      if(routeAuthority===undefined)delete route.authority;
+      else route.authority=routeAuthority;
+      plan.operationalIntelligence.semanticExecutionRoute=route;
+      return validateOperationalIntelligence({plan,policy,guardIds}).issues.map((item:any)=>item.code);
+    };
+
+    const neutral=codesFor([],[]);
+    expect(neutral).not.toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
+    expect(neutral).not.toContain('DEV_PLAN_SEMANTIC_EXECUTION_AUTHORITY_DRIFT');
+
+    expect(codesFor([],undefined)).toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
+    expect(codesFor([],['release-infrastructure'])).toContain('DEV_PLAN_SEMANTIC_EXECUTION_AUTHORITY_DRIFT');
+    expect(codesFor(['quality-knowledge-system'],[])).toContain('DEV_PLAN_SEMANTIC_EXECUTION_AUTHORITY_DRIFT');
+
+    const matching=codesFor(['quality-knowledge-system'],['quality-knowledge-system']);
+    expect(matching).not.toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
+    expect(matching).not.toContain('DEV_PLAN_SEMANTIC_EXECUTION_AUTHORITY_DRIFT');
+
+    const reordered=codesFor(['authority-b','authority-a'],['authority-a','authority-b']);
+    expect(reordered).not.toContain('DEV_PLAN_SEMANTIC_EXECUTION_AUTHORITY_DRIFT');
   });
 
   it('documents authority reuse and forbids completion evidence circularity',()=>{
