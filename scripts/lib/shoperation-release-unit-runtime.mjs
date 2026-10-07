@@ -18,11 +18,16 @@ const fileForOperation=operation=>operation.file;
 const normalizeRename=item=>typeof item==='string'?null:{from:String(item?.from??item?.previousFile??'').trim(),to:String(item?.to??item?.file??'').trim()};
 const generatedByPath=items=>new Map((items??[]).filter(item=>item?.path).map(item=>[item.path,item]));
 
-export function derivePlannedOperations({projectedFiles=[],atlas,plannedDeletions=[],plannedRenames=[],generatedArtifacts=[]}={}){
+export function derivePlannedOperations({projectedFiles=[],atlas,plannedDeletions=[],plannedRenames=[],generatedArtifacts=[],transactionChanges=[]}={}){
   const existing=new Set((atlas?.nodes??[]).map(node=>node.path));
   const deletions=new Set(plannedDeletions??[]);
   const generated=generatedByPath(generatedArtifacts);
-  const renames=(plannedRenames??[]).map(normalizeRename).filter(item=>item?.from&&item?.to);
+  const transactionByFile=new Map((transactionChanges??[]).filter(change=>change?.file).map(change=>[change.file,change]));
+  const declaredRenames=(plannedRenames??[]).map(normalizeRename).filter(item=>item?.from&&item?.to);
+  const transactionRenames=(transactionChanges??[])
+    .filter(change=>change?.status==='R'&&change?.previousFile&&change?.file)
+    .map(change=>({from:String(change.previousFile),to:String(change.file)}));
+  const renames=[...new Map([...declaredRenames,...transactionRenames].map(item=>[`${item.from}->${item.to}`,item])).values()];
   const renamedFrom=new Set(renames.map(item=>item.from)),renamedTo=new Set(renames.map(item=>item.to));
   const operations=[];
   for(const rename of renames){
@@ -30,8 +35,14 @@ export function derivePlannedOperations({projectedFiles=[],atlas,plannedDeletion
   }
   for(const file of uniq([...projectedFiles,...deletions])){
     if(renamedFrom.has(file)||renamedTo.has(file))continue;
-    if(deletions.has(file)){operations.push({operation:'delete',file});continue;}
-    operations.push({operation:existing.has(file)?'modify':'create',file,generated:generated.get(file)??null});
+    const transaction=transactionByFile.get(file);
+    if(deletions.has(file)||transaction?.status==='D'){operations.push({operation:'delete',file});continue;}
+    const operation=transaction?.status==='A'||transaction?.status==='C'
+      ?'create'
+      :transaction?.status==='M'
+        ?'modify'
+        :existing.has(file)?'modify':'create';
+    operations.push({operation,file,generated:generated.get(file)??null});
   }
   return operations.sort((a,b)=>a.file.localeCompare(b.file)||a.operation.localeCompare(b.operation));
 }
@@ -593,10 +604,17 @@ const normalizedExecutionObligations=manifest=>({
   predecessorUnits:uniq(manifest?.predecessorUnits??[]),
   projectedRiskDecision:manifest?.projectedRisk?.decision??null,
 });
-const obligationDrift=(before,after)=>{
+const REPROJECTABLE_OBLIGATION_FIELDS=new Set(['authorities','subsystems','requiredGates','requiredEvidence','childPlanDigest']);
+export const classifyReleaseUnitObligationDrift=(before,after)=>{
   const a=normalizedExecutionObligations(before),b=normalizedExecutionObligations(after);
-  return Object.keys(a).filter(key=>!sameJson(a[key],b[key])).map(key=>({field:key,before:a[key],after:b[key]}));
+  const all=Object.keys(a).filter(key=>!sameJson(a[key],b[key])).map(key=>({field:key,before:a[key],after:b[key]}));
+  return{
+    all,
+    material:all.filter(item=>!REPROJECTABLE_OBLIGATION_FIELDS.has(item.field)),
+    reprojectable:all.filter(item=>REPROJECTABLE_OBLIGATION_FIELDS.has(item.field)),
+  };
 };
+const obligationDrift=(before,after)=>classifyReleaseUnitObligationDrift(before,after).all;
 const unitBlock=(execution,state,code,details={})=>({
   ...executionClone(execution),
   state,
@@ -718,7 +736,7 @@ function predecessorResult(execution,{currentMainSha,predecessorExecutions=[]}={
   return{decision:'PASS',sequence};
 }
 
-export function reconcileSuccessorReleaseUnit({execution,freshManifest,currentMainSha,predecessorExecutions=[],allFreshManifests=[]}={}){
+export function reconcileSuccessorReleaseUnit({execution,freshManifest,currentMainSha,predecessorExecutions=[],allFreshManifests=[],trustedFreshProjection=false}={}){
   if(execution?.contract!==RELEASE_UNIT_EXECUTION_CONTRACT)executionError('RELEASE_UNIT_EXECUTION_CONTRACT_INVALID');
   if(!['PLANNED','STALE'].includes(execution.state))executionError('RELEASE_UNIT_RECONCILIATION_STATE_INVALID',{state:execution.state});
   if(freshManifest?.contract!==RELEASE_UNIT_MANIFEST_CONTRACT)return{decision:'BLOCK',state:'BLOCKED',code:'RELEASE_UNIT_FRESH_MANIFEST_REQUIRED',details:{}};
@@ -737,9 +755,10 @@ export function reconcileSuccessorReleaseUnit({execution,freshManifest,currentMa
     const ordering=validateReleaseUnitOrder(manifests);
     if(ordering.decision!=='PASS')return{decision:'FAIL',state:'FAILED',code:'RELEASE_UNIT_RECONCILIATION_CYCLE',details:{ordering}};
   }
-  const drift=obligationDrift(execution.manifest,freshManifest);
-  if(drift.length)return{decision:'STALE',state:'STALE',code:'RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT',details:{drift}};
-  return{decision:'PASS',state:'READY',code:'RELEASE_UNIT_RECONCILED',details:{currentMainSha},manifest:executionClone(freshManifest)};
+  const drift=classifyReleaseUnitObligationDrift(execution.manifest,freshManifest);
+  if(drift.material.length)return{decision:'STALE',state:'STALE',code:'RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT',details:{drift:drift.material,reprojectableDrift:drift.reprojectable}};
+  if(drift.reprojectable.length&&trustedFreshProjection!==true)return{decision:'STALE',state:'STALE',code:'RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT',details:{drift:drift.reprojectable}};
+  return{decision:'PASS',state:'READY',code:'RELEASE_UNIT_RECONCILED',details:{currentMainSha,reprojectedFields:drift.reprojectable.map(item=>item.field)},manifest:executionClone(freshManifest)};
 }
 
 export function authorizeReleaseUnit(execution,context={}){

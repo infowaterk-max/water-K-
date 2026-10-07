@@ -194,4 +194,49 @@ describe('Control Plane release-unit orchestration',()=>{
     let p=parent();const [u1,,u3]=p.units.map((x:any)=>x.manifest);p=complete(p,u1.releaseUnitId,u1,A,sha('1'),B,1);expect(p.activeUnitId).toBe('DEV-ORCH-U02');
     expect(()=>applyReleaseUnitEvent(p,{type:'AUTHORIZE',releaseUnitId:u3.releaseUnitId,freshManifest:fresh(u3,B,'b'),currentMainSha:B})).toThrow(/RELEASE_PARENT_UNIT_SKIP_FORBIDDEN/);
   });
+  it('accepts canonical governance and evidence refresh only with trusted fresh projection provenance',()=>{
+    let p=parent();
+    const current=p.units[0].manifest;
+    p.units[0].state='STALE';
+    p.units[0].blocker={code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK',details:{}};
+    p.units[0].lastTransition={to:'STALE',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK'};
+    const freshManifest=fresh(current,A,'g');
+    freshManifest.authorities=['quality-knowledge-system'];
+    freshManifest.requiredGates=[...current.requiredGates,'GUARD-INCREMENTAL-REPLAY'];
+    freshManifest.requiredEvidence={gateIds:[...freshManifest.requiredGates],proofFiles:['tests/current-proof.test.ts'],externalGateIds:[]};
+    freshManifest.childDevelopmentTransaction={...structuredClone(current.childDevelopmentTransaction),planDigest:'fresh-current-plan',bindingDigest:'fresh-current-binding'};
+    const blocked=applyReleaseUnitEvent(structuredClone(p),{
+      type:'AUTHORIZE',releaseUnitId:current.releaseUnitId,freshManifest,currentMainSha:A,
+      allFreshManifests:[freshManifest,...p.units.slice(1).map((x:any)=>x.manifest)],
+    });
+    expect(blocked.units[0].state).toBe('STALE');
+    expect(blocked.units[0].blocker.code).toBe('RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT');
+    const accepted=applyReleaseUnitEvent(p,{
+      type:'AUTHORIZE',releaseUnitId:current.releaseUnitId,freshManifest,currentMainSha:A,
+      allFreshManifests:[freshManifest,...p.units.slice(1).map((x:any)=>x.manifest)],
+      trustedFreshProjection:true,
+    });
+    expect(accepted.units[0].state).toBe('READY');
+    expect(accepted.units[0].manifest.authorities).toEqual(['quality-knowledge-system']);
+    expect(accepted.units[0].manifest.requiredEvidence.proofFiles).toEqual(['tests/current-proof.test.ts']);
+    expect(accepted.units[0].manifest.childDevelopmentTransaction.planDigest).toBe('fresh-current-plan');
+  });
+
+  it('keeps material operation drift fail-closed even with trusted fresh projection provenance',()=>{
+    let p=parent();
+    const current=p.units[0].manifest;
+    p.units[0].state='STALE';
+    p.units[0].lastTransition={to:'STALE',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK'};
+    const freshManifest=fresh(current,A,'m');
+    freshManifest.operations=[{operation:'create',file:current.intendedFiles[0]}];
+    const next=applyReleaseUnitEvent(p,{
+      type:'AUTHORIZE',releaseUnitId:current.releaseUnitId,freshManifest,currentMainSha:A,
+      allFreshManifests:[freshManifest,...p.units.slice(1).map((x:any)=>x.manifest)],
+      trustedFreshProjection:true,
+    });
+    expect(next.units[0].state).toBe('STALE');
+    expect(next.units[0].blocker.code).toBe('RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT');
+    expect(next.units[0].blocker.details.drift.map((item:any)=>item.field)).toContain('operations');
+  });
+
 });
