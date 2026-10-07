@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-PROOF-FALLBACK-V1",
   "task": "Give critical release-unit children a machine-derived proof surface from current Known Failure regression authority when direct Atlas test edges are absent, and permit only receipt-bound canonical child-plan digest refresh during fresh reconciliation.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "3f57b5a79ee87a71eabeb0af0feab812ae5f353a",
   "plannedFilePatterns": [
@@ -446,5 +446,18 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #1010 after replay job 112662284959. Plan-only; no implementation until Plan Before Code approves the projected scope. Plan projection 37582641708 reconciled full Known Failure applicability, current negative-knowledge applicability, and canonical guard digest a41cfd0c. Plan-only projection 37582641708 reconciled all 49 Known Failures, 13 applicable negative-knowledge rules, and canonical guard digest a41cfd0c; no implementation-scope drift was reported. Edit-Time guard on afdc6bf6 proved release-unit-github-runtime.mjs was over-declared as MUST_EDIT; this reconciliation removes it from material plan scope and retains it only as impacted read-only context. Plan projection 37583336524 after removing the over-declared GitHub runtime reconciled direct architecture scope to DOMAIN-QUALITY / quality-knowledge-system only."
+  "notes": "Created from live Failure Intake #1010 after replay job 112662284959. Plan-only; no implementation until Plan Before Code approves the projected scope. Plan projection 37582641708 reconciled full Known Failure applicability, current negative-knowledge applicability, and canonical guard digest a41cfd0c. Plan-only projection 37582641708 reconciled all 49 Known Failures, 13 applicable negative-knowledge rules, and canonical guard digest a41cfd0c; no implementation-scope drift was reported. Edit-Time guard on afdc6bf6 proved release-unit-github-runtime.mjs was over-declared as MUST_EDIT; this reconciliation removes it from material plan scope and retains it only as impacted read-only context. Plan projection 37583336524 after removing the over-declared GitHub runtime reconciled direct architecture scope to DOMAIN-QUALITY / quality-knowledge-system only.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "2c8b4626e1aec1913948f158c61d3dbeebcb528c",
+    "closedAt": "2026-10-07T06:52:10.585Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-PROOF-FALLBACK-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
