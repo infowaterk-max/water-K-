@@ -880,7 +880,7 @@
       "blocker": {
         "code": "RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK",
         "details": {
-          "error": "{\"code\":\"DEV_PLAN_SUBSYSTEM_SCOPE_DRIFT\",\"expected\":[],\"actual\":[\"release-infrastructure\"],\"mode\":\"planned-projection\"}\n{\"code\":\"DEV_PLAN_SUBSYSTEM_SCOPE_EXPANDED\",\"outside\":[\"release-infrastructure\"]}\n{\"code\":\"DEV_PLAN_NEGATIVE_KNOWLEDGE_DRIFT\",\"expected\":[\"SQ-NK-002\",\"SQ-NK-003\",\"SQ-NK-005\",\"SQ-NK-010\",\"SQ-NK-012\",\"SQ-NK-016\",\"SQ-NK-017\",\"SQ-NK-018\",\"SQ-NK-019\",\"SQ-NK-020\",\"SQ-NK-021\",\"SQ-NK-022\",\"SQ-NK-023\"],\"actual\":[\"SQ-NK-012\"]}\n{\"code\":\"DEV_PLAN_GUARD_DIGEST_DRIFT\",\"expected\":\"aa79c504\",\"actual\":\"a41cfd0c\"}\n{\"code\":\"DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED\",\"path\":\"operationalIntelligence.semanticExecutionRoute\",\"message\":\"Critical child execution requires MUST_EDIT or MUST_CREATE plus AUTHORITY, PROOF and UNKNOWN semantic route categories.\"}\n"
+          "error": "{\"code\":\"DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED\",\"path\":\"operationalIntelligence.semanticExecutionRoute\",\"message\":\"Critical child execution requires MUST_EDIT or MUST_CREATE plus AUTHORITY, PROOF and UNKNOWN semantic route categories.\"}\n"
         }
       },
       "lastTransition": {
@@ -2444,7 +2444,7 @@
     "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
     "code": "RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK",
     "details": {
-      "error": "{\"code\":\"DEV_PLAN_SUBSYSTEM_SCOPE_DRIFT\",\"expected\":[],\"actual\":[\"release-infrastructure\"],\"mode\":\"planned-projection\"}\n{\"code\":\"DEV_PLAN_SUBSYSTEM_SCOPE_EXPANDED\",\"outside\":[\"release-infrastructure\"]}\n{\"code\":\"DEV_PLAN_NEGATIVE_KNOWLEDGE_DRIFT\",\"expected\":[\"SQ-NK-002\",\"SQ-NK-003\",\"SQ-NK-005\",\"SQ-NK-010\",\"SQ-NK-012\",\"SQ-NK-016\",\"SQ-NK-017\",\"SQ-NK-018\",\"SQ-NK-019\",\"SQ-NK-020\",\"SQ-NK-021\",\"SQ-NK-022\",\"SQ-NK-023\"],\"actual\":[\"SQ-NK-012\"]}\n{\"code\":\"DEV_PLAN_GUARD_DIGEST_DRIFT\",\"expected\":\"aa79c504\",\"actual\":\"a41cfd0c\"}\n{\"code\":\"DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED\",\"path\":\"operationalIntelligence.semanticExecutionRoute\",\"message\":\"Critical child execution requires MUST_EDIT or MUST_CREATE plus AUTHORITY, PROOF and UNKNOWN semantic route categories.\"}\n"
+      "error": "{\"code\":\"DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED\",\"path\":\"operationalIntelligence.semanticExecutionRoute\",\"message\":\"Critical child execution requires MUST_EDIT or MUST_CREATE plus AUTHORITY, PROOF and UNKNOWN semantic route categories.\"}\n"
     }
   },
   "closureEligible": false,
