@@ -12,7 +12,6 @@
     "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
-    "dependency-contract",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -334,16 +333,16 @@
       },
       {
         "id": "CH-CREATE-04",
-        "scenario": "Manifest source identity is missing or unsealed.",
-        "finding": "No immutable source authority exists.",
-        "resolution": "Keep unsafe.",
+        "scenario": "The main-advance diff includes an intended create file, but the manifest operation either has no source object, uses a non-sealed source mode, or carries a malformed source blob/file-mode identity.",
+        "finding": "Classifying this overlap as exact-create would trust a target object without a canonical immutable source identity and could authorize unrelated or mutable content.",
+        "resolution": "Require exactly one create declaration with source.mode=sealed, a valid 40-hex source blob SHA and valid Git file mode before any target-object comparison; otherwise place the file in unsafeOverlapFiles and block.",
         "status": "resolved"
       },
       {
         "id": "CH-CREATE-05",
-        "scenario": "Two create declarations target the same file.",
-        "finding": "Attestation target is ambiguous.",
-        "resolution": "Keep unsafe.",
+        "scenario": "Two create operations declare the same intended file and both appear superficially compatible with the target path on descendant main.",
+        "finding": "The proof cannot establish which operation/source identity is authoritative, so accepting either would make the overlap classification ambiguous and forgeable.",
+        "resolution": "Exact-create classification requires declared.length===1 for the intended file; duplicate or ambiguous create declarations remain unsafe and cause RELEASE_UNIT_MAIN_DRIFT.",
         "status": "resolved"
       },
       {
@@ -491,5 +490,5 @@
       }
     ]
   },
-  "notes": "Prerequisite discovered before implementing the already Plan-approved U03 exact conflict resolution. Current U03 resolution must add immutable fixture-25 to main, but PR #1092's operation-aware overlap deliberately marks all create overlap unsafe. Materializer semantics already prove exact source-identical create as ALREADY_APPLIED. This task aligns trusted main-advance proof with that narrow idempotent invariant without making ordinary create overlap safe."
+  "notes": "Prerequisite discovered before implementing the already Plan-approved U03 exact conflict resolution. Current U03 resolution must add immutable fixture-25 to main, but PR #1092's operation-aware overlap deliberately marks all create overlap unsafe. Materializer semantics already prove exact source-identical create as ALREADY_APPLIED. This task aligns trusted main-advance proof with that narrow idempotent invariant without making ordinary create overlap safe. Plan Gate #9123 canonicalized expectedSubsystems to release-infrastructure and required concrete adversarial detail for missing/unsealed-source and duplicate-create cases. This revision adopts those exact planner findings without widening the selected proof design."
 }
