@@ -4,7 +4,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe,expect,it} from 'vitest';
 import {applyReleaseUnitEvent,createReleaseParentExecution,recordReleaseParentClosure} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
-import {needsFreshReleaseUnitReevaluation,reconcileExactMaterializedCommit,releaseUnitCommitMessage,runSuccessorReevaluationPlan,runSuccessorReevaluationProjection} from '../scripts/release-unit-github-runtime.mjs';
+import {materializationSupersedingBranch,needsFreshReleaseUnitReevaluation,reconcileExactMaterializedCommit,reconcileMaterializationBranch,releaseUnitCommitMessage,runSuccessorReevaluationPlan,runSuccessorReevaluationProjection} from '../scripts/release-unit-github-runtime.mjs';
 
 const A='a'.repeat(40);
 const manifest={
@@ -112,6 +112,156 @@ describe('Control Plane production release surface',()=>{
     expect(driver).toContain('expectedStateCommit:loaded.stateCommit');
   });
 
+  it('derives one deterministic superseding branch from fresh base and binding identity',()=>{
+    const fresh={...structuredClone(manifest),targetBaseSha:'2'.repeat(40),childDevelopmentTransaction:{...structuredClone(manifest.childDevelopmentTransaction),bindingDigest:'b'.repeat(64)}};
+    const branch=materializationSupersedingBranch({baseBranch:'release-unit/dev-nocode-u01',manifest:fresh});
+    expect(branch).toBe('release-unit/dev-nocode-u01-supersede-'+('2'.repeat(12))+'-'+('b'.repeat(16)));
+    expect(materializationSupersedingBranch({baseBranch:'release-unit/dev-nocode-u01',manifest:fresh})).toBe(branch);
+  });
+
+  it('preserves an exact prior canonical branch and pushes fresh materialization only to its deterministic superseding branch',()=>{
+    const oldBase='1'.repeat(40),freshBase='2'.repeat(40),oldRemote='3'.repeat(40),prepared='4'.repeat(40),oldTree='5'.repeat(40),freshTree='6'.repeat(40);
+    const baseBranch='release-unit/dev-nocode-u01';
+    const priorManifest={
+      ...structuredClone(manifest),targetBaseSha:oldBase,manifestDigest:'old-manifest',
+      sourceIdentity:{sourceCommit:'source',sealed:true},
+      childDevelopmentTransaction:{...structuredClone(manifest.childDevelopmentTransaction),planDigest:'old-plan',bindingDigest:'a'.repeat(64)},
+    };
+    const freshManifest={
+      ...structuredClone(manifest),targetBaseSha:freshBase,manifestDigest:'fresh-manifest',
+      sourceIdentity:{sourceCommit:'source',sealed:true},
+      childDevelopmentTransaction:{...structuredClone(manifest.childDevelopmentTransaction),planDigest:'fresh-plan',bindingDigest:'b'.repeat(64)},
+    };
+    const priorReceipt={
+      contract:'shoporation.release-unit-materialization.v1',status:'PREPARED',releaseUnitId:manifest.releaseUnitId,targetBaseSha:oldBase,
+      commitSha:'7'.repeat(40),materializedHeadSha:'7'.repeat(40),treeSha:oldTree,manifestDigest:'old-manifest',bindingDigest:'a'.repeat(64),
+      sourceCommit:'source',applied:[{operation:'modify',file:'scripts/already.mjs'}],alreadyApplied:[],
+    };
+    const freshReceipt={
+      contract:'shoporation.release-unit-materialization.v1',status:'PREPARED',releaseUnitId:manifest.releaseUnitId,targetBaseSha:freshBase,
+      commitSha:prepared,materializedHeadSha:prepared,treeSha:freshTree,manifestDigest:'fresh-manifest',bindingDigest:'b'.repeat(64),
+      sourceCommit:'source',applied:[{operation:'modify',file:'scripts/already.mjs'}],alreadyApplied:[],
+    };
+    const superseding=materializationSupersedingBranch({baseBranch,manifest:freshManifest});
+    const calls=[];
+    const run=(command,args)=>{
+      calls.push([command,...args].join(' '));
+      if(command!=='git')throw new Error('unexpected command');
+      if(args[0]==='ls-remote'){
+        const ref=args[2];
+        if(ref==='refs/heads/'+baseBranch)return oldRemote+'\t'+ref;
+        if(ref==='refs/heads/'+superseding)return '';
+      }
+      if(args[0]==='fetch')return '';
+      if(args[0]==='rev-parse'&&args[1]==='FETCH_HEAD')return oldRemote;
+      if(args[0]==='rev-list')return oldRemote+' '+oldBase;
+      if(args[0]==='rev-parse'&&args[1]===oldRemote+'^{tree}')return oldTree;
+      if(args[0]==='show')return releaseUnitCommitMessage(priorManifest);
+      if(args[0]==='push')return '';
+      throw new Error('unexpected git call: '+args.join(' '));
+    };
+    const result=reconcileMaterializationBranch({
+      priorExecution:{manifest:priorManifest,executionTransaction:{branchRef:baseBranch}},
+      manifest:freshManifest,receipt:freshReceipt,branch:baseBranch,sourceCommit:'source',run,
+      materialize:({manifest:received,targetRef})=>{
+        expect(received).toEqual(priorManifest);
+        expect(targetRef).toBe(oldBase);
+        return priorReceipt;
+      },
+    });
+    expect(result.branch).toBe(superseding);
+    expect(result.receipt.materializedHeadSha).toBe(prepared);
+    expect(result.receipt.branchRef).toBe(superseding);
+    expect(result.receipt.supersedes.branchRef).toBe(baseBranch);
+    expect(result.receipt.supersedes.headSha).toBe(oldRemote);
+    expect(calls.some(call=>call.includes('push --quiet origin '+prepared+':refs/heads/'+superseding))).toBe(true);
+    expect(calls.some(call=>call.includes('--force'))).toBe(false);
+    expect(calls.some(call=>call.includes(' --delete ')||/git push(?:\s+--quiet)?\s+origin\s+:refs\/heads\//.test(call))).toBe(false);
+  });
+
+  it('reuses an exact deterministic superseding branch on retry without pushing',()=>{
+    const oldBase='1'.repeat(40),freshBase='2'.repeat(40),oldRemote='3'.repeat(40),freshRemote='4'.repeat(40),oldTree='5'.repeat(40),freshTree='6'.repeat(40);
+    const baseBranch='release-unit/dev-nocode-u01';
+    const priorManifest={
+      ...structuredClone(manifest),targetBaseSha:oldBase,manifestDigest:'old-manifest',sourceIdentity:{sourceCommit:'source',sealed:true},
+      childDevelopmentTransaction:{...structuredClone(manifest.childDevelopmentTransaction),planDigest:'old-plan',bindingDigest:'a'.repeat(64)},
+    };
+    const freshManifest={
+      ...structuredClone(manifest),targetBaseSha:freshBase,manifestDigest:'fresh-manifest',sourceIdentity:{sourceCommit:'source',sealed:true},
+      childDevelopmentTransaction:{...structuredClone(manifest.childDevelopmentTransaction),planDigest:'fresh-plan',bindingDigest:'b'.repeat(64)},
+    };
+    const priorReceipt={contract:'shoporation.release-unit-materialization.v1',status:'PREPARED',releaseUnitId:manifest.releaseUnitId,targetBaseSha:oldBase,commitSha:'7'.repeat(40),materializedHeadSha:'7'.repeat(40),treeSha:oldTree,manifestDigest:'old-manifest',bindingDigest:'a'.repeat(64),sourceCommit:'source',applied:[],alreadyApplied:[]};
+    const freshReceipt={contract:'shoporation.release-unit-materialization.v1',status:'PREPARED',releaseUnitId:manifest.releaseUnitId,targetBaseSha:freshBase,commitSha:'8'.repeat(40),materializedHeadSha:'8'.repeat(40),treeSha:freshTree,manifestDigest:'fresh-manifest',bindingDigest:'b'.repeat(64),sourceCommit:'source',applied:[],alreadyApplied:[]};
+    const superseding=materializationSupersedingBranch({baseBranch,manifest:freshManifest});
+    let fetchHead=null;const calls=[];
+    const run=(command,args)=>{
+      calls.push([command,...args].join(' '));
+      if(command!=='git')throw new Error('unexpected command');
+      if(args[0]==='ls-remote'){
+        const ref=args[2];
+        if(ref==='refs/heads/'+baseBranch)return oldRemote+'\t'+ref;
+        if(ref==='refs/heads/'+superseding)return freshRemote+'\t'+ref;
+      }
+      if(args[0]==='fetch'){fetchHead=args[3]==='refs/heads/'+baseBranch?oldRemote:freshRemote;return '';}
+      if(args[0]==='rev-parse'&&args[1]==='FETCH_HEAD')return fetchHead;
+      if(args[0]==='rev-list'&&args.at(-1)===oldRemote)return oldRemote+' '+oldBase;
+      if(args[0]==='rev-list'&&args.at(-1)===freshRemote)return freshRemote+' '+freshBase;
+      if(args[0]==='rev-parse'&&args[1]===oldRemote+'^{tree}')return oldTree;
+      if(args[0]==='rev-parse'&&args[1]===freshRemote+'^{tree}')return freshTree;
+      if(args[0]==='show'&&args.at(-1)===oldRemote)return releaseUnitCommitMessage(priorManifest);
+      if(args[0]==='show'&&args.at(-1)===freshRemote)return releaseUnitCommitMessage(freshManifest);
+      if(args[0]==='push')throw new Error('unexpected push');
+      throw new Error('unexpected git call: '+args.join(' '));
+    };
+    const result=reconcileMaterializationBranch({
+      priorExecution:{manifest:priorManifest,executionTransaction:{branchRef:baseBranch}},
+      manifest:freshManifest,receipt:freshReceipt,branch:baseBranch,sourceCommit:'source',run,materialize:()=>priorReceipt,
+    });
+    expect(result.branch).toBe(superseding);
+    expect(result.receipt.materializedHeadSha).toBe(freshRemote);
+    expect(result.receipt.reusedRemote).toBe(true);
+    expect(calls.some(call=>call.startsWith('git push '))).toBe(false);
+  });
+
+  it('fails closed when the occupied canonical branch is not the exact persisted prior materialization',()=>{
+    const oldBase='1'.repeat(40),freshBase='2'.repeat(40),remote='3'.repeat(40),oldTree='5'.repeat(40),freshTree='6'.repeat(40),baseBranch='release-unit/dev-nocode-u01';
+    const priorManifest={...structuredClone(manifest),targetBaseSha:oldBase,manifestDigest:'old-manifest',sourceIdentity:{sourceCommit:'source',sealed:true},childDevelopmentTransaction:{...structuredClone(manifest.childDevelopmentTransaction),planDigest:'old-plan',bindingDigest:'a'.repeat(64)}};
+    const freshManifest={...structuredClone(manifest),targetBaseSha:freshBase,manifestDigest:'fresh-manifest',sourceIdentity:{sourceCommit:'source',sealed:true},childDevelopmentTransaction:{...structuredClone(manifest.childDevelopmentTransaction),planDigest:'fresh-plan',bindingDigest:'b'.repeat(64)}};
+    const priorReceipt={contract:'shoporation.release-unit-materialization.v1',status:'PREPARED',releaseUnitId:manifest.releaseUnitId,targetBaseSha:oldBase,commitSha:'7'.repeat(40),materializedHeadSha:'7'.repeat(40),treeSha:oldTree,manifestDigest:'old-manifest',bindingDigest:'a'.repeat(64),sourceCommit:'source',applied:[],alreadyApplied:[]};
+    const freshReceipt={contract:'shoporation.release-unit-materialization.v1',status:'PREPARED',releaseUnitId:manifest.releaseUnitId,targetBaseSha:freshBase,commitSha:'8'.repeat(40),materializedHeadSha:'8'.repeat(40),treeSha:freshTree,manifestDigest:'fresh-manifest',bindingDigest:'b'.repeat(64),sourceCommit:'source',applied:[],alreadyApplied:[]};
+    const calls=[];
+    const run=(command,args)=>{
+      calls.push([command,...args].join(' '));
+      if(args[0]==='ls-remote')return remote+'\trefs/heads/'+baseBranch;
+      if(args[0]==='fetch')return '';
+      if(args[0]==='rev-parse'&&args[1]==='FETCH_HEAD')return remote;
+      if(args[0]==='rev-list')return remote+' '+oldBase;
+      if(args[0]==='rev-parse'&&args[1]===remote+'^{tree}')return oldTree;
+      if(args[0]==='show')return 'foreign materialization';
+      if(args[0]==='push')throw new Error('push forbidden');
+      throw new Error('unexpected git call: '+args.join(' '));
+    };
+    expect(()=>reconcileMaterializationBranch({
+      priorExecution:{manifest:priorManifest,executionTransaction:{branchRef:baseBranch}},
+      manifest:freshManifest,receipt:freshReceipt,branch:baseBranch,sourceCommit:'source',run,materialize:()=>priorReceipt,
+    })).toThrow(/RELEASE_UNIT_PRIOR_REMOTE_BRANCH_NONCANONICAL/);
+    expect(calls.some(call=>call.startsWith('git push '))).toBe(false);
+  });
+
+  it('persists a selected superseding branchRef before MATERIALIZED and PR creation',()=>{
+    const runtime=readFileSync('scripts/release-unit-github-runtime.mjs','utf8');
+    const start=runtime.indexOf('export function prepareActiveUnit');
+    const body=runtime.slice(start,runtime.indexOf('export function finishActiveUnit',start));
+    const selection=body.indexOf('reconcileMaterializationBranch');
+    const branchPersist=body.indexOf('branchRef:branch,supersedesBranchRef:canonicalBranch');
+    const materialized=body.indexOf("type:'MATERIALIZED'");
+    const pr=body.indexOf('ensureExactPullRequest');
+    expect(selection).toBeGreaterThanOrEqual(0);
+    expect(branchPersist).toBeGreaterThan(selection);
+    expect(materialized).toBeGreaterThan(branchPersist);
+    expect(pr).toBeGreaterThan(materialized);
+  });
+
   it('reuses an exact pre-existing remote materialization on rerun without pushing a replacement commit',()=>{
     const remote='b'.repeat(40),prepared='d'.repeat(40),tree='c'.repeat(40);
     const branch='release-unit/dev-nocode-u01';
@@ -157,6 +307,7 @@ describe('Control Plane production release surface',()=>{
       if(args[0]==='rev-parse'&&args[1]==='FETCH_HEAD')return remote;
       if(args[0]==='rev-list')return remote+' '+A;
       if(args[0]==='rev-parse'&&args[1]===remote+'^{tree}')return 'e'.repeat(40);
+      if(args[0]==='show')return releaseUnitCommitMessage(manifest);
       throw new Error('unexpected git call: '+args.join(' '));
     };
     expect(()=>reconcileExactMaterializedCommit({manifest,receipt,branch,run,cwd:process.cwd()})).toThrow(/RELEASE_UNIT_REMOTE_BRANCH_TREE_DRIFT/);

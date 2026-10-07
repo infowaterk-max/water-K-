@@ -123,27 +123,105 @@ function remoteMaterializedBranchHead({branch,run=defaultRun,cwd=process.cwd()}=
     return remoteRef===ref?sha:null;
   }catch{return null;}
 }
-export function reconcileExactMaterializedCommit({manifest,receipt,branch,run=defaultRun,cwd=process.cwd()}={}){
-  if(receipt?.status==='ALREADY_APPLIED')return receipt;
-  if(!manifest||!branch||!receipt||!['PREPARED','APPLIED'].includes(receipt.status))throw new Error('RELEASE_UNIT_MATERIALIZATION_RECONCILIATION_INPUT_INVALID');
-  if(receipt.targetBaseSha!==manifest.targetBaseSha||receipt.manifestDigest!==manifest.manifestDigest||receipt.bindingDigest!==(manifest.childDevelopmentTransaction?.bindingDigest??null))throw new Error('RELEASE_UNIT_MATERIALIZATION_RECONCILIATION_IDENTITY_MISMATCH');
+
+function inspectRemoteMaterializedBranch({branch,run=defaultRun,cwd=process.cwd()}={}){
   const remoteSha=remoteMaterializedBranchHead({branch,run,cwd});
-  if(!remoteSha){
-    pushExactMaterializedCommit({commitSha:receipt.materializedHeadSha,branch,run,cwd});
-    return receipt;
-  }
+  if(!remoteSha)return null;
   const ref='refs/heads/'+branch;
   run('git',['fetch','--quiet','origin',ref],{cwd});
   const fetched=text(run('git',['rev-parse','FETCH_HEAD'],{cwd}));
   if(fetched!==remoteSha)throw new Error('RELEASE_UNIT_REMOTE_BRANCH_MOVED:'+remoteSha+':'+fetched);
   const lineage=text(run('git',['rev-list','--parents','-n','1',remoteSha],{cwd})).split(/\s+/);
-  if(lineage.length!==2||lineage[0]!==remoteSha||lineage[1]!==manifest.targetBaseSha)throw new Error('RELEASE_UNIT_REMOTE_BRANCH_BASE_DRIFT:'+remoteSha+':'+String(lineage.slice(1).join(',')));
-  const remoteTree=text(run('git',['rev-parse',remoteSha+'^{tree}'],{cwd}));
-  if(remoteTree!==receipt.treeSha)throw new Error('RELEASE_UNIT_REMOTE_BRANCH_TREE_DRIFT:'+remoteSha+':'+remoteTree+':'+String(receipt.treeSha??''));
-  const remoteMessage=text(run('git',['show','-s','--format=%B',remoteSha],{cwd}));
-  const expectedMessage=releaseUnitCommitMessage(manifest);
-  if(remoteMessage!==expectedMessage)throw new Error('RELEASE_UNIT_REMOTE_BRANCH_IDENTITY_DRIFT:'+remoteSha);
-  return{...receipt,commitSha:remoteSha,materializedHeadSha:remoteSha,reusedRemote:true};
+  if(lineage[0]!==remoteSha)throw new Error('RELEASE_UNIT_REMOTE_BRANCH_LINEAGE_INVALID:'+remoteSha);
+  return{
+    branch,
+    sha:remoteSha,
+    parents:lineage.slice(1),
+    treeSha:text(run('git',['rev-parse',remoteSha+'^{tree}'],{cwd})),
+    message:text(run('git',['show','-s','--format=%B',remoteSha],{cwd})),
+  };
+}
+
+function remoteMaterializationDrift({remote,manifest,receipt}={}){
+  if(!remote)return{kind:'MISSING'};
+  if(remote.parents.length!==1||remote.parents[0]!==manifest.targetBaseSha)return{kind:'BASE',actual:remote.parents.join(',')};
+  if(remote.treeSha!==receipt.treeSha)return{kind:'TREE',actual:remote.treeSha,expected:receipt.treeSha};
+  if(remote.message!==releaseUnitCommitMessage(manifest))return{kind:'IDENTITY'};
+  return null;
+}
+
+function throwRemoteMaterializationDrift(remote,drift){
+  if(drift?.kind==='BASE')throw new Error('RELEASE_UNIT_REMOTE_BRANCH_BASE_DRIFT:'+remote.sha+':'+String(drift.actual??''));
+  if(drift?.kind==='TREE')throw new Error('RELEASE_UNIT_REMOTE_BRANCH_TREE_DRIFT:'+remote.sha+':'+String(drift.actual??'')+':'+String(drift.expected??''));
+  if(drift?.kind==='IDENTITY')throw new Error('RELEASE_UNIT_REMOTE_BRANCH_IDENTITY_DRIFT:'+remote.sha);
+  throw new Error('RELEASE_UNIT_REMOTE_BRANCH_DRIFT:'+String(remote?.sha??'unknown'));
+}
+
+function reusedMaterializationReceipt(receipt,remote){
+  return{...receipt,commitSha:remote.sha,materializedHeadSha:remote.sha,reusedRemote:true};
+}
+
+export function materializationSupersedingBranch({baseBranch,manifest}={}){
+  const branch=text(baseBranch),target=text(manifest?.targetBaseSha).toLowerCase(),binding=text(manifest?.childDevelopmentTransaction?.bindingDigest).toLowerCase();
+  if(!branch)throw new Error('RELEASE_UNIT_SUPERSESSION_BASE_BRANCH_REQUIRED');
+  if(!/^[0-9a-f]{40}$/.test(target))throw new Error('RELEASE_UNIT_SUPERSESSION_TARGET_BASE_INVALID');
+  if(!/^[0-9a-f]{32,}$/.test(binding))throw new Error('RELEASE_UNIT_SUPERSESSION_BINDING_INVALID');
+  return branch+'-supersede-'+target.slice(0,12)+'-'+binding.slice(0,16);
+}
+
+export function reconcileExactMaterializedCommit({manifest,receipt,branch,run=defaultRun,cwd=process.cwd()}={}){
+  if(receipt?.status==='ALREADY_APPLIED')return receipt;
+  if(!manifest||!branch||!receipt||!['PREPARED','APPLIED'].includes(receipt.status))throw new Error('RELEASE_UNIT_MATERIALIZATION_RECONCILIATION_INPUT_INVALID');
+  if(receipt.targetBaseSha!==manifest.targetBaseSha||receipt.manifestDigest!==manifest.manifestDigest||receipt.bindingDigest!==(manifest.childDevelopmentTransaction?.bindingDigest??null))throw new Error('RELEASE_UNIT_MATERIALIZATION_RECONCILIATION_IDENTITY_MISMATCH');
+  const remote=inspectRemoteMaterializedBranch({branch,run,cwd});
+  if(!remote){
+    pushExactMaterializedCommit({commitSha:receipt.materializedHeadSha,branch,run,cwd});
+    return receipt;
+  }
+  const drift=remoteMaterializationDrift({remote,manifest,receipt});
+  if(drift)throwRemoteMaterializationDrift(remote,drift);
+  return reusedMaterializationReceipt(receipt,remote);
+}
+
+export function reconcileMaterializationBranch({priorExecution,manifest,receipt,branch,sourceCommit,run=defaultRun,cwd=process.cwd(),materialize=materializeReleaseUnit}={}){
+  if(receipt?.status==='ALREADY_APPLIED')return{branch,receipt};
+  if(!priorExecution?.manifest||!manifest||!branch||!receipt)throw new Error('RELEASE_UNIT_MATERIALIZATION_SUPERSESSION_INPUT_INVALID');
+  const remote=inspectRemoteMaterializedBranch({branch,run,cwd});
+  if(!remote){
+    pushExactMaterializedCommit({commitSha:receipt.materializedHeadSha,branch,run,cwd});
+    return{branch,receipt:{...receipt,branchRef:branch}};
+  }
+  const freshDrift=remoteMaterializationDrift({remote,manifest,receipt});
+  if(!freshDrift)return{branch,receipt:{...reusedMaterializationReceipt(receipt,remote),branchRef:branch}};
+  if(priorExecution.executionTransaction?.branchRef!==branch)throw new Error('RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH:'+String(priorExecution.executionTransaction?.branchRef??''));
+  let priorManifest;
+  try{
+    priorManifest=priorExecution.manifest.sourceIdentity?.sealed
+      ?structuredClone(priorExecution.manifest)
+      :sealReleaseUnitManifest(priorExecution.manifest,{sourceCommit,cwd});
+  }catch(error){
+    throw new Error('RELEASE_UNIT_PRIOR_MATERIALIZATION_SEAL_FAILED:'+String(error?.message??error));
+  }
+  if(priorManifest.releaseUnitId!==manifest.releaseUnitId)throw new Error('RELEASE_UNIT_PRIOR_MATERIALIZATION_UNIT_MISMATCH');
+  let priorReceipt;
+  try{
+    priorReceipt=materialize({manifest:priorManifest,targetRef:priorManifest.targetBaseSha,cwd,updateRef:false,message:releaseUnitCommitMessage(priorManifest)});
+  }catch(error){
+    throw new Error('RELEASE_UNIT_PRIOR_MATERIALIZATION_RECONSTRUCTION_FAILED:'+String(error?.message??error));
+  }
+  if(!['PREPARED','APPLIED'].includes(priorReceipt?.status))throw new Error('RELEASE_UNIT_PRIOR_REMOTE_BRANCH_NONCANONICAL:'+remote.sha+':NO_COMMIT');
+  const priorDrift=remoteMaterializationDrift({remote,manifest:priorManifest,receipt:priorReceipt});
+  if(priorDrift)throw new Error('RELEASE_UNIT_PRIOR_REMOTE_BRANCH_NONCANONICAL:'+remote.sha+':'+priorDrift.kind);
+  const supersedingBranch=materializationSupersedingBranch({baseBranch:branch,manifest});
+  const supersedingReceipt=reconcileExactMaterializedCommit({manifest,receipt,branch:supersedingBranch,run,cwd});
+  return{
+    branch:supersedingBranch,
+    receipt:{
+      ...supersedingReceipt,
+      branchRef:supersedingBranch,
+      supersedes:{branchRef:branch,headSha:remote.sha,targetBaseSha:priorManifest.targetBaseSha,manifestDigest:priorManifest.manifestDigest,bindingDigest:priorManifest.childDevelopmentTransaction?.bindingDigest??null},
+    },
+  };
 }
 export function ensureExactPullRequest({manifest,materializedHeadSha,branch,repo=null,run=defaultRun,cwd=process.cwd()}={}){
   const repository=repo??repoName(run,cwd),owner=ownerOf(repository);
@@ -381,9 +459,18 @@ export function prepareActiveUnit({state,currentMainSha,sourceCommit,run=default
   const sealed=sealReleaseUnitManifest(execution.manifest,{sourceCommit,cwd});
   execution={...execution,manifest:sealed,executionTransaction:{...execution.executionTransaction,manifestDigest:sealed.manifestDigest,bindingDigest:sealed.childDevelopmentTransaction?.bindingDigest??null,sourceIdentity:sealed.sourceIdentity}};
   next={...next,units:next.units.map(item=>item.releaseUnitId===execution.releaseUnitId?execution:item)};
-  const branch=execution.executionTransaction.branchRef;
+  const canonicalBranch=execution.executionTransaction.branchRef;
+  let branch=canonicalBranch;
   let receipt=materializeReleaseUnit({manifest:sealed,targetRef:'refs/remotes/origin/main',cwd,updateRef:false,message:releaseUnitCommitMessage(sealed)});
-  if(receipt.status!=='ALREADY_APPLIED')receipt=reconcileExactMaterializedCommit({manifest:sealed,receipt,branch,run,cwd});
+  if(receipt.status!=='ALREADY_APPLIED'){
+    const selected=reconcileMaterializationBranch({priorExecution:active,manifest:sealed,receipt,branch:canonicalBranch,sourceCommit,run,cwd});
+    branch=selected.branch;
+    receipt=selected.receipt;
+    if(branch!==canonicalBranch){
+      execution={...execution,executionTransaction:{...execution.executionTransaction,branchRef:branch,supersedesBranchRef:canonicalBranch}};
+      next={...next,units:next.units.map(item=>item.releaseUnitId===execution.releaseUnitId?execution:item)};
+    }
+  }
   next=applyReleaseUnitEvent(next,{type:'MATERIALIZED',releaseUnitId:execution.releaseUnitId,receipt});
   if(receipt.status==='ALREADY_APPLIED'){
     const proof=proveAlreadyAppliedChild({manifest:sealed,receipt,currentMainSha,run,cwd});
