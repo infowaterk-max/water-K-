@@ -200,14 +200,7 @@ export function reconcileExactMaterializedCommit({manifest,receipt,branch,run=de
 export function reconcileMaterializationBranch({priorExecution,manifest,receipt,branch,sourceCommit,run=defaultRun,cwd=process.cwd(),materialize=materializeReleaseUnit}={}){
   if(receipt?.status==='ALREADY_APPLIED')return{branch,receipt};
   if(!priorExecution?.manifest||!manifest||!branch||!receipt)throw new Error('RELEASE_UNIT_MATERIALIZATION_SUPERSESSION_INPUT_INVALID');
-  const remote=inspectRemoteMaterializedBranch({branch,run,cwd});
-  if(!remote){
-    pushExactMaterializedCommit({commitSha:receipt.materializedHeadSha,branch,run,cwd});
-    return{branch,receipt:{...receipt,branchRef:branch}};
-  }
-  const freshDrift=remoteMaterializationDrift({remote,manifest,receipt});
-  if(!freshDrift)return{branch,receipt:{...reusedMaterializationReceipt(receipt,remote),branchRef:branch}};
-  if(priorExecution.executionTransaction?.branchRef!==branch)throw new Error('RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_MISMATCH:'+String(priorExecution.executionTransaction?.branchRef??''));
+  const rootBranch=branch;
   let priorManifest;
   try{
     priorManifest=priorExecution.manifest.sourceIdentity?.sealed
@@ -217,6 +210,19 @@ export function reconcileMaterializationBranch({priorExecution,manifest,receipt,
     throw new Error('RELEASE_UNIT_PRIOR_MATERIALIZATION_SEAL_FAILED:'+String(error?.message??error));
   }
   if(priorManifest.releaseUnitId!==manifest.releaseUnitId)throw new Error('RELEASE_UNIT_PRIOR_MATERIALIZATION_UNIT_MISMATCH');
+  const priorBranch=text(priorExecution.executionTransaction?.branchRef)||rootBranch;
+  const canonicalPriorSupersedingBranch=materializationSupersedingBranch({baseBranch:rootBranch,manifest:priorManifest});
+  if(priorBranch!==rootBranch&&priorBranch!==canonicalPriorSupersedingBranch){
+    throw new Error('RELEASE_UNIT_PRIOR_MATERIALIZATION_BRANCH_NONCANONICAL:'+priorBranch+':'+canonicalPriorSupersedingBranch);
+  }
+  const remote=inspectRemoteMaterializedBranch({branch:priorBranch,run,cwd});
+  if(!remote){
+    if(priorBranch!==rootBranch)throw new Error('RELEASE_UNIT_PRIOR_REMOTE_BRANCH_MISSING:'+priorBranch);
+    pushExactMaterializedCommit({commitSha:receipt.materializedHeadSha,branch:rootBranch,run,cwd});
+    return{branch:rootBranch,receipt:{...receipt,branchRef:rootBranch}};
+  }
+  const freshDrift=remoteMaterializationDrift({remote,manifest,receipt});
+  if(!freshDrift)return{branch:priorBranch,receipt:{...reusedMaterializationReceipt(receipt,remote),branchRef:priorBranch}};
   let priorReceipt;
   try{
     priorReceipt=materialize({manifest:priorManifest,targetRef:priorManifest.targetBaseSha,cwd,updateRef:false,message:releaseUnitCommitMessage(priorManifest)});
@@ -226,14 +232,14 @@ export function reconcileMaterializationBranch({priorExecution,manifest,receipt,
   if(!['PREPARED','APPLIED'].includes(priorReceipt?.status))throw new Error('RELEASE_UNIT_PRIOR_REMOTE_BRANCH_NONCANONICAL:'+remote.sha+':NO_COMMIT');
   const priorDrift=remoteMaterializationDrift({remote,manifest:priorManifest,receipt:priorReceipt});
   if(priorDrift)throw new Error('RELEASE_UNIT_PRIOR_REMOTE_BRANCH_NONCANONICAL:'+remote.sha+':'+priorDrift.kind);
-  const supersedingBranch=materializationSupersedingBranch({baseBranch:branch,manifest});
+  const supersedingBranch=materializationSupersedingBranch({baseBranch:rootBranch,manifest});
   const supersedingReceipt=reconcileExactMaterializedCommit({manifest,receipt,branch:supersedingBranch,run,cwd});
   return{
     branch:supersedingBranch,
     receipt:{
       ...supersedingReceipt,
       branchRef:supersedingBranch,
-      supersedes:{branchRef:branch,headSha:remote.sha,targetBaseSha:priorManifest.targetBaseSha,manifestDigest:priorManifest.manifestDigest,bindingDigest:priorManifest.childDevelopmentTransaction?.bindingDigest??null},
+      supersedes:{branchRef:priorBranch,headSha:remote.sha,targetBaseSha:priorManifest.targetBaseSha,manifestDigest:priorManifest.manifestDigest,bindingDigest:priorManifest.childDevelopmentTransaction?.bindingDigest??null},
     },
   };
 }
