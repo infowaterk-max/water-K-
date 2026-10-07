@@ -11,6 +11,7 @@ export const RELEASE_UNIT_MANIFEST_CONTRACT='shoporation.release-unit-manifest.v
 export const DEFAULT_MAX_FILES_PER_UNIT=12;
 export const RELEASE_UNIT_CHILD_TRANSACTION_CONTRACT='shoporation.release-unit-child-transaction.v1';
 export const RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT='shoporation.release-unit-main-advance-proof.v1';
+export const RELEASE_UNIT_CONFLICT_RESOLUTION_CONTRACT='shoporation.release-unit-conflict-resolution.v1';
 
 const uniq=values=>[...new Set((values??[]).filter(Boolean))].sort();
 const operationPaths=operation=>uniq([operation.file,operation.previousFile]);
@@ -548,28 +549,95 @@ function releaseUnitStageEntry(cwd,file){
   if(!fileMode||!blobSha||stage!=='0')throw new Error(`RELEASE_UNIT_MODIFY_STAGE_INVALID:${file}`);
   return{blobSha,fileMode};
 }
-function modifiedBlob({cwd,targetBaseSha,sourceCommit,operation}){
+const releaseUnitSlug=value=>String(value??'').trim().toLowerCase().replace(/[^a-z0-9._-]+/g,'-').replace(/^-+|-+$/g,'')||'release-unit';
+const releaseUnitPatchDigest=patch=>createHash('sha256').update(patch).digest('hex');
+const structuredReleaseUnitError=(code,details,message=null)=>{
+  const error=new Error(message??code);
+  error.code=code;
+  error.details=structuredClone(details??{});
+  return error;
+};
+export function releaseUnitConflictResolutionPath({releaseUnitId,file,sourceParent,sourceCommit,sourcePatchDigest}={}){
+  const identity={releaseUnitId:String(releaseUnitId??''),file:String(file??''),sourceParent:String(sourceParent??''),sourceCommit:String(sourceCommit??''),sourcePatchDigest:String(sourcePatchDigest??'')};
+  return `quality/development/release-unit-conflict-resolutions/${releaseUnitSlug(identity.releaseUnitId)}/${strongDigest(identity)}.json`;
+}
+function releaseUnitModifyPatchContext({cwd,releaseUnitId,targetBaseSha,sourceCommit,operation}){
   const file=operation.file;
   const sourceParent=releaseUnitModifySourceParent({cwd,sourceCommit,operation});
   const parentBlob=blobAt(cwd,sourceParent,file);
   const sourceBlob=blobAt(cwd,sourceCommit,file);
   const targetBlob=blobAt(cwd,targetBaseSha,file);
+  const targetFileMode=modeAt(cwd,targetBaseSha,file);
   if(!parentBlob)throw new Error(`RELEASE_UNIT_MODIFY_SOURCE_PARENT_BLOB_MISSING:${file}`);
   if(!sourceBlob)throw new Error(`RELEASE_UNIT_MODIFY_SOURCE_BLOB_MISSING:${file}`);
   if(!targetBlob)throw new Error(`RELEASE_UNIT_MODIFY_TARGET_BLOB_MISSING:${file}`);
   if(operation.source?.mode!=='sealed'||operation.source?.commit!==sourceCommit||operation.source?.blobSha!==sourceBlob)throw new Error(`RELEASE_UNIT_MODIFY_SOURCE_IDENTITY_MISMATCH:${file}`);
   const patch=execFileSync('git',['diff','--binary','--full-index',sourceParent,sourceCommit,'--',file],{cwd,stdio:['ignore','pipe','pipe']});
   if(!patch?.length)throw new Error(`RELEASE_UNIT_MODIFY_SOURCE_DELTA_EMPTY:${file}`);
+  const sourcePatchDigest=releaseUnitPatchDigest(patch);
+  const resolutionRecordPath=releaseUnitConflictResolutionPath({releaseUnitId,file,sourceParent,sourceCommit,sourcePatchDigest});
+  return{releaseUnitId,file,sourceParent,sourceCommit,sourcePatchDigest,targetBaseSha,targetBlobSha:targetBlob,targetFileMode,resolutionRecordPath,patch};
+}
+export function releaseUnitModifyConflictIdentity({cwd=process.cwd(),releaseUnitId,targetBaseSha,sourceCommit,operation}={}){
+  const {patch,...identity}=releaseUnitModifyPatchContext({cwd,releaseUnitId,targetBaseSha,sourceCommit,operation});
+  return identity;
+}
+function releaseUnitResolutionRecordAt({cwd,targetBaseSha,resolutionRecordPath,identity}){
+  let raw;
+  try{raw=git(cwd,['show',`${targetBaseSha}:${resolutionRecordPath}`]);}
+  catch{return{status:'MISSING',record:null};}
+  let record;
+  try{record=JSON.parse(raw);}
+  catch(error){throw structuredReleaseUnitError('RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID',{...identity,reason:'MALFORMED_JSON',parseError:String(error?.message??error)},`RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID:${identity.file}:MALFORMED_JSON`);}
+  return{status:'FOUND',record};
+}
+function validateReleaseUnitConflictResolution({cwd,targetBaseSha,identity,record}){
+  const mismatches=[];
+  const exact={
+    contract:RELEASE_UNIT_CONFLICT_RESOLUTION_CONTRACT,
+    releaseUnitId:identity.releaseUnitId,
+    file:identity.file,
+    sourceParent:identity.sourceParent,
+    sourceCommit:identity.sourceCommit,
+    sourcePatchDigest:identity.sourcePatchDigest,
+  };
+  for(const [field,expected] of Object.entries(exact))if(record?.[field]!==expected)mismatches.push({field,expected,actual:record?.[field]??null});
+  if(!String(record?.resolutionPlanTaskId??'').trim())mismatches.push({field:'resolutionPlanTaskId',expected:'non-empty',actual:record?.resolutionPlanTaskId??null});
+  if(!/^[0-9a-f]{40}$/i.test(String(record?.resolutionBaseSha??'')))mismatches.push({field:'resolutionBaseSha',expected:'40-hex ancestor',actual:record?.resolutionBaseSha??null});
+  else{
+    const ancestor=spawnSync('git',['merge-base','--is-ancestor',record.resolutionBaseSha,targetBaseSha],{cwd,encoding:'utf8',env:{...process.env,GH_TOKEN:'',GITHUB_TOKEN:''}});
+    if(ancestor.status!==0)mismatches.push({field:'resolutionBaseSha',expected:`ancestor-of:${targetBaseSha}`,actual:record.resolutionBaseSha});
+  }
+  if(record?.resolvedBlobSha!==identity.targetBlobSha)mismatches.push({field:'resolvedBlobSha',expected:identity.targetBlobSha,actual:record?.resolvedBlobSha??null});
+  if(record?.resolvedFileMode!==identity.targetFileMode)mismatches.push({field:'resolvedFileMode',expected:identity.targetFileMode,actual:record?.resolvedFileMode??null});
+  if(mismatches.length)throw structuredReleaseUnitError('RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID',{...identity,mismatches},`RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID:${identity.file}`);
+  return{
+    contract:RELEASE_UNIT_CONFLICT_RESOLUTION_CONTRACT,
+    resolutionRecordPath:identity.resolutionRecordPath,
+    resolutionPlanTaskId:record.resolutionPlanTaskId,
+    resolutionBaseSha:record.resolutionBaseSha,
+    resolvedBlobSha:record.resolvedBlobSha,
+    resolvedFileMode:record.resolvedFileMode,
+    sourcePatchDigest:identity.sourcePatchDigest,
+  };
+}
+function modifiedBlob({cwd,releaseUnitId,targetBaseSha,sourceCommit,operation}){
+  const context=releaseUnitModifyPatchContext({cwd,releaseUnitId,targetBaseSha,sourceCommit,operation});
   const worktree=mkdtempSync(path.join(os.tmpdir(),'shoperation-release-unit-modify-'));
   try{
     git(cwd,['worktree','add','--detach',worktree,targetBaseSha]);
     const applied=spawnSync('git',['apply','--3way','--index','--binary','-'],{
-      cwd:worktree,input:patch,encoding:'utf8',env:{...process.env,GH_TOKEN:'',GITHUB_TOKEN:''},
+      cwd:worktree,input:context.patch,encoding:'utf8',env:{...process.env,GH_TOKEN:'',GITHUB_TOKEN:''},
     });
-    if(applied.status!==0)throw new Error(`RELEASE_UNIT_MODIFY_PATCH_CONFLICT:${file}:${String(applied.stderr||applied.stdout||'').trim()}`);
+    if(applied.status!==0){
+      const {status,record}=releaseUnitResolutionRecordAt({cwd,targetBaseSha,resolutionRecordPath:context.resolutionRecordPath,identity:context});
+      if(status==='MISSING')throw structuredReleaseUnitError('RELEASE_UNIT_MODIFY_PATCH_CONFLICT',{...context,patch:undefined,gitApplyError:String(applied.stderr||applied.stdout||'').trim()},`RELEASE_UNIT_MODIFY_PATCH_CONFLICT:${context.file}`);
+      const resolution=validateReleaseUnitConflictResolution({cwd,targetBaseSha,identity:context,record});
+      return{blobSha:context.targetBlobSha,fileMode:context.targetFileMode,resolution};
+    }
     const staged=git(worktree,['diff','--cached','--name-only','--']).split('\n').filter(Boolean);
-    if(staged.some(item=>item!==file))throw new Error(`RELEASE_UNIT_MODIFY_PATCH_SCOPE_DRIFT:${file}:${staged.join(',')}`);
-    return releaseUnitStageEntry(worktree,file);
+    if(staged.some(item=>item!==context.file))throw new Error(`RELEASE_UNIT_MODIFY_PATCH_SCOPE_DRIFT:${context.file}:${staged.join(',')}`);
+    return releaseUnitStageEntry(worktree,context.file);
   }finally{
     try{git(cwd,['worktree','remove','--force',worktree]);}catch{}
     try{rmSync(worktree,{recursive:true,force:true});}catch{}
@@ -602,11 +670,12 @@ export function materializeReleaseUnit({manifest,sourceCommit=null,targetRef='re
       let desired;
       if(operation.operation==='modify'&&operation.generated?.mode!=='regenerate'){
         if(targetBlob===operation.source?.blobSha){alreadyApplied.push({file:operation.file,operation:'modify'});continue;}
-        desired=modifiedBlob({cwd,targetBaseSha:sealed.targetBaseSha,sourceCommit:sealed.sourceIdentity.sourceCommit,operation});
+        desired=modifiedBlob({cwd,releaseUnitId:sealed.releaseUnitId,targetBaseSha:sealed.targetBaseSha,sourceCommit:sealed.sourceIdentity.sourceCommit,operation});
       }else{
         desired=operation.generated?.mode==='regenerate'?regeneratedBlob({cwd,sourceCommit:sealed.sourceIdentity.sourceCommit,operation}):{blobSha:operation.source?.blobSha,fileMode:operation.source?.fileMode??'100644'};
       }
       if(!desired.blobSha)throw new Error(`RELEASE_UNIT_SOURCE_IDENTITY_MISSING:${operation.file}`);
+      if(desired.resolution){alreadyApplied.push({file:operation.file,operation:operation.operation,resolution:desired.resolution});continue;}
       if(targetBlob===desired.blobSha){alreadyApplied.push({file:operation.file,operation:operation.operation});continue;}
       git(cwd,['update-index','--add','--cacheinfo',`${desired.fileMode},${desired.blobSha},${operation.file}`],{env});applied.push(operation);
     }

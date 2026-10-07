@@ -21,6 +21,11 @@ const text=value=>String(value??'').trim();
 const parse=value=>JSON.parse(String(value??'null'));
 const defaultRun=(command,args,{cwd=process.cwd(),input=null,env={}}={})=>execFileSync(command,args,{cwd,encoding:'utf8',input:input??undefined,stdio:['pipe','pipe','pipe'],env:{...process.env,...env}}).trim();
 const uniq=values=>[...new Set((values??[]).filter(Boolean))].sort();
+export function structuredReleaseUnitMaterializationBlock(error){
+  const code=text(error?.code);
+  if(!/^RELEASE_UNIT_(?:MODIFY_PATCH_CONFLICT|CONFLICT_RESOLUTION_INVALID)$/.test(code)||!error?.details||typeof error.details!=='object')return null;
+  return{decision:'BLOCK',code,error:text(error?.message)||code,details:structuredClone(error.details)};
+}
 
 export const stateRefFor=parentTransactionId=>'refs/heads/control-plane/release-state/'+text(parentTransactionId).toLowerCase().replace(/[^a-z0-9._/-]+/g,'-');
 
@@ -490,7 +495,14 @@ export function reevaluateSuccessorManifest({state,execution,currentMainSha,sour
   }
   let reconciled=reconcileReleaseUnitManifest(execution.manifest,{newBaseSha:currentMainSha,predecessorReceipts,trustedMainAdvance});
   const sealed=sealReleaseUnitManifest(reconciled,{sourceCommit,cwd});
-  const candidate=materializeReleaseUnit({manifest:sealed,targetRef:'refs/remotes/origin/main',cwd,updateRef:false,message:releaseUnitCommitMessage(sealed)});
+  let candidate;
+  try{
+    candidate=materializeReleaseUnit({manifest:sealed,targetRef:'refs/remotes/origin/main',cwd,updateRef:false,message:releaseUnitCommitMessage(sealed)});
+  }catch(error){
+    const blocked=structuredReleaseUnitMaterializationBlock(error);
+    if(blocked)return blocked;
+    throw error;
+  }
   const candidateHead=candidate.materializedHeadSha;
   const worktree=mkdtempSync(path.join(os.tmpdir(),'shoperation-release-unit-reeval-'));
   try{
@@ -586,7 +598,15 @@ export function prepareActiveUnit({state,currentMainSha,sourceCommit,run=default
   next={...next,units:next.units.map(item=>item.releaseUnitId===execution.releaseUnitId?execution:item)};
   const canonicalBranch=execution.executionTransaction.branchRef;
   let branch=canonicalBranch;
-  let receipt=materializeReleaseUnit({manifest:sealed,targetRef:'refs/remotes/origin/main',cwd,updateRef:false,message:releaseUnitCommitMessage(sealed)});
+  let receipt;
+  try{
+    receipt=materializeReleaseUnit({manifest:sealed,targetRef:'refs/remotes/origin/main',cwd,updateRef:false,message:releaseUnitCommitMessage(sealed)});
+  }catch(error){
+    const materializationBlock=structuredReleaseUnitMaterializationBlock(error);
+    if(!materializationBlock)throw error;
+    const blocked={...execution,state:'STALE',blocker:{code:materializationBlock.code,details:{error:materializationBlock.error,...materializationBlock.details}},lastTransition:{to:'STALE',code:materializationBlock.code}};
+    return{state:synchronizeReleaseParentExecution(next,blocked),decision:'BLOCK',reason:blocked.blocker,branch,manifest:sealed};
+  }
   if(receipt.status!=='ALREADY_APPLIED'){
     const selected=reconcileMaterializationBranch({priorExecution:active,manifest:sealed,receipt,branch:canonicalBranch,sourceCommit,run,cwd});
     branch=selected.branch;
