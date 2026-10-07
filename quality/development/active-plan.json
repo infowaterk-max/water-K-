@@ -1,26 +1,25 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
-  "task": "Add a canonical, exact-identity conflict-resolution receipt path for release-unit modify conflicts so true three-way conflicts remain fail-closed but can be resumed after a separately reviewed main resolution without mutating immutable source or child PR state.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-U03-EXACT-CONFLICT-RESOLUTION-V1",
+  "task": "Resolve the exact U03 rehearsal modify conflict on current main through a separately governed main resolution that preserves immutable U03 intent, adds the exact missing fixture-25 source artifact, and records the deterministic release-unit conflict-resolution receipt bound to the reviewed resolved blob.",
+  "status": "ready-for-implementation",
   "guardDigest": "a41cfd0c",
-  "changeBaseSha": "d73c7b5a4d7214a4301eab895fd1ebbee5316dd4",
+  "changeBaseSha": "6c897234b6c890f8ee38f86c08dc86f7b9f68fa2",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/lib/shoperation-release-unit-runtime.mjs",
-    "scripts/release-unit-github-runtime.mjs",
-    "tests/control-plane-release-unit-production-surface.test.ts"
+    "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+    "tests/control-plane-release-unit-production-surface.test.ts",
+    "quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json"
   ],
   "expectedSubsystems": [
+    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -92,52 +91,47 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-U03-EXACT-CONFLICT-RESOLUTION-V1",
     "riskTier": "critical",
-    "problemStatement": "The bounded multi-release-unit rehearsal has U01 and U02 closed. After the operation-aware main-overlap fix, U03 now reaches the correct downstream three-way materializer and fails with RELEASE_UNIT_MODIFY_PATCH_CONFLICT on tests/control-plane-release-unit-production-surface.test.ts. This is a real same-hunk conflict: the immutable source delta is not already present in current main, and automatic source-wins/target-wins resolution remains forbidden. The Control Plane currently has no canonical continuation path for such a legitimate conflict: the workflow aborts with a stack trace, the release-state cannot carry a structured exact conflict identity, and there is no machine-verifiable way for a separately reviewed main resolution to be recognized on replay. The missing capability is therefore a conflict-resolution receipt, not a broader auto-merge engine.",
+    "problemStatement": "Release Unit Execution #225 replayed immutable parent source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 on current main 6c897234b6c890f8ee38f86c08dc86f7b9f68fa2. U01 and U02 are already closed. U03 now fails at the intended downstream materializer with RELEASE_UNIT_MODIFY_PATCH_CONFLICT on tests/control-plane-release-unit-production-surface.test.ts. The exact immutable U03 source intent is small and reviewable: create fixture-25.json and extend the production-surface test so the bounded rehearsal fixture corpus is exactly fixture-01..25 with the canonical fixture contract. The generic receipt infrastructure from PR #1096 requires a separately governed main resolution whose reviewed target blob is bound by an exact deterministic receipt. Current main does not yet contain fixture-25 or the corpus test.",
     "observableOutcomes": [
-      "A modify three-way conflict returns structured RELEASE_UNIT_MODIFY_PATCH_CONFLICT details containing releaseUnitId, file, source parent, source commit, source patch digest, target base SHA, target blob SHA and deterministic resolution-record path.",
-      "Successor reevaluation catches the structured materialization conflict and persists it as a normal STALE blocker instead of terminating the workflow before canonical state persistence.",
-      "The deterministic resolution-record path is derived from immutable conflict identity and cannot be chosen by the record author.",
-      "A main-merged resolution record is accepted only if its contract, releaseUnitId, file, source parent/commit, patch digest and resolution base are exact and the current target blob/file mode equal the record's resolved blob/mode.",
-      "A valid resolution record is consulted only after ordinary three-way application fails; it cannot bypass a cleanly applicable source patch.",
-      "When a valid record proves the current-main blob is the reviewed resolution, materialization preserves that blob and records the modify operation as already applied via conflict resolution.",
-      "Missing, stale, forged or mismatched resolution records remain fail-closed.",
-      "No source-wins, target-wins, conflict-marker, fuzzy patch or manual child-PR mutation path is introduced.",
-      "The capability exposes enough exact metadata to create a separate Plan/CI/Truth-governed U03 resolution PR after this generic fix merges."
+      "The resolution branch starts from exact main 6c897234b6c890f8ee38f86c08dc86f7b9f68fa2.",
+      "fixture-25.json is byte-for-byte identical to immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65.",
+      "tests/control-plane-release-unit-production-surface.test.ts preserves all current-main evolution and adds only the U03 corpus-contract intent plus the required readdirSync import.",
+      "The exact receipt is written only at the deterministic path emitted by Release Unit Execution #225.",
+      "The receipt binds releaseUnitId, file, source parent, source commit and source patch digest exactly to the persisted blocker.",
+      "resolutionBaseSha is the pre-resolution main SHA and resolvedBlobSha/fileMode bind the reviewed resolved test file in the resolution commit.",
+      "The resolution PR passes normal Plan/Edit-Time/Replay/Risk/Quality/TypeScript/Build/Truth/Lifecycle proof before merge.",
+      "After merge, immutable source replay treats fixture-25 create and the conflict-resolved modify as exact already-applied operations, runs the full no-code child proof and closes U03 without manual child-PR edits or release-state mutation."
     ],
     "unresolvedRisks": [
-      "A resolution record could become a bypass if it is accepted without exact source patch identity.",
-      "A later main edit of the resolved file could make an old record stale while still leaving the record present.",
-      "A record authored against a non-ancestor resolution base must not be accepted.",
-      "The runtime must not consult a resolution record before proving ordinary three-way application actually conflicts.",
-      "A structured blocker that is thrown rather than returned could still prevent release-state persistence.",
-      "The resolved blob may preserve syntax while violating semantic source intent; final authority therefore remains the separately reviewed resolution PR plus normal CI/Truth, not the receipt alone.",
-      "A resolution record must not authorize writes outside the single declared modify file."
+      "Resolving by simply preserving target content would silently drop immutable U03 corpus-test intent.",
+      "Replacing the current test file with the old source version would delete substantial later main evolution.",
+      "Adding the corpus test without fixture-25 would intentionally make the resolution PR CI fail.",
+      "A receipt whose resolvedBlobSha is computed from a different test blob would become invalid or unsafe.",
+      "Any later edit to the resolved test file before U03 replay invalidates the receipt and must fail closed.",
+      "The stale U03 child PR #1074 must not be manually repaired or treated as proof authority."
     ],
     "scope": {
       "in": [
-        "Add shoporation.release-unit-conflict-resolution.v1 identity/path/validation primitives in scripts/lib/shoperation-release-unit-runtime.mjs.",
-        "Derive source patch digest from the immutable source parent→source commit exact per-file patch.",
-        "On three-way modify conflict, look up only the deterministic resolution record in the exact target-base tree.",
-        "Accept a resolution only when target-base ancestry and current target blob/file mode match the exact record.",
-        "Return resolution metadata in alreadyApplied materialization evidence.",
-        "Change scripts/release-unit-github-runtime.mjs successor materialization error handling so structured release-unit materialization errors become canonical BLOCK/STALE results with exact details.",
-        "Add behavioral regressions for no-record conflict, valid resolution receipt, forged blob, stale/non-ancestor base and unchanged clean three-way behavior."
+        "Create quality/knowledge/rehearsal-fixtures/v1/fixture-25.json with exact immutable source content.",
+        "Merge the immutable corpus-contract test intent into the current main production-surface test without removing current assertions.",
+        "Create the deterministic shoporation.release-unit-conflict-resolution.v1 receipt at the exact path emitted by the live blocker.",
+        "Bind the receipt to the resolved test blob created by this governed resolution transaction.",
+        "Replay the immutable rehearsal only after the resolution merges."
       ],
       "out": [
-        "No automatic source-wins/target-wins conflict resolution.",
-        "No LLM or heuristic merge inside the trusted runtime.",
-        "No fuzzy patch application, conflict-marker commit or partial materialization.",
-        "No manual edit of U03 child PR or control-plane release-state.",
-        "No immutable source rewrite.",
-        "No change to create/delete/rename/regenerate materialization semantics.",
+        "No edit to release-unit runtime or executor code.",
+        "No edit to the immutable source branch.",
+        "No manual U03 child PR repair.",
+        "No manual control-plane release-state mutation.",
+        "No source-wins or target-wins shortcut.",
         "No storefront, template, Supabase or deployment change."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This capability creates the only allowed escape hatch from an intentional fail-closed source-vs-main conflict. A weak receipt could become arbitrary code-substitution authority, so every accepted resolution must be cryptographically and historically bound to the immutable source delta and exact main state.",
+      "rationale": "This transaction is the human-governed semantic merge authority for one exact fail-closed release-unit conflict. It must preserve both immutable U03 intent and current-main evolution while producing a receipt that cannot authorize any other blob.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -147,46 +141,44 @@
         "what-if-matrix",
         "pairwise-interactions",
         "threat-failure-model",
-        "fault-injection",
-        "finite-state-exhaustion"
+        "fault-injection"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "The deterministic resolution key/path depends on releaseUnitId, file, sourceCommit, sourceParent and sourcePatchDigest.",
-        "RELEASE_UNIT_MODIFY_PATCH_CONFLICT exposes that exact identity plus targetBaseSha and targetBlobSha.",
-        "A missing record preserves RELEASE_UNIT_MODIFY_PATCH_CONFLICT and creates no materialized commit.",
-        "A valid record requires contract shoporation.release-unit-conflict-resolution.v1, exact identity fields, non-empty resolutionPlanTaskId, a resolutionBaseSha that is an ancestor of targetBaseSha, and resolvedBlobSha/fileMode equal to the exact file currently present at targetBaseSha.",
-        "A valid record is considered only after git apply --3way --index failed for the immutable source patch.",
-        "A valid record causes the target blob to be preserved and the operation to appear in alreadyApplied evidence with resolution metadata; no file content is taken from the record.",
-        "A forged patch digest, source commit, source parent, file, blob, file mode or non-ancestor resolution base is rejected with an explicit RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID blocker.",
-        "Successor reevaluation catches structured materialization errors and returns decision=BLOCK/code/details so prepareActiveUnit can persist STALE canonical release-state.",
-        "Existing clean three-way merge, current-main preservation, create semantics and conflict fail-closed regressions remain PASS.",
+        "The current-main test file remains structurally intact except for adding readdirSync and the bounded rehearsal fixture corpus test.",
+        "The corpus test expects exactly fixture-01.json through fixture-25.json and validates contract, fixtureId, ordinal, purpose and runtimeImpact for every fixture.",
+        "fixture-25.json exactly matches immutable source content and source blob identity.",
+        "The receipt path is exactly quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json.",
+        "The receipt contract is shoporation.release-unit-conflict-resolution.v1.",
+        "Receipt releaseUnitId is DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03.",
+        "Receipt file is tests/control-plane-release-unit-production-surface.test.ts.",
+        "Receipt sourceParent is b79f8805d9718961a5cb41d4babaf11fd85dda5a.",
+        "Receipt sourceCommit is 65e52ffd1fd32f14353467eb7c52b2e06ba1be65.",
+        "Receipt sourcePatchDigest is 1569812908caffa0f770724401c4db6973f98ae963353806cade53690cb5446d.",
+        "Receipt resolutionBaseSha is 6c897234b6c890f8ee38f86c08dc86f7b9f68fa2, an ancestor of the merged target.",
+        "Receipt resolvedBlobSha equals the exact Git blob SHA of the resolved test content in the resolution commit and resolvedFileMode is 100644.",
         "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge.",
-        "After generic merge, replay immutable source to obtain the exact U03 resolution identity, then resolve U03 only through a separate governed main PR plus receipt and replay again."
+        "Post-merge immutable source replay advances beyond RELEASE_UNIT_MODIFY_PATCH_CONFLICT and closes U03 only through the canonical already-applied proof path."
       ],
       "invariants": [
-        "Immutable source commit and source patch remain the authority for what conflict is being resolved.",
-        "The resolution receipt never supplies executable file content; it only attests that the exact current-main blob is the approved resolution.",
-        "Only one deterministic receipt path exists for a given exact conflict identity.",
-        "A receipt cannot authorize a different file, source delta or target blob.",
-        "Ordinary clean three-way application wins over any receipt; receipt is fallback-only.",
-        "No thrown conflict may bypass canonical STALE state persistence.",
-        "Resolution approval occurs through normal main Plan/CI/Truth governance, not mutable PR metadata."
+        "Immutable source intent is preserved; no source assertion is silently discarded.",
+        "Current-main test evolution is preserved; no historical source file replacement is allowed.",
+        "The receipt never contains executable file content.",
+        "The receipt identifies only one exact conflict and one exact reviewed resolved blob.",
+        "fixture-25 source content is not rewritten or synthesized.",
+        "No stale child branch is mutated."
       ],
       "forbiddenStates": [
-        "source-wins-auto-resolution",
-        "target-wins-auto-resolution",
-        "fuzzy-conflict-auto-merge",
-        "record-supplied-file-content",
-        "wrong-source-patch-receipt-accepted",
-        "wrong-target-blob-receipt-accepted",
-        "non-ancestor-resolution-base-accepted",
-        "resolution-record-used-before-real-conflict",
-        "manual-u03-child-pr-repair",
-        "manual-release-state-mutation",
-        "partial-materialization-after-conflict"
+        "target-wins-drop-source-test",
+        "source-wins-delete-current-main-evolution",
+        "receipt-wrong-blob",
+        "receipt-wrong-patch-identity",
+        "fixture-25-noncanonical-content",
+        "resolution-pr-red-by-design",
+        "manual-u03-child-edit",
+        "manual-release-state-edit"
       ]
     },
     "model": {
@@ -218,64 +210,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Conflict still escapes as an uncaught workflow exception and release-state is not persisted.",
-        "Receipt lookup path can be influenced independently of conflict identity.",
-        "Receipt with a different patch digest or source commit is accepted.",
-        "Receipt points to a resolved blob different from current target-base file.",
-        "Receipt resolutionBaseSha is unrelated to current main history.",
-        "Receipt is used even though three-way patch would apply cleanly.",
-        "Valid receipt marks operation applied but materialization accidentally stages or commits the conflicting file anyway.",
-        "Existing create/delete/rename/regenerate behavior changes."
+        "Current-main test content is accidentally replaced by the historical source file.",
+        "Corpus test lands without fixture-25 and CI fails.",
+        "fixture-25 differs from immutable source.",
+        "Receipt is authored before resolved blob identity is known and points to the old target blob.",
+        "Receipt path or source patch identity differs from live #225 blocker.",
+        "A later edit changes the resolved file blob before replay and the receipt becomes stale.",
+        "Resolution merge succeeds but U03 no-code proof exposes another dependency/Truth blocker."
       ],
       "edgeCases": [
-        "no resolution record",
-        "malformed JSON record",
-        "wrong contract",
-        "wrong releaseUnitId",
-        "wrong file",
-        "wrong sourceParent",
-        "wrong sourceCommit",
-        "wrong sourcePatchDigest",
-        "wrong resolvedBlobSha",
-        "wrong resolvedFileMode",
-        "resolutionBaseSha not ancestor of targetBaseSha",
-        "resolutionBaseSha equals an older valid ancestor",
-        "clean three-way apply with stale record present",
-        "multiple later main commits after a valid resolution while file blob remains unchanged",
-        "later main edit changes resolved file blob while old record remains",
-        "binary or mode-only modify conflict"
+        "readdirSync is already imported under a grouped node:fs import and must be added without duplicate imports",
+        "the current test file has many later assertions after the historical source hunk",
+        "fixture-25 path does not exist on current main",
+        "source fixture content has trailing newline",
+        "receipt and resolved test file are created in the same atomic implementation commit",
+        "post-resolution main advances in unrelated files before replay while resolved blob remains unchanged",
+        "post-resolution main changes the resolved test file before replay"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-CANONICAL-MAIN-RESOLUTION-RECEIPT",
-        "summary": "Keep three-way conflict fail-closed, persist exact conflict identity, and allow replay only after a separately governed main resolution is bound by a deterministic exact receipt.",
+        "id": "ALT-GOVERNED-MERGED-RESOLUTION",
+        "summary": "Add exact fixture-25, merge only the source corpus-test intent into current main, and bind the reviewed resolved blob with the deterministic receipt.",
         "disposition": "selected",
-        "reason": "Preserves immutable-source authority and normal code-review/CI governance without teaching the trusted runtime to invent semantic merge resolutions."
+        "reason": "Preserves both immutable source intent and later main evolution while using the canonical conflict continuation path."
       },
       {
-        "id": "ALT-AUTO-SOURCE-WINS",
-        "summary": "On conflict, overwrite target with source content.",
+        "id": "ALT-TARGET-WINS",
+        "summary": "Create only the receipt pointing at unchanged current-main test content.",
         "disposition": "rejected",
-        "reason": "PR #1089 already proved this can delete hundreds of lines of later main evolution."
+        "reason": "Would silently discard the immutable U03 corpus-test intent."
       },
       {
-        "id": "ALT-AUTO-TARGET-WINS",
-        "summary": "Ignore the source hunk on conflict and keep target content.",
+        "id": "ALT-SOURCE-WINS",
+        "summary": "Replace current test file with the historical source version.",
         "disposition": "rejected",
-        "reason": "Would silently drop immutable release-unit intent."
+        "reason": "Would delete substantial later production-surface test evolution."
       },
       {
-        "id": "ALT-FUZZY-OR-AST-MERGE",
-        "summary": "Use heuristic/fuzzy/AST conflict resolution inside the trusted executor.",
+        "id": "ALT-CHILD-PR-MANUAL-REPAIR",
+        "summary": "Edit PR #1074 directly.",
         "disposition": "rejected",
-        "reason": "Would create an uncontrolled semantic code-authoring authority inside release infrastructure."
-      },
-      {
-        "id": "ALT-MANUAL-CHILD-PR-EDIT",
-        "summary": "Edit the U03 child branch until it passes.",
-        "disposition": "rejected",
-        "reason": "Breaks deterministic materialization and resumable proof."
+        "reason": "Breaks deterministic release-unit materialization and resumable proof."
       }
     ],
     "specialistReviews": [
@@ -283,163 +259,148 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A conflict-resolution mechanism can easily become a hidden general merge engine.",
-        "resolution": "The runtime never computes resolution content. It only validates a separately governed current-main blob against an exact deterministic receipt after genuine three-way failure.",
+        "finding": "The resolution PR could become an arbitrary merge-authority shortcut.",
+        "resolution": "Scope is fixed to the exact live conflict, immutable fixture and deterministic receipt; no runtime changes or other files are authorized.",
         "evidence": [
-          "PR #1089",
-          "RELEASE_UNIT_MODIFY_PATCH_CONFLICT",
-          "scripts/lib/shoperation-release-unit-runtime.mjs"
+          "Release Unit Execution #225",
+          "PR #1096"
         ]
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A receipt must not become arbitrary blob-substitution authority.",
-        "resolution": "Bind it to source parent, source commit, exact patch digest, release unit, file, ancestor resolution base and exact current-main blob/file mode; the record contains no executable content.",
+        "finding": "Receipt identity must not authorize an unreviewed blob.",
+        "resolution": "resolvedBlobSha is generated from the exact resolved test blob in the implementation commit and file mode is fixed to 100644.",
         "evidence": [
-          "sealReleaseUnitManifest",
-          "git object identity",
-          "protected main"
+          "shoporation.release-unit-conflict-resolution.v1"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Current U03 conflict is real and source intent is not already present in main.",
-        "resolution": "Preserve fail-closed conflict until a reviewed main resolution exists; then use exact blob equality to recognize the resolved state without rewriting it.",
+        "finding": "Both source intent and later current-main assertions must survive.",
+        "resolution": "Apply only the 18-line corpus-test intent to the current 66KB test file and preserve all existing content.",
         "evidence": [
-          "Release Unit Execution #217",
-          "tests/control-plane-release-unit-production-surface.test.ts",
-          "source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65"
+          "sourceParent b79f8805",
+          "sourceCommit 65e52ffd",
+          "main 6c897234"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "U01 and U02 are closed; U03 is final child and now blocked by legitimate modify conflict after operation-aware overlap correctly allowed downstream proof.",
-        "resolution": "Add canonical conflict handoff/receipt, then resolve U03 in a separate main PR and replay immutable source.",
+        "finding": "U01 and U02 are closed; U03 is final and blocked only on the exact modify conflict.",
+        "resolution": "Merge governed resolution, replay immutable source, require already-applied full proof and parent closure.",
         "evidence": [
           "PR #1053",
           "PR #1073",
-          "PR #1092",
-          "Release Unit Execution #217"
+          "Release Unit Execution #225"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Previous plans modeled fail-closed conflict detection but not resumable continuation after a legitimate conflict.",
-        "resolution": "Promote structured conflict identity and governed resolution receipt into permanent regression coverage.",
+        "finding": "The conflict is now exact and reproducible with deterministic receipt path.",
+        "resolution": "Keep the identity in plan/proof and allow no generic conflict resolution behavior.",
         "evidence": [
-          "DEV-CONTROL-PLANE-RELEASE-UNIT-MODIFY-PATCH-MATERIALIZATION-V1",
-          "CH-PATCH-02",
-          "CH-PATCH-05"
+          "quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-RES-01",
-        "scenario": "Three-way apply succeeds and a stale resolution record also exists.",
-        "finding": "Receipt must not override normal source patch semantics.",
-        "resolution": "Consult resolution only after actual three-way failure.",
+        "id": "CH-U03-RES-01",
+        "scenario": "Keep current test unchanged and write a valid receipt.",
+        "finding": "U03 source test intent would be lost.",
+        "resolution": "Rejected; resolved test must include corpus-contract assertions.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-02",
-        "scenario": "Three-way conflict with no receipt.",
-        "finding": "Current behavior aborts workflow before a reusable exact handoff exists.",
-        "resolution": "Throw/return structured conflict code and persist STALE with deterministic receipt path.",
+        "id": "CH-U03-RES-02",
+        "scenario": "Replace current test with historical source file.",
+        "finding": "Later main test evolution would be deleted.",
+        "resolution": "Rejected; merge only source delta into current file.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-03",
-        "scenario": "Receipt matches file but references another source patch.",
-        "finding": "Could launder unrelated code as conflict resolution.",
-        "resolution": "Exact source parent/commit/patch digest are mandatory.",
+        "id": "CH-U03-RES-03",
+        "scenario": "Add corpus test but omit fixture-25.",
+        "finding": "Resolution PR would fail its own Quality Tests.",
+        "resolution": "Include exact fixture-25 in the same governed transaction.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-04",
-        "scenario": "A conflict-resolution receipt names the correct release unit, file, source parent, source commit and patch digest, but its resolvedBlobSha differs by one byte from the blob currently stored for that exact file at targetBaseSha.",
-        "finding": "Accepting the receipt would authorize a main file version that was never the reviewed conflict resolution and would turn the receipt into arbitrary blob-substitution authority.",
-        "resolution": "Reject with RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID and include expected/actual resolved blob identity; do not stage, commit or mark the modify operation already applied.",
+        "id": "CH-U03-RES-04",
+        "scenario": "Receipt uses pre-resolution targetBlobSha 48548e... as resolvedBlobSha.",
+        "finding": "That blob does not contain the reviewed merged resolution.",
+        "resolution": "Compute resolvedBlobSha from the new merged test content blob and bind receipt to it.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-05",
-        "scenario": "Resolution base is not an ancestor of current target base.",
-        "finding": "Receipt came from unrelated history.",
-        "resolution": "Require git merge-base --is-ancestor resolutionBaseSha targetBaseSha.",
+        "id": "CH-U03-RES-05",
+        "scenario": "Receipt path or sourcePatchDigest differs by one byte.",
+        "finding": "Executor must reject the resolution as a different conflict.",
+        "resolution": "Use exact live blocker values without normalization.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-06",
-        "scenario": "Main advances after valid resolution without touching resolved file.",
-        "finding": "Exact target-base SHA equality would make a durable resolution unnecessarily stale.",
-        "resolution": "Allow descendant target bases only while current file blob/mode still equal receipt.",
+        "id": "CH-U03-RES-06",
+        "scenario": "After merge, U03 create sees fixture-25 already on main.",
+        "finding": "Could create duplicate work.",
+        "resolution": "Materializer exact-blob idempotency treats it as alreadyApplied; no duplicate commit is created.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-07",
-        "scenario": "Main later edits resolved file.",
-        "finding": "Old approval no longer proves current content.",
-        "resolution": "Blob/mode mismatch invalidates receipt and requires a new exact resolution.",
+        "id": "CH-U03-RES-07",
+        "scenario": "After merge, U03 modify patch still conflicts.",
+        "finding": "Expected because current file includes later main evolution.",
+        "resolution": "Executor consults exact receipt only after real three-way failure and preserves the reviewed resolved blob.",
         "status": "resolved"
       },
       {
-        "id": "CH-RES-08",
-        "scenario": "Conflict occurs after another operation was staged in temp index.",
-        "finding": "No partial child commit may survive.",
-        "resolution": "Existing transactional temp-index/worktree semantics remain; resolution lookup changes only the conflicted operation result.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-RES-09",
-        "scenario": "Structured materialization conflict is thrown inside successor reevaluation.",
-        "finding": "Workflow currently terminates before parent state can persist blocker details.",
-        "resolution": "Catch release-unit materialization errors and return BLOCK/code/details through prepareActiveUnit.",
+        "id": "CH-U03-RES-08",
+        "scenario": "U03 becomes fully already-applied.",
+        "finding": "No child PR is produced.",
+        "resolution": "Canonical no-code proof runs full guards/Truth/Lifecycle and emits a no-code main receipt before unit closure.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS before implementation.",
-      "Implement deterministic resolution identity/path and exact record validation in scripts/lib/shoperation-release-unit-runtime.mjs.",
-      "Catch structured successor materialization errors in scripts/release-unit-github-runtime.mjs and preserve code/details through canonical STALE state.",
-      "Extend tests/control-plane-release-unit-production-surface.test.ts with real temporary Git repositories proving no-record conflict, valid receipt, record tamper/staleness, clean-patch precedence and structured blocker propagation.",
-      "Require exact-head Knowledge/Plan/Edit-Time/Incremental/Release Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
+      "Commit this plan only and require Plan Before Code PASS before any resolution content is written.",
+      "Build the resolved test from the exact current-main file plus the immutable U03 corpus-test delta; do not replace the file wholesale.",
+      "Create fixture-25 from immutable source bytes.",
+      "Create the exact receipt in the same atomic implementation commit using the resolved test Git blob SHA returned by Git object creation.",
+      "Require exact-head Knowledge/Plan/Edit-Time/Replay/Release Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
       "Merge only after exact PR-head SUCCESS and green main CI.",
-      "Replay immutable source to obtain the exact U03 conflict identity from the new structured blocker.",
-      "Create a separate Plan/CI/Truth-governed main resolution PR containing only the conflict-resolved current-main file plus its exact resolution receipt, merge it, replay immutable source, and require U03 child proof/merge plus parent closure."
+      "Replay immutable source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and require U03 ALREADY_APPLIED full proof plus parent closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
+      "request": "PO-2026-10-07-CONTROL-PLANE-U03-EXACT-CONFLICT-RESOLUTION-V1",
       "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/release-unit-github-runtime.mjs"
-      ],
-      "mayEdit": [
         "tests/control-plane-release-unit-production-surface.test.ts"
       ],
+      "mayEdit": [],
       "impactedReadOnly": [
-        "scripts/release-unit-execute.mjs",
-        "tests/control-plane-release-unit-orchestration.test.ts",
-        "quality/knowledge/development-guard-policy.v1.json",
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/release-unit-github-runtime.mjs",
         "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
       ],
-      "mustCreate": [],
+      "mustCreate": [
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+        "quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json"
+      ],
       "forbidden": [
         "src/**",
         "supabase/**",
-        "deploy/**"
+        "deploy/**",
+        ".github/workflows/**"
       ],
       "proof": [
         "tests/control-plane-release-unit-production-surface.test.ts"
@@ -453,7 +414,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-U03-EXACT-CONFLICT-RESOLUTION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -471,11 +432,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT",
-        "requirement": "A real release-unit modify conflict must remain fail-closed yet resumable only through a separately governed exact current-main resolution bound to the immutable source delta by a deterministic machine-verifiable receipt.",
+        "id": "REQ-U03-EXACT-CONFLICT-RESOLUTION",
+        "requirement": "The exact U03 modify conflict must be resolved on main by preserving immutable corpus-test intent and current-main evolution, with the reviewed resolved blob cryptographically bound to the deterministic conflict receipt.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-conflict-resolution-receipt",
+          "breadth": "u03-exact-conflict-resolution",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -501,22 +462,22 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-CONFLICT-AUTO-MERGE",
-            "statement": "The trusted runtime may not invent source-wins, target-wins, fuzzy or AST merge resolutions.",
+            "id": "NEG-U03-SOURCE-INTENT-DROPPED",
+            "statement": "The immutable U03 corpus-test intent may not be omitted from the reviewed resolution.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-RESOLUTION-RECEIPT-TAMPER",
-            "statement": "A receipt with mismatched source patch identity, main ancestry or resolved blob may not be accepted.",
+            "id": "NEG-U03-MAIN-EVOLUTION-LOST",
+            "statement": "Later current-main production-surface assertions may not be removed by the resolution.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-CONFLICT-STATE-LOSS",
-            "statement": "A structured release-unit materialization conflict may not abort before canonical STALE blocker persistence.",
+            "id": "NEG-U03-RECEIPT-BLOB-MISMATCH",
+            "statement": "The conflict receipt may not point at a blob other than the exact reviewed resolved test file.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -525,18 +486,5 @@
       }
     ]
   },
-  "notes": "Live evidence: immutable rehearsal source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; U01 and U02 already closed. After PR #1092 operation-aware trusted main overlap merged, replay attempt 9 / Release Unit Execution #217 advanced beyond RELEASE_UNIT_MAIN_DRIFT and reached the intended downstream materializer, which failed with RELEASE_UNIT_MODIFY_PATCH_CONFLICT on tests/control-plane-release-unit-production-surface.test.ts. The source delta is not already present in current main. Prior modify-materialization governance explicitly forbids automatic side preference and manual child-PR repair, but no canonical reviewed conflict-resolution receipt/handoff currently exists. Plan Gate #9113 / run 37673325954 canonicalized expectedSubsystems to release-infrastructure, guardDigest to a41cfd0c, and required a concrete non-vacuous blob-mismatch adversarial challenge. This revision adopts those exact planner outputs without changing the conflict-resolution capability design.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "66fabb3888a50273474e1a2d8db809813a5961a6",
-    "closedAt": "2026-10-07T19:43:17.208Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-CONFLICT-RESOLUTION-RECEIPT-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Live exact conflict identity from Release Unit Execution #225: releaseUnitId DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03; file tests/control-plane-release-unit-production-surface.test.ts; sourceParent b79f8805d9718961a5cb41d4babaf11fd85dda5a; sourceCommit 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; sourcePatchDigest 1569812908caffa0f770724401c4db6973f98ae963353806cade53690cb5446d; targetBaseSha 6c897234b6c890f8ee38f86c08dc86f7b9f68fa2; old targetBlobSha 48548e4838cd2bdfeb0fe66876af771843282978; targetFileMode 100644; deterministic receipt path quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json."
 }
