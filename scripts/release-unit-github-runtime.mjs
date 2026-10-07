@@ -244,6 +244,29 @@ export function mergeExactPullRequest({prNumber,sourceHeadSha,repo=null,run=defa
   if(main!==result.sha)throw new Error('RELEASE_UNIT_POST_MERGE_MAIN_DRIFT:'+result.sha+':'+main);
   return{prNumber,sourceHeadSha,mergedMainSha:main,mergeMethod};
 }
+export function runSuccessorReevaluationPlan({worktree,planPath,currentMainSha,candidateHead,run=defaultRun}={}){
+  if(!worktree||!planPath||!currentMainSha||!candidateHead)throw new Error('RELEASE_UNIT_SUCCESSOR_REEVALUATION_INPUT_REQUIRED');
+  const proofEnv={
+    GH_TOKEN:'',
+    GITHUB_TOKEN:'',
+    SHOPERATION_ACTIVE_PLAN:planPath,
+    DEVELOPMENT_BASE_SHA:currentMainSha,
+    QUALITY_BASE_SHA:currentMainSha,
+    RELEASE_BASE_SHA:currentMainSha,
+    DEVELOPMENT_HEAD_SHA:candidateHead,
+    QUALITY_HEAD_SHA:candidateHead,
+    RELEASE_HEAD_SHA:candidateHead,
+    SHOPERATION_REPLAY_HEAD:candidateHead,
+  };
+  try{
+    run('npm',['ci','--ignore-scripts','--no-audit','--no-fund'],{cwd:worktree,env:proofEnv});
+    run(process.execPath,['scripts/shoperation-plan-before-code.mjs','--check'],{cwd:worktree,env:proofEnv});
+    return{decision:'PASS'};
+  }catch(error){
+    return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK',error:String(error?.stderr??error?.message??error)};
+  }
+}
+
 export function reevaluateSuccessorManifest({state,execution,currentMainSha,sourceCommit,run=defaultRun,cwd=process.cwd()}={}){
   const predecessorReceipts=(state.units??[])
     .filter(item=>(execution.manifest.predecessorUnits??[]).includes(item.releaseUnitId))
@@ -258,25 +281,8 @@ export function reevaluateSuccessorManifest({state,execution,currentMainSha,sour
     const planPath=path.join(worktree,'artifacts','shoperation-development-guard','release-unit-reevaluation-plan.json');
     mkdirSync(path.dirname(planPath),{recursive:true});
     writeFileSync(planPath,JSON.stringify(sealed.childDevelopmentTransaction.plan,null,2)+'\n');
-    try{
-      run(process.execPath,['scripts/shoperation-plan-before-code.mjs','--check'],{
-        cwd:worktree,
-        env:{
-          SHOPERATION_ACTIVE_PLAN:planPath,
-          DEVELOPMENT_BASE_SHA:currentMainSha,
-          QUALITY_BASE_SHA:currentMainSha,
-          RELEASE_BASE_SHA:currentMainSha,
-          DEVELOPMENT_HEAD_SHA:candidateHead,
-          QUALITY_HEAD_SHA:candidateHead,
-          RELEASE_HEAD_SHA:candidateHead,
-          SHOPERATION_REPLAY_HEAD:candidateHead,
-          GH_TOKEN:'',
-          GITHUB_TOKEN:'',
-        },
-      });
-    }catch(error){
-      return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK',error:String(error?.stderr??error?.message??error)};
-    }
+    const reevaluation=runSuccessorReevaluationPlan({worktree,planPath,currentMainSha,candidateHead,run});
+    if(reevaluation.decision!=='PASS')return reevaluation;
     const reportPath=path.join(worktree,'artifacts','shoperation-development-guard','plan-before-code.json');
     const report=parse(readFileSync(reportPath,'utf8'));
     if(report.decision!=='PASS')return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK',report};

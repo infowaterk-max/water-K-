@@ -2,7 +2,7 @@
 import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {applyReleaseUnitEvent,createReleaseParentExecution,recordReleaseParentClosure} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
-import {reconcileExactMaterializedCommit,releaseUnitCommitMessage} from '../scripts/release-unit-github-runtime.mjs';
+import {reconcileExactMaterializedCommit,releaseUnitCommitMessage,runSuccessorReevaluationPlan} from '../scripts/release-unit-github-runtime.mjs';
 
 const A='a'.repeat(40);
 const manifest={
@@ -158,6 +158,83 @@ describe('Control Plane production release surface',()=>{
       throw new Error('unexpected git call: '+args.join(' '));
     };
     expect(()=>reconcileExactMaterializedCommit({manifest,receipt,branch,run,cwd:process.cwd()})).toThrow(/RELEASE_UNIT_REMOTE_BRANCH_TREE_DRIFT/);
+  });
+
+  it('bootstraps exact locked reevaluation dependencies before semantic Plan and scrubs write tokens',()=>{
+    const calls=[];
+    const candidate='b'.repeat(40);
+    const run=(command,args,options={})=>{
+      calls.push({command,args,options});
+      return '';
+    };
+    const result=runSuccessorReevaluationPlan({
+      worktree:'/tmp/release-unit-reevaluation',
+      planPath:'/tmp/release-unit-reevaluation/artifacts/plan.json',
+      currentMainSha:A,
+      candidateHead:candidate,
+      run,
+    });
+    expect(result.decision).toBe('PASS');
+    expect(calls).toHaveLength(2);
+    expect(calls[0].command).toBe('npm');
+    expect(calls[0].args).toEqual(['ci','--ignore-scripts','--no-audit','--no-fund']);
+    expect(calls[0].options.cwd).toBe('/tmp/release-unit-reevaluation');
+    expect(calls[0].options.env.GH_TOKEN).toBe('');
+    expect(calls[0].options.env.GITHUB_TOKEN).toBe('');
+    expect(calls[1].command).toBe(process.execPath);
+    expect(calls[1].args).toEqual(['scripts/shoperation-plan-before-code.mjs','--check']);
+    expect(calls[1].options.env.SHOPERATION_ACTIVE_PLAN).toContain('artifacts/plan.json');
+    expect(calls[1].options.env.DEVELOPMENT_BASE_SHA).toBe(A);
+    expect(calls[1].options.env.DEVELOPMENT_HEAD_SHA).toBe(candidate);
+    expect(calls[1].options.env.GH_TOKEN).toBe('');
+    expect(calls[1].options.env.GITHUB_TOKEN).toBe('');
+  });
+
+  it('fails closed before semantic Plan when reevaluation dependency bootstrap fails',()=>{
+    const calls=[];
+    const run=(command,args,options={})=>{
+      calls.push({command,args,options});
+      if(command==='npm'){
+        const error=new Error('npm ci failed');
+        error.stderr='locked install failed';
+        throw error;
+      }
+      throw new Error('semantic Plan must not run after bootstrap failure');
+    };
+    const result=runSuccessorReevaluationPlan({
+      worktree:'/tmp/release-unit-reevaluation',
+      planPath:'/tmp/release-unit-reevaluation/artifacts/plan.json',
+      currentMainSha:A,
+      candidateHead:'b'.repeat(40),
+      run,
+    });
+    expect(result.decision).toBe('BLOCK');
+    expect(result.code).toBe('RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK');
+    expect(result.error).toContain('locked install failed');
+    expect(calls).toHaveLength(1);
+    expect(calls[0].command).toBe('npm');
+  });
+
+  it('keeps real semantic reevaluation failures fail-closed after dependency bootstrap succeeds',()=>{
+    const calls=[];
+    const run=(command,args,options={})=>{
+      calls.push({command,args,options});
+      if(command==='npm')return '';
+      const error=new Error('semantic reevaluation blocked');
+      error.stderr='PLAN_REEVALUATION_BLOCK';
+      throw error;
+    };
+    const result=runSuccessorReevaluationPlan({
+      worktree:'/tmp/release-unit-reevaluation',
+      planPath:'/tmp/release-unit-reevaluation/artifacts/plan.json',
+      currentMainSha:A,
+      candidateHead:'b'.repeat(40),
+      run,
+    });
+    expect(result.decision).toBe('BLOCK');
+    expect(result.code).toBe('RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK');
+    expect(result.error).toContain('PLAN_REEVALUATION_BLOCK');
+    expect(calls).toHaveLength(2);
   });
 
   it('scrubs write tokens from proof subprocesses',()=>{
