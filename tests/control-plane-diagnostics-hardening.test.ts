@@ -160,7 +160,8 @@ describe('Control Plane diagnostics and exact-head hardening',()=>{
 
   it('wires exact-head identity and structured diagnostics through existing workflows',()=>{
     const ci=read('.github/workflows/ci.yml');
-    expect(ci).toContain('RELEASE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}');
+    expect(ci).toContain("SHOPERATION_CI_HEAD_SHA: ${{ github.event.inputs.release_unit_head_sha || github.event.pull_request.head.sha || github.sha }}");
+    expect(ci).toContain('RELEASE_HEAD_SHA: ${{ env.SHOPERATION_CI_HEAD_SHA }}');
     expect(ci).toContain('SHOPERATION_DIAGNOSTIC_ARTIFACTS');
     expect(ci).toContain('RELEASE_RISK_BUDGET_FAILED=artifacts/release-risk-budget.json');
     expect(ci).toContain('failureFingerprint');
