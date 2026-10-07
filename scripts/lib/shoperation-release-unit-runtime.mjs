@@ -271,7 +271,7 @@ export function reprojectReleaseUnitChildTransaction(manifest,projection){
   if(child?.contract!==RELEASE_UNIT_CHILD_TRANSACTION_CONTRACT||!child.plan)throw new Error('RELEASE_UNIT_CHILD_TRANSACTION_REQUIRED');
   if(projection?.contract!==RELEASE_UNIT_CHILD_PLAN_PROJECTION_CONTRACT)throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_CONTRACT_INVALID');
   if(!String(projection.guardDigest??'').trim())throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_GUARD_DIGEST_REQUIRED');
-  for(const field of ['expectedSubsystems','expectedDomains','expectedAuthorities','expectedKnownFailureIds','acknowledgedPoInstructionIds','acknowledgedNegativeKnowledgeIds']){
+  for(const field of ['expectedSubsystems','expectedDomains','expectedAuthorities','expectedKnownFailureIds','acknowledgedPoInstructionIds','acknowledgedNegativeKnowledgeIds','requiredGates','externalGateIds']){
     if(!Array.isArray(projection[field]))throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_FIELD_REQUIRED:'+field);
   }
   const route=projection.semanticExecutionRoute;
@@ -299,6 +299,15 @@ export function reprojectReleaseUnitChildTransaction(manifest,projection){
     semanticExecutionRoute:structuredClone(route),
     executionAuthorized:true,
   };
+  if(plan.completionContract?.systemObligations){
+    plan.completionContract.systemObligations={
+      ...plan.completionContract.systemObligations,
+      derivation:'release-unit-manifest',
+      requiredGuards:uniq(projection.requiredGates),
+      externalGuards:uniq(projection.externalGateIds),
+      phase:'EXECUTE',
+    };
+  }
   plan.releaseUnitContext={
     ...(plan.releaseUnitContext??{}),
     targetBaseSha:next.targetBaseSha,
