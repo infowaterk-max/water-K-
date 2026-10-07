@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-REEVALUATION-DEPS-V1",
   "task": "Make isolated release-unit successor reevaluation resolve the exact locked dependency graph required by trusted semantic Plan/Atlas validation, while remaining fail-closed and preserving token/authority isolation.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "2446fb5f",
   "changeBaseSha": "fb436df11ae3dbc7c348e50fbc656e18a94f83cf",
   "plannedFilePatterns": [
@@ -405,5 +405,18 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #997/#998 after bounded rehearsal replay persisted U01 as STALE because isolated successor reevaluation could not import typescript. This commit is plan-only; no executor implementation is authorized until Plan Before Code reconciles the exact projected scope. Plan-only projection 37573408409 reported subsystem expansion to dependency-contract, canonical guard digest 2446fb5f, and two challenge-specificity defects; this revision reconciles only those machine-reported planning fields."
+  "notes": "Created from live Failure Intake #997/#998 after bounded rehearsal replay persisted U01 as STALE because isolated successor reevaluation could not import typescript. This commit is plan-only; no executor implementation is authorized until Plan Before Code reconciles the exact projected scope. Plan-only projection 37573408409 reported subsystem expansion to dependency-contract, canonical guard digest 2446fb5f, and two challenge-specificity defects; this revision reconciles only those machine-reported planning fields.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "82014e834121f3dfbc9bae49f91d599959b95f66",
+    "closedAt": "2026-10-07T04:59:05.335Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-REEVALUATION-DEPS-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
