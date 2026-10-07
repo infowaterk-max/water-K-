@@ -1,7 +1,7 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-PROOF-FALLBACK-V1",
-  "task": "Derive canonical release-unit child proof routes from direct Atlas proof plus regression tests of the unit's currently applicable Known Failures, and bind that same proof set into manifest required evidence without widening material scope.",
+  "task": "Give critical release-unit children a machine-derived proof surface from current Known Failure regression authority when direct Atlas test edges are absent, and permit only receipt-bound canonical child-plan digest refresh during fresh reconciliation.",
   "status": "ready-for-implementation",
   "guardDigest": "2ee350f6",
   "changeBaseSha": "3f57b5a79ee87a71eabeb0af0feab812ae5f353a",
@@ -9,8 +9,9 @@
     "quality/development/active-plan.json",
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
-    "tests/control-plane-release-unit-production-surface.test.ts",
-    "tests/control-plane-release-unit-execution-binding.test.ts"
+    "scripts/release-unit-github-runtime.mjs",
+    "tests/control-plane-release-unit-orchestration.test.ts",
+    "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
@@ -23,113 +24,48 @@
     "quality-knowledge-system",
     "release-infrastructure"
   ],
-  "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-005",
-    "SQ-KF-006",
-    "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
-    "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
-    "SQ-KF-013",
-    "SQ-KF-014",
-    "SQ-KF-015",
-    "SQ-KF-016",
-    "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
-    "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
-    "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
-    "TF-KF-006",
-    "TF-KF-007",
-    "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
-  ],
+  "expectedKnownFailureIds": [],
   "acknowledgedPoInstructionIds": [],
-  "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-016",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023"
-  ],
+  "acknowledgedNegativeKnowledgeIds": [],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-PROOF-FALLBACK-V1",
     "riskTier": "critical",
-    "problemStatement": "Live bounded rehearsal replay after PR #1009 reached fresh child-plan reprojection successfully, but U01 remained blocked because a fixture-only critical child had MUST_CREATE, AUTHORITY and UNKNOWN=[] while Atlas direct routing found no proof edge. The Knowledge system already selects applicable Known Failures and their regressionTests for Incremental Replay, but Plan/release-unit projection does not currently reuse that machine-authoritative proof surface.",
+    "problemStatement": "Live bounded rehearsal replay job 112662284959 reached the new two-pass child-plan reprojection successfully and eliminated prior subsystem, negative-knowledge and guard-digest drift, but U01 remained STALE because a fixture-only critical child has no direct Atlas test edge and therefore its reprojected semanticExecutionRoute.proof is empty. The same fresh reprojection necessarily changes childPlanDigest, which current obligation drift treats as hard drift even when material obligations are unchanged.",
     "observableOutcomes": [
-      "Canonical child proof equals direct semantic proof union regressionTests of currently applicable Known Failures.",
-      "The same canonical proof set is written to semanticExecutionRoute.proof and manifest requiredEvidence.proofFiles.",
-      "Fresh child reprojection rebuilds proof from current projected scope, allowing persisted fixture/config/data-only children to recover after policy evolution.",
-      "Proof files remain read-only evidence and never widen the child intendedFiles/material operation set.",
-      "If direct proof plus Known Failure regression proof is still empty for a critical child, strict Plan validation remains fail-closed."
+      "Canonical child proof is the deterministic union of direct Atlas proof files and regressionTests attached to the current projected Known Failure set.",
+      "Fixture/config/data-only children receive non-empty proof when current Knowledge authority supplies applicable regression tests; no rehearsal-specific test path is hard-coded.",
+      "Initial child transaction generation and fresh child reprojection use the same proof derivation.",
+      "Fresh reevaluation emits a receipt binding the persisted origin childPlanDigest to the exact reprojected childPlanDigest, projection contract, candidate head and current main.",
+      "Reconciliation may ignore childPlanDigest drift only when that receipt exactly binds the old and new digests; requiredEvidence and every material obligation remain hard drift.",
+      "Missing proof after both Atlas and Known Failure derivation remains fail-closed."
     ],
     "unresolvedRisks": [
-      "Using all repository tests rather than only applicable Known Failure tests would over-broaden proof authority.",
-      "Updating route.proof but not manifest requiredEvidence would create two conflicting evidence identities.",
-      "Proof paths must not leak into intendedFiles or release operations.",
-      "Template Factory Known Failures must use the same canonical getAllFailures registry as Incremental Replay.",
-      "Fresh reprojection must refresh proof identity and binding digest consistently."
+      "Using every repository test as fallback would create unbounded and semantically weak proof.",
+      "Allowing arbitrary childPlanDigest drift would permit stale or forged child plans.",
+      "Updating requiredEvidence.proofFiles during recovery would weaken the existing proof-ownership drift invariant.",
+      "A forged refresh receipt must not authorize material, evidence-ownership or risk drift."
     ],
     "scope": {
       "in": [
-        "Reuse getAllFailures and resolveDevelopmentScope as canonical Known Failure applicability sources.",
-        "Derive deterministic regression proof files from activeFailureIds.",
-        "Use direct Atlas/skeleton proof union Known Failure regression proof for top-level child projection and initial release-unit child binding.",
-        "Expose the proof set in childPlanProjection and bind it to requiredEvidence.proofFiles during reprojection.",
-        "Add regression proof for fixture-only critical child fallback, exact proof union and non-widening material scope."
+        "Derive current regression proof files from getAllFailures() using projected active failure IDs.",
+        "Union regression proof with Atlas proof in top-level childPlanProjection and per-unit child semantic routes.",
+        "Do not mutate manifest requiredEvidence.proofFiles as part of policy reprojection.",
+        "Bind a canonical child-plan refresh receipt during trusted successor reevaluation.",
+        "Allow only receipt-bound childPlanDigest drift in reconcileSuccessorReleaseUnit while retaining hard drift for all other execution obligations.",
+        "Add regressions for fixture-only proof fallback, valid digest refresh, forged/missing receipt rejection, and unchanged requiredEvidence drift behavior."
       ],
       "out": [
-        "No hard-coded rehearsal test path.",
-        "No parent stderr/error parsing.",
-        "No proof path added to intendedFiles or operations.",
-        "No weakening of critical semantic route validation.",
-        "No manual state reset, PR creation, merge receipt or closure fabrication."
+        "No hard-coded rehearsal proof path.",
+        "No manual parent-proof copying or stderr parsing.",
+        "No relaxation of requiredEvidence, material scope, operations, dependency, risk, forbidden/read-only, predecessor or PR identity checks.",
+        "No direct persisted state edit, blocker clear, child PR creation or receipt fabrication."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This changes proof authority derivation for write-capable release execution. The fallback must be machine-derived, scope-bounded, deterministic and incapable of widening material release scope.",
+      "rationale": "This changes proof authority and one reconciliation drift category inside the trusted release executor. The proof source must be machine-derived and digest refresh must be explicitly bound without weakening material obligations.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -138,34 +74,37 @@
         "adversarial-scenarios",
         "boundary-cases",
         "threat-failure-model",
+        "fault-injection",
         "proof-obligation",
-        "pairwise-interactions"
+        "pairwise-interactions",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "A helper derives regression proof paths from only the current activeFailureIds and getAllFailures registry.",
-        "Top-level childPlanProjection semantic route proof is direct proof union applicable Known Failure regression tests.",
-        "Root release-unit decomposition uses the same proof union for semanticExecutionRoute.proof and requiredEvidence.proofFiles.",
-        "reprojectReleaseUnitChildTransaction updates requiredEvidence.proofFiles from the projection and recomputes manifest/binding identity.",
-        "Proof fallback does not alter intendedFiles or operations.",
-        "Critical child with no direct proof but applicable Known Failure regression tests passes semantic route completeness; no-proof after both sources remains BLOCK.",
-        "Exact-head CI, Completion Truth and Lifecycle close before merge; the unchanged rehearsal is replayed from its persisted STALE state."
+        "Plan projection derives regression proof only from current projected failure IDs and canonical Known Failure regressionTests.",
+        "Per-unit child plan proof uses the same derivation and critical fixture-only units no longer have empty proof when applicable regression authority exists.",
+        "If both direct Atlas proof and regression proof are empty, strict critical Plan validation still BLOCKs.",
+        "Trusted fresh reevaluation attaches a refresh receipt with originPlanDigest equal to the persisted execution manifest child plan digest and refreshedPlanDigest equal to the final fresh manifest child plan digest.",
+        "reconcileSuccessorReleaseUnit accepts childPlanDigest-only drift only with a valid exact receipt and unchanged hard obligations.",
+        "Changing requiredEvidence.proofFiles without matching prior authority remains RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT.",
+        "Exact-head CI, Completion Truth and Lifecycle close before merge, then the unchanged rehearsal resumes from state 4a07ce44ba4edf2fcb5c537934c9b20a8737281d."
       ],
       "invariants": [
-        "Proof fallback is derived only from canonical current Known Failure applicability.",
-        "Proof files are evidence, not material scope.",
-        "Route proof and manifest requiredEvidence proof remain identical after projection/reprojection.",
-        "No release unit becomes executable solely because diagnostics were parsed or manually patched.",
-        "Existing Plan, Atlas, Release Risk, CAS, exact PR identity, Truth and Lifecycle authority remain unchanged."
+        "Proof fallback is derived from current Knowledge registry, never manually supplied by the executor.",
+        "Projection proof does not widen intendedFiles or operations.",
+        "requiredEvidence ownership remains immutable across fresh policy reprojection.",
+        "A refresh receipt cannot authorize any drift field other than childPlanDigest.",
+        "Receipt origin digest must equal the persisted execution manifest childPlanDigest.",
+        "Receipt refreshed digest must equal the fresh manifest childPlanDigest."
       ],
       "forbiddenStates": [
-        "hard-coded-rehearsal-proof",
-        "proof-widens-material-scope",
-        "route-manifest-proof-drift",
-        "nonapplicable-known-failure-proof-injection",
-        "manual-release-state-bypass"
+        "critical-child-authorized-with-empty-proof",
+        "hard-obligation-drift-masked-by-refresh-receipt",
+        "required-evidence-proof-ownership-auto-refresh",
+        "unbound-child-plan-digest-refresh",
+        "manual-state-or-pr-bypass"
       ]
     },
     "model": {
@@ -197,44 +136,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Fixture/config/data child has no Atlas direct test edge.",
-        "Known Failure proof derivation accidentally includes non-applicable failures.",
-        "Route proof is refreshed but manifest required evidence remains stale.",
-        "Proof files are mistakenly added to release operations.",
-        "Template Factory regression tests are omitted because only global registry is consulted."
+        "Fixture-only child has MUST_CREATE and AUTHORITY but no direct Atlas PROOF.",
+        "Known Failure fallback accidentally uses failures outside current projected scope.",
+        "Fresh policy reprojection changes childPlanDigest and is rejected as indistinguishable hard drift.",
+        "Receipt exists but does not bind the persisted origin digest.",
+        "A hard requiredEvidence or dependency drift is accidentally accepted alongside digest refresh."
       ],
       "edgeCases": [
-        "Direct proof exists and Known Failure proof adds additional tests.",
-        "Direct proof is empty but Known Failure regression proof is non-empty.",
-        "Multiple active failures reference the same regression test.",
-        "Critical child has no direct or Known Failure proof and must remain blocked.",
-        "Persisted child is reprojected under a changed Known Failure registry."
+        "Child has direct Atlas tests and Known Failure regression tests.",
+        "Child has no direct tests but multiple active Known Failures share the same regression test.",
+        "Child has neither direct nor regression proof and must remain BLOCKED.",
+        "STALE order-1 recovery on unchanged main.",
+        "Successor child after predecessor merge changes base and child plan digest."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-KNOWN-FAILURE-PROOF-UNION",
-        "summary": "Use direct semantic proof union regressionTests for current applicable Known Failures.",
+        "id": "ALT-KNOWN-FAILURE-PROOF",
+        "summary": "Use direct Atlas proof plus current-scope Known Failure regression tests as canonical child proof.",
         "disposition": "selected",
-        "reason": "This is already the repository's canonical Incremental Replay proof authority and remains scope-bounded."
+        "reason": "Both sources are machine-derived Control Plane authorities and are available during fresh reprojection."
       },
       {
-        "id": "ALT-PARENT-PROOF-INHERITANCE",
-        "summary": "Copy every parent proof route into every child.",
+        "id": "ALT-PARENT-MANUAL-PROOF",
+        "summary": "Copy parent semanticExecutionRoute.proof into every child.",
         "disposition": "rejected",
-        "reason": "Could assign proof unrelated to the child scope and may reference proof staged in a later release unit."
+        "reason": "Would preserve manually declared proof even when current child scope or Knowledge applicability changes."
       },
       {
-        "id": "ALT-GATE-ID-AS-PROOF",
-        "summary": "Use guard IDs as semantic route proof entries.",
+        "id": "ALT-RELAX-PROOF-REQUIREMENT",
+        "summary": "Permit critical child routes with empty proof.",
         "disposition": "rejected",
-        "reason": "Semantic route proof represents concrete proof surfaces; guard obligations already have a separate gate-chain contract."
+        "reason": "Would weaken the critical operational-intelligence contract."
       },
       {
-        "id": "ALT-RELAX-CRITICAL-PROOF",
-        "summary": "Allow critical fixture children with an empty proof route.",
+        "id": "ALT-IGNORE-ALL-OBLIGATION-DRIFT",
+        "summary": "Ignore evidence and child-plan changes after fresh reevaluation.",
         "disposition": "rejected",
-        "reason": "Would weaken the assurance contract instead of closing the missing evidence edge."
+        "reason": "Would break proof ownership, scope and release authority."
       }
     ],
     "specialistReviews": [
@@ -242,112 +181,110 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The missing edge is between canonical Known Failure applicability and semantic child proof routing, not between decomposition and material operations.",
-        "resolution": "Derive one canonical proof set from direct route plus applicable failure regression tests and reuse it across child route and manifest evidence.",
+        "finding": "The missing proof edge is caused by semantic-route topology for non-code units, not by absence of repository-wide regression authority.",
+        "resolution": "Derive child proof from current scoped Known Failure regression tests in addition to direct Atlas test edges.",
         "evidence": [
           "scripts/shoperation-plan-before-code.mjs",
-          "scripts/lib/shoperation-development-runtime.mjs"
+          "quality/knowledge/shoperation-quality-knowledge.v1.json"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A generic proof fallback could silently broaden authorization if it adds arbitrary tests or converts proof files into material scope.",
-        "resolution": "Select only regressionTests attached to current activeFailureIds and assert intendedFiles/operations remain unchanged.",
+        "finding": "Permitting child plan digest drift without provenance would let stale or forged planning envelopes bypass execution obligation checks.",
+        "resolution": "Require an exact trusted reprojection receipt and permit only the childPlanDigest drift field; all hard obligations remain immutable.",
         "evidence": [
-          "scripts/shoperation-incremental-replay.mjs",
-          "tests/control-plane-release-unit-execution-binding.test.ts"
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "scripts/release-unit-github-runtime.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Route proof and manifest requiredEvidence must remain the same identity input across fresh reprojection.",
-        "resolution": "Carry canonical proof in child projection and update requiredEvidence.proofFiles before refreshReleaseUnitIdentity.",
+        "finding": "A current-policy child plan must be able to replace an older policy envelope without changing material release obligations.",
+        "resolution": "Keep requiredEvidence and material obligations fixed, refresh only plan identity through a receipt-bound successor reevaluation.",
         "evidence": [
-          "scripts/lib/shoperation-release-unit-runtime.mjs"
+          "tests/control-plane-release-unit-orchestration.test.ts"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Incremental Replay already resolves activeFailureIds to regressionTests with getAllFailures, providing the canonical source needed by fixture-only children.",
-        "resolution": "Reuse that registry/selection model rather than inventing a second proof map.",
+        "finding": "The Knowledge registry already names regression tests for active failures, but Plan semantic routing does not currently consume them as fallback proof.",
+        "resolution": "Make active-failure regression tests a deterministic proof source and deduplicate them with direct Atlas proof.",
         "evidence": [
-          "scripts/shoperation-incremental-replay.mjs",
-          "scripts/lib/shoperation-development-runtime.mjs",
-          "https://github.com/infowaterk-max/water-K-/issues/1010"
+          "quality/knowledge/shoperation-quality-knowledge.v1.json",
+          "scripts/lib/shoperation-development-runtime.mjs"
         ]
       }
     ],
     "challenge": [
       {
         "id": "CH-PF-01",
-        "scenario": "U01 creates only inert fixture JSON and Atlas has no direct test edge.",
-        "finding": "Critical route completeness fails despite canonical Known Failure replay having concrete regression tests for quality-infrastructure.",
-        "resolution": "Union applicable Known Failure regressionTests into semantic child proof.",
+        "scenario": "A critical child contains only JSON fixtures with no import/test graph edge.",
+        "finding": "Atlas PROOF is empty and strict operational validation blocks despite applicable Known Failure regression authority.",
+        "resolution": "Union direct Atlas proof with regressionTests from exactly the child projected activeFailureIds.",
         "status": "resolved"
       },
       {
         "id": "CH-PF-02",
-        "scenario": "A non-applicable Known Failure has a convenient regression test.",
-        "finding": "Using all registry tests would overstate proof coverage and create false confidence.",
-        "resolution": "Resolve proof only from activeFailureIds produced by current child scope.",
+        "scenario": "Many active failures reference the same regression test.",
+        "finding": "Duplicate proof entries could make identity unstable or noisy.",
+        "resolution": "Deduplicate and sort the canonical proof list before embedding it in projection or child route.",
         "status": "resolved"
       },
       {
         "id": "CH-PF-03",
-        "scenario": "The same regression test is attached to multiple active failures.",
-        "finding": "Duplicate proof entries would make route identity unstable and noisy.",
-        "resolution": "Deduplicate and lexically sort the canonical proof set.",
+        "scenario": "No direct or Known Failure regression proof exists.",
+        "finding": "Inventing a placeholder would create false evidence.",
+        "resolution": "Emit an empty proof list and preserve the existing critical Plan BLOCK.",
         "status": "resolved"
       },
       {
         "id": "CH-PF-04",
-        "scenario": "Proof fallback is added to plannedFilePatterns or intendedFiles.",
-        "finding": "A read-only evidence surface would become material release scope and could alter decomposition/order.",
-        "resolution": "Bind proof only to semanticExecutionRoute.proof and requiredEvidence.proofFiles; assert operations/intendedFiles unchanged.",
+        "scenario": "Fresh canonical policy changes guard/scope metadata and therefore childPlanDigest while files and operations remain identical.",
+        "finding": "Current obligationDrift cannot distinguish safe policy refresh from material drift.",
+        "resolution": "Trusted reevaluation emits an exact refresh receipt; reconciliation permits only childPlanDigest drift when receipt origin/new digests match.",
         "status": "resolved"
       },
       {
         "id": "CH-PF-05",
-        "scenario": "Fresh policy changes applicable Known Failures after the original child manifest was persisted.",
-        "finding": "Old requiredEvidence and proof route become stale.",
-        "resolution": "Fresh Plan projection recomputes active failures and proof set; reprojection replaces both evidence locations and refreshes identity.",
+        "scenario": "requiredEvidence.proofFiles changes together with a valid child plan refresh.",
+        "finding": "Accepting it would undermine existing proof-ownership drift protection.",
+        "resolution": "requiredEvidence remains a hard obligation and any such drift stays STALE regardless of refresh receipt.",
         "status": "resolved"
       },
       {
         "id": "CH-PF-06",
-        "scenario": "Direct Atlas proof and Known Failure regression proof are both empty.",
-        "finding": "Fabricating a proof placeholder would violate assurance semantics.",
-        "resolution": "Leave proof empty so existing critical validation blocks execution.",
+        "scenario": "Receipt claims a different origin digest than the persisted execution manifest.",
+        "finding": "The fresh child plan is not a proven continuation of the persisted transaction.",
+        "resolution": "Reject childPlanDigest drift as RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT.",
         "status": "resolved"
       },
       {
         "id": "CH-PF-07",
-        "scenario": "Template Factory failure is applicable to a child scope.",
-        "finding": "Looking only at global knowledge.knownFailures would omit its registered regression tests.",
-        "resolution": "Use getAllFailures, the same global+Template Factory registry used by Incremental Replay.",
+        "scenario": "Successor base changes after predecessor merge and child plan base metadata is refreshed.",
+        "finding": "Digest refresh is expected but must remain bound to exact current main and normal predecessor receipts.",
+        "resolution": "Receipt is emitted only after fresh exact-base reevaluation; base and predecessor checks still execute before drift acceptance.",
         "status": "resolved"
       },
       {
         "id": "CH-PF-08",
-        "scenario": "Route proof updates but manifest requiredEvidence still contains an old set.",
-        "finding": "Child PR context and downstream truth could disagree about required proof.",
-        "resolution": "Projection carries canonical proof explicitly; child reprojection writes the same set to manifest requiredEvidence before identity refresh.",
+        "scenario": "Direct Atlas proof already exists.",
+        "finding": "Fallback must not replace stronger direct semantic evidence.",
+        "resolution": "Use a deterministic union, retaining all direct proof and supplementing it with current regression authority.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS before implementation.",
-      "Implement canonical Known Failure regression proof derivation and bind it to both child route and required evidence.",
-      "Add positive, deduplication, non-widening and no-proof fail-closed regression tests.",
-      "Require exact-head Knowledge, Plan, Edit-Time, Replay, Release Risk, full tests, TypeScript, build and Completion Truth PASS.",
-      "Commit only canonical lifecycle closure metadata and require final exact-head CI PASS.",
-      "Merge, verify fresh main CI, then replay the unchanged rehearsal from persisted STALE CAS state."
+      "Commit this plan only and require Plan Before Code PASS.",
+      "Implement canonical regression proof derivation, per-unit proof fallback and receipt-bound childPlanDigest refresh.",
+      "Add positive and adversarial orchestration/production-surface regressions.",
+      "Require exact-head Knowledge, Plan, Edit-Time, Replay, Release Risk, full tests, typecheck, build and Completion Truth PASS.",
+      "Close lifecycle with metadata-only commit, merge exact head, verify main CI, then replay the unchanged persisted rehearsal."
     ],
     "semanticExecutionRoute": {
       "request": "SQ-CAND-RELEASE-UNIT-PROOF-FALLBACK-V1",
@@ -357,15 +294,16 @@
       ],
       "mustEdit": [
         "scripts/shoperation-plan-before-code.mjs",
-        "scripts/lib/shoperation-release-unit-runtime.mjs"
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/release-unit-github-runtime.mjs"
       ],
       "mayEdit": [
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/control-plane-release-unit-execution-binding.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "impactedReadOnly": [
         "scripts/lib/shoperation-development-runtime.mjs",
-        "scripts/shoperation-incremental-replay.mjs"
+        "quality/knowledge/shoperation-quality-knowledge.v1.json"
       ],
       "mustCreate": [],
       "forbidden": [
@@ -375,8 +313,8 @@
         "supabase/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/control-plane-release-unit-execution-binding.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -406,17 +344,16 @@
     "requirements": [
       {
         "id": "REQ-RELEASE-UNIT-PROOF-FALLBACK",
-        "requirement": "Critical release-unit children without a direct Atlas proof edge must obtain explicit proof only from regression tests of currently applicable Known Failures, with the same proof identity bound to semantic route and manifest required evidence.",
+        "requirement": "Critical release-unit children without direct Atlas test edges must receive current machine-derived regression proof authority without weakening material or evidence-ownership drift checks.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-proof-authority",
+          "breadth": "release-unit-proof-and-policy-refresh",
           "strength": 2,
           "dimensions": [
-            "status",
             "behavioral-proof",
-            "scope",
             "transaction-identity",
-            "forbidden-state"
+            "forbidden-state",
+            "coverage"
           ]
         },
         "requiredCapabilities": [
@@ -427,21 +364,20 @@
             "GUARD-EDIT-TIME"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-INCREMENTAL-REPLAY"
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PROOF-SCOPE-WIDEN",
-            "statement": "Known Failure proof fallback may not widen intended release-unit material scope.",
+            "id": "NEG-EMPTY-CRITICAL-CHILD-PROOF",
+            "statement": "A critical child may not be authorized with empty proof authority.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-NONAPPLICABLE-PROOF",
-            "statement": "Regression proof from non-applicable Known Failures may not be injected into a child route.",
+            "id": "NEG-HARD-DRIFT-REFRESH-BYPASS",
+            "statement": "A child-plan refresh receipt may not mask requiredEvidence or material obligation drift.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -450,5 +386,5 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #1010 after PR #1009 removed stale child metadata drift and exposed the remaining fixture-only semantic proof gap. This commit is plan-only."
+  "notes": "Created from live Failure Intake #1010 after replay job 112662284959. Plan-only; no implementation until Plan Before Code approves the projected scope."
 }
