@@ -11,7 +11,8 @@
     "scripts/release-unit-ci-context.mjs",
     "scripts/release-unit-github-runtime.mjs",
     "tests/control-plane-release-unit-production-surface.test.ts",
-    "tests/control-plane-release-unit-execution-binding.test.ts"
+    "tests/control-plane-release-unit-execution-binding.test.ts",
+    "tests/shoperation-development-guard.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
@@ -339,7 +340,8 @@
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/control-plane-release-unit-execution-binding.test.ts"
+        "tests/control-plane-release-unit-execution-binding.test.ts",
+        "tests/shoperation-development-guard.test.ts"
       ],
       "impactedReadOnly": [
         ".github/workflows/release-unit-execution.yml",
@@ -354,7 +356,8 @@
       ],
       "proof": [
         "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/control-plane-release-unit-execution-binding.test.ts"
+        "tests/control-plane-release-unit-execution-binding.test.ts",
+        "tests/shoperation-development-guard.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -427,5 +430,5 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #1025 after U01 reached PR_OPEN and CI run 37596487318 completed action_required under github-actions[bot], while trusted executor run 37566854069 remained polling in Drive canonical release-unit execution."
+  "notes": "Created from live Failure Intake #1025 after U01 reached PR_OPEN and CI run 37596487318 completed action_required under github-actions[bot], while trusted executor run 37566854069 remained polling in Drive canonical release-unit execution. Incremental Replay on d8003946 exposed one stale regression assertion in tests/shoperation-development-guard.test.ts that counted raw pull_request head expressions. The test must now verify canonical SHOPERATION_CI_* effective identity plus preserved pull_request fallback semantics."
 }
