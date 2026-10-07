@@ -67,6 +67,9 @@ describe('Control Plane production release surface',()=>{
     expect(executor).toContain('ref: main');
     expect(executor).toContain('contents: write');
     expect(executor).toContain('pull-requests: write');
+    expect(executor).toContain("permissions:\n  contents: read\n  actions: read");
+    expect(executor).toContain("permissions:\n      contents: write\n      pull-requests: write\n      actions: write");
+    expect(ci).not.toContain('actions: write');
     expect(executor).toContain('git show "$SOURCE_SHA:quality/development/active-plan.json"');
     expect(executor).toContain('Recompute trusted Knowledge/Atlas evidence for exact source');
     expect(executor).toContain('node scripts/shoperation-knowledge-preflight.mjs');
