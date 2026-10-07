@@ -2,6 +2,7 @@
 import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {applyReleaseUnitEvent,createReleaseParentExecution,recordReleaseParentClosure} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
+import {reconcileExactMaterializedCommit,releaseUnitCommitMessage} from '../scripts/release-unit-github-runtime.mjs';
 
 const A='a'.repeat(40);
 const manifest={
@@ -107,6 +108,56 @@ describe('Control Plane production release surface',()=>{
     expect(driver).toContain("has('--drive')");
     expect(driver).toContain('finishParentClosurePersistence');
     expect(driver).toContain('expectedStateCommit:loaded.stateCommit');
+  });
+
+  it('reuses an exact pre-existing remote materialization on rerun without pushing a replacement commit',()=>{
+    const remote='b'.repeat(40),prepared='d'.repeat(40),tree='c'.repeat(40);
+    const branch='release-unit/dev-nocode-u01';
+    const receipt={
+      contract:'shoporation.release-unit-materialization.v1',status:'PREPARED',releaseUnitId:manifest.releaseUnitId,
+      targetBaseSha:A,commitSha:prepared,materializedHeadSha:prepared,treeSha:tree,
+      manifestDigest:manifest.manifestDigest,bindingDigest:manifest.childDevelopmentTransaction.bindingDigest,
+      sourceCommit:'source',applied:[{operation:'modify',file:'scripts/already.mjs'}],alreadyApplied:[],
+    };
+    const calls=[];
+    const run=(command,args)=>{
+      calls.push([command,...args].join(' '));
+      if(command!=='git')throw new Error('unexpected command');
+      if(args[0]==='ls-remote')return remote+'\trefs/heads/'+branch;
+      if(args[0]==='fetch')return '';
+      if(args[0]==='rev-parse'&&args[1]==='FETCH_HEAD')return remote;
+      if(args[0]==='rev-list')return remote+' '+A;
+      if(args[0]==='rev-parse'&&args[1]===remote+'^{tree}')return tree;
+      if(args[0]==='show')return releaseUnitCommitMessage(manifest);
+      if(args[0]==='push')throw new Error('unexpected push');
+      throw new Error('unexpected git call: '+args.join(' '));
+    };
+    const reconciled=reconcileExactMaterializedCommit({manifest,receipt,branch,run,cwd:process.cwd()});
+    expect(reconciled.materializedHeadSha).toBe(remote);
+    expect(reconciled.commitSha).toBe(remote);
+    expect(reconciled.reusedRemote).toBe(true);
+    expect(calls.some(call=>call.startsWith('git push '))).toBe(false);
+  });
+
+  it('fails closed when an existing remote materialization tree does not match the prepared unit',()=>{
+    const remote='b'.repeat(40),prepared='d'.repeat(40),tree='c'.repeat(40);
+    const branch='release-unit/dev-nocode-u01';
+    const receipt={
+      contract:'shoporation.release-unit-materialization.v1',status:'PREPARED',releaseUnitId:manifest.releaseUnitId,
+      targetBaseSha:A,commitSha:prepared,materializedHeadSha:prepared,treeSha:tree,
+      manifestDigest:manifest.manifestDigest,bindingDigest:manifest.childDevelopmentTransaction.bindingDigest,
+      sourceCommit:'source',applied:[{operation:'modify',file:'scripts/already.mjs'}],alreadyApplied:[],
+    };
+    const run=(command,args)=>{
+      if(command!=='git')throw new Error('unexpected command');
+      if(args[0]==='ls-remote')return remote+'\trefs/heads/'+branch;
+      if(args[0]==='fetch')return '';
+      if(args[0]==='rev-parse'&&args[1]==='FETCH_HEAD')return remote;
+      if(args[0]==='rev-list')return remote+' '+A;
+      if(args[0]==='rev-parse'&&args[1]===remote+'^{tree}')return 'e'.repeat(40);
+      throw new Error('unexpected git call: '+args.join(' '));
+    };
+    expect(()=>reconcileExactMaterializedCommit({manifest,receipt,branch,run,cwd:process.cwd()})).toThrow(/RELEASE_UNIT_REMOTE_BRANCH_TREE_DRIFT/);
   });
 
   it('scrubs write tokens from proof subprocesses',()=>{
