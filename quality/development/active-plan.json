@@ -1,25 +1,29 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-PROOF-FALLBACK-V1",
-  "task": "Give critical release-unit children a machine-derived proof surface from current Known Failure regression authority when direct Atlas test edges are absent, and permit only receipt-bound canonical child-plan digest refresh during fresh reconciliation.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-FRESH-OBLIGATION-RECONCILIATION-V1",
+  "task": "Make fresh release-unit reevaluation transaction-relative for operation kinds and allow only trusted canonical governance/evidence reprojection to refresh a persisted STALE child while material execution obligations remain unchanged.",
+  "status": "ready-for-implementation",
   "guardDigest": "a41cfd0c",
-  "changeBaseSha": "3f57b5a79ee87a71eabeb0af0feab812ae5f353a",
+  "changeBaseSha": "63122b700f394dc94472e545163f72271d3c841d",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
+    "scripts/release-unit-github-runtime.mjs",
     "tests/control-plane-release-unit-orchestration.test.ts",
+    "tests/control-plane-release-unit-execution-binding.test.ts",
     "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -91,42 +95,43 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-PROOF-FALLBACK-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-FRESH-OBLIGATION-RECONCILIATION-V1",
     "riskTier": "critical",
-    "problemStatement": "Live bounded rehearsal replay job 112662284959 reached the new two-pass child-plan reprojection successfully and eliminated prior subsystem, negative-knowledge and guard-digest drift, but U01 remained STALE because a fixture-only critical child has no direct Atlas test edge and therefore its reprojected semanticExecutionRoute.proof is empty. The same fresh reprojection necessarily changes childPlanDigest, which current obligation drift treats as hard drift even when material obligations are unchanged.",
+    "problemStatement": "Live bounded rehearsal replay after the canonical proof fallback passed fresh semantic reevaluation but stopped on RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT. The candidate worktree Atlas incorrectly reclassified base-to-candidate additions as modify operations, and the runtime treated trusted current governance/evidence reprojection exactly like material scope drift, making a persisted STALE child unable to recover after policy evolution.",
     "observableOutcomes": [
-      "Canonical child proof is the deterministic union of direct Atlas proof files and regressionTests attached to the current projected Known Failure set.",
-      "Fixture/config/data-only children receive non-empty proof when current Knowledge authority supplies applicable regression tests; no rehearsal-specific test path is hard-coded.",
-      "Initial child transaction generation and fresh child reprojection use the same proof derivation.",
-      "Fresh reevaluation emits a receipt binding the persisted origin childPlanDigest to the exact reprojected childPlanDigest, projection contract, candidate head and current main.",
-      "Reconciliation may ignore childPlanDigest drift only when that receipt exactly binds the old and new digests; requiredEvidence and every material obligation remain hard drift.",
-      "Missing proof after both Atlas and Known Failure derivation remains fail-closed."
+      "Exact base-to-head diff status is the primary authority for create, modify, delete and rename operation kinds during actual transaction reevaluation.",
+      "Candidate Atlas existence cannot turn a canonical A diff into a modify operation.",
+      "A persisted STALE child may accept only governance/evidence metadata produced by the trusted fresh two-pass reevaluation when material obligations remain identical and current Release Risk is PASS.",
+      "Arbitrary fresh-manifest authority, gate, evidence or child-plan changes without trusted reprojection remain fail-closed.",
+      "Material scope, dependency, forbidden/read-only, generated-artifact, predecessor and risk drift remain fail-closed.",
+      "Accepted governance refresh recomputes canonical manifest, plan, operation and binding identity before materialization."
     ],
     "unresolvedRisks": [
-      "Using every repository test as fallback would create unbounded and semantically weak proof.",
-      "Allowing arbitrary childPlanDigest drift would permit stale or forged child plans.",
-      "Updating requiredEvidence.proofFiles during recovery would weaken the existing proof-ownership drift invariant.",
-      "A forged refresh receipt must not authorize material, evidence-ownership or risk drift."
+      "Allowing generic drift would turn stale recovery into a scope-widening bypass.",
+      "Operation kind must remain stable across planned projection and actual candidate reevaluation.",
+      "A trusted flag must be established only inside the executor after the second strict Plan PASS.",
+      "Required evidence may legitimately change with current Known Failure applicability, but proof files must remain evidence-only and outside material operations.",
+      "Old persisted child identity must not be reused after an accepted canonical reprojection."
     ],
     "scope": {
       "in": [
-        "Derive current regression proof files from getAllFailures() using projected active failure IDs.",
-        "Union regression proof with Atlas proof in top-level childPlanProjection and per-unit child semantic routes.",
-        "Do not mutate manifest requiredEvidence.proofFiles as part of policy reprojection.",
-        "Bind a canonical child-plan refresh receipt during trusted successor reevaluation.",
-        "Allow only receipt-bound childPlanDigest drift in reconcileSuccessorReleaseUnit while retaining hard drift for all other execution obligations.",
-        "Add regressions for fixture-only proof fallback, valid digest refresh, forged/missing receipt rejection, and unchanged requiredEvidence drift behavior."
+        "Add transaction-change-aware operation derivation with deterministic A/M/D/R mapping.",
+        "Pass canonical diff changes from Plan Before Code into release operation derivation.",
+        "Separate material execution-obligation drift from reprojectable governance/evidence drift.",
+        "Require explicit trustedFreshProjection authorization before accepting governance/evidence refresh on a STALE child.",
+        "Set trustedFreshProjection only after projection, child reprojection and second strict Plan PASS in the trusted executor path.",
+        "Add regression coverage for A→create stability, arbitrary evidence drift blocking, trusted governance refresh acceptance and material drift rejection."
       ],
       "out": [
-        "No hard-coded rehearsal proof path.",
-        "No manual parent-proof copying or stderr parsing.",
-        "No relaxation of requiredEvidence, material scope, operations, dependency, risk, forbidden/read-only, predecessor or PR identity checks.",
-        "No direct persisted state edit, blocker clear, child PR creation or receipt fabrication."
+        "No relaxation of exact-main lease, predecessor, forbidden/read-only, risk, CAS, PR, Truth or Lifecycle checks.",
+        "No automatic acceptance of material scope or operation drift.",
+        "No rehearsal-specific fixture path hard-coding.",
+        "No manual state reset, child PR, merge receipt or closure fabrication."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This changes proof authority and one reconciliation drift category inside the trusted release executor. The proof source must be machine-derived and digest refresh must be explicitly bound without weakening material obligations.",
+      "rationale": "This controls the boundary between stale fail-closed recovery and write authorization. The repair must preserve exact material scope while allowing only current machine-proven governance metadata to replace stale derived metadata.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -135,7 +140,6 @@
         "adversarial-scenarios",
         "boundary-cases",
         "threat-failure-model",
-        "fault-injection",
         "proof-obligation",
         "pairwise-interactions",
         "finite-state-exhaustion"
@@ -144,28 +148,30 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Plan projection derives regression proof only from current projected failure IDs and canonical Known Failure regressionTests.",
-        "Per-unit child plan proof uses the same derivation and critical fixture-only units no longer have empty proof when applicable regression authority exists.",
-        "If both direct Atlas proof and regression proof are empty, strict critical Plan validation still BLOCKs.",
-        "Trusted fresh reevaluation attaches a refresh receipt with originPlanDigest equal to the persisted execution manifest child plan digest and refreshedPlanDigest equal to the final fresh manifest child plan digest.",
-        "reconcileSuccessorReleaseUnit accepts childPlanDigest-only drift only with a valid exact receipt and unchanged hard obligations.",
-        "Changing requiredEvidence.proofFiles without matching prior authority remains RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT.",
-        "Exact-head CI, Completion Truth and Lifecycle close before merge, then the unchanged rehearsal resumes from state 4a07ce44ba4edf2fcb5c537934c9b20a8737281d."
+        "derivePlannedOperations accepts exact transaction changes and maps A=create, M=modify, D=delete, R=rename without consulting candidate existence for those paths.",
+        "Planned-projection behavior without exact transaction status retains Atlas-based create/modify fallback.",
+        "Fresh candidate Plan decomposition preserves create for a file absent on target base but present on candidate head.",
+        "obligation drift exposes material and reprojectable categories separately.",
+        "A STALE child accepts reprojectable governance/evidence drift only with trustedFreshProjection=true and zero material drift.",
+        "A PLANNED child or untrusted caller with the same metadata drift remains STALE.",
+        "Any operations, intendedFiles, dependency, forbidden/read-only, generated-artifact, predecessor or risk drift remains STALE even when trustedFreshProjection=true.",
+        "Trusted executor passes trustedFreshProjection only after the second strict Plan Before Code PASS.",
+        "Exact-head CI, Completion Truth and Lifecycle close before merge; unchanged rehearsal is replayed from persisted state."
       ],
       "invariants": [
-        "Proof fallback is derived from current Knowledge registry, never manually supplied by the executor.",
-        "Projection proof does not widen intendedFiles or operations.",
-        "requiredEvidence ownership remains immutable across fresh policy reprojection.",
-        "A refresh receipt cannot authorize any drift field other than childPlanDigest.",
-        "Receipt origin digest must equal the persisted execution manifest childPlanDigest.",
-        "Receipt refreshed digest must equal the fresh manifest childPlanDigest."
+        "Material release scope is never inferred from candidate file existence when exact transaction status exists.",
+        "Trusted freshness is an executor-produced fact, not a manifest-editable field.",
+        "Governance/evidence refresh cannot alter intendedFiles or operations.",
+        "Current strict Plan and Release Risk remain mandatory before authorization.",
+        "Existing exact PR, child CI identity, CAS state, Truth and Lifecycle authorities remain unchanged."
       ],
       "forbiddenStates": [
-        "critical-child-authorized-with-empty-proof",
-        "hard-obligation-drift-masked-by-refresh-receipt",
-        "required-evidence-proof-ownership-auto-refresh",
-        "unbound-child-plan-digest-refresh",
-        "manual-state-or-pr-bypass"
+        "candidate-existence-rewrites-create-to-modify",
+        "untrusted-governance-drift-authorized",
+        "trusted-material-drift-authorized",
+        "proof-files-become-material-scope",
+        "stale-child-reuses-old-binding-after-refresh",
+        "manual-rehearsal-bypass"
       ]
     },
     "model": {
@@ -197,44 +203,46 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Fixture-only child has MUST_CREATE and AUTHORITY but no direct Atlas PROOF.",
-        "Known Failure fallback accidentally uses failures outside current projected scope.",
-        "Fresh policy reprojection changes childPlanDigest and is rejected as indistinguishable hard drift.",
-        "Receipt exists but does not bind the persisted origin digest.",
-        "A hard requiredEvidence or dependency drift is accidentally accepted alongside digest refresh."
+        "Candidate Atlas reports a newly-added file as existing and operation kind flips.",
+        "Trusted proof/gate refresh is mistaken for material drift and stale recovery loops forever.",
+        "An untrusted caller marks governance drift as fresh and bypasses stale protection.",
+        "Material drift is hidden among governance changes.",
+        "Identity digests are not refreshed after accepted governance reprojection."
       ],
       "edgeCases": [
-        "Child has direct Atlas tests and Known Failure regression tests.",
-        "Child has no direct tests but multiple active Known Failures share the same regression test.",
-        "Child has neither direct nor regression proof and must remain BLOCKED.",
-        "STALE order-1 recovery on unchanged main.",
-        "Successor child after predecessor merge changes base and child plan digest."
+        "A file is added in candidate while absent on current main.",
+        "A file is modified in candidate and exists on current main.",
+        "A rename is present in exact diff.",
+        "Only requiredEvidence.proofFiles changes after Known Failure registry evolution.",
+        "Authority and gate chain change together while material scope is identical.",
+        "Both governance and operation drift occur in the same reevaluation.",
+        "STale U01 has no predecessor but later units require predecessor receipts."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-KNOWN-FAILURE-PROOF",
-        "summary": "Use direct Atlas proof plus current-scope Known Failure regression tests as canonical child proof.",
+        "id": "ALT-TRANSACTION-DIFF-PLUS-TRUSTED-REFRESH",
+        "summary": "Use base→head diff for operation identity and a trusted two-pass reevaluation marker to accept only derived governance/evidence refresh.",
         "disposition": "selected",
-        "reason": "Both sources are machine-derived Control Plane authorities and are available during fresh reprojection."
+        "reason": "Preserves material fail-closed semantics while making canonical stale recovery possible."
       },
       {
-        "id": "ALT-PARENT-MANUAL-PROOF",
-        "summary": "Copy parent semanticExecutionRoute.proof into every child.",
+        "id": "ALT-ACCEPT-ALL-FRESH-MANIFEST",
+        "summary": "Treat any current fresh manifest as authoritative and ignore obligation drift.",
         "disposition": "rejected",
-        "reason": "Would preserve manually declared proof even when current child scope or Knowledge applicability changes."
+        "reason": "Would allow material scope widening through a stale recovery path."
       },
       {
-        "id": "ALT-RELAX-PROOF-REQUIREMENT",
-        "summary": "Permit critical child routes with empty proof.",
+        "id": "ALT-FREEZE-OLD-GOVERNANCE",
+        "summary": "Keep old authority/gates/evidence forever and only update base SHA.",
         "disposition": "rejected",
-        "reason": "Would weaken the critical operational-intelligence contract."
+        "reason": "Would execute against stale policy and negate current Knowledge/Plan authority."
       },
       {
-        "id": "ALT-IGNORE-ALL-OBLIGATION-DRIFT",
-        "summary": "Ignore evidence and child-plan changes after fresh reevaluation.",
+        "id": "ALT-ATLAS-EXISTENCE-ONLY",
+        "summary": "Continue inferring operation kind only from candidate Atlas existence.",
         "disposition": "rejected",
-        "reason": "Would break proof ownership, scope and release authority."
+        "reason": "Cannot distinguish an addition from a pre-existing modification once the candidate has been materialized."
       }
     ],
     "specialistReviews": [
@@ -242,128 +250,132 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The missing proof edge is caused by semantic-route topology for non-code units, not by absence of repository-wide regression authority.",
-        "resolution": "Derive child proof from current scoped Known Failure regression tests in addition to direct Atlas test edges.",
+        "finding": "Operation identity belongs to the base-to-head transaction while semantic ownership belongs to the current candidate graph; they are different authorities.",
+        "resolution": "Use exact diff for operation kind and current Atlas/Plan for derived governance metadata.",
         "evidence": [
           "scripts/shoperation-plan-before-code.mjs",
-          "quality/knowledge/shoperation-quality-knowledge.v1.json"
+          "scripts/lib/shoperation-release-unit-runtime.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Permitting child plan digest drift without provenance would let stale or forged planning envelopes bypass execution obligation checks.",
-        "resolution": "Require an exact trusted reprojection receipt and permit only the childPlanDigest drift field; all hard obligations remain immutable.",
+        "finding": "Allowing stale governance drift without provenance would create an authorization bypass.",
+        "resolution": "Require an executor-only trustedFreshProjection fact established only after the two-pass strict reevaluation; arbitrary AUTHORIZE events remain blocked.",
         "evidence": [
-          "scripts/lib/shoperation-release-unit-runtime.mjs",
-          "scripts/release-unit-github-runtime.mjs"
+          "scripts/release-unit-github-runtime.mjs",
+          "tests/control-plane-release-unit-orchestration.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A current-policy child plan must be able to replace an older policy envelope without changing material release obligations.",
-        "resolution": "Keep requiredEvidence and material obligations fixed, refresh only plan identity through a receipt-bound successor reevaluation.",
+        "finding": "A stale child must adopt current proof/gates and new identity before materialization, but its material operation set must remain exactly stable.",
+        "resolution": "Classify drift into material versus reprojectable sets and refresh identity only after material equality is proven.",
         "evidence": [
-          "tests/control-plane-release-unit-orchestration.test.ts"
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "tests/control-plane-release-unit-execution-binding.test.ts"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The Knowledge registry already names regression tests for active failures, but Plan semantic routing does not currently consume them as fallback proof.",
-        "resolution": "Make active-failure regression tests a deterministic proof source and deduplicate them with direct Atlas proof.",
+        "finding": "Current Known Failure regression proof is intentionally time-varying governance evidence and cannot remain frozen in a persisted child manifest.",
+        "resolution": "Permit canonical requiredEvidence refresh only through the trusted fresh projection path.",
         "evidence": [
-          "quality/knowledge/shoperation-quality-knowledge.v1.json",
-          "scripts/lib/shoperation-development-runtime.mjs"
+          "scripts/shoperation-incremental-replay.mjs",
+          "https://github.com/infowaterk-max/water-K-/issues/1013"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-PF-01",
-        "scenario": "A critical child contains only JSON fixtures with no import/test graph edge.",
-        "finding": "Atlas PROOF is empty and strict operational validation blocks despite applicable Known Failure regression authority.",
-        "resolution": "Union direct Atlas proof with regressionTests from exactly the child projected activeFailureIds.",
+        "id": "CH-OR-01",
+        "scenario": "U01 fixtures are absent on target main but present in the materialized candidate worktree.",
+        "finding": "Atlas existence alone returns modify and causes false operation drift.",
+        "resolution": "Exact diff status A overrides Atlas existence and remains create.",
         "status": "resolved"
       },
       {
-        "id": "CH-PF-02",
-        "scenario": "Many active failures reference the same regression test.",
-        "finding": "Duplicate proof entries could make identity unstable or noisy.",
-        "resolution": "Deduplicate and sort the canonical proof list before embedding it in projection or child route.",
+        "id": "CH-OR-02",
+        "scenario": "Known Failure proof set grows while intended files and operations remain identical.",
+        "finding": "Treating proof refresh as material drift traps STALE recovery.",
+        "resolution": "Allow requiredEvidence refresh only under trustedFreshProjection after strict Plan PASS.",
         "status": "resolved"
       },
       {
-        "id": "CH-PF-03",
-        "scenario": "No direct or Known Failure regression proof exists.",
-        "finding": "Inventing a placeholder would create false evidence.",
-        "resolution": "Emit an empty proof list and preserve the existing critical Plan BLOCK.",
+        "id": "CH-OR-03",
+        "scenario": "A caller directly invokes AUTHORIZE with changed proof or authority metadata.",
+        "finding": "Without provenance it could spoof a canonical refresh.",
+        "resolution": "Default trustedFreshProjection=false; existing drift block remains for untrusted callers.",
         "status": "resolved"
       },
       {
-        "id": "CH-PF-04",
-        "scenario": "Fresh canonical policy changes guard/scope metadata and therefore childPlanDigest while files and operations remain identical.",
-        "finding": "Current obligationDrift cannot distinguish safe policy refresh from material drift.",
-        "resolution": "Trusted reevaluation emits an exact refresh receipt; reconciliation permits only childPlanDigest drift when receipt origin/new digests match.",
+        "id": "CH-OR-04",
+        "scenario": "Trusted reevaluation also changes an operation from create to modify.",
+        "finding": "Governance acceptance must not hide material drift.",
+        "resolution": "Material drift is evaluated first and blocks regardless of trustedFreshProjection.",
         "status": "resolved"
       },
       {
-        "id": "CH-PF-05",
-        "scenario": "requiredEvidence.proofFiles changes together with a valid child plan refresh.",
-        "finding": "Accepting it would undermine existing proof-ownership drift protection.",
-        "resolution": "requiredEvidence remains a hard obligation and any such drift stays STALE regardless of refresh receipt.",
+        "id": "CH-OR-05",
+        "scenario": "Authority mapping changes under current Atlas while files stay the same.",
+        "finding": "Executing stale ownership metadata would contradict current authority truth.",
+        "resolution": "Trusted strict Plan may refresh derived authority after material equality and risk PASS.",
         "status": "resolved"
       },
       {
-        "id": "CH-PF-06",
-        "scenario": "Receipt claims a different origin digest than the persisted execution manifest.",
-        "finding": "The fresh child plan is not a proven continuation of the persisted transaction.",
-        "resolution": "Reject childPlanDigest drift as RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT.",
+        "id": "CH-OR-06",
+        "scenario": "Gate chain removes an obsolete gate or adds a new current gate.",
+        "finding": "Freezing old gates can under- or over-state actual current proof obligations.",
+        "resolution": "Trusted current gate chain replaces stale derived gate metadata before child CI identity is sealed.",
         "status": "resolved"
       },
       {
-        "id": "CH-PF-07",
-        "scenario": "Successor base changes after predecessor merge and child plan base metadata is refreshed.",
-        "finding": "Digest refresh is expected but must remain bound to exact current main and normal predecessor receipts.",
-        "resolution": "Receipt is emitted only after fresh exact-base reevaluation; base and predecessor checks still execute before drift acceptance.",
+        "id": "CH-OR-07",
+        "scenario": "A rename transaction is re-evaluated after candidate materialization.",
+        "finding": "Candidate existence can obscure the previous path.",
+        "resolution": "Canonical diff R status and previousFile remain the operation authority.",
         "status": "resolved"
       },
       {
-        "id": "CH-PF-08",
-        "scenario": "Direct Atlas proof already exists.",
-        "finding": "Fallback must not replace stronger direct semantic evidence.",
-        "resolution": "Use a deterministic union, retaining all direct proof and supplementing it with current regression authority.",
+        "id": "CH-OR-08",
+        "scenario": "Accepted governance refresh changes manifest and child plan digests.",
+        "finding": "Old binding must not survive into PR/CI.",
+        "resolution": "Refresh release-unit identity after the accepted fresh projection and verify exact child context downstream.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS.",
-      "Implement canonical regression proof derivation, per-unit proof fallback and receipt-bound childPlanDigest refresh.",
-      "Add positive and adversarial orchestration/production-surface regressions.",
-      "Require exact-head Knowledge, Plan, Edit-Time, Replay, Release Risk, full tests, typecheck, build and Completion Truth PASS.",
-      "Close lifecycle with metadata-only commit, merge exact head, verify main CI, then replay the unchanged persisted rehearsal."
+      "Commit this plan only and require Plan Before Code PASS before implementation.",
+      "Implement transaction-change-aware operation derivation and trusted stale governance refresh with material drift separation.",
+      "Add unit/integration regressions for create stability, trusted/untrusted metadata drift and material drift preservation.",
+      "Require exact-head Knowledge, Plan, Edit-Time, Incremental Replay, Release Risk, full tests, TypeScript, build and Completion Truth PASS.",
+      "Commit only canonical lifecycle closure metadata and require final exact-head CI PASS.",
+      "Merge, verify fresh main CI, then replay the unchanged bounded rehearsal from persisted CAS state 91867d1a4693c6d4d630f5c9b37dbeb3cc00528c."
     ],
     "semanticExecutionRoute": {
-      "request": "SQ-CAND-RELEASE-UNIT-PROOF-FALLBACK-V1",
+      "request": "SQ-CAND-RELEASE-EXECUTOR-FRESH-OBLIGATION-RECONCILIATION-V1",
       "authority": [
-        "quality-knowledge-system"
+        "quality-knowledge-system",
+        "release-infrastructure"
       ],
       "mustEdit": [
         "scripts/shoperation-plan-before-code.mjs",
-        "scripts/lib/shoperation-release-unit-runtime.mjs"
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/release-unit-github-runtime.mjs"
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-release-unit-execution-binding.test.ts",
         "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "impactedReadOnly": [
-        "quality/knowledge/shoperation-quality-knowledge.v1.json",
         "scripts/lib/shoperation-development-runtime.mjs",
-        "scripts/release-unit-github-runtime.mjs"
+        "scripts/shoperation-incremental-replay.mjs"
       ],
       "mustCreate": [],
       "forbidden": [
@@ -374,6 +386,7 @@
       ],
       "proof": [
         "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-release-unit-execution-binding.test.ts",
         "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "unknown": [],
@@ -385,7 +398,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-PROOF-FALLBACK-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-FRESH-OBLIGATION-RECONCILIATION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -403,20 +416,23 @@
     },
     "requirements": [
       {
-        "id": "REQ-RELEASE-UNIT-PROOF-FALLBACK",
-        "requirement": "Critical release-unit children without direct Atlas test edges must receive current machine-derived regression proof authority without weakening material or evidence-ownership drift checks.",
+        "id": "REQ-FRESH-OBLIGATION-RECONCILIATION",
+        "requirement": "Fresh release-unit reevaluation must preserve transaction-relative material operation identity while allowing only trusted current governance and evidence projection to replace stale derived metadata after strict Plan verification.",
         "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "release-unit-proof-and-policy-refresh",
+          "capability": "CAP-RELEASE",
+          "breadth": "stale-child-fresh-obligation-reconciliation",
           "strength": 2,
           "dimensions": [
-            "behavioral-proof",
+            "scope",
+            "authorization",
             "transaction-identity",
+            "behavioral-proof",
             "forbidden-state",
-            "coverage"
+            "lifecycle"
           ]
         },
         "requiredCapabilities": [
+          "CAP-RELEASE",
           "CAP-QUALITY"
         ],
         "evidence": {
@@ -424,20 +440,21 @@
             "GUARD-EDIT-TIME"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-QUALITY-TESTS",
+            "GUARD-INCREMENTAL-REPLAY"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-EMPTY-CRITICAL-CHILD-PROOF",
-            "statement": "A critical child may not be authorized with empty proof authority.",
+            "id": "NEG-MATERIAL-DRIFT-AUTHORIZED",
+            "statement": "Trusted freshness may never authorize changed material operations or scope.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-HARD-DRIFT-REFRESH-BYPASS",
-            "statement": "A child-plan refresh receipt may not mask requiredEvidence or material obligation drift.",
+            "id": "NEG-UNTRUSTED-GOVERNANCE-REFRESH",
+            "statement": "Untrusted fresh-manifest metadata drift may never be accepted as canonical.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -446,18 +463,5 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #1010 after replay job 112662284959. Plan-only; no implementation until Plan Before Code approves the projected scope. Plan projection 37582641708 reconciled full Known Failure applicability, current negative-knowledge applicability, and canonical guard digest a41cfd0c. Plan-only projection 37582641708 reconciled all 49 Known Failures, 13 applicable negative-knowledge rules, and canonical guard digest a41cfd0c; no implementation-scope drift was reported. Edit-Time guard on afdc6bf6 proved release-unit-github-runtime.mjs was over-declared as MUST_EDIT; this reconciliation removes it from material plan scope and retains it only as impacted read-only context. Plan projection 37583336524 after removing the over-declared GitHub runtime reconciled direct architecture scope to DOMAIN-QUALITY / quality-knowledge-system only.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "2c8b4626e1aec1913948f158c61d3dbeebcb528c",
-    "closedAt": "2026-10-07T06:52:10.585Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-PROOF-FALLBACK-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Plan-only transaction created from live Failure Intake #1013. No implementation is authorized until Plan Before Code passes."
 }
