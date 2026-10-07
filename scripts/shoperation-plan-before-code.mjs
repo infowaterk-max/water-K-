@@ -1,5 +1,5 @@
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
-import {activeDevelopmentPlanPath,compileGateChain,deriveImplementationSkeleton,evaluateReleaseRiskFiles,exactPlannedPaths,getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
+import {activeDevelopmentPlanPath,compileGateChain,deriveImplementationSkeleton,evaluateReleaseRiskFiles,exactPlannedPaths,getAllFailures,getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
 import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,classifyAtlasPath,resolveAtlasArchitectureForPath,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
 import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
 import {bindReleaseUnitChildTransaction,decomposeReleaseScope,derivePlannedOperations} from './lib/shoperation-release-unit-runtime.mjs';
@@ -135,6 +135,10 @@ const actualScope=resolveDevelopmentScope({files:changedFiles,task:plan.task});
 const projectedScope=resolveDevelopmentScope({files:projectedFiles,task:plan.task});
 const expectedFailures=[...(plan.expectedKnownFailureIds??[])].sort();
 const projectedFailures=[...projectedScope.activeFailureIds].sort();
+const knownFailureById=new Map(getAllFailures().map(failure=>[failure.id,failure]));
+const regressionProofForFailureIds=failureIds=>[...new Set((failureIds??[]).flatMap(id=>knownFailureById.get(id)?.regressionTests??[]))].sort();
+const projectedRegressionProof=regressionProofForFailureIds(projectedFailures);
+const canonicalProjectedProof=[...new Set([...(implementationSkeleton.proof??[]),...projectedRegressionProof])].sort();
 
 const actualArchitectureFor=file=>resolveAtlasArchitectureForPath(atlas,file,{tombstones:deletedFiles,executionRoute:actualExecutionRoute});
 const projectedArchitectureFor=file=>resolveAtlasArchitectureForPath(atlas,file,{tombstones:deletedFiles,plannedDeletions:declaredPlannedDeletions,executionRoute:generatedExecutionRoute});
@@ -205,6 +209,7 @@ const childPlanProjection={
   expectedKnownFailureIds:[...projectedFailures],
   acknowledgedPoInstructionIds:[...expectedInstructionIds],
   acknowledgedNegativeKnowledgeIds:[...projectedNegative],
+  requiredEvidenceProofFiles:[...canonicalProjectedProof],
   requiredGates:[...(gateChain.orderedGateIds??[])],
   externalGateIds:[...(gateChain.externalGateIds??[])],
   semanticExecutionRoute:{
@@ -215,7 +220,7 @@ const childPlanProjection={
     impactedReadOnly:[...(implementationSkeleton.impactedReadOnly??[])].sort(),
     mustCreate:[...canonicalMustCreateDeclaration],
     forbidden:[...(implementationSkeleton.forbidden??[])].sort(),
-    proof:[...(implementationSkeleton.proof??[])].sort(),
+    proof:[...canonicalProjectedProof],
     unknown:[...(implementationSkeleton.unknown??[])].sort(),
     plannedDeletions:[...declaredPlannedDeletions],
     plannedRenames:[...plannedRenames],
@@ -237,7 +242,10 @@ if(!plan.releaseUnitContext&&releaseDecomposition.decision==='PASS'){
     const unitScope=resolveDevelopmentScope({files:unitFiles,task:plan.task});
     const unitNegative=negativeFor(unitScope);
     const unitInstructions=applicablePoInstructions(atlas,unitFiles).map(item=>item.id).sort();
-    const unitGuardDigest=stableDigest({failureIds:[...unitScope.activeFailureIds].sort(),subsystems:[...unitScope.impactedSubsystems].sort(),negativeKnowledgeIds:unitNegative});
+    const unitFailureIds=[...unitScope.activeFailureIds].sort();
+    const unitGuardDigest=stableDigest({failureIds:unitFailureIds,subsystems:[...unitScope.impactedSubsystems].sort(),negativeKnowledgeIds:unitNegative});
+    const unitProof=[...new Set([...(unitSkeleton.proof??[]),...(unit.requiredEvidence?.proofFiles??[]),...regressionProofForFailureIds(unitFailureIds)])].sort();
+    unit.requiredEvidence={...(unit.requiredEvidence??{}),proofFiles:[...unitProof]};
     const semanticExecutionRoute={
       request:declaredExecutionRoute?.request??plan.operationalIntelligence?.sourceRef,
       authority:unitAuthorities,
@@ -246,7 +254,7 @@ if(!plan.releaseUnitContext&&releaseDecomposition.decision==='PASS'){
       impactedReadOnly:[...unitSkeleton.impactedReadOnly],
       mustCreate:[...unitSkeleton.mustCreate],
       forbidden:[...unitSkeleton.forbidden],
-      proof:[...new Set([...(unitSkeleton.proof??[]),...(unit.requiredEvidence?.proofFiles??[])])].sort(),
+      proof:[...unitProof],
       unknown:[...(unitSkeleton.unknown??[])],
       plannedDeletions:unitDeletes,
       plannedRenames:unitRenames,
@@ -258,7 +266,7 @@ if(!plan.releaseUnitContext&&releaseDecomposition.decision==='PASS'){
       expectedSubsystems:[...unitScope.impactedSubsystems].sort(),
       expectedDomains:unitDomains,
       expectedAuthorities:unitAuthorities,
-      expectedKnownFailureIds:[...unitScope.activeFailureIds].sort(),
+      expectedKnownFailureIds:unitFailureIds,
       acknowledgedPoInstructionIds:unitInstructions,
       acknowledgedNegativeKnowledgeIds:unitNegative,
       semanticExecutionRoute,

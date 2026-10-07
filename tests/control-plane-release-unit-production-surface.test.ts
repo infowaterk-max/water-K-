@@ -234,6 +234,19 @@ describe('Control Plane production release surface',()=>{
     expect(plan).toContain('childPlanProjection,');
   });
 
+  it('derives critical child proof from current Known Failure regression tests without widening material scope',()=>{
+    const plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
+    expect(plan).toContain('getAllFailures');
+    expect(plan).toContain('regressionProofForFailureIds');
+    expect(plan).toContain('canonicalProjectedProof');
+    expect(plan).toContain('requiredEvidenceProofFiles:[...canonicalProjectedProof]');
+    expect(plan).toContain('const unitProof=[...new Set(');
+    expect(plan).toContain('regressionProofForFailureIds(unitFailureIds)');
+    expect(plan).toContain('unit.requiredEvidence={...(unit.requiredEvidence??{}),proofFiles:[...unitProof]}');
+    expect(plan).toContain('proof:[...unitProof]');
+    expect(plan).not.toContain("quality/knowledge/rehearsal-fixtures/v1/fixture-01.json','tests/");
+  });
+
   it('bootstraps exact locked reevaluation dependencies before semantic Plan and scrubs write tokens',()=>{
     const calls=[];
     const candidate='b'.repeat(40);

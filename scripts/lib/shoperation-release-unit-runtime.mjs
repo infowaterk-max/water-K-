@@ -278,7 +278,10 @@ export function reprojectReleaseUnitChildTransaction(manifest,projection){
   if(!route||!Array.isArray(route.authority)||!Array.isArray(route.mustEdit)||!Array.isArray(route.mayEdit)||!Array.isArray(route.impactedReadOnly)||!Array.isArray(route.mustCreate)||!Array.isArray(route.forbidden)||!Array.isArray(route.proof)||!Array.isArray(route.unknown)||!Array.isArray(route.plannedDeletions)||!Array.isArray(route.plannedRenames)||!Array.isArray(route.generatedArtifacts)){
     throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_ROUTE_INVALID');
   }
+  const proofFiles=uniq(projection.requiredEvidenceProofFiles??route.proof);
+  if(Array.isArray(projection.requiredEvidenceProofFiles)&&JSON.stringify(uniq(route.proof))!==JSON.stringify(proofFiles))throw new Error('RELEASE_UNIT_CHILD_PLAN_PROJECTION_PROOF_DRIFT');
   const next=structuredClone(manifest);
+  next.requiredEvidence={...(next.requiredEvidence??{}),proofFiles:[...proofFiles]};
   const plan=structuredClone(next.childDevelopmentTransaction.plan);
   if(plan.releaseUnitContext?.releaseUnitId!==next.releaseUnitId)throw new Error('RELEASE_UNIT_CHILD_PLAN_REPROJECTION_UNIT_MISMATCH');
   const parentTransactionId=next.transaction?.parentTransactionId??next.transaction?.id??null;

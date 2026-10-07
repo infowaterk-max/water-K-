@@ -1,30 +1,25 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION-V1",
-  "task": "Make fresh release-unit successor reevaluation reproject stale child Development Plan metadata from the current canonical Plan/Atlas projection before any strict authorization check, then require a second exact-candidate strict PASS before release execution can proceed.",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-PROOF-FALLBACK-V1",
+  "task": "Give critical release-unit children a machine-derived proof surface from current Known Failure regression authority when direct Atlas test edges are absent, and permit only receipt-bound canonical child-plan digest refresh during fresh reconciliation.",
   "status": "closed",
-  "guardDigest": "2ee350f6",
-  "changeBaseSha": "b6302a7c5a91d6994d7f53102853a547eac8ac97",
+  "guardDigest": "a41cfd0c",
+  "changeBaseSha": "3f57b5a79ee87a71eabeb0af0feab812ae5f353a",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
-    "scripts/release-unit-github-runtime.mjs",
-    "tests/control-plane-release-unit-production-surface.test.ts",
-    "tests/control-plane-release-unit-execution-binding.test.ts"
+    "tests/control-plane-release-unit-orchestration.test.ts",
+    "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
-    "auth-access-authority",
-    "customer-account",
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -82,7 +77,6 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-005",
-    "SQ-NK-006",
     "SQ-NK-010",
     "SQ-NK-012",
     "SQ-NK-016",
@@ -97,43 +91,42 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-PROOF-FALLBACK-V1",
     "riskTier": "critical",
-    "problemStatement": "Live bounded rehearsal replay job 112651631798 proved STALE resumability and dependency bootstrap closure, then failed inside fresh successor reevaluation because the persisted U01 child Development Plan envelope still contained scope metadata projected under an older Knowledge/Atlas/Plan policy. The candidate material scope was valid, but strict Plan Before Code rejected stale subsystem, negative-knowledge, guard-digest and semantic-route declarations before a fresh child transaction could be authorized.",
+    "problemStatement": "Live bounded rehearsal replay job 112662284959 reached the new two-pass child-plan reprojection successfully and eliminated prior subsystem, negative-knowledge and guard-digest drift, but U01 remained STALE because a fixture-only critical child has no direct Atlas test edge and therefore its reprojected semanticExecutionRoute.proof is empty. The same fresh reprojection necessarily changes childPlanDigest, which current obligation drift treats as hard drift even when material obligations are unchanged.",
     "observableOutcomes": [
-      "Fresh successor reevaluation first produces a non-authorizing canonical projection on the exact candidate head and fresh current-main base.",
-      "The projection exposes one machine-readable child-plan projection envelope containing the current guard digest, scope sets, negative knowledge, PO instructions and semantic execution route.",
-      "The child Development Plan is reprojected only from that machine output; no error-string parsing or hard-coded rehearsal metadata is used.",
-      "Child plan digest and release-unit binding identity are recomputed after reprojection.",
-      "A second strict Plan Before Code --check runs on the reprojected exact candidate and only strict PASS can return a fresh successor manifest.",
-      "Missing projection fields, UNKNOWN route relationships, projection command failure or strict second-pass failure remains fail-closed and creates no child PR."
+      "Canonical child proof is the deterministic union of direct Atlas proof files and regressionTests attached to the current projected Known Failure set.",
+      "Fixture/config/data-only children receive non-empty proof when current Knowledge authority supplies applicable regression tests; no rehearsal-specific test path is hard-coded.",
+      "Initial child transaction generation and fresh child reprojection use the same proof derivation.",
+      "Fresh reevaluation emits a receipt binding the persisted origin childPlanDigest to the exact reprojected childPlanDigest, projection contract, candidate head and current main.",
+      "Reconciliation may ignore childPlanDigest drift only when that receipt exactly binds the old and new digests; requiredEvidence and every material obligation remain hard drift.",
+      "Missing proof after both Atlas and Known Failure derivation remains fail-closed."
     ],
     "unresolvedRisks": [
-      "Treating the first projection as authorization would bypass strict plan validation.",
-      "Reprojecting only some fields could leave hidden stale authority or knowledge declarations in the child plan.",
-      "Parsing human-readable failure messages would couple release authority to unstable diagnostics.",
-      "Changing child plan digest without refreshing manifest/binding identity would break exact transaction identity.",
-      "A projection route with no proof obligation could still fail the current critical child execution contract."
+      "Using every repository test as fallback would create unbounded and semantically weak proof.",
+      "Allowing arbitrary childPlanDigest drift would permit stale or forged child plans.",
+      "Updating requiredEvidence.proofFiles during recovery would weaken the existing proof-ownership drift invariant.",
+      "A forged refresh receipt must not authorize material, evidence-ownership or risk drift."
     ],
     "scope": {
       "in": [
-        "Expose the canonical current plan projection envelope in Plan Before Code report output.",
-        "Add a release-unit child-plan reprojection helper that updates only projection-derived scope/route metadata and recomputes child plan and manifest binding identity.",
-        "Split successor reevaluation into dependency bootstrap, non-authorizing projection, reprojection, then strict Plan check on the same exact candidate worktree.",
-        "Preserve scrubbed GitHub credentials for both projection and strict proof subprocesses.",
-        "Add positive and fail-closed regression coverage for stale child metadata, projection identity and strict second-pass authority."
+        "Derive current regression proof files from getAllFailures() using projected active failure IDs.",
+        "Union regression proof with Atlas proof in top-level childPlanProjection and per-unit child semantic routes.",
+        "Do not mutate manifest requiredEvidence.proofFiles as part of policy reprojection.",
+        "Bind a canonical child-plan refresh receipt during trusted successor reevaluation.",
+        "Allow only receipt-bound childPlanDigest drift in reconcileSuccessorReleaseUnit while retaining hard drift for all other execution obligations.",
+        "Add regressions for fixture-only proof fallback, valid digest refresh, forged/missing receipt rejection, and unchanged requiredEvidence drift behavior."
       ],
       "out": [
-        "No manual child-plan field constants tied to this rehearsal.",
-        "No parsing of stderr issue strings as authoritative metadata.",
-        "No weakening of Plan Before Code, Atlas, Release Risk, CAS, PR, merge, Truth or Lifecycle authority.",
-        "No direct persisted release-state edit, blocker deletion, child PR creation or receipt fabrication.",
-        "No storefront, database, auth, payment, inventory, Builder, template or deployment change."
+        "No hard-coded rehearsal proof path.",
+        "No manual parent-proof copying or stderr parsing.",
+        "No relaxation of requiredEvidence, material scope, operations, dependency, risk, forbidden/read-only, predecessor or PR identity checks.",
+        "No direct persisted state edit, blocker clear, child PR creation or receipt fabrication."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This repair changes the trusted release executor's pre-authorization evidence refresh path. It must distinguish projection from authorization and preserve exact transaction identity across a current-policy reprojection.",
+      "rationale": "This changes proof authority and one reconciliation drift category inside the trusted release executor. The proof source must be machine-derived and digest refresh must be explicitly bound without weakening material obligations.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -151,28 +144,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Plan Before Code report emits a deterministic canonical child projection derived from the same projected files, Atlas, scope, Knowledge and execution-route computation used by its strict gate.",
-        "Projection includes guardDigest, expectedSubsystems, expectedDomains, expectedAuthorities, expectedKnownFailureIds, acknowledgedPoInstructionIds, acknowledgedNegativeKnowledgeIds and semanticExecutionRoute.",
-        "Successor reevaluation runs projection without --check only as data production; that result alone cannot authorize or return PASS.",
-        "Child reprojection refreshes plan metadata and recomputes child planDigest plus manifest/binding identity before strict validation.",
-        "Strict Plan Before Code --check runs after reprojection on the same candidate head and fresh current-main base; only strict PASS continues.",
-        "Projection missing required fields, route UNKNOWN, dependency failure, reprojection identity failure or strict failure remains RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK.",
-        "Exact-head CI, Completion Truth and Lifecycle close before merge; unchanged rehearsal then resumes from persisted state d4720b3689833facc40ae27a56094880279e42ba."
+        "Plan projection derives regression proof only from current projected failure IDs and canonical Known Failure regressionTests.",
+        "Per-unit child plan proof uses the same derivation and critical fixture-only units no longer have empty proof when applicable regression authority exists.",
+        "If both direct Atlas proof and regression proof are empty, strict critical Plan validation still BLOCKs.",
+        "Trusted fresh reevaluation attaches a refresh receipt with originPlanDigest equal to the persisted execution manifest child plan digest and refreshedPlanDigest equal to the final fresh manifest child plan digest.",
+        "reconcileSuccessorReleaseUnit accepts childPlanDigest-only drift only with a valid exact receipt and unchanged hard obligations.",
+        "Changing requiredEvidence.proofFiles without matching prior authority remains RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT.",
+        "Exact-head CI, Completion Truth and Lifecycle close before merge, then the unchanged rehearsal resumes from state 4a07ce44ba4edf2fcb5c537934c9b20a8737281d."
       ],
       "invariants": [
-        "Projection is evidence input, never authorization.",
-        "No child manifest is authorized with stale plan projection metadata.",
-        "No scope metadata is derived from diagnostic text.",
-        "Reprojected child plan remains bound to the same releaseUnitId, parentTransactionId, intended files and fresh target base.",
-        "Plan digest, manifest digest, operation digest and binding digest remain internally consistent after reprojection.",
-        "Both projection and strict proof subprocesses execute with GH_TOKEN and GITHUB_TOKEN scrubbed."
+        "Proof fallback is derived from current Knowledge registry, never manually supplied by the executor.",
+        "Projection proof does not widen intendedFiles or operations.",
+        "requiredEvidence ownership remains immutable across fresh policy reprojection.",
+        "A refresh receipt cannot authorize any drift field other than childPlanDigest.",
+        "Receipt origin digest must equal the persisted execution manifest childPlanDigest.",
+        "Receipt refreshed digest must equal the fresh manifest childPlanDigest."
       ],
       "forbiddenStates": [
-        "projection-pass-treated-as-authorization",
-        "strict-check-skipped-after-reprojection",
-        "error-string-derived-child-authority",
-        "stale-child-digest-after-reprojection",
-        "manual-release-state-or-pr-bypass"
+        "critical-child-authorized-with-empty-proof",
+        "hard-obligation-drift-masked-by-refresh-receipt",
+        "required-evidence-proof-ownership-auto-refresh",
+        "unbound-child-plan-digest-refresh",
+        "manual-state-or-pr-bypass"
       ]
     },
     "model": {
@@ -204,45 +197,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Old child plan blocks before current scope can be adopted.",
-        "Projection report omits one metadata family required by strict Plan validation.",
-        "Reprojection changes planDigest but manifest/binding digest remains stale.",
-        "Projection and strict pass accidentally run against different candidate heads or bases.",
-        "First projection fails to execute or emits malformed/non-canonical data.",
-        "Strict second pass still blocks because canonical route proof is incomplete."
+        "Fixture-only child has MUST_CREATE and AUTHORITY but no direct Atlas PROOF.",
+        "Known Failure fallback accidentally uses failures outside current projected scope.",
+        "Fresh policy reprojection changes childPlanDigest and is rejected as indistinguishable hard drift.",
+        "Receipt exists but does not bind the persisted origin digest.",
+        "A hard requiredEvidence or dependency drift is accidentally accepted alongside digest refresh."
       ],
       "edgeCases": [
-        "Child intended files are unchanged but Knowledge applicability expands.",
-        "Current Plan policy changes guard digest without material source scope change.",
-        "A critical child consists only of added fixture files and requires a non-empty proof route.",
-        "Fresh successor is U02/U03 after predecessor main changes.",
-        "Projection succeeds but strict second pass detects real semantic UNKNOWN or obligation drift."
+        "Child has direct Atlas tests and Known Failure regression tests.",
+        "Child has no direct tests but multiple active Known Failures share the same regression test.",
+        "Child has neither direct nor regression proof and must remain BLOCKED.",
+        "STALE order-1 recovery on unchanged main.",
+        "Successor child after predecessor merge changes base and child plan digest."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-TWO-PASS-CANONICAL-REPROJECTION",
-        "summary": "Run current Plan projection as non-authorizing data, reproject child plan from its machine envelope, then run strict Plan validation.",
+        "id": "ALT-KNOWN-FAILURE-PROOF",
+        "summary": "Use direct Atlas proof plus current-scope Known Failure regression tests as canonical child proof.",
         "disposition": "selected",
-        "reason": "Reuses the canonical Plan computation while preserving an explicit authorization boundary."
+        "reason": "Both sources are machine-derived Control Plane authorities and are available during fresh reprojection."
       },
       {
-        "id": "ALT-PARSE-PLAN-ERRORS",
-        "summary": "Parse DEV_PLAN_* error messages and patch only failing fields.",
+        "id": "ALT-PARENT-MANUAL-PROOF",
+        "summary": "Copy parent semanticExecutionRoute.proof into every child.",
         "disposition": "rejected",
-        "reason": "Diagnostics are not an authority contract and this would miss silent stale fields."
+        "reason": "Would preserve manually declared proof even when current child scope or Knowledge applicability changes."
       },
       {
-        "id": "ALT-TRUST-OLD-CHILD-PLAN",
-        "summary": "Grandfather persisted child plan metadata after parent source admission.",
+        "id": "ALT-RELAX-PROOF-REQUIREMENT",
+        "summary": "Permit critical child routes with empty proof.",
         "disposition": "rejected",
-        "reason": "Would defeat fresh successor reevaluation when Knowledge/Atlas/Plan policy evolves."
+        "reason": "Would weaken the critical operational-intelligence contract."
       },
       {
-        "id": "ALT-MANUAL-U01-METADATA-PATCH",
-        "summary": "Patch the rehearsal U01 plan/state directly.",
+        "id": "ALT-IGNORE-ALL-OBLIGATION-DRIFT",
+        "summary": "Ignore evidence and child-plan changes after fresh reevaluation.",
         "disposition": "rejected",
-        "reason": "Would solve one fixture but invalidate the generic production-like rehearsal and bypass canonical state authority."
+        "reason": "Would break proof ownership, scope and release authority."
       }
     ],
     "specialistReviews": [
@@ -250,132 +242,128 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The missing edge is projection freshness between persistent release-unit manifests and an evolving Control Plane policy, not release-unit material decomposition.",
-        "resolution": "Make current Plan projection an explicit machine contract and refresh child plan metadata before strict authorization.",
+        "finding": "The missing proof edge is caused by semantic-route topology for non-code units, not by absence of repository-wide regression authority.",
+        "resolution": "Derive child proof from current scoped Known Failure regression tests in addition to direct Atlas test edges.",
         "evidence": [
           "scripts/shoperation-plan-before-code.mjs",
-          "scripts/lib/shoperation-release-unit-runtime.mjs",
-          "scripts/release-unit-github-runtime.mjs"
+          "quality/knowledge/shoperation-quality-knowledge.v1.json"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A non-check Plan run could be mistaken for an authorization result and silently weaken the release boundary.",
-        "resolution": "Label projection as non-authorizing, require a separate strict --check after reprojection, and expose no path that returns PASS from projection alone.",
+        "finding": "Permitting child plan digest drift without provenance would let stale or forged planning envelopes bypass execution obligation checks.",
+        "resolution": "Require an exact trusted reprojection receipt and permit only the childPlanDigest drift field; all hard obligations remain immutable.",
         "evidence": [
-          "scripts/release-unit-github-runtime.mjs",
-          "tests/control-plane-release-unit-production-surface.test.ts"
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "scripts/release-unit-github-runtime.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Child plan identity changes during reprojection, so all downstream manifest and binding identities must be refreshed before materialization or PR creation.",
-        "resolution": "Centralize reprojection in release-unit runtime and recompute child planDigest through refreshReleaseUnitIdentity before authorization.",
+        "finding": "A current-policy child plan must be able to replace an older policy envelope without changing material release obligations.",
+        "resolution": "Keep requiredEvidence and material obligations fixed, refresh only plan identity through a receipt-bound successor reevaluation.",
         "evidence": [
-          "scripts/lib/shoperation-release-unit-runtime.mjs",
-          "tests/control-plane-release-unit-execution-binding.test.ts"
+          "tests/control-plane-release-unit-orchestration.test.ts"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The live rehearsal sequentially exposed dependency bootstrap, STALE recovery, then stale child-envelope freshness, proving the integration chain rather than isolated unit behavior.",
-        "resolution": "Add two-pass reprojection regression and replay the unchanged persisted rehearsal after merge.",
+        "finding": "The Knowledge registry already names regression tests for active failures, but Plan semantic routing does not currently consume them as fallback proof.",
+        "resolution": "Make active-failure regression tests a deterministic proof source and deduplicate them with direct Atlas proof.",
         "evidence": [
-          "https://github.com/infowaterk-max/water-K-/issues/1007",
-          "tests/control-plane-release-unit-production-surface.test.ts"
+          "quality/knowledge/shoperation-quality-knowledge.v1.json",
+          "scripts/lib/shoperation-development-runtime.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-CP-01",
-        "scenario": "The old child plan has a stale guardDigest but otherwise valid material scope.",
-        "finding": "A single strict run blocks before the runtime can refresh metadata, so the executor cannot distinguish stale envelope from invalid material scope.",
-        "resolution": "Run an explicitly non-authorizing projection first, consume only its structured canonical projection, then require a second strict check.",
+        "id": "CH-PF-01",
+        "scenario": "A critical child contains only JSON fixtures with no import/test graph edge.",
+        "finding": "Atlas PROOF is empty and strict operational validation blocks despite applicable Known Failure regression authority.",
+        "resolution": "Union direct Atlas proof with regressionTests from exactly the child projected activeFailureIds.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-02",
-        "scenario": "The projection report is BLOCK because declared metadata is stale.",
-        "finding": "BLOCK diagnostics do not imply the projected scope computation itself is unavailable; however human error strings are not stable authority.",
-        "resolution": "Emit the canonical projection fields as structured report data regardless of decision, and never parse diagnostic strings for reprojection.",
+        "id": "CH-PF-02",
+        "scenario": "Many active failures reference the same regression test.",
+        "finding": "Duplicate proof entries could make identity unstable or noisy.",
+        "resolution": "Deduplicate and sort the canonical proof list before embedding it in projection or child route.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-03",
-        "scenario": "Knowledge adds a newly applicable negative-knowledge rule while release-unit files remain unchanged.",
-        "finding": "Persisted acknowledgedNegativeKnowledgeIds becomes stale without any material file drift.",
-        "resolution": "Projection envelope carries the current negativeKnowledgeIds derived from current scope and the child plan replaces its acknowledgement set before strict check.",
+        "id": "CH-PF-03",
+        "scenario": "No direct or Known Failure regression proof exists.",
+        "finding": "Inventing a placeholder would create false evidence.",
+        "resolution": "Emit an empty proof list and preserve the existing critical Plan BLOCK.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-04",
-        "scenario": "Current Atlas changes semantic route authority/proof requirements for the child.",
-        "finding": "Keeping the old semanticExecutionRoute can either over-authorize or fail current critical route validation.",
-        "resolution": "Projection envelope rebuilds route categories from the current execution skeleton and current architecture authority; strict pass remains the final validator.",
+        "id": "CH-PF-04",
+        "scenario": "Fresh canonical policy changes guard/scope metadata and therefore childPlanDigest while files and operations remain identical.",
+        "finding": "Current obligationDrift cannot distinguish safe policy refresh from material drift.",
+        "resolution": "Trusted reevaluation emits an exact refresh receipt; reconciliation permits only childPlanDigest drift when receipt origin/new digests match.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-05",
-        "scenario": "Reprojection updates child planDigest but not bindingDigest or manifestDigest.",
-        "finding": "PR context and Completion Truth could be bound to different transaction identities.",
-        "resolution": "Use a runtime helper that recomputes child planDigest then refreshes release-unit identity and binding atomically before sealing/materialization.",
+        "id": "CH-PF-05",
+        "scenario": "requiredEvidence.proofFiles changes together with a valid child plan refresh.",
+        "finding": "Accepting it would undermine existing proof-ownership drift protection.",
+        "resolution": "requiredEvidence remains a hard obligation and any such drift stays STALE regardless of refresh receipt.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-06",
-        "scenario": "Projection runs on candidate A but strict pass runs after candidate/base moved.",
-        "finding": "Metadata could be authorized against a different exact state.",
-        "resolution": "Both passes occur inside the same detached exact candidate worktree with fixed currentMainSha/candidateHead environment; any base drift remains blocked by normal reconciliation.",
+        "id": "CH-PF-06",
+        "scenario": "Receipt claims a different origin digest than the persisted execution manifest.",
+        "finding": "The fresh child plan is not a proven continuation of the persisted transaction.",
+        "resolution": "Reject childPlanDigest drift as RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-07",
-        "scenario": "Projection envelope is incomplete or contains semantic UNKNOWN.",
-        "finding": "Filling missing fields with old values would silently preserve stale authority.",
-        "resolution": "Validate projection contract completeness and reject UNKNOWN/noncanonical projection fail-closed before rewriting the child plan.",
+        "id": "CH-PF-07",
+        "scenario": "Successor base changes after predecessor merge and child plan base metadata is refreshed.",
+        "finding": "Digest refresh is expected but must remain bound to exact current main and normal predecessor receipts.",
+        "resolution": "Receipt is emitted only after fresh exact-base reevaluation; base and predecessor checks still execute before drift acceptance.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-08",
-        "scenario": "Projection passes structurally but the reprojected child still violates current Plan policy.",
-        "finding": "Projection freshness does not prove execution readiness.",
-        "resolution": "Always rerun Plan Before Code with --check after reprojection; only that strict PASS can continue to fresh manifest authorization.",
+        "id": "CH-PF-08",
+        "scenario": "Direct Atlas proof already exists.",
+        "finding": "Fallback must not replace stronger direct semantic evidence.",
+        "resolution": "Use a deterministic union, retaining all direct proof and supplementing it with current regression authority.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS before implementation.",
-      "Add structured canonical child projection output, child reprojection identity helper and two-pass successor reevaluation.",
-      "Add unit/regression tests for structured projection, digest refresh, token scrubbing, projection-not-authority and strict second-pass failure.",
-      "Require exact-head Knowledge, Plan, Edit-Time, Incremental Replay, Release Risk, full tests, TypeScript, build and Completion Truth PASS.",
-      "Commit only canonical lifecycle closure metadata and require final exact-head CI PASS.",
-      "Merge, verify fresh main CI, then rerun the unchanged bounded rehearsal from persisted STALE CAS state and accept only canonical U01 progression."
+      "Commit this plan only and require Plan Before Code PASS.",
+      "Implement canonical regression proof derivation, per-unit proof fallback and receipt-bound childPlanDigest refresh.",
+      "Add positive and adversarial orchestration/production-surface regressions.",
+      "Require exact-head Knowledge, Plan, Edit-Time, Replay, Release Risk, full tests, typecheck, build and Completion Truth PASS.",
+      "Close lifecycle with metadata-only commit, merge exact head, verify main CI, then replay the unchanged persisted rehearsal."
     ],
     "semanticExecutionRoute": {
-      "request": "SQ-CAND-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION-V1",
+      "request": "SQ-CAND-RELEASE-UNIT-PROOF-FALLBACK-V1",
       "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
         "scripts/shoperation-plan-before-code.mjs",
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/release-unit-github-runtime.mjs"
+        "scripts/lib/shoperation-release-unit-runtime.mjs"
       ],
       "mayEdit": [
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/control-plane-release-unit-execution-binding.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "impactedReadOnly": [
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "scripts/lib/shoperation-development-runtime.mjs"
+        "quality/knowledge/shoperation-quality-knowledge.v1.json",
+        "scripts/lib/shoperation-development-runtime.mjs",
+        "scripts/release-unit-github-runtime.mjs"
       ],
       "mustCreate": [],
       "forbidden": [
@@ -385,8 +373,8 @@
         "supabase/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/control-plane-release-unit-execution-binding.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -397,7 +385,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-PROOF-FALLBACK-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -415,14 +403,13 @@
     },
     "requirements": [
       {
-        "id": "REQ-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION",
-        "requirement": "Fresh successor reevaluation must refresh stale child Development Plan projection metadata from current canonical machine evidence and still require an independent strict Plan PASS before authorization.",
+        "id": "REQ-RELEASE-UNIT-PROOF-FALLBACK",
+        "requirement": "Critical release-unit children without direct Atlas test edges must receive current machine-derived regression proof authority without weakening material or evidence-ownership drift checks.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-child-plan-reprojection",
+          "breadth": "release-unit-proof-and-policy-refresh",
           "strength": 2,
           "dimensions": [
-            "status",
             "behavioral-proof",
             "transaction-identity",
             "forbidden-state",
@@ -442,15 +429,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PROJECTION-AUTHORITY",
-            "statement": "A non-authorizing projection may not itself authorize a release unit.",
+            "id": "NEG-EMPTY-CRITICAL-CHILD-PROOF",
+            "statement": "A critical child may not be authorized with empty proof authority.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-STALE-CHILD-IDENTITY",
-            "statement": "A reprojected child plan may not retain stale plan or binding identity.",
+            "id": "NEG-HARD-DRIFT-REFRESH-BYPASS",
+            "statement": "A child-plan refresh receipt may not mask requiredEvidence or material obligation drift.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -459,14 +446,14 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #1007 after replay job 112651631798 proved that STALE recovery reaches fresh reevaluation but the persisted child Development Plan envelope is stale relative to current Plan/Atlas/Knowledge policy. This commit is plan-only. Plan-only projection 37578829840 reconciled subsystem scope to auth-access-authority + customer-account + release-infrastructure, added SQ-NK-006 to applicable negative knowledge, and set canonical guard digest 2ee350f6.",
+  "notes": "Created from live Failure Intake #1010 after replay job 112662284959. Plan-only; no implementation until Plan Before Code approves the projected scope. Plan projection 37582641708 reconciled full Known Failure applicability, current negative-knowledge applicability, and canonical guard digest a41cfd0c. Plan-only projection 37582641708 reconciled all 49 Known Failures, 13 applicable negative-knowledge rules, and canonical guard digest a41cfd0c; no implementation-scope drift was reported. Edit-Time guard on afdc6bf6 proved release-unit-github-runtime.mjs was over-declared as MUST_EDIT; this reconciliation removes it from material plan scope and retains it only as impacted read-only context. Plan projection 37583336524 after removing the over-declared GitHub runtime reconciled direct architecture scope to DOMAIN-QUALITY / quality-knowledge-system only.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "d093d46b7c1eed1ed1df01ee34324d4443b13f12",
-    "closedAt": "2026-10-07T06:07:38.584Z",
+    "verifiedImplementationHead": "2c8b4626e1aec1913948f158c61d3dbeebcb528c",
+    "closedAt": "2026-10-07T06:52:10.585Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-UNIT-PROOF-FALLBACK-V1",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
