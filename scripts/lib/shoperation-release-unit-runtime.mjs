@@ -695,18 +695,32 @@ export const RELEASE_UNIT_EXECUTION_STATES=Object.freeze(['PLANNED','BLOCKED','R
 
 const executionClone=value=>structuredClone(value);
 const sameJson=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
-const classifyReleaseUnitMainAdvanceOverlap=(manifest,changedFiles)=>{
+const validGitBlobSha=value=>/^[0-9a-f]{40}$/i.test(String(value??''));
+const validGitFileMode=value=>/^[0-7]{6}$/.test(String(value??''));
+export function releaseUnitExactCreateSourceIdentity(manifest,file){
+  const normalizedFile=String(file??'').trim();
+  const sourceCommit=String(manifest?.sourceIdentity?.sourceCommit??'').trim();
+  if(!normalizedFile||manifest?.sourceIdentity?.sealed!==true||!validGitBlobSha(sourceCommit))return null;
+  const declared=(manifest?.operations??[]).filter(operation=>String(operation?.file??'').trim()===normalizedFile);
+  if(declared.length!==1)return null;
+  const operation=declared[0],source=operation?.source;
+  if(operation?.operation!=='create'||operation?.generated!=null)return null;
+  if(source?.mode!=='sealed'||source?.commit!==sourceCommit||!validGitBlobSha(source?.blobSha)||!validGitFileMode(source?.fileMode))return null;
+  return{file:normalizedFile,sourceBlobSha:String(source.blobSha),sourceFileMode:String(source.fileMode)};
+}
+const classifyReleaseUnitMainAdvanceOverlap=(manifest,changedFiles,exactCreateFiles=[])=>{
   const intendedFiles=uniq(manifest?.intendedFiles??[]);
   const requiredDependencyFiles=uniq(manifest?.requiredDependencyFiles??[]);
   const scopeFiles=uniq([...intendedFiles,...requiredDependencyFiles]);
   const overlapFiles=uniq(changedFiles).filter(file=>scopeFiles.includes(file));
-  const intended=new Set(intendedFiles),dependencies=new Set(requiredDependencyFiles);
+  const intended=new Set(intendedFiles),dependencies=new Set(requiredDependencyFiles),exactCreates=new Set(uniq(exactCreateFiles));
   const operations=manifest?.operations??[];
-  const dependencyOverlapFiles=[],modifyOverlapFiles=[],unsafeOverlapFiles=[];
+  const dependencyOverlapFiles=[],modifyOverlapFiles=[],exactCreateOverlapFiles=[],unsafeOverlapFiles=[];
   for(const file of overlapFiles){
     if(intended.has(file)){
       const declared=operations.filter(operation=>String(operation?.file??'').trim()===file);
       if(declared.length===1&&declared[0]?.operation==='modify')modifyOverlapFiles.push(file);
+      else if(exactCreates.has(file)&&releaseUnitExactCreateSourceIdentity(manifest,file))exactCreateOverlapFiles.push(file);
       else unsafeOverlapFiles.push(file);
       continue;
     }
@@ -718,20 +732,48 @@ const classifyReleaseUnitMainAdvanceOverlap=(manifest,changedFiles)=>{
     overlapFiles:uniq(overlapFiles),
     dependencyOverlapFiles:uniq(dependencyOverlapFiles),
     modifyOverlapFiles:uniq(modifyOverlapFiles),
+    exactCreateOverlapFiles:uniq(exactCreateOverlapFiles),
     unsafeOverlapFiles:uniq(unsafeOverlapFiles),
   };
 };
+const normalizedExactCreateIdentity=value=>({
+  file:String(value?.file??'').trim(),
+  sourceBlobSha:String(value?.sourceBlobSha??'').trim(),
+  sourceFileMode:String(value?.sourceFileMode??'').trim(),
+  targetBlobSha:String(value?.targetBlobSha??'').trim(),
+  targetFileMode:String(value?.targetFileMode??'').trim(),
+});
 export function validateReleaseUnitMainAdvanceProof(proof,{fromSha,toSha,manifest}={}){
   const changedFiles=uniq(proof?.changedFiles??[]);
-  const expected=classifyReleaseUnitMainAdvanceOverlap(manifest,changedFiles);
+  const identities=Array.isArray(proof?.exactCreateOverlapIdentities)
+    ?proof.exactCreateOverlapIdentities.map(normalizedExactCreateIdentity).sort((a,b)=>a.file.localeCompare(b.file))
+    :null;
+  const identityFiles=identities?identities.map(item=>item.file):[];
+  const identitiesValid=identities!==null
+    &&identityFiles.length===uniq(identityFiles).length
+    &&identities.every(identity=>{
+      const source=releaseUnitExactCreateSourceIdentity(manifest,identity.file);
+      return source
+        &&sameJson({file:identity.file,sourceBlobSha:identity.sourceBlobSha,sourceFileMode:identity.sourceFileMode},source)
+        &&validGitBlobSha(identity.targetBlobSha)
+        &&validGitFileMode(identity.targetFileMode)
+        &&identity.targetBlobSha===source.sourceBlobSha
+        &&identity.targetFileMode===source.sourceFileMode;
+    });
+  const exactCreateFiles=identitiesValid?uniq(identityFiles):[];
+  const expected=classifyReleaseUnitMainAdvanceOverlap(manifest,changedFiles,exactCreateFiles);
   const categorizedProof=Array.isArray(proof?.dependencyOverlapFiles)
     &&Array.isArray(proof?.modifyOverlapFiles)
+    &&Array.isArray(proof?.exactCreateOverlapFiles)
+    &&Array.isArray(proof?.exactCreateOverlapIdentities)
     &&Array.isArray(proof?.unsafeOverlapFiles);
-  const categoryMatch=categorizedProof
+  const categoryMatch=categorizedProof&&identitiesValid
     ? sameJson(uniq(proof.dependencyOverlapFiles),expected.dependencyOverlapFiles)
       &&sameJson(uniq(proof.modifyOverlapFiles),expected.modifyOverlapFiles)
+      &&sameJson(uniq(proof.exactCreateOverlapFiles),expected.exactCreateOverlapFiles)
+      &&sameJson(uniq(proof.exactCreateOverlapFiles),exactCreateFiles)
       &&sameJson(uniq(proof.unsafeOverlapFiles),expected.unsafeOverlapFiles)
-    : expected.overlapFiles.length===0;
+    : false;
   return proof?.contract===RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT
     &&proof?.issuer==='release-unit-github-runtime'
     &&proof?.decision==='PASS'
