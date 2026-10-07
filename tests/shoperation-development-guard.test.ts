@@ -72,8 +72,9 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(output).toContain('Development CI transaction self-test: PASS');
     const workflow=readFileSync('.github/workflows/ci.yml','utf8');
     const runtime=readFileSync('scripts/lib/shoperation-development-runtime.mjs','utf8');
-    const exactHead="ref: ${{ github.event.pull_request.head.sha || github.sha }}";
-    expect(workflow.split(exactHead).length-1).toBeGreaterThanOrEqual(2);
+    const canonicalHead="ref: ${{ env.SHOPERATION_CI_HEAD_SHA }}";
+    expect(workflow.split(canonicalHead).length-1).toBeGreaterThanOrEqual(2);
+    expect(workflow).toContain("SHOPERATION_CI_HEAD_SHA: ${{ github.event.inputs.release_unit_head_sha || github.event.pull_request.head.sha || github.sha }}");
     expect(workflow).toContain("- 'fix/**'");
     expect(workflow).toContain('Bind canonical Development Transaction identity');
     expect(workflow).toContain('--ci-transaction-env >> "$GITHUB_ENV"');

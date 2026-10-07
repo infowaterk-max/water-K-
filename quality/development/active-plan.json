@@ -1,14 +1,19 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-SUPERSESSION-V1",
-  "task": "Preserve a provably canonical prior release-unit materialization branch as immutable audit evidence and deterministically supersede it when fresh exact transaction identity/base requires a different materialization, without force-push, deletion or branch ambiguity.",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-BOT-PR-CI-DISPATCH-V1",
+  "task": "Make bot-created release-unit child PR proof automation-safe by explicitly dispatching exact-head CI and fail fast with machine-readable terminal child-CI blockers instead of polling action_required runs until timeout.",
   "status": "closed",
   "guardDigest": "128614ad",
-  "changeBaseSha": "3992f848e674cf4bb1fe353e2c5cade59c8a52ad",
+  "changeBaseSha": "a96074891ce8d0ae32d54c325d60cb4ee1076659",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
+    ".github/workflows/ci.yml",
+    "scripts/release-unit-ci-context.mjs",
     "scripts/release-unit-github-runtime.mjs",
-    "tests/control-plane-release-unit-production-surface.test.ts"
+    "tests/control-plane-release-unit-production-surface.test.ts",
+    "tests/control-plane-release-unit-execution-binding.test.ts",
+    "tests/shoperation-development-guard.test.ts",
+    "tests/control-plane-diagnostics-hardening.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
@@ -59,44 +64,46 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-SUPERSESSION-V1",
+    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-BOT-PR-CI-DISPATCH-V1",
     "riskTier": "critical",
-    "problemStatement": "Live bounded rehearsal replay job 112690517069 reached fresh obligation reconciliation successfully, then encountered the old canonical U01 materialization branch release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01 at af0365ec584e3ec8fa9319526af1aa719af912b3. That branch is rooted at the old base 199f21f274524a7b3688f50e09d2d0e3039f86c8, while fresh exact execution now targets main 3992f848e674cf4bb1fe353e2c5cade59c8a52ad. Existing exact-reuse logic correctly rejects the base drift, but there is no canonical supersession path that preserves the old branch and continues on a fresh branch identity.",
+    "problemStatement": "Live bounded rehearsal reached U01 PR_OPEN and created canonical child PR #1024 at head d9530afd343b66ae157444298ae847f1d12fb8dc. GitHub completed the pull_request CI run 37596487318 immediately as action_required because actor and triggering_actor were github-actions[bot], with no normal CI jobs. importExactChildProof only searches for successful exact CI and otherwise returns PENDING, causing the trusted executor to poll for roughly the full global limit with no concrete blocker surfaced.",
     "observableOutcomes": [
-      "The executor never force-pushes, deletes or rewrites an older canonical materialization branch.",
-      "If the canonical base branch is absent, normal exact materialization behavior is unchanged.",
-      "If the canonical base branch already exactly matches the fresh transaction, it is reused as today.",
-      "If the canonical base branch differs from the fresh transaction, supersession is allowed only after the remote branch is proven to be the exact materialization of the persisted prior manifest/source identity.",
-      "A deterministic superseding branch is derived from the fresh binding identity and selected branchRef is persisted in the active execution state before PR creation.",
-      "An existing superseding branch is reusable only when its base/tree/commit-message identity exactly matches the fresh materialization.",
-      "Foreign, tampered or ambiguous occupation of either canonical or superseding branch remains fail-closed."
+      "Trusted executor explicitly triggers an exact child proof run through workflow_dispatch after creating or confirming the exact child PR, rather than depending solely on its bot-generated pull_request event.",
+      "CI workflow supports a trusted release-unit dispatch mode carrying exact PR number, head SHA, base SHA and head branch, and runs the same canonical gates, Truth and Lifecycle semantics against that exact child head.",
+      "release-unit-ci-context validates dispatch identity against the actual same-repository open PR and its signed release-unit envelope before setting child transaction context.",
+      "importExactChildProof distinguishes queued/in_progress from terminal non-success and returns machine-readable BLOCK codes such as RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED.",
+      "finishActiveUnit persists terminal child proof failures as STALE with the exact blocker instead of waiting until RELEASE_UNIT_EXECUTION_POLL_LIMIT.",
+      "Operator logs/state surface the exact machine blocker without an extra GitHub API query."
     ],
     "unresolvedRisks": [
-      "Treating any old release-unit branch as canonical could allow branch squatting to trigger supersession.",
-      "A branch name based only on releaseUnitId would collide across fresh target-base/binding changes.",
-      "Selecting a superseding branch without persisting it would make CI proof and PR lookup use the wrong head branch.",
-      "Reconstructing prior canonical identity must use the persisted prior manifest and exact source commit, not only commit-message prefix.",
-      "A retry after creating the superseding branch must reuse it idempotently and must not create another generation."
+      "A dispatch proof could run on main rather than the exact child head if workflow ref/inputs are not bound correctly.",
+      "Dispatch inputs are untrusted strings unless reconciled to the actual PR and release-unit envelope.",
+      "Accepting any successful CI run for the commit could confuse ordinary pull_request CI with trusted dispatch proof identity.",
+      "Repeated polling must not dispatch duplicate proof runs every cycle.",
+      "Terminal action_required handling must not mark genuine queued/in_progress proof as failed.",
+      "A stale PR must not be merged after main advances; normal fresh reevaluation/superseding branch semantics must remain authoritative."
     ],
     "scope": {
       "in": [
-        "Add deterministic superseding branch derivation from fresh release-unit binding identity.",
-        "Add exact remote branch inspection/validation reusable for both fresh and prior canonical materializations.",
-        "Reconstruct and prove the persisted prior materialization against its old target base and original source commit before allowing supersession.",
-        "Create or exact-reuse the deterministic superseding branch without modifying the prior branch.",
-        "Persist the selected superseding branchRef into executionTransaction before MATERIALIZED/PR_OPEN.",
-        "Add regression tests for canonical prior supersession, exact superseding reuse, branch squatting/tamper rejection and no-force-push behavior."
+        "Add workflow_dispatch inputs to CI for trusted release-unit proof: PR number, child head SHA, base SHA and head branch.",
+        "Normalize CI effective PR/head/base/branch identity so pull_request and trusted dispatch modes run the same gates/artifacts.",
+        "Extend release-unit-ci-context to resolve trusted dispatch PR identity and validate same repository/open/exact head/base/ref plus release-unit body envelope.",
+        "After ensureExactPullRequest, idempotently ensure an exact workflow_dispatch child proof run exists.",
+        "Classify exact child CI runs into SUCCESS, PENDING or terminal BLOCK with explicit conclusion-derived error codes.",
+        "Persist terminal child proof BLOCK as STALE through canonical parent synchronization.",
+        "Add regression coverage for action_required fail-fast, pending semantics, dispatch idempotency, exact identity and no manual approval bypass."
       ],
       "out": [
-        "No deletion, rename or force-push of existing release-unit branches.",
-        "No manual release-state rewrite or blocker clearing.",
-        "No manual child PR creation or receipt fabrication.",
-        "No change to child proof, fresh obligation reconciliation, decomposition, Atlas, Release Risk, storefront, database, deployment, auth, payments, inventory, Builder or templates."
+        "No manual approval of #1024.",
+        "No manual child PR recreation, state editing, receipt fabrication or merge bypass.",
+        "No PAT/new secret requirement.",
+        "No weakening of Plan/Atlas/Release Risk/Truth/Lifecycle proof.",
+        "No changes to storefront, database, payments, inventory, auth product runtime, Builder or templates."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This changes branch identity selection inside the trusted write-capable release executor. It must preserve immutable audit evidence while preventing branch squatting or stale remote state from being accepted as a valid successor execution.",
+      "rationale": "This is a trusted write-capable release execution edge crossing GitHub Actions event semantics. Dispatch identity, exact-head proof selection, terminal-state classification and fail-closed recovery must all remain machine-verifiable.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -114,30 +121,30 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "A fresh materialization still uses the canonical base branch when that branch is absent.",
-        "An exact existing canonical base branch is reused without push.",
-        "A non-exact canonical base branch may trigger supersession only when it exactly matches a reconstructed prior canonical materialization from persisted prior manifest + exact source commit.",
-        "Superseding branch name is deterministic from canonical base branch plus fresh binding identity and remains stable across retries.",
-        "Fresh receipt is pushed to absent superseding branch without force; exact pre-existing superseding branch is reused; drifted superseding branch blocks.",
-        "The selected branchRef is written into executionTransaction and the same branch is used for PR creation and later exact CI proof lookup.",
-        "No existing branch is deleted, overwritten or force-pushed.",
-        "Exact-head CI, Completion Truth and Lifecycle close before merge, then unchanged rehearsal resumes from persisted CAS state."
+        "CI supports workflow_dispatch release-unit proof mode without changing ordinary push/pull_request behavior.",
+        "Dispatch CI checks out the exact supplied child head and uses the supplied exact base/ref/PR identity for all Development/Truth artifact binding.",
+        "release-unit-ci-context fetches and validates the actual PR when invoked in dispatch mode and fails closed on repo/state/head/base/ref mismatch.",
+        "Executor creates at most one active/successful exact dispatch proof per child head/branch/PR identity.",
+        "importExactChildProof returns BLOCK/RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED for the observed action_required terminal run rather than PENDING.",
+        "Queued/in_progress or not-yet-materialized dispatch proof remains PENDING.",
+        "finishActiveUnit writes a terminal proof blocker as STALE and the next canonical executor replay can fresh-reevaluate from current main.",
+        "Exact-head CI, Completion Truth and Lifecycle close before merge; then the unchanged rehearsal resumes without manual approval."
       ],
       "invariants": [
-        "Prior materialization branch is immutable audit evidence.",
-        "Supersession is impossible without proof of prior canonical branch identity.",
-        "Branch selection is deterministic from exact fresh transaction identity.",
-        "Selected branchRef and materialized head/PR/CI identity refer to the same execution generation.",
-        "Remote branch drift is never repaired by force.",
-        "CAS state remains the only authoritative persisted execution state."
+        "Only exact same-repository child PR identity may enter release-unit dispatch proof mode.",
+        "Workflow dispatch is proof execution, not proof bypass: all existing canonical gates and Truth/Lifecycle must still PASS.",
+        "Terminal non-success child CI is never represented as PENDING.",
+        "PENDING never persists a false blocker for genuinely running proof.",
+        "No child merge occurs without exact-head VERIFIED_DONE Truth and closed LEARN lifecycle evidence.",
+        "No state mutation bypasses persisted CAS synchronization."
       ],
       "forbiddenStates": [
-        "force-push-prior-materialization",
-        "delete-prior-materialization",
-        "foreign-branch-accepted-as-prior-canonical",
-        "multiple-nondeterministic-superseding-branches",
-        "pr-branch-differs-from-persisted-branchref",
-        "manual-state-or-pr-bypass"
+        "action-required-treated-as-pending",
+        "dispatch-head-differs-from-pr-head",
+        "dispatch-base-differs-from-pr-base",
+        "foreign-repository-pr-dispatch",
+        "successful-nonexact-ci-imported-as-child-proof",
+        "manual-approval-required-for-normal-release-execution"
       ]
     },
     "model": {
@@ -169,46 +176,46 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Old canonical branch exists on an obsolete target base.",
-        "Old branch looks related by name but is not reconstructably canonical.",
-        "Fresh deterministic superseding branch already exists but moved or has wrong tree/message.",
-        "Selected branch is not persisted before PR/CI handoff.",
-        "Retry creates a second supersession generation despite unchanged fresh binding identity."
+        "Bot-created PR pull_request run concludes action_required with zero canonical jobs.",
+        "Executor waits for success despite terminal child CI.",
+        "workflow_dispatch runs on wrong ref/head.",
+        "Dispatch is triggered repeatedly on every poll.",
+        "Dispatch PR identity cannot be validated because pull request permissions are absent.",
+        "Ordinary pull_request CI behavior regresses after identity normalization."
       ],
       "edgeCases": [
-        "Canonical branch absent.",
-        "Canonical branch exactly equals fresh receipt.",
-        "Canonical branch equals reconstructed prior receipt and superseding branch absent.",
-        "Canonical branch equals reconstructed prior receipt and superseding branch exactly exists.",
-        "Canonical branch is foreign/tampered.",
-        "Superseding branch is foreign/tampered.",
-        "Fresh binding digest changes again after later main/policy evolution."
+        "Original pull_request CI succeeds before dispatch is needed.",
+        "Original pull_request CI is action_required while dispatch proof succeeds.",
+        "Dispatch proof is queued or in_progress during several executor polls.",
+        "Dispatch proof fails one canonical gate.",
+        "Main advances after child PR is opened and terminal proof forces STALE re-evaluation.",
+        "Multiple CI runs exist for the same child head with different events/conclusions."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-DETERMINISTIC-SUPERSESSION",
-        "summary": "Prove the old branch as prior canonical evidence, then choose an immutable fresh branch derived from current binding identity.",
+        "id": "ALT-WORKFLOW-DISPATCH-EXACT-CHILD",
+        "summary": "Trusted executor explicitly invokes the existing CI workflow in release-unit proof mode on the exact child ref/head.",
         "disposition": "selected",
-        "reason": "Preserves audit history and exact transaction identity without weakening remote-branch drift checks."
+        "reason": "GitHub permits workflow_dispatch from GITHUB_TOKEN, preserves the canonical CI/Truth chain and avoids bot PR event approval semantics."
       },
       {
-        "id": "ALT-FORCE-PUSH-CANONICAL",
-        "summary": "Force-push the original release-unit branch to the fresh materialization.",
+        "id": "ALT-MANUAL-WORKFLOW-APPROVAL",
+        "summary": "Require a human to approve each bot-created child PR workflow.",
         "disposition": "rejected",
-        "reason": "Destroys audit evidence and reintroduces the non-fast-forward/rerun defect the executor was designed to prevent."
+        "reason": "Breaks autonomous release-unit execution and leaves the rehearsal dependent on manual intervention."
       },
       {
-        "id": "ALT-DELETE-AND-RECREATE",
-        "summary": "Delete the old branch and recreate it from fresh base.",
+        "id": "ALT-PAT-OR-APP-SECRET",
+        "summary": "Create child PRs with a separate PAT/GitHub App token so pull_request CI triggers normally.",
         "disposition": "rejected",
-        "reason": "Makes historical execution evidence mutable and ambiguous."
+        "reason": "Adds secret/credential infrastructure not required to close the current execution edge."
       },
       {
-        "id": "ALT-RANDOM-GENERATION-BRANCH",
-        "summary": "Create a timestamp/random suffix on each retry.",
+        "id": "ALT-LOCAL-PROOF-ONLY",
+        "summary": "Skip GitHub child CI and prove entirely inside the trusted executor worktree.",
         "disposition": "rejected",
-        "reason": "Breaks resumability and deterministic PR/CI binding."
+        "reason": "Would reduce production-like PR proof fidelity and duplicate the canonical CI evidence chain."
       }
     ],
     "specialistReviews": [
@@ -216,9 +223,10 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The missing edge is branch-generation identity after a canonical prior materialization becomes stale; the materializer itself remains correct.",
-        "resolution": "Insert deterministic branch selection between sealed materialization receipt creation and remote reconciliation, and persist the chosen branchRef.",
+        "finding": "The missing edge is event-trigger authority between executor-created PR and child CI, not child materialization or proof semantics.",
+        "resolution": "Add explicit trusted dispatch while keeping the existing CI workflow as the single proof implementation.",
         "evidence": [
+          ".github/workflows/ci.yml",
           "scripts/release-unit-github-runtime.mjs"
         ]
       },
@@ -226,125 +234,133 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Supersession based only on branch name/base mismatch could let a foreign branch cause trusted executor branch creation.",
-        "resolution": "Require exact reconstruction of prior persisted manifest materialization including old base, tree and canonical commit message before supersession.",
+        "finding": "workflow_dispatch inputs could let an arbitrary ref/PR impersonate a release-unit child.",
+        "resolution": "Dispatch mode must fetch actual PR, require same repo/open/exact head/base/ref and validate the signed release-unit body envelope before any child context is accepted.",
         "evidence": [
-          "scripts/release-unit-github-runtime.mjs",
-          "tests/control-plane-release-unit-production-surface.test.ts"
+          "scripts/release-unit-ci-context.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "PR and CI proof lookup already key off executionTransaction.branchRef, so that field must hold the selected superseding branch before MATERIALIZED/PR_OPEN.",
-        "resolution": "Persist branchRef into the active execution object immediately after exact branch reconciliation and before applying MATERIALIZED event.",
+        "finding": "Terminal child workflow conclusions are currently collapsed into PENDING, masking actionable failure and wasting executor time.",
+        "resolution": "Classify terminal conclusions immediately and persist exact blocker as STALE for canonical replay.",
         "evidence": [
           "scripts/release-unit-github-runtime.mjs"
         ]
       },
       {
-        "role": "Known Failure",
+        "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Live rehearsal #1017 proves exact remote reuse is correct but incomplete when a valid previous generation occupies the canonical branch.",
-        "resolution": "Add prior-generation canonical proof + deterministic supersession replay tests and rerun the unchanged persisted rehearsal.",
+        "finding": "Operators currently need separate API/log queries to learn why a proof never progresses.",
+        "resolution": "Emit conclusion-derived machine code into executor error/state so the primary run shows the exact cause.",
         "evidence": [
-          "https://github.com/infowaterk-max/water-K-/issues/1017",
-          "tests/control-plane-release-unit-production-surface.test.ts"
+          "scripts/release-unit-execute.mjs",
+          "scripts/release-unit-github-runtime.mjs",
+          "https://github.com/infowaterk-max/water-K-/issues/1025"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-MS-01",
-        "scenario": "The canonical release-unit branch exists on an old base and is exactly reproducible from the persisted old manifest/source.",
-        "finding": "Current reconcileExactMaterializedCommit correctly throws BASE_DRIFT but provides no immutable continuation path.",
-        "resolution": "Select deterministic superseding branch from fresh binding identity only after prior canonical proof passes.",
+        "id": "CH-BPCI-01",
+        "scenario": "github-actions[bot] creates an exact same-repo child PR and GitHub marks pull_request CI action_required.",
+        "finding": "Current import returns PENDING forever until poll limit because it only recognizes exact success.",
+        "resolution": "Treat action_required as terminal BLOCK with RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED and separately dispatch trusted proof.",
         "status": "resolved"
       },
       {
-        "id": "CH-MS-02",
-        "scenario": "A foreign commit occupies the canonical branch but happens to have the expected old parent SHA.",
-        "finding": "Base equality alone does not prove canonical prior materialization.",
-        "resolution": "Require remote tree and exact canonical releaseUnitCommitMessage to match the reconstructed prior sealed receipt.",
+        "id": "CH-BPCI-02",
+        "scenario": "A dispatch payload names PR #1024 but supplies another head SHA.",
+        "finding": "Running proof against mismatched code would break exact transaction identity.",
+        "resolution": "Fetch PR in child-context step and compare PR number/repository/state/head/base/ref to dispatch payload before decoding envelope.",
         "status": "resolved"
       },
       {
-        "id": "CH-MS-03",
-        "scenario": "A retry sees the same fresh transaction after the superseding branch was already pushed.",
-        "finding": "Creating a new branch generation would fork execution identity.",
-        "resolution": "Derive branch suffix deterministically from fresh binding digest and exact-reuse the branch through existing remote tree/message/base checks.",
+        "id": "CH-BPCI-03",
+        "scenario": "Both pull_request and dispatch CI exist for one head.",
+        "finding": "Proof importer could select the wrong run or keep reacting to action_required despite a valid dispatch success.",
+        "resolution": "Prefer exact successful trusted dispatch proof; terminal pull_request action_required only blocks when no valid dispatch proof is active/successful.",
         "status": "resolved"
       },
       {
-        "id": "CH-MS-04",
-        "scenario": "A foreign/tampered commit already occupies the deterministic superseding branch.",
-        "finding": "Blind push would either fail ambiguously or overwrite evidence.",
-        "resolution": "Use normal non-force push only when absent; if present, exact reconciliation must pass or block.",
+        "id": "CH-BPCI-04",
+        "scenario": "Executor polls while dispatch proof is queued/in_progress.",
+        "finding": "Repeated repository actions could create many identical CI runs.",
+        "resolution": "Before dispatch, list exact workflow_dispatch runs for head/branch and create one only when none is queued/in_progress/successful.",
         "status": "resolved"
       },
       {
-        "id": "CH-MS-05",
-        "scenario": "Superseding branch is selected but executionTransaction.branchRef remains the canonical base branch.",
-        "finding": "PR creation and proof import would bind to the wrong branch even if head SHA is correct.",
-        "resolution": "Persist selected branchRef into execution state before MATERIALIZED and PR_OPEN events.",
+        "id": "CH-BPCI-05",
+        "scenario": "Dispatch CI fails Plan, test, build or Truth gate.",
+        "finding": "The executor needs the exact terminal reason instead of a generic timeout.",
+        "resolution": "Map terminal workflow conclusion to RELEASE_UNIT_CHILD_CI_<CONCLUSION>; preserve run id/head/branch in blocker details and stop polling.",
         "status": "resolved"
       },
       {
-        "id": "CH-MS-06",
-        "scenario": "Fresh transaction later changes again and the prior superseding branch remains.",
-        "finding": "A fixed '-v2' suffix would collide with the next exact identity.",
-        "resolution": "Use fresh binding digest in the branch suffix so each materially distinct exact transaction has one deterministic generation.",
+        "id": "CH-BPCI-06",
+        "scenario": "Old PR_OPEN child was based on an earlier main and receives terminal proof blocker after this fix merges.",
+        "finding": "Continuing that old branch would miss the new workflow implementation.",
+        "resolution": "Persist STALE on terminal proof; next prepareActiveUnit fresh-reevaluates current main and creates/reuses a superseding canonical child branch containing current workflow code.",
         "status": "resolved"
       },
       {
-        "id": "CH-MS-07",
-        "scenario": "Base branch is already exact for the fresh transaction.",
-        "finding": "Supersession would be unnecessary and fragment identity.",
-        "resolution": "Retain current exact remote reuse path and supersede only after fresh-exact mismatch plus prior-canonical proof.",
+        "id": "CH-BPCI-07",
+        "scenario": "Dispatch event runs existing CI but github.event.pull_request is absent.",
+        "finding": "Current workflow expressions and release-unit-ci-context would bind main/default event identity rather than child identity.",
+        "resolution": "Normalize effective head/base/ref/PR values for both pull_request and dispatch modes and use them consistently across checkout, gates, artifacts, Truth and lifecycle.",
         "status": "resolved"
       },
       {
-        "id": "CH-MS-08",
-        "scenario": "A brand-new release unit has no remote canonical materialization branch and no superseding branch on origin.",
-        "finding": "If supersession selection probes or manufactures a generation suffix before checking branch absence, first-time materialization would unnecessarily diverge from the canonical release-unit branch and downstream PR/CI lookup would change behavior.",
-        "resolution": "Remote inspection must return the canonical base branch unchanged when it is absent; the existing non-force initial push path must execute exactly once and no superseding branch lookup or creation may occur in this case.",
+        "id": "CH-BPCI-08",
+        "scenario": "No pull_request CI run is created at all.",
+        "finding": "Waiting for a PR-triggered run before dispatch would deadlock.",
+        "resolution": "Explicit dispatch is ensured immediately after PR_OPEN creation/confirmation; pull_request CI becomes optional redundant proof rather than required trigger.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS before implementation.",
-      "Implement remote branch inspection, prior canonical reconstruction, deterministic superseding branch selection and branchRef persistence.",
-      "Add positive/retry/adversarial regression tests, including proof that no force-push/delete command is issued.",
-      "Require exact-head Knowledge, Plan, Edit-Time, Incremental Replay, Release Risk, full tests, TypeScript, build and Completion Truth PASS.",
+      "Commit this plan only and require Plan Before Code PASS.",
+      "Implement dispatch-capable CI identity normalization, child-context validation, explicit proof dispatch and terminal-run classifier.",
+      "Add regression tests for observed action_required case, exact dispatch identity, duplicate suppression, PENDING vs BLOCK classification and STALE persistence.",
+      "Require exact-head Knowledge/Plan/Edit-Time/Replay/Risk/full tests/typecheck/build/Completion Truth PASS.",
       "Commit only canonical lifecycle closure metadata and require final exact-head CI PASS.",
-      "Merge, verify fresh main CI, then replay the unchanged rehearsal from persisted CAS state and require canonical U01 PR progression."
+      "Merge, let the obsolete stuck executor terminate naturally if connector cannot cancel it, then replay the unchanged rehearsal from persisted CAS state."
     ],
     "semanticExecutionRoute": {
-      "request": "SQ-CAND-RELEASE-EXECUTOR-MATERIALIZATION-SUPERSESSION-V1",
+      "request": "SQ-CAND-RELEASE-UNIT-BOT-PR-CI-DISPATCH-V1",
       "authority": [
         "release-infrastructure"
       ],
       "mustEdit": [
+        ".github/workflows/ci.yml",
+        "scripts/release-unit-ci-context.mjs",
         "scripts/release-unit-github-runtime.mjs"
       ],
       "mayEdit": [
-        "tests/control-plane-release-unit-production-surface.test.ts"
+        "tests/control-plane-release-unit-production-surface.test.ts",
+        "tests/control-plane-release-unit-execution-binding.test.ts",
+        "tests/shoperation-development-guard.test.ts",
+        "tests/control-plane-diagnostics-hardening.test.ts"
       ],
       "impactedReadOnly": [
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/release-unit-execute.mjs"
+        ".github/workflows/release-unit-execution.yml",
+        "scripts/release-unit-execute.mjs",
+        "scripts/lib/shoperation-release-unit-runtime.mjs"
       ],
       "mustCreate": [],
       "forbidden": [
-        ".github/workflows/**",
         "deploy/**",
         "src/**",
         "supabase/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-production-surface.test.ts"
+        "tests/control-plane-release-unit-production-surface.test.ts",
+        "tests/control-plane-release-unit-execution-binding.test.ts",
+        "tests/shoperation-development-guard.test.ts",
+        "tests/control-plane-diagnostics-hardening.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -355,7 +371,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-SUPERSESSION-V1",
+    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-BOT-PR-CI-DISPATCH-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -373,11 +389,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-RELEASE-EXECUTOR-MATERIALIZATION-SUPERSESSION",
-        "requirement": "A fresh exact release-unit transaction must be able to supersede a provably canonical stale materialization branch using a deterministic immutable branch identity while preserving old evidence and all exact PR/CI bindings.",
+        "id": "REQ-RELEASE-UNIT-BOT-PR-CI-DISPATCH",
+        "requirement": "Trusted release-unit child proof must execute automatically on the exact child identity even when the bot-created pull_request workflow is action_required, and terminal child workflow states must surface immediately as machine-readable blockers.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-materialization-supersession",
+          "breadth": "release-unit-child-ci-trigger-and-diagnostics",
           "strength": 2,
           "dimensions": [
             "status",
@@ -400,15 +416,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-MATERIALIZATION-FORCE-PUSH",
-            "statement": "Prior or superseding release-unit materialization branches may not be force-pushed or deleted.",
+            "id": "NEG-CHILD-CI-TIMEOUT-MASKING",
+            "statement": "A terminal exact child CI conclusion may not be represented as PENDING until global poll timeout.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-MATERIALIZATION-BRANCH-SQUAT",
-            "statement": "A foreign or drifted branch may not be accepted as canonical prior or current materialization.",
+            "id": "NEG-DISPATCH-IDENTITY-DRIFT",
+            "statement": "Trusted child proof dispatch may not run against a PR/head/base/ref identity different from the persisted release-unit transaction.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -417,14 +433,14 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #1017 after fresh obligation reconciliation merged via PR #1016 and replay job 112690517069 reached remote branch base drift. Plan-only; no implementation until Plan Before Code approves exact scope. Plan projection 37592064831 reconciled direct scope to DOMAIN-RELEASE / release-infrastructure, 19 applicable Known Failures, canonical guard digest 128614ad, and required a concrete absent-branch adversarial challenge.",
+  "notes": "Created from live Failure Intake #1025 after U01 reached PR_OPEN and CI run 37596487318 completed action_required under github-actions[bot], while trusted executor run 37566854069 remained polling in Drive canonical release-unit execution. Incremental Replay on d8003946 exposed one stale regression assertion in tests/shoperation-development-guard.test.ts that counted raw pull_request head expressions. The test must now verify canonical SHOPERATION_CI_* effective identity plus preserved pull_request fallback semantics. Full Quality Tests on 132ec189 exposed a second stale diagnostics regression assertion in tests/control-plane-diagnostics-hardening.test.ts that still expected the retired RELEASE_HEAD_SHA workflow variable. Update that proof to assert canonical SHOPERATION_CI_HEAD_SHA exact-head binding without weakening structured diagnostic requirements. Full Quality on exact head 132ec189 exposed a second stale CI identity assertion in tests/control-plane-diagnostics-hardening.test.ts; RELEASE_HEAD_SHA must now be asserted against canonical env.SHOPERATION_CI_HEAD_SHA while preserving exact-head semantics.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "1aba7bdd9b8c928e17a267fdf19bcb8b9f9ed1c5",
-    "closedAt": "2026-10-07T08:26:11.250Z",
+    "verifiedImplementationHead": "d2fe70c65f33faa8700f5f348479e3e92df95936",
+    "closedAt": "2026-10-07T09:54:33.342Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-SUPERSESSION-V1",
+    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-BOT-PR-CI-DISPATCH-V1",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

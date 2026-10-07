@@ -61,6 +61,20 @@ export function releaseUnitPullRequestBody(manifest){
 export function selectExactSuccessfulCiRun(runs,{headSha,headBranch}={}){
   return (runs??[]).find(run=>run?.headSha===headSha&&run?.headBranch===headBranch&&run?.status==='completed'&&run?.conclusion==='success')??null;
 }
+
+const childCiConclusionCode=conclusion=>'RELEASE_UNIT_CHILD_CI_'+String(conclusion??'UNKNOWN').toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+
+export function classifyExactChildCiRuns(runs,{headSha,headBranch}={}){
+  const exact=(runs??[]).filter(run=>run?.headSha===headSha&&run?.headBranch===headBranch);
+  const success=exact.find(run=>run?.status==='completed'&&run?.conclusion==='success')??null;
+  if(success)return{decision:'PASS',run:success};
+  const pending=exact.find(run=>run?.status!=='completed')??null;
+  if(pending)return{decision:'PENDING',reason:'RELEASE_UNIT_CHILD_CI_PENDING',run:pending};
+  const terminal=exact.find(run=>run?.status==='completed')??null;
+  if(terminal)return{decision:'BLOCK',reason:childCiConclusionCode(terminal.conclusion),run:terminal};
+  return{decision:'PENDING',reason:'RELEASE_UNIT_CHILD_CI_NOT_STARTED',run:null};
+}
+
 export function validateExactPullRequest(pr,{headSha,baseSha,bindingDigest}={}){
   if(!pr||Number(pr.number)<1)throw new Error('RELEASE_UNIT_PR_REQUIRED');
   if(pr.head?.sha!==headSha)throw new Error('RELEASE_UNIT_PR_HEAD_MISMATCH');
@@ -241,11 +255,38 @@ export function ensureExactPullRequest({manifest,materializedHeadSha,branch,repo
     url:pr.html_url??null,
   };
 }
+export function ensureExactChildProofDispatch({prNumber,headSha,baseSha,headBranch,repo=null,run=defaultRun,cwd=process.cwd()}={}){
+  const repository=repo??repoName(run,cwd);
+  if(!Number.isInteger(Number(prNumber))||Number(prNumber)<1)throw new Error('RELEASE_UNIT_CHILD_CI_DISPATCH_PR_REQUIRED');
+  if(!text(headSha)||!text(baseSha)||!text(headBranch))throw new Error('RELEASE_UNIT_CHILD_CI_DISPATCH_IDENTITY_REQUIRED');
+  const existing=parse(run('gh',['run','list','--repo',repository,'--workflow','CI','--commit',headSha,'--event','workflow_dispatch','--json','databaseId,status,conclusion,headSha,headBranch,event','--limit','30'],{cwd}));
+  const exact=(existing??[]).filter(item=>item?.headSha===headSha&&item?.headBranch===headBranch);
+  const reusable=exact.find(item=>item?.status!=='completed'||item?.conclusion==='success')??null;
+  if(reusable)return{decision:'EXISTS',runId:reusable.databaseId??null,status:reusable.status,conclusion:reusable.conclusion??null};
+  try{
+    run('gh',[
+      'workflow','run','ci.yml','--repo',repository,'--ref',headBranch,
+      '-f','release_unit_proof=true',
+      '-f','release_unit_pr_number='+String(prNumber),
+      '-f','release_unit_head_sha='+headSha,
+      '-f','release_unit_base_sha='+baseSha,
+      '-f','release_unit_head_ref='+headBranch,
+    ],{cwd});
+  }catch(error){
+    throw new Error('RELEASE_UNIT_CHILD_CI_DISPATCH_FAILED:'+String(error?.stderr??error?.message??error));
+  }
+  return{decision:'DISPATCHED'};
+}
+
 export function importExactChildProof({headSha,headBranch,repo=null,run=defaultRun,cwd=process.cwd()}={}){
   const repository=repo??repoName(run,cwd);
-  const runs=parse(run('gh',['run','list','--repo',repository,'--workflow','CI','--commit',headSha,'--event','pull_request','--json','databaseId,status,conclusion,headSha,headBranch','--limit','30'],{cwd}));
-  const exact=selectExactSuccessfulCiRun(runs,{headSha,headBranch});
-  if(!exact)return{decision:'PENDING',reason:'EXACT_CI_NOT_SUCCESS'};
+  const fields='databaseId,status,conclusion,headSha,headBranch,event';
+  const dispatchRuns=parse(run('gh',['run','list','--repo',repository,'--workflow','CI','--commit',headSha,'--event','workflow_dispatch','--json',fields,'--limit','30'],{cwd}));
+  const pullRequestRuns=parse(run('gh',['run','list','--repo',repository,'--workflow','CI','--commit',headSha,'--event','pull_request','--json',fields,'--limit','30'],{cwd}));
+  const classification=classifyExactChildCiRuns([...(dispatchRuns??[]),...(pullRequestRuns??[])],{headSha,headBranch});
+  if(classification.decision==='PENDING')return{decision:'PENDING',reason:classification.reason,details:{runId:classification.run?.databaseId??null,event:classification.run?.event??null,status:classification.run?.status??null}};
+  if(classification.decision==='BLOCK')return{decision:'BLOCK',reason:classification.reason,details:{runId:classification.run?.databaseId??null,event:classification.run?.event??null,status:classification.run?.status??null,conclusion:classification.run?.conclusion??null}};
+  const exact=classification.run;
   const temp=mkdtempSync(path.join(os.tmpdir(),'shoperation-release-unit-proof-'));
   try{
     run('gh',['run','download',String(exact.databaseId),'--repo',repository,'--name','shoperation-resumable-verification-'+headSha,'--dir',temp],{cwd});
@@ -482,6 +523,7 @@ export function prepareActiveUnit({state,currentMainSha,sourceCommit,run=default
     return{state:next,decision:next.closureEligible?'PARENT_CLOSURE_ELIGIBLE':'UNIT_CLOSED',branch,manifest:sealed,receipt,noCode:true};
   }
   const pr=ensureExactPullRequest({manifest:sealed,materializedHeadSha:receipt.materializedHeadSha,branch,run,cwd});
+  ensureExactChildProofDispatch({prNumber:pr.number,headSha:pr.headSha,baseSha:pr.baseSha,headBranch:branch,run,cwd});
   next=applyReleaseUnitEvent(next,{type:'PR_OPEN',releaseUnitId:execution.releaseUnitId,receipt:pr});
   return{state:next,decision:'PR_OPEN',branch,manifest:sealed,receipt:pr};
 }
@@ -489,7 +531,11 @@ export function finishActiveUnit({state,run=defaultRun,cwd=process.cwd()}={}){
   const active=state.units.find(item=>item.releaseUnitId===state.activeUnitId);
   if(!active||active.state!=='PR_OPEN')throw new Error('RELEASE_UNIT_PR_OPEN_REQUIRED');
   const proof=importExactChildProof({headSha:active.pullRequest.headSha,headBranch:active.executionTransaction.branchRef,run,cwd});
-  if(proof.decision!=='PASS')return{state,decision:'PENDING',reason:proof.reason};
+  if(proof.decision==='PENDING')return{state,decision:'PENDING',reason:proof.reason,details:proof.details??null};
+  if(proof.decision==='BLOCK'){
+    const blocked={...active,state:'STALE',blocker:{code:proof.reason??'RELEASE_UNIT_CHILD_CI_BLOCK',details:proof.details??{}},lastTransition:{to:'STALE',code:proof.reason??'RELEASE_UNIT_CHILD_CI_BLOCK'}};
+    return{state:synchronizeReleaseParentExecution(state,blocked),decision:'BLOCK',reason:blocked.blocker};
+  }
   let next=applyReleaseUnitEvent(state,{type:'VERIFIED',releaseUnitId:active.releaseUnitId,truth:proof.truth,lifecyclePlan:proof.lifecyclePlan});
   const verified=next.units.find(item=>item.releaseUnitId===active.releaseUnitId);
   const merge=mergeExactPullRequest({prNumber:verified.pullRequest.number,sourceHeadSha:verified.pullRequest.headSha,run,cwd});

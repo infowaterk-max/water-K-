@@ -33,6 +33,27 @@ const materialized=(alreadyApplied=[{operation:'modify',file:'scripts/already.mj
 });
 
 describe('Control Plane production release surface',()=>{
+  it('dispatches bot-created child proof explicitly and surfaces terminal CI without poll-timeout masking',()=>{
+    const ci=readFileSync('.github/workflows/ci.yml','utf8');
+    const runtime=readFileSync('scripts/release-unit-github-runtime.mjs','utf8');
+    const context=readFileSync('scripts/release-unit-ci-context.mjs','utf8');
+    expect(ci).toContain('workflow_dispatch:');
+    expect(ci).toContain('release_unit_proof:');
+    expect(ci).toContain('release_unit_head_sha:');
+    expect(ci).toContain('SHOPERATION_CI_RELEASE_UNIT_PROOF:');
+    expect(ci).toContain('SHOPERATION_CI_HEAD_SHA:');
+    expect(ci).toContain('pull-requests: read');
+    expect(context).toContain('resolveReleaseUnitCiPullRequest');
+    expect(context).toContain('RELEASE_UNIT_DISPATCH_PR_REPOSITORY_MISMATCH');
+    expect(context).toContain('RELEASE_UNIT_DISPATCH_PR_HEAD_MISMATCH');
+    expect(runtime).toContain('ensureExactChildProofDispatch');
+    expect(runtime).toContain("'workflow','run','ci.yml'");
+    expect(runtime).toContain("'release_unit_proof=true'");
+    expect(runtime).toContain('RELEASE_UNIT_CHILD_CI_');
+    expect(runtime).toContain("if(proof.decision==='BLOCK')");
+    expect(runtime).toContain("state:'STALE'");
+  });
+
   it('keeps source CI read-only and moves write authority to a default-branch workflow_run executor',()=>{
     const ci=readFileSync('.github/workflows/ci.yml','utf8');
     const executor=readFileSync('.github/workflows/release-unit-execution.yml','utf8');

@@ -15,12 +15,14 @@ import {
 } from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 import {
   buildReleaseUnitCiEnvelope,
+  classifyExactChildCiRuns,
   releaseUnitCommitMessage,
   releaseUnitPullRequestBody,
   selectExactSuccessfulCiRun,
   stateRefFor,
   validateExactPullRequest,
 } from '../scripts/release-unit-github-runtime.mjs';
+import {resolveReleaseUnitCiPullRequest} from '../scripts/release-unit-ci-context.mjs';
 
 const A='a'.repeat(40),H='1'.repeat(40);
 const parentPlan:any={
@@ -157,6 +159,25 @@ describe('release-unit execution binding hardening',()=>{
     expect(recordReleaseUnitVerification(e,{truth:goodTruth,lifecyclePlan:goodLifecycle}).state).toBe('VERIFIED');
     expect(()=>recordReleaseUnitVerification(e,{truth:{...goodTruth,taskId:'DEV-PARENT'},lifecyclePlan:goodLifecycle})).toThrow(/TRUTH_TASK_MISMATCH/);
     expect(()=>recordReleaseUnitVerification(e,{truth:goodTruth,lifecyclePlan:{...goodLifecycle,releaseUnitContext:{...ctx,releaseUnitId:'OTHER'}}})).toThrow(/LIFECYCLE_CONTEXT_MISMATCH/);
+  });
+
+  it('classifies exact child CI success, pending and terminal action_required without timeout masking',()=>{
+    const branch='release-unit/dev',success={databaseId:1,headSha:H,headBranch:branch,status:'completed',conclusion:'success',event:'workflow_dispatch'};
+    expect(classifyExactChildCiRuns([success],{headSha:H,headBranch:branch})).toMatchObject({decision:'PASS',run:{databaseId:1}});
+    expect(classifyExactChildCiRuns([{databaseId:2,headSha:H,headBranch:branch,status:'in_progress',conclusion:null,event:'workflow_dispatch'}],{headSha:H,headBranch:branch})).toMatchObject({decision:'PENDING',reason:'RELEASE_UNIT_CHILD_CI_PENDING'});
+    expect(classifyExactChildCiRuns([{databaseId:3,headSha:H,headBranch:branch,status:'completed',conclusion:'action_required',event:'pull_request'}],{headSha:H,headBranch:branch})).toMatchObject({decision:'BLOCK',reason:'RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED'});
+    expect(classifyExactChildCiRuns([{databaseId:4,headSha:'2'.repeat(40),headBranch:branch,status:'completed',conclusion:'failure'}],{headSha:H,headBranch:branch})).toMatchObject({decision:'PENDING',reason:'RELEASE_UNIT_CHILD_CI_NOT_STARTED'});
+  });
+
+  it('validates trusted workflow_dispatch PR identity against the actual same-repository PR',()=>{
+    const event={inputs:{release_unit_proof:'true',release_unit_pr_number:'7',release_unit_head_sha:H,release_unit_base_sha:A,release_unit_head_ref:'release-unit/dev'}};
+    const pr={number:7,state:'open',head:{sha:H,ref:'release-unit/dev',repo:{full_name:'infowaterk-max/water-K-'}},base:{sha:A},body:'body'};
+    const resolved=resolveReleaseUnitCiPullRequest({event,repository:'infowaterk-max/water-K-',fetchPullRequest:number=>number===7?pr:null});
+    expect(resolved.mode).toBe('workflow_dispatch');
+    expect(resolved.pullRequest.number).toBe(7);
+    expect(()=>resolveReleaseUnitCiPullRequest({event:{inputs:{...event.inputs,release_unit_head_sha:'2'.repeat(40)}},repository:'infowaterk-max/water-K-',fetchPullRequest:()=>pr})).toThrow(/DISPATCH_PR_HEAD_MISMATCH/);
+    expect(()=>resolveReleaseUnitCiPullRequest({event,repository:'infowaterk-max/water-K-',fetchPullRequest:()=>({...pr,head:{...pr.head,repo:{full_name:'evil/fork'}}})})).toThrow(/DISPATCH_PR_REPOSITORY_MISMATCH/);
+    expect(resolveReleaseUnitCiPullRequest({event:{pull_request:pr},repository:'infowaterk-max/water-K-',fetchPullRequest:()=>null}).mode).toBe('pull_request');
   });
 
   it('binds exact PR and CI run identity and keeps state refs deterministic',()=>{
