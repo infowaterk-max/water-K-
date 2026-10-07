@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-CHILD-PLAN-REPROJECTION-V1",
   "task": "Make fresh release-unit successor reevaluation reproject stale child Development Plan metadata from the current canonical Plan/Atlas projection before any strict authorization check, then require a second exact-candidate strict PASS before release execution can proceed.",
   "status": "ready-for-implementation",
-  "guardDigest": "a41cfd0c",
+  "guardDigest": "2ee350f6",
   "changeBaseSha": "b6302a7c5a91d6994d7f53102853a547eac8ac97",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -14,7 +14,8 @@
     "tests/control-plane-release-unit-execution-binding.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
+    "auth-access-authority",
+    "customer-account",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -81,6 +82,7 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-005",
+    "SQ-NK-006",
     "SQ-NK-010",
     "SQ-NK-012",
     "SQ-NK-016",
@@ -457,5 +459,5 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #1007 after replay job 112651631798 proved that STALE recovery reaches fresh reevaluation but the persisted child Development Plan envelope is stale relative to current Plan/Atlas/Knowledge policy. This commit is plan-only."
+  "notes": "Created from live Failure Intake #1007 after replay job 112651631798 proved that STALE recovery reaches fresh reevaluation but the persisted child Development Plan envelope is stale relative to current Plan/Atlas/Knowledge policy. This commit is plan-only. Plan-only projection 37578829840 reconciled subsystem scope to auth-access-authority + customer-account + release-infrastructure, added SQ-NK-006 to applicable negative knowledge, and set canonical guard digest 2ee350f6."
 }
