@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-NEUTRAL-SEMANTIC-ROUTE-AUTHORITY-V1",
   "task": "Repair the Quality Control Plane Operational Intelligence validator so critical semantic execution routes require an explicit authority category that exactly matches expectedAuthorities, allowing an empty authority array only when the canonical expectedAuthorities scope is empty while preserving fail-closed non-empty authority for architecture-bearing work.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "85d0ad2a",
   "changeBaseSha": "334a2736013461447d4f3269e7ed54e219e60bec",
   "plannedFilePatterns": [
@@ -445,5 +445,18 @@
       }
     ]
   },
-  "notes": "Bounded prerequisite discovered by Sentinel plan-isolation CI #9063 after PR #1045 correctly enabled truthful empty expectedAuthorities for neutral critical plans. This transaction changes only Operational Intelligence semantic route authority validation and its regression proof; the downstream Sentinel implementation remains frozen until this prerequisite merges. Reprojected from the stale prerequisite plan branch onto fresh main 334a2736013461447d4f3269e7ed54e219e60bec after Sentinel probe plan-isolation PR #1049 merged; scope and proof obligations are unchanged. CI #9072 exposed SENTINEL_INTEGRITY_PROOF_DIMENSION_DRIFT for the authority claim because the Completion Contract referenced only test/type/build guards. The canonical GUARD-PLAN-BEFORE-CODE already proves CAP-QUALITY at scope strength 2 with an explicit authority dimension, so it is added as implementation evidence without weakening the claim."
+  "notes": "Bounded prerequisite discovered by Sentinel plan-isolation CI #9063 after PR #1045 correctly enabled truthful empty expectedAuthorities for neutral critical plans. This transaction changes only Operational Intelligence semantic route authority validation and its regression proof; the downstream Sentinel implementation remains frozen until this prerequisite merges. Reprojected from the stale prerequisite plan branch onto fresh main 334a2736013461447d4f3269e7ed54e219e60bec after Sentinel probe plan-isolation PR #1049 merged; scope and proof obligations are unchanged. CI #9072 exposed SENTINEL_INTEGRITY_PROOF_DIMENSION_DRIFT for the authority claim because the Completion Contract referenced only test/type/build guards. The canonical GUARD-PLAN-BEFORE-CODE already proves CAP-QUALITY at scope strength 2 with an explicit authority dimension, so it is added as implementation evidence without weakening the claim.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "a0b33d70c8e98dc6f60cba2d6d032ef3d0a30d2d",
+    "closedAt": "2026-10-07T14:56:11.174Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-SEMANTIC-ROUTE-AUTHORITY-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
