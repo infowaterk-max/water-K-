@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-CHILD-PROOF-DISPATCH-PERMISSION-V1",
   "task": "Allow the trusted Release Unit Execution workflow to dispatch exact child CI proof runs without widening untrusted workflow authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "00000000",
+  "guardDigest": "128614ad",
   "changeBaseSha": "ead5039f1711b4b52a1394bac530a9f3ca1ad5be",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -102,7 +102,9 @@
         "proof-obligation",
         "adversarial-scenarios",
         "what-if-matrix",
-        "pairwise-interactions"
+        "pairwise-interactions",
+        "fault-injection",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
@@ -287,6 +289,20 @@
         "finding": "GitHub job-level permissions are the effective token permissions for the job and may override workflow defaults; this is the narrowest authority boundary.",
         "resolution": "Set actions: write only under jobs.execute.permissions and retain workflow default actions: read.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-DISP-07",
+        "scenario": "The executor receives actions: write, but only after a child PR already has a terminal action_required pull_request run.",
+        "finding": "The permission fix must not treat the old action_required pull_request run as success or proof; it must dispatch or reuse an exact trusted workflow_dispatch run and keep terminal non-success fail-closed.",
+        "resolution": "Preserve current classifyExactChildCiRuns and ensureExactChildProofDispatch semantics; the permission change only enables the trusted dispatch call.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-DISP-08",
+        "scenario": "The trusted executor is retried after workflow_dispatch succeeded remotely but the executor failed before persisting the resulting child-proof state.",
+        "finding": "A retry with actions: write must not blindly create duplicate proof runs or expand authority because of the previous partial execution.",
+        "resolution": "Keep reuse-first lookup of exact workflow_dispatch runs by child head and branch before issuing a new dispatch, and regression-prove no permission change alters that idempotency path.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -428,5 +444,5 @@
       }
     ]
   },
-  "notes": "Plan-only transaction created from live Release Unit Execution #152 on main ead5039f1711b4b52a1394bac530a9f3ca1ad5be. Exact blocker: RELEASE_UNIT_CHILD_CI_DISPATCH_FAILED with HTTP 403 Resource not accessible by integration while gh workflow run ci.yml attempted dispatch for U01 child head be5f2b43a2ac35df25120826b83bd50217afb661. Workflow currently has actions: read at workflow and execute-job scope. No permission implementation is authorized until Plan Before Code passes."
+  "notes": "Plan-only transaction created from live Release Unit Execution #152 on main ead5039f1711b4b52a1394bac530a9f3ca1ad5be. Exact blocker: RELEASE_UNIT_CHILD_CI_DISPATCH_FAILED with HTTP 403 Resource not accessible by integration while gh workflow run ci.yml attempted dispatch for U01 child head be5f2b43a2ac35df25120826b83bd50217afb661. Workflow currently has actions: read at workflow and execute-job scope. No permission implementation is authorized until Plan Before Code passes. Plan gate CI #9046 / run 37619886067 required canonical guardDigest 128614ad, critical assurance techniques fault-injection and finite-state-exhaustion, and adversarial challenge depth >= 8. This revision adopts those canonical requirements without changing implementation scope."
 }
