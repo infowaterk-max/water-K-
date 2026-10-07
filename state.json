@@ -1369,7 +1369,7 @@
       "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02",
       "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
       "order": 2,
-      "state": "PLANNED",
+      "state": "STALE",
       "manifest": {
         "contract": "shoporation.release-unit-manifest.v1",
         "transaction": {
@@ -2234,10 +2234,320 @@
       "verification": null,
       "merge": null,
       "closeReceipt": null,
-      "blocker": null,
+      "blocker": {
+        "code": "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT",
+        "details": {
+          "drift": [
+            {
+              "field": "operations",
+              "before": [
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json",
+                  "generated": null
+                }
+              ],
+              "after": [
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "55564e030770b39a9014a50e8ed0b4fa71e8f91f",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "dc0795d5a945ca84037859a9dcf97126c18c4b75",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "6b1487236c5c5bd0b73a55728d1fe6b5920ec9d0",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "f35f2490f1d5be4cff9d6a1970717bdab7b6b8fe",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "fba69adb314880d8d4a2c80f2f972af2450bdafa",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "31d6073bb2ab90e594a00f4e0004ede94495d329",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "c0f767ef846ca8e4225e11f80570c23abcf625cb",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "0e5d17b199c8a7afb04155f89bbb7d45933f0f4f",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "002e60193f46b5c82d817374ccd863d554166631",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "9d7786aaca5785077dc1188e1ad27bb45b62247b",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "f0b15dc05a6328a4d08d92e9cfad5c76b59fe36d",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "6b08ea06b3b2f69b463e4608c7f7017b474a1690",
+                    "fileMode": "100644"
+                  }
+                }
+              ]
+            },
+            {
+              "field": "childOperationDigest",
+              "before": "5467df7b05aa2162046032700385c7cffa86fd465904b8ea7d46f7eacca2c2bc",
+              "after": "8b329c5e46acb3fd3b53aeec4bf4c82f9be2830dcf38457d0fb0330826150089"
+            }
+          ],
+          "reprojectableDrift": [
+            {
+              "field": "authorities",
+              "before": [],
+              "after": [
+                "quality-knowledge-system"
+              ]
+            },
+            {
+              "field": "requiredGates",
+              "before": [
+                "GUARD-EDIT-TIME",
+                "GUARD-INCREMENTAL-REPLAY",
+                "GUARD-KNOWLEDGE-PREFLIGHT",
+                "GUARD-PLAN-BEFORE-CODE",
+                "GUARD-QUALITY-TESTS",
+                "GUARD-RELEASE-RISK",
+                "GUARD-TYPECHECK"
+              ],
+              "after": [
+                "GUARD-EDIT-TIME",
+                "GUARD-INCREMENTAL-REPLAY",
+                "GUARD-KNOWLEDGE-PREFLIGHT",
+                "GUARD-PLAN-BEFORE-CODE",
+                "GUARD-QUALITY-TESTS",
+                "GUARD-RELEASE-RISK"
+              ]
+            },
+            {
+              "field": "requiredEvidence",
+              "before": {
+                "gateIds": [
+                  "GUARD-EDIT-TIME",
+                  "GUARD-INCREMENTAL-REPLAY",
+                  "GUARD-KNOWLEDGE-PREFLIGHT",
+                  "GUARD-PLAN-BEFORE-CODE",
+                  "GUARD-QUALITY-TESTS",
+                  "GUARD-RELEASE-RISK",
+                  "GUARD-TYPECHECK"
+                ],
+                "proofFiles": [],
+                "externalGateIds": []
+              },
+              "after": {
+                "gateIds": [
+                  "GUARD-EDIT-TIME",
+                  "GUARD-INCREMENTAL-REPLAY",
+                  "GUARD-KNOWLEDGE-PREFLIGHT",
+                  "GUARD-PLAN-BEFORE-CODE",
+                  "GUARD-QUALITY-TESTS",
+                  "GUARD-RELEASE-RISK"
+                ],
+                "proofFiles": [
+                  "tests/admin-mobile-desktop-compat.test.ts",
+                  "tests/block4-ia-navigation-reporting.test.ts",
+                  "tests/commerce-pricing.test.ts",
+                  "tests/core-checkout-quote.test.ts",
+                  "tests/customer-baseline-proof-contract.test.ts",
+                  "tests/customer-baseline-target-postflight.test.ts",
+                  "tests/digital-commerce-customer-baseline-parity.test.ts",
+                  "tests/incident-intelligence-schema.test.ts",
+                  "tests/navigation-workflows.test.ts",
+                  "tests/operational-tenant-isolation.test.ts",
+                  "tests/order-lifecycle-contracts.test.ts",
+                  "tests/pilot-acceptance-access.test.ts",
+                  "tests/platform-owner-zero-tenant-hotfix.test.ts",
+                  "tests/rollout-readiness.test.ts",
+                  "tests/shoperation-development-guard.test.ts",
+                  "tests/shoperation-failure-intake-reconcile.test.ts",
+                  "tests/shoperation-historical-support-backfill.test.ts",
+                  "tests/shoperation-quality-knowledge.test.ts",
+                  "tests/sql-migration-syntax-guard.test.ts",
+                  "tests/storefront-account-capability-navigation.test.tsx",
+                  "tests/storefront-auth-surface.test.ts",
+                  "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+                  "tests/storefront-preview-demo-content-routing.test.ts",
+                  "tests/storefront-responsive-isolation.test.ts",
+                  "tests/storefront-runtime-persistence.test.ts",
+                  "tests/storefront-template-persistence.test.ts",
+                  "tests/storefront-template-preview-access.test.ts",
+                  "tests/storefront-template-preview-runtime.test.ts",
+                  "tests/storefront-template-quality-gate-v2.test.ts",
+                  "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+                  "tests/template-factory-engine-functional-proof.test.ts",
+                  "tests/template-factory-loot-vault-v2.test.ts",
+                  "tests/template-factory-procedural-memory.test.ts",
+                  "tests/template-factory-scaffold-v1.test.ts",
+                  "tests/template-factory-storefront-contract.test.ts",
+                  "tests/template-golden-baseline-promotion-policy.test.ts",
+                  "tests/visual-builder-mobile-isolation.test.ts"
+                ],
+                "externalGateIds": []
+              }
+            },
+            {
+              "field": "childPlanDigest",
+              "before": "867ed45f59d574280b17e9993e4c7ff7f3020d2582a95ca491ffa5658797ec23",
+              "after": "4bf200c09d6091ef15b13cc24c3f779507220fe07341f025f9d0f2157677b633"
+            }
+          ]
+        }
+      },
       "lastTransition": {
-        "to": "PLANNED",
-        "code": "RELEASE_UNIT_PLANNED"
+        "to": "STALE",
+        "code": "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT"
       }
     },
     {
@@ -2916,7 +3226,318 @@
       }
     }
   ],
-  "blocker": null,
+  "blocker": {
+    "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02",
+    "code": "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT",
+    "details": {
+      "drift": [
+        {
+          "field": "operations",
+          "before": [
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json",
+              "generated": null
+            }
+          ],
+          "after": [
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "55564e030770b39a9014a50e8ed0b4fa71e8f91f",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "dc0795d5a945ca84037859a9dcf97126c18c4b75",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "6b1487236c5c5bd0b73a55728d1fe6b5920ec9d0",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "f35f2490f1d5be4cff9d6a1970717bdab7b6b8fe",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "fba69adb314880d8d4a2c80f2f972af2450bdafa",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "31d6073bb2ab90e594a00f4e0004ede94495d329",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "c0f767ef846ca8e4225e11f80570c23abcf625cb",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "0e5d17b199c8a7afb04155f89bbb7d45933f0f4f",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "002e60193f46b5c82d817374ccd863d554166631",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "9d7786aaca5785077dc1188e1ad27bb45b62247b",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "f0b15dc05a6328a4d08d92e9cfad5c76b59fe36d",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "6b08ea06b3b2f69b463e4608c7f7017b474a1690",
+                "fileMode": "100644"
+              }
+            }
+          ]
+        },
+        {
+          "field": "childOperationDigest",
+          "before": "5467df7b05aa2162046032700385c7cffa86fd465904b8ea7d46f7eacca2c2bc",
+          "after": "8b329c5e46acb3fd3b53aeec4bf4c82f9be2830dcf38457d0fb0330826150089"
+        }
+      ],
+      "reprojectableDrift": [
+        {
+          "field": "authorities",
+          "before": [],
+          "after": [
+            "quality-knowledge-system"
+          ]
+        },
+        {
+          "field": "requiredGates",
+          "before": [
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS",
+            "GUARD-RELEASE-RISK",
+            "GUARD-TYPECHECK"
+          ],
+          "after": [
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS",
+            "GUARD-RELEASE-RISK"
+          ]
+        },
+        {
+          "field": "requiredEvidence",
+          "before": {
+            "gateIds": [
+              "GUARD-EDIT-TIME",
+              "GUARD-INCREMENTAL-REPLAY",
+              "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-PLAN-BEFORE-CODE",
+              "GUARD-QUALITY-TESTS",
+              "GUARD-RELEASE-RISK",
+              "GUARD-TYPECHECK"
+            ],
+            "proofFiles": [],
+            "externalGateIds": []
+          },
+          "after": {
+            "gateIds": [
+              "GUARD-EDIT-TIME",
+              "GUARD-INCREMENTAL-REPLAY",
+              "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-PLAN-BEFORE-CODE",
+              "GUARD-QUALITY-TESTS",
+              "GUARD-RELEASE-RISK"
+            ],
+            "proofFiles": [
+              "tests/admin-mobile-desktop-compat.test.ts",
+              "tests/block4-ia-navigation-reporting.test.ts",
+              "tests/commerce-pricing.test.ts",
+              "tests/core-checkout-quote.test.ts",
+              "tests/customer-baseline-proof-contract.test.ts",
+              "tests/customer-baseline-target-postflight.test.ts",
+              "tests/digital-commerce-customer-baseline-parity.test.ts",
+              "tests/incident-intelligence-schema.test.ts",
+              "tests/navigation-workflows.test.ts",
+              "tests/operational-tenant-isolation.test.ts",
+              "tests/order-lifecycle-contracts.test.ts",
+              "tests/pilot-acceptance-access.test.ts",
+              "tests/platform-owner-zero-tenant-hotfix.test.ts",
+              "tests/rollout-readiness.test.ts",
+              "tests/shoperation-development-guard.test.ts",
+              "tests/shoperation-failure-intake-reconcile.test.ts",
+              "tests/shoperation-historical-support-backfill.test.ts",
+              "tests/shoperation-quality-knowledge.test.ts",
+              "tests/sql-migration-syntax-guard.test.ts",
+              "tests/storefront-account-capability-navigation.test.tsx",
+              "tests/storefront-auth-surface.test.ts",
+              "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+              "tests/storefront-preview-demo-content-routing.test.ts",
+              "tests/storefront-responsive-isolation.test.ts",
+              "tests/storefront-runtime-persistence.test.ts",
+              "tests/storefront-template-persistence.test.ts",
+              "tests/storefront-template-preview-access.test.ts",
+              "tests/storefront-template-preview-runtime.test.ts",
+              "tests/storefront-template-quality-gate-v2.test.ts",
+              "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+              "tests/template-factory-engine-functional-proof.test.ts",
+              "tests/template-factory-loot-vault-v2.test.ts",
+              "tests/template-factory-procedural-memory.test.ts",
+              "tests/template-factory-scaffold-v1.test.ts",
+              "tests/template-factory-storefront-contract.test.ts",
+              "tests/template-golden-baseline-promotion-policy.test.ts",
+              "tests/visual-builder-mobile-isolation.test.ts"
+            ],
+            "externalGateIds": []
+          }
+        },
+        {
+          "field": "childPlanDigest",
+          "before": "867ed45f59d574280b17e9993e4c7ff7f3020d2582a95ca491ffa5658797ec23",
+          "after": "4bf200c09d6091ef15b13cc24c3f779507220fe07341f025f9d0f2157677b633"
+        }
+      ]
+    }
+  },
   "closureEligible": false,
   "closureComplete": false,
   "closedReceipt": null,
