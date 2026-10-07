@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-EXACT-CREATE-MAIN-OVERLAP-V1",
   "task": "Extend trusted main-advance overlap proof with a narrowly bounded exact-create category so a create operation already present on descendant main is safe only when the trusted executor proves the target Git blob and file mode exactly equal the operation's sealed immutable source identity.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "6c897234b6c890f8ee38f86c08dc86f7b9f68fa2",
   "plannedFilePatterns": [
@@ -490,5 +490,18 @@
       }
     ]
   },
-  "notes": "Prerequisite discovered before implementing the already Plan-approved U03 exact conflict resolution. Current U03 resolution must add immutable fixture-25 to main, but PR #1092's operation-aware overlap deliberately marks all create overlap unsafe. Materializer semantics already prove exact source-identical create as ALREADY_APPLIED. This task aligns trusted main-advance proof with that narrow idempotent invariant without making ordinary create overlap safe. Plan Gate #9123 canonicalized expectedSubsystems to release-infrastructure and required concrete adversarial detail for missing/unsealed-source and duplicate-create cases. This revision adopts those exact planner findings without widening the selected proof design."
+  "notes": "Prerequisite discovered before implementing the already Plan-approved U03 exact conflict resolution. Current U03 resolution must add immutable fixture-25 to main, but PR #1092's operation-aware overlap deliberately marks all create overlap unsafe. Materializer semantics already prove exact source-identical create as ALREADY_APPLIED. This task aligns trusted main-advance proof with that narrow idempotent invariant without making ordinary create overlap safe. Plan Gate #9123 canonicalized expectedSubsystems to release-infrastructure and required concrete adversarial detail for missing/unsealed-source and duplicate-create cases. This revision adopts those exact planner findings without widening the selected proof design.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "3725ad79ccaee6c3d76a7c42541e8b627109a763",
+    "closedAt": "2026-10-07T20:56:28.379Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-EXACT-CREATE-MAIN-OVERLAP-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
