@@ -1,8 +1,10 @@
 // @ts-nocheck
-import {readFileSync} from 'node:fs';
+import {mkdirSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {describe,expect,it} from 'vitest';
 import {applyReleaseUnitEvent,createReleaseParentExecution,recordReleaseParentClosure} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
-import {needsFreshReleaseUnitReevaluation,reconcileExactMaterializedCommit,releaseUnitCommitMessage,runSuccessorReevaluationPlan} from '../scripts/release-unit-github-runtime.mjs';
+import {needsFreshReleaseUnitReevaluation,reconcileExactMaterializedCommit,releaseUnitCommitMessage,runSuccessorReevaluationPlan,runSuccessorReevaluationProjection} from '../scripts/release-unit-github-runtime.mjs';
 
 const A='a'.repeat(40);
 const manifest={
@@ -158,6 +160,78 @@ describe('Control Plane production release surface',()=>{
       throw new Error('unexpected git call: '+args.join(' '));
     };
     expect(()=>reconcileExactMaterializedCommit({manifest,receipt,branch,run,cwd:process.cwd()})).toThrow(/RELEASE_UNIT_REMOTE_BRANCH_TREE_DRIFT/);
+  });
+
+  it('treats the first successor Plan pass as non-authorizing structured projection',()=>{
+    const worktree=mkdtempSync(join(tmpdir(),'release-unit-projection-test-'));
+    try{
+      const planPath=join(worktree,'artifacts','shoperation-development-guard','release-unit-reevaluation-plan.json');
+      const reportDir=join(worktree,'artifacts','shoperation-development-guard');
+      mkdirSync(reportDir,{recursive:true});
+      writeFileSync(planPath,'{}\n');
+      const projection={
+        contract:'shoporation.release-unit-child-plan-projection.v1',
+        guardDigest:'fresh',
+        expectedSubsystems:['release-infrastructure'],
+        expectedDomains:['DOMAIN-RELEASE'],
+        expectedAuthorities:['release-infrastructure'],
+        expectedKnownFailureIds:[],
+        acknowledgedPoInstructionIds:[],
+        acknowledgedNegativeKnowledgeIds:[],
+        requiredGates:['GUARD-PLAN-BEFORE-CODE'],
+        externalGateIds:[],
+        semanticExecutionRoute:{
+          request:'PO-TEST',authority:['release-infrastructure'],mustEdit:['scripts/a.mjs'],mayEdit:[],impactedReadOnly:[],mustCreate:[],forbidden:[],proof:['tests/a.test.ts'],unknown:[],plannedDeletions:[],plannedRenames:[],generatedArtifacts:[],
+        },
+      };
+      const calls=[];
+      const run=(command,args,options={})=>{
+        calls.push({command,args,options});
+        if(command===process.execPath){
+          writeFileSync(join(reportDir,'plan-before-code.json'),JSON.stringify({decision:'BLOCK',childPlanProjection:projection})+'\n');
+        }
+        return '';
+      };
+      const result=runSuccessorReevaluationProjection({worktree,planPath,currentMainSha:A,candidateHead:'b'.repeat(40),run});
+      expect(result.decision).toBe('PROJECTED');
+      expect(result.report.decision).toBe('BLOCK');
+      expect(result.projection.guardDigest).toBe('fresh');
+      expect(calls).toHaveLength(2);
+      expect(calls[0].command).toBe('npm');
+      expect(calls[1].command).toBe(process.execPath);
+      expect(calls[1].args).toEqual(['scripts/shoperation-plan-before-code.mjs']);
+      expect(calls[1].args).not.toContain('--check');
+      expect(calls[0].options.env.GH_TOKEN).toBe('');
+      expect(calls[1].options.env.GITHUB_TOKEN).toBe('');
+    }finally{
+      rmSync(worktree,{recursive:true,force:true});
+    }
+  });
+
+  it('orders projection, child reprojection and strict Plan check before successor authorization',()=>{
+    const runtime=readFileSync('scripts/release-unit-github-runtime.mjs','utf8');
+    const start=runtime.indexOf('export function reevaluateSuccessorManifest');
+    const body=runtime.slice(start,runtime.indexOf('export function needsFreshReleaseUnitReevaluation',start));
+    const projection=body.indexOf('runSuccessorReevaluationProjection');
+    const reprojection=body.indexOf('reprojectReleaseUnitChildTransaction(reconciled');
+    const strict=body.indexOf('runSuccessorReevaluationPlan({worktree,planPath,currentMainSha,candidateHead,run,install:false})');
+    const pass=body.indexOf("return{decision:'PASS',manifest:refreshed");
+    expect(projection).toBeGreaterThanOrEqual(0);
+    expect(reprojection).toBeGreaterThan(projection);
+    expect(strict).toBeGreaterThan(reprojection);
+    expect(pass).toBeGreaterThan(strict);
+    expect(body).toContain("projectionResult.decision!=='PROJECTED'");
+    expect(body).toContain("report.decision!=='PASS'");
+  });
+
+  it('emits current child projection metadata from the canonical Plan computation',()=>{
+    const plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
+    expect(plan).toContain("contract:'shoporation.release-unit-child-plan-projection.v1'");
+    expect(plan).toContain('expectedSubsystems:[...projectedSubsystems]');
+    expect(plan).toContain('acknowledgedNegativeKnowledgeIds:[...projectedNegative]');
+    expect(plan).toContain('requiredGates:[...(gateChain.orderedGateIds??[])]');
+    expect(plan).toContain('semanticExecutionRoute:{');
+    expect(plan).toContain('childPlanProjection,');
   });
 
   it('bootstraps exact locked reevaluation dependencies before semantic Plan and scrubs write tokens',()=>{
