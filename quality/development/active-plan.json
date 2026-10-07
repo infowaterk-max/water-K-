@@ -1,14 +1,13 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-STALE-RESUME-V1",
-  "task": "Make persisted STALE release units resumable only through the canonical fresh reevaluation path, preserving fail-closed semantics and forbidding automatic retry of BLOCKED/FAILED or later lifecycle states.",
+  "task": "Allow a recoverable STALE release unit to re-enter the existing fresh successor reconciliation path after a previously blocking integration edge is repaired, without making BLOCKED or FAILED states auto-resumable or weakening exact-main, risk, scope, proof, CAS, or lifecycle authority.",
   "status": "ready-for-implementation",
   "guardDigest": "128614ad",
   "changeBaseSha": "9453ef3270fd37ec85d4eb7b38793b713bcc105e",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/release-unit-execute.mjs",
-    "scripts/release-unit-github-runtime.mjs",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
     "tests/control-plane-release-unit-production-surface.test.ts"
   ],
@@ -63,37 +62,36 @@
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-STALE-RESUME-V1",
     "riskTier": "critical",
-    "problemStatement": "Live bounded rehearsal replay job 112643423251 used main 9453ef3270fd37ec85d4eb7b38793b713bcc105e and passed trusted Knowledge/Atlas, Plan and Release Risk after the reevaluation dependency repair, but the persisted U01 remained STALE from the prior fail-closed attempt. The top-level driver rejects STALE with RELEASE_UNIT_EXECUTION_STATE_UNSUPPORTED, while core reconciliation currently accepts only PLANNED, so a safely persisted stale unit cannot re-enter canonical reevaluation after its underlying defect is repaired.",
+    "problemStatement": "Live bounded rehearsal run 37566854069 / job 112643423251 used trusted main 9453ef3270fd37ec85d4eb7b38793b713bcc105e and passed source fetch, trusted Knowledge/Atlas, Plan, Release Risk and reevaluation dependency bootstrap. The persisted active U01 remained STALE from the earlier fail-closed reevaluation attempt. The top-level driver accepts only PLANNED or PR_OPEN and threw RELEASE_UNIT_EXECUTION_STATE_UNSUPPORTED:STALE before fresh reevaluation could run. The core reconciliation function also currently rejects every non-PLANNED state, so merely widening driver dispatch would still fail.",
     "observableOutcomes": [
-      "The driver routes active STALE units to prepareActiveUnit instead of treating STALE as an unsupported terminal state.",
-      "prepareActiveUnit always performs fresh semantic successor/unit reevaluation when the active unit is STALE, even if order/base conditions alone would otherwise skip reevaluation.",
-      "Core reconciliation accepts STALE only as a source state for fresh reevaluation; successful authorization clears the stale blocker through normal READY transition.",
-      "A repeated reevaluation problem returns the unit to STALE with a fresh blocker and does not create a child PR or advance later lifecycle states.",
-      "BLOCKED, FAILED, MATERIALIZED, VERIFIED, MERGED and CLOSED are not made automatically retryable by this repair."
+      "A persisted STALE active unit is dispatched through prepareActiveUnit exactly like a unit needing fresh authorization, with current origin/main fetched first.",
+      "Core successor reconciliation accepts only PLANNED or STALE as entry states; BLOCKED, FAILED, READY, MATERIALIZED, PR_OPEN, VERIFIED, MERGED and CLOSED remain invalid reconciliation entry states.",
+      "A STALE unit can transition to READY only after the same fresh manifest, exact current-main lease, predecessor, risk, forbidden-scope, ordering and obligation-drift checks pass.",
+      "Successful authorization clears the previous blocker via the existing authorizeReleaseUnit transition rather than manual state mutation.",
+      "If fresh reevaluation or reconciliation blocks again, the unit remains fail-closed and the newly persisted blocker replaces the stale diagnostic through the existing event/state path."
     ],
     "unresolvedRisks": [
-      "Allowing STALE too broadly could accidentally bypass a previous semantic drift decision.",
-      "Skipping fresh reevaluation for a STALE first unit whose base happens to equal current main could reuse stale obligations.",
-      "A driver-only change would still fail inside reconcileSuccessorReleaseUnit because that function currently rejects STALE.",
-      "A retry path must not directly mutate persisted blocker/state outside the existing event/CAS authority."
+      "Over-broad resume support could accidentally make FAILED or policy-BLOCKED states retryable.",
+      "A STALE state caused by obligation drift rather than infrastructure incompleteness must not be silently converted to READY unless fresh reconciliation actually resolves all drift.",
+      "The driver and core state-machine eligibility must stay aligned so one layer cannot admit a state the other rejects.",
+      "Repeated retries must preserve CAS semantics and must not duplicate child PRs or bypass exact-head materialization checks."
     ],
     "scope": {
       "in": [
-        "Route STALE through the existing prepareActiveUnit path in both drive and single-step executor surfaces.",
-        "Force reevaluateSuccessorManifest for STALE in prepareActiveUnit.",
-        "Allow reconcileSuccessorReleaseUnit to accept PLANNED or STALE as fresh-reevaluation source states.",
-        "Add regression proof that STALE retries reevaluate and that non-retryable states remain rejected."
+        "Teach the release-unit driver to route active STALE units into the existing fresh prepareActiveUnit path.",
+        "Allow reconcileSuccessorReleaseUnit to accept STALE as a recoverable reevaluation entry state while retaining every existing reconciliation proof and fail-closed check.",
+        "Add regression proof for STALE->READY after valid fresh reconciliation and rejection of BLOCKED/FAILED resume.",
+        "Add production-surface regression proof that the driver dispatches PLANNED or STALE to prepareActiveUnit and does not manually clear blocker/state."
       ],
       "out": [
-        "No direct release-state edit, blocker deletion, or synthetic transition.",
-        "No automatic retry for BLOCKED, FAILED or post-materialization states.",
-        "No manual child PR, receipt, merge, or closure fabrication.",
-        "No change to decomposition, Release Risk, Atlas authority, storefront, database, auth, payments, inventory, Builder, templates or deployment."
+        "No manual persisted state edit or blocker clearing.",
+        "No auto-resume for BLOCKED or FAILED units.",
+        "No changes to reevaluation dependency bootstrap, materialization identity, PR creation, merge authority, parent closure, Release Risk, Atlas, storefront, database, deployment, authentication, Builder or templates."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This changes recovery semantics in the trusted release execution state machine. The repair must add exactly one resumability edge while preserving all existing authorization, evidence and fail-closed boundaries.",
+      "rationale": "This is a trusted release state-machine transition. A too-wide eligibility change could resurrect failed or policy-blocked release units, so the repair must explicitly constrain resumability to STALE and prove all existing fresh reconciliation obligations remain authoritative.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -111,27 +109,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Persisted STALE U01 is routed into fresh reevaluation by the canonical driver without manual state mutation.",
-        "A STALE unit always runs fresh reevaluation before AUTHORIZE.",
-        "reconcileSuccessorReleaseUnit accepts STALE only alongside PLANNED and preserves all manifest/base/predecessor/risk/drift checks.",
-        "A successful reevaluation transitions through normal AUTHORIZE to READY and clears blocker normally.",
-        "A repeated reevaluation BLOCK remains STALE and no PR is created.",
-        "BLOCKED and FAILED remain unsupported by automatic driver retry.",
-        "Exact-head CI, Completion Truth and Lifecycle close before merge, then the unchanged rehearsal is replayed from the same persisted CAS state."
+        "Driver invokes fresh prepareActiveUnit for active state PLANNED or STALE and still fetches current origin/main immediately before preparation.",
+        "Core reconcileSuccessorReleaseUnit accepts PLANNED and STALE only.",
+        "Valid fresh reconciliation from STALE produces READY with blocker cleared and refreshed manifest/transaction identity.",
+        "BLOCKED and FAILED remain rejected with RELEASE_UNIT_RECONCILIATION_STATE_INVALID.",
+        "A repeated fresh reevaluation BLOCK from STALE remains persisted fail-closed; no PR is created.",
+        "Exact-head CI passes all canonical guards, Completion Truth verifies, Lifecycle closes, fix merges, then the unchanged rehearsal resumes from persisted CAS state."
       ],
       "invariants": [
-        "STALE never becomes READY without fresh reevaluation and normal authorization.",
-        "No persisted state is edited outside existing state-machine events and CAS persistence.",
-        "No automatic retry is added for terminal or policy-blocked states.",
-        "Source identity, current-main lease, predecessor receipts, obligation drift and Release Risk authority remain enforced.",
-        "Existing exact child proof and PR/merge identity checks remain unchanged."
+        "STALE is recoverable only through full fresh reconciliation, never by direct state reset.",
+        "BLOCKED and FAILED are not automatic retry states.",
+        "Current-main lease, predecessor receipts, risk, forbidden scope, ordering and obligation-drift checks remain unchanged.",
+        "Existing CAS persistence is the only authoritative state write path.",
+        "Child materialization/PR identity and parent lifecycle rules remain unchanged."
       ],
       "forbiddenStates": [
-        "stale-authorized-without-fresh-reevaluation",
-        "blocked-or-failed-auto-retry",
-        "manual-stale-blocker-clear",
-        "state-write-outside-cas",
-        "manual-child-pr-bypass"
+        "manual-stale-to-planned-reset",
+        "failed-unit-auto-resume",
+        "blocked-unit-auto-resume",
+        "stale-unit-ready-without-fresh-reconciliation",
+        "resume-without-current-main-fetch",
+        "duplicate-child-pr-after-resume"
       ]
     },
     "model": {
@@ -163,44 +161,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Driver rejects persisted STALE before reevaluation.",
-        "Driver routes STALE but core reconciliation still rejects the state.",
-        "STALE first unit skips semantic reevaluation because base/order conditions appear fresh.",
-        "Repeated semantic drift is accidentally cleared instead of remaining STALE.",
-        "Retry support accidentally expands to BLOCKED/FAILED states."
+        "Persisted STALE unit cannot be dispatched by driver.",
+        "Driver admits STALE but core reconciliation still rejects it.",
+        "Eligibility widens accidentally to FAILED or BLOCKED.",
+        "Fresh manifest still contains base, risk, scope, predecessor or obligation drift.",
+        "Concurrent executor attempt advances state and CAS rejects the stale writer."
       ],
       "edgeCases": [
-        "STALE order-1 unit with targetBaseSha equal to current main.",
-        "STALE successor after predecessor merge.",
-        "STALE caused by transient reevaluation environment failure now repaired.",
-        "STALE caused by real obligation drift that still exists.",
-        "BLOCKED or FAILED active unit presented to driver."
+        "U01 is STALE before any accepted materialization/PR state is persisted.",
+        "A later successor is STALE after a predecessor merge.",
+        "STALE reevaluation passes but materialization is already present remotely and exact reuse path is required.",
+        "STALE reevaluation blocks again with a different diagnostic.",
+        "Unit is BLOCKED or FAILED and must not enter resume path."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-STALE-FRESH-REEVALUATION",
-        "summary": "Treat STALE as a retryable pre-authorization state only by forcing the existing fresh reevaluation and authorization path.",
+        "id": "ALT-STALE-FRESH-RECONCILE",
+        "summary": "Treat STALE as the only additional recoverable entry state and rerun the complete existing fresh reconciliation path.",
         "disposition": "selected",
-        "reason": "Restores resumability without inventing a second state authority or weakening checks."
+        "reason": "Preserves fail-closed authority while making an intentionally recoverable state actually resumable."
       },
       {
-        "id": "ALT-MANUAL-RESET-TO-PLANNED",
-        "summary": "Edit persisted state or clear blocker and change STALE back to PLANNED.",
+        "id": "ALT-RESET-STALE-TO-PLANNED",
+        "summary": "Rewrite persisted STALE units back to PLANNED before rerun.",
         "disposition": "rejected",
-        "reason": "Would fabricate authoritative state and invalidate the rehearsal."
+        "reason": "Would mutate authoritative history and erase the blocker rather than proving recovery."
       },
       {
-        "id": "ALT-DRIVER-ONLY-ALLOW-STALE",
-        "summary": "Route STALE to prepareActiveUnit without changing core reconciliation semantics.",
+        "id": "ALT-ALL-NONTERMINAL-RETRY",
+        "summary": "Route any non-closed unit back through preparation.",
         "disposition": "rejected",
-        "reason": "Core reconcile currently rejects any state other than PLANNED, so this does not close the execution chain."
+        "reason": "Would make BLOCKED/FAILED and partially executed states dangerously auto-resumable."
       },
       {
-        "id": "ALT-RETRY-ALL-NONCLOSED",
-        "summary": "Automatically retry any state that is not CLOSED.",
+        "id": "ALT-NEW-RESUME-EVENT",
+        "summary": "Introduce a second state transition/event solely for STALE recovery.",
         "disposition": "rejected",
-        "reason": "Would weaken policy blocks and lifecycle integrity far beyond the observed missing edge."
+        "reason": "The existing AUTHORIZE transition already clears blocker and refreshes identity after valid reconciliation; a parallel authority is unnecessary."
       }
     ],
     "specialistReviews": [
@@ -208,11 +206,10 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "STALE is a recoverable pre-authorization state but there is no canonical transition back through reevaluation.",
-        "resolution": "Add one explicit STALE -> fresh reevaluation -> AUTHORIZE path across driver, preparation and core reconciliation.",
+        "finding": "The missing edge is dispatch/state eligibility between persisted STALE and the existing fresh reconciliation path.",
+        "resolution": "Align driver and core eligibility on exactly PLANNED|STALE and reuse existing authorization/event semantics.",
         "evidence": [
           "scripts/release-unit-execute.mjs",
-          "scripts/release-unit-github-runtime.mjs",
           "scripts/lib/shoperation-release-unit-runtime.mjs"
         ]
       },
@@ -220,99 +217,100 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Simply accepting STALE as READY-capable would let a prior semantic blocker disappear without revalidation.",
-        "resolution": "Force reevaluateSuccessorManifest whenever active.state is STALE and retain all existing reconciliation checks before READY.",
+        "finding": "Broad retry semantics could resurrect FAILED or policy-BLOCKED units and bypass operator/release authority.",
+        "resolution": "Whitelist STALE only and add negative regression proof for BLOCKED and FAILED.",
         "evidence": [
-          "scripts/release-unit-github-runtime.mjs",
-          "scripts/lib/shoperation-release-unit-runtime.mjs"
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "tests/control-plane-release-unit-production-surface.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The executor must resume from persisted CAS state after a repair rather than requiring state reconstruction.",
-        "resolution": "Route STALE through canonical prepare/persist logic and leave all later PR/proof/merge paths unchanged.",
+        "finding": "STALE represents stale/reconcilable evidence, so recovery must recompute current-main authorization rather than restore old authorization.",
+        "resolution": "Fetch current main and execute prepareActiveUnit/reconcileSuccessorReleaseUnit unchanged apart from STALE eligibility.",
         "evidence": [
-          "scripts/release-unit-execute.mjs"
+          "scripts/release-unit-execute.mjs",
+          "scripts/release-unit-github-runtime.mjs"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Live rehearsal proved that fail-closed persistence works but recovery from that persisted STALE state is absent.",
-        "resolution": "Lock the retry boundary and non-retryable states with regression tests, then replay the same state after merge.",
+        "finding": "The live rehearsal proved two repaired edges can still leave authoritative STALE state that the orchestration loop cannot consume.",
+        "resolution": "Record #1004 and lock the exact resume state matrix with regression tests before replaying the persisted transaction.",
         "evidence": [
           "tests/control-plane-release-unit-production-surface.test.ts",
-          "https://github.com/infowaterk-max/water-K-/issues/1003"
+          "https://github.com/infowaterk-max/water-K-/issues/1004"
         ]
       }
     ],
     "challenge": [
       {
         "id": "CH-SR-01",
-        "scenario": "U01 is STALE from a previous environment failure, current main and source are now healthy, and the executor is rerun.",
-        "finding": "If the driver recognizes only PLANNED and PR_OPEN, recovery stops before reevaluation even though the underlying defect is fixed.",
-        "resolution": "Route STALE into prepareActiveUnit in both drive and single-step surfaces, then persist only the resulting canonical state transition.",
+        "scenario": "A previous executor attempt persisted STALE because semantic reevaluation lacked a dependency; the dependency defect is later repaired but the state branch is intentionally left untouched.",
+        "finding": "The driver currently exits before recomputing fresh evidence, making a fail-closed recoverable state permanently terminal.",
+        "resolution": "Dispatch STALE into prepareActiveUnit, which recomputes the candidate against current main before any authorization.",
         "status": "resolved"
       },
       {
         "id": "CH-SR-02",
-        "scenario": "A STALE order-1 unit already has targetBaseSha equal to current main.",
-        "finding": "If prepareActiveUnit reevaluates only for successors or base drift, the stale semantic blocker could be bypassed and the old manifest authorized unchanged.",
-        "resolution": "Make active.state==='STALE' an independent mandatory reevaluation condition before AUTHORIZE.",
+        "scenario": "A unit is FAILED because an accepted execution step violated an invariant rather than because evidence became stale.",
+        "finding": "Treating FAILED as retryable could discard a terminal integrity failure and create a second execution history.",
+        "resolution": "Keep FAILED outside both driver resume eligibility and reconcileSuccessorReleaseUnit accepted states; prove rejection in tests.",
         "status": "resolved"
       },
       {
         "id": "CH-SR-03",
-        "scenario": "The driver routes STALE correctly but reconcileSuccessorReleaseUnit still requires execution.state==='PLANNED'.",
-        "finding": "Recovery fails one layer deeper with RELEASE_UNIT_RECONCILIATION_STATE_INVALID, leaving the missing edge unresolved.",
-        "resolution": "Allow exactly PLANNED or STALE as reconciliation source states; all other states still throw.",
+        "scenario": "A unit is BLOCKED by canonical risk/scope/predecessor policy.",
+        "finding": "Blind retry semantics could turn an explicit policy denial into repeated execution attempts.",
+        "resolution": "Keep BLOCKED non-resumable automatically; only STALE may enter fresh reconciliation.",
         "status": "resolved"
       },
       {
         "id": "CH-SR-04",
-        "scenario": "A real obligation drift remains after retry.",
-        "finding": "A recovery feature must not convert genuine semantic drift into READY merely because the previous state was STALE.",
-        "resolution": "Run the unchanged obligationDrift/base/risk/predecessor checks; non-PASS result is persisted as a fresh STALE/BLOCKED decision.",
+        "scenario": "A STALE unit's fresh reevaluation succeeds technically but current main still causes obligation drift.",
+        "finding": "Clearing STALE before full reconciliation would authorize a child against changed obligations.",
+        "resolution": "Do not mutate state first; let reconcileSuccessorReleaseUnit run all existing checks and return STALE/BLOCK unless drift is actually gone.",
         "status": "resolved"
       },
       {
         "id": "CH-SR-05",
-        "scenario": "An active unit is BLOCKED because of forbidden scope or FAILED because of execution failure.",
-        "finding": "Treating all blocked-looking states as resumable would weaken release policy and failure semantics.",
-        "resolution": "Driver retry branch and reconciliation source-state allowance name STALE explicitly; BLOCKED/FAILED remain unsupported.",
+        "scenario": "Two executor attempts resume the same STALE state concurrently.",
+        "finding": "Both may compute valid next state, but only one may authoritatively persist it.",
+        "resolution": "Leave expectedStateCommit force-with-lease CAS unchanged; stale writer rejection remains mandatory.",
         "status": "resolved"
       },
       {
         "id": "CH-SR-06",
-        "scenario": "STALE retry succeeds and a prior blocker object remains attached.",
-        "finding": "Downstream state could appear simultaneously READY and blocked if recovery mutates only state flags.",
-        "resolution": "Reuse authorizeReleaseUnit, which replaces the fresh manifest, creates execution authorization, sets READY and clears blocker atomically in the canonical state transition.",
+        "scenario": "STALE recovery finds an exact existing remote materialization from an earlier attempt.",
+        "finding": "Creating a replacement commit or duplicate PR would break idempotency.",
+        "resolution": "After successful fresh authorization, continue through the existing exact materialization reconciliation/reuse logic without special-case bypass.",
         "status": "resolved"
       },
       {
         "id": "CH-SR-07",
-        "scenario": "Two executor attempts retry the same STALE state concurrently.",
-        "finding": "Both may compute valid reevaluations but only one may authoritatively advance persisted state.",
-        "resolution": "Keep persistRemoteExecutionState expectedStateCommit CAS unchanged so stale writer rejection remains authoritative.",
+        "scenario": "A future refactor updates driver eligibility but not core reconciliation eligibility.",
+        "finding": "The same unsupported-state failure would reappear one layer deeper.",
+        "resolution": "Regression-test both the driver dispatch contract and core PLANNED|STALE state matrix.",
         "status": "resolved"
       },
       {
         "id": "CH-SR-08",
-        "scenario": "The retry reaches materialization and an earlier equivalent U01 branch already exists.",
-        "finding": "Recovery must not reintroduce the prior non-fast-forward materialization defect.",
-        "resolution": "Leave reconcileExactMaterializedCommit unchanged so exact remote branch reuse remains required after successful STALE reevaluation.",
+        "scenario": "Fresh reevaluation of STALE fails again after the repair.",
+        "finding": "A resume feature must not assume retry success or clear the prior blocker prematurely.",
+        "resolution": "Return/persist the newly produced fail-closed STALE blocker through the existing synchronize/persist path and create no child PR.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS before implementation.",
-      "Implement the narrow STALE retry edge across driver, prepareActiveUnit and core reconciliation plus regression tests.",
-      "Require exact-head Knowledge, Plan, Edit-Time, Replay, Release Risk, full tests, typecheck, build and Completion Truth PASS.",
+      "Commit this plan only and require Plan Before Code PASS before state-machine implementation.",
+      "Implement the minimal driver and core eligibility changes plus positive/negative regression tests.",
+      "Require exact-head Knowledge, Plan, Edit-Time, Incremental Replay, Release Risk, full tests, typecheck, build and Completion Truth PASS.",
       "Commit only canonical lifecycle closure metadata and require final exact-head CI PASS.",
-      "Merge the fix, verify fresh main CI, then replay the unchanged rehearsal from persisted CAS state and require canonical U01 progression."
+      "Merge the exact fix head, verify fresh main CI, then rerun the unchanged rehearsal from persisted STALE CAS state and accept only canonical U01 progression."
     ],
     "semanticExecutionRoute": {
       "request": "SQ-CAND-RELEASE-EXECUTOR-STALE-RESUME-V1",
@@ -321,17 +319,17 @@
       ],
       "mustEdit": [
         "scripts/release-unit-execute.mjs",
-        "scripts/release-unit-github-runtime.mjs",
         "scripts/lib/shoperation-release-unit-runtime.mjs"
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "impactedReadOnly": [
-        ".github/workflows/release-unit-execution.yml"
+        "scripts/release-unit-github-runtime.mjs"
       ],
       "mustCreate": [],
       "forbidden": [
+        ".github/workflows/**",
         "deploy/**",
         "src/**",
         "supabase/**"
@@ -367,7 +365,7 @@
     "requirements": [
       {
         "id": "REQ-RELEASE-EXECUTOR-STALE-RESUME",
-        "requirement": "Persisted STALE release units must be safely resumable only through fresh canonical reevaluation, while policy-blocked and failed states remain non-retryable.",
+        "requirement": "Trusted release-unit execution must be able to recover a persisted STALE unit only by re-running the complete fresh successor reconciliation path, while keeping BLOCKED and FAILED states non-resumable.",
         "claimScope": {
           "capability": "CAP-QUALITY",
           "breadth": "release-unit-stale-resume",
@@ -393,15 +391,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-STALE-BYPASS-REEVAL",
-            "statement": "A STALE release unit may not become READY without fresh reevaluation.",
+            "id": "NEG-STALE-DIRECT-RESET",
+            "statement": "STALE may not be cleared or converted to READY without full fresh reconciliation.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-FAILED-AUTO-RETRY",
-            "statement": "BLOCKED or FAILED release units may not become automatically retryable.",
+            "id": "NEG-FAILED-BLOCKED-AUTO-RESUME",
+            "statement": "FAILED or BLOCKED units may not enter automatic resume dispatch.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -410,5 +408,5 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #1003 after rehearsal replay job 112643423251 proved a persisted STALE recovery gap. This revision is plan-only; no state-machine implementation is authorized until Plan Before Code approves the projected scope."
+  "notes": "Plan-only transaction from live Failure Intake #1004. Persisted rehearsal state remains untouched at state commit 62844d329776ecbfbde6ed32b065cd08ba5b14f1; no U01 PR exists. No implementation is authorized until Plan Before Code reconciles this exact scope."
 }
