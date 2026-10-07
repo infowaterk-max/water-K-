@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-TRUSTED-MAIN-ADVANCE-V1",
   "task": "Allow release-unit successor reevaluation to rebase onto a proven fast-forward main advance only when Git ancestry, successor scope isolation, trusted fresh projection and exact obligation reconciliation all pass; preserve fail-closed behavior for unproven or overlapping main drift.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "1d868b19a8517142a435c649c3adacb79d804d96",
   "plannedFilePatterns": [
@@ -499,5 +499,18 @@
       }
     ]
   },
-  "notes": "Live evidence: U01 exact trusted child proof passed and PR #1053 merged at 12447f0cfd73abe8728209ea3f35cb132a9b06d4. Canonical sealing reprojection repair then merged to main 1d868b19a8517142a435c649c3adacb79d804d96. Immutable rehearsal replay attempt 6 triggered Release Unit Execution #192, which failed during reevaluateSuccessorManifest before fresh projection with RELEASE_UNIT_MAIN_DRIFT:12447f0cfd73abe8728209ea3f35cb132a9b06d4:1d868b19a8517142a435c649c3adacb79d804d96. This plan preserves immutable predecessor receipts and repairs only the missing trusted fast-forward reprojection path. Plan Gate #9087 expanded canonical projected ownership to DOMAIN-QUALITY + DOMAIN-RELEASE and quality-knowledge-system + release-infrastructure, and required CH-MAIN-05 to state the concrete non-ancestor failure and explicit fail-closed resolution."
+  "notes": "Live evidence: U01 exact trusted child proof passed and PR #1053 merged at 12447f0cfd73abe8728209ea3f35cb132a9b06d4. Canonical sealing reprojection repair then merged to main 1d868b19a8517142a435c649c3adacb79d804d96. Immutable rehearsal replay attempt 6 triggered Release Unit Execution #192, which failed during reevaluateSuccessorManifest before fresh projection with RELEASE_UNIT_MAIN_DRIFT:12447f0cfd73abe8728209ea3f35cb132a9b06d4:1d868b19a8517142a435c649c3adacb79d804d96. This plan preserves immutable predecessor receipts and repairs only the missing trusted fast-forward reprojection path. Plan Gate #9087 expanded canonical projected ownership to DOMAIN-QUALITY + DOMAIN-RELEASE and quality-knowledge-system + release-infrastructure, and required CH-MAIN-05 to state the concrete non-ancestor failure and explicit fail-closed resolution.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "4d90c7b53ba9645a04297b45bd4c217b43fcf3e4",
+    "closedAt": "2026-10-07T16:43:58.449Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-TRUSTED-MAIN-ADVANCE-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
