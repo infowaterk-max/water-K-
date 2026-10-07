@@ -9,7 +9,7 @@
     "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02",
     "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03"
   ],
-  "activeUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02",
+  "activeUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
   "units": [
     {
       "contract": "shoporation.release-unit-execution.v1",
@@ -1369,7 +1369,7 @@
       "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02",
       "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
       "order": 2,
-      "state": "PR_OPEN",
+      "state": "CLOSED",
       "manifest": {
         "contract": "shoporation.release-unit-manifest.v1",
         "transaction": {
@@ -2678,13 +2678,41 @@
         "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
         "url": "https://github.com/infowaterk-max/water-K-/pull/1073"
       },
-      "verification": null,
-      "merge": null,
-      "closeReceipt": null,
+      "verification": {
+        "sourceHeadSha": "bc9e67996f65e1651cb340341157df79e6a8ece3",
+        "truthContract": "shoporation.completion-truth.v2",
+        "truthStatus": "VERIFIED",
+        "internalState": "VERIFIED_DONE",
+        "lifecycleState": "LEARN",
+        "lifecycleTruthStatus": "VERIFIED",
+        "verifiedImplementationHead": "bc9e67996f65e1651cb340341157df79e6a8ece3",
+        "childTaskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02-TX",
+        "childPlanDigest": "6a79bc6067e93727995a678ef49352a2a6a33e32e010160aee47c7e96429a413",
+        "bindingDigest": "d11f7256add12115b53ee31033f6df99a332db2c03883d9f60bc66414e53c081"
+      },
+      "merge": {
+        "prNumber": 1073,
+        "sourceHeadSha": "bc9e67996f65e1651cb340341157df79e6a8ece3",
+        "mergedMainSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
+        "mergeMethod": "squash"
+      },
+      "closeReceipt": {
+        "contract": "shoporation.release-unit-close-receipt.v1",
+        "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02",
+        "sourceHeadSha": "bc9e67996f65e1651cb340341157df79e6a8ece3",
+        "mergedMainSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
+        "manifestDigest": "fed32168",
+        "truthStatus": "VERIFIED",
+        "lifecycleState": "LEARN",
+        "childTaskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02-TX",
+        "childPlanDigest": "6a79bc6067e93727995a678ef49352a2a6a33e32e010160aee47c7e96429a413",
+        "bindingDigest": "d11f7256add12115b53ee31033f6df99a332db2c03883d9f60bc66414e53c081",
+        "decision": "PASS"
+      },
       "blocker": null,
       "lastTransition": {
-        "to": "PR_OPEN",
-        "code": "RELEASE_UNIT_PR_OPEN"
+        "to": "CLOSED",
+        "code": "RELEASE_UNIT_CLOSED"
       }
     },
     {
