@@ -16,7 +16,7 @@
       "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
       "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
       "order": 1,
-      "state": "STALE",
+      "state": "PR_OPEN",
       "manifest": {
         "contract": "shoporation.release-unit-manifest.v1",
         "transaction": {
@@ -27,12 +27,12 @@
         },
         "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
         "order": 1,
-        "targetBaseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
+        "targetBaseSha": "0ec63ee2f81399e278f84a513fc7e318bc45c686",
         "lease": {
-          "expectedBaseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
+          "expectedBaseSha": "0ec63ee2f81399e278f84a513fc7e318bc45c686",
           "failOnDrift": true,
           "reconciled": true,
-          "reconciledFromSha": "a96074891ce8d0ae32d54c325d60cb4ee1076659"
+          "reconciledFromSha": "6c8006ce653f122c1166725f70e4738dd2d7249a"
         },
         "intendedFiles": [
           "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
@@ -371,27 +371,27 @@
           "requirePredecessorReceipts": false,
           "requiresReconciliationAfterPredecessor": false,
           "failOnUnrelatedMainDrift": true,
-          "reconciledAtBaseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a"
+          "reconciledAtBaseSha": "0ec63ee2f81399e278f84a513fc7e318bc45c686"
         },
         "sourceIdentity": {
           "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
           "sealed": true
         },
-        "manifestDigest": "7ceaca8f",
+        "manifestDigest": "7b39257e",
         "decision": "PASS",
         "childDevelopmentTransaction": {
           "contract": "shoporation.release-unit-child-transaction.v1",
           "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01-TX",
-          "planDigest": "527b358bada1ff42c1267f1111f6ca9f686f8093bdc2d9269fe0d50c6df85494",
+          "planDigest": "95e44c62d52be139fcbaa43dfb3a36788a0709754cb3846dcc7e88857b8d0f4d",
           "operationDigest": "379cb2584432158cc2599d1784ad749dd5df12cbfd9c870361ed8dd1f439c3fa",
-          "bindingDigest": "64b3671513d2c30886aef40868f99d724e38ee4a070a5216a8f13eb67f0a244f",
+          "bindingDigest": "3b7f2361f16b2d264d8b8bfd85c6dd709fe413389362d3a329c46c0b57508e59",
           "plan": {
             "contract": "shoporation.development-plan.v1",
             "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01-TX",
             "task": "Execute canonical release unit DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01 of DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1 without widening the manifest-authorized scope.",
             "status": "ready-for-implementation",
             "guardDigest": "a41cfd0c",
-            "changeBaseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
+            "changeBaseSha": "0ec63ee2f81399e278f84a513fc7e318bc45c686",
             "plannedFilePatterns": [
               "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
               "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
@@ -915,7 +915,7 @@
               "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
               "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
               "order": 1,
-              "targetBaseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
+              "targetBaseSha": "0ec63ee2f81399e278f84a513fc7e318bc45c686",
               "planAuthority": "release-unit-manifest#childDevelopmentTransaction"
             }
           }
@@ -925,9 +925,9 @@
         "contract": "shoporation.release-unit-transaction-projection.v1",
         "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
         "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
-        "branchRef": "release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-6c8006ce653f-64b3671513d2c308",
-        "changeBaseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
-        "manifestDigest": "7ceaca8f",
+        "branchRef": "release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-0ec63ee2f813-3b7f2361f16b2d26",
+        "changeBaseSha": "0ec63ee2f81399e278f84a513fc7e318bc45c686",
+        "manifestDigest": "7b39257e",
         "plannedFilePatterns": [
           "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
           "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
@@ -1153,26 +1153,26 @@
           "sealed": true
         },
         "childTaskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01-TX",
-        "childPlanDigest": "527b358bada1ff42c1267f1111f6ca9f686f8093bdc2d9269fe0d50c6df85494",
-        "bindingDigest": "64b3671513d2c30886aef40868f99d724e38ee4a070a5216a8f13eb67f0a244f",
+        "childPlanDigest": "95e44c62d52be139fcbaa43dfb3a36788a0709754cb3846dcc7e88857b8d0f4d",
+        "bindingDigest": "3b7f2361f16b2d264d8b8bfd85c6dd709fe413389362d3a329c46c0b57508e59",
         "supersedesBranchRef": "release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01"
       },
       "authorization": {
-        "manifestDigest": "238255af",
-        "targetBaseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
-        "currentMainSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
+        "manifestDigest": "0fbe7cf2",
+        "targetBaseSha": "0ec63ee2f81399e278f84a513fc7e318bc45c686",
+        "currentMainSha": "0ec63ee2f81399e278f84a513fc7e318bc45c686",
         "predecessorUnitIds": []
       },
       "materialization": {
         "contract": "shoporation.release-unit-materialization.v1",
         "status": "PREPARED",
         "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
-        "targetBaseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
-        "commitSha": "20d8b0f88eff5eeda209c61c2d9841a3ab9c7dfc",
-        "materializedHeadSha": "20d8b0f88eff5eeda209c61c2d9841a3ab9c7dfc",
-        "treeSha": "b89abf343fedf0a70bdcfd647ccf8f608a62517f",
-        "manifestDigest": "7ceaca8f",
-        "bindingDigest": "64b3671513d2c30886aef40868f99d724e38ee4a070a5216a8f13eb67f0a244f",
+        "targetBaseSha": "0ec63ee2f81399e278f84a513fc7e318bc45c686",
+        "commitSha": "7722a1dc61057be0fd28f7a267fd77f5f7d8fa1a",
+        "materializedHeadSha": "7722a1dc61057be0fd28f7a267fd77f5f7d8fa1a",
+        "treeSha": "fbcb783cb904f6fd90eef9e11e254feabbaaa396",
+        "manifestDigest": "7b39257e",
+        "bindingDigest": "3b7f2361f16b2d264d8b8bfd85c6dd709fe413389362d3a329c46c0b57508e59",
         "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
         "applied": [
           {
@@ -1309,39 +1309,31 @@
           }
         ],
         "alreadyApplied": [],
-        "branchRef": "release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-6c8006ce653f-64b3671513d2c308",
+        "branchRef": "release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-0ec63ee2f813-3b7f2361f16b2d26",
         "supersedes": {
-          "branchRef": "release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-a96074891ce8-ab2e09fcc439a199",
-          "headSha": "d9530afd343b66ae157444298ae847f1d12fb8dc",
-          "targetBaseSha": "a96074891ce8d0ae32d54c325d60cb4ee1076659",
-          "manifestDigest": "03975f35",
-          "bindingDigest": "ab2e09fcc439a1991324c1a7b0dae523136234194e67cff9e53efeb3e13e21a6"
+          "branchRef": "release-unit/dev-control-plane-multi-unit-rehearsal-v1-u01-supersede-6c8006ce653f-64b3671513d2c308",
+          "headSha": "20d8b0f88eff5eeda209c61c2d9841a3ab9c7dfc",
+          "targetBaseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
+          "manifestDigest": "7ceaca8f",
+          "bindingDigest": "64b3671513d2c30886aef40868f99d724e38ee4a070a5216a8f13eb67f0a244f"
         }
       },
       "pullRequest": {
-        "number": 1039,
-        "headSha": "20d8b0f88eff5eeda209c61c2d9841a3ab9c7dfc",
-        "baseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
-        "manifestDigest": "7ceaca8f",
-        "bindingDigest": "64b3671513d2c30886aef40868f99d724e38ee4a070a5216a8f13eb67f0a244f",
+        "number": 1053,
+        "headSha": "7722a1dc61057be0fd28f7a267fd77f5f7d8fa1a",
+        "baseSha": "0ec63ee2f81399e278f84a513fc7e318bc45c686",
+        "manifestDigest": "7b39257e",
+        "bindingDigest": "3b7f2361f16b2d264d8b8bfd85c6dd709fe413389362d3a329c46c0b57508e59",
         "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
-        "url": "https://github.com/infowaterk-max/water-K-/pull/1039"
+        "url": "https://github.com/infowaterk-max/water-K-/pull/1053"
       },
       "verification": null,
       "merge": null,
       "closeReceipt": null,
-      "blocker": {
-        "code": "RELEASE_UNIT_CHILD_CI_FAILURE",
-        "details": {
-          "runId": 37625465377,
-          "event": "workflow_dispatch",
-          "status": "completed",
-          "conclusion": "failure"
-        }
-      },
+      "blocker": null,
       "lastTransition": {
-        "to": "STALE",
-        "code": "RELEASE_UNIT_CHILD_CI_FAILURE"
+        "to": "PR_OPEN",
+        "code": "RELEASE_UNIT_PR_OPEN"
       }
     },
     {
@@ -2896,16 +2888,7 @@
       }
     }
   ],
-  "blocker": {
-    "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
-    "code": "RELEASE_UNIT_CHILD_CI_FAILURE",
-    "details": {
-      "runId": 37625465377,
-      "event": "workflow_dispatch",
-      "status": "completed",
-      "conclusion": "failure"
-    }
-  },
+  "blocker": null,
   "closureEligible": false,
   "closureComplete": false,
   "closedReceipt": null,
