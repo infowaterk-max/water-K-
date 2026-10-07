@@ -1,0 +1,12 @@
+{
+  "contract": "shoporation.release-unit-conflict-resolution.v1",
+  "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
+  "file": "tests/control-plane-release-unit-production-surface.test.ts",
+  "sourceParent": "b79f8805d9718961a5cb41d4babaf11fd85dda5a",
+  "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+  "sourcePatchDigest": "1569812908caffa0f770724401c4db6973f98ae963353806cade53690cb5446d",
+  "resolutionPlanTaskId": "DEV-CONTROL-PLANE-U03-EXACT-CONFLICT-RESOLUTION-V1",
+  "resolutionBaseSha": "6c897234b6c890f8ee38f86c08dc86f7b9f68fa2",
+  "resolvedBlobSha": "3c0866e6af6ef5772e654808674f0a5eb6b5de06",
+  "resolvedFileMode": "100644"
+}
