@@ -417,15 +417,15 @@
     },
     "requirements": [
       {
-        "id": "REQ-FRESH-OBLIGATION-RECONCILIATION",
-        "requirement": "Fresh release-unit reevaluation must preserve transaction-relative material operation identity while allowing only trusted current governance and evidence projection to replace stale derived metadata after strict Plan verification.",
+        "id": "REQ-FRESH-OBLIGATION-RECONCILIATION-QUALITY",
+        "requirement": "Fresh release-unit reevaluation must preserve transaction-relative material operation identity and may accept current governance/evidence reprojection only through the trusted strict-Plan executor path; untrusted or material drift must remain fail-closed.",
         "claimScope": {
-          "capability": "CAP-RELEASE",
-          "breadth": "stale-child-fresh-obligation-reconciliation",
+          "capability": "CAP-QUALITY",
+          "breadth": "stale-child-fresh-obligation-reconciliation-behavior",
           "strength": 2,
           "dimensions": [
             "scope",
-            "authorization",
+            "positive-state",
             "transaction-identity",
             "behavioral-proof",
             "forbidden-state",
@@ -433,7 +433,6 @@
           ]
         },
         "requiredCapabilities": [
-          "CAP-RELEASE",
           "CAP-QUALITY"
         ],
         "evidence": {
@@ -461,8 +460,41 @@
             ]
           }
         ]
+      },
+      {
+        "id": "REQ-FRESH-OBLIGATION-RECONCILIATION-RELEASE-RISK",
+        "requirement": "Fresh release-unit authorization must remain within the canonical Release Risk Budget and may not reinterpret a current Release Risk BLOCK as executable.",
+        "claimScope": {
+          "capability": "CAP-RELEASE",
+          "breadth": "fresh-obligation-release-risk-integrity",
+          "strength": 2,
+          "dimensions": [
+            "risk",
+            "release-scope"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-RELEASE"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-RELEASE-RISK"
+          ],
+          "outcome": [
+            "GUARD-RELEASE-RISK"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-FRESH-OBLIGATION-RISK-BYPASS",
+            "statement": "Fresh obligation reconciliation may not authorize a release unit when the canonical Release Risk guard blocks the current exact transaction.",
+            "evidence": [
+              "GUARD-RELEASE-RISK"
+            ]
+          }
+        ]
       }
     ]
   },
-  "notes": "Plan-only transaction created from live Failure Intake #1013. No implementation is authorized until Plan Before Code passes. Plan projection 37586400919 required fault-injection for critical assurance; added without changing implementation scope."
+  "notes": "Plan-only transaction created from live Failure Intake #1013. No implementation is authorized until Plan Before Code passes. Plan projection 37586400919 required fault-injection for critical assurance; added without changing implementation scope. CI 37587084439 / Failure Intake #1014 exposed Completion proof-semantics overclaim in the active plan, not a Sentinel implementation regression: the original single claim required CAP-RELEASE+CAP-QUALITY and an unsupported authorization dimension from heterogeneous guards. This revision splits Quality behavioral proof from Release Risk proof and uses only registry-declared dimensions."
 }
