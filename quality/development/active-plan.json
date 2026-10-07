@@ -16,11 +16,9 @@
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
@@ -281,6 +279,27 @@
         "finding": "Reusing it after main advance would violate lease.",
         "resolution": "Let existing supersession/materialization logic create or select the canonical current-main child after reevaluation passes.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-SOP-06",
+        "scenario": "A reevaluated operation preserves file and kind but is sealed from a different source commit.",
+        "finding": "Matching material paths alone are insufficient because immutable source provenance changed.",
+        "resolution": "Keep source commit/blob/file mode inside material obligation identity so authorization remains STALE.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-SOP-07",
+        "scenario": "A trusted fresh projection changes only child-plan/governance evidence while resealing reproduces identical source provenance.",
+        "finding": "Material identity should remain stable while permitted reprojectable fields may update.",
+        "resolution": "Reseal before AUTHORIZE, then rely on existing trustedFreshProjection classification for only the declared reprojectable fields.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-SOP-08",
+        "scenario": "The persisted U01 has an obsolete open PR on an earlier main after the fix merges.",
+        "finding": "Successful provenance reconciliation must not reuse the stale lease or merge the obsolete PR.",
+        "resolution": "Preserve current supersession/materialization logic so a fresh current-main child is created or selected after authorization.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -424,5 +443,5 @@
       }
     ]
   },
-  "notes": "Plan-only transaction created from live persisted rehearsal state after main 95b0e429e5e7d23b361fa3644f0899e07b6e7ac0. U01 is STALE with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT solely because trusted fresh reevaluation removes sealed operation.source provenance and changes childOperationDigest. No implementation is authorized until Plan Before Code passes."
+  "notes": "Plan-only transaction created from live persisted rehearsal state after main 95b0e429e5e7d23b361fa3644f0899e07b6e7ac0. U01 is STALE with RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT solely because trusted fresh reevaluation removes sealed operation.source provenance and changes childOperationDigest. No implementation is authorized until Plan Before Code passes. Plan gate 37605855553 correctly blocked the first revision: planned projection resolved only DOMAIN-RELEASE/release-infrastructure and critical assurance required 8 challenge cases. This plan revision narrows expected scope to the projected authority and adds three adversarial cases without widening implementation scope."
 }
