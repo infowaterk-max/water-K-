@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-UNIT-CHILD-PROOF-DISPATCH-PERMISSION-V1",
   "task": "Allow the trusted Release Unit Execution workflow to dispatch exact child CI proof runs without widening untrusted workflow authority.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "128614ad",
   "changeBaseSha": "ead5039f1711b4b52a1394bac530a9f3ca1ad5be",
   "plannedFilePatterns": [
@@ -444,5 +444,18 @@
       }
     ]
   },
-  "notes": "Plan-only transaction created from live Release Unit Execution #152 on main ead5039f1711b4b52a1394bac530a9f3ca1ad5be. Exact blocker: RELEASE_UNIT_CHILD_CI_DISPATCH_FAILED with HTTP 403 Resource not accessible by integration while gh workflow run ci.yml attempted dispatch for U01 child head be5f2b43a2ac35df25120826b83bd50217afb661. Workflow currently has actions: read at workflow and execute-job scope. No permission implementation is authorized until Plan Before Code passes. Plan gate CI #9046 / run 37619886067 required canonical guardDigest 128614ad, critical assurance techniques fault-injection and finite-state-exhaustion, and adversarial challenge depth >= 8. This revision adopts those canonical requirements without changing implementation scope."
+  "notes": "Plan-only transaction created from live Release Unit Execution #152 on main ead5039f1711b4b52a1394bac530a9f3ca1ad5be. Exact blocker: RELEASE_UNIT_CHILD_CI_DISPATCH_FAILED with HTTP 403 Resource not accessible by integration while gh workflow run ci.yml attempted dispatch for U01 child head be5f2b43a2ac35df25120826b83bd50217afb661. Workflow currently has actions: read at workflow and execute-job scope. No permission implementation is authorized until Plan Before Code passes. Plan gate CI #9046 / run 37619886067 required canonical guardDigest 128614ad, critical assurance techniques fault-injection and finite-state-exhaustion, and adversarial challenge depth >= 8. This revision adopts those canonical requirements without changing implementation scope.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "fdcd82b5213e2dd391e01d373e62a9063acd271b",
+    "closedAt": "2026-10-07T12:26:54.255Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-RELEASE-UNIT-CHILD-PROOF-DISPATCH-PERMISSION-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
