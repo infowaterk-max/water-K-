@@ -3589,28 +3589,54 @@
       "merge": null,
       "closeReceipt": null,
       "blocker": {
-        "code": "RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED",
+        "code": "RELEASE_UNIT_MAIN_DRIFT",
         "details": {
-          "runId": 37659774022,
-          "event": "pull_request",
-          "status": "completed",
-          "conclusion": "action_required"
+          "error": "RELEASE_UNIT_MAIN_ADVANCE_SCOPE_OVERLAP:scripts/lib/shoperation-release-unit-runtime.mjs,tests/control-plane-release-unit-production-surface.test.ts",
+          "fromSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
+          "toSha": "bc6c11e0ad880fd41404dbac4b2c1fd8d7700893",
+          "changedFiles": [
+            "quality/development/active-plan.json",
+            "scripts/lib/shoperation-release-unit-runtime.mjs",
+            "tests/control-plane-release-unit-production-surface.test.ts"
+          ],
+          "scopeFiles": [
+            "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+            "scripts/lib/shoperation-release-unit-runtime.mjs",
+            "tests/control-plane-release-unit-production-surface.test.ts"
+          ],
+          "overlapFiles": [
+            "scripts/lib/shoperation-release-unit-runtime.mjs",
+            "tests/control-plane-release-unit-production-surface.test.ts"
+          ]
         }
       },
       "lastTransition": {
         "to": "STALE",
-        "code": "RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED"
+        "code": "RELEASE_UNIT_MAIN_DRIFT"
       }
     }
   ],
   "blocker": {
     "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
-    "code": "RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED",
+    "code": "RELEASE_UNIT_MAIN_DRIFT",
     "details": {
-      "runId": 37659774022,
-      "event": "pull_request",
-      "status": "completed",
-      "conclusion": "action_required"
+      "error": "RELEASE_UNIT_MAIN_ADVANCE_SCOPE_OVERLAP:scripts/lib/shoperation-release-unit-runtime.mjs,tests/control-plane-release-unit-production-surface.test.ts",
+      "fromSha": "1bf9ced0ca0e2c0547c655b60c2a94b8ddd5d100",
+      "toSha": "bc6c11e0ad880fd41404dbac4b2c1fd8d7700893",
+      "changedFiles": [
+        "quality/development/active-plan.json",
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "tests/control-plane-release-unit-production-surface.test.ts"
+      ],
+      "scopeFiles": [
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "tests/control-plane-release-unit-production-surface.test.ts"
+      ],
+      "overlapFiles": [
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "tests/control-plane-release-unit-production-surface.test.ts"
+      ]
     }
   },
   "closureEligible": false,
