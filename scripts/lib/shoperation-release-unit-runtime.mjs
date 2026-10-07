@@ -655,6 +655,14 @@ const classifyReleaseUnitMainAdvanceOverlap=(manifest,changedFiles)=>{
 export function validateReleaseUnitMainAdvanceProof(proof,{fromSha,toSha,manifest}={}){
   const changedFiles=uniq(proof?.changedFiles??[]);
   const expected=classifyReleaseUnitMainAdvanceOverlap(manifest,changedFiles);
+  const categorizedProof=Array.isArray(proof?.dependencyOverlapFiles)
+    &&Array.isArray(proof?.modifyOverlapFiles)
+    &&Array.isArray(proof?.unsafeOverlapFiles);
+  const categoryMatch=categorizedProof
+    ? sameJson(uniq(proof.dependencyOverlapFiles),expected.dependencyOverlapFiles)
+      &&sameJson(uniq(proof.modifyOverlapFiles),expected.modifyOverlapFiles)
+      &&sameJson(uniq(proof.unsafeOverlapFiles),expected.unsafeOverlapFiles)
+    : expected.overlapFiles.length===0;
   return proof?.contract===RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT
     &&proof?.issuer==='release-unit-github-runtime'
     &&proof?.decision==='PASS'
@@ -664,14 +672,9 @@ export function validateReleaseUnitMainAdvanceProof(proof,{fromSha,toSha,manifes
     &&Array.isArray(proof?.changedFiles)
     &&Array.isArray(proof?.scopeFiles)
     &&Array.isArray(proof?.overlapFiles)
-    &&Array.isArray(proof?.dependencyOverlapFiles)
-    &&Array.isArray(proof?.modifyOverlapFiles)
-    &&Array.isArray(proof?.unsafeOverlapFiles)
     &&sameJson(uniq(proof.scopeFiles),expected.scopeFiles)
     &&sameJson(uniq(proof.overlapFiles),expected.overlapFiles)
-    &&sameJson(uniq(proof.dependencyOverlapFiles),expected.dependencyOverlapFiles)
-    &&sameJson(uniq(proof.modifyOverlapFiles),expected.modifyOverlapFiles)
-    &&sameJson(uniq(proof.unsafeOverlapFiles),expected.unsafeOverlapFiles)
+    &&categoryMatch
     &&expected.unsafeOverlapFiles.length===0;
 }
 const requiredText=(value,code)=>{const normalized=String(value??'').trim();if(!normalized)throw new Error(code);return normalized;};
