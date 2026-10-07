@@ -1,82 +1,47 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
-  "task": "Repair the current main Plan Before Code quality gate so critical proof-only transactions whose projected files are exclusively neutral/test or knowledge-infrastructure paths may truthfully use empty domain/authority projections while architecture-bearing projected files remain fail-closed.",
+  "taskId": "DEV-CONTROL-PLANE-SENTINEL-INTEGRITY-PROBE-PLAN-ISOLATION-V1",
+  "task": "Isolate the Sentinel integrity probe regression test from ambient release-unit active-plan authority without weakening Sentinel integrity decisions.",
   "status": "closed",
-  "guardDigest": "85d0ad2a",
-  "changeBaseSha": "6c8006ce653f122c1166725f70e4738dd2d7249a",
+  "guardDigest": "128614ad",
+  "changeBaseSha": "22c11e6a724d374295c7cd95d6333e8ba8352104",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/shoperation-plan-before-code.mjs",
-    "tests/shoperation-change-impact-atlas.test.ts"
+    "tests/shoperation-sentinel-integrity.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system"
+    "release-infrastructure"
   ],
-  "expectedDomains": [
-    "DOMAIN-QUALITY"
-  ],
-  "expectedAuthorities": [
-    "quality-knowledge-system"
-  ],
+  "expectedDomains": [],
+  "expectedAuthorities": [],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
-    "SQ-KF-005",
     "SQ-KF-006",
-    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-015",
-    "SQ-KF-016",
-    "SQ-KF-017",
     "SQ-KF-018",
-    "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
     "TF-KF-005",
-    "TF-KF-006",
     "TF-KF-007",
-    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
-    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "TF-KF-015"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
     "SQ-NK-010",
-    "SQ-NK-011",
     "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -89,48 +54,49 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
+    "sourceRef": "PO-2026-10-07-SENTINEL-INTEGRITY-PROBE-PLAN-ISOLATION-V1",
     "riskTier": "critical",
-    "problemStatement": "Live Sentinel plan-isolation repair exposed an unsatisfiable current-main Plan Before Code invariant: a critical transaction that projects only a neutral test file correctly resolves projectedDomains=[] and projectedAuthorities=[], yet the gate unconditionally requires both declarations to be non-empty. Historical draft PR #798 already demonstrated and implemented the intended invariant on an older base, but it never reached main. The current main must port only that bounded logic and regression proof without weakening exact domain/authority drift checks for architecture-bearing projected files.",
+    "problemStatement": "Live U01 child proof CI #9052 on exact child head 20d8b0f88eff5eeda209c61c2d9841a3ab9c7dfc reached trusted workflow_dispatch successfully, then failed one of 3424 tests: tests/shoperation-sentinel-integrity.test.ts expected the daily integrity probe to PASS but received BLOCK. The child CI globally sets SHOPERATION_ACTIVE_PLAN to artifacts/shoperation-development-guard/release-unit-active-plan.json. The test constructs synthetic normalized main evidence from repository quality/development/active-plan.json, but its spawnSync environment inherits SHOPERATION_ACTIVE_PLAN, so the probe evaluates the release-unit child plan instead. This mixes two development transaction authorities and causes SENTINEL_INTEGRITY_TRANSACTION_IDENTITY_DRIFT. Main CI passes because the ambient release-unit plan override is absent.",
     "observableOutcomes": [
-      "Critical neutral/test-only or knowledge-infrastructure-only projected scopes may declare empty expectedDomains/expectedAuthorities when the canonical architecture projection is empty.",
-      "Any projected architecture-bearing file still requires non-empty expectedDomains/expectedAuthorities.",
-      "Exact projected domain and authority drift comparisons remain unconditional and fail closed.",
-      "The Plan Gate exposes a deterministic architecture-scope self-test covering neutral-only, knowledge-infrastructure-only, product-code and mixed projections.",
-      "The blocked Sentinel plan-isolation branch can subsequently pass Plan Before Code without false metadata."
+      "The daily-integrity regression test explicitly binds the probe to quality/development/active-plan.json regardless of ambient child CI environment variables.",
+      "The same test passes in ordinary main CI and release-unit child CI without changing Sentinel BLOCK semantics.",
+      "A true transaction identity mismatch still produces Sentinel BLOCK.",
+      "No production Sentinel authority, proof semantics, thresholds, guard registry or release-unit child plan is weakened or bypassed.",
+      "The unchanged U01 child proof proceeds beyond the current Sentinel integrity test failure."
     ],
     "unresolvedRisks": [
-      "A broad exemption could let product-code plans omit ownership.",
-      "Neutral classification drift could accidentally suppress required architecture scope.",
-      "Knowledge-infrastructure paths must remain separately classified from product-code paths.",
-      "Porting the old #798 implementation blindly could overwrite newer current-main Plan Gate logic."
+      "Clearing the wrong environment variable could hide a legitimate release-unit plan authority instead of isolating only the synthetic daily-probe test.",
+      "Changing Sentinel evaluation logic to ignore transaction drift would create a false PASS and is forbidden.",
+      "A test-only hard-code could become stale if the canonical repository active-plan path changes without corresponding test maintenance.",
+      "The repeated SQ-FP-6228AC79A5A40E53 fingerprint indicates this environment-coupling class was not previously classified at the earliest preventable phase."
     ],
     "scope": {
       "in": [
-        "Port only the neutral architecture-scope prerequisite logic from historical #798 into current main.",
-        "Add/retain the architecture-scope self-test in shoperation-plan-before-code.mjs.",
-        "Add regression coverage in tests/shoperation-change-impact-atlas.test.ts.",
-        "Preserve current-main release decomposition, implementation skeleton, exact-head transaction identity and gate-chain logic."
+        "Bind only the daily-integrity subprocess test to the repository active plan it uses to construct synthetic evidence.",
+        "Add regression coverage that an ambient release-unit SHOPERATION_ACTIVE_PLAN cannot alter this test's selected plan.",
+        "Preserve all Sentinel integrity findings, transaction identity checks and proof-semantic evaluation unchanged.",
+        "Replay the exact U01 child proof after merge."
       ],
       "out": [
-        "No broad exemption from domain/authority drift checks.",
-        "No changes to Sentinel evaluator semantics.",
-        "No changes to storefront, Builder, database, authentication, payments or deployment behavior.",
-        "No merge or retarget of the old #798 branch itself."
+        "No change to scripts/lib/shoperation-sentinel-integrity.mjs decision rules.",
+        "No change to guard-registry proof semantics or Completion Truth requirements.",
+        "No change to release-unit child plan generation, executor state or release risk thresholds.",
+        "No suppression, skip, allowlist or expected-BLOCK rewrite for the failing test."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This change alters a canonical planning prerequisite. A false exemption could permit unowned product changes, while the current bug blocks truthful neutral proof-only repairs. Exact boundary behavior must therefore be proven adversarially.",
+      "rationale": "This test validates Sentinel's ability to detect integrity drift while running inside the same CI that proves release-unit transactions. A false PASS would weaken assurance, while a false BLOCK deadlocks the canonical release path. The fix must isolate test authority without changing Sentinel semantics.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "what-if-matrix",
-        "adversarial-scenarios",
-        "boundary-cases",
-        "pairwise-interactions",
         "threat-failure-model",
+        "boundary-cases",
+        "proof-obligation",
+        "adversarial-scenarios",
+        "what-if-matrix",
+        "pairwise-interactions",
         "fault-injection",
         "finite-state-exhaustion"
       ],
@@ -138,28 +104,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Plan Before Code conditionally requires non-empty expectedDomains/expectedAuthorities only when at least one projected file is architecture-bearing.",
-        "Neutral/test-only projection returns architectureScopeRequired=false.",
-        "Knowledge-infrastructure-only projection returns architectureScopeRequired=false.",
-        "Product-code and mixed projections return architectureScopeRequired=true.",
-        "Exact projectedDomains/expectedDomains and projectedAuthorities/expectedAuthorities comparisons remain unchanged and unconditional.",
-        "Regression tests prove both truthful neutral scope and product-code fail-closed behavior.",
-        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge."
+        "tests/shoperation-sentinel-integrity.test.ts explicitly supplies SHOPERATION_ACTIVE_PLAN=quality/development/active-plan.json to the subprocess that claims to test real registry/plan plus normalized main evidence.",
+        "A regression simulating an ambient child-plan override still evaluates the repository plan selected by the test.",
+        "Existing tests that intentionally pass transaction drift to evaluateSentinelIntegrity continue to BLOCK.",
+        "No production Sentinel implementation file changes.",
+        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge.",
+        "After merge, the immutable rehearsal is replayed and U01 child Quality Tests move past the Sentinel integrity test."
       ],
       "invariants": [
-        "Architecture-bearing projected files may never pass with empty expectedDomains or expectedAuthorities.",
-        "Neutral/test-only proof scope may not be forced to invent false ownership metadata.",
-        "Knowledge-infrastructure-only scope may remain ownership-neutral when the Atlas projection is empty.",
-        "Domain and authority drift detection remains exact.",
-        "Current main logic outside the targeted prerequisite remains unchanged."
+        "Sentinel transaction identity drift remains blocking.",
+        "The test's evidence producer and the probe's selected plan must refer to the same development transaction authority.",
+        "Ambient CI variables may not silently change the authority under test.",
+        "Release-unit child CI continues to use its generated release-unit active plan for real child gates outside this isolated test subprocess.",
+        "No PASS is manufactured by deleting evidence, changing thresholds or ignoring child plan context."
       ],
       "forbiddenStates": [
-        "product-code-empty-ownership-pass",
-        "mixed-scope-empty-ownership-pass",
-        "domain-drift-check-disabled",
-        "authority-drift-check-disabled",
-        "old-branch-wholesale-port",
-        "sentinel-or-release-risk-bypass"
+        "sentinel-transaction-drift-ignored",
+        "release-unit-active-plan-globally-cleared",
+        "quality-test-skipped",
+        "expected-block-rewritten-as-pass",
+        "guard-registry-proof-semantics-weakened",
+        "child-proof-authority-bypass"
       ]
     },
     "model": {
@@ -191,184 +156,184 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Neutral projected scope remains unsatisfiable because non-empty ownership is still unconditional.",
-        "Architecture-bearing product scope is accidentally exempted.",
-        "Knowledge-infrastructure classification diverges from unresolved-scope semantics.",
-        "Regression self-test does not exercise mixed architecture-bearing scope.",
-        "Port collides with newer current-main planner logic."
+        "The subprocess inherits release-unit active-plan authority and synthetic main evidence mismatches it.",
+        "The fix globally removes SHOPERATION_ACTIVE_PLAN and breaks real child gates.",
+        "The Sentinel evaluator is weakened instead of the test being isolated.",
+        "The test passes on main but fails again under workflow_dispatch child proof.",
+        "A future active-plan path change makes the test point to a noncanonical plan."
       ],
       "edgeCases": [
-        "Only tests/proof-only.test.ts is projected.",
-        "Only scripts/shoperation-plan-before-code.mjs is projected.",
-        "Only src/lib/builder/storefront-runtime.ts is projected.",
-        "A neutral test and product runtime file are projected together.",
-        "Projected domains are empty while expected declarations are falsely non-empty.",
-        "Projected domains are non-empty while expected declarations are empty.",
-        "Expected declarations differ from non-empty projected ownership.",
-        "A future neutral-pattern policy change reclassifies the test path."
+        "SHOPERATION_ACTIVE_PLAN is unset as on ordinary main CI.",
+        "SHOPERATION_ACTIVE_PLAN points to a release-unit child plan as on U01 CI.",
+        "SHOPERATION_ACTIVE_PLAN points to a nonexistent path.",
+        "Synthetic evidence base differs from the explicitly selected repository plan and must still BLOCK.",
+        "The probe is invoked outside the test and should continue honoring an explicit active-plan override.",
+        "A release-unit child plan has stronger or different completion requirements than the repository plan.",
+        "The child CI is rerun after main advances but the materialized child base remains exact.",
+        "The test process has unrelated Sentinel environment variables already set."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-CONDITIONAL-ARCHITECTURE-REQUIREMENT",
-        "summary": "Require non-empty ownership declarations only when projected files include architecture-bearing scope.",
+        "id": "ALT-TEST-EXPLICIT-PLAN",
+        "summary": "Explicitly set SHOPERATION_ACTIVE_PLAN to the repository active-plan path only in the daily-integrity test subprocess.",
         "disposition": "selected",
-        "reason": "Matches truthful Atlas output while preserving exact drift enforcement."
+        "reason": "It aligns the probe authority with the evidence source while preserving production behavior and child CI authority."
       },
       {
-        "id": "ALT-FAKE-OWNERSHIP",
-        "summary": "Invent DOMAIN-QUALITY/quality-knowledge-system for neutral-only transactions.",
+        "id": "ALT-UNSET-GLOBAL-ENV",
+        "summary": "Remove SHOPERATION_ACTIVE_PLAN from the entire child CI job.",
         "disposition": "rejected",
-        "reason": "Would make plan metadata intentionally false."
+        "reason": "Real release-unit gates require the generated child plan and would lose canonical authority."
       },
       {
-        "id": "ALT-DUMMY-ARCHITECTURE-FILE",
-        "summary": "Touch a product or architecture file solely to satisfy the prerequisite.",
+        "id": "ALT-SENTINEL-IGNORE-DRIFT",
+        "summary": "Change Sentinel to ignore transaction mismatch when running under release-unit CI.",
         "disposition": "rejected",
-        "reason": "Would widen material scope and invalidate proof-only intent."
+        "reason": "This would launder a real integrity violation and create false PASS."
       },
       {
-        "id": "ALT-DISABLE-DRIFT-CHECKS",
-        "summary": "Skip domain/authority checks for critical plans.",
+        "id": "ALT-EXPECT-BLOCK",
+        "summary": "Change the test expectation from PASS to BLOCK under child CI.",
         "disposition": "rejected",
-        "reason": "Would weaken Control Plane authority guarantees."
+        "reason": "The test claims to validate coherent normalized main evidence; ambient authority leakage is the defect, not the expected result."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Architecture",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Empty ownership cannot become a general critical-plan bypass.",
-        "resolution": "Gate only the non-empty prerequisite on architecture-bearing projected files while retaining exact drift comparison for every plan.",
-        "evidence": [
-          "scripts/shoperation-plan-before-code.mjs",
-          "quality/knowledge/domain-foundations.v1.json"
-        ]
-      },
-      {
-        "role": "Data Integrity",
+        "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The contradiction is deterministic when canonical projected ownership is empty but the declaration prerequisite is unconditional.",
-        "resolution": "Reuse the same neutral and knowledge-infrastructure classification already trusted by unresolved-scope logic.",
+        "finding": "The issue appears only after real workflow_dispatch child proof because that path exports SHOPERATION_ACTIVE_PLAN to the CI environment.",
+        "resolution": "Keep the child plan for actual gates but override it only inside the synthetic daily-probe test subprocess.",
         "evidence": [
-          "scripts/lib/shoperation-development-runtime.mjs",
-          "quality/knowledge/knowledge-scope-policy.v1.json"
+          "CI #9052",
+          "U01 head 20d8b0f88eff5eeda209c61c2d9841a3ab9c7dfc"
         ]
       },
       {
         "role": "Known Failure",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The live Sentinel repair reproduced the old #798 prerequisite gap on current main.",
-        "resolution": "Port the already-proven invariant as a bounded current-main fix and keep the historical branch untouched.",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "SQ-FP-6228AC79A5A40E53 has recurred across prior intakes, so simply rerunning would repeat an unclassified failure.",
+        "resolution": "Treat this occurrence as a deterministic environment-authority coupling and add regression coverage before replay.",
         "evidence": [
-          "CI #9056",
-          "PR #798"
+          "failure-intake artifact 11483618569",
+          "historical issue #1014"
         ]
       },
       {
-        "role": "Release",
+        "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The gate fix is a prerequisite and must not be mixed with the downstream Sentinel test-isolation material change.",
-        "resolution": "Merge this Control Plane repair first, then rebase/reproject the Sentinel repair from fresh main.",
+        "finding": "Plan authority is contextual; tests that spawn authority-sensitive tools must bind the intended context explicitly.",
+        "resolution": "Make authority selection explicit at the subprocess boundary.",
         "evidence": [
-          "fix/sentinel-integrity-probe-plan-isolation-v1",
-          "main 6c8006ce653f122c1166725f70e4738dd2d7249a"
+          "SHOPERATION_ACTIVE_PLAN",
+          "quality/development/active-plan.json"
+        ]
+      },
+      {
+        "role": "Runtime",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The defect is a subprocess environment-boundary leak: the spawned Sentinel probe inherits SHOPERATION_ACTIVE_PLAN from child CI even though the test synthesizes evidence from the repository active plan.",
+        "resolution": "Bind SHOPERATION_ACTIVE_PLAN only on the test subprocess environment; keep production probe environment semantics unchanged.",
+        "evidence": [
+          "tests/shoperation-sentinel-integrity.test.ts",
+          "scripts/shoperation-sentinel-integrity-probe.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-NEUTRAL-01",
-        "scenario": "Critical plan projects only a neutral test file.",
-        "finding": "Canonical domains/authorities are empty; unconditional non-empty prerequisite is unsatisfiable.",
-        "resolution": "architectureScopeRequired=false; allow empty declarations but still compare exact arrays.",
+        "id": "CH-SENT-01",
+        "scenario": "Child CI exports a release-unit active plan while the test builds evidence from repository active-plan.json.",
+        "finding": "Probe and evidence use different base authority, producing transaction drift.",
+        "resolution": "Explicitly bind test subprocess to repository active plan.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-02",
-        "scenario": "Critical plan projects only a knowledge-infrastructure planner script.",
-        "finding": "Ownership may be empty by the same scope policy used by unresolved-scope logic.",
-        "resolution": "Treat knowledge-infrastructure as non-architecture-bearing for the prerequisite.",
+        "id": "CH-SENT-02",
+        "scenario": "Main CI has no SHOPERATION_ACTIVE_PLAN.",
+        "finding": "The explicit binding should behave identically to the current passing main path.",
+        "resolution": "Use the same canonical repository path that the probe already defaults to.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-03",
-        "scenario": "Critical plan projects product runtime code.",
-        "finding": "Empty ownership would be unsafe.",
-        "resolution": "architectureScopeRequired=true and non-empty declarations remain mandatory.",
+        "id": "CH-SENT-03",
+        "scenario": "A real child gate needs the release-unit plan after this fix.",
+        "finding": "A job-wide unset would break child verification.",
+        "resolution": "Scope the override to the single spawnSync env object in the test.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-04",
-        "scenario": "Projection mixes neutral test and product code.",
-        "finding": "Neutral content must not suppress product ownership.",
-        "resolution": "Use files.some(isArchitectureBearingProjectedFile), so any product file requires ownership.",
+        "id": "CH-SENT-04",
+        "scenario": "Someone proposes changing evaluateSentinelIntegrity to tolerate base mismatch.",
+        "finding": "That would hide a genuine provenance defect.",
+        "resolution": "No production evaluator changes; preserve BLOCK behavior.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-05",
-        "scenario": "Expected ownership is non-empty but canonical projected ownership is empty.",
-        "finding": "False metadata must still fail.",
-        "resolution": "Keep exact DOMAIN_SCOPE_DRIFT and AUTHORITY_SCOPE_DRIFT comparisons unconditional.",
+        "id": "CH-SENT-05",
+        "scenario": "Ambient SHOPERATION_ACTIVE_PLAN points to a malformed or missing child plan.",
+        "finding": "The test must remain deterministic and independent of unrelated ambient plan selection.",
+        "resolution": "Explicit repository-plan binding makes the test deterministic while production probe still fails closed on malformed explicit inputs.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-06",
-        "scenario": "Expected ownership is empty but canonical product ownership is non-empty.",
-        "finding": "A conditional prerequisite alone is insufficient.",
-        "resolution": "Exact drift comparison still blocks the mismatch.",
+        "id": "CH-SENT-06",
+        "scenario": "The repository plan itself contains an actual proof-semantic defect.",
+        "finding": "Explicit binding must not manufacture PASS if the repository plan is incoherent.",
+        "resolution": "The Sentinel still evaluates the real repository plan and will BLOCK on actual findings.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-07",
-        "scenario": "Neutral pattern policy changes later.",
-        "finding": "Hard-coded filename exceptions would silently rot.",
-        "resolution": "Reuse isNeutralFile and scopePolicy.knowledgeInfrastructurePrefixes rather than hard-coded current paths.",
+        "id": "CH-SENT-07",
+        "scenario": "Synthetic evidence is modified to disagree with the explicitly bound repository plan.",
+        "finding": "Isolation must not disable transaction-drift detection.",
+        "resolution": "Retain existing dedicated drift tests and add no evaluator exception.",
         "status": "resolved"
       },
       {
-        "id": "CH-NEUTRAL-08",
-        "scenario": "Historical #798 code is applied wholesale to current main.",
-        "finding": "Newer planner logic could be lost.",
-        "resolution": "Port only helper/self-test/conditional prerequisite lines plus regression assertions.",
+        "id": "CH-SENT-08",
+        "scenario": "The same test is executed under a future release-unit child CI with different generated plan content.",
+        "finding": "Ambient differences must not affect the intended daily-main probe regression.",
+        "resolution": "Explicit plan selection at the subprocess boundary remains stable across child plan variants.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require current-main Plan Before Code PASS before implementation.",
-      "Port the minimal #798 neutral-scope helper and conditional prerequisite into current scripts/shoperation-plan-before-code.mjs.",
-      "Add the historical regression assertion pattern to current tests/shoperation-change-impact-atlas.test.ts without overwriting newer tests.",
-      "Require exact-head Knowledge/Plan/Edit-Time/Incremental Replay/Release Risk/full tests/typecheck/build/Completion Truth/Lifecycle PASS.",
-      "Merge only after exact PR-head proof, then resume the Sentinel plan-isolation repair from fresh main."
+      "Commit this fresh plan-only projection against main 22c11e6a724d374295c7cd95d6333e8ba8352104 and require Plan Before Code PASS.",
+      "Modify only tests/shoperation-sentinel-integrity.test.ts to explicitly bind SHOPERATION_ACTIVE_PLAN=quality/development/active-plan.json for the spawned daily probe and add an ambient child-plan leakage regression.",
+      "Require Edit-Time Guard, Incremental Replay, Release Risk, full Quality Tests, TypeScript, production build, Completion Truth and Lifecycle Closure on exact head.",
+      "Merge only after exact PR-head proof, then rerun the unchanged rehearsal source and verify U01 child proof advances beyond the Sentinel integrity test."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
+      "request": "SQ-FP-6228AC79A5A40E53",
       "authority": [
-        "quality-knowledge-system"
+        "release-infrastructure"
       ],
       "mustEdit": [
-        "scripts/shoperation-plan-before-code.mjs"
+        "tests/shoperation-sentinel-integrity.test.ts"
       ],
-      "mayEdit": [
-        "tests/shoperation-change-impact-atlas.test.ts"
-      ],
+      "mayEdit": [],
       "impactedReadOnly": [
-        "scripts/lib/shoperation-development-runtime.mjs",
-        "quality/knowledge/domain-foundations.v1.json",
-        "quality/knowledge/knowledge-scope-policy.v1.json",
-        "deploy/release-risk-policy.json"
+        "scripts/shoperation-sentinel-integrity-probe.mjs",
+        "scripts/lib/shoperation-sentinel-integrity.mjs",
+        "quality/knowledge/guard-registry.v1.json",
+        ".github/workflows/ci.yml"
       ],
       "mustCreate": [],
       "forbidden": [
+        "scripts/lib/shoperation-sentinel-integrity.mjs",
+        "quality/knowledge/guard-registry.v1.json",
+        "deploy/**",
         "src/**",
         "supabase/**"
       ],
       "proof": [
-        "tests/shoperation-change-impact-atlas.test.ts"
+        "tests/shoperation-sentinel-integrity.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -379,7 +344,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
+    "sourceRef": "PO-2026-10-07-SENTINEL-INTEGRITY-PROBE-PLAN-ISOLATION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -397,16 +362,19 @@
     },
     "requirements": [
       {
-        "id": "REQ-NEUTRAL-CRITICAL-PLAN-TRUTHFUL-SCOPE",
-        "requirement": "Critical proof-only plans with exclusively neutral or knowledge-infrastructure projections can truthfully use empty domain/authority declarations without bypassing exact scope drift checks.",
+        "id": "REQ-SENTINEL-PROBE-PLAN-ISOLATION",
+        "requirement": "The daily Sentinel integrity regression must evaluate the same repository plan authority used to construct its normalized evidence, independent of ambient release-unit CI plan overrides.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "plan-before-code-neutral-critical-scope",
+          "breadth": "sentinel-integrity-probe-plan-isolation",
           "strength": 2,
           "dimensions": [
-            "behavioral-proof",
             "scope",
-            "limitations"
+            "positive-state",
+            "forbidden-state",
+            "transaction-identity",
+            "behavioral-proof",
+            "lifecycle"
           ]
         },
         "requiredCapabilities": [
@@ -414,18 +382,23 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
+            "GUARD-EDIT-TIME"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-PRODUCTION-BUILD"
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PRODUCT-EMPTY-OWNERSHIP",
-            "statement": "Architecture-bearing critical plans cannot pass with empty expectedDomains/expectedAuthorities.",
+            "id": "NEG-SENTINEL-DRIFT-LAUNDERING",
+            "statement": "Sentinel transaction identity drift must remain blocking.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-CHILD-PLAN-AUTHORITY-LOSS",
+            "statement": "Real release-unit child gates may not lose their generated child active-plan authority.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -434,14 +407,14 @@
       }
     ]
   },
-  "notes": "Current-main port of the bounded invariant previously proven on historical draft PR #798. Live need reproduced by Sentinel plan-isolation CI #9056: projected neutral test scope has canonical projectedDomains=[] and projectedAuthorities=[], but current main unconditionally emits DEV_PLAN_EXPECTED_DOMAINS_REQUIRED and DEV_PLAN_EXPECTED_AUTHORITIES_REQUIRED. This prerequisite fix remains separate from the downstream Sentinel test-isolation implementation.",
+  "notes": "Plan-only transaction from live U01 child proof CI #9052. Exact failure fingerprint SQ-FP-6228AC79A5A40E53. Proven mechanism: the test reads quality/development/active-plan.json to create synthetic evidence, while spawnSync inherits SHOPERATION_ACTIVE_PLAN=artifacts/shoperation-development-guard/release-unit-active-plan.json from child CI; normalizeSentinelControlPlaneEvidence then compares child plan changeBaseSha with repository-plan-derived edit-time evidence and correctly emits transaction identity drift. Production Sentinel semantics remain authoritative and unchanged. Plan gate CI #9055 / run 37628258801 reconciled the projected test-only material scope to subsystem release-infrastructure with no domain/authority classifier assignments and rejected the noncanonical Sentinel specialist role. This revision adopts those canonical classifications without changing the intended test-isolation fix. Prerequisite Control Plane neutral critical ownership fix merged via PR #1045 at main 22c11e6a724d374295c7cd95d6333e8ba8352104; this fresh projection now truthfully declares empty domain/authority ownership for the neutral test-only material scope while preserving release-infrastructure intent classification. Plan gate CI #9063 / run 37633441458 confirmed neutral expectedAuthorities=[] is valid after PR #1045, while the critical semantic execution route still requires an explicit execution authority category; route.authority is therefore bound to release-infrastructure without inventing projected ownership.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "52a509201137b76ebbdd91c7bc3e4ca492b1d214",
-    "closedAt": "2026-10-07T13:42:00.305Z",
+    "verifiedImplementationHead": "9a8d0fbba816acebca0554e20f56d75883321953",
+    "closedAt": "2026-10-07T14:11:52.723Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-NEUTRAL-CRITICAL-PLAN-SCOPE-MAIN-V1",
+    "sourceRef": "PO-2026-10-07-SENTINEL-INTEGRITY-PROBE-PLAN-ISOLATION-V1",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

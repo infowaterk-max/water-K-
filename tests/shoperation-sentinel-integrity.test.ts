@@ -85,7 +85,10 @@ describe('Sentinel integrity correlation',()=>{
   it('runs the daily integrity probe against real registry/plan plus normalized main evidence',()=>{
     const dir=mkdtempSync(path.join(tmpdir(),'sentinel-integrity-probe-')),evidenceDir=path.join(dir,'evidence'),out=path.join(dir,'out');
     mkdirSync(evidenceDir,{recursive:true});
-    const activePlan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
+    const activePlanPath='quality/development/active-plan.json';
+    const activePlan=JSON.parse(readFileSync(activePlanPath,'utf8'));
+    const childPlanPath=path.join(dir,'release-unit-active-plan.json');
+    writeFileSync(childPlanPath,JSON.stringify({...activePlan,changeBaseSha:'child-base'}));
     writeFileSync(path.join(evidenceDir,'run.json'),JSON.stringify({headSha:'head-a',conclusion:'success'}));
     writeFileSync(path.join(evidenceDir,'plan-before-code.json'),JSON.stringify({
       decision:'PASS',base:activePlan.changeBaseSha,head:'head-a',
@@ -97,13 +100,23 @@ describe('Sentinel integrity correlation',()=>{
       materialFiles:[],deletedFiles:[],childDecisions:{referenceSync:'PASS',implementationSync:'PASS',poInstructionState:'PASS'},
       referenceSync:{coverage:{totalCandidateCount:0,processedCandidateCount:0,overflow:0,decision:'PASS'}},
     }));
+    const ambientEnv={...process.env,SHOPERATION_ACTIVE_PLAN:childPlanPath,SHOPERATION_SENTINEL_OUT_DIR:out,SHOPERATION_SENTINEL_CONTROL_PLANE_EVIDENCE_DIR:evidenceDir,SHOPERATION_SOURCE_COMMIT:'head-a'};
+    const leakedProbePath=path.join(out,'integrity-probe-leaked.json');
+    const leaked=spawnSync(process.execPath,['scripts/shoperation-sentinel-integrity-probe.mjs'],{
+      encoding:'utf8',
+      env:{...ambientEnv,SHOPERATION_SENTINEL_INTEGRITY_PROBE:leakedProbePath},
+    });
+    const leakedReport=leaked.status===0?JSON.parse(readFileSync(leakedProbePath,'utf8')):null;
     const probePath=path.join(out,'integrity-probe.json');
     const result=spawnSync(process.execPath,['scripts/shoperation-sentinel-integrity-probe.mjs'],{
       encoding:'utf8',
-      env:{...process.env,SHOPERATION_SENTINEL_OUT_DIR:out,SHOPERATION_SENTINEL_INTEGRITY_PROBE:probePath,SHOPERATION_SENTINEL_CONTROL_PLANE_EVIDENCE_DIR:evidenceDir,SHOPERATION_SOURCE_COMMIT:'head-a'},
+      env:{...ambientEnv,SHOPERATION_ACTIVE_PLAN:activePlanPath,SHOPERATION_SENTINEL_INTEGRITY_PROBE:probePath},
     });
     const report=result.status===0?JSON.parse(readFileSync(probePath,'utf8')):null;
     rmSync(dir,{recursive:true,force:true});
+    expect(leaked.status).toBe(0);
+    expect(leakedReport.decision).toBe('BLOCK');
+    expect(leakedReport.findings.some((x:{code:string})=>x.code==='SENTINEL_INTEGRITY_TRANSACTION_IDENTITY_DRIFT')).toBe(true);
     expect(result.status).toBe(0);
     expect(report.contract).toBe('shoporation.sentinel-integrity-report.v1');
     expect(report.decision).toBe('PASS');
