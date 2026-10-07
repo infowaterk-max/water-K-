@@ -1259,17 +1259,226 @@
       "merge": null,
       "closeReceipt": null,
       "blocker": {
-        "code": "RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED",
+        "code": "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT",
         "details": {
-          "runId": 37596487318,
-          "event": "pull_request",
-          "status": "completed",
-          "conclusion": "action_required"
+          "drift": [
+            {
+              "field": "operations",
+              "before": [
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "23f13bbf375b9aba60d2445073fcdccde0c51577",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "a42d4ba41e681b57216b1a8bd28415692db61511",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "94e716446606a57b54fd0344147ca1297d2dd94a",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "aeda36763397e74c4c1535ef278bfa5aea61f9e0",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "d8542db78d0d93812f513c2a27db278c523bc25b",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "541b2c8658e9cf62e8ee4e0062d9ec6c5a0040ff",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "1d02ff1b48dd067fd63e80740565c073d19c266f",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "29c8afb83bf73766d6b34786cffa80d20e41b0d5",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "4b3edd5eb111e215921ec5388659b97c26eeb5b8",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "5fb00747ec2aac1a5c921853d6e5809e10149cbb",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "b31e91dcf392f640371a0bdc7b3229c3badc4f11",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "aac321e8961e76c729bc37b981a3192352b79725",
+                    "fileMode": "100644"
+                  }
+                }
+              ],
+              "after": [
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+                  "generated": null
+                },
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+                  "generated": null
+                }
+              ]
+            },
+            {
+              "field": "childOperationDigest",
+              "before": "379cb2584432158cc2599d1784ad749dd5df12cbfd9c870361ed8dd1f439c3fa",
+              "after": "8ba6af0084a158a078e6ad22318017a69b995a6d05c70f941205cd7425f3fa32"
+            }
+          ],
+          "reprojectableDrift": [
+            {
+              "field": "childPlanDigest",
+              "before": "802aa2344d6b656e293a71587888521ab709e4c652048b191f768ffbddf4b576",
+              "after": "38083da9ee546610166dbfe869a54fc1d43adb0a7e4df15138d750f50912a318"
+            }
+          ]
         }
       },
       "lastTransition": {
         "to": "STALE",
-        "code": "RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED"
+        "code": "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT"
       }
     },
     {
@@ -2826,12 +3035,221 @@
   ],
   "blocker": {
     "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
-    "code": "RELEASE_UNIT_CHILD_CI_ACTION_REQUIRED",
+    "code": "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT",
     "details": {
-      "runId": 37596487318,
-      "event": "pull_request",
-      "status": "completed",
-      "conclusion": "action_required"
+      "drift": [
+        {
+          "field": "operations",
+          "before": [
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "23f13bbf375b9aba60d2445073fcdccde0c51577",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "a42d4ba41e681b57216b1a8bd28415692db61511",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "94e716446606a57b54fd0344147ca1297d2dd94a",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "aeda36763397e74c4c1535ef278bfa5aea61f9e0",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "d8542db78d0d93812f513c2a27db278c523bc25b",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "541b2c8658e9cf62e8ee4e0062d9ec6c5a0040ff",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "1d02ff1b48dd067fd63e80740565c073d19c266f",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "29c8afb83bf73766d6b34786cffa80d20e41b0d5",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "4b3edd5eb111e215921ec5388659b97c26eeb5b8",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "5fb00747ec2aac1a5c921853d6e5809e10149cbb",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "b31e91dcf392f640371a0bdc7b3229c3badc4f11",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "aac321e8961e76c729bc37b981a3192352b79725",
+                "fileMode": "100644"
+              }
+            }
+          ],
+          "after": [
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+              "generated": null
+            },
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+              "generated": null
+            }
+          ]
+        },
+        {
+          "field": "childOperationDigest",
+          "before": "379cb2584432158cc2599d1784ad749dd5df12cbfd9c870361ed8dd1f439c3fa",
+          "after": "8ba6af0084a158a078e6ad22318017a69b995a6d05c70f941205cd7425f3fa32"
+        }
+      ],
+      "reprojectableDrift": [
+        {
+          "field": "childPlanDigest",
+          "before": "802aa2344d6b656e293a71587888521ab709e4c652048b191f768ffbddf4b576",
+          "after": "38083da9ee546610166dbfe869a54fc1d43adb0a7e4df15138d750f50912a318"
+        }
+      ]
     }
   },
   "closureEligible": false,
