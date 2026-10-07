@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-SUPERSESSION-V1",
   "task": "Preserve a provably canonical prior release-unit materialization branch as immutable audit evidence and deterministically supersede it when fresh exact transaction identity/base requires a different materialization, without force-push, deletion or branch ambiguity.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "128614ad",
   "changeBaseSha": "3992f848e674cf4bb1fe353e2c5cade59c8a52ad",
   "plannedFilePatterns": [
@@ -417,5 +417,18 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #1017 after fresh obligation reconciliation merged via PR #1016 and replay job 112690517069 reached remote branch base drift. Plan-only; no implementation until Plan Before Code approves exact scope. Plan projection 37592064831 reconciled direct scope to DOMAIN-RELEASE / release-infrastructure, 19 applicable Known Failures, canonical guard digest 128614ad, and required a concrete absent-branch adversarial challenge."
+  "notes": "Created from live Failure Intake #1017 after fresh obligation reconciliation merged via PR #1016 and replay job 112690517069 reached remote branch base drift. Plan-only; no implementation until Plan Before Code approves exact scope. Plan projection 37592064831 reconciled direct scope to DOMAIN-RELEASE / release-infrastructure, 19 applicable Known Failures, canonical guard digest 128614ad, and required a concrete absent-branch adversarial challenge.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "1aba7bdd9b8c928e17a267fdf19bcb8b9f9ed1c5",
+    "closedAt": "2026-10-07T08:26:11.250Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-MATERIALIZATION-SUPERSESSION-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
