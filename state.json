@@ -3589,42 +3589,400 @@
       "merge": null,
       "closeReceipt": null,
       "blocker": {
-        "code": "RELEASE_UNIT_MODIFY_PATCH_CONFLICT",
+        "code": "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT",
         "details": {
-          "error": "RELEASE_UNIT_MODIFY_PATCH_CONFLICT:tests/control-plane-release-unit-production-surface.test.ts",
-          "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
-          "file": "tests/control-plane-release-unit-production-surface.test.ts",
-          "sourceParent": "b79f8805d9718961a5cb41d4babaf11fd85dda5a",
-          "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
-          "sourcePatchDigest": "1569812908caffa0f770724401c4db6973f98ae963353806cade53690cb5446d",
-          "targetBaseSha": "6c897234b6c890f8ee38f86c08dc86f7b9f68fa2",
-          "targetBlobSha": "48548e4838cd2bdfeb0fe66876af771843282978",
-          "targetFileMode": "100644",
-          "resolutionRecordPath": "quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json",
-          "gitApplyError": "Applied patch to 'tests/control-plane-release-unit-production-surface.test.ts' with conflicts.\nU tests/control-plane-release-unit-production-surface.test.ts"
+          "drift": [
+            {
+              "field": "operations",
+              "before": [
+                {
+                  "operation": "create",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "94bfc8c0e36b042642b5c570ab4870d39ce281ff",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "modify",
+                  "file": "tests/control-plane-release-unit-production-surface.test.ts",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "7d731a1b3f3a7b1e8fe31d1df77929103f47c354",
+                    "fileMode": "100644"
+                  }
+                }
+              ],
+              "after": [
+                {
+                  "operation": "modify",
+                  "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "94bfc8c0e36b042642b5c570ab4870d39ce281ff",
+                    "fileMode": "100644"
+                  }
+                },
+                {
+                  "operation": "modify",
+                  "file": "tests/control-plane-release-unit-production-surface.test.ts",
+                  "generated": null,
+                  "source": {
+                    "mode": "sealed",
+                    "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                    "blobSha": "7d731a1b3f3a7b1e8fe31d1df77929103f47c354",
+                    "fileMode": "100644"
+                  }
+                }
+              ]
+            },
+            {
+              "field": "requiredDependencyFiles",
+              "before": [
+                "scripts/lib/shoperation-release-unit-runtime.mjs"
+              ],
+              "after": [
+                "scripts/lib/shoperation-release-unit-runtime.mjs",
+                "scripts/release-unit-github-runtime.mjs"
+              ]
+            },
+            {
+              "field": "readOnlyPaths",
+              "before": [],
+              "after": [
+                "scripts/release-unit-execute.mjs",
+                "scripts/release-unit-github-runtime.mjs",
+                "tests/control-plane-release-unit-execution-binding.test.ts"
+              ]
+            },
+            {
+              "field": "childOperationDigest",
+              "before": "83aab84c9d0d4bf82c3f5846dc75fd54a997b8cb61971dbade9be63386ad06e9",
+              "after": "30b2323b77469c61f83849317048c491b323be2a3e5d2a4029a8ca63b292209c"
+            }
+          ],
+          "reprojectableDrift": [
+            {
+              "field": "requiredEvidence",
+              "before": {
+                "gateIds": [
+                  "GUARD-EDIT-TIME",
+                  "GUARD-INCREMENTAL-REPLAY",
+                  "GUARD-KNOWLEDGE-PREFLIGHT",
+                  "GUARD-PLAN-BEFORE-CODE",
+                  "GUARD-QUALITY-TESTS",
+                  "GUARD-RELEASE-RISK",
+                  "GUARD-TYPECHECK"
+                ],
+                "proofFiles": [
+                  "tests/admin-mobile-desktop-compat.test.ts",
+                  "tests/block4-ia-navigation-reporting.test.ts",
+                  "tests/commerce-pricing.test.ts",
+                  "tests/core-checkout-quote.test.ts",
+                  "tests/customer-baseline-proof-contract.test.ts",
+                  "tests/customer-baseline-target-postflight.test.ts",
+                  "tests/digital-commerce-customer-baseline-parity.test.ts",
+                  "tests/incident-intelligence-schema.test.ts",
+                  "tests/navigation-workflows.test.ts",
+                  "tests/operational-tenant-isolation.test.ts",
+                  "tests/order-lifecycle-contracts.test.ts",
+                  "tests/pilot-acceptance-access.test.ts",
+                  "tests/platform-owner-zero-tenant-hotfix.test.ts",
+                  "tests/rollout-readiness.test.ts",
+                  "tests/shoperation-development-guard.test.ts",
+                  "tests/shoperation-failure-intake-reconcile.test.ts",
+                  "tests/shoperation-historical-support-backfill.test.ts",
+                  "tests/shoperation-quality-knowledge.test.ts",
+                  "tests/sql-migration-syntax-guard.test.ts",
+                  "tests/storefront-account-capability-navigation.test.tsx",
+                  "tests/storefront-auth-surface.test.ts",
+                  "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+                  "tests/storefront-preview-demo-content-routing.test.ts",
+                  "tests/storefront-responsive-isolation.test.ts",
+                  "tests/storefront-runtime-persistence.test.ts",
+                  "tests/storefront-template-persistence.test.ts",
+                  "tests/storefront-template-preview-access.test.ts",
+                  "tests/storefront-template-preview-runtime.test.ts",
+                  "tests/storefront-template-quality-gate-v2.test.ts",
+                  "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+                  "tests/template-factory-engine-functional-proof.test.ts",
+                  "tests/template-factory-loot-vault-v2.test.ts",
+                  "tests/template-factory-procedural-memory.test.ts",
+                  "tests/template-factory-scaffold-v1.test.ts",
+                  "tests/template-factory-storefront-contract.test.ts",
+                  "tests/template-golden-baseline-promotion-policy.test.ts",
+                  "tests/visual-builder-mobile-isolation.test.ts"
+                ],
+                "externalGateIds": []
+              },
+              "after": {
+                "gateIds": [
+                  "GUARD-EDIT-TIME",
+                  "GUARD-INCREMENTAL-REPLAY",
+                  "GUARD-KNOWLEDGE-PREFLIGHT",
+                  "GUARD-PLAN-BEFORE-CODE",
+                  "GUARD-QUALITY-TESTS",
+                  "GUARD-RELEASE-RISK",
+                  "GUARD-TYPECHECK"
+                ],
+                "proofFiles": [
+                  "tests/admin-mobile-desktop-compat.test.ts",
+                  "tests/block4-ia-navigation-reporting.test.ts",
+                  "tests/commerce-pricing.test.ts",
+                  "tests/control-plane-release-unit-execution-binding.test.ts",
+                  "tests/core-checkout-quote.test.ts",
+                  "tests/customer-baseline-proof-contract.test.ts",
+                  "tests/customer-baseline-target-postflight.test.ts",
+                  "tests/digital-commerce-customer-baseline-parity.test.ts",
+                  "tests/incident-intelligence-schema.test.ts",
+                  "tests/navigation-workflows.test.ts",
+                  "tests/operational-tenant-isolation.test.ts",
+                  "tests/order-lifecycle-contracts.test.ts",
+                  "tests/pilot-acceptance-access.test.ts",
+                  "tests/platform-owner-zero-tenant-hotfix.test.ts",
+                  "tests/rollout-readiness.test.ts",
+                  "tests/shoperation-development-guard.test.ts",
+                  "tests/shoperation-failure-intake-reconcile.test.ts",
+                  "tests/shoperation-historical-support-backfill.test.ts",
+                  "tests/shoperation-quality-knowledge.test.ts",
+                  "tests/sql-migration-syntax-guard.test.ts",
+                  "tests/storefront-account-capability-navigation.test.tsx",
+                  "tests/storefront-auth-surface.test.ts",
+                  "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+                  "tests/storefront-preview-demo-content-routing.test.ts",
+                  "tests/storefront-responsive-isolation.test.ts",
+                  "tests/storefront-runtime-persistence.test.ts",
+                  "tests/storefront-template-persistence.test.ts",
+                  "tests/storefront-template-preview-access.test.ts",
+                  "tests/storefront-template-preview-runtime.test.ts",
+                  "tests/storefront-template-quality-gate-v2.test.ts",
+                  "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+                  "tests/template-factory-engine-functional-proof.test.ts",
+                  "tests/template-factory-loot-vault-v2.test.ts",
+                  "tests/template-factory-procedural-memory.test.ts",
+                  "tests/template-factory-scaffold-v1.test.ts",
+                  "tests/template-factory-storefront-contract.test.ts",
+                  "tests/template-golden-baseline-promotion-policy.test.ts",
+                  "tests/visual-builder-mobile-isolation.test.ts"
+                ],
+                "externalGateIds": []
+              }
+            },
+            {
+              "field": "childPlanDigest",
+              "before": "d8a02a8a77627b16969b249f869e3cb69796af564e3b88aa45540a98ee2310d0",
+              "after": "e18e175bb02d0161ae966f50bd0634522ce74526a17e489df20024d965fcc882"
+            }
+          ]
         }
       },
       "lastTransition": {
         "to": "STALE",
-        "code": "RELEASE_UNIT_MODIFY_PATCH_CONFLICT"
+        "code": "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT"
       }
     }
   ],
   "blocker": {
     "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
-    "code": "RELEASE_UNIT_MODIFY_PATCH_CONFLICT",
+    "code": "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT",
     "details": {
-      "error": "RELEASE_UNIT_MODIFY_PATCH_CONFLICT:tests/control-plane-release-unit-production-surface.test.ts",
-      "releaseUnitId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03",
-      "file": "tests/control-plane-release-unit-production-surface.test.ts",
-      "sourceParent": "b79f8805d9718961a5cb41d4babaf11fd85dda5a",
-      "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
-      "sourcePatchDigest": "1569812908caffa0f770724401c4db6973f98ae963353806cade53690cb5446d",
-      "targetBaseSha": "6c897234b6c890f8ee38f86c08dc86f7b9f68fa2",
-      "targetBlobSha": "48548e4838cd2bdfeb0fe66876af771843282978",
-      "targetFileMode": "100644",
-      "resolutionRecordPath": "quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json",
-      "gitApplyError": "Applied patch to 'tests/control-plane-release-unit-production-surface.test.ts' with conflicts.\nU tests/control-plane-release-unit-production-surface.test.ts"
+      "drift": [
+        {
+          "field": "operations",
+          "before": [
+            {
+              "operation": "create",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "94bfc8c0e36b042642b5c570ab4870d39ce281ff",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "modify",
+              "file": "tests/control-plane-release-unit-production-surface.test.ts",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "7d731a1b3f3a7b1e8fe31d1df77929103f47c354",
+                "fileMode": "100644"
+              }
+            }
+          ],
+          "after": [
+            {
+              "operation": "modify",
+              "file": "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "94bfc8c0e36b042642b5c570ab4870d39ce281ff",
+                "fileMode": "100644"
+              }
+            },
+            {
+              "operation": "modify",
+              "file": "tests/control-plane-release-unit-production-surface.test.ts",
+              "generated": null,
+              "source": {
+                "mode": "sealed",
+                "commit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+                "blobSha": "7d731a1b3f3a7b1e8fe31d1df77929103f47c354",
+                "fileMode": "100644"
+              }
+            }
+          ]
+        },
+        {
+          "field": "requiredDependencyFiles",
+          "before": [
+            "scripts/lib/shoperation-release-unit-runtime.mjs"
+          ],
+          "after": [
+            "scripts/lib/shoperation-release-unit-runtime.mjs",
+            "scripts/release-unit-github-runtime.mjs"
+          ]
+        },
+        {
+          "field": "readOnlyPaths",
+          "before": [],
+          "after": [
+            "scripts/release-unit-execute.mjs",
+            "scripts/release-unit-github-runtime.mjs",
+            "tests/control-plane-release-unit-execution-binding.test.ts"
+          ]
+        },
+        {
+          "field": "childOperationDigest",
+          "before": "83aab84c9d0d4bf82c3f5846dc75fd54a997b8cb61971dbade9be63386ad06e9",
+          "after": "30b2323b77469c61f83849317048c491b323be2a3e5d2a4029a8ca63b292209c"
+        }
+      ],
+      "reprojectableDrift": [
+        {
+          "field": "requiredEvidence",
+          "before": {
+            "gateIds": [
+              "GUARD-EDIT-TIME",
+              "GUARD-INCREMENTAL-REPLAY",
+              "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-PLAN-BEFORE-CODE",
+              "GUARD-QUALITY-TESTS",
+              "GUARD-RELEASE-RISK",
+              "GUARD-TYPECHECK"
+            ],
+            "proofFiles": [
+              "tests/admin-mobile-desktop-compat.test.ts",
+              "tests/block4-ia-navigation-reporting.test.ts",
+              "tests/commerce-pricing.test.ts",
+              "tests/core-checkout-quote.test.ts",
+              "tests/customer-baseline-proof-contract.test.ts",
+              "tests/customer-baseline-target-postflight.test.ts",
+              "tests/digital-commerce-customer-baseline-parity.test.ts",
+              "tests/incident-intelligence-schema.test.ts",
+              "tests/navigation-workflows.test.ts",
+              "tests/operational-tenant-isolation.test.ts",
+              "tests/order-lifecycle-contracts.test.ts",
+              "tests/pilot-acceptance-access.test.ts",
+              "tests/platform-owner-zero-tenant-hotfix.test.ts",
+              "tests/rollout-readiness.test.ts",
+              "tests/shoperation-development-guard.test.ts",
+              "tests/shoperation-failure-intake-reconcile.test.ts",
+              "tests/shoperation-historical-support-backfill.test.ts",
+              "tests/shoperation-quality-knowledge.test.ts",
+              "tests/sql-migration-syntax-guard.test.ts",
+              "tests/storefront-account-capability-navigation.test.tsx",
+              "tests/storefront-auth-surface.test.ts",
+              "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+              "tests/storefront-preview-demo-content-routing.test.ts",
+              "tests/storefront-responsive-isolation.test.ts",
+              "tests/storefront-runtime-persistence.test.ts",
+              "tests/storefront-template-persistence.test.ts",
+              "tests/storefront-template-preview-access.test.ts",
+              "tests/storefront-template-preview-runtime.test.ts",
+              "tests/storefront-template-quality-gate-v2.test.ts",
+              "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+              "tests/template-factory-engine-functional-proof.test.ts",
+              "tests/template-factory-loot-vault-v2.test.ts",
+              "tests/template-factory-procedural-memory.test.ts",
+              "tests/template-factory-scaffold-v1.test.ts",
+              "tests/template-factory-storefront-contract.test.ts",
+              "tests/template-golden-baseline-promotion-policy.test.ts",
+              "tests/visual-builder-mobile-isolation.test.ts"
+            ],
+            "externalGateIds": []
+          },
+          "after": {
+            "gateIds": [
+              "GUARD-EDIT-TIME",
+              "GUARD-INCREMENTAL-REPLAY",
+              "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-PLAN-BEFORE-CODE",
+              "GUARD-QUALITY-TESTS",
+              "GUARD-RELEASE-RISK",
+              "GUARD-TYPECHECK"
+            ],
+            "proofFiles": [
+              "tests/admin-mobile-desktop-compat.test.ts",
+              "tests/block4-ia-navigation-reporting.test.ts",
+              "tests/commerce-pricing.test.ts",
+              "tests/control-plane-release-unit-execution-binding.test.ts",
+              "tests/core-checkout-quote.test.ts",
+              "tests/customer-baseline-proof-contract.test.ts",
+              "tests/customer-baseline-target-postflight.test.ts",
+              "tests/digital-commerce-customer-baseline-parity.test.ts",
+              "tests/incident-intelligence-schema.test.ts",
+              "tests/navigation-workflows.test.ts",
+              "tests/operational-tenant-isolation.test.ts",
+              "tests/order-lifecycle-contracts.test.ts",
+              "tests/pilot-acceptance-access.test.ts",
+              "tests/platform-owner-zero-tenant-hotfix.test.ts",
+              "tests/rollout-readiness.test.ts",
+              "tests/shoperation-development-guard.test.ts",
+              "tests/shoperation-failure-intake-reconcile.test.ts",
+              "tests/shoperation-historical-support-backfill.test.ts",
+              "tests/shoperation-quality-knowledge.test.ts",
+              "tests/sql-migration-syntax-guard.test.ts",
+              "tests/storefront-account-capability-navigation.test.tsx",
+              "tests/storefront-auth-surface.test.ts",
+              "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+              "tests/storefront-preview-demo-content-routing.test.ts",
+              "tests/storefront-responsive-isolation.test.ts",
+              "tests/storefront-runtime-persistence.test.ts",
+              "tests/storefront-template-persistence.test.ts",
+              "tests/storefront-template-preview-access.test.ts",
+              "tests/storefront-template-preview-runtime.test.ts",
+              "tests/storefront-template-quality-gate-v2.test.ts",
+              "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+              "tests/template-factory-engine-functional-proof.test.ts",
+              "tests/template-factory-loot-vault-v2.test.ts",
+              "tests/template-factory-procedural-memory.test.ts",
+              "tests/template-factory-scaffold-v1.test.ts",
+              "tests/template-factory-storefront-contract.test.ts",
+              "tests/template-golden-baseline-promotion-policy.test.ts",
+              "tests/visual-builder-mobile-isolation.test.ts"
+            ],
+            "externalGateIds": []
+          }
+        },
+        {
+          "field": "childPlanDigest",
+          "before": "d8a02a8a77627b16969b249f869e3cb69796af564e3b88aa45540a98ee2310d0",
+          "after": "e18e175bb02d0161ae966f50bd0634522ce74526a17e489df20024d965fcc882"
+        }
+      ]
     }
   },
   "closureEligible": false,
