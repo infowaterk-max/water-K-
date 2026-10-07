@@ -1,17 +1,18 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-REEVALUATION-DEPS-V1",
-  "task": "Make isolated release-unit successor reevaluation resolve the exact locked dependency graph required by trusted semantic Plan/Atlas validation, while remaining fail-closed and preserving token/authority isolation.",
-  "status": "closed",
-  "guardDigest": "2446fb5f",
-  "changeBaseSha": "fb436df11ae3dbc7c348e50fbc656e18a94f83cf",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-EXECUTOR-STALE-RESUME-V1",
+  "task": "Make persisted STALE release units resumable only through the canonical fresh reevaluation path, preserving fail-closed semantics and forbidding automatic retry of BLOCKED/FAILED or later lifecycle states.",
+  "status": "ready-for-implementation",
+  "guardDigest": "128614ad",
+  "changeBaseSha": "9453ef3270fd37ec85d4eb7b38793b713bcc105e",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
+    "scripts/release-unit-execute.mjs",
     "scripts/release-unit-github-runtime.mjs",
+    "scripts/lib/shoperation-release-unit-runtime.mjs",
     "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
-    "dependency-contract",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -60,39 +61,39 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-REEVALUATION-DEPS-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-STALE-RESUME-V1",
     "riskTier": "critical",
-    "problemStatement": "Live bounded multi-unit rehearsal run 37566854069 / job 112629917634 correctly entered fresh release-unit reevaluation after main advanced to fb436df11ae3dbc7c348e50fbc656e18a94f83cf, but the isolated reevaluation worktree could not resolve the trusted repository dependency graph. Plan/Atlas loading failed with ERR_MODULE_NOT_FOUND for typescript, persisting U01 as STALE with RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK.",
+    "problemStatement": "Live bounded rehearsal replay job 112643423251 used main 9453ef3270fd37ec85d4eb7b38793b713bcc105e and passed trusted Knowledge/Atlas, Plan and Release Risk after the reevaluation dependency repair, but the persisted U01 remained STALE from the prior fail-closed attempt. The top-level driver rejects STALE with RELEASE_UNIT_EXECUTION_STATE_UNSUPPORTED, while core reconciliation currently accepts only PLANNED, so a safely persisted stale unit cannot re-enter canonical reevaluation after its underlying defect is repaired.",
     "observableOutcomes": [
-      "Reevaluation prepares a deterministic locked dependency environment before invoking shoperation-plan-before-code.mjs.",
-      "Dependency preparation is bound to the candidate worktree package-lock/package manifests and fails closed on install/preparation failure.",
-      "Proof subprocesses continue to receive empty GH_TOKEN and GITHUB_TOKEN and gain no repository mutation authority.",
-      "Semantic Plan/Atlas reevaluation still runs against the exact candidate head and fresh current-main base.",
-      "A real reevaluation semantic failure still returns RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK rather than being reinterpreted as executable."
+      "The driver routes active STALE units to prepareActiveUnit instead of treating STALE as an unsupported terminal state.",
+      "prepareActiveUnit always performs fresh semantic successor/unit reevaluation when the active unit is STALE, even if order/base conditions alone would otherwise skip reevaluation.",
+      "Core reconciliation accepts STALE only as a source state for fresh reevaluation; successful authorization clears the stale blocker through normal READY transition.",
+      "A repeated reevaluation problem returns the unit to STALE with a fresh blocker and does not create a child PR or advance later lifecycle states.",
+      "BLOCKED, FAILED, MATERIALIZED, VERIFIED, MERGED and CLOSED are not made automatically retryable by this repair."
     ],
     "unresolvedRisks": [
-      "A candidate dependency manifest change could make reuse of the trusted root node_modules stale.",
-      "Installing dependencies with lifecycle scripts could grant unnecessary execution surface inside a proof-only worktree.",
-      "Network/package-registry failure must not silently downgrade semantic validation.",
-      "Dependency setup must precede Plan/Atlas execution and must not modify repository-controlled tracked files."
+      "Allowing STALE too broadly could accidentally bypass a previous semantic drift decision.",
+      "Skipping fresh reevaluation for a STALE first unit whose base happens to equal current main could reuse stale obligations.",
+      "A driver-only change would still fail inside reconcileSuccessorReleaseUnit because that function currently rejects STALE.",
+      "A retry path must not directly mutate persisted blocker/state outside the existing event/CAS authority."
     ],
     "scope": {
       "in": [
-        "Add deterministic locked dependency bootstrap to release-unit reevaluation before semantic Plan/Atlas validation.",
-        "Use npm ci with the candidate worktree lockfile and no audit/fund; suppress package lifecycle scripts for this proof-only environment unless a proven repository requirement says otherwise.",
-        "Preserve GH_TOKEN/GITHUB_TOKEN scrubbing for dependency and proof subprocesses.",
-        "Add regression coverage for dependency-bootstrap ordering, token scrubbing, and fail-closed reevaluation behavior."
+        "Route STALE through the existing prepareActiveUnit path in both drive and single-step executor surfaces.",
+        "Force reevaluateSuccessorManifest for STALE in prepareActiveUnit.",
+        "Allow reconcileSuccessorReleaseUnit to accept PLANNED or STALE as fresh-reevaluation source states.",
+        "Add regression proof that STALE retries reevaluate and that non-retryable states remain rejected."
       ],
       "out": [
-        "No bypass of successor reevaluation or Atlas/Plan authority.",
-        "No manual clearing of persisted STALE state.",
-        "No manual child PR creation, receipt fabrication, or release-state edits.",
-        "No storefront, database, deployment, template, Builder, payment, inventory, authentication or product-runtime changes."
+        "No direct release-state edit, blocker deletion, or synthetic transition.",
+        "No automatic retry for BLOCKED, FAILED or post-materialization states.",
+        "No manual child PR, receipt, merge, or closure fabrication.",
+        "No change to decomposition, Release Risk, Atlas authority, storefront, database, auth, payments, inventory, Builder, templates or deployment."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This code runs inside the trusted write-capable release executor immediately before successor authorization. Environment completeness must be restored without weakening exact-head proof, authority isolation, or fail-closed behavior.",
+      "rationale": "This changes recovery semantics in the trusted release execution state machine. The repair must add exactly one resumability edge while preserving all existing authorization, evidence and fail-closed boundaries.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -110,24 +111,26 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Reevaluation dependency bootstrap occurs after candidate worktree creation and before shoperation-plan-before-code.mjs.",
-        "The bootstrap uses the candidate worktree locked dependency graph and fails closed on non-zero exit.",
-        "GH_TOKEN and GITHUB_TOKEN remain scrubbed for bootstrap and semantic proof subprocesses.",
-        "Regression proof verifies bootstrap ordering and that a bootstrap failure returns RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK.",
-        "Exact-head CI passes all canonical guards, Completion Truth becomes VERIFIED, Lifecycle closes, then the fix is merged and the unchanged rehearsal is replayed from persisted state."
+        "Persisted STALE U01 is routed into fresh reevaluation by the canonical driver without manual state mutation.",
+        "A STALE unit always runs fresh reevaluation before AUTHORIZE.",
+        "reconcileSuccessorReleaseUnit accepts STALE only alongside PLANNED and preserves all manifest/base/predecessor/risk/drift checks.",
+        "A successful reevaluation transitions through normal AUTHORIZE to READY and clears blocker normally.",
+        "A repeated reevaluation BLOCK remains STALE and no PR is created.",
+        "BLOCKED and FAILED remain unsupported by automatic driver retry.",
+        "Exact-head CI, Completion Truth and Lifecycle close before merge, then the unchanged rehearsal is replayed from the same persisted CAS state."
       ],
       "invariants": [
-        "No trusted semantic proof is executed in an environment missing its declared locked dependencies.",
-        "No write credential is exposed to dependency/bootstrap or semantic proof subprocesses.",
-        "No dependency bootstrap failure is ignored.",
-        "Candidate head/base identity and successor reconciliation semantics remain unchanged.",
-        "Persisted release-state is advanced only through the existing CAS/event path."
+        "STALE never becomes READY without fresh reevaluation and normal authorization.",
+        "No persisted state is edited outside existing state-machine events and CAS persistence.",
+        "No automatic retry is added for terminal or policy-blocked states.",
+        "Source identity, current-main lease, predecessor receipts, obligation drift and Release Risk authority remain enforced.",
+        "Existing exact child proof and PR/merge identity checks remain unchanged."
       ],
       "forbiddenStates": [
-        "semantic-reevaluation-with-missing-dependencies",
-        "reevaluation-dependency-failure-ignored",
-        "proof-subprocess-write-token-exposure",
-        "manual-stale-state-clear",
+        "stale-authorized-without-fresh-reevaluation",
+        "blocked-or-failed-auto-retry",
+        "manual-stale-blocker-clear",
+        "state-write-outside-cas",
         "manual-child-pr-bypass"
       ]
     },
@@ -160,44 +163,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Temporary worktree lacks node_modules and Atlas cannot import typescript.",
-        "Locked dependency installation fails or registry is unavailable.",
-        "Candidate package-lock differs from trusted root dependencies.",
-        "Proof subprocess accidentally inherits write-capable GitHub credentials.",
-        "Dependency setup succeeds but semantic reevaluation legitimately blocks."
+        "Driver rejects persisted STALE before reevaluation.",
+        "Driver routes STALE but core reconciliation still rejects the state.",
+        "STALE first unit skips semantic reevaluation because base/order conditions appear fresh.",
+        "Repeated semantic drift is accidentally cleared instead of remaining STALE.",
+        "Retry support accidentally expands to BLOCKED/FAILED states."
       ],
       "edgeCases": [
-        "Candidate does not change package manifests.",
-        "Candidate changes package.json/package-lock.json.",
-        "npm ci exits non-zero before Plan execution.",
-        "Plan/Atlas exits non-zero after successful dependency bootstrap.",
-        "Temporary worktree cleanup runs after either success or failure."
+        "STALE order-1 unit with targetBaseSha equal to current main.",
+        "STALE successor after predecessor merge.",
+        "STALE caused by transient reevaluation environment failure now repaired.",
+        "STALE caused by real obligation drift that still exists.",
+        "BLOCKED or FAILED active unit presented to driver."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-LOCKED-NPM-CI",
-        "summary": "Install exact candidate dependencies in the isolated reevaluation worktree with npm ci and token scrubbing.",
+        "id": "ALT-STALE-FRESH-REEVALUATION",
+        "summary": "Treat STALE as a retryable pre-authorization state only by forcing the existing fresh reevaluation and authorization path.",
         "disposition": "selected",
-        "reason": "Uses the candidate lockfile, avoids stale root dependency reuse, and fails closed if the exact proof environment cannot be established."
+        "reason": "Restores resumability without inventing a second state authority or weakening checks."
       },
       {
-        "id": "ALT-ROOT-NODE-MODULES-SYMLINK",
-        "summary": "Link trusted executor root node_modules into the candidate worktree.",
+        "id": "ALT-MANUAL-RESET-TO-PLANNED",
+        "summary": "Edit persisted state or clear blocker and change STALE back to PLANNED.",
         "disposition": "rejected",
-        "reason": "Could be stale when package manifests change and would make candidate dependency identity implicit rather than exact."
+        "reason": "Would fabricate authoritative state and invalidate the rehearsal."
       },
       {
-        "id": "ALT-SKIP-ATLAS-REEVALUATION",
-        "summary": "Reuse prior source admission evidence instead of running semantic reevaluation.",
+        "id": "ALT-DRIVER-ONLY-ALLOW-STALE",
+        "summary": "Route STALE to prepareActiveUnit without changing core reconciliation semantics.",
         "disposition": "rejected",
-        "reason": "Would bypass fresh successor reconciliation and invalidate release authority."
+        "reason": "Core reconcile currently rejects any state other than PLANNED, so this does not close the execution chain."
       },
       {
-        "id": "ALT-MANUAL-STATE-RECOVERY",
-        "summary": "Clear STALE state and continue the rehearsal manually.",
+        "id": "ALT-RETRY-ALL-NONCLOSED",
+        "summary": "Automatically retry any state that is not CLOSED.",
         "disposition": "rejected",
-        "reason": "Would fabricate authoritative execution progress and invalidate the rehearsal."
+        "reason": "Would weaken policy blocks and lifecycle integrity far beyond the observed missing edge."
       }
     ],
     "specialistReviews": [
@@ -205,128 +208,130 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The missing edge is environment bootstrap inside an isolated reevaluation workspace, not missing release logic.",
-        "resolution": "Prepare exact candidate locked dependencies before semantic reevaluation.",
+        "finding": "STALE is a recoverable pre-authorization state but there is no canonical transition back through reevaluation.",
+        "resolution": "Add one explicit STALE -> fresh reevaluation -> AUTHORIZE path across driver, preparation and core reconciliation.",
         "evidence": [
-          "scripts/release-unit-github-runtime.mjs"
+          "scripts/release-unit-execute.mjs",
+          "scripts/release-unit-github-runtime.mjs",
+          "scripts/lib/shoperation-release-unit-runtime.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Installing dependencies inside a write-capable executor can unnecessarily expose credentials or lifecycle-script execution.",
-        "resolution": "Scrub GH_TOKEN/GITHUB_TOKEN and use proof-only npm ci with lifecycle scripts disabled; fail closed if this environment cannot be prepared.",
+        "finding": "Simply accepting STALE as READY-capable would let a prior semantic blocker disappear without revalidation.",
+        "resolution": "Force reevaluateSuccessorManifest whenever active.state is STALE and retain all existing reconciliation checks before READY.",
         "evidence": [
           "scripts/release-unit-github-runtime.mjs",
-          "tests/control-plane-release-unit-production-surface.test.ts"
+          "scripts/lib/shoperation-release-unit-runtime.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Fresh successor reevaluation must remain exact-base and exact-candidate before authorization.",
-        "resolution": "Change only environment preparation; retain existing reconcile, Plan/Atlas and event/CAS semantics.",
+        "finding": "The executor must resume from persisted CAS state after a repair rather than requiring state reconstruction.",
+        "resolution": "Route STALE through canonical prepare/persist logic and leave all later PR/proof/merge paths unchanged.",
         "evidence": [
-          "scripts/release-unit-github-runtime.mjs"
+          "scripts/release-unit-execute.mjs"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Live rehearsal exposed a dependency-resolution gap that unit mocks did not exercise.",
-        "resolution": "Lock bootstrap ordering/failure semantics with regression tests and replay the same persisted rehearsal state after merge.",
+        "finding": "Live rehearsal proved that fail-closed persistence works but recovery from that persisted STALE state is absent.",
+        "resolution": "Lock the retry boundary and non-retryable states with regression tests, then replay the same state after merge.",
         "evidence": [
           "tests/control-plane-release-unit-production-surface.test.ts",
-          "https://github.com/infowaterk-max/water-K-/issues/997"
+          "https://github.com/infowaterk-max/water-K-/issues/1003"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-RD-01",
-        "scenario": "Candidate worktree has no node_modules.",
-        "finding": "Semantic Atlas import fails before authoritative reevaluation can run.",
-        "resolution": "Bootstrap locked candidate dependencies before Plan/Atlas.",
+        "id": "CH-SR-01",
+        "scenario": "U01 is STALE from a previous environment failure, current main and source are now healthy, and the executor is rerun.",
+        "finding": "If the driver recognizes only PLANNED and PR_OPEN, recovery stops before reevaluation even though the underlying defect is fixed.",
+        "resolution": "Route STALE into prepareActiveUnit in both drive and single-step surfaces, then persist only the resulting canonical state transition.",
         "status": "resolved"
       },
       {
-        "id": "CH-RD-02",
-        "scenario": "A release unit legitimately modifies package.json and package-lock.json while current main still has the executor's previously installed dependency tree.",
-        "finding": "Reusing the executor root node_modules would make Atlas and Plan load modules from the old main dependency graph, so a candidate could be semantically evaluated with packages or versions that are not declared by its own exact head.",
-        "resolution": "Build the reevaluation environment from the candidate worktree itself with npm ci reading that candidate package-lock.json; never symlink or inherit root node_modules as reevaluation authority.",
+        "id": "CH-SR-02",
+        "scenario": "A STALE order-1 unit already has targetBaseSha equal to current main.",
+        "finding": "If prepareActiveUnit reevaluates only for successors or base drift, the stale semantic blocker could be bypassed and the old manifest authorized unchanged.",
+        "resolution": "Make active.state==='STALE' an independent mandatory reevaluation condition before AUTHORIZE.",
         "status": "resolved"
       },
       {
-        "id": "CH-RD-03",
-        "scenario": "npm lifecycle scripts execute arbitrary candidate-controlled hooks.",
-        "finding": "Proof environment would gain an unnecessary execution surface.",
-        "resolution": "Use --ignore-scripts for reevaluation dependency bootstrap; if canonical tooling later proves a lifecycle-script dependency, address it explicitly rather than silently broadening authority.",
+        "id": "CH-SR-03",
+        "scenario": "The driver routes STALE correctly but reconcileSuccessorReleaseUnit still requires execution.state==='PLANNED'.",
+        "finding": "Recovery fails one layer deeper with RELEASE_UNIT_RECONCILIATION_STATE_INVALID, leaving the missing edge unresolved.",
+        "resolution": "Allow exactly PLANNED or STALE as reconciliation source states; all other states still throw.",
         "status": "resolved"
       },
       {
-        "id": "CH-RD-04",
-        "scenario": "The package registry is unavailable, lockfile integrity verification fails, or npm ci exits non-zero while preparing the isolated candidate worktree.",
-        "finding": "Without a complete dependency graph the semantic Plan/Atlas result is unknowable; continuing to shoperation-plan-before-code.mjs would falsely convert missing prerequisite evidence into an authorization attempt.",
-        "resolution": "Catch the bootstrap command failure inside reevaluateSuccessorManifest and return RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK with the installation error; do not invoke Plan, authorize the unit, mutate persisted state beyond the blocker, or create a child PR.",
+        "id": "CH-SR-04",
+        "scenario": "A real obligation drift remains after retry.",
+        "finding": "A recovery feature must not convert genuine semantic drift into READY merely because the previous state was STALE.",
+        "resolution": "Run the unchanged obligationDrift/base/risk/predecessor checks; non-PASS result is persisted as a fresh STALE/BLOCKED decision.",
         "status": "resolved"
       },
       {
-        "id": "CH-RD-05",
-        "scenario": "Executor job has write-capable GitHub token.",
-        "finding": "Child npm/proof commands do not need repository mutation authority.",
-        "resolution": "Override GH_TOKEN and GITHUB_TOKEN to empty for bootstrap and Plan subprocesses.",
+        "id": "CH-SR-05",
+        "scenario": "An active unit is BLOCKED because of forbidden scope or FAILED because of execution failure.",
+        "finding": "Treating all blocked-looking states as resumable would weaken release policy and failure semantics.",
+        "resolution": "Driver retry branch and reconciliation source-state allowance name STALE explicitly; BLOCKED/FAILED remain unsupported.",
         "status": "resolved"
       },
       {
-        "id": "CH-RD-06",
-        "scenario": "Bootstrap passes but Plan detects true successor drift.",
-        "finding": "Environment repair must not convert semantic BLOCK into PASS.",
-        "resolution": "Keep existing Plan error handling and BLOCK contract unchanged.",
+        "id": "CH-SR-06",
+        "scenario": "STALE retry succeeds and a prior blocker object remains attached.",
+        "finding": "Downstream state could appear simultaneously READY and blocked if recovery mutates only state flags.",
+        "resolution": "Reuse authorizeReleaseUnit, which replaces the fresh manifest, creates execution authorization, sets READY and clears blocker atomically in the canonical state transition.",
         "status": "resolved"
       },
       {
-        "id": "CH-RD-07",
-        "scenario": "Temporary worktree is removed after failure.",
-        "finding": "Cleanup must not mask the authoritative blocker.",
-        "resolution": "Return BLOCK inside try/catch and retain finally cleanup exactly as today.",
+        "id": "CH-SR-07",
+        "scenario": "Two executor attempts retry the same STALE state concurrently.",
+        "finding": "Both may compute valid reevaluations but only one may authoritatively advance persisted state.",
+        "resolution": "Keep persistRemoteExecutionState expectedStateCommit CAS unchanged so stale writer rejection remains authoritative.",
         "status": "resolved"
       },
       {
-        "id": "CH-RD-08",
-        "scenario": "Persisted U01 is already STALE from the live failure.",
-        "finding": "Repair cannot manually rewrite authoritative state.",
-        "resolution": "Merge the executor fix, then resume/reconcile only through canonical driver logic from persisted CAS state.",
+        "id": "CH-SR-08",
+        "scenario": "The retry reaches materialization and an earlier equivalent U01 branch already exists.",
+        "finding": "Recovery must not reintroduce the prior non-fast-forward materialization defect.",
+        "resolution": "Leave reconcileExactMaterializedCommit unchanged so exact remote branch reuse remains required after successful STALE reevaluation.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
       "Commit this plan only and require Plan Before Code PASS before implementation.",
-      "Implement dependency bootstrap in reevaluateSuccessorManifest and regression tests only.",
-      "Require exact-head Knowledge, Plan, Edit-Time, Incremental Replay, Release Risk, full tests, typecheck, build and Completion Truth PASS.",
+      "Implement the narrow STALE retry edge across driver, prepareActiveUnit and core reconciliation plus regression tests.",
+      "Require exact-head Knowledge, Plan, Edit-Time, Replay, Release Risk, full tests, typecheck, build and Completion Truth PASS.",
       "Commit only canonical lifecycle closure metadata and require final exact-head CI PASS.",
-      "Merge the fix, verify fresh main CI, then replay the unchanged multi-unit rehearsal from persisted CAS state without manual state edits."
+      "Merge the fix, verify fresh main CI, then replay the unchanged rehearsal from persisted CAS state and require canonical U01 progression."
     ],
     "semanticExecutionRoute": {
-      "request": "SQ-CAND-RELEASE-EXECUTOR-REEVALUATION-DEPS-V1",
+      "request": "SQ-CAND-RELEASE-EXECUTOR-STALE-RESUME-V1",
       "authority": [
         "release-infrastructure"
       ],
       "mustEdit": [
-        "scripts/release-unit-github-runtime.mjs"
+        "scripts/release-unit-execute.mjs",
+        "scripts/release-unit-github-runtime.mjs",
+        "scripts/lib/shoperation-release-unit-runtime.mjs"
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "impactedReadOnly": [
-        "scripts/release-unit-execute.mjs",
-        "scripts/lib/shoperation-release-unit-runtime.mjs"
+        ".github/workflows/release-unit-execution.yml"
       ],
       "mustCreate": [],
       "forbidden": [
-        ".github/workflows/**",
         "deploy/**",
         "src/**",
         "supabase/**"
@@ -343,7 +348,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-REEVALUATION-DEPS-V1",
+    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-STALE-RESUME-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -361,11 +366,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-RELEASE-EXECUTOR-REEVALUATION-DEPS",
-        "requirement": "Trusted release-unit reevaluation must establish the exact locked candidate dependency environment before semantic Plan/Atlas validation and must fail closed if that environment cannot be established.",
+        "id": "REQ-RELEASE-EXECUTOR-STALE-RESUME",
+        "requirement": "Persisted STALE release units must be safely resumable only through fresh canonical reevaluation, while policy-blocked and failed states remain non-retryable.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-reevaluation-dependency-bootstrap",
+          "breadth": "release-unit-stale-resume",
           "strength": 2,
           "dimensions": [
             "status",
@@ -388,15 +393,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REEVAL-MISSING-DEPS",
-            "statement": "Successor reevaluation may not execute semantic Plan/Atlas with unresolved declared dependencies.",
+            "id": "NEG-STALE-BYPASS-REEVAL",
+            "statement": "A STALE release unit may not become READY without fresh reevaluation.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-REEVAL-TOKEN-LEAK",
-            "statement": "Dependency/bootstrap and semantic proof subprocesses may not inherit repository write tokens.",
+            "id": "NEG-FAILED-AUTO-RETRY",
+            "statement": "BLOCKED or FAILED release units may not become automatically retryable.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -405,18 +410,5 @@
       }
     ]
   },
-  "notes": "Created from live Failure Intake #997/#998 after bounded rehearsal replay persisted U01 as STALE because isolated successor reevaluation could not import typescript. This commit is plan-only; no executor implementation is authorized until Plan Before Code reconciles the exact projected scope. Plan-only projection 37573408409 reported subsystem expansion to dependency-contract, canonical guard digest 2446fb5f, and two challenge-specificity defects; this revision reconciles only those machine-reported planning fields.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "82014e834121f3dfbc9bae49f91d599959b95f66",
-    "closedAt": "2026-10-07T04:59:05.335Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-RELEASE-EXECUTOR-REEVALUATION-DEPS-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Created from live Failure Intake #1003 after rehearsal replay job 112643423251 proved a persisted STALE recovery gap. This revision is plan-only; no state-machine implementation is authorized until Plan Before Code approves the projected scope."
 }
