@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-PARENT-INTERRUPTED-REPROJECTION-V1",
   "task": "Restore exact receipt-bound parent closure after an interrupted remote PR reprojection, rejecting foreign state and avoiding manual canonical repair.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "128614ad",
   "changeBaseSha": "0ab58e16d5329ef80336aefb65ae99fff65881b0",
   "plannedFilePatterns": [
@@ -451,5 +451,18 @@
       }
     ]
   },
-  "notes": "Failure Intake #1144. Authenticated local facts: PR #1138 HEAD dcc450715b9a5dd6690be98017f9f98911b96805, parent c8b1897fc34bd8b867e9fa3e6e136f2ea6039308, diff only active-plan and parent proof artifact; canonical state a74d72ab4c9b49301ae45fef9fe0b0c9cf14592c still expects old HEAD ad52d8... / base 0c53e9...; main 0ab58e16d5329ef80336aefb65ae99fff65881b0 CI #9220 success. Do not rerun #312 until this resumability gap is closed. Sentinel proof-dimension alignment: `resumable` is the declared registry proof dimension; unregistered `resumability` was rejected. CI #9223 regression mock for git `--name-status` incorrectly supplied escaped text instead of real tab/newline separators; corrected."
+  "notes": "Failure Intake #1144. Authenticated local facts: PR #1138 HEAD dcc450715b9a5dd6690be98017f9f98911b96805, parent c8b1897fc34bd8b867e9fa3e6e136f2ea6039308, diff only active-plan and parent proof artifact; canonical state a74d72ab4c9b49301ae45fef9fe0b0c9cf14592c still expects old HEAD ad52d8... / base 0c53e9...; main 0ab58e16d5329ef80336aefb65ae99fff65881b0 CI #9220 success. Do not rerun #312 until this resumability gap is closed. Sentinel proof-dimension alignment: `resumable` is the declared registry proof dimension; unregistered `resumability` was rejected. CI #9223 regression mock for git `--name-status` incorrectly supplied escaped text instead of real tab/newline separators; corrected.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "1da4b41452e0c94ef04f40e995ea308eb1768f76",
+    "closedAt": "2026-10-08T16:13:34.442Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-PARENT-INTERRUPTED-REPROJECTION-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
