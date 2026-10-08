@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-PROOF-ARTIFACT-V1",
   "task": "Materialize and bind an executor-owned parent closure proof artifact so the derived closure plan has a real canonical projection and implementation target without falsifying runtime edits or weakening Plan/Edit-Time gates.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "56ef5edb77f1408f27218892fa58a94189982728",
   "plannedFilePatterns": [
@@ -550,5 +550,18 @@
       }
     ]
   },
-  "notes": "Live blocker: main 56ef5edb77f1408f27218892fa58a94189982728; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; source CI #8928 attempt 16 SUCCESS; Release Unit Execution #296 FAIL. Historical DEV_PLAN_UNPLANNED_FILE from #287 is resolved. Current derived closure plan fails DEV_PLAN_PROJECTION_EMPTY and related domain/authority/failure/digest/semantic-route checks because active-plan is intentionally excluded from projected implementation surfaces. Failure Intake #1129 records the exact blocker. This transaction adds a real deterministic quality/knowledge parent closure proof artifact and narrowly recognizes its mustCreate route only for canonical parent closure context; no gate is bypassed."
+  "notes": "Live blocker: main 56ef5edb77f1408f27218892fa58a94189982728; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; source CI #8928 attempt 16 SUCCESS; Release Unit Execution #296 FAIL. Historical DEV_PLAN_UNPLANNED_FILE from #287 is resolved. Current derived closure plan fails DEV_PLAN_PROJECTION_EMPTY and related domain/authority/failure/digest/semantic-route checks because active-plan is intentionally excluded from projected implementation surfaces. Failure Intake #1129 records the exact blocker. This transaction adds a real deterministic quality/knowledge parent closure proof artifact and narrowly recognizes its mustCreate route only for canonical parent closure context; no gate is bypassed.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "9e3218e0c9ae78ab40adcf62637ddb02e052507e",
+    "closedAt": "2026-10-08T12:39:40.348Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-PROOF-ARTIFACT-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
