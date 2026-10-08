@@ -24,6 +24,7 @@
       "SHOPERATION-CORE-CAPABILITY-COMPLETE",
       "CORE-OPERATIONAL-ADVERSARIAL-PROOF",
       "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE",
+      "LEGACY-TEMPLATE-VISUAL-REVALIDATION",
       "TEMPLATE-VISUAL-AUTHORITY-BLUEPRINT",
       "TEMPLATE-CAPABILITY-CENSUS-42",
       "BUILDER-NATIVE-CAPABILITY-CONTRACT",
@@ -49,7 +50,10 @@
     "templateImplementationCannotSubstituteMissingBuilderCapability": true,
     "builderCapabilityRequiresEditorSurfaceAndRoundTripProof": true,
     "templateLevelVisualEscapeHatchesForbidden": true,
-    "internalVisualAgentIsNotExternalBuilderDependency": true
+    "internalVisualAgentIsNotExternalBuilderDependency": true,
+    "legacyVisualRevalidationPrecedesCapabilityMapping": true,
+    "builderLimitationCannotJustifyVisualSimplification": true,
+    "legacyRedesignRequiresBuilderIndependentRationale": true
   },
   "items": [
     {
@@ -1333,6 +1337,35 @@
       ]
     },
     {
+      "id": "LEGACY-TEMPLATE-VISUAL-REVALIDATION",
+      "title": "Legacy Template Visual Revalidation Gate",
+      "status": "accepted",
+      "phase": "builder-discovery",
+      "order": 570,
+      "targetWindow": "stage-4-before-visual-authority-blueprint",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-BUILDER",
+        "CAP-STOREFRONT",
+        "CAP-QUALITY"
+      ],
+      "scope": [
+        "applies once to historically accepted template designs before they become current Visual Authority inputs",
+        "review evaluates the design on present-day product, UX, responsive, accessibility and visual-merit grounds before any Builder capability mapping is shown or considered",
+        "each reviewed block/page receives exactly one disposition: PRESERVE, REDESIGN or RETIRE",
+        "PRESERVE means the accepted visual concept remains authoritative and any missing Builder capability must be developed rather than bypassed or simplified",
+        "REDESIGN is allowed only for Builder-independent rationale such as outdated UX, accessibility, responsive failure, obsolete product intent or explicit Product Owner design decision",
+        "RETIRE means the block/behavior is no longer required by current product intent and is removed from the new Visual Authority with explicit rationale",
+        "Builder cannot currently implement this is explicitly forbidden as a redesign or retirement rationale",
+        "Builder capability status is intentionally excluded from the first visual revalidation decision so implementation limitations cannot bias the design decision downward",
+        "every REDESIGN or RETIRE decision records an explicit rationale and Product Owner approval before a replacement Visual First reference becomes authoritative"
+      ],
+      "evidenceRefs": [],
+      "dependsOn": [
+        "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE"
+      ]
+    },
+    {
       "id": "TEMPLATE-VISUAL-AUTHORITY-BLUEPRINT",
       "title": "Visual Authority + Structural Blueprint + Interaction Contract",
       "status": "accepted",
@@ -1354,10 +1387,13 @@
         "Interaction Contract records drag/drop, replace/delete, frame persistence, crop/focal-point behavior, shape selection, responsive editing and other user-editable semantics required by the accepted design",
         "Visual Authority remains the fidelity reference through implementation, render comparison and repair; the Blueprint may clarify structure but may not silently redesign or override the accepted visual",
         "conflict between Visual Authority, Blueprint and accepted PO instruction is blocking and must be reconciled before implementation",
-        "template implementation is forbidden until every Blueprint element has a Builder capability mapping or is explicitly marked MISSING/BLOCKED"
+        "template implementation is forbidden until every Blueprint element has a Builder capability mapping or is explicitly marked MISSING/BLOCKED",
+        "for historically accepted designs, only PRESERVE output or newly PO-approved REDESIGN output from Legacy Template Visual Revalidation may become current Visual Authority",
+        "Visual Authority is therefore a current acceptance artifact, not an automatic carry-forward of an old screenshot"
       ],
       "evidenceRefs": [],
       "dependsOn": [
+        "LEGACY-TEMPLATE-VISUAL-REVALIDATION",
         "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE",
         "STORE-FRONT-RUNTIME"
       ]
@@ -1387,7 +1423,9 @@
         "run the census from the accepted Visual Authority + Structural Blueprint + Interaction Contract packages rather than screenshot-only interpretation",
         "for every visual element record canonical Builder mapping, reuse class (primitive/pattern/preset/template composition), editability semantics and MISSING/BLOCKED state",
         "a visual effect that must remain merchant-editable cannot be accepted as a template-local CSS/source-code recipe",
-        "missing capability discovered by a template is Builder Core backlog, not permission to simplify the accepted design or create a hidden template-only implementation"
+        "missing capability discovered by a template is Builder Core backlog, not permission to simplify the accepted design or create a hidden template-only implementation",
+        "the census runs only after legacy designs are revalidated; it must discover Builder requirements from the design we actually want to preserve now",
+        "capability census must not be used to justify visual downgrading: if a PRESERVE design requires an unsupported capability, that requirement enters Builder Core backlog"
       ],
       "evidenceRefs": []
     },
@@ -1602,7 +1640,8 @@
         "prove Builder-native structure as an independent acceptance dimension from screenshot fidelity: correct visual appearance does not pass if achieved through the wrong structural model",
         "prove representative media-frame/mask cases with frame/media separation, image delete/replace, shape change, drag/drop, save/reopen and responsive behavior",
         "SPORT HUB hero is a benchmark case: the accepted slanted/diamond-like media composition must be reproducible from Builder-native frame/mask capabilities rather than template-local skew/overflow recipes",
-        "adversarial proof compares accepted Visual Authority against rendered output while also validating the Blueprint/Interaction Contract and absence of visual escape hatches"
+        "adversarial proof compares accepted Visual Authority against rendered output while also validating the Blueprint/Interaction Contract and absence of visual escape hatches",
+        "legacy benchmark references used here must be current Visual Authorities produced by the revalidation gate; historical screenshots that were redesigned or retired cannot remain silent acceptance authority"
       ],
       "evidenceRefs": []
     },
