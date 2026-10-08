@@ -1,20 +1,24 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-U03-RECEIPT-BOUND-PROOF-RELOCATION-V1",
-  "task": "Relocate the already-applied successor regression proof away from the U03 conflict-resolution receipt-bound production-surface test and restore that file byte-exact to its reviewed receipt-authorized blob without modifying the receipt or immutable source.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-PARENT-PROOF-DIAGNOSTIC-PROPAGATION-V1",
+  "task": "Preserve the exact parent Completion Truth / persistence failure cause through Release Unit Execution so fail-closed parent blockers are self-diagnosing.",
+  "status": "ready-for-implementation",
   "guardDigest": "128614ad",
-  "changeBaseSha": "02cc250edfbe6cdda94138d8d1fe960248162095",
+  "changeBaseSha": "4cab9376d285a15d4d27d742f7b8b2babb8a5bee",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "tests/control-plane-release-unit-production-surface.test.ts",
-    "tests/control-plane-release-unit-orchestration.test.ts"
+    "scripts/release-unit-parent-close.mjs",
+    "tests/control-plane-release-unit-production-surface.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
   ],
-  "expectedDomains": [],
-  "expectedAuthorities": [],
+  "expectedDomains": [
+    "DOMAIN-QUALITY"
+  ],
+  "expectedAuthorities": [
+    "quality-knowledge-system"
+  ],
   "expectedKnownFailureIds": [
     "SQ-KF-003",
     "SQ-KF-004",
@@ -55,44 +59,44 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-U03-RECEIPT-BOUND-PROOF-RELOCATION-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-PARENT-PROOF-DIAGNOSTIC-PROPAGATION-V1",
     "riskTier": "critical",
-    "problemStatement": "Release Unit Execution #252 proves the prior obligation-drift fix works but correctly blocks with RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID because PR #1111 placed new regression tests into tests/control-plane-release-unit-production-surface.test.ts, changing its Git blob from receipt-authorized fbdb84adb4151461c7fba35e719aad27bae4041b to 47305d897ba1ab603a7f0dfe574f7e4040cb3b10. The conflict-resolution receipt is intentionally exact and must not be weakened or manually rebound. The proof additions must be moved to a non-receipt-bound test while restoring the bound file byte-for-byte to the reviewed blob.",
+    "problemStatement": "Immutable rehearsal Release Unit Execution #260 closed U03 successfully and advanced the canonical parent state to TRUTH_GATE with closureEligible=true, but then returned the generic blocker RELEASE_PARENT_PROOF_OR_PERSISTENCE_FAILED. closeParentReleaseExecution already captures the underlying exception text in result.error, while the driver serializes result.reason before result.error and therefore discards the exact machine cause. This prevents the Gate Hardening rule that blockers directly expose the precise failure from being satisfied and blocks root-cause repair without log/code archaeology.",
     "observableOutcomes": [
-      "tests/control-plane-release-unit-production-surface.test.ts is restored exactly to Git blob fbdb84adb4151461c7fba35e719aad27bae4041b, matching the existing U03 conflict-resolution receipt.",
-      "The selectSuccessorProjectedOperations regression coverage remains present with equivalent assertions in tests/control-plane-release-unit-orchestration.test.ts.",
-      "The conflict-resolution receipt remains byte-for-byte unchanged and continues to bind the original reviewed resolved blob.",
-      "Runtime code from PR #1111 remains unchanged and continues to enforce full ALREADY_APPLIED coverage plus monotonic governance enrichment.",
-      "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge.",
-      "Post-merge immutable source replay advances beyond RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID and continues canonical U03 no-code closure."
+      "Parent proof/persistence failures return a structured fail-closed reason containing code RELEASE_PARENT_PROOF_OR_PERSISTENCE_FAILED and the exact underlying error text in details.error.",
+      "release-unit-execute serializes the structured reason without losing details.",
+      "Existing successful parent closure behavior remains unchanged.",
+      "No parent proof, Truth, Lifecycle, state persistence, PR, merge or threshold rule is relaxed.",
+      "Regression proof covers an injected parent-proof failure and asserts exact cause propagation.",
+      "Immutable source replay after merge prints the concrete parent failure directly, enabling the next root-cause correction."
     ],
     "unresolvedRisks": [
-      "Rebinding the receipt to a later unrelated test edit would erode the meaning of the original human-reviewed resolution.",
-      "Restoring the production-surface file without relocating the tests would lose regression coverage.",
-      "A textually similar but byte-different restoration would still invalidate the exact Git blob receipt.",
-      "Moving tests could accidentally change their semantics or omit partial/mismatched coverage cases.",
-      "Editing runtime code in this transaction would unnecessarily widen scope."
+      "Returning raw exception text could accidentally expose credentials if callers include token-bearing stderr.",
+      "Changing the reason shape could break tests or callers expecting a string.",
+      "Over-broad driver changes could alter non-parent blocker contracts.",
+      "Diagnostic changes must not turn a caught failure into PASS or PENDING.",
+      "The true parent blocker remains unresolved until the improved diagnostic is replayed."
     ],
     "scope": {
       "in": [
-        "Restore tests/control-plane-release-unit-production-surface.test.ts exactly to the receipt-authorized blob from main 42e80eed290f2cd5b5baa1a677e021a8a074ee12.",
-        "Move the two PR #1111 selectSuccessorProjectedOperations regression tests into tests/control-plane-release-unit-orchestration.test.ts.",
-        "Add the minimal test import needed for the relocated proof.",
-        "Verify receipt file content and resolvedBlobSha remain unchanged."
+        "Change closeParentReleaseExecution catch output from a generic string reason plus separate error field to one structured reason object with code and sanitized exact details.error.",
+        "Keep the existing driver behavior compatible with structured reason objects.",
+        "Add regression coverage proving the exact injected parent-proof cause is preserved.",
+        "Require the resulting machine error to remain fail-closed."
       ],
       "out": [
-        "No edit to scripts/lib/shoperation-release-unit-runtime.mjs.",
-        "No edit to scripts/release-unit-github-runtime.mjs.",
-        "No edit to the U03 conflict-resolution receipt.",
-        "No edit to immutable source branch or SHA.",
-        "No manual persisted release-state mutation.",
-        "No threshold, Truth, Sentinel, risk or lifecycle relaxation.",
-        "No storefront, template, Supabase or deployment change."
+        "No change to runParentProof gate sequence.",
+        "No change to recordReleaseParentClosure acceptance rules.",
+        "No change to parent closure PR/persistence semantics.",
+        "No release-state manual edit.",
+        "No immutable source edit.",
+        "No threshold, Truth, Sentinel, risk, lifecycle or security relaxation.",
+        "No storefront/template/deployment changes."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This transaction repairs proof placement around an exact cryptographic conflict-resolution authority. The receipt-bound file must be restored exactly while preserving the regression proof elsewhere; any approximation would either weaken authority or lose coverage.",
+      "rationale": "This change sits in the final parent release closure path. It must improve observability without changing any authorization, proof, persistence or closure semantics.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -109,28 +113,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The restored production-surface file Git blob is exactly fbdb84adb4151461c7fba35e719aad27bae4041b.",
-        "The receipt path remains unchanged and its resolvedBlobSha remains fbdb84adb4151461c7fba35e719aad27bae4041b.",
-        "No runtime source file changes in this transaction.",
-        "Both full already-applied preservation and partial/mismatched fallback assertions remain in the test suite.",
-        "Relocated tests import selectSuccessorProjectedOperations from the trusted GitHub runtime without altering production code.",
-        "Exact-head Quality, TypeScript, Build, Completion Truth and Lifecycle Closure pass.",
-        "Immutable source replay reaches canonical execution beyond the stale receipt blocker."
+        "A parent proof subprocess failure remains decision=BLOCK.",
+        "The reason object contains code RELEASE_PARENT_PROOF_OR_PERSISTENCE_FAILED.",
+        "The reason object contains details.error with the original sanitized exception/stderr string.",
+        "No secret-bearing GH_TOKEN/GITHUB_TOKEN values are introduced into diagnostics.",
+        "Successful parent closure and persistence paths remain behaviorally identical.",
+        "Non-parent release-unit blocker reason shapes remain unchanged.",
+        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge."
       ],
       "invariants": [
-        "Conflict-resolution receipt authority remains exact and unchanged.",
-        "The receipt-bound test file is restored from the already-reviewed historical main blob, not reconstructed approximately.",
-        "Regression coverage is preserved before merge.",
-        "Runtime behavior is unchanged by this proof-relocation transaction.",
-        "Persisted release-state remains executor-owned."
+        "Diagnostics cannot authorize release progression.",
+        "Fail-closed behavior is preserved.",
+        "Parent proof subprocesses continue running with write tokens scrubbed.",
+        "Canonical release state remains executor-owned.",
+        "Structured error details are evidence only, not authority."
       ],
       "forbiddenStates": [
-        "receipt-rebound-to-new-unreviewed-blob",
-        "receipt-bound-file-restored-nonexactly",
-        "regression-proof-dropped",
-        "runtime-scope-widened",
-        "manual-release-state-edit",
-        "immutable-source-edit"
+        "parent-proof-failure-without-machine-cause",
+        "parent-proof-failure-converted-to-pass",
+        "token-secret-in-diagnostic",
+        "generic-non-parent-blocker-contract-rewrite",
+        "manual-release-state-repair",
+        "truth-or-lifecycle-bypass"
       ]
     },
     "model": {
@@ -162,46 +166,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Production-surface file differs by one byte from receipt resolvedBlobSha.",
-        "Only one of the two relocated regression cases survives.",
-        "Relocation changes candidate coverage semantics.",
-        "Receipt is edited instead of preserving the reviewed authority.",
-        "Test relocation accidentally imports a different helper or bypasses trusted runtime.",
-        "Main advances on the bound file again before immutable replay."
+        "Structured reason omits underlying error.",
+        "Underlying stderr contains an unsanitized token.",
+        "Driver double-wraps or stringifies the object incorrectly.",
+        "Existing tests expect a string reason and silently stop asserting details.",
+        "A successful parent closure is changed by the diagnostic patch.",
+        "A non-parent blocker inherits the new shape unintentionally."
       ],
       "edgeCases": [
-        "import list formatting changes blob unexpectedly",
-        "newline-at-EOF changes restored blob",
-        "test names duplicated after relocation",
-        "orchestration test already imports only release-unit-runtime symbols",
-        "receipt file remains untouched but active plan references it as impacted read-only",
-        "post-merge main contains unrelated files while bound blob remains exact"
+        "Error has stderr but no message",
+        "Error has message but no stderr",
+        "Error is a plain string",
+        "Error text contains multiline output",
+        "Parent proof fails before lifecycle generation",
+        "Persistence PR creation fails after proof passes",
+        "Driver receives an existing structured reason object",
+        "No underlying error text is available"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-RELOCATE-PROOF-RESTORE-BOUND-BLOB",
-        "summary": "Move regression proof to a non-bound orchestration test and restore the receipt-bound file exactly.",
+        "id": "ALT-STRUCTURED-PARENT-REASON",
+        "summary": "Return one structured parent blocker with code and details.error.",
         "disposition": "selected",
-        "reason": "Preserves both cryptographic receipt authority and regression coverage without touching runtime or state."
+        "reason": "Preserves the machine code and exact cause without changing release semantics."
       },
       {
-        "id": "ALT-REBIND-RECEIPT",
-        "summary": "Update the U03 receipt resolvedBlobSha to the newly edited production-surface test.",
+        "id": "ALT-LOG-ONLY",
+        "summary": "Console-log the exception but keep generic blocker state.",
         "disposition": "rejected",
-        "reason": "Would broaden the reviewed conflict resolution to unrelated later proof edits and weaken the meaning of exact receipt binding."
+        "reason": "Machine consumers and Failure Intake would still receive only the generic cause."
       },
       {
-        "id": "ALT-RELAX-RECEIPT-VALIDATION",
-        "summary": "Allow descendant or semantically similar test blobs to satisfy the receipt.",
+        "id": "ALT-DRIVER-GLOBAL-ERROR-MERGE",
+        "summary": "Globally combine reason and error for every blocker in release-unit-execute.",
         "disposition": "rejected",
-        "reason": "Would defeat the fail-closed exact-blob authority that correctly caught #252."
+        "reason": "Unnecessarily changes all blocker contracts and widens blast radius."
       },
       {
-        "id": "ALT-DROP-REGRESSION-TESTS",
-        "summary": "Restore the bound file but delete the new regression proof.",
+        "id": "ALT-BYPASS-PARENT-PROOF",
+        "summary": "Skip parent proof and directly persist closure.",
         "disposition": "rejected",
-        "reason": "Would remove coverage for the just-fixed #244 blocker."
+        "reason": "Violates Completion Truth and Lifecycle authority."
       }
     ],
     "specialistReviews": [
@@ -209,143 +215,143 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A receipt-bound file should not become a general-purpose location for later regression tests.",
-        "resolution": "Move proof to orchestration coverage and keep the bound file stable.",
+        "finding": "The driver should not need parent-specific knowledge.",
+        "resolution": "Keep the change inside closeParentReleaseExecution by returning a structured reason already understood by the generic driver.",
         "evidence": [
-          "Release Unit Execution #252",
-          "U03 conflict-resolution receipt",
-          "PR #1111 diff"
+          "scripts/release-unit-parent-close.mjs",
+          "scripts/release-unit-execute.mjs",
+          "Release Unit Execution #260"
         ]
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Exact blob binding must not be weakened to accommodate later edits.",
-        "resolution": "Restore the exact authorized blob and leave receipt validation unchanged.",
+        "finding": "Exact diagnostics must not leak write credentials.",
+        "resolution": "Proof subprocesses retain GH_TOKEN/GITHUB_TOKEN scrubbing; diagnostic uses only caught stderr/message already produced by scrubbed commands.",
         "evidence": [
-          "RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID",
-          "resolvedBlobSha fbdb84adb4151461c7fba35e719aad27bae4041b",
-          "targetBlobSha 47305d897ba1ab603a7f0dfe574f7e4040cb3b10"
+          "scripts/release-unit-parent-close.mjs safeEnv",
+          "tests/control-plane-release-unit-production-surface.test.ts token-scrub assertion",
+          "Release Unit Execution #260"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Regression assertions must survive relocation unchanged in meaning.",
-        "resolution": "Move both full-coverage and partial/mismatched cases together and verify exact assertions.",
+        "finding": "A richer reason must not mutate canonical state semantics.",
+        "resolution": "Return shape changes only; state object and recordReleaseParentClosure logic remain unchanged.",
         "evidence": [
-          "tests/control-plane-release-unit-production-surface.test.ts",
-          "tests/control-plane-release-unit-orchestration.test.ts",
-          "PR #1111"
+          "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1",
+          "scripts/lib/shoperation-release-unit-runtime.mjs#recordReleaseParentClosure",
+          "Release Unit Execution #260"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The earlier #244 blocker is cleared; #252 is now the only live blocker.",
-        "resolution": "Use the smallest proof-placement correction, then replay the same immutable source.",
+        "finding": "The current hardening cycle cannot safely repair the parent blocker without the exact cause.",
+        "resolution": "Make the gate self-diagnosing, then replay the same immutable source.",
         "evidence": [
-          "immutable source CI attempt 12 SUCCESS",
-          "Release Unit Execution #252",
-          "main 02cc250edfbe6cdda94138d8d1fe960248162095"
+          "Release Unit Execution #260",
+          "immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+          "main 4cab9376d285a15d4d27d742f7b8b2babb8a5bee"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The failure is deterministic: receipt expected fbdb84..., target is 47305d....",
-        "resolution": "Encode exact blob restoration and no-receipt-edit as plan invariants.",
+        "finding": "Generic RELEASE_PARENT_PROOF_OR_PERSISTENCE_FAILED hides the reproducible inner failure.",
+        "resolution": "Regression-test exact nested cause propagation.",
         "evidence": [
-          "Release Unit Execution #252 log",
-          "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1",
-          "receipt ee524f42...json"
+          "Release Unit Execution #260 log",
+          "scripts/release-unit-parent-close.mjs catch block",
+          "scripts/release-unit-execute.mjs blocker serialization"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-BOUND-01",
-        "scenario": "Simply update resolvedBlobSha in the receipt to 47305d....",
-        "finding": "This would bless unrelated later proof edits under the old conflict review.",
-        "resolution": "Rejected; preserve receipt and restore bound blob.",
+        "id": "CH-DIAG-01",
+        "scenario": "Parent proof throws stderr text.",
+        "finding": "Current catch stores it separately but driver drops it.",
+        "resolution": "Embed it in structured reason.details.error.",
         "status": "resolved"
       },
       {
-        "id": "CH-BOUND-02",
-        "scenario": "Restore the file by manually deleting visible added lines.",
-        "finding": "Whitespace/import formatting could still yield a different Git blob.",
-        "resolution": "Use exact historical file content whose blob is already known as fbdb84....",
+        "id": "CH-DIAG-02",
+        "scenario": "Parent persistence PR creation throws after proof succeeds.",
+        "finding": "The same generic blocker currently hides whether proof or persistence failed.",
+        "resolution": "Structured cause preserves the exact failing command/error.",
         "status": "resolved"
       },
       {
-        "id": "CH-PROOF-01",
-        "scenario": "Restore the bound file and remove the regression tests entirely.",
-        "finding": "The #244 fix would lose direct coverage.",
-        "resolution": "Relocate both tests before merge.",
+        "id": "CH-DIAG-03",
+        "scenario": "Underlying error has only message.",
+        "finding": "stderr-first extraction could be empty.",
+        "resolution": "Retain stderr ?? message fallback.",
         "status": "resolved"
       },
       {
-        "id": "CH-PROOF-02",
-        "scenario": "Move only the successful full-ALREADY_APPLIED test.",
-        "finding": "Partial/mismatched fallback could regress unnoticed.",
-        "resolution": "Relocate both positive and negative coverage cases.",
+        "id": "CH-DIAG-04",
+        "scenario": "Underlying error is a plain string.",
+        "finding": "Optional property access yields no useful message.",
+        "resolution": "Fall back to String(error) if stderr/message are unavailable.",
         "status": "resolved"
       },
       {
-        "id": "CH-RUNTIME-01",
-        "scenario": "Touch runtime code while moving tests.",
-        "finding": "Would widen risk and invalidate the proof-placement-only nature of the transaction.",
-        "resolution": "Runtime files are impacted read-only.",
+        "id": "CH-SEC-01",
+        "scenario": "A subprocess fails while authenticated.",
+        "finding": "Error text could leak secret material.",
+        "resolution": "Keep proof subprocess tokens scrubbed and do not add env serialization to diagnostics.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-CONTRACT-01",
+        "scenario": "Non-parent blocker returns an object reason.",
+        "finding": "Global driver mutation could change it.",
+        "resolution": "Do not change generic driver semantics; only parent close return shape changes.",
         "status": "resolved"
       },
       {
         "id": "CH-STATE-01",
-        "scenario": "Patch U03 persisted state to bypass receipt validation.",
-        "finding": "Would violate resumability and executor authority.",
-        "resolution": "State remains read-only; only canonical replay may advance it.",
+        "scenario": "Diagnostic patch accidentally mutates state on failure.",
+        "finding": "Could make resume unsafe.",
+        "resolution": "Catch returns the original state unchanged with decision BLOCK.",
         "status": "resolved"
       },
       {
-        "id": "CH-REPLAY-01",
-        "scenario": "Replay before exact main CI is green.",
-        "finding": "Could conflate proof-placement failure with release execution.",
-        "resolution": "Require exact-head and post-merge main CI before replay.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-BLOB-01",
-        "scenario": "The relocated proof indirectly changes the bound file through shared formatting tooling.",
-        "finding": "Receipt would fail again despite intended restoration.",
-        "resolution": "Verify exact blob identity in CI/test review before merge and again before replay.",
+        "id": "CH-SUCCESS-01",
+        "scenario": "Parent proof and persistence succeed.",
+        "finding": "Diagnostic patch must be inert.",
+        "resolution": "No successful-path statements are changed; add regression/source assertion.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS before test edits.",
-      "Read the receipt-authorized production-surface file directly from main 42e80eed290f2cd5b5baa1a677e021a8a074ee12 and write those exact bytes.",
-      "Move the two selectSuccessorProjectedOperations tests to orchestration coverage with minimal import change.",
-      "Verify the resulting production-surface Git blob is exactly fbdb84adb4151461c7fba35e719aad27bae4041b and the receipt file is unchanged.",
-      "Require exact-head Knowledge/Plan/Edit-Time/Replay/Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
-      "Open/reuse DRAFT PR, require exact PR-head SUCCESS, ready and merge expected-head.",
-      "Require green post-merge main CI.",
-      "Replay immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and require U03 no-code close plus parent Completion Truth/Lifecycle Closure."
+      "Commit this plan only and require Plan Before Code PASS.",
+      "Change only the parent-close catch return shape plus focused regression test.",
+      "Require Edit-Time, Incremental Replay, Quality, TypeScript and Production Build PASS.",
+      "Require exact-head Completion Truth and Lifecycle Closure.",
+      "Merge only after exact PR-head SUCCESS and post-merge main SUCCESS.",
+      "Replay immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65.",
+      "Capture the newly exposed exact parent proof/persistence cause and repair only that root cause in the same hardening cycle."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-08-CONTROL-PLANE-U03-RECEIPT-BOUND-PROOF-RELOCATION-V1",
-      "authority": [],
+      "request": "PO-2026-10-08-CONTROL-PLANE-PARENT-PROOF-DIAGNOSTIC-PROPAGATION-V1",
+      "authority": [
+        "quality-knowledge-system"
+      ],
       "mustEdit": [
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/control-plane-release-unit-orchestration.test.ts"
+        "scripts/release-unit-parent-close.mjs",
+        "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
+        "scripts/release-unit-execute.mjs",
         "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/release-unit-github-runtime.mjs",
-        "quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json",
         "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
       ],
       "mustCreate": [],
@@ -356,8 +362,7 @@
         ".github/workflows/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/control-plane-release-unit-orchestration.test.ts"
+        "tests/control-plane-release-unit-production-surface.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -368,7 +373,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-U03-RECEIPT-BOUND-PROOF-RELOCATION-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-PARENT-PROOF-DIAGNOSTIC-PROPAGATION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -386,11 +391,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-U03-RECEIPT-BOUND-PROOF-RELOCATION",
-        "requirement": "Regression proof for already-applied successor reconciliation must be preserved without mutating or widening the exact U03 conflict-resolution receipt authority; the receipt-bound production-surface test must return to its exact reviewed blob.",
+        "id": "REQ-PARENT-PROOF-DIAGNOSTIC-PROPAGATION",
+        "requirement": "Parent Completion Truth/persistence blockers must remain fail-closed while exposing their exact machine-readable underlying cause.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "u03-receipt-bound-proof-relocation",
+          "breadth": "release-parent-proof-diagnostics",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -416,49 +421,36 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U03-RECEIPT-REBIND",
-            "statement": "The existing U03 conflict-resolution receipt may not be changed to bless a later unrelated blob.",
+            "id": "NEG-PARENT-PROOF-CAUSE-DROPPED",
+            "statement": "A caught parent proof or persistence exception may not be reduced to a generic blocker without details.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-U03-BOUND-BLOB-DRIFT",
-            "statement": "The receipt-bound production-surface test may not remain on a blob different from fbdb84adb4151461c7fba35e719aad27bae4041b.",
+            "id": "NEG-PARENT-PROOF-BYPASS",
+            "statement": "Improved diagnostics may not bypass or weaken parent proof/persistence.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-ALREADY-APPLIED-PROOF-LOSS",
-            "statement": "The positive and negative regression coverage for successor operation preservation may not be dropped during relocation.",
+            "id": "NEG-PARENT-DIAGNOSTIC-SECRET-LEAK",
+            "statement": "Diagnostic propagation may not introduce write-token values into proof subprocess output.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-U03-RUNTIME-WIDENING",
-            "statement": "No runtime behavior change is authorized in this proof-placement transaction.",
+            "id": "NEG-PARENT-STATE-MUTATION-ON-DIAGNOSTIC-FAIL",
+            "statement": "A parent proof diagnostic failure may not mutate canonical release state beyond the existing fail-closed behavior.",
             "evidence": [
-              "GUARD-PLAN-BEFORE-CODE"
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Live blocker: Release Unit Execution #252 after immutable source CI attempt 12. The previous RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT is cleared. Current fail-closed error is RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID for tests/control-plane-release-unit-production-surface.test.ts because receipt resolvedBlobSha=fbdb84adb4151461c7fba35e719aad27bae4041b while main targetBlobSha=47305d897ba1ab603a7f0dfe574f7e4040cb3b10. The blob change is solely from PR #1111 regression-proof additions. This transaction restores the exact receipt-authorized blob and relocates those proofs; receipt, runtime, immutable source and persisted release-state remain unchanged.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "74a835d3d620d436c7d8405fa9e6d00206819c42",
-    "closedAt": "2026-10-08T04:11:59.340Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-U03-RECEIPT-BOUND-PROOF-RELOCATION-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Live blocker: Release Unit Execution #260. U03 is fully CLOSED with ALREADY_APPLIED no-code materialization, VERIFIED child truth, LEARN lifecycle, no-code main receipt and close receipt PASS. Parent state is TRUTH_GATE, activeUnitId=null, closureEligible=true, closureComplete=false. closeParentReleaseExecution caught the next parent proof/persistence exception but returned reason='RELEASE_PARENT_PROOF_OR_PERSISTENCE_FAILED' and error=<exact cause>; release-unit-execute serialized reason before error, hiding the root cause. This transaction only preserves that exact cause in the machine blocker. It does not repair or relax the underlying parent proof yet."
 }
