@@ -11,6 +11,7 @@ export const RELEASE_UNIT_MANIFEST_CONTRACT='shoporation.release-unit-manifest.v
 export const DEFAULT_MAX_FILES_PER_UNIT=12;
 export const RELEASE_UNIT_CHILD_TRANSACTION_CONTRACT='shoporation.release-unit-child-transaction.v1';
 export const RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT='shoporation.release-unit-main-advance-proof.v1';
+export const RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT='shoporation.release-parent-main-advance-proof.v1';
 export const RELEASE_UNIT_CONFLICT_RESOLUTION_CONTRACT='shoporation.release-unit-conflict-resolution.v1';
 
 const uniq=values=>[...new Set((values??[]).filter(Boolean))].sort();
@@ -797,6 +798,36 @@ export function validateReleaseUnitMainAdvanceProof(proof,{fromSha,toSha,manifes
     &&categoryMatch
     &&effectiveExpected.unsafeOverlapFiles.length===0;
 }
+export function releaseParentProtectedFiles(parent){
+  return uniq((parent?.units??[]).flatMap(item=>[
+    ...(item?.manifest?.intendedFiles??[]),
+    ...(item?.manifest?.operations??[]).flatMap(operation=>operationPaths(operation)),
+  ]));
+}
+export function releaseParentUnitCloseReceiptDigests(parent){
+  return [...(parent?.units??[])].sort((a,b)=>Number(a?.order??0)-Number(b?.order??0)).map(item=>item?.closeReceipt?digest(item.closeReceipt):null);
+}
+export function validateReleaseParentMainAdvanceProof(proof,{parent,fromSha,toSha}={}){
+  if(!Array.isArray(parent?.units)||!parent.units.length||!parent.units.every(item=>item?.state==='CLOSED'&&item?.closeReceipt))return false;
+  const protectedFiles=releaseParentProtectedFiles(parent);
+  const changedFiles=uniq(proof?.changedFiles??[]);
+  const overlapFiles=uniq(changedFiles.filter(file=>protectedFiles.includes(file)));
+  const receiptDigests=releaseParentUnitCloseReceiptDigests(parent);
+  return proof?.contract===RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT
+    &&proof?.issuer==='release-unit-parent-close'
+    &&proof?.decision==='PASS'
+    &&proof?.relationship==='FAST_FORWARD'
+    &&String(proof?.fromSha??'')===String(fromSha??'')
+    &&String(proof?.toSha??'')===String(toSha??'')
+    &&Array.isArray(proof?.changedFiles)
+    &&Array.isArray(proof?.protectedFiles)
+    &&Array.isArray(proof?.overlapFiles)
+    &&Array.isArray(proof?.unitCloseReceiptDigests)
+    &&sameJson(uniq(proof.protectedFiles),protectedFiles)
+    &&sameJson(uniq(proof.overlapFiles),overlapFiles)
+    &&overlapFiles.length===0
+    &&sameJson(proof.unitCloseReceiptDigests,receiptDigests);
+}
 const requiredText=(value,code)=>{const normalized=String(value??'').trim();if(!normalized)throw new Error(code);return normalized;};
 const executionError=(code,details={})=>{const error=new Error(code);error.code=code;error.details=details;throw error;};
 const sortedObjects=(items=[])=>[...items].map(item=>executionClone(item)).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)));
@@ -1207,12 +1238,20 @@ export function applyReleaseUnitEvent(parent,event){
   return synchronizeReleaseParentExecution(parent,nextUnit);
 }
 
-export function recordReleaseParentClosure(parent,{truth,lifecyclePlan,currentMainSha}={}){
+export function recordReleaseParentClosure(parent,{truth,lifecyclePlan,currentMainSha,trustedMainAdvance=null}={}){
   if(parent?.contract!==RELEASE_PARENT_EXECUTION_CONTRACT)executionError('RELEASE_PARENT_EXECUTION_CONTRACT_INVALID');
   if(!parent.closureEligible||parent.activeUnitId!==null||!parent.units?.every(item=>item.state==='CLOSED'))executionError('RELEASE_PARENT_NOT_CLOSURE_ELIGIBLE');
   const last=[...parent.units].sort((a,b)=>a.order-b.order).at(-1);
-  const exact=currentMainSha??last?.merge?.mergedMainSha;
-  if(!exact||last?.merge?.mergedMainSha!==exact)executionError('RELEASE_PARENT_FINAL_MAIN_MISMATCH');
+  const lastChildMain=last?.merge?.mergedMainSha??null;
+  const exact=currentMainSha??lastChildMain;
+  if(!exact||!lastChildMain)executionError('RELEASE_PARENT_FINAL_MAIN_MISMATCH');
+  let acceptedMainAdvance=null;
+  if(exact!==lastChildMain){
+    if(!validateReleaseParentMainAdvanceProof(trustedMainAdvance,{parent,fromSha:lastChildMain,toSha:exact}))executionError('RELEASE_PARENT_MAIN_ADVANCE_PROOF_INVALID',{fromSha:lastChildMain,toSha:exact});
+    acceptedMainAdvance=executionClone(trustedMainAdvance);
+  }else if(trustedMainAdvance!=null){
+    executionError('RELEASE_PARENT_MAIN_ADVANCE_PROOF_UNEXPECTED',{finalMainSha:exact});
+  }
   if(truth?.decision!=='PASS'||truth?.truthStatus!=='VERIFIED'||truth?.internalState!=='VERIFIED_DONE'||truth?.currentExactState?.head!==exact)executionError('RELEASE_PARENT_TRUTH_NOT_VERIFIED');
   if(lifecyclePlan?.status!=='closed'||lifecyclePlan?.lifecycle?.state!=='LEARN'||lifecyclePlan?.lifecycle?.truthStatus!=='VERIFIED'||lifecyclePlan?.lifecycle?.verifiedImplementationHead!==exact)executionError('RELEASE_PARENT_LIFECYCLE_NOT_CLOSED');
   if(truth.taskId&&truth.taskId!==parent.parentTransactionId)executionError('RELEASE_PARENT_TRUTH_TASK_MISMATCH');
@@ -1222,10 +1261,12 @@ export function recordReleaseParentClosure(parent,{truth,lifecyclePlan,currentMa
   next.closedReceipt={
     contract:'shoporation.release-parent-close-receipt.v1',
     parentTransactionId:parent.parentTransactionId,
+    lastChildMainSha:lastChildMain,
     finalMainSha:exact,
+    mainAdvanceProof:acceptedMainAdvance,
     truthStatus:truth.truthStatus,
     lifecycleState:lifecyclePlan.lifecycle.state,
-    unitCloseReceiptDigests:next.units.map(item=>digest(item.closeReceipt)),
+    unitCloseReceiptDigests:releaseParentUnitCloseReceiptDigests(next),
     decision:'PASS',
   };
   return next;

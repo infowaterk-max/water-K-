@@ -41,7 +41,7 @@ if(has('--drive')){
     const state=loaded.state;
     let result;
     if(state.closureComplete&&state.closurePersistence?.state==='PR_OPEN'){
-      result=finishParentClosurePersistence({state});
+      result=finishParentClosurePersistence({state,sourceCommit:source});
     }else if(state.closureComplete&&state.closurePersistence?.state==='MERGED'){
       console.log(JSON.stringify({decision:'PARENT_CLOSED',parentTransactionId:state.parentTransactionId,stateRef,stateCommit:loaded.stateCommit},null,2));
       process.exit(0);

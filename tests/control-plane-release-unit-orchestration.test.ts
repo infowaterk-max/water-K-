@@ -1,6 +1,6 @@
 // @ts-nocheck
 import {describe,expect,it} from 'vitest';
-import {applyReleaseUnitEvent,classifyReleaseUnitObligationDrift,createReleaseParentExecution,createReleaseUnitExecution,reconcileReleaseUnitManifest,reconcileSuccessorReleaseUnit,recordReleaseParentClosure,refreshReleaseUnitIdentity,reprojectReleaseUnitChildTransaction,strongDigest} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
+import {applyReleaseUnitEvent,classifyReleaseUnitObligationDrift,createReleaseParentExecution,createReleaseUnitExecution,reconcileReleaseUnitManifest,reconcileSuccessorReleaseUnit,recordReleaseParentClosure,refreshReleaseUnitIdentity,releaseParentProtectedFiles,releaseParentUnitCloseReceiptDigests,reprojectReleaseUnitChildTransaction,strongDigest,validateReleaseParentMainAdvanceProof} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 import {selectSuccessorProjectedOperations} from '../scripts/release-unit-github-runtime.mjs';
 
 const sha=char=>char.repeat(40);
@@ -111,6 +111,28 @@ describe('Control Plane release-unit orchestration',()=>{
     p=recordReleaseParentClosure(p,{truth:parentTruth(D),lifecyclePlan:parentLifecycle(D),currentMainSha:D});
     expect(p.closureComplete).toBe(true);expect(p.lifecyclePhase).toBe('LEARN');
   });
+  it('binds parent closure to a trusted fast-forward proof across all CLOSED child material',()=>{
+    let p=parent();const [u1,u2,u3]=p.units.map((x:any)=>x.manifest);
+    p=complete(p,u1.releaseUnitId,u1,A,sha('1'),B,1);
+    const f2=fresh(u2,B,'b');p=complete(p,u2.releaseUnitId,f2,B,sha('2'),C,2);
+    const f3=fresh(u3,C,'c');p=complete(p,u3.releaseUnitId,f3,C,sha('3'),D,3);
+    const protectedFiles=releaseParentProtectedFiles(p),unitCloseReceiptDigests=releaseParentUnitCloseReceiptDigests(p);
+    const proof={contract:'shoporation.release-parent-main-advance-proof.v1',issuer:'release-unit-parent-close',decision:'PASS',relationship:'FAST_FORWARD',fromSha:D,toSha:X,changedFiles:['scripts/release-unit-execute.mjs'],protectedFiles,overlapFiles:[],unitCloseReceiptDigests};
+    expect(validateReleaseParentMainAdvanceProof(proof,{parent:p,fromSha:D,toSha:X})).toBe(true);
+    const closed=recordReleaseParentClosure(p,{truth:parentTruth(X),lifecyclePlan:parentLifecycle(X),currentMainSha:X,trustedMainAdvance:proof});
+    expect(closed.closedReceipt.finalMainSha).toBe(X);
+    expect(closed.closedReceipt.lastChildMainSha).toBe(D);
+    expect(closed.closedReceipt.mainAdvanceProof).toMatchObject({fromSha:D,toSha:X,decision:'PASS'});
+    expect(()=>recordReleaseParentClosure(p,{truth:parentTruth(X),lifecyclePlan:parentLifecycle(X),currentMainSha:X})).toThrow(/RELEASE_PARENT_MAIN_ADVANCE_PROOF_INVALID/);
+    for(const bad of [
+      {...proof,fromSha:C},
+      {...proof,toSha:D},
+      {...proof,relationship:'DIVERGED'},
+      {...proof,unitCloseReceiptDigests:[...unitCloseReceiptDigests.slice(0,-1),'forged']},
+      {...proof,changedFiles:[u1.intendedFiles[0]],overlapFiles:[u1.intendedFiles[0]]},
+    ])expect(validateReleaseParentMainAdvanceProof(bad,{parent:p,fromSha:D,toSha:X})).toBe(false);
+  });
+
   it('2. blocks successor authorization when unrelated main drift follows predecessor merge',()=>{
     let p=parent();const [u1,u2]=p.units.map((x:any)=>x.manifest);p=complete(p,u1.releaseUnitId,u1,A,sha('1'),B,1);
     p=applyReleaseUnitEvent(p,{type:'AUTHORIZE',releaseUnitId:u2.releaseUnitId,freshManifest:fresh(u2,X,'x'),currentMainSha:X});
