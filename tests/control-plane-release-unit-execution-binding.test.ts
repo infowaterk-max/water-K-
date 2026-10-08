@@ -495,7 +495,7 @@ describe('release-unit execution binding hardening',()=>{
     const artifact=buildReleaseParentClosureProofArtifactFromContext(expectedPlan.parentClosureContext),blob='1'.repeat(40);
     const originalRun=(command:string,args:string[],opts:any={})=>{
       if(args[0]==='show'&&args[1]===newHead+':quality/development/active-plan.json')return JSON.stringify(committedPlan);
-      if(args[0]==='diff'&&args[1]==='--name-status')return 'M\\tquality/development/active-plan.json\\nA\\t'+artifact.path;
+      if(args[0]==='diff'&&args[1]==='--name-status')return 'M'+String.fromCharCode(9)+'quality/development/active-plan.json'+String.fromCharCode(10)+'A'+String.fromCharCode(9)+artifact.path;
       if(args[0]==='rev-parse')return blob;
       if(args[0]==='hash-object')return opts.input===artifact.content?blob:'2'.repeat(40);
       return basic(command,args,opts);
@@ -503,7 +503,8 @@ describe('release-unit execution binding hardening',()=>{
     const evalCase=(run:any,remotePr:any=pr,current:string=nowMain)=>proveInterruptedParentClosureProjection({
       state,sourceCommit,pr:remotePr,currentMain:current,repo:'owner/repo',run,
     });
-    expect(evalCase(originalRun)).toMatchObject({decision:'PASS',reason:'AUTHENTIC_INTERRUPTED_PARENT_PROJECTION'});
+    const positive=evalCase(originalRun);
+    expect(positive,JSON.stringify(positive)).toMatchObject({decision:'PASS',reason:'AUTHENTIC_INTERRUPTED_PARENT_PROJECTION'});
     const invalid=[
       {name:'no main advance',pr,current:oldMain},
       {name:'foreign ref',pr:{...pr,head:{...pr.head,ref:'foreign'}},current:nowMain},
@@ -514,7 +515,7 @@ describe('release-unit execution binding hardening',()=>{
     for(const x of invalid)expect(evalCase(originalRun,x.pr,x.current),x.name).toMatchObject({decision:'BLOCK'});
     const variations=[
       {name:'foreign extra parent',run:(cmd:string,args:string[],opts:any)=>args[0]==='rev-list'?newHead+' '+prevMain+' '+'7'.repeat(40):originalRun(cmd,args,opts)},
-      {name:'extra material file',run:(cmd:string,args:string[],opts:any)=>args[0]==='diff'&&args[1]==='--name-status'?'M\\tquality/development/active-plan.json\\nA\\t'+artifact.path+'\\nM\\tscripts/foreign.mjs':originalRun(cmd,args,opts)},
+      {name:'extra material file',run:(cmd:string,args:string[],opts:any)=>args[0]==='diff'&&args[1]==='--name-status'?['M'+String.fromCharCode(9)+'quality/development/active-plan.json','A'+String.fromCharCode(9)+artifact.path,'M'+String.fromCharCode(9)+'scripts/foreign.mjs'].join(String.fromCharCode(10)):originalRun(cmd,args,opts)},
       {name:'wrong committed artifact blob',run:(cmd:string,args:string[],opts:any)=>args[0]==='rev-parse'?'3'.repeat(40):originalRun(cmd,args,opts)},
       {name:'wrong closed plan source',run:(cmd:string,args:string[],opts:any)=>args[0]==='show'&&args[1]===newHead+':quality/development/active-plan.json'?JSON.stringify({...committedPlan,parentClosureContext:{...committedPlan.parentClosureContext,sourceCommit:'4'.repeat(40)}}):originalRun(cmd,args,opts)},
       {name:'unavailable commit',run:(cmd:string,args:string[],opts:any)=>args[0]==='fetch'?(()=>{throw Error('commit unavailable');})():originalRun(cmd,args,opts)},
