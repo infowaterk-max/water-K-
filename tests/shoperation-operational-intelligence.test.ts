@@ -180,14 +180,28 @@ describe('Control Plane Operational Intelligence',()=>{
     const basePlan=json<any>('quality/development/active-plan.json');
     const guardIds=registry.guards.map((item:any)=>item.id);
     const proofPath='quality/knowledge/release-parent-closure-proofs/dev-parent.json';
+    // The live active-plan may itself be a persisted CLOSED parent/child
+    // transaction. Synthetic *generic* scenarios must not inherit that authority.
     const candidate=JSON.parse(JSON.stringify(basePlan));
+    delete candidate.parentClosureContext;
+    delete candidate.releaseUnitContext;
     candidate.operationalIntelligence.riskTier='critical';
     candidate.operationalIntelligence.semanticExecutionRoute={...candidate.operationalIntelligence.semanticExecutionRoute,mustEdit:[],mustCreate:[proofPath],proof:[proofPath],unknown:[]};
-    const generic=validateOperationalIntelligence({plan:candidate,policy,guardIds}).issues.map((item:any)=>item.code);
-    expect(generic).toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
+    const routeIssues=(plan:any)=>validateOperationalIntelligence({plan,policy,guardIds}).issues.map((item:any)=>item.code);
+    expect(routeIssues(candidate)).toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
+
+    candidate.parentClosureContext={contract:'shoporation.release-parent-closure-proof-context.v0'};
+    expect(routeIssues(candidate)).toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
+
     candidate.parentClosureContext={contract:'shoporation.release-parent-closure-proof-context.v1'};
-    const governed=validateOperationalIntelligence({plan:candidate,policy,guardIds}).issues.map((item:any)=>item.code);
-    expect(governed).not.toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
+    expect(routeIssues(candidate)).not.toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
+
+    delete candidate.parentClosureContext;
+    candidate.releaseUnitContext={contract:'shoporation.release-unit-child-transaction.v1'};
+    expect(routeIssues(candidate)).not.toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
+
+    candidate.releaseUnitContext={contract:'shoporation.release-unit-child-transaction.v0'};
+    expect(routeIssues(candidate)).toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
   });
 
 });

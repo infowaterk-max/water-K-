@@ -1,100 +1,59 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-PARENT-INTERRUPTED-REPROJECTION-V1",
-  "task": "Restore exact receipt-bound parent closure after an interrupted remote PR reprojection, rejecting foreign state and avoiding manual canonical repair.",
+  "taskId": "DEV-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
+  "task": "Isolate generic critical MUST_CREATE regression fixture from inherited parent closure authority so generic remains BLOCK and only explicit canonical parent closure remains eligible.",
   "status": "closed",
-  "guardDigest": "128614ad",
-  "changeBaseSha": "0ab58e16d5329ef80336aefb65ae99fff65881b0",
+  "guardDigest": "430b0bba",
+  "changeBaseSha": "355a77702fa255997f4abc1ca80ee4a559a8d58f",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/release-unit-parent-close.mjs",
-    "tests/control-plane-release-unit-execution-binding.test.ts"
+    "tests/shoperation-operational-intelligence.test.ts"
   ],
-  "expectedSubsystems": [
-    "release-infrastructure"
-  ],
-  "expectedDomains": [
-    "DOMAIN-RELEASE"
-  ],
-  "expectedAuthorities": [
-    "release-infrastructure"
-  ],
+  "expectedSubsystems": [],
+  "expectedDomains": [],
+  "expectedAuthorities": [],
   "expectedKnownFailureIds": [
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-006",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-018",
-    "SQ-KF-020",
-    "SQ-KF-022",
-    "TF-KF-001",
-    "TF-KF-005",
-    "TF-KF-007",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015"
+    "SQ-KF-022"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-016",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-PARENT-INTERRUPTED-REPROJECTION-V1",
+    "sourceRef": "PO-2026-10-08-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
     "riskTier": "critical",
-    "problemStatement": "Reproducible release executor interrupted transaction: the refreshed PR #1138 (dcc450715b9a...) is newer than canonical persistence head (ad52d8...) because #312 attempt 2 failed after GitHub PR branch mutation but before successful state CAS. finishParentClosurePersistence() checks PR head equality before trusted main reprojection; a normal retry would immediately reject with RELEASE_PARENT_CLOSURE_PR_DRIFT. Must prove a persisted partial remote closure is authentic before allowing a new reprojection, without modifying source or state manually.",
+    "problemStatement": "CI #9228, #9230 and #9231 failed a single Control Plane Operational Intelligence regression test on closure PR #1138. Test copies canonical quality/development/active-plan.json, which on the CLOSED metadata closure branch inherits parentClosureContext, then falsely treats a mustCreate-only plan as generic. Production validator correctly regards it as governed parent closure. Isolate fixture context in test, without relaxing any production gate, source, proof or receipt.",
     "observableOutcomes": [
-      "An executor restart detects stale persisted parent closure PR_HEAD and independently proves a genuine partial remote closure metadata commit before any reprojection.",
-      "The accepted remote closure commit has exactly one parent equal to the PR base main, and the PR base must be an ancestor of the current trusted main.",
-      "The recovered head changes only canonical active-plan metadata and the exact deterministic parent closure proof artifact.",
-      "The persisted CLOSED plan's parentClosureContext matches the immutable source, parent transaction, exact final-main SHA, child closure receipts, and a newly derived trusted main-advance proof; committed artifact bytes equal the independently derived proof.",
-      "Fresh canonical proof and newly created closure PR HEAD may be persisted only after exact PR identity and fresh CI, without duplicate U01–U03 operations.",
-      "Stale PR without main advance, missing proof, wrong closed plan, foreign head/ref, wrong receipts, extra parents or unsafe base ancestry block with a machine-readable diagnostic."
+      "The generic critical MUST_CREATE-only test removes inherited parent and child closure contexts and must report DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED.",
+      "The explicitly added canonical parentClosureContext allows MUST_CREATE-only targeting while preserving all other authority, proof and unknown route requirements.",
+      "The separate canonical child release context also allows governed MUST_CREATE-only targeting, and a noncanonical contract cannot grant exemption.",
+      "The same regression test passes on an ordinary main plan and an actual persisted CLOSED parent closure plan.",
+      "The untouched source and receipt-bound closure artifact retain their exact identities; no gates are weakened."
     ],
     "unresolvedRisks": [
-      "Remote branch mutation by a third party must never be treated as an interrupted canonical closure.",
-      "New main commits can create legitimate drift or protected-file overlap; trusted-main proof must remain authoritative.",
-      "Canonical state CAS may fail after PR push; repeated execution must be idempotent or fail closed.",
-      "An old PR head may be missing in local clone; explicit remote fetch must not accept an untrusted commit as proven closure."
+      "Persistent active-plan.json is environment-dependent and may contain multiple governed transaction contexts; tests must clear both explicitly.",
+      "Generic unit fixture might accidentally inherit route or authority of an unrelated plan and need fixed required fields.",
+      "Other tests depending on active-plan.json may have the same anti-pattern, but scope remains this reproduced failure unless other blockers arise."
     ],
     "scope": {
       "in": [
-        "Add proof-bound interrupted closure PR reprojection eligibility before the old PR_HEAD equality guard.",
-        "Use exact single-parent commit identity, main ancestry, changed-path set and immutable-source parent proof to classify a remotely refreshed closure.",
-        "Require deterministic committed artifact bytes and validate the CLOSED plan against the existing canonical parent receipts and proof context.",
-        "Permit trusted reprojection only when current main is a verified descendant of persistence base; do not allow same-main foreign head acceptance.",
-        "Emit exact reason/details for invalid or incomplete partial closure without modifying persisted state.",
-        "Add adversarial regression tests of an authentic interrupted remote closure and forged, tampered, wrong-parent, absent-proof or no-main-advance cases."
+        "Only update the operational intelligence unit test to construct a context-independent generic critical plan by removing inherited governed contexts.",
+        "Test the transition from generic BLOCK to canonical parent closure exemption explicitly; include negative noncanonical parent contract and child canonical context.",
+        "Retain and verify the original production validator and all existing gate thresholds unchanged."
       ],
       "out": [
-        "No changes to immutable source or historical U01–U03 receipts.",
-        "No manual overwrite or softening of canonical state CAS, Truth, Lifecycle, Sentinel, Plan, Edit-Time or CI gates.",
-        "No release executor workflow permissions or scheduling changes.",
-        "No untrusted PR force update, merge, Builder, Template or Storefront work."
+        "No code change to scripts/lib/shoperation-operational-intelligence.mjs or any production release, plan, edit-time, lifecycle or trust gate.",
+        "No change to source SHA, U01-U03, canonical release-state branch, PR #1138 closure proof or CI/workflows.",
+        "No relaxing MUST_CREATE/authority/proof requirements and no Builder/Template changes."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Resuming a durable release after a partially persisted GitHub PR side effect is correctness- and security-critical; acceptance requires exact committed receipt identity, trusted-main proof and adversarial negative tests.",
+      "rationale": "This is a critical CI release closure blocker caused by inherited test fixture authority. Proof must demonstrate both generic deny and canonically governed accept without modifying production semantics.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -111,33 +70,31 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Plan-only commit passes Plan Before Code before code changes.",
-        "An authentic previous closure HEAD with direct main parent, exact metadata-only files and deterministic proof artifact passes reproject eligibility after a newer trusted main appears.",
-        "Invalid remote head, foreign PR ref/state, wrong previous base ancestry or no trusted main advance still blocks.",
-        "Untrusted CLOSED plan, different immutable source, missing receipt digest or altered committed proof artifact fails closed.",
-        "Neither reproject nor CAS is attempted if interrupted closure proof is missing.",
-        "Normal PR identity paths where persisted head still matches remain unchanged.",
-        "Regression tests exercise delayed external state persistence, exact restarts and malicious alternatives without network requests.",
-        "Full CI and Completion Truth on the implementation HEAD, followed by canonical Lifecycle closure and exact PR CI, merge and post-main CI.",
-        "Unmodified immutable source release executor resumes all existing U01–U03 receipts, exact parent closure CI and canonical closed receipt; no duplicate unit."
+        "Plan-only commit passes canonical Plan Before Code.",
+        "On any current active-plan carrying parentClosureContext or releaseUnitContext, generic synthetic plan never inherits governed context and MUST_CREATE-only is BLOCK.",
+        "Canonical parent context permits the narrowly governed MUST_CREATE path, while invalid contract remains BLOCK.",
+        "Canonical release-unit child context is also covered explicitly and uses exact declared contract, not a broad truthy flag.",
+        "Production validator file is unchanged byte-for-byte.",
+        "Full Quality tests, TypeScript, Production build, Completion Truth and Lifecycle pass on exact final head.",
+        "PR exact-head CI and merged main CI succeed before rerunning immutable source parent closure executor.",
+        "Closure PR #1138 passes exact-head CI and canonical CLOSED parent persistence acceptance."
       ],
       "invariants": [
-        "Every accepted remote HEAD has a single exact parent equal to independently proven previous final main.",
-        "Only the declared metadata plan and deterministic parent proof artifact changed in remote closure head.",
-        "Parent closure source SHA and all child receipt digests remain immutable across restart.",
-        "Any remote identity mismatch not explained by authenticated interrupted reprojection remains a BLOCK.",
-        "State is never marked final CLOSED without GitHub merge, CI and canonical receipt.",
-        "No second release unit or repeated merge receipt is emitted."
+        "Generic critical MUST_CREATE without MUST_EDIT is never accepted.",
+        "Governed exception only applies with the exact parent/child context contract.",
+        "Authority and proof obligations are still mandatory in all cases.",
+        "CI tests must not depend on unrelated active-plan authority.",
+        "Immutable rehearsal source and canonical closed receipts remain unchanged.",
+        "Failure Intake for subsequent blockers remains enabled."
       ],
       "forbiddenStates": [
-        "remote-closure-head-with-multiple-parents-accepted",
-        "foreign-pr-head-projected-as-canonical",
-        "unproven-proof-artifact-bytes-accepted",
-        "child-receipt-digest-mismatch-accepted",
-        "main-not-advanced-but-pr-head-mismatch-accepted",
-        "canonical-state-rewritten-manually",
-        "parent-closure-without-required-truth-and-ci",
-        "undocumented-remote-head-identity"
+        "generic-mustcreate-only-accepted",
+        "bogus-parent-context-accepted",
+        "test-fixture-inherits-parent-closure-authority",
+        "test-fixture-inherits-release-child-authority",
+        "production-policy-changed-to-hide-test-failure",
+        "unproven-parent-closure-ci-merged",
+        "canonical-state-manually-overwritten"
       ]
     },
     "model": {
@@ -169,50 +126,47 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "GitHub branch force-with-lease succeeds while subsequent state CAS fails.",
-        "Remote HEAD diverges from persisted HEAD and previous main had advanced.",
-        "Remote metadata commit includes extra files or wrong parent.",
-        "Artifact matches local working tree but not committed blob.",
-        "Receipt digest in remote context does not match U01–U03 state.",
-        "Main not descended from parent closure PR base; protected-file overlap.",
-        "Reprojection emits newer commit while main continues changing."
+        "Base active-plan has parentClosureContext and silently grants governed exception to generic case.",
+        "Base active-plan has releaseUnitContext and silently grants governed exception to generic case.",
+        "Fake parent contract is mistakenly accepted.",
+        "Removing production validation to make test pass hides real route gap.",
+        "Further unrelated CI gates fail independently."
       ],
       "edgeCases": [
-        "HEAD persisted equals PR head with newer main: original reproject path.",
-        "HEAD differs but PR is exact metadata-only successor at prior final main: verified resume.",
-        "HEAD differs but PR base equals current main: no new main advance blocks.",
-        "HEAD differs and PR body or ref points to another parent transaction.",
-        "Missing, malformed or stale proof context and committed artifact.",
-        "Same metadata files but source receipt digest changed.",
-        "PR head is a merge commit.",
-        "Current main advanced past previous closure metadata base.",
-        "Network fetch returns unknown PR HEAD commit."
+        "Base plan with neither context.",
+        "Base plan with valid parentClosureContext.",
+        "Base plan with valid releaseUnitContext.",
+        "Base plan with both contexts.",
+        "Parent context with invalid contract.",
+        "Child context with invalid contract.",
+        "Explicit authority is missing despite correct mustCreate.",
+        "Test fixture created on immutable source branch, main and CLOSED metadata closure branch."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-RECEIPT-BOUND",
-        "summary": "Prove the interrupted PR projection from committed metadata and immutable receipt context before allowing trusted main reprojection.",
+        "id": "ALT-ISOLATE",
+        "summary": "Explicitly strip inherited governed contexts from synthetic generic plan fixture and assert transition.",
         "disposition": "selected",
-        "reason": "Restores interrupted state without accepting foreign heads or manually changing canonical truth."
+        "reason": "Repairs fixture assumptions without changing runtime authority semantics."
       },
       {
-        "id": "ALT-IGNORE-PR-DRIFT",
-        "summary": "Suppress stale persisted PR head comparison whenever main advances.",
+        "id": "ALT-WEAKEN",
+        "summary": "Change the production validator to accept every generic critical MUST_CREATE-only plan without requiring MUST_EDIT or canonical closure authority.",
         "disposition": "rejected",
-        "reason": "Allows foreign branch mutation to be overwritten and accepted as part of trusted release."
+        "reason": "Removes the fail-closed semantic execution authority boundary and would falsely authorize unrelated creation operations; preserving explicit context is mandatory."
       },
       {
-        "id": "ALT-STATE-MANUAL",
-        "summary": "Change canonical release-state JSON to the newer PR HEAD.",
+        "id": "ALT-EDIT-IMMUTABLE",
+        "summary": "Edit the immutable source plan or persisted closure plan to make test pass.",
         "disposition": "rejected",
-        "reason": "Bypasses executor proof and CAS."
+        "reason": "Would falsify release proof identity."
       },
       {
-        "id": "ALT-RETRY-UNCHANGED",
-        "summary": "Rerun the same failed executor without repair.",
+        "id": "ALT-SKIP-TEST",
+        "summary": "Exclude Operational Intelligence test from closure CI.",
         "disposition": "rejected",
-        "reason": "Already proven to stop at the pre-reproject PR head equality guard."
+        "reason": "Hides regression rather than proving it."
       }
     ],
     "specialistReviews": [
@@ -220,155 +174,146 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "An external PR mutation can outlive an uncommitted canonical state transition.",
-        "resolution": "Authenticate the partial mutation as a completed metadata-only closure before reconcile.",
+        "finding": "Unit test reads mutable canonical active-plan, so generic scenario inherited parent closure contract.",
+        "resolution": "Remove exact parentClosureContext/releaseUnitContext before computing generic scenario.",
         "evidence": [
-          "#312 attempt 2",
-          "canonical state a74d72ab",
-          "PR #1138 dcc4507"
+          "CI #9231 test name",
+          "Operational Intelligence route createTargetRoute"
         ]
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A generic reproject on any mismatched PR HEAD would trust attacker-controlled history.",
-        "resolution": "Require direct parent, ancestry, allowed diff and deterministic receipt-bound artifact.",
+        "finding": "Any generic mustCreate allow-list would weaken critical execution.",
+        "resolution": "Retain generic BLOCK; only literal canonical governed contract allows exception.",
         "evidence": [
-          "scripts/release-unit-parent-close.mjs",
-          "immutable source"
+          "scripts/lib/shoperation-operational-intelligence.mjs critical route"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Remote and canonical state refer to different PR HEAD/base after interruption.",
-        "resolution": "No canonical persistence until authenticated recovery and new exact remote PR CI.",
+        "finding": "Source and metadata closure plan must not be rewritten for an isolated test fixture.",
+        "resolution": "Modify synthetic copied plan in tests only, separate isolated hardening plan as tracked.",
         "evidence": [
-          "state.json PR_OPEN",
-          "commits/dcc4507"
+          "PR #1138 closure HEAD c3fb20...",
+          "source SHA 65e52..."
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Old #9213 action_required PR CI does not authorize closure.",
-        "resolution": "Fresh workflow_dispatch CI, exact current HEAD and final main main-ci success required.",
+        "finding": "Multiple identical closure CI failures derive from one test assumption.",
+        "resolution": "Require exact-head CI and post-merge main before rerun; do not force merge closure.",
         "evidence": [
-          "CI #9213",
-          "main CI #9220"
+          "CI #9228 #9230 #9231"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Existing #1141 addressed immediate remote read inconsistency, not durable restart consistency.",
-        "resolution": "Track separate failure #1144 with deterministic regression.",
+        "finding": "Error is an unverified test fixture boundary, not production validator failure.",
+        "resolution": "Add explicit negative and positive regression cases.",
         "evidence": [
-          "Issue #1144",
-          "Issue #1141"
+          "tests/shoperation-operational-intelligence.test.ts",
+          "CI #9231 build log"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-RESUME-01",
-        "scenario": "Remote PR HEAD differs and main advanced: accept without inspecting remote HEAD.",
-        "finding": "Would overwrite a foreign PR commit.",
-        "resolution": "Prove remote previous closure's committed plan and artifact.",
+        "id": "CH-PLAN-CTX-01",
+        "scenario": "Copy parent closure active-plan then assume it is generic.",
+        "finding": "Parent context grants governed create exception.",
+        "resolution": "Strip parent context before generic assertion.",
         "status": "resolved"
       },
       {
-        "id": "CH-RESUME-02",
-        "scenario": "PR head has correct-looking file names but wrong source-plan binding.",
-        "finding": "Forged parent proof may claim unrelated source.",
-        "resolution": "Derive expected parent context from immutable source and canonical receipts.",
+        "id": "CH-PLAN-CTX-02",
+        "scenario": "Copy child transaction active-plan then assume generic.",
+        "finding": "Child context grants governed create exception.",
+        "resolution": "Strip child context too.",
         "status": "resolved"
       },
       {
-        "id": "CH-RESUME-03",
-        "scenario": "PR closure commit has extra parent.",
-        "finding": "Foreign code could be included in parent closure.",
-        "resolution": "Require one commit parent exactly equal to PR base.",
+        "id": "CH-PLAN-CTX-03",
+        "scenario": "Add arbitrary parentClosureContext object.",
+        "finding": "Truthiness could masquerade as canonical contract.",
+        "resolution": "Prove exact governed contract required.",
         "status": "resolved"
       },
       {
-        "id": "CH-RESUME-04",
-        "scenario": "Main advanced through modified child-protected file.",
-        "finding": "Protected overlap invalidates parent reconciliation.",
-        "resolution": "Require existing proveParentMainAdvance PASS.",
+        "id": "CH-PLAN-CTX-04",
+        "scenario": "Remove validator's exception instead.",
+        "finding": "Canonical parent proof artifact creation would be permanently blocked.",
+        "resolution": "Keep productive code unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-RESUME-05",
-        "scenario": "Remote artifact has local-only matching bytes.",
-        "finding": "Uncommitted proof could bypass exact persisted evidence.",
-        "resolution": "Use git show HEAD:path for exact committed bytes.",
+        "id": "CH-PLAN-CTX-05",
+        "scenario": "Test success only on current main.",
+        "finding": "Would miss closure-branch-specific inherited authority.",
+        "resolution": "Explicitly simulate both inherited contexts.",
         "status": "resolved"
       },
       {
-        "id": "CH-RESUME-06",
-        "scenario": "PR head differs but main equals persisted base.",
-        "finding": "No trusted main advance to motivate reprojection.",
-        "resolution": "Reject stale or foreign PR head.",
+        "id": "CH-PLAN-CTX-06",
+        "scenario": "Strip generic context but leave route AUTHORITY empty.",
+        "finding": "Other route failures might mask intended MUST_CREATE behavior.",
+        "resolution": "Keep exact route authority/PROOF/UNKNOWN fields for semantic test.",
         "status": "resolved"
       },
       {
-        "id": "CH-RESUME-07",
-        "scenario": "PR is closed or branch targets foreign base ref.",
-        "finding": "An invalid PR could be mistakenly resumed.",
-        "resolution": "Exact open/ref/number gates required.",
+        "id": "CH-PLAN-CTX-07",
+        "scenario": "Merge based only on unit test.",
+        "finding": "Other gate failures may appear later.",
+        "resolution": "Full exact-head PR CI and main CI required.",
         "status": "resolved"
       },
       {
-        "id": "CH-RESUME-08",
-        "scenario": "New reprojected branch passes but state remains stale again.",
-        "finding": "Next interrupted retry must remain safely resumable.",
-        "resolution": "Repeat deterministic proof under new main and persist state via existing CAS only after exact PR verification.",
+        "id": "CH-PLAN-CTX-08",
+        "scenario": "An engineer rewrites the immutable rehearsal source or directly edits canonical state to match the current main before reproducing the test failure.",
+        "finding": "Changes the receipt-bound transaction identity, hides the inherited-context test bug, and bypasses the trusted GitHub execution path.",
+        "resolution": "Keep immutable source and canonical state untouched; use an isolated test fixture and only move the new development plan through its own verified Plan/Edit-Time/Truth/Lifecycle gate chain.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit the plan alone; require canonical Plan Before Code PASS.",
-      "Introduce a deterministic interrupted remote closure proof verifier, independent from normal matching-head acceptance.",
-      "Require exact single-parent metadata-only diff, source/transaction identity and expected receipt-bound proof artifact bytes.",
-      "Authenticate previous PR closure before any newer-main reproject; keep foreign or unchanged-main drift blocked.",
-      "Exercise tampered artifact, wrong head/base, extra parent, wrong source, unrelated changed files and duplicate-resume negative tests.",
-      "Verify Knowledge, Plan, Edit-Time, Incremental Replay, Quality, TypeScript, Production and Completion Truth against exact implementation HEAD.",
-      "Commit the Truth-derived Lifecycle closure and require fresh exact-head PR CI before merge.",
-      "Require merged main CI SUCCESS before retrying the original source executor.",
-      "Verify successful parent closure PR CI, merge, canonical CLOSED receipt and no duplicate U01–U03 operations; route new blockers through Failure Intake."
+      "Commit plan-only and verify Plan Before Code PASS before touching unit tests.",
+      "Remove inherited parentClosureContext and releaseUnitContext on the copy used for generic MUST_CREATE assertion.",
+      "Assert canonical parent, canonical child and invalid parent contract cases are separately and correctly classified.",
+      "Run complete Quality/TypeScript/Build/Completion Truth against exact implementation HEAD and close lifecycle candidate.",
+      "Require full final exact-head CI SUCCESS, open PR and require fresh PR CI SUCCESS before merge.",
+      "Require merged main exact-head CI SUCCESS; only then restart original release unit executor.",
+      "Verify parent closure PR #1138 exact-head CI, merge and canonical CLOSED receipt with immutable source and U01-U03 preserved."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-08-CONTROL-PLANE-PARENT-INTERRUPTED-REPROJECTION-V1",
-      "authority": [
-        "release-infrastructure"
-      ],
+      "request": "PO-2026-10-08-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
+      "authority": [],
       "mustEdit": [
-        "scripts/release-unit-parent-close.mjs"
+        "tests/shoperation-operational-intelligence.test.ts"
       ],
-      "mayEdit": [
-        "tests/control-plane-release-unit-execution-binding.test.ts"
-      ],
+      "mayEdit": [],
       "impactedReadOnly": [
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/release-unit-execute.mjs",
-        ".github/workflows/release-unit-execution.yml",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        "quality/knowledge/development-guard-policy.v1.json",
+        "quality/knowledge/guard-registry.v1.json",
         "quality/knowledge/release-parent-closure-proofs/dev-control-plane-multi-unit-rehearsal-v1.json"
       ],
       "mustCreate": [],
       "forbidden": [
+        "scripts/lib/**",
         "src/**",
         "supabase/**",
-        "deploy/**",
         ".github/workflows/**",
         "quality/knowledge/rehearsal-fixtures/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-execution-binding.test.ts"
+        "tests/shoperation-operational-intelligence.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -379,7 +324,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-PARENT-INTERRUPTED-REPROJECTION-V1",
+    "sourceRef": "PO-2026-10-08-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -397,16 +342,16 @@
     },
     "requirements": [
       {
-        "id": "REQ-INTERRUPTED-PARENT-REPROJECTION",
-        "requirement": "An interrupted external parent-closure PR refresh must be authenticated against immutable receipts before safe replay or remain blocked, with no canonical truth overwrite.",
+        "id": "REQ-OPINTEL-GENERIC-CLOSURE-FIXTURE",
+        "requirement": "Critical synthetic generic MUST_CREATE assertion shall be independent of ambient release closure metadata; governed parent and child contexts remain literal-authority exceptions.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-parent-closure-resume-atomicity",
+          "breadth": "operational-intelligence-critical-route-test-isolation",
           "strength": 2,
           "dimensions": [
             "transaction-identity",
             "forbidden-state",
-            "resumable",
+            "behavioral-proof",
             "truth",
             "lifecycle",
             "close"
@@ -427,22 +372,22 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-FOREIGN-REMOTE-HEAD",
-            "statement": "An altered or foreign remote PR head must not authorize canonical parent reprojection.",
+            "id": "NEG-UNAUTHORIZED-MUSTCREATE",
+            "statement": "Generic critical MUST_CREATE-only remains blocked even when ambient plan contains a parent context.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-UNVERIFIED-METADATA",
-            "statement": "A missing or forged parent proof artifact cannot be accepted as interrupted closure.",
+            "id": "NEG-FAKE-CONTEXT",
+            "statement": "An unrecognized release parent closure contract cannot grant MUST_CREATE permission.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-NO-NEWER-MAIN",
-            "statement": "A PR head mismatch cannot be ignored unless a strictly newer final main is independently proven.",
+            "id": "NEG-PRODUCTION-CHANGE",
+            "statement": "Operational Intelligence production validator must remain unmodified.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -451,14 +396,14 @@
       }
     ]
   },
-  "notes": "Failure Intake #1144. Authenticated local facts: PR #1138 HEAD dcc450715b9a5dd6690be98017f9f98911b96805, parent c8b1897fc34bd8b867e9fa3e6e136f2ea6039308, diff only active-plan and parent proof artifact; canonical state a74d72ab4c9b49301ae45fef9fe0b0c9cf14592c still expects old HEAD ad52d8... / base 0c53e9...; main 0ab58e16d5329ef80336aefb65ae99fff65881b0 CI #9220 success. Do not rerun #312 until this resumability gap is closed. Sentinel proof-dimension alignment: `resumable` is the declared registry proof dimension; unregistered `resumability` was rejected. CI #9223 regression mock for git `--name-status` incorrectly supplied escaped text instead of real tab/newline separators; corrected.",
+  "notes": "CI #9228/#9230/#9231 on PR #1138 closure HEAD c3fb20b47be325fc5963e8ac3ea2b8252f0a8c8d fail one Operational Intelligence unit test because copied active-plan contains parentClosureContext. Only test fixture context isolation; source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65, U01-U03, canonical release-state d459e52e1ae8357786257ee7341a087b8990e42b and parent closure PR untouched. Target branch from main 355a77702fa255997f4abc1ca80ee4a559a8d58f. CI #9233 Plan Before Code measured planned scope: domains=[], authorities=[], knownFailures=[SQ-KF-013,SQ-KF-014,SQ-KF-022], guardDigest=430b0bba. Changed only derived scope, canonical authority route, and replaced vacuous alternative/challenge with adversarial, falsifiable wording.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "1da4b41452e0c94ef04f40e995ea308eb1768f76",
-    "closedAt": "2026-10-08T16:13:34.442Z",
+    "verifiedImplementationHead": "0421fcf797def1d3a3deb4216370c1b3f533f76a",
+    "closedAt": "2026-10-08T17:13:05.768Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-PARENT-INTERRUPTED-REPROJECTION-V1",
+    "sourceRef": "PO-2026-10-08-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
