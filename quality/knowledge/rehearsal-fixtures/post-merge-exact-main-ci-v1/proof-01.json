@@ -1,0 +1,9 @@
+{
+  "contract": "shoporation.release-unit-rehearsal-fixture.v1",
+  "fixtureId": "post-merge-exact-main-ci-v1-proof-01",
+  "ordinal": 1,
+  "purpose": "isolated production-like post-merge exact main CI proof",
+  "runtimeImpact": "none",
+  "sourceParent": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V1",
+  "sourceRef": "PO-2026-10-08-POST-MERGE-EXACT-MAIN-CI-E2E-V1"
+}
