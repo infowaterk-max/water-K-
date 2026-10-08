@@ -100,9 +100,11 @@
         "state-model",
         "boundary-cases",
         "adversarial-scenarios",
+        "what-if-matrix",
+        "pairwise-interactions",
         "threat-failure-model",
         "fault-injection",
-        "pairwise-interactions"
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
@@ -206,14 +208,15 @@
     "specialistReviews": [
       {
         "role": "Architecture",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The parent helper already carries exact error evidence; the defect is solely at the outer diagnostic boundary.",
-        "resolution": "Keep parent-close semantics read-only and patch only executor serialization.",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "A tempting implementation is to alter parent-close error handling or parent proof commands at the same time as diagnostic surfacing, but the exact failing command is not yet observable.",
+        "resolution": "Keep parent-close runtime read-only in this transaction; patch only the outer serialization boundary, then use the next replay to reveal the exact root cause.",
         "evidence": [
           "Release Unit Execution #260",
           "scripts/release-unit-parent-close.mjs",
-          "scripts/release-unit-execute.mjs"
+          "scripts/release-unit-execute.mjs",
+          "#1018"
         ]
       },
       {
@@ -284,6 +287,27 @@
         "scenario": "Guess which parent proof command failed and patch it now.",
         "finding": "Current outer surface masks the exact exception; any such patch would be speculative.",
         "resolution": "Expose the exact error first, then make a second bounded root-cause repair only if needed.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-DIAG-04",
+        "scenario": "A BLOCK result has `reason` but no nested `error`, as with a direct deterministic state-machine guard.",
+        "finding": "A formatter that assumes `error` exists could throw while handling the original blocker and obscure the stable reason.",
+        "resolution": "Normalize missing error to null while preserving the original reason and BLOCK exit.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-DIAG-05",
+        "scenario": "A BLOCK result has an exact `error` but no normalized `reason`, for example a future adapter propagates an unclassified authoritative exception.",
+        "finding": "A formatter that requires reason would recreate the current masking problem in the opposite direction.",
+        "resolution": "Normalize missing reason to null while preserving the exact error verbatim.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-DIAG-06",
+        "scenario": "The exact nested error contains quotes, newlines or stderr text from a failed child command.",
+        "finding": "Manual string concatenation could produce ambiguous or unparsable machine output.",
+        "resolution": "Continue using JSON serialization of the whitelisted `{reason,error}` payload so escaping is deterministic.",
         "status": "resolved"
       }
     ],
