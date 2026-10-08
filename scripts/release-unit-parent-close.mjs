@@ -2,7 +2,7 @@ import {execFileSync} from 'node:child_process';
 import {mkdtempSync,mkdirSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT,buildReleaseParentClosureProofPlan,recordReleaseParentClosureWithProofContext,releaseParentProtectedFiles,releaseParentUnitCloseReceiptDigests} from './lib/shoperation-release-unit-runtime.mjs';
+import {RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT,buildReleaseParentClosureProofArtifactFromContext,buildReleaseParentClosureProofPlan,recordReleaseParentClosureWithProofContext,releaseParentProtectedFiles,releaseParentUnitCloseReceiptDigests} from './lib/shoperation-release-unit-runtime.mjs';
 
 const text=value=>String(value??'').trim();
 const parse=value=>JSON.parse(String(value??'null'));
@@ -88,11 +88,16 @@ function runParentProof({state,sourceCommit,finalMain,trustedMainAdvance=null,ru
     const artifactDir=path.join(temp,'artifacts','shoperation-development-guard');
     mkdirSync(artifactDir,{recursive:true});
     const plan=buildReleaseParentClosureProofPlan({parent:state,sourcePlan,sourceCommit,finalMainSha:finalMain,trustedMainAdvance});
+    const parentClosureProofArtifact=buildReleaseParentClosureProofArtifactFromContext(plan.parentClosureContext);
+    const proofArtifactPath=path.join(temp,parentClosureProofArtifact.path);
+    mkdirSync(path.dirname(proofArtifactPath),{recursive:true});
+    writeFileSync(proofArtifactPath,parentClosureProofArtifact.content);
     const planPath=path.join(artifactDir,'release-parent-active-plan.json');
     writeFileSync(planPath,JSON.stringify(plan,null,2)+'\n');
     const safeEnv={
       GH_TOKEN:'',GITHUB_TOKEN:'',
       SHOPERATION_ACTIVE_PLAN:planPath,
+      SHOPERATION_PARENT_CLOSURE_PROOF_ARTIFACT:parentClosureProofArtifact.path,
       DEVELOPMENT_HEAD_SHA:finalMain,QUALITY_HEAD_SHA:finalMain,RELEASE_HEAD_SHA:finalMain,
       SHOPERATION_REPLAY_HEAD:finalMain,SHOPERATION_REPLAY_BRANCH:branch,
       SHOPERATION_VERIFICATION_ENVIRONMENT:'ci',SHOPERATION_TOOLCHAIN_ID:'node24',
@@ -121,7 +126,7 @@ function runParentProof({state,sourceCommit,finalMain,trustedMainAdvance=null,ru
     const truth=parse(readFileSync(path.join(artifactDir,'truth-gate.json'),'utf8'));
     run(process.execPath,['scripts/shoperation-close-development-plan.mjs','--emit'],{cwd:temp,env:{...truthEnv,SHOPERATION_CLOSURE_HEAD:finalMain,SHOPERATION_CLOSURE_TRUTH_REPORT:path.join(artifactDir,'truth-gate.json')}});
     const lifecyclePlan=parse(readFileSync(path.join(artifactDir,'active-plan.closed.json'),'utf8'));
-    return{temp,branch,truth,lifecyclePlan,sourcePlan,closurePlan:plan};
+    return{temp,branch,truth,lifecyclePlan,sourcePlan,closurePlan:plan,parentClosureProofArtifact};
   }catch(error){
     try{run('git',['worktree','remove','--force',temp],{cwd});}catch{}
     try{rmSync(temp,{recursive:true,force:true});}catch{}
@@ -130,10 +135,13 @@ function runParentProof({state,sourceCommit,finalMain,trustedMainAdvance=null,ru
 }
 
 function createClosurePullRequest({proof,state,finalMain,run=defaultRun,cwd=process.cwd()}={}){
-  const {temp,branch,lifecyclePlan}=proof;
+  const {temp,branch,lifecyclePlan,parentClosureProofArtifact}=proof;
   try{
+    if(!parentClosureProofArtifact?.path||!parentClosureProofArtifact?.content)throw new Error('RELEASE_PARENT_CLOSURE_PROOF_ARTIFACT_REQUIRED');
+    const proofArtifactPath=path.join(temp,parentClosureProofArtifact.path);
+    if(readFileSync(proofArtifactPath,'utf8')!==parentClosureProofArtifact.content)throw new Error('RELEASE_PARENT_CLOSURE_PROOF_ARTIFACT_BYTES_DRIFT');
     writeFileSync(path.join(temp,'quality','development','active-plan.json'),JSON.stringify(lifecyclePlan,null,2)+'\n');
-    run('git',['add','quality/development/active-plan.json'],{cwd:temp});
+    run('git',['add','quality/development/active-plan.json',parentClosureProofArtifact.path],{cwd:temp});
     run('git',['-c','user.name=shoperation-release-executor','-c','user.email=shoperation-release-executor@users.noreply.github.com','commit','-m','Close development plan '+state.parentTransactionId],{cwd:temp});
     const headSha=run('git',['rev-parse','HEAD'],{cwd:temp});
     const remoteRef='refs/heads/'+branch;
@@ -174,7 +182,7 @@ export function closeParentReleaseExecution({state,sourceCommit,run=defaultRun,c
   const finalMain=currentMain;
   try{
     const proof=runParentProof({state,sourceCommit,finalMain,trustedMainAdvance,run,cwd});
-    let next=recordReleaseParentClosureWithProofContext(state,{truth:proof.truth,lifecyclePlan:proof.lifecyclePlan,currentMainSha:finalMain,trustedMainAdvance,sourcePlan:proof.sourcePlan,sourceCommit});
+    let next=recordReleaseParentClosureWithProofContext(state,{truth:proof.truth,lifecyclePlan:proof.lifecyclePlan,currentMainSha:finalMain,trustedMainAdvance,sourcePlan:proof.sourcePlan,sourceCommit,proofArtifact:proof.parentClosureProofArtifact});
     next={...next,closurePersistence:createClosurePullRequest({proof,state:next,finalMain,run,cwd})};
     return{state:next,decision:'PENDING',reason:'PARENT_CLOSURE_PR_OPEN'};
   }catch(error){
@@ -196,7 +204,7 @@ export function finishParentClosurePersistence({state,sourceCommit,run=defaultRu
     if(canonical.decision!=='PASS')return{state,decision:'BLOCK',reason:'RELEASE_PARENT_CLOSURE_MAIN_DRIFT',error:canonical.error??null,details:canonical.details??null};
     try{
       const proof=runParentProof({state,sourceCommit,finalMain:currentMain,trustedMainAdvance:canonical.proof,run,cwd});
-      let next=recordReleaseParentClosureWithProofContext(state,{truth:proof.truth,lifecyclePlan:proof.lifecyclePlan,currentMainSha:currentMain,trustedMainAdvance:canonical.proof,sourcePlan:proof.sourcePlan,sourceCommit});
+      let next=recordReleaseParentClosureWithProofContext(state,{truth:proof.truth,lifecyclePlan:proof.lifecyclePlan,currentMainSha:currentMain,trustedMainAdvance:canonical.proof,sourcePlan:proof.sourcePlan,sourceCommit,proofArtifact:proof.parentClosureProofArtifact});
       next={...next,closurePersistence:createClosurePullRequest({proof,state:next,finalMain:currentMain,run,cwd})};
       return{state:next,decision:'PENDING',reason:'PARENT_CLOSURE_REPROJECTED'};
     }catch(error){

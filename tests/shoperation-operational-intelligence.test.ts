@@ -174,4 +174,20 @@ describe('Control Plane Operational Intelligence',()=>{
     expect(doc).toContain('CLAIM WITHOUT EVIDENCE = NOT VERIFIED');
     expect(policy.operationalIntelligence.completionEvidence.forbiddenCircularEvidenceIds).toEqual(['GUARD-COMPLETION-TRUTH']);
   });
+  it('allows canonical parent closure mustCreate targeting but keeps generic critical mustCreate fail-closed',()=>{
+    const policy=json<any>('quality/knowledge/development-guard-policy.v1.json');
+    const registry=json<any>('quality/knowledge/guard-registry.v1.json');
+    const basePlan=json<any>('quality/development/active-plan.json');
+    const guardIds=registry.guards.map((item:any)=>item.id);
+    const proofPath='quality/knowledge/release-parent-closure-proofs/dev-parent.json';
+    const candidate=JSON.parse(JSON.stringify(basePlan));
+    candidate.operationalIntelligence.riskTier='critical';
+    candidate.operationalIntelligence.semanticExecutionRoute={...candidate.operationalIntelligence.semanticExecutionRoute,mustEdit:[],mustCreate:[proofPath],proof:[proofPath],unknown:[]};
+    const generic=validateOperationalIntelligence({plan:candidate,policy,guardIds}).issues.map((item:any)=>item.code);
+    expect(generic).toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
+    candidate.parentClosureContext={contract:'shoporation.release-parent-closure-proof-context.v1'};
+    const governed=validateOperationalIntelligence({plan:candidate,policy,guardIds}).issues.map((item:any)=>item.code);
+    expect(governed).not.toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
+  });
+
 });

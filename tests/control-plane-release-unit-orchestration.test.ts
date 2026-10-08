@@ -1,6 +1,6 @@
 // @ts-nocheck
 import {describe,expect,it} from 'vitest';
-import {applyReleaseUnitEvent,buildReleaseParentClosureProofPlan,classifyReleaseUnitObligationDrift,createReleaseParentExecution,createReleaseUnitExecution,reconcileReleaseUnitManifest,reconcileSuccessorReleaseUnit,recordReleaseParentClosure,recordReleaseParentClosureWithProofContext,refreshReleaseUnitIdentity,releaseParentProtectedFiles,releaseParentUnitCloseReceiptDigests,reprojectReleaseUnitChildTransaction,strongDigest,validateReleaseParentClosureProofPlan,validateReleaseParentMainAdvanceProof} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
+import {applyReleaseUnitEvent,buildReleaseParentClosureProofArtifactFromContext,buildReleaseParentClosureProofPlan,classifyReleaseUnitObligationDrift,createReleaseParentExecution,createReleaseUnitExecution,reconcileReleaseUnitManifest,reconcileSuccessorReleaseUnit,recordReleaseParentClosure,recordReleaseParentClosureWithProofContext,refreshReleaseUnitIdentity,releaseParentProtectedFiles,releaseParentUnitCloseReceiptDigests,reprojectReleaseUnitChildTransaction,strongDigest,validateReleaseParentClosureProofArtifact,validateReleaseParentClosureProofPlan,validateReleaseParentMainAdvanceProof} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 import {selectSuccessorProjectedOperations} from '../scripts/release-unit-github-runtime.mjs';
 
 const sha=char=>char.repeat(40);
@@ -470,9 +470,10 @@ describe('Control Plane release-unit orchestration',()=>{
     expect(derived.taskId).toBe(sourcePlan.taskId);
     expect(derived.task).toBe(sourcePlan.task);
     expect(derived.changeBaseSha).toBe(X);
-    expect(derived.plannedFilePatterns).toEqual(['quality/development/active-plan.json']);
+    const proofArtifact=buildReleaseParentClosureProofArtifactFromContext(derived.parentClosureContext);
+    expect(derived.plannedFilePatterns).toEqual(['quality/development/active-plan.json',proofArtifact.path]);
     expect(derived.completionContract).toEqual(sourcePlan.completionContract);
-    expect(derived.operationalIntelligence.semanticExecutionRoute).toMatchObject({mustEdit:[],mustCreate:[],mayEdit:['quality/development/active-plan.json'],proof:['quality/development/active-plan.json']});
+    expect(derived.operationalIntelligence.semanticExecutionRoute).toMatchObject({mustEdit:[],mustCreate:[proofArtifact.path],mayEdit:['quality/development/active-plan.json'],proof:[proofArtifact.path]});
     expect(derived.parentClosureContext).toMatchObject({parentTransactionId:'DEV-ORCH',sourceCommit:A,finalMainSha:X,lastChildMainSha:D,unitCloseReceiptDigests});
     expect(derived.parentClosureContext.trustedMainAdvanceDigest).toBe(strongDigest(advance));
     expect(validateReleaseParentClosureProofPlan(derived,{parent:p,sourcePlan,sourceCommit:A,finalMainSha:X,trustedMainAdvance:advance})).toBe(true);
@@ -482,9 +483,12 @@ describe('Control Plane release-unit orchestration',()=>{
       {...structuredClone(derived),completionContract:{...derived.completionContract,sourceRef:'FORGED'}},
     ])expect(validateReleaseParentClosureProofPlan(bad,{parent:p,sourcePlan,sourceCommit:A,finalMainSha:X,trustedMainAdvance:advance})).toBe(false);
     const closedPlan={...structuredClone(derived),status:'closed',lifecycle:{state:'LEARN',truthStatus:'VERIFIED',verifiedImplementationHead:X}};
-    const verified=recordReleaseParentClosureWithProofContext(p,{truth:{...parentTruth(X),sourceRef:'PO-ORCH'},lifecyclePlan:closedPlan,currentMainSha:X,trustedMainAdvance:advance,sourcePlan,sourceCommit:A});
+    expect(validateReleaseParentClosureProofArtifact(proofArtifact,{context:closedPlan.parentClosureContext})).toBe(true);
+    expect(validateReleaseParentClosureProofArtifact({...proofArtifact,content:proofArtifact.content+' '},{context:closedPlan.parentClosureContext})).toBe(false);
+    const verified=recordReleaseParentClosureWithProofContext(p,{truth:{...parentTruth(X),sourceRef:'PO-ORCH'},lifecyclePlan:closedPlan,currentMainSha:X,trustedMainAdvance:advance,sourcePlan,sourceCommit:A,proofArtifact});
     expect(verified.closedReceipt.parentClosureContext).toEqual(closedPlan.parentClosureContext);
-    expect(()=>recordReleaseParentClosureWithProofContext(p,{truth:{...parentTruth(X),sourceRef:'PO-ORCH'},lifecyclePlan:{...closedPlan,parentClosureContext:{...closedPlan.parentClosureContext,unitCloseReceiptDigests:['forged']}},currentMainSha:X,trustedMainAdvance:advance,sourcePlan,sourceCommit:A})).toThrow(/RELEASE_PARENT_CLOSURE_PROOF_CONTEXT_INVALID/);
+    expect(verified.closedReceipt).toMatchObject({proofArtifactPath:proofArtifact.path,proofArtifactDigest:proofArtifact.digest});
+    expect(()=>recordReleaseParentClosureWithProofContext(p,{truth:{...parentTruth(X),sourceRef:'PO-ORCH'},lifecyclePlan:{...closedPlan,parentClosureContext:{...closedPlan.parentClosureContext,unitCloseReceiptDigests:['forged']}},currentMainSha:X,trustedMainAdvance:advance,sourcePlan,sourceCommit:A,proofArtifact})).toThrow(/RELEASE_PARENT_CLOSURE_PROOF_CONTEXT_INVALID/);
   });
 
   it('derives canonical null trusted-main binding when parent closes exactly at last child main',()=>{

@@ -14,6 +14,7 @@ export const RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT='shoporation.release-unit-
 export const RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT='shoporation.release-parent-main-advance-proof.v1';
 export const RELEASE_PARENT_CLOSURE_PROOF_PLAN_CONTRACT='shoporation.release-parent-closure-proof-plan.v1';
 export const RELEASE_PARENT_CLOSURE_CONTEXT_CONTRACT='shoporation.release-parent-closure-proof-context.v1';
+export const RELEASE_PARENT_CLOSURE_PROOF_ARTIFACT_CONTRACT='shoporation.release-parent-closure-proof-artifact.v1';
 export const RELEASE_UNIT_CONFLICT_RESOLUTION_CONTRACT='shoporation.release-unit-conflict-resolution.v1';
 
 const uniq=values=>[...new Set((values??[]).filter(Boolean))].sort();
@@ -859,15 +860,50 @@ export function buildReleaseParentClosureProofContext({parent,sourcePlan,sourceC
   };
 }
 
+const releaseParentProofSlug=value=>String(value??'').trim().toLowerCase().replace(/[^a-z0-9._-]+/g,'-').replace(/^-+|-+$/g,'')||'release-parent';
+export function releaseParentClosureProofArtifactPath(parentTransactionId){
+  return `quality/knowledge/release-parent-closure-proofs/${releaseParentProofSlug(parentTransactionId)}.json`;
+}
+export function releaseParentClosureProofArtifactByteDigest(content){return createHash('sha256').update(String(content??'')).digest('hex');}
+export function buildReleaseParentClosureProofArtifactFromContext(context={}){
+  if(context?.contract!==RELEASE_PARENT_CLOSURE_CONTEXT_CONTRACT)throw new Error('RELEASE_PARENT_CLOSURE_ARTIFACT_CONTEXT_INVALID');
+  const artifact={
+    contract:RELEASE_PARENT_CLOSURE_PROOF_ARTIFACT_CONTRACT,
+    parentTransactionId:context.parentTransactionId,
+    sourceCommit:context.sourceCommit,
+    sourcePlanDigest:context.sourcePlanDigest,
+    completionContractDigest:context.completionContractDigest,
+    finalMainSha:context.finalMainSha,
+    unitCloseReceiptDigests:[...(context.unitCloseReceiptDigests??[])],
+    trustedMainAdvanceDigest:context.trustedMainAdvanceDigest??null,
+    parentClosureContextDigest:strongDigest(context),
+  };
+  const content=JSON.stringify(artifact,null,2)+'\n';
+  return{path:releaseParentClosureProofArtifactPath(context.parentTransactionId),artifact,content,digest:releaseParentClosureProofArtifactByteDigest(content)};
+}
+export function buildReleaseParentClosureProofArtifact({parent,sourcePlan,sourceCommit,finalMainSha,trustedMainAdvance=null}={}){
+  return buildReleaseParentClosureProofArtifactFromContext(buildReleaseParentClosureProofContext({parent,sourcePlan,sourceCommit,finalMainSha,trustedMainAdvance}));
+}
+export function validateReleaseParentClosureProofArtifact(candidate,{context}={}){
+  try{
+    const expected=buildReleaseParentClosureProofArtifactFromContext(context);
+    return candidate?.path===expected.path
+      &&candidate?.content===expected.content
+      &&candidate?.digest===expected.digest
+      &&sameJson(candidate?.artifact,expected.artifact);
+  }catch{return false;}
+}
+
 export function buildReleaseParentClosureProofPlan({parent,sourcePlan,sourceCommit,finalMainSha,trustedMainAdvance=null}={}){
   const context=buildReleaseParentClosureProofContext({parent,sourcePlan,sourceCommit,finalMainSha,trustedMainAdvance});
   const plan=structuredClone(sourcePlan);
   const closureFile='quality/development/active-plan.json';
+  const proofArtifact=buildReleaseParentClosureProofArtifactFromContext(context);
   plan.status='ready-for-implementation';
   delete plan.lifecycle;
   delete plan.releaseUnitContext;
   plan.changeBaseSha=context.finalMainSha;
-  plan.plannedFilePatterns=[closureFile];
+  plan.plannedFilePatterns=[closureFile,proofArtifact.path];
   plan.parentClosureContext=context;
   const sourceRoute=sourcePlan?.operationalIntelligence?.semanticExecutionRoute??{};
   plan.operationalIntelligence={
@@ -878,9 +914,9 @@ export function buildReleaseParentClosureProofPlan({parent,sourcePlan,sourceComm
       mustEdit:[],
       mayEdit:[closureFile],
       impactedReadOnly:[],
-      mustCreate:[],
+      mustCreate:[proofArtifact.path],
       forbidden:uniq(sourceRoute.forbidden??[]),
-      proof:[closureFile],
+      proof:[proofArtifact.path],
       unknown:[],
       plannedDeletions:[],
       plannedRenames:[],
@@ -1318,13 +1354,14 @@ export function applyReleaseUnitEvent(parent,event){
   return synchronizeReleaseParentExecution(parent,nextUnit);
 }
 
-export function recordReleaseParentClosureWithProofContext(parent,{truth,lifecyclePlan,currentMainSha,trustedMainAdvance=null,sourcePlan,sourceCommit}={}){
+export function recordReleaseParentClosureWithProofContext(parent,{truth,lifecyclePlan,currentMainSha,trustedMainAdvance=null,sourcePlan,sourceCommit,proofArtifact}={}){
   const exact=String(currentMainSha??'').trim();
   if(!validateReleaseParentClosureProofPlan(lifecyclePlan,{parent,sourcePlan,sourceCommit,finalMainSha:exact,trustedMainAdvance}))executionError('RELEASE_PARENT_CLOSURE_PROOF_CONTEXT_INVALID');
+  if(!validateReleaseParentClosureProofArtifact(proofArtifact,{context:lifecyclePlan.parentClosureContext}))executionError('RELEASE_PARENT_CLOSURE_PROOF_ARTIFACT_INVALID');
   if(truth?.taskId!==parent?.parentTransactionId)executionError('RELEASE_PARENT_TRUTH_TASK_MISMATCH');
   if(truth?.sourceRef!==sourcePlan?.completionContract?.sourceRef)executionError('RELEASE_PARENT_TRUTH_SOURCE_MISMATCH');
   const next=recordReleaseParentClosure(parent,{truth,lifecyclePlan,currentMainSha:exact,trustedMainAdvance});
-  next.closedReceipt={...next.closedReceipt,parentClosureContext:executionClone(lifecyclePlan.parentClosureContext)};
+  next.closedReceipt={...next.closedReceipt,parentClosureContext:executionClone(lifecyclePlan.parentClosureContext),proofArtifactPath:proofArtifact.path,proofArtifactDigest:proofArtifact.digest};
   return next;
 }
 
