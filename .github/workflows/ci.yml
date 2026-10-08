@@ -1,4 +1,5 @@
 name: CI
+run-name: ${{ inputs.parent_post_merge_nonce || github.event.head_commit.message || github.event.pull_request.title || 'CI' }}
 
 on:
   push:
@@ -35,6 +36,22 @@ on:
         type: string
       release_unit_head_ref:
         description: Exact release-unit child head branch
+        required: false
+        type: string
+      parent_post_merge_id:
+        description: Parent transaction identifier for exact post-merge main CI
+        required: false
+        type: string
+      parent_post_merge_source_sha:
+        description: Immutable parent execution source commit
+        required: false
+        type: string
+      parent_post_merge_sha:
+        description: Exact parent merged main commit
+        required: false
+        type: string
+      parent_post_merge_nonce:
+        description: Deterministic exact parent merge CI correlation
         required: false
         type: string
 
@@ -126,6 +143,29 @@ jobs:
 
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+
+      - name: Bind exact parent post-merge main CI
+        if: github.event_name == 'workflow_dispatch' && inputs.parent_post_merge_nonce != ''
+        shell: bash
+        env:
+          PARENT_ID: ${{ inputs.parent_post_merge_id }}
+          PARENT_SOURCE_SHA: ${{ inputs.parent_post_merge_source_sha }}
+          PARENT_MERGED_MAIN_SHA: ${{ inputs.parent_post_merge_sha }}
+          PARENT_NONCE: ${{ inputs.parent_post_merge_nonce }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {createHash} from 'node:crypto';
+          const id=process.env.PARENT_ID,source=process.env.PARENT_SOURCE_SHA,merged=process.env.PARENT_MERGED_MAIN_SHA;
+          if(!/^[A-Za-z0-9._-]+$/.test(id)||!(/^[0-9a-f]{40}$/.test(source))||!(/^[0-9a-f]{40}$/.test(merged))||
+              process.env.GITHUB_SHA!==merged||process.env.GITHUB_REF_NAME!=='main'||process.env.GITHUB_EVENT_NAME!=='workflow_dispatch')
+            throw new Error('RELEASE_PARENT_POST_MERGE_MAIN_CI_IDENTITY_MISMATCH');
+          const expected='parent-main-ci-'+createHash('sha256').update(JSON.stringify({
+            contract:'shoporation.release-parent-post-merge-main-ci.v1',
+            parentId:id,sourceCommit:source,mergedMainSha:merged,
+          })).digest('hex').slice(0,32);
+          if(process.env.PARENT_NONCE!==expected)throw new Error('RELEASE_PARENT_POST_MERGE_MAIN_CI_NONCE_INVALID');
+          console.log('Release parent post-merge main identity verified '+merged);
+          NODE
 
       - name: Resolve release-unit child transaction context
         if: env.SHOPERATION_CI_RELEASE_UNIT_PROOF == 'true'

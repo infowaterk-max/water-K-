@@ -28,7 +28,7 @@ import {
   validateExactPullRequest,
 } from '../scripts/release-unit-github-runtime.mjs';
 import {resolveReleaseUnitCiPullRequest} from '../scripts/release-unit-ci-context.mjs';
-import {ensureParentClosureCiDispatch,proveParentMainAdvance,requireExactParentClosurePrIdentity,proveInterruptedParentClosureProjection} from '../scripts/release-unit-parent-close.mjs';
+import {advanceParentPostMergeMainCi,classifyParentPostMergeMainCiRun,createPendingParentMainCiState,ensureParentClosureCiDispatch,finishParentClosurePersistence,proveParentMainAdvance,requireExactParentClosurePrIdentity,proveInterruptedParentClosureProjection} from '../scripts/release-unit-parent-close.mjs';
 
 const A='a'.repeat(40),H='1'.repeat(40);
 const parentPlan:any={
@@ -536,6 +536,116 @@ describe('release-unit execution binding hardening',()=>{
     expect(source).toContain("return reproject(currentMain);");
     expect(source).toContain("buildReleaseParentClosureProofArtifactFromContext(expectedPlan.parentClosureContext)");
     expect(source).toContain("run('git',['hash-object','--stdin'],{cwd,input:artifact.content})");
+  });
+
+  it('requires a durable post-merge pending state and preserves the immutable source/receipt binding',()=>{
+    const source='a'.repeat(40),base='b'.repeat(40),merged='c'.repeat(40),head='d'.repeat(40);
+    const parent:any={
+      parentTransactionId:'DEV-PARENT',executionSourceCommit:source,closureComplete:true,
+      closedReceipt:{decision:'PASS',truthStatus:'VERIFIED',parentTransactionId:'DEV-PARENT'},
+      units:[{state:'CLOSED',closeReceipt:{decision:'PASS'}}],
+      closurePersistence:{contract:'shoporation.release-parent-closure-persistence.v1',state:'PR_OPEN',prNumber:1138,headSha:head,branch:'release-execution/closure/dev-parent',baseSha:base},
+    };
+    const next=createPendingParentMainCiState({state:parent,sourceCommit:source,mergedMainSha:merged});
+    expect(next.closurePersistence).toMatchObject({state:'POST_MERGE_CI_PENDING',mergedMainSha:merged,
+      postMergeMainCi:{status:'INTENT_RECORDED',decision:'PENDING',headBranch:'main',runId:null,sourceCommit:source}});
+    expect(next.closurePersistence.postMergeMainCi.nonce).toMatch(/^parent-main-ci-[a-f0-9]{32}$/);
+    expect(()=>createPendingParentMainCiState({state:parent,sourceCommit:'f'.repeat(40),mergedMainSha:merged})).toThrow(/CLOSED_RECEIPTS_INVALID/);
+    const broken=structuredClone(parent);broken.units[0].closeReceipt.decision='FAKE';
+    expect(()=>createPendingParentMainCiState({state:broken,sourceCommit:source,mergedMainSha:merged})).toThrow(/CLOSED_RECEIPTS_INVALID/);
+    const workflow=readFileSync('.github/workflows/ci.yml','utf8');
+    expect(workflow).toContain('Bind exact parent post-merge main CI');
+    expect(workflow).toContain('process.env.GITHUB_SHA!==merged');
+    expect(workflow).toContain('parent_post_merge_nonce');
+    const driver=readFileSync('scripts/release-unit-execute.mjs','utf8');
+    expect(driver).toContain("state.closurePersistence?.state==='POST_MERGE_CI_PENDING'");
+    expect(driver).toContain('advanceParentPostMergeMainCi({state,sourceCommit:source})');
+    expect(readFileSync('scripts/release-unit-parent-close.mjs','utf8')).toContain("reason:'PARENT_POST_MERGE_MAIN_CI_REQUIRED'");
+  });
+  it('accepts only a bot-dispatched exact merged SHA with required successful job steps',()=>{
+    const source='a'.repeat(40),base='b'.repeat(40),merged='c'.repeat(40),head='d'.repeat(40);
+    const state:any=createPendingParentMainCiState({state:{
+      parentTransactionId:'DEV-PARENT',executionSourceCommit:source,closureComplete:true,
+      closedReceipt:{decision:'PASS',truthStatus:'VERIFIED',parentTransactionId:'DEV-PARENT'},
+      units:[{state:'CLOSED',closeReceipt:{decision:'PASS'}}],
+      closurePersistence:{contract:'shoporation.release-parent-closure-persistence.v1',state:'PR_OPEN',prNumber:1138,headSha:head,branch:'release-execution/closure/dev-parent',baseSha:base},
+    },sourceCommit:source,mergedMainSha:merged});
+    const workflowRun:any={id:987,run_attempt:1,name:'CI',path:'.github/workflows/ci.yml',event:'workflow_dispatch',head_sha:merged,
+      head_branch:'main',display_title:state.closurePersistence.postMergeMainCi.nonce,actor:{login:'github-actions[bot]'},
+      status:'completed',conclusion:'success',created_at:'2026-10-08T21:00:00Z',updated_at:'2026-10-08T21:06:00Z'};
+    const steps=['Bind exact parent post-merge main CI','Knowledge Before Build preflight','Incremental Known Failure Replay','Quality tests','TypeScript check','Production build'].map(name=>({name,status:'completed',conclusion:'success'}));
+    const jobs:any=[{name:'build',status:'completed',conclusion:'success',steps},{name:'security-audit',status:'completed',conclusion:'success'}];
+    const classify=(run:any=workflowRun,jobList:any=jobs,projected:any=state)=>classifyParentPostMergeMainCiRun({state:projected,ciRun:run,jobs:jobList,mergedAt:'2026-10-08T20:55:00Z'});
+    expect(classify()).toMatchObject({decision:'PASS',receipt:{runId:987,conclusion:'success',headSha:merged,sourceCommit:source}});
+    expect(classify({...workflowRun,status:'in_progress',conclusion:null},null)).toMatchObject({decision:'PENDING'});
+    for(const [name,field] of [
+      ['wrong sha',{head_sha:'f'.repeat(40)}],['wrong branch',{head_branch:'feature/foreign'}],
+      ['wrong event',{event:'pull_request'}],['manual actor',{actor:{login:'chall'}}],
+      ['wrong nonce',{display_title:'CI regular manual run'}],['foreign workflow',{path:'.github/workflows/other.yml'}],
+      ['wrong name',{name:'Other'}],['wrong ID',{id:999}],
+    ]){
+      const bound=structuredClone(state);bound.closurePersistence.postMergeMainCi.runId=987;
+      expect(classify({...workflowRun,...field},jobs,bound).decision,name).toBe('BLOCK');
+    }
+    expect(classify({...workflowRun,created_at:'2026-10-08T20:00:00Z'}).decision).toBe('BLOCK');
+    expect(classify({...workflowRun,conclusion:'failure'}).decision).toBe('BLOCK');
+    expect(classify({...workflowRun,conclusion:'cancelled'}).decision).toBe('BLOCK');
+    expect(classify(workflowRun,[]).decision).toBe('BLOCK');
+    expect(classify(workflowRun,[jobs[0]]).decision).toBe('BLOCK');
+    expect(classify(workflowRun,[{...jobs[0],steps:steps.slice(1)},jobs[1]]).decision).toBe('BLOCK');
+    const wrongSource=structuredClone(state);wrongSource.closurePersistence.postMergeMainCi.sourceCommit='f'.repeat(40);
+    expect(classify(workflowRun,jobs,wrongSource).decision).toBe('BLOCK');
+  });
+  it('dispatches exactly once, polls the exact run and fails closed on changed main or invisible events',()=>{
+    const source='a'.repeat(40),base='b'.repeat(40),merged='c'.repeat(40),head='d'.repeat(40);
+    let state:any=createPendingParentMainCiState({state:{
+      parentTransactionId:'DEV-PARENT',executionSourceCommit:source,closureComplete:true,
+      closedReceipt:{decision:'PASS',truthStatus:'VERIFIED',parentTransactionId:'DEV-PARENT'},
+      units:[{state:'CLOSED',closeReceipt:{decision:'PASS'}}],
+      closurePersistence:{contract:'shoporation.release-parent-closure-persistence.v1',state:'PR_OPEN',prNumber:1138,headSha:head,branch:'release-execution/closure/dev-parent',baseSha:base},
+    },sourceCommit:source,mergedMainSha:merged});
+    const nonce=state.closurePersistence.postMergeMainCi.nonce;
+    const pr:any={state:'closed',merged:true,number:1138,head:{sha:head,ref:'release-execution/closure/dev-parent'},
+      base:{sha:base,ref:'main'},merge_commit_sha:merged,merged_by:{login:'github-actions[bot]'},merged_at:'2026-10-08T20:00:00Z'};
+    const ciRun:any={id:991,run_attempt:1,name:'CI',path:'.github/workflows/ci.yml',event:'workflow_dispatch',head_sha:merged,
+      head_branch:'main',display_title:nonce,actor:{login:'github-actions[bot]'},status:'queued',conclusion:null,
+      created_at:'2026-10-08T20:05:00Z',updated_at:'2026-10-08T20:05:00Z'};
+    const steps=['Bind exact parent post-merge main CI','Knowledge Before Build preflight','Incremental Known Failure Replay','Quality tests','TypeScript check','Production build'].map(name=>({name,status:'completed',conclusion:'success'}));
+    const jobs:any=[{name:'build',status:'completed',conclusion:'success',steps},{name:'security-audit',status:'completed',conclusion:'success'}];
+    let dispatches=0,listing:any[]=[],main=merged;
+    const fake=(command:string,args:string[])=>{
+      if(command==='gh'&&args[0]==='repo')return 'owner/repo';
+      if(command==='gh'&&args[0]==='api'&&args[1]==='repos/owner/repo/pulls/1138')return JSON.stringify(pr);
+      if(command==='git'&&args[0]==='ls-remote')return main+'\trefs/heads/main';
+      if(command==='gh'&&args[0]==='run'&&args[1]==='list')return JSON.stringify(listing);
+      if(command==='gh'&&args[0]==='workflow'&&args[1]==='run'){
+        dispatches+=1;expect(args).toContain('parent_post_merge_sha='+merged);expect(args).toContain('parent_post_merge_nonce='+nonce);
+        expect(args).not.toContain('release_unit_proof=true');return 'https://github.com/owner/repo/actions/runs/991';
+      }
+      if(command==='gh'&&args[0]==='api'&&args[1]==='repos/owner/repo/actions/runs/991')return JSON.stringify(ciRun);
+      if(command==='gh'&&args[0]==='api'&&args[1]==='repos/owner/repo/actions/runs/991/jobs?per_page=100')return JSON.stringify({jobs});
+      throw Error('unexpected '+command+' '+args.join(' '));
+    };
+    const first=advanceParentPostMergeMainCi({state,sourceCommit:source,run:fake});
+    expect(first).toMatchObject({decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCHED',
+      state:{closurePersistence:{postMergeMainCi:{status:'DISPATCH_REQUESTED',runId:991}}}});
+    expect(dispatches).toBe(1);state=first.state;
+    const waiting=advanceParentPostMergeMainCi({state,sourceCommit:source,run:fake});
+    expect(waiting.decision).toBe('PENDING');expect(dispatches).toBe(1);
+    state=waiting.state;ciRun.status='completed';ciRun.conclusion='success';ciRun.updated_at='2026-10-08T20:09:00Z';
+    const closed=advanceParentPostMergeMainCi({state,sourceCommit:source,run:fake});
+    expect(closed).toMatchObject({decision:'PARENT_CLOSED',state:{closurePersistence:{state:'MERGED',postMergeMainCi:{decision:'PASS',runId:991}}}});
+    expect(dispatches).toBe(1);
+    main='f'.repeat(40);
+    expect(advanceParentPostMergeMainCi({state:first.state,sourceCommit:source,run:fake})).toMatchObject({decision:'BLOCK',reason:'RELEASE_PARENT_POST_MERGE_MAIN_DRIFT'});
+    main=merged;
+    const resumed=structuredClone(first.state);resumed.closurePersistence.postMergeMainCi.runId=null;
+    listing=[{databaseId:991,status:'completed',conclusion:'success',headSha:merged,headBranch:'main',
+      event:'workflow_dispatch',workflowName:'CI',displayTitle:nonce}];
+    expect(advanceParentPostMergeMainCi({state:resumed,sourceCommit:source,run:fake}).decision).toBe('PARENT_CLOSED');
+    listing=[];
+    expect(advanceParentPostMergeMainCi({state:resumed,sourceCommit:source,run:fake})).toMatchObject({decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_RUN_NOT_VISIBLE'});
+    expect(dispatches).toBe(1);
   });
 
 });

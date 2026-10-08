@@ -8,7 +8,7 @@ import {
   prepareActiveUnit,
   stateRefFor,
 } from './release-unit-github-runtime.mjs';
-import {closeParentReleaseExecution,finishParentClosurePersistence} from './release-unit-parent-close.mjs';
+import {advanceParentPostMergeMainCi,closeParentReleaseExecution,finishParentClosurePersistence} from './release-unit-parent-close.mjs';
 
 const args=process.argv.slice(2);
 const value=name=>{const index=args.indexOf(name);return index>=0?args[index+1]??null:null;};
@@ -42,6 +42,8 @@ if(has('--drive')){
     let result;
     if(state.closureComplete&&state.closurePersistence?.state==='PR_OPEN'){
       result=finishParentClosurePersistence({state,sourceCommit:source});
+    }else if(state.closureComplete&&state.closurePersistence?.state==='POST_MERGE_CI_PENDING'){
+      result=advanceParentPostMergeMainCi({state,sourceCommit:source});
     }else if(state.closureComplete&&state.closurePersistence?.state==='MERGED'){
       console.log(JSON.stringify({decision:'PARENT_CLOSED',parentTransactionId:state.parentTransactionId,stateRef,stateCommit:loaded.stateCommit},null,2));
       process.exit(0);
