@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-EXACT-DIAGNOSTIC-SURFACE-V1",
   "task": "Preserve the exact nested parent proof/persistence exception at the release executor machine-error boundary so a blocked parent closure reports both the stable blocker code and its exact root cause without changing fail-closed semantics.",
   "status": "ready-for-implementation",
-  "guardDigest": "a41cfd0c",
+  "guardDigest": "128614ad",
   "changeBaseSha": "4cab9376d285a15d4d27d742f7b8b2babb8a5bee",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -14,63 +14,31 @@
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
-    "SQ-KF-005",
     "SQ-KF-006",
-    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-015",
-    "SQ-KF-016",
-    "SQ-KF-017",
     "SQ-KF-018",
-    "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
     "TF-KF-005",
-    "TF-KF-006",
     "TF-KF-007",
-    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
-    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "TF-KF-015"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -285,9 +253,9 @@
     "challenge": [
       {
         "id": "CH-DIAG-01",
-        "scenario": "Keep `reason ?? error` and inspect logs manually.",
-        "finding": "Reproduces the known diagnostic-surface gap and violates direct exact-error requirement.",
-        "resolution": "Emit both fields.",
+        "scenario": "Release Unit Execution #260 returns `{reason:'RELEASE_PARENT_PROOF_OR_PERSISTENCE_FAILED', error:'<exact child command failure>'}` from `closeParentReleaseExecution()`, while the outer driver still evaluates `result.reason ?? result.error`.",
+        "finding": "The emitted workflow exception contains only `RELEASE_PARENT_PROOF_OR_PERSISTENCE_FAILED`; the exact nested parent proof/persistence exception is deterministically discarded and requires a second investigation path.",
+        "resolution": "Replace the coalescing boundary with a whitelisted diagnostic payload that serializes both fields as `{reason,error}` while retaining the same BLOCK throw and non-zero exit.",
         "status": "resolved"
       },
       {
@@ -299,9 +267,9 @@
       },
       {
         "id": "CH-DIAG-03",
-        "scenario": "Serialize full result object.",
-        "finding": "Could expose state/evidence unrelated to the failure.",
-        "resolution": "Whitelist `{reason,error}` only.",
+        "scenario": "A BLOCK result also contains execution state, receipts, branch identity, or environment-derived data in addition to `reason` and `error`, and the outer driver serializes the entire result for convenience.",
+        "finding": "The write-capable executor would expose unrelated authoritative state and potentially sensitive diagnostics merely to preserve one nested exception.",
+        "resolution": "Whitelist exactly two outward fields—`reason` and `error`—and add regression coverage that no other result property is present in the serialized blocker payload.",
         "status": "resolved"
       },
       {
