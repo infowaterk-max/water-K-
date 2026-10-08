@@ -84,8 +84,8 @@
       "Ordinary plans with no material projected files still fail with DEV_PLAN_PROJECTION_EMPTY.",
       "Only a plan carrying a valid executor-derived parentClosureContext/proofPlanContract and exactly the development metadata path may enter metadata-only projection mode.",
       "Metadata-only projection requires plannedFilePatterns exactly [`quality/development/active-plan.json`], no material mustEdit/mustCreate/planned deletion/rename/generated-artifact obligations, and no material changedFiles.",
-      "The derived parent closure-plan builder normalizes expectedSubsystems, expectedDomains, expectedAuthorities, expectedKnownFailureIds, acknowledgedNegativeKnowledgeIds and acknowledgedPoInstructionIds to the canonical empty material projection.",
-      "The derived builder computes the canonical empty guardDigest using the same stableDigest algorithm as Plan Before Code, not a hard-coded constant.",
+      "The derived parent closure-plan builder normalizes material ownership scope to expectedSubsystems=[], expectedDomains=[], expectedAuthorities=[], keeps canonical global baseline expectedKnownFailureIds=[SQ-KF-013,SQ-KF-014,SQ-KF-022], acknowledgedNegativeKnowledgeIds=[SQ-NK-012], and acknowledgedPoInstructionIds=[].",
+      "The derived builder computes guardDigest with the canonical planner stableDigest over global baseline failure IDs [SQ-KF-013,SQ-KF-014,SQ-KF-022], subsystems=[], and negativeKnowledgeIds=[SQ-NK-012], yielding 430b0bba.",
       "The semantic execution route remains explicit and closure-only: metadata mayEdit/proof is allowed, material mustEdit/mustCreate remain empty, unknown remains empty.",
       "Plan Before Code reports a distinct evaluation mode/flag for authenticated metadata-only parent closure rather than pretending a material projection exists.",
       "Gate-chain compilation still includes explicitly required completion guards even when projectedFiles is empty.",
@@ -106,7 +106,7 @@
         "Add a pure predicate/validator for authenticated parent metadata-only closure projection in Plan Before Code.",
         "Keep projectedFiles materially empty in this mode; do not inject a fake source/test/runtime file.",
         "Suppress DEV_PLAN_PROJECTION_EMPTY only for the authenticated metadata-only closure contract.",
-        "Require canonical empty material scope/digest declarations from the derived plan.",
+        "Require canonical metadata-only scope declarations: no material subsystem/domain/authority ownership, global baseline failures [SQ-KF-013,SQ-KF-014,SQ-KF-022], global negative knowledge [SQ-NK-012], no PO instruction IDs, and guardDigest 430b0bba.",
         "Normalize those declarations in buildReleaseParentClosureProofPlan.",
         "Preserve explicit completion guard-chain compilation from completionContract even with zero material projected files.",
         "Add positive and adversarial regression coverage in shoperation-development-guard and release-unit orchestration tests."
@@ -145,8 +145,8 @@
         "Metadata-only mode requires plannedFilePatterns exactly [`quality/development/active-plan.json`].",
         "Metadata-only mode requires semantic route material mutation arrays mustEdit/mustCreate/plannedDeletions/plannedRenames/generatedArtifacts all empty.",
         "Metadata-only mode requires no material actual diff between changeBaseSha and exact head.",
-        "Derived expectedSubsystems/domains/authorities/knownFailureIds/acknowledgedNegativeKnowledgeIds/acknowledgedPoInstructionIds are all empty arrays.",
-        "Derived guardDigest equals stableDigest({failureIds:[],subsystems:[],negativeKnowledgeIds:[]}).",
+        "Derived expectedSubsystems, expectedDomains and expectedAuthorities are [], expectedKnownFailureIds are exactly [SQ-KF-013,SQ-KF-014,SQ-KF-022], acknowledgedNegativeKnowledgeIds are exactly [SQ-NK-012], and acknowledgedPoInstructionIds are [].",
+        "Derived guardDigest equals stableDigest({failureIds:[SQ-KF-013,SQ-KF-014,SQ-KF-022],subsystems:[],negativeKnowledgeIds:[SQ-NK-012]}) = 430b0bba.",
         "Planner still compiles explicit completion guards and produces a PASS gate chain for valid metadata-only closure.",
         "Forged context or any extra material planned path is BLOCK.",
         "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge."
@@ -316,15 +316,15 @@
       {
         "id": "CH-META-02",
         "scenario": "Derived plan keeps source expectedKnownFailureIds.",
-        "finding": "Projected material failure scope is empty and drifts.",
-        "resolution": "Builder normalizes expectedKnownFailureIds to [].",
+        "finding": "Projected material ownership is empty, but Plan Before Code still requires the three global baseline failure IDs.",
+        "resolution": "Builder normalizes expectedKnownFailureIds to [SQ-KF-013,SQ-KF-014,SQ-KF-022], not to the source plan's full historical failure corpus.",
         "status": "resolved"
       },
       {
         "id": "CH-META-03",
         "scenario": "Derived plan keeps source expectedDomains/Authorities/Subsystems.",
-        "finding": "Empty material projection cannot prove historical ownership.",
-        "resolution": "Normalize all material scope arrays to [].",
+        "finding": "Metadata-only closure has no material subsystem/domain/authority ownership, but global negative knowledge SQ-NK-012 still applies.",
+        "resolution": "Normalize expectedSubsystems/domains/authorities to [], acknowledgedNegativeKnowledgeIds to [SQ-NK-012], acknowledgedPoInstructionIds to [], and guardDigest to 430b0bba.",
         "status": "resolved"
       },
       {
