@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-ALREADY-APPLIED-SUCCESSOR-REPROJECTION-V1",
   "task": "Preserve immutable release-unit operation semantics across trusted fully-already-applied successor reevaluation while allowing only monotonic fresh governance/proof enrichment required by current Atlas authority.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "42e80eed290f2cd5b5baa1a677e021a8a074ee12",
   "plannedFilePatterns": [
@@ -498,5 +498,18 @@
       }
     ]
   },
-  "notes": "Live blocker: Release Unit Execution #244 on immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and main 42e80eed290f2cd5b5baa1a677e021a8a074ee12. Persisted U03 has sealed create fixture-25 + sealed modify production-surface test. Governed main resolution already contains both exact effects; trusted materializer therefore produces full ALREADY_APPLIED. Fresh Plan/Atlas projection then describes fixture-25 as modify because it now exists and adds scripts/release-unit-github-runtime.mjs as dependency plus current read-only proof paths, causing raw operations/dependency/readOnly/childOperationDigest obligation drift before no-code proof. This task preserves immutable operation semantics only under exact full ALREADY_APPLIED evidence and permits only additive governance enrichment under trusted fresh projection. No persisted release-state or immutable source mutation is authorized."
+  "notes": "Live blocker: Release Unit Execution #244 on immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and main 42e80eed290f2cd5b5baa1a677e021a8a074ee12. Persisted U03 has sealed create fixture-25 + sealed modify production-surface test. Governed main resolution already contains both exact effects; trusted materializer therefore produces full ALREADY_APPLIED. Fresh Plan/Atlas projection then describes fixture-25 as modify because it now exists and adds scripts/release-unit-github-runtime.mjs as dependency plus current read-only proof paths, causing raw operations/dependency/readOnly/childOperationDigest obligation drift before no-code proof. This task preserves immutable operation semantics only under exact full ALREADY_APPLIED evidence and permits only additive governance enrichment under trusted fresh projection. No persisted release-state or immutable source mutation is authorized.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "024cf8432f58191d4b23d5c3ebf256ce4b56707f",
+    "closedAt": "2026-10-08T03:22:44.244Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-ALREADY-APPLIED-SUCCESSOR-REPROJECTION-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
