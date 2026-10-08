@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-PARENT-CLOSURE-TRUTH-LIFECYCLE-HARDENING-V1",
   "task": "Reconcile VERIFIED parent proof metadata with persisted execution identity while retaining fail-closed detection of all other post-verification changes.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "aa79c504",
   "changeBaseSha": "d3611344b1f7006e250b60a8973d5902abc33cfc",
   "plannedFilePatterns": [
@@ -439,5 +439,18 @@
       }
     ]
   },
-  "notes": "Targeted repair for PR #1138's DEV_LIFECYCLE_POST_VERIFICATION_MATERIAL_CHANGE. Stage 1 Plan Before Code; stage 2 exact source/receipt/main/metadata proof verification; stage 3 adversarial regressions; stage 4 exact-head CI. Original immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and CLOSED U01-U03 untouched. Old stalled Actions run #182 is a separately isolated platform queue artifact; no force push or canonical state edits permitted. Plan-only CI #9250 reported full Knowledge Failure replay (49 ids) for touched quality infrastructure; projected guardDigest aa79c504. No implementation changes were made before this correction. CI #9253: all Quality tests PASS, all initial guards PASS, TypeScript check correctly detected missing optional verifiedParentClosureProofPath declaration in scripts/lib/shoperation-operational-intelligence.d.mts. Plan expanded before touching that typed interface; no generic cast workaround."
+  "notes": "Targeted repair for PR #1138's DEV_LIFECYCLE_POST_VERIFICATION_MATERIAL_CHANGE. Stage 1 Plan Before Code; stage 2 exact source/receipt/main/metadata proof verification; stage 3 adversarial regressions; stage 4 exact-head CI. Original immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and CLOSED U01-U03 untouched. Old stalled Actions run #182 is a separately isolated platform queue artifact; no force push or canonical state edits permitted. Plan-only CI #9250 reported full Knowledge Failure replay (49 ids) for touched quality infrastructure; projected guardDigest aa79c504. No implementation changes were made before this correction. CI #9253: all Quality tests PASS, all initial guards PASS, TypeScript check correctly detected missing optional verifiedParentClosureProofPath declaration in scripts/lib/shoperation-operational-intelligence.d.mts. Plan expanded before touching that typed interface; no generic cast workaround.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "73620bfb3478e11f446ddf6a1ed7616682db9e13",
+    "closedAt": "2026-10-08T19:36:40.093Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-08-PARENT-CLOSURE-TRUTH-HARDENING-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
