@@ -10,16 +10,12 @@
     "scripts/shoperation-edit-time-guard.mjs",
     "tests/control-plane-release-unit-execution-binding.test.ts"
   ],
-  "expectedSubsystems": [
-    "release-infrastructure"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -74,19 +70,7 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-016",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -371,8 +355,7 @@
     "semanticExecutionRoute": {
       "request": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-CI-IDENTITY-V1",
       "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
         "scripts/shoperation-edit-time-guard.mjs"
@@ -478,5 +461,5 @@
       }
     ]
   },
-  "notes": "Live observation 2026-10-08: main 0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6 CI #9198 SUCCESS; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 unchanged; U01/U02/U03 CLOSED; parent #1138 HEAD ad52d8cae737b19ab09980e3b294f93e84a012c4; CI #9204 Edit-Time failed with ARTIFACT_PATH_MISMATCH and FINAL_MAIN_MISMATCH. The old queued Release Unit Execution #182 has main head_branch and its execute job requires a successful source-branch push, so it cannot perform the rehearsal executor mutation. This separate development plan fixes the closure CI phase-identity evidence only; do not edit canonical release-state."
+  "notes": "Live observation 2026-10-08: main 0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6 CI #9198 SUCCESS; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 unchanged; U01/U02/U03 CLOSED; parent #1138 HEAD ad52d8cae737b19ab09980e3b294f93e84a012c4; CI #9204 Edit-Time failed with ARTIFACT_PATH_MISMATCH and FINAL_MAIN_MISMATCH. The old queued Release Unit Execution #182 has main head_branch and its execute job requires a successful source-branch push, so it cannot perform the rehearsal executor mutation. This separate development plan fixes the closure CI phase-identity evidence only; do not edit canonical release-state. Canonical plan-only CI #9207 projected actual scope is DOMAIN-QUALITY, owner quality-knowledge-system, no named impacted subsystem, negativeKnowledge SQ-NK-012, guardDigest aa79c504. These values are derived from Plan Before Code rather than guessed from previous release runtime scope."
 }
