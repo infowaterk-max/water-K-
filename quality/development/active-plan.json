@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-PR-IDENTITY-RECONCILIATION-V1",
   "task": "Reconcile GitHub PR identity after parent closure force-with-lease refresh using bounded fail-closed read-after-write convergence and exact expected/observed diagnostics.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "128614ad",
   "changeBaseSha": "c8b1897fc34bd8b867e9fa3e6e136f2ea6039308",
   "plannedFilePatterns": [
@@ -447,5 +447,18 @@
       }
     ]
   },
-  "notes": "Incident recorded in Failure Intake #1141. Immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 unchanged; U01/U02/U03 CLOSED. Live executor #312 attempt 2 reprojected PR #1138 to closure HEAD dcc450715b9a5dd6690be98017f9f98911b96805 based on main c8b1897fc34bd8b867e9fa3e6e136f2ea6039308, but failed immediate post-push PR identity check. GitHub PR now shows matching refs/SHA; exact failing field unknown because old error lacked structured details. New proof only adds bounded re-fetch and full diagnostics. Plan Before Code #9215 explicitly measured the canonical projected failure corpus (19) and guardDigest 128614ad; updated expectation and replaced an underspecified forbidden state with a falsifiable negative proof condition."
+  "notes": "Incident recorded in Failure Intake #1141. Immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 unchanged; U01/U02/U03 CLOSED. Live executor #312 attempt 2 reprojected PR #1138 to closure HEAD dcc450715b9a5dd6690be98017f9f98911b96805 based on main c8b1897fc34bd8b867e9fa3e6e136f2ea6039308, but failed immediate post-push PR identity check. GitHub PR now shows matching refs/SHA; exact failing field unknown because old error lacked structured details. New proof only adds bounded re-fetch and full diagnostics. Plan Before Code #9215 explicitly measured the canonical projected failure corpus (19) and guardDigest 128614ad; updated expectation and replaced an underspecified forbidden state with a falsifiable negative proof condition.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "0a710662bf651bd6e5b96f7e195149f766917947",
+    "closedAt": "2026-10-08T15:09:14.719Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-PR-IDENTITY-RECONCILIATION-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
