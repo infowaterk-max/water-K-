@@ -1,21 +1,23 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-CI-IDENTITY-V1",
-  "task": "Fix the exact parent-closure CI Edit-Time context mismatches by verifying committed metadata-phase proof identity separately from the pre-closure final-main implementation proof, without relaxing any gate.",
-  "status": "closed",
-  "guardDigest": "aa79c504",
-  "changeBaseSha": "0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-PR-IDENTITY-RECONCILIATION-V1",
+  "task": "Reconcile GitHub PR identity after parent closure force-with-lease refresh using bounded fail-closed read-after-write convergence and exact expected/observed diagnostics.",
+  "status": "ready-for-implementation",
+  "guardDigest": "a41cfd0c",
+  "changeBaseSha": "c8b1897fc34bd8b867e9fa3e6e136f2ea6039308",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/shoperation-edit-time-guard.mjs",
+    "scripts/release-unit-parent-close.mjs",
     "tests/control-plane-release-unit-execution-binding.test.ts"
   ],
-  "expectedSubsystems": [],
+  "expectedSubsystems": [
+    "release-infrastructure"
+  ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -70,45 +72,56 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
+    "SQ-NK-010",
+    "SQ-NK-012",
+    "SQ-NK-016",
+    "SQ-NK-017",
+    "SQ-NK-018",
+    "SQ-NK-019",
+    "SQ-NK-020",
+    "SQ-NK-021",
+    "SQ-NK-022",
+    "SQ-NK-023"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-CI-IDENTITY-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-PR-IDENTITY-RECONCILIATION-V1",
     "riskTier": "critical",
-    "problemStatement": "Live closure CI #9204 on exact closure HEAD ad52d8cae737b19ab09980e3b294f93e84a012c4 fails Edit-Time for missing explicit ephemeral artifact environment path and false final-main comparison against the metadata closure commit. The parent completion receipt already binds the proven final main 0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6. Preserve the pre-closure checks, verify the committed closure evidence and first-parent identity, and keep fail-closed execution.",
+    "problemStatement": "Release Unit Execution #312 attempt 2, triggered from immutable rehearsal source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65, failed at immediate parent closure PR identity verification: RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH. The refreshed PR #1138 now has exact HEAD dcc450715b9a5dd6690be98017f9f98911b96805 and base c8b1897fc34bd8b867e9fa3e6e136f2ea6039308, but the executor checked the GitHub REST PR before these values were conclusively observed. The actual mismatched field was not recorded. Require bounded read-after-write reconciliation and machine-readable diagnostics while preserving full exact identity checks.",
     "observableOutcomes": [
-      "Closure metadata CI deterministically discovers only the exact committed parent artifact path from canonical parentClosureContext and verifies identical committed bytes, content digest and context.",
-      "A metadata closure commit is accepted only when its exact first parent and declared transaction base equal the independently proved finalMainSha, while the closure HEAD remains separately verified.",
-      "Pre-closure proof still requires the explicit artifact path and HEAD equal finalMainSha, without any fallback or downgraded decision.",
-      "Malicious or stale artifact, wrong closure parent, missing pre-closure environment and mismatched closed plan continue to BLOCK.",
-      "Unchanged U01-U03 receipts, immutable source and canonical release-state remain authoritative and unmodified."
+      "After the executor pushes a refreshed closure commit, the PR binding is accepted only when a fresh GitHub GET returns open, correct head ref, exact pushed head SHA, main base ref and exact final-main base SHA.",
+      "Initial stale head or stale base observations are retried for a bounded period and never authorized by time alone.",
+      "After bounded retries, the failure includes stable machine-readable exact expected and actual PR identity fields and retry count.",
+      "Unknown, foreign, moved, closed or persistently stale PR identities remain BLOCK; fail closed without releasing state or advancing closure.",
+      "Successful reconciliation still requires exact CI dispatch, fresh closure PR CI, merge lease, canonical CLOSED parent receipt and no duplicate U01/U02/U03 operations."
     ],
     "unresolvedRisks": [
-      "GitHub workflow_dispatch and pull_request contexts can expose different event commit identities; both must bind the exact closure HEAD.",
-      "Checking only local working-tree bytes could allow uncommitted artifact substitution; read the artifact blob committed at the exact HEAD as well.",
-      "Completion Truth may reveal a separate downstream blocker after Edit-Time; do not claim parent closed until all gates and post-merge receipts pass."
+      "GitHub API read-after-write might expose stale fields or a PR base SHA lag; this is a hypothesis until exact observed fields and retry evidence are persisted.",
+      "While polling, a foreign actor might mutate the PR or main; only precise final identity can authorize persistence.",
+      "Rerun reprojects the closure branch with a newly created commit; concurrent GitHub workflows must be checked before execution."
     ],
     "scope": {
       "in": [
-        "Keep current parent closure artifact builder and finalMain receipt identities unchanged.",
-        "Teach Edit-Time to distinguish a pre-closure proof executed on final main from a persisted CLOSED metadata-only closure commit.",
-        "Require the CLOSED closure HEAD to be a single-parent commit whose parent equals the exact parentClosureContext.finalMainSha and plan.changeBaseSha.",
-        "Only in CLOSED metadata verification derive the expected path from canonical context when the ephemeral proof path environment is absent; compare committed artifact bytes and digest against the deterministic builder.",
-        "Keep the pre-closure path environment mandatory and validate both modes against a forged or stale proof.",
-        "Add targeted regression coverage for valid and invalid phase-identity and proof-artifact conditions."
+        "Add bounded, deterministic, exact PR identity verification after a closure branch force-with-lease push.",
+        "Always fetch an authoritative fresh numbered PR resource; do not rely on stale list result for acceptance.",
+        "Validate open state, exact ref names, exact head SHA and exact final-main base SHA simultaneously.",
+        "Emit machine-readable expected/actual PR identity with bounded read count on timeout and preserve the original failure code.",
+        "Add executable regression tests using injected GitHub response sequences and no-op wait to cover initial match, delayed match, wrong ref/head/base, closed state and expiry."
       ],
       "out": [
-        "No gate disabling or thresholds changes; no silent accepted proof path for unclosed plans.",
-        "No historic immutable source plan widening, no U01-U03 fixture/receipt mutation, no canonical release-state edit.",
-        "No workflow, CI permission, authentication, security, storefront, template, Builder, database or deployment changes.",
-        "No claim that a parent receipt alone proves post-merge CI or completed lifecycle."
+        "No weakening of exact SHA checks, Plan, Edit-Time, Completion Truth, Lifecycle, Sentinel, CI or receipt requirements.",
+        "No changes to immutable source plan, U01/U02/U03 receipts, canonical release-state branch, existing parent closure PR data, workflow permissions, Builder, Template or Storefront.",
+        "No external PR update, forced approval or manual state overwrite to disguise failed reconciliation.",
+        "No indefinite retry, blind 200-response acceptance or stale CI authorization."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "A closure CI false negative currently blocks an otherwise independently proven parent completion. Correctness requires strict separation between implementation-final-main and closure-metadata-head identity, deterministic artifact verification, adversarial tests and preservation of full downstream gates.",
+      "rationale": "Critical parent closure PR binding is a release authority boundary; asynchronous remote observation must remain exact and bounded with falsifiable negative tests and machine-readable diagnostics.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -126,30 +139,31 @@
     "definition": {
       "acceptanceCriteria": [
         "The plan-only commit passes canonical Plan Before Code before implementation.",
-        "On pre-closure parent proof, absence or wrong SHOPERATION_PARENT_CLOSURE_PROOF_ARTIFACT continues to BLOCK.",
-        "On closed metadata PR with known exact final main, the expected deterministic artifact path is read from the plan context without relying on a transient runner environment variable.",
-        "Closed metadata verification compares expected proof artifact to committed HEAD blob and filesystem bytes, preventing uncommitted substitution.",
-        "Closed metadata HEAD is a direct single-parent child of parentClosureContext.finalMainSha and plan.changeBaseSha exactly equals the proven final main.",
-        "Any incorrect committed artifact path, content, digest, parent relationship, final main SHA or unclosed plan environment is rejected.",
-        "Existing Plan Before Code, Known Failure Edit-Time, Incremental Replay, Truth and Lifecycle gates remain mandatory.",
-        "Parent #1138 or its freshly reprojected successor may merge only with fresh exact-head CI SUCCESS, then final main acceptance and canonical closed receipt are independently checked."
+        "A PR response that immediately matches all fields is accepted without retry delay.",
+        "One or more stale head/base observations may converge but only an exact subsequent numbered PR GET can pass.",
+        "An incorrect, closed, foreign or persistently stale PR is never accepted.",
+        "On expiry, the executor raises RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH with JSON diagnostics identifying expected and observed state, refs, SHAs and number of reads.",
+        "Retry is limited to at most eight read attempts with an injected wait callback for deterministic tests.",
+        "GitHub PR detection and creation semantics are not broadened, and the existing force-with-lease branch update stays mandatory.",
+        "Exactly the latest closure HEAD, correct base main SHA, fresh closure CI and receipt-bound parent Lifecycle/Truth remain required before closure.",
+        "Main CI exact-head SUCCESS precedes immutable replay, followed by an actual canonical CLOSED receipt and U01-U03 preserved."
       ],
       "invariants": [
-        "The immutable source development plan does not change.",
-        "The final implementation main is proven once and cannot be rewritten to the closure metadata HEAD.",
-        "The metadata closure HEAD must be separately identified and directly descend from proven final main without an intervening non-closure commit.",
-        "A committed artifact must be byte-identical to the deterministic receipt-bound expected artifact.",
-        "An absent pre-closure artifact environment is always a block, never treated as committed metadata proof.",
-        "All existing blocking guards and post-merge acceptance conditions remain in force."
+        "Read-after-write cannot bypass identity equality.",
+        "Any new GitHub PR head/base drift is a block unless it converges to the original executor-bound exact values during the bounded window.",
+        "Closure commit HEAD remains distinct from final implementation main and has independent evidence.",
+        "Neither the immutable source nor canonical state is manually mutated.",
+        "Only legitimate proved closure state transitions update canonical state.",
+        "Diagnostic fields do not include secrets or tokens."
       ],
       "forbiddenStates": [
-        "pre-closure-proof-without-explicit-artifact-path",
-        "closure-metadata-head-replacing-final-main-proof",
-        "closed-proof-with-wrong-first-parent",
-        "forged-or-uncommitted-parent-proof-artifact",
-        "stale-closure-artifact-accepted",
-        "gate-downgrade-or-implicit-truth-pass",
-        "manual-canonical-release-state-edit"
+        "stale-pr-head-accepted",
+        "stale-pr-base-accepted",
+        "closed-or-foreign-pr-accepted",
+        "unbounded-gh-retries",
+        "identity-failure-without-observed-values",
+        "gate-bypass",
+        "manual-canonical-state-repair"
       ]
     },
     "model": {
@@ -181,48 +195,49 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Ephemeral proof-artifact path not set in closure CI workflow_dispatch environment.",
-        "Closed metadata HEAD compared to independently proven final-main implementation HEAD.",
-        "Committed artifact missing or different from local working-tree evidence.",
-        "Closure commit has extra parent or an unexpected base.",
-        "Forged closed status used to bypass pre-closure artifact checks.",
-        "Reprojection changes final main but proof still references old final main."
+        "GitHub pull request list returns previous head immediately after force-with-lease push.",
+        "Follow-up PR detail read returns stale base main SHA for a short period.",
+        "PR state changes to closed during reconciliation.",
+        "Remote PR head unexpectedly changes to a foreign SHA.",
+        "Remote PR base ref targets another branch.",
+        "All attempts return stale values and the executor must fail closed with exact diagnostics."
       ],
       "edgeCases": [
-        "Pre-closure worktree HEAD exactly finalMainSha and explicit proof path exists.",
-        "Closed metadata direct child HEAD has no explicit proof artifact env.",
-        "Closed metadata direct child HEAD has explicit correct proof artifact env.",
-        "Closed metadata branch first parent differs from asserted final main.",
-        "Closed plan has incorrect declared changeBaseSha.",
-        "Closed artifact bytes changed without matching deterministic digest.",
-        "Unclosed development plan omits env proof artifact.",
-        "Metadata closure is a merge commit with two parents."
+        "First response fully matches expected.",
+        "First two responses contain old head, third response matches.",
+        "Head matches but base SHA lags then converges.",
+        "Head SHA is permanently wrong.",
+        "PR base ref permanently not main.",
+        "PR is closed.",
+        "Get PR returns null/error.",
+        "Proof head/ref correct but PR number unexpected.",
+        "All eight reads disagree and no merge/CI dispatch occurs."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-BOUND-PHASE",
-        "summary": "Validate pre-closure and persisted metadata closure identities as two explicit, separately proven phases.",
+        "id": "ALT-BOUNDED-EXACT",
+        "summary": "Bounded GitHub PR identity read-after-write reconciliation, exact equality, machine diagnostics.",
         "disposition": "selected",
-        "reason": "Retains exact proof semantics while eliminating CI context false negatives; the committed artifact stays independently byte-verified."
+        "reason": "Addresses observed timing and diagnostics without reducing assurance."
       },
       {
-        "id": "ALT-GLOBAL-IGNORE",
-        "summary": "Suppress the Edit-Time final-main and artifact path checks globally.",
+        "id": "ALT-IGNORE-BASE",
+        "summary": "Ignore PR base SHA when the branch SHA matches.",
         "disposition": "rejected",
-        "reason": "This would permit stale, forged or missing proof artifacts and violate fail-closed semantics."
+        "reason": "Could persist closure against unproven final implementation main."
       },
       {
-        "id": "ALT-REWRITE-PARENT",
-        "summary": "Rewrite the immutable source or rebind parent final main to closure HEAD.",
+        "id": "ALT-SLEEP-ONCE",
+        "summary": "Sleep one fixed interval then assume remote state is correct.",
         "disposition": "rejected",
-        "reason": "Erases original implementation authority and would falsify immutable parent completion."
+        "reason": "Still lacks falsifiable identity evidence and may fail with slow GitHub indexing."
       },
       {
-        "id": "ALT-CI-OVERRIDE",
-        "summary": "Force status SUCCESS or skip known failure/Truth in CI.",
+        "id": "ALT-MANUAL-STATE",
+        "summary": "Rewrite canonical release-state to point to the new PR head.",
         "disposition": "rejected",
-        "reason": "Would hide rather than correct proof-identity mismatches."
+        "reason": "Would bypass the trusted executor and parent receipt transaction."
       }
     ],
     "specialistReviews": [
@@ -230,144 +245,145 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "The current Edit-Time guard conflates implementation HEAD and metadata-only closure HEAD.",
-        "resolution": "Model explicit pre-closure and committed-closure modes with exact parent identity and immutable final main.",
+        "finding": "The failure code masks which PR field disagreed after force-with-lease, so eventual consistency is not conclusively proven.",
+        "resolution": "Introduce bounded exact re-fetch and structured expected/actual diagnostics before allowing any persistence.",
         "evidence": [
-          "CI #9204 machine-readable Edit-Time findings",
-          "scripts/shoperation-edit-time-guard.mjs finalMainSha comparison"
+          "Release Unit Execution #312 attempt 2",
+          "PR #1138 reprojected head dcc450715b9a...",
+          "scripts/release-unit-parent-close.mjs immediate identity check"
         ]
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Defaulting the artifact path without confirming a committed blob could permit forged local evidence.",
-        "resolution": "Infer the path only for canonical CLOSED closure context and verify git HEAD committed blob plus deterministic expected artifact bytes.",
+        "finding": "A retry window must not accept an unexpected SHA or PR target branch.",
+        "resolution": "Every read checks all immutable expected fields; only simultaneous exact match PASS.",
         "evidence": [
-          "scripts/shoperation-edit-time-guard.mjs artifact validation",
-          "parentClosureContext canonical contract"
+          "RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH",
+          "GitHub PR REST head/base refs"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A stale parent relationship can wrongly accept a metadata commit for a different final main.",
-        "resolution": "Check the exact single first-parent SHA of closure HEAD against parentClosureContext.finalMainSha and plan.changeBaseSha.",
+        "finding": "The state remained old PR_OPEN even though GitHub branch moved; false commitment would corrupt truth.",
+        "resolution": "Retain no canonical state update until exact PR identity; preserve existing CAS and force-with-lease semantics.",
         "evidence": [
-          "ad52d8cae737b19ab09980e3b294f93e84a012c4 git commit parent",
-          "parent closure receipt"
+          "canonical release-state a74d72ab...",
+          "PR #1138 head dcc450..."
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "An old successful parent proof does not authorize a closure PR with failed exact-head CI.",
-        "resolution": "Retain fresh closure PR exact-head CI, subsequent main CI and canonical receipt verification.",
+        "finding": "PR #1138 #9213 returned action_required rather than a release authority.",
+        "resolution": "Do not treat pull_request action_required as CI success; executor will require fresh workflow_dispatch CI.",
         "evidence": [
-          "PR #1138 current CI #9204",
-          "Release Unit Execution #312"
+          "CI #9213",
+          "ensureParentClosureCiDispatch"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The last guard reports two isolated new identities, while #9177 plan projection is already resolved.",
-        "resolution": "Address only EDIT_TIME_PARENT_CLOSURE_ARTIFACT_PATH_MISMATCH and EDIT_TIME_PARENT_CLOSURE_FINAL_MAIN_MISMATCH with adversarial regression tests.",
+        "finding": "New reproducible blocking machine error in executor with inadequate field-level diagnostics.",
+        "resolution": "Record Failure Intake issue #1141 and add adversarial regression coverage.",
         "evidence": [
-          "CI #9204 build job",
-          "Failure Intake artifacts"
+          "Issue #1141",
+          "Release Unit Execution attempt 2"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-CI-ID-01",
-        "scenario": "Global default proof artifact path under every development plan.",
-        "finding": "Would allow missing pre-closure proof environment to pass.",
-        "resolution": "Permit derived path only for closed canonical metadata proof with exact committed artifact.",
+        "id": "CH-GH-PR-01",
+        "scenario": "Accept stale PR list object immediately after push.",
+        "finding": "Read-after-write may expose old SHA.",
+        "resolution": "Fresh numbered PR GET is authoritative for final equality.",
         "status": "resolved"
       },
       {
-        "id": "CH-CI-ID-02",
-        "scenario": "Compare parent finalMainSha with GitHub closure PR HEAD.",
-        "finding": "False negative: the closure commit is metadata-only child of final main.",
-        "resolution": "Bind finalMainSha to the exact first parent and declared changeBaseSha, HEAD to the closure proof commit.",
+        "id": "CH-GH-PR-02",
+        "scenario": "Ignore mismatched base SHA if head is exact.",
+        "finding": "Could authorize closure against unproven main.",
+        "resolution": "Always verify base SHA and ref.",
         "status": "resolved"
       },
       {
-        "id": "CH-CI-ID-03",
-        "scenario": "Compare only local artifact bytes.",
-        "finding": "A locally forged artifact could satisfy Edit-Time without being persisted.",
-        "resolution": "Require git committed blob bytes at exact closure HEAD as well.",
+        "id": "CH-GH-PR-03",
+        "scenario": "Retry forever until any PR is found.",
+        "finding": "Hung executor and indefinite release authority ambiguity.",
+        "resolution": "Cap retries and produce expiry code.",
         "status": "resolved"
       },
       {
-        "id": "CH-CI-ID-04",
-        "scenario": "Accept any descendant commit of final main.",
-        "finding": "Intervening unverified changes would be included in closure proof.",
-        "resolution": "Require exact direct single-parent relationship for metadata closure commit.",
+        "id": "CH-GH-PR-04",
+        "scenario": "Use a fixed sleep then accept without rechecking.",
+        "finding": "Assumed state is not proof.",
+        "resolution": "Every iteration fetches and validates exact identity.",
         "status": "resolved"
       },
       {
-        "id": "CH-CI-ID-05",
-        "scenario": "Assume passed Edit-Time proves completed parent closure.",
-        "finding": "Downstream Truth, Lifecycle and post-merge evidence may still fail.",
-        "resolution": "Retain all gates, exact-head PR/main CI and canonical persistence acceptance.",
+        "id": "CH-GH-PR-05",
+        "scenario": "PR changes owner/ref during retry.",
+        "finding": "Accepting number alone would bind foreign PR.",
+        "resolution": "Require exact branch/ref and state on every read.",
         "status": "resolved"
       },
       {
-        "id": "CH-CI-ID-06",
-        "scenario": "Let GitHub CI infer final main from the closure HEAD in workflow_dispatch.",
-        "finding": "Workflow_dispatch SHA represents the closure metadata commit and cannot substitute implementation final main.",
-        "resolution": "Use receipt-bound finalMainSha from canonical parentClosureContext and verify the actual HEAD direct-parent identity.",
+        "id": "CH-GH-PR-06",
+        "scenario": "Close PR while executor sleeps.",
+        "finding": "Closed stale PR cannot persist parent closure.",
+        "resolution": "Closed PR remains BLOCK without CI dispatch.",
         "status": "resolved"
       },
       {
-        "id": "CH-CI-ID-07",
-        "scenario": "Accept a closure commit with altered proof artifact bytes but unchanged parent plan.",
-        "finding": "A false success would let a modified persisted artifact claim the original parent completion authority.",
-        "resolution": "Compare committed blob, working-tree bytes, parsed artifact and deterministic expected digest exactly.",
+        "id": "CH-GH-PR-07",
+        "scenario": "Persist state despite exhausting retry bound.",
+        "finding": "Unverified remote identity would become canonical.",
+        "resolution": "Throw machine-readable mismatch before returning a state transition.",
         "status": "resolved"
       },
       {
-        "id": "CH-CI-ID-08",
-        "scenario": "Proceed straight to merge after Edit-Time passes.",
-        "finding": "Later Knowledge/Replay/Truth/Lifecycle steps may reveal an independent unhandled blocker.",
-        "resolution": "Keep downstream gates mandatory, require full fresh CI success before any merge, and route new failure into Intake.",
+        "id": "CH-GH-PR-08",
+        "scenario": "Test mock takes real time across eight retries.",
+        "finding": "Regression is slow and nondeterministic.",
+        "resolution": "Inject wait callback with no-op under tests; default runner bounded.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit the new development plan alone and require canonical Plan Before Code PASS before implementation.",
-      "Change only the Edit-Time parent closure validation path; retain deterministic artifact generation and receipt semantics.",
-      "Require pre-closure HEAD equals final implementation main and require the explicitly supplied artifact path.",
-      "Require CLOSED metadata HEAD to be a single-parent child of exactly the plan-bound proven final main.",
-      "Require exact artifact content and digest in both modes, and git committed blob bytes for CLOSED metadata mode.",
-      "Run targeted regression tests proving genuine metadata closure passes and stale, forged, missing or wrong-parent evidence blocks.",
-      "Require Knowledge, Plan, Edit-Time, Incremental Replay, Risk, Quality, TypeScript, Build, Truth and Lifecycle gates to pass on exact new hardening HEAD.",
-      "Merge only with exact-head fresh CI SUCCESS and verify the corresponding main CI SUCCESS before immutable rehearsal replay.",
-      "Replay the unmodified immutable source and require CI SUCCESS on closure PR, parent lifecycle state and canonical closed receipt.",
-      "Preserve Failure Intake for every new reproducible blocker, and never claim completion from isolated green checks."
+      "Commit this plan alone; require exact Plan Before Code PASS before editing code.",
+      "Add a testable exact PR identity predicate with all required state/ref/SHA comparisons.",
+      "Add a bounded read-after-write reconciliation function that re-GETs the numbered PR and never uses stale list data to PASS.",
+      "At expiry, emit RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH with stable machine-readable expected/actual/read-count diagnostics.",
+      "Preserve existing GitHub branch force-with-lease update, PR discovery and exact CI dispatch behavior.",
+      "Add adversarial tests with injected PR response series and deterministic wait for immediate PASS, delayed convergence, stale head/base, changed ref/closed state and terminal expiry.",
+      "Prove Plan, Edit-Time, Known Failure replay, Quality, TypeScript, Production build and Completion Truth on the exact implementation HEAD.",
+      "Commit the closure lifecycle candidate from the verified implementation HEAD and require exact PR-head CI SUCCESS.",
+      "Merge hardening only after fresh PR CI and require post-merge main CI SUCCESS.",
+      "Replay the unmodified immutable source; prove parent PR exact-head CI, merge, canonical CLOSED state and no duplicate release-unit receipts; route any new blocker to Failure Intake."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-CI-IDENTITY-V1",
+      "request": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-PR-IDENTITY-RECONCILIATION-V1",
       "authority": [
-        "quality-knowledge-system"
+        "release-infrastructure"
       ],
       "mustEdit": [
-        "scripts/shoperation-edit-time-guard.mjs"
+        "scripts/release-unit-parent-close.mjs"
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-execution-binding.test.ts"
       ],
       "impactedReadOnly": [
-        "scripts/release-unit-parent-close.mjs",
+        "scripts/release-unit-execute.mjs",
         "scripts/lib/shoperation-release-unit-runtime.mjs",
-        ".github/workflows/ci.yml",
-        "quality/knowledge/release-parent-closure-proofs/dev-control-plane-multi-unit-rehearsal-v1.json"
+        ".github/workflows/release-unit-execution.yml",
+        "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
       ],
       "mustCreate": [],
       "forbidden": [
@@ -389,7 +405,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-CI-IDENTITY-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-PR-IDENTITY-RECONCILIATION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -407,16 +423,16 @@
     },
     "requirements": [
       {
-        "id": "REQ-PARENT-CLOSURE-CI-PHASE-IDENTITY",
-        "requirement": "A pre-closure proof and a metadata closure commit must be independently verified against their exact and distinct Git identities while deterministic parent evidence remains committed and receipt-bound.",
+        "id": "REQ-PR-READ-AFTER-WRITE-EXACT",
+        "requirement": "The trusted executor must bind the parent closure PR after force-with-lease to a fresh exact remote identity or fail closed with structured proof on expiry.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "parent-closure-ci-proof-identity",
+          "breadth": "release-parent-closure-pr-binding",
           "strength": 2,
           "dimensions": [
             "transaction-identity",
-            "status",
             "forbidden-state",
+            "behavioral-proof",
             "truth",
             "lifecycle",
             "close"
@@ -437,22 +453,22 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PRE-CLOSURE-PROOF-PATH",
-            "statement": "A missing explicit pre-closure proof artifact environment cannot be silently accepted.",
+            "id": "NEG-PR-STALENESS",
+            "statement": "A stale head/base ref cannot authorize a closure PR.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-CLOSURE-UNCOMMITTED-ARTIFACT",
-            "statement": "Uncommitted, altered, missing or forged closure proof bytes cannot authorize metadata closure.",
+            "id": "NEG-PR-NONTERMINATING",
+            "statement": "Remote PR identity failure cannot cause unbounded retries.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-CLOSURE-PARENT-DRIFT",
-            "statement": "A metadata closure commit not directly based on the exact trusted final main cannot pass.",
+            "id": "NEG-PR-DIAGNOSTIC",
+            "statement": "An exhausted identity mismatch must report the exact expected/observed fields.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -461,18 +477,5 @@
       }
     ]
   },
-  "notes": "Live observation 2026-10-08: main 0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6 CI #9198 SUCCESS; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 unchanged; U01/U02/U03 CLOSED; parent #1138 HEAD ad52d8cae737b19ab09980e3b294f93e84a012c4; CI #9204 Edit-Time failed with ARTIFACT_PATH_MISMATCH and FINAL_MAIN_MISMATCH. The old queued Release Unit Execution #182 has main head_branch and its execute job requires a successful source-branch push, so it cannot perform the rehearsal executor mutation. This separate development plan fixes the closure CI phase-identity evidence only; do not edit canonical release-state. Canonical plan-only CI #9207 projected actual scope is DOMAIN-QUALITY, owner quality-knowledge-system, no named impacted subsystem, negativeKnowledge SQ-NK-012, guardDigest aa79c504. These values are derived from Plan Before Code rather than guessed from previous release runtime scope.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "4db32d6d84681651080f3670f6f9b5542506512e",
-    "closedAt": "2026-10-08T14:27:31.883Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-CI-IDENTITY-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Incident recorded in Failure Intake #1141. Immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 unchanged; U01/U02/U03 CLOSED. Live executor #312 attempt 2 reprojected PR #1138 to closure HEAD dcc450715b9a5dd6690be98017f9f98911b96805 based on main c8b1897fc34bd8b867e9fa3e6e136f2ea6039308, but failed immediate post-push PR identity check. GitHub PR now shows matching refs/SHA; exact failing field unknown because old error lacked structured details. New proof only adds bounded re-fetch and full diagnostics."
 }
