@@ -650,7 +650,7 @@ describe('release-unit execution binding hardening',()=>{
       event:'workflow_dispatch',workflowName:'CI',displayTitle:nonce}];
     expect(advanceParentPostMergeMainCi({state:resumed,sourceCommit:source,run:fake}).decision).toBe('PARENT_CLOSED');
     listing=[];
-    expect(advanceParentPostMergeMainCi({state:resumed,sourceCommit:source,run:fake})).toMatchObject({decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_RUN_NOT_VISIBLE'});
+    expect(advanceParentPostMergeMainCi({state:resumed,sourceCommit:source,run:fake})).toMatchObject({decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCH_UNCERTAIN'});
     expect(dispatches).toBe(1);
     const claimedButNotDispatched=advanceParentPostMergeMainCi({state:reserved.state,sourceCommit:source,run:fake});
     expect(claimedButNotDispatched).toMatchObject({decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCH_UNCERTAIN'});
