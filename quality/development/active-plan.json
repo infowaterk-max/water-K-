@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-RELEASE-PARENT-POST-MERGE-MAIN-CI-V1",
   "task": "Harden release parent merge-to-main CI execution with exact merged-head dispatch, durable auditable run evidence and fail-closed restart closure.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "128614ad",
   "changeBaseSha": "5a39a1d8f31458d45617d3246b77ec3740db19d0",
   "plannedFilePatterns": [
@@ -464,5 +464,18 @@
       }
     ]
   },
-  "notes": "Issue #1156: bot-merge post-merge main CI execution edge, source #65e52ffd... immutable, U01-U03 CLOSED. Last known main 5a39a1d8f31458d45617d3246b77ec3740db19d0 and CI #9261 SUCCESS; do not change their proof. Plan-only before implementation. Old #182 queued without jobs is independently isolated and not part of this release claim. No changes to canonical state outside entrusted executor runtime. Plan-only CI #9263 measured 19 expected failure IDs including 9 Template Factory inherited release regressions and digest 128614ad. Corrected canonical Release/Known Failure reviewer roles and two concrete adversarial challenge cases prior to code edit. CI #9265 measured one Sentinel integrity failure: CAP-RELEASE was asserted by Plan/Edit-Time guards that prove CAP-QUALITY, and 'execution/audit/resumability' dimensions were not in their proof semantics. Preserved CAP-RELEASE but rebound claim to actual GUARD-RELEASE-RISK plus wildcard GUARD-QUALITY-TESTS/PRODUCTION-BUILD, and to the supported exact proof dimensions. GitHub REST run.name also reflects run-name marker; the run verifier now binds this unique title and does not rely on GH CLI workflowName output."
+  "notes": "Issue #1156: bot-merge post-merge main CI execution edge, source #65e52ffd... immutable, U01-U03 CLOSED. Last known main 5a39a1d8f31458d45617d3246b77ec3740db19d0 and CI #9261 SUCCESS; do not change their proof. Plan-only before implementation. Old #182 queued without jobs is independently isolated and not part of this release claim. No changes to canonical state outside entrusted executor runtime. Plan-only CI #9263 measured 19 expected failure IDs including 9 Template Factory inherited release regressions and digest 128614ad. Corrected canonical Release/Known Failure reviewer roles and two concrete adversarial challenge cases prior to code edit. CI #9265 measured one Sentinel integrity failure: CAP-RELEASE was asserted by Plan/Edit-Time guards that prove CAP-QUALITY, and 'execution/audit/resumability' dimensions were not in their proof semantics. Preserved CAP-RELEASE but rebound claim to actual GUARD-RELEASE-RISK plus wildcard GUARD-QUALITY-TESTS/PRODUCTION-BUILD, and to the supported exact proof dimensions. GitHub REST run.name also reflects run-name marker; the run verifier now binds this unique title and does not rely on GH CLI workflowName output.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "5636ba18a4f0e5d818c4563acf285007822db06b",
+    "closedAt": "2026-10-08T20:53:16.674Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-08-ISSUE-1156-AUTO-MAIN-CI-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
