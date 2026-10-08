@@ -105,7 +105,8 @@
       "The closure PR is based on the accepted effective final main and records that base in closurePersistence.",
       "If main advances while the closure PR is pending, the executor does not merge stale closure state and does not permanently dead-end. It re-proves the new fast-forward main, reruns full parent proof, refreshes the dedicated executor-owned closure branch using exact lease protection, reuses the same open PR and returns PENDING for exact PR-head CI.",
       "If persistence main advance is non-fast-forward or changes any CLOSED child material output, the existing parent closure remains BLOCK and no stale PR is merged.",
-      "An end-to-end regression drives CLOSED children -> initial trusted main advance -> parent proof -> closure PR -> second trusted main advance -> closure reprojection -> exact CI -> merge/final receipt."
+      "An end-to-end regression drives CLOSED children -> initial trusted main advance -> parent proof -> closure PR -> second trusted main advance -> closure reprojection -> exact CI -> merge/final receipt.",
+      "Every new or refreshed parent closure head explicitly ensures one exact CI workflow_dispatch run on the dedicated closure branch without release-unit child-proof mode; pull_request CI may supplement it but is not relied on as the sole trigger."
     ],
     "unresolvedRisks": [
       "Allowing arbitrary descendant main would let post-close changes overwrite child material while parent truth claims success.",
@@ -115,7 +116,8 @@
       "Creating a second closure PR instead of reusing the executor-owned PR would break resumability and duplicate persistence work.",
       "Merging a closure PR whose base advanced after its exact proof would persist stale parent lifecycle state.",
       "A proof not bound to unit close receipt digests could be replayed against a different parent state.",
-      "A rename can hide deletion of a protected path unless diff classification disables rename collapsing or explicitly protects previousFile."
+      "A rename can hide deletion of a protected path unless diff classification disables rename collapsing or explicitly protects previousFile.",
+      "A closure PR created or refreshed by GITHUB_TOKEN may not emit a usable pull_request workflow event; waiting only for PR-event CI could deadlock persistence."
     ],
     "scope": {
       "in": [
@@ -126,7 +128,8 @@
         "Persist accepted main-advance proof in the parent close receipt for auditability.",
         "Reconcile a second main advance while closurePersistence is PR_OPEN by re-proving and reprojecting closure instead of merging stale closure state.",
         "Refresh only the dedicated release-execution/closure branch with force-with-lease against the observed remote head and reuse its open PR.",
-        "Add full-route regression coverage for both main-advance points and fail-closed variants."
+        "Add full-route regression coverage for both main-advance points and fail-closed variants.",
+        "Explicitly dispatch the existing CI workflow on each parent closure branch head in normal branch mode and accept exact success from workflow_dispatch or pull_request evidence bound to the same head/branch."
       ],
       "out": [
         "No generic descendant-main acceptance.",
@@ -169,7 +172,9 @@
         "A reprojected closure requires fresh exact PR-head SUCCESS before merge.",
         "Non-fast-forward, protected overlap, forged proof, receipt-digest mismatch, PR identity drift, lease drift and failing parent proof all remain fail-closed.",
         "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge of this hardening change.",
-        "Immutable rehearsal replay proceeds from #278 beyond RELEASE_PARENT_FINAL_MAIN_DRIFT and completes parent closure or exposes a genuinely different remaining blocker."
+        "Immutable rehearsal replay proceeds from #278 beyond RELEASE_PARENT_FINAL_MAIN_DRIFT and completes parent closure or exposes a genuinely different remaining blocker.",
+        "After every closure branch create/refresh, the executor checks for an existing reusable exact workflow_dispatch CI and dispatches CI on that exact branch if none exists.",
+        "Parent closure CI classification accepts only completed SUCCESS evidence whose headSha and headBranch exactly match the recorded closure persistence head/branch, from workflow_dispatch or pull_request."
       ],
       "invariants": [
         "CLOSED child material output is immutable during parent closure.",
@@ -178,7 +183,8 @@
         "Every accepted main advance is cryptographically/state-bound to the current CLOSED-unit receipts.",
         "A pending closure PR is never merged after its proven base becomes stale.",
         "Closure branch updates are executor-owned and compare-and-swap protected.",
-        "Canonical release state remains writable only through the existing executor persistence path."
+        "Canonical release state remains writable only through the existing executor persistence path.",
+        "Parent closure does not depend on recursive GITHUB_TOKEN pull_request workflow triggering."
       ],
       "forbiddenStates": [
         "descendant-main-accepted-without-proof",
@@ -189,7 +195,8 @@
         "closure-branch-force-push-without-lease",
         "duplicate-open-parent-closure-pr",
         "manual-release-state-repair",
-        "immutable-source-rewrite"
+        "immutable-source-rewrite",
+        "closure-pr-open-without-explicit-exact-ci-dispatch"
       ]
     },
     "model": {
@@ -230,7 +237,8 @@
         "Main advances while closure PR CI is running.",
         "Closure branch refresh loses a race and force-with-lease rejects.",
         "Existing closure PR is closed/unmerged when refresh is required.",
-        "Reprojected closure PR has not yet obtained exact-head green CI."
+        "Reprojected closure PR has not yet obtained exact-head green CI.",
+        "Closure PR is created by the executor but no pull_request CI event is emitted."
       ],
       "edgeCases": [
         "no main advance after last child close",
@@ -244,7 +252,8 @@
         "main advance occurs after closure PR exact CI but before merge",
         "closure branch already exists from a prior interrupted reprojection",
         "closure PR exists and tracks refreshed branch head",
-        "closure branch lease mismatch"
+        "closure branch lease mismatch",
+        "workflow_dispatch exact-head CI already exists when closure PR is refreshed"
       ]
     },
     "alternatives": [
@@ -425,6 +434,13 @@
         "finding": "Scope proof alone would accept an unhealthy final main.",
         "resolution": "Existing full parent gate chain reruns and blocks before persistence.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-CI-DISPATCH-01",
+        "scenario": "The executor creates or force-with-lease refreshes the closure PR using GITHUB_TOKEN and GitHub suppresses recursive pull_request workflow execution.",
+        "finding": "Waiting only for pull_request CI can leave an otherwise valid parent closure permanently PENDING.",
+        "resolution": "Explicitly ensure a normal-mode CI workflow_dispatch on the exact closure branch head and classify exact success from dispatch or PR events without release-unit child context.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -435,6 +451,7 @@
       "Make closure branch persistence resumable: observe current remote closure head, refresh only with force-with-lease, reuse the same open PR and validate head/base identity.",
       "Move persistence main-drift detection before stale PR-head CI acceptance; on safe advance rerun parent proof and reproject closure, returning PENDING for a fresh exact-head CI.",
       "Pass immutable sourceCommit through finishParentClosurePersistence so persistence reprojection can rerun the same parent plan authority.",
+      "Ensure exact parent closure CI dispatch after every closure branch create/refresh; tests must prove reusable dispatch detection, explicit dispatch when absent, and exact head/branch success classification across workflow_dispatch/pull_request evidence.",
       "Add pure fail-closed tests for non-fast-forward, protected overlap, renamed protected path, forged from/to, unit receipt digest mismatch and missing proof.",
       "Add end-to-end helper test for CLOSED units -> safe advance A -> closure PR -> safe advance B during PR_OPEN -> reprojection -> fresh exact CI -> merge/final receipt.",
       "Require exact-head Knowledge/Plan/Edit-Time/Incremental/Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof and PR-head SUCCESS.",
@@ -561,7 +578,7 @@
       },
       {
         "id": "REQ-PARENT-CLOSURE-PERSISTENCE-REPROJECTION",
-        "requirement": "A parent closure PR whose main base advances before merge must be safely re-proved and reprojected, not merged stale and not permanently dead-ended.",
+        "requirement": "A parent closure PR whose main base advances before merge must be safely re-proved and reprojected, not merged stale and not permanently dead-ended. Each created or refreshed closure head must also receive an explicit exact CI dispatch so persistence cannot depend on recursive PR-event triggering.",
         "claimScope": {
           "capability": "CAP-QUALITY",
           "breadth": "release-parent-closure-persistence-reprojection",
@@ -615,10 +632,17 @@
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
+          },
+          {
+            "id": "NEG-PARENT-CLOSURE-CI-NOT-DISPATCHED",
+            "statement": "A new or refreshed parent closure head may not wait solely for an implicit pull_request event; exact CI dispatch must be ensured.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
           }
         ]
       }
     ]
   },
-  "notes": "Live blocker: immutable source CI #8928 attempt 14 SUCCESS on source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; Release Unit Execution #278 fails exactly as RELEASE_PARENT_FINAL_MAIN_DRIFT. Canonical state 4c576557808f1051aecd3b027e83a09af4cc7ecc has U01/U02/U03 CLOSED, activeUnitId=null, closureEligible=true, lifecyclePhase=TRUTH_GATE. Last child/U03 main is 4cab9376d285a15d4d27d742f7b8b2babb8a5bee; current main 68877e11c05ccddd7c8a7ec584b1732f0e371f73 is a required Control Plane hardening descendant. Diff 4cab..68877 changes only quality/development/active-plan.json, scripts/release-unit-execute.mjs and tests/control-plane-release-unit-execution-binding.test.ts; no CLOSED child intended output changed. Failure Intake #1129 records the defect. This transaction deliberately covers both RELEASE_PARENT_FINAL_MAIN_DRIFT and downstream RELEASE_PARENT_CLOSURE_MAIN_DRIFT so the same stale-main assumption cannot simply reappear one gate later."
+  "notes": "Live blocker: immutable source CI #8928 attempt 14 SUCCESS on source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; Release Unit Execution #278 fails exactly as RELEASE_PARENT_FINAL_MAIN_DRIFT. Canonical state 4c576557808f1051aecd3b027e83a09af4cc7ecc has U01/U02/U03 CLOSED, activeUnitId=null, closureEligible=true, lifecyclePhase=TRUTH_GATE. Last child/U03 main is 4cab9376d285a15d4d27d742f7b8b2babb8a5bee; current main 68877e11c05ccddd7c8a7ec584b1732f0e371f73 is a required Control Plane hardening descendant. Diff 4cab..68877 changes only quality/development/active-plan.json, scripts/release-unit-execute.mjs and tests/control-plane-release-unit-execution-binding.test.ts; no CLOSED child intended output changed. Failure Intake #1129 records the defect. This transaction deliberately covers both RELEASE_PARENT_FINAL_MAIN_DRIFT and downstream RELEASE_PARENT_CLOSURE_MAIN_DRIFT so the same stale-main assumption cannot simply reappear one gate later. Downstream pre-implementation review additionally found that parent closure currently waits only for pull_request CI although executor-created PR events are not a reliable recursive workflow trigger. The same capability therefore explicitly dispatches normal CI on the exact closure branch head and accepts exact workflow_dispatch or pull_request SUCCESS."
 }
