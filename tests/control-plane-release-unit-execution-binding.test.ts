@@ -15,6 +15,8 @@ import {
   decodeReleaseUnitContextEnvelope,
   derivePlannedOperations,
   validateReleaseUnitCiContext,
+  buildReleaseParentClosureProofPlan,
+  buildReleaseParentClosureProofArtifactFromContext,
 } from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 import {
   buildReleaseUnitCiEnvelope,
@@ -26,7 +28,7 @@ import {
   validateExactPullRequest,
 } from '../scripts/release-unit-github-runtime.mjs';
 import {resolveReleaseUnitCiPullRequest} from '../scripts/release-unit-ci-context.mjs';
-import {ensureParentClosureCiDispatch,proveParentMainAdvance,requireExactParentClosurePrIdentity} from '../scripts/release-unit-parent-close.mjs';
+import {ensureParentClosureCiDispatch,proveParentMainAdvance,requireExactParentClosurePrIdentity,proveInterruptedParentClosureProjection} from '../scripts/release-unit-parent-close.mjs';
 
 const A='a'.repeat(40),H='1'.repeat(40);
 const parentPlan:any={
@@ -460,6 +462,79 @@ describe('release-unit execution binding hardening',()=>{
       .toThrow(/RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH/);
     expect(reads).toBe(8);
     expect(waits).toBe(7);
+  });
+
+  it('authenticates an interrupted parent closure PR projection from exact committed receipt proof',()=>{
+    const oldMain='a'.repeat(40),prevMain='b'.repeat(40),nowMain='c'.repeat(40),newHead='d'.repeat(40),oldHead='e'.repeat(40),sourceCommit='f'.repeat(40);
+    const branch='release-execution/closure/dev-parent';
+    const state:any={
+      contract:'shoporation.release-parent-execution.v1',
+      parentTransactionId:'DEV-PARENT',executionSourceCommit:sourceCommit,closureComplete:true,
+      closurePersistence:{state:'PR_OPEN',prNumber:1138,branch,headSha:oldHead,baseSha:oldMain},
+      units:[{state:'CLOSED',order:1,manifest:{intendedFiles:['scripts/a.mjs'],operations:[]},
+        closeReceipt:{decision:'PASS',releaseUnitId:'DEV-PARENT-U01'},
+        merge:{mergedMainSha:oldMain}}],
+    };
+    const pr:any={number:1138,state:'open',head:{sha:newHead,ref:branch,repo:{full_name:'owner/repo'}},
+      base:{sha:prevMain,ref:'main',repo:{full_name:'owner/repo'}}};
+    const basic=(cmd:string,args:string[],opts:any={})=>{
+      if(cmd!=='git')throw Error('unexpected command');
+      if(args[0]==='merge-base')return '';
+      if(args[0]==='diff'&&args[1]==='--name-only')return 'scripts/independent-safe-change.mjs';
+      if(args[0]==='fetch')return '';
+      if(args[0]==='rev-list')return newHead+' '+prevMain;
+      if(args[0]==='show'&&args[1]===sourceCommit+':quality/development/active-plan.json')return JSON.stringify(parentPlan);
+      throw Error('unhandled '+args.join(' '));
+    };
+    const advance=proveParentMainAdvance({state,fromSha:oldMain,toSha:prevMain,run:basic});
+    expect(advance.decision).toBe('PASS');
+    const expectedPlan=buildReleaseParentClosureProofPlan({
+      parent:state,sourcePlan:parentPlan,sourceCommit,finalMainSha:prevMain,trustedMainAdvance:advance.proof,
+    });
+    const committedPlan={...expectedPlan,status:'closed',lifecycle:{state:'LEARN',truthStatus:'VERIFIED',verifiedImplementationHead:prevMain}};
+    const artifact=buildReleaseParentClosureProofArtifactFromContext(expectedPlan.parentClosureContext),blob='1'.repeat(40);
+    const originalRun=(command:string,args:string[],opts:any={})=>{
+      if(args[0]==='show'&&args[1]===newHead+':quality/development/active-plan.json')return JSON.stringify(committedPlan);
+      if(args[0]==='diff'&&args[1]==='--name-status')return 'M\\tquality/development/active-plan.json\\nA\\t'+artifact.path;
+      if(args[0]==='rev-parse')return blob;
+      if(args[0]==='hash-object')return opts.input===artifact.content?blob:'2'.repeat(40);
+      return basic(command,args,opts);
+    };
+    const evalCase=(run:any,remotePr:any=pr,current:string=nowMain)=>proveInterruptedParentClosureProjection({
+      state,sourceCommit,pr:remotePr,currentMain:current,repo:'owner/repo',run,
+    });
+    expect(evalCase(originalRun)).toMatchObject({decision:'PASS',reason:'AUTHENTIC_INTERRUPTED_PARENT_PROJECTION'});
+    const invalid=[
+      {name:'no main advance',pr,current:oldMain},
+      {name:'foreign ref',pr:{...pr,head:{...pr.head,ref:'foreign'}},current:nowMain},
+      {name:'closed PR',pr:{...pr,state:'closed'},current:nowMain},
+      {name:'wrong remote repository',pr:{...pr,head:{...pr.head,repo:{full_name:'attacker/repo'}}},current:nowMain},
+      {name:'same persisted head',pr:{...pr,head:{...pr.head,sha:oldHead}},current:nowMain},
+    ];
+    for(const x of invalid)expect(evalCase(originalRun,x.pr,x.current),x.name).toMatchObject({decision:'BLOCK'});
+    const variations=[
+      {name:'foreign extra parent',run:(cmd:string,args:string[],opts:any)=>args[0]==='rev-list'?newHead+' '+prevMain+' '+'7'.repeat(40):originalRun(cmd,args,opts)},
+      {name:'extra material file',run:(cmd:string,args:string[],opts:any)=>args[0]==='diff'&&args[1]==='--name-status'?'M\\tquality/development/active-plan.json\\nA\\t'+artifact.path+'\\nM\\tscripts/foreign.mjs':originalRun(cmd,args,opts)},
+      {name:'wrong committed artifact blob',run:(cmd:string,args:string[],opts:any)=>args[0]==='rev-parse'?'3'.repeat(40):originalRun(cmd,args,opts)},
+      {name:'wrong closed plan source',run:(cmd:string,args:string[],opts:any)=>args[0]==='show'&&args[1]===newHead+':quality/development/active-plan.json'?JSON.stringify({...committedPlan,parentClosureContext:{...committedPlan.parentClosureContext,sourceCommit:'4'.repeat(40)}}):originalRun(cmd,args,opts)},
+      {name:'unavailable commit',run:(cmd:string,args:string[],opts:any)=>args[0]==='fetch'?(()=>{throw Error('commit unavailable');})():originalRun(cmd,args,opts)},
+      {name:'not a trusted ancestor',run:(cmd:string,args:string[],opts:any)=>args[0]==='merge-base'&&args.at(-2)===prevMain?(()=>{throw Error('non-ancestor');})():originalRun(cmd,args,opts)},
+    ];
+    for(const x of variations){
+      const res=evalCase(x.run);
+      expect(res.decision,x.name).toBe('BLOCK');
+      expect(res.error,x.name).toMatch(/^RELEASE_PARENT_INTERRUPTED_REPROJECTION_INVALID:/);
+    }
+  });
+  it('keeps normal parent closure PR authority separate from interrupted remote recovery',()=>{
+    const source=readFileSync('scripts/release-unit-parent-close.mjs','utf8');
+    expect(source).toContain('const persistedPrIdentityValid=');
+    expect(source).toContain("const recovered=proveInterruptedParentClosureProjection({state,sourceCommit,pr,currentMain,repo:repository,run,cwd})");
+    expect(source).toContain("if(currentMain!==persistence.baseSha)return reproject(currentMain)");
+    expect(source).toContain("if(!persistedPrIdentityValid)");
+    expect(source).toContain("return reproject(currentMain);");
+    expect(source).toContain("buildReleaseParentClosureProofArtifactFromContext(expectedPlan.parentClosureContext)");
+    expect(source).toContain("run('git',['hash-object','--stdin'],{cwd,input:artifact.content})");
   });
 
 });

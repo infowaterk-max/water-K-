@@ -2,7 +2,7 @@ import {execFileSync} from 'node:child_process';
 import {mkdtempSync,mkdirSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT,buildReleaseParentClosureProofArtifactFromContext,buildReleaseParentClosureProofPlan,recordReleaseParentClosureWithProofContext,releaseParentProtectedFiles,releaseParentUnitCloseReceiptDigests} from './lib/shoperation-release-unit-runtime.mjs';
+import {RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT,buildReleaseParentClosureProofArtifactFromContext,buildReleaseParentClosureProofPlan,validateReleaseParentClosureProofPlan,recordReleaseParentClosureWithProofContext,releaseParentProtectedFiles,releaseParentUnitCloseReceiptDigests} from './lib/shoperation-release-unit-runtime.mjs';
 
 const text=value=>String(value??'').trim();
 const parse=value=>JSON.parse(String(value??'null'));
@@ -222,12 +222,86 @@ export function closeParentReleaseExecution({state,sourceCommit,run=defaultRun,c
   }
 }
 
+
+/**
+ * A preceding executor can push a metadata-only closure PR then lose its
+ * canonical state CAS. Such a remote head is NEVER authoritative by itself:
+ * prove that the committed previous projection was derived from the same
+ * immutable source, CLOSED child receipts, final main and deterministic
+ * proof artifact before allowing the current main to be reprojected.
+ */
+export function proveInterruptedParentClosureProjection({
+  state,sourceCommit,pr,currentMain,repo=null,run=defaultRun,cwd=process.cwd(),
+}={}){
+  const persistence=state?.closurePersistence??{};
+  const details={
+    expectedPersistedHead:persistence.headSha??null,
+    expectedPersistedBase:persistence.baseSha??null,
+    observedHead:pr?.head?.sha??null,
+    observedBase:pr?.base?.sha??null,
+    currentMain:currentMain??null,
+  };
+  const block=(cause)=>({decision:'BLOCK',error:'RELEASE_PARENT_INTERRUPTED_REPROJECTION_INVALID:'+cause,details});
+  const shaOk=value=>/^[0-9a-f]{40}$/i.test(text(value));
+  const repository=repo??repoName(run,cwd);
+  if(!state?.closureComplete||persistence.state!=='PR_OPEN'||!shaOk(sourceCommit)||
+      state.executionSourceCommit!==sourceCommit)return block('SOURCE_OR_STATE_IDENTITY');
+  if(pr?.number!==persistence.prNumber||pr?.state!=='open'||
+      pr?.head?.ref!==persistence.branch||pr?.base?.ref!=='main'||
+      pr?.head?.repo?.full_name!==repository||pr?.base?.repo?.full_name!==repository)
+    return block('PR_REPOSITORY_OR_REF');
+  const observedHead=text(pr.head.sha),observedBase=text(pr.base.sha);
+  if(!shaOk(observedHead)||!shaOk(observedBase)||!shaOk(currentMain)||
+      observedHead===persistence.headSha||observedBase===persistence.baseSha||
+      currentMain===persistence.baseSha)return block('NO_PARTIAL_NEWER_PROJECTION');
+  try{
+    const stateAdvance=proveParentMainAdvance({state,fromSha:persistence.baseSha,toSha:currentMain,run,cwd});
+    if(stateAdvance.decision!=='PASS')return block('TRUSTED_CURRENT_MAIN_ADVANCE');
+    const previousAdvance=proveParentMainAdvance({state,fromSha:persistence.baseSha,toSha:observedBase,run,cwd});
+    if(previousAdvance.decision!=='PASS')return block('PREVIOUS_PR_BASE_ADVANCE');
+    const nextAdvance=proveParentMainAdvance({state,fromSha:observedBase,toSha:currentMain,run,cwd});
+    if(!['PASS','NO_ADVANCE'].includes(nextAdvance.decision))return block('PR_BASE_NOT_TRUSTED_ANCESTOR');
+    run('git',['fetch','--quiet','origin',observedHead],{cwd});
+    const parents=text(run('git',['rev-list','--parents','-n','1',observedHead],{cwd})).split(/\s+/);
+    if(parents.length!==2||parents[0]!==observedHead||parents[1]!==observedBase)
+      return block('REMOTE_CLOSURE_DIRECT_PARENT_MISMATCH');
+    const sourcePlan=parse(run('git',['show',sourceCommit+':quality/development/active-plan.json'],{cwd}));
+    if(sourcePlan?.taskId!==state.parentTransactionId)return block('IMMUTABLE_PARENT_SOURCE_MISMATCH');
+    const lastChildMain=finalImplementationMain(state);
+    const proof=proveParentMainAdvance({state,fromSha:lastChildMain,toSha:observedBase,run,cwd});
+    if(!['PASS','NO_ADVANCE'].includes(proof.decision))return block('PREVIOUS_PROOF_MAIN_ADVANCE');
+    const expectedPlan=buildReleaseParentClosureProofPlan({
+      parent:state,sourcePlan,sourceCommit,finalMainSha:observedBase,
+      trustedMainAdvance:proof.decision==='PASS'?proof.proof:null,
+    });
+    const committedPlan=parse(run('git',['show',observedHead+':quality/development/active-plan.json'],{cwd}));
+    if(!validateReleaseParentClosureProofPlan(committedPlan,{
+      parent:state,sourcePlan,sourceCommit,finalMainSha:observedBase,
+      trustedMainAdvance:proof.decision==='PASS'?proof.proof:null,
+    }))return block('COMMITTED_PARENT_PROOF_PLAN_MISMATCH');
+    const artifact=buildReleaseParentClosureProofArtifactFromContext(expectedPlan.parentClosureContext);
+    const changes=text(run('git',['diff','--name-status','--no-renames',observedBase,observedHead],{cwd}))
+      .split(/\r?\n/).filter(Boolean).sort();
+    const expectedChanges=[
+      'M\tquality/development/active-plan.json','A\t'+artifact.path,
+    ].sort();
+    if(JSON.stringify(changes)!==JSON.stringify(expectedChanges))return block('REMOTE_CLOSURE_METADATA_SCOPE_MISMATCH');
+    // Compare git blob hashes, not trimmed stdout, so persisted bytes are exact.
+    const actualBlob=text(run('git',['rev-parse',observedHead+':'+artifact.path],{cwd}));
+    const expectedBlob=text(run('git',['hash-object','--stdin'],{cwd,input:artifact.content}));
+    if(!shaOk(actualBlob)||actualBlob!==expectedBlob)return block('COMMITTED_PARENT_ARTIFACT_BYTES_MISMATCH');
+    return{decision:'PASS',reason:'AUTHENTIC_INTERRUPTED_PARENT_PROJECTION',details};
+  }catch(error){
+    return block('PROOF_QUERY_FAILED:'+String(error?.message??error));
+  }
+}
+
 export function finishParentClosurePersistence({state,sourceCommit,run=defaultRun,cwd=process.cwd()}={}){
   const persistence=state?.closurePersistence;
   if(!state?.closureComplete||persistence?.state!=='PR_OPEN')return{state,decision:'BLOCK',reason:'RELEASE_PARENT_CLOSURE_PERSISTENCE_NOT_OPEN'};
   const repository=repoName(run,cwd);
   let pr=ghApi(run,cwd,['repos/'+repository+'/pulls/'+persistence.prNumber]);
-  if(pr.state!=='open'||pr.head?.sha!==persistence.headSha||pr.head?.ref!==persistence.branch||pr.base?.ref!=='main')return{state,decision:'BLOCK',reason:'RELEASE_PARENT_CLOSURE_PR_DRIFT'};
+  const persistedPrIdentityValid=pr.state==='open'&&pr.head?.sha===persistence.headSha&&pr.head?.ref===persistence.branch&&pr.base?.ref==='main'&&pr.number===persistence.prNumber;
   const reproject=currentMain=>{
     const incremental=proveParentMainAdvance({state,fromSha:persistence.baseSha,toSha:currentMain,run,cwd});
     if(incremental.decision!=='PASS')return{state,decision:'BLOCK',reason:'RELEASE_PARENT_CLOSURE_MAIN_DRIFT',error:incremental.error??null,details:incremental.details??null};
@@ -245,6 +319,14 @@ export function finishParentClosurePersistence({state,sourceCommit,run=defaultRu
   };
   run('git',['fetch','--quiet','origin','main'],{cwd});
   let currentMain=run('git',['rev-parse','origin/main'],{cwd});
+  if(!persistedPrIdentityValid){
+    const recovered=proveInterruptedParentClosureProjection({state,sourceCommit,pr,currentMain,repo:repository,run,cwd});
+    if(recovered.decision!=='PASS')return{
+      state,decision:'BLOCK',reason:'RELEASE_PARENT_CLOSURE_PR_DRIFT',
+      error:recovered.error+':'+JSON.stringify(recovered.details),details:recovered.details,
+    };
+    return reproject(currentMain);
+  }
   if(currentMain!==persistence.baseSha)return reproject(currentMain);
   if(pr.base?.sha!==persistence.baseSha)return{state,decision:'BLOCK',reason:'RELEASE_PARENT_CLOSURE_PR_DRIFT'};
   const ensured=ensureParentClosureCiDispatch({headSha:persistence.headSha,headBranch:persistence.branch,repo:repository,run,cwd});
