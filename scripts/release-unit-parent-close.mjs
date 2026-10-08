@@ -327,7 +327,7 @@ export function classifyParentPostMergeMainCiRun({state,ciRun,jobs=null,mergedAt
     return bad('PERSISTED_IDENTITY_MISMATCH');
   if(!Number.isSafeInteger(ciRun?.id)||ciRun.id<1||
       (proof.runId!==null&&proof.runId!==ciRun.id)||ciRun.head_sha!==p.mergedMainSha||
-      ciRun.head_branch!=='main'||ciRun.event!=='workflow_dispatch'||ciRun.name!=='CI'||
+      ciRun.head_branch!=='main'||ciRun.event!=='workflow_dispatch'||ciRun.name!==proof.nonce||
       text(ciRun.path).split('@')[0]!=='.github/workflows/ci.yml'||
       ciRun.display_title!==proof.nonce||ciRun.actor?.login!=='github-actions[bot]')
     return bad('RUN_IDENTITY_MISMATCH');
@@ -368,11 +368,11 @@ export function advanceParentPostMergeMainCi({state,sourceCommit,run=defaultRun,
     postMergeMainCi:{...structuredClone(proof),...fields}}});
   let runId=proof.runId;
   if(runId===null){
-    const fields='databaseId,status,conclusion,headSha,headBranch,event,workflowName,displayTitle,createdAt';
+    const fields='databaseId,status,conclusion,headSha,headBranch,event,displayTitle,createdAt';
     const listed=parse(run('gh',['run','list','--repo',repository,'--workflow','CI','--commit',p.mergedMainSha,
       '--event','workflow_dispatch','--json',fields,'--limit','100'],{cwd}));
     const exact=(listed??[]).filter(item=>item.displayTitle===proof.nonce&&item.headSha===p.mergedMainSha&&
-      item.headBranch==='main'&&item.event==='workflow_dispatch'&&item.workflowName==='CI');
+      item.headBranch==='main'&&item.event==='workflow_dispatch');
     if(exact.length>1)
       return blockParentPostMergeCi(state,'RELEASE_PARENT_POST_MERGE_DUPLICATE_RUNS',{ids:exact.map(x=>x.databaseId)});
     if(exact.length)runId=exact[0].databaseId;

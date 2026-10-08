@@ -570,7 +570,7 @@ describe('release-unit execution binding hardening',()=>{
       units:[{state:'CLOSED',closeReceipt:{decision:'PASS'}}],
       closurePersistence:{contract:'shoporation.release-parent-closure-persistence.v1',state:'PR_OPEN',prNumber:1138,headSha:head,branch:'release-execution/closure/dev-parent',baseSha:base},
     },sourceCommit:source,mergedMainSha:merged});
-    const workflowRun:any={id:987,run_attempt:1,name:'CI',path:'.github/workflows/ci.yml',event:'workflow_dispatch',head_sha:merged,
+    const workflowRun:any={id:987,run_attempt:1,name:state.closurePersistence.postMergeMainCi.nonce,path:'.github/workflows/ci.yml',event:'workflow_dispatch',head_sha:merged,
       head_branch:'main',display_title:state.closurePersistence.postMergeMainCi.nonce,actor:{login:'github-actions[bot]'},
       status:'completed',conclusion:'success',created_at:'2026-10-08T21:00:00Z',updated_at:'2026-10-08T21:06:00Z'};
     const steps=['Bind exact parent post-merge main CI','Knowledge Before Build preflight','Incremental Known Failure Replay','Quality tests','TypeScript check','Production build'].map(name=>({name,status:'completed',conclusion:'success'}));
@@ -582,7 +582,7 @@ describe('release-unit execution binding hardening',()=>{
       ['wrong sha',{head_sha:'f'.repeat(40)}],['wrong branch',{head_branch:'feature/foreign'}],
       ['wrong event',{event:'pull_request'}],['manual actor',{actor:{login:'chall'}}],
       ['wrong nonce',{display_title:'CI regular manual run'}],['foreign workflow',{path:'.github/workflows/other.yml'}],
-      ['wrong name',{name:'Other'}],['wrong ID',{id:999}],
+      ['wrong name',{name:'CI'}],['wrong ID',{id:999}],
     ]){
       const bound=structuredClone(state);bound.closurePersistence.postMergeMainCi.runId=987;
       expect(classify({...workflowRun,...field},jobs,bound).decision,name).toBe('BLOCK');
@@ -607,7 +607,7 @@ describe('release-unit execution binding hardening',()=>{
     const nonce=state.closurePersistence.postMergeMainCi.nonce;
     const pr:any={state:'closed',merged:true,number:1138,head:{sha:head,ref:'release-execution/closure/dev-parent'},
       base:{sha:base,ref:'main'},merge_commit_sha:merged,merged_by:{login:'github-actions[bot]'},merged_at:'2026-10-08T20:00:00Z'};
-    const ciRun:any={id:991,run_attempt:1,name:'CI',path:'.github/workflows/ci.yml',event:'workflow_dispatch',head_sha:merged,
+    const ciRun:any={id:991,run_attempt:1,name:nonce,path:'.github/workflows/ci.yml',event:'workflow_dispatch',head_sha:merged,
       head_branch:'main',display_title:nonce,actor:{login:'github-actions[bot]'},status:'queued',conclusion:null,
       created_at:'2026-10-08T20:05:00Z',updated_at:'2026-10-08T20:05:00Z'};
     const steps=['Bind exact parent post-merge main CI','Knowledge Before Build preflight','Incremental Known Failure Replay','Quality tests','TypeScript check','Production build'].map(name=>({name,status:'completed',conclusion:'success'}));
