@@ -375,4 +375,22 @@ describe('release-unit execution binding hardening',()=>{
     expect(readFileSync('scripts/shoperation-plan-before-code.mjs','utf8')).not.toContain('metadataOnlyParentClosure');
   });
 
+  it('keeps executable parent proof and committed closure metadata identities separate',()=>{
+    const editSource=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');
+    expect(editSource).toContain("const persistedClosureMetadata=plan.status==='closed'");
+    expect(editSource).toContain("const verifiedProofPath=parentClosureProofPath||(persistedClosureMetadata?expected.path:'')");
+    expect(editSource).toContain('EDIT_TIME_PARENT_CLOSURE_ARTIFACT_PATH_MISMATCH');
+    expect(editSource).toContain('EDIT_TIME_PARENT_CLOSURE_COMMITTED_ARTIFACT_BYTES_MISMATCH');
+    expect(editSource).toContain('EDIT_TIME_PARENT_CLOSURE_COMMITTED_ARTIFACT_MISSING');
+    expect(editSource).toContain("git(['show',`${diff.head}:${expected.path}`])");
+    expect(editSource).toContain("git(['rev-list','--parents','-n','1',diff.head])");
+    expect(editSource).toContain('parents.length!==2');
+    expect(editSource).toContain('parents[1]!==finalMainSha');
+    expect(editSource).toContain('plan.changeBaseSha!==finalMainSha');
+    expect(editSource).toContain('EDIT_TIME_PARENT_CLOSURE_METADATA_PARENT_MISMATCH');
+    expect(editSource).toContain('EDIT_TIME_PARENT_CLOSURE_METADATA_HEAD_INVALID');
+    expect(editSource).toContain('else if(diff.head&&finalMainSha!==diff.head)');
+    expect(editSource).not.toContain('parentClosureContext?.finalMainSha!==diff.head');
+  });
+
 });
