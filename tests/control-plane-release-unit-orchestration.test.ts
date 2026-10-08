@@ -1,6 +1,7 @@
 // @ts-nocheck
 import {describe,expect,it} from 'vitest';
 import {applyReleaseUnitEvent,classifyReleaseUnitObligationDrift,createReleaseParentExecution,createReleaseUnitExecution,reconcileReleaseUnitManifest,reconcileSuccessorReleaseUnit,recordReleaseParentClosure,refreshReleaseUnitIdentity,reprojectReleaseUnitChildTransaction,strongDigest} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
+import {selectSuccessorProjectedOperations} from '../scripts/release-unit-github-runtime.mjs';
 
 const sha=char=>char.repeat(40);
 const A=sha('a'),B=sha('b'),C=sha('c'),D=sha('d'),X=sha('e');
@@ -394,5 +395,38 @@ describe('Control Plane release-unit orchestration',()=>{
     expect(result.code).toBe('RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT');
     expect(result.details.drift.map((item:any)=>item.field)).toEqual(expect.arrayContaining(['requiredDependencyFiles','readOnlyPaths']));
   });
+
+  it('preserves immutable operation semantics when a successor candidate is fully already applied',()=>{
+    const fixture='quality/knowledge/rehearsal-fixtures/v1/fixture-25.json',testFile='tests/control-plane-release-unit-production-surface.test.ts';
+    const reconciled={operations:[
+      {operation:'create',file:fixture,generated:null,source:{mode:'sealed',commit:A,blobSha:B,fileMode:'100644'}},
+      {operation:'modify',file:testFile,generated:null,source:{mode:'sealed',commit:A,blobSha:B,fileMode:'100644'}},
+    ]};
+    const projected={operations:[
+      {operation:'modify',file:fixture,generated:null},
+      {operation:'modify',file:testFile,generated:null},
+    ]};
+    const candidate={status:'ALREADY_APPLIED',applied:[],alreadyApplied:[
+      {operation:'create',file:fixture},
+      {operation:'modify',file:testFile},
+    ]};
+    expect(selectSuccessorProjectedOperations({reconciled,projected,candidate})).toEqual([
+      {operation:'create',file:fixture,generated:null},
+      {operation:'modify',file:testFile,generated:null},
+    ]);
+  });
+
+  it('does not preserve immutable operations for partial or mismatched already-applied coverage',()=>{
+    const file='quality/knowledge/rehearsal-fixtures/v1/fixture-25.json';
+    const reconciled={operations:[{operation:'create',file,generated:null,source:{mode:'sealed',commit:A,blobSha:B,fileMode:'100644'}}]};
+    const projected={operations:[{operation:'modify',file,generated:null}]};
+    expect(selectSuccessorProjectedOperations({
+      reconciled,projected,candidate:{status:'PREPARED',applied:[{operation:'create',file}],alreadyApplied:[]},
+    })).toEqual(projected.operations);
+    expect(selectSuccessorProjectedOperations({
+      reconciled,projected,candidate:{status:'ALREADY_APPLIED',applied:[],alreadyApplied:[{operation:'modify',file}]},
+    })).toEqual(projected.operations);
+  });
+
 
 });
