@@ -8,7 +8,7 @@ import {
   prepareActiveUnit,
   stateRefFor,
 } from './release-unit-github-runtime.mjs';
-import {closeParentReleaseExecution,finishParentClosurePersistence} from './release-unit-parent-close.mjs';
+import {advanceParentPostMergeMainCi,closeParentReleaseExecution,dispatchArmedParentMainCi,finishParentClosurePersistence} from './release-unit-parent-close.mjs';
 
 const args=process.argv.slice(2);
 const value=name=>{const index=args.indexOf(name);return index>=0?args[index+1]??null:null;};
@@ -42,6 +42,8 @@ if(has('--drive')){
     let result;
     if(state.closureComplete&&state.closurePersistence?.state==='PR_OPEN'){
       result=finishParentClosurePersistence({state,sourceCommit:source});
+    }else if(state.closureComplete&&state.closurePersistence?.state==='POST_MERGE_CI_PENDING'){
+      result=advanceParentPostMergeMainCi({state,sourceCommit:source});
     }else if(state.closureComplete&&state.closurePersistence?.state==='MERGED'){
       console.log(JSON.stringify({decision:'PARENT_CLOSED',parentTransactionId:state.parentTransactionId,stateRef,stateCommit:loaded.stateCommit},null,2));
       process.exit(0);
@@ -62,6 +64,18 @@ if(has('--drive')){
     if(result.state!==state){
       const saved=persistRemoteExecutionState({state:result.state,stateRef,expectedStateCommit:loaded.stateCommit});
       loaded={state:result.state,stateCommit:saved.stateCommit};
+    }
+    if(result.decision==='DISPATCH_ARMED'){
+      // A durable CAS must succeed before this process may perform the
+      // non-idempotent GitHub workflow_dispatch side effect.
+      const dispatched=dispatchArmedParentMainCi({state:loaded.state,sourceCommit:source});
+      if(dispatched.state!==loaded.state){
+        const saved=persistRemoteExecutionState({state:dispatched.state,stateRef,expectedStateCommit:loaded.stateCommit});
+        loaded={state:dispatched.state,stateCommit:saved.stateCommit};
+      }
+      if(dispatched.decision==='BLOCK')
+        throw new Error('RELEASE_UNIT_EXECUTION_BLOCK:'+JSON.stringify(releaseExecutionBlockDiagnostic(dispatched)));
+      await sleep(pollMs);continue;
     }
     if(result.decision==='PENDING'){await sleep(pollMs);continue;}
     if(result.decision==='BLOCK')throw new Error('RELEASE_UNIT_EXECUTION_BLOCK:'+JSON.stringify(releaseExecutionBlockDiagnostic(result)));

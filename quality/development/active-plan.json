@@ -1,111 +1,104 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
-  "task": "Create an inert fixture corpus to exercise the canonical multi-unit executor end-to-end without changing runtime behavior.",
+  "taskId": "DEV-RELEASE-PARENT-POST-MERGE-MAIN-CI-V1",
+  "task": "Harden release parent merge-to-main CI execution with exact merged-head dispatch, durable auditable run evidence and fail-closed restart closure.",
   "status": "closed",
-  "guardDigest": "aa79c504",
-  "changeBaseSha": "f5f41dbefa294f3ce60b949a11628b64d88f7167",
+  "guardDigest": "128614ad",
+  "changeBaseSha": "5a39a1d8f31458d45617d3246b77ec3740db19d0",
   "plannedFilePatterns": [
+    ".github/workflows/ci.yml",
     "quality/development/active-plan.json",
-    "quality/knowledge/release-parent-closure-proofs/dev-control-plane-multi-unit-rehearsal-v1.json"
+    "scripts/release-unit-execute.mjs",
+    "scripts/release-unit-parent-close.mjs",
+    "tests/control-plane-release-unit-execution-binding.test.ts"
   ],
-  "expectedSubsystems": [],
+  "expectedSubsystems": [
+    "release-infrastructure"
+  ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
-    "SQ-KF-005",
     "SQ-KF-006",
-    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-015",
-    "SQ-KF-016",
-    "SQ-KF-017",
     "SQ-KF-018",
-    "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
     "TF-KF-005",
-    "TF-KF-006",
     "TF-KF-007",
-    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
-    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "TF-KF-015"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
+    "SQ-NK-010",
+    "SQ-NK-012",
+    "SQ-NK-016",
+    "SQ-NK-017",
+    "SQ-NK-018",
+    "SQ-NK-019",
+    "SQ-NK-020",
+    "SQ-NK-021",
+    "SQ-NK-022",
+    "SQ-NK-023"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+    "sourceRef": "PO-2026-10-08-ISSUE-1156-AUTO-MAIN-CI-V1",
     "riskTier": "critical",
-    "problemStatement": "The canonical multi-unit executor is merged and individually proven, but it still lacks one bounded real GitHub transaction demonstrating three or more ordered child units, exact child evidence, sequential merges, persisted state and final parent closure.",
+    "problemStatement": "Issue #1156: canonical parent release executor uses its GITHUB_TOKEN to squash-merge parent PR and marks MERGED/PARENT_CLOSED instantly. GitHub suppresses automatic push CI for that token, leaving a missing exact merged main CI while falsely completing the execution chain. The fix must independently bind an explicitly dispatched exact-head main workflow run to the persisted parent source/merge identity and await successful terminal evidence.",
     "observableOutcomes": [
-      "Canonical planning decomposes the bounded fixture change into at least three ordered child units without changing decomposition policy.",
-      "Each child reaches closure only after its exact materialized head passes the existing child verification and lifecycle authorities.",
-      "Every successor is reconciled against the merged predecessor main identity before materialization.",
-      "The parent closes only after all declared children close and remains bound to the final implementation main.",
-      "All material changes remain confined to the rehearsal fixture prefix and one Control Plane regression test."
+      "After a trusted parent merge, the canonical release state remains pending until a separately dispatched CI run on the actual merged main SHA completes SUCCESS.",
+      "The exact workflow run ID, immutable source commit, merged main SHA, branch, event, workflow identity, status and terminal conclusion are recorded in durable canonical state.",
+      "A restarted executor safely resumes a persisted pending dispatch without starting duplicate workflows or accepting earlier unrelated successful runs.",
+      "Wrong branch, wrong source SHA, changed main, wrong run ID, stale run, forged actor/nonce, missing CI, declined dispatch, failed or cancelled CI block or remain pending with explicit error.",
+      "Legacy canonical MERGED parent receipts are not rewritten and the source 65e52ffd, U01-U03 close receipts and their protected evidence remain immutable.",
+      "Exact-head PR/main CI and negative regression tests verify the fix before deployment."
     ],
     "unresolvedRisks": [
-      "Live GitHub timing can expose proof-import or state-transition gaps that mocked orchestration tests cannot reproduce.",
-      "A stale executor attempt may race the persisted state and must fail without advancing authoritative state.",
-      "An unexpected architecture classification could widen scope and must block before fixture implementation.",
-      "A later metadata closure commit must not change the implementation head used by parent truth."
+      "GitHub Actions-token merge has no push trigger: workflow_dispatch must be explicit and authenticated by trusted executor authority.",
+      "A dispatch may take time to appear in run listing, and an executor can be interrupted between dispatch and receipt persistence.",
+      "Any main ref advance before dispatch can cause a workflow to target the wrong code; require exact merged-head matching, otherwise block.",
+      "Manually triggered CI on the same SHA can be unrelated; discriminate via deterministic parent transaction and merge nonce and the run's event/branch/identity.",
+      "The canonical state must be persisted between merge, dispatch and terminal CI result via existing CAS; do not infer success from a dispatched signal.",
+      "Late review of PR #1166 revealed a cross-system crash window: GH workflow_dispatch may succeed while the canonical CAS write of DISPATCH_REQUESTED has not yet happened. On restart, the persisted INTENT_RECORDED state plus a delayed GitHub listing could trigger a second dispatch. The GitHub API does not offer a transactionally idempotent workflow_dispatch call."
     ],
     "scope": {
       "in": [
-        "Create twenty-five inert JSON rehearsal fixtures under a dedicated quality knowledge rehearsal-fixtures directory that is not consumed by application runtime.",
-        "Add one regression assertion to the existing production-surface Control Plane test.",
-        "Use the unchanged canonical decomposition, child proof, state persistence, merge and parent closure paths.",
-        "Stop and route any newly discovered live execution gap through existing Failure Intake."
+        "Add a durable parent post-merge CI pending lifecycle and exact receipt to canonical release executor.",
+        "Explicitly dispatch CI on main, with an exact parent/merge correlation marker and no child-proof flag.",
+        "Bind exact run ID, event, head SHA, branch, title and conclusion; require terminal success before PARENT_CLOSED.",
+        "Add trusted CI workflow_dispatch marker and verify its input/main SHA identity.",
+        "Cover interrupted PR merge recovery and dispatch retry without accepting forged/stale runs.",
+        "Adversarial regression scenarios and integration wiring tests."
       ],
       "out": [
-        "No storefront, admin, database, authentication, payment, inventory, Builder, template or deployment behavior change.",
-        "No change to release risk, truth, lifecycle, decomposition limits, workflow permissions, Atlas or Sentinel authority.",
-        "No manual receipt fabrication or direct state editing to force the rehearsal forward."
+        "No change to immutable rehearsal source, source branch, child state or receipt evidence.",
+        "No manual edit to canonical remote state or GitHub workflows outside the CI binding.",
+        "No unrelated storefront, builder, templates or production runtime features.",
+        "No broad bypass for CI, Truth, Lifecycle or failure-intake requirements."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This proof drives real repository branch, pull-request, CI, merge and persisted orchestration state while deliberately restricting material changes to non-product fixtures. Exact identity, fail-closed transitions and final closure therefore require the strongest practical bounded assurance.",
+      "rationale": "The gap is a state/authority race between GitHub Actions-token merges and separately dispatched CI, requiring explicit asynchronous transaction identities, durable recovery, input authentication and exact-head success evidence.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -122,27 +115,32 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The plan-only revision passes Plan Before Code before any rehearsal fixture is created.",
-        "The canonical decomposition contains at least three ordered units and only planned rehearsal material.",
-        "Every child is proven on its exact materialized head before merge or canonical no-code closure.",
-        "Every successor uses fresh merged-main reconciliation rather than the original parent base.",
-        "Parent truth and lifecycle run only after all units are closed at the exact final implementation main.",
-        "Any live missing edge blocks execution and is recorded rather than bypassed."
+        "Pre-code plan passes the canonical Plan Before Code Gate and any measured scope corrections are made in plan-only commits.",
+        "A canonical merged parent PR produces POST_MERGE_CI_PENDING, not MERGED, with exact merge SHA and source-bound dispatch nonce.",
+        "The next persisted executor step dispatches CI via workflow_dispatch on main and records/reuses one exact run ID per parent merge.",
+        "Wrong SHA/branch/event/workflow/name/nonce/actor, missing or failed run and stale unrelated success cannot transition to MERGED.",
+        "Terminal SUCCESS on the exact merged main SHA yields persisted CI evidence and only then PARENT_CLOSED.",
+        "Resumption after post-merge-but-pre-persistence interruption is fail-closed and validates original PR/proof before accepting merge.",
+        "Full quality tests, TypeScript, build, Truth/Lifecycle and exact-head PR/main CI reach SUCCESS before merge.",
+        "Persist a one-shot dispatch authorization before invoking the GitHub workflow_dispatch side effect. A restart from any uncertain state MUST NOT issue another dispatch automatically; it can only reconcile the uniquely correlated run or fail closed awaiting operator review."
       ],
       "invariants": [
-        "Fixture documents contain inert rehearsal metadata only and are not consumed by application runtime code.",
-        "Unit manifests remain the exclusive material scope authority for each child.",
-        "Persisted execution state advances monotonically through the existing CAS contract.",
-        "Exact-head child proof remains mandatory before merge or no-code completion.",
-        "Parent closure cannot precede complete child closure."
+        "MERGED and PARENT_CLOSED for new closures require independently confirmed CI SUCCESS on exact mergedMainSha.",
+        "PENDING/dispatch attempted are not success, even if GitHub accepted the dispatch request.",
+        "Source commit, parent identity, U01-U03 child receipts and canonical proof remain unchanged and must match.",
+        "Duplicate dispatches are not created for a previously recorded correlation token or run ID.",
+        "No use of arbitrary prior successful main CI as canonical merge receipt.",
+        "Latest main HEAD must equal mergedMainSha at the moment workflow dispatch is authorized.",
+        "Only the canonical trusted executor persists remote state with CAS."
       ],
       "forbiddenStates": [
-        "rehearsal material outside the declared fixture and proof files",
-        "fewer than three canonical child units",
-        "child merge without exact child proof",
-        "successor authorization against stale main",
-        "stale persisted-state writer accepted",
-        "parent closure before every child is closed"
+        "PARENT_CLOSED immediately after GITHUB_TOKEN merge without a main CI run.",
+        "Foreign manual or unrelated workflow run with matching SHA is treated as proof.",
+        "A failed/cancelled or in-progress run is recorded as PASS.",
+        "Two simultaneous or duplicate dispatches on retry with identical parent identity.",
+        "A forged branch/source, missing child receipt or changed main is accepted.",
+        "A CI run started against different main SHA is incorrectly attributed to the merge.",
+        "Two workflow_dispatch calls can originate from the same persisted INTENT_RECORDED state when GitHub run-list visibility is delayed or an executor crashes after the first dispatch."
       ]
     },
     "model": {
@@ -174,178 +172,232 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Planning resolves an unexpected domain or subsystem.",
-        "Decomposition produces fewer than three children.",
-        "Exact child evidence cannot be imported from the matching CI head.",
-        "Merged main drifts before successor reconciliation.",
-        "Persisted execution state rejects a stale transition.",
-        "Parent proof cannot bind to the final implementation main."
+        "GITHUB_TOKEN squash merge suppresses push CI.",
+        "Merge completes but state CAS fails, leaving PR_OPEN with merged remote.",
+        "Dispatch is acknowledged but workflow run is initially invisible.",
+        "The executor crashes after dispatch before recording run ID.",
+        "A previous user-initiated main CI on the same SHA is mistakenly adopted.",
+        "A CI run targets a subsequent main SHA after merge races.",
+        "Runner actor/title/workflow inputs differ from the canonical dispatch intention.",
+        "Workflow fails or is cancelled while executor polls.",
+        "Atomicity gap between accepted external GitHub workflow_dispatch and canonical state CAS can produce duplicate accepted workflow events without an idempotency key."
       ],
       "edgeCases": [
-        "Twenty-six material files pack across at least three units under the unchanged twelve-file limit.",
-        "A child CI remains pending across repeated executor polls.",
-        "A squash merge produces a main SHA different from the child source SHA.",
-        "A fixture is already present and exercises the canonical no-code branch.",
-        "An unrelated main change appears between child transitions.",
-        "The closure metadata commit advances main after parent truth."
+        "First successful canonical parent merge.",
+        "No new CI trigger after GITHUB_TOKEN merge.",
+        "Existing post-merge CI in progress for same unique nonce.",
+        "Run not yet visible after a successful dispatch.",
+        "Sole unrelated manual SUCCESS on same main commit.",
+        "Malformed/foreign run ID, name, branch, actor, title or event.",
+        "Changed main branch between merge and dispatch.",
+        "Interrupted after PR merged but before canonical state persisted.",
+        "Interrupted after dispatch but before run ID persisted.",
+        "Exact correlated run finishes FAILED or CANCELLED.",
+        "Legacy already-MERGED persisted state from before #1156.",
+        "A second retry sees SUCCESS without duplicating workflow.",
+        "Exactly between GitHub accepting workflow_dispatch and the executor persisting a run ID / DISPATCH_REQUESTED state; a restart must not dispatch again even if GitHub run-list is temporarily empty.",
+        "Exactly between durable dispatch authorization CAS and the GH network request; the executor must prefer explicit uncertainty over an unsafe automatic retry."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-REAL-FIXTURE",
-        "summary": "Run the real executor against a bounded inert multi-unit fixture corpus.",
+        "id": "ALT-EXPLICIT-CANONICAL-DISPATCH",
+        "summary": "Persist pending state, dispatch correlated exact-commit main CI and prove terminal success before MERGED.",
         "disposition": "selected",
-        "reason": "This directly proves GitHub orchestration while keeping application behavior untouched and material scope narrow."
+        "reason": "Establishes a durable, independently checked downstream proof boundary and supports guarded resumability."
       },
       {
-        "id": "ALT-MOCK-ONLY",
-        "summary": "Rely only on additional mocked state-machine and adapter regression tests.",
+        "id": "ALT-EXPLICIT-FIRE-AND-FORGET",
+        "summary": "Call workflow_dispatch immediately after merge and mark parent CLOSED without waiting.",
         "disposition": "rejected",
-        "reason": "Mocks cannot prove real pull-request metadata, Actions artifact lookup, merge receipts or persisted remote state behavior."
+        "reason": "Would retain the existing false success claim and could not detect failed/misrouted CI."
       },
       {
-        "id": "ALT-PRODUCT-CHANGE",
-        "summary": "Use an ordinary application feature change as the first end-to-end execution proof.",
+        "id": "ALT-DUMMY-PUSH",
+        "summary": "Create empty commit on main to force a push CI.",
         "disposition": "rejected",
-        "reason": "That adds avoidable product risk before the newly connected execution surface has completed a bounded rehearsal."
+        "reason": "Changes main identity, consumes builds and breaks the exact merge SHA binding."
+      },
+      {
+        "id": "ALT-UNBOUNDED-PRIOR-CI",
+        "summary": "Accept any existing green main CI run with the same SHA.",
+        "disposition": "rejected",
+        "reason": "Admits stale or manually initiated runs unrelated to the release parent closure."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Architecture",
+        "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The remaining evidence gap is end-to-end execution behavior rather than another missing authority.",
-        "resolution": "Reuse the merged executor unchanged and constrain material changes to the rehearsal fixture contract.",
+        "finding": "GITHUB_TOKEN squash-merge suppression prevents the expected push-triggered verification. The network dispatch side effect is not idempotent if the execution crashes before persisting the run response.",
+        "resolution": "Use explicit workflow_dispatch tied to persisted merged main identity, and wait for exact run result. Persist a one-shot authorization CAS before dispatch, and never resend automatically when the result may already have been accepted.",
         "evidence": [
-          "scripts/release-unit-execute.mjs",
-          "scripts/release-unit-github-runtime.mjs"
+          "scripts/release-unit-parent-close.mjs",
+          ".github/workflows/ci.yml"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A real orchestration rehearsal can still cause repository mutation even when application scope is inert.",
-        "resolution": "Use only the already merged trusted execution path and reject any material operation outside the approved fixture and proof files.",
+        "finding": "A self-declared successful dispatch or a pre-existing green main run could be forged into a release claim.",
+        "resolution": "Correlate parent ID + source + merged SHA via nonce, require exact run identity and terminal success, block unbound runs.",
         "evidence": [
-          ".github/workflows/release-unit-execution.yml",
-          "deploy/release-risk-policy.json"
+          "tests/control-plane-release-unit-execution-binding.test.ts"
         ]
       },
       {
-        "role": "Release",
+        "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A valid rehearsal must prove multiple successor transitions and final parent closure, not only decomposition output.",
-        "resolution": "Require three or more real children with exact proof, merge receipts, fresh reconciliation and parent close evidence.",
+        "finding": "A GitHub merge and canonical release-state commit are independent side effects that can be interrupted.",
+        "resolution": "Represent pending states explicitly and recover only with exact PR/merge proofs and compare-and-swap persistence.",
         "evidence": [
-          "scripts/lib/shoperation-release-unit-runtime.mjs",
-          "scripts/release-unit-parent-close.mjs"
+          "scripts/release-unit-execute.mjs"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The rehearsal would be invalid if a live block were bypassed because the changed data is non-product.",
-        "resolution": "Treat any live block as authoritative Failure Intake evidence and stop instead of reconstructing state manually.",
+        "finding": "No existing regression exercises the post-merge exact-head main CI path.",
+        "resolution": "Exercise valid, wrong SHA, stale, failed, noncanonical and crash/retry transitions without weakening baseline guards.",
         "evidence": [
-          "scripts/shoperation-failure-intake.mjs",
-          "quality/knowledge/development-guard-policy.v1.json"
+          "tests/control-plane-release-unit-execution-binding.test.ts"
+        ]
+      },
+      {
+        "role": "Architecture",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The new dependency must remain in DOMAIN-RELEASE instead of leaking release authority into quality runtime.",
+        "resolution": "Keep dispatch and state transition in trusted executor; CI only validates its own dispatch identity.",
+        "evidence": [
+          "scripts/release-unit-parent-close.mjs",
+          "quality/knowledge/domain-foundations.v1.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-RH-01",
-        "scenario": "Planned fixtures resolve outside the expected quality authority.",
-        "finding": "Unexpected classification would invalidate the claimed bounded scope.",
-        "resolution": "Require exact Plan Before Code scope reconciliation before creating any fixture implementation.",
+        "id": "CH-01",
+        "scenario": "Scenario: No automatic push CI.",
+        "finding": "Risk: GH Actions-token merge is not sufficient evidence.",
+        "resolution": "Resolution: Explicitly dispatch CI and defer MERGED.",
         "status": "resolved"
       },
       {
-        "id": "CH-RH-02",
-        "scenario": "Dependencies collapse the planned material into fewer than three units.",
-        "finding": "The run would not exercise successor orchestration deeply enough.",
-        "resolution": "Use independent inert JSON fixture documents with no repository dependencies and inspect decomposition count before source execution.",
+        "id": "CH-02",
+        "scenario": "Scenario: CI ID forgery.",
+        "finding": "Risk: Unrelated manual green CI can share SHA.",
+        "resolution": "Resolution: Require nonce, run ID and matching exact run metadata.",
         "status": "resolved"
       },
       {
-        "id": "CH-RH-03",
-        "scenario": "A child has green CI but its exact transaction proof artifact is absent.",
-        "finding": "Generic workflow success cannot prove the child transaction.",
-        "resolution": "Keep exact artifact and child identity matching mandatory before any merge transition.",
+        "id": "CH-03",
+        "scenario": "Scenario: Wrong main HEAD.",
+        "finding": "Risk: Target main could advance after squash merge.",
+        "resolution": "Resolution: Compare remote main SHA to exact mergedMainSha pre-dispatch.",
         "status": "resolved"
       },
       {
-        "id": "CH-RH-04",
-        "scenario": "Main changes after one child merges but before the next child is authorized.",
-        "finding": "The successor could otherwise materialize against stale repository state.",
-        "resolution": "Require fresh successor reconciliation against current merged main and fail on unrelated drift.",
+        "id": "CH-04",
+        "scenario": "Scenario: GitHub accepts the workflow_dispatch request for SHA S and run-name N but gh run list returns zero matching runs on the next poll; the executor crashes and resumes.",
+        "finding": "Risk: An immediate second dispatch would create duplicate CI runs and could adopt an unrelated run with the same commit SHA.",
+        "resolution": "Resolution: Persist DISPATCH_REQUESTED with deterministic N before re-query; retain PENDING on zero results and accept only N-bound run with exact event, SHA and branch.",
         "status": "resolved"
       },
       {
-        "id": "CH-RH-05",
-        "scenario": "Two attempts try to advance the same persisted parent state.",
-        "finding": "A stale writer could duplicate or reorder transitions.",
-        "resolution": "Preserve force-with-lease CAS and accept stale-writer rejection as the only safe outcome.",
+        "id": "CH-05",
+        "scenario": "Scenario: Crash after dispatch.",
+        "finding": "Risk: No persisted run id but event exists.",
+        "resolution": "Resolution: Recover by nonce and stable run identity without duplicate.",
         "status": "resolved"
       },
       {
-        "id": "CH-RH-06",
-        "scenario": "One planned operation is already present at current main.",
-        "finding": "Creating a meaningless child pull request would weaken idempotent execution semantics.",
-        "resolution": "Allow only the existing exact-main no-code path with canonical child proof and complete operation coverage.",
+        "id": "CH-06",
+        "scenario": "Scenario: Crash after merge.",
+        "finding": "Risk: GitHub PR merged before canonical state CAS.",
+        "resolution": "Resolution: Recover only exact merged PR/source/proof binding.",
         "status": "resolved"
       },
       {
-        "id": "CH-RH-07",
-        "scenario": "All children close but parent proof runs after a later metadata commit.",
-        "finding": "Parent truth would be bound to the wrong implementation state.",
-        "resolution": "Use the existing parent-close adapter that proves the last child merged-main before closure persistence.",
+        "id": "CH-07",
+        "scenario": "Scenario: Failed exact CI.",
+        "finding": "Risk: A failed job must not close parent.",
+        "resolution": "Resolution: Block with terminal failure details.",
         "status": "resolved"
       },
       {
-        "id": "CH-RH-08",
-        "scenario": "A live orchestration defect appears after an earlier child already merged.",
-        "finding": "Manual continuation could hide the actual missing edge.",
-        "resolution": "Stop at the authoritative blocked state, record Failure Intake, reconcile separately and replay only after repair.",
+        "id": "CH-08",
+        "scenario": "Scenario: An ordinary user triggers a successful CI workflow_dispatch on main SHA S, copies the canonical parent run-name token N, but the workflow actor is not github-actions[bot].",
+        "finding": "Risk: Selecting the run by SHA and title alone would forge a bot-executor release receipt.",
+        "resolution": "Resolution: Validate actor, workflow file/name, run ID, event, exact main SHA and persisted nonce together; reject any user-actor or foreign run.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-09",
+        "scenario": "Scenario: Stale successful CI.",
+        "finding": "Risk: Prior green main run is unrelated.",
+        "resolution": "Resolution: Require deterministic parent-merge correlation.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-10",
+        "scenario": "Scenario: Legacy MERGED state.",
+        "finding": "Risk: Pre-hardening receipts already marked MERGED.",
+        "resolution": "Resolution: Do not mutate old receipts; gate only new pending transitions.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-11",
+        "scenario": "A workflow_dispatch completes server-side, but the runner crashes before it persists DISPATCH_REQUESTED; an immediate retry sees zero runs because the GitHub list API has eventual consistency.",
+        "finding": "Existing implementation checks only INTENT_RECORDED then dispatches again, violating at-most-once behavior despite otherwise valid exact-head proof.",
+        "resolution": "Introduce a durable pre-dispatch one-shot reservation; execute the side effect only in the same CAS-winning process after persistence. On uncertain resume, list/poll the nonce-bound run, never auto-dispatch again. Document rare fail-closed manual recovery if a crash happens after reservation but before GitHub accepts the call.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Open this plan-only transaction and require Plan Before Code PASS before fixture implementation.",
-      "Inspect the generated decomposition and require at least three ordered units within the approved material scope.",
-      "Create the approved fixture implementation only after the plan proof is green.",
-      "Run the source revision through the existing repository execution surface and observe each real child transaction.",
-      "Require exact child verification, merge receipt and fresh successor reconciliation for every ordered child.",
-      "Inspect persisted execution state for monotonic identity and any observed stale-writer rejection.",
-      "Require parent Completion Truth and Lifecycle closure at the final implementation main.",
-      "Verify the later closure metadata commit and final main CI without claiming any unobserved fault scenario."
+      "Validate complete plan and fail-closed dependency scope on a plan-only commit.",
+      "Implement durable transition from successful PR merge to POST_MERGE_CI_PENDING (not CLOSED).",
+      "Add deterministic correlation workflow_dispatch input and runtime verification of target main identity.",
+      "Implement run-ID evidence, exact-status polling, retry idempotence and canonical state persistence.",
+      "Exercise positive end-to-end state evolution and negative spoof, stale, wrong SHA, failed run and crash/resume cases.",
+      "Run Quality, TypeScript, Production build, Plan, Edit-Time, Incremental Replay, Truth and Lifecycle checks at exact head.",
+      "Open PR only after branch proof; require exact-head PR CI then merge with approval gate.",
+      "Verify merged main exact-head CI and do not mutate original source/receipts.",
+      "Add explicit fault-injection regression for crash after accepted dispatch before run-ID CAS and a stale/empty run-list response; assert exactly one network dispatch and PENDING/BLOCK after restart.",
+      "Reopen previously closed plan for measured critical race, then require Plan Before Code PASS before implementing pre-dispatch durable reservation and exact-head lifecycle re-verification."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+      "request": "PO-2026-10-08-ISSUE-1156-AUTO-MAIN-CI-V1",
       "authority": [
-        "quality-knowledge-system"
+        "release-infrastructure"
       ],
-      "mustEdit": [],
-      "mayEdit": [
-        "quality/development/active-plan.json"
+      "mustEdit": [
+        ".github/workflows/ci.yml",
+        "scripts/release-unit-parent-close.mjs",
+        "scripts/release-unit-execute.mjs",
+        "tests/control-plane-release-unit-execution-binding.test.ts"
       ],
-      "impactedReadOnly": [],
-      "mustCreate": [
-        "quality/knowledge/release-parent-closure-proofs/dev-control-plane-multi-unit-rehearsal-v1.json"
+      "mayEdit": [],
+      "impactedReadOnly": [
+        "scripts/release-unit-github-runtime.mjs",
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        ".github/workflows/release-unit-execution.yml",
+        "quality/knowledge/guard-registry.v1.json"
       ],
+      "mustCreate": [],
       "forbidden": [
-        ".github/workflows/**",
+        "src/**",
+        "supabase/**",
         "deploy/**",
-        "src/app/**",
-        "src/components/**",
-        "supabase/**"
+        "quality/knowledge/release-parent-closure-proofs/**",
+        "control-plane/release-state/**"
       ],
       "proof": [
-        "quality/knowledge/release-parent-closure-proofs/dev-control-plane-multi-unit-rehearsal-v1.json"
+        "tests/control-plane-release-unit-execution-binding.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -356,7 +408,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+    "sourceRef": "PO-2026-10-08-ISSUE-1156-AUTO-MAIN-CI-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -374,50 +426,18 @@
     },
     "requirements": [
       {
-        "id": "REQ-REAL-MULTI-UNIT-EXECUTION",
-        "requirement": "The bounded rehearsal must execute three or more canonical child units with exact transaction identity and no material scope widening.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "multi-unit-execution",
-          "strength": 2,
-          "dimensions": [
-            "status",
-            "transaction-identity",
-            "idempotency",
-            "forbidden-state"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-EDIT-TIME"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-REHEARSAL-SCOPE-WIDEN",
-            "statement": "No rehearsal operation may escape the approved material scope or bypass exact child verification.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-REHEARSAL-RISK-INTEGRITY",
-        "requirement": "Every child must remain within the unchanged canonical release risk and release scope decision.",
+        "id": "REQ-EXACT-POST-MERGE-CI",
+        "requirement": "Parent release is DONE only when a trusted, persisted exact-merged-main CI execution has terminal success evidence.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "rehearsal-risk-integrity",
+          "breadth": "parent-post-merge-main-exact-head-ci",
           "strength": 2,
           "dimensions": [
-            "risk",
-            "release-scope"
+            "truth",
+            "lifecycle",
+            "resumable",
+            "idempotency",
+            "transaction-identity"
           ]
         },
         "requiredCapabilities": [
@@ -425,53 +445,32 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-RELEASE-RISK"
-          ],
-          "outcome": [
-            "GUARD-RELEASE-RISK"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-REHEARSAL-RISK-BYPASS",
-            "statement": "No blocked risk or scope decision may be reinterpreted as executable.",
-            "evidence": [
-              "GUARD-RELEASE-RISK"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-REHEARSAL-PARENT-CLOSURE",
-        "requirement": "Parent truth and lifecycle may close only after every child closes and at the exact final implementation main.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "multi-unit-parent-closure",
-          "strength": 2,
-          "dimensions": [
-            "lifecycle",
-            "truth",
-            "status",
-            "transaction-identity",
-            "close"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-EDIT-TIME"
-          ],
-          "outcome": [
+            "GUARD-RELEASE-RISK",
             "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REHEARSAL-EARLY-CLOSE",
-            "statement": "Parent closure must not occur before all child units close or against a nonfinal main SHA.",
+            "id": "NEG-STALE-RUN",
+            "statement": "Wrong SHA or stale unrelated SUCCESS cannot be accepted.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-UNVERIFIED-CLOSE",
+            "statement": "PARENT_CLOSED is forbidden until exact correlated run is SUCCESS.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-UNSAFE-RETRY",
+            "statement": "Interruptions and retry neither duplicate workflow nor forge canonical state.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -480,30 +479,14 @@
       }
     ]
   },
-  "notes": "Plan-only rehearsal transaction. No fixture implementation exists on this branch yet. The twenty-five inert JSON documents are planned under quality/knowledge/rehearsal-fixtures/v1; this intentionally activates full Known Failure replay while keeping application behavior untouched. Implementation remains denied until Plan Before Code passes and decomposition shows at least three units. Reconciled task wording removes the lexical product-intent token that incorrectly widened planned scope to storefront subsystems. Reconciled after targeted source-lifecycle admission fix PR #974 merged at main 7e7ec558fa470fae2b11c1ed2bce0a5ec205045c. Rehearsal scope, authority, 25-fixture material set and three-unit decomposition intent are unchanged; only canonical base/provenance is refreshed before replay. Reconciled after targeted trusted-executor Atlas evidence fix PR #983 merged at main 199f21f274524a7b3688f50e09d2d0e3039f86c8. Rehearsal scope, authority, 25-fixture material set and three-unit decomposition intent are unchanged; only canonical base/provenance is refreshed before replay. Executor-derived parent closure proof plan. Historical implementation remains authoritative through CLOSED child receipts and trusted-main evidence; this plan scopes only lifecycle metadata closure.",
-  "parentClosureContext": {
-    "contract": "shoporation.release-parent-closure-proof-context.v1",
-    "proofPlanContract": "shoporation.release-parent-closure-proof-plan.v1",
-    "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
-    "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
-    "sourcePlanDigest": "b6e7ed2e79688f4a1559e152566d871980c106c01803c3e7ce6c259c91a31e02",
-    "completionContractDigest": "e2dfd676f218b6623ec8242fb1195849177a115db9f1dca549ef6e08a0c70eac",
-    "lastChildMainSha": "4cab9376d285a15d4d27d742f7b8b2babb8a5bee",
-    "finalMainSha": "f5f41dbefa294f3ce60b949a11628b64d88f7167",
-    "unitCloseReceiptDigests": [
-      "0fe7b086",
-      "c55edaba",
-      "68cf5282"
-    ],
-    "trustedMainAdvanceDigest": "cddd3985bdbca6c8c8f262d6fcef35b93f951c4c6b9f5ebd007368d5cbf303c6"
-  },
+  "notes": "Issue #1156: bot-merge post-merge main CI execution edge, source #65e52ffd... immutable, U01-U03 CLOSED. Last known main 5a39a1d8f31458d45617d3246b77ec3740db19d0 and CI #9261 SUCCESS; do not change their proof. Plan-only before implementation. Old #182 queued without jobs is independently isolated and not part of this release claim. No changes to canonical state outside entrusted executor runtime. Plan-only CI #9263 measured 19 expected failure IDs including 9 Template Factory inherited release regressions and digest 128614ad. Corrected canonical Release/Known Failure reviewer roles and two concrete adversarial challenge cases prior to code edit. CI #9265 measured one Sentinel integrity failure: CAP-RELEASE was asserted by Plan/Edit-Time guards that prove CAP-QUALITY, and 'execution/audit/resumability' dimensions were not in their proof semantics. Preserved CAP-RELEASE but rebound claim to actual GUARD-RELEASE-RISK plus wildcard GUARD-QUALITY-TESTS/PRODUCTION-BUILD, and to the supported exact proof dimensions. GitHub REST run.name also reflects run-name marker; the run verifier now binds this unique title and does not rely on GH CLI workflowName output. PR #1166 exact-head review identified a critical remaining at-most-once dispatch crash window even though #9267 branch-CI was SUCCESS. The previous LEARN/VERIFIED claim is reopened, not kept as DONE, until a pre-dispatch CAS reservation and negative fault-injection tests are implemented and fully reverified. Existing immutable rehearsal source and closed receipts must remain unchanged.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "f5f41dbefa294f3ce60b949a11628b64d88f7167",
-    "closedAt": "2026-10-08T20:09:28.980Z",
+    "verifiedImplementationHead": "e3a9c0b6f32e73f76d7f6632d48d0bf62f939a10",
+    "closedAt": "2026-10-08T21:20:11.422Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-06-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+    "sourceRef": "PO-2026-10-08-ISSUE-1156-AUTO-MAIN-CI-V1",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

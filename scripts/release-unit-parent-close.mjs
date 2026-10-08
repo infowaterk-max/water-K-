@@ -1,4 +1,5 @@
 import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import {mkdtempSync,mkdirSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -296,6 +297,144 @@ export function proveInterruptedParentClosureProjection({
   }
 }
 
+
+const POST_MERGE_MAIN_CI_CONTRACT='shoporation.release-parent-post-merge-main-ci.v1';
+const validSha=value=>/^[0-9a-f]{40}$/i.test(text(value));
+const parentPostMergeNonce=(state,mergedMainSha)=>'parent-main-ci-'+createHash('sha256').update(JSON.stringify({
+  contract:POST_MERGE_MAIN_CI_CONTRACT,parentId:state.parentTransactionId,
+  sourceCommit:state.executionSourceCommit,mergedMainSha,
+})).digest('hex').slice(0,32);
+const blockParentPostMergeCi=(state,reason,details=null)=>({state,decision:'BLOCK',reason,details});
+export function createPendingParentMainCiState({state,sourceCommit,mergedMainSha}={}){
+  const p=state?.closurePersistence;
+  if(!state?.closureComplete||p?.state!=='PR_OPEN'||p?.contract!=='shoporation.release-parent-closure-persistence.v1'||
+      !validSha(sourceCommit)||state.executionSourceCommit!==sourceCommit||!validSha(mergedMainSha)||
+      state.closedReceipt?.decision!=='PASS'||state.closedReceipt?.truthStatus!=='VERIFIED'||
+      state.closedReceipt?.parentTransactionId!==state.parentTransactionId||
+      !(state.units??[]).length||(state.units??[]).some(unit=>unit?.state!=='CLOSED'||unit?.closeReceipt?.decision!=='PASS'))
+    throw new Error('RELEASE_PARENT_POST_MERGE_CLOSED_RECEIPTS_INVALID');
+  return{...structuredClone(state),closurePersistence:{...structuredClone(p),state:'POST_MERGE_CI_PENDING',mergedMainSha,
+    postMergeMainCi:{contract:POST_MERGE_MAIN_CI_CONTRACT,status:'INTENT_RECORDED',decision:'PENDING',runId:null,
+      nonce:parentPostMergeNonce(state,mergedMainSha),parentTransactionId:state.parentTransactionId,sourceCommit,
+      mergedMainSha,headBranch:'main'}}};
+}
+export function classifyParentPostMergeMainCiRun({state,ciRun,jobs=null,mergedAt=null}={}){
+  const p=state?.closurePersistence,proof=p?.postMergeMainCi??{};
+  const bad=code=>({decision:'BLOCK',reason:'RELEASE_PARENT_POST_MERGE_CI_'+code});
+  if(p?.state!=='POST_MERGE_CI_PENDING'||proof?.contract!==POST_MERGE_MAIN_CI_CONTRACT||
+    proof.parentTransactionId!==state.parentTransactionId||proof.sourceCommit!==state.executionSourceCommit||
+    proof.mergedMainSha!==p.mergedMainSha||proof.headBranch!=='main'||proof.nonce!==parentPostMergeNonce(state,p.mergedMainSha))
+    return bad('PERSISTED_IDENTITY_MISMATCH');
+  if(!Number.isSafeInteger(ciRun?.id)||ciRun.id<1||
+      (proof.runId!==null&&proof.runId!==ciRun.id)||ciRun.head_sha!==p.mergedMainSha||
+      ciRun.head_branch!=='main'||ciRun.event!=='workflow_dispatch'||ciRun.name!==proof.nonce||
+      text(ciRun.path).split('@')[0]!=='.github/workflows/ci.yml'||
+      ciRun.display_title!==proof.nonce||ciRun.actor?.login!=='github-actions[bot]')
+    return bad('RUN_IDENTITY_MISMATCH');
+  if(mergedAt&&(!ciRun.created_at||!(Date.parse(ciRun.created_at)>=Date.parse(mergedAt))))
+    return bad('PRE_MERGE_RUN_REJECTED');
+  if(ciRun.status!=='completed')return{decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_PENDING',runId:ciRun.id,status:ciRun.status};
+  if(ciRun.conclusion!=='success')return{decision:'BLOCK',reason:'RELEASE_PARENT_POST_MERGE_CI_FAILED',runId:ciRun.id,conclusion:ciRun.conclusion??null};
+  if(!Array.isArray(jobs))return bad('JOB_PROOF_MISSING');
+  const build=jobs.find(item=>item.name==='build'&&item.status==='completed'&&item.conclusion==='success');
+  const security=jobs.find(item=>item.name==='security-audit'&&item.status==='completed'&&item.conclusion==='success');
+  const steps=['Bind exact parent post-merge main CI','Knowledge Before Build preflight','Incremental Known Failure Replay','Quality tests','TypeScript check','Production build'];
+  if(!build||!security||steps.some(name=>!build.steps?.some(step=>step.name===name&&step.status==='completed'&&step.conclusion==='success')))
+    return bad('REQUIRED_JOBS_OR_STEPS_MISSING');
+  return{decision:'PASS',receipt:{contract:POST_MERGE_MAIN_CI_CONTRACT,decision:'PASS',status:'COMPLETED',
+    runId:ciRun.id,runAttempt:ciRun.run_attempt??1,event:'workflow_dispatch',workflow:'CI',
+    actor:'github-actions[bot]',headBranch:'main',headSha:p.mergedMainSha,sourceCommit:state.executionSourceCommit,
+    parentTransactionId:state.parentTransactionId,nonce:proof.nonce,conclusion:'success',
+    completedAt:ciRun.updated_at??null,verifiedSteps:steps,securityAudit:'success'}};
+}
+export function advanceParentPostMergeMainCi({state,sourceCommit,run=defaultRun,cwd=process.cwd()}={}){
+  const p=state?.closurePersistence,proof=p?.postMergeMainCi;
+  if(!state?.closureComplete||p?.state!=='POST_MERGE_CI_PENDING'||proof?.contract!==POST_MERGE_MAIN_CI_CONTRACT||
+      state.executionSourceCommit!==sourceCommit||!validSha(p.mergedMainSha)||
+      proof.nonce!==parentPostMergeNonce(state,p.mergedMainSha)||proof.sourceCommit!==sourceCommit||
+      proof.parentTransactionId!==state.parentTransactionId||proof.mergedMainSha!==p.mergedMainSha||
+      state.closedReceipt?.decision!=='PASS'||state.closedReceipt?.truthStatus!=='VERIFIED'||
+      !(state.units??[]).length||(state.units??[]).some(x=>x.state!=='CLOSED'||x.closeReceipt?.decision!=='PASS'))
+    return blockParentPostMergeCi(state,'RELEASE_PARENT_POST_MERGE_SOURCE_OR_STATE_INVALID');
+  const repository=repoName(run,cwd),pr=ghApi(run,cwd,['repos/'+repository+'/pulls/'+p.prNumber]);
+  if(pr?.state!=='closed'||pr?.merged!==true||pr?.head?.sha!==p.headSha||pr?.head?.ref!==p.branch||
+      pr?.base?.ref!=='main'||pr?.base?.sha!==p.baseSha||pr?.merge_commit_sha!==p.mergedMainSha||
+      pr?.merged_by?.login!=='github-actions[bot]')
+    return blockParentPostMergeCi(state,'RELEASE_PARENT_POST_MERGE_PR_IDENTITY_DRIFT');
+  const rawMain=text(run('git',['ls-remote','origin','refs/heads/main'],{cwd})).split(/\s+/)[0];
+  if(rawMain!==p.mergedMainSha)
+    return blockParentPostMergeCi(state,'RELEASE_PARENT_POST_MERGE_MAIN_DRIFT',{expected:p.mergedMainSha,actual:rawMain});
+  const update=fields=>({...structuredClone(state),closurePersistence:{...structuredClone(p),
+    postMergeMainCi:{...structuredClone(proof),...fields}}});
+  let runId=proof.runId;
+  if(runId===null){
+    const fields='databaseId,status,conclusion,headSha,headBranch,event,displayTitle,createdAt';
+    const listed=parse(run('gh',['run','list','--repo',repository,'--workflow','CI','--commit',p.mergedMainSha,
+      '--event','workflow_dispatch','--json',fields,'--limit','100'],{cwd}));
+    const exact=(listed??[]).filter(item=>item.displayTitle===proof.nonce&&item.headSha===p.mergedMainSha&&
+      item.headBranch==='main'&&item.event==='workflow_dispatch');
+    if(exact.length>1)
+      return blockParentPostMergeCi(state,'RELEASE_PARENT_POST_MERGE_DUPLICATE_RUNS',{ids:exact.map(x=>x.databaseId)});
+    if(exact.length)runId=exact[0].databaseId;
+    else if(proof.status==='INTENT_RECORDED'){
+      // The caller must commit this one-shot authorization with CAS before any
+      // external GitHub workflow_dispatch side effect is allowed.
+      return{state:update({status:'DISPATCH_ARMED',runId:null}),
+        decision:'DISPATCH_ARMED',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCH_RESERVED'};
+    }else return{state,decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCH_UNCERTAIN',
+      details:{nonce:proof.nonce,status:proof.status,operatorReviewRequired:true}};
+  }
+  if(!Number.isSafeInteger(runId)||runId<1)return blockParentPostMergeCi(state,'RELEASE_PARENT_POST_MERGE_RUN_ID_INVALID',{runId});
+  let ciRun;
+  try{ciRun=ghApi(run,cwd,['repos/'+repository+'/actions/runs/'+runId]);}
+  catch{return{state:update({status:'DISPATCH_REQUESTED',runId}),decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_RUN_NOT_VISIBLE'};}
+  const jobs=ciRun.status==='completed'&&ciRun.conclusion==='success'?
+    ghApi(run,cwd,['repos/'+repository+'/actions/runs/'+runId+'/jobs?per_page=100'])?.jobs??null:null;
+  const verified=classifyParentPostMergeMainCiRun({state:update({runId}),ciRun,jobs,mergedAt:pr.merged_at});
+  if(verified.decision==='PENDING')
+    return{state:update({status:'OBSERVED',runId,observedStatus:ciRun.status}),decision:'PENDING',reason:verified.reason,details:{runId,status:ciRun.status}};
+  if(verified.decision==='BLOCK'){
+    if(verified.reason==='RELEASE_PARENT_POST_MERGE_CI_FAILED')
+      return{state:update({status:'FAILED',runId,observedStatus:'completed',observedConclusion:ciRun.conclusion}),
+        decision:'BLOCK',reason:verified.reason,details:{runId,conclusion:ciRun.conclusion}};
+    return blockParentPostMergeCi(state,verified.reason,{runId});
+  }
+  return{state:{...structuredClone(state),closurePersistence:{...structuredClone(p),state:'MERGED',
+    postMergeMainCi:{...structuredClone(proof),...verified.receipt,status:'COMPLETED',runId,decision:'PASS'}}},
+    decision:'PARENT_CLOSED',mergedMainSha:p.mergedMainSha,postMergeMainCi:verified.receipt};
+}
+
+export function dispatchArmedParentMainCi({state,sourceCommit,run=defaultRun,cwd=process.cwd()}={}){
+  const p=state?.closurePersistence,proof=p?.postMergeMainCi;
+  if(p?.state!=='POST_MERGE_CI_PENDING'||proof?.status!=='DISPATCH_ARMED'||
+      proof.runId!==null||proof?.contract!==POST_MERGE_MAIN_CI_CONTRACT||
+      proof.sourceCommit!==sourceCommit||state.executionSourceCommit!==sourceCommit||
+      proof.parentTransactionId!==state.parentTransactionId||
+      proof.mergedMainSha!==p.mergedMainSha||proof.nonce!==parentPostMergeNonce(state,p.mergedMainSha))
+    return blockParentPostMergeCi(state,'RELEASE_PARENT_POST_MERGE_DISPATCH_RESERVATION_INVALID');
+  // Validate the PR, current main, source and any already-visible correlated
+  // workflow again *after* the reservation has been durably persisted.
+  // A resumed DISPATCH_ARMED state never calls this function automatically.
+  const checked=advanceParentPostMergeMainCi({state,sourceCommit,run,cwd});
+  if(checked.decision!=='PENDING'||checked.reason!=='PARENT_POST_MERGE_MAIN_CI_DISPATCH_UNCERTAIN')
+    return checked;
+  const repository=repoName(run,cwd);
+  // Deliberately at-most-once: if this external action succeeds but the caller
+  // crashes before the next CAS, recovery only searches by nonce. If the
+  // dispatch was not accepted, automatic retries remain blocked and require
+  // an explicit human-governed recovery, not a second blind network attempt.
+  const response=run('gh',['workflow','run','ci.yml','--repo',repository,'--ref','main',
+    '-f','parent_post_merge_id='+state.parentTransactionId,
+    '-f','parent_post_merge_source_sha='+sourceCommit,
+    '-f','parent_post_merge_sha='+p.mergedMainSha,
+    '-f','parent_post_merge_nonce='+proof.nonce],{cwd});
+  const found=Number(text(response).match(/\/actions\/runs\/([0-9]+)/)?.[1]??0);
+  const next={...structuredClone(state),closurePersistence:{...structuredClone(p),
+    postMergeMainCi:{...structuredClone(proof),status:'DISPATCH_REQUESTED',
+      runId:Number.isSafeInteger(found)&&found>0?found:null}}};
+  return{state:next,decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCHED'};
+}
+
 export function finishParentClosurePersistence({state,sourceCommit,run=defaultRun,cwd=process.cwd()}={}){
   const persistence=state?.closurePersistence;
   if(!state?.closureComplete||persistence?.state!=='PR_OPEN')return{state,decision:'BLOCK',reason:'RELEASE_PARENT_CLOSURE_PERSISTENCE_NOT_OPEN'};
@@ -319,6 +458,23 @@ export function finishParentClosurePersistence({state,sourceCommit,run=defaultRu
   };
   run('git',['fetch','--quiet','origin','main'],{cwd});
   let currentMain=run('git',['rev-parse','origin/main'],{cwd});
+  if(pr.state==='closed'&&pr.merged===true){
+    const eligible=state.executionSourceCommit===sourceCommit&&pr.number===persistence.prNumber&&
+      pr.head?.sha===persistence.headSha&&pr.head?.ref===persistence.branch&&
+      pr.base?.ref==='main'&&pr.base?.sha===persistence.baseSha&&
+      pr.merged_by?.login==='github-actions[bot]'&&validSha(pr.merge_commit_sha)&&
+      currentMain===pr.merge_commit_sha;
+    if(!eligible)return{state,decision:'BLOCK',reason:'RELEASE_PARENT_INTERRUPTED_MERGE_IDENTITY_INVALID'};
+    const parents=text(run('git',['rev-list','--parents','-n','1',pr.merge_commit_sha],{cwd})).split(/\s+/);
+    if(parents.length!==2||parents[0]!==pr.merge_commit_sha||parents[1]!==persistence.baseSha)
+      return{state,decision:'BLOCK',reason:'RELEASE_PARENT_INTERRUPTED_MERGE_ANCESTRY_INVALID'};
+    const ci=classifyParentClosureCi({headSha:persistence.headSha,headBranch:persistence.branch,repo:repository,run,cwd});
+    if(ci.decision!=='PASS')
+      return{state,decision:'BLOCK',reason:'RELEASE_PARENT_INTERRUPTED_MERGE_PR_CI_NOT_PROVEN',details:{decision:ci.decision}};
+    try{return{state:createPendingParentMainCiState({state,sourceCommit,mergedMainSha:pr.merge_commit_sha}),
+      decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_RECOVERED'};}
+    catch(error){return{state,decision:'BLOCK',reason:'RELEASE_PARENT_INTERRUPTED_MERGE_RECEIPT_INVALID',error:String(error?.message??error)};}
+  }
   if(!persistedPrIdentityValid){
     const recovered=proveInterruptedParentClosureProjection({state,sourceCommit,pr,currentMain,repo:repository,run,cwd});
     if(recovered.decision!=='PASS')return{
@@ -341,5 +497,5 @@ export function finishParentClosurePersistence({state,sourceCommit,run=defaultRu
   if(pr.state!=='open'||pr.head?.sha!==persistence.headSha||pr.head?.ref!==persistence.branch||pr.base?.ref!=='main'||pr.base?.sha!==persistence.baseSha)return{state,decision:'BLOCK',reason:'RELEASE_PARENT_CLOSURE_PR_DRIFT'};
   const result=ghApi(run,cwd,['-X','PUT','repos/'+repository+'/pulls/'+persistence.prNumber+'/merge','-f','merge_method=squash','-f','sha='+persistence.headSha]);
   if(result?.merged!==true||!result?.sha)return{state,decision:'BLOCK',reason:'RELEASE_PARENT_CLOSURE_MERGE_FAILED'};
-  return{state:{...structuredClone(state),closurePersistence:{...persistence,state:'MERGED',mergedMainSha:result.sha}},decision:'PARENT_CLOSED',mergedMainSha:result.sha};
+  return{state:createPendingParentMainCiState({state,sourceCommit,mergedMainSha:result.sha}),decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_REQUIRED',mergedMainSha:result.sha};
 }
