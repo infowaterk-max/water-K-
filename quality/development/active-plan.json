@@ -7,7 +7,8 @@
   "changeBaseSha": "c19e49b0a6e29beffd949bf27df1d3963d43b39b",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v1/proof-01.json"
+    "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v1/proof-01.json",
+    "tests/control-plane-release-unit-execution-binding.test.ts"
   ],
   "expectedSubsystems": [],
   "expectedDomains": [
@@ -78,7 +79,7 @@
     "riskTier": "critical",
     "problemStatement": "The merged post-merge CI hardening has exact-head unit regressions, but no new real GitHub-bot parent merge has yet exercised dispatch, correlated run proof and durable parent closure together.",
     "observableOutcomes": [
-      "Plan Before Code authorizes exactly one new inert JSON fixture and one canonical development-plan metadata file, with no product-runtime changes.",
+      "Plan Before Code authorizes one new inert JSON fixture, one pre-existing release-execution regression test file and canonical development metadata without changing product runtime.",
       "The trusted executor creates and closes one real child transaction against its exact materialized commit, without changing existing parent evidence.",
       "A new bot-authored parent closure PR merges into main and persists POST_MERGE_CI_PENDING instead of prematurely closing the parent.",
       "One uniquely correlated GitHub-bot workflow_dispatch CI runs against the exact merged main SHA, with binding, quality, TypeScript, build and security-audit jobs succeeding.",
@@ -94,6 +95,7 @@
       "in": [
         "One inert JSON fixture under a new dedicated quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v1 directory.",
         "One development plan metadata update on an isolated source branch; no edits to application runtime, scripts, workflow or tests.",
+        "One targeted regression assertion in the existing release-unit execution-binding test; this supplies the critical plan's explicit MUST_EDIT and PROOF routes without adding a new engine.",
         "Use only the existing canonical release-unit executor, source CI, child proof, parent PR, CAS persistence and post-merge dispatch implementation.",
         "Verify actual GitHub parent PR merge identity, nonce-bound workflow_dispatch run metadata, mandatory successful jobs and durable parent closure."
       ],
@@ -123,7 +125,7 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Source-plan Plan Before Code is PASS before creation of the inert fixture, and source admission CI is SUCCESS on the immutable exact head.",
+        "Plan Before Code independently authorizes one inert fixture and one focused existing test update before either implementation edit, and source admission CI succeeds at the immutable exact head.",
         "Canonical decomposition contains exactly one authorized JSON fixture child with a valid source blob, and only its intended file is merged into main.",
         "A new parent PR is merged by github-actions[bot] with a trusted exact-head proof and parent state remains POST_MERGE_CI_PENDING until a separate main CI is proven.",
         "One source/parent/merged-main nonce is bound to the new workflow_dispatch CI, not an unrelated push or manual workflow event.",
@@ -132,14 +134,14 @@
       ],
       "invariants": [
         "New source transaction and stateRef are distinct from DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1.",
-        "Exactly one inert fixture is authored and does not affect application runtime.",
+        "Exactly one inert fixture and one existing regression test file are the only material source edits, with no product runtime changes.",
         "Exact run identity requires GitHub-bot actor, workflow_dispatch, unique nonce, parent source, workflow identity and mergedMainSha.",
         "DISPATCH_ARMED is persisted by CAS before any side effect, and uncertain recovery cannot dispatch the same request again.",
         "No parent completion claim without a successful exact-head GitHub run and all mandatory job steps."
       ],
       "forbiddenStates": [
         "Old U01/U02/U03 state or proof artifact is overwritten or reclassified.",
-        "Fixture created before source plan gate PASS.",
+        "Fixture or test implementation edit is created before the source plan gate proves PASS.",
         "Parent is marked MERGED immediately after bot PR merge while main CI remains absent.",
         "A manual push or unrelated successful main CI is accepted as the correlated post-merge dispatch.",
         "Two requests with the same parent nonce are sent after crash or delayed run visibility.",
@@ -293,10 +295,31 @@
         "finding": "Its status is unrelated to proof for the new parent transaction.",
         "resolution": "Do not mutate or reuse #182; select only source-bound execution and correlated post-merge runs.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-PMCI-06",
+        "scenario": "A normal CI push runs on the newly merged main commit and reports SUCCESS before the parent dispatch appears.",
+        "finding": "The unrelated push lacks nonce and the bot workflow_dispatch identity, so it could falsely satisfy a loose exact-SHA-only proof.",
+        "resolution": "Require an independent workflow_dispatch event with the deterministic parent nonce, accepted actor and recorded run ID; never reuse a push run.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PMCI-07",
+        "scenario": "The correlated main CI finishes with a successful workflow conclusion, but the security-audit or exact-parent-binding job step is absent.",
+        "finding": "A green workflow summary alone does not show that the mandatory job-level proof actually executed.",
+        "resolution": "Inspect the exact run jobs and every required binding, quality, typecheck, production build and security step before persisting PARENT_CLOSED.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PMCI-08",
+        "scenario": "An interrupted source executor restarts from a prior committed one-fixture child branch after another release changed main.",
+        "finding": "A prior successful child proof cannot authorize materialization or parent closure against a different current main.",
+        "resolution": "Enforce exact main lease with canonical source/PR/CAS identity, and stop on drift rather than creating another untracked branch.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Generate and validate this bounded plan on the isolated plan branch; do not create fixture before Plan Before Code PASS.",
+      "Verify Plan Before Code PASS for this plan-only transaction before writing the one fixture or the new targeted test assertion.",
       "Create the one inert JSON source fixture only on a dedicated release-execution/source/* branch after plan authorization.",
       "Verify source exact-head CI is SUCCESS and inspect the admitted trusted Release Unit Execution run.",
       "Verify the one child has exact source blob, materialized PR, completed gates and merged-main receipt.",
@@ -309,7 +332,9 @@
       "authority": [
         "quality-knowledge-system"
       ],
-      "mustEdit": [],
+      "mustEdit": [
+        "tests/control-plane-release-unit-execution-binding.test.ts"
+      ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
@@ -322,7 +347,9 @@
         ".github/workflows/**",
         "deploy/**"
       ],
-      "proof": [],
+      "proof": [
+        "tests/control-plane-release-unit-execution-binding.test.ts"
+      ],
       "unknown": [],
       "plannedDeletions": [],
       "plannedRenames": [],
@@ -456,5 +483,5 @@
       }
     ]
   },
-  "notes": "Isolated plan-only rehearsal source. One new inert quality knowledge JSON fixture; no implementation file exists at this plan checkpoint. Do not create fixture or a release-execution/source/* branch until the canonical Plan Before Code gate is proven PASS on this exact head. This source does not supersede the already CLOSED U01/U02/U03 parent and never edits its remote release-state. The final acceptance is a new bot-authored parent squash merge followed by a separate nonce-bound workflow_dispatch main CI with the exact merged SHA, PASS job evidence and a persisted PARENT_CLOSED."
+  "notes": "Isolated plan-only rehearsal source. One new inert quality knowledge JSON fixture plus one targeted existing release-execution binding regression assertion; no implementation file exists at this plan checkpoint. Do not create fixture or a release-execution/source/* branch until the canonical Plan Before Code gate is proven PASS on this exact head. This source does not supersede the already CLOSED U01/U02/U03 parent and never edits its remote release-state. The final acceptance is a new bot-authored parent squash merge followed by a separate nonce-bound workflow_dispatch main CI with the exact merged SHA, PASS job evidence and a persisted PARENT_CLOSED."
 }
