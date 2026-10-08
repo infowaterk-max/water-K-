@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-TRUSTED-MAIN-RECONCILIATION-V1",
   "task": "Reconcile trusted fast-forward main evolution across the complete parent Truth/Lifecycle/persistence closure route without weakening CLOSED child output integrity.",
   "status": "ready-for-implementation",
-  "guardDigest": "128614ad",
+  "guardDigest": "a41cfd0c",
   "changeBaseSha": "68877e11c05ccddd7c8a7ec584b1732f0e371f73",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -17,31 +17,63 @@
     "release-infrastructure"
   ],
   "expectedDomains": [
+    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-001",
+    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
+    "SQ-KF-005",
     "SQ-KF-006",
+    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
     "SQ-KF-018",
+    "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
     "TF-KF-005",
+    "TF-KF-006",
     "TF-KF-007",
+    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
+    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015"
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -412,6 +444,7 @@
     "semanticExecutionRoute": {
       "request": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-TRUSTED-MAIN-RECONCILIATION-V1",
       "authority": [
+        "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
