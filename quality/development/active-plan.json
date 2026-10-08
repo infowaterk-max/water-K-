@@ -7,6 +7,7 @@
   "changeBaseSha": "d3611344b1f7006e250b60a8973d5902abc33cfc",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
+    "scripts/lib/shoperation-operational-intelligence.d.mts",
     "scripts/lib/shoperation-operational-intelligence.mjs",
     "scripts/shoperation-truth-gate.mjs",
     "tests/shoperation-operational-intelligence.test.ts"
@@ -89,13 +90,15 @@
     "unresolvedRisks": [
       "The remote canonical parent state may advance during verification, so exact state and head identities must be inspected and mismatches fail closed.",
       "A forged plan and proof artifact can share self-consistent data, requiring independent source, receipt, main-advance and persistence verification.",
-      "The repair must remain strictly confined to Control Plane truth classification and regression tests, with no modification to the executor's source receipts."
+      "The repair must remain strictly confined to Control Plane truth classification and regression tests, with no modification to the executor's source receipts.",
+      "The TypeScript declaration must remain coherent with the JavaScript implementation; otherwise exact-head typecheck must block."
     ],
     "scope": {
       "in": [
         "Recognize only the canonical parent-closure proof artifact when its bytes and metadata commit are independently verified.",
         "Read immutable parent source plan and persisted child receipts, and reconstruct the trusted main-advance and proof identities.",
-        "Add positive and negative Truth/Lifecycle regression tests for valid and falsified closure metadata."
+        "Add positive and negative Truth/Lifecycle regression tests for valid and falsified closure metadata.",
+        "Synchronize the existing exported type declaration with the verified CLOSED parent proof evaluator interface."
       ],
       "out": [
         "No source branch or execution receipt mutation and no rewrite of persisted canonical release state.",
@@ -126,7 +129,8 @@
         "A canonical three-child CLOSED state and matching immutable source produce a valid exact-head metadata proof that is not classified as material drift.",
         "A proof with tampered bytes or mismatched context, final main, persisted state or child receipts is blocked deterministically.",
         "Every other changed file after implementation verification remains material drift and blocks closure.",
-        "The exact-head CI and canonical executor authority decide final closure; no manual state edits or gate exemptions."
+        "The exact-head CI and canonical executor authority decide final closure; no manual state edits or gate exemptions.",
+        "The .d.mts declaration exactly represents the new optional independently-verified proof path, with strict TypeScript check PASS."
       ],
       "invariants": [
         "The immutable source commit and every CLOSED child receipt are read-only inputs.",
@@ -325,7 +329,8 @@
       "Unit test valid parent metadata allowance and forged, stale, extra-change and generic CLOSED denial cases.",
       "Run full scoped tests and negative fault scenarios before using the exact PR-head CI.",
       "Require the canonical executor to reconcile repaired parent closure persistence and deliver final exact-head proof.",
-      "Only after every gate passes permit the canonical CLOSED receipt; avoid manual state edits."
+      "Only after every gate passes permit the canonical CLOSED receipt; avoid manual state edits.",
+      "Repair the declared TypeScript interface after a new Plan Before Code pass; do not silence tests with unsafe casts."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-08-PARENT-CLOSURE-TRUTH-HARDENING-V1",
@@ -333,6 +338,7 @@
         "quality-knowledge-system"
       ],
       "mustEdit": [
+        "scripts/lib/shoperation-operational-intelligence.d.mts",
         "scripts/lib/shoperation-operational-intelligence.mjs",
         "scripts/shoperation-truth-gate.mjs",
         "tests/shoperation-operational-intelligence.test.ts"
@@ -433,5 +439,5 @@
       }
     ]
   },
-  "notes": "Targeted repair for PR #1138's DEV_LIFECYCLE_POST_VERIFICATION_MATERIAL_CHANGE. Stage 1 Plan Before Code; stage 2 exact source/receipt/main/metadata proof verification; stage 3 adversarial regressions; stage 4 exact-head CI. Original immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and CLOSED U01-U03 untouched. Old stalled Actions run #182 is a separately isolated platform queue artifact; no force push or canonical state edits permitted. Plan-only CI #9250 reported full Knowledge Failure replay (49 ids) for touched quality infrastructure; projected guardDigest aa79c504. No implementation changes were made before this correction."
+  "notes": "Targeted repair for PR #1138's DEV_LIFECYCLE_POST_VERIFICATION_MATERIAL_CHANGE. Stage 1 Plan Before Code; stage 2 exact source/receipt/main/metadata proof verification; stage 3 adversarial regressions; stage 4 exact-head CI. Original immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and CLOSED U01-U03 untouched. Old stalled Actions run #182 is a separately isolated platform queue artifact; no force push or canonical state edits permitted. Plan-only CI #9250 reported full Knowledge Failure replay (49 ids) for touched quality infrastructure; projected guardDigest aa79c504. No implementation changes were made before this correction. CI #9253: all Quality tests PASS, all initial guards PASS, TypeScript check correctly detected missing optional verifiedParentClosureProofPath declaration in scripts/lib/shoperation-operational-intelligence.d.mts. Plan expanded before touching that typed interface; no generic cast workaround."
 }
