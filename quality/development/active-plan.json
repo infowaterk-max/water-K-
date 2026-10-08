@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-CI-IDENTITY-V1",
   "task": "Fix the exact parent-closure CI Edit-Time context mismatches by verifying committed metadata-phase proof identity separately from the pre-closure final-main implementation proof, without relaxing any gate.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "aa79c504",
   "changeBaseSha": "0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6",
   "plannedFilePatterns": [
@@ -461,5 +461,18 @@
       }
     ]
   },
-  "notes": "Live observation 2026-10-08: main 0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6 CI #9198 SUCCESS; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 unchanged; U01/U02/U03 CLOSED; parent #1138 HEAD ad52d8cae737b19ab09980e3b294f93e84a012c4; CI #9204 Edit-Time failed with ARTIFACT_PATH_MISMATCH and FINAL_MAIN_MISMATCH. The old queued Release Unit Execution #182 has main head_branch and its execute job requires a successful source-branch push, so it cannot perform the rehearsal executor mutation. This separate development plan fixes the closure CI phase-identity evidence only; do not edit canonical release-state. Canonical plan-only CI #9207 projected actual scope is DOMAIN-QUALITY, owner quality-knowledge-system, no named impacted subsystem, negativeKnowledge SQ-NK-012, guardDigest aa79c504. These values are derived from Plan Before Code rather than guessed from previous release runtime scope."
+  "notes": "Live observation 2026-10-08: main 0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6 CI #9198 SUCCESS; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 unchanged; U01/U02/U03 CLOSED; parent #1138 HEAD ad52d8cae737b19ab09980e3b294f93e84a012c4; CI #9204 Edit-Time failed with ARTIFACT_PATH_MISMATCH and FINAL_MAIN_MISMATCH. The old queued Release Unit Execution #182 has main head_branch and its execute job requires a successful source-branch push, so it cannot perform the rehearsal executor mutation. This separate development plan fixes the closure CI phase-identity evidence only; do not edit canonical release-state. Canonical plan-only CI #9207 projected actual scope is DOMAIN-QUALITY, owner quality-knowledge-system, no named impacted subsystem, negativeKnowledge SQ-NK-012, guardDigest aa79c504. These values are derived from Plan Before Code rather than guessed from previous release runtime scope.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "4db32d6d84681651080f3670f6f9b5542506512e",
+    "closedAt": "2026-10-08T14:27:31.883Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-CI-IDENTITY-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
