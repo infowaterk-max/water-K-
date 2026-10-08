@@ -26,7 +26,7 @@ import {
   validateExactPullRequest,
 } from '../scripts/release-unit-github-runtime.mjs';
 import {resolveReleaseUnitCiPullRequest} from '../scripts/release-unit-ci-context.mjs';
-import {ensureParentClosureCiDispatch,proveParentMainAdvance} from '../scripts/release-unit-parent-close.mjs';
+import {ensureParentClosureCiDispatch,proveParentMainAdvance,requireExactParentClosurePrIdentity} from '../scripts/release-unit-parent-close.mjs';
 
 const A='a'.repeat(40),H='1'.repeat(40);
 const parentPlan:any={
@@ -391,6 +391,75 @@ describe('release-unit execution binding hardening',()=>{
     expect(editSource).toContain('EDIT_TIME_PARENT_CLOSURE_METADATA_HEAD_INVALID');
     expect(editSource).toContain('else if(diff.head&&finalMainSha!==diff.head)');
     expect(editSource).not.toContain('parentClosureContext?.finalMainSha!==diff.head');
+  });
+
+  it('binds exact parent closure PR identity on the first authoritative numbered GET',()=>{
+    const branch='release-execution/closure/dev-abc',head='2'.repeat(40),base='3'.repeat(40);
+    const current={number:1138,state:'open',head:{sha:head,ref:branch},base:{sha:base,ref:'main'}};
+    let reads=0,waits=0;
+    const run=(command:string,args:string[])=>{
+      expect(command).toBe('gh');
+      expect(args).toEqual(['api','repos/owner/repo/pulls/1138']);
+      reads+=1;
+      return JSON.stringify(current);
+    };
+    const pr=requireExactParentClosurePrIdentity({repository:'owner/repo',prNumber:1138,headSha:head,branch,finalMain:base,run,wait:()=>{waits+=1;}});
+    expect(pr).toEqual(current);
+    expect(reads).toBe(1);
+    expect(waits).toBe(0);
+  });
+
+  it('waits for exact head and base convergence without admitting stale values',()=>{
+    const branch='release-execution/closure/dev-abc',head='4'.repeat(40),base='5'.repeat(40);
+    const correct={number:1138,state:'open',head:{sha:head,ref:branch},base:{sha:base,ref:'main'}};
+    const sequence=[
+      {...correct,head:{sha:'6'.repeat(40),ref:branch}},
+      {...correct,base:{sha:'7'.repeat(40),ref:'main'}},
+      correct,
+    ];
+    let reads=0,waits=0;
+    const run=(_command:string,_args:string[])=>{const entry=sequence[Math.min(reads,sequence.length-1)];reads+=1;return JSON.stringify(entry);};
+    const pr=requireExactParentClosurePrIdentity({repository:'owner/repo',prNumber:1138,headSha:head,branch,finalMain:base,run,wait:()=>{waits+=1;}});
+    expect(pr).toEqual(correct);
+    expect(reads).toBe(3);
+    expect(waits).toBe(2);
+  });
+
+  it('fails closed with exact expected and observed fields on permanent PR identity drift',()=>{
+    const branch='release-execution/closure/dev-abc',head='8'.repeat(40),base='9'.repeat(40);
+    const valid={number:1138,state:'open',head:{sha:head,ref:branch},base:{sha:base,ref:'main'}};
+    for(const {name,pr} of [
+      {name:'stale head',pr:{...valid,head:{sha:'a'.repeat(40),ref:branch}}},
+      {name:'wrong base',pr:{...valid,base:{sha:'b'.repeat(40),ref:'main'}}},
+      {name:'foreign head ref',pr:{...valid,head:{sha:head,ref:'foreign'}}},
+      {name:'foreign base ref',pr:{...valid,base:{sha:base,ref:'feature'}}},
+      {name:'closed',pr:{...valid,state:'closed'}},
+      {name:'wrong PR number',pr:{...valid,number:999}},
+    ]){
+      let reads=0,waits=0;
+      const run=()=>{reads+=1;return JSON.stringify(pr);};
+      let message='';
+      try{
+        requireExactParentClosurePrIdentity({repository:'owner/repo',prNumber:1138,headSha:head,branch,finalMain:base,run,wait:()=>{waits+=1;},maxReads:3});
+      }catch(error){message=String((error as Error).message);}
+      expect(message,name).toMatch(/^RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH:/);
+      const detail=JSON.parse(message.slice(message.indexOf(':')+1));
+      expect(detail.reads).toBe(3);
+      expect(detail.expected).toEqual({number:1138,state:'open',headSha:head,headRef:branch,baseRef:'main',baseSha:base});
+      expect(detail.observed,name).toBeTruthy();
+      expect(reads).toBe(3);
+      expect(waits).toBe(2);
+    }
+  });
+
+  it('caps requested retries and preserves fail-closed GitHub PR fetch failures',()=>{
+    const branch='release-execution/closure/dev-abc';
+    let reads=0,waits=0;
+    const run=()=>{reads+=1;throw new Error('temporary remote lookup unavailable');};
+    expect(()=>requireExactParentClosurePrIdentity({repository:'owner/repo',prNumber:1138,headSha:'c'.repeat(40),branch,finalMain:'d'.repeat(40),run,wait:()=>{waits+=1;},maxReads:99}))
+      .toThrow(/RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH/);
+    expect(reads).toBe(8);
+    expect(waits).toBe(7);
   });
 
 });
