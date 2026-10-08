@@ -257,35 +257,60 @@
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "Operation semantics must not become a function of mutable current-main existence.",
-        "resolution": "Preserve the reconciled immutable operation list only after the trusted materializer proves full already-applied coverage."
+        "resolution": "Preserve the reconciled immutable operation list only after the trusted materializer proves full already-applied coverage.",
+        "evidence": [
+          "Release Unit Execution #244",
+          "scripts/release-unit-github-runtime.mjs#reevaluateSuccessorManifest",
+          "scripts/lib/shoperation-release-unit-runtime.mjs#classifyReleaseUnitObligationDrift"
+        ]
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
         "finding": "A broad create-to-modify exception would be forgeable.",
-        "resolution": "No operation-drift exception is added; exact already-applied evidence prevents the drift from being introduced."
+        "resolution": "No operation-drift exception is added; exact already-applied evidence prevents the drift from being introduced.",
+        "evidence": [
+          "Release Unit Execution #244",
+          "materializeReleaseUnit ALREADY_APPLIED receipt",
+          "releaseUnitExactCreateSourceIdentity"
+        ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
         "finding": "Dependency/read-only refresh must not weaken closure.",
-        "resolution": "Only strict additive enrichment is reprojectable; subtraction remains material."
+        "resolution": "Only strict additive enrichment is reprojectable; subtraction remains material.",
+        "evidence": [
+          "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1",
+          "U03 sealed operationDigest",
+          "Release Unit Execution #244 drift payload"
+        ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
         "finding": "The current blocker is before no-code proof despite exact U03 effects already living on main.",
-        "resolution": "Allow canonical successor reconciliation to retain immutable ops and then run the existing no-code proof unchanged."
+        "resolution": "Allow canonical successor reconciliation to retain immutable ops and then run the existing no-code proof unchanged.",
+        "evidence": [
+          "CI #9136",
+          "immutable source CI #8928 attempt 11",
+          "Release Unit Execution #244"
+        ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
         "finding": "Execution #244 is reproducible from immutable source 65e52ffd and main 42e80eed.",
-        "resolution": "Regression tests encode the exact full-already-applied and monotonic-enrichment boundaries."
+        "resolution": "Regression tests encode the exact full-already-applied and monotonic-enrichment boundaries.",
+        "evidence": [
+          "Failure Intake from CI #9138",
+          "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT",
+          "immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65"
+        ]
       }
     ],
     "challenge": [
@@ -329,6 +354,20 @@
         "scenario": "Caller fabricates additive governance drift without trusted fresh projection.",
         "finding": "Classifier alone is not authority.",
         "resolution": "Reconcile remains STALE unless trustedFreshProjection===true.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-DIGEST-01",
+        "scenario": "Full ALREADY_APPLIED coverage is exact, but the fresh projection regenerates a different child operation digest from current-main inferred operation types.",
+        "finding": "Accepting the regenerated digest would silently replace immutable operation identity even though no material work remains.",
+        "resolution": "Preserve reconciled immutable operations before final sealing so operationDigest remains derived from the original semantic operations; any residual digest mismatch remains material.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-READONLY-01",
+        "scenario": "Fresh projection adds a read-only path that is also an intended operation path.",
+        "finding": "Calling this additive governance enrichment would conflict with the manifest's own material scope and could mask a forbidden operation.",
+        "resolution": "Existing forbiddenHits/readOnly validation remains authoritative before drift classification; an operation captured by readOnlyPaths blocks rather than reprojects.",
         "status": "resolved"
       }
     ],
