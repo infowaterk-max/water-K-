@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-CI-IDENTITY-V1",
   "task": "Fix the exact parent-closure CI Edit-Time context mismatches by verifying committed metadata-phase proof identity separately from the pre-closure final-main implementation proof, without relaxing any gate.",
   "status": "ready-for-implementation",
-  "guardDigest": "a41cfd0c",
+  "guardDigest": "aa79c504",
   "changeBaseSha": "0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -332,6 +332,27 @@
         "scenario": "Assume passed Edit-Time proves completed parent closure.",
         "finding": "Downstream Truth, Lifecycle and post-merge evidence may still fail.",
         "resolution": "Retain all gates, exact-head PR/main CI and canonical persistence acceptance.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-CI-ID-06",
+        "scenario": "Let GitHub CI infer final main from the closure HEAD in workflow_dispatch.",
+        "finding": "Workflow_dispatch SHA represents the closure metadata commit and cannot substitute implementation final main.",
+        "resolution": "Use receipt-bound finalMainSha from canonical parentClosureContext and verify the actual HEAD direct-parent identity.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-CI-ID-07",
+        "scenario": "Accept a closure commit with altered proof artifact bytes but unchanged parent plan.",
+        "finding": "A false success would let a modified persisted artifact claim the original parent completion authority.",
+        "resolution": "Compare committed blob, working-tree bytes, parsed artifact and deterministic expected digest exactly.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-CI-ID-08",
+        "scenario": "Proceed straight to merge after Edit-Time passes.",
+        "finding": "Later Knowledge/Replay/Truth/Lifecycle steps may reveal an independent unhandled blocker.",
+        "resolution": "Keep downstream gates mandatory, require full fresh CI success before any merge, and route new failure into Intake.",
         "status": "resolved"
       }
     ],
