@@ -9,6 +9,7 @@
     "quality/development/active-plan.json",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
     "scripts/release-unit-parent-close.mjs",
+    "scripts/release-unit-orchestrate.mjs",
     "tests/control-plane-release-unit-orchestration.test.ts",
     "tests/control-plane-release-unit-execution-binding.test.ts"
   ],
@@ -107,7 +108,8 @@
       "Full Knowledge/Plan/Edit-Time/Incremental/Risk/Customer/Market/Quality/TypeScript/Build/Verification/Truth/Lifecycle still run on the exact accepted final main.",
       "Closure PR persists the emitted CLOSED derived plan, so PR-head CI verifies only the metadata closure diff against the accepted final main rather than replaying historical hardening as new implementation.",
       "If main safely advances while closure PR is pending, the existing persistence reprojection derives a fresh closure proof-plan bound to the new final main and requires fresh exact-head proof before merge.",
-      "Immutable source branch and canonical persisted release-state remain untouched except through the existing executor."
+      "Immutable source branch and canonical persisted release-state remain untouched except through the existing executor.",
+      "The canonical release-unit-orchestrate PARENT_CLOSE event path requires the same derived parentClosureContext authority and rejects legacy context-free close events."
     ],
     "unresolvedRisks": [
       "A derived plan that simply expands plannedFilePatterns from actual diff would be circular and could bless unplanned history.",
@@ -117,7 +119,8 @@
       "A closure plan with historical mustCreate/mustEdit obligations would recreate Edit-Time false blockers.",
       "A closure plan whose changeBaseSha is not the accepted final main could again re-plan historical commits.",
       "PR-head CI must treat the derived closed plan as metadata-only closure, not as permission to change runtime files.",
-      "Source plan lifecycle/status must not be rewritten or persisted."
+      "Source plan lifecycle/status must not be rewritten or persisted.",
+      "Leaving scripts/release-unit-orchestrate.mjs on legacy context-free PARENT_CLOSE semantics would create a bypass around the strict parent closure proof path."
     ],
     "scope": {
       "in": [
@@ -128,7 +131,8 @@
         "Set derived changeBaseSha to exact finalMain and scope the derived development transaction to quality/development/active-plan.json only.",
         "Validate derived context again before recordReleaseParentClosure accepts parent Truth/Lifecycle.",
         "Regress no-main-advance, trusted-main-advance and PR_OPEN reprojection paths.",
-        "Keep parent closure CI dispatch and force-with-lease persistence semantics unchanged."
+        "Keep parent closure CI dispatch and force-with-lease persistence semantics unchanged.",
+        "Update release-unit-orchestrate.mjs so PARENT_CLOSE forwards and requires sourceCommit/sourcePlanDigest/completionContractDigest/closureProofPlanDigest/parentClosureProofContext fields expected by strict parent closure recording."
       ],
       "out": [
         "No mutation or widening of immutable source plan.",
@@ -173,7 +177,8 @@
         "Parent final-main proof passes Plan/Edit-Time on the derived closure transaction while still running full runtime quality gates on finalMain.",
         "Emitted closed lifecycle plan retains parentClosureContext and verifiedImplementationHead=finalMain.",
         "Closure PR exact-head CI passes against the derived closed plan.",
-        "Immutable rehearsal replay advances beyond the #287 DEV_PLAN_UNPLANNED_FILE blocker."
+        "Immutable rehearsal replay advances beyond the #287 DEV_PLAN_UNPLANNED_FILE blocker.",
+        "A PARENT_CLOSE orchestration event without the derived closure context fields fails closed; an exact derived context event reaches the strict parent closure primitive."
       ],
       "invariants": [
         "Immutable source plan remains the sole parent completion-requirement authority.",
@@ -181,7 +186,8 @@
         "Derived plan is a closure transaction, not a replacement source plan.",
         "Exact final main and canonical state identity are embedded in the derived plan.",
         "Truth/Lifecycle cannot be accepted from a derived plan built for another state or SHA.",
-        "No fail-closed gate is disabled or skipped."
+        "No fail-closed gate is disabled or skipped.",
+        "All canonical parent-close entry points enforce the same closure context authority."
       ],
       "forbiddenStates": [
         "immutable-source-plan-widened",
@@ -192,7 +198,8 @@
         "derived-plan-stale-trusted-main-proof",
         "parent-truth-without-derived-context-validation",
         "historical-must-create-replayed-during-closure",
-        "manual-release-state-repair"
+        "manual-release-state-repair",
+        "legacy-parent-close-cli-bypass"
       ]
     },
     "model": {
@@ -233,7 +240,8 @@
         "Edit-Time sees historical semantic mustEdit obligations because route sanitation is incomplete.",
         "Truth or lifecycle emitter strips parentClosureContext.",
         "Closure PR is based on a different main than the derived plan changeBaseSha.",
-        "Main advances while PR is pending and stale derived plan is reused."
+        "Main advances while PR is pending and stale derived plan is reused.",
+        "release-unit-orchestrate accepts a context-free PARENT_CLOSE event after strict parent closure enforcement exists elsewhere."
       ],
       "edgeCases": [
         "No trusted main advance: finalMain equals last child merge and trustedMainAdvanceDigest is null.",
@@ -401,6 +409,13 @@
         "finding": "Truth could prove weaker requirements.",
         "resolution": "Builder deep-copies source completionContract and validator compares its strong digest to source.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-CLOSURE-PLAN-11",
+        "scenario": "An operator invokes scripts/release-unit-orchestrate.mjs with a legacy PARENT_CLOSE event containing only truth/lifecycle/currentMainSha.",
+        "finding": "If accepted, this bypasses source-plan/state/final-main context binding even though release-unit-parent-close.mjs is strict.",
+        "resolution": "Route PARENT_CLOSE through the strict parent closure record path and require all derived context bindings in the event.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -410,6 +425,7 @@
       "Keep full parent Knowledge/Plan/Edit-Time/Incremental/Risk/Customer/Market/Quality/TypeScript/Build/Verification/Truth/Lifecycle execution unchanged except for the active plan envelope.",
       "Pass derived context/source-plan digest into recordReleaseParentClosure and reject mismatches before closureComplete.",
       "Prove the emitted closed lifecycle plan retains the closure context and verifiedImplementationHead.",
+      "Add orchestration-surface regression proving legacy context-free PARENT_CLOSE is rejected while an exact derived closure context is accepted through the same strict runtime validator.",
       "Add regressions for exact-main, trusted-main, stale receipts, forged digest, historical mustCreate isolation and PR_OPEN reprojection.",
       "Require exact-head Quality/TypeScript/Build/Completion Truth/Lifecycle PASS, then PR-head PASS and expected-head merge.",
       "After expected-head merge, require the exact merged main SHA to complete push CI with Quality Tests, TypeScript and Production Build all SUCCESS before any immutable rehearsal replay is started; any non-success keeps the parent closure repair unaccepted.",
@@ -424,7 +440,8 @@
       ],
       "mustEdit": [
         "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/release-unit-parent-close.mjs"
+        "scripts/release-unit-parent-close.mjs",
+        "scripts/release-unit-orchestrate.mjs"
       ],
       "mayEdit": [
         "tests/control-plane-release-unit-orchestration.test.ts",
@@ -531,10 +548,17 @@
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
+          },
+          {
+            "id": "NEG-PARENT-CLOSURE-CLI-BYPASS",
+            "statement": "Canonical release-unit-orchestrate PARENT_CLOSE may not bypass derived closure context validation.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
           }
         ]
       }
     ]
   },
-  "notes": "Live blocker: main e296c5203b115737cd5b375275ab2ef8d725974c; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; source CI #8928 attempt 15 SUCCESS; Release Unit Execution #287 FAIL. Trusted-main reconciliation passes, but runParentProof reuses the immutable source development-plan envelope against newer final main and fails with DEV_PLAN_UNPLANNED_FILE plus DOMAIN/AUTHORITY/SUBSYSTEM scope expansion for independently planned/verified Control Plane hardening. Issue #1129 updated with this exact downstream blocker. This transaction does not widen the source plan; it introduces a deterministic closure-only proof plan bound to source completion authority, canonical receipts and exact final main."
+  "notes": "Live blocker: main e296c5203b115737cd5b375275ab2ef8d725974c; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; source CI #8928 attempt 15 SUCCESS; Release Unit Execution #287 FAIL. Trusted-main reconciliation passes, but runParentProof reuses the immutable source development-plan envelope against newer final main and fails with DEV_PLAN_UNPLANNED_FILE plus DOMAIN/AUTHORITY/SUBSYSTEM scope expansion for independently planned/verified Control Plane hardening. Issue #1129 updated with this exact downstream blocker. This transaction does not widen the source plan; it introduces a deterministic closure-only proof plan bound to source completion authority, canonical receipts and exact final main. Pre-implementation route audit found scripts/release-unit-orchestrate.mjs still exposes canonical context-free PARENT_CLOSE; scope is expanded before code so every parent-close entry point enforces the same derived closure authority."
 }
