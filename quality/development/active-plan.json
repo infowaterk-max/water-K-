@@ -412,7 +412,7 @@
       "Prove the emitted closed lifecycle plan retains the closure context and verifiedImplementationHead.",
       "Add regressions for exact-main, trusted-main, stale receipts, forged digest, historical mustCreate isolation and PR_OPEN reprojection.",
       "Require exact-head Quality/TypeScript/Build/Completion Truth/Lifecycle PASS, then PR-head PASS and expected-head merge.",
-      "Require post-merge main SUCCESS.",
+      "After expected-head merge, require the exact merged main SHA to complete push CI with Quality Tests, TypeScript and Production Build all SUCCESS before any immutable rehearsal replay is started; any non-success keeps the parent closure repair unaccepted.",
       "Replay immutable source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and require Release Unit Execution to advance beyond #287's DEV_PLAN_UNPLANNED_FILE/domain/authority/subsystem blockers.",
       "If a different downstream blocker appears, keep it fail-closed and route it through Failure Intake instead of widening the derived plan."
     ],
