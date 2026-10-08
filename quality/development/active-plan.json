@@ -3,7 +3,7 @@
   "taskId": "DEV-PARENT-CLOSURE-TRUTH-LIFECYCLE-HARDENING-V1",
   "task": "Reconcile VERIFIED parent proof metadata with persisted execution identity while retaining fail-closed detection of all other post-verification changes.",
   "status": "ready-for-implementation",
-  "guardDigest": "430b0bba",
+  "guardDigest": "aa79c504",
   "changeBaseSha": "d3611344b1f7006e250b60a8973d5902abc33cfc",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -19,9 +19,55 @@
     "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-001",
+    "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
+    "SQ-KF-005",
+    "SQ-KF-006",
+    "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-022"
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
+    "SQ-KF-018",
+    "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
+    "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
+    "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
+    "TF-KF-006",
+    "TF-KF-007",
+    "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
+    "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -387,5 +433,5 @@
       }
     ]
   },
-  "notes": "Targeted repair for PR #1138's DEV_LIFECYCLE_POST_VERIFICATION_MATERIAL_CHANGE. Stage 1 Plan Before Code; stage 2 exact source/receipt/main/metadata proof verification; stage 3 adversarial regressions; stage 4 exact-head CI. Original immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and CLOSED U01-U03 untouched. Old stalled Actions run #182 is a separately isolated platform queue artifact; no force push or canonical state edits permitted."
+  "notes": "Targeted repair for PR #1138's DEV_LIFECYCLE_POST_VERIFICATION_MATERIAL_CHANGE. Stage 1 Plan Before Code; stage 2 exact source/receipt/main/metadata proof verification; stage 3 adversarial regressions; stage 4 exact-head CI. Original immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and CLOSED U01-U03 untouched. Old stalled Actions run #182 is a separately isolated platform queue artifact; no force push or canonical state edits permitted. Plan-only CI #9250 reported full Knowledge Failure replay (49 ids) for touched quality infrastructure; projected guardDigest aa79c504. No implementation changes were made before this correction."
 }
