@@ -1,18 +1,13 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-PROOF-ARTIFACT-V1",
-  "task": "Materialize and bind an executor-owned parent closure proof artifact so the derived closure plan has a real canonical projection and implementation target without falsifying runtime edits or weakening Plan/Edit-Time gates.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-CI-IDENTITY-V1",
+  "task": "Fix the exact parent-closure CI Edit-Time context mismatches by verifying committed metadata-phase proof identity separately from the pre-closure final-main implementation proof, without relaxing any gate.",
+  "status": "ready-for-implementation",
   "guardDigest": "a41cfd0c",
-  "changeBaseSha": "56ef5edb77f1408f27218892fa58a94189982728",
+  "changeBaseSha": "0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/lib/shoperation-release-unit-runtime.mjs",
-    "scripts/release-unit-parent-close.mjs",
-    "scripts/lib/shoperation-operational-intelligence.mjs",
     "scripts/shoperation-edit-time-guard.mjs",
-    "tests/shoperation-operational-intelligence.test.ts",
-    "tests/control-plane-release-unit-orchestration.test.ts",
     "tests/control-plane-release-unit-execution-binding.test.ts"
   ],
   "expectedSubsystems": [
@@ -96,58 +91,40 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-PROOF-ARTIFACT-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-CI-IDENTITY-V1",
     "riskTier": "critical",
-    "problemStatement": "Release Unit Execution #296 proves the derived parent closure plan successfully removed the historical DEV_PLAN_UNPLANNED_FILE problem, but its own planned projection is empty because it contains only quality/development/active-plan.json, which Plan Before Code intentionally excludes as self-referential development metadata. Critical Operational Intelligence also requires a real execution route target, so an empty mustEdit/mustCreate closure route is invalid. The fix must not invent a runtime edit or bypass the gate. Parent closure needs a deterministic executor-owned proof artifact under canonical quality knowledge authority, created and validated during final-main proof and persisted with the closure PR.",
+    "problemStatement": "Live closure CI #9204 on exact closure HEAD ad52d8cae737b19ab09980e3b294f93e84a012c4 fails Edit-Time for missing explicit ephemeral artifact environment path and false final-main comparison against the metadata closure commit. The parent completion receipt already binds the proven final main 0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6. Preserve the pre-closure checks, verify the committed closure evidence and first-parent identity, and keep fail-closed execution.",
     "observableOutcomes": [
-      "Every parent closure proof derives a deterministic artifact path quality/knowledge/release-parent-closure-proofs/<parent-slug>.json.",
-      "The proof artifact contract binds parentTransactionId, sourceCommit, sourcePlanDigest, completionContractDigest, exact finalMainSha, ordered unit close receipt digests, trustedMainAdvanceDigest and derived closure-plan context digest.",
-      "The derived closure plan projects both quality/development/active-plan.json and the exact proof-artifact path, with the proof artifact declared as mustCreate and proof evidence.",
-      "Critical Operational Intelligence recognizes mustCreate as a valid route target only for a valid parentClosureContext contract, analogous to the existing release-unit child transaction rule; normal critical plans still require mustEdit.",
-      "Plan Before Code naturally derives DOMAIN-QUALITY / quality-knowledge-system and the canonical full failure corpus from the quality/knowledge proof artifact while the release-oriented task preserves the release-infrastructure subsystem.",
-      "runParentProof writes the exact proof artifact into the temporary final-main worktree before Plan/Edit-Time and passes its path through a dedicated parent-closure proof environment variable.",
-      "Edit-Time validates the parent proof artifact contract, path, context digest, final-main identity and file bytes before treating the declared parent closure mustCreate obligation as fulfilled; missing, forged or stale artifacts remain BLOCK.",
-      "createClosurePullRequest stages and persists both the emitted closed active-plan and the exact parent closure proof artifact in the same executor-owned closure commit.",
-      "recordReleaseParentClosureWithProofContext validates the artifact/context digest again and stores artifact path/digest in the parent close receipt.",
-      "PR-head CI sees the real proof artifact creation plus active-plan metadata closure and proves the exact closure transaction without runtime-code fabrication.",
-      "PR_OPEN safe-main reprojection creates a fresh proof artifact bound to the newer final main and requires fresh exact CI before merge."
+      "Closure metadata CI deterministically discovers only the exact committed parent artifact path from canonical parentClosureContext and verifies identical committed bytes, content digest and context.",
+      "A metadata closure commit is accepted only when its exact first parent and declared transaction base equal the independently proved finalMainSha, while the closure HEAD remains separately verified.",
+      "Pre-closure proof still requires the explicit artifact path and HEAD equal finalMainSha, without any fallback or downgraded decision.",
+      "Malicious or stale artifact, wrong closure parent, missing pre-closure environment and mismatched closed plan continue to BLOCK.",
+      "Unchanged U01-U03 receipts, immutable source and canonical release-state remain authoritative and unmodified."
     ],
     "unresolvedRisks": [
-      "Globally allowing mustCreate as a critical route target would weaken non-child planning semantics.",
-      "Treating file existence alone as proof could accept a stale or forged closure artifact.",
-      "The artifact path must be deterministic per parent transaction or interrupted retries could create duplicates.",
-      "The artifact content must not contain credentials, environment secrets or mutable timestamps that make replay nondeterministic.",
-      "If createClosurePullRequest forgets to stage the proof artifact, final parent receipt would reference evidence not persisted in repository history.",
-      "If the proof artifact changes after Truth but before commit, the persisted receipt could diverge from what was verified.",
-      "A safe main reprojection must replace the same deterministic artifact path with new bound content instead of generating parallel receipts.",
-      "The source completionContract and immutable source plan must remain unchanged."
+      "GitHub workflow_dispatch and pull_request contexts can expose different event commit identities; both must bind the exact closure HEAD.",
+      "Checking only local working-tree bytes could allow uncommitted artifact substitution; read the artifact blob committed at the exact HEAD as well.",
+      "Completion Truth may reveal a separate downstream blocker after Edit-Time; do not claim parent closed until all gates and post-merge receipts pass."
     ],
     "scope": {
       "in": [
-        "Introduce a versioned parent closure proof artifact contract and deterministic path/content builder in release-unit runtime.",
-        "Add proofArtifactPath and proofArtifactDigest to parentClosureContext and derived plan validation.",
-        "Project the exact proof artifact path alongside active-plan metadata in the derived parent closure plan.",
-        "Allow parent-closure-context critical routes to use mustCreate as the required route target without changing generic critical planning rules.",
-        "Add a narrowly-scoped Edit-Time parent closure proof artifact validator keyed by SHOPERATION_PARENT_CLOSURE_PROOF_ARTIFACT.",
-        "Write the proof artifact before parent Plan/Edit-Time/Truth gates and verify its exact digest.",
-        "Persist proof artifact and closed active plan together in the closure PR.",
-        "Bind proof artifact path/digest into the final parent close receipt.",
-        "Cover initial closure and PR_OPEN reprojection with deterministic artifact replacement."
+        "Keep current parent closure artifact builder and finalMain receipt identities unchanged.",
+        "Teach Edit-Time to distinguish a pre-closure proof executed on final main from a persisted CLOSED metadata-only closure commit.",
+        "Require the CLOSED closure HEAD to be a single-parent commit whose parent equals the exact parentClosureContext.finalMainSha and plan.changeBaseSha.",
+        "Only in CLOSED metadata verification derive the expected path from canonical context when the ephemeral proof path environment is absent; compare committed artifact bytes and digest against the deterministic builder.",
+        "Keep the pre-closure path environment mandatory and validate both modes against a forged or stale proof.",
+        "Add targeted regression coverage for valid and invalid phase-identity and proof-artifact conditions."
       ],
       "out": [
-        "No Plan Before Code projection bypass.",
-        "No fake runtime mustEdit declaration.",
-        "No global critical mustCreate relaxation.",
-        "No mutation or widening of immutable source plan.",
-        "No modification of U01/U02/U03 material or close receipts.",
-        "No manual canonical release-state edit.",
-        "No edit to receipt-bound tests/control-plane-release-unit-production-surface.test.ts.",
-        "No workflow, storefront, Builder, database or deployment change."
+        "No gate disabling or thresholds changes; no silent accepted proof path for unclosed plans.",
+        "No historic immutable source plan widening, no U01-U03 fixture/receipt mutation, no canonical release-state edit.",
+        "No workflow, CI permission, authentication, security, storefront, template, Builder, database or deployment changes.",
+        "No claim that a parent receipt alone proves post-merge CI or completed lifecycle."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "The new artifact becomes part of the authority chain between final-main proof and persisted parent close receipt. It must create a real auditable planning surface without weakening generic critical-route semantics or allowing unbound evidence to authorize closure.",
+      "rationale": "A closure CI false negative currently blocks an otherwise independently proven parent completion. Correctness requires strict separation between implementation-final-main and closure-metadata-head identity, deterministic artifact verification, adversarial tests and preservation of full downstream gates.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -164,41 +141,31 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Proof artifact path is deterministic from parentTransactionId and remains identical across interruption/resume and safe-main reprojection.",
-        "Proof artifact JSON has an explicit versioned contract and deterministic content without timestamps or secrets.",
-        "Derived plannedFilePatterns includes active-plan metadata and the exact proof artifact path.",
-        "Derived semantic route declares mustCreate=[proofArtifactPath], proof includes proofArtifactPath, unknown=[], and authority exactly matches canonical derived expectedAuthorities.",
-        "Operational Intelligence accepts mustCreate-only route targeting only when parentClosureContext.contract is the canonical parent closure context contract.",
-        "A normal critical plan with empty mustEdit and arbitrary mustCreate remains invalid.",
-        "Plan Before Code projection for the derived closure plan is non-empty and yields the canonical parent closure domain, authority, subsystem, failure corpus and guard digest.",
-        "Edit-Time fails when the proof artifact is missing, has the wrong path, wrong contract, wrong parent id, wrong final main, wrong context digest or wrong byte digest.",
-        "Edit-Time passes the parent closure mustCreate obligation only when the executor-provided proof artifact exactly matches the derived plan context.",
-        "The closure commit contains both quality/development/active-plan.json and the deterministic proof artifact.",
-        "recordReleaseParentClosureWithProofContext rejects lifecycle plans whose artifact binding differs from the verified artifact.",
-        "Final parent close receipt records proofArtifactPath and proofArtifactDigest.",
-        "Safe-main reprojection updates the same artifact path to new deterministic content and requires new exact CI.",
-        "Immutable replay advances beyond #296's DEV_PLAN_PROJECTION_EMPTY/scope/route blocker family."
+        "The plan-only commit passes canonical Plan Before Code before implementation.",
+        "On pre-closure parent proof, absence or wrong SHOPERATION_PARENT_CLOSURE_PROOF_ARTIFACT continues to BLOCK.",
+        "On closed metadata PR with known exact final main, the expected deterministic artifact path is read from the plan context without relying on a transient runner environment variable.",
+        "Closed metadata verification compares expected proof artifact to committed HEAD blob and filesystem bytes, preventing uncommitted substitution.",
+        "Closed metadata HEAD is a direct single-parent child of parentClosureContext.finalMainSha and plan.changeBaseSha exactly equals the proven final main.",
+        "Any incorrect committed artifact path, content, digest, parent relationship, final main SHA or unclosed plan environment is rejected.",
+        "Existing Plan Before Code, Known Failure Edit-Time, Incremental Replay, Truth and Lifecycle gates remain mandatory.",
+        "Parent #1138 or its freshly reprojected successor may merge only with fresh exact-head CI SUCCESS, then final main acceptance and canonical closed receipt are independently checked."
       ],
       "invariants": [
-        "Parent closure proof artifact is evidence, not permission to mutate CLOSED child output.",
-        "Immutable source plan remains the completion-requirement authority.",
-        "Generic critical Operational Intelligence semantics remain unchanged outside valid parent closure context.",
-        "Artifact bytes are deterministic functions of already-authoritative parent/source/final-main inputs.",
-        "The artifact validated before Truth is exactly the artifact persisted by the closure PR.",
-        "Parent close receipt cannot reference an unpersisted or differently-digested artifact.",
-        "All existing Knowledge/Plan/Edit-Time/Replay/Risk/Quality/TypeScript/Build/Truth/Lifecycle gates remain mandatory."
+        "The immutable source development plan does not change.",
+        "The final implementation main is proven once and cannot be rewritten to the closure metadata HEAD.",
+        "The metadata closure HEAD must be separately identified and directly descend from proven final main without an intervening non-closure commit.",
+        "A committed artifact must be byte-identical to the deterministic receipt-bound expected artifact.",
+        "An absent pre-closure artifact environment is always a block, never treated as committed metadata proof.",
+        "All existing blocking guards and post-merge acceptance conditions remain in force."
       ],
       "forbiddenStates": [
-        "parent-closure-empty-plan-projection",
-        "generic-critical-mustcreate-route-accepted",
-        "parent-proof-artifact-missing",
-        "parent-proof-artifact-forged-context",
-        "parent-proof-artifact-stale-final-main",
-        "parent-proof-artifact-secret-bearing",
-        "parent-close-receipt-artifact-digest-drift",
-        "closure-pr-without-proof-artifact",
-        "duplicate-proof-artifact-paths-for-one-parent",
-        "manual-release-state-repair"
+        "pre-closure-proof-without-explicit-artifact-path",
+        "closure-metadata-head-replacing-final-main-proof",
+        "closed-proof-with-wrong-first-parent",
+        "forged-or-uncommitted-parent-proof-artifact",
+        "stale-closure-artifact-accepted",
+        "gate-downgrade-or-implicit-truth-pass",
+        "manual-canonical-release-state-edit"
       ]
     },
     "model": {
@@ -230,52 +197,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Artifact path slug collision or nondeterministic naming.",
-        "Artifact is generated after Plan/Edit-Time instead of before them.",
-        "Artifact content contains mutable generatedAt timestamp.",
-        "Operational Intelligence parent closure exception accepts malformed parentClosureContext.",
-        "Derived route mustCreate path differs from generated artifact path.",
-        "Edit-Time environment points to another artifact than derived route.",
-        "Closure PR stages active-plan but omits artifact.",
-        "Safe-main reprojection leaves old artifact bytes on refreshed branch.",
-        "Lifecycle plan context and artifact context differ.",
-        "Final parent receipt stores artifact digest different from persisted file."
+        "Ephemeral proof-artifact path not set in closure CI workflow_dispatch environment.",
+        "Closed metadata HEAD compared to independently proven final-main implementation HEAD.",
+        "Committed artifact missing or different from local working-tree evidence.",
+        "Closure commit has extra parent or an unexpected base.",
+        "Forged closed status used to bypass pre-closure artifact checks.",
+        "Reprojection changes final main but proof still references old final main."
       ],
       "edgeCases": [
-        "Exact last-child main closure with trustedMainAdvanceDigest=null.",
-        "Trusted main advance closure with non-null advance digest.",
-        "Interrupted retry finds same deterministic artifact path and identical bytes.",
-        "PR_OPEN safe-main reprojection rewrites same artifact path with new finalMain binding.",
-        "Malformed artifact JSON.",
-        "Artifact file exists but plan context was forged.",
-        "Arbitrary critical plan tries mustCreate-only route without parent closure context.",
-        "Parent closure route declares both accidental mustEdit and mustCreate targets."
+        "Pre-closure worktree HEAD exactly finalMainSha and explicit proof path exists.",
+        "Closed metadata direct child HEAD has no explicit proof artifact env.",
+        "Closed metadata direct child HEAD has explicit correct proof artifact env.",
+        "Closed metadata branch first parent differs from asserted final main.",
+        "Closed plan has incorrect declared changeBaseSha.",
+        "Closed artifact bytes changed without matching deterministic digest.",
+        "Unclosed development plan omits env proof artifact.",
+        "Metadata closure is a merge commit with two parents."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-PARENT-CLOSURE-PROOF-ARTIFACT",
-        "summary": "Create and persist a deterministic quality/knowledge parent closure proof artifact as the real projected route target.",
+        "id": "ALT-BOUND-PHASE",
+        "summary": "Validate pre-closure and persisted metadata closure identities as two explicit, separately proven phases.",
         "disposition": "selected",
-        "reason": "Provides a canonical DOMAIN-QUALITY proof surface and audit receipt without inventing runtime edits or bypassing planning gates."
+        "reason": "Retains exact proof semantics while eliminating CI context false negatives; the committed artifact stays independently byte-verified."
       },
       {
-        "id": "ALT-METADATA-ONLY-PLAN-BYPASS",
-        "summary": "Teach Plan Before Code to accept active-plan-only parent closure with empty projection.",
+        "id": "ALT-GLOBAL-IGNORE",
+        "summary": "Suppress the Edit-Time final-main and artifact path checks globally.",
         "disposition": "rejected",
-        "reason": "Would create a special empty-projection path and weaken the requirement for a falsifiable execution target."
+        "reason": "This would permit stale, forged or missing proof artifacts and violate fail-closed semantics."
       },
       {
-        "id": "ALT-FAKE-RUNTIME-MUSTEDIT",
-        "summary": "Declare an unchanged runtime file as mustEdit only to satisfy critical route validation.",
+        "id": "ALT-REWRITE-PARENT",
+        "summary": "Rewrite the immutable source or rebind parent final main to closure HEAD.",
         "disposition": "rejected",
-        "reason": "Creates false implementation obligations and violates truthful planning."
+        "reason": "Erases original implementation authority and would falsify immutable parent completion."
       },
       {
-        "id": "ALT-GLOBAL-MUSTCREATE-ROUTE",
-        "summary": "Allow mustCreate to satisfy every critical plan's route target.",
+        "id": "ALT-CI-OVERRIDE",
+        "summary": "Force status SUCCESS or skip known failure/Truth in CI.",
         "disposition": "rejected",
-        "reason": "Broadens generic planning semantics beyond the narrowly justified parent closure case."
+        "reason": "Would hide rather than correct proof-identity mismatches."
       }
     ],
     "specialistReviews": [
@@ -283,182 +246,134 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "The previous closure-only plan had no real projected repository surface because active-plan is intentionally metadata-excluded.",
-        "resolution": "Use a deterministic executor-owned proof artifact under canonical quality knowledge ownership as the closure transaction surface.",
+        "finding": "The current Edit-Time guard conflates implementation HEAD and metadata-only closure HEAD.",
+        "resolution": "Model explicit pre-closure and committed-closure modes with exact parent identity and immutable final main.",
         "evidence": [
-          "Release Unit Execution #296",
-          "scripts/shoperation-plan-before-code.mjs projectedFiles rule",
-          "Issue #1129"
+          "CI #9204 machine-readable Edit-Time findings",
+          "scripts/shoperation-edit-time-guard.mjs finalMainSha comparison"
         ]
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A proof artifact is safe only if it cannot be forged or detached from exact parent/final-main state.",
-        "resolution": "Bind artifact to source-plan digest, completion contract, unit receipts, trusted-main proof and exact final main; validate before Truth and receipt recording.",
+        "finding": "Defaulting the artifact path without confirming a committed blob could permit forged local evidence.",
+        "resolution": "Infer the path only for canonical CLOSED closure context and verify git HEAD committed blob plus deterministic expected artifact bytes.",
         "evidence": [
-          "parentClosureContext",
-          "shoporation.release-parent-close-receipt.v1",
-          "Issue #1129"
+          "scripts/shoperation-edit-time-guard.mjs artifact validation",
+          "parentClosureContext canonical contract"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The artifact verified in temporary proof must be byte-identical to the artifact persisted in the closure PR.",
-        "resolution": "Use deterministic content and digest, stage the exact file from the same temp worktree, and record its digest in the final receipt.",
+        "finding": "A stale parent relationship can wrongly accept a metadata commit for a different final main.",
+        "resolution": "Check the exact single first-parent SHA of closure HEAD against parentClosureContext.finalMainSha and plan.changeBaseSha.",
         "evidence": [
-          "runParentProof temp worktree",
-          "createClosurePullRequest",
-          "recordReleaseParentClosureWithProofContext"
+          "ad52d8cae737b19ab09980e3b294f93e84a012c4 git commit parent",
+          "parent closure receipt"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "PR_OPEN reprojection must replace the same artifact rather than accumulating parallel evidence.",
-        "resolution": "Derive path only from parent transaction identity; final-main changes alter content/digest, not path.",
+        "finding": "An old successful parent proof does not authorize a closure PR with failed exact-head CI.",
+        "resolution": "Retain fresh closure PR exact-head CI, subsequent main CI and canonical receipt verification.",
         "evidence": [
-          "parent closure persistence reprojection",
-          "force-with-lease closure branch refresh"
+          "PR #1138 current CI #9204",
+          "Release Unit Execution #312"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "#296 is deterministic and the previous historical-unplanned blocker is already removed.",
-        "resolution": "Regression must specifically prove non-empty projection and canonical closure scope while preserving #287 fix.",
+        "finding": "The last guard reports two isolated new identities, while #9177 plan projection is already resolved.",
+        "resolution": "Address only EDIT_TIME_PARENT_CLOSURE_ARTIFACT_PATH_MISMATCH and EDIT_TIME_PARENT_CLOSURE_FINAL_MAIN_MISMATCH with adversarial regression tests.",
         "evidence": [
-          "Issue #1129",
-          "Release Unit Execution #296",
-          "source CI #8928 attempt 16"
+          "CI #9204 build job",
+          "Failure Intake artifacts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-ARTIFACT-01",
-        "scenario": "Keep plannedFilePatterns as active-plan only.",
-        "finding": "Plan Before Code intentionally excludes it and projection remains empty.",
-        "resolution": "Add a real proof artifact outside development metadata.",
+        "id": "CH-CI-ID-01",
+        "scenario": "Global default proof artifact path under every development plan.",
+        "finding": "Would allow missing pre-closure proof environment to pass.",
+        "resolution": "Permit derived path only for closed canonical metadata proof with exact committed artifact.",
         "status": "resolved"
       },
       {
-        "id": "CH-ARTIFACT-02",
-        "scenario": "Place proof artifact under quality/development.",
-        "finding": "Domain resolves but release-risk subsystem classification is absent, causing unresolved scope.",
-        "resolution": "Use quality/knowledge/release-parent-closure-proofs path, which is canonical knowledge infrastructure.",
+        "id": "CH-CI-ID-02",
+        "scenario": "Compare parent finalMainSha with GitHub closure PR HEAD.",
+        "finding": "False negative: the closure commit is metadata-only child of final main.",
+        "resolution": "Bind finalMainSha to the exact first parent and declared changeBaseSha, HEAD to the closure proof commit.",
         "status": "resolved"
       },
       {
-        "id": "CH-ARTIFACT-03",
-        "scenario": "Declare mustEdit on an unchanged runtime file.",
-        "finding": "Edit-Time would encode a false implementation obligation.",
-        "resolution": "Use mustCreate for the artifact and validate actual artifact evidence separately.",
+        "id": "CH-CI-ID-03",
+        "scenario": "Compare only local artifact bytes.",
+        "finding": "A locally forged artifact could satisfy Edit-Time without being persisted.",
+        "resolution": "Require git committed blob bytes at exact closure HEAD as well.",
         "status": "resolved"
       },
       {
-        "id": "CH-ARTIFACT-04",
-        "scenario": "Globally count mustCreate for critical routes.",
-        "finding": "Would weaken unrelated critical planning.",
-        "resolution": "Count mustCreate only when parentClosureContext carries the canonical contract.",
+        "id": "CH-CI-ID-04",
+        "scenario": "Accept any descendant commit of final main.",
+        "finding": "Intervening unverified changes would be included in closure proof.",
+        "resolution": "Require exact direct single-parent relationship for metadata closure commit.",
         "status": "resolved"
       },
       {
-        "id": "CH-ARTIFACT-05",
-        "scenario": "Artifact exists but is not persisted in closure PR.",
-        "finding": "Final receipt would depend on ephemeral evidence.",
-        "resolution": "Stage active-plan and proof artifact together and assert both in regression tests.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ARTIFACT-06",
-        "scenario": "Artifact includes a timestamp.",
-        "finding": "Retry produces a different digest for identical authority state.",
-        "resolution": "Artifact contract forbids mutable time fields and is built from deterministic authoritative inputs only.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ARTIFACT-07",
-        "scenario": "Artifact path changes when final main changes.",
-        "finding": "PR_OPEN reprojection could accumulate duplicate evidence files.",
-        "resolution": "Path is parent-id-derived only; final-main changes replace content at the same path.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ARTIFACT-08",
-        "scenario": "Edit-Time sees no committed diff at parent proof time.",
-        "finding": "A plain mustCreate declaration alone would not prove the artifact exists.",
-        "resolution": "Add explicit parent-closure artifact environment validation and count only exact validated artifact as fulfilled closure mustCreate evidence.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ARTIFACT-09",
-        "scenario": "Lifecycle plan context matches but proof artifact digest was altered.",
-        "finding": "Truth context alone cannot prove persisted artifact identity.",
-        "resolution": "Bind artifact digest into context and revalidate in recordReleaseParentClosureWithProofContext.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-ARTIFACT-10",
-        "scenario": "An arbitrary plan injects parentClosureContext-shaped data to gain mustCreate routing.",
-        "finding": "Could abuse the narrow exception.",
-        "resolution": "Require exact canonical context contract plus proof-plan contract and regression-test malformed contexts as rejected.",
+        "id": "CH-CI-ID-05",
+        "scenario": "Assume passed Edit-Time proves completed parent closure.",
+        "finding": "Downstream Truth, Lifecycle and post-merge evidence may still fail.",
+        "resolution": "Retain all gates, exact-head PR/main CI and canonical persistence acceptance.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require canonical Plan Before Code PASS before implementation.",
-      "Add deterministic proof artifact path/content/digest builders and validators to release-unit runtime.",
-      "Update derived parent closure plan builder to project active-plan plus exact proof artifact and declare the artifact as mustCreate/proof.",
-      "Narrowly extend Operational Intelligence critical route target validation for canonical parent closure context mustCreate only, with negative tests for generic plans.",
-      "Add parent-closure artifact validation to Edit-Time using an explicit environment path; prove missing/forged/stale artifacts remain blocking.",
-      "Write the deterministic artifact in runParentProof before Plan/Edit-Time and pass the exact path through the proof environment.",
-      "Persist closed active-plan and exact proof artifact together in createClosurePullRequest, preserving existing force-with-lease and CI dispatch behavior.",
-      "Revalidate artifact binding before recordReleaseParentClosureWithProofContext and store path/digest in final close receipt.",
-      "Exercise exact-main, trusted-main and PR_OPEN reprojection paths, plus artifact tamper/missing/digest mismatch cases.",
-      "Require exact-head Quality, TypeScript, Production Build, Completion Truth and Lifecycle Closure PASS; then exact PR-head PASS and expected-head merge.",
-      "Require post-merge main CI SUCCESS on the merged hardening head before any immutable rehearsal replay.",
-      "Replay immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and require the next Release Unit Execution to advance beyond #296's projection/scope/route blocker family; any different blocker remains fail-closed and returns through Failure Intake."
+      "Commit the new development plan alone and require canonical Plan Before Code PASS before implementation.",
+      "Change only the Edit-Time parent closure validation path; retain deterministic artifact generation and receipt semantics.",
+      "Require pre-closure HEAD equals final implementation main and require the explicitly supplied artifact path.",
+      "Require CLOSED metadata HEAD to be a single-parent child of exactly the plan-bound proven final main.",
+      "Require exact artifact content and digest in both modes, and git committed blob bytes for CLOSED metadata mode.",
+      "Run targeted regression tests proving genuine metadata closure passes and stale, forged, missing or wrong-parent evidence blocks.",
+      "Require Knowledge, Plan, Edit-Time, Incremental Replay, Risk, Quality, TypeScript, Build, Truth and Lifecycle gates to pass on exact new hardening HEAD.",
+      "Merge only with exact-head fresh CI SUCCESS and verify the corresponding main CI SUCCESS before immutable rehearsal replay.",
+      "Replay the unmodified immutable source and require CI SUCCESS on closure PR, parent lifecycle state and canonical closed receipt.",
+      "Preserve Failure Intake for every new reproducible blocker, and never claim completion from isolated green checks."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-PROOF-ARTIFACT-V1",
+      "request": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-CI-IDENTITY-V1",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/release-unit-parent-close.mjs",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
         "scripts/shoperation-edit-time-guard.mjs"
       ],
       "mayEdit": [
-        "tests/shoperation-operational-intelligence.test.ts",
-        "tests/control-plane-release-unit-orchestration.test.ts",
         "tests/control-plane-release-unit-execution-binding.test.ts"
       ],
       "impactedReadOnly": [
-        "scripts/shoperation-plan-before-code.mjs",
-        "scripts/release-unit-execute.mjs",
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1",
-        "release-execution/source/control-plane-multi-unit-rehearsal-v1"
+        "scripts/release-unit-parent-close.mjs",
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        ".github/workflows/ci.yml",
+        "quality/knowledge/release-parent-closure-proofs/dev-control-plane-multi-unit-rehearsal-v1.json"
       ],
       "mustCreate": [],
       "forbidden": [
         "src/**",
         "supabase/**",
         "deploy/**",
-        ".github/workflows/**"
+        ".github/workflows/**",
+        "quality/knowledge/rehearsal-fixtures/**"
       ],
       "proof": [
-        "tests/shoperation-operational-intelligence.test.ts",
-        "tests/control-plane-release-unit-orchestration.test.ts",
         "tests/control-plane-release-unit-execution-binding.test.ts"
       ],
       "unknown": [],
@@ -470,7 +385,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-PROOF-ARTIFACT-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-CI-IDENTITY-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -488,17 +403,16 @@
     },
     "requirements": [
       {
-        "id": "REQ-PARENT-CLOSURE-PROOF-ARTIFACT",
-        "requirement": "Parent closure must expose a real deterministic proof artifact that gives the derived closure plan a canonical projected target and binds final Truth/Lifecycle evidence to the exact persisted parent state.",
+        "id": "REQ-PARENT-CLOSURE-CI-PHASE-IDENTITY",
+        "requirement": "A pre-closure proof and a metadata closure commit must be independently verified against their exact and distinct Git identities while deterministic parent evidence remains committed and receipt-bound.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-parent-closure-proof-artifact",
+          "breadth": "parent-closure-ci-proof-identity",
           "strength": 2,
           "dimensions": [
-            "status",
             "transaction-identity",
+            "status",
             "forbidden-state",
-            "behavioral-proof",
             "truth",
             "lifecycle",
             "close"
@@ -519,29 +433,22 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PARENT-CLOSURE-EMPTY-PROJECTION",
-            "statement": "A parent closure plan may not rely on active-plan metadata as its only projected surface.",
+            "id": "NEG-PRE-CLOSURE-PROOF-PATH",
+            "statement": "A missing explicit pre-closure proof artifact environment cannot be silently accepted.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-PARENT-CLOSURE-GENERIC-MUSTCREATE-BYPASS",
-            "statement": "MustCreate-only critical routing may not be enabled outside a valid canonical parent closure context.",
+            "id": "NEG-CLOSURE-UNCOMMITTED-ARTIFACT",
+            "statement": "Uncommitted, altered, missing or forged closure proof bytes cannot authorize metadata closure.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-PARENT-CLOSURE-UNBOUND-ARTIFACT",
-            "statement": "A missing, stale, forged or differently-digested parent closure proof artifact may not satisfy Edit-Time or parent closure recording.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-PARENT-CLOSURE-EPHEMERAL-PROOF",
-            "statement": "The parent close receipt may not rely on a proof artifact that is absent from the persisted closure commit.",
+            "id": "NEG-CLOSURE-PARENT-DRIFT",
+            "statement": "A metadata closure commit not directly based on the exact trusted final main cannot pass.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -550,18 +457,5 @@
       }
     ]
   },
-  "notes": "Live blocker: main 56ef5edb77f1408f27218892fa58a94189982728; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; source CI #8928 attempt 16 SUCCESS; Release Unit Execution #296 FAIL. Historical DEV_PLAN_UNPLANNED_FILE from #287 is resolved. Current derived closure plan fails DEV_PLAN_PROJECTION_EMPTY and related domain/authority/failure/digest/semantic-route checks because active-plan is intentionally excluded from projected implementation surfaces. Failure Intake #1129 records the exact blocker. This transaction adds a real deterministic quality/knowledge parent closure proof artifact and narrowly recognizes its mustCreate route only for canonical parent closure context; no gate is bypassed.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "9e3218e0c9ae78ab40adcf62637ddb02e052507e",
-    "closedAt": "2026-10-08T12:39:40.348Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-CLOSURE-PROOF-ARTIFACT-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Live observation 2026-10-08: main 0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6 CI #9198 SUCCESS; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 unchanged; U01/U02/U03 CLOSED; parent #1138 HEAD ad52d8cae737b19ab09980e3b294f93e84a012c4; CI #9204 Edit-Time failed with ARTIFACT_PATH_MISMATCH and FINAL_MAIN_MISMATCH. The old queued Release Unit Execution #182 has main head_branch and its execute job requires a successful source-branch push, so it cannot perform the rehearsal executor mutation. This separate development plan fixes the closure CI phase-identity evidence only; do not edit canonical release-state."
 }
