@@ -10,7 +10,8 @@
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
     "tests/shoperation-development-guard.test.ts",
-    "tests/control-plane-release-unit-orchestration.test.ts"
+    "tests/control-plane-release-unit-orchestration.test.ts",
+    "tests/control-plane-diagnostics-hardening.test.ts"
   ],
   "expectedSubsystems": [],
   "expectedDomains": [
@@ -91,7 +92,8 @@
       "Gate-chain compilation still includes explicitly required completion guards even when projectedFiles is empty.",
       "No product/domain/authority/failure scope is inferred from metadata-only closure.",
       "Forged parentClosureContext, extra planned material files, non-empty material operations, stale finalMain binding, or wrong proofPlanContract keep the plan blocked.",
-      "Immutable rehearsal replay advances beyond #296's DEV_PLAN_PROJECTION_EMPTY / scope-drift blocker without changing source plan or canonical state manually."
+      "Immutable rehearsal replay advances beyond #296's DEV_PLAN_PROJECTION_EMPTY / scope-drift blocker without changing source plan or canonical state manually.",
+      "Control Plane diagnostics hardening assertions track the new metadata-only evaluationMode expression without weakening stale-reference detection."
     ],
     "unresolvedRisks": [
       "A broad 'allow empty projection' exception could let arbitrary plans bypass planning.",
@@ -109,7 +111,8 @@
         "Require canonical metadata-only scope declarations: no material subsystem/domain/authority ownership, global baseline failures [SQ-KF-013,SQ-KF-014,SQ-KF-022], global negative knowledge [SQ-NK-012], no PO instruction IDs, and guardDigest 430b0bba.",
         "Normalize those declarations in buildReleaseParentClosureProofPlan.",
         "Preserve explicit completion guard-chain compilation from completionContract even with zero material projected files.",
-        "Add positive and adversarial regression coverage in shoperation-development-guard and release-unit orchestration tests."
+        "Add positive and adversarial regression coverage in shoperation-development-guard and release-unit orchestration tests.",
+        "Refresh the Reference Sync machine consumer in tests/control-plane-diagnostics-hardening.test.ts for the new metadata-only evaluationMode expression."
       ],
       "out": [
         "No change to immutable source branch or canonical release-state.",
@@ -370,6 +373,7 @@
       "Keep active-plan.json excluded from general projectedFiles and keep DEV_PLAN_PROJECTION_EMPTY for every non-authorized empty plan.",
       "Add planner regressions for valid metadata-only closure, ordinary empty plan, forged context, extra material path, hidden material route and actual material diff.",
       "Add orchestration regression proving derived closure plan carries canonical empty material scope while preserving immutable completionContract/context.",
+      "Update the Reference Sync consumer assertion in tests/control-plane-diagnostics-hardening.test.ts and require Edit-Time Reference Sync PASS on the exact implementation head.",
       "Require exact-head Knowledge/Plan/Edit-Time/Incremental/Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
       "Open/reuse DRAFT PR only after exact push-head proof, then require exact PR-head SUCCESS and expected-head merge.",
       "Require post-merge main CI SUCCESS on the merge SHA with Quality, TypeScript and Production Build all successful before replay.",
@@ -387,7 +391,8 @@
       ],
       "mayEdit": [
         "tests/shoperation-development-guard.test.ts",
-        "tests/control-plane-release-unit-orchestration.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-diagnostics-hardening.test.ts"
       ],
       "impactedReadOnly": [
         "scripts/release-unit-parent-close.mjs",
@@ -405,7 +410,8 @@
       ],
       "proof": [
         "tests/shoperation-development-guard.test.ts",
-        "tests/control-plane-release-unit-orchestration.test.ts"
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-diagnostics-hardening.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
