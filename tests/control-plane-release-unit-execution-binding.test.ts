@@ -26,6 +26,7 @@ import {
   validateExactPullRequest,
 } from '../scripts/release-unit-github-runtime.mjs';
 import {resolveReleaseUnitCiPullRequest} from '../scripts/release-unit-ci-context.mjs';
+import {ensureParentClosureCiDispatch,proveParentMainAdvance} from '../scripts/release-unit-parent-close.mjs';
 
 const A='a'.repeat(40),H='1'.repeat(40);
 const parentPlan:any={
@@ -282,5 +283,66 @@ describe('release-unit execution binding hardening',()=>{
     expect(formatter({reason:'RELEASE_PARENT_NOT_CLOSURE_ELIGIBLE'})).toEqual({reason:'RELEASE_PARENT_NOT_CLOSURE_ELIGIBLE',error:null});
     expect(formatter({error:'unclassified-authoritative-error'})).toEqual({reason:null,error:'unclassified-authoritative-error'});
   });
+  it('proves parent main advance with rename-safe aggregate child protection and rejects overlap/non-fast-forward',()=>{
+    const state:any={units:[
+      {order:1,state:'CLOSED',manifest:{intendedFiles:['quality/fixture-a.json'],operations:[{operation:'create',file:'quality/fixture-a.json'}]},closeReceipt:{releaseUnitId:'U1',decision:'PASS'}},
+      {order:2,state:'CLOSED',manifest:{intendedFiles:['tests/proof.test.ts'],operations:[{operation:'rename',previousFile:'tests/old-proof.test.ts',file:'tests/proof.test.ts'}]},closeReceipt:{releaseUnitId:'U2',decision:'PASS'}},
+    ]};
+    const calls:string[]=[];
+    const run=(command:string,args:string[])=>{
+      calls.push([command,...args].join(' '));
+      if(command==='git'&&args[0]==='merge-base')return '';
+      if(command==='git'&&args[0]==='diff')return 'scripts/release-unit-execute.mjs\n';
+      throw new Error('unexpected '+command+' '+args.join(' '));
+    };
+    const pass=proveParentMainAdvance({state,fromSha:A,toSha:H,run});
+    expect(pass.decision).toBe('PASS');
+    expect(pass.proof.protectedFiles).toEqual(['quality/fixture-a.json','tests/old-proof.test.ts','tests/proof.test.ts']);
+    expect(calls.some(call=>call.includes('git diff --name-only --no-renames --diff-filter=ACMRD'))).toBe(true);
+    const overlap=proveParentMainAdvance({state,fromSha:A,toSha:H,run:(command:string,args:string[])=>{
+      if(command==='git'&&args[0]==='merge-base')return '';
+      if(command==='git'&&args[0]==='diff')return 'tests/old-proof.test.ts\n';
+      throw new Error('unexpected');
+    }});
+    expect(overlap).toMatchObject({decision:'BLOCK'});
+    expect(overlap.error).toContain('PROTECTED_SCOPE_OVERLAP');
+    const nonFastForward=proveParentMainAdvance({state,fromSha:A,toSha:H,run:(command:string,args:string[])=>{
+      if(command==='git'&&args[0]==='merge-base')throw new Error('not ancestor');
+      throw new Error('unexpected');
+    }});
+    expect(nonFastForward.error).toContain('NON_FAST_FORWARD');
+  });
+
+  it('explicitly dispatches exact parent closure CI without release-unit child proof mode and reuses exact pending/success runs',()=>{
+    const calls:string[]=[];
+    const dispatched=ensureParentClosureCiDispatch({headSha:H,headBranch:'release-execution/closure/dev-parent',repo:'infowaterk-max/water-K-',run:(command:string,args:string[])=>{
+      calls.push([command,...args].join(' '));
+      if(command==='gh'&&args[0]==='run'&&args[1]==='list')return '[]';
+      if(command==='gh'&&args[0]==='workflow'&&args[1]==='run')return '';
+      throw new Error('unexpected '+command+' '+args.join(' '));
+    }});
+    expect(dispatched.decision).toBe('DISPATCHED');
+    const dispatchCall=calls.find(call=>call.includes('gh workflow run ci.yml'))??'';
+    expect(dispatchCall).toContain('--ref release-execution/closure/dev-parent');
+    expect(dispatchCall).not.toContain('release_unit_proof');
+    const exists=ensureParentClosureCiDispatch({headSha:H,headBranch:'release-execution/closure/dev-parent',repo:'infowaterk-max/water-K-',run:(command:string,args:string[])=>{
+      if(command==='gh'&&args[0]==='run')return JSON.stringify([{databaseId:77,status:'in_progress',conclusion:null,headSha:H,headBranch:'release-execution/closure/dev-parent',event:'workflow_dispatch'}]);
+      throw new Error('dispatch should not repeat');
+    }});
+    expect(exists).toMatchObject({decision:'EXISTS',runId:77,status:'in_progress'});
+  });
+
+  it('passes immutable source authority into parent closure persistence and preserves stale-main reprojection/lease guards',()=>{
+    const executeSource=readFileSync('scripts/release-unit-execute.mjs','utf8');
+    const parentSource=readFileSync('scripts/release-unit-parent-close.mjs','utf8');
+    expect(executeSource).toContain('finishParentClosurePersistence({state,sourceCommit:source})');
+    expect(parentSource).toContain("--force-with-lease='+remoteRef+':'+remoteHead");
+    expect(parentSource).toContain("reason:'PARENT_CLOSURE_REPROJECTED'");
+    expect(parentSource).toContain("reason:'RELEASE_PARENT_CLOSURE_MAIN_DRIFT'");
+    expect(parentSource).toContain("ensureParentClosureCiDispatch({headSha,headBranch:branch");
+    expect(parentSource).toContain("--event','workflow_dispatch'");
+    expect(parentSource).toContain("--event','pull_request'");
+  });
+
 
 });
