@@ -429,17 +429,17 @@
         "id": "REQ-CHILD-KNOWLEDGE",
         "requirement": "Known Failure and Negative Knowledge projection must be derived from the generated child release subsystem scope.",
         "claimScope": {
-          "capability": "CAP-QUALITY",
+          "capability": "CAP-ATLAS",
           "breadth": "child-negative-knowledge",
           "strength": 2,
           "dimensions": [
-            "knowledge",
+            "known-failure",
             "scope",
-            "risk"
+            "classification"
           ]
         },
         "requiredCapabilities": [
-          "CAP-QUALITY"
+          "CAP-ATLAS"
         ],
         "evidence": {
           "implementation": [
@@ -463,7 +463,7 @@
         "id": "REQ-EXACT-CLOSURE",
         "requirement": "The scoped repair must achieve exact-head Truth and Lifecycle closure before merging to main.",
         "claimScope": {
-          "capability": "CAP-RELEASE",
+          "capability": "CAP-QUALITY",
           "breadth": "release-code-hardening",
           "strength": 2,
           "dimensions": [
@@ -474,7 +474,7 @@
           ]
         },
         "requiredCapabilities": [
-          "CAP-RELEASE"
+          "CAP-QUALITY"
         ],
         "evidence": {
           "implementation": [
@@ -497,5 +497,5 @@
       }
     ]
   },
-  "notes": "Plan-only issue #1170 hardening. Live #372/child #9282 demonstrated a true canonical intent scope mismatch (expected [], actual release-infrastructure, guard drift aa79c504 vs a41cfd0c). The old failed state stays STALE and source identities remain immutable. This plan is an executable authority only after PROVE_PLAN PASS; no implementation code edits before it. Recompute scope from generated child task in planner and binder, not parent task. Full Known Failure replay required for shoperation infrastructure files."
+  "notes": "Plan-only issue #1170 hardening. Live #372/child #9282 demonstrated a true canonical intent scope mismatch (expected [], actual release-infrastructure, guard drift aa79c504 vs a41cfd0c). The old failed state stays STALE and source identities remain immutable. This plan is an executable authority only after PROVE_PLAN PASS; no implementation code edits before it. Recompute scope from generated child task in planner and binder, not parent task. Full Known Failure replay required for shoperation infrastructure files. Exact-head #9287 Sentinel integrity regression correctly rejected two unsupported evidence semantics: Knowledge Preflight is CAP-ATLAS, not CAP-QUALITY; Plan/Edit-Time producers are CAP-QUALITY, not CAP-RELEASE. Requirements are now scoped to supported canonical capability/dimensions without altering guard implementation or weakening tests."
 }
