@@ -28,7 +28,7 @@ import {
   validateExactPullRequest,
 } from '../scripts/release-unit-github-runtime.mjs';
 import {resolveReleaseUnitCiPullRequest} from '../scripts/release-unit-ci-context.mjs';
-import {advanceParentPostMergeMainCi,classifyParentPostMergeMainCiRun,createPendingParentMainCiState,ensureParentClosureCiDispatch,finishParentClosurePersistence,proveParentMainAdvance,requireExactParentClosurePrIdentity,proveInterruptedParentClosureProjection} from '../scripts/release-unit-parent-close.mjs';
+import {advanceParentPostMergeMainCi,classifyParentPostMergeMainCiRun,createPendingParentMainCiState,dispatchArmedParentMainCi,ensureParentClosureCiDispatch,finishParentClosurePersistence,proveParentMainAdvance,requireExactParentClosurePrIdentity,proveInterruptedParentClosureProjection} from '../scripts/release-unit-parent-close.mjs';
 
 const A='a'.repeat(40),H='1'.repeat(40);
 const parentPlan:any={
@@ -626,7 +626,13 @@ describe('release-unit execution binding hardening',()=>{
       if(command==='gh'&&args[0]==='api'&&args[1]==='repos/owner/repo/actions/runs/991/jobs?per_page=100')return JSON.stringify({jobs});
       throw Error('unexpected '+command+' '+args.join(' '));
     };
-    const first=advanceParentPostMergeMainCi({state,sourceCommit:source,run:fake});
+    const reserved=advanceParentPostMergeMainCi({state,sourceCommit:source,run:fake});
+    expect(reserved).toMatchObject({decision:'DISPATCH_ARMED',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCH_RESERVED',
+      state:{closurePersistence:{postMergeMainCi:{status:'DISPATCH_ARMED',runId:null}}}});
+    expect(dispatches).toBe(0);
+    // Simulates the driver's successful CAS of reserved.state before the
+    // external call; dispatch is not allowed from the old uncommitted state.
+    const first=dispatchArmedParentMainCi({state:reserved.state,sourceCommit:source,run:fake});
     expect(first).toMatchObject({decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCHED',
       state:{closurePersistence:{postMergeMainCi:{status:'DISPATCH_REQUESTED',runId:991}}}});
     expect(dispatches).toBe(1);state=first.state;
@@ -646,6 +652,65 @@ describe('release-unit execution binding hardening',()=>{
     listing=[];
     expect(advanceParentPostMergeMainCi({state:resumed,sourceCommit:source,run:fake})).toMatchObject({decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_RUN_NOT_VISIBLE'});
     expect(dispatches).toBe(1);
+    const claimedButNotDispatched=advanceParentPostMergeMainCi({state:reserved.state,sourceCommit:source,run:fake});
+    expect(claimedButNotDispatched).toMatchObject({decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCH_UNCERTAIN'});
+    expect(dispatches).toBe(1);
+    const driver=readFileSync('scripts/release-unit-execute.mjs','utf8');
+    const durable=driver.indexOf("const saved=persistRemoteExecutionState({state:result.state,stateRef,expectedStateCommit:loaded.stateCommit})");
+    const sideEffect=driver.indexOf('const dispatched=dispatchArmedParentMainCi({state:loaded.state,sourceCommit:source})');
+    expect(durable).toBeGreaterThan(0);
+    expect(sideEffect).toBeGreaterThan(durable); // Persist reservation before dispatch
+  });
+
+  it('does not redispatch after GitHub accepted the event but the process crashed before persisting its run ID',()=>{
+    const source='a'.repeat(40),merged='c'.repeat(40),head='d'.repeat(40),base='b'.repeat(40);
+    const state:any=createPendingParentMainCiState({state:{
+      parentTransactionId:'DEV-PARENT',executionSourceCommit:source,closureComplete:true,
+      closedReceipt:{decision:'PASS',truthStatus:'VERIFIED',parentTransactionId:'DEV-PARENT'},
+      units:[{state:'CLOSED',closeReceipt:{decision:'PASS'}}],
+      closurePersistence:{contract:'shoporation.release-parent-closure-persistence.v1',state:'PR_OPEN',
+        prNumber:1138,headSha:head,branch:'release-execution/closure/dev-parent',baseSha:base},
+    },sourceCommit:source,mergedMainSha:merged});
+    const pr:any={state:'closed',merged:true,number:1138,head:{sha:head,ref:'release-execution/closure/dev-parent'},
+      base:{sha:base,ref:'main'},merge_commit_sha:merged,merged_by:{login:'github-actions[bot]'},merged_at:'2026-10-08T20:00:00Z'};
+    let requests=0,visible=false,main=merged;
+    const nonce=state.closurePersistence.postMergeMainCi.nonce;
+    const runInfo:any={id:911,name:nonce,path:'.github/workflows/ci.yml',event:'workflow_dispatch',
+      head_sha:merged,head_branch:'main',display_title:nonce,actor:{login:'github-actions[bot]'},
+      status:'queued',conclusion:null,created_at:'2026-10-08T20:05:00Z'};
+    const invoke=(command:string,args:string[])=>{
+      if(command==='gh'&&args[0]==='repo')return 'owner/repo';
+      if(command==='gh'&&args[0]==='api'&&args[1].endsWith('/pulls/1138'))return JSON.stringify(pr);
+      if(command==='git'&&args[0]==='ls-remote')return main+'\trefs/heads/main';
+      if(command==='gh'&&args[0]==='run'&&args[1]==='list')return JSON.stringify(visible?
+        [{databaseId:911,displayTitle:nonce,headSha:merged,headBranch:'main',event:'workflow_dispatch'}]:[]);
+      if(command==='gh'&&args[0]==='api'&&args[1].endsWith('/actions/runs/911'))return JSON.stringify(runInfo);
+      if(command==='gh'&&args[0]==='workflow'&&args[1]==='run'){
+        requests+=1;
+        // Simulate server accepted the dispatch then the caller's transport
+        // failed before returning any run-ID or persisting a response.
+        throw new Error('TRANSPORT_DROPPED_AFTER_GITHUB_ACCEPTED');
+      }
+      throw Error('unexpected '+command+' '+args.join(' '));
+    };
+    const first=advanceParentPostMergeMainCi({state,sourceCommit:source,run:invoke});
+    expect(first.decision).toBe('DISPATCH_ARMED');
+    const durablyReserved=first.state;
+    expect(()=>dispatchArmedParentMainCi({state:durablyReserved,sourceCommit:source,run:invoke})).toThrow('TRANSPORT_DROPPED_AFTER_GITHUB_ACCEPTED');
+    expect(requests).toBe(1);
+    // A restarted executor is handed only the durable reservation. Empty
+    // eventual-consistency listing MUST NOT authorize a second dispatch.
+    const resumed=advanceParentPostMergeMainCi({state:durablyReserved,sourceCommit:source,run:invoke});
+    expect(resumed).toMatchObject({decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCH_UNCERTAIN'});
+    expect(resumed.details.operatorReviewRequired).toBe(true);
+    expect(requests).toBe(1);
+    visible=true;
+    const observed=advanceParentPostMergeMainCi({state:durablyReserved,sourceCommit:source,run:invoke});
+    expect(observed).toMatchObject({decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_PENDING'});
+    expect(requests).toBe(1);
+    main='f'.repeat(40);
+    expect(advanceParentPostMergeMainCi({state:durablyReserved,sourceCommit:source,run:invoke})).toMatchObject({decision:'BLOCK',reason:'RELEASE_PARENT_POST_MERGE_MAIN_DRIFT'});
+    expect(requests).toBe(1);
   });
 
 });

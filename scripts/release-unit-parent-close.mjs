@@ -377,15 +377,12 @@ export function advanceParentPostMergeMainCi({state,sourceCommit,run=defaultRun,
       return blockParentPostMergeCi(state,'RELEASE_PARENT_POST_MERGE_DUPLICATE_RUNS',{ids:exact.map(x=>x.databaseId)});
     if(exact.length)runId=exact[0].databaseId;
     else if(proof.status==='INTENT_RECORDED'){
-      const response=run('gh',['workflow','run','ci.yml','--repo',repository,'--ref','main',
-        '-f','parent_post_merge_id='+state.parentTransactionId,
-        '-f','parent_post_merge_source_sha='+sourceCommit,
-        '-f','parent_post_merge_sha='+p.mergedMainSha,
-        '-f','parent_post_merge_nonce='+proof.nonce],{cwd});
-      const found=Number(text(response).match(/\/actions\/runs\/([0-9]+)/)?.[1]??0);
-      return{state:update({status:'DISPATCH_REQUESTED',runId:Number.isSafeInteger(found)&&found>0?found:null}),
-        decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCHED'};
-    }else return{state,decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_RUN_NOT_VISIBLE'};
+      // The caller must commit this one-shot authorization with CAS before any
+      // external GitHub workflow_dispatch side effect is allowed.
+      return{state:update({status:'DISPATCH_ARMED',runId:null}),
+        decision:'DISPATCH_ARMED',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCH_RESERVED'};
+    }else return{state,decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCH_UNCERTAIN',
+      details:{nonce:proof.nonce,status:proof.status,operatorReviewRequired:true}};
   }
   if(!Number.isSafeInteger(runId)||runId<1)return blockParentPostMergeCi(state,'RELEASE_PARENT_POST_MERGE_RUN_ID_INVALID',{runId});
   let ciRun;
@@ -405,6 +402,37 @@ export function advanceParentPostMergeMainCi({state,sourceCommit,run=defaultRun,
   return{state:{...structuredClone(state),closurePersistence:{...structuredClone(p),state:'MERGED',
     postMergeMainCi:{...structuredClone(proof),...verified.receipt,status:'COMPLETED',runId,decision:'PASS'}}},
     decision:'PARENT_CLOSED',mergedMainSha:p.mergedMainSha,postMergeMainCi:verified.receipt};
+}
+
+export function dispatchArmedParentMainCi({state,sourceCommit,run=defaultRun,cwd=process.cwd()}={}){
+  const p=state?.closurePersistence,proof=p?.postMergeMainCi;
+  if(p?.state!=='POST_MERGE_CI_PENDING'||proof?.status!=='DISPATCH_ARMED'||
+      proof.runId!==null||proof?.contract!==POST_MERGE_MAIN_CI_CONTRACT||
+      proof.sourceCommit!==sourceCommit||state.executionSourceCommit!==sourceCommit||
+      proof.parentTransactionId!==state.parentTransactionId||
+      proof.mergedMainSha!==p.mergedMainSha||proof.nonce!==parentPostMergeNonce(state,p.mergedMainSha))
+    return blockParentPostMergeCi(state,'RELEASE_PARENT_POST_MERGE_DISPATCH_RESERVATION_INVALID');
+  // Validate the PR, current main, source and any already-visible correlated
+  // workflow again *after* the reservation has been durably persisted.
+  // A resumed DISPATCH_ARMED state never calls this function automatically.
+  const checked=advanceParentPostMergeMainCi({state,sourceCommit,run,cwd});
+  if(checked.decision!=='PENDING'||checked.reason!=='PARENT_POST_MERGE_MAIN_CI_DISPATCH_UNCERTAIN')
+    return checked;
+  const repository=repoName(run,cwd);
+  // Deliberately at-most-once: if this external action succeeds but the caller
+  // crashes before the next CAS, recovery only searches by nonce. If the
+  // dispatch was not accepted, automatic retries remain blocked and require
+  // an explicit human-governed recovery, not a second blind network attempt.
+  const response=run('gh',['workflow','run','ci.yml','--repo',repository,'--ref','main',
+    '-f','parent_post_merge_id='+state.parentTransactionId,
+    '-f','parent_post_merge_source_sha='+sourceCommit,
+    '-f','parent_post_merge_sha='+p.mergedMainSha,
+    '-f','parent_post_merge_nonce='+proof.nonce],{cwd});
+  const found=Number(text(response).match(/\/actions\/runs\/([0-9]+)/)?.[1]??0);
+  const next={...structuredClone(state),closurePersistence:{...structuredClone(p),
+    postMergeMainCi:{...structuredClone(proof),status:'DISPATCH_REQUESTED',
+      runId:Number.isSafeInteger(found)&&found>0?found:null}}};
+  return{state:next,decision:'PENDING',reason:'PARENT_POST_MERGE_MAIN_CI_DISPATCHED'};
 }
 
 export function finishParentClosurePersistence({state,sourceCommit,run=defaultRun,cwd=process.cwd()}={}){
