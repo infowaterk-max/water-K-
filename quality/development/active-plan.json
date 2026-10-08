@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-EXACT-DIAGNOSTIC-SURFACE-V1",
   "task": "Preserve the exact nested parent proof/persistence exception at the release executor machine-error boundary so a blocked parent closure reports both the stable blocker code and its exact root cause without changing fail-closed semantics.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "128614ad",
   "changeBaseSha": "4cab9376d285a15d4d27d742f7b8b2babb8a5bee",
   "plannedFilePatterns": [
@@ -462,5 +462,18 @@
       }
     ]
   },
-  "notes": "Live state after Release Unit Execution #260: U03 is CLOSED, materialization status ALREADY_APPLIED, verification VERIFIED/LEARN, noCode=true close receipt PASS; parent activeUnitId=null, closureEligible=true, closureComplete=false, lifecyclePhase=TRUTH_GATE. #260 then failed only as RELEASE_PARENT_PROOF_OR_PERSISTENCE_FAILED because the outer executor masks the exact `result.error` whenever `result.reason` exists. Open Failure Intake #1018 already covers this diagnostic class and has been updated with the #260 reproduction. This transaction changes diagnostics only; the subsequent immutable replay will reveal the exact remaining parent closure root cause for a bounded fix."
+  "notes": "Live state after Release Unit Execution #260: U03 is CLOSED, materialization status ALREADY_APPLIED, verification VERIFIED/LEARN, noCode=true close receipt PASS; parent activeUnitId=null, closureEligible=true, closureComplete=false, lifecyclePhase=TRUTH_GATE. #260 then failed only as RELEASE_PARENT_PROOF_OR_PERSISTENCE_FAILED because the outer executor masks the exact `result.error` whenever `result.reason` exists. Open Failure Intake #1018 already covers this diagnostic class and has been updated with the #260 reproduction. This transaction changes diagnostics only; the subsequent immutable replay will reveal the exact remaining parent closure root cause for a bounded fix.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "b4143df58a2a0f1a49c5b051bd93dea682bd3e9b",
+    "closedAt": "2026-10-08T05:42:38.202Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-EXACT-DIAGNOSTIC-SURFACE-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
