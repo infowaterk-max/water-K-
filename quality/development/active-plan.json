@@ -1,19 +1,19 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-DERIVED-CLOSURE-PROOF-PLAN-V1",
-  "task": "Separate immutable parent completion authority from the final-main development-plan envelope by deriving a state-bound parent closure proof-plan for the accepted final main.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-PARENT-METADATA-CLOSURE-PROJECTION-V1",
+  "task": "Add fail-closed Plan Before Code support for executor-derived metadata-only parent closure projections without permitting ordinary empty plans.",
+  "status": "ready-for-implementation",
   "guardDigest": "a41cfd0c",
-  "changeBaseSha": "e296c5203b115737cd5b375275ab2ef8d725974c",
+  "changeBaseSha": "56ef5edb77f1408f27218892fa58a94189982728",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
+    "scripts/shoperation-plan-before-code.mjs",
     "scripts/lib/shoperation-release-unit-runtime.mjs",
-    "scripts/release-unit-parent-close.mjs",
-    "scripts/release-unit-orchestrate.mjs",
-    "tests/control-plane-release-unit-orchestration.test.ts",
-    "tests/control-plane-release-unit-execution-binding.test.ts"
+    "tests/shoperation-development-guard.test.ts",
+    "tests/control-plane-release-unit-orchestration.test.ts"
   ],
   "expectedSubsystems": [
+    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -94,59 +94,52 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-DERIVED-CLOSURE-PROOF-PLAN-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-PARENT-METADATA-CLOSURE-PROJECTION-V1",
     "riskTier": "critical",
-    "problemStatement": "Release Unit Execution #287 proves trusted parent main reconciliation now passes, but runParentProof still loads the immutable source active-plan and reuses it as the development-plan envelope against the newer accepted final main. That conflates immutable parent completion authority with the current closure transaction and causes independently planned/verified hardening files to fail as DEV_PLAN_UNPLANNED_FILE plus domain/authority/subsystem scope expansion. The source rehearsal plan must remain immutable and authoritative for parent requirements; historical hardening must not be retroactively added to it. Parent proof therefore needs a deterministic executor-derived closure proof-plan bound to the source plan digest, canonical CLOSED-unit receipts, trusted-main proof and exact final main. The derived plan scopes only the closure metadata transaction while carrying the original parent task identity and completion contract.",
+    "problemStatement": "Release Unit Execution #296 reaches the executor-derived parent closure proof plan but Plan Before Code necessarily rejects it with DEV_PLAN_PROJECTION_EMPTY because `quality/development/active-plan.json` is intentionally excluded from material projectedFiles. The derived plan also currently inherits source-plan material scope metadata, causing domain/authority/failure/digest drift even though the closure transaction is metadata-only. Ordinary empty plans must remain blocked. The planner therefore needs a narrowly authenticated metadata-only projection mode tied to the existing parentClosureContext contract, and the derived closure-plan builder must normalize material scope fields to the canonical empty projection.",
     "observableOutcomes": [
-      "runParentProof loads and validates the immutable source plan but does not use that historical implementation envelope directly for final-main Plan Before Code/Edit-Time.",
-      "A deterministic parent closure proof-plan is derived from immutable source plan + canonical parent state + exact final main + trusted-main proof.",
-      "The derived plan keeps taskId equal to parentTransactionId and copies the immutable source completionContract byte-equivalent.",
-      "The derived plan sets changeBaseSha to the accepted exact final main and scopes planned material only to quality/development/active-plan.json as the closure metadata transaction.",
-      "The derived plan removes historical mustEdit/mustCreate obligations from semanticExecutionRoute and replaces them with closure-only route metadata; historical implementation remains proven by child close receipts and trusted-main evidence.",
-      "The derived plan carries a machine-bound parentClosureContext with sourceCommit, sourcePlanDigest, finalMainSha, ordered unit close receipt digests and trustedMainAdvanceDigest.",
-      "recordReleaseParentClosure rejects lifecycle/truth produced from a missing, forged, stale or mismatched parentClosureContext.",
-      "Full Knowledge/Plan/Edit-Time/Incremental/Risk/Customer/Market/Quality/TypeScript/Build/Verification/Truth/Lifecycle still run on the exact accepted final main.",
-      "Closure PR persists the emitted CLOSED derived plan, so PR-head CI verifies only the metadata closure diff against the accepted final main rather than replaying historical hardening as new implementation.",
-      "If main safely advances while closure PR is pending, the existing persistence reprojection derives a fresh closure proof-plan bound to the new final main and requires fresh exact-head proof before merge.",
-      "Immutable source branch and canonical persisted release-state remain untouched except through the existing executor.",
-      "The canonical release-unit-orchestrate PARENT_CLOSE event path requires the same derived parentClosureContext authority and rejects legacy context-free close events."
+      "Ordinary plans with no material projected files still fail with DEV_PLAN_PROJECTION_EMPTY.",
+      "Only a plan carrying a valid executor-derived parentClosureContext/proofPlanContract and exactly the development metadata path may enter metadata-only projection mode.",
+      "Metadata-only projection requires plannedFilePatterns exactly [`quality/development/active-plan.json`], no material mustEdit/mustCreate/planned deletion/rename/generated-artifact obligations, and no material changedFiles.",
+      "The derived parent closure-plan builder normalizes expectedSubsystems, expectedDomains, expectedAuthorities, expectedKnownFailureIds, acknowledgedNegativeKnowledgeIds and acknowledgedPoInstructionIds to the canonical empty material projection.",
+      "The derived builder computes the canonical empty guardDigest using the same stableDigest algorithm as Plan Before Code, not a hard-coded constant.",
+      "The semantic execution route remains explicit and closure-only: metadata mayEdit/proof is allowed, material mustEdit/mustCreate remain empty, unknown remains empty.",
+      "Plan Before Code reports a distinct evaluation mode/flag for authenticated metadata-only parent closure rather than pretending a material projection exists.",
+      "Gate-chain compilation still includes explicitly required completion guards even when projectedFiles is empty.",
+      "No product/domain/authority/failure scope is inferred from metadata-only closure.",
+      "Forged parentClosureContext, extra planned material files, non-empty material operations, stale finalMain binding, or wrong proofPlanContract keep the plan blocked.",
+      "Immutable rehearsal replay advances beyond #296's DEV_PLAN_PROJECTION_EMPTY / scope-drift blocker without changing source plan or canonical state manually."
     ],
     "unresolvedRisks": [
-      "A derived plan that simply expands plannedFilePatterns from actual diff would be circular and could bless unplanned history.",
-      "A derived plan that drops the immutable completionContract would lose the original parent requirements.",
-      "A derived plan with stale unit receipt digests could certify a different parent state.",
-      "A derived plan that reuses trustedMainAdvanceDigest from an older final main could detach Truth from repository identity.",
-      "A closure plan with historical mustCreate/mustEdit obligations would recreate Edit-Time false blockers.",
-      "A closure plan whose changeBaseSha is not the accepted final main could again re-plan historical commits.",
-      "PR-head CI must treat the derived closed plan as metadata-only closure, not as permission to change runtime files.",
-      "Source plan lifecycle/status must not be rewritten or persisted.",
-      "Leaving scripts/release-unit-orchestrate.mjs on legacy context-free PARENT_CLOSE semantics would create a bypass around the strict parent closure proof path."
+      "A broad 'allow empty projection' exception could let arbitrary plans bypass planning.",
+      "Trusting only the presence of parentClosureContext without contract/shape checks could be forged.",
+      "Normalizing expected scope in the planner instead of the builder could hide malformed derived plans.",
+      "A metadata-only plan with hidden material semantic-route obligations could still become a scope bypass.",
+      "Changing projectedFiles semantics globally could alter release decomposition for ordinary plans.",
+      "A mismatch between runtime and planner stableDigest implementations could create permanent drift."
     ],
     "scope": {
       "in": [
-        "Add a pure builder/validator for shoporation.release-parent-closure-proof-plan.v1.",
-        "Bind the derived closure plan to immutable source plan digest, source commit, parent transaction id, exact final main, ordered unit close receipt digests and trusted-main proof digest.",
-        "Use the derived plan as SHOPERATION_ACTIVE_PLAN during parent final-main proof.",
-        "Preserve the immutable source completionContract exactly in the derived plan.",
-        "Set derived changeBaseSha to exact finalMain and scope the derived development transaction to quality/development/active-plan.json only.",
-        "Validate derived context again before recordReleaseParentClosure accepts parent Truth/Lifecycle.",
-        "Regress no-main-advance, trusted-main-advance and PR_OPEN reprojection paths.",
-        "Keep parent closure CI dispatch and force-with-lease persistence semantics unchanged.",
-        "Update release-unit-orchestrate.mjs so PARENT_CLOSE forwards and requires sourceCommit/sourcePlanDigest/completionContractDigest/closureProofPlanDigest/parentClosureProofContext fields expected by strict parent closure recording."
+        "Add a pure predicate/validator for authenticated parent metadata-only closure projection in Plan Before Code.",
+        "Keep projectedFiles materially empty in this mode; do not inject a fake source/test/runtime file.",
+        "Suppress DEV_PLAN_PROJECTION_EMPTY only for the authenticated metadata-only closure contract.",
+        "Require canonical empty material scope/digest declarations from the derived plan.",
+        "Normalize those declarations in buildReleaseParentClosureProofPlan.",
+        "Preserve explicit completion guard-chain compilation from completionContract even with zero material projected files.",
+        "Add positive and adversarial regression coverage in shoperation-development-guard and release-unit orchestration tests."
       ],
       "out": [
-        "No mutation or widening of immutable source plan.",
-        "No generic plan bypass or ignored DEV_PLAN_UNPLANNED_FILE.",
-        "No manual canonical release-state edit.",
-        "No change to child close receipts or U01/U02/U03 material.",
-        "No change to trusted-main fast-forward/protected-output checks.",
-        "No edit to receipt-bound tests/control-plane-release-unit-production-surface.test.ts.",
-        "No workflow, storefront, Builder, database or deployment change."
+        "No change to immutable source branch or canonical release-state.",
+        "No weakening of Plan Before Code for ordinary plans.",
+        "No fake planned material file or no-op implementation commit.",
+        "No removal of active-plan metadata exclusion from general projectedFiles.",
+        "No edit to receipt-bound production-surface test.",
+        "No change to trusted-main reconciliation, child close receipts, workflow triggers, storefront, Builder, database or deployment."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This plan becomes the development-plan authority used by final parent Truth/Lifecycle. It must remain fully derived from already-authoritative immutable inputs and may not become a mechanism for retroactive scope widening.",
+      "rationale": "This is an exception to the planner's empty-projection invariant. It must be narrowly bound to an already authenticated executor-derived closure context so it cannot become a generic planning bypass.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -163,43 +156,34 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Derived contract id is explicit and versioned.",
-        "Derived taskId equals parent.parentTransactionId.",
-        "Derived completionContract deep-equals immutable source completionContract.",
-        "Derived changeBaseSha equals exact accepted finalMain.",
-        "Derived plannedFilePatterns contains only quality/development/active-plan.json.",
-        "Derived semantic route contains no historical mustEdit/mustCreate implementation obligations.",
-        "Derived expected domain/authority remain bounded to closure metadata authority and pass canonical Plan Before Code.",
-        "sourcePlanDigest is computed from the immutable source plan exactly as read from sourceCommit.",
-        "unitCloseReceiptDigests equal the ordered current canonical CLOSED-unit receipts.",
-        "trustedMainAdvanceDigest is exact when a trusted advance exists and null when finalMain equals last child main.",
-        "recordReleaseParentClosure rejects any closure proof-plan context mismatch before setting closureComplete.",
-        "Parent final-main proof passes Plan/Edit-Time on the derived closure transaction while still running full runtime quality gates on finalMain.",
-        "Emitted closed lifecycle plan retains parentClosureContext and verifiedImplementationHead=finalMain.",
-        "Closure PR exact-head CI passes against the derived closed plan.",
-        "Immutable rehearsal replay advances beyond the #287 DEV_PLAN_UNPLANNED_FILE blocker.",
-        "A PARENT_CLOSE orchestration event without the derived closure context fields fails closed; an exact derived context event reaches the strict parent closure primitive."
+        "DEV_PLAN_PROJECTION_EMPTY remains emitted for a normal plan whose only planned path is active-plan metadata.",
+        "A valid parent closure proof plan with zero material projected files does not emit DEV_PLAN_PROJECTION_EMPTY.",
+        "Metadata-only mode requires parentClosureContext.contract=`shoporation.release-parent-closure-context.v1` and proofPlanContract=`shoporation.release-parent-closure-proof-plan.v1`.",
+        "Metadata-only mode requires plannedFilePatterns exactly [`quality/development/active-plan.json`].",
+        "Metadata-only mode requires semantic route material mutation arrays mustEdit/mustCreate/plannedDeletions/plannedRenames/generatedArtifacts all empty.",
+        "Metadata-only mode requires no material actual diff between changeBaseSha and exact head.",
+        "Derived expectedSubsystems/domains/authorities/knownFailureIds/acknowledgedNegativeKnowledgeIds/acknowledgedPoInstructionIds are all empty arrays.",
+        "Derived guardDigest equals stableDigest({failureIds:[],subsystems:[],negativeKnowledgeIds:[]}).",
+        "Planner still compiles explicit completion guards and produces a PASS gate chain for valid metadata-only closure.",
+        "Forged context or any extra material planned path is BLOCK.",
+        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge."
       ],
       "invariants": [
-        "Immutable source plan remains the sole parent completion-requirement authority.",
-        "Historical implementation scope is proven by child/evolution receipts, not retroactively replanned.",
-        "Derived plan is a closure transaction, not a replacement source plan.",
-        "Exact final main and canonical state identity are embedded in the derived plan.",
-        "Truth/Lifecycle cannot be accepted from a derived plan built for another state or SHA.",
-        "No fail-closed gate is disabled or skipped.",
-        "All canonical parent-close entry points enforce the same closure context authority."
+        "Development metadata is not material implementation.",
+        "Metadata-only projection is valid only for executor-derived parent closure.",
+        "No ordinary plan can self-authorize by planning only its own active-plan file.",
+        "The derived closure plan remains state-bound through parentClosureContext validation elsewhere.",
+        "Material release decomposition remains unchanged for all non-metadata-only plans."
       ],
       "forbiddenStates": [
-        "immutable-source-plan-widened",
-        "derived-plan-from-actual-diff-without-receipt-binding",
-        "derived-plan-completion-contract-changed",
-        "derived-plan-stale-final-main",
-        "derived-plan-stale-unit-receipts",
-        "derived-plan-stale-trusted-main-proof",
-        "parent-truth-without-derived-context-validation",
-        "historical-must-create-replayed-during-closure",
-        "manual-release-state-repair",
-        "legacy-parent-close-cli-bypass"
+        "generic-empty-plan-pass",
+        "fake-material-projection",
+        "forged-parent-closure-context-pass",
+        "metadata-plan-with-material-must-edit",
+        "metadata-plan-with-extra-planned-file",
+        "metadata-plan-with-material-actual-diff",
+        "source-plan-retroactive-widening",
+        "manual-release-state-edit"
       ]
     },
     "model": {
@@ -231,52 +215,49 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Source plan taskId differs from canonical parentTransactionId.",
-        "Source plan completionContract is missing or has external guard obligations not available to parent proof.",
-        "Derived context finalMainSha differs from finalMain being proven.",
-        "Unit close receipts change after derived plan construction.",
-        "Trusted-main proof changes or disappears after derived plan construction.",
-        "Plan Before Code projects a scope broader than closure metadata.",
-        "Edit-Time sees historical semantic mustEdit obligations because route sanitation is incomplete.",
-        "Truth or lifecycle emitter strips parentClosureContext.",
-        "Closure PR is based on a different main than the derived plan changeBaseSha.",
-        "Main advances while PR is pending and stale derived plan is reused.",
-        "release-unit-orchestrate accepts a context-free PARENT_CLOSE event after strict parent closure enforcement exists elsewhere."
+        "Parent closure context is missing or malformed.",
+        "proofPlanContract is wrong.",
+        "plannedFilePatterns contains an additional material file.",
+        "semantic route contains material mustEdit/mustCreate.",
+        "actual material diff is non-empty.",
+        "derived material scope fields are inherited from source plan instead of normalized.",
+        "guardDigest is not the canonical empty-scope digest.",
+        "completion guard chain becomes empty because projectedFiles is empty.",
+        "ordinary metadata-only plan accidentally enters the exception path."
       ],
       "edgeCases": [
-        "No trusted main advance: finalMain equals last child merge and trustedMainAdvanceDigest is null.",
-        "One or more trusted main advances already occurred before parent proof.",
-        "Second safe main advance occurs during PR_OPEN and requires a new derived closure plan.",
-        "Source plan contains original mustCreate fixture corpus.",
-        "Current main active-plan belongs to unrelated hardening and must not become parent completion authority.",
-        "Derived plan status transitions ready-for-implementation -> closed with only active-plan metadata diff.",
-        "Derived closed plan PR CI evaluates changedSinceVerified containing only active-plan metadata."
+        "Valid metadata-only derived plan before lifecycle close.",
+        "Same plan after lifecycle is emitted closed.",
+        "No trusted-main advance versus trusted-main advance present in parentClosureContext.",
+        "Completion contract contains explicit guards while projectedFiles is empty.",
+        "Source plan contains 49 historical known-failure IDs but derived closure plan correctly declares zero material failure scope.",
+        "A material file is actually changed in worktree despite metadata-only declaration."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-DERIVED-PARENT-CLOSURE-PLAN",
-        "summary": "Keep source completion authority immutable and derive a bound closure-only development plan for final-main proof.",
+        "id": "ALT-AUTHENTICATED-METADATA-PROJECTION",
+        "summary": "Teach Plan Before Code one strict executor-derived metadata-only closure mode and normalize the derived plan to canonical empty material scope.",
         "disposition": "selected",
-        "reason": "Separates historical intent from closure transaction while preserving all fail-closed proof identities."
+        "reason": "Represents the real closure transaction without fake implementation scope and preserves ordinary fail-closed planning."
       },
       {
-        "id": "ALT-WIDEN-SOURCE-PLAN",
-        "summary": "Append every later hardening file/domain/authority into the original rehearsal source plan.",
+        "id": "ALT-FAKE-NEUTRAL-FILE",
+        "summary": "Add a test or proof file to plannedFilePatterns only to make projectedFiles non-empty.",
         "disposition": "rejected",
-        "reason": "Retroactively changes immutable intent and makes planning circular."
+        "reason": "Would create false material intent and distort release risk/scope."
       },
       {
-        "id": "ALT-USE-CURRENT-MAIN-ACTIVE-PLAN",
-        "summary": "Use whichever hardening plan happens to be active on current main as parent proof authority.",
+        "id": "ALT-INCLUDE-ACTIVE-PLAN-GLOBALLY",
+        "summary": "Stop excluding active-plan.json from projectedFiles for every plan.",
         "disposition": "rejected",
-        "reason": "Its taskId/completionContract describe a different transaction and would lose parent rehearsal requirements."
+        "reason": "Would allow plans to use their own metadata as material scope evidence and weaken planning semantics globally."
       },
       {
-        "id": "ALT-SKIP-PLAN-EDIT-GATES-IN-PARENT",
-        "summary": "Run only tests/build/truth during parent proof.",
+        "id": "ALT-SKIP-PLAN-GATE-IN-PARENT",
+        "summary": "Bypass Plan Before Code during parent closure.",
         "disposition": "rejected",
-        "reason": "Violates the accepted full gate chain and hides closure transaction mistakes."
+        "reason": "Violates the accepted full gate chain."
       }
     ],
     "specialistReviews": [
@@ -284,11 +265,11 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "One active-plan object cannot safely represent both immutable historical parent intent and a later metadata-only closure transaction.",
-        "resolution": "Introduce an explicit derived closure-plan contract that copies completion requirements but replaces only transaction-envelope fields.",
+        "finding": "The current planner has no representable valid metadata-only development transaction because it deliberately excludes active-plan metadata from material projection.",
+        "resolution": "Add one explicit contract-bound metadata-only projection state rather than fabricating material scope.",
         "evidence": [
-          "Release Unit Execution #287",
-          "scripts/release-unit-parent-close.mjs#runParentProof",
+          "Release Unit Execution #296",
+          "scripts/shoperation-plan-before-code.mjs projectedFiles",
           "Issue #1129"
         ]
       },
@@ -296,158 +277,137 @@
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A generated plan could become a scope-bypass if it is derived from observed changed files.",
-        "resolution": "Derive scope from fixed closure semantics only and bind context to immutable source digest + canonical receipts + exact final main.",
+        "finding": "Any empty-projection exception is a potential planning bypass.",
+        "resolution": "Require exact parent closure context contracts, exact metadata-only path set, zero material mutations and zero actual material diff.",
         "evidence": [
-          "DEV_PLAN_UNPLANNED_FILE blocker",
-          "canonical parent state",
-          "trusted-main proof"
+          "shoporation.release-parent-closure-context.v1",
+          "shoporation.release-parent-closure-proof-plan.v1",
+          "DEV_PLAN_PROJECTION_EMPTY"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Truth must identify the same parent state that the closure receipt later records.",
-        "resolution": "Validate ordered unit close receipt digests and trusted-main proof digest both during derivation and recordReleaseParentClosure.",
+        "finding": "Derived scope declarations must reflect the closure transaction, not inherited historical source-plan scope.",
+        "resolution": "Normalize material scope arrays and guard digest in the builder and assert exact canonical values in the planner.",
         "evidence": [
-          "shoporation.release-unit-close-receipt.v1",
-          "shoporation.release-parent-close-receipt.v1"
+          "buildReleaseParentClosureProofPlan",
+          "DEV_PLAN_DOMAIN_SCOPE_DRIFT",
+          "DEV_PLAN_FAILURE_SCOPE_DRIFT"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "PR_OPEN reprojection must derive a fresh plan on each new accepted finalMain.",
-        "resolution": "runParentProof derives the closure plan on every call and never reuses one from an older main.",
+        "finding": "Explicit completion guards must still run even with no material projected files.",
+        "resolution": "Keep compileGateChain explicit guard IDs from completionContract and regression-test ordered gate chain is non-empty/PASS.",
         "evidence": [
-          "RELEASE_PARENT_CLOSURE_MAIN_DRIFT path",
-          "parent closure persistence reprojection"
+          "compileGateChain",
+          "parent completionContract",
+          "Release Unit Execution #296"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The exact #287 failure is deterministic: historical source plan envelope rejects later verified hardening files.",
-        "resolution": "Keep the failure recorded in #1129 and require immutable replay to pass beyond these exact DEV_PLAN_* blockers.",
+        "finding": "The blocker is deterministic and now recorded under #1129.",
+        "resolution": "Require immutable replay to advance beyond the exact #296 error set before closure is accepted.",
         "evidence": [
           "Issue #1129",
-          "Release Unit Execution #287",
-          "source CI #8928 attempt 15"
+          "Release Unit Execution #296",
+          "main 56ef5edb77f1408f27218892fa58a94189982728"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-CLOSURE-PLAN-01",
-        "scenario": "Copy source plan and only set changeBaseSha=finalMain.",
-        "finding": "Historical mustEdit/mustCreate route remains and Edit-Time blocks.",
-        "resolution": "Replace semantic route with closure-only metadata route.",
+        "id": "CH-META-01",
+        "scenario": "Any plan with only active-plan.json is allowed.",
+        "finding": "Generic self-authorizing plans bypass material planning.",
+        "resolution": "Require exact authenticated parentClosureContext/proofPlanContract.",
         "status": "resolved"
       },
       {
-        "id": "CH-CLOSURE-PLAN-02",
-        "scenario": "Union historical hardening files into plannedFilePatterns.",
-        "finding": "This retroactively authorizes observed implementation.",
-        "resolution": "Derived plannedFilePatterns is fixed to active-plan metadata only.",
+        "id": "CH-META-02",
+        "scenario": "Derived plan keeps source expectedKnownFailureIds.",
+        "finding": "Projected material failure scope is empty and drifts.",
+        "resolution": "Builder normalizes expectedKnownFailureIds to [].",
         "status": "resolved"
       },
       {
-        "id": "CH-CLOSURE-PLAN-03",
-        "scenario": "Use current main's active hardening plan.",
-        "finding": "taskId and completionContract no longer represent the parent rehearsal.",
-        "resolution": "Copy immutable source taskId/completionContract into derived closure plan.",
+        "id": "CH-META-03",
+        "scenario": "Derived plan keeps source expectedDomains/Authorities/Subsystems.",
+        "finding": "Empty material projection cannot prove historical ownership.",
+        "resolution": "Normalize all material scope arrays to [].",
         "status": "resolved"
       },
       {
-        "id": "CH-CLOSURE-PLAN-04",
-        "scenario": "Derived plan is generated for currentMain but unit receipts change before closure acceptance.",
-        "finding": "Truth could close a different parent state.",
-        "resolution": "Bind and revalidate ordered unit receipt digests in parentClosureContext.",
+        "id": "CH-META-04",
+        "scenario": "Planner treats active-plan.json itself as projected material.",
+        "finding": "Self-metadata becomes evidence and affects decomposition/risk.",
+        "resolution": "Keep active-plan excluded; represent mode explicitly instead.",
         "status": "resolved"
       },
       {
-        "id": "CH-CLOSURE-PLAN-05",
-        "scenario": "Trusted-main proof is replaced after plan derivation.",
-        "finding": "Closure context could detach from accepted main evolution.",
-        "resolution": "Bind exact trustedMainAdvanceDigest and revalidate before parent close receipt.",
+        "id": "CH-META-05",
+        "scenario": "Metadata-only route includes a runtime file in mustEdit.",
+        "finding": "Hidden implementation can slip through empty projection.",
+        "resolution": "Metadata mode requires all material mutation route arrays empty.",
         "status": "resolved"
       },
       {
-        "id": "CH-CLOSURE-PLAN-06",
-        "scenario": "No trusted main advance exists.",
-        "finding": "Requiring a proof digest would incorrectly block exact last-child main closure.",
-        "resolution": "Explicit null digest is canonical when finalMain equals last child main.",
+        "id": "CH-META-06",
+        "scenario": "Worktree has an actual material diff even though plan claims metadata-only.",
+        "finding": "Plan would conceal implementation.",
+        "resolution": "Metadata mode requires changedFiles/materialFiles empty.",
         "status": "resolved"
       },
       {
-        "id": "CH-CLOSURE-PLAN-07",
-        "scenario": "Lifecycle emitter drops custom closure context.",
-        "finding": "recordReleaseParentClosure cannot prove lifecycle came from the derived plan.",
-        "resolution": "Regression-test context preservation through buildClosedDevelopmentPlan/closed plan emission.",
+        "id": "CH-META-07",
+        "scenario": "Completion guards disappear because no projected files exist.",
+        "finding": "Closure would avoid proof chain.",
+        "resolution": "Explicit completion guards remain compiled and tested.",
         "status": "resolved"
       },
       {
-        "id": "CH-CLOSURE-PLAN-08",
-        "scenario": "Closure PR CI sees the derived closed plan with verifiedImplementationHead=finalMain and one metadata file changed.",
-        "finding": "If closed-plan semantics reject this metadata closure the design still deadlocks.",
-        "resolution": "Add end-to-end regression/source assertion for closed-plan metadata-only PR proof.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-CLOSURE-PLAN-09",
-        "scenario": "Main safely advances during PR_OPEN.",
-        "finding": "Old derived plan changeBaseSha/finalMain becomes stale.",
-        "resolution": "Persistence reprojection reruns runParentProof, deriving a fresh context and plan for new main.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-CLOSURE-PLAN-10",
-        "scenario": "Parent proof passes runtime tests but derived plan completionContract was modified.",
-        "finding": "Truth could prove weaker requirements.",
-        "resolution": "Builder deep-copies source completionContract and validator compares its strong digest to source.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-CLOSURE-PLAN-11",
-        "scenario": "An operator invokes scripts/release-unit-orchestrate.mjs with a legacy PARENT_CLOSE event containing only truth/lifecycle/currentMainSha.",
-        "finding": "If accepted, this bypasses source-plan/state/final-main context binding even though release-unit-parent-close.mjs is strict.",
-        "resolution": "Route PARENT_CLOSE through the strict parent closure record path and require all derived context bindings in the event.",
+        "id": "CH-META-08",
+        "scenario": "Forged context uses correct contract strings but unrelated task/final main.",
+        "finding": "Planner alone cannot validate canonical state identity.",
+        "resolution": "Planner restricts mode structurally; runtime builder/validator remains authoritative for context identity before parent close acceptance.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require canonical Plan Before Code PASS.",
-      "Add pure buildParentClosureProofPlan/validateParentClosureProofPlanContext functions with deterministic source/state/final-main bindings.",
-      "Modify runParentProof to read immutable source plan, derive closure plan, persist only that artifact as SHOPERATION_ACTIVE_PLAN, and keep the source plan itself untouched.",
-      "Keep full parent Knowledge/Plan/Edit-Time/Incremental/Risk/Customer/Market/Quality/TypeScript/Build/Verification/Truth/Lifecycle execution unchanged except for the active plan envelope.",
-      "Pass derived context/source-plan digest into recordReleaseParentClosure and reject mismatches before closureComplete.",
-      "Prove the emitted closed lifecycle plan retains the closure context and verifiedImplementationHead.",
-      "Add orchestration-surface regression proving legacy context-free PARENT_CLOSE is rejected while an exact derived closure context is accepted through the same strict runtime validator.",
-      "Add regressions for exact-main, trusted-main, stale receipts, forged digest, historical mustCreate isolation and PR_OPEN reprojection.",
-      "Require exact-head Quality/TypeScript/Build/Completion Truth/Lifecycle PASS, then PR-head PASS and expected-head merge.",
-      "After expected-head merge, require the exact merged main SHA to complete push CI with Quality Tests, TypeScript and Production Build all SUCCESS before any immutable rehearsal replay is started; any non-success keeps the parent closure repair unaccepted.",
-      "Replay immutable source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and require Release Unit Execution to advance beyond #287's DEV_PLAN_UNPLANNED_FILE/domain/authority/subsystem blockers.",
-      "If a different downstream blocker appears, keep it fail-closed and route it through Failure Intake instead of widening the derived plan."
+      "Commit this plan only and require canonical Plan Before Code PASS before implementation.",
+      "Add a narrowly scoped metadata-only parent closure projection predicate in shoperation-plan-before-code.mjs.",
+      "Normalize derived closure material scope declarations and guardDigest in buildReleaseParentClosureProofPlan using canonical stableDigest semantics.",
+      "Keep active-plan.json excluded from general projectedFiles and keep DEV_PLAN_PROJECTION_EMPTY for every non-authorized empty plan.",
+      "Add planner regressions for valid metadata-only closure, ordinary empty plan, forged context, extra material path, hidden material route and actual material diff.",
+      "Add orchestration regression proving derived closure plan carries canonical empty material scope while preserving immutable completionContract/context.",
+      "Require exact-head Knowledge/Plan/Edit-Time/Incremental/Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
+      "Open/reuse DRAFT PR only after exact push-head proof, then require exact PR-head SUCCESS and expected-head merge.",
+      "Require post-merge main CI SUCCESS on the merge SHA with Quality, TypeScript and Production Build all successful before replay.",
+      "Replay immutable source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and require Release Unit Execution to advance beyond all #296 metadata-projection codes; any new blocker remains fail-closed and returns to Failure Intake."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-DERIVED-CLOSURE-PROOF-PLAN-V1",
+      "request": "PO-2026-10-08-CONTROL-PLANE-PARENT-METADATA-CLOSURE-PROJECTION-V1",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/release-unit-parent-close.mjs",
-        "scripts/release-unit-orchestrate.mjs"
+        "scripts/shoperation-plan-before-code.mjs",
+        "scripts/lib/shoperation-release-unit-runtime.mjs"
       ],
       "mayEdit": [
-        "tests/control-plane-release-unit-orchestration.test.ts",
-        "tests/control-plane-release-unit-execution-binding.test.ts"
+        "tests/shoperation-development-guard.test.ts",
+        "tests/control-plane-release-unit-orchestration.test.ts"
       ],
       "impactedReadOnly": [
+        "scripts/release-unit-parent-close.mjs",
         "scripts/release-unit-execute.mjs",
         "tests/control-plane-release-unit-production-surface.test.ts",
         "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1",
@@ -461,8 +421,8 @@
         ".github/workflows/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-orchestration.test.ts",
-        "tests/control-plane-release-unit-execution-binding.test.ts"
+        "tests/shoperation-development-guard.test.ts",
+        "tests/control-plane-release-unit-orchestration.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -473,7 +433,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-DERIVED-CLOSURE-PROOF-PLAN-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-PARENT-METADATA-CLOSURE-PROJECTION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -491,11 +451,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-PARENT-DERIVED-CLOSURE-PROOF-PLAN",
-        "requirement": "Parent final-main proof must keep immutable source completion authority while using a deterministic state-bound closure-only development plan for the final metadata transaction.",
+        "id": "REQ-PARENT-METADATA-CLOSURE-PROJECTION",
+        "requirement": "Plan Before Code must represent executor-derived parent closure as an authenticated metadata-only transaction without converting empty projection into a generic bypass.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-parent-derived-closure-proof-plan",
+          "breadth": "parent-metadata-closure-plan-projection",
           "strength": 2,
           "dimensions": [
             "status",
@@ -503,8 +463,7 @@
             "forbidden-state",
             "behavioral-proof",
             "truth",
-            "lifecycle",
-            "close"
+            "lifecycle"
           ]
         },
         "requiredCapabilities": [
@@ -522,36 +481,29 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PARENT-SOURCE-PLAN-WIDEN",
-            "statement": "Parent closure may not mutate or retroactively widen the immutable source plan.",
+            "id": "NEG-GENERIC-EMPTY-PROJECTION-PASS",
+            "statement": "Ordinary empty material projections may not pass Plan Before Code.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-PARENT-CLOSURE-CONTEXT-UNBOUND",
-            "statement": "Parent Truth/Lifecycle may not close without exact source-plan/state/final-main context binding.",
+            "id": "NEG-METADATA-FAKE-MATERIAL-SCOPE",
+            "statement": "Parent closure may not add fake material files merely to satisfy projection.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-PARENT-HISTORICAL-REPLAN",
-            "statement": "Historical trusted hardening may not be reinterpreted as new unplanned implementation during parent closure.",
+            "id": "NEG-METADATA-HIDDEN-IMPLEMENTATION",
+            "statement": "Metadata-only closure may not contain material mutation obligations or actual material diff.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-PARENT-COMPLETION-CONTRACT-DRIFT",
-            "statement": "The derived closure plan may not weaken or alter the immutable source completionContract.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-PARENT-CLOSURE-CLI-BYPASS",
-            "statement": "Canonical release-unit-orchestrate PARENT_CLOSE may not bypass derived closure context validation.",
+            "id": "NEG-METADATA-SOURCE-SCOPE-INHERITANCE",
+            "statement": "Derived closure may not inherit historical material scope declarations from the immutable source plan.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -560,18 +512,5 @@
       }
     ]
   },
-  "notes": "Live blocker: main e296c5203b115737cd5b375275ab2ef8d725974c; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; source CI #8928 attempt 15 SUCCESS; Release Unit Execution #287 FAIL. Trusted-main reconciliation passes, but runParentProof reuses the immutable source development-plan envelope against newer final main and fails with DEV_PLAN_UNPLANNED_FILE plus DOMAIN/AUTHORITY/SUBSYSTEM scope expansion for independently planned/verified Control Plane hardening. Issue #1129 updated with this exact downstream blocker. This transaction does not widen the source plan; it introduces a deterministic closure-only proof plan bound to source completion authority, canonical receipts and exact final main. Pre-implementation route audit found scripts/release-unit-orchestrate.mjs still exposes canonical context-free PARENT_CLOSE; scope is expanded before code so every parent-close entry point enforces the same derived closure authority.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "86a5bef4d069003c4b7a9aaafd8fae3e26e7a84d",
-    "closedAt": "2026-10-08T09:00:48.161Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-DERIVED-CLOSURE-PROOF-PLAN-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Live blocker: main 56ef5edb77f1408f27218892fa58a94189982728; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; Release Unit Execution #296 FAIL. Derived parent closure authority is active, but Plan Before Code intentionally excludes quality/development/active-plan.json from material projectedFiles and therefore emits DEV_PLAN_PROJECTION_EMPTY plus scope/digest/route drift for a legitimate metadata-only closure transaction. Issue #1129 records the exact error set. This transaction adds a contract-bound metadata-only projection mode and keeps every ordinary empty projection fail-closed."
 }
