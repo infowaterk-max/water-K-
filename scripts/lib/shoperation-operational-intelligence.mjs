@@ -175,12 +175,14 @@ export function validateOperationalIntelligence({plan,policy,guardIds=[]}){
   if(oi.riskTier==='critical'){
     const route=oi.semanticExecutionRoute;
     const childRoute=plan?.releaseUnitContext?.contract==='shoporation.release-unit-child-transaction.v1';
-    const routeTargets=asArray(route?.mustEdit).length+(childRoute?asArray(route?.mustCreate).length:0);
+    const parentClosureRoute=plan?.parentClosureContext?.contract==='shoporation.release-parent-closure-proof-context.v1';
+    const createTargetRoute=childRoute||parentClosureRoute;
+    const routeTargets=asArray(route?.mustEdit).length+(createTargetRoute?asArray(route?.mustCreate).length:0);
     const routeAuthorityExplicit=Array.isArray(route?.authority)&&route.authority.every(value=>text(value));
     const normalizeAuthorities=values=>[...new Set(asArray(values).map(value=>text(value)).filter(Boolean))].sort();
     const routeAuthorities=routeAuthorityExplicit?normalizeAuthorities(route.authority):[];
     const expectedAuthorities=normalizeAuthorities(plan?.expectedAuthorities);
-    if(!route||!routeTargets||!routeAuthorityExplicit||!asArray(route.proof).length||!Array.isArray(route.unknown))issue(issues,'DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED','operationalIntelligence.semanticExecutionRoute',childRoute?'Critical child execution requires MUST_EDIT or MUST_CREATE plus explicit AUTHORITY, PROOF and UNKNOWN semantic route categories.':'Critical execution requires explicit MUST_EDIT, AUTHORITY, PROOF and UNKNOWN semantic route categories.');
+    if(!route||!routeTargets||!routeAuthorityExplicit||!asArray(route.proof).length||!Array.isArray(route.unknown))issue(issues,'DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED','operationalIntelligence.semanticExecutionRoute',createTargetRoute?'Critical governed execution requires MUST_EDIT or canonical MUST_CREATE plus explicit AUTHORITY, PROOF and UNKNOWN semantic route categories.':'Critical execution requires explicit MUST_EDIT, AUTHORITY, PROOF and UNKNOWN semantic route categories.');
     else{
       if(JSON.stringify(routeAuthorities)!==JSON.stringify(expectedAuthorities))issue(issues,'DEV_PLAN_SEMANTIC_EXECUTION_AUTHORITY_DRIFT','operationalIntelligence.semanticExecutionRoute.authority','Semantic execution route authority must exactly match the canonical expectedAuthorities scope.',{expected:expectedAuthorities,actual:routeAuthorities});
       if(route.unknown.length)issue(issues,'DEV_PLAN_SEMANTIC_EXECUTION_UNKNOWN','operationalIntelligence.semanticExecutionRoute.unknown','UNKNOWN semantic relationships must be resolved before critical execution.',{unknown:route.unknown});

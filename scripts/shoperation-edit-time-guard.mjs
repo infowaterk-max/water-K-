@@ -3,10 +3,13 @@ import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {activeDevelopmentPlanPath,aggregateGateDecision,getChangedFiles,globToRegExp,guardPolicy,matchGuardException} from './lib/shoperation-development-runtime.mjs';
 import {evaluateReferenceSynchronization} from './lib/shoperation-reference-sync-runtime.mjs';
 import {buildCodebaseAtlas,buildExecutionRoute,evaluatePoInstructionStates} from './lib/shoperation-codebase-atlas-runtime.mjs';
+import {RELEASE_PARENT_CLOSURE_CONTEXT_CONTRACT,buildReleaseParentClosureProofArtifactFromContext,releaseParentClosureProofArtifactByteDigest} from './lib/shoperation-release-unit-runtime.mjs';
 const plan=JSON.parse(readFileSync(activeDevelopmentPlanPath(),'utf8')),diff=getChangedFiles({baseSha:plan.changeBaseSha}),exceptionList=[...(plan.exceptions??[])],git=args=>execFileSync('git',args,{encoding:'utf8'});
 let patch='';if(diff.base){try{patch=git(['diff','--unified=0','--no-color',diff.base,diff.head,'--']);}catch{}}if(!patch){try{patch=git(['diff','--unified=0','--no-color','--']);}catch{}}
 const findings=[];let currentFile=null,newLine=0;
-const declaredSemanticRequired=[...(plan.operationalIntelligence?.semanticExecutionRoute?.mustEdit??[])];
+const parentClosureContext=plan?.parentClosureContext??null;
+const parentClosureRoute=parentClosureContext?.contract===RELEASE_PARENT_CLOSURE_CONTEXT_CONTRACT;
+const declaredSemanticRequired=[...(plan.operationalIntelligence?.semanticExecutionRoute?.mustEdit??[]),...(parentClosureRoute?(plan.operationalIntelligence?.semanticExecutionRoute?.mustCreate??[]):[])];
 const planMatchers=(plan.plannedFilePatterns??[]).map(globToRegExp);
 const noCodeReceiptPath=String(process.env.SHOPERATION_EDIT_TIME_ALREADY_APPLIED_RECEIPT??'').trim();
 let noCodeEvidence={decision:'NOT_APPLICABLE',path:noCodeReceiptPath||null,files:[],issues:[]};
@@ -29,7 +32,34 @@ if(noCodeReceiptPath){
     }catch(error){noCodeEvidence={...noCodeEvidence,decision:'BLOCK',issues:[{code:'EDIT_TIME_ALREADY_APPLIED_RECEIPT_UNREADABLE',error:String(error)}]};}
   }
 }
-const effectiveActualFiles=[...new Set([...(diff.materialFiles??[]),...(noCodeEvidence.decision==='PASS'?noCodeEvidence.files:[])])];
+const parentClosureProofPath=String(process.env.SHOPERATION_PARENT_CLOSURE_PROOF_ARTIFACT??'').trim();
+let parentClosureProofEvidence={decision:'NOT_APPLICABLE',path:parentClosureProofPath||null,files:[],issues:[],digest:null};
+if(parentClosureRoute){
+  const issues=[];
+  let expected=null,actualDigest=null;
+  try{expected=buildReleaseParentClosureProofArtifactFromContext(parentClosureContext);}catch(error){issues.push({code:'EDIT_TIME_PARENT_CLOSURE_CONTEXT_INVALID',error:String(error)});}
+  if(expected){
+    const route=plan.operationalIntelligence?.semanticExecutionRoute??{};
+    const mustCreate=[...(route.mustCreate??[])].sort(),proof=[...(route.proof??[])].sort();
+    if(JSON.stringify(mustCreate)!==JSON.stringify([expected.path]))issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ROUTE_CREATE_MISMATCH',expected:expected.path,actual:mustCreate});
+    if(!proof.includes(expected.path))issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ROUTE_PROOF_MISSING',expected:expected.path});
+    if(!(plan.plannedFilePatterns??[]).includes(expected.path))issues.push({code:'EDIT_TIME_PARENT_CLOSURE_PLAN_ARTIFACT_MISSING',expected:expected.path});
+    if(parentClosureProofPath!==expected.path)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_PATH_MISMATCH',expected:expected.path,actual:parentClosureProofPath||null});
+    else if(!existsSync(parentClosureProofPath))issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_MISSING'});
+    else{
+      try{
+        const content=readFileSync(parentClosureProofPath,'utf8'),artifact=JSON.parse(content);
+        actualDigest=releaseParentClosureProofArtifactByteDigest(content);
+        if(content!==expected.content)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_BYTES_MISMATCH'});
+        if(actualDigest!==expected.digest)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_DIGEST_MISMATCH',expected:expected.digest,actual:actualDigest});
+        if(JSON.stringify(artifact)!==JSON.stringify(expected.artifact))issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_CONTEXT_MISMATCH'});
+      }catch(error){issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_UNREADABLE',error:String(error)});}
+    }
+    if(diff.head&&parentClosureContext?.finalMainSha!==diff.head)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_FINAL_MAIN_MISMATCH',expected:parentClosureContext?.finalMainSha??null,actual:diff.head});
+  }
+  parentClosureProofEvidence={decision:issues.length?'BLOCK':'PASS',path:expected?.path??parentClosureProofPath||null,files:issues.length||!expected?[]:[expected.path],issues,digest:actualDigest};
+}
+const effectiveActualFiles=[...new Set([...(diff.materialFiles??[]),...(noCodeEvidence.decision==='PASS'?noCodeEvidence.files:[]),...(parentClosureProofEvidence.decision==='PASS'?parentClosureProofEvidence.files:[])])];
 const actualOutsidePlanned=effectiveActualFiles.filter(file=>!planMatchers.some(matcher=>matcher.test(file)));
 const actualChanged=new Set(effectiveActualFiles);
 if(diff.baseResolution==='UNRESOLVED'||!diff.base)findings.push({ruleId:'DEV-BLOCK-TRANSACTION-BASE-UNRESOLVED',severity:'block',title:'Development Transaction base is unresolved',file:'quality/development/active-plan.json',line:0,code:String(diff.requestedBase??plan.changeBaseSha??''),failureIds:['SQ-KF-022'],message:'Development Transaction: declared changeBaseSha cannot be resolved; silent fallback is forbidden.',exception:null});
@@ -55,6 +85,7 @@ for(const violation of poInstructionState.violations??[])findings.push({
 });
 for(const item of referenceSync.staleConsumers??[])findings.push({ruleId:'DEV-BLOCK-REFERENCE-SYNC',severity:'block',title:'Stale consumer survived a removed or changed contract',file:item.file,line:item.line,code:item.text?.trim().slice(0,300)??'',failureIds:['SQ-KF-022'],message:`Reference Sync: ${item.reference.kind} "${item.reference.value}" changed in ${item.reference.originFile}, but a stale machine consumer remains.`,exception:null});
 for(const issue of noCodeEvidence.issues??[])findings.push({ruleId:'DEV-BLOCK-ALREADY-APPLIED-EVIDENCE',severity:'block',title:'ALREADY_APPLIED implementation evidence is invalid',file:noCodeReceiptPath||'quality/development/active-plan.json',line:0,code:issue.code,failureIds:['SQ-KF-022'],message:`Implementation Sync no-code evidence: ${issue.code}.`,exception:null});
+for(const issue of parentClosureProofEvidence.issues??[])findings.push({ruleId:'DEV-BLOCK-PARENT-CLOSURE-PROOF-ARTIFACT',severity:'block',title:'Parent closure proof artifact is invalid',file:parentClosureProofPath||'quality/development/active-plan.json',line:0,code:issue.code,failureIds:['SQ-KF-022'],message:`Implementation Sync parent closure proof: ${issue.code}.`,exception:null});
 for(const item of referenceSync.reviewConsumers??[])findings.push({ruleId:'DEV-REVIEW-REFERENCE-SYNC',severity:'review',title:'Changed contract still has an ambiguous consumer',file:item.file,line:item.line,code:item.text?.trim().slice(0,300)??'',failureIds:['SQ-KF-022'],message:`Reference Sync review: ${item.reference.kind} "${item.reference.value}" changed in ${item.reference.originFile}; confirm this remaining consumer is intentional.`,exception:null});
 const referenceRequired=[...new Set((referenceSync.staleConsumers??[]).map(item=>item.file).filter(Boolean))];
 const requiredChangeSet=[...new Set([...declaredSemanticRequired,...instructionRequired,...referenceRequired])].sort();
@@ -77,6 +108,7 @@ const referenceFindingDecision=blocking.some(f=>f.ruleId==='DEV-BLOCK-REFERENCE-
 referenceSync.decision=aggregateGateDecision({childDecisions:[referenceSync.decision,referenceFindingDecision]});
 const implementationSync={
   contract:'shoporation.implementation-sync.v2',
+  parentClosureProofEvidence,
   plannedEnvelope:[...(plan.plannedFilePatterns??[])],
   declaredSemanticRequired,
   instructionRequired,
@@ -93,7 +125,7 @@ const implementationSync={
 };
 const childDecisions={referenceSync:referenceSync.decision,implementationSync:implementationSync.decision,poInstructionState:poInstructionState.decision};
 const reportDecision=aggregateGateDecision({localBlocking:blocking.length>0,childDecisions:Object.values(childDecisions)});
-const report={contract:'shoporation.edit-time-known-failure-guard.v2',noCodeEvidence,base:diff.base,head:diff.head,baseResolution:diff.baseResolution,headResolution:diff.headResolution,requestedHead:diff.requestedHead??null,materialFiles:[...(diff.materialFiles??[])],metadataFiles:[...(diff.metadataFiles??[])],deletedFiles:[...(diff.materialDeletedFiles??[])],transactionChanges:[...(diff.changes??[])],findings,blockingFindings:blocking,referenceSync,implementationSync,poInstructionState,childDecisions,decision:reportDecision};
+const report={contract:'shoporation.edit-time-known-failure-guard.v2',noCodeEvidence,parentClosureProofEvidence,base:diff.base,head:diff.head,baseResolution:diff.baseResolution,headResolution:diff.headResolution,requestedHead:diff.requestedHead??null,materialFiles:[...(diff.materialFiles??[])],metadataFiles:[...(diff.metadataFiles??[])],deletedFiles:[...(diff.materialDeletedFiles??[])],transactionChanges:[...(diff.changes??[])],findings,blockingFindings:blocking,referenceSync,implementationSync,poInstructionState,childDecisions,decision:reportDecision};
 mkdirSync('artifacts/shoperation-development-guard',{recursive:true});
 writeFileSync('artifacts/shoperation-development-guard/reference-sync.json',JSON.stringify(referenceSync,null,2)+'\n');
 writeFileSync('artifacts/shoperation-development-guard/edit-time-guard.json',JSON.stringify(report,null,2)+'\n');

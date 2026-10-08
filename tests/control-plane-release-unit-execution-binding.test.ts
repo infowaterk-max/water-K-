@@ -359,4 +359,20 @@ describe('release-unit execution binding hardening',()=>{
     expect(orchestrateSource).not.toContain('?recordReleaseParentClosure(state');
   });
 
+  it('binds parent closure proof artifact through parent proof, Edit-Time, staging and receipt acceptance',()=>{
+    const parentSource=readFileSync('scripts/release-unit-parent-close.mjs','utf8');
+    const editSource=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');
+    const runtimeSource=readFileSync('scripts/lib/shoperation-release-unit-runtime.mjs','utf8');
+    expect(parentSource).toContain('SHOPERATION_PARENT_CLOSURE_PROOF_ARTIFACT:parentClosureProofArtifact.path');
+    expect(parentSource).toContain("run('git',['add','quality/development/active-plan.json',parentClosureProofArtifact.path]");
+    expect(parentSource).toContain('proofArtifact:proof.parentClosureProofArtifact');
+    expect(editSource).toContain('DEV-BLOCK-PARENT-CLOSURE-PROOF-ARTIFACT');
+    expect(editSource).toContain('buildReleaseParentClosureProofArtifactFromContext');
+    expect(editSource).toContain('releaseParentClosureProofArtifactByteDigest');
+    expect(runtimeSource).toContain("RELEASE_PARENT_CLOSURE_PROOF_ARTIFACT_CONTRACT='shoporation.release-parent-closure-proof-artifact.v1'");
+    expect(runtimeSource).toContain('proofArtifactPath:proofArtifact.path');
+    expect(runtimeSource).toContain('proofArtifactDigest:proofArtifact.digest');
+    expect(readFileSync('scripts/shoperation-plan-before-code.mjs','utf8')).not.toContain('metadataOnlyParentClosure');
+  });
+
 });
