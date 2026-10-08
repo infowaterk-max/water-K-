@@ -3,39 +3,19 @@
   "taskId": "DEV-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
   "task": "Isolate generic critical MUST_CREATE regression fixture from inherited parent closure authority so generic remains BLOCK and only explicit canonical parent closure remains eligible.",
   "status": "ready-for-implementation",
-  "guardDigest": "128614ad",
+  "guardDigest": "430b0bba",
   "changeBaseSha": "355a77702fa255997f4abc1ca80ee4a559a8d58f",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "tests/shoperation-operational-intelligence.test.ts"
   ],
   "expectedSubsystems": [],
-  "expectedDomains": [
-    "DOMAIN-QUALITY"
-  ],
-  "expectedAuthorities": [
-    "quality-knowledge-system"
-  ],
+  "expectedDomains": [],
+  "expectedAuthorities": [],
   "expectedKnownFailureIds": [
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-006",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-018",
-    "SQ-KF-020",
-    "SQ-KF-022",
-    "TF-KF-001",
-    "TF-KF-005",
-    "TF-KF-007",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015"
+    "SQ-KF-022"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -172,9 +152,9 @@
       },
       {
         "id": "ALT-WEAKEN",
-        "summary": "Remove critical MUST_CREATE targeting restriction in production.",
+        "summary": "Change the production validator to accept every generic critical MUST_CREATE-only plan without requiring MUST_EDIT or canonical closure authority.",
         "disposition": "rejected",
-        "reason": "Unsafe gate weakening."
+        "reason": "Removes the fail-closed semantic execution authority boundary and would falsely authorize unrelated creation operations; preserving explicit context is mandatory."
       },
       {
         "id": "ALT-EDIT-IMMUTABLE",
@@ -296,9 +276,9 @@
       },
       {
         "id": "CH-PLAN-CTX-08",
-        "scenario": "Manually edit source or canonical state to match new baseline.",
-        "finding": "Receipt authority invalidated.",
-        "resolution": "Only isolated plan and test file may change.",
+        "scenario": "An engineer rewrites the immutable rehearsal source or directly edits canonical state to match the current main before reproducing the test failure.",
+        "finding": "Changes the receipt-bound transaction identity, hides the inherited-context test bug, and bypasses the trusted GitHub execution path.",
+        "resolution": "Keep immutable source and canonical state untouched; use an isolated test fixture and only move the new development plan through its own verified Plan/Edit-Time/Truth/Lifecycle gate chain.",
         "status": "resolved"
       }
     ],
@@ -313,9 +293,7 @@
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-08-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
-      "authority": [
-        "quality-knowledge-system"
-      ],
+      "authority": [],
       "mustEdit": [
         "tests/shoperation-operational-intelligence.test.ts"
       ],
@@ -418,5 +396,5 @@
       }
     ]
   },
-  "notes": "CI #9228/#9230/#9231 on PR #1138 closure HEAD c3fb20b47be325fc5963e8ac3ea2b8252f0a8c8d fail one Operational Intelligence unit test because copied active-plan contains parentClosureContext. Only test fixture context isolation; source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65, U01-U03, canonical release-state d459e52e1ae8357786257ee7341a087b8990e42b and parent closure PR untouched. Target branch from main 355a77702fa255997f4abc1ca80ee4a559a8d58f."
+  "notes": "CI #9228/#9230/#9231 on PR #1138 closure HEAD c3fb20b47be325fc5963e8ac3ea2b8252f0a8c8d fail one Operational Intelligence unit test because copied active-plan contains parentClosureContext. Only test fixture context isolation; source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65, U01-U03, canonical release-state d459e52e1ae8357786257ee7341a087b8990e42b and parent closure PR untouched. Target branch from main 355a77702fa255997f4abc1ca80ee4a559a8d58f. CI #9233 Plan Before Code measured planned scope: domains=[], authorities=[], knownFailures=[SQ-KF-013,SQ-KF-014,SQ-KF-022], guardDigest=430b0bba. Changed only derived scope, canonical authority route, and replaced vacuous alternative/challenge with adversarial, falsifiable wording."
 }
