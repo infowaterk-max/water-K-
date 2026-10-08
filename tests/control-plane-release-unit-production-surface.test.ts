@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import {dirname,join} from 'node:path';
 import {describe,expect,it} from 'vitest';
 import {RELEASE_UNIT_CONFLICT_RESOLUTION_CONTRACT,applyReleaseUnitEvent,createReleaseParentExecution,materializeReleaseUnit,recordReleaseParentClosure,releaseUnitModifyConflictIdentity,sealReleaseUnitManifest,validateReleaseUnitMainAdvanceProof} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
-import {materializationSupersedingBranch,needsFreshReleaseUnitReevaluation,proveTrustedMainAdvance,reconcileExactMaterializedCommit,reconcileMaterializationBranch,releaseUnitCommitMessage,runSuccessorReevaluationPlan,runSuccessorReevaluationProjection,structuredReleaseUnitMaterializationBlock} from '../scripts/release-unit-github-runtime.mjs';
+import {materializationSupersedingBranch,needsFreshReleaseUnitReevaluation,proveTrustedMainAdvance,reconcileExactMaterializedCommit,reconcileMaterializationBranch,releaseUnitCommitMessage,runSuccessorReevaluationPlan,runSuccessorReevaluationProjection,selectSuccessorProjectedOperations,structuredReleaseUnitMaterializationBlock} from '../scripts/release-unit-github-runtime.mjs';
 
 const A='a'.repeat(40),B='b'.repeat(40);
 const manifest={
@@ -43,6 +43,38 @@ const initGitRepo=(prefix:string)=>{
 };
 
 describe('Control Plane production release surface',()=>{
+  it('preserves immutable operation semantics when a successor candidate is fully already applied',()=>{
+    const fixture='quality/knowledge/rehearsal-fixtures/v1/fixture-25.json',testFile='tests/control-plane-release-unit-production-surface.test.ts';
+    const reconciled={operations:[
+      {operation:'create',file:fixture,generated:null,source:{mode:'sealed',commit:A,blobSha:B,fileMode:'100644'}},
+      {operation:'modify',file:testFile,generated:null,source:{mode:'sealed',commit:A,blobSha:B,fileMode:'100644'}},
+    ]};
+    const projected={operations:[
+      {operation:'modify',file:fixture,generated:null},
+      {operation:'modify',file:testFile,generated:null},
+    ]};
+    const candidate={status:'ALREADY_APPLIED',applied:[],alreadyApplied:[
+      {operation:'create',file:fixture},
+      {operation:'modify',file:testFile},
+    ]};
+    expect(selectSuccessorProjectedOperations({reconciled,projected,candidate})).toEqual([
+      {operation:'create',file:fixture,generated:null},
+      {operation:'modify',file:testFile,generated:null},
+    ]);
+  });
+
+  it('does not preserve immutable operations for partial or mismatched already-applied coverage',()=>{
+    const file='quality/knowledge/rehearsal-fixtures/v1/fixture-25.json';
+    const reconciled={operations:[{operation:'create',file,generated:null,source:{mode:'sealed',commit:A,blobSha:B,fileMode:'100644'}}]};
+    const projected={operations:[{operation:'modify',file,generated:null}]};
+    expect(selectSuccessorProjectedOperations({
+      reconciled,projected,candidate:{status:'PREPARED',applied:[{operation:'create',file}],alreadyApplied:[]},
+    })).toEqual(projected.operations);
+    expect(selectSuccessorProjectedOperations({
+      reconciled,projected,candidate:{status:'ALREADY_APPLIED',applied:[],alreadyApplied:[{operation:'modify',file}]},
+    })).toEqual(projected.operations);
+  });
+
   it('materializes modify as an immutable source patch without deleting later target-base additions',()=>{
     const dir=initGitRepo('release-unit-modify-preserve-'),file='scripts/already.mjs';
     try{

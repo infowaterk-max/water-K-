@@ -503,6 +503,18 @@ export function proveTrustedMainAdvance({fromSha,toSha,manifest,run=defaultRun,c
   };
 }
 
+const successorOperationCoverageKey=operation=>text(operation?.operation)+':'+text(operation?.file);
+const projectedOperationsWithoutSource=operations=>(operations??[]).map(operation=>{const copy={...operation};delete copy.source;return copy;});
+export function selectSuccessorProjectedOperations({reconciled,projected,candidate}={}){
+  const projectedOperations=projectedOperationsWithoutSource(projected?.operations??reconciled?.operations??[]);
+  if(candidate?.status!=='ALREADY_APPLIED'||(candidate?.applied??[]).length)return projectedOperations;
+  const persisted=reconciled?.operations??[];
+  const expected=persisted.map(successorOperationCoverageKey).sort();
+  const actual=(candidate?.alreadyApplied??[]).map(successorOperationCoverageKey).sort();
+  if(!expected.length||JSON.stringify(expected)!==JSON.stringify(actual))return projectedOperations;
+  return projectedOperationsWithoutSource(persisted);
+}
+
 export function reevaluateSuccessorManifest({state,execution,currentMainSha,sourceCommit,run=defaultRun,cwd=process.cwd()}={}){
   const predecessorExecutions=(state.units??[]).filter(item=>(execution.manifest.predecessorUnits??[]).includes(item.releaseUnitId));
   const predecessorReceipts=predecessorExecutions
@@ -550,7 +562,7 @@ export function reevaluateSuccessorManifest({state,execution,currentMainSha,sour
     const projected=(report.releaseDecomposition?.releaseUnits??[])[0];
     if(!projected)return{decision:'BLOCK',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_MANIFEST_MISSING',report};
     let next=structuredClone(reprojected);
-    next.operations=(projected.operations??next.operations??[]).map(operation=>{const copy={...operation};delete copy.source;return copy;});
+    next.operations=selectSuccessorProjectedOperations({reconciled,projected,candidate});
     next.requiredDependencyFiles=[...(projected.requiredDependencyFiles??[])];
     next.authorities=[...(projected.authorities??[])];
     next.subsystems=[...(projected.subsystems??[])];
