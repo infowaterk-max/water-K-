@@ -2,11 +2,33 @@ import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {activeDevelopmentPlanPath,compileGateChain,deriveImplementationSkeleton,evaluateReleaseRiskFiles,exactPlannedPaths,getAllFailures,getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
 import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,classifyAtlasPath,resolveAtlasArchitectureForPath,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
 import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
-import {bindReleaseUnitChildTransaction,decomposeReleaseScope,derivePlannedOperations} from './lib/shoperation-release-unit-runtime.mjs';
+import {RELEASE_PARENT_CLOSURE_CONTEXT_CONTRACT,RELEASE_PARENT_CLOSURE_PROOF_PLAN_CONTRACT,bindReleaseUnitChildTransaction,decomposeReleaseScope,derivePlannedOperations,releaseParentMetadataClosureScope,strongDigest,validateReleaseParentMetadataClosureProjection} from './lib/shoperation-release-unit-runtime.mjs';
 
 const isKnowledgeInfrastructureFile=file=>scopePolicy.knowledgeInfrastructurePrefixes.some(prefix=>file.startsWith(prefix));
 const isArchitectureBearingProjectedFile=file=>!isNeutralFile(file)&&!isKnowledgeInfrastructureFile(file);
 const requiresExpectedArchitectureScope=files=>files.some(isArchitectureBearingProjectedFile);
+
+if(process.argv.includes('--parent-metadata-closure-projection-self-test')){
+  const scope=releaseParentMetadataClosureScope(),closureFile='quality/development/active-plan.json';
+  const completionContract={sourceKind:'product-owner-request',sourceRef:'PO-META',systemObligations:{derivation:'canonical-gate-chain',requiredGuards:['GUARD-QUALITY-TESTS'],externalGuards:[],phase:'PLAN'},requirements:[{id:'REQ-META',requirement:'Close parent lifecycle metadata without material implementation.',claimScope:{capability:'CAP-QUALITY',breadth:'metadata',strength:1,dimensions:['status']},requiredCapabilities:['CAP-QUALITY'],evidence:{implementation:['GUARD-QUALITY-TESTS'],outcome:['GUARD-QUALITY-TESTS']},forbiddenRegressions:[{id:'NEG-META',statement:'Material implementation remains forbidden.',evidence:['GUARD-QUALITY-TESTS']}]}]};
+  const context={contract:RELEASE_PARENT_CLOSURE_CONTEXT_CONTRACT,proofPlanContract:RELEASE_PARENT_CLOSURE_PROOF_PLAN_CONTRACT,parentTransactionId:'DEV-META',sourceCommit:'a'.repeat(40),sourcePlanDigest:'b'.repeat(64),completionContractDigest:strongDigest(completionContract),lastChildMainSha:'c'.repeat(40),finalMainSha:'d'.repeat(40),unitCloseReceiptDigests:['e'.repeat(64)],trustedMainAdvanceDigest:'f'.repeat(64)};
+  const route={request:'PO-META',authority:[],mustEdit:[],mayEdit:[closureFile],impactedReadOnly:[],mustCreate:[],forbidden:[],proof:[closureFile],unknown:[],plannedDeletions:[],plannedRenames:[],generatedArtifacts:[]};
+  const candidate={contract:'shoporation.development-plan.v1',taskId:'DEV-META',task:'Close parent lifecycle metadata.',status:'ready-for-implementation',changeBaseSha:context.finalMainSha,plannedFilePatterns:[closureFile],parentClosureContext:context,completionContract,guardDigest:scope.guardDigest,...scope,operationalIntelligence:{semanticExecutionRoute:route}};
+  const check=(value,options={})=>validateReleaseParentMetadataClosureProjection(value,{materialFiles:options.materialFiles??[],metadataFiles:options.metadataFiles??[],materialTransactionChanges:options.materialTransactionChanges??[]}).decision;
+  const cases=[
+    ['valid',candidate,{},'PASS'],
+    ['ordinary',{...structuredClone(candidate),parentClosureContext:null},{},'BLOCK'],
+    ['forged-context',{...structuredClone(candidate),parentClosureContext:{...context,finalMainSha:'1'.repeat(40)}},{},'BLOCK'],
+    ['extra-planned-file',{...structuredClone(candidate),plannedFilePatterns:[closureFile,'scripts/fake.mjs']},{},'BLOCK'],
+    ['hidden-must-edit',{...structuredClone(candidate),operationalIntelligence:{semanticExecutionRoute:{...route,mustEdit:['scripts/fake.mjs']}}},{},'BLOCK'],
+    ['material-diff',candidate,{materialFiles:['scripts/fake.mjs'],materialTransactionChanges:[{status:'M',file:'scripts/fake.mjs'}]},'BLOCK'],
+    ['extra-metadata',candidate,{metadataFiles:[closureFile,'quality/development/other.json']},'BLOCK'],
+  ];
+  for(const [name,value,options,expected] of cases){const actual=check(value,options);if(actual!==expected)throw new Error(`PARENT_METADATA_CLOSURE_PROJECTION_SELF_TEST_FAILED:${name}:${actual}`);}
+  if(JSON.stringify(scope.expectedKnownFailureIds)!==JSON.stringify(['SQ-KF-013','SQ-KF-014','SQ-KF-022'])||JSON.stringify(scope.acknowledgedNegativeKnowledgeIds)!==JSON.stringify(['SQ-NK-012'])||scope.guardDigest!=='430b0bba')throw new Error('PARENT_METADATA_CLOSURE_SCOPE_SELF_TEST_FAILED');
+  console.log('Parent metadata closure projection self-test: PASS');
+  process.exit(0);
+}
 
 if(process.argv.includes('--architecture-scope-self-test')){
   const cases=[
@@ -30,7 +52,10 @@ const changedFiles=[...(diff.materialFiles??[])];
 const deletedFiles=[...(diff.materialDeletedFiles??[])];
 const metadataFiles=new Set(diff.metadataFiles??[]);
 const materialTransactionChanges=(diff.changes??[]).filter(change=>!metadataFiles.has(change?.file)&&!metadataFiles.has(change?.previousFile));
+const parentMetadataClosureProjection=validateReleaseParentMetadataClosureProjection(plan,{materialFiles:changedFiles,metadataFiles:[...metadataFiles],materialTransactionChanges});
+const metadataOnlyParentClosure=parentMetadataClosureProjection.decision==='PASS';
 const issues=[];
+if(plan?.parentClosureContext&&parentMetadataClosureProjection.decision!=='PASS')issues.push({code:'DEV_PLAN_PARENT_CLOSURE_METADATA_PROJECTION_INVALID',reasons:parentMetadataClosureProjection.reasons});
 if(diff.baseResolution==='UNRESOLVED'||!diff.base)issues.push({code:'DEV_PLAN_TRANSACTION_BASE_UNRESOLVED',requestedBase:diff.requestedBase??plan.changeBaseSha??null});
 if(diff.headResolution==='UNRESOLVED_EXPLICIT'||!diff.head)issues.push({code:'DEV_PLAN_TRANSACTION_HEAD_UNRESOLVED',requestedHead:diff.requestedHead??null,headSource:diff.headSource??null});
 
@@ -73,7 +98,7 @@ const projectedFiles=[...new Set([
   ...exactPlannedPaths(plan.plannedFilePatterns??[]).filter(file=>file!=='quality/development/active-plan.json'),
   ...deletedFiles.filter(file=>planMatchers.some(m=>m.test(file))),
 ])].sort();
-if(!projectedFiles.length)issues.push({code:'DEV_PLAN_PROJECTION_EMPTY',plannedFilePatterns:plan.plannedFilePatterns});
+if(!projectedFiles.length&&!metadataOnlyParentClosure)issues.push({code:'DEV_PLAN_PROJECTION_EMPTY',plannedFilePatterns:plan.plannedFilePatterns});
 
 const declaredExecutionRoute=plan.operationalIntelligence?.semanticExecutionRoute??null;
 const declaredPlannedDeletions=[...new Set(declaredExecutionRoute?.plannedDeletions??[])].sort();
@@ -153,8 +178,9 @@ const missingInstructionIds=expectedInstructionIds.filter(id=>!acknowledgedInstr
 if(missingInstructionIds.length)issues.push({code:'DEV_PLAN_PO_INSTRUCTION_UNACKNOWLEDGED',instructionIds:missingInstructionIds});
 
 
-const actualScope=resolveDevelopmentScope({files:changedFiles,task:plan.task});
-const projectedScope=resolveDevelopmentScope({files:projectedFiles,task:plan.task});
+const scopeTask=metadataOnlyParentClosure?'':plan.task;
+const actualScope=resolveDevelopmentScope({files:changedFiles,task:scopeTask});
+const projectedScope=resolveDevelopmentScope({files:projectedFiles,task:scopeTask});
 const expectedFailures=[...(plan.expectedKnownFailureIds??[])].sort();
 const projectedFailures=[...projectedScope.activeFailureIds].sort();
 const knownFailureById=new Map(getAllFailures().map(failure=>[failure.id,failure]));
@@ -298,14 +324,16 @@ if(!plan.releaseUnitContext&&releaseDecomposition.decision==='PASS'){
 }
 
 const operationalValidation=validateOperationalIntelligence({plan,policy:guardPolicy,guardIds:(guardRegistry.guards??[]).map(item=>item.id)});
-issues.push(...operationalValidation.issues);
+const operationalIssues=operationalValidation.issues.filter(issue=>!(metadataOnlyParentClosure&&issue.code==='DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED'));
+issues.push(...operationalIssues);
 
 const report={
   contract:'shoporation.plan-before-code-gate.v1',
   taskId:plan.taskId??null,
   base:diff.base,
   head:diff.head,
-  evaluationMode:changedFiles.length?'actual-diff-with-plan-envelope':'planned-projection',
+  evaluationMode:metadataOnlyParentClosure?'metadata-only-parent-closure':changedFiles.length?'actual-diff-with-plan-envelope':'planned-projection',
+  parentMetadataClosureProjection,
   changedFiles,
   deletedFiles,
   transactionChanges:diff.changes??[],

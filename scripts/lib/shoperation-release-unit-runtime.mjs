@@ -4,7 +4,7 @@ import {mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {evaluateReleaseRiskFiles,globToRegExp} from './shoperation-development-runtime.mjs';
+import {evaluateReleaseRiskFiles,globToRegExp,guardPolicy,knowledge,stableDigest} from './shoperation-development-runtime.mjs';
 
 export const RELEASE_DECOMPOSITION_CONTRACT='shoporation.release-decomposition.v1';
 export const RELEASE_UNIT_MANIFEST_CONTRACT='shoporation.release-unit-manifest.v1';
@@ -859,22 +859,91 @@ export function buildReleaseParentClosureProofContext({parent,sourcePlan,sourceC
   };
 }
 
+export function releaseParentMetadataClosureScope(){
+  const failureIds=[...(knowledge.globalBaselineFailureIds??[])].sort();
+  const negativeKnowledgeIds=(knowledge.negativeKnowledge??[])
+    .filter(item=>(guardPolicy.negativeKnowledgeApplicability?.[item.id]??[]).includes('*'))
+    .map(item=>item.id)
+    .sort();
+  const subsystems=[],domains=[],authorities=[],poInstructionIds=[];
+  return{
+    expectedSubsystems:subsystems,
+    expectedDomains:domains,
+    expectedAuthorities:authorities,
+    expectedKnownFailureIds:failureIds,
+    acknowledgedNegativeKnowledgeIds:negativeKnowledgeIds,
+    acknowledgedPoInstructionIds:poInstructionIds,
+    guardDigest:stableDigest({failureIds,subsystems,negativeKnowledgeIds}),
+  };
+}
+
+const PARENT_CLOSURE_METADATA_FILE='quality/development/active-plan.json';
+const SHA40=/^[0-9a-f]{40}$/i,SHA256=/^[0-9a-f]{64}$/i;
+const exactArray=(actual,expected)=>Array.isArray(actual)&&sameJson(actual,expected);
+export function validateReleaseParentMetadataClosureProjection(plan,{materialFiles=[],metadataFiles=[],materialTransactionChanges=[]}={}){
+  const reasons=[],context=plan?.parentClosureContext,route=plan?.operationalIntelligence?.semanticExecutionRoute??null;
+  const scope=releaseParentMetadataClosureScope();
+  const reject=(code,details={})=>reasons.push({code,...details});
+  if(plan?.contract!=='shoporation.development-plan.v1')reject('PARENT_METADATA_PLAN_CONTRACT_INVALID');
+  if(!['ready-for-implementation','closed'].includes(plan?.status))reject('PARENT_METADATA_PLAN_STATUS_INVALID');
+  if(context?.contract!==RELEASE_PARENT_CLOSURE_CONTEXT_CONTRACT)reject('PARENT_METADATA_CONTEXT_CONTRACT_INVALID');
+  if(context?.proofPlanContract!==RELEASE_PARENT_CLOSURE_PROOF_PLAN_CONTRACT)reject('PARENT_METADATA_PROOF_PLAN_CONTRACT_INVALID');
+  if(plan?.taskId!==context?.parentTransactionId)reject('PARENT_METADATA_TASK_IDENTITY_MISMATCH');
+  if(plan?.changeBaseSha!==context?.finalMainSha)reject('PARENT_METADATA_FINAL_MAIN_MISMATCH');
+  for(const [field,value] of [['sourceCommit',context?.sourceCommit],['lastChildMainSha',context?.lastChildMainSha],['finalMainSha',context?.finalMainSha]])if(!SHA40.test(String(value??'')))reject('PARENT_METADATA_SHA_INVALID',{field});
+  for(const [field,value] of [['sourcePlanDigest',context?.sourcePlanDigest],['completionContractDigest',context?.completionContractDigest]])if(!SHA256.test(String(value??'')))reject('PARENT_METADATA_DIGEST_INVALID',{field});
+  if(!Array.isArray(context?.unitCloseReceiptDigests)||!context.unitCloseReceiptDigests.length||context.unitCloseReceiptDigests.some(value=>!SHA256.test(String(value??''))))reject('PARENT_METADATA_UNIT_RECEIPTS_INVALID');
+  if(context?.trustedMainAdvanceDigest!==null&&!SHA256.test(String(context?.trustedMainAdvanceDigest??'')))reject('PARENT_METADATA_TRUSTED_MAIN_DIGEST_INVALID');
+  if(!plan?.completionContract||context?.completionContractDigest!==strongDigest(plan.completionContract))reject('PARENT_METADATA_COMPLETION_CONTRACT_DIGEST_MISMATCH');
+  if(!exactArray(plan?.plannedFilePatterns,[PARENT_CLOSURE_METADATA_FILE]))reject('PARENT_METADATA_PLANNED_FILES_INVALID');
+  for(const [field,expected] of [
+    ['expectedSubsystems',scope.expectedSubsystems],
+    ['expectedDomains',scope.expectedDomains],
+    ['expectedAuthorities',scope.expectedAuthorities],
+    ['expectedKnownFailureIds',scope.expectedKnownFailureIds],
+    ['acknowledgedNegativeKnowledgeIds',scope.acknowledgedNegativeKnowledgeIds],
+    ['acknowledgedPoInstructionIds',scope.acknowledgedPoInstructionIds],
+  ])if(!exactArray(plan?.[field]??[],expected))reject('PARENT_METADATA_SCOPE_DRIFT',{field,expected,actual:plan?.[field]??[]});
+  if(plan?.guardDigest!==scope.guardDigest)reject('PARENT_METADATA_GUARD_DIGEST_DRIFT',{expected:scope.guardDigest,actual:plan?.guardDigest??null});
+  if(!route)reject('PARENT_METADATA_SEMANTIC_ROUTE_REQUIRED');
+  else{
+    for(const field of ['authority','mustEdit','impactedReadOnly','mustCreate','unknown','plannedDeletions','plannedRenames','generatedArtifacts'])if(!exactArray(route?.[field]??[],[]))reject('PARENT_METADATA_ROUTE_MUTATION_INVALID',{field});
+    if(!exactArray(route?.mayEdit??[],[PARENT_CLOSURE_METADATA_FILE]))reject('PARENT_METADATA_ROUTE_MAY_EDIT_INVALID');
+    if(!exactArray(route?.proof??[],[PARENT_CLOSURE_METADATA_FILE]))reject('PARENT_METADATA_ROUTE_PROOF_INVALID');
+  }
+  const material=uniq(materialFiles??[]);
+  if(material.length)reject('PARENT_METADATA_MATERIAL_DIFF_PRESENT',{files:material});
+  if((materialTransactionChanges??[]).length)reject('PARENT_METADATA_MATERIAL_TRANSACTION_PRESENT');
+  const metadata=uniq(metadataFiles??[]);
+  if(metadata.some(file=>file!==PARENT_CLOSURE_METADATA_FILE)||metadata.length>1)reject('PARENT_METADATA_METADATA_DIFF_INVALID',{files:metadata});
+  if(plan?.status==='closed'&&(plan?.lifecycle?.state!=='LEARN'||plan?.lifecycle?.truthStatus!=='VERIFIED'||plan?.lifecycle?.verifiedImplementationHead!==context?.finalMainSha))reject('PARENT_METADATA_CLOSED_LIFECYCLE_INVALID');
+  return{contract:'shoporation.release-parent-metadata-closure-projection.v1',decision:reasons.length?'BLOCK':'PASS',reasons,scope};
+}
+
 export function buildReleaseParentClosureProofPlan({parent,sourcePlan,sourceCommit,finalMainSha,trustedMainAdvance=null}={}){
   const context=buildReleaseParentClosureProofContext({parent,sourcePlan,sourceCommit,finalMainSha,trustedMainAdvance});
   const plan=structuredClone(sourcePlan);
-  const closureFile='quality/development/active-plan.json';
+  const scope=releaseParentMetadataClosureScope();
+  const closureFile=PARENT_CLOSURE_METADATA_FILE;
   plan.status='ready-for-implementation';
   delete plan.lifecycle;
   delete plan.releaseUnitContext;
   plan.changeBaseSha=context.finalMainSha;
   plan.plannedFilePatterns=[closureFile];
   plan.parentClosureContext=context;
+  plan.expectedSubsystems=[...scope.expectedSubsystems];
+  plan.expectedDomains=[...scope.expectedDomains];
+  plan.expectedAuthorities=[...scope.expectedAuthorities];
+  plan.expectedKnownFailureIds=[...scope.expectedKnownFailureIds];
+  plan.acknowledgedNegativeKnowledgeIds=[...scope.acknowledgedNegativeKnowledgeIds];
+  plan.acknowledgedPoInstructionIds=[...scope.acknowledgedPoInstructionIds];
+  plan.guardDigest=scope.guardDigest;
   const sourceRoute=sourcePlan?.operationalIntelligence?.semanticExecutionRoute??{};
   plan.operationalIntelligence={
     ...structuredClone(sourcePlan.operationalIntelligence??{}),
     semanticExecutionRoute:{
       request:sourceRoute.request??sourcePlan?.completionContract?.sourceRef??null,
-      authority:uniq(sourcePlan?.expectedAuthorities??sourceRoute.authority??[]),
+      authority:[],
       mustEdit:[],
       mayEdit:[closureFile],
       impactedReadOnly:[],
@@ -900,9 +969,9 @@ export function validateReleaseParentClosureProofPlan(plan,{parent,sourcePlan,so
     if(!sameJson(plan.completionContract,expected.completionContract))return false;
     if(!sameJson(plan.parentClosureContext,expected.parentClosureContext))return false;
     if(!sameJson(plan.operationalIntelligence?.semanticExecutionRoute,expected.operationalIntelligence?.semanticExecutionRoute))return false;
-    if(!sameJson(plan.expectedSubsystems??[],expected.expectedSubsystems??[]))return false;
-    if(!sameJson(plan.expectedDomains??[],expected.expectedDomains??[]))return false;
-    if(!sameJson(plan.expectedAuthorities??[],expected.expectedAuthorities??[]))return false;
+    for(const field of ['expectedSubsystems','expectedDomains','expectedAuthorities','expectedKnownFailureIds','acknowledgedNegativeKnowledgeIds','acknowledgedPoInstructionIds'])if(!sameJson(plan?.[field]??[],expected?.[field]??[]))return false;
+    if(plan.guardDigest!==expected.guardDigest)return false;
+    if(validateReleaseParentMetadataClosureProjection(plan,{materialFiles:[],metadataFiles:[],materialTransactionChanges:[]}).decision!=='PASS')return false;
     if(plan.status==='closed'&&(plan.lifecycle?.state!=='LEARN'||plan.lifecycle?.truthStatus!=='VERIFIED'||plan.lifecycle?.verifiedImplementationHead!==String(finalMainSha??'')))return false;
     return true;
   }catch{return false;}

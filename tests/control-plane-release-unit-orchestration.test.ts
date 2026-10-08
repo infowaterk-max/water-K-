@@ -472,7 +472,14 @@ describe('Control Plane release-unit orchestration',()=>{
     expect(derived.changeBaseSha).toBe(X);
     expect(derived.plannedFilePatterns).toEqual(['quality/development/active-plan.json']);
     expect(derived.completionContract).toEqual(sourcePlan.completionContract);
-    expect(derived.operationalIntelligence.semanticExecutionRoute).toMatchObject({mustEdit:[],mustCreate:[],mayEdit:['quality/development/active-plan.json'],proof:['quality/development/active-plan.json']});
+    expect(derived.expectedSubsystems).toEqual([]);
+    expect(derived.expectedDomains).toEqual([]);
+    expect(derived.expectedAuthorities).toEqual([]);
+    expect(derived.expectedKnownFailureIds).toEqual(['SQ-KF-013','SQ-KF-014','SQ-KF-022']);
+    expect(derived.acknowledgedNegativeKnowledgeIds).toEqual(['SQ-NK-012']);
+    expect(derived.acknowledgedPoInstructionIds).toEqual([]);
+    expect(derived.guardDigest).toBe('430b0bba');
+    expect(derived.operationalIntelligence.semanticExecutionRoute).toMatchObject({authority:[],mustEdit:[],mustCreate:[],mayEdit:['quality/development/active-plan.json'],proof:['quality/development/active-plan.json']});
     expect(derived.parentClosureContext).toMatchObject({parentTransactionId:'DEV-ORCH',sourceCommit:A,finalMainSha:X,lastChildMainSha:D,unitCloseReceiptDigests});
     expect(derived.parentClosureContext.trustedMainAdvanceDigest).toBe(strongDigest(advance));
     expect(validateReleaseParentClosureProofPlan(derived,{parent:p,sourcePlan,sourceCommit:A,finalMainSha:X,trustedMainAdvance:advance})).toBe(true);

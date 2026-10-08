@@ -118,4 +118,15 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(edit).toContain('aggregateGateDecision({localBlocking:blocking.length>0,childDecisions:Object.values(childDecisions)})');
   });
   it('makes the preventive protocol repository-level instructions for coding agents',()=>{const agents=readFileSync('AGENTS.md','utf8');expect(agents).toContain('BEFORE THE FIRST IMPLEMENTATION EDIT');expect(agents).toContain('development-guard.md');expect(agents).toContain('Plan Before Code');expect(agents).toContain('shoperation-incremental-replay.mjs --check');});
+  it('allows only authenticated metadata-only parent closure projection while ordinary empty plans stay fail-closed',()=>{
+    const output=execFileSync(process.execPath,['scripts/shoperation-plan-before-code.mjs','--parent-metadata-closure-projection-self-test'],{encoding:'utf8'});
+    expect(output).toContain('Parent metadata closure projection self-test: PASS');
+    const source=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
+    expect(source).toContain("metadataOnlyParentClosure?'metadata-only-parent-closure'");
+    expect(source).toContain("if(!projectedFiles.length&&!metadataOnlyParentClosure)");
+    expect(source).toContain('DEV_PLAN_PARENT_CLOSURE_METADATA_PROJECTION_INVALID');
+    expect(source).toContain("issue.code==='DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED'");
+    expect(source).not.toContain("projectedFiles=[PARENT_CLOSURE_METADATA_FILE]");
+  });
+
 });
