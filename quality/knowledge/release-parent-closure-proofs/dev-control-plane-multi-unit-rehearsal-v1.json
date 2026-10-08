@@ -1,0 +1,15 @@
+{
+  "contract": "shoporation.release-parent-closure-proof-artifact.v1",
+  "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+  "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+  "sourcePlanDigest": "b6e7ed2e79688f4a1559e152566d871980c106c01803c3e7ce6c259c91a31e02",
+  "completionContractDigest": "e2dfd676f218b6623ec8242fb1195849177a115db9f1dca549ef6e08a0c70eac",
+  "finalMainSha": "f5f41dbefa294f3ce60b949a11628b64d88f7167",
+  "unitCloseReceiptDigests": [
+    "0fe7b086",
+    "c55edaba",
+    "68cf5282"
+  ],
+  "trustedMainAdvanceDigest": "cddd3985bdbca6c8c8f262d6fcef35b93f951c4c6b9f5ebd007368d5cbf303c6",
+  "parentClosureContextDigest": "83451ff4b61dfcfc0fcf08e2f03e696a0356c048eceaceac0e148dba977fed1b"
+}
