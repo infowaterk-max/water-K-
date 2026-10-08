@@ -1,10 +1,10 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-PR-IDENTITY-RECONCILIATION-V1",
-  "task": "Reconcile GitHub PR identity after parent closure force-with-lease refresh using bounded fail-closed read-after-write convergence and exact expected/observed diagnostics.",
+  "taskId": "DEV-CONTROL-PLANE-PARENT-INTERRUPTED-REPROJECTION-V1",
+  "task": "Restore exact receipt-bound parent closure after an interrupted remote PR reprojection, rejecting foreign state and avoiding manual canonical repair.",
   "status": "closed",
   "guardDigest": "128614ad",
-  "changeBaseSha": "c8b1897fc34bd8b867e9fa3e6e136f2ea6039308",
+  "changeBaseSha": "0ab58e16d5329ef80336aefb65ae99fff65881b0",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/release-unit-parent-close.mjs",
@@ -59,39 +59,42 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-PR-IDENTITY-RECONCILIATION-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-PARENT-INTERRUPTED-REPROJECTION-V1",
     "riskTier": "critical",
-    "problemStatement": "Release Unit Execution #312 attempt 2, triggered from immutable rehearsal source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65, failed at immediate parent closure PR identity verification: RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH. The refreshed PR #1138 now has exact HEAD dcc450715b9a5dd6690be98017f9f98911b96805 and base c8b1897fc34bd8b867e9fa3e6e136f2ea6039308, but the executor checked the GitHub REST PR before these values were conclusively observed. The actual mismatched field was not recorded. Require bounded read-after-write reconciliation and machine-readable diagnostics while preserving full exact identity checks.",
+    "problemStatement": "Reproducible release executor interrupted transaction: the refreshed PR #1138 (dcc450715b9a...) is newer than canonical persistence head (ad52d8...) because #312 attempt 2 failed after GitHub PR branch mutation but before successful state CAS. finishParentClosurePersistence() checks PR head equality before trusted main reprojection; a normal retry would immediately reject with RELEASE_PARENT_CLOSURE_PR_DRIFT. Must prove a persisted partial remote closure is authentic before allowing a new reprojection, without modifying source or state manually.",
     "observableOutcomes": [
-      "After the executor pushes a refreshed closure commit, the PR binding is accepted only when a fresh GitHub GET returns open, correct head ref, exact pushed head SHA, main base ref and exact final-main base SHA.",
-      "Initial stale head or stale base observations are retried for a bounded period and never authorized by time alone.",
-      "After bounded retries, the failure includes stable machine-readable exact expected and actual PR identity fields and retry count.",
-      "Unknown, foreign, moved, closed or persistently stale PR identities remain BLOCK; fail closed without releasing state or advancing closure.",
-      "Successful reconciliation still requires exact CI dispatch, fresh closure PR CI, merge lease, canonical CLOSED parent receipt and no duplicate U01/U02/U03 operations."
+      "An executor restart detects stale persisted parent closure PR_HEAD and independently proves a genuine partial remote closure metadata commit before any reprojection.",
+      "The accepted remote closure commit has exactly one parent equal to the PR base main, and the PR base must be an ancestor of the current trusted main.",
+      "The recovered head changes only canonical active-plan metadata and the exact deterministic parent closure proof artifact.",
+      "The persisted CLOSED plan's parentClosureContext matches the immutable source, parent transaction, exact final-main SHA, child closure receipts, and a newly derived trusted main-advance proof; committed artifact bytes equal the independently derived proof.",
+      "Fresh canonical proof and newly created closure PR HEAD may be persisted only after exact PR identity and fresh CI, without duplicate U01–U03 operations.",
+      "Stale PR without main advance, missing proof, wrong closed plan, foreign head/ref, wrong receipts, extra parents or unsafe base ancestry block with a machine-readable diagnostic."
     ],
     "unresolvedRisks": [
-      "GitHub API read-after-write might expose stale fields or a PR base SHA lag; this is a hypothesis until exact observed fields and retry evidence are persisted.",
-      "While polling, a foreign actor might mutate the PR or main; only precise final identity can authorize persistence.",
-      "Rerun reprojects the closure branch with a newly created commit; concurrent GitHub workflows must be checked before execution."
+      "Remote branch mutation by a third party must never be treated as an interrupted canonical closure.",
+      "New main commits can create legitimate drift or protected-file overlap; trusted-main proof must remain authoritative.",
+      "Canonical state CAS may fail after PR push; repeated execution must be idempotent or fail closed.",
+      "An old PR head may be missing in local clone; explicit remote fetch must not accept an untrusted commit as proven closure."
     ],
     "scope": {
       "in": [
-        "Add bounded, deterministic, exact PR identity verification after a closure branch force-with-lease push.",
-        "Always fetch an authoritative fresh numbered PR resource; do not rely on stale list result for acceptance.",
-        "Validate open state, exact ref names, exact head SHA and exact final-main base SHA simultaneously.",
-        "Emit machine-readable expected/actual PR identity with bounded read count on timeout and preserve the original failure code.",
-        "Add executable regression tests using injected GitHub response sequences and no-op wait to cover initial match, delayed match, wrong ref/head/base, closed state and expiry."
+        "Add proof-bound interrupted closure PR reprojection eligibility before the old PR_HEAD equality guard.",
+        "Use exact single-parent commit identity, main ancestry, changed-path set and immutable-source parent proof to classify a remotely refreshed closure.",
+        "Require deterministic committed artifact bytes and validate the CLOSED plan against the existing canonical parent receipts and proof context.",
+        "Permit trusted reprojection only when current main is a verified descendant of persistence base; do not allow same-main foreign head acceptance.",
+        "Emit exact reason/details for invalid or incomplete partial closure without modifying persisted state.",
+        "Add adversarial regression tests of an authentic interrupted remote closure and forged, tampered, wrong-parent, absent-proof or no-main-advance cases."
       ],
       "out": [
-        "No weakening of exact SHA checks, Plan, Edit-Time, Completion Truth, Lifecycle, Sentinel, CI or receipt requirements.",
-        "No changes to immutable source plan, U01/U02/U03 receipts, canonical release-state branch, existing parent closure PR data, workflow permissions, Builder, Template or Storefront.",
-        "No external PR update, forced approval or manual state overwrite to disguise failed reconciliation.",
-        "No indefinite retry, blind 200-response acceptance or stale CI authorization."
+        "No changes to immutable source or historical U01–U03 receipts.",
+        "No manual overwrite or softening of canonical state CAS, Truth, Lifecycle, Sentinel, Plan, Edit-Time or CI gates.",
+        "No release executor workflow permissions or scheduling changes.",
+        "No untrusted PR force update, merge, Builder, Template or Storefront work."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical parent closure PR binding is a release authority boundary; asynchronous remote observation must remain exact and bounded with falsifiable negative tests and machine-readable diagnostics.",
+      "rationale": "Resuming a durable release after a partially persisted GitHub PR side effect is correctness- and security-critical; acceptance requires exact committed receipt identity, trusted-main proof and adversarial negative tests.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -108,32 +111,33 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The plan-only commit passes canonical Plan Before Code before implementation.",
-        "A PR response that immediately matches all fields is accepted without retry delay.",
-        "One or more stale head/base observations may converge but only an exact subsequent numbered PR GET can pass.",
-        "An incorrect, closed, foreign or persistently stale PR is never accepted.",
-        "On expiry, the executor raises RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH with JSON diagnostics identifying expected and observed state, refs, SHAs and number of reads.",
-        "Retry is limited to at most eight read attempts with an injected wait callback for deterministic tests.",
-        "GitHub PR detection and creation semantics are not broadened, and the existing force-with-lease branch update stays mandatory.",
-        "Exactly the latest closure HEAD, correct base main SHA, fresh closure CI and receipt-bound parent Lifecycle/Truth remain required before closure.",
-        "Main CI exact-head SUCCESS precedes immutable replay, followed by an actual canonical CLOSED receipt and U01-U03 preserved."
+        "Plan-only commit passes Plan Before Code before code changes.",
+        "An authentic previous closure HEAD with direct main parent, exact metadata-only files and deterministic proof artifact passes reproject eligibility after a newer trusted main appears.",
+        "Invalid remote head, foreign PR ref/state, wrong previous base ancestry or no trusted main advance still blocks.",
+        "Untrusted CLOSED plan, different immutable source, missing receipt digest or altered committed proof artifact fails closed.",
+        "Neither reproject nor CAS is attempted if interrupted closure proof is missing.",
+        "Normal PR identity paths where persisted head still matches remain unchanged.",
+        "Regression tests exercise delayed external state persistence, exact restarts and malicious alternatives without network requests.",
+        "Full CI and Completion Truth on the implementation HEAD, followed by canonical Lifecycle closure and exact PR CI, merge and post-main CI.",
+        "Unmodified immutable source release executor resumes all existing U01–U03 receipts, exact parent closure CI and canonical closed receipt; no duplicate unit."
       ],
       "invariants": [
-        "Read-after-write cannot bypass identity equality.",
-        "Any new GitHub PR head/base drift is a block unless it converges to the original executor-bound exact values during the bounded window.",
-        "Closure commit HEAD remains distinct from final implementation main and has independent evidence.",
-        "Neither the immutable source nor canonical state is manually mutated.",
-        "Only legitimate proved closure state transitions update canonical state.",
-        "Diagnostic fields do not include secrets or tokens."
+        "Every accepted remote HEAD has a single exact parent equal to independently proven previous final main.",
+        "Only the declared metadata plan and deterministic parent proof artifact changed in remote closure head.",
+        "Parent closure source SHA and all child receipt digests remain immutable across restart.",
+        "Any remote identity mismatch not explained by authenticated interrupted reprojection remains a BLOCK.",
+        "State is never marked final CLOSED without GitHub merge, CI and canonical receipt.",
+        "No second release unit or repeated merge receipt is emitted."
       ],
       "forbiddenStates": [
-        "stale-pr-head-accepted",
-        "stale-pr-base-accepted",
-        "closed-or-foreign-pr-accepted",
-        "unbounded-gh-retries",
-        "identity-failure-without-observed-values",
-        "parent-closure-ci-or-proof-bypassed-without-required-exact-proof",
-        "manual-canonical-state-repair"
+        "remote-closure-head-with-multiple-parents-accepted",
+        "foreign-pr-head-projected-as-canonical",
+        "unproven-proof-artifact-bytes-accepted",
+        "child-receipt-digest-mismatch-accepted",
+        "main-not-advanced-but-pr-head-mismatch-accepted",
+        "canonical-state-rewritten-manually",
+        "parent-closure-without-required-truth-and-ci",
+        "undocumented-remote-head-identity"
       ]
     },
     "model": {
@@ -165,49 +169,50 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "GitHub pull request list returns previous head immediately after force-with-lease push.",
-        "Follow-up PR detail read returns stale base main SHA for a short period.",
-        "PR state changes to closed during reconciliation.",
-        "Remote PR head unexpectedly changes to a foreign SHA.",
-        "Remote PR base ref targets another branch.",
-        "All attempts return stale values and the executor must fail closed with exact diagnostics."
+        "GitHub branch force-with-lease succeeds while subsequent state CAS fails.",
+        "Remote HEAD diverges from persisted HEAD and previous main had advanced.",
+        "Remote metadata commit includes extra files or wrong parent.",
+        "Artifact matches local working tree but not committed blob.",
+        "Receipt digest in remote context does not match U01–U03 state.",
+        "Main not descended from parent closure PR base; protected-file overlap.",
+        "Reprojection emits newer commit while main continues changing."
       ],
       "edgeCases": [
-        "First response fully matches expected.",
-        "First two responses contain old head, third response matches.",
-        "Head matches but base SHA lags then converges.",
-        "Head SHA is permanently wrong.",
-        "PR base ref permanently not main.",
-        "PR is closed.",
-        "Get PR returns null/error.",
-        "Proof head/ref correct but PR number unexpected.",
-        "All eight reads disagree and no merge/CI dispatch occurs."
+        "HEAD persisted equals PR head with newer main: original reproject path.",
+        "HEAD differs but PR is exact metadata-only successor at prior final main: verified resume.",
+        "HEAD differs but PR base equals current main: no new main advance blocks.",
+        "HEAD differs and PR body or ref points to another parent transaction.",
+        "Missing, malformed or stale proof context and committed artifact.",
+        "Same metadata files but source receipt digest changed.",
+        "PR head is a merge commit.",
+        "Current main advanced past previous closure metadata base.",
+        "Network fetch returns unknown PR HEAD commit."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-BOUNDED-EXACT",
-        "summary": "Bounded GitHub PR identity read-after-write reconciliation, exact equality, machine diagnostics.",
+        "id": "ALT-RECEIPT-BOUND",
+        "summary": "Prove the interrupted PR projection from committed metadata and immutable receipt context before allowing trusted main reprojection.",
         "disposition": "selected",
-        "reason": "Addresses observed timing and diagnostics without reducing assurance."
+        "reason": "Restores interrupted state without accepting foreign heads or manually changing canonical truth."
       },
       {
-        "id": "ALT-IGNORE-BASE",
-        "summary": "Ignore PR base SHA when the branch SHA matches.",
+        "id": "ALT-IGNORE-PR-DRIFT",
+        "summary": "Suppress stale persisted PR head comparison whenever main advances.",
         "disposition": "rejected",
-        "reason": "Could persist closure against unproven final implementation main."
+        "reason": "Allows foreign branch mutation to be overwritten and accepted as part of trusted release."
       },
       {
-        "id": "ALT-SLEEP-ONCE",
-        "summary": "Sleep one fixed interval then assume remote state is correct.",
+        "id": "ALT-STATE-MANUAL",
+        "summary": "Change canonical release-state JSON to the newer PR HEAD.",
         "disposition": "rejected",
-        "reason": "Still lacks falsifiable identity evidence and may fail with slow GitHub indexing."
+        "reason": "Bypasses executor proof and CAS."
       },
       {
-        "id": "ALT-MANUAL-STATE",
-        "summary": "Rewrite canonical release-state to point to the new PR head.",
+        "id": "ALT-RETRY-UNCHANGED",
+        "summary": "Rerun the same failed executor without repair.",
         "disposition": "rejected",
-        "reason": "Would bypass the trusted executor and parent receipt transaction."
+        "reason": "Already proven to stop at the pre-reproject PR head equality guard."
       }
     ],
     "specialistReviews": [
@@ -215,131 +220,130 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "The failure code masks which PR field disagreed after force-with-lease, so eventual consistency is not conclusively proven.",
-        "resolution": "Introduce bounded exact re-fetch and structured expected/actual diagnostics before allowing any persistence.",
+        "finding": "An external PR mutation can outlive an uncommitted canonical state transition.",
+        "resolution": "Authenticate the partial mutation as a completed metadata-only closure before reconcile.",
         "evidence": [
-          "Release Unit Execution #312 attempt 2",
-          "PR #1138 reprojected head dcc450715b9a...",
-          "scripts/release-unit-parent-close.mjs immediate identity check"
+          "#312 attempt 2",
+          "canonical state a74d72ab",
+          "PR #1138 dcc4507"
         ]
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A retry window must not accept an unexpected SHA or PR target branch.",
-        "resolution": "Every read checks all immutable expected fields; only simultaneous exact match PASS.",
+        "finding": "A generic reproject on any mismatched PR HEAD would trust attacker-controlled history.",
+        "resolution": "Require direct parent, ancestry, allowed diff and deterministic receipt-bound artifact.",
         "evidence": [
-          "RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH",
-          "GitHub PR REST head/base refs"
+          "scripts/release-unit-parent-close.mjs",
+          "immutable source"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The state remained old PR_OPEN even though GitHub branch moved; false commitment would corrupt truth.",
-        "resolution": "Retain no canonical state update until exact PR identity; preserve existing CAS and force-with-lease semantics.",
+        "finding": "Remote and canonical state refer to different PR HEAD/base after interruption.",
+        "resolution": "No canonical persistence until authenticated recovery and new exact remote PR CI.",
         "evidence": [
-          "canonical release-state a74d72ab...",
-          "PR #1138 head dcc450..."
+          "state.json PR_OPEN",
+          "commits/dcc4507"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "PR #1138 #9213 returned action_required rather than a release authority.",
-        "resolution": "Do not treat pull_request action_required as CI success; executor will require fresh workflow_dispatch CI.",
+        "finding": "Old #9213 action_required PR CI does not authorize closure.",
+        "resolution": "Fresh workflow_dispatch CI, exact current HEAD and final main main-ci success required.",
         "evidence": [
           "CI #9213",
-          "ensureParentClosureCiDispatch"
+          "main CI #9220"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "New reproducible blocking machine error in executor with inadequate field-level diagnostics.",
-        "resolution": "Record Failure Intake issue #1141 and add adversarial regression coverage.",
+        "finding": "Existing #1141 addressed immediate remote read inconsistency, not durable restart consistency.",
+        "resolution": "Track separate failure #1144 with deterministic regression.",
         "evidence": [
-          "Issue #1141",
-          "Release Unit Execution attempt 2"
+          "Issue #1144",
+          "Issue #1141"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-GH-PR-01",
-        "scenario": "Accept stale PR list object immediately after push.",
-        "finding": "Read-after-write may expose old SHA.",
-        "resolution": "Fresh numbered PR GET is authoritative for final equality.",
+        "id": "CH-RESUME-01",
+        "scenario": "Remote PR HEAD differs and main advanced: accept without inspecting remote HEAD.",
+        "finding": "Would overwrite a foreign PR commit.",
+        "resolution": "Prove remote previous closure's committed plan and artifact.",
         "status": "resolved"
       },
       {
-        "id": "CH-GH-PR-02",
-        "scenario": "Ignore mismatched base SHA if head is exact.",
-        "finding": "Could authorize closure against unproven main.",
-        "resolution": "Always verify base SHA and ref.",
+        "id": "CH-RESUME-02",
+        "scenario": "PR head has correct-looking file names but wrong source-plan binding.",
+        "finding": "Forged parent proof may claim unrelated source.",
+        "resolution": "Derive expected parent context from immutable source and canonical receipts.",
         "status": "resolved"
       },
       {
-        "id": "CH-GH-PR-03",
-        "scenario": "Retry forever until any PR is found.",
-        "finding": "Hung executor and indefinite release authority ambiguity.",
-        "resolution": "Cap retries and produce expiry code.",
+        "id": "CH-RESUME-03",
+        "scenario": "PR closure commit has extra parent.",
+        "finding": "Foreign code could be included in parent closure.",
+        "resolution": "Require one commit parent exactly equal to PR base.",
         "status": "resolved"
       },
       {
-        "id": "CH-GH-PR-04",
-        "scenario": "Use a fixed sleep then accept without rechecking.",
-        "finding": "Assumed state is not proof.",
-        "resolution": "Every iteration fetches and validates exact identity.",
+        "id": "CH-RESUME-04",
+        "scenario": "Main advanced through modified child-protected file.",
+        "finding": "Protected overlap invalidates parent reconciliation.",
+        "resolution": "Require existing proveParentMainAdvance PASS.",
         "status": "resolved"
       },
       {
-        "id": "CH-GH-PR-05",
-        "scenario": "PR changes owner/ref during retry.",
-        "finding": "Accepting number alone would bind foreign PR.",
-        "resolution": "Require exact branch/ref and state on every read.",
+        "id": "CH-RESUME-05",
+        "scenario": "Remote artifact has local-only matching bytes.",
+        "finding": "Uncommitted proof could bypass exact persisted evidence.",
+        "resolution": "Use git show HEAD:path for exact committed bytes.",
         "status": "resolved"
       },
       {
-        "id": "CH-GH-PR-06",
-        "scenario": "Close PR while executor sleeps.",
-        "finding": "Closed stale PR cannot persist parent closure.",
-        "resolution": "Closed PR remains BLOCK without CI dispatch.",
+        "id": "CH-RESUME-06",
+        "scenario": "PR head differs but main equals persisted base.",
+        "finding": "No trusted main advance to motivate reprojection.",
+        "resolution": "Reject stale or foreign PR head.",
         "status": "resolved"
       },
       {
-        "id": "CH-GH-PR-07",
-        "scenario": "Persist state despite exhausting retry bound.",
-        "finding": "Unverified remote identity would become canonical.",
-        "resolution": "Throw machine-readable mismatch before returning a state transition.",
+        "id": "CH-RESUME-07",
+        "scenario": "PR is closed or branch targets foreign base ref.",
+        "finding": "An invalid PR could be mistakenly resumed.",
+        "resolution": "Exact open/ref/number gates required.",
         "status": "resolved"
       },
       {
-        "id": "CH-GH-PR-08",
-        "scenario": "Test mock takes real time across eight retries.",
-        "finding": "Regression is slow and nondeterministic.",
-        "resolution": "Inject wait callback with no-op under tests; default runner bounded.",
+        "id": "CH-RESUME-08",
+        "scenario": "New reprojected branch passes but state remains stale again.",
+        "finding": "Next interrupted retry must remain safely resumable.",
+        "resolution": "Repeat deterministic proof under new main and persist state via existing CAS only after exact PR verification.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan alone; require exact Plan Before Code PASS before editing code.",
-      "Add a testable exact PR identity predicate with all required state/ref/SHA comparisons.",
-      "Add a bounded read-after-write reconciliation function that re-GETs the numbered PR and never uses stale list data to PASS.",
-      "At expiry, emit RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH with stable machine-readable expected/actual/read-count diagnostics.",
-      "Preserve existing GitHub branch force-with-lease update, PR discovery and exact CI dispatch behavior.",
-      "Add adversarial tests with injected PR response series and deterministic wait for immediate PASS, delayed convergence, stale head/base, changed ref/closed state and terminal expiry.",
-      "Prove Plan, Edit-Time, Known Failure replay, Quality, TypeScript, Production build and Completion Truth on the exact implementation HEAD.",
-      "Commit the closure lifecycle candidate from the verified implementation HEAD and require exact PR-head CI SUCCESS.",
-      "Merge hardening only after fresh PR CI and require post-merge main CI SUCCESS.",
-      "Replay the unmodified immutable source; prove parent PR exact-head CI, merge, canonical CLOSED state and no duplicate release-unit receipts; route any new blocker to Failure Intake."
+      "Commit the plan alone; require canonical Plan Before Code PASS.",
+      "Introduce a deterministic interrupted remote closure proof verifier, independent from normal matching-head acceptance.",
+      "Require exact single-parent metadata-only diff, source/transaction identity and expected receipt-bound proof artifact bytes.",
+      "Authenticate previous PR closure before any newer-main reproject; keep foreign or unchanged-main drift blocked.",
+      "Exercise tampered artifact, wrong head/base, extra parent, wrong source, unrelated changed files and duplicate-resume negative tests.",
+      "Verify Knowledge, Plan, Edit-Time, Incremental Replay, Quality, TypeScript, Production and Completion Truth against exact implementation HEAD.",
+      "Commit the Truth-derived Lifecycle closure and require fresh exact-head PR CI before merge.",
+      "Require merged main CI SUCCESS before retrying the original source executor.",
+      "Verify successful parent closure PR CI, merge, canonical CLOSED receipt and no duplicate U01–U03 operations; route new blockers through Failure Intake."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-PR-IDENTITY-RECONCILIATION-V1",
+      "request": "PO-2026-10-08-CONTROL-PLANE-PARENT-INTERRUPTED-REPROJECTION-V1",
       "authority": [
         "release-infrastructure"
       ],
@@ -350,10 +354,10 @@
         "tests/control-plane-release-unit-execution-binding.test.ts"
       ],
       "impactedReadOnly": [
-        "scripts/release-unit-execute.mjs",
         "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/release-unit-execute.mjs",
         ".github/workflows/release-unit-execution.yml",
-        "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
+        "quality/knowledge/release-parent-closure-proofs/dev-control-plane-multi-unit-rehearsal-v1.json"
       ],
       "mustCreate": [],
       "forbidden": [
@@ -375,7 +379,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-PR-IDENTITY-RECONCILIATION-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-PARENT-INTERRUPTED-REPROJECTION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -393,16 +397,16 @@
     },
     "requirements": [
       {
-        "id": "REQ-PR-READ-AFTER-WRITE-EXACT",
-        "requirement": "The trusted executor must bind the parent closure PR after force-with-lease to a fresh exact remote identity or fail closed with structured proof on expiry.",
+        "id": "REQ-INTERRUPTED-PARENT-REPROJECTION",
+        "requirement": "An interrupted external parent-closure PR refresh must be authenticated against immutable receipts before safe replay or remain blocked, with no canonical truth overwrite.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-parent-closure-pr-binding",
+          "breadth": "release-parent-closure-resume-atomicity",
           "strength": 2,
           "dimensions": [
             "transaction-identity",
             "forbidden-state",
-            "behavioral-proof",
+            "resumable",
             "truth",
             "lifecycle",
             "close"
@@ -423,22 +427,22 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PR-STALENESS",
-            "statement": "A stale head/base ref cannot authorize a closure PR.",
+            "id": "NEG-FOREIGN-REMOTE-HEAD",
+            "statement": "An altered or foreign remote PR head must not authorize canonical parent reprojection.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-PR-NONTERMINATING",
-            "statement": "Remote PR identity failure cannot cause unbounded retries.",
+            "id": "NEG-UNVERIFIED-METADATA",
+            "statement": "A missing or forged parent proof artifact cannot be accepted as interrupted closure.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-PR-DIAGNOSTIC",
-            "statement": "An exhausted identity mismatch must report the exact expected/observed fields.",
+            "id": "NEG-NO-NEWER-MAIN",
+            "statement": "A PR head mismatch cannot be ignored unless a strictly newer final main is independently proven.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -447,14 +451,14 @@
       }
     ]
   },
-  "notes": "Incident recorded in Failure Intake #1141. Immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 unchanged; U01/U02/U03 CLOSED. Live executor #312 attempt 2 reprojected PR #1138 to closure HEAD dcc450715b9a5dd6690be98017f9f98911b96805 based on main c8b1897fc34bd8b867e9fa3e6e136f2ea6039308, but failed immediate post-push PR identity check. GitHub PR now shows matching refs/SHA; exact failing field unknown because old error lacked structured details. New proof only adds bounded re-fetch and full diagnostics. Plan Before Code #9215 explicitly measured the canonical projected failure corpus (19) and guardDigest 128614ad; updated expectation and replaced an underspecified forbidden state with a falsifiable negative proof condition.",
+  "notes": "Failure Intake #1144. Authenticated local facts: PR #1138 HEAD dcc450715b9a5dd6690be98017f9f98911b96805, parent c8b1897fc34bd8b867e9fa3e6e136f2ea6039308, diff only active-plan and parent proof artifact; canonical state a74d72ab4c9b49301ae45fef9fe0b0c9cf14592c still expects old HEAD ad52d8... / base 0c53e9...; main 0ab58e16d5329ef80336aefb65ae99fff65881b0 CI #9220 success. Do not rerun #312 until this resumability gap is closed. Sentinel proof-dimension alignment: `resumable` is the declared registry proof dimension; unregistered `resumability` was rejected. CI #9223 regression mock for git `--name-status` incorrectly supplied escaped text instead of real tab/newline separators; corrected.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "0a710662bf651bd6e5b96f7e195149f766917947",
-    "closedAt": "2026-10-08T15:09:14.719Z",
+    "verifiedImplementationHead": "1da4b41452e0c94ef04f40e995ea308eb1768f76",
+    "closedAt": "2026-10-08T16:13:34.442Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-PR-IDENTITY-RECONCILIATION-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-PARENT-INTERRUPTED-REPROJECTION-V1",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
