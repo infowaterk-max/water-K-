@@ -205,6 +205,9 @@ export function refreshReleaseUnitIdentity(manifest){
   }
   return next;
 }
+export function releaseUnitChildTask(manifest,parentPlan){
+  return 'Execute canonical release unit '+manifest.releaseUnitId+' of '+parentPlan.taskId+' without widening the manifest-authorized scope.';
+}
 export function bindReleaseUnitChildTransaction(manifest,{parentPlan,guardDigest,expectedSubsystems=[],expectedDomains=[],expectedAuthorities=[],expectedKnownFailureIds=[],acknowledgedPoInstructionIds=[],acknowledgedNegativeKnowledgeIds=[],semanticExecutionRoute={}}={}){
   if(manifest?.contract!==RELEASE_UNIT_MANIFEST_CONTRACT)throw new Error('RELEASE_UNIT_MANIFEST_CONTRACT_INVALID');
   if(!parentPlan?.taskId)throw new Error('RELEASE_UNIT_PARENT_PLAN_REQUIRED');
@@ -213,7 +216,7 @@ export function bindReleaseUnitChildTransaction(manifest,{parentPlan,guardDigest
   const childPlan=structuredClone(parentPlan);
   delete childPlan.lifecycle;
   childPlan.taskId=taskId;
-  childPlan.task='Execute canonical release unit '+manifest.releaseUnitId+' of '+parentPlan.taskId+' without widening the manifest-authorized scope.';
+  childPlan.task=releaseUnitChildTask(manifest,parentPlan);
   childPlan.status='ready-for-implementation';
   childPlan.guardDigest=guardDigest;
   childPlan.changeBaseSha=manifest.targetBaseSha;
