@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-RELEASE-CHILD-TASK-SCOPE-PROJECTION-V1",
   "task": "Correct canonical release child transaction scope projection to use the identical generated child task as its sealed development plan.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "c19e49b0a6e29beffd949bf27df1d3963d43b39b",
   "plannedFilePatterns": [
@@ -497,5 +497,18 @@
       }
     ]
   },
-  "notes": "Plan-only issue #1170 hardening. Live #372/child #9282 demonstrated a true canonical intent scope mismatch (expected [], actual release-infrastructure, guard drift aa79c504 vs a41cfd0c). The old failed state stays STALE and source identities remain immutable. This plan is an executable authority only after PROVE_PLAN PASS; no implementation code edits before it. Recompute scope from generated child task in planner and binder, not parent task. Full Known Failure replay required for shoperation infrastructure files. Exact-head #9287 Sentinel integrity regression correctly rejected two unsupported evidence semantics: Knowledge Preflight is CAP-ATLAS, not CAP-QUALITY; Plan/Edit-Time producers are CAP-QUALITY, not CAP-RELEASE. Requirements are now scoped to supported canonical capability/dimensions without altering guard implementation or weakening tests."
+  "notes": "Plan-only issue #1170 hardening. Live #372/child #9282 demonstrated a true canonical intent scope mismatch (expected [], actual release-infrastructure, guard drift aa79c504 vs a41cfd0c). The old failed state stays STALE and source identities remain immutable. This plan is an executable authority only after PROVE_PLAN PASS; no implementation code edits before it. Recompute scope from generated child task in planner and binder, not parent task. Full Known Failure replay required for shoperation infrastructure files. Exact-head #9287 Sentinel integrity regression correctly rejected two unsupported evidence semantics: Knowledge Preflight is CAP-ATLAS, not CAP-QUALITY; Plan/Edit-Time producers are CAP-QUALITY, not CAP-RELEASE. Requirements are now scoped to supported canonical capability/dimensions without altering guard implementation or weakening tests.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "05454279042acad60f0b5c83d82e16f720a355ac",
+    "closedAt": "2026-10-08T22:09:33.052Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-08-ISSUE-1170-CANONICAL-CHILD-INTENT-SCOPE",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
