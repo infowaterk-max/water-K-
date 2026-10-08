@@ -57,7 +57,7 @@ if(parentClosureRoute){
     }
     if(diff.head&&parentClosureContext?.finalMainSha!==diff.head)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_FINAL_MAIN_MISMATCH',expected:parentClosureContext?.finalMainSha??null,actual:diff.head});
   }
-  parentClosureProofEvidence={decision:issues.length?'BLOCK':'PASS',path:expected?.path??parentClosureProofPath||null,files:issues.length||!expected?[]:[expected.path],issues,digest:actualDigest};
+  parentClosureProofEvidence={decision:issues.length?'BLOCK':'PASS',path:(expected?.path??parentClosureProofPath)||null,files:issues.length||!expected?[]:[expected.path],issues,digest:actualDigest};
 }
 const effectiveActualFiles=[...new Set([...(diff.materialFiles??[]),...(noCodeEvidence.decision==='PASS'?noCodeEvidence.files:[]),...(parentClosureProofEvidence.decision==='PASS'?parentClosureProofEvidence.files:[])])];
 const actualOutsidePlanned=effectiveActualFiles.filter(file=>!planMatchers.some(matcher=>matcher.test(file)));
