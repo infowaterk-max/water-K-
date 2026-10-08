@@ -11,6 +11,39 @@ const defaultRun=(command,args,{cwd=process.cwd(),input=null,env={}}={})=>execFi
 const repoName=(run,cwd)=>text(run('gh',['repo','view','--json','nameWithOwner','-q','.nameWithOwner'],{cwd}));
 const ownerOf=repo=>repo.split('/')[0];
 const ghApi=(run,cwd,args)=>parse(run('gh',['api',...args],{cwd}));
+const defaultWait=durationMs=>Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,durationMs);
+// GitHub can briefly serve the previous PR head/base after a leased branch push.
+// Only a fresh numbered PR GET with the entire exact identity may authorize
+// a parent closure persistence transition; timeout remains fail-closed.
+export function requireExactParentClosurePrIdentity({
+  repository,prNumber,headSha,branch,finalMain,
+  run=defaultRun,cwd=process.cwd(),maxReads=8,wait=defaultWait,
+}={}){
+  const expected={
+    number:Number(prNumber),state:'open',headSha:text(headSha),
+    headRef:text(branch),baseRef:'main',baseSha:text(finalMain),
+  };
+  if(!text(repository)||!Number.isSafeInteger(expected.number)||expected.number<1||
+      !expected.headSha||!expected.headRef||!expected.baseSha)
+    throw new Error('RELEASE_PARENT_CLOSURE_PR_IDENTITY_REQUIRED');
+  const reads=Number.isSafeInteger(maxReads)?Math.min(8,Math.max(1,maxReads)):8;
+  let observed=null;
+  for(let attempt=1;attempt<=reads;attempt+=1){
+    try{
+      const pr=ghApi(run,cwd,['repos/'+repository+'/pulls/'+expected.number]);
+      observed={
+        number:Number(pr?.number??0),state:pr?.state??null,
+        headSha:pr?.head?.sha??null,headRef:pr?.head?.ref??null,
+        baseRef:pr?.base?.ref??null,baseSha:pr?.base?.sha??null,
+      };
+      if(Object.keys(expected).every(key=>observed[key]===expected[key]))return pr;
+    }catch(error){
+      observed={lookupError:String(error?.message??error)};
+    }
+    if(attempt<reads)wait(1000);
+  }
+  throw new Error('RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH:'+JSON.stringify({expected,observed,reads}));
+}
 const exactSuccessfulCi=(runs,{headSha,headBranch}={})=>(runs??[]).find(item=>item?.headSha===headSha&&item?.headBranch===headBranch&&item?.status==='completed'&&item?.conclusion==='success')??null;
 const uniq=values=>[...new Set((values??[]).filter(Boolean))].sort();
 const finalImplementationMain=state=>[...(state.units??[])].sort((a,b)=>Number(a.order)-Number(b.order)).at(-1)?.merge?.mergedMainSha??null;
@@ -152,13 +185,12 @@ function createClosurePullRequest({proof,state,finalMain,run=defaultRun,cwd=proc
     const repository=repoName(run,cwd),owner=ownerOf(repository);
     const list=ghApi(run,cwd,['repos/'+repository+'/pulls?head='+encodeURIComponent(owner+':'+branch)+'&state=all&per_page=20']);
     let pr=(list??[]).find(item=>item.state==='open')??null;
-    if(pr&&pr.head?.sha!==headSha)pr=ghApi(run,cwd,['repos/'+repository+'/pulls/'+pr.number]);
     if(!pr){
       const closed=(list??[]).find(item=>item.state==='closed');
       if(closed)throw new Error('RELEASE_PARENT_CLOSURE_PR_CLOSED:'+closed.number);
       pr=ghApi(run,cwd,['-X','POST','repos/'+repository+'/pulls','-f','title=Close Development Transaction '+state.parentTransactionId,'-f','head='+branch,'-f','base=main','-f','body=Canonical parent Completion Truth/Lifecycle closure. Verified implementation main: '+finalMain]);
     }
-    if(pr.state!=='open'||pr.head?.sha!==headSha||pr.head?.ref!==branch||pr.base?.ref!=='main'||pr.base?.sha!==finalMain)throw new Error('RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH');
+    pr=requireExactParentClosurePrIdentity({repository,prNumber:pr.number,headSha,branch,finalMain,run,cwd});
     const ciDispatch=ensureParentClosureCiDispatch({headSha,headBranch:branch,repo:repository,run,cwd});
     return{contract:'shoporation.release-parent-closure-persistence.v1',state:'PR_OPEN',branch,prNumber:pr.number,headSha,baseSha:finalMain,url:pr.html_url??null,ciDispatch};
   }finally{
