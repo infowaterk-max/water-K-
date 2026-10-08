@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-U03-RECEIPT-BOUND-PROOF-RELOCATION-V1",
   "task": "Relocate the already-applied successor regression proof away from the U03 conflict-resolution receipt-bound production-surface test and restore that file byte-exact to its reviewed receipt-authorized blob without modifying the receipt or immutable source.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "128614ad",
   "changeBaseSha": "02cc250edfbe6cdda94138d8d1fe960248162095",
   "plannedFilePatterns": [
@@ -447,5 +447,18 @@
       }
     ]
   },
-  "notes": "Live blocker: Release Unit Execution #252 after immutable source CI attempt 12. The previous RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT is cleared. Current fail-closed error is RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID for tests/control-plane-release-unit-production-surface.test.ts because receipt resolvedBlobSha=fbdb84adb4151461c7fba35e719aad27bae4041b while main targetBlobSha=47305d897ba1ab603a7f0dfe574f7e4040cb3b10. The blob change is solely from PR #1111 regression-proof additions. This transaction restores the exact receipt-authorized blob and relocates those proofs; receipt, runtime, immutable source and persisted release-state remain unchanged."
+  "notes": "Live blocker: Release Unit Execution #252 after immutable source CI attempt 12. The previous RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT is cleared. Current fail-closed error is RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID for tests/control-plane-release-unit-production-surface.test.ts because receipt resolvedBlobSha=fbdb84adb4151461c7fba35e719aad27bae4041b while main targetBlobSha=47305d897ba1ab603a7f0dfe574f7e4040cb3b10. The blob change is solely from PR #1111 regression-proof additions. This transaction restores the exact receipt-authorized blob and relocates those proofs; receipt, runtime, immutable source and persisted release-state remain unchanged.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "74a835d3d620d436c7d8405fa9e6d00206819c42",
+    "closedAt": "2026-10-08T04:11:59.340Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-U03-RECEIPT-BOUND-PROOF-RELOCATION-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
