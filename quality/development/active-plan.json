@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-RELEASE-PARENT-POST-MERGE-MAIN-CI-V1",
   "task": "Harden release parent merge-to-main CI execution with exact merged-head dispatch, durable auditable run evidence and fail-closed restart closure.",
-  "status": "closed",
+  "status": "ready-for-implementation",
   "guardDigest": "128614ad",
   "changeBaseSha": "5a39a1d8f31458d45617d3246b77ec3740db19d0",
   "plannedFilePatterns": [
@@ -77,7 +77,8 @@
       "A dispatch may take time to appear in run listing, and an executor can be interrupted between dispatch and receipt persistence.",
       "Any main ref advance before dispatch can cause a workflow to target the wrong code; require exact merged-head matching, otherwise block.",
       "Manually triggered CI on the same SHA can be unrelated; discriminate via deterministic parent transaction and merge nonce and the run's event/branch/identity.",
-      "The canonical state must be persisted between merge, dispatch and terminal CI result via existing CAS; do not infer success from a dispatched signal."
+      "The canonical state must be persisted between merge, dispatch and terminal CI result via existing CAS; do not infer success from a dispatched signal.",
+      "Late review of PR #1166 revealed a cross-system crash window: GH workflow_dispatch may succeed while the canonical CAS write of DISPATCH_REQUESTED has not yet happened. On restart, the persisted INTENT_RECORDED state plus a delayed GitHub listing could trigger a second dispatch. The GitHub API does not offer a transactionally idempotent workflow_dispatch call."
     ],
     "scope": {
       "in": [
@@ -120,7 +121,8 @@
         "Wrong SHA/branch/event/workflow/name/nonce/actor, missing or failed run and stale unrelated success cannot transition to MERGED.",
         "Terminal SUCCESS on the exact merged main SHA yields persisted CI evidence and only then PARENT_CLOSED.",
         "Resumption after post-merge-but-pre-persistence interruption is fail-closed and validates original PR/proof before accepting merge.",
-        "Full quality tests, TypeScript, build, Truth/Lifecycle and exact-head PR/main CI reach SUCCESS before merge."
+        "Full quality tests, TypeScript, build, Truth/Lifecycle and exact-head PR/main CI reach SUCCESS before merge.",
+        "Persist a one-shot dispatch authorization before invoking the GitHub workflow_dispatch side effect. A restart from any uncertain state MUST NOT issue another dispatch automatically; it can only reconcile the uniquely correlated run or fail closed awaiting operator review."
       ],
       "invariants": [
         "MERGED and PARENT_CLOSED for new closures require independently confirmed CI SUCCESS on exact mergedMainSha.",
@@ -137,7 +139,8 @@
         "A failed/cancelled or in-progress run is recorded as PASS.",
         "Two simultaneous or duplicate dispatches on retry with identical parent identity.",
         "A forged branch/source, missing child receipt or changed main is accepted.",
-        "A CI run started against different main SHA is incorrectly attributed to the merge."
+        "A CI run started against different main SHA is incorrectly attributed to the merge.",
+        "Two workflow_dispatch calls can originate from the same persisted INTENT_RECORDED state when GitHub run-list visibility is delayed or an executor crashes after the first dispatch."
       ]
     },
     "model": {
@@ -176,7 +179,8 @@
         "A previous user-initiated main CI on the same SHA is mistakenly adopted.",
         "A CI run targets a subsequent main SHA after merge races.",
         "Runner actor/title/workflow inputs differ from the canonical dispatch intention.",
-        "Workflow fails or is cancelled while executor polls."
+        "Workflow fails or is cancelled while executor polls.",
+        "Atomicity gap between accepted external GitHub workflow_dispatch and canonical state CAS can produce duplicate accepted workflow events without an idempotency key."
       ],
       "edgeCases": [
         "First successful canonical parent merge.",
@@ -190,7 +194,9 @@
         "Interrupted after dispatch but before run ID persisted.",
         "Exact correlated run finishes FAILED or CANCELLED.",
         "Legacy already-MERGED persisted state from before #1156.",
-        "A second retry sees SUCCESS without duplicating workflow."
+        "A second retry sees SUCCESS without duplicating workflow.",
+        "Exactly between GitHub accepting workflow_dispatch and the executor persisting a run ID / DISPATCH_REQUESTED state; a restart must not dispatch again even if GitHub run-list is temporarily empty.",
+        "Exactly between durable dispatch authorization CAS and the GH network request; the executor must prefer explicit uncertainty over an unsafe automatic retry."
       ]
     },
     "alternatives": [
@@ -224,8 +230,8 @@
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "GITHUB_TOKEN squash-merge suppression prevents the expected push-triggered verification.",
-        "resolution": "Use explicit workflow_dispatch tied to persisted merged main identity, and wait for exact run result.",
+        "finding": "GITHUB_TOKEN squash-merge suppression prevents the expected push-triggered verification. The network dispatch side effect is not idempotent if the execution crashes before persisting the run response.",
+        "resolution": "Use explicit workflow_dispatch tied to persisted merged main identity, and wait for exact run result. Persist a one-shot authorization CAS before dispatch, and never resend automatically when the result may already have been accepted.",
         "evidence": [
           "scripts/release-unit-parent-close.mjs",
           ".github/workflows/ci.yml"
@@ -343,6 +349,13 @@
         "finding": "Risk: Pre-hardening receipts already marked MERGED.",
         "resolution": "Resolution: Do not mutate old receipts; gate only new pending transitions.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-11",
+        "scenario": "A workflow_dispatch completes server-side, but the runner crashes before it persists DISPATCH_REQUESTED; an immediate retry sees zero runs because the GitHub list API has eventual consistency.",
+        "finding": "Existing implementation checks only INTENT_RECORDED then dispatches again, violating at-most-once behavior despite otherwise valid exact-head proof.",
+        "resolution": "Introduce a durable pre-dispatch one-shot reservation; execute the side effect only in the same CAS-winning process after persistence. On uncertain resume, list/poll the nonce-bound run, never auto-dispatch again. Document rare fail-closed manual recovery if a crash happens after reservation but before GitHub accepts the call.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -353,7 +366,9 @@
       "Exercise positive end-to-end state evolution and negative spoof, stale, wrong SHA, failed run and crash/resume cases.",
       "Run Quality, TypeScript, Production build, Plan, Edit-Time, Incremental Replay, Truth and Lifecycle checks at exact head.",
       "Open PR only after branch proof; require exact-head PR CI then merge with approval gate.",
-      "Verify merged main exact-head CI and do not mutate original source/receipts."
+      "Verify merged main exact-head CI and do not mutate original source/receipts.",
+      "Add explicit fault-injection regression for crash after accepted dispatch before run-ID CAS and a stale/empty run-list response; assert exactly one network dispatch and PENDING/BLOCK after restart.",
+      "Reopen previously closed plan for measured critical race, then require Plan Before Code PASS before implementing pre-dispatch durable reservation and exact-head lifecycle re-verification."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-08-ISSUE-1156-AUTO-MAIN-CI-V1",
@@ -464,18 +479,5 @@
       }
     ]
   },
-  "notes": "Issue #1156: bot-merge post-merge main CI execution edge, source #65e52ffd... immutable, U01-U03 CLOSED. Last known main 5a39a1d8f31458d45617d3246b77ec3740db19d0 and CI #9261 SUCCESS; do not change their proof. Plan-only before implementation. Old #182 queued without jobs is independently isolated and not part of this release claim. No changes to canonical state outside entrusted executor runtime. Plan-only CI #9263 measured 19 expected failure IDs including 9 Template Factory inherited release regressions and digest 128614ad. Corrected canonical Release/Known Failure reviewer roles and two concrete adversarial challenge cases prior to code edit. CI #9265 measured one Sentinel integrity failure: CAP-RELEASE was asserted by Plan/Edit-Time guards that prove CAP-QUALITY, and 'execution/audit/resumability' dimensions were not in their proof semantics. Preserved CAP-RELEASE but rebound claim to actual GUARD-RELEASE-RISK plus wildcard GUARD-QUALITY-TESTS/PRODUCTION-BUILD, and to the supported exact proof dimensions. GitHub REST run.name also reflects run-name marker; the run verifier now binds this unique title and does not rely on GH CLI workflowName output.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "5636ba18a4f0e5d818c4563acf285007822db06b",
-    "closedAt": "2026-10-08T20:53:16.674Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-08-ISSUE-1156-AUTO-MAIN-CI-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Issue #1156: bot-merge post-merge main CI execution edge, source #65e52ffd... immutable, U01-U03 CLOSED. Last known main 5a39a1d8f31458d45617d3246b77ec3740db19d0 and CI #9261 SUCCESS; do not change their proof. Plan-only before implementation. Old #182 queued without jobs is independently isolated and not part of this release claim. No changes to canonical state outside entrusted executor runtime. Plan-only CI #9263 measured 19 expected failure IDs including 9 Template Factory inherited release regressions and digest 128614ad. Corrected canonical Release/Known Failure reviewer roles and two concrete adversarial challenge cases prior to code edit. CI #9265 measured one Sentinel integrity failure: CAP-RELEASE was asserted by Plan/Edit-Time guards that prove CAP-QUALITY, and 'execution/audit/resumability' dimensions were not in their proof semantics. Preserved CAP-RELEASE but rebound claim to actual GUARD-RELEASE-RISK plus wildcard GUARD-QUALITY-TESTS/PRODUCTION-BUILD, and to the supported exact proof dimensions. GitHub REST run.name also reflects run-name marker; the run verifier now binds this unique title and does not rely on GH CLI workflowName output. PR #1166 exact-head review identified a critical remaining at-most-once dispatch crash window even though #9267 branch-CI was SUCCESS. The previous LEARN/VERIFIED claim is reopened, not kept as DONE, until a pre-dispatch CAS reservation and negative fault-injection tests are implemented and fully reverified. Existing immutable rehearsal source and closed receipts must remain unchanged."
 }
