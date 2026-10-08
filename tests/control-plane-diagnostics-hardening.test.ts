@@ -9,7 +9,8 @@ const read=(path:string)=>readFileSync(path,'utf8');
 describe('Control Plane diagnostics and exact-head hardening',()=>{
   it('keeps actual implementation diffs inside the full planned scope envelope',()=>{
     const gate=read('scripts/shoperation-plan-before-code.mjs');
-    expect(gate).toContain("evaluationMode:changedFiles.length?'actual-diff-with-plan-envelope':'planned-projection'");
+    expect(gate).toContain("evaluationMode:metadataOnlyParentClosure?'metadata-only-parent-closure':changedFiles.length?'actual-diff-with-plan-envelope':'planned-projection'");
+    expect(gate).toContain("DEV_PLAN_PARENT_CLOSURE_METADATA_PROJECTION_INVALID");
     expect(gate).toContain("DEV_PLAN_DOMAIN_SCOPE_EXPANDED");
     expect(gate).toContain("DEV_PLAN_AUTHORITY_SCOPE_EXPANDED");
     expect(gate).toContain("DEV_PLAN_FAILURE_SCOPE_EXPANDED");
