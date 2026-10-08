@@ -12,6 +12,8 @@ export const DEFAULT_MAX_FILES_PER_UNIT=12;
 export const RELEASE_UNIT_CHILD_TRANSACTION_CONTRACT='shoporation.release-unit-child-transaction.v1';
 export const RELEASE_UNIT_MAIN_ADVANCE_PROOF_CONTRACT='shoporation.release-unit-main-advance-proof.v1';
 export const RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT='shoporation.release-parent-main-advance-proof.v1';
+export const RELEASE_PARENT_CLOSURE_PROOF_PLAN_CONTRACT='shoporation.release-parent-closure-proof-plan.v1';
+export const RELEASE_PARENT_CLOSURE_CONTEXT_CONTRACT='shoporation.release-parent-closure-proof-context.v1';
 export const RELEASE_UNIT_CONFLICT_RESOLUTION_CONTRACT='shoporation.release-unit-conflict-resolution.v1';
 
 const uniq=values=>[...new Set((values??[]).filter(Boolean))].sort();
@@ -828,6 +830,84 @@ export function validateReleaseParentMainAdvanceProof(proof,{parent,fromSha,toSh
     &&overlapFiles.length===0
     &&sameJson(proof.unitCloseReceiptDigests,receiptDigests);
 }
+export function buildReleaseParentClosureProofContext({parent,sourcePlan,sourceCommit,finalMainSha,trustedMainAdvance=null}={}){
+  if(parent?.contract!==RELEASE_PARENT_EXECUTION_CONTRACT)throw new Error('RELEASE_PARENT_EXECUTION_CONTRACT_INVALID');
+  if(!Array.isArray(parent?.units)||!parent.units.length||!parent.units.every(item=>item?.state==='CLOSED'&&item?.closeReceipt))throw new Error('RELEASE_PARENT_CLOSURE_CONTEXT_CLOSED_UNITS_REQUIRED');
+  if(sourcePlan?.contract!=='shoporation.development-plan.v1'||sourcePlan?.taskId!==parent.parentTransactionId)throw new Error('RELEASE_PARENT_CLOSURE_SOURCE_PLAN_INVALID');
+  if(!sourcePlan?.completionContract)throw new Error('RELEASE_PARENT_CLOSURE_COMPLETION_CONTRACT_REQUIRED');
+  const source=String(sourceCommit??'').trim(),finalMain=String(finalMainSha??'').trim();
+  if(!/^[0-9a-f]{40}$/i.test(source)||!/^[0-9a-f]{40}$/i.test(finalMain))throw new Error('RELEASE_PARENT_CLOSURE_IDENTITY_REQUIRED');
+  const last=[...parent.units].sort((a,b)=>Number(a.order)-Number(b.order)).at(-1);
+  const lastChildMain=String(last?.merge?.mergedMainSha??'').trim();
+  if(!lastChildMain)throw new Error('RELEASE_PARENT_CLOSURE_LAST_CHILD_MAIN_REQUIRED');
+  let trustedDigest=null;
+  if(finalMain!==lastChildMain){
+    if(!validateReleaseParentMainAdvanceProof(trustedMainAdvance,{parent,fromSha:lastChildMain,toSha:finalMain}))throw new Error('RELEASE_PARENT_CLOSURE_TRUSTED_MAIN_ADVANCE_INVALID');
+    trustedDigest=strongDigest(trustedMainAdvance);
+  }else if(trustedMainAdvance!=null)throw new Error('RELEASE_PARENT_CLOSURE_TRUSTED_MAIN_ADVANCE_UNEXPECTED');
+  return{
+    contract:RELEASE_PARENT_CLOSURE_CONTEXT_CONTRACT,
+    proofPlanContract:RELEASE_PARENT_CLOSURE_PROOF_PLAN_CONTRACT,
+    parentTransactionId:parent.parentTransactionId,
+    sourceCommit:source,
+    sourcePlanDigest:strongDigest(sourcePlan),
+    completionContractDigest:strongDigest(sourcePlan.completionContract),
+    lastChildMainSha:lastChildMain,
+    finalMainSha:finalMain,
+    unitCloseReceiptDigests:releaseParentUnitCloseReceiptDigests(parent),
+    trustedMainAdvanceDigest:trustedDigest,
+  };
+}
+
+export function buildReleaseParentClosureProofPlan({parent,sourcePlan,sourceCommit,finalMainSha,trustedMainAdvance=null}={}){
+  const context=buildReleaseParentClosureProofContext({parent,sourcePlan,sourceCommit,finalMainSha,trustedMainAdvance});
+  const plan=structuredClone(sourcePlan);
+  const closureFile='quality/development/active-plan.json';
+  plan.status='ready-for-implementation';
+  delete plan.lifecycle;
+  delete plan.releaseUnitContext;
+  plan.changeBaseSha=context.finalMainSha;
+  plan.plannedFilePatterns=[closureFile];
+  plan.parentClosureContext=context;
+  const sourceRoute=sourcePlan?.operationalIntelligence?.semanticExecutionRoute??{};
+  plan.operationalIntelligence={
+    ...structuredClone(sourcePlan.operationalIntelligence??{}),
+    semanticExecutionRoute:{
+      request:sourceRoute.request??sourcePlan?.completionContract?.sourceRef??null,
+      authority:uniq(sourcePlan?.expectedAuthorities??sourceRoute.authority??[]),
+      mustEdit:[],
+      mayEdit:[closureFile],
+      impactedReadOnly:[],
+      mustCreate:[],
+      forbidden:uniq(sourceRoute.forbidden??[]),
+      proof:[closureFile],
+      unknown:[],
+      plannedDeletions:[],
+      plannedRenames:[],
+      generatedArtifacts:[],
+    },
+  };
+  plan.notes=[String(sourcePlan?.notes??'').trim(),'Executor-derived parent closure proof plan. Historical implementation remains authoritative through CLOSED child receipts and trusted-main evidence; this plan scopes only lifecycle metadata closure.'].filter(Boolean).join(' ');
+  return plan;
+}
+
+export function validateReleaseParentClosureProofPlan(plan,{parent,sourcePlan,sourceCommit,finalMainSha,trustedMainAdvance=null}={}){
+  try{
+    const expected=buildReleaseParentClosureProofPlan({parent,sourcePlan,sourceCommit,finalMainSha,trustedMainAdvance});
+    if(plan?.contract!=='shoporation.development-plan.v1'||!['ready-for-implementation','closed'].includes(plan?.status))return false;
+    if(plan.taskId!==expected.taskId||plan.changeBaseSha!==expected.changeBaseSha)return false;
+    if(!sameJson(plan.plannedFilePatterns,expected.plannedFilePatterns))return false;
+    if(!sameJson(plan.completionContract,expected.completionContract))return false;
+    if(!sameJson(plan.parentClosureContext,expected.parentClosureContext))return false;
+    if(!sameJson(plan.operationalIntelligence?.semanticExecutionRoute,expected.operationalIntelligence?.semanticExecutionRoute))return false;
+    if(!sameJson(plan.expectedSubsystems??[],expected.expectedSubsystems??[]))return false;
+    if(!sameJson(plan.expectedDomains??[],expected.expectedDomains??[]))return false;
+    if(!sameJson(plan.expectedAuthorities??[],expected.expectedAuthorities??[]))return false;
+    if(plan.status==='closed'&&(plan.lifecycle?.state!=='LEARN'||plan.lifecycle?.truthStatus!=='VERIFIED'||plan.lifecycle?.verifiedImplementationHead!==String(finalMainSha??'')))return false;
+    return true;
+  }catch{return false;}
+}
+
 const requiredText=(value,code)=>{const normalized=String(value??'').trim();if(!normalized)throw new Error(code);return normalized;};
 const executionError=(code,details={})=>{const error=new Error(code);error.code=code;error.details=details;throw error;};
 const sortedObjects=(items=[])=>[...items].map(item=>executionClone(item)).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)));
@@ -1236,6 +1316,16 @@ export function applyReleaseUnitEvent(parent,event){
   else if(event.type==='FAILED')nextUnit=failReleaseUnitExecution(current,{code:event.code,details:event.details});
   else executionError('RELEASE_UNIT_EVENT_TYPE_INVALID',{type:event.type});
   return synchronizeReleaseParentExecution(parent,nextUnit);
+}
+
+export function recordReleaseParentClosureWithProofContext(parent,{truth,lifecyclePlan,currentMainSha,trustedMainAdvance=null,sourcePlan,sourceCommit}={}){
+  const exact=String(currentMainSha??'').trim();
+  if(!validateReleaseParentClosureProofPlan(lifecyclePlan,{parent,sourcePlan,sourceCommit,finalMainSha:exact,trustedMainAdvance}))executionError('RELEASE_PARENT_CLOSURE_PROOF_CONTEXT_INVALID');
+  if(truth?.taskId!==parent?.parentTransactionId)executionError('RELEASE_PARENT_TRUTH_TASK_MISMATCH');
+  if(truth?.sourceRef!==sourcePlan?.completionContract?.sourceRef)executionError('RELEASE_PARENT_TRUTH_SOURCE_MISMATCH');
+  const next=recordReleaseParentClosure(parent,{truth,lifecyclePlan,currentMainSha:exact,trustedMainAdvance});
+  next.closedReceipt={...next.closedReceipt,parentClosureContext:executionClone(lifecyclePlan.parentClosureContext)};
+  return next;
 }
 
 export function recordReleaseParentClosure(parent,{truth,lifecyclePlan,currentMainSha,trustedMainAdvance=null}={}){

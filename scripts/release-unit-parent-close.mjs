@@ -2,7 +2,7 @@ import {execFileSync} from 'node:child_process';
 import {mkdtempSync,mkdirSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT,recordReleaseParentClosure,releaseParentProtectedFiles,releaseParentUnitCloseReceiptDigests} from './lib/shoperation-release-unit-runtime.mjs';
+import {RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT,buildReleaseParentClosureProofPlan,recordReleaseParentClosureWithProofContext,releaseParentProtectedFiles,releaseParentUnitCloseReceiptDigests} from './lib/shoperation-release-unit-runtime.mjs';
 
 const text=value=>String(value??'').trim();
 const parse=value=>JSON.parse(String(value??'null'));
@@ -76,17 +76,18 @@ function classifyParentClosureCi({headSha,headBranch,repo=null,run=defaultRun,cw
   return{decision:'PENDING',reason:'PARENT_CLOSURE_CI_NOT_STARTED',run:null};
 }
 
-function runParentProof({state,sourceCommit,finalMain,run=defaultRun,cwd=process.cwd()}={}){
+function runParentProof({state,sourceCommit,finalMain,trustedMainAdvance=null,run=defaultRun,cwd=process.cwd()}={}){
   const temp=mkdtempSync(path.join(os.tmpdir(),'shoperation-release-parent-close-'));
   const branch='release-execution/closure/'+slug(state.parentTransactionId);
   try{
     run('git',['worktree','add','--detach',temp,finalMain],{cwd});
-    const plan=parse(run('git',['show',sourceCommit+':quality/development/active-plan.json'],{cwd}));
-    if(plan.taskId!==state.parentTransactionId)throw new Error('RELEASE_PARENT_SOURCE_PLAN_TASK_MISMATCH');
-    const external=plan.completionContract?.systemObligations?.externalGuards??[];
+    const sourcePlan=parse(run('git',['show',sourceCommit+':quality/development/active-plan.json'],{cwd}));
+    if(sourcePlan.taskId!==state.parentTransactionId)throw new Error('RELEASE_PARENT_SOURCE_PLAN_TASK_MISMATCH');
+    const external=sourcePlan.completionContract?.systemObligations?.externalGuards??[];
     if(external.length)throw new Error('RELEASE_PARENT_EXTERNAL_PROOF_REQUIRED:'+external.join(','));
     const artifactDir=path.join(temp,'artifacts','shoperation-development-guard');
     mkdirSync(artifactDir,{recursive:true});
+    const plan=buildReleaseParentClosureProofPlan({parent:state,sourcePlan,sourceCommit,finalMainSha:finalMain,trustedMainAdvance});
     const planPath=path.join(artifactDir,'release-parent-active-plan.json');
     writeFileSync(planPath,JSON.stringify(plan,null,2)+'\n');
     const safeEnv={
@@ -120,7 +121,7 @@ function runParentProof({state,sourceCommit,finalMain,run=defaultRun,cwd=process
     const truth=parse(readFileSync(path.join(artifactDir,'truth-gate.json'),'utf8'));
     run(process.execPath,['scripts/shoperation-close-development-plan.mjs','--emit'],{cwd:temp,env:{...truthEnv,SHOPERATION_CLOSURE_HEAD:finalMain,SHOPERATION_CLOSURE_TRUTH_REPORT:path.join(artifactDir,'truth-gate.json')}});
     const lifecyclePlan=parse(readFileSync(path.join(artifactDir,'active-plan.closed.json'),'utf8'));
-    return{temp,branch,truth,lifecyclePlan};
+    return{temp,branch,truth,lifecyclePlan,sourcePlan,closurePlan:plan};
   }catch(error){
     try{run('git',['worktree','remove','--force',temp],{cwd});}catch{}
     try{rmSync(temp,{recursive:true,force:true});}catch{}
@@ -172,8 +173,8 @@ export function closeParentReleaseExecution({state,sourceCommit,run=defaultRun,c
   }
   const finalMain=currentMain;
   try{
-    const proof=runParentProof({state,sourceCommit,finalMain,run,cwd});
-    let next=recordReleaseParentClosure(state,{truth:proof.truth,lifecyclePlan:proof.lifecyclePlan,currentMainSha:finalMain,trustedMainAdvance});
+    const proof=runParentProof({state,sourceCommit,finalMain,trustedMainAdvance,run,cwd});
+    let next=recordReleaseParentClosureWithProofContext(state,{truth:proof.truth,lifecyclePlan:proof.lifecyclePlan,currentMainSha:finalMain,trustedMainAdvance,sourcePlan:proof.sourcePlan,sourceCommit});
     next={...next,closurePersistence:createClosurePullRequest({proof,state:next,finalMain,run,cwd})};
     return{state:next,decision:'PENDING',reason:'PARENT_CLOSURE_PR_OPEN'};
   }catch(error){
@@ -194,8 +195,8 @@ export function finishParentClosurePersistence({state,sourceCommit,run=defaultRu
     const canonical=proveParentMainAdvance({state,fromSha:lastChildMain,toSha:currentMain,run,cwd});
     if(canonical.decision!=='PASS')return{state,decision:'BLOCK',reason:'RELEASE_PARENT_CLOSURE_MAIN_DRIFT',error:canonical.error??null,details:canonical.details??null};
     try{
-      const proof=runParentProof({state,sourceCommit,finalMain:currentMain,run,cwd});
-      let next=recordReleaseParentClosure(state,{truth:proof.truth,lifecyclePlan:proof.lifecyclePlan,currentMainSha:currentMain,trustedMainAdvance:canonical.proof});
+      const proof=runParentProof({state,sourceCommit,finalMain:currentMain,trustedMainAdvance:canonical.proof,run,cwd});
+      let next=recordReleaseParentClosureWithProofContext(state,{truth:proof.truth,lifecyclePlan:proof.lifecyclePlan,currentMainSha:currentMain,trustedMainAdvance:canonical.proof,sourcePlan:proof.sourcePlan,sourceCommit});
       next={...next,closurePersistence:createClosurePullRequest({proof,state:next,finalMain:currentMain,run,cwd})};
       return{state:next,decision:'PENDING',reason:'PARENT_CLOSURE_REPROJECTED'};
     }catch(error){

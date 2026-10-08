@@ -345,4 +345,18 @@ describe('release-unit execution binding hardening',()=>{
   });
 
 
+  it('wires parent proof to a derived closure plan instead of reusing the immutable source implementation envelope',()=>{
+    const parentSource=readFileSync('scripts/release-unit-parent-close.mjs','utf8');
+    const orchestrateSource=readFileSync('scripts/release-unit-orchestrate.mjs','utf8');
+    expect(parentSource).toContain("const sourcePlan=parse(run('git',['show',sourceCommit+':quality/development/active-plan.json']");
+    expect(parentSource).toContain('buildReleaseParentClosureProofPlan({parent:state,sourcePlan,sourceCommit,finalMainSha:finalMain,trustedMainAdvance})');
+    expect(parentSource).toContain("writeFileSync(planPath,JSON.stringify(plan,null,2)+'\\n')");
+    expect(parentSource).toContain('recordReleaseParentClosureWithProofContext(state');
+    expect(parentSource).not.toContain("const plan=parse(run('git',['show',sourceCommit+':quality/development/active-plan.json']");
+    expect(orchestrateSource).toContain('recordReleaseParentClosureWithProofContext');
+    expect(orchestrateSource).toContain("execFileSync('git',['show',source+':quality/development/active-plan.json']");
+    expect(orchestrateSource).toContain("RELEASE_PARENT_CLOSURE_SOURCE_COMMIT_REQUIRED");
+    expect(orchestrateSource).not.toContain('?recordReleaseParentClosure(state');
+  });
+
 });

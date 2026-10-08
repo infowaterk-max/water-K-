@@ -1,6 +1,6 @@
 // @ts-nocheck
 import {describe,expect,it} from 'vitest';
-import {applyReleaseUnitEvent,classifyReleaseUnitObligationDrift,createReleaseParentExecution,createReleaseUnitExecution,reconcileReleaseUnitManifest,reconcileSuccessorReleaseUnit,recordReleaseParentClosure,refreshReleaseUnitIdentity,releaseParentProtectedFiles,releaseParentUnitCloseReceiptDigests,reprojectReleaseUnitChildTransaction,strongDigest,validateReleaseParentMainAdvanceProof} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
+import {applyReleaseUnitEvent,buildReleaseParentClosureProofPlan,classifyReleaseUnitObligationDrift,createReleaseParentExecution,createReleaseUnitExecution,reconcileReleaseUnitManifest,reconcileSuccessorReleaseUnit,recordReleaseParentClosure,recordReleaseParentClosureWithProofContext,refreshReleaseUnitIdentity,releaseParentProtectedFiles,releaseParentUnitCloseReceiptDigests,reprojectReleaseUnitChildTransaction,strongDigest,validateReleaseParentClosureProofPlan,validateReleaseParentMainAdvanceProof} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 import {selectSuccessorProjectedOperations} from '../scripts/release-unit-github-runtime.mjs';
 
 const sha=char=>char.repeat(40);
@@ -450,5 +450,52 @@ describe('Control Plane release-unit orchestration',()=>{
     })).toEqual(projected.operations);
   });
 
+
+  it('derives a closure-only parent proof plan without mutating immutable source intent',()=>{
+    let p=parent();const [u1,u2,u3]=p.units.map((x:any)=>x.manifest);
+    p=complete(p,u1.releaseUnitId,u1,A,sha('1'),B,1);
+    p=complete(p,u2.releaseUnitId,fresh(u2,B,'b'),B,sha('2'),C,2);
+    p=complete(p,u3.releaseUnitId,fresh(u3,C,'c'),C,sha('3'),D,3);
+    const sourcePlan:any={
+      contract:'shoporation.development-plan.v1',taskId:'DEV-ORCH',task:'Create inert fixture corpus.',status:'ready-for-implementation',guardDigest:'source-guard',changeBaseSha:A,
+      plannedFilePatterns:['tests/control-plane-release-unit-production-surface.test.ts','quality/knowledge/rehearsal-fixtures/v1/*.json'],expectedSubsystems:[],expectedDomains:['DOMAIN-QUALITY'],expectedAuthorities:['quality-knowledge-system'],expectedKnownFailureIds:[],acknowledgedNegativeKnowledgeIds:[],acknowledgedPoInstructionIds:[],exceptions:[],
+      operationalIntelligence:{sourceKind:'product-owner-request',sourceRef:'PO-ORCH',riskTier:'critical',observableOutcomes:['historical'],unresolvedRisks:['historical'],scope:{in:['historical'],out:['runtime']},assuranceCeiling:{level:'critical-practical',rationale:'historical',selectedTechniques:['explicit-specification'],deferredTechniques:[]},definition:{acceptanceCriteria:['historical'],invariants:['historical'],forbiddenStates:['historical']},model:{phases:['PLAN'],transitions:[],failureModes:['historical'],edgeCases:['historical']},alternatives:[{id:'A',summary:'historical',disposition:'selected',reason:'historical'}],specialistReviews:[{role:'Architecture',mode:'review',verdict:'pass',finding:'historical',resolution:'historical',evidence:['historical']}],challenge:[{id:'C',scenario:'historical',finding:'historical',resolution:'historical',status:'resolved'}],proofPlan:['historical proof'],semanticExecutionRoute:{request:'PO-ORCH',authority:['quality-knowledge-system'],mustEdit:['tests/control-plane-release-unit-production-surface.test.ts'],mayEdit:[],impactedReadOnly:[],mustCreate:['quality/knowledge/rehearsal-fixtures/v1/fixture-01.json'],forbidden:['src/**'],proof:['tests/control-plane-release-unit-production-surface.test.ts'],unknown:[],plannedDeletions:[],plannedRenames:[],generatedArtifacts:[]},executionAuthorized:true},
+      completionContract:{sourceKind:'product-owner-request',sourceRef:'PO-ORCH',systemObligations:{derivation:'canonical-gate-chain',requiredGuards:['GUARD-QUALITY-TESTS'],externalGuards:[],phase:'PLAN'},requirements:[{id:'REQ-PARENT',requirement:'close parent',claimScope:{capability:'CAP-QUALITY',breadth:'parent',strength:1,dimensions:['status']},requiredCapabilities:['CAP-QUALITY'],evidence:{implementation:['GUARD-QUALITY-TESTS'],outcome:['GUARD-QUALITY-TESTS']},forbiddenRegressions:[]}]},
+    };
+    const sourceBefore=structuredClone(sourcePlan);
+    const protectedFiles=releaseParentProtectedFiles(p),unitCloseReceiptDigests=releaseParentUnitCloseReceiptDigests(p);
+    const advance:any={contract:'shoporation.release-parent-main-advance-proof.v1',issuer:'release-unit-parent-close',decision:'PASS',relationship:'FAST_FORWARD',fromSha:D,toSha:X,changedFiles:['scripts/release-unit-execute.mjs'],protectedFiles,overlapFiles:[],unitCloseReceiptDigests};
+    const derived=buildReleaseParentClosureProofPlan({parent:p,sourcePlan,sourceCommit:A,finalMainSha:X,trustedMainAdvance:advance});
+    expect(sourcePlan).toEqual(sourceBefore);
+    expect(derived.taskId).toBe(sourcePlan.taskId);
+    expect(derived.task).toBe(sourcePlan.task);
+    expect(derived.changeBaseSha).toBe(X);
+    expect(derived.plannedFilePatterns).toEqual(['quality/development/active-plan.json']);
+    expect(derived.completionContract).toEqual(sourcePlan.completionContract);
+    expect(derived.operationalIntelligence.semanticExecutionRoute).toMatchObject({mustEdit:[],mustCreate:[],mayEdit:['quality/development/active-plan.json'],proof:['quality/development/active-plan.json']});
+    expect(derived.parentClosureContext).toMatchObject({parentTransactionId:'DEV-ORCH',sourceCommit:A,finalMainSha:X,lastChildMainSha:D,unitCloseReceiptDigests});
+    expect(derived.parentClosureContext.trustedMainAdvanceDigest).toBe(strongDigest(advance));
+    expect(validateReleaseParentClosureProofPlan(derived,{parent:p,sourcePlan,sourceCommit:A,finalMainSha:X,trustedMainAdvance:advance})).toBe(true);
+    for(const bad of [
+      {...structuredClone(derived),parentClosureContext:{...derived.parentClosureContext,sourcePlanDigest:'forged'}},
+      {...structuredClone(derived),parentClosureContext:{...derived.parentClosureContext,finalMainSha:D}},
+      {...structuredClone(derived),completionContract:{...derived.completionContract,sourceRef:'FORGED'}},
+    ])expect(validateReleaseParentClosureProofPlan(bad,{parent:p,sourcePlan,sourceCommit:A,finalMainSha:X,trustedMainAdvance:advance})).toBe(false);
+    const closedPlan={...structuredClone(derived),status:'closed',lifecycle:{state:'LEARN',truthStatus:'VERIFIED',verifiedImplementationHead:X}};
+    const verified=recordReleaseParentClosureWithProofContext(p,{truth:{...parentTruth(X),sourceRef:'PO-ORCH'},lifecyclePlan:closedPlan,currentMainSha:X,trustedMainAdvance:advance,sourcePlan,sourceCommit:A});
+    expect(verified.closedReceipt.parentClosureContext).toEqual(closedPlan.parentClosureContext);
+    expect(()=>recordReleaseParentClosureWithProofContext(p,{truth:{...parentTruth(X),sourceRef:'PO-ORCH'},lifecyclePlan:{...closedPlan,parentClosureContext:{...closedPlan.parentClosureContext,unitCloseReceiptDigests:['forged']}},currentMainSha:X,trustedMainAdvance:advance,sourcePlan,sourceCommit:A})).toThrow(/RELEASE_PARENT_CLOSURE_PROOF_CONTEXT_INVALID/);
+  });
+
+  it('derives canonical null trusted-main binding when parent closes exactly at last child main',()=>{
+    let p=parent();const [u1,u2,u3]=p.units.map((x:any)=>x.manifest);
+    p=complete(p,u1.releaseUnitId,u1,A,sha('1'),B,1);
+    p=complete(p,u2.releaseUnitId,fresh(u2,B,'b'),B,sha('2'),C,2);
+    p=complete(p,u3.releaseUnitId,fresh(u3,C,'c'),C,sha('3'),D,3);
+    const sourcePlan:any={contract:'shoporation.development-plan.v1',taskId:'DEV-ORCH',task:'Create inert fixture corpus.',status:'ready-for-implementation',guardDigest:'g',changeBaseSha:A,plannedFilePatterns:['quality/a.json'],expectedSubsystems:[],expectedDomains:['DOMAIN-QUALITY'],expectedAuthorities:['quality-knowledge-system'],operationalIntelligence:{semanticExecutionRoute:{request:'PO-ORCH',authority:['quality-knowledge-system'],mustEdit:[],mayEdit:[],impactedReadOnly:[],mustCreate:[],forbidden:[],proof:[],unknown:[],plannedDeletions:[],plannedRenames:[],generatedArtifacts:[]}},completionContract:{sourceKind:'product-owner-request',sourceRef:'PO-ORCH',systemObligations:{derivation:'canonical-gate-chain',requiredGuards:[],externalGuards:[],phase:'PLAN'},requirements:[]}};
+    const derived=buildReleaseParentClosureProofPlan({parent:p,sourcePlan,sourceCommit:A,finalMainSha:D,trustedMainAdvance:null});
+    expect(derived.parentClosureContext.trustedMainAdvanceDigest).toBeNull();
+    expect(validateReleaseParentClosureProofPlan(derived,{parent:p,sourcePlan,sourceCommit:A,finalMainSha:D,trustedMainAdvance:null})).toBe(true);
+  });
 
 });
