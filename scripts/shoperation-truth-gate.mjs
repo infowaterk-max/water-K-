@@ -1,9 +1,7 @@
 import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {evaluateClosedDevelopmentPlan,evaluateCompletionTruth,validateCommittedParentClosureMetadata,validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
-import {loadRemoteExecutionState,stateRefFor} from './release-unit-github-runtime.mjs';
-import {proveParentMainAdvance} from './release-unit-parent-close.mjs';
-import {releaseParentClosureProofArtifactPath} from './lib/shoperation-release-unit-runtime.mjs';
+import {RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT,releaseParentClosureProofArtifactPath,releaseParentProtectedFiles,releaseParentUnitCloseReceiptDigests,validateReleaseParentMainAdvanceProof} from './lib/shoperation-release-unit-runtime.mjs';
 import {atomicWriteJson,sealCheckpointTruth} from './lib/shoperation-verification-reuse.mjs';
 import {activeDevelopmentPlanPath} from './lib/shoperation-development-runtime.mjs';
 
@@ -55,7 +53,10 @@ if(plan.status==='closed'){
     try{
       const context=plan.parentClosureContext,parentId=String(plan.taskId??''),sourceCommit=String(context.sourceCommit??'');
       if(!/^[A-Za-z0-9._-]+$/.test(parentId)||!/^[0-9a-f]{40}$/i.test(sourceCommit)||!/^[0-9a-f]{40}$/i.test(verifiedHead)||!/^[0-9a-f]{40}$/i.test(currentExactState.head))throw new Error('PARENT_CLOSURE_TRUTH_IDENTITY_INVALID');
-      const {state:parent,stateCommit}=loadRemoteExecutionState({stateRef:stateRefFor(parentId)});
+      const stateRef='refs/heads/control-plane/release-state/'+parentId.toLowerCase().replace(/[^a-z0-9._/-]+/g,'-');
+      const stateCommit=String(execFileSync('git',['ls-remote','origin',stateRef],{encoding:'utf8'})).trim().split(/\s+/)[0];
+      if(stateCommit)execFileSync('git',['fetch','--quiet','origin',stateRef],{encoding:'utf8'});
+      const parent=stateCommit?JSON.parse(execFileSync('git',['show','FETCH_HEAD:state.json'],{encoding:'utf8'})):null;
       if(!parent||!stateCommit)throw new Error('PARENT_CLOSURE_TRUTH_CANONICAL_STATE_MISSING');
       const sourcePlan=JSON.parse(execFileSync('git',['show',sourceCommit+':quality/development/active-plan.json'],{encoding:'utf8'}));
       const ordered=[...(parent.units??[])].sort((a,b)=>Number(a.order)-Number(b.order));
@@ -63,9 +64,14 @@ if(plan.status==='closed'){
       if(!lastChildMain)throw new Error('PARENT_CLOSURE_TRUTH_LAST_CHILD_MAIN_MISSING');
       let trustedMainAdvance=null;
       if(lastChildMain!==verifiedHead){
-        const advance=proveParentMainAdvance({state:parent,fromSha:lastChildMain,toSha:verifiedHead});
-        if(advance.decision!=='PASS'||!advance.proof)throw new Error('PARENT_CLOSURE_TRUTH_MAIN_ADVANCE_INVALID:'+String(advance.error??advance.decision));
-        trustedMainAdvance=advance.proof;
+        execFileSync('git',['merge-base','--is-ancestor',lastChildMain,verifiedHead],{stdio:'ignore'});
+        const changed=String(execFileSync('git',['diff','--name-only','--no-renames','--diff-filter=ACMRD',lastChildMain,verifiedHead,'--'],{encoding:'utf8'})).trim();
+        const changedFiles=[...new Set(changed?changed.split(/\r?\n/).filter(Boolean):[])].sort();
+        const protectedFiles=releaseParentProtectedFiles(parent);
+        const overlapFiles=changedFiles.filter(file=>protectedFiles.includes(file));
+        const proof={contract:RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT,issuer:'release-unit-parent-close',decision:'PASS',relationship:'FAST_FORWARD',fromSha:lastChildMain,toSha:verifiedHead,changedFiles,protectedFiles,overlapFiles,unitCloseReceiptDigests:releaseParentUnitCloseReceiptDigests(parent)};
+        if(overlapFiles.length||!validateReleaseParentMainAdvanceProof(proof,{parent,fromSha:lastChildMain,toSha:verifiedHead}))throw new Error('PARENT_CLOSURE_TRUTH_MAIN_ADVANCE_INVALID');
+        trustedMainAdvance=proof;
       }
       const proofPath=releaseParentClosureProofArtifactPath(parentId);
       const artifactContent=execFileSync('git',['show',currentExactState.head+':'+proofPath],{encoding:'utf8'});
