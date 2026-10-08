@@ -831,6 +831,10 @@ const operationWithoutSource=operation=>{
   return next;
 };
 const normalizedSemanticOperations=manifest=>sortedObjects((manifest?.operations??[]).map(operationWithoutSource));
+const monotonicStringSetEnrichment=(before=[],after=[])=>{
+  const previous=uniq(before??[]),fresh=uniq(after??[]);
+  return fresh.length>previous.length&&previous.every(item=>fresh.includes(item));
+};
 const canonicalSourceShape=(operation,sourceCommit)=>{
   const source=operation?.source;
   if(operation?.operation==='delete')return source===null;
@@ -861,6 +865,8 @@ export const classifyReleaseUnitObligationDrift=(before,after)=>{
     reprojectableFields.add('operations');
     reprojectableFields.add('childOperationDigest');
   }
+  if(monotonicStringSetEnrichment(a.requiredDependencyFiles,b.requiredDependencyFiles))reprojectableFields.add('requiredDependencyFiles');
+  if(monotonicStringSetEnrichment(a.readOnlyPaths,b.readOnlyPaths))reprojectableFields.add('readOnlyPaths');
   return{
     all,
     material:all.filter(item=>!reprojectableFields.has(item.field)),

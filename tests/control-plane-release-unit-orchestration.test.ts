@@ -361,4 +361,38 @@ describe('Control Plane release-unit orchestration',()=>{
     expect(next.units[0].blocker.details.drift.map((item:any)=>item.field)).toContain('operations');
   });
 
+  it('accepts monotonic dependency and read-only enrichment only with trusted fresh projection',()=>{
+    const before=refreshReleaseUnitIdentity(structuredClone(manifests()[0]));
+    before.requiredDependencyFiles=['scripts/base-dependency.mjs'];
+    before.readOnlyPaths=['scripts/base-readonly.mjs'];
+    const freshManifest=fresh(before,A,'a');
+    freshManifest.requiredDependencyFiles=['scripts/base-dependency.mjs','scripts/new-dependency.mjs'];
+    freshManifest.readOnlyPaths=['scripts/base-readonly.mjs','scripts/new-readonly.mjs'];
+    const execution=createReleaseUnitExecution(before);
+    execution.state='STALE';
+    execution.lastTransition={to:'STALE',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK'};
+    const untrusted=reconcileSuccessorReleaseUnit({execution,freshManifest,currentMainSha:A,allFreshManifests:[freshManifest]});
+    expect(untrusted.decision).toBe('STALE');
+    expect(untrusted.code).toBe('RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT');
+    const trusted=reconcileSuccessorReleaseUnit({execution,freshManifest,currentMainSha:A,allFreshManifests:[freshManifest],trustedFreshProjection:true});
+    expect(trusted.decision).toBe('PASS');
+    expect(trusted.details.reprojectedFields).toEqual(expect.arrayContaining(['requiredDependencyFiles','readOnlyPaths']));
+  });
+
+  it('keeps dependency and read-only subtraction material even with trusted fresh projection',()=>{
+    const before=refreshReleaseUnitIdentity(structuredClone(manifests()[0]));
+    before.requiredDependencyFiles=['scripts/base-dependency.mjs','scripts/removable-dependency.mjs'];
+    before.readOnlyPaths=['scripts/base-readonly.mjs','scripts/removable-readonly.mjs'];
+    const freshManifest=fresh(before,A,'a');
+    freshManifest.requiredDependencyFiles=['scripts/base-dependency.mjs'];
+    freshManifest.readOnlyPaths=['scripts/base-readonly.mjs'];
+    const execution=createReleaseUnitExecution(before);
+    execution.state='STALE';
+    execution.lastTransition={to:'STALE',code:'RELEASE_UNIT_SUCCESSOR_REEVALUATION_BLOCK'};
+    const result=reconcileSuccessorReleaseUnit({execution,freshManifest,currentMainSha:A,allFreshManifests:[freshManifest],trustedFreshProjection:true});
+    expect(result.decision).toBe('STALE');
+    expect(result.code).toBe('RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT');
+    expect(result.details.drift.map((item:any)=>item.field)).toEqual(expect.arrayContaining(['requiredDependencyFiles','readOnlyPaths']));
+  });
+
 });
