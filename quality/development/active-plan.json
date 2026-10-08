@@ -66,7 +66,7 @@
       "A BLOCK result from the release executor emits a machine-readable payload containing the stable `reason` and the exact nested `error` simultaneously when both exist.",
       "Existing blocker code semantics remain unchanged; diagnostic enrichment cannot convert BLOCK into PENDING/PASS or alter release-state transitions.",
       "Parent proof/persistence failures continue to fail closed but expose the exact child command/guard exception directly in the workflow error.",
-      "Regression coverage proves generic reason-only, error-only and reason+error payload behavior without importing or executing the CLI driver.",
+      "Regression coverage on the non-receipt-bound execution-binding surface proves the driver uses a whitelisted `{reason,error}` payload, preserves null normalization for either missing field, and no longer uses reason/error nullish coalescing.",
       "Post-merge immutable source replay resumes from canonical state with U03 already CLOSED and reveals the exact remaining parent closure root cause directly."
     ],
     "unresolvedRisks": [
@@ -314,7 +314,7 @@
     "proofPlan": [
       "Commit this plan only and require Plan Before Code PASS before code edits.",
       "Add a pure whitelisted block-diagnostic formatter and use it in the CLI BLOCK throw.",
-      "Add regression coverage in `tests/control-plane-release-unit-execution-binding.test.ts` without editing receipt-bound production-surface test.",
+      "Add source-bound regression coverage in `tests/control-plane-release-unit-execution-binding.test.ts` that verifies the exact whitelisted `{reason,error}` formatter, null normalization, BLOCK throw wiring, and removal of the masking `result.reason ?? result.error` boundary without importing the side-effecting CLI.",
       "Require exact-head Knowledge/Plan/Edit-Time/Replay/Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
       "Merge only after exact PR-head SUCCESS and post-merge main CI SUCCESS.",
       "Replay immutable source `65e52ffd1fd32f14353467eb7c52b2e06ba1be65`; because U03 is already CLOSED, require resume directly into parent closure and capture the exact nested error.",
@@ -383,7 +383,7 @@
           "strength": 2,
           "dimensions": [
             "status",
-            "observability",
+            "behavioral-proof",
             "forbidden-state",
             "transaction-identity"
           ]
