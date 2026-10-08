@@ -14,7 +14,7 @@
       "releaseUnitId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V1-U01",
       "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V1",
       "order": 1,
-      "state": "PR_OPEN",
+      "state": "STALE",
       "manifest": {
         "contract": "shoporation.release-unit-manifest.v1",
         "transaction": {
@@ -852,14 +852,31 @@
       "verification": null,
       "merge": null,
       "closeReceipt": null,
-      "blocker": null,
+      "blocker": {
+        "code": "RELEASE_UNIT_CHILD_CI_FAILURE",
+        "details": {
+          "runId": 37849935116,
+          "event": "workflow_dispatch",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      },
       "lastTransition": {
-        "to": "PR_OPEN",
-        "code": "RELEASE_UNIT_PR_OPEN"
+        "to": "STALE",
+        "code": "RELEASE_UNIT_CHILD_CI_FAILURE"
       }
     }
   ],
-  "blocker": null,
+  "blocker": {
+    "releaseUnitId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V1-U01",
+    "code": "RELEASE_UNIT_CHILD_CI_FAILURE",
+    "details": {
+      "runId": 37849935116,
+      "event": "workflow_dispatch",
+      "status": "completed",
+      "conclusion": "failure"
+    }
+  },
   "closureEligible": false,
   "closureComplete": false,
   "closedReceipt": null,
