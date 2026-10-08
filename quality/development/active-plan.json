@@ -1,14 +1,12 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-ALREADY-APPLIED-SUCCESSOR-REPROJECTION-V1",
-  "task": "Preserve immutable release-unit operation semantics across trusted fully-already-applied successor reevaluation while allowing only monotonic fresh governance/proof enrichment required by current Atlas authority.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-U03-RECEIPT-BOUND-PROOF-RELOCATION-V1",
+  "task": "Relocate the already-applied successor regression proof away from the U03 conflict-resolution receipt-bound production-surface test and restore that file byte-exact to its reviewed receipt-authorized blob without modifying the receipt or immutable source.",
+  "status": "ready-for-implementation",
   "guardDigest": "a41cfd0c",
-  "changeBaseSha": "42e80eed290f2cd5b5baa1a677e021a8a074ee12",
+  "changeBaseSha": "02cc250edfbe6cdda94138d8d1fe960248162095",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/release-unit-github-runtime.mjs",
-    "scripts/lib/shoperation-release-unit-runtime.mjs",
     "tests/control-plane-release-unit-production-surface.test.ts",
     "tests/control-plane-release-unit-orchestration.test.ts"
   ],
@@ -16,12 +14,10 @@
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -93,45 +89,44 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-ALREADY-APPLIED-SUCCESSOR-REPROJECTION-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-U03-RECEIPT-BOUND-PROOF-RELOCATION-V1",
     "riskTier": "critical",
-    "problemStatement": "Release Unit Execution #244 replayed immutable parent source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 on main 42e80eed290f2cd5b5baa1a677e021a8a074ee12 after the governed U03 conflict resolution merged. U03 materialization is now fully already-applied, but fresh successor Plan/Atlas projection reclassifies the original sealed fixture-25 create as modify solely because the exact source-identical file is already present on main, and it adds newer dependency/read-only governance obligations. Raw obligation comparison therefore emits RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT before the canonical no-code already-applied proof can run. The fix must preserve immutable operation semantics only when the trusted pre-projection materialization proves the whole unit ALREADY_APPLIED, while allowing only additive dependency/read-only governance enrichment under trusted fresh projection provenance.",
+    "problemStatement": "Release Unit Execution #252 proves the prior obligation-drift fix works but correctly blocks with RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID because PR #1111 placed new regression tests into tests/control-plane-release-unit-production-surface.test.ts, changing its Git blob from receipt-authorized fbdb84adb4151461c7fba35e719aad27bae4041b to 47305d897ba1ab603a7f0dfe574f7e4040cb3b10. The conflict-resolution receipt is intentionally exact and must not be weakened or manually rebound. The proof additions must be moved to a non-receipt-bound test while restoring the bound file byte-for-byte to the reviewed blob.",
     "observableOutcomes": [
-      "A successor whose trusted pre-projection materialization is fully ALREADY_APPLIED keeps the persisted immutable operation types instead of reclassifying create as modify from current-main existence.",
-      "The preserved operations retain the same sealed source commit, blob SHA and file mode after resealing.",
-      "Additive requiredDependencyFiles and readOnlyPaths discovered by fresh canonical Plan/Atlas projection are classified as reprojectable governance enrichment only when reconciliation has trustedFreshProjection=true.",
-      "Dependency/read-only removal, replacement or scope weakening remains material obligation drift.",
-      "Partial materialization, forged ALREADY_APPLIED coverage, generated unsupported semantics, operation path/type mutation, source commit/blob/fileMode mutation and forged operation digest remain fail-closed.",
-      "Immutable rehearsal replay advances U03 into canonical ALREADY_APPLIED no-code proof without editing the stale U03 PR or persisted release-state by hand."
+      "tests/control-plane-release-unit-production-surface.test.ts is restored exactly to Git blob fbdb84adb4151461c7fba35e719aad27bae4041b, matching the existing U03 conflict-resolution receipt.",
+      "The selectSuccessorProjectedOperations regression coverage remains present with equivalent assertions in tests/control-plane-release-unit-orchestration.test.ts.",
+      "The conflict-resolution receipt remains byte-for-byte unchanged and continues to bind the original reviewed resolved blob.",
+      "Runtime code from PR #1111 remains unchanged and continues to enforce full ALREADY_APPLIED coverage plus monotonic governance enrichment.",
+      "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge.",
+      "Post-merge immutable source replay advances beyond RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID and continues canonical U03 no-code closure."
     ],
     "unresolvedRisks": [
-      "Treating every create-to-modify transition as harmless would allow semantic mutation without proving current main already contains the immutable source object.",
-      "Preserving operations for partially applied units could hide work still needing materialization.",
-      "Making dependency/read-only drift generically reprojectable could silently remove required protection if subtraction were allowed.",
-      "Fresh child plan and manifest operation semantics could diverge unless operation preservation is limited to fully already-applied trusted materialization.",
-      "A stale or forged materialization receipt must not authorize operation preservation."
+      "Rebinding the receipt to a later unrelated test edit would erode the meaning of the original human-reviewed resolution.",
+      "Restoring the production-surface file without relocating the tests would lose regression coverage.",
+      "A textually similar but byte-different restoration would still invalidate the exact Git blob receipt.",
+      "Moving tests could accidentally change their semantics or omit partial/mismatched coverage cases.",
+      "Editing runtime code in this transaction would unnecessarily widen scope."
     ],
     "scope": {
       "in": [
-        "Preserve reconciled immutable operations during successor reevaluation only when trusted materializeReleaseUnit returns status ALREADY_APPLIED with exact full operation coverage and no applied operations.",
-        "Allow monotonic additive requiredDependencyFiles and readOnlyPaths obligation enrichment to be reprojectable.",
-        "Require trustedFreshProjection for all such governance enrichment at reconciliation.",
-        "Add regression coverage for exact full already-applied preservation and all fail-closed variants.",
-        "Keep existing first-sealing provenance and exact-create main-advance guards unchanged."
+        "Restore tests/control-plane-release-unit-production-surface.test.ts exactly to the receipt-authorized blob from main 42e80eed290f2cd5b5baa1a677e021a8a074ee12.",
+        "Move the two PR #1111 selectSuccessorProjectedOperations regression tests into tests/control-plane-release-unit-orchestration.test.ts.",
+        "Add the minimal test import needed for the relocated proof.",
+        "Verify receipt file content and resolvedBlobSha remain unchanged."
       ],
       "out": [
-        "No generic create-to-modify equivalence.",
-        "No source/blob/fileMode relaxation.",
-        "No manual U03 child PR edit.",
-        "No manual control-plane release-state mutation.",
-        "No immutable source rewrite.",
-        "No Truth, Sentinel, threshold, release-risk or lifecycle bypass.",
+        "No edit to scripts/lib/shoperation-release-unit-runtime.mjs.",
+        "No edit to scripts/release-unit-github-runtime.mjs.",
+        "No edit to the U03 conflict-resolution receipt.",
+        "No edit to immutable source branch or SHA.",
+        "No manual persisted release-state mutation.",
+        "No threshold, Truth, Sentinel, risk or lifecycle relaxation.",
         "No storefront, template, Supabase or deployment change."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This reconciliation decides whether immutable release-unit obligations may survive a current-main state that already contains their exact effect. A false positive could erase required work or weaken dependency closure, so only trusted full ALREADY_APPLIED coverage plus monotonic governance enrichment is admissible.",
+      "rationale": "This transaction repairs proof placement around an exact cryptographic conflict-resolution authority. The receipt-bound file must be restored exactly while preserving the regression proof elsewhere; any approximation would either weaken authority or lose coverage.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -148,31 +143,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The pre-projection candidate must have status ALREADY_APPLIED, applied=[] and exact one-for-one operation+file coverage before persisted operations may be preserved.",
-        "Preserved operations come from the reconciled immutable manifest, not from reconstructed current-main operation inference.",
-        "Fresh canonical source sealing must still validate source commit/blob/fileMode for every preserved non-delete operation.",
-        "Additive requiredDependencyFiles may reproject; any removal or replacement remains material.",
-        "Additive readOnlyPaths may reproject; any removal or replacement remains material.",
-        "Reprojectable governance drift is rejected when trustedFreshProjection is absent.",
-        "Existing first-sealing, resealing, semantic mutation, forged digest, exact-create overlap and main-drift tests remain green.",
-        "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge.",
-        "Post-merge immutable source replay advances beyond RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT and reaches U03 no-code proof/closure."
+        "The restored production-surface file Git blob is exactly fbdb84adb4151461c7fba35e719aad27bae4041b.",
+        "The receipt path remains unchanged and its resolvedBlobSha remains fbdb84adb4151461c7fba35e719aad27bae4041b.",
+        "No runtime source file changes in this transaction.",
+        "Both full already-applied preservation and partial/mismatched fallback assertions remain in the test suite.",
+        "Relocated tests import selectSuccessorProjectedOperations from the trusted GitHub runtime without altering production code.",
+        "Exact-head Quality, TypeScript, Build, Completion Truth and Lifecycle Closure pass.",
+        "Immutable source replay reaches canonical execution beyond the stale receipt blocker."
       ],
       "invariants": [
-        "Immutable operation type/path/source identity remains the release-unit authority.",
-        "ALREADY_APPLIED is evidence of exact current-main effect, not permission to rewrite the obligation.",
-        "Governance enrichment may only add constraints; it may not subtract or replace them.",
-        "Trusted fresh projection is mandatory for accepting governance enrichment.",
-        "Persisted release-state is changed only by the canonical executor."
+        "Conflict-resolution receipt authority remains exact and unchanged.",
+        "The receipt-bound test file is restored from the already-reviewed historical main blob, not reconstructed approximately.",
+        "Regression coverage is preserved before merge.",
+        "Runtime behavior is unchanged by this proof-relocation transaction.",
+        "Persisted release-state remains executor-owned."
       ],
       "forbiddenStates": [
-        "unproven-create-to-modify-reprojection",
-        "partial-already-applied-operation-preservation",
-        "dependency-obligation-removal-accepted",
-        "read-only-protection-removal-accepted",
-        "sealed-source-identity-mutation-accepted",
-        "forged-operation-digest-accepted",
-        "manual-u03-state-repair"
+        "receipt-rebound-to-new-unreviewed-blob",
+        "receipt-bound-file-restored-nonexactly",
+        "regression-proof-dropped",
+        "runtime-scope-widened",
+        "manual-release-state-edit",
+        "immutable-source-edit"
       ]
     },
     "model": {
@@ -204,51 +196,46 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Candidate is partially applied but operation preservation is incorrectly enabled.",
-        "ALREADY_APPLIED coverage omits or duplicates an operation.",
-        "Fresh projection removes an existing dependency and classifier treats it as enrichment.",
-        "Fresh projection removes a read-only protection and classifier treats it as enrichment.",
-        "Operation preservation keeps a stale source identity after immutable source changed.",
-        "No-code proof receives a manifest whose operations no longer match the trusted materialization receipt."
+        "Production-surface file differs by one byte from receipt resolvedBlobSha.",
+        "Only one of the two relocated regression cases survives.",
+        "Relocation changes candidate coverage semantics.",
+        "Receipt is edited instead of preserving the reviewed authority.",
+        "Test relocation accidentally imports a different helper or bypasses trusted runtime.",
+        "Main advances on the bound file again before immutable replay."
       ],
       "edgeCases": [
-        "single exact create already present with identical blob and mode",
-        "create target present with different blob",
-        "mixed create and conflict-resolved modify both already applied",
-        "one operation already applied and one operation still materializes",
-        "duplicate operation+file receipt entry",
-        "additive dependency only",
-        "dependency removal",
-        "additive read-only path only",
-        "read-only removal",
-        "trustedFreshProjection false",
-        "first sealing and already-applied preservation occurring in the same successor cycle"
+        "import list formatting changes blob unexpectedly",
+        "newline-at-EOF changes restored blob",
+        "test names duplicated after relocation",
+        "orchestration test already imports only release-unit-runtime symbols",
+        "receipt file remains untouched but active plan references it as impacted read-only",
+        "post-merge main contains unrelated files while bound blob remains exact"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-PRESERVE-IMMUTABLE-OPS-ON-FULL-ALREADY-APPLIED",
-        "summary": "Keep reconciled immutable operation semantics when the trusted candidate materialization proves exact full-unit ALREADY_APPLIED, while separately accepting only monotonic governance enrichment.",
+        "id": "ALT-RELOCATE-PROOF-RESTORE-BOUND-BLOB",
+        "summary": "Move regression proof to a non-bound orchestration test and restore the receipt-bound file exactly.",
         "disposition": "selected",
-        "reason": "Preserves release-unit intent and uses existing materializer Git-object proof rather than inferring semantic equivalence from filenames."
+        "reason": "Preserves both cryptographic receipt authority and regression coverage without touching runtime or state."
       },
       {
-        "id": "ALT-GENERIC-CREATE-MODIFY-EQUIVALENCE",
-        "summary": "Treat create and modify as equivalent whenever the file already exists.",
+        "id": "ALT-REBIND-RECEIPT",
+        "summary": "Update the U03 receipt resolvedBlobSha to the newly edited production-surface test.",
         "disposition": "rejected",
-        "reason": "Would allow semantic operation drift without immutable target identity proof."
+        "reason": "Would broaden the reviewed conflict resolution to unrelated later proof edits and weaken the meaning of exact receipt binding."
       },
       {
-        "id": "ALT-IGNORE-SOURCE-OR-OPERATIONS",
-        "summary": "Remove operations/source from obligation comparison.",
+        "id": "ALT-RELAX-RECEIPT-VALIDATION",
+        "summary": "Allow descendant or semantically similar test blobs to satisfy the receipt.",
         "disposition": "rejected",
-        "reason": "Would destroy immutable source and material-operation integrity."
+        "reason": "Would defeat the fail-closed exact-blob authority that correctly caught #252."
       },
       {
-        "id": "ALT-MANUAL-U03-STATE-PATCH",
-        "summary": "Edit persisted U03 release-state so execution skips reconciliation.",
+        "id": "ALT-DROP-REGRESSION-TESTS",
+        "summary": "Restore the bound file but delete the new regression proof.",
         "disposition": "rejected",
-        "reason": "Would bypass canonical executor authority and resumability truth."
+        "reason": "Would remove coverage for the just-fixed #244 blocker."
       }
     ],
     "specialistReviews": [
@@ -256,155 +243,153 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Operation semantics must not become a function of mutable current-main existence.",
-        "resolution": "Preserve the reconciled immutable operation list only after the trusted materializer proves full already-applied coverage.",
+        "finding": "A receipt-bound file should not become a general-purpose location for later regression tests.",
+        "resolution": "Move proof to orchestration coverage and keep the bound file stable.",
         "evidence": [
-          "Release Unit Execution #244",
-          "scripts/release-unit-github-runtime.mjs#reevaluateSuccessorManifest",
-          "scripts/lib/shoperation-release-unit-runtime.mjs#classifyReleaseUnitObligationDrift"
+          "Release Unit Execution #252",
+          "U03 conflict-resolution receipt",
+          "PR #1111 diff"
         ]
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A broad create-to-modify exception would be forgeable.",
-        "resolution": "No operation-drift exception is added; exact already-applied evidence prevents the drift from being introduced.",
+        "finding": "Exact blob binding must not be weakened to accommodate later edits.",
+        "resolution": "Restore the exact authorized blob and leave receipt validation unchanged.",
         "evidence": [
-          "Release Unit Execution #244",
-          "materializeReleaseUnit ALREADY_APPLIED receipt",
-          "releaseUnitExactCreateSourceIdentity"
+          "RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID",
+          "resolvedBlobSha fbdb84adb4151461c7fba35e719aad27bae4041b",
+          "targetBlobSha 47305d897ba1ab603a7f0dfe574f7e4040cb3b10"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Dependency/read-only refresh must not weaken closure.",
-        "resolution": "Only strict additive enrichment is reprojectable; subtraction remains material.",
+        "finding": "Regression assertions must survive relocation unchanged in meaning.",
+        "resolution": "Move both full-coverage and partial/mismatched cases together and verify exact assertions.",
         "evidence": [
-          "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1",
-          "U03 sealed operationDigest",
-          "Release Unit Execution #244 drift payload"
+          "tests/control-plane-release-unit-production-surface.test.ts",
+          "tests/control-plane-release-unit-orchestration.test.ts",
+          "PR #1111"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The current blocker is before no-code proof despite exact U03 effects already living on main.",
-        "resolution": "Allow canonical successor reconciliation to retain immutable ops and then run the existing no-code proof unchanged.",
+        "finding": "The earlier #244 blocker is cleared; #252 is now the only live blocker.",
+        "resolution": "Use the smallest proof-placement correction, then replay the same immutable source.",
         "evidence": [
-          "CI #9136",
-          "immutable source CI #8928 attempt 11",
-          "Release Unit Execution #244"
+          "immutable source CI attempt 12 SUCCESS",
+          "Release Unit Execution #252",
+          "main 02cc250edfbe6cdda94138d8d1fe960248162095"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Execution #244 is reproducible from immutable source 65e52ffd and main 42e80eed.",
-        "resolution": "Regression tests encode the exact full-already-applied and monotonic-enrichment boundaries.",
+        "finding": "The failure is deterministic: receipt expected fbdb84..., target is 47305d....",
+        "resolution": "Encode exact blob restoration and no-receipt-edit as plan invariants.",
         "evidence": [
-          "Failure Intake from CI #9138",
-          "RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT",
-          "immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65"
+          "Release Unit Execution #252 log",
+          "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1",
+          "receipt ee524f42...json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-ALREADY-01",
-        "scenario": "Fresh Plan sees an immutable create target already present and labels it modify.",
-        "finding": "Current existence describes repository state, not original release-unit intent.",
-        "resolution": "When full ALREADY_APPLIED is trusted, preserve the reconciled immutable create operation.",
+        "id": "CH-BOUND-01",
+        "scenario": "Simply update resolvedBlobSha in the receipt to 47305d....",
+        "finding": "This would bless unrelated later proof edits under the old conflict review.",
+        "resolution": "Rejected; preserve receipt and restore bound blob.",
         "status": "resolved"
       },
       {
-        "id": "CH-ALREADY-02",
-        "scenario": "Only one of two operations is already applied.",
-        "finding": "Preserving all original operations would hide remaining material work.",
-        "resolution": "Require candidate.status ALREADY_APPLIED, applied=[] and exact full coverage; PREPARED/APPLIED candidates use projected operations normally.",
+        "id": "CH-BOUND-02",
+        "scenario": "Restore the file by manually deleting visible added lines.",
+        "finding": "Whitespace/import formatting could still yield a different Git blob.",
+        "resolution": "Use exact historical file content whose blob is already known as fbdb84....",
         "status": "resolved"
       },
       {
-        "id": "CH-GOV-01",
-        "scenario": "Fresh Atlas adds a dependency and read-only proof path.",
-        "finding": "This strengthens current governance but changes raw manifest JSON.",
-        "resolution": "Classify additive-only sets as reprojectable and still require trustedFreshProjection.",
+        "id": "CH-PROOF-01",
+        "scenario": "Restore the bound file and remove the regression tests entirely.",
+        "finding": "The #244 fix would lose direct coverage.",
+        "resolution": "Relocate both tests before merge.",
         "status": "resolved"
       },
       {
-        "id": "CH-GOV-02",
-        "scenario": "Fresh projection removes a dependency or read-only path.",
-        "finding": "This weakens closure and could conceal drift.",
-        "resolution": "Keep subtraction/replacement material and fail closed.",
+        "id": "CH-PROOF-02",
+        "scenario": "Move only the successful full-ALREADY_APPLIED test.",
+        "finding": "Partial/mismatched fallback could regress unnoticed.",
+        "resolution": "Relocate both positive and negative coverage cases.",
         "status": "resolved"
       },
       {
-        "id": "CH-SOURCE-01",
-        "scenario": "Sealed source blob or file mode changes while target happens to exist.",
-        "finding": "Already-applied state cannot authorize source identity mutation.",
-        "resolution": "Existing sealing and operation digest guards remain material and unchanged.",
+        "id": "CH-RUNTIME-01",
+        "scenario": "Touch runtime code while moving tests.",
+        "finding": "Would widen risk and invalidate the proof-placement-only nature of the transaction.",
+        "resolution": "Runtime files are impacted read-only.",
         "status": "resolved"
       },
       {
-        "id": "CH-TRUST-01",
-        "scenario": "Caller fabricates additive governance drift without trusted fresh projection.",
-        "finding": "Classifier alone is not authority.",
-        "resolution": "Reconcile remains STALE unless trustedFreshProjection===true.",
+        "id": "CH-STATE-01",
+        "scenario": "Patch U03 persisted state to bypass receipt validation.",
+        "finding": "Would violate resumability and executor authority.",
+        "resolution": "State remains read-only; only canonical replay may advance it.",
         "status": "resolved"
       },
       {
-        "id": "CH-DIGEST-01",
-        "scenario": "Full ALREADY_APPLIED coverage is exact, but the fresh projection regenerates a different child operation digest from current-main inferred operation types.",
-        "finding": "Accepting the regenerated digest would silently replace immutable operation identity even though no material work remains.",
-        "resolution": "Preserve reconciled immutable operations before final sealing so operationDigest remains derived from the original semantic operations; any residual digest mismatch remains material.",
+        "id": "CH-REPLAY-01",
+        "scenario": "Replay before exact main CI is green.",
+        "finding": "Could conflate proof-placement failure with release execution.",
+        "resolution": "Require exact-head and post-merge main CI before replay.",
         "status": "resolved"
       },
       {
-        "id": "CH-READONLY-01",
-        "scenario": "Fresh projection adds a read-only path that is also an intended operation path.",
-        "finding": "Calling this additive governance enrichment would conflict with the manifest's own material scope and could mask a forbidden operation.",
-        "resolution": "Existing forbiddenHits/readOnly validation remains authoritative before drift classification; an operation captured by readOnlyPaths blocks rather than reprojects.",
+        "id": "CH-BLOB-01",
+        "scenario": "The relocated proof indirectly changes the bound file through shared formatting tooling.",
+        "finding": "Receipt would fail again despite intended restoration.",
+        "resolution": "Verify exact blob identity in CI/test review before merge and again before replay.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS before runtime edits.",
-      "Add a pure exact full-coverage selector for successor projected operations and test full/partial/forged cases.",
-      "Use the selector inside reevaluateSuccessorManifest before final sealing.",
-      "Extend obligation classification with monotonic additive-set enrichment for requiredDependencyFiles and readOnlyPaths only.",
-      "Add trusted/untrusted and subtraction regression tests.",
-      "Require exact-head Knowledge/Plan/Edit-Time/Replay/Release Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
-      "Merge only after exact PR-head SUCCESS and green main CI.",
-      "Replay immutable source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and require U03 ALREADY_APPLIED proof, unit close, parent Completion Truth and Lifecycle Closure."
+      "Commit this plan only and require Plan Before Code PASS before test edits.",
+      "Read the receipt-authorized production-surface file directly from main 42e80eed290f2cd5b5baa1a677e021a8a074ee12 and write those exact bytes.",
+      "Move the two selectSuccessorProjectedOperations tests to orchestration coverage with minimal import change.",
+      "Verify the resulting production-surface Git blob is exactly fbdb84adb4151461c7fba35e719aad27bae4041b and the receipt file is unchanged.",
+      "Require exact-head Knowledge/Plan/Edit-Time/Replay/Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
+      "Open/reuse DRAFT PR, require exact PR-head SUCCESS, ready and merge expected-head.",
+      "Require green post-merge main CI.",
+      "Replay immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and require U03 no-code close plus parent Completion Truth/Lifecycle Closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-08-CONTROL-PLANE-ALREADY-APPLIED-SUCCESSOR-REPROJECTION-V1",
+      "request": "PO-2026-10-08-CONTROL-PLANE-U03-RECEIPT-BOUND-PROOF-RELOCATION-V1",
       "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        "scripts/release-unit-github-runtime.mjs",
-        "scripts/lib/shoperation-release-unit-runtime.mjs"
-      ],
-      "mayEdit": [
         "tests/control-plane-release-unit-production-surface.test.ts",
         "tests/control-plane-release-unit-orchestration.test.ts"
       ],
+      "mayEdit": [],
       "impactedReadOnly": [
-        "scripts/release-unit-execute.mjs",
-        "quality/knowledge/development-guard-policy.v1.json",
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/release-unit-github-runtime.mjs",
+        "quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json",
         "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
       ],
       "mustCreate": [],
       "forbidden": [
         "src/**",
         "supabase/**",
-        "deploy/**"
+        "deploy/**",
+        ".github/workflows/**"
       ],
       "proof": [
         "tests/control-plane-release-unit-production-surface.test.ts",
@@ -419,7 +404,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-ALREADY-APPLIED-SUCCESSOR-REPROJECTION-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-U03-RECEIPT-BOUND-PROOF-RELOCATION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -437,11 +422,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-ALREADY-APPLIED-SUCCESSOR-REPROJECTION",
-        "requirement": "Trusted successor reevaluation must preserve immutable release-unit operation semantics when the whole unit is already applied, while accepting only monotonic fresh governance enrichment and retaining fail-closed source/dependency integrity.",
+        "id": "REQ-U03-RECEIPT-BOUND-PROOF-RELOCATION",
+        "requirement": "Regression proof for already-applied successor reconciliation must be preserved without mutating or widening the exact U03 conflict-resolution receipt authority; the receipt-bound production-surface test must return to its exact reviewed blob.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-unit-already-applied-successor-reprojection",
+          "breadth": "u03-receipt-bound-proof-relocation",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -467,49 +452,36 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-UNPROVEN-OPERATION-RECLASSIFICATION",
-            "statement": "A create operation may not become modify merely because its path exists on current main unless full trusted ALREADY_APPLIED materialization has already proven the exact unit effect.",
+            "id": "NEG-U03-RECEIPT-REBIND",
+            "statement": "The existing U03 conflict-resolution receipt may not be changed to bless a later unrelated blob.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-GOVERNANCE-SUBTRACTION-ACCEPTED",
-            "statement": "Required dependency or read-only obligations may not be removed under successor reprojection.",
+            "id": "NEG-U03-BOUND-BLOB-DRIFT",
+            "statement": "The receipt-bound production-surface test may not remain on a blob different from fbdb84adb4151461c7fba35e719aad27bae4041b.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-UNTRUSTED-GOVERNANCE-REPROJECTION",
-            "statement": "Additive governance enrichment may not be accepted without trusted fresh projection provenance.",
+            "id": "NEG-ALREADY-APPLIED-PROOF-LOSS",
+            "statement": "The positive and negative regression coverage for successor operation preservation may not be dropped during relocation.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-SEALED-SOURCE-TAMPER-ACCEPTED",
-            "statement": "Already-applied successor handling may not accept source commit/blob/fileMode or forged operation-digest mutation.",
+            "id": "NEG-U03-RUNTIME-WIDENING",
+            "statement": "No runtime behavior change is authorized in this proof-placement transaction.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-PLAN-BEFORE-CODE"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Live blocker: Release Unit Execution #244 on immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and main 42e80eed290f2cd5b5baa1a677e021a8a074ee12. Persisted U03 has sealed create fixture-25 + sealed modify production-surface test. Governed main resolution already contains both exact effects; trusted materializer therefore produces full ALREADY_APPLIED. Fresh Plan/Atlas projection then describes fixture-25 as modify because it now exists and adds scripts/release-unit-github-runtime.mjs as dependency plus current read-only proof paths, causing raw operations/dependency/readOnly/childOperationDigest obligation drift before no-code proof. This task preserves immutable operation semantics only under exact full ALREADY_APPLIED evidence and permits only additive governance enrichment under trusted fresh projection. No persisted release-state or immutable source mutation is authorized.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "024cf8432f58191d4b23d5c3ebf256ce4b56707f",
-    "closedAt": "2026-10-08T03:22:44.244Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-ALREADY-APPLIED-SUCCESSOR-REPROJECTION-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Live blocker: Release Unit Execution #252 after immutable source CI attempt 12. The previous RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT is cleared. Current fail-closed error is RELEASE_UNIT_CONFLICT_RESOLUTION_INVALID for tests/control-plane-release-unit-production-surface.test.ts because receipt resolvedBlobSha=fbdb84adb4151461c7fba35e719aad27bae4041b while main targetBlobSha=47305d897ba1ab603a7f0dfe574f7e4040cb3b10. The blob change is solely from PR #1111 regression-proof additions. This transaction restores the exact receipt-authorized blob and relocates those proofs; receipt, runtime, immutable source and persisted release-state remain unchanged."
 }
