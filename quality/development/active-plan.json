@@ -1,24 +1,27 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-U03-EXACT-CONFLICT-RESOLUTION-V1",
-  "task": "Resolve the exact U03 rehearsal modify conflict on current main through a separately governed main resolution that preserves immutable U03 intent, adds the exact missing fixture-25 source artifact, and records the deterministic release-unit conflict-resolution receipt bound to the reviewed resolved blob.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-ALREADY-APPLIED-SUCCESSOR-REPROJECTION-V1",
+  "task": "Preserve immutable release-unit operation semantics across trusted fully-already-applied successor reevaluation while allowing only monotonic fresh governance/proof enrichment required by current Atlas authority.",
+  "status": "ready-for-implementation",
   "guardDigest": "a41cfd0c",
-  "changeBaseSha": "575d39689b6ba5215d0bee61bbc0c9ee9361622a",
+  "changeBaseSha": "42e80eed290f2cd5b5baa1a677e021a8a074ee12",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+    "scripts/release-unit-github-runtime.mjs",
+    "scripts/lib/shoperation-release-unit-runtime.mjs",
     "tests/control-plane-release-unit-production-surface.test.ts",
-    "quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json"
+    "tests/control-plane-release-unit-orchestration.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -90,47 +93,45 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-U03-EXACT-CONFLICT-RESOLUTION-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-ALREADY-APPLIED-SUCCESSOR-REPROJECTION-V1",
     "riskTier": "critical",
-    "problemStatement": "Release Unit Execution #225 replayed immutable parent source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 on current main 6c897234b6c890f8ee38f86c08dc86f7b9f68fa2. U01 and U02 are already closed. U03 now fails at the intended downstream materializer with RELEASE_UNIT_MODIFY_PATCH_CONFLICT on tests/control-plane-release-unit-production-surface.test.ts. The exact immutable U03 source intent is small and reviewable: create fixture-25.json and extend the production-surface test so the bounded rehearsal fixture corpus is exactly fixture-01..25 with the canonical fixture contract. The generic receipt infrastructure from PR #1096 requires a separately governed main resolution whose reviewed target blob is bound by an exact deterministic receipt. Current main does not yet contain fixture-25 or the corpus test.",
+    "problemStatement": "Release Unit Execution #244 replayed immutable parent source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 on main 42e80eed290f2cd5b5baa1a677e021a8a074ee12 after the governed U03 conflict resolution merged. U03 materialization is now fully already-applied, but fresh successor Plan/Atlas projection reclassifies the original sealed fixture-25 create as modify solely because the exact source-identical file is already present on main, and it adds newer dependency/read-only governance obligations. Raw obligation comparison therefore emits RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT before the canonical no-code already-applied proof can run. The fix must preserve immutable operation semantics only when the trusted pre-projection materialization proves the whole unit ALREADY_APPLIED, while allowing only additive dependency/read-only governance enrichment under trusted fresh projection provenance.",
     "observableOutcomes": [
-      "The resolution branch starts from exact main 6c897234b6c890f8ee38f86c08dc86f7b9f68fa2.",
-      "fixture-25.json is byte-for-byte identical to immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65.",
-      "tests/control-plane-release-unit-production-surface.test.ts preserves all current-main evolution and adds only the U03 corpus-contract intent plus the required readdirSync import.",
-      "The exact receipt is written only at the deterministic path emitted by Release Unit Execution #225.",
-      "The receipt binds releaseUnitId, file, source parent, source commit and source patch digest exactly to the persisted blocker.",
-      "resolutionBaseSha is the pre-resolution main SHA and resolvedBlobSha/fileMode bind the reviewed resolved test file in the resolution commit.",
-      "The resolution PR passes normal Plan/Edit-Time/Replay/Risk/Quality/TypeScript/Build/Truth/Lifecycle proof before merge.",
-      "After merge, immutable source replay treats fixture-25 create and the conflict-resolved modify as exact already-applied operations, runs the full no-code child proof and closes U03 without manual child-PR edits or release-state mutation."
+      "A successor whose trusted pre-projection materialization is fully ALREADY_APPLIED keeps the persisted immutable operation types instead of reclassifying create as modify from current-main existence.",
+      "The preserved operations retain the same sealed source commit, blob SHA and file mode after resealing.",
+      "Additive requiredDependencyFiles and readOnlyPaths discovered by fresh canonical Plan/Atlas projection are classified as reprojectable governance enrichment only when reconciliation has trustedFreshProjection=true.",
+      "Dependency/read-only removal, replacement or scope weakening remains material obligation drift.",
+      "Partial materialization, forged ALREADY_APPLIED coverage, generated unsupported semantics, operation path/type mutation, source commit/blob/fileMode mutation and forged operation digest remain fail-closed.",
+      "Immutable rehearsal replay advances U03 into canonical ALREADY_APPLIED no-code proof without editing the stale U03 PR or persisted release-state by hand."
     ],
     "unresolvedRisks": [
-      "Resolving by simply preserving target content would silently drop immutable U03 corpus-test intent.",
-      "Replacing the current test file with the old source version would delete substantial later main evolution.",
-      "Adding the corpus test without fixture-25 would intentionally make the resolution PR CI fail.",
-      "A receipt whose resolvedBlobSha is computed from a different test blob would become invalid or unsafe.",
-      "Any later edit to the resolved test file before U03 replay invalidates the receipt and must fail closed.",
-      "The stale U03 child PR #1074 must not be manually repaired or treated as proof authority."
+      "Treating every create-to-modify transition as harmless would allow semantic mutation without proving current main already contains the immutable source object.",
+      "Preserving operations for partially applied units could hide work still needing materialization.",
+      "Making dependency/read-only drift generically reprojectable could silently remove required protection if subtraction were allowed.",
+      "Fresh child plan and manifest operation semantics could diverge unless operation preservation is limited to fully already-applied trusted materialization.",
+      "A stale or forged materialization receipt must not authorize operation preservation."
     ],
     "scope": {
       "in": [
-        "Create quality/knowledge/rehearsal-fixtures/v1/fixture-25.json with exact immutable source content.",
-        "Merge the immutable corpus-contract test intent into the current main production-surface test without removing current assertions.",
-        "Create the deterministic shoporation.release-unit-conflict-resolution.v1 receipt at the exact path emitted by the live blocker.",
-        "Bind the receipt to the resolved test blob created by this governed resolution transaction.",
-        "Replay the immutable rehearsal only after the resolution merges."
+        "Preserve reconciled immutable operations during successor reevaluation only when trusted materializeReleaseUnit returns status ALREADY_APPLIED with exact full operation coverage and no applied operations.",
+        "Allow monotonic additive requiredDependencyFiles and readOnlyPaths obligation enrichment to be reprojectable.",
+        "Require trustedFreshProjection for all such governance enrichment at reconciliation.",
+        "Add regression coverage for exact full already-applied preservation and all fail-closed variants.",
+        "Keep existing first-sealing provenance and exact-create main-advance guards unchanged."
       ],
       "out": [
-        "No edit to release-unit runtime or executor code.",
-        "No edit to the immutable source branch.",
-        "No manual U03 child PR repair.",
+        "No generic create-to-modify equivalence.",
+        "No source/blob/fileMode relaxation.",
+        "No manual U03 child PR edit.",
         "No manual control-plane release-state mutation.",
-        "No source-wins or target-wins shortcut.",
+        "No immutable source rewrite.",
+        "No Truth, Sentinel, threshold, release-risk or lifecycle bypass.",
         "No storefront, template, Supabase or deployment change."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This transaction is the human-governed semantic merge authority for one exact fail-closed release-unit conflict. It must preserve both immutable U03 intent and current-main evolution while producing a receipt that cannot authorize any other blob.",
+      "rationale": "This reconciliation decides whether immutable release-unit obligations may survive a current-main state that already contains their exact effect. A false positive could erase required work or weaken dependency closure, so only trusted full ALREADY_APPLIED coverage plus monotonic governance enrichment is admissible.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -147,38 +148,31 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The current-main test file remains structurally intact except for adding readdirSync and the bounded rehearsal fixture corpus test.",
-        "The corpus test expects exactly fixture-01.json through fixture-25.json and validates contract, fixtureId, ordinal, purpose and runtimeImpact for every fixture.",
-        "fixture-25.json exactly matches immutable source content and source blob identity.",
-        "The receipt path is exactly quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json.",
-        "The receipt contract is shoporation.release-unit-conflict-resolution.v1.",
-        "Receipt releaseUnitId is DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03.",
-        "Receipt file is tests/control-plane-release-unit-production-surface.test.ts.",
-        "Receipt sourceParent is b79f8805d9718961a5cb41d4babaf11fd85dda5a.",
-        "Receipt sourceCommit is 65e52ffd1fd32f14353467eb7c52b2e06ba1be65.",
-        "Receipt sourcePatchDigest is 1569812908caffa0f770724401c4db6973f98ae963353806cade53690cb5446d.",
-        "Receipt resolutionBaseSha is 6c897234b6c890f8ee38f86c08dc86f7b9f68fa2, an ancestor of the merged target.",
-        "Receipt resolvedBlobSha equals the exact Git blob SHA of the resolved test content in the resolution commit and resolvedFileMode is 100644.",
+        "The pre-projection candidate must have status ALREADY_APPLIED, applied=[] and exact one-for-one operation+file coverage before persisted operations may be preserved.",
+        "Preserved operations come from the reconciled immutable manifest, not from reconstructed current-main operation inference.",
+        "Fresh canonical source sealing must still validate source commit/blob/fileMode for every preserved non-delete operation.",
+        "Additive requiredDependencyFiles may reproject; any removal or replacement remains material.",
+        "Additive readOnlyPaths may reproject; any removal or replacement remains material.",
+        "Reprojectable governance drift is rejected when trustedFreshProjection is absent.",
+        "Existing first-sealing, resealing, semantic mutation, forged digest, exact-create overlap and main-drift tests remain green.",
         "Exact-head CI, Completion Truth and Lifecycle Closure pass before merge.",
-        "Post-merge immutable source replay advances beyond RELEASE_UNIT_MODIFY_PATCH_CONFLICT and closes U03 only through the canonical already-applied proof path."
+        "Post-merge immutable source replay advances beyond RELEASE_UNIT_EXECUTION_OBLIGATION_DRIFT and reaches U03 no-code proof/closure."
       ],
       "invariants": [
-        "Immutable source intent is preserved; no source assertion is silently discarded.",
-        "Current-main test evolution is preserved; no historical source file replacement is allowed.",
-        "The receipt never contains executable file content.",
-        "The receipt identifies only one exact conflict and one exact reviewed resolved blob.",
-        "fixture-25 source content is not rewritten or synthesized.",
-        "No stale child branch is mutated."
+        "Immutable operation type/path/source identity remains the release-unit authority.",
+        "ALREADY_APPLIED is evidence of exact current-main effect, not permission to rewrite the obligation.",
+        "Governance enrichment may only add constraints; it may not subtract or replace them.",
+        "Trusted fresh projection is mandatory for accepting governance enrichment.",
+        "Persisted release-state is changed only by the canonical executor."
       ],
       "forbiddenStates": [
-        "target-wins-drop-source-test",
-        "source-wins-delete-current-main-evolution",
-        "receipt-wrong-blob",
-        "receipt-wrong-patch-identity",
-        "fixture-25-noncanonical-content",
-        "resolution-pr-red-by-design",
-        "manual-u03-child-edit",
-        "manual-release-state-edit"
+        "unproven-create-to-modify-reprojection",
+        "partial-already-applied-operation-preservation",
+        "dependency-obligation-removal-accepted",
+        "read-only-protection-removal-accepted",
+        "sealed-source-identity-mutation-accepted",
+        "forged-operation-digest-accepted",
+        "manual-u03-state-repair"
       ]
     },
     "model": {
@@ -210,48 +204,51 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Current-main test content is accidentally replaced by the historical source file.",
-        "Corpus test lands without fixture-25 and CI fails.",
-        "fixture-25 differs from immutable source.",
-        "Receipt is authored before resolved blob identity is known and points to the old target blob.",
-        "Receipt path or source patch identity differs from live #225 blocker.",
-        "A later edit changes the resolved file blob before replay and the receipt becomes stale.",
-        "Resolution merge succeeds but U03 no-code proof exposes another dependency/Truth blocker."
+        "Candidate is partially applied but operation preservation is incorrectly enabled.",
+        "ALREADY_APPLIED coverage omits or duplicates an operation.",
+        "Fresh projection removes an existing dependency and classifier treats it as enrichment.",
+        "Fresh projection removes a read-only protection and classifier treats it as enrichment.",
+        "Operation preservation keeps a stale source identity after immutable source changed.",
+        "No-code proof receives a manifest whose operations no longer match the trusted materialization receipt."
       ],
       "edgeCases": [
-        "readdirSync is already imported under a grouped node:fs import and must be added without duplicate imports",
-        "the current test file has many later assertions after the historical source hunk",
-        "fixture-25 path does not exist on current main",
-        "source fixture content has trailing newline",
-        "receipt and resolved test file are created in the same atomic implementation commit",
-        "post-resolution main advances in unrelated files before replay while resolved blob remains unchanged",
-        "post-resolution main changes the resolved test file before replay"
+        "single exact create already present with identical blob and mode",
+        "create target present with different blob",
+        "mixed create and conflict-resolved modify both already applied",
+        "one operation already applied and one operation still materializes",
+        "duplicate operation+file receipt entry",
+        "additive dependency only",
+        "dependency removal",
+        "additive read-only path only",
+        "read-only removal",
+        "trustedFreshProjection false",
+        "first sealing and already-applied preservation occurring in the same successor cycle"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-GOVERNED-MERGED-RESOLUTION",
-        "summary": "Add exact fixture-25, merge only the source corpus-test intent into current main, and bind the reviewed resolved blob with the deterministic receipt.",
+        "id": "ALT-PRESERVE-IMMUTABLE-OPS-ON-FULL-ALREADY-APPLIED",
+        "summary": "Keep reconciled immutable operation semantics when the trusted candidate materialization proves exact full-unit ALREADY_APPLIED, while separately accepting only monotonic governance enrichment.",
         "disposition": "selected",
-        "reason": "Preserves both immutable source intent and later main evolution while using the canonical conflict continuation path."
+        "reason": "Preserves release-unit intent and uses existing materializer Git-object proof rather than inferring semantic equivalence from filenames."
       },
       {
-        "id": "ALT-TARGET-WINS",
-        "summary": "Create only the receipt pointing at unchanged current-main test content.",
+        "id": "ALT-GENERIC-CREATE-MODIFY-EQUIVALENCE",
+        "summary": "Treat create and modify as equivalent whenever the file already exists.",
         "disposition": "rejected",
-        "reason": "Would silently discard the immutable U03 corpus-test intent."
+        "reason": "Would allow semantic operation drift without immutable target identity proof."
       },
       {
-        "id": "ALT-SOURCE-WINS",
-        "summary": "Replace current test file with the historical source version.",
+        "id": "ALT-IGNORE-SOURCE-OR-OPERATIONS",
+        "summary": "Remove operations/source from obligation comparison.",
         "disposition": "rejected",
-        "reason": "Would delete substantial later production-surface test evolution."
+        "reason": "Would destroy immutable source and material-operation integrity."
       },
       {
-        "id": "ALT-RUNTIME-FUZZY-MERGE",
-        "summary": "Teach the trusted release-unit runtime to synthesize a semantic/fuzzy merge between immutable source and current main for this conflict.",
+        "id": "ALT-MANUAL-U03-STATE-PATCH",
+        "summary": "Edit persisted U03 release-state so execution skips reconciliation.",
         "disposition": "rejected",
-        "reason": "Would move semantic code-authoring authority into release infrastructure, make the result non-reviewable before materialization, and reintroduce the exact auto-merge class PR #1096 intentionally forbids."
+        "reason": "Would bypass canonical executor authority and resumability truth."
       }
     ],
     "specialistReviews": [
@@ -259,151 +256,120 @@
         "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "The resolution PR could become an arbitrary merge-authority shortcut.",
-        "resolution": "Scope is fixed to the exact live conflict, immutable fixture and deterministic receipt; no runtime changes or other files are authorized.",
-        "evidence": [
-          "Release Unit Execution #225",
-          "PR #1096"
-        ]
+        "finding": "Operation semantics must not become a function of mutable current-main existence.",
+        "resolution": "Preserve the reconciled immutable operation list only after the trusted materializer proves full already-applied coverage."
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Receipt identity must not authorize an unreviewed blob.",
-        "resolution": "resolvedBlobSha is generated from the exact resolved test blob in the implementation commit and file mode is fixed to 100644.",
-        "evidence": [
-          "shoporation.release-unit-conflict-resolution.v1"
-        ]
+        "finding": "A broad create-to-modify exception would be forgeable.",
+        "resolution": "No operation-drift exception is added; exact already-applied evidence prevents the drift from being introduced."
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Both source intent and later current-main assertions must survive.",
-        "resolution": "Apply only the 18-line corpus-test intent to the current 66KB test file and preserve all existing content.",
-        "evidence": [
-          "sourceParent b79f8805",
-          "sourceCommit 65e52ffd",
-          "main 6c897234"
-        ]
+        "finding": "Dependency/read-only refresh must not weaken closure.",
+        "resolution": "Only strict additive enrichment is reprojectable; subtraction remains material."
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "U01 and U02 are closed; U03 is final and blocked only on the exact modify conflict.",
-        "resolution": "Merge governed resolution, replay immutable source, require already-applied full proof and parent closure.",
-        "evidence": [
-          "PR #1053",
-          "PR #1073",
-          "Release Unit Execution #225"
-        ]
+        "finding": "The current blocker is before no-code proof despite exact U03 effects already living on main.",
+        "resolution": "Allow canonical successor reconciliation to retain immutable ops and then run the existing no-code proof unchanged."
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The conflict is now exact and reproducible with deterministic receipt path.",
-        "resolution": "Keep the identity in plan/proof and allow no generic conflict resolution behavior.",
-        "evidence": [
-          "quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json"
-        ]
+        "finding": "Execution #244 is reproducible from immutable source 65e52ffd and main 42e80eed.",
+        "resolution": "Regression tests encode the exact full-already-applied and monotonic-enrichment boundaries."
       }
     ],
     "challenge": [
       {
-        "id": "CH-U03-RES-01",
-        "scenario": "Keep current test unchanged and write a valid receipt.",
-        "finding": "U03 source test intent would be lost.",
-        "resolution": "Rejected; resolved test must include corpus-contract assertions.",
+        "id": "CH-ALREADY-01",
+        "scenario": "Fresh Plan sees an immutable create target already present and labels it modify.",
+        "finding": "Current existence describes repository state, not original release-unit intent.",
+        "resolution": "When full ALREADY_APPLIED is trusted, preserve the reconciled immutable create operation.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03-RES-02",
-        "scenario": "Replace current test with historical source file.",
-        "finding": "Later main test evolution would be deleted.",
-        "resolution": "Rejected; merge only source delta into current file.",
+        "id": "CH-ALREADY-02",
+        "scenario": "Only one of two operations is already applied.",
+        "finding": "Preserving all original operations would hide remaining material work.",
+        "resolution": "Require candidate.status ALREADY_APPLIED, applied=[] and exact full coverage; PREPARED/APPLIED candidates use projected operations normally.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03-RES-03",
-        "scenario": "Add corpus test but omit fixture-25.",
-        "finding": "Resolution PR would fail its own Quality Tests.",
-        "resolution": "Include exact fixture-25 in the same governed transaction.",
+        "id": "CH-GOV-01",
+        "scenario": "Fresh Atlas adds a dependency and read-only proof path.",
+        "finding": "This strengthens current governance but changes raw manifest JSON.",
+        "resolution": "Classify additive-only sets as reprojectable and still require trustedFreshProjection.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03-RES-04",
-        "scenario": "Receipt uses pre-resolution targetBlobSha 48548e... as resolvedBlobSha.",
-        "finding": "That blob does not contain the reviewed merged resolution.",
-        "resolution": "Compute resolvedBlobSha from the new merged test content blob and bind receipt to it.",
+        "id": "CH-GOV-02",
+        "scenario": "Fresh projection removes a dependency or read-only path.",
+        "finding": "This weakens closure and could conceal drift.",
+        "resolution": "Keep subtraction/replacement material and fail closed.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03-RES-05",
-        "scenario": "Receipt path or sourcePatchDigest differs by one byte.",
-        "finding": "Executor must reject the resolution as a different conflict.",
-        "resolution": "Use exact live blocker values without normalization.",
+        "id": "CH-SOURCE-01",
+        "scenario": "Sealed source blob or file mode changes while target happens to exist.",
+        "finding": "Already-applied state cannot authorize source identity mutation.",
+        "resolution": "Existing sealing and operation digest guards remain material and unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03-RES-06",
-        "scenario": "After merge, U03 create sees fixture-25 already on main.",
-        "finding": "Could create duplicate work.",
-        "resolution": "Materializer exact-blob idempotency treats it as alreadyApplied; no duplicate commit is created.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-U03-RES-07",
-        "scenario": "After merge, U03 modify patch still conflicts.",
-        "finding": "Expected because current file includes later main evolution.",
-        "resolution": "Executor consults exact receipt only after real three-way failure and preserves the reviewed resolved blob.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-U03-RES-08",
-        "scenario": "U03 becomes fully already-applied.",
-        "finding": "No child PR is produced.",
-        "resolution": "Canonical no-code proof runs full guards/Truth/Lifecycle and emits a no-code main receipt before unit closure.",
+        "id": "CH-TRUST-01",
+        "scenario": "Caller fabricates additive governance drift without trusted fresh projection.",
+        "finding": "Classifier alone is not authority.",
+        "resolution": "Reconcile remains STALE unless trustedFreshProjection===true.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit this plan only and require Plan Before Code PASS before any resolution content is written.",
-      "Build the resolved test from the exact current-main file plus the immutable U03 corpus-test delta; do not replace the file wholesale.",
-      "Create fixture-25 from immutable source bytes.",
-      "Create the exact receipt in the same atomic implementation commit using the resolved test Git blob SHA returned by Git object creation.",
+      "Commit this plan only and require Plan Before Code PASS before runtime edits.",
+      "Add a pure exact full-coverage selector for successor projected operations and test full/partial/forged cases.",
+      "Use the selector inside reevaluateSuccessorManifest before final sealing.",
+      "Extend obligation classification with monotonic additive-set enrichment for requiredDependencyFiles and readOnlyPaths only.",
+      "Add trusted/untrusted and subtraction regression tests.",
       "Require exact-head Knowledge/Plan/Edit-Time/Replay/Release Risk/Quality/TypeScript/Build/Completion Truth/Lifecycle proof.",
       "Merge only after exact PR-head SUCCESS and green main CI.",
-      "Replay immutable source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and require U03 ALREADY_APPLIED full proof plus parent closure."
+      "Replay immutable source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and require U03 ALREADY_APPLIED proof, unit close, parent Completion Truth and Lifecycle Closure."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-07-CONTROL-PLANE-U03-EXACT-CONFLICT-RESOLUTION-V1",
+      "request": "PO-2026-10-08-CONTROL-PLANE-ALREADY-APPLIED-SUCCESSOR-REPROJECTION-V1",
       "authority": [
-        "quality-knowledge-system"
+        "quality-knowledge-system",
+        "release-infrastructure"
       ],
       "mustEdit": [
-        "tests/control-plane-release-unit-production-surface.test.ts"
-      ],
-      "mayEdit": [],
-      "impactedReadOnly": [
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
         "scripts/release-unit-github-runtime.mjs",
+        "scripts/lib/shoperation-release-unit-runtime.mjs"
+      ],
+      "mayEdit": [
+        "tests/control-plane-release-unit-production-surface.test.ts",
+        "tests/control-plane-release-unit-orchestration.test.ts"
+      ],
+      "impactedReadOnly": [
+        "scripts/release-unit-execute.mjs",
+        "quality/knowledge/development-guard-policy.v1.json",
         "control-plane/release-state/dev-control-plane-multi-unit-rehearsal-v1"
       ],
-      "mustCreate": [
-        "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
-        "quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json"
-      ],
+      "mustCreate": [],
       "forbidden": [
         "src/**",
         "supabase/**",
-        "deploy/**",
-        ".github/workflows/**"
+        "deploy/**"
       ],
       "proof": [
-        "tests/control-plane-release-unit-production-surface.test.ts"
+        "tests/control-plane-release-unit-production-surface.test.ts",
+        "tests/control-plane-release-unit-orchestration.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -414,7 +380,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-U03-EXACT-CONFLICT-RESOLUTION-V1",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-ALREADY-APPLIED-SUCCESSOR-REPROJECTION-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -432,11 +398,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-U03-EXACT-CONFLICT-RESOLUTION",
-        "requirement": "The exact U03 modify conflict must be resolved on main by preserving immutable corpus-test intent and current-main evolution, with the reviewed resolved blob cryptographically bound to the deterministic conflict receipt.",
+        "id": "REQ-ALREADY-APPLIED-SUCCESSOR-REPROJECTION",
+        "requirement": "Trusted successor reevaluation must preserve immutable release-unit operation semantics when the whole unit is already applied, while accepting only monotonic fresh governance enrichment and retaining fail-closed source/dependency integrity.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "u03-exact-conflict-resolution",
+          "breadth": "release-unit-already-applied-successor-reprojection",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -462,22 +428,29 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U03-SOURCE-INTENT-DROPPED",
-            "statement": "The immutable U03 corpus-test intent may not be omitted from the reviewed resolution.",
+            "id": "NEG-UNPROVEN-OPERATION-RECLASSIFICATION",
+            "statement": "A create operation may not become modify merely because its path exists on current main unless full trusted ALREADY_APPLIED materialization has already proven the exact unit effect.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-U03-MAIN-EVOLUTION-LOST",
-            "statement": "Later current-main production-surface assertions may not be removed by the resolution.",
+            "id": "NEG-GOVERNANCE-SUBTRACTION-ACCEPTED",
+            "statement": "Required dependency or read-only obligations may not be removed under successor reprojection.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-U03-RECEIPT-BLOB-MISMATCH",
-            "statement": "The conflict receipt may not point at a blob other than the exact reviewed resolved test file.",
+            "id": "NEG-UNTRUSTED-GOVERNANCE-REPROJECTION",
+            "statement": "Additive governance enrichment may not be accepted without trusted fresh projection provenance.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-SEALED-SOURCE-TAMPER-ACCEPTED",
+            "statement": "Already-applied successor handling may not accept source commit/blob/fileMode or forged operation-digest mutation.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -486,18 +459,5 @@
       }
     ]
   },
-  "notes": "Live exact conflict identity from Release Unit Execution #225: releaseUnitId DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U03; file tests/control-plane-release-unit-production-surface.test.ts; sourceParent b79f8805d9718961a5cb41d4babaf11fd85dda5a; sourceCommit 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; sourcePatchDigest 1569812908caffa0f770724401c4db6973f98ae963353806cade53690cb5446d; targetBaseSha 6c897234b6c890f8ee38f86c08dc86f7b9f68fa2; old targetBlobSha 48548e4838cd2bdfeb0fe66876af771843282978; targetFileMode 100644; deterministic receipt path quality/development/release-unit-conflict-resolutions/dev-control-plane-multi-unit-rehearsal-v1-u03/ee524f42b3bed1f897615f7f8e4ce5310b51d9ed518a126565c694237b4bcf02.json. Plan Gate #9120 canonicalized expectedSubsystems to release-infrastructure, required finite-state-exhaustion for critical assurance, and rejected the prior manual-child-repair alternative as non-distinct. This revision adopts those exact planner outputs without changing the selected resolution design. Reprojected after PR #1103 merged to main 575d39689b6ba5215d0bee61bbc0c9ee9361622a. Exact conflict identity, receipt path, immutable source intent, resolutionBaseSha and planned material scope are unchanged; only the development transaction base/provenance is refreshed before implementation.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "039501b56c85aaa06c48e65d76fb384ffcff6ad9",
-    "closedAt": "2026-10-07T21:30:53.212Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-07-CONTROL-PLANE-U03-EXACT-CONFLICT-RESOLUTION-V1",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Live blocker: Release Unit Execution #244 on immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and main 42e80eed290f2cd5b5baa1a677e021a8a074ee12. Persisted U03 has sealed create fixture-25 + sealed modify production-surface test. Governed main resolution already contains both exact effects; trusted materializer therefore produces full ALREADY_APPLIED. Fresh Plan/Atlas projection then describes fixture-25 as modify because it now exists and adds scripts/release-unit-github-runtime.mjs as dependency plus current read-only proof paths, causing raw operations/dependency/readOnly/childOperationDigest obligation drift before no-code proof. This task preserves immutable operation semantics only under exact full ALREADY_APPLIED evidence and permits only additive governance enrichment under trusted fresh projection. No persisted release-state or immutable source mutation is authorized."
 }
