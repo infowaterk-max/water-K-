@@ -39,23 +39,47 @@ if(parentClosureRoute){
   let expected=null,actualDigest=null;
   try{expected=buildReleaseParentClosureProofArtifactFromContext(parentClosureContext);}catch(error){issues.push({code:'EDIT_TIME_PARENT_CLOSURE_CONTEXT_INVALID',error:String(error)});}
   if(expected){
+    const persistedClosureMetadata=plan.status==='closed';
+    // Executor proof runs at final main with an explicit path. A CLOSED closure
+    // PR runs on the metadata commit and must verify its committed artifact.
+    const verifiedProofPath=parentClosureProofPath||(persistedClosureMetadata?expected.path:'');
     const route=plan.operationalIntelligence?.semanticExecutionRoute??{};
     const mustCreate=[...(route.mustCreate??[])].sort(),proof=[...(route.proof??[])].sort();
     if(JSON.stringify(mustCreate)!==JSON.stringify([expected.path]))issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ROUTE_CREATE_MISMATCH',expected:expected.path,actual:mustCreate});
     if(!proof.includes(expected.path))issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ROUTE_PROOF_MISSING',expected:expected.path});
     if(!(plan.plannedFilePatterns??[]).includes(expected.path))issues.push({code:'EDIT_TIME_PARENT_CLOSURE_PLAN_ARTIFACT_MISSING',expected:expected.path});
-    if(parentClosureProofPath!==expected.path)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_PATH_MISMATCH',expected:expected.path,actual:parentClosureProofPath||null});
-    else if(!existsSync(parentClosureProofPath))issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_MISSING'});
+    if(verifiedProofPath!==expected.path)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_PATH_MISMATCH',expected:expected.path,actual:parentClosureProofPath||null});
+    else if(!existsSync(verifiedProofPath))issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_MISSING'});
     else{
       try{
-        const content=readFileSync(parentClosureProofPath,'utf8'),artifact=JSON.parse(content);
+        const content=readFileSync(verifiedProofPath,'utf8'),artifact=JSON.parse(content);
         actualDigest=releaseParentClosureProofArtifactByteDigest(content);
         if(content!==expected.content)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_BYTES_MISMATCH'});
         if(actualDigest!==expected.digest)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_DIGEST_MISMATCH',expected:expected.digest,actual:actualDigest});
         if(JSON.stringify(artifact)!==JSON.stringify(expected.artifact))issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_CONTEXT_MISMATCH'});
+        if(persistedClosureMetadata){
+          // The proof committed at the exact CI HEAD, not a transient worktree
+          // file, must be byte-identical to the independently derived evidence.
+          try{
+            const committedContent=git(['show',`${diff.head}:${expected.path}`]);
+            if(committedContent!==expected.content||committedContent!==content)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_COMMITTED_ARTIFACT_BYTES_MISMATCH'});
+          }catch(error){issues.push({code:'EDIT_TIME_PARENT_CLOSURE_COMMITTED_ARTIFACT_MISSING',error:String(error)});}
+        }
       }catch(error){issues.push({code:'EDIT_TIME_PARENT_CLOSURE_ARTIFACT_UNREADABLE',error:String(error)});}
     }
-    if(diff.head&&parentClosureContext?.finalMainSha!==diff.head)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_FINAL_MAIN_MISMATCH',expected:parentClosureContext?.finalMainSha??null,actual:diff.head});
+    const finalMainSha=String(parentClosureContext?.finalMainSha??'').trim();
+    if(persistedClosureMetadata){
+      // The implementation final main is the closure commit's sole parent.
+      // Its own head must remain the separate exact metadata CI identity.
+      if(!finalMainSha||plan.changeBaseSha!==finalMainSha||diff.base!==finalMainSha)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_FINAL_MAIN_MISMATCH',expected:finalMainSha||null,actual:{planBase:plan.changeBaseSha??null,verifiedBase:diff.base??null}});
+      if(!diff.head||diff.head===finalMainSha)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_METADATA_HEAD_INVALID',expectedParent:finalMainSha||null,actualHead:diff.head??null});
+      else{
+        try{
+          const parents=git(['rev-list','--parents','-n','1',diff.head]).trim().split(/\s+/);
+          if(parents.length!==2||parents[0]!==diff.head||parents[1]!==finalMainSha)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_METADATA_PARENT_MISMATCH',expectedParent:finalMainSha,actualParents:parents.slice(1)});
+        }catch(error){issues.push({code:'EDIT_TIME_PARENT_CLOSURE_METADATA_PARENT_UNRESOLVED',error:String(error)});}
+      }
+    }else if(diff.head&&finalMainSha!==diff.head)issues.push({code:'EDIT_TIME_PARENT_CLOSURE_FINAL_MAIN_MISMATCH',expected:finalMainSha||null,actual:diff.head});
   }
   parentClosureProofEvidence={decision:issues.length?'BLOCK':'PASS',path:(expected?.path??parentClosureProofPath)||null,files:issues.length||!expected?[]:[expected.path],issues,digest:actualDigest};
 }
