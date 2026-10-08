@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
   "task": "Isolate generic critical MUST_CREATE regression fixture from inherited parent closure authority so generic remains BLOCK and only explicit canonical parent closure remains eligible.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "430b0bba",
   "changeBaseSha": "355a77702fa255997f4abc1ca80ee4a559a8d58f",
   "plannedFilePatterns": [
@@ -396,5 +396,18 @@
       }
     ]
   },
-  "notes": "CI #9228/#9230/#9231 on PR #1138 closure HEAD c3fb20b47be325fc5963e8ac3ea2b8252f0a8c8d fail one Operational Intelligence unit test because copied active-plan contains parentClosureContext. Only test fixture context isolation; source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65, U01-U03, canonical release-state d459e52e1ae8357786257ee7341a087b8990e42b and parent closure PR untouched. Target branch from main 355a77702fa255997f4abc1ca80ee4a559a8d58f. CI #9233 Plan Before Code measured planned scope: domains=[], authorities=[], knownFailures=[SQ-KF-013,SQ-KF-014,SQ-KF-022], guardDigest=430b0bba. Changed only derived scope, canonical authority route, and replaced vacuous alternative/challenge with adversarial, falsifiable wording."
+  "notes": "CI #9228/#9230/#9231 on PR #1138 closure HEAD c3fb20b47be325fc5963e8ac3ea2b8252f0a8c8d fail one Operational Intelligence unit test because copied active-plan contains parentClosureContext. Only test fixture context isolation; source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65, U01-U03, canonical release-state d459e52e1ae8357786257ee7341a087b8990e42b and parent closure PR untouched. Target branch from main 355a77702fa255997f4abc1ca80ee4a559a8d58f. CI #9233 Plan Before Code measured planned scope: domains=[], authorities=[], knownFailures=[SQ-KF-013,SQ-KF-014,SQ-KF-022], guardDigest=430b0bba. Changed only derived scope, canonical authority route, and replaced vacuous alternative/challenge with adversarial, falsifiable wording.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "0421fcf797def1d3a3deb4216370c1b3f533f76a",
+    "closedAt": "2026-10-08T17:13:05.768Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-08-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
