@@ -580,7 +580,7 @@ describe('release-unit execution binding hardening',()=>{
     expect(classify({...workflowRun,status:'in_progress',conclusion:null},null)).toMatchObject({decision:'PENDING'});
     for(const [name,field] of [
       ['wrong sha',{head_sha:'f'.repeat(40)}],['wrong branch',{head_branch:'feature/foreign'}],
-      ['wrong event',{event:'pull_request'}],['manual actor',{actor:{login:'chall'}}],
+      ['wrong event',{event:'pull_request'}],['ordinary main push',{event:'push'}],['manual actor',{actor:{login:'chall'}}],
       ['wrong nonce',{display_title:'CI regular manual run'}],['foreign workflow',{path:'.github/workflows/other.yml'}],
       ['wrong name',{name:'CI'}],['wrong ID',{id:999}],
     ]){
