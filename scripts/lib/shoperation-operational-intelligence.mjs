@@ -1,4 +1,5 @@
 import {readFileSync} from 'node:fs';
+import {RELEASE_PARENT_CLOSURE_CONTEXT_CONTRACT,buildReleaseParentClosureProofArtifactFromContext,releaseParentClosureProofArtifactPath,validateReleaseParentClosureProofPlan} from './shoperation-release-unit-runtime.mjs';
 
 const asArray=value=>Array.isArray(value)?value:[];
 const text=value=>typeof value==='string'&&value.trim().length>0;
@@ -368,14 +369,45 @@ export function buildClosedDevelopmentPlan({plan,truthReport,currentHead,closedA
     },
   };
 }
-export function evaluateClosedDevelopmentPlan({plan,currentExactState,changedSinceVerified=[],verifiedHeadIsAncestor=true,planIssues=[]}){
+export function validateCommittedParentClosureMetadata({plan,parent,sourcePlan,currentExactState,artifactContent,metadataParents=[],metadataChanges=[],trustedMainAdvance=null}={}){
+  const issues=[],issueCode=(code,details={})=>issues.push({code,...details});
+  const context=plan?.parentClosureContext??null,sourceCommit=String(context?.sourceCommit??'');
+  const implementationHead=String(plan?.lifecycle?.verifiedImplementationHead??''),metadataHead=String(currentExactState?.head??'');
+  const branch=String(currentExactState?.branch??''),persistence=parent?.closurePersistence??null;
+  const sha=value=>/^[0-9a-f]{40}$/i.test(String(value??''));
+  if(context?.contract!==RELEASE_PARENT_CLOSURE_CONTEXT_CONTRACT)issueCode('DEV_LIFECYCLE_PARENT_PROOF_CONTEXT_REQUIRED');
+  if(plan?.status!=='closed'||plan?.lifecycle?.state!=='LEARN'||plan?.lifecycle?.truthStatus!=='VERIFIED')issueCode('DEV_LIFECYCLE_PARENT_PROOF_CLOSED_PLAN_REQUIRED');
+  if(!sha(metadataHead)||!sha(implementationHead)||!sha(sourceCommit))issueCode('DEV_LIFECYCLE_PARENT_PROOF_SHA_INVALID');
+  if(plan?.changeBaseSha!==implementationHead||context?.finalMainSha!==implementationHead)issueCode('DEV_LIFECYCLE_PARENT_PROOF_FINAL_MAIN_MISMATCH');
+  if(parent?.contract!=='shoporation.release-parent-execution.v1'||parent?.closureComplete!==true||parent?.parentTransactionId!==plan?.taskId)issueCode('DEV_LIFECYCLE_PARENT_PROOF_EXECUTION_IDENTITY_MISMATCH');
+  if(parent?.executionSourceCommit!==sourceCommit||sourcePlan?.taskId!==plan?.taskId)issueCode('DEV_LIFECYCLE_PARENT_PROOF_SOURCE_IDENTITY_MISMATCH');
+  if(!Array.isArray(parent?.units)||!parent.units.length||!parent.units.every(item=>item?.state==='CLOSED'&&item?.closeReceipt))issueCode('DEV_LIFECYCLE_PARENT_PROOF_CHILD_RECEIPTS_MISSING');
+  if(persistence?.contract!=='shoporation.release-parent-closure-persistence.v1'||persistence?.state!=='PR_OPEN'||persistence?.headSha!==metadataHead||persistence?.baseSha!==implementationHead||persistence?.branch!==branch)issueCode('DEV_LIFECYCLE_PARENT_PROOF_PERSISTENCE_MISMATCH');
+  if(!Array.isArray(metadataParents)||metadataParents.length!==2||metadataParents[0]!==metadataHead||metadataParents[1]!==implementationHead)issueCode('DEV_LIFECYCLE_PARENT_PROOF_METADATA_ANCESTRY_MISMATCH');
+  let expected=null;
+  try{
+    const args={parent,sourcePlan,sourceCommit,finalMainSha:implementationHead,trustedMainAdvance};
+    if(!validateReleaseParentClosureProofPlan(plan,args))issueCode('DEV_LIFECYCLE_PARENT_PROOF_PLAN_BINDING_MISMATCH');
+    expected=buildReleaseParentClosureProofArtifactFromContext(context);
+    if(artifactContent!==expected.content)issueCode('DEV_LIFECYCLE_PARENT_PROOF_COMMITTED_BYTES_MISMATCH');
+    if(parent?.closedReceipt?.proofArtifactPath!==expected.path||parent?.closedReceipt?.proofArtifactDigest!==expected.digest||JSON.stringify(parent?.closedReceipt?.parentClosureContext)!==JSON.stringify(context))issueCode('DEV_LIFECYCLE_PARENT_PROOF_CLOSED_RECEIPT_BINDING_MISMATCH');
+    if(expected.path!==releaseParentClosureProofArtifactPath(plan?.taskId))issueCode('DEV_LIFECYCLE_PARENT_PROOF_PATH_MISMATCH');
+    const expectedChanges=['M\tquality/development/active-plan.json','A\t'+expected.path].sort();
+    if(!Array.isArray(metadataChanges)||JSON.stringify([...metadataChanges].sort())!==JSON.stringify(expectedChanges))issueCode('DEV_LIFECYCLE_PARENT_PROOF_METADATA_SCOPE_MISMATCH',{expected:expectedChanges,actual:metadataChanges});
+  }catch(error){issueCode('DEV_LIFECYCLE_PARENT_PROOF_RECONSTRUCTION_FAILED',{error:String(error?.message??error)});}
+  return{decision:issues.length?'BLOCK':'PASS',path:issues.length?null:expected.path,issues};
+}
+
+export function evaluateClosedDevelopmentPlan({plan,currentExactState,changedSinceVerified=[],verifiedHeadIsAncestor=true,planIssues=[],verifiedParentClosureProofPath=null}){
   const lifecycle=plan?.lifecycle??{},issues=[...asArray(planIssues)];
   if(plan?.status!=='closed')issues.push({code:'DEV_LIFECYCLE_STATUS_NOT_CLOSED'});
   if(lifecycle.state!=='LEARN')issues.push({code:'DEV_LIFECYCLE_LEARN_STATE_REQUIRED'});
   if(lifecycle.truthStatus!=='VERIFIED')issues.push({code:'DEV_LIFECYCLE_TRUTH_NOT_VERIFIED'});
   if(!text(lifecycle.verifiedImplementationHead))issues.push({code:'DEV_LIFECYCLE_VERIFIED_HEAD_REQUIRED'});
   if(!verifiedHeadIsAncestor)issues.push({code:'DEV_LIFECYCLE_VERIFIED_HEAD_NOT_ANCESTOR'});
-  const materialChanges=asArray(changedSinceVerified).filter(file=>file!=='quality/development/active-plan.json');
+  const canonicalProofPath=plan?.parentClosureContext?.contract===RELEASE_PARENT_CLOSURE_CONTEXT_CONTRACT?releaseParentClosureProofArtifactPath(plan.taskId):null;
+  const acceptedProofPath=verifiedParentClosureProofPath&&verifiedParentClosureProofPath===canonicalProofPath?verifiedParentClosureProofPath:null;
+  const materialChanges=asArray(changedSinceVerified).filter(file=>file!=='quality/development/active-plan.json'&&file!==acceptedProofPath);
   if(materialChanges.length)issues.push({code:'DEV_LIFECYCLE_POST_VERIFICATION_MATERIAL_CHANGE',files:materialChanges});
   const verified=issues.length===0;
   return{
