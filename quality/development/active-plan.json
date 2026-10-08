@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-TRUSTED-MAIN-RECONCILIATION-V1",
   "task": "Reconcile trusted fast-forward main evolution across the complete parent Truth/Lifecycle/persistence closure route without weakening CLOSED child output integrity.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "68877e11c05ccddd7c8a7ec584b1732f0e371f73",
   "plannedFilePatterns": [
@@ -644,5 +644,18 @@
       }
     ]
   },
-  "notes": "Live blocker: immutable source CI #8928 attempt 14 SUCCESS on source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; Release Unit Execution #278 fails exactly as RELEASE_PARENT_FINAL_MAIN_DRIFT. Canonical state 4c576557808f1051aecd3b027e83a09af4cc7ecc has U01/U02/U03 CLOSED, activeUnitId=null, closureEligible=true, lifecyclePhase=TRUTH_GATE. Last child/U03 main is 4cab9376d285a15d4d27d742f7b8b2babb8a5bee; current main 68877e11c05ccddd7c8a7ec584b1732f0e371f73 is a required Control Plane hardening descendant. Diff 4cab..68877 changes only quality/development/active-plan.json, scripts/release-unit-execute.mjs and tests/control-plane-release-unit-execution-binding.test.ts; no CLOSED child intended output changed. Failure Intake #1129 records the defect. This transaction deliberately covers both RELEASE_PARENT_FINAL_MAIN_DRIFT and downstream RELEASE_PARENT_CLOSURE_MAIN_DRIFT so the same stale-main assumption cannot simply reappear one gate later. Downstream pre-implementation review additionally found that parent closure currently waits only for pull_request CI although executor-created PR events are not a reliable recursive workflow trigger. The same capability therefore explicitly dispatches normal CI on the exact closure branch head and accepts exact workflow_dispatch or pull_request SUCCESS."
+  "notes": "Live blocker: immutable source CI #8928 attempt 14 SUCCESS on source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; Release Unit Execution #278 fails exactly as RELEASE_PARENT_FINAL_MAIN_DRIFT. Canonical state 4c576557808f1051aecd3b027e83a09af4cc7ecc has U01/U02/U03 CLOSED, activeUnitId=null, closureEligible=true, lifecyclePhase=TRUTH_GATE. Last child/U03 main is 4cab9376d285a15d4d27d742f7b8b2babb8a5bee; current main 68877e11c05ccddd7c8a7ec584b1732f0e371f73 is a required Control Plane hardening descendant. Diff 4cab..68877 changes only quality/development/active-plan.json, scripts/release-unit-execute.mjs and tests/control-plane-release-unit-execution-binding.test.ts; no CLOSED child intended output changed. Failure Intake #1129 records the defect. This transaction deliberately covers both RELEASE_PARENT_FINAL_MAIN_DRIFT and downstream RELEASE_PARENT_CLOSURE_MAIN_DRIFT so the same stale-main assumption cannot simply reappear one gate later. Downstream pre-implementation review additionally found that parent closure currently waits only for pull_request CI although executor-created PR events are not a reliable recursive workflow trigger. The same capability therefore explicitly dispatches normal CI on the exact closure branch head and accepts exact workflow_dispatch or pull_request SUCCESS.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "cdb1c1c5a8cc14621bd41c25d2135b8655d916a3",
+    "closedAt": "2026-10-08T08:07:27.246Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-TRUSTED-MAIN-RECONCILIATION-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
