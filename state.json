@@ -3737,7 +3737,7 @@
   "executionSourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
   "closurePersistence": {
     "contract": "shoporation.release-parent-closure-persistence.v1",
-    "state": "PR_OPEN",
+    "state": "MERGED",
     "branch": "release-execution/closure/dev-control-plane-multi-unit-rehearsal-v1",
     "prNumber": 1138,
     "headSha": "d447af17466ef84db050e78e5e3ec80272186f92",
@@ -3745,6 +3745,7 @@
     "url": "https://github.com/infowaterk-max/water-K-/pull/1138",
     "ciDispatch": {
       "decision": "DISPATCHED"
-    }
+    },
+    "mergedMainSha": "5a39a1d8f31458d45617d3246b77ec3740db19d0"
   }
 }
