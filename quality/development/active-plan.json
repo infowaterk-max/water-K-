@@ -14,10 +14,10 @@
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-003",
@@ -336,13 +336,13 @@
       "Require Edit-Time, Incremental Replay, Quality, TypeScript and Production Build PASS.",
       "Require exact-head Completion Truth and Lifecycle Closure.",
       "Merge only after exact PR-head SUCCESS and post-merge main SUCCESS.",
-      "Replay immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65.",
+      "Replay immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and require the next Release Unit Execution blocker to remain fail-closed while exposing reason.code=RELEASE_PARENT_PROOF_OR_PERSISTENCE_FAILED plus a non-empty reason.details.error containing the exact underlying parent proof or persistence cause.",
       "Capture the newly exposed exact parent proof/persistence cause and repair only that root cause in the same hardening cycle."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-08-CONTROL-PLANE-PARENT-PROOF-DIAGNOSTIC-PROPAGATION-V1",
       "authority": [
-        "quality-knowledge-system"
+        "release-infrastructure"
       ],
       "mustEdit": [
         "scripts/release-unit-parent-close.mjs",
