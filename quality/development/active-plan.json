@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-PARENT-METADATA-CLOSURE-PROJECTION-V1",
   "task": "Add fail-closed Plan Before Code support for executor-derived metadata-only parent closure projections without permitting ordinary empty plans.",
   "status": "ready-for-implementation",
-  "guardDigest": "a41cfd0c",
+  "guardDigest": "aa79c504",
   "changeBaseSha": "56ef5edb77f1408f27218892fa58a94189982728",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -12,17 +12,12 @@
     "tests/shoperation-development-guard.test.ts",
     "tests/control-plane-release-unit-orchestration.test.ts"
   ],
-  "expectedSubsystems": [
-    "quality-infrastructure",
-    "release-infrastructure"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -77,19 +72,7 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-016",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
