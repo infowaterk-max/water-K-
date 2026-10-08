@@ -3,7 +3,7 @@
   "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
   "decompositionContract": "shoporation.release-decomposition.v1",
   "manifestChainDigest": "8985512e",
-  "lifecyclePhase": "TRUTH_GATE",
+  "lifecyclePhase": "LEARN",
   "unitIds": [
     "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U01",
     "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1-U02",
@@ -3645,7 +3645,104 @@
   ],
   "blocker": null,
   "closureEligible": true,
-  "closureComplete": false,
-  "closedReceipt": null,
-  "executionSourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65"
+  "closureComplete": true,
+  "closedReceipt": {
+    "contract": "shoporation.release-parent-close-receipt.v1",
+    "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+    "lastChildMainSha": "4cab9376d285a15d4d27d742f7b8b2babb8a5bee",
+    "finalMainSha": "0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6",
+    "mainAdvanceProof": {
+      "contract": "shoporation.release-parent-main-advance-proof.v1",
+      "issuer": "release-unit-parent-close",
+      "decision": "PASS",
+      "relationship": "FAST_FORWARD",
+      "fromSha": "4cab9376d285a15d4d27d742f7b8b2babb8a5bee",
+      "toSha": "0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6",
+      "changedFiles": [
+        "quality/development/active-plan.json",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/release-unit-execute.mjs",
+        "scripts/release-unit-orchestrate.mjs",
+        "scripts/release-unit-parent-close.mjs",
+        "scripts/shoperation-edit-time-guard.mjs",
+        "tests/control-plane-release-unit-execution-binding.test.ts",
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/shoperation-operational-intelligence.test.ts"
+      ],
+      "protectedFiles": [
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-01.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-02.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-03.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-04.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-05.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-06.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-07.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-08.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-09.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-10.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-11.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-12.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-13.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-14.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-15.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-16.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-17.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-18.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-19.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-20.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-21.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-22.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-23.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-24.json",
+        "quality/knowledge/rehearsal-fixtures/v1/fixture-25.json",
+        "tests/control-plane-release-unit-production-surface.test.ts"
+      ],
+      "overlapFiles": [],
+      "unitCloseReceiptDigests": [
+        "0fe7b086",
+        "c55edaba",
+        "68cf5282"
+      ]
+    },
+    "truthStatus": "VERIFIED",
+    "lifecycleState": "LEARN",
+    "unitCloseReceiptDigests": [
+      "0fe7b086",
+      "c55edaba",
+      "68cf5282"
+    ],
+    "decision": "PASS",
+    "parentClosureContext": {
+      "contract": "shoporation.release-parent-closure-proof-context.v1",
+      "proofPlanContract": "shoporation.release-parent-closure-proof-plan.v1",
+      "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
+      "sourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+      "sourcePlanDigest": "b6e7ed2e79688f4a1559e152566d871980c106c01803c3e7ce6c259c91a31e02",
+      "completionContractDigest": "e2dfd676f218b6623ec8242fb1195849177a115db9f1dca549ef6e08a0c70eac",
+      "lastChildMainSha": "4cab9376d285a15d4d27d742f7b8b2babb8a5bee",
+      "finalMainSha": "0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6",
+      "unitCloseReceiptDigests": [
+        "0fe7b086",
+        "c55edaba",
+        "68cf5282"
+      ],
+      "trustedMainAdvanceDigest": "8e146c94cbb1aaf3a1e44384406795625eeaccd880eef15cda9a5fd8509351b3"
+    },
+    "proofArtifactPath": "quality/knowledge/release-parent-closure-proofs/dev-control-plane-multi-unit-rehearsal-v1.json",
+    "proofArtifactDigest": "6178726f309393e9c33405258ea8345bfa96c51c5532a46303fde9137017146a"
+  },
+  "executionSourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
+  "closurePersistence": {
+    "contract": "shoporation.release-parent-closure-persistence.v1",
+    "state": "PR_OPEN",
+    "branch": "release-execution/closure/dev-control-plane-multi-unit-rehearsal-v1",
+    "prNumber": 1138,
+    "headSha": "ad52d8cae737b19ab09980e3b294f93e84a012c4",
+    "baseSha": "0c53e9f0baa825e9e1ac8cc9c918527a32ce22f6",
+    "url": "https://github.com/infowaterk-max/water-K-/pull/1138",
+    "ciDispatch": {
+      "decision": "DISPATCHED"
+    }
+  }
 }
