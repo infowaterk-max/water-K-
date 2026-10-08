@@ -3,7 +3,7 @@
   "taskId": "DEV-RELEASE-PARENT-POST-MERGE-MAIN-CI-V1",
   "task": "Harden release parent merge-to-main CI execution with exact merged-head dispatch, durable auditable run evidence and fail-closed restart closure.",
   "status": "ready-for-implementation",
-  "guardDigest": "680496a6",
+  "guardDigest": "128614ad",
   "changeBaseSha": "5a39a1d8f31458d45617d3246b77ec3740db19d0",
   "plannedFilePatterns": [
     ".github/workflows/ci.yml",
@@ -31,7 +31,16 @@
     "SQ-KF-014",
     "SQ-KF-018",
     "SQ-KF-020",
-    "SQ-KF-022"
+    "SQ-KF-022",
+    "TF-KF-001",
+    "TF-KF-005",
+    "TF-KF-007",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -212,7 +221,7 @@
     ],
     "specialistReviews": [
       {
-        "role": "Release Engineering",
+        "role": "Release",
         "mode": "review",
         "verdict": "pass",
         "finding": "GITHUB_TOKEN squash-merge suppression prevents the expected push-triggered verification.",
@@ -243,7 +252,7 @@
         ]
       },
       {
-        "role": "Quality Assurance",
+        "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
         "finding": "No existing regression exercises the post-merge exact-head main CI path.",
@@ -288,9 +297,9 @@
       },
       {
         "id": "CH-04",
-        "scenario": "Scenario: Dispatch invisibility.",
-        "finding": "Risk: Event accepted before list endpoint exposes run.",
-        "resolution": "Resolution: Persist intent; poll rather than create duplicate.",
+        "scenario": "Scenario: GitHub accepts the workflow_dispatch request for SHA S and run-name N but gh run list returns zero matching runs on the next poll; the executor crashes and resumes.",
+        "finding": "Risk: An immediate second dispatch would create duplicate CI runs and could adopt an unrelated run with the same commit SHA.",
+        "resolution": "Resolution: Persist DISPATCH_REQUESTED with deterministic N before re-query; retain PENDING on zero results and accept only N-bound run with exact event, SHA and branch.",
         "status": "resolved"
       },
       {
@@ -316,9 +325,9 @@
       },
       {
         "id": "CH-08",
-        "scenario": "Scenario: Wrong event/actor.",
-        "finding": "Risk: A foreign run could copy display title.",
-        "resolution": "Resolution: Match workflow_dispatch, CI name, trusted actor and head branch.",
+        "scenario": "Scenario: An ordinary user triggers a successful CI workflow_dispatch on main SHA S, copies the canonical parent run-name token N, but the workflow actor is not github-actions[bot].",
+        "finding": "Risk: Selecting the run by SHA and title alone would forge a bot-executor release receipt.",
+        "resolution": "Resolution: Validate actor, workflow file/name, run ID, event, exact main SHA and persisted nonce together; reject any user-actor or foreign run.",
         "status": "resolved"
       },
       {
@@ -455,5 +464,5 @@
       }
     ]
   },
-  "notes": "Issue #1156: bot-merge post-merge main CI execution edge, source #65e52ffd... immutable, U01-U03 CLOSED. Last known main 5a39a1d8f31458d45617d3246b77ec3740db19d0 and CI #9261 SUCCESS; do not change their proof. Plan-only before implementation. Old #182 queued without jobs is independently isolated and not part of this release claim. No changes to canonical state outside entrusted executor runtime."
+  "notes": "Issue #1156: bot-merge post-merge main CI execution edge, source #65e52ffd... immutable, U01-U03 CLOSED. Last known main 5a39a1d8f31458d45617d3246b77ec3740db19d0 and CI #9261 SUCCESS; do not change their proof. Plan-only before implementation. Old #182 queued without jobs is independently isolated and not part of this release claim. No changes to canonical state outside entrusted executor runtime. Plan-only CI #9263 measured 19 expected failure IDs including 9 Template Factory inherited release regressions and digest 128614ad. Corrected canonical Release/Known Failure reviewer roles and two concrete adversarial challenge cases prior to code edit."
 }
