@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-RELEASE-PARENT-DERIVED-CLOSURE-PROOF-PLAN-V1",
   "task": "Separate immutable parent completion authority from the final-main development-plan envelope by deriving a state-bound parent closure proof-plan for the accepted final main.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "e296c5203b115737cd5b375275ab2ef8d725974c",
   "plannedFilePatterns": [
@@ -560,5 +560,18 @@
       }
     ]
   },
-  "notes": "Live blocker: main e296c5203b115737cd5b375275ab2ef8d725974c; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; source CI #8928 attempt 15 SUCCESS; Release Unit Execution #287 FAIL. Trusted-main reconciliation passes, but runParentProof reuses the immutable source development-plan envelope against newer final main and fails with DEV_PLAN_UNPLANNED_FILE plus DOMAIN/AUTHORITY/SUBSYSTEM scope expansion for independently planned/verified Control Plane hardening. Issue #1129 updated with this exact downstream blocker. This transaction does not widen the source plan; it introduces a deterministic closure-only proof plan bound to source completion authority, canonical receipts and exact final main. Pre-implementation route audit found scripts/release-unit-orchestrate.mjs still exposes canonical context-free PARENT_CLOSE; scope is expanded before code so every parent-close entry point enforces the same derived closure authority."
+  "notes": "Live blocker: main e296c5203b115737cd5b375275ab2ef8d725974c; immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65; source CI #8928 attempt 15 SUCCESS; Release Unit Execution #287 FAIL. Trusted-main reconciliation passes, but runParentProof reuses the immutable source development-plan envelope against newer final main and fails with DEV_PLAN_UNPLANNED_FILE plus DOMAIN/AUTHORITY/SUBSYSTEM scope expansion for independently planned/verified Control Plane hardening. Issue #1129 updated with this exact downstream blocker. This transaction does not widen the source plan; it introduces a deterministic closure-only proof plan bound to source completion authority, canonical receipts and exact final main. Pre-implementation route audit found scripts/release-unit-orchestrate.mjs still exposes canonical context-free PARENT_CLOSE; scope is expanded before code so every parent-close entry point enforces the same derived closure authority.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "86a5bef4d069003c4b7a9aaafd8fae3e26e7a84d",
+    "closedAt": "2026-10-08T09:00:48.161Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-08-CONTROL-PLANE-RELEASE-PARENT-DERIVED-CLOSURE-PROOF-PLAN-V1",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
