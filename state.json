@@ -3650,22 +3650,24 @@
     "contract": "shoporation.release-parent-close-receipt.v1",
     "parentTransactionId": "DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1",
     "lastChildMainSha": "4cab9376d285a15d4d27d742f7b8b2babb8a5bee",
-    "finalMainSha": "d3611344b1f7006e250b60a8973d5902abc33cfc",
+    "finalMainSha": "f5f41dbefa294f3ce60b949a11628b64d88f7167",
     "mainAdvanceProof": {
       "contract": "shoporation.release-parent-main-advance-proof.v1",
       "issuer": "release-unit-parent-close",
       "decision": "PASS",
       "relationship": "FAST_FORWARD",
       "fromSha": "4cab9376d285a15d4d27d742f7b8b2babb8a5bee",
-      "toSha": "d3611344b1f7006e250b60a8973d5902abc33cfc",
+      "toSha": "f5f41dbefa294f3ce60b949a11628b64d88f7167",
       "changedFiles": [
         "quality/development/active-plan.json",
+        "scripts/lib/shoperation-operational-intelligence.d.mts",
         "scripts/lib/shoperation-operational-intelligence.mjs",
         "scripts/lib/shoperation-release-unit-runtime.mjs",
         "scripts/release-unit-execute.mjs",
         "scripts/release-unit-orchestrate.mjs",
         "scripts/release-unit-parent-close.mjs",
         "scripts/shoperation-edit-time-guard.mjs",
+        "scripts/shoperation-truth-gate.mjs",
         "tests/control-plane-release-unit-execution-binding.test.ts",
         "tests/control-plane-release-unit-orchestration.test.ts",
         "tests/shoperation-operational-intelligence.test.ts"
@@ -3721,16 +3723,16 @@
       "sourcePlanDigest": "b6e7ed2e79688f4a1559e152566d871980c106c01803c3e7ce6c259c91a31e02",
       "completionContractDigest": "e2dfd676f218b6623ec8242fb1195849177a115db9f1dca549ef6e08a0c70eac",
       "lastChildMainSha": "4cab9376d285a15d4d27d742f7b8b2babb8a5bee",
-      "finalMainSha": "d3611344b1f7006e250b60a8973d5902abc33cfc",
+      "finalMainSha": "f5f41dbefa294f3ce60b949a11628b64d88f7167",
       "unitCloseReceiptDigests": [
         "0fe7b086",
         "c55edaba",
         "68cf5282"
       ],
-      "trustedMainAdvanceDigest": "d58df79782cce97502ff6ec55818541ef647e45620d1ee28da6e06ae9650e353"
+      "trustedMainAdvanceDigest": "cddd3985bdbca6c8c8f262d6fcef35b93f951c4c6b9f5ebd007368d5cbf303c6"
     },
     "proofArtifactPath": "quality/knowledge/release-parent-closure-proofs/dev-control-plane-multi-unit-rehearsal-v1.json",
-    "proofArtifactDigest": "70bb36b105f3ddd95023b588fd6ee4377adfec9f4f2909db0e6fd610e1ebf3b3"
+    "proofArtifactDigest": "28e5d218ea05bd95d82a6b3b133815d2d008014b9e7a54c1df40336e97666d47"
   },
   "executionSourceCommit": "65e52ffd1fd32f14353467eb7c52b2e06ba1be65",
   "closurePersistence": {
@@ -3738,8 +3740,8 @@
     "state": "PR_OPEN",
     "branch": "release-execution/closure/dev-control-plane-multi-unit-rehearsal-v1",
     "prNumber": 1138,
-    "headSha": "0082f2eff0135ac1d8d51a73b826da4c4804aab0",
-    "baseSha": "d3611344b1f7006e250b60a8973d5902abc33cfc",
+    "headSha": "d447af17466ef84db050e78e5e3ec80272186f92",
+    "baseSha": "f5f41dbefa294f3ce60b949a11628b64d88f7167",
     "url": "https://github.com/infowaterk-max/water-K-/pull/1138",
     "ciDispatch": {
       "decision": "DISPATCHED"
