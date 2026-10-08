@@ -141,7 +141,7 @@
       "acceptanceCriteria": [
         "DEV_PLAN_PROJECTION_EMPTY remains emitted for a normal plan whose only planned path is active-plan metadata.",
         "A valid parent closure proof plan with zero material projected files does not emit DEV_PLAN_PROJECTION_EMPTY.",
-        "Metadata-only mode requires parentClosureContext.contract=`shoporation.release-parent-closure-context.v1` and proofPlanContract=`shoporation.release-parent-closure-proof-plan.v1`.",
+        "Metadata-only mode requires parentClosureContext.contract=`shoporation.release-parent-closure-proof-context.v1` and proofPlanContract=`shoporation.release-parent-closure-proof-plan.v1`.",
         "Metadata-only mode requires plannedFilePatterns exactly [`quality/development/active-plan.json`].",
         "Metadata-only mode requires semantic route material mutation arrays mustEdit/mustCreate/plannedDeletions/plannedRenames/generatedArtifacts all empty.",
         "Metadata-only mode requires no material actual diff between changeBaseSha and exact head.",
@@ -263,7 +263,7 @@
         "finding": "Any empty-projection exception is a potential planning bypass.",
         "resolution": "Require exact parent closure context contracts, exact metadata-only path set, zero material mutations and zero actual material diff.",
         "evidence": [
-          "shoporation.release-parent-closure-context.v1",
+          "shoporation.release-parent-closure-proof-context.v1",
           "shoporation.release-parent-closure-proof-plan.v1",
           "DEV_PLAN_PROJECTION_EMPTY"
         ]
