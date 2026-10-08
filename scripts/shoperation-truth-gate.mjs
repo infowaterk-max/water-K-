@@ -1,6 +1,7 @@
 import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
-import {evaluateClosedDevelopmentPlan,evaluateCompletionTruth,validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
+import {evaluateClosedDevelopmentPlan,evaluateCompletionTruth,validateCommittedParentClosureMetadata,validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
+import {RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT,releaseParentClosureProofArtifactPath,releaseParentProtectedFiles,releaseParentUnitCloseReceiptDigests,validateReleaseParentMainAdvanceProof} from './lib/shoperation-release-unit-runtime.mjs';
 import {atomicWriteJson,sealCheckpointTruth} from './lib/shoperation-verification-reuse.mjs';
 import {activeDevelopmentPlanPath} from './lib/shoperation-development-runtime.mjs';
 
@@ -36,6 +37,7 @@ const guardIds=(registry.guards??[]).map(item=>item.id);
 const validation=validateOperationalIntelligence({plan,policy,guardIds});
 const isAncestor=(ancestor,descendant)=>{if(!ancestor||!descendant)return false;try{execFileSync('git',['merge-base','--is-ancestor',ancestor,descendant],{stdio:'ignore'});return true;}catch{return false;}};
 let report;
+let parentClosureProofEvidence=null;
 if(plan.status==='closed'){
   const verifiedHead=String(plan.lifecycle?.verifiedImplementationHead??'').trim();
   let changedSinceVerified=[];
@@ -45,13 +47,58 @@ if(plan.status==='closed'){
       changedSinceVerified=output?output.split(/\r?\n/).filter(Boolean):[];
     }catch{changedSinceVerified=['__UNRESOLVED_CLOSURE_DIFF__'];}
   }else changedSinceVerified=['__MISSING_VERIFIED_HEAD__'];
+  let verifiedParentClosureProofPath=null;
+  const closedPlanIssues=[...validation.issues];
+  if(plan.parentClosureContext){
+    try{
+      const context=plan.parentClosureContext,parentId=String(plan.taskId??''),sourceCommit=String(context.sourceCommit??'');
+      if(!/^[A-Za-z0-9._-]+$/.test(parentId)||!/^[0-9a-f]{40}$/i.test(sourceCommit)||!/^[0-9a-f]{40}$/i.test(verifiedHead)||!/^[0-9a-f]{40}$/i.test(currentExactState.head))throw new Error('PARENT_CLOSURE_TRUTH_IDENTITY_INVALID');
+      const stateRef='refs/heads/control-plane/release-state/'+parentId.toLowerCase().replace(/[^a-z0-9._/-]+/g,'-');
+      const stateCommit=String(execFileSync('git',['ls-remote','origin',stateRef],{encoding:'utf8'})).trim().split(/\s+/)[0];
+      if(stateCommit)execFileSync('git',['fetch','--quiet','origin',stateRef],{encoding:'utf8'});
+      const parent=stateCommit?JSON.parse(execFileSync('git',['show','FETCH_HEAD:state.json'],{encoding:'utf8'})):null;
+      if(!parent||!stateCommit)throw new Error('PARENT_CLOSURE_TRUTH_CANONICAL_STATE_MISSING');
+      const sourcePlan=JSON.parse(execFileSync('git',['show',sourceCommit+':quality/development/active-plan.json'],{encoding:'utf8'}));
+      const ordered=[...(parent.units??[])].sort((a,b)=>Number(a.order)-Number(b.order));
+      const lastChildMain=String(ordered.at(-1)?.merge?.mergedMainSha??'');
+      if(!lastChildMain)throw new Error('PARENT_CLOSURE_TRUTH_LAST_CHILD_MAIN_MISSING');
+      let trustedMainAdvance=null;
+      if(lastChildMain!==verifiedHead){
+        execFileSync('git',['merge-base','--is-ancestor',lastChildMain,verifiedHead],{stdio:'ignore'});
+        const changed=String(execFileSync('git',['diff','--name-only','--no-renames','--diff-filter=ACMRD',lastChildMain,verifiedHead,'--'],{encoding:'utf8'})).trim();
+        const changedFiles=[...new Set(changed?changed.split(/\r?\n/).filter(Boolean):[])].sort();
+        const protectedFiles=releaseParentProtectedFiles(parent);
+        const overlapFiles=changedFiles.filter(file=>protectedFiles.includes(file));
+        const proof={contract:RELEASE_PARENT_MAIN_ADVANCE_PROOF_CONTRACT,issuer:'release-unit-parent-close',decision:'PASS',relationship:'FAST_FORWARD',fromSha:lastChildMain,toSha:verifiedHead,changedFiles,protectedFiles,overlapFiles,unitCloseReceiptDigests:releaseParentUnitCloseReceiptDigests(parent)};
+        if(overlapFiles.length||!validateReleaseParentMainAdvanceProof(proof,{parent,fromSha:lastChildMain,toSha:verifiedHead}))throw new Error('PARENT_CLOSURE_TRUTH_MAIN_ADVANCE_INVALID');
+        trustedMainAdvance=proof;
+      }
+      const proofPath=releaseParentClosureProofArtifactPath(parentId);
+      const artifactContent=execFileSync('git',['show',currentExactState.head+':'+proofPath],{encoding:'utf8'});
+      const metadataParents=git(['rev-list','--parents','-n','1',currentExactState.head]).split(/\s+/).filter(Boolean);
+      const rawStatus=execFileSync('git',['diff','--name-status','--no-renames',verifiedHead,currentExactState.head,'--'],{encoding:'utf8'}).trim();
+      const metadataChanges=rawStatus?rawStatus.split(/\r?\n/).filter(Boolean):[];
+      parentClosureProofEvidence=validateCommittedParentClosureMetadata({
+        plan,parent,sourcePlan,currentExactState,artifactContent,metadataParents,metadataChanges,trustedMainAdvance,
+      });
+      parentClosureProofEvidence.stateCommit=stateCommit;
+      if(parentClosureProofEvidence.decision==='PASS')verifiedParentClosureProofPath=parentClosureProofEvidence.path;
+      else closedPlanIssues.push(...parentClosureProofEvidence.issues);
+    }catch(error){
+      const failed={code:'DEV_LIFECYCLE_PARENT_PROOF_AUTHORITY_UNRESOLVED',error:String(error?.message??error)};
+      closedPlanIssues.push(failed);
+      parentClosureProofEvidence={decision:'BLOCK',path:null,issues:[failed]};
+    }
+  }
   report=evaluateClosedDevelopmentPlan({
     plan,
     currentExactState,
     changedSinceVerified,
     verifiedHeadIsAncestor:isAncestor(verifiedHead,currentExactState.head),
-    planIssues:validation.issues,
+    planIssues:closedPlanIssues,
+    verifiedParentClosureProofPath,
   });
+  report.parentClosureProof=parentClosureProofEvidence;
 }else{
   report=evaluateCompletionTruth({plan,evidence,currentExactState,planIssues:validation.issues});
 }

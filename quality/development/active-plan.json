@@ -1,21 +1,74 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
-  "task": "Isolate generic critical MUST_CREATE regression fixture from inherited parent closure authority so generic remains BLOCK and only explicit canonical parent closure remains eligible.",
+  "taskId": "DEV-PARENT-CLOSURE-TRUTH-LIFECYCLE-HARDENING-V1",
+  "task": "Reconcile VERIFIED parent proof metadata with persisted execution identity while retaining fail-closed detection of all other post-verification changes.",
   "status": "closed",
-  "guardDigest": "430b0bba",
-  "changeBaseSha": "355a77702fa255997f4abc1ca80ee4a559a8d58f",
+  "guardDigest": "aa79c504",
+  "changeBaseSha": "d3611344b1f7006e250b60a8973d5902abc33cfc",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
+    "scripts/lib/shoperation-operational-intelligence.d.mts",
+    "scripts/lib/shoperation-operational-intelligence.mjs",
+    "scripts/shoperation-truth-gate.mjs",
     "tests/shoperation-operational-intelligence.test.ts"
   ],
   "expectedSubsystems": [],
-  "expectedDomains": [],
-  "expectedAuthorities": [],
+  "expectedDomains": [
+    "DOMAIN-QUALITY"
+  ],
+  "expectedAuthorities": [
+    "quality-knowledge-system"
+  ],
   "expectedKnownFailureIds": [
+    "SQ-KF-001",
+    "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
+    "SQ-KF-005",
+    "SQ-KF-006",
+    "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-022"
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
+    "SQ-KF-018",
+    "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
+    "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
+    "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
+    "TF-KF-006",
+    "TF-KF-007",
+    "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
+    "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -24,43 +77,45 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
+    "sourceRef": "PO-2026-10-08-PARENT-CLOSURE-TRUTH-HARDENING-V1",
     "riskTier": "critical",
-    "problemStatement": "CI #9228, #9230 and #9231 failed a single Control Plane Operational Intelligence regression test on closure PR #1138. Test copies canonical quality/development/active-plan.json, which on the CLOSED metadata closure branch inherits parentClosureContext, then falsely treats a mustCreate-only plan as generic. Production validator correctly regards it as governed parent closure. Isolate fixture context in test, without relaxing any production gate, source, proof or receipt.",
+    "problemStatement": "A CLOSED parent proof projection has its own verified implementation main, followed by a separate metadata commit. The generic CLOSED plan Truth Gate wrongly marks its deterministic proof artifact as post-verification material drift, preventing exact-head parent closure even when all three child receipts and canonical source identities match.",
     "observableOutcomes": [
-      "The generic critical MUST_CREATE-only test removes inherited parent and child closure contexts and must report DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED.",
-      "The explicitly added canonical parentClosureContext allows MUST_CREATE-only targeting while preserving all other authority, proof and unknown route requirements.",
-      "The separate canonical child release context also allows governed MUST_CREATE-only targeting, and a noncanonical contract cannot grant exemption.",
-      "The same regression test passes on an ordinary main plan and an actual persisted CLOSED parent closure plan.",
-      "The untouched source and receipt-bound closure artifact retain their exact identities; no gates are weakened."
+      "A trusted CLOSED parent projection with an independently recomputed proof artifact, exact persisted state and metadata-only commit receives PASS at its actual PR head.",
+      "An invalid proof artifact, wrong immutable source commit, wrong final implementation main, forged child receipts or mismatched canonical persistence always receives BLOCK.",
+      "Any source code, fixture or unrelated metadata change after the verified implementation commit continues to receive DEV_LIFECYCLE_POST_VERIFICATION_MATERIAL_CHANGE.",
+      "A generic CLOSED plan or one with an unrecognized parent context never receives a broad metadata exemption.",
+      "Exact-head completion proof remains tied to the canonical persisted state and is independently checked before parent closure proceeds."
     ],
     "unresolvedRisks": [
-      "Persistent active-plan.json is environment-dependent and may contain multiple governed transaction contexts; tests must clear both explicitly.",
-      "Generic unit fixture might accidentally inherit route or authority of an unrelated plan and need fixed required fields.",
-      "Other tests depending on active-plan.json may have the same anti-pattern, but scope remains this reproduced failure unless other blockers arise."
+      "The remote canonical parent state may advance during verification, so exact state and head identities must be inspected and mismatches fail closed.",
+      "A forged plan and proof artifact can share self-consistent data, requiring independent source, receipt, main-advance and persistence verification.",
+      "The repair must remain strictly confined to Control Plane truth classification and regression tests, with no modification to the executor's source receipts.",
+      "The TypeScript declaration must remain coherent with the JavaScript implementation; otherwise exact-head typecheck must block."
     ],
     "scope": {
       "in": [
-        "Only update the operational intelligence unit test to construct a context-independent generic critical plan by removing inherited governed contexts.",
-        "Test the transition from generic BLOCK to canonical parent closure exemption explicitly; include negative noncanonical parent contract and child canonical context.",
-        "Retain and verify the original production validator and all existing gate thresholds unchanged."
+        "Recognize only the canonical parent-closure proof artifact when its bytes and metadata commit are independently verified.",
+        "Read immutable parent source plan and persisted child receipts, and reconstruct the trusted main-advance and proof identities.",
+        "Add positive and negative Truth/Lifecycle regression tests for valid and falsified closure metadata.",
+        "Synchronize the existing exported type declaration with the verified CLOSED parent proof evaluator interface."
       ],
       "out": [
-        "No code change to scripts/lib/shoperation-operational-intelligence.mjs or any production release, plan, edit-time, lifecycle or trust gate.",
-        "No change to source SHA, U01-U03, canonical release-state branch, PR #1138 closure proof or CI/workflows.",
-        "No relaxing MUST_CREATE/authority/proof requirements and no Builder/Template changes."
+        "No source branch or execution receipt mutation and no rewrite of persisted canonical release state.",
+        "No generic exemption for knowledge JSON, code edits, fixture edits, or future proof changes.",
+        "No changes to Storefront, Builder, templates, CI permissions or deployment behavior."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This is a critical CI release closure blocker caused by inherited test fixture authority. Proof must demonstrate both generic deny and canonically governed accept without modifying production semantics.",
+      "rationale": "The repair crosses the boundary between verified implementation content and a metadata-only closure commit. It must re-establish immutable source SHA, exact child receipts, trusted main advancement and exact committed artifact bytes before relaxing one specific false positive. Comprehensive adversarial and negative tests protect every other post-verification change.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "boundary-cases",
-        "adversarial-scenarios",
         "what-if-matrix",
+        "adversarial-scenarios",
+        "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
         "fault-injection",
@@ -70,31 +125,26 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Plan-only commit passes canonical Plan Before Code.",
-        "On any current active-plan carrying parentClosureContext or releaseUnitContext, generic synthetic plan never inherits governed context and MUST_CREATE-only is BLOCK.",
-        "Canonical parent context permits the narrowly governed MUST_CREATE path, while invalid contract remains BLOCK.",
-        "Canonical release-unit child context is also covered explicitly and uses exact declared contract, not a broad truthy flag.",
-        "Production validator file is unchanged byte-for-byte.",
-        "Full Quality tests, TypeScript, Production build, Completion Truth and Lifecycle pass on exact final head.",
-        "PR exact-head CI and merged main CI succeed before rerunning immutable source parent closure executor.",
-        "Closure PR #1138 passes exact-head CI and canonical CLOSED parent persistence acceptance."
+        "The plan-only commit passes Plan Before Code before any implementation file is modified.",
+        "A canonical three-child CLOSED state and matching immutable source produce a valid exact-head metadata proof that is not classified as material drift.",
+        "A proof with tampered bytes or mismatched context, final main, persisted state or child receipts is blocked deterministically.",
+        "Every other changed file after implementation verification remains material drift and blocks closure.",
+        "The exact-head CI and canonical executor authority decide final closure; no manual state edits or gate exemptions.",
+        "The .d.mts declaration exactly represents the new optional independently-verified proof path, with strict TypeScript check PASS."
       ],
       "invariants": [
-        "Generic critical MUST_CREATE without MUST_EDIT is never accepted.",
-        "Governed exception only applies with the exact parent/child context contract.",
-        "Authority and proof obligations are still mandatory in all cases.",
-        "CI tests must not depend on unrelated active-plan authority.",
-        "Immutable rehearsal source and canonical closed receipts remain unchanged.",
-        "Failure Intake for subsequent blockers remains enabled."
+        "The immutable source commit and every CLOSED child receipt are read-only inputs.",
+        "Only an independently verified parent artifact at the exact committed metadata head is exempt from generic material-change classification.",
+        "A valid proof requires source plan, parent execution, final main, metadata ancestry and bytes to agree.",
+        "All other post-verification material changes remain blocked, including any unrelated knowledge file.",
+        "No code path may promote parent closure without exact-head verification and canonical state persistence."
       ],
       "forbiddenStates": [
-        "generic-mustcreate-only-accepted",
-        "bogus-parent-context-accepted",
-        "test-fixture-inherits-parent-closure-authority",
-        "test-fixture-inherits-release-child-authority",
-        "production-policy-changed-to-hide-test-failure",
-        "unproven-parent-closure-ci-merged",
-        "canonical-state-manually-overwritten"
+        "Forged parent proof accepted as verification authority",
+        "Source SHA or final main SHA mismatch accepted",
+        "Mismatched or missing U01-U03 child receipt accepted",
+        "Generic CLOSED plan material drift silently accepted",
+        "Unverified implementation change falsely classified as metadata"
       ]
     },
     "model": {
@@ -126,187 +176,181 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Base active-plan has parentClosureContext and silently grants governed exception to generic case.",
-        "Base active-plan has releaseUnitContext and silently grants governed exception to generic case.",
-        "Fake parent contract is mistakenly accepted.",
-        "Removing production validation to make test pass hides real route gap.",
-        "Further unrelated CI gates fail independently."
+        "The proof is accepted solely because its path matches a planned file pattern.",
+        "The artifact and plan are both forged to appear self-consistent without authoritative child receipts.",
+        "A different source SHA or final main is substituted after verification.",
+        "The metadata commit contains other material files or has an untrusted parent.",
+        "The canonical state remains stale relative to the PR head after a repair commit."
       ],
       "edgeCases": [
-        "Base plan with neither context.",
-        "Base plan with valid parentClosureContext.",
-        "Base plan with valid releaseUnitContext.",
-        "Base plan with both contexts.",
-        "Parent context with invalid contract.",
-        "Child context with invalid contract.",
-        "Explicit authority is missing despite correct mustCreate.",
-        "Test fixture created on immutable source branch, main and CLOSED metadata closure branch."
+        "Canonical proof is valid and is the sole non-plan change.",
+        "Artifact is tampered by one byte or missing entirely.",
+        "Canonical context has wrong source, parent ID, main SHA or receipt digest.",
+        "Remote state includes an unclosed child or stale persistence head.",
+        "A second JSON file or TypeScript file changed after verified head.",
+        "Metadata commit has two parents or wrong single parent.",
+        "Generic CLOSED task declares a proof-looking filename without canonical context.",
+        "Source plan digest differs despite a matching reported task identifier."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-ISOLATE",
-        "summary": "Explicitly strip inherited governed contexts from synthetic generic plan fixture and assert transition.",
+        "id": "ALT-CANONICAL-VERIFIER",
+        "summary": "Recompute the exact canonical parent proof through existing source and state authority before classifying its committed artifact.",
         "disposition": "selected",
-        "reason": "Repairs fixture assumptions without changing runtime authority semantics."
+        "reason": "Only independently reconstructed receipts, source identity, final main and committed bytes can justify a narrowly scoped metadata exception."
       },
       {
-        "id": "ALT-WEAKEN",
-        "summary": "Change the production validator to accept every generic critical MUST_CREATE-only plan without requiring MUST_EDIT or canonical closure authority.",
+        "id": "ALT-PATH-WHITELIST",
+        "summary": "Ignore all files within the parent closure proof directory during completed-plan evaluation.",
         "disposition": "rejected",
-        "reason": "Removes the fail-closed semantic execution authority boundary and would falsely authorize unrelated creation operations; preserving explicit context is mandatory."
+        "reason": "A pathname exemption would allow forged or unrelated post-verification changes to evade the material drift guard."
       },
       {
-        "id": "ALT-EDIT-IMMUTABLE",
-        "summary": "Edit the immutable source plan or persisted closure plan to make test pass.",
+        "id": "ALT-REVERIFY-IMPLEMENTATION",
+        "summary": "Rewrite the verified implementation head to the metadata commit and recompute implementation evidence.",
         "disposition": "rejected",
-        "reason": "Would falsify release proof identity."
-      },
-      {
-        "id": "ALT-SKIP-TEST",
-        "summary": "Exclude Operational Intelligence test from closure CI.",
-        "disposition": "rejected",
-        "reason": "Hides regression rather than proving it."
+        "reason": "This destroys the distinction between trusted implementation identity and subsequent closure metadata, creating a circular truth claim."
       }
     ],
     "specialistReviews": [
       {
         "role": "Architecture",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Unit test reads mutable canonical active-plan, so generic scenario inherited parent closure contract.",
-        "resolution": "Remove exact parentClosureContext/releaseUnitContext before computing generic scenario.",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Generic lifecycle evaluation conflates trusted closure metadata with implementation drift.",
+        "resolution": "Require an explicit independently validated exact-head parent proof classification.",
         "evidence": [
-          "CI #9231 test name",
-          "Operational Intelligence route createTargetRoute"
+          "scripts/lib/shoperation-operational-intelligence.mjs"
         ]
       },
       {
         "role": "Security",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Any generic mustCreate allow-list would weaken critical execution.",
-        "resolution": "Retain generic BLOCK; only literal canonical governed contract allows exception.",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Self-consistent proof fields alone can be forged and cannot authorize exceptions.",
+        "resolution": "Rebuild expected proof from immutable source and persisted receipts, and compare exact committed bytes.",
         "evidence": [
-          "scripts/lib/shoperation-operational-intelligence.mjs critical route"
+          "scripts/lib/shoperation-release-unit-runtime.mjs"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Source and metadata closure plan must not be rewritten for an isolated test fixture.",
-        "resolution": "Modify synthetic copied plan in tests only, separate isolated hardening plan as tracked.",
+        "finding": "Source, child receipts, trusted main advance and canonical state are separate identity authorities.",
+        "resolution": "Fail closed on any mismatch, including stale persisted projection or wrong metadata commit parent.",
         "evidence": [
-          "PR #1138 closure HEAD c3fb20...",
-          "source SHA 65e52..."
+          "scripts/release-unit-parent-close.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Multiple identical closure CI failures derive from one test assumption.",
-        "resolution": "Require exact-head CI and post-merge main before rerun; do not force merge closure.",
+        "finding": "A repaired PR head can diverge from persisted canonical closure head.",
+        "resolution": "Keep exact persistence binding and require executor reconciliation before merge.",
         "evidence": [
-          "CI #9228 #9230 #9231"
+          "scripts/release-unit-github-runtime.mjs"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Error is an unverified test fixture boundary, not production validator failure.",
-        "resolution": "Add explicit negative and positive regression cases.",
+        "finding": "A generic knowledge path whitelist would create material drift bypasses.",
+        "resolution": "Preserve negative regressions for arbitrary file edits, forged contexts and false proof prefixes.",
         "evidence": [
-          "tests/shoperation-operational-intelligence.test.ts",
-          "CI #9231 build log"
+          "tests/shoperation-operational-intelligence.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-PLAN-CTX-01",
-        "scenario": "Copy parent closure active-plan then assume it is generic.",
-        "finding": "Parent context grants governed create exception.",
-        "resolution": "Strip parent context before generic assertion.",
+        "id": "CH-01",
+        "scenario": "Scenario: Forged proof bytes; validate exact closure transition constraints.",
+        "finding": "Risk: A file path match could hide different committed bytes.",
+        "resolution": "Resolution: Derive expected artifact bytes and compare to exact git object.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-CTX-02",
-        "scenario": "Copy child transaction active-plan then assume generic.",
-        "finding": "Child context grants governed create exception.",
-        "resolution": "Strip child context too.",
+        "id": "CH-02",
+        "scenario": "Scenario: Forged source plan; validate exact closure transition constraints.",
+        "finding": "Risk: A mutable plan can impersonate the parent source identity.",
+        "resolution": "Resolution: Read the source plan from immutable source commit and validate plan projection.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-CTX-03",
-        "scenario": "Add arbitrary parentClosureContext object.",
-        "finding": "Truthiness could masquerade as canonical contract.",
-        "resolution": "Prove exact governed contract required.",
+        "id": "CH-03",
+        "scenario": "Scenario: Wrong final main; validate exact closure transition constraints.",
+        "finding": "Risk: A metadata commit can target a different implementation parent.",
+        "resolution": "Resolution: Check exact one-parent ancestry and trusted main-advance reconstruction.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-CTX-04",
-        "scenario": "Remove validator's exception instead.",
-        "finding": "Canonical parent proof artifact creation would be permanently blocked.",
-        "resolution": "Keep productive code unchanged.",
+        "id": "CH-04",
+        "scenario": "Scenario: Unclosed child receipt; validate exact closure transition constraints.",
+        "finding": "Risk: A synthetic parent state can claim complete implementation.",
+        "resolution": "Resolution: Read persisted state and require every child CLOSED with valid closeReceipt.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-CTX-05",
-        "scenario": "Test success only on current main.",
-        "finding": "Would miss closure-branch-specific inherited authority.",
-        "resolution": "Explicitly simulate both inherited contexts.",
+        "id": "CH-05",
+        "scenario": "Scenario: Receipt digest mismatch; validate exact closure transition constraints.",
+        "finding": "Risk: A copied proof could reuse old child receipt signatures.",
+        "resolution": "Resolution: Rebuild context and compare all ordered child close-receipt digests.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-CTX-06",
-        "scenario": "Strip generic context but leave route AUTHORITY empty.",
-        "finding": "Other route failures might mask intended MUST_CREATE behavior.",
-        "resolution": "Keep exact route authority/PROOF/UNKNOWN fields for semantic test.",
+        "id": "CH-06",
+        "scenario": "Scenario: Stale persistence; validate exact closure transition constraints.",
+        "finding": "Risk: A repaired PR head may not match canonical closure persistence.",
+        "resolution": "Resolution: Block stale parent projection until canonical executor reconciles it.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-CTX-07",
-        "scenario": "Merge based only on unit test.",
-        "finding": "Other gate failures may appear later.",
-        "resolution": "Full exact-head PR CI and main CI required.",
+        "id": "CH-07",
+        "scenario": "Scenario: Extra post verification file; validate exact closure transition constraints.",
+        "finding": "Risk: An unrelated material change might accompany correct proof metadata.",
+        "resolution": "Resolution: Permit exactly the verified artifact while rejecting every other changed file.",
         "status": "resolved"
       },
       {
-        "id": "CH-PLAN-CTX-08",
-        "scenario": "An engineer rewrites the immutable rehearsal source or directly edits canonical state to match the current main before reproducing the test failure.",
-        "finding": "Changes the receipt-bound transaction identity, hides the inherited-context test bug, and bypasses the trusted GitHub execution path.",
-        "resolution": "Keep immutable source and canonical state untouched; use an isolated test fixture and only move the new development plan through its own verified Plan/Edit-Time/Truth/Lifecycle gate chain.",
+        "id": "CH-08",
+        "scenario": "Scenario: Generic closed plan; validate exact closure transition constraints.",
+        "finding": "Risk: A normal CLOSED task may have proof-looking JSON beside its plan.",
+        "resolution": "Resolution: Without canonical parent context and independent evidence, preserve normal material classification.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit plan-only and verify Plan Before Code PASS before touching unit tests.",
-      "Remove inherited parentClosureContext and releaseUnitContext on the copy used for generic MUST_CREATE assertion.",
-      "Assert canonical parent, canonical child and invalid parent contract cases are separately and correctly classified.",
-      "Run complete Quality/TypeScript/Build/Completion Truth against exact implementation HEAD and close lifecycle candidate.",
-      "Require full final exact-head CI SUCCESS, open PR and require fresh PR CI SUCCESS before merge.",
-      "Require merged main exact-head CI SUCCESS; only then restart original release unit executor.",
-      "Verify parent closure PR #1138 exact-head CI, merge and canonical CLOSED receipt with immutable source and U01-U03 preserved."
+      "Commit a complete plan-only revision and obtain Plan Before Code proof before touching implementation code.",
+      "Add independent source state and artifact verification to CLOSED parent Truth Gate evaluation.",
+      "Unit test valid parent metadata allowance and forged, stale, extra-change and generic CLOSED denial cases.",
+      "Run full scoped tests and negative fault scenarios before using the exact PR-head CI.",
+      "Require the canonical executor to reconcile repaired parent closure persistence and deliver final exact-head proof.",
+      "Only after every gate passes permit the canonical CLOSED receipt; avoid manual state edits.",
+      "Repair the declared TypeScript interface after a new Plan Before Code pass; do not silence tests with unsafe casts."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-08-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
-      "authority": [],
+      "request": "PO-2026-10-08-PARENT-CLOSURE-TRUTH-HARDENING-V1",
+      "authority": [
+        "quality-knowledge-system"
+      ],
       "mustEdit": [
+        "scripts/lib/shoperation-operational-intelligence.d.mts",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        "scripts/shoperation-truth-gate.mjs",
         "tests/shoperation-operational-intelligence.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "quality/knowledge/development-guard-policy.v1.json",
-        "quality/knowledge/guard-registry.v1.json",
-        "quality/knowledge/release-parent-closure-proofs/dev-control-plane-multi-unit-rehearsal-v1.json"
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/release-unit-parent-close.mjs",
+        "scripts/release-unit-github-runtime.mjs"
       ],
       "mustCreate": [],
       "forbidden": [
-        "scripts/lib/**",
         "src/**",
         "supabase/**",
         ".github/workflows/**",
@@ -324,7 +368,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
+    "sourceRef": "PO-2026-10-08-PARENT-CLOSURE-TRUTH-HARDENING-V1",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -342,15 +386,14 @@
     },
     "requirements": [
       {
-        "id": "REQ-OPINTEL-GENERIC-CLOSURE-FIXTURE",
-        "requirement": "Critical synthetic generic MUST_CREATE assertion shall be independent of ambient release closure metadata; governed parent and child contexts remain literal-authority exceptions.",
+        "id": "REQ-VERIFIED-PARENT-PROOF",
+        "requirement": "Only a fully reconstructed and exact-head-committed parent proof shall be treated as lifecycle metadata after verification.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "operational-intelligence-critical-route-test-isolation",
+          "breadth": "canonical-parent-closure-proof-exact-head",
           "strength": 2,
           "dimensions": [
             "transaction-identity",
-            "forbidden-state",
             "behavioral-proof",
             "truth",
             "lifecycle",
@@ -372,22 +415,22 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-UNAUTHORIZED-MUSTCREATE",
-            "statement": "Generic critical MUST_CREATE-only remains blocked even when ambient plan contains a parent context.",
+            "id": "NEG-FORGED-PROOF",
+            "statement": "Forged parent artifact and wrong receipt source identities remain blocked.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-FAKE-CONTEXT",
-            "statement": "An unrecognized release parent closure contract cannot grant MUST_CREATE permission.",
+            "id": "NEG-MATERIAL-DRIFT",
+            "statement": "Unrelated material modifications after verification are still blocked.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
           },
           {
-            "id": "NEG-PRODUCTION-CHANGE",
-            "statement": "Operational Intelligence production validator must remain unmodified.",
+            "id": "NEG-GENERIC-CLOSED",
+            "statement": "Generic CLOSED plans retain the original material change guard.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -396,14 +439,14 @@
       }
     ]
   },
-  "notes": "CI #9228/#9230/#9231 on PR #1138 closure HEAD c3fb20b47be325fc5963e8ac3ea2b8252f0a8c8d fail one Operational Intelligence unit test because copied active-plan contains parentClosureContext. Only test fixture context isolation; source SHA 65e52ffd1fd32f14353467eb7c52b2e06ba1be65, U01-U03, canonical release-state d459e52e1ae8357786257ee7341a087b8990e42b and parent closure PR untouched. Target branch from main 355a77702fa255997f4abc1ca80ee4a559a8d58f. CI #9233 Plan Before Code measured planned scope: domains=[], authorities=[], knownFailures=[SQ-KF-013,SQ-KF-014,SQ-KF-022], guardDigest=430b0bba. Changed only derived scope, canonical authority route, and replaced vacuous alternative/challenge with adversarial, falsifiable wording.",
+  "notes": "Targeted repair for PR #1138's DEV_LIFECYCLE_POST_VERIFICATION_MATERIAL_CHANGE. Stage 1 Plan Before Code; stage 2 exact source/receipt/main/metadata proof verification; stage 3 adversarial regressions; stage 4 exact-head CI. Original immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65 and CLOSED U01-U03 untouched. Old stalled Actions run #182 is a separately isolated platform queue artifact; no force push or canonical state edits permitted. Plan-only CI #9250 reported full Knowledge Failure replay (49 ids) for touched quality infrastructure; projected guardDigest aa79c504. No implementation changes were made before this correction. CI #9253: all Quality tests PASS, all initial guards PASS, TypeScript check correctly detected missing optional verifiedParentClosureProofPath declaration in scripts/lib/shoperation-operational-intelligence.d.mts. Plan expanded before touching that typed interface; no generic cast workaround.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "0421fcf797def1d3a3deb4216370c1b3f533f76a",
-    "closedAt": "2026-10-08T17:13:05.768Z",
+    "verifiedImplementationHead": "73620bfb3478e11f446ddf6a1ed7616682db9e13",
+    "closedAt": "2026-10-08T19:36:40.093Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-08-RELEASE-PARENT-CLOSURE-REGRESSION-ISOLATION-V1",
+    "sourceRef": "PO-2026-10-08-PARENT-CLOSURE-TRUTH-HARDENING-V1",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

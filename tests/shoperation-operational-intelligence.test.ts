@@ -2,7 +2,9 @@ import {execFileSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 // @ts-ignore JavaScript runtime module intentionally has no separate declaration file.
-import {validateOperationalIntelligence} from '../scripts/lib/shoperation-operational-intelligence.mjs';
+import {evaluateClosedDevelopmentPlan,validateCommittedParentClosureMetadata,validateOperationalIntelligence} from '../scripts/lib/shoperation-operational-intelligence.mjs';
+// @ts-ignore JavaScript runtime module intentionally has no separate declaration file.
+import {buildReleaseParentClosureProofArtifactFromContext,buildReleaseParentClosureProofPlan} from '../scripts/lib/shoperation-release-unit-runtime.mjs';
 
 const read=(path:string)=>readFileSync(path,'utf8');
 const json=<T=any>(path:string)=>JSON.parse(read(path)) as T;
@@ -202,6 +204,69 @@ describe('Control Plane Operational Intelligence',()=>{
 
     candidate.releaseUnitContext={contract:'shoporation.release-unit-child-transaction.v0'};
     expect(routeIssues(candidate)).toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
+  });
+
+  it('accepts only exact committed parent closure metadata bound to canonical source, receipts and persisted projection',()=>{
+    const sha=(digit:string)=>digit.repeat(40);
+    const sourceCommit=sha('a'),finalMain=sha('b'),metadataHead=sha('c');
+    const id='DEV-PARENT-TRUTH-TEST',branch='release-execution/closure/dev-parent-truth-test';
+    const parent:any={
+      contract:'shoporation.release-parent-execution.v1',parentTransactionId:id,
+      executionSourceCommit:sourceCommit,closureComplete:true,
+      units:[1,2,3].map(order=>({order,state:'CLOSED',releaseUnitId:id+'-U0'+order,closeReceipt:{contract:'shoporation.test-receipt.v1',order,decision:'PASS'},merge:{mergedMainSha:finalMain}})),
+      closurePersistence:{contract:'shoporation.release-parent-closure-persistence.v1',state:'PR_OPEN',headSha:metadataHead,baseSha:finalMain,branch},
+    };
+    const sourcePlan:any={
+      contract:'shoporation.development-plan.v1',taskId:id,task:'Verify parent closure.',
+      completionContract:{sourceKind:'product-owner-request',sourceRef:'PO-PARENT-TRUTH',requirements:[]},
+      operationalIntelligence:{semanticExecutionRoute:{request:'PO-PARENT-TRUTH',authority:[],forbidden:[]}},
+      expectedSubsystems:[],expectedDomains:[],expectedAuthorities:[],
+    };
+    const open=buildReleaseParentClosureProofPlan({parent,sourcePlan,sourceCommit,finalMainSha:finalMain});
+    const plan:any={...structuredClone(open),status:'closed',lifecycle:{state:'LEARN',truthStatus:'VERIFIED',verifiedImplementationHead:finalMain}};
+    const proof=buildReleaseParentClosureProofArtifactFromContext(plan.parentClosureContext);
+    parent.closedReceipt={parentClosureContext:structuredClone(plan.parentClosureContext),proofArtifactPath:proof.path,proofArtifactDigest:proof.digest};
+    const exact={head:metadataHead,branch,stateVersion:'shoporation-ci.v1'};
+    const metadataParents=[metadataHead,finalMain];
+    const metadataChanges=['M\tquality/development/active-plan.json','A\t'+proof.path];
+    const verify=(changes:any={})=>validateCommittedParentClosureMetadata({
+      plan:changes.plan??plan,parent:changes.parent??parent,sourcePlan:changes.sourcePlan??sourcePlan,
+      currentExactState:changes.currentExactState??exact,artifactContent:changes.artifactContent??proof.content,
+      metadataParents:changes.metadataParents??metadataParents,metadataChanges:changes.metadataChanges??metadataChanges,
+      trustedMainAdvance:changes.trustedMainAdvance??null,
+    });
+    const valid=verify();
+    expect(valid).toMatchObject({decision:'PASS',path:proof.path,issues:[]});
+    const lifecycle=(files:string[],validated:string|null)=>evaluateClosedDevelopmentPlan({
+      plan,currentExactState:exact,changedSinceVerified:files,verifiedHeadIsAncestor:true,
+      planIssues:[],verifiedParentClosureProofPath:validated,
+    });
+    expect(lifecycle(['quality/development/active-plan.json',proof.path],valid.path).decision).toBe('PASS');
+    expect(lifecycle([proof.path],null).issues.map((item:any)=>item.code)).toContain('DEV_LIFECYCLE_POST_VERIFICATION_MATERIAL_CHANGE');
+    expect(lifecycle([proof.path,'src/unrelated.ts'],valid.path).issues.find((item:any)=>item.code==='DEV_LIFECYCLE_POST_VERIFICATION_MATERIAL_CHANGE')?.files).toEqual(['src/unrelated.ts']);
+    const forgedPlan=structuredClone(plan);forgedPlan.parentClosureContext.sourceCommit=sha('d');
+    const forgedProof=buildReleaseParentClosureProofArtifactFromContext(forgedPlan.parentClosureContext);
+    const malformedPlan=structuredClone(plan);malformedPlan.parentClosureContext.contract='shoporation.release-parent-closure-proof-context.v0';
+    const unclosed=structuredClone(parent);unclosed.units[1].state='STALE';
+    const changedReceipt=structuredClone(parent);changedReceipt.units[0].closeReceipt.decision='FORGED';
+    const stalePersistence=structuredClone(parent);stalePersistence.closurePersistence.headSha=sha('e');
+    const changedMain=structuredClone(plan);changedMain.parentClosureContext.finalMainSha=sha('f');
+    for(const candidate of [
+      {artifactContent:proof.content+' '},
+      {artifactContent:JSON.stringify({...proof.artifact,unitCloseReceiptDigests:['forged']})+'\n'},
+      {plan:forgedPlan,artifactContent:forgedProof.content},
+      {plan:malformedPlan},
+      {plan:changedMain},
+      {parent:unclosed},
+      {parent:changedReceipt},
+      {parent:stalePersistence},
+      {sourcePlan:{...sourcePlan,completionContract:{...sourcePlan.completionContract,sourceRef:'PO-FORGED'}}},
+      {metadataParents:[metadataHead,sha('f')]},
+      {metadataChanges:[...metadataChanges,'M\tscripts/runtime.ts']},
+      {currentExactState:{...exact,branch:'feature/forged'}},
+    ])expect(verify(candidate).decision,JSON.stringify(Object.keys(candidate))).toBe('BLOCK');
+    const generic={...structuredClone(plan)};delete generic.parentClosureContext;
+    expect(evaluateClosedDevelopmentPlan({plan:generic,currentExactState:exact,changedSinceVerified:[proof.path],verifiedHeadIsAncestor:true,verifiedParentClosureProofPath:proof.path}).decision).toBe('BLOCK');
   });
 
 });

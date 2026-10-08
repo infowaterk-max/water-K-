@@ -37,9 +37,25 @@ export function evaluateClosedDevelopmentPlan(input:{
   changedSinceVerified:string[];
   verifiedHeadIsAncestor:boolean;
   planIssues?:any[];
+  verifiedParentClosureProofPath?:string|null;
 }):{
   decision:'PASS'|'BLOCK';
   truthStatus:string;
   issues:Array<any>;
   [key:string]:unknown;
+};
+
+export function validateCommittedParentClosureMetadata(input:{
+  plan:any;
+  parent:any;
+  sourcePlan:any;
+  currentExactState:{head:string;branch:string;stateVersion:string};
+  artifactContent:string;
+  metadataParents?:string[];
+  metadataChanges?:string[];
+  trustedMainAdvance?:any;
+}):{
+  decision:'PASS'|'BLOCK';
+  path:string|null;
+  issues:OperationalIssue[];
 };
