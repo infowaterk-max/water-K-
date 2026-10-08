@@ -1,5 +1,6 @@
 // @ts-nocheck
 import {describe,expect,it} from 'vitest';
+import {readFileSync} from 'node:fs';
 import {
   bindReleaseUnitChildTransaction,
   classifyReleaseUnitObligationDrift,
@@ -269,6 +270,17 @@ describe('release-unit execution binding hardening',()=>{
     const before=manifest();
     expect(()=>reprojectReleaseUnitChildTransaction(before,{contract:'shoporation.release-unit-child-plan-projection.v1',guardDigest:'fresh'})).toThrow(/PROJECTION_FIELD_REQUIRED/);
     expect(()=>reprojectReleaseUnitChildTransaction(before,{contract:'foreign'})).toThrow(/PROJECTION_CONTRACT_INVALID/);
+  });
+
+  it('preserves normalized release blocker reason plus exact nested error at the executor boundary',()=>{
+    const source=readFileSync('scripts/release-unit-execute.mjs','utf8');
+    expect(source).toContain("const releaseExecutionBlockDiagnostic=result=>({reason:result?.reason??null,error:result?.error??null});");
+    expect(source).toContain("JSON.stringify(releaseExecutionBlockDiagnostic(result))");
+    expect(source).not.toContain("JSON.stringify(result.reason??result.error??null)");
+    const formatter=(result:any)=>({reason:result?.reason??null,error:result?.error??null});
+    expect(formatter({reason:'RELEASE_PARENT_PROOF_OR_PERSISTENCE_FAILED',error:'exact-child-error',state:{secret:'not-serialized'}})).toEqual({reason:'RELEASE_PARENT_PROOF_OR_PERSISTENCE_FAILED',error:'exact-child-error'});
+    expect(formatter({reason:'RELEASE_PARENT_NOT_CLOSURE_ELIGIBLE'})).toEqual({reason:'RELEASE_PARENT_NOT_CLOSURE_ELIGIBLE',error:null});
+    expect(formatter({error:'unclassified-authoritative-error'})).toEqual({reason:null,error:'unclassified-authoritative-error'});
   });
 
 });

@@ -15,6 +15,7 @@ const value=name=>{const index=args.indexOf(name);return index>=0?args[index+1]?
 const has=name=>args.includes(name);
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const releaseExecutionBlockDiagnostic=result=>({reason:result?.reason??null,error:result?.error??null});
 const source=value('--source');
 if(!source)throw new Error('RELEASE_UNIT_SOURCE_COMMIT_REQUIRED');
 
@@ -63,7 +64,7 @@ if(has('--drive')){
       loaded={state:result.state,stateCommit:saved.stateCommit};
     }
     if(result.decision==='PENDING'){await sleep(pollMs);continue;}
-    if(result.decision==='BLOCK')throw new Error('RELEASE_UNIT_EXECUTION_BLOCK:'+JSON.stringify(result.reason??result.error??null));
+    if(result.decision==='BLOCK')throw new Error('RELEASE_UNIT_EXECUTION_BLOCK:'+JSON.stringify(releaseExecutionBlockDiagnostic(result)));
     if(result.decision==='PARENT_CLOSED'){
       console.log(JSON.stringify({decision:result.decision,parentTransactionId:result.state.parentTransactionId,stateRef,stateCommit:loaded.stateCommit},null,2));
       process.exit(0);
