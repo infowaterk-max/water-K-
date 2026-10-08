@@ -24,10 +24,17 @@
       "SHOPERATION-CORE-CAPABILITY-COMPLETE",
       "CORE-OPERATIONAL-ADVERSARIAL-PROOF",
       "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE",
+      "LEGACY-TEMPLATE-VISUAL-REVALIDATION",
+      "TEMPLATE-VISUAL-AUTHORITY-BLUEPRINT",
       "TEMPLATE-CAPABILITY-CENSUS-42",
+      "BUILDER-NATIVE-CAPABILITY-CONTRACT",
       "MANAGED-TEMPLATE-QUICK-START",
+      "VISUAL-BUILDER",
+      "GUARDED-VISUAL-SECTION-LIBRARY",
+      "BUILDER-CAPABILITY-CLOSURE-GATE",
       "BUILDER-PRODUCTION-COMPLETE",
       "BUILDER-ADVERSARIAL-ACCEPTANCE",
+      "SHOPERATION-VISUAL-AGENT-V1",
       "TEMPLATE-PRODUCTION-SYSTEM",
       "TEMPLATE-PORTFOLIO-42",
       "MARKET-READY-1-0"
@@ -37,7 +44,16 @@
     "coreMustBeProvenBeforeBuilder": true,
     "builderMustBeProvenBeforeFactoryRevalidation": true,
     "factoryMustBeRevalidatedBeforePortfolioProduction": true,
-    "finalCertificationRunsOnReducedProductionCandidate": true
+    "finalCertificationRunsOnReducedProductionCandidate": true,
+    "visualAuthorityAndBlueprintTravelTogether": true,
+    "visualReferenceRemainsAuthorityThroughImplementationAndProof": true,
+    "templateImplementationCannotSubstituteMissingBuilderCapability": true,
+    "builderCapabilityRequiresEditorSurfaceAndRoundTripProof": true,
+    "templateLevelVisualEscapeHatchesForbidden": true,
+    "internalVisualAgentIsNotExternalBuilderDependency": true,
+    "legacyVisualRevalidationPrecedesCapabilityMapping": true,
+    "builderLimitationCannotJustifyVisualSimplification": true,
+    "legacyRedesignRequiresBuilderIndependentRationale": true
   },
   "items": [
     {
@@ -1321,6 +1337,68 @@
       ]
     },
     {
+      "id": "LEGACY-TEMPLATE-VISUAL-REVALIDATION",
+      "title": "Legacy Template Visual Revalidation Gate",
+      "status": "accepted",
+      "phase": "builder-discovery",
+      "order": 570,
+      "targetWindow": "stage-4-before-visual-authority-blueprint",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-BUILDER",
+        "CAP-STOREFRONT",
+        "CAP-QUALITY"
+      ],
+      "scope": [
+        "applies once to historically accepted template designs before they become current Visual Authority inputs",
+        "review evaluates the design on present-day product, UX, responsive, accessibility and visual-merit grounds before any Builder capability mapping is shown or considered",
+        "each reviewed block/page receives exactly one disposition: PRESERVE, REDESIGN or RETIRE",
+        "PRESERVE means the accepted visual concept remains authoritative and any missing Builder capability must be developed rather than bypassed or simplified",
+        "REDESIGN is allowed only for Builder-independent rationale such as outdated UX, accessibility, responsive failure, obsolete product intent or explicit Product Owner design decision",
+        "RETIRE means the block/behavior is no longer required by current product intent and is removed from the new Visual Authority with explicit rationale",
+        "Builder cannot currently implement this is explicitly forbidden as a redesign or retirement rationale",
+        "Builder capability status is intentionally excluded from the first visual revalidation decision so implementation limitations cannot bias the design decision downward",
+        "every REDESIGN or RETIRE decision records an explicit rationale and Product Owner approval before a replacement Visual First reference becomes authoritative"
+      ],
+      "evidenceRefs": [],
+      "dependsOn": [
+        "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE"
+      ]
+    },
+    {
+      "id": "TEMPLATE-VISUAL-AUTHORITY-BLUEPRINT",
+      "title": "Visual Authority + Structural Blueprint + Interaction Contract",
+      "status": "accepted",
+      "phase": "builder-discovery",
+      "order": 580,
+      "targetWindow": "stage-4-before-capability-census",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-BUILDER",
+        "CAP-STOREFRONT",
+        "CAP-QUALITY"
+      ],
+      "scope": [
+        "every accepted template/page is authored as a coupled authority package: Desktop/Tablet/Mobile visual reference plus human-readable technical specification plus machine-readable structural Blueprint",
+        "Visual Authority answers how the accepted result must look; the Structural Blueprint answers what sections/blocks/components/data bindings exist; the Interaction Contract answers how those structures remain editable in VX Builder",
+        "the Blueprint is produced together with Visual First authoring and PO acceptance, not reverse-engineered after implementation",
+        "Blueprint records page/section/block hierarchy, component intent, layout/grid placement, responsive behavior, text/content/assets, commerce/data binding, editable versus fixed properties and expected interaction semantics",
+        "structural containers and replaceable content are distinct authorities: for media, frame/mask geometry is not the image; deleting/replacing the image must not destroy or require reconstruction of the frame",
+        "Interaction Contract records drag/drop, replace/delete, frame persistence, crop/focal-point behavior, shape selection, responsive editing and other user-editable semantics required by the accepted design",
+        "Visual Authority remains the fidelity reference through implementation, render comparison and repair; the Blueprint may clarify structure but may not silently redesign or override the accepted visual",
+        "conflict between Visual Authority, Blueprint and accepted PO instruction is blocking and must be reconciled before implementation",
+        "template implementation is forbidden until every Blueprint element has a Builder capability mapping or is explicitly marked MISSING/BLOCKED",
+        "for historically accepted designs, only PRESERVE output or newly PO-approved REDESIGN output from Legacy Template Visual Revalidation may become current Visual Authority",
+        "Visual Authority is therefore a current acceptance artifact, not an automatic carry-forward of an old screenshot"
+      ],
+      "evidenceRefs": [],
+      "dependsOn": [
+        "LEGACY-TEMPLATE-VISUAL-REVALIDATION",
+        "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE",
+        "STORE-FRONT-RUNTIME"
+      ]
+    },
+    {
       "id": "TEMPLATE-CAPABILITY-CENSUS-42",
       "title": "42-template Builder Capability Census",
       "status": "accepted",
@@ -1329,7 +1407,8 @@
       "targetWindow": "stage-4",
       "priority": "P0",
       "dependsOn": [
-        "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE"
+        "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE",
+        "TEMPLATE-VISUAL-AUTHORITY-BLUEPRINT"
       ],
       "capabilities": [
         "CAP-BUILDER",
@@ -1340,7 +1419,13 @@
         "derive the required layout, nested-container, asymmetric-grid, shape/mask, clipping, layering, overlap, gallery/card, pattern, commerce-binding, responsive and interaction capabilities",
         "record which capabilities are shared primitives versus template-specific presets/signatures",
         "the census is requirements discovery only; no Template #4 production and no resumption of frozen SPORT HUB implementation occurs in this stage",
-        "Builder Production Complete is forbidden while any capability required by the accepted 42-design corpus is missing or represented only by manual source-code escape hatches"
+        "Builder Production Complete is forbidden while any capability required by the accepted 42-design corpus is missing or represented only by manual source-code escape hatches",
+        "run the census from the accepted Visual Authority + Structural Blueprint + Interaction Contract packages rather than screenshot-only interpretation",
+        "for every visual element record canonical Builder mapping, reuse class (primitive/pattern/preset/template composition), editability semantics and MISSING/BLOCKED state",
+        "a visual effect that must remain merchant-editable cannot be accepted as a template-local CSS/source-code recipe",
+        "missing capability discovered by a template is Builder Core backlog, not permission to simplify the accepted design or create a hidden template-only implementation",
+        "the census runs only after legacy designs are revalidated; it must discover Builder requirements from the design we actually want to preserve now",
+        "capability census must not be used to justify visual downgrading: if a PRESERVE design requires an unsupported capability, that requirement enters Builder Core backlog"
       ],
       "evidenceRefs": []
     },
@@ -1376,6 +1461,36 @@
       ]
     },
     {
+      "id": "BUILDER-NATIVE-CAPABILITY-CONTRACT",
+      "title": "Builder-native Capability Contract + No Visual Shortcut Rule",
+      "status": "accepted",
+      "phase": "builder",
+      "order": 690,
+      "targetWindow": "stage-5-before-builder-production-complete",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-BUILDER",
+        "CAP-STOREFRONT",
+        "CAP-QUALITY"
+      ],
+      "scope": [
+        "general visual/editing behavior belongs to the canonical Builder Library, never to an individual template",
+        "Builder Library distinguishes primitives, reusable patterns/presets and template compositions; templates consume capabilities but do not secretly own new general capabilities",
+        "media-frame capability must separate frame/mask geometry from inserted media and support replace/delete while preserving the frame",
+        "Builder editor/Inspector exposes supported frame shapes and mask controls so a merchant can change an existing frame without source-code editing; initial bounded shape family may include rectangle, circle, diamond, trapezoid, hexagon, slanted and governed polygon/preset shapes",
+        "drag/drop, media replacement, crop/focal point and responsive behavior are part of the capability contract where applicable",
+        "No Visual Shortcut Rule: template-level ad-hoc CSS, transform, clip-path, absolute-positioning tricks or source-file escape hatches may not impersonate a missing Builder capability",
+        "canonical Builder primitives may internally use CSS/SVG/canvas implementation techniques, but those implementation details remain encapsulated behind the governed capability rather than being authored template-locally",
+        "if an accepted design requires a missing capability, template implementation is BLOCKED until the Builder capability is implemented and exposed through the editor"
+      ],
+      "evidenceRefs": [],
+      "dependsOn": [
+        "TEMPLATE-CAPABILITY-CENSUS-42",
+        "TEMPLATE-VISUAL-AUTHORITY-BLUEPRINT",
+        "STORE-FRONT-RUNTIME"
+      ]
+    },
+    {
       "id": "VISUAL-BUILDER",
       "title": "Visual Builder Canonical Capability Stack — Production Completion",
       "status": "hardening",
@@ -1401,40 +1516,77 @@
         "undo/redo, draft/save/preview/publish/rollback, real commerce bindings, schema validation and round-trip fidelity",
         "Fit/Zoom remains a desktop Builder capability",
         "Builder canvas uses the actual storefront runtime; no second renderer",
-        "Visual Builder is the advanced authoring layer, not a prerequisite for launching a store that uses Managed Template Quick Start"
+        "Visual Builder is the advanced authoring layer, not a prerequisite for launching a store that uses Managed Template Quick Start",
+        "every capability required by accepted templates must have a real authoring surface in VX Builder; runtime-only support is PARTIAL rather than DONE",
+        "media/frame authoring keeps structural frame and media content separate: users can select/change mask shape, replace or delete media, and drag/drop new media without reconstructing the layout",
+        "Inspector controls, canvas interactions, persistence/serialization and responsive editing must operate on the same canonical Page Schema used by the storefront runtime",
+        "template implementation may consume only Builder-native capabilities or explicit governed presets; template-local visual escape hatches are forbidden"
       ],
       "evidenceRefs": [],
       "dependsOn": [
         "TEMPLATE-CAPABILITY-CENSUS-42",
         "STORE-FRONT-RUNTIME",
-        "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE"
+        "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE",
+        "BUILDER-NATIVE-CAPABILITY-CONTRACT"
       ]
     },
     {
       "id": "GUARDED-VISUAL-SECTION-LIBRARY",
-      "title": "Guarded Visual Section / Preset Library",
-      "status": "planned",
+      "title": "Builder Primitive / Pattern / Preset Library",
+      "status": "accepted",
       "phase": "builder",
       "order": 710,
       "targetWindow": "stage-5",
-      "priority": "P1",
+      "priority": "P0",
       "capabilities": [
         "CAP-BUILDER",
         "CAP-STOREFRONT"
       ],
       "dependsOn": [
         "TEMPLATE-CAPABILITY-CENSUS-42",
-        "VISUAL-BUILDER"
+        "VISUAL-BUILDER",
+        "BUILDER-NATIVE-CAPABILITY-CONTRACT"
       ],
       "scope": [
-        "visual gallery of reusable bounded section/component compositions",
-        "Template -> Page Presets -> Section Presets -> Components hierarchy",
-        "source-controlled factory presets; tenant-owned Saved Blocks remain separate",
+        "visual library of reusable Builder-native primitives, bounded patterns and section/block/page presets derived from accepted design requirements",
+        "Template -> Page Presets -> Section Presets -> Block/Pattern -> Primitive hierarchy with explicit ownership and no duplicate rendering authority",
+        "media frames/masks, overlays, asymmetric grids, galleries, editorial splits, commerce blocks and other reusable visual capabilities live in the Builder Library rather than inside a single template",
+        "every library capability required for merchant editing is discoverable/selectable from the VX Builder UI and configurable through governed Inspector controls",
+        "source-controlled factory presets and tenant-owned Saved Blocks remain separate; templates select/reuse them without gaining hidden template-local behavior",
         "no raw HTML/JS, second renderer, duplicate breakpoint DOM or business authority",
-        "performance, responsive, schema and accessibility guards remain blocking"
+        "performance, responsive, schema, accessibility and round-trip editability guards remain blocking",
+        "library growth is capability-first: accepted template references may discover new needs, but the reusable Builder capability is completed before the template may consume it"
       ],
-      "notes": "Latest accepted sequencing: build the reusable block/preset library after the template portfolio is accepted, so accepted templates provide the source material and quality bar.",
+      "notes": "Superseding accepted sequencing: the Builder Library is populated from the 42-template capability census before Builder Production Complete. Accepted template references are requirements inputs, not permission to defer reusable capabilities until after portfolio production.",
       "evidenceRefs": []
+    },
+    {
+      "id": "BUILDER-CAPABILITY-CLOSURE-GATE",
+      "title": "Builder Capability Closure Gate",
+      "status": "accepted",
+      "phase": "maturity-gate",
+      "order": 715,
+      "targetWindow": "stage-5",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-BUILDER",
+        "CAP-STOREFRONT",
+        "CAP-QUALITY"
+      ],
+      "scope": [
+        "a Builder capability is DONE only when schema/model, registry, storefront runtime, VX Builder canvas/Inspector UI, drag/drop or equivalent interaction, persistence/serialization, responsive behavior and automated proof are all closed where applicable",
+        "runtime-only, source-code-only or template-only implementations are PARTIAL and cannot satisfy Builder Production Complete",
+        "required edit semantics are proven explicitly: selection, replacement, deletion, frame/container persistence, reorder/move, supported property changes and save/reopen round trip",
+        "missing downstream editor or runtime dependency yields PARTIAL/MISSING/BLOCKED rather than visual approximation",
+        "the gate consumes capability mappings from the Visual Authority/Blueprint census and proves that accepted designs can be represented without hidden escape hatches"
+      ],
+      "evidenceRefs": [],
+      "dependsOn": [
+        "VISUAL-BUILDER",
+        "GUARDED-VISUAL-SECTION-LIBRARY",
+        "BUILDER-NATIVE-CAPABILITY-CONTRACT",
+        "TEMPLATE-VISUAL-AUTHORITY-BLUEPRINT"
+      ]
     },
     {
       "id": "BUILDER-PRODUCTION-COMPLETE",
@@ -1445,9 +1597,7 @@
       "targetWindow": "stage-5",
       "priority": "P0",
       "dependsOn": [
-        "VISUAL-BUILDER",
-        "GUARDED-VISUAL-SECTION-LIBRARY",
-        "TEMPLATE-CAPABILITY-CENSUS-42",
+        "BUILDER-CAPABILITY-CLOSURE-GATE",
         "MANAGED-TEMPLATE-QUICK-START"
       ],
       "capabilities": [
@@ -1457,7 +1607,9 @@
       "scope": [
         "Stage 5 maturity gate: the full manual Builder can express the capability set derived from the 42-template census without source-code escape hatches",
         "real storefront runtime, canonical Page Schema and real commerce bindings remain the only rendering/business path",
-        "manual editing must be complete before AI Builder is considered a launch-ready capability"
+        "manual editing must be complete before AI Builder is considered a launch-ready capability",
+        "Builder Production Complete requires capability-closure evidence, not only the ability to render accepted appearances",
+        "no accepted template requirement may remain expressible only through template-local CSS/source edits or non-editor-accessible runtime behavior"
       ],
       "evidenceRefs": []
     },
@@ -1470,7 +1622,8 @@
       "targetWindow": "stage-6",
       "priority": "P0",
       "dependsOn": [
-        "BUILDER-PRODUCTION-COMPLETE"
+        "BUILDER-PRODUCTION-COMPLETE",
+        "TEMPLATE-VISUAL-AUTHORITY-BLUEPRINT"
       ],
       "capabilities": [
         "CAP-BUILDER",
@@ -1483,7 +1636,12 @@
         "prove round-trip edit/save/reopen/publish fidelity and real commerce binding integrity",
         "prove complex overlap, masks, asymmetric grids and responsive compositions without visual degradation where the accepted reference requires them",
         "Desktop/Tablet/Mobile storefront outputs are all part of acceptance",
-        "SPORT HUB remains frozen as benchmark input until this stage; the benchmark must not be quietly redesigned to fit Builder limitations"
+        "SPORT HUB remains frozen as benchmark input until this stage; the benchmark must not be quietly redesigned to fit Builder limitations",
+        "prove Builder-native structure as an independent acceptance dimension from screenshot fidelity: correct visual appearance does not pass if achieved through the wrong structural model",
+        "prove representative media-frame/mask cases with frame/media separation, image delete/replace, shape change, drag/drop, save/reopen and responsive behavior",
+        "SPORT HUB hero is a benchmark case: the accepted slanted/diamond-like media composition must be reproducible from Builder-native frame/mask capabilities rather than template-local skew/overflow recipes",
+        "adversarial proof compares accepted Visual Authority against rendered output while also validating the Blueprint/Interaction Contract and absence of visual escape hatches",
+        "legacy benchmark references used here must be current Visual Authorities produced by the revalidation gate; historical screenshots that were redesigned or retired cannot remain silent acceptance authority"
       ],
       "evidenceRefs": []
     },
@@ -1504,12 +1662,47 @@
         "production-ready before 1.0 but hidden/disabled at public launch",
         "canonical Page Schema/Runtime only",
         "permission/safety limits",
-        "public activation only after controlled readiness, approximately first 20-50 customers"
+        "public activation only after controlled readiness, approximately first 20-50 customers",
+        "customer-facing AI Builder may reuse the proven internal Shoperation Visual Agent capability, but public product behavior remains separately permissioned, entitlement-gated and acceptance-tested"
+      ],
+      "evidenceRefs": [],
+      "dependsOn": [
+        "SHOPERATION-VISUAL-AGENT-V1",
+        "BUILDER-ADVERSARIAL-ACCEPTANCE",
+        "AI-SAFETY-SECURITY"
+      ]
+    },
+    {
+      "id": "SHOPERATION-VISUAL-AGENT-V1",
+      "title": "Shoperation Visual Agent v1 — Internal Builder Code-like Engine",
+      "status": "accepted",
+      "phase": "visual-agent",
+      "order": 850,
+      "targetWindow": "after-builder-adversarial-before-template-factory-revalidation",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-BUILDER",
+        "CAP-STOREFRONT",
+        "CAP-QUALITY",
+        "CAP-AUTH"
+      ],
+      "scope": [
+        "build an internal Shoperation-specific Builder Code-like capability; this is our own bounded system and is not an integration, API wrapper or architectural dependency on Builder.io/Builder Code",
+        "first purpose is internal template/Builder development acceleration; customer-facing AI Builder remains a separate later product surface",
+        "inputs include accepted Visual Authority, Structural Blueprint, Interaction Contract, canonical Builder registry/library, current Page Schema, rendered screenshot and DOM/layout geometry",
+        "v1 primarily selects Builder-native components and emits bounded Page Schema/preset/design-token/layout-property patches rather than arbitrary React/TypeScript or template-local CSS",
+        "if the requested visual cannot be represented by the current Builder Library, the agent returns BLOCKED/MISSING CAPABILITY and routes the requirement to Builder Core instead of inventing a visual shortcut",
+        "render-compare-repair loop uses deterministic screenshot/pixel and geometry/DOM evidence first, with multimodal semantic reasoning only where it adds value",
+        "repair iterations are bounded and evidence-producing; PASS/PARTIAL/FAIL/BLOCKED truth must identify affected region/component and remaining mismatch",
+        "the original accepted visual reference remains present throughout analysis, implementation and repair so successive agents do not rely on lossy natural-language handoff",
+        "future component-development mode may be added only through Control Plane planning, authority, dependency-closure, tests and proof; it is not part of unrestricted v1 behavior",
+        "model/provider use is replaceable behind Shoperation AI policy; the Visual Agent must not create vendor lock-in or make external AI availability a storefront runtime dependency"
       ],
       "evidenceRefs": [],
       "dependsOn": [
         "BUILDER-ADVERSARIAL-ACCEPTANCE",
-        "AI-SAFETY-SECURITY"
+        "AI-SAFETY-SECURITY",
+        "TEMPLATE-VISUAL-AUTHORITY-BLUEPRINT"
       ]
     },
     {
@@ -1527,6 +1720,7 @@
       "targetWindow": "stage-7",
       "priority": "P0",
       "dependsOn": [
+        "SHOPERATION-VISUAL-AGENT-V1",
         "BUILDER-ADVERSARIAL-ACCEPTANCE",
         "MANAGED-TEMPLATE-QUICK-START"
       ],
@@ -1539,7 +1733,12 @@
         "Factory is a production accelerator/compiler above the completed Builder, never a substitute for missing Builder capability",
         "revalidate Template DNA, archetype registry, Genome/generator, constraint planning, media planning/compiler, anti-clone, lineage, Known Failure and proof/gate behavior against the completed Builder",
         "repeat adversarial/stress proof so historical Factory PASS states cannot stand in for current Stage 7 maturity",
-        "Factory revalidation must prove each produced template's Template Content Contract and managed/no-Builder launch behavior in addition to Builder editability"
+        "Factory revalidation must prove each produced template's Template Content Contract and managed/no-Builder launch behavior in addition to Builder editability",
+        "canonical production flow is Visual Authority + Blueprint/Interaction Contract -> capability mapping -> Builder-native composition -> render -> visual/structural comparison -> bounded repair -> proof",
+        "Factory consumes Builder Library capabilities and may not compensate for missing Builder capability with template-local CSS/source-code tricks",
+        "visual comparison combines accepted reference imagery with structural/interaction proof so visual PASS cannot hide an incorrect or non-editable implementation",
+        "Template Blueprint is a first-class paired authority for each Visual First output, including block inventory, hierarchy, required text/assets/data binding and edit semantics",
+        "Visual Agent may accelerate composition and repair, but Template Factory/Control Plane truth remains authoritative and deterministic gates remain blocking"
       ],
       "notes": "Earlier Template Factory implementation and Brabus-era hardening remain historical implementation work. Production continuation is intentionally frozen until Builder Adversarial Acceptance; Stage 7 revalidates and improves the existing factory against the completed Builder rather than replacing it."
     },
@@ -1568,7 +1767,10 @@
         "each design includes all 14 canonical pages",
         "Desktop/Tablet/Mobile storefront acceptance is mandatory for every design",
         "template capability differences are entitlement/configuration, not duplicated business engines",
-        "every launch template must pass Managed Template Quick Start acceptance: complete storefront from canonical merchant/catalog/brand/content data without opening Visual Builder"
+        "every launch template must pass Managed Template Quick Start acceptance: complete storefront from canonical merchant/catalog/brand/content data without opening Visual Builder",
+        "every template/page ships with its accepted Visual Authority plus machine-readable Structural Blueprint/Interaction Contract and human-readable technical specification",
+        "each template must pass both visual-fidelity acceptance and Builder-native structural/editability acceptance; screenshot similarity alone is insufficient",
+        "new reusable visual need discovered during portfolio production is escalated to Builder Library capability work before that template may be considered complete"
       ],
       "evidenceRefs": []
     },
