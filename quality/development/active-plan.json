@@ -75,10 +75,10 @@
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-09-CORE-1186-BOOTSTRAP-1187",
-    "riskTier": "high",
+    "riskTier": "critical",
     "assuranceCeiling": {
-      "level": "strong-behavioral-proof",
-      "rationale": "Mandatory production-code authorization entrypoint is unparsable; behavior-preserving, syntax-only bootstrap fix followed by executable regression and all normal gates is required.",
+      "level": "critical-practical",
+      "rationale": "This repair restores a mandatory authorization gateway for all future product code changes. An incorrectly described capability or proof scope can falsely approve work or block the entire Core roadmap. We therefore require full critical plan semantics, real executable regression and fail-closed gate verification, without treating successful local checks as deployment proof.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -88,7 +88,8 @@
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
-        "fault-injection"
+        "fault-injection",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
@@ -201,6 +202,18 @@
         "evidence": [
           "tests/shoperation-development-guard.test.ts"
         ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The syntax-only bootstrap repair is an infrastructure change whose gate and evidence acceptance must remain exact-head and fail-closed even while unrelated Core work is pending.",
+        "resolution": "Keep this repair a separate DRAFT PR and require exact-head CI, Completion Truth and Lifecycle validation before any merge or Core implementation proceeds.",
+        "evidence": [
+          ".github/workflows/ci.yml",
+          "scripts/shoperation-plan-before-code.mjs",
+          "AGENTS.md"
+        ]
       }
     ],
     "challenge": [
@@ -244,6 +257,20 @@
         "scenario": "Later unrelated Core edits are bundled with bootstrap repair.",
         "finding": "Would merge unproven high-risk entitlement changes through a guard repair release.",
         "resolution": "Use separate fix branch and strict planned file allowlist; keep issue #1186 OPEN.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-GUARD-07",
+        "scenario": "A package plan changes its claimed evidence scope from code validation to risk assessment but reuses quality test evidence.",
+        "finding": "Sentinel detects claim-dimension drift because quality tests do not establish the release risk budget or release-scope dimensions.",
+        "resolution": "Declare a separate CAP-RELEASE requirement and prove only risk and release-scope with the existing GUARD-RELEASE-RISK evidence.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-GUARD-08",
+        "scenario": "A metadata-only plan is registered as high assurance while the semantic route regression expects a critical trust boundary.",
+        "finding": "Critical-only route invariants are skipped and the existing regression fails despite the mandatory authorization entrypoint being within scope.",
+        "resolution": "Adopt critical assurance for this bootstrap guard and retain the canonical authority and route checks without changing validator code.",
         "status": "resolved"
       }
     ],
@@ -830,8 +857,7 @@
           "dimensions": [
             "status",
             "evidence-scope",
-            "forbidden-state",
-            "risk"
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -864,9 +890,8 @@
           "breadth": "bounded-guard-bootstrap",
           "strength": 2,
           "dimensions": [
-            "status",
-            "risk",
-            "release-scope"
+            "scope",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -877,8 +902,7 @@
             "GUARD-PLAN-BEFORE-CODE"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-RELEASE-RISK"
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
@@ -887,6 +911,39 @@
             "statement": "Decision logic is not removed, weakened, or replaced.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-GUARD-RELEASE-RISK",
+        "requirement": "The dedicated release-risk authority proves bounded release diff scope and risk budget for this guard bootstrap without claiming Core capability maturity.",
+        "claimScope": {
+          "capability": "CAP-RELEASE",
+          "breadth": "single-development-guard-bootstrap",
+          "strength": 2,
+          "dimensions": [
+            "risk",
+            "release-scope"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-RELEASE"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-RELEASE-RISK"
+          ],
+          "outcome": [
+            "GUARD-RELEASE-RISK"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-RISK-BYPASS",
+            "statement": "A failed release risk budget cannot be represented as successful verification.",
+            "evidence": [
+              "GUARD-RELEASE-RISK"
             ]
           }
         ]
