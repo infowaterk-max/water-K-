@@ -21,6 +21,85 @@ describe('Control Plane diagnostic coverage',()=>{
     expect(report.errors[0]).toMatchObject({code:'TS2322',file:'src/demo.ts'});
   });
 
+  it('preserves nested executor failure codes, raw error evidence and original exit status',()=>{
+    const dir=mkdtempSync(path.join(tmpdir(),'release-diagnostic-'));
+    try{
+      const out=path.join(dir,'release.json'),summary=path.join(dir,'summary.md');
+      const payload={reason:'RELEASE_PARENT_PROOF_OR_PERSISTENCE_FAILED',error:'RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH:stale remote PR head'};
+      const js='console.log("executor progress");console.error("Error: RELEASE_UNIT_EXECUTION_BLOCK:"+JSON.stringify('+JSON.stringify(payload)+'));process.exit(9)';
+      const res=spawnSync(process.execPath,['scripts/shoperation-command-diagnostic.mjs','--',process.execPath,'-e',js],{
+        encoding:'utf8',env:{...process.env,SHOPERATION_DIAGNOSTIC_OUTPUT:out,
+          SHOPERATION_DIAGNOSTIC_CODE:'RELEASE_UNIT_EXECUTION_FAILED',
+          SHOPERATION_DIAGNOSTIC_GATE:'trusted-release-executor',
+          SHOPERATION_SOURCE_COMMIT:'a'.repeat(40),GITHUB_RUN_ID:'12345',GITHUB_STEP_SUMMARY:summary},
+      });
+      const report=JSON.parse(read(out));
+      expect(res.status).toBe(9);
+      expect(res.stdout).toContain('executor progress');
+      expect(report).toMatchObject({contract:'shoporation.command-diagnostic.v1',decision:'FAIL',
+        gateId:'trusted-release-executor',exitCode:9,runId:'12345'});
+      expect(report.errors[0]).toMatchObject({code:'RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH',
+        reason:'RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH:stale remote PR head'});
+      expect(report.errors[0].rawError).toContain('RELEASE_UNIT_EXECUTION_BLOCK');
+      expect(read(summary)).toContain('RELEASE_PARENT_CLOSURE_PR_IDENTITY_MISMATCH');
+    }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+
+  it('redacts tokens in durable diagnostics and preserves a stable fallback when no code exists',()=>{
+    const dir=mkdtempSync(path.join(tmpdir(),'release-diagnostic-redact-'));
+    try{
+      const out=path.join(dir,'release.json'),summary=path.join(dir,'summary.md');
+      const token='ghp_dummy_private_secret_1234567';
+      const js='console.error("opaque executor error: "+process.env.GH_TOKEN);process.exit(13)';
+      const res=spawnSync(process.execPath,['scripts/shoperation-command-diagnostic.mjs','--',process.execPath,'-e',js],{
+        encoding:'utf8',env:{...process.env,GH_TOKEN:token,GITHUB_TOKEN:token,
+          SHOPERATION_DIAGNOSTIC_OUTPUT:out,SHOPERATION_DIAGNOSTIC_CODE:'RELEASE_UNIT_EXECUTION_FAILED',
+          SHOPERATION_DIAGNOSTIC_GATE:'trusted-release-executor',GITHUB_STEP_SUMMARY:summary},
+      });
+      expect(res.status).toBe(13);
+      expect(JSON.parse(read(out)).errors[0].code).toBe('RELEASE_UNIT_EXECUTION_FAILED');
+      expect(read(out)).not.toContain(token);
+      expect(read(summary)).not.toContain(token);
+      expect(read(out)).toContain('[REDACTED]');
+    }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+
+  it('keeps successful wrapped commands successful without inventing failures',()=>{
+    const dir=mkdtempSync(path.join(tmpdir(),'command-diagnostic-pass-'));
+    try{
+      const out=path.join(dir,'pass.json');
+      const res=spawnSync(process.execPath,['scripts/shoperation-command-diagnostic.mjs','--',process.execPath,'-e',"console.log('OK')"],{
+        encoding:'utf8',env:{...process.env,SHOPERATION_DIAGNOSTIC_OUTPUT:out,SHOPERATION_DIAGNOSTIC_GATE:'fixture'},
+      });
+      expect(res.status).toBe(0);
+      expect(res.stdout).toContain('OK');
+      expect(JSON.parse(read(out))).toMatchObject({decision:'PASS',exitCode:0,errors:[]});
+    }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+
+  it('wires separate security-audit and trusted release executor failures into existing Failure Intake',()=>{
+    const ci=read('.github/workflows/ci.yml');
+    const executor=read('.github/workflows/release-unit-execution.yml');
+    const command=read('scripts/shoperation-command-diagnostic.mjs');
+    for(const token of[
+      'id: security-audit-command',
+      'SECURITY_AUDIT_FAILED',
+      'shoperation-command-diagnostics/security-audit.json',
+      'Record security audit failure intake',
+      'Upload security audit failure evidence',
+    ])expect(ci).toContain(token);
+    for(const token of[
+      'id: drive-release-executor',
+      'node scripts/shoperation-command-diagnostic.mjs --',
+      'RELEASE_UNIT_EXECUTION_FAILED',
+      'Record trusted executor failure intake',
+      'Upload trusted executor diagnostic evidence',
+    ])expect(executor).toContain(token);
+    expect(command).toContain("const child=spawn(command,args,");
+    expect(command).toContain('RELEASE_UNIT_EXECUTION_BLOCK');
+    expect(command).toContain('GITHUB_STEP_SUMMARY');
+  });
+
   it('wires core CI baseline, market-ready, typecheck and build failures into structured intake',()=>{
     const ci=read('.github/workflows/ci.yml');
     for(const marker of[
