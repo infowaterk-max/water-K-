@@ -3,18 +3,18 @@
   "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
   "decompositionContract": "shoporation.release-decomposition.v1",
   "manifestChainDigest": "ca03705f",
-  "lifecyclePhase": "EXECUTE",
+  "lifecyclePhase": "TRUTH_GATE",
   "unitIds": [
     "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01"
   ],
-  "activeUnitId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01",
+  "activeUnitId": null,
   "units": [
     {
       "contract": "shoporation.release-unit-execution.v1",
       "releaseUnitId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01",
       "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
       "order": 1,
-      "state": "PR_OPEN",
+      "state": "CLOSED",
       "manifest": {
         "contract": "shoporation.release-unit-manifest.v1",
         "transaction": {
@@ -871,18 +871,46 @@
         "sourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
         "url": "https://github.com/infowaterk-max/water-K-/pull/1177"
       },
-      "verification": null,
-      "merge": null,
-      "closeReceipt": null,
+      "verification": {
+        "sourceHeadSha": "aa1447b17d7191d2d98c03fc78e1a0b4337616e3",
+        "truthContract": "shoporation.completion-truth.v2",
+        "truthStatus": "VERIFIED",
+        "internalState": "VERIFIED_DONE",
+        "lifecycleState": "LEARN",
+        "lifecycleTruthStatus": "VERIFIED",
+        "verifiedImplementationHead": "aa1447b17d7191d2d98c03fc78e1a0b4337616e3",
+        "childTaskId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01-TX",
+        "childPlanDigest": "a7884026f8e061d0929c9cbb2ac85976614cdf1d5e796fa186ed3d68ac0f7883",
+        "bindingDigest": "1bac655e5152ff02eb9b5410e157dc1b7cb27680b4f2eae065d87072115c435e"
+      },
+      "merge": {
+        "prNumber": 1177,
+        "sourceHeadSha": "aa1447b17d7191d2d98c03fc78e1a0b4337616e3",
+        "mergedMainSha": "9f16dbd8319d71e72087c1ba1085575c88ff09e0",
+        "mergeMethod": "squash"
+      },
+      "closeReceipt": {
+        "contract": "shoporation.release-unit-close-receipt.v1",
+        "releaseUnitId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01",
+        "sourceHeadSha": "aa1447b17d7191d2d98c03fc78e1a0b4337616e3",
+        "mergedMainSha": "9f16dbd8319d71e72087c1ba1085575c88ff09e0",
+        "manifestDigest": "6798a4ba",
+        "truthStatus": "VERIFIED",
+        "lifecycleState": "LEARN",
+        "childTaskId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01-TX",
+        "childPlanDigest": "a7884026f8e061d0929c9cbb2ac85976614cdf1d5e796fa186ed3d68ac0f7883",
+        "bindingDigest": "1bac655e5152ff02eb9b5410e157dc1b7cb27680b4f2eae065d87072115c435e",
+        "decision": "PASS"
+      },
       "blocker": null,
       "lastTransition": {
-        "to": "PR_OPEN",
-        "code": "RELEASE_UNIT_PR_OPEN"
+        "to": "CLOSED",
+        "code": "RELEASE_UNIT_CLOSED"
       }
     }
   ],
   "blocker": null,
-  "closureEligible": false,
+  "closureEligible": true,
   "closureComplete": false,
   "closedReceipt": null,
   "executionSourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74"
