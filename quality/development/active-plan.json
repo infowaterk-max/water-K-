@@ -376,17 +376,18 @@
         "id": "REQ-EXECUTOR-EXACT-DIAGNOSTIC",
         "requirement": "A release executor failure emits exact nested machine code, reason, location and source/run bound artifact/summary without altering execution status.",
         "claimScope": {
-          "capability": "CAP-RELEASE",
+          "capability": "CAP-QUALITY",
           "breadth": "executor-diagnostic-fidelity",
           "strength": 2,
           "dimensions": [
             "status",
             "transaction-identity",
-            "evidence"
+            "evidence-scope",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
-          "CAP-RELEASE"
+          "CAP-QUALITY"
         ],
         "evidence": {
           "implementation": [
@@ -415,9 +416,9 @@
           "breadth": "security-gate-diagnostic-fidelity",
           "strength": 2,
           "dimensions": [
-            "security",
-            "evidence",
-            "status"
+            "status",
+            "evidence-scope",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -450,7 +451,7 @@
           "breadth": "failure-intake-contract",
           "strength": 2,
           "dimensions": [
-            "evidence",
+            "evidence-scope",
             "forbidden-state",
             "truth"
           ]
@@ -480,6 +481,7 @@
   },
   "notes": [
     "Plan-only checkpoint: no implementation change may be authored until exact-head Plan Before Code succeeds.",
-    "Historical issue #1018. Existing generic command-diagnostic is canonical; do not add a competing second diagnostics engine."
+    "Historical issue #1018. Existing generic command-diagnostic is canonical; do not add a competing second diagnostics engine.",
+    "Sentinel proof-semantics correction: guard registry lacks a 'security' or generic 'evidence' dimension; use accurately provable CAP-QUALITY status/evidence-scope/forbidden-state. The security-audit job itself remains mandatory CI evidence, not a fabricated extra guard capability."
   ]
 }
