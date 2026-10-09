@@ -20,7 +20,7 @@ async function completeScan(db:ReturnType<typeof createAdminClient>,input:{attac
 
 export async function POST(request:Request){
   const actor=await getAdminRequestUser('support.manage');if(!actor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
-  if(!(await hasCurrentPlanFeature('officeCommunication')))return NextResponse.json({error:'Az ügyfél-e-mail csatolmányok ehhez a csomaghoz nem érhetők el.'},{status:403});
+  if(!(await hasCurrentPlanFeature('officeCommunicationAdvanced')))return NextResponse.json({error:'Az ügyfél-e-mail csatolmányok ehhez a csomaghoz nem érhetők el.'},{status:403});
   let scope;try{scope=await requireCurrentStoreContext('support.manage')}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
   let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})};const parsed=schema.safeParse(raw);if(!parsed.success)return NextResponse.json({error:'Érvénytelen csatolmány-ellenőrzési kérés.'},{status:400});
   const db=createAdminClient();

@@ -99,7 +99,7 @@ describe('Digital Office private attachments',()=>{
     }
     for(const route of[prepare,finalize])expect(route).toContain("hasCurrentPlanFeature('teamChatSecureAttachments')");
     expect(download).toContain("source==='internal_upload'?'teamChatSecureAttachments'");
-    expect(download).toContain("source==='provider_inbound'||source==='customer_outbound'?'officeCommunication':null");
+    expect(download).toContain("source==='provider_inbound'||source==='customer_outbound'?'officeCommunicationAdvanced':null");
     expect(download).toContain('hasCurrentPlanFeature(feature)');
     expect(finalize).toContain('OFFICE_OBJECT_LINK_PERMISSION_REQUIRED');
   });

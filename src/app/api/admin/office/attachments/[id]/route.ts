@@ -19,7 +19,7 @@ export async function GET(_request:Request,{params}:{params:Promise<{id:string}>
   if(metadataError)return NextResponse.json({error:'A csatolmány jogosultsága nem ellenőrizhető.'},{status:500});
   if(!metadata)return NextResponse.json({error:'A csatolmány nem található.'},{status:404});
   const source=String(metadata.source??'');
-  const feature=source==='internal_upload'?'teamChatSecureAttachments':source==='provider_inbound'||source==='customer_outbound'?'officeCommunication':null;
+  const feature=source==='internal_upload'?'teamChatSecureAttachments':source==='provider_inbound'||source==='customer_outbound'?'officeCommunicationAdvanced':null;
   if(!feature)return NextResponse.json({error:'A csatolmány forrása nem engedélyezett.'},{status:403});
   if(!(await hasCurrentPlanFeature(feature)))return NextResponse.json({error:'Ehhez a csatolmányhoz a szükséges funkció nincs engedélyezve.'},{status:403});
 
