@@ -944,7 +944,7 @@
   "executionSourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
   "closurePersistence": {
     "contract": "shoporation.release-parent-closure-persistence.v1",
-    "state": "POST_MERGE_CI_PENDING",
+    "state": "MERGED",
     "branch": "release-execution/closure/dev-post-merge-exact-main-ci-e2e-v2",
     "prNumber": 1178,
     "headSha": "717f0d36ca4332b425041cb5f918e6aef9c9244c",
@@ -956,15 +956,31 @@
     "mergedMainSha": "995983131fa3aa1cb91794810c817f6b9b8846d9",
     "postMergeMainCi": {
       "contract": "shoporation.release-parent-post-merge-main-ci.v1",
-      "status": "OBSERVED",
-      "decision": "PENDING",
+      "status": "COMPLETED",
+      "decision": "PASS",
       "runId": 37879636617,
       "nonce": "parent-main-ci-2d42f9e50478bdfc36d4af9b58efa318",
       "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
       "sourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
       "mergedMainSha": "995983131fa3aa1cb91794810c817f6b9b8846d9",
       "headBranch": "main",
-      "observedStatus": "in_progress"
+      "observedStatus": "in_progress",
+      "runAttempt": 1,
+      "event": "workflow_dispatch",
+      "workflow": "CI",
+      "actor": "github-actions[bot]",
+      "headSha": "995983131fa3aa1cb91794810c817f6b9b8846d9",
+      "conclusion": "success",
+      "completedAt": "2026-10-09T03:35:52Z",
+      "verifiedSteps": [
+        "Bind exact parent post-merge main CI",
+        "Knowledge Before Build preflight",
+        "Incremental Known Failure Replay",
+        "Quality tests",
+        "TypeScript check",
+        "Production build"
+      ],
+      "securityAudit": "success"
     }
   }
 }
