@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CP-TF-EXTERNAL-DEPENDENCY-ALIGN",
   "task": "Control Plane closure: exact runtime Template Factory proof classification and workflow trigger parity for unrelated admin route changes",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "9fe3f69d",
   "changeBaseSha": "2e6e5e6b2ba13a8728f7d251812e78bf04c2e3ca",
   "plannedFilePatterns": [
@@ -872,5 +872,18 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "835c516da8934467406b9e6ad6d87c113919b834",
+    "closedAt": "2026-10-09T14:45:28.045Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-EXTERNAL-PROOF-ALIGNMENT",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
