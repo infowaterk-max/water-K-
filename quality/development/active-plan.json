@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1186-U05-OFFICE-ACTIONS",
   "task": "Core 1186 U05: enforce Pro-only Digital Office direct server actions and preserve Alap normal transactional support email",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "1d1d5f53",
   "changeBaseSha": "eda6153d7327d156949a7cc4d0d3f288f09485da",
   "plannedFilePatterns": [
@@ -1385,5 +1385,18 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "677a30842ffc2c0da1bdbf7b3e91a481617635e5",
+    "closedAt": "2026-10-09T17:07:36.167Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U05-OFFICE-DIRECT-ACTIONS",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
