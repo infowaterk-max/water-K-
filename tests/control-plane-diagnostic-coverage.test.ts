@@ -165,7 +165,7 @@ describe('Control Plane diagnostic coverage',()=>{
       'git show "$SOURCE_SHA:quality/development/active-plan.json" > artifacts/release-execution/source-plan.json',
       'node scripts/release-unit-execute.mjs',
     ])expect(workflow).toContain(token);
-    expect((workflow.match(/node scripts\\/shoperation-command-diagnostic\\.mjs/g)??[]).length).toBe(7);
+    expect(workflow.split('node scripts/shoperation-command-diagnostic.mjs').length-1).toBe(7);
     expect(workflow).toContain('artifacts/shoperation-command-diagnostics/*.json');
   });
 
@@ -173,9 +173,14 @@ describe('Control Plane diagnostic coverage',()=>{
     const workflow=read('.github/workflows/release-unit-execution.yml');
     const section=workflow.split('      - name: Record unwrapped early failure location')[1]
       ?.split('      - name: Record trusted executor failure intake')[0]??'';
-    const match=section.match(/node --input-type=module <<'NODE'\\n([\\s\\S]*?)\\n          NODE/);
-    expect(match).not.toBeNull();
-    const script=match![1].split('\\n').map(x=>x.replace(/^          /,'')).join('\\n');
+    const anchor="node --input-type=module <<'NODE'";
+    const begin=section.indexOf(anchor);
+    expect(begin).toBeGreaterThanOrEqual(0);
+    const after=section.slice(begin+anchor.length);
+    const terminator='\n          NODE';
+    const finish=after.indexOf(terminator);
+    expect(finish).toBeGreaterThan(0);
+    const script=after.slice(0,finish).split('\n').map(x=>x.replace(/^          /,'')).join('\n');
     const dir=mkdtempSync(path.join(tmpdir(),'release-fallback-stage-'));
     try{
       const result=spawnSync(process.execPath,['--input-type=module','-e',script],{
