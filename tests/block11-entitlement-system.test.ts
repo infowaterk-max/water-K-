@@ -9,6 +9,8 @@ const root=process.cwd();
 const read=(path:string)=>readFileSync(join(root,path),'utf8');
 const migration=read('supabase/migrations/20260910124500_block11_entitlement_contract_v1.sql');
 const uniquenessFix=read('supabase/migrations/20260910124600_block11_entitlement_uniqueness_fix_v1.sql');
+const alapChatGrantCorrection=read('supabase/migrations/20261009084550_alap_team_chat_plan_grant_reconcile.sql');
+const baselineAlapChatGrantCorrection=read('supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql');
 const planAccess=read('src/lib/plans/access.ts');
 const entitlementAccess=read('src/lib/entitlements/access.ts');
 const layout=read('src/app/admin/layout.tsx');
@@ -19,6 +21,21 @@ const row=(source:string,enabled:boolean,instance_id:string|null='store-1',updat
 });
 
 describe('Roadmap Block 11 effective entitlement contract',()=>{
+  it('reconciles only the Alap Team Chat plan grant in a forward-only migration and the ordered customer baseline',()=>{
+    expect(baselineAlapChatGrantCorrection).toBe(alapChatGrantCorrection);
+    expect(alapChatGrantCorrection).toContain("delete from public.plan_capability_grants");
+    expect(alapChatGrantCorrection).toContain("where plan_code = 'alap'\n  and capability_code = 'teamChat'");
+    expect(alapChatGrantCorrection).toContain("where plan_code = 'pro' and capability_code = 'teamChat'");
+    expect(alapChatGrantCorrection).toContain("where w.subscription_plan = 'alap'");
+    expect(alapChatGrantCorrection).toContain("perform private.sync_webshop_plan_entitlements(v_instance_id)");
+    expect(alapChatGrantCorrection).toContain("e.source = 'plan'");
+    expect(alapChatGrantCorrection).toContain("'ALAP_TEAM_CHAT_STALE_PLAN_ROW_REMAINS'");
+    expect(alapChatGrantCorrection).not.toContain("delete from public.feature_entitlements");
+    expect(alapChatGrantCorrection).not.toContain("delete from public.webshop_instances");
+    expect(alapChatGrantCorrection).not.toContain("create or replace function private.sync_webshop_plan_entitlements");
+    expect(alapChatGrantCorrection).not.toContain("where plan_code = 'pro'\n  and capability_code = 'teamChat'");
+  });
+
   it('uses the accepted deterministic source precedence',()=>{
     expect(ENTITLEMENT_SOURCE_PRIORITY).toEqual({platform:500,manual:400,trial:300,addon:200,plan:100});
     const winner=resolveEntitlementCandidate([row('plan',true),row('addon',true),row('trial',true),row('manual',true),row('platform',false)],'store-1',now);

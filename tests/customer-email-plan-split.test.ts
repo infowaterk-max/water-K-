@@ -14,8 +14,22 @@ const manageApi=read('src/app/api/admin/communication/manage/route.ts');
 const suppressionApi=read('src/app/api/admin/communication/suppression/route.ts');
 const enqueueApi=read('src/app/api/admin/communication/enqueue/route.ts');
 const planMigration=read('supabase/migrations/20260910061815_customer_email_plan_split_v1.sql');
+const alapChatGrantCorrection=read('supabase/migrations/20261009084550_alap_team_chat_plan_grant_reconcile.sql');
 
 describe('Customer e-mail Alap / Pro plan split',()=>{
+  it('preserves Alap customer communications when reconciling only the plan-managed internal Team Chat grant',()=>{
+    expect(alapChatGrantCorrection).toContain("where plan_code = 'alap' and capability_code = 'officeCommunication'");
+    expect(alapChatGrantCorrection).toContain("where plan_code = 'alap' and capability_code = 'support'");
+    expect(alapChatGrantCorrection).toContain("'ALAP_CUSTOMER_COMMUNICATION_PLAN_GRANT_MISSING'");
+    expect(alapChatGrantCorrection).toContain("where w.subscription_plan = 'alap'");
+    expect(alapChatGrantCorrection).toContain("private.sync_webshop_plan_entitlements(v_instance_id)");
+    expect(alapChatGrantCorrection).not.toContain("delete from public.feature_entitlements");
+    expect(hasPlanFeature('alap','officeCommunication')).toBe(true);
+    expect(hasPlanFeature('alap','support')).toBe(true);
+    expect(hasPlanFeature('alap','teamChat')).toBe(false);
+    expect(hasPlanFeature('pro','teamChat')).toBe(true);
+  });
+
   it('keeps core customer email in both packages and advanced workflow Pro-only',()=>{
     expect(hasPlanFeature('alap','officeCommunication')).toBe(true);
     expect(hasPlanFeature('alap','teamChat')).toBe(false);
