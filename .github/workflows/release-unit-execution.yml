@@ -92,11 +92,41 @@ jobs:
           git config user.email "shoperation-release-executor@users.noreply.github.com"
 
       - name: Drive canonical release-unit execution
+        id: drive-release-executor
         env:
           SHOPERATION_RELEASE_EXECUTION_SOURCE_REF: ${{ github.event.workflow_run.head_branch }}
           SHOPERATION_TRUSTED_EXECUTOR_ROOT: ${{ github.workspace }}
+          SHOPERATION_SOURCE_COMMIT: ${{ env.SOURCE_SHA }}
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_DIAGNOSTIC_GATE: trusted-release-executor
+          SHOPERATION_DIAGNOSTIC_CODE: RELEASE_UNIT_EXECUTION_FAILED
+          SHOPERATION_DIAGNOSTIC_EXPECTED: Trusted release executor completes with an exact verified closure
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/trusted-release-executor.json
         run: >-
+          node scripts/shoperation-command-diagnostic.mjs --
           node scripts/release-unit-execute.mjs
           --drive
           --decomposition-report artifacts/shoperation-development-guard/plan-before-code.json
           --source "$SOURCE_SHA"
+
+      - name: Record trusted executor failure intake
+        if: failure()
+        env:
+          SHOPERATION_SOURCE_COMMIT: ${{ env.SOURCE_SHA }}
+          SHOPERATION_FAILURE_SOURCE: trusted-release-executor
+          SHOPERATION_ENVIRONMENT: release-execution
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_DIAGNOSTIC_ARTIFACTS: RELEASE_UNIT_EXECUTION_FAILED=artifacts/shoperation-command-diagnostics/trusted-release-executor.json
+          SHOPERATION_GENERIC_FAILURES: RELEASE_UNIT_EXECUTION_FAILED
+        run: node scripts/shoperation-failure-intake.mjs
+
+      - name: Upload trusted executor diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-trusted-executor-diagnostic-${{ env.SOURCE_SHA }}
+          path: |
+            artifacts/shoperation-command-diagnostics/trusted-release-executor.json
+            artifacts/shoperation-failure-intake/**
+          if-no-files-found: warn
+          retention-days: 90
