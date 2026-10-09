@@ -1,17 +1,13 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CORE-1186-U02-PLAN-GRANTS",
-  "task": "Core #1186 U02 transactional Alap Team Chat plan-grant removal and idempotent tenant resync with customer baseline parity",
-  "status": "closed",
+  "taskId": "DEV-2EBCB98E",
+  "task": "Core 1186 U03: attest genuine Fresh Install 0046 proof contract and ready manifest",
+  "status": "ready-for-implementation",
   "guardDigest": "2ebcb98e",
-  "changeBaseSha": "dfac819a6336871bd2a669b09cd47755cd31ebbe",
+  "changeBaseSha": "8b8ee1202480331c33e0d88639fa1370759d59f6",
   "plannedFilePatterns": [
-    "supabase/migrations/20261009084550_alap_team_chat_plan_grant_reconcile.sql",
-    "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/block11-entitlement-system.test.ts",
-    "tests/customer-email-plan-split.test.ts",
-    "tests/order-core-transactional-email-dispatch-contract.test.ts"
+    "tests/customer-email-plan-split.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -23,13 +19,13 @@
     "database-schema"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-013",
+    "SQ-KF-014",
+    "SQ-KF-022",
     "SQ-KF-006",
     "SQ-KF-009",
     "SQ-KF-010",
-    "SQ-KF-013",
-    "SQ-KF-014",
     "SQ-KF-018",
-    "SQ-KF-022",
     "SQ-KF-023"
   ],
   "acknowledgedPoInstructionIds": [],
@@ -41,48 +37,37 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CORE-1186-U02",
-    "riskTier": "critical",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U03-FRESH-INSTALL-ATTESTATION",
+    "riskTier": "medium",
     "assuranceCeiling": {
-      "level": "critical-practical",
-      "rationale": "The database plan grant is a sensitive authorization source and is read by privileged tenant synchronization. Removing only Alap chat must be fail-closed, forward-only, auditable, idempotent, and compatible with both the historical production and customer-baseline lineages. We do not claim deployment or live tenant correctness without actual database execution proof.",
+      "level": "state-and-failure-review",
+      "rationale": "This records completed external Fresh Install evidence, without changing database schemas, grants, routes, or tenant data; reject stale hash, unrelated workflow truth, or unproven deployment claims.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
-        "what-if-matrix",
         "adversarial-scenarios",
-        "boundary-cases",
-        "pairwise-interactions",
-        "threat-failure-model",
-        "fault-injection",
-        "finite-state-exhaustion"
+        "boundary-cases"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "The new migration removes only (alap,teamChat) from plan_capability_grants and reruns the existing tenant sync for subscription_plan=alap.",
-        "The SQL raises errors if Pro chat or the Alap officeCommunication and support baseline grants are absent and never rewrites the private sync function.",
-        "The next ordered customer baseline migration is materially equivalent to the canonical migration and preserves ordered replay.",
-        "Regression tests verify plan source grants are reconciled but higher-priority override rows, Pro grant, and customer email remain untouched.",
-        "Critical Plan Before Code, Edit-Time/Reference Sync, Knowledge, Incremental Replay, Release Risk, Quality, TypeScript, CI Truth and Lifecycle complete on exact head.",
-        "Baseline manifest is snapshot-reviewed, freshInstallProofRequired=true, proofContractSha256=null pending the separately executed empty-target Fresh Install proof; never assert ready without it.",
-        "Regression test distinguishes snapshot-reviewed/pending 0046 from ready only after verifiable 0046 proof/contract, and preserves the old 0045 proof solely as history."
+        "Exact 0046 customer baseline was applied on an initially empty disposable Supabase project by GitHub run 37919705159 attempt 2 job 113806799257 with SUCCESS at exact proof source commit 03a7f0f690f94fa955e1ad459e3d5eb1fe22cbf4; zero file difference against main 8b8ee1202480331c33e0d88639fa1370759d59f6.",
+        "GitHub Fresh Install preflight, ordered migrations through 0046, Auth bootstrap, neutral seed, postflight, and structured evidence uploaded as artifact 11613699688 are all PASS; job proof hash a04b0990e7cf7a0a21591b9fd81fa44d5010ca8818b7edb7f00397c6b84807bb.",
+        "Change only customer baseline manifest to ready with freshInstallProofRequired false and exact current proofContractSha256; add test that prevents accidental pending/historic contract regression.",
+        "No staging, production, Supabase migration or customer data mutation. Staging postrestore read only fingerprint remains 3 shops, 6 auth users, 75 feature entitlements, 39627923 bytes.",
+        "Exact source validator, focused tests, Development Guard, Plan Before Code, Edit-Time/Reference and Implementation Sync, Knowledge/Replay, Release Risk, exact-head CI Completion Truth/Lifecycle and postmerge main CI must pass."
       ],
       "invariants": [
-        "One existing plan grant table and existing private sync function remain the only canonical database authorities; no competing plan grants table.",
-        "No existing migration file is rewritten or deleted; the migration is safe to reapply without changing unrelated tenant or entitlement state.",
-        "Pro remains entitled to internal Team Chat and Alap remains entitled to normal customer email and support.",
-        "No claim that SQL migration has been applied to customer production until deployment and live proof are separately obtained."
+        "Actual main source has no substantive differences from proven Fresh Install source commit, and proof includes ordered migration 0046.",
+        "Manifest hash must be recomputable by canonical validate-customer-baseline.mjs from the exact repository sources and match the external proof contract.",
+        "Fresh Install readiness is not equivalent to live staging/production migration deployment or #1186 Digital Office capability completion."
       ],
       "forbiddenStates": [
-        "An Alap positive Team Chat grant is preserved in canonical plan_capability_grants after applying the new migration.",
-        "Manual/platform/trial/addon grants are mass-deleted or an unrelated Pro tenant is re-synchronized.",
-        "The migration removes officeCommunication or support from Alap or adds internal office privileges to Alap.",
-        "Historical baseline schema or older migrations are rewritten to make tests green.",
-        "Baseline manifest stays READY using a proof hash from migration chain 0045 even though 0046 was added.",
-        "An unchanged hardcoded READY assertion forces reuse of an obsolete Fresh Install proof, or a hardcoded snapshot-reviewed assertion prevents legitimate later READY proof."
+        "Claim full workflow success or whole #1186 DONE based on isolated proof job when unrelated branch Completion Truth failed.",
+        "Use old 0045 proof hash, skip ready hash validation, or mutate customer migrations to match proof.",
+        "Change staging or platform schemas, entitlements, or Supabase environment in this metadata-only release."
       ]
     },
     "model": {
@@ -114,40 +99,36 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Older static list migration is edited while the latest Block 11 function keeps reading the unchanged plan_capability_grants table.",
-        "A broad DELETE removes all Team Chat including Pro or removes all Alap grants rather than exact pair.",
-        "Direct deletion of feature_entitlements erases manual, platform or trial override history.",
-        "Tenant sync is invoked across Pro instances rather than the Alap subset and causes an unrelated production rewrite.",
-        "A migration without a matching customer-baseline step causes fresh-install parity drift.",
-        "A test only greps file text but source SQL cannot be executed in a real Postgres database; describe that assurance limitation explicitly."
+        "Stale 0045 proof hash passed off as 0046",
+        "Partial GitHub workflow failure confused with isolated Fresh Install proof",
+        "Accidental customer DB or plan grant mutation",
+        "New main commit changes baseline between evidence and review"
       ],
       "edgeCases": [
-        "Migration is retried after the grant already disappeared (idempotent).",
-        "An Alap tenant has an expired or manually revoked Team Chat row that must remain intact.",
-        "A Pro tenant still has its original Team Chat plan grant and plan entitlements.",
-        "The required customer-email grant or Pro Team Chat grant is missing: abort transaction for operator review.",
-        "An Alap tenant with null organization_id causes the canonical sync function to raise and rolls back the migration.",
-        "Fresh-install baseline snapshot plus migrations 0002-0046 executes with ordered source and no duplicated security-definer function."
+        "Structured artifact success but overall unrelated build Truth Gate fails",
+        "Historic hashes in notes must remain historical",
+        "No new migration means previously proven 0046 hash remains valid",
+        "Fresh Install paused while staging active healthy"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-FORWARD-GRANT-RECONCILE",
-        "summary": "New migration deletes the exact Alap Team Chat plan grant and syncs Alap tenants through the existing canonical function; mirror in baseline.",
+        "id": "ALT-ATTEST-CANONICAL",
+        "summary": "Write genuine proof hash and SUCCESS job details into existing customer-baseline manifest; enforce validator and regression test.",
         "disposition": "selected",
-        "reason": "Transactional, non-destructive, forward-only and preserves source priority and production audit state."
+        "reason": "Existing ready lifecycle and hash validator are canonical; no competing proof authority."
       },
       {
-        "id": "ALT-REWRITE-LEGACY-MIGRATIONS",
-        "summary": "Remove Alap Team Chat from older already-applied migrations.",
+        "id": "ALT-NEW-ATTEST-SYSTEM",
+        "summary": "Create a separate proof ledger or hardcode READY in CI to bypass manifest.",
         "disposition": "rejected",
-        "reason": "Existing production deployments do not replay history, so it would be operationally ineffective and break migration provenance."
+        "reason": "Duplicated authority, cannot protect stale source hash, and bypasses existing baseline gate."
       },
       {
-        "id": "ALT-MASS-DELETE-GRANTS",
-        "summary": "Delete Team Chat from every entitlement source or all tenants.",
+        "id": "ALT-REMAIN-PENDING",
+        "summary": "Leave snapshot-reviewed forever despite complete isolated proof success.",
         "disposition": "rejected",
-        "reason": "Would destroy authorized Pro and manually audited overrides, violate source precedence and tenant data retention."
+        "reason": "Misrepresents the current 0046 readiness evidence and blocks canonical closure."
       }
     ],
     "specialistReviews": [
@@ -155,140 +136,74 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The latest Block 11 plan sync reads public.plan_capability_grants, superseding earlier static feature arrays.",
-        "resolution": "Modify exact grant pair in a new migration, call existing private.sync_webshop_plan_entitlements for Alap only, and preserve both ordered migration lineages.",
+        "finding": "Only 0046 source migration changes grants. Fresh Install job was executed against empty disposable database with full ordered baseline and postflight.",
+        "resolution": "Record the proof result without new schema or staging/production migration application.",
         "evidence": [
-          "supabase/migrations/20260910124500_block11_entitlement_contract_v1.sql",
-          "supabase/customer-baseline/migrations/0014_block11_entitlement_contract_v1.sql"
+          "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
+          "supabase/customer-baseline/target-postflight.sql"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A blanket deletion of feature_entitlements would silently destroy manual and platform sources, and a broad Team Chat grant deletion would revoke Pro.",
-        "resolution": "DELETE only public.plan_capability_grants where plan_code=alap and capability_code=teamChat, use canonical sync which affects only plan-origin rows, and assert required grants remain.",
+        "finding": "A successful database proof job does not prove any live tenant or full Digital Office access guard, and the sibling build Truth Gate failed.",
+        "resolution": "Limit READY to customer-baseline lifecycle only; issue #1186 remains OPEN/PARTIAL; separately require exact-head CI for the attestation PR.",
         "evidence": [
-          "src/lib/entitlements/policy.ts",
-          "src/lib/entitlements/access.ts"
+          "AGENTS.md",
+          "supabase/customer-baseline/manifest.json"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Direct production SQL execution and baseline replay are separate authorities from a GitHub migration file.",
-        "resolution": "Prove repository migration source and CI exact head now, keep live-applied status explicitly unverified, and require later operational deployment proof.",
+        "finding": "Preserve deterministic hash and true job identity, not workflow aggregate or old 0045 proof.",
+        "resolution": "Use a04b... exact full digest and canonical validation, with exact-head CI gates before merge.",
         "evidence": [
-          "AGENTS.md",
-          ".github/workflows/ci.yml",
-          "supabase/customer-baseline/manifest.json"
-        ]
-      },
-      {
-        "role": "Known Failure",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Historical migration tests retain older Alap grants by design and would not cover the latest forward-only correction.",
-        "resolution": "Add focused new-migration contract assertions to existing entitlement and customer email suites without rewriting historical evidence.",
-        "evidence": [
-          "tests/block11-entitlement-system.test.ts",
-          "tests/customer-email-plan-split.test.ts"
+          "scripts/validate-customer-baseline.mjs",
+          ".github/workflows/ci.yml"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-1186-U02-01",
-        "scenario": "Migration deletes the whole capability instead of the exact Alap grant",
-        "finding": "Both Pro and Alap lose Team Chat, contradicting the accepted package split",
-        "resolution": "Match the plan_code=alap AND capability_code=teamChat exact composite key",
+        "id": "CH-U03-01",
+        "scenario": "Hash belongs to a previous 0045 schema",
+        "finding": "Canonical validator must reject stale proof",
+        "resolution": "Use exact 0046 contract sha256 from successful job and run baseline validator",
         "status": "resolved"
       },
       {
-        "id": "CH-1186-U02-02",
-        "scenario": "Migration rewrites a historical Block 11 file instead of creating a later one",
-        "finding": "Existing tenants never receive a new migration and current entitlements remain stale",
-        "resolution": "Create a new forward-only Supabase migration via CLI and preserve old files",
+        "id": "CH-U03-02",
+        "scenario": "Claim entire old branch workflow PASS",
+        "finding": "Its build Completion Truth failed",
+        "resolution": "Report isolated fresh-install job PASS only, and separately require this PR exact-head CI Truth/Lifecycle",
         "status": "resolved"
       },
       {
-        "id": "CH-1186-U02-03",
-        "scenario": "A direct feature_entitlements delete removes override audit history",
-        "finding": "Manual, platform and trial entitlements disappear or lose precedence",
-        "resolution": "Delete only the canonical plan capability grant and invoke the existing sync for plan-source rows",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-1186-U02-04",
-        "scenario": "SQL resynchronizes every tenant rather than only Alap",
-        "finding": "Pro tenant plan rows are unnecessarily rewritten, causing avoidable release risk",
-        "resolution": "Iterate only webshop_instances where subscription_plan=alap",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-1186-U02-05",
-        "scenario": "Office email baseline grant is missing after a faulty schema replay",
-        "finding": "Basic customer notification delivery is broken while chat appears fixed",
-        "resolution": "Fail closed if officeCommunication or support Alap grants are absent",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-1186-U02-06",
-        "scenario": "Customer-baseline mirror is omitted",
-        "finding": "Fresh-install replay reinstates obsolete Alap Team Chat grant from legacy Block 11",
-        "resolution": "Include one matching ordered 0046 baseline migration with identical change semantics",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-1186-U02-07",
-        "scenario": "SQL is idempotently retried",
-        "finding": "A second attempt could fail or mutate unrelated tenant rows",
-        "resolution": "Use exact conditional DELETE and canonical deterministic re-sync; add explicit replay assertions",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-1186-U02-08",
-        "scenario": "Production proof is claimed from source tests alone",
-        "finding": "No actual database has run the SQL and old stored entitlements may remain",
-        "resolution": "Treat verified scope as migration source and leave #1186 PARTIAL until deployment and live authorization tests",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-1186-U02-09",
-        "scenario": "The new 0046 migration changes the ordered customer baseline after a prior successful empty-target proof.",
-        "finding": "Exact-head CI Customer Database Baseline Guard detected stale READY proof, correctly blocked downstream Resumable Verification and Completion Truth.",
-        "resolution": "Explicitly reset the manifest to snapshot-reviewed, freshInstallProofRequired true, and null proof contract. Require a fresh empty-target proof on lineage 0046 before READY is restored; do not weaken the baseline guard or reuse earlier hashes.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-1186-U02-10",
-        "scenario": "CI Quality suite includes a historical order-email test that hard-codes customer-baseline status READY after 0046 migration invalidated prior proof.",
-        "finding": "GitHub exact-head #9351/#9352 had 437 PASS but this test failed expecting READY while the baseline guard correctly asserted snapshot-reviewed.",
-        "resolution": "Amend only its lifecycle-proof expectations to validate pending snapshot-reviewed state with cleared hash OR genuinely READY with new 0046 proof provenance, retain all historical order/email assertions and actual baseline guard, and explicitly require a new Fresh Install proof.",
+        "id": "CH-U03-03",
+        "scenario": "Live tenant correctness inferred from empty-install pass",
+        "finding": "Proof target has zero customer tenant rows",
+        "resolution": "Explicitly exclude live migration and #1186 full closure; retain dedicated downstream integration tests",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Confirm the latest main #1195 success and Block 11 grant-source authority; explicitly record that historical migrations stay immutable.",
-      "Run critical Development Guard, review scope/negative knowledge and Plan Before Code before editing new SQL migration.",
-      "Use Supabase CLI migration new to generate a canonical timestamped migration file; add exact narrow grants correction and matching baseline 0046.",
-      "Assert Alap Pro split, Pro preservation, override preservation, idempotency and fail-closed missing-grant behavior in existing tests.",
-      "Run focused tests, Edit-Time Reference Sync, Knowledge, Incremental Replay, risk, customer baseline checks and exact-head CI.",
-      "Commit CI-generated byte-exact Lifecycle closure; merge only when main-protective gates PASS. Keep full #1186 open pending deployment and UI/API/worker proof.",
-      "Demonstrate that READY proof from 0045 fails on new 0046, reset to snapshot-reviewed, run baseline guard PASS without claiming Fresh Install completed; request fresh-install-proof evidence before any READY status/merge claim.",
-      "Execute old contract against pending 0046 and verify corrected lifecycle assertions. If further required for customer readiness, separately run real [fresh-install-proof] on dedicated empty target; never synthesize a READY contract."
+      "Inspect exact job steps artifact ID 11613699688 and immutable source lineage; verify hash.",
+      "Run node scripts/validate-customer-baseline.mjs and tests/customer-email-plan-split.test.ts on exact branch.",
+      "Development Guard, Plan Before Code, Edit-Time Guard, Knowledge, Replay, Release Risk, CI Truth and Lifecycle."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-09-CORE-1186-U02",
+      "request": "Core 1186 U03: attest genuine Fresh Install 0046 proof contract and ready manifest",
       "authority": [
-        "database-schema"
+        "auth-access-authority",
+        "database-schema",
+        "tenant-context-authority"
       ],
       "mustEdit": [
         "supabase/customer-baseline/manifest.json",
-        "tests/block11-entitlement-system.test.ts",
-        "tests/customer-email-plan-split.test.ts",
-        "tests/order-core-transactional-email-dispatch-contract.test.ts"
+        "tests/customer-email-plan-split.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -333,10 +248,7 @@
         "src/lib/digital-office/access.ts",
         "src/lib/navigation/admin-ia.ts"
       ],
-      "mustCreate": [
-        "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
-        "supabase/migrations/20261009084550_alap_team_chat_plan_grant_reconcile.sql"
-      ],
+      "mustCreate": [],
       "forbidden": [],
       "proof": [
         "tests/admin-api-tenant-mutation-closure.test.ts",
@@ -389,7 +301,7 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "tests/block11-entitlement-system.test.ts",
+          "supabase/customer-baseline/manifest.json",
           "tests/customer-email-plan-split.test.ts"
         ],
         "mayEdit": [],
@@ -435,9 +347,7 @@
           "src/lib/digital-office/access.ts",
           "src/lib/navigation/admin-ia.ts"
         ],
-        "mustCreate": [
-          "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql"
-        ],
+        "mustCreate": [],
         "forbidden": [],
         "proof": [
           "tests/admin-api-tenant-mutation-closure.test.ts",
@@ -481,7 +391,11 @@
           "tests/storefront-modern-luxe-template.test.tsx",
           "tests/storefront-modern-luxe-wave46-reacceptance.test.ts"
         ],
-        "authority": [],
+        "authority": [
+          "auth-access-authority",
+          "database-schema",
+          "tenant-context-authority"
+        ],
         "unknown": []
       },
       "projectedReleaseRisk": {
@@ -499,16 +413,10 @@
         ],
         "files": [
           {
-            "file": "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
+            "file": "supabase/customer-baseline/manifest.json",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
-          },
-          {
-            "file": "tests/block11-entitlement-system.test.ts",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
           },
           {
             "file": "tests/customer-email-plan-split.test.ts",
@@ -539,16 +447,10 @@
           ],
           "files": [
             {
-              "file": "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
+              "file": "supabase/customer-baseline/manifest.json",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
-            },
-            {
-              "file": "tests/block11-entitlement-system.test.ts",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
             },
             {
               "file": "tests/customer-email-plan-split.test.ts",
@@ -566,7 +468,7 @@
           {
             "id": 0,
             "files": [
-              "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql"
+              "supabase/customer-baseline/manifest.json"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -583,7 +485,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
+                  "file": "supabase/customer-baseline/manifest.json",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -595,30 +497,6 @@
           },
           {
             "id": 1,
-            "files": [
-              "tests/block11-entitlement-system.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "tests/block11-entitlement-system.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 2,
             "files": [
               "tests/customer-email-plan-split.test.ts"
             ],
@@ -648,32 +526,26 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "PO-2026-10-09-CORE-1186-U02",
-              "developmentBaseSha": "dfac819a6336871bd2a669b09cd47755cd31ebbe"
+              "sourceRef": "",
+              "developmentBaseSha": "8b8ee1202480331c33e0d88639fa1370759d59f6"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "dfac819a6336871bd2a669b09cd47755cd31ebbe",
+            "targetBaseSha": "8b8ee1202480331c33e0d88639fa1370759d59f6",
             "lease": {
-              "expectedBaseSha": "dfac819a6336871bd2a669b09cd47755cd31ebbe",
+              "expectedBaseSha": "8b8ee1202480331c33e0d88639fa1370759d59f6",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
-              "tests/block11-entitlement-system.test.ts",
+              "supabase/customer-baseline/manifest.json",
               "tests/customer-email-plan-split.test.ts"
             ],
             "operations": [
               {
-                "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
-                "generated": null
-              },
-              {
                 "operation": "modify",
-                "file": "tests/block11-entitlement-system.test.ts",
+                "file": "supabase/customer-baseline/manifest.json",
                 "generated": null
               },
               {
@@ -683,11 +555,11 @@
               }
             ],
             "requiredDependencyFiles": [
-              "src/lib/entitlements/catalog.ts",
-              "src/lib/entitlements/policy.ts",
               "src/lib/plans/catalog.ts"
             ],
-            "authorities": [],
+            "authorities": [
+              "database-schema"
+            ],
             "subsystems": [
               "database-schema"
             ],
@@ -706,16 +578,10 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
+                  "file": "supabase/customer-baseline/manifest.json",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
-                },
-                {
-                  "file": "tests/block11-entitlement-system.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
                 },
                 {
                   "file": "tests/customer-email-plan-split.test.ts",
@@ -749,7 +615,6 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/block11-entitlement-system.test.ts",
                 "tests/customer-email-plan-split.test.ts"
               ],
               "externalGateIds": []
@@ -802,8 +667,7 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
-                "tests/block11-entitlement-system.test.ts",
+                "supabase/customer-baseline/manifest.json",
                 "tests/customer-email-plan-split.test.ts"
               ],
               "filesAbsent": []
@@ -819,7 +683,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "7cbfc1b0",
+            "manifestDigest": "087626dc",
             "decision": "PASS"
           }
         ],
@@ -858,46 +722,11 @@
         "decision": "PASS"
       }
     },
-    "executionAuthorized": true,
-    "problemStatement": "The central plan grant database still lists Alap teamChat even though #1186 U01 is merged and the current server entitlement resolver correctly denies it. The newest Block 11 private.sync_webshop_plan_entitlements routine dynamically reads plan_capability_grants, so changing a historical static SQL migration would not fix the canonical plan grant or resynchronization for existing Alap tenants.",
-    "observableOutcomes": [
-      "A new forward-only SQL migration removes only the canonical (alap,teamChat) row from public.plan_capability_grants while preserving the (pro,teamChat) row.",
-      "The migration re-synchronizes only current Alap instances through the existing private.sync_webshop_plan_entitlements function, leaving manual, platform, trial and add-on entitlement records untouched.",
-      "Alap support and officeCommunication plan grants remain available for transactional webshop customer email, and other plan grants remain unchanged.",
-      "A matching ordered customer baseline migration proves replay parity without rewriting historical snapshot or Block 11 migrations.",
-      "Executable migration assertions fail closed when required canonical Pro chat or Alap customer-email grants are missing; this source-only unit does not claim to apply changes to live production.",
-      "The customer baseline manifest honestly returns to snapshot-reviewed and requires a new Fresh Install proof; no stale ready proof is reused.",
-      "Legacy order-email contract accepts snapshot-reviewed while 0046 Fresh Install proof is pending, and requires actual 0046 proof evidence before accepting READY again. Historic 0045 proof remains explicitly historic."
-    ],
-    "unresolvedRisks": [
-      "The future deployment database may contain custom manually granted Team Chat entitlement rows; U01 server denies them for Alap, and this migration deliberately does not delete custom or platform overrides.",
-      "Fresh-Install proof uses a separate customer baseline and may be unconfigured; static migration assertions alone cannot prove a remote database was modified.",
-      "A tenant may have unknown subscription_plan or missing organization_id; the sync function intentionally raises and must roll back rather than hiding broken tenant data.",
-      "SQL replay on a large tenant population may require batching or downtime planning in production; launch rollout is not part of this repository-only migration proof.",
-      "Fresh Install proof for baseline lineage 0046 is not yet available; the previous READY contract hash belongs to 0045. Do not keep READY or claim the external proof has been regenerated.",
-      "The old transactional email test permanently asserts READY; replacing it with unconditional snapshot-reviewed would become stale after a legitimate new Fresh Install proof, so require bounded lifecycle-aware assertions."
-    ],
-    "scope": {
-      "in": [
-        "Create a new forward-only Supabase SQL migration via the canonical Supabase CLI generator; do not rewrite historical migrations.",
-        "Remove exact Alap Team Chat plan grant, preserve Pro Team Chat and Alap support plus officeCommunication grants, and re-sync current Alap instances with the existing privileged private function.",
-        "Create matching next ordered customer-baseline migration to keep the fresh-install source in parity.",
-        "Add focused Block 11 entitlement and customer-email plan contract tests asserting no destructive broad deletes and enforcing source/plan exclusions.",
-        "Run critical plan, Edit-Time, Knowledge, Replay, high-risk database release isolation, CI Truth and exact-head Lifecycle evidence.",
-        "Invalidate the customer-baseline READY proof that was issued for the prior ordered lineage, setting status snapshot-reviewed, freshInstallProofRequired true, and proofContractSha256 null. A fresh empty-target proof for lineage including 0046 is mandatory.",
-        "Reconcile the existing transactional order-email regression contract whose fixed READY expectation contradicts the legitimately invalidated 0046 baseline proof; keep historic 0035/0045 provenance checks intact."
-      ],
-      "out": [
-        "No direct mutation of production or shared Supabase projects in this release; this is reviewed migration source only.",
-        "No deletion of manually overridden, trial, platform or add-on entitlement records, no new security-definer function or RLS policy.",
-        "No change to normal customer email, support, Pro feature grants, billing, schema ownership, auth policies or financial data.",
-        "No Digitális Iroda UI/API/worker closure; issue #1186 remains PARTIAL until direct-access and runtime tenant proof."
-      ]
-    }
+    "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CORE-1186-U02",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U03-FRESH-INSTALL-ATTESTATION",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -915,11 +744,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-U02-PLAN-GRANT-SOURCE",
-        "requirement": "Forward-only canonical and baseline SQL source removes only Alap Team Chat plan grant and safely resyncs Alap plan-origin entitlements, retaining Pro and Alap customer email and all override sources.",
+        "id": "REQ-U03-FRESH-INSTALL-READY",
+        "requirement": "Attest actual successful Fresh Install 0046 preflight, migration, postflight and proof contract in customer baseline manifest, with no schema or customer data mutation.",
         "claimScope": {
-          "capability": "CAP-AUTH",
-          "breadth": "bounded-forward-sql-migration-source",
+          "capability": "CAP-RELEASE",
+          "breadth": "bounded-customer-baseline-attestation",
           "strength": 2,
           "dimensions": [
             "status",
@@ -928,32 +757,34 @@
           ]
         },
         "requiredCapabilities": [
-          "CAP-AUTH"
+          "CAP-RELEASE"
         ],
         "evidence": {
           "implementation": [
+            "GUARD-CUSTOMER-BASELINE",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
+            "GUARD-CUSTOMER-BASELINE",
             "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SOURCE-DESTRUCTIVE-DELETE",
-            "statement": "No Pro grant deletion, no removal of manual/trial/platform override records, no loss of Alap customer email.",
+            "id": "NEG-U03-STALE-HASH",
+            "statement": "A historic 0045 hash or fabricated proof must not mark 0046 ready.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-CUSTOMER-BASELINE"
             ]
           }
         ]
       },
       {
-        "id": "REQ-U02-RELEASE-SCOPE",
-        "requirement": "The migration plus customer-baseline mirror is one bounded high-risk database authorization release, not whole Digital Office capability completeness.",
+        "id": "REQ-U03-RELEASE-SCOPE",
+        "requirement": "Ensure metadata-only attestation does not assert live tenant deployment or entire #1186 capability closure.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "bounded-plan-grant-migration",
+          "breadth": "bounded-proof-contract-release",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -973,8 +804,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-MIXED-MIGRATION-RELEASE",
-            "statement": "A database access control change cannot bypass the isolated high-risk release budget.",
+            "id": "NEG-U03-OVERCLAIM",
+            "statement": "An isolated Fresh Install PASS must not be misreported as full workflow or issue 1186 completion.",
             "evidence": [
               "GUARD-RELEASE-RISK"
             ]
@@ -983,28 +814,5 @@
       }
     ]
   },
-  "notes": [
-    "U02 is repo-only forward SQL migration and baseline source parity, not actual Supabase production execution.",
-    "U01 Team Chat effective resolver is already merged and protected; manual and higher-priority overrides are intentionally untouched in storage.",
-    "Core #1186 stays OPEN/PARTIAL until real DB, API, worker, UI and RLS evidence closes every dependency.",
-    "Supabase CLI 2.81.3 generated the exact canonical migration path after planned-projection gate PASS. Development Guard rerun resolved the exact path while preserving its existing risk and assurance contracts; no SQL implementation occurred before the gate.",
-    "Existing checked-out CLI-generated canonical migration scaffold is planned, while baseline 0046 remains a true mustCreate; do not overclaim the semantic execution route with an existing but untracked file.",
-    "The first exact-head CI #9347/#9348 failed Customer database baseline guard with correct stale READY proof after added 0046. Scope expanded to manifest; old proof is invalid for this new lineage, reset must be explicit. Guard regenerated while local source commit existed, so original main base SHA dfac819 remains authoritative.",
-    "For actual diff and planned projection at verified main, the sole owning authority is database-schema; the intermediate guard scan had included unrelated impacted auth/tenancy edges, which remain read-only dependencies and not direct mutation authorities.",
-    "Exact-head CI #9351/#9352 failed ONLY tests/order-core-transactional-email-dispatch-contract.test.ts: legacy READY expectation conflicts with correct snapshot-reviewed 0046 source. Expanded guard before touching test, retained changeBaseSha original main dfac and all mandatory proof checks.",
-    "Projected-only guard selection had added checkout/customer Known Failures before their regression file was edited; existing actual-diff Plan validator resolves the canonical eight database-schema Known Failures, risk 5/5 and the five applicable negative-knowledge items. The restored original main base is authority, not the intermediate commit."
-  ],
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "38bb18b6d3020a18c95687a0c4340ee9568ef1f7",
-    "closedAt": "2026-10-09T10:17:44.545Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-09-CORE-1186-U02",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
 }
