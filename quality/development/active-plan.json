@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2EBCB98E",
   "task": "Core #1186 U03: truthful 0046 proof attestation plus focused Control Plane regression repair",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "2ebcb98e",
   "changeBaseSha": "8b8ee1202480331c33e0d88639fa1370759d59f6",
   "plannedFilePatterns": [
@@ -960,5 +960,18 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "8012179fd425cf7e681276fe478d21d65a050ed5",
+    "closedAt": "2026-10-09T13:18:16.843Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U03-FRESH-INSTALL-ATTESTATION",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
