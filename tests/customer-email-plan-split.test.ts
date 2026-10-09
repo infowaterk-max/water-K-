@@ -26,6 +26,8 @@ describe('Customer e-mail Alap / Pro plan split',()=>{
     expect(alapChatGrantCorrection).not.toContain("delete from public.feature_entitlements");
     expect(hasPlanFeature('alap','officeCommunication')).toBe(true);
     expect(hasPlanFeature('alap','support')).toBe(true);
+    expect(hasPlanFeature('alap','officeCommunicationAdvanced')).toBe(false);
+    expect(hasPlanFeature('pro','officeCommunicationAdvanced')).toBe(true);
     expect(hasPlanFeature('alap','teamChat')).toBe(false);
     expect(hasPlanFeature('pro','teamChat')).toBe(true);
   });

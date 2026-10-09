@@ -14,6 +14,7 @@ import {DigitalOfficeMobileController} from '@/components/admin/digital-office-m
 import {DigitalOfficeSupportAlert} from '@/components/admin/digital-office-support-alert';
 import {DigitalOfficeNavigation} from '@/components/navigation/digital-office-navigation';
 import {getDigitalOfficeAccess} from '@/lib/digital-office/access';
+import {requirePlanFeature} from '@/lib/plans/access';
 
 async function DigitalOfficeAuthorizedNavigation(){
   const access=await getDigitalOfficeAccess();
@@ -41,7 +42,10 @@ function DigitalOfficeNavigationFallback(){
   </div>;
 }
 
-export default function DigitalOfficeLayout({children}:{children:ReactNode}){
+export default async function DigitalOfficeLayout({children}:{children:ReactNode}){
+  // Ordinary Alap customer email uses officeCommunication outside this staff workspace.
+  // A request to any nested Digital Office page must prove the Pro-only office boundary.
+  await requirePlanFeature('officeCommunicationAdvanced');
   return <div className="digitalOfficeShell">
     <AdminMobileDesktopCompat/>
     <Suspense fallback={<DigitalOfficeNavigationFallback/>}>
