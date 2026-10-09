@@ -964,7 +964,7 @@
       "sourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
       "mergedMainSha": "995983131fa3aa1cb91794810c817f6b9b8846d9",
       "headBranch": "main",
-      "observedStatus": "queued"
+      "observedStatus": "in_progress"
     }
   }
 }
