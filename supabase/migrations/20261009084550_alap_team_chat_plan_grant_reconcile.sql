@@ -4,14 +4,16 @@
 -- entitlement gate already denies Pro-only internal chat to Alap regardless of source.
 -- Executed within the migration runner's transaction. A failed assertion aborts it.
 
-delete from public.plan_capability_grants
-where plan_code = 'alap'
-  and capability_code = 'teamChat';
-
 do $alap_team_chat_reconcile$
 declare
   v_instance_id uuid;
 begin
+  -- The deletion and every assertion/sync below are one atomic DO statement.
+  -- A failed guard or tenant sync rolls back the exact grant removal as well.
+  delete from public.plan_capability_grants
+  where plan_code = 'alap'
+    and capability_code = 'teamChat';
+
   -- Fail closed instead of quietly damaging existing Pro or customer-email plans.
   if exists (
     select 1 from public.plan_capability_grants

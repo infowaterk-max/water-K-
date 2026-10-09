@@ -24,7 +24,14 @@ describe('Roadmap Block 11 effective entitlement contract',()=>{
   it('reconciles only the Alap Team Chat plan grant in a forward-only migration and the ordered customer baseline',()=>{
     expect(baselineAlapChatGrantCorrection).toBe(alapChatGrantCorrection);
     expect(alapChatGrantCorrection).toContain("delete from public.plan_capability_grants");
-    expect(alapChatGrantCorrection).toContain("where plan_code = 'alap'\n  and capability_code = 'teamChat'");
+    // Postgres treats the entire DO statement atomically, even without an outer
+    // transaction supplied by a migration runner. Never pre-commit the delete.
+    expect(alapChatGrantCorrection.indexOf('do $alap_team_chat_reconcile$')).toBeLessThan(
+      alapChatGrantCorrection.indexOf('delete from public.plan_capability_grants')
+    );
+    expect(alapChatGrantCorrection).toContain('A failed guard or tenant sync rolls back');
+
+    expect(alapChatGrantCorrection).toContain("where plan_code = 'alap'\n    and capability_code = 'teamChat'");
     expect(alapChatGrantCorrection).toContain("where plan_code = 'pro' and capability_code = 'teamChat'");
     expect(alapChatGrantCorrection).toContain("where w.subscription_plan = 'alap'");
     expect(alapChatGrantCorrection).toContain("perform private.sync_webshop_plan_entitlements(v_instance_id)");
