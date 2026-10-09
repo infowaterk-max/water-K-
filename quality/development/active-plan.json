@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-EARLY-EXECUTOR-DIAGNOSTICS-1018-V2",
   "task": "Bind early trusted release executor steps to the existing exact-error diagnostic and Failure Intake, including fail-closed stage localization for unavailable early errors.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "1395803e",
   "changeBaseSha": "1c59e38b406e1bd7e8d5f29a8d4dcd69db22ead6",
   "plannedFilePatterns": [
@@ -498,5 +498,18 @@
     "Plan-only checkpoint; no implementation edits before exact-head Plan Before Code PASS.",
     "Issue #1018 PARTIAL. Focus on the trusted release executor's pre-drive steps only; do not promise universal external-proof or pre-checkout raw-log coverage.",
     "Reuse existing shoperation-command-diagnostic.mjs and shoperation-failure-intake.mjs; do not build a new parallel engine."
-  ]
+  ],
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "b1a65a4effc400df34accb15066bb307afca5676",
+    "closedAt": "2026-10-09T04:54:53.925Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-09-RELEASE-PREDRIVE-DIAGNOSTIC-1018-V2",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
