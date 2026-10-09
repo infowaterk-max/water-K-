@@ -11,6 +11,37 @@ const protectedApis = [
 function source(path: string) { return readFileSync(resolve(process.cwd(), path), 'utf8'); }
 
 describe('Pro entitlement entrypoint guards', () => {
+  it.each([
+    ['src/app/admin/kommunikacio/iroda/actions.ts','async function supportAccess(){','async function privateChatAccess'],
+    ['src/app/admin/kommunikacio/iroda/composer-actions.ts','async function access(){','function reasonFrom'],
+    ['src/app/admin/kommunikacio/iroda/customer-read-actions.ts','export async function markCustomerThreadReadAction(', '  const db=createAdminClient();'],
+  ] as const)('Pro-gates every direct Digital Office action helper before tenant or database access: %s',(path,opening,ending)=>{
+    const file=source(path),begin=file.indexOf(opening);
+    expect(begin).toBeGreaterThanOrEqual(0);
+    const next=file.indexOf(ending,begin+opening.length);
+    expect(next).toBeGreaterThan(begin);
+    const entry=file.slice(begin,next);
+    const base=entry.indexOf("await requirePlanFeature('officeCommunication')");
+    const pro=entry.indexOf("await requirePlanFeature('officeCommunicationAdvanced')");
+    const tenant=entry.indexOf('requireCurrentStoreContext');
+    expect(base).toBeGreaterThanOrEqual(0);
+    expect(pro).toBeGreaterThan(base);
+    expect(tenant).toBeGreaterThan(pro);
+    expect(entry).not.toMatch(/if\s*\([^)]*advanced\s*\)\s*await requirePlanFeature\('officeCommunicationAdvanced'\)/);
+  });
+  it('rejects Alap for shared Office actions even when the Pro layout is bypassed',()=>{
+    const office=source('src/app/admin/kommunikacio/iroda/actions.ts');
+    expect(office).not.toContain('supportAccess({advanced:true})');
+    expect(office).toMatch(/async function supportAccess\(\)/);
+    expect(office).toContain("await requirePlanFeature('teamChat')");
+    expect(office).toContain('const{db,userId,instanceId,advancedEmail}=await supportAccess()');
+    const composer=source('src/app/admin/kommunikacio/iroda/composer-actions.ts');
+    expect(composer).toContain("const{db,userId,instanceId,advancedEmail}=await access()");
+    expect(composer).not.toContain("hasCurrentPlanFeature('officeCommunicationAdvanced')");
+    const read=source('src/app/admin/kommunikacio/iroda/customer-read-actions.ts');
+    expect(read).toContain("requirePlanFeature('officeCommunicationAdvanced')");
+    expect(read.indexOf("requirePlanFeature('officeCommunicationAdvanced')")).toBeLessThan(read.indexOf("admin_mutate_office_privacy_v1"));
+  });
   it.each(protectedPagesAndActions)('%s requires the expected Pro feature', (path, feature) => { const file=source(path); expect(file).toMatch(/requirePlanFeature/); expect(file).toContain(`requirePlanFeature('${feature}')`); });
   it('preserves ordinary Alap customer email while the Digital Office shell is Pro-only',()=>{
     const catalog=source('src/lib/plans/catalog.ts');

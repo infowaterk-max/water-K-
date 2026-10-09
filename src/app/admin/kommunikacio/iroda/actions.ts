@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { getAdminRequestUser } from '@/lib/auth/admin-api';
 import { hasStoreCapability } from '@/lib/auth/store-capabilities';
-import { hasCurrentPlanFeature, requirePlanFeature } from '@/lib/plans/access';
+import { requirePlanFeature } from '@/lib/plans/access';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
 
@@ -29,13 +29,15 @@ async function chatBaseAccess(){
   return{db:createAdminClient(),userId:actor.id,instanceId:scope.instanceId};
 }
 
-async function supportAccess(options:{advanced?:boolean}={}){
+async function supportAccess(){
   const actor=await getAdminRequestUser('support.manage');
   if(!actor)throw new Error('Nincs jogosultság.');
   await requirePlanFeature('officeCommunication');
-  if(options.advanced)await requirePlanFeature('officeCommunicationAdvanced');
+  // Server Actions are callable without rendering the Pro-gated Office layout.
+  // Keep Alap's base communication entitlement, but never expose Office actions through it.
+  await requirePlanFeature('officeCommunicationAdvanced');
   const scope=await requireCurrentStoreContext('support.manage');
-  const advancedEmail=options.advanced?true:await hasCurrentPlanFeature('officeCommunicationAdvanced');
+  const advancedEmail=true;
   return{db:createAdminClient(),userId:actor.id,instanceId:scope.instanceId,advancedEmail};
 }
 
@@ -226,7 +228,7 @@ export async function sendCustomerEmailAction(_previous:OfficeEmailActionState,f
 }
 
 export async function createTaskAction(form:FormData){
-  const{db,userId,instanceId}=await supportAccess({advanced:true});
+  const{db,userId,instanceId}=await supportAccess();
   const threadId=String(form.get('threadId')??'');
   const title=String(form.get('title')??'').trim().slice(0,240);
   const due=String(form.get('due')??'');
@@ -242,7 +244,7 @@ export async function createTaskAction(form:FormData){
 }
 
 export async function completeTaskAction(form:FormData){
-  const{db,userId,instanceId}=await supportAccess({advanced:true});
+  const{db,userId,instanceId}=await supportAccess();
   const id=String(form.get('id')??'');
   if(!id)return;
   await mutateOffice(db,{instanceId,userId,action:'complete_task',payload:{id}});
