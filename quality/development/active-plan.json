@@ -1,108 +1,84 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-EARLY-EXECUTOR-DIAGNOSTICS-1018-V2",
-  "task": "Bind early trusted release executor steps to the existing exact-error diagnostic and Failure Intake, including fail-closed stage localization for unavailable early errors.",
+  "taskId": "DEV-CORE-1186-BOOTSTRAP-1187",
+  "task": "Restore broken canonical Shoperation Development Guard CLI syntax before Core entitlement MR1 work, with regression and no authority change.",
   "status": "closed",
-  "guardDigest": "1395803e",
-  "changeBaseSha": "1c59e38b406e1bd7e8d5f29a8d4dcd69db22ead6",
+  "guardDigest": "aa79c504",
+  "changeBaseSha": "89e01932556bc220e5bfa55ac0f5c3f7f8deee91",
   "plannedFilePatterns": [
-    ".github/workflows/release-unit-execution.yml",
-    "tests/control-plane-diagnostic-coverage.test.ts",
-    "quality/development/active-plan.json"
+    "scripts/shoperation-development-guard.mjs",
+    "tests/shoperation-development-guard.test.ts"
   ],
-  "expectedSubsystems": [
-    "quality-knowledge-system",
-    "release-infrastructure"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-006",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-022",
+    "SQ-KF-001",
+    "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
+    "SQ-KF-005",
+    "SQ-KF-006",
+    "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
     "SQ-KF-018",
+    "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-021",
-    "SQ-KF-022",
     "SQ-KF-023",
     "SQ-KF-024",
     "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
     "TF-KF-005",
+    "TF-KF-006",
     "TF-KF-007",
+    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
+    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015"
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015",
-    "SQ-NK-016",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-RELEASE-PREDRIVE-DIAGNOSTIC-1018-V2",
+    "sourceRef": "PO-2026-10-09-CORE-1186-BOOTSTRAP-1187",
     "riskTier": "critical",
-    "problemStatement": "Even after merged #1180, Release Unit Execution pre-drive dependency install, source fetch, Knowledge/Atlas, Plan and Risk command failures occur before the wrapped driver and are reported only as a generic RELEASE_UNIT_EXECUTION_FAILED. Preserve their original precise command error, causal step, SHA and job metadata automatically without bypassing authority, retrying release, or claiming unavailable root cause.",
-    "observableOutcomes": [
-      "Every executable trusted release pre-drive command is wrapped with the shared streamed command diagnostic, with distinct stage ID, output and fallback code.",
-      "The existing job-local Failure Intake collects all stage diagnostics from exactly this run and keeps the precise code/reason/evidence when available, not just generic release failure.",
-      "Unexpected GitHub action/setup failure before wrapper execution is reported as structured UNKNOWN/root-cause-not-captured with failed GitHub step identity; no fabricated exact error.",
-      "Representative simulated npm/install, source fetch and knowledge/risk faults preserve child nonzero status, secret redaction and precise stage localization, and successful steps remain PASS.",
-      "Exact-head CI guards and main merge proof remain mandatory; no rerun of an existing release transaction."
-    ],
-    "unresolvedRisks": [
-      "Error in GitHub checkout before repository scripts are available cannot have a valid exact raw code from command wrapper; mark UNKNOWN instead of inventing.",
-      "`npm ci` dependency install must remain fail-closed even before lockfile modules are available; diagnostic uses Node core only.",
-      "Source-plan extraction pipeline must retain git SHA verification and exact output path, including no stale/source-injection acceptance.",
-      "All stage artifacts may contain sanitized command errors but raw CI token-bearing stdout is still console/logged; masked by runner; do not copy raw secrets to artifact.",
-      "Workflow `if: failure()` can run after any earlier failed step, but its intake script may itself be absent after checkout failure; never claim complete coverage for impossible path.",
-      "Generic Failure Intake must not misclassify skipped or successful stage artifacts as a failed gate.",
-      "Raw shared wrapper may report machine fallback for non-structured npm/git errors; preserve raw text and label fallback truthfully."
-    ],
-    "scope": {
-      "in": [
-        "Change only `.github/workflows/release-unit-execution.yml` to invoke existing shared `scripts/shoperation-command-diagnostic.mjs` for install, exact source fetch, Knowledge/Atlas, Plan Before Code, Release Risk and git identity step, each with distinct machine code, stage name and output.",
-        "Keep existing `Drive canonical release-unit execution` as-is and extend job-local Failure Intake/Artifact upload to include all stage JSON files.",
-        "Provide early-action fallback summary diagnostic only when command artifacts are missing, without falsely claiming the root cause; never weaken GitHub action errors.",
-        "Add targeted tests to `tests/control-plane-diagnostic-coverage.test.ts`, including exact pre-drive stage wiring and a simulated failure boundary demonstrating stage/exit/code/source plus redaction."
-      ],
-      "out": [
-        "No edit to scripts/release-unit-execute.mjs or canonical release-state branches/receipts.",
-        "No mutation of `scripts/shoperation-command-diagnostic.mjs` or `scripts/shoperation-failure-intake.mjs` unless new plan gate proves a true necessity and revised scope.",
-        "No edits to CI/Template Factory /fresh install /checkout action contracts, feature runtime, storefront, authentication, payment, database or prod deployment.",
-        "No bypass of Knowledge, Plan, Risk, Edit-Time, Truth, Lifecycle or release gate/merge thresholds.",
-        "No automated child release rehearsal or duplicate Vercel builds."
-      ]
-    },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "An executor pre-drive failure is release-authoritative, so staging/fallback must preserve nonzero and no false completion or exact-code overclaims.",
+      "rationale": "This repair restores a mandatory authorization gateway for all future product code changes. An incorrectly described capability or proof scope can falsely approve work or block the entire Core roadmap. We therefore require full critical plan semantics, real executable regression and fail-closed gate verification, without treating successful local checks as deployment proof.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -119,29 +95,20 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Pre-drive trust steps keep exact source verification, Knowledge, Plan, Risk and identity semantics; exact success behavior unchanged.",
-        "When any covered pre-drive step fails, a distinct stage-specific diagnostic JSON captures original child failure code where present, redacted reason and source/run; workflow fails.",
-        "On pre-script checkout/setup failure, no fake exact code is emitted; the available step-outcome localization/fallback remains truthful and non-green.",
-        "Existing Failure Intake ingests all stage JSON and driver JSON into the same canonical report, with no duplicate standalone engine.",
-        "Regression tests cover original exit code, stage code, error redaction, and expected workflow bindings.",
-        "Plan Before Code, Edit-Time, Incremental Replay, release risk, full tests, TypeScript, production build, Completion Truth and lifecycle all PASS for the exact implementation SHA."
+        "Development Guard source passes node --check on Node 24.",
+        "A representative guard run executes and emits development-guard.json and development-guard.md including current task, graph and active Known Failure evidence.",
+        "Malformed/unauthorized scope remains fail-closed; no bypass or downgraded risk classification.",
+        "Existing guard unit tests, quality tests, typecheck and canonical plan/truth/lifecycle gates pass on exact head."
       ],
       "invariants": [
-        "Release executor admission and source provenance remain unchanged.",
-        "Stage diagnostic wrapper cannot convert a command failure to PASS or retry it.",
-        "Only actual JSON artifacts are used as concrete exact-code proof; missing artifacts are UNKNOWN.",
-        "Each stage artifact is assigned a stable gateCode and exact associated command.",
-        "No state mutation takes place in the diagnostic postflight/Failure Intake.",
-        "Observed child exit/status remains authoritative for CI and persisted state."
+        "No alteration to computed guardDigest, gate-chain decisions, file classifications or release-risk projection.",
+        "Markdown output retains all current sections, failure directives and negative knowledge.",
+        "Canonical existing script remains the only Development Guard authority."
       ],
       "forbiddenStates": [
-        "GitHub raw checkout failure is labeled with a made-up exact root cause.",
-        "A failed npm install is swallowed as a passing prereq.",
-        "`git show` invalid source writes a supposedly valid immutable source plan or proceeds to driver.",
-        "A blocked Knowledge/Plan/Risk preflight is treated as successful.",
-        "A failed command causes a fresh release run/branch/PR as a diagnostic side effect.",
-        "Tokens are stored unredacted in release diagnostics or Failure Intake.",
-        "Edit-Time Reference Sync is bypassed to satisfy gate."
+        "CLI parser SyntaxError at report emission.",
+        "Only static syntax testing while actual guard cannot run.",
+        "Passing by suppressing failed guard phases or removing active Known Failure coverage."
       ]
     },
     "model": {
@@ -173,44 +140,35 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Checkout failed before repo scripts available.",
-        "Dependency install missing package/lock or npm transient network issue.",
-        "Source ref absent, invalid SHA, or git show fails.",
-        "Knowledge/Atlas preflight blocks, could leave artifact.",
-        "Plan Before Code denies forged/broadened plan.",
-        "Risk gate blocks dangerous candidate.",
-        "Git identity configuration fails.",
-        "Drive fails with nested RELEASE_UNIT_EXECUTION_BLOCK; existing #1180 handles it.",
-        "Failure Intake parser may not understand absent diagnostic artifact and use generic code."
+        "Invalid JavaScript escape prevents import/execution before CLI flags are checked.",
+        "Template interpolation emits malformed Markdown if backticks/escaping are wrong.",
+        "Passing syntax check but runtime guard fails on Atlas, missing dependencies or invalid scope.",
+        "Unexpected broad change triggers Reference Sync or lifecycle closure failure."
       ],
       "edgeCases": [
-        "Only the active run's SHA must label emitted artifacts.",
-        "Skipped pre-drive stage should not be classified as FAIL.",
-        "npm stderr contains uppercase error tokens, exact machine code available only when truly in output.",
-        "Early exit before artifact generation yields explicit UNKNOWN and failed step ID.",
-        "Job-level failure remains red even if reporting step succeeds.",
-        "Github repository checkout failure makes local script missing; cannot claim impossible artifact.",
-        "Running actor/token remains workflow-scoped; no new Action permissions."
+        "Task and file patterns containing non-English text and special characters.",
+        "Empty impacted subsystem remains accurately reported rather than fabricated.",
+        "Normal guard command failure preserves its original failure code and nonzero status."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-BIND-SHARED",
-        "summary": "Reuse canonical command diagnostic around existing pre-drive commands and extend current job-local intake.",
+        "id": "ALT-MINIMAL-TEMPLATE-DELIMITER",
+        "summary": "Restore the existing native template literals and add executable regression to existing test suite.",
         "disposition": "selected",
-        "reason": "Covers command failures in same workflow with stable code and no additional execution authority."
+        "reason": "Single-source minimal fix that preserves guard logic and avoids parallel tooling."
       },
       {
-        "id": "ALT-CUSTOM-EXECUTOR",
-        "summary": "Replace full release workflow with new master CLI and installer/handler.",
+        "id": "ALT-REPLACE-GUARD-OR-BYPASS",
+        "summary": "Build new validator or skip Development Guard for Core work.",
         "disposition": "rejected",
-        "reason": "Introduces duplicate execution authority and breaks trusted workflow_run admission."
+        "reason": "Duplicate authority and violates mandatory pre-code evidence."
       },
       {
-        "id": "ALT-GH-LOG-SCRAPE",
-        "summary": "Poll full GitHub job logs to infer a missing root cause, even before checkout.",
+        "id": "ALT-DOC-ONLY",
+        "summary": "Document SyntaxError without restoring mandatory guard.",
         "disposition": "rejected",
-        "reason": "Sensitive, eventual-consistency prone and risks confusing diagnostic text with trusted evidence."
+        "reason": "Leaves Core work blocked and the canonical executable broken."
       }
     ],
     "specialistReviews": [
@@ -218,160 +176,662 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Shared command diagnostic exists; failures occur earlier than its current driver-only use.",
-        "resolution": "Wrap existing pre-drive commands in same producer, collect stage artifacts via existing Failure Intake.",
+        "finding": "Syntactically invalid delimiter literals in the single Markdown artifact writer stop canonical entrypoint before it runs.",
+        "resolution": "Correct only the escaped delimiters; keep existing data structures, contracts and emitted keys.",
         "evidence": [
-          ".github/workflows/release-unit-execution.yml",
-          "scripts/shoperation-command-diagnostic.mjs"
+          "scripts/shoperation-development-guard.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "GitHub secrets or bare shell error may leak into persistent artifacts or a misleading PASS, especially before dependency setup.",
-        "resolution": "No secret values in workflow arguments, use existing sanitized bounded wrapper, fail closed, do not produce exact claim if code unavailable.",
+        "finding": "Bootstrap repair technically precedes a successful Development Guard, and must not become precedent for skipping guards.",
+        "resolution": "Constrain first edit to restoring parser, record exact root cause and exception, immediately run restored guard and Plan Before Code before test edits.",
         "evidence": [
-          "scripts/shoperation-command-diagnostic.mjs",
-          "tests/control-plane-diagnostic-coverage.test.ts"
-        ]
-      },
-      {
-        "role": "Release",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Diagnostic wrapper must not rerun release side effects, shift source SHA or skip original Knowledge/Plan/Risk trust checks.",
-        "resolution": "Pre-drive command-only wrapping with original command content and unchanged driver invocation; no replay or new branch.",
-        "evidence": [
-          ".github/workflows/release-unit-execution.yml",
-          "scripts/release-unit-execute.mjs"
+          "AGENTS.md",
+          "scripts/shoperation-development-guard.mjs"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Every new failure artifact needs a distinct gateCode, and absent precheckout error is unknown rather than a fake code.",
-        "resolution": "Use existing Failure Intake with stage-scoped JSON and explicit missing-artifact step fallback.",
+        "finding": "Main CI can remain green without invoking the Development Guard entrypoint directly.",
+        "resolution": "Add executable node --check and CLI regression in existing test contract.",
         "evidence": [
-          "scripts/shoperation-failure-intake.mjs",
-          "tests/control-plane-diagnostic-coverage.test.ts"
+          "tests/shoperation-development-guard.test.ts"
+        ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The syntax-only bootstrap repair is an infrastructure change whose gate and evidence acceptance must remain exact-head and fail-closed even while unrelated Core work is pending.",
+        "resolution": "Keep this repair a separate DRAFT PR and require exact-head CI, Completion Truth and Lifecycle validation before any merge or Core implementation proceeds.",
+        "evidence": [
+          ".github/workflows/ci.yml",
+          "scripts/shoperation-plan-before-code.mjs",
+          "AGENTS.md"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-PRE-01",
-        "scenario": "npm ci exits 1 before dependencies exist.",
-        "finding": "Third-party helper cannot run before install.",
-        "resolution": "Existing diagnostic is Node core-only and can wrap npm before installing modules.",
+        "id": "CH-GUARD-01",
+        "scenario": "Node parser meets escaped backtick delimiters on the same report expression.",
+        "finding": "Script fails to start before it could emit any development plan.",
+        "resolution": "Use valid backticks only in this expression and prove entrypoint with node --check.",
         "status": "resolved"
       },
       {
-        "id": "CH-PRE-02",
-        "scenario": "Checkout fails and no tracked repository script is present.",
-        "finding": "An exact command wrapper cannot be executed.",
-        "resolution": "Record available GitHub step outcome only, label root cause unavailable, do not falsely certify exact source.",
+        "id": "CH-GUARD-02",
+        "scenario": "Script parses but generator does not emit readable full markdown.",
+        "finding": "Syntax-only tests do not prove report runtime.",
+        "resolution": "Run actual node Development Guard CLI and assert emitted JSON/Markdown exists.",
         "status": "resolved"
       },
       {
-        "id": "CH-PRE-03",
-        "scenario": "Source SHA invalid or source plan missing.",
-        "finding": "Partial source-plan artifact may remain.",
-        "resolution": "Keep git fetch/rev-parse/git show in `set -euo pipefail` and preserve exit through wrapper.",
+        "id": "CH-GUARD-03",
+        "scenario": "Repair broadens to entitlement logic before valid Plan gate.",
+        "finding": "Violates first-edit guard and risk budget.",
+        "resolution": "Keep separate issue #1186 feature branch and no Core implementation in this unit.",
         "status": "resolved"
       },
       {
-        "id": "CH-PRE-04",
-        "scenario": "Knowledge preflight blocks with structured error.",
-        "finding": "Old driver-only reporting loses actual code.",
-        "resolution": "New per-stage diagnostics retain output and corresponding gate artifacts through current Failure Intake.",
+        "id": "CH-GUARD-04",
+        "scenario": "Only generated Markdown is modified, but the parse error remains in a compiled module import.",
+        "finding": "A documentation-only correction cannot make the CLI executable.",
+        "resolution": "Regression executes Node check on the source file and a representative CLI invocation.",
         "status": "resolved"
       },
       {
-        "id": "CH-PRE-05",
-        "scenario": "Failed stage makes later stages skipped.",
-        "finding": "Generic intake could misattribute skipped stages.",
-        "resolution": "Feed only existing artifacts; fallback reports first failed step and never assumes missing stages ran.",
+        "id": "CH-GUARD-05",
+        "scenario": "Changed script unexpectedly changes failure scope or risk scoring.",
+        "finding": "Improper refactor could manufacture false PASS outcomes.",
+        "resolution": "Limit diff to 12 escaped delimiter characters, compare before/after data contract and verify full guard report.",
         "status": "resolved"
       },
       {
-        "id": "CH-PRE-06",
-        "scenario": "Failure Intake itself fails after gate failure.",
-        "finding": "Reporting may mask original failure.",
-        "resolution": "Keep reporting conditional/after failed command, never override original nonzero status, archive diagnostics via independent upload.",
+        "id": "CH-GUARD-06",
+        "scenario": "Later unrelated Core edits are bundled with bootstrap repair.",
+        "finding": "Would merge unproven high-risk entitlement changes through a guard repair release.",
+        "resolution": "Use separate fix branch and strict planned file allowlist; keep issue #1186 OPEN.",
         "status": "resolved"
       },
       {
-        "id": "CH-PRE-07",
-        "scenario": "GH_TOKEN appears in a nested error.",
-        "finding": "Stored evidence can leak sensitive token.",
-        "resolution": "Use shared sanitizer, keep raw error only redacted and fail if test sees token.",
+        "id": "CH-GUARD-07",
+        "scenario": "A package plan changes its claimed evidence scope from code validation to risk assessment but reuses quality test evidence.",
+        "finding": "Sentinel detects claim-dimension drift because quality tests do not establish the release risk budget or release-scope dimensions.",
+        "resolution": "Declare a separate CAP-RELEASE requirement and prove only risk and release-scope with the existing GUARD-RELEASE-RISK evidence.",
         "status": "resolved"
       },
       {
-        "id": "CH-PRE-08",
-        "scenario": "Target GitHub SHA drifts between source CI and trusted executor.",
-        "finding": "Might proceed from stale source.",
-        "resolution": "No change to immutable SHA check, no source branch inference, no force push.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-PRE-09",
-        "scenario": "Simple shell Git stderr has no stable uppercase machine code.",
-        "finding": "Fallback code is not truly exact Git root cause.",
-        "resolution": "Explicit fallback code with original sanitized stderr; never assert exact root-cause proven.",
+        "id": "CH-GUARD-08",
+        "scenario": "A metadata-only plan is registered as high assurance while the semantic route regression expects a critical trust boundary.",
+        "finding": "Critical-only route invariants are skipped and the existing regression fails despite the mandatory authorization entrypoint being within scope.",
+        "resolution": "Adopt critical assurance for this bootstrap guard and retain the canonical authority and route checks without changing validator code.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Plan-only exact-head CI must show Plan Before Code PASS before editing implementation files.",
-      "Wrap early release authoritative commands with distinct diagnostic gates and bounded JSON artifacts, preserving nonzero.",
-      "Run focused tests demonstrating exact/non-exact source and npm failures, failure-intake wiring and positive passes.",
-      "Run Knowledge, Plan, Edit-Time, Incremental, Risk, full quality, TypeScript, production build, Truth and Lifecycle on exact head; fix failures without weakening.",
-      "Use emitted CI-owned closure artifact byte-exact; merge only with successful latest SHA and verify exact new main CI.",
-      "Leave #1018 open for separate external-proof and universal early job pre-checkout scenarios."
+      "Record main original node --check SyntaxError and source SHA 89e01932556bc220e5bfa55ac0f5c3f7f8deee91.",
+      "Bootstrap syntax repair only; rerun Development Guard with --write-plan --check and review complete guard report.",
+      "Plan Before Code PASS before editing regression test; then Edit-Time, Knowledge, Incremental Replay and known-failure regression.",
+      "Execute focused Vitest, TypeScript and full checks; record exact-head evidence and Completion Truth status.",
+      "Open DRAFT PR only; merge after exact-head CI and Lifecycle proof, then rerun issue #1186 MR1 Core work."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-09-RELEASE-PREDRIVE-DIAGNOSTIC-1018-V2",
+      "request": "PO-2026-10-09-CORE-1186-BOOTSTRAP-1187",
       "authority": [
-        "release-infrastructure",
         "quality-knowledge-system"
       ],
       "mustEdit": [
-        ".github/workflows/release-unit-execution.yml",
-        "tests/control-plane-diagnostic-coverage.test.ts"
+        "scripts/shoperation-development-guard.mjs",
+        "tests/shoperation-development-guard.test.ts"
       ],
-      "mayEdit": [
-        "quality/development/active-plan.json"
-      ],
+      "mayEdit": [],
       "impactedReadOnly": [
-        "scripts/shoperation-command-diagnostic.mjs",
-        "scripts/shoperation-failure-intake.mjs",
-        "scripts/release-unit-execute.mjs"
+        "scripts/lib/shoperation-architecture-health.mjs",
+        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+        "scripts/lib/shoperation-development-runtime.mjs",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        "scripts/lib/shoperation-reference-sync-runtime.mjs",
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+        "scripts/lib/shoperation-verification-reuse.mjs",
+        "scripts/release-risk-budget.mjs",
+        "scripts/release-unit-ci-context.mjs",
+        "scripts/release-unit-execute.mjs",
+        "scripts/release-unit-github-runtime.mjs",
+        "scripts/release-unit-materialize.mjs",
+        "scripts/release-unit-orchestrate.mjs",
+        "scripts/release-unit-parent-close.mjs",
+        "scripts/shoperation-close-development-plan.mjs",
+        "scripts/shoperation-codebase-atlas.mjs",
+        "scripts/shoperation-edit-time-guard.mjs",
+        "scripts/shoperation-external-proof-handoff.mjs",
+        "scripts/shoperation-incremental-replay.mjs",
+        "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+        "scripts/shoperation-knowledge-preflight.mjs",
+        "scripts/shoperation-plan-before-code.mjs",
+        "scripts/shoperation-sentinel-integrity-probe.mjs",
+        "scripts/shoperation-sentinel-scan.mjs",
+        "scripts/shoperation-truth-gate.mjs",
+        "src/lib/quality-system/scope-resolver.ts",
+        "tests/control-plane-ecosystem-chain.test.ts",
+        "tests/control-plane-release-decomposition.test.ts",
+        "tests/control-plane-release-unit-execution-binding.test.ts",
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-release-unit-production-surface.test.ts",
+        "tests/deep-atlas-scan.test.ts",
+        "tests/dependency-security-contract.test.ts",
+        "tests/engine-authority-scope-classification.test.ts",
+        "tests/shoperation-change-impact-atlas.test.ts",
+        "tests/shoperation-codebase-atlas-v2.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/template-factory-engine-functional-proof.test.ts"
       ],
       "mustCreate": [],
-      "forbidden": [
-        ".github/workflows/ci.yml",
-        "src/**",
-        "supabase/**",
-        "control-plane/release-state/**"
-      ],
+      "forbidden": [],
       "proof": [
-        "tests/control-plane-diagnostic-coverage.test.ts",
-        "artifacts/shoperation-command-diagnostics/**",
-        "artifacts/shoperation-failure-intake/**"
+        "tests/architecture-health.test.ts",
+        "tests/control-plane-ecosystem-chain.test.ts",
+        "tests/control-plane-release-decomposition.test.ts",
+        "tests/control-plane-release-unit-execution-binding.test.ts",
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-release-unit-production-surface.test.ts",
+        "tests/deep-atlas-scan.test.ts",
+        "tests/dependency-security-contract.test.ts",
+        "tests/digital-commerce-builder-integration.test.tsx",
+        "tests/domain-foundations.test.ts",
+        "tests/engine-authority-scope-classification.test.ts",
+        "tests/playroom-v20-canonical-shell-content.test.ts",
+        "tests/release-unit-materialization.test.ts",
+        "tests/roadmap-block21-page-schema-templates.test.ts",
+        "tests/roadmap-block22-visual-builder.test.ts",
+        "tests/shoperation-change-impact-atlas.test.ts",
+        "tests/shoperation-codebase-atlas-v2.test.ts",
+        "tests/shoperation-external-proof-handoff.test.ts",
+        "tests/shoperation-operational-intelligence.test.ts",
+        "tests/shoperation-proof-semantics.test.ts",
+        "tests/shoperation-quality-knowledge.test.ts",
+        "tests/shoperation-resumable-verification.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
+        "tests/storefront-account-shell.test.ts",
+        "tests/storefront-beauty-lab-reference-v28.test.ts",
+        "tests/storefront-cart-presentation-contract.test.ts",
+        "tests/storefront-commerce-fidelity-slots.test.tsx",
+        "tests/storefront-core-commerce.test.ts",
+        "tests/storefront-fidelity-behavior.test.tsx",
+        "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
+        "tests/storefront-pilot-acceptance-authority.test.ts",
+        "tests/storefront-playroom-v18-image-slots.test.ts",
+        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+        "tests/storefront-template-quality-gate-v2.test.ts",
+        "tests/template-factory-engine-functional-proof-entry.test.ts",
+        "tests/template-factory-engine-functional-proof-runner.test.ts",
+        "tests/template-factory-engine-functional-proof.test.ts",
+        "tests/template-factory-resumable-verification.test.ts",
+        "tests/template-factory-scaffold-v1.test.ts"
       ],
       "unknown": [],
-      "plannedDeletions": [],
-      "plannedRenames": [],
-      "generatedArtifacts": []
+      "plannedDeletions": []
     },
-    "executionAuthorized": true
+    "ecosystem": {
+      "contract": "shoporation.development-ecosystem.v1",
+      "phase": "PLAN",
+      "implementationSkeleton": {
+        "contract": "shoporation.implementation-skeleton.v1",
+        "mustEdit": [
+          "scripts/shoperation-development-guard.mjs",
+          "tests/shoperation-development-guard.test.ts"
+        ],
+        "mayEdit": [],
+        "impactedReadOnly": [
+          "scripts/lib/shoperation-architecture-health.mjs",
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+          "scripts/lib/shoperation-development-runtime.mjs",
+          "scripts/lib/shoperation-operational-intelligence.mjs",
+          "scripts/lib/shoperation-reference-sync-runtime.mjs",
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+          "scripts/lib/shoperation-verification-reuse.mjs",
+          "scripts/release-risk-budget.mjs",
+          "scripts/release-unit-ci-context.mjs",
+          "scripts/release-unit-execute.mjs",
+          "scripts/release-unit-github-runtime.mjs",
+          "scripts/release-unit-materialize.mjs",
+          "scripts/release-unit-orchestrate.mjs",
+          "scripts/release-unit-parent-close.mjs",
+          "scripts/shoperation-close-development-plan.mjs",
+          "scripts/shoperation-codebase-atlas.mjs",
+          "scripts/shoperation-edit-time-guard.mjs",
+          "scripts/shoperation-external-proof-handoff.mjs",
+          "scripts/shoperation-incremental-replay.mjs",
+          "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+          "scripts/shoperation-knowledge-preflight.mjs",
+          "scripts/shoperation-plan-before-code.mjs",
+          "scripts/shoperation-sentinel-integrity-probe.mjs",
+          "scripts/shoperation-sentinel-scan.mjs",
+          "scripts/shoperation-truth-gate.mjs",
+          "src/lib/quality-system/scope-resolver.ts",
+          "tests/control-plane-ecosystem-chain.test.ts",
+          "tests/control-plane-release-decomposition.test.ts",
+          "tests/control-plane-release-unit-execution-binding.test.ts",
+          "tests/control-plane-release-unit-orchestration.test.ts",
+          "tests/control-plane-release-unit-production-surface.test.ts",
+          "tests/deep-atlas-scan.test.ts",
+          "tests/dependency-security-contract.test.ts",
+          "tests/engine-authority-scope-classification.test.ts",
+          "tests/shoperation-change-impact-atlas.test.ts",
+          "tests/shoperation-codebase-atlas-v2.test.ts",
+          "tests/shoperation-semantic-execution-intelligence.test.ts",
+          "tests/template-factory-engine-functional-proof.test.ts"
+        ],
+        "mustCreate": [],
+        "forbidden": [],
+        "proof": [
+          "tests/architecture-health.test.ts",
+          "tests/control-plane-ecosystem-chain.test.ts",
+          "tests/control-plane-release-decomposition.test.ts",
+          "tests/control-plane-release-unit-execution-binding.test.ts",
+          "tests/control-plane-release-unit-orchestration.test.ts",
+          "tests/control-plane-release-unit-production-surface.test.ts",
+          "tests/deep-atlas-scan.test.ts",
+          "tests/dependency-security-contract.test.ts",
+          "tests/digital-commerce-builder-integration.test.tsx",
+          "tests/domain-foundations.test.ts",
+          "tests/engine-authority-scope-classification.test.ts",
+          "tests/playroom-v20-canonical-shell-content.test.ts",
+          "tests/release-unit-materialization.test.ts",
+          "tests/roadmap-block21-page-schema-templates.test.ts",
+          "tests/roadmap-block22-visual-builder.test.ts",
+          "tests/shoperation-change-impact-atlas.test.ts",
+          "tests/shoperation-codebase-atlas-v2.test.ts",
+          "tests/shoperation-external-proof-handoff.test.ts",
+          "tests/shoperation-operational-intelligence.test.ts",
+          "tests/shoperation-proof-semantics.test.ts",
+          "tests/shoperation-quality-knowledge.test.ts",
+          "tests/shoperation-resumable-verification.test.ts",
+          "tests/shoperation-semantic-execution-intelligence.test.ts",
+          "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
+          "tests/storefront-account-shell.test.ts",
+          "tests/storefront-beauty-lab-reference-v28.test.ts",
+          "tests/storefront-cart-presentation-contract.test.ts",
+          "tests/storefront-commerce-fidelity-slots.test.tsx",
+          "tests/storefront-core-commerce.test.ts",
+          "tests/storefront-fidelity-behavior.test.tsx",
+          "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
+          "tests/storefront-pilot-acceptance-authority.test.ts",
+          "tests/storefront-playroom-v18-image-slots.test.ts",
+          "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+          "tests/storefront-template-quality-gate-v2.test.ts",
+          "tests/template-factory-engine-functional-proof-entry.test.ts",
+          "tests/template-factory-engine-functional-proof-runner.test.ts",
+          "tests/template-factory-engine-functional-proof.test.ts",
+          "tests/template-factory-resumable-verification.test.ts",
+          "tests/template-factory-scaffold-v1.test.ts"
+        ],
+        "authority": [
+          "quality-knowledge-system"
+        ],
+        "unknown": []
+      },
+      "projectedReleaseRisk": {
+        "contract": "shoporation.projected-release-risk.v1",
+        "score": 2,
+        "maxPoints": 5,
+        "subsystemCount": 1,
+        "maxSubsystems": 3,
+        "subsystems": [
+          {
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          }
+        ],
+        "files": [
+          {
+            "file": "scripts/shoperation-development-guard.mjs",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          },
+          {
+            "file": "tests/shoperation-development-guard.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
+          }
+        ],
+        "violations": [],
+        "decision": "PASS"
+      },
+      "releaseDecomposition": {
+        "contract": "shoporation.release-decomposition.v1",
+        "decision": "PASS",
+        "decompositionRequired": false,
+        "originalRisk": {
+          "contract": "shoporation.projected-release-risk.v1",
+          "score": 2,
+          "maxPoints": 5,
+          "subsystemCount": 1,
+          "maxSubsystems": 3,
+          "subsystems": [
+            {
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            }
+          ],
+          "files": [
+            {
+              "file": "scripts/shoperation-development-guard.mjs",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "tests/shoperation-development-guard.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            }
+          ],
+          "violations": [],
+          "decision": "PASS"
+        },
+        "maxFilesPerUnit": 12,
+        "repositoryEdges": [],
+        "atomicComponents": [
+          {
+            "id": 0,
+            "files": [
+              "scripts/shoperation-development-guard.mjs"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 2,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "files": [
+                {
+                  "file": "scripts/shoperation-development-guard.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 1,
+            "files": [
+              "tests/shoperation-development-guard.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/shoperation-development-guard.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          }
+        ],
+        "releaseUnits": [
+          {
+            "contract": "shoporation.release-unit-manifest.v1",
+            "transaction": {
+              "id": "DEVELOPMENT-GUARD",
+              "parentTransactionId": "DEVELOPMENT-GUARD",
+              "sourceRef": "PO-2026-10-09-CORE-1186-BOOTSTRAP-1187",
+              "developmentBaseSha": "89e01932556bc220e5bfa55ac0f5c3f7f8deee91"
+            },
+            "releaseUnitId": "DEVELOPMENT-GUARD-U01",
+            "order": 1,
+            "targetBaseSha": "89e01932556bc220e5bfa55ac0f5c3f7f8deee91",
+            "lease": {
+              "expectedBaseSha": "89e01932556bc220e5bfa55ac0f5c3f7f8deee91",
+              "failOnDrift": true,
+              "reconciled": true,
+              "reconciledFromSha": null
+            },
+            "intendedFiles": [
+              "scripts/shoperation-development-guard.mjs",
+              "tests/shoperation-development-guard.test.ts"
+            ],
+            "operations": [
+              {
+                "operation": "modify",
+                "file": "scripts/shoperation-development-guard.mjs",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "tests/shoperation-development-guard.test.ts",
+                "generated": null
+              }
+            ],
+            "requiredDependencyFiles": [
+              "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+              "scripts/lib/shoperation-development-runtime.mjs",
+              "scripts/lib/shoperation-operational-intelligence.mjs",
+              "scripts/lib/shoperation-release-unit-runtime.mjs",
+              "src/lib/quality-system/scope-resolver.ts",
+              "src/lib/quality-system/shoperation-knowledge.ts"
+            ],
+            "authorities": [
+              "quality-knowledge-system"
+            ],
+            "subsystems": [
+              "quality-infrastructure"
+            ],
+            "projectedRisk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 2,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "files": [
+                {
+                  "file": "scripts/shoperation-development-guard.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
+                {
+                  "file": "tests/shoperation-development-guard.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            },
+            "requiredGates": [
+              "GUARD-EDIT-TIME",
+              "GUARD-INCREMENTAL-REPLAY",
+              "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-PLAN-BEFORE-CODE",
+              "GUARD-QUALITY-TESTS",
+              "GUARD-RELEASE-RISK",
+              "GUARD-TYPECHECK"
+            ],
+            "requiredEvidence": {
+              "gateIds": [
+                "GUARD-EDIT-TIME",
+                "GUARD-INCREMENTAL-REPLAY",
+                "GUARD-KNOWLEDGE-PREFLIGHT",
+                "GUARD-PLAN-BEFORE-CODE",
+                "GUARD-QUALITY-TESTS",
+                "GUARD-RELEASE-RISK",
+                "GUARD-TYPECHECK"
+              ],
+              "proofFiles": [
+                "tests/shoperation-development-guard.test.ts"
+              ],
+              "externalGateIds": []
+            },
+            "forbiddenPaths": [],
+            "readOnlyPaths": [
+              "scripts/lib/shoperation-architecture-health.mjs",
+              "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+              "scripts/lib/shoperation-development-runtime.mjs",
+              "scripts/lib/shoperation-operational-intelligence.mjs",
+              "scripts/lib/shoperation-reference-sync-runtime.mjs",
+              "scripts/lib/shoperation-release-unit-runtime.mjs",
+              "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+              "scripts/lib/shoperation-verification-reuse.mjs",
+              "scripts/release-risk-budget.mjs",
+              "scripts/release-unit-ci-context.mjs",
+              "scripts/release-unit-execute.mjs",
+              "scripts/release-unit-github-runtime.mjs",
+              "scripts/release-unit-materialize.mjs",
+              "scripts/release-unit-orchestrate.mjs",
+              "scripts/release-unit-parent-close.mjs",
+              "scripts/shoperation-close-development-plan.mjs",
+              "scripts/shoperation-codebase-atlas.mjs",
+              "scripts/shoperation-edit-time-guard.mjs",
+              "scripts/shoperation-external-proof-handoff.mjs",
+              "scripts/shoperation-incremental-replay.mjs",
+              "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+              "scripts/shoperation-knowledge-preflight.mjs",
+              "scripts/shoperation-plan-before-code.mjs",
+              "scripts/shoperation-sentinel-integrity-probe.mjs",
+              "scripts/shoperation-sentinel-scan.mjs",
+              "scripts/shoperation-truth-gate.mjs",
+              "src/lib/quality-system/scope-resolver.ts",
+              "tests/control-plane-ecosystem-chain.test.ts",
+              "tests/control-plane-release-decomposition.test.ts",
+              "tests/control-plane-release-unit-execution-binding.test.ts",
+              "tests/control-plane-release-unit-orchestration.test.ts",
+              "tests/control-plane-release-unit-production-surface.test.ts",
+              "tests/deep-atlas-scan.test.ts",
+              "tests/dependency-security-contract.test.ts",
+              "tests/engine-authority-scope-classification.test.ts",
+              "tests/shoperation-change-impact-atlas.test.ts",
+              "tests/shoperation-codebase-atlas-v2.test.ts",
+              "tests/shoperation-semantic-execution-intelligence.test.ts",
+              "tests/template-factory-engine-functional-proof.test.ts"
+            ],
+            "generatedArtifactSemantics": [],
+            "prerequisites": [],
+            "predecessorUnits": [],
+            "expectedPostUnitState": {
+              "filesPresent": [
+                "scripts/shoperation-development-guard.mjs",
+                "tests/shoperation-development-guard.test.ts"
+              ],
+              "filesAbsent": []
+            },
+            "reconciliationPolicy": {
+              "mode": "merged-main-sequential",
+              "requireExactMainLease": true,
+              "requirePredecessorReceipts": false,
+              "requiresReconciliationAfterPredecessor": false,
+              "failOnUnrelatedMainDrift": true
+            },
+            "sourceIdentity": {
+              "sourceCommit": null,
+              "sealed": false
+            },
+            "manifestDigest": "f9362947",
+            "decision": "PASS"
+          }
+        ],
+        "ordering": {
+          "decision": "PASS",
+          "cycles": []
+        }
+      },
+      "gateChain": {
+        "contract": "shoporation.gate-chain.v1",
+        "phase": "PLAN",
+        "orderedGateIds": [
+          "GUARD-KNOWLEDGE-PREFLIGHT",
+          "GUARD-PLAN-BEFORE-CODE",
+          "GUARD-EDIT-TIME",
+          "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-QUALITY-TESTS",
+          "GUARD-RELEASE-RISK",
+          "GUARD-TYPECHECK"
+        ],
+        "currentPhaseGateIds": [
+          "GUARD-KNOWLEDGE-PREFLIGHT",
+          "GUARD-PLAN-BEFORE-CODE",
+          "GUARD-RELEASE-RISK"
+        ],
+        "futureGateIds": [
+          "GUARD-EDIT-TIME",
+          "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-QUALITY-TESTS",
+          "GUARD-TYPECHECK"
+        ],
+        "externalGateIds": [],
+        "issues": [],
+        "decision": "PASS"
+      }
+    },
+    "executionAuthorized": true,
+    "problemStatement": "The required Development Guard executable at main 89e0193 cannot parse due to 12 escaped backticks on its Markdown report line; this prevents every new Core transaction from entering the mandatory canonical Plan Before Code flow.",
+    "observableOutcomes": [
+      "Node parses the canonical Development Guard entrypoint without exceptions.",
+      "Normal guard invocation produces nonempty JSON and full Markdown evidence with exact scope and fails closed on substantive blocked inputs.",
+      "Regression test prevents escaped-backtick parser failure from returning unnoticed in future PRs.",
+      "No CI, Truth, Known Failure, policy or dependency guard authority is weakened."
+    ],
+    "unresolvedRisks": [
+      "Already-applied minimum bootstrap syntax repair was unavoidable because the canonical pre-edit guard could not execute until repaired; record its exceptional ordering and subsequently run the restored guard.",
+      "Guard projection uses the exact main change base and must not silently include separate Alap/Pro entitlement implementation.",
+      "Test must invoke parser as an executable process to catch syntax failures independent of source-string expectations."
+    ],
+    "scope": {
+      "in": [
+        "Correct escaped template literal delimiters only at the existing report-construction expression in scripts/shoperation-development-guard.mjs.",
+        "Add a focused source syntax/execution regression to existing tests/shoperation-development-guard.test.ts.",
+        "Prepare and close the canonical active-plan with exact-head proof."
+      ],
+      "out": [
+        "No change to decision semantics, rules, registry, release-risk policy, capability entitlement matrix, or database schema.",
+        "No implementation change to core Alap/Pro access, Digital Office, Builder or Template Factory in this bootstrap transaction.",
+        "No separate guard, no unsupported PASS claim, and no production database or secret mutation."
+      ]
+    }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-RELEASE-PREDRIVE-DIAGNOSTIC-1018-V2",
+    "sourceRef": "PO-2026-10-09-CORE-1186-BOOTSTRAP-1187",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -379,25 +839,23 @@
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-EDIT-TIME",
         "GUARD-INCREMENTAL-REPLAY",
-        "GUARD-RELEASE-RISK",
         "GUARD-QUALITY-TESTS",
-        "GUARD-TYPECHECK",
-        "GUARD-PRODUCTION-BUILD"
+        "GUARD-RELEASE-RISK",
+        "GUARD-TYPECHECK"
       ],
       "externalGuards": [],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-EARLY-RELEASE-DIAGNOSTIC",
-        "requirement": "Release pre-drive command errors yield stage-specific machine diagnostics before driver, preserving original fail-closed outcome.",
+        "id": "REQ-DEV-GUARD-RESTORED",
+        "requirement": "Canonical Development Guard parses and runs, generating JSON/Markdown with unchanged fail-closed assurance and comprehensive Known Failure report.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "single-release-executor-preflight",
+          "breadth": "single-canonical-guard-entrypoint",
           "strength": 2,
           "dimensions": [
             "status",
-            "transaction-identity",
             "evidence-scope",
             "forbidden-state"
           ]
@@ -416,8 +874,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PREFLIGHT-BYPASS",
-            "statement": "Early errors cannot become a passing driver result.",
+            "id": "NEG-GUARD-BYPASS",
+            "statement": "No skipped gate or substituted guard for an unparseable canonical tool.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -425,16 +883,14 @@
         ]
       },
       {
-        "id": "REQ-INTAKE-LOCATOR",
-        "requirement": "Failure Intake and run summary identify the first failed pre-drive stage, source/run and available original evidence without inventing unavailable checkout details.",
+        "id": "REQ-GUARD-NO-DRIFT",
+        "requirement": "Restore exact syntax without altering guard scope, gate decision, Known Failure selection, or release risk calculation.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "bounded-intake-localization",
+          "breadth": "bounded-guard-bootstrap",
           "strength": 2,
           "dimensions": [
-            "status",
-            "evidence-scope",
-            "truth",
+            "scope",
             "forbidden-state"
           ]
         },
@@ -451,8 +907,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-FAKE-ROOT-CAUSE",
-            "statement": "Uncaptured early checkout failures cannot be claimed as exact known root cause.",
+            "id": "NEG-GUARD-SEMANTICS",
+            "statement": "Decision logic is not removed, weakened, or replaced.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -460,11 +916,11 @@
         ]
       },
       {
-        "id": "REQ-PREFLIGHT-RISK",
-        "requirement": "Release risk and source trust remain unchanged; no new authority, retry, state mutation or release dispatch.",
+        "id": "REQ-GUARD-RELEASE-RISK",
+        "requirement": "The dedicated release-risk authority proves bounded release diff scope and risk budget for this guard bootstrap without claiming Core capability maturity.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "release-preflight-guard",
+          "breadth": "single-development-guard-bootstrap",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -484,8 +940,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RISK-DOWNGRADE",
-            "statement": "No release-risk or source trust bypass.",
+            "id": "NEG-RISK-BYPASS",
+            "statement": "A failed release risk budget cannot be represented as successful verification.",
             "evidence": [
               "GUARD-RELEASE-RISK"
             ]
@@ -495,17 +951,17 @@
     ]
   },
   "notes": [
-    "Plan-only checkpoint; no implementation edits before exact-head Plan Before Code PASS.",
-    "Issue #1018 PARTIAL. Focus on the trusted release executor's pre-drive steps only; do not promise universal external-proof or pre-checkout raw-log coverage.",
-    "Reuse existing shoperation-command-diagnostic.mjs and shoperation-failure-intake.mjs; do not build a new parallel engine."
+    "Bootstrap exception: first syntax-only edit was required because the existing canonical Development Guard threw a SyntaxError before running; restored guard PASS immediately afterwards. No unrelated implementation edits preceded Plan Before Code.",
+    "Only #1187 bootstrap guard repair is scoped here; #1186 Core entitlement matrix stays OPEN and unchanged.",
+    "Existing source code and baseline guard policy remain the sole authority."
   ],
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "b1a65a4effc400df34accb15066bb307afca5676",
-    "closedAt": "2026-10-09T04:54:53.925Z",
+    "verifiedImplementationHead": "e87711ad79ff135a8c924555664254de58afeef3",
+    "closedAt": "2026-10-09T06:13:27.686Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-09-RELEASE-PREDRIVE-DIAGNOSTIC-1018-V2",
+    "sourceRef": "PO-2026-10-09-CORE-1186-BOOTSTRAP-1187",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

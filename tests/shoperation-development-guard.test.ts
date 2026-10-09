@@ -6,6 +6,13 @@ import {resolveShoperationKnowledgeScope} from '@/lib/quality-system/scope-resol
 const policy=JSON.parse(readFileSync('quality/knowledge/development-guard-policy.v1.json','utf8')) as {generalRules:string[];intentMatchers:{pattern:string;subsystems:string[]}[];directives:Record<string,{preventiveDirective:string;forbiddenApproaches:string[];requiredBeforeEdit:string[]}>;editRules:{id:string;severity:string;failureIds:string[]}[];negativeKnowledgeApplicability:Record<string,string[]>;};
 const scopePolicy=JSON.parse(readFileSync('quality/knowledge/knowledge-scope-policy.v1.json','utf8')) as {dependencies:Record<string,string[]>;knowledgeInfrastructurePrefixes:string[]};
 describe('Shoperation Development-Time Known Failure Guard',()=>{
+
+  it('keeps the canonical Development Guard entrypoint syntactically executable',()=>{
+    expect(()=>execFileSync(process.execPath,['--check','scripts/shoperation-development-guard.mjs'],{cwd:process.cwd(),encoding:'utf8'})).not.toThrow();
+    const source=readFileSync('scripts/shoperation-development-guard.mjs','utf8');
+    expect(source).toContain("writeFileSync('artifacts/shoperation-development-guard/development-guard.md'");
+  });
+
   it('classifies source-controlled storefront demo media as Template Factory scope',()=>{
     const scope=resolveShoperationKnowledgeScope({changedFiles:['public/storefront-demo/example/hero.webp']});
     expect(scope.directSubsystems).toContain('builder-template-system');
