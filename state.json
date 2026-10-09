@@ -3,7 +3,7 @@
   "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
   "decompositionContract": "shoporation.release-decomposition.v1",
   "manifestChainDigest": "ca03705f",
-  "lifecyclePhase": "TRUTH_GATE",
+  "lifecyclePhase": "LEARN",
   "unitIds": [
     "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01"
   ],
@@ -911,7 +911,47 @@
   ],
   "blocker": null,
   "closureEligible": true,
-  "closureComplete": false,
-  "closedReceipt": null,
-  "executionSourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74"
+  "closureComplete": true,
+  "closedReceipt": {
+    "contract": "shoporation.release-parent-close-receipt.v1",
+    "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+    "lastChildMainSha": "9f16dbd8319d71e72087c1ba1085575c88ff09e0",
+    "finalMainSha": "9f16dbd8319d71e72087c1ba1085575c88ff09e0",
+    "mainAdvanceProof": null,
+    "truthStatus": "VERIFIED",
+    "lifecycleState": "LEARN",
+    "unitCloseReceiptDigests": [
+      "6e2f5076"
+    ],
+    "decision": "PASS",
+    "parentClosureContext": {
+      "contract": "shoporation.release-parent-closure-proof-context.v1",
+      "proofPlanContract": "shoporation.release-parent-closure-proof-plan.v1",
+      "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+      "sourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
+      "sourcePlanDigest": "94acc459da76d855a79a84f33ea422a3f7a5de8a649c4e9bb9ce7fb488e36eeb",
+      "completionContractDigest": "204dfe84074fb0fa658af629349939738d1b5cf7fe1da3b11366635de7eeebf1",
+      "lastChildMainSha": "9f16dbd8319d71e72087c1ba1085575c88ff09e0",
+      "finalMainSha": "9f16dbd8319d71e72087c1ba1085575c88ff09e0",
+      "unitCloseReceiptDigests": [
+        "6e2f5076"
+      ],
+      "trustedMainAdvanceDigest": null
+    },
+    "proofArtifactPath": "quality/knowledge/release-parent-closure-proofs/dev-post-merge-exact-main-ci-e2e-v2.json",
+    "proofArtifactDigest": "ff141f2e8ce61cd879438a2666e03dd37009bc58dbcd057fabc6650f1cb4ece6"
+  },
+  "executionSourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
+  "closurePersistence": {
+    "contract": "shoporation.release-parent-closure-persistence.v1",
+    "state": "PR_OPEN",
+    "branch": "release-execution/closure/dev-post-merge-exact-main-ci-e2e-v2",
+    "prNumber": 1178,
+    "headSha": "717f0d36ca4332b425041cb5f918e6aef9c9244c",
+    "baseSha": "9f16dbd8319d71e72087c1ba1085575c88ff09e0",
+    "url": "https://github.com/infowaterk-max/water-K-/pull/1178",
+    "ciDispatch": {
+      "decision": "DISPATCHED"
+    }
+  }
 }
