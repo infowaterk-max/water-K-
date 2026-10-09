@@ -100,3 +100,21 @@ describe('Customer e-mail Alap / Pro plan split',()=>{
     expect(planMigration).toContain('perform private.sync_webshop_plan_entitlements(v_instance_id);');
   });
 });
+
+
+describe('Customer baseline 0046 genuine Fresh Install attestation',()=>{
+  it('attests the exact successful 0046 Fresh Install proof without claiming full Digital Office closure',()=>{
+    const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'));
+    expect(manifest.status).toBe('ready');
+    expect(manifest.freshInstallProofRequired).toBe(false);
+    expect(manifest.proofContractSha256).toBe('a04b0990e7cf7a0a21591b9fd81fa44d5010ca8818b7edb7f00397c6b84807bb');
+    expect(manifest.notes).toContain('37919705159');
+    expect(manifest.notes).toContain('113806799257');
+    expect(manifest.notes).toContain('0046_alap_team_chat_plan_grant_reconcile.sql');
+    expect(manifest.notes).toContain('not staging/production migration application');
+    expect(manifest.notes).toContain('#1186 full authorization closure');
+    const plan=JSON.parse(read('quality/development/active-plan.json'));
+    expect(plan.completionContract.systemObligations.requiredGuards).toContain('GUARD-CUSTOMER-BASELINE');
+    expect(plan.completionContract.requirements.flatMap((r:any)=>[...(r.evidence.implementation??[]),...(r.evidence.outcome??[])])).not.toContain('GUARD-CUSTOMER-BASELINE');
+  });
+});

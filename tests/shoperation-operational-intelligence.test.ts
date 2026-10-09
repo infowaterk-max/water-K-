@@ -146,6 +146,8 @@ describe('Control Plane Operational Intelligence',()=>{
     const codesFor=(expectedAuthorities:string[],routeAuthority:string[]|undefined)=>{
       const plan=JSON.parse(JSON.stringify(basePlan));
       plan.expectedAuthorities=expectedAuthorities;
+      // This test validates critical-only routing independently of the active work item risk tier.
+      plan.operationalIntelligence.riskTier='critical';
       const route={...plan.operationalIntelligence.semanticExecutionRoute};
       if(routeAuthority===undefined)delete route.authority;
       else route.authority=routeAuthority;
