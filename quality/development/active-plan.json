@@ -1,30 +1,24 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CP-TF-EXTERNAL-DEPENDENCY-ALIGN",
-  "task": "Control Plane closure: exact runtime Template Factory proof classification and workflow trigger parity for unrelated admin route changes",
-  "status": "closed",
-  "guardDigest": "9fe3f69d",
-  "changeBaseSha": "2e6e5e6b2ba13a8728f7d251812e78bf04c2e3ca",
+  "taskId": "DEV-CORE-1186-U04-OFFICE-ROUTE",
+  "task": "Core 1186 U04: fail-closed Pro-only Digital Office route shell while keeping Alap transactional commerce emails",
+  "status": "ready-for-implementation",
+  "guardDigest": "1d1d5f53",
+  "changeBaseSha": "e95038886d2d5a5f14337abba659806642fa51df",
   "plannedFilePatterns": [
-    "scripts/shoperation-external-proof-handoff.mjs",
-    "tests/shoperation-external-proof-handoff.test.ts",
-    ".github/workflows/template-factory-quality-gate.yml",
+    "src/app/admin/kommunikacio/layout.tsx",
+    "tests/pro-entitlement-guards.test.ts",
     "tests/customer-email-plan-split.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
-    "builder-template-system",
-    "quality-infrastructure",
-    "release-infrastructure",
-    "shared-storefront"
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-ADMIN"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "admin-operations"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -32,78 +26,28 @@
     "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
-    "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
-    "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
-    "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-019",
-    "SQ-KF-020",
-    "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
-    "TF-KF-006",
-    "TF-KF-007",
-    "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "TF-KF-006"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
-    "SQ-NK-007",
     "SQ-NK-008",
-    "SQ-NK-009",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-016",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-EXTERNAL-PROOF-ALIGNMENT",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U04-DIGITAL-OFFICE-PRO-ROUTE",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This is a dependency-authority correction for a blocking cross-workflow gate; only a complete canonical runtime graph, validated producer path trigger list, and absence of explicit or transitive obligations may justify not requesting the external artifact. Unknown states retain the proof requirement.",
+      "rationale": "A plan access denial on a nested Next.js admin route is a consequential tenant entitlement boundary. Enforce it server-side using the existing canonical officeCommunicationAdvanced feature, prove negative Alap and positive Pro and preserve transaction emails; this does not claim backend or full #1186 closure.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -120,24 +64,23 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Admin-only /admin/kommunikacio layout with no runtime closure intersection, nonmatching producer triggers and no explicit TF Completion evidence does not demand an impossible external TF artifact.",
-        "Touching any canonical TF runtime dependency, or a producer workflow path trigger, still requires the external Template Factory proof.",
-        "Absent or blocked runtime graph, malformed or mismatched workflow trigger patterns, explicit TF evidence, or transitive TF dependencies remain fail-closed.",
-        "The TF producer workflow must auto-trigger for edits to the cross-workflow proof classifier, on push and PR.",
-        "Negative unit tests, codebase Atlas closure, Development Guard, critical Plan Before Code, Edit-Time/Reference/Implementation Sync, Replay, Risk and exact-head CI must PASS; no gate is disabled.",
-        "Historical Fresh Install U03 regression proof remains anchored to immutable manifest, canonical CI baseline guard, and its validator rather than asserting the latest unrelated Control Plane plan mentions GUARD-CUSTOMER-BASELINE."
+        "The server-side Digital Office route layout calls requirePlanFeature(officeCommunicationAdvanced) before rendering children or issuing office data queries.",
+        "The root admin communications route, email workspace, tasks, chat and linked nested pages inherit the Pro-only layout gate rather than independent client-side hiding.",
+        "The Alap catalog retains officeCommunication and support, while the Pro entitlement catalog retains officeCommunicationAdvanced and Team Chat.",
+        "The existing older test which claimed Alap access to the shared office UI is corrected to the newer explicit PO package authority; normal transactional emails are explicitly protected.",
+        "Covers Alap with manual or trial chat overrides, Pro with valid entitlement and Pro without released advanced feature as fail-closed outcomes.",
+        "All Development Guard, Plan Before Code, Edit-Time/Reference and Implementation Sync, Knowledge, Incremental Replay, Release Risk, exact-head CI Truth and Lifecycle finish before merge."
       ],
       "invariants": [
-        "Preserve Template Factory Quality Gate v2, its complete 14-page/3-viewport proof, current truth authority and external artifact validator unchanged.",
-        "Use the existing canonical liveRuntime closure and workflow trigger patterns rather than an invented bypass or hand-maintained exemption list.",
-        "Do not infer proof absence from UI navigation, static naming conventions alone or missing snapshot inputs."
+        "The canonical Next.js RSC layout and existing requirePlanFeature are the sole new entrypoint authority; no new package flags, copy of permission policy or client-only gate.",
+        "No customer email dispatcher, communication job runtime, base officeCommunication grant, support navigation outside the Digital Office route, or SQL changes.",
+        "A route-level gate does not automatically protect direct server action or API invocations, and #1186 remains PARTIAL until these are proven."
       ],
       "forbiddenStates": [
-        "Any new runtime route or build dependency silently bypasses TF proof when liveRuntime closure is unavailable.",
-        "Explicit TF completion evidence requirement bypassed because planned files are unrelated.",
-        "A changed proof classifier avoids launching its own TF verification workflow.",
-        "Truth gate marked PASS by inventing an external artifact or claiming a successful workflow that never ran.",
-        "A historical U03 Fresh Install regression incorrectly fails future unrelated active plans due to checking the mutable development plan instead of the immutable proof and canonical CI baseline guard."
+        "Alap renders the Digital Office shell or shared mailbox despite a manual override and an underlying Pro-only subscription policy.",
+        "Pro is blocked from the shared office due to using the base officeCommunication check incorrectly.",
+        "Removing Alap officeCommunication or support to hide the workspace and thereby breaking receipts, notifications or customer communication.",
+        "A UI-only route gate is reported as complete Digital Office security or full #1186 DONE."
       ]
     },
     "model": {
@@ -169,38 +112,38 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "False-positive broad src/app path makes CI wait for nonexistent TF workflow",
-        "Classifier code change fails to trigger producer",
-        "Malformed workflow path parsing silently returns empty filters",
-        "TF runtime graph unresolved but classified unrelated",
-        "Required external TF proof bypassed despite explicit requirement"
+        "Tenant plan stale after downgrade permits a rendered Digital Office shell",
+        "Broad layout guard blocks ordinary support outside the office subtree",
+        "Client-only hide leaks server-rendered sensitive office data",
+        "Manual entitlement grants are mistaken for Pro subscription",
+        "Pro feature missing or revoked and route erroneously remains accessible"
       ],
       "edgeCases": [
-        "Admin communication nested layout does not belong to storefront template import closure",
-        "Shared root src/app/layout.tsx is in the Template Factory closure and must require proof",
-        "Storefront checkout route is producer-triggered even if newly added file is not imported",
-        "Unknown graph or missing workflow file requires proof",
-        "The workflow differs between push and pull_request path filters"
+        "Alap navigates by deep link directly to nested Office email composer",
+        "Pro subscription but officeCommunicationAdvanced feature disabled",
+        "Alap override to officeCommunicationAdvanced should be denied by canonical subscription boundary",
+        "Staff actor authenticated but outside selected tenant",
+        "No tenant selected must fail closed"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-RUNTIME-AUTHORITY",
-        "summary": "Use canonical live-runtime closure and validated producer workflow triggers to narrow only proven-unrelated external proof requirements.",
+        "id": "ALT-ROOT-RSC-LAYOUT",
+        "summary": "Gate the existing server Digital Office layout with the canonical Pro-only officeCommunicationAdvanced entitlement before rendering subtree.",
         "disposition": "selected",
-        "reason": "Preserves existing proof obligations for actual template inputs and returns fail-closed on unknowns."
+        "reason": "Single existing server entrypoint protects all nested office pages while leaving ordinary Alap commerce and support routes untouched."
       },
       {
-        "id": "ALT-DISABLE-EXTERNAL",
-        "summary": "Remove Template Factory external guard from the CI dependency chain.",
+        "id": "ALT-CLIENT-NAV-HIDE",
+        "summary": "Hide shared inbox tabs and Digital Office links only in client navigation components.",
         "disposition": "rejected",
-        "reason": "Would permit runtime and acceptance changes to close without required browser proof."
+        "reason": "Deep links still render the server data and actions; obscuring navigation is not authorization."
       },
       {
-        "id": "ALT-BROAD-TRIGGER",
-        "summary": "Run full 14×3 browser matrix for every unrelated administrative route modification.",
+        "id": "ALT-REMOVE-BASE-EMAIL",
+        "summary": "Revoke officeCommunication from Alap to implicitly close Digital Office screens.",
         "disposition": "rejected",
-        "reason": "Unnecessary resource expense and unrelated acceptance gate coupling; leaves incorrect dependency authority uncorrected."
+        "reason": "Breaks normal order and transactional customer emails, contradicting the accepted package boundary and existing grant authority."
       }
     ],
     "specialistReviews": [
@@ -208,140 +151,290 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The existing canonical runtime closure covers imported assets and ancestors; current office layout is outside its 268-file PASS set.",
-        "resolution": "Consult runtime closure rather than generic src/app file overlap; require proof for any explicit or other scoped input.",
+        "finding": "Existing canonical Next server requirePlanFeature and feature_entitlement already model the Pro boundary; a single RSC layout gate covers nested page render.",
+        "resolution": "Reuse officeCommunicationAdvanced, avoid another registry or migration, and scope the commit to UI route authority.",
         "evidence": [
-          "scripts/lib/shoperation-template-factory-resumable-verification.mjs"
+          "src/app/admin/kommunikacio/layout.tsx",
+          "src/lib/plans/access.ts"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Pruning external evidence on missing or unresolved runtime data could conceal a real proof omission.",
-        "resolution": "Require PASS runtime closure, nonempty equivalent push/PR triggers, and no explicit or transitive obligations before excluding the guard.",
+        "finding": "A route layout can deny HTML/RSC but cannot prove separately callable server actions and HTTP APIs are secure; claiming #1186 DONE would be unsafe.",
+        "resolution": "Mark server action/API checks explicitly outside this unit, block Alap RSC before office data reads, and require subsequent backend units.",
         "evidence": [
-          "quality/knowledge/guard-registry.v1.json"
+          "src/app/admin/kommunikacio/iroda/actions.ts",
+          "src/app/api/admin/office/delegations/route.ts"
         ]
       },
       {
-        "role": "Release",
+        "role": "Runtime",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The producer workflow lacks the classifier file among its trigger paths despite that file being a runtime classifier input.",
-        "resolution": "Add the source file trigger for push and pull_request; verify exact context and exact head through original handoff.",
+        "finding": "The Next.js server layout executes before nested route rendering and can use an awaited canonical server-only plan guard.",
+        "resolution": "Use async root communications layout and await requirePlanFeature before JSX, with unchanged nested UI contract.",
         "evidence": [
-          ".github/workflows/template-factory-quality-gate.yml"
+          "src/app/admin/kommunikacio/layout.tsx",
+          "src/app/admin/kommunikacio/iroda/page.tsx"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The current U04 CI waits for a Template Factory event that never occurred because dependency and trigger globs diverge.",
-        "resolution": "Add positive, negative, malformed and explicit-proof tests using existing contract, preserving failed unknown states.",
+        "finding": "Historical pro-entitlement test explicitly demands the obsolete Alap office workspace view while current Product Owner decision forbids that surface.",
+        "resolution": "Correct the outdated UI expectation and assert Alap transactional email grant and dispatcher remain untouched.",
         "evidence": [
-          "tests/shoperation-external-proof-handoff.test.ts"
+          "tests/pro-entitlement-guards.test.ts",
+          "tests/customer-email-plan-split.test.ts",
+          "src/lib/plans/catalog.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-CP-TF-1",
-        "scenario": "Office admin-only route changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
-        "finding": "Broad input creates a false positive This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
-        "resolution": "Exclude only after canonical proof of no intersection Enforce the derived contract with negative tests before permitting the related release transaction to close.",
+        "id": "CH-U04-01",
+        "scenario": "Direct Alap link to office customer email workspace",
+        "finding": "Page could query customer conversations without nav interaction",
+        "resolution": "Server layout requires advanced office feature before children",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-TF-2",
-        "scenario": "Root src/app layout changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
-        "finding": "A root ancestor affects all template pages This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
-        "resolution": "Always require external TF proof Enforce the derived contract with negative tests before permitting the related release transaction to close.",
+        "id": "CH-U04-02",
+        "scenario": "Alap user opens a nested office new-compose page",
+        "finding": "Nested workspace can be accessed by entering a URL directly",
+        "resolution": "Gate the common parent layout to cover nested paths",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-TF-3",
-        "scenario": "New checkout file changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
-        "finding": "Not yet imported but matched workflow path This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
-        "resolution": "Require TF proof from producer triggers Enforce the derived contract with negative tests before permitting the related release transaction to close.",
+        "id": "CH-U04-03",
+        "scenario": "Alap tenant receives a stale positive entitlement override",
+        "finding": "The shared-workspace gate could trust stale manual source",
+        "resolution": "Canonical entitlement helper enforces actual tenant plan boundary for officeCommunicationAdvanced",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-TF-4",
-        "scenario": "Missing runtime graph changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
-        "finding": "Cannot establish safe independence This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
-        "resolution": "Require TF proof Enforce the derived contract with negative tests before permitting the related release transaction to close.",
+        "id": "CH-U04-04",
+        "scenario": "Pro tenant does not have an active advanced office entitlement",
+        "finding": "Subscription alone would incorrectly authorize disabled module",
+        "resolution": "Require the released feature entitlement and retain default fail-closed redirect",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-TF-5",
-        "scenario": "Malformed workflow paths changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
-        "finding": "Producer trigger authority cannot be trusted This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
-        "resolution": "Require TF proof Enforce the derived contract with negative tests before permitting the related release transaction to close.",
+        "id": "CH-U04-05",
+        "scenario": "Old Alap officeCommunication grant is removed to hide UI",
+        "finding": "Transactional customer messages and support stop working",
+        "resolution": "Never modify base plan grant or transaction dispatcher; assert Alap baseline remains",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-TF-6",
-        "scenario": "Mismatched PR/push paths changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
-        "finding": "One side will not produce matched evidence This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
-        "resolution": "Require TF proof Enforce the derived contract with negative tests before permitting the related release transaction to close.",
+        "id": "CH-U04-06",
+        "scenario": "Server Action is called without loading the layout",
+        "finding": "A route-level gate does not protect direct RPC or server action invocation",
+        "resolution": "Keep backend proof explicitly separate and issue #1186 PARTIAL",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-TF-7",
-        "scenario": "Explicit TF Completion requirement changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
-        "finding": "Product contract must override negative inference This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
-        "resolution": "Require TF proof Enforce the derived contract with negative tests before permitting the related release transaction to close.",
+        "id": "CH-U04-07",
+        "scenario": "Support page outside the Digital Office subtree is blocked",
+        "finding": "Alap baseline customer service entrypoint becomes inaccessible",
+        "resolution": "Scope only /admin/kommunikacio layout; preserve /admin/ugyfelszolgalat route",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-TF-8",
-        "scenario": "Classifier changed changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
-        "finding": "External proof evaluator is part of proof authority This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
-        "resolution": "Workflow must automatically run and require TF proof Enforce the derived contract with negative tests before permitting the related release transaction to close.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-CP-TF-09",
-        "scenario": "Fresh Install U03 test is run under the new Control Plane active-plan while retaining the valid 0046 manifest.",
-        "finding": "A historical test asserts a dynamically selected current-plan guard and fails although the 0046 baseline proof remains valid.",
-        "resolution": "Assert canonical CI guard and immutable baseline proof contract independently of active-plan selection; keep the actual customer baseline guard in CI mandatory.",
+        "id": "CH-U04-08",
+        "scenario": "Pro page loses existing functional navigation after authorization",
+        "finding": "Redirect applied unconditionally or to the wrong feature",
+        "resolution": "Gate using officeCommunicationAdvanced only and retain child rendering structure",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run critical Plan Before Code with checked actual change scope and negative scenarios.",
-      "Use real Atlas PASS runtime closure and workflow path globs to distinguish unrelated office route from root layout and storefront checkout.",
-      "Assert fail-closed for missing or corrupt workflow, missing closure, explicit and transitive TF completion evidence.",
-      "Confirm workflow push and PR filters include changed classifier source, targeted Vitest and TypeScript tests PASS.",
-      "Run Knowledge, Edit-Time/Reference/Implementation Sync, Incremental Replay, Release Risk and exact-head CI/Truth/Lifecycle before merge.",
-      "Re-run the historical U03 proof-contract test under this non-database Control Plane plan to demonstrate no false-positive mismatch."
+      "Run critical Development Guard and Plan Before Code on exact known main baseline, reviewing all generated semantic route authority and impacted pages.",
+      "Negative contract tests require the parent Digital Office layout server to call requirePlanFeature with advanced entitlement, and old Alap shared workspace assertion to be absent.",
+      "Positive contract tests preserve Alap officeCommunication and support entitlements and existing transactional delivery references.",
+      "Run targeted regressions and TS check, then Edit-Time Reference and Implementation Sync, Knowledge/Deep Atlas, Incremental Replay and release risk.",
+      "Run exact-head GitHub CI and Truth/Lifecycle closure; do not merge until exact completed proof and follow with main CI."
     ],
     "semanticExecutionRoute": {
-      "request": "Control Plane closure: exact runtime Template Factory proof classification and workflow trigger parity for unrelated admin route changes",
+      "request": "Core 1186 U04: fail-closed Pro-only Digital Office route shell while keeping Alap transactional commerce emails",
       "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
+        "admin-operations"
       ],
       "mustEdit": [
-        ".github/workflows/template-factory-quality-gate.yml",
-        "scripts/shoperation-external-proof-handoff.mjs",
-        "tests/shoperation-external-proof-handoff.test.ts",
-        "tests/customer-email-plan-split.test.ts"
+        "src/app/admin/kommunikacio/layout.tsx",
+        "tests/customer-email-plan-split.test.ts",
+        "tests/pro-entitlement-guards.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "scripts/shoperation-verification-checkpoint.mjs",
-        "tests/control-plane-ecosystem-chain.test.ts",
-        "tests/shoperation-resumable-verification.test.ts"
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+        "src/app/admin/automatizalas/esemenyek/page.tsx",
+        "src/app/admin/automatizalas/page.tsx",
+        "src/app/admin/beallitasok/fizetes-szallitas/page.tsx",
+        "src/app/admin/beallitasok/integraciok/[id]/page.tsx",
+        "src/app/admin/beszerzes/page.tsx",
+        "src/app/admin/cashflow/page.tsx",
+        "src/app/admin/elemzes/page.tsx",
+        "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
+        "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
+        "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
+        "src/app/admin/email-sablonok/brand-kit/page.tsx",
+        "src/app/admin/email-sablonok/page.tsx",
+        "src/app/admin/ertekesites/page.tsx",
+        "src/app/admin/integraciok/page.tsx",
+        "src/app/admin/iranyitokozpont/page.tsx",
+        "src/app/admin/kampanyok/[id]/page.tsx",
+        "src/app/admin/kampanyok/page.tsx",
+        "src/app/admin/keszlet-elemzes/layout.tsx",
+        "src/app/admin/keszlet-elemzes/page.tsx",
+        "src/app/admin/kommunikacio/chat/actions.ts",
+        "src/app/admin/kommunikacio/chat/page.tsx",
+        "src/app/admin/kommunikacio/felugyelet/layout.tsx",
+        "src/app/admin/kommunikacio/felugyelet/page.tsx",
+        "src/app/admin/kommunikacio/iroda/actions.ts",
+        "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
+        "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+        "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
+        "src/app/admin/kommunikacio/iroda/hub/page.tsx",
+        "src/app/admin/kommunikacio/iroda/page.tsx",
+        "src/app/admin/kommunikacio/iroda/uj/page.tsx",
+        "src/app/admin/kommunikacio/tiltolista/page.tsx",
+        "src/app/admin/kuponok/page.tsx",
+        "src/app/admin/layout.tsx",
+        "src/app/admin/marketing/page.tsx",
+        "src/app/admin/migracio/page.tsx",
+        "src/app/admin/novekedes/page.tsx",
+        "src/app/admin/optimalizalas/page.tsx",
+        "src/app/admin/page.tsx",
+        "src/app/admin/tartalom/builder/page.tsx",
+        "src/app/admin/tartalom/page.tsx",
+        "src/app/admin/tartalom/receptek/page.tsx",
+        "src/app/admin/tartalom/release-ek/page.tsx",
+        "src/app/admin/termekajanlasok/page.tsx",
+        "src/app/admin/termekek/feltoltes/[id]/page.tsx",
+        "src/app/admin/termekek/feltoltes/masolas/page.tsx",
+        "src/app/admin/termekek/feltoltes/page.tsx",
+        "src/app/admin/termekek/feltoltes/uj/page.tsx",
+        "src/app/admin/termekek/import-export/page.tsx",
+        "src/app/admin/termekek/tomeges/page.tsx",
+        "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
+        "src/app/admin/ugyfelszolgalat/page.tsx",
+        "src/app/admin/velemenyek/actions.ts",
+        "src/app/admin/velemenyek/page.tsx",
+        "src/app/api/admin/campaigns/manage/route.ts",
+        "src/app/api/admin/campaigns/route.ts",
+        "src/app/api/admin/communication/enqueue/route.ts",
+        "src/app/api/admin/communication/manage/route.ts",
+        "src/app/api/admin/communication/suppression/route.ts",
+        "src/app/api/admin/content/[id]/route.ts",
+        "src/app/api/admin/content/route.ts",
+        "src/app/api/admin/coupons/route.ts",
+        "src/app/api/admin/email-builder/brand-kit/route.ts",
+        "src/app/api/admin/email-builder/preview/route.ts",
+        "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
+        "src/app/api/admin/email-builder/saved-blocks/route.ts",
+        "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
+        "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
+        "src/app/api/admin/email-builder/templates/[id]/route.ts",
+        "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
+        "src/app/api/admin/email-builder/templates/route.ts",
+        "src/app/api/admin/growth/run/route.ts",
+        "src/app/api/admin/promotions/preview/route.ts",
+        "src/app/kereses/page.tsx",
+        "src/app/webaruhaz/page.tsx",
+        "src/lib/auth/store-capabilities.ts",
+        "src/lib/auth/store-rbac.ts",
+        "src/lib/digital-office/access.ts",
+        "src/lib/navigation/admin-ia.ts"
       ],
       "mustCreate": [],
       "forbidden": [],
       "proof": [
-        "tests/control-plane-ecosystem-chain.test.ts",
-        "tests/shoperation-external-proof-handoff.test.ts",
-        "tests/shoperation-resumable-verification.test.ts"
+        "tests/admin-api-tenant-mutation-closure.test.ts",
+        "tests/admin-growth-refresh-evidence.test.ts",
+        "tests/admin-link-integrity.test.ts",
+        "tests/admin-route-rbac.test.ts",
+        "tests/advanced-integration-workflows.test.ts",
+        "tests/automation-workflows.test.ts",
+        "tests/block12-migration-assistant.test.ts",
+        "tests/block14-catalog-onboarding-import-ux.test.ts",
+        "tests/block16-commerce-recovery-integration.test.ts",
+        "tests/block18-ai-assisted-decisioning.test.ts",
+        "tests/block19-predictive-optimization-autonomy.test.ts",
+        "tests/block20-platform-ecosystem.test.ts",
+        "tests/block4-ia-navigation-reporting.test.ts",
+        "tests/block5-role-aware-ui.test.ts",
+        "tests/block7-b2b-account-ownership.test.ts",
+        "tests/campaign-creation-fail-closed.test.ts",
+        "tests/campaign-lifecycle-evidence-atomicity.test.ts",
+        "tests/communication-hub-2-0.test.ts",
+        "tests/customer-email-plan-split.test.ts",
+        "tests/digital-commerce-builder-integration.test.tsx",
+        "tests/digital-office-attachment-quarantine-scan.test.ts",
+        "tests/digital-office-chat-composer-hardening.test.ts",
+        "tests/digital-office-internal-chat-capability-gate.test.ts",
+        "tests/digital-office-privacy-foundation.test.ts",
+        "tests/digital-office-private-attachments.test.ts",
+        "tests/digital-office-support-ticket-integration.test.ts",
+        "tests/digital-office-team-chat-2-foundation.test.ts",
+        "tests/digital-office-team-chat-final-ux.test.ts",
+        "tests/digital-office-unified-ui.test.ts",
+        "tests/email-builder-d1-admin-shell.test.ts",
+        "tests/email-builder-d2-editor.test.ts",
+        "tests/email-builder-foundation-b.test.ts",
+        "tests/email-builder-foundation.test.ts",
+        "tests/email-builder-publication-lifecycle.test.ts",
+        "tests/email-builder-saved-blocks.test.ts",
+        "tests/event-driven-workflow-automation.test.ts",
+        "tests/executive-analytics-ux-closure.test.ts",
+        "tests/executive-decision-workflows.test.ts",
+        "tests/fine-grained-store-rbac.test.ts",
+        "tests/merchant-admin-tenant-closure.test.ts",
+        "tests/merchant-read-page-scope.test.ts",
+        "tests/order-core-transactional-email-dispatch-contract.test.ts",
+        "tests/phase4-platform-pilot-acceptance-entry.test.ts",
+        "tests/pilot-acceptance-access.test.ts",
+        "tests/platform-admin-scope-closure.test.ts",
+        "tests/platform-owner-zero-tenant-hotfix.test.ts",
+        "tests/pro-finance-analytics-contracts.test.ts",
+        "tests/procurement-workflows.test.ts",
+        "tests/roadmap-block21-page-schema-templates.test.ts",
+        "tests/roadmap-block22-schema-policy.test.ts",
+        "tests/roadmap-block22-visual-builder.test.ts",
+        "tests/special-commerce-wave5-existing-engine-closure.test.ts",
+        "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
+        "tests/special-commerce-wave7-template2-adoption.test.ts",
+        "tests/storefront-alpine-lodge-template.test.tsx",
+        "tests/storefront-alpine-lodge-wave33-reacceptance.test.ts",
+        "tests/storefront-beauty-lab-reference-v2.test.ts",
+        "tests/storefront-beauty-lab-template.test.tsx",
+        "tests/storefront-beauty-lab-wave32-reacceptance.test.ts",
+        "tests/storefront-commerce-header.test.tsx",
+        "tests/storefront-component-variants.test.ts",
+        "tests/storefront-derma-studio-template.test.tsx",
+        "tests/storefront-derma-studio-wave30-reacceptance.test.tsx",
+        "tests/storefront-editorial-atelier-template.test.tsx",
+        "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
+        "tests/storefront-fidelity-security.test.ts",
+        "tests/storefront-global-styles.test.ts",
+        "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
+        "tests/storefront-interactive-scene-commerce.test.tsx",
+        "tests/storefront-market-pantry-template.test.tsx",
+        "tests/storefront-modern-luxe-template.test.tsx",
+        "tests/storefront-modern-luxe-wave46-reacceptance.test.ts",
+        "tests/storefront-my-pack-template.test.tsx",
+        "tests/storefront-reusable-symbols.test.ts",
+        "tests/storefront-room-scene-composer.test.tsx",
+        "tests/storefront-sport-hub-template.test.tsx",
+        "tests/storefront-sport-hub-wave40-reacceptance.test.ts",
+        "tests/storefront-street-drop-template.test.tsx",
+        "tests/storefront-street-drop-wave26-reacceptance.test.tsx",
+        "tests/storefront-template-library-ux.test.ts",
+        "tests/storefront-template-preview-access.test.ts",
+        "tests/visual-builder-v3-list-editing.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -352,65 +445,220 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          ".github/workflows/template-factory-quality-gate.yml",
-          "scripts/shoperation-external-proof-handoff.mjs",
-          "tests/shoperation-external-proof-handoff.test.ts"
+          "src/app/admin/kommunikacio/layout.tsx",
+          "tests/customer-email-plan-split.test.ts",
+          "tests/pro-entitlement-guards.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [
-          "scripts/shoperation-verification-checkpoint.mjs",
-          "tests/control-plane-ecosystem-chain.test.ts",
-          "tests/shoperation-resumable-verification.test.ts"
+          "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+          "src/app/admin/automatizalas/esemenyek/page.tsx",
+          "src/app/admin/automatizalas/page.tsx",
+          "src/app/admin/beallitasok/fizetes-szallitas/page.tsx",
+          "src/app/admin/beallitasok/integraciok/[id]/page.tsx",
+          "src/app/admin/beszerzes/page.tsx",
+          "src/app/admin/cashflow/page.tsx",
+          "src/app/admin/elemzes/page.tsx",
+          "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
+          "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
+          "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
+          "src/app/admin/email-sablonok/brand-kit/page.tsx",
+          "src/app/admin/email-sablonok/page.tsx",
+          "src/app/admin/ertekesites/page.tsx",
+          "src/app/admin/integraciok/page.tsx",
+          "src/app/admin/iranyitokozpont/page.tsx",
+          "src/app/admin/kampanyok/[id]/page.tsx",
+          "src/app/admin/kampanyok/page.tsx",
+          "src/app/admin/keszlet-elemzes/layout.tsx",
+          "src/app/admin/keszlet-elemzes/page.tsx",
+          "src/app/admin/kommunikacio/chat/actions.ts",
+          "src/app/admin/kommunikacio/chat/page.tsx",
+          "src/app/admin/kommunikacio/felugyelet/layout.tsx",
+          "src/app/admin/kommunikacio/felugyelet/page.tsx",
+          "src/app/admin/kommunikacio/iroda/actions.ts",
+          "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
+          "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+          "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
+          "src/app/admin/kommunikacio/iroda/hub/page.tsx",
+          "src/app/admin/kommunikacio/iroda/page.tsx",
+          "src/app/admin/kommunikacio/iroda/uj/page.tsx",
+          "src/app/admin/kommunikacio/tiltolista/page.tsx",
+          "src/app/admin/kuponok/page.tsx",
+          "src/app/admin/layout.tsx",
+          "src/app/admin/marketing/page.tsx",
+          "src/app/admin/migracio/page.tsx",
+          "src/app/admin/novekedes/page.tsx",
+          "src/app/admin/optimalizalas/page.tsx",
+          "src/app/admin/page.tsx",
+          "src/app/admin/tartalom/builder/page.tsx",
+          "src/app/admin/tartalom/page.tsx",
+          "src/app/admin/tartalom/receptek/page.tsx",
+          "src/app/admin/tartalom/release-ek/page.tsx",
+          "src/app/admin/termekajanlasok/page.tsx",
+          "src/app/admin/termekek/feltoltes/[id]/page.tsx",
+          "src/app/admin/termekek/feltoltes/masolas/page.tsx",
+          "src/app/admin/termekek/feltoltes/page.tsx",
+          "src/app/admin/termekek/feltoltes/uj/page.tsx",
+          "src/app/admin/termekek/import-export/page.tsx",
+          "src/app/admin/termekek/tomeges/page.tsx",
+          "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
+          "src/app/admin/ugyfelszolgalat/page.tsx",
+          "src/app/admin/velemenyek/actions.ts",
+          "src/app/admin/velemenyek/page.tsx",
+          "src/app/api/admin/campaigns/manage/route.ts",
+          "src/app/api/admin/campaigns/route.ts",
+          "src/app/api/admin/communication/enqueue/route.ts",
+          "src/app/api/admin/communication/manage/route.ts",
+          "src/app/api/admin/communication/suppression/route.ts",
+          "src/app/api/admin/content/[id]/route.ts",
+          "src/app/api/admin/content/route.ts",
+          "src/app/api/admin/coupons/route.ts",
+          "src/app/api/admin/email-builder/brand-kit/route.ts",
+          "src/app/api/admin/email-builder/preview/route.ts",
+          "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
+          "src/app/api/admin/email-builder/saved-blocks/route.ts",
+          "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
+          "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
+          "src/app/api/admin/email-builder/templates/[id]/route.ts",
+          "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
+          "src/app/api/admin/email-builder/templates/route.ts",
+          "src/app/api/admin/growth/run/route.ts",
+          "src/app/api/admin/promotions/preview/route.ts",
+          "src/app/kereses/page.tsx",
+          "src/app/webaruhaz/page.tsx",
+          "src/lib/auth/store-capabilities.ts",
+          "src/lib/auth/store-rbac.ts",
+          "src/lib/digital-office/access.ts",
+          "src/lib/navigation/admin-ia.ts"
         ],
         "mustCreate": [],
         "forbidden": [],
         "proof": [
-          "tests/control-plane-ecosystem-chain.test.ts",
-          "tests/shoperation-external-proof-handoff.test.ts",
-          "tests/shoperation-resumable-verification.test.ts"
+          "tests/admin-api-tenant-mutation-closure.test.ts",
+          "tests/admin-growth-refresh-evidence.test.ts",
+          "tests/admin-link-integrity.test.ts",
+          "tests/admin-route-rbac.test.ts",
+          "tests/advanced-integration-workflows.test.ts",
+          "tests/automation-workflows.test.ts",
+          "tests/block12-migration-assistant.test.ts",
+          "tests/block14-catalog-onboarding-import-ux.test.ts",
+          "tests/block16-commerce-recovery-integration.test.ts",
+          "tests/block18-ai-assisted-decisioning.test.ts",
+          "tests/block19-predictive-optimization-autonomy.test.ts",
+          "tests/block20-platform-ecosystem.test.ts",
+          "tests/block4-ia-navigation-reporting.test.ts",
+          "tests/block5-role-aware-ui.test.ts",
+          "tests/block7-b2b-account-ownership.test.ts",
+          "tests/campaign-creation-fail-closed.test.ts",
+          "tests/campaign-lifecycle-evidence-atomicity.test.ts",
+          "tests/communication-hub-2-0.test.ts",
+          "tests/customer-email-plan-split.test.ts",
+          "tests/digital-commerce-builder-integration.test.tsx",
+          "tests/digital-office-attachment-quarantine-scan.test.ts",
+          "tests/digital-office-chat-composer-hardening.test.ts",
+          "tests/digital-office-internal-chat-capability-gate.test.ts",
+          "tests/digital-office-privacy-foundation.test.ts",
+          "tests/digital-office-private-attachments.test.ts",
+          "tests/digital-office-support-ticket-integration.test.ts",
+          "tests/digital-office-team-chat-2-foundation.test.ts",
+          "tests/digital-office-team-chat-final-ux.test.ts",
+          "tests/digital-office-unified-ui.test.ts",
+          "tests/email-builder-d1-admin-shell.test.ts",
+          "tests/email-builder-d2-editor.test.ts",
+          "tests/email-builder-foundation-b.test.ts",
+          "tests/email-builder-foundation.test.ts",
+          "tests/email-builder-publication-lifecycle.test.ts",
+          "tests/email-builder-saved-blocks.test.ts",
+          "tests/event-driven-workflow-automation.test.ts",
+          "tests/executive-analytics-ux-closure.test.ts",
+          "tests/executive-decision-workflows.test.ts",
+          "tests/fine-grained-store-rbac.test.ts",
+          "tests/merchant-admin-tenant-closure.test.ts",
+          "tests/merchant-read-page-scope.test.ts",
+          "tests/order-core-transactional-email-dispatch-contract.test.ts",
+          "tests/phase4-platform-pilot-acceptance-entry.test.ts",
+          "tests/pilot-acceptance-access.test.ts",
+          "tests/platform-admin-scope-closure.test.ts",
+          "tests/platform-owner-zero-tenant-hotfix.test.ts",
+          "tests/pro-finance-analytics-contracts.test.ts",
+          "tests/procurement-workflows.test.ts",
+          "tests/roadmap-block21-page-schema-templates.test.ts",
+          "tests/roadmap-block22-schema-policy.test.ts",
+          "tests/roadmap-block22-visual-builder.test.ts",
+          "tests/special-commerce-wave5-existing-engine-closure.test.ts",
+          "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
+          "tests/special-commerce-wave7-template2-adoption.test.ts",
+          "tests/storefront-alpine-lodge-template.test.tsx",
+          "tests/storefront-alpine-lodge-wave33-reacceptance.test.ts",
+          "tests/storefront-beauty-lab-reference-v2.test.ts",
+          "tests/storefront-beauty-lab-template.test.tsx",
+          "tests/storefront-beauty-lab-wave32-reacceptance.test.ts",
+          "tests/storefront-commerce-header.test.tsx",
+          "tests/storefront-component-variants.test.ts",
+          "tests/storefront-derma-studio-template.test.tsx",
+          "tests/storefront-derma-studio-wave30-reacceptance.test.tsx",
+          "tests/storefront-editorial-atelier-template.test.tsx",
+          "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
+          "tests/storefront-fidelity-security.test.ts",
+          "tests/storefront-global-styles.test.ts",
+          "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
+          "tests/storefront-interactive-scene-commerce.test.tsx",
+          "tests/storefront-market-pantry-template.test.tsx",
+          "tests/storefront-modern-luxe-template.test.tsx",
+          "tests/storefront-modern-luxe-wave46-reacceptance.test.ts",
+          "tests/storefront-my-pack-template.test.tsx",
+          "tests/storefront-reusable-symbols.test.ts",
+          "tests/storefront-room-scene-composer.test.tsx",
+          "tests/storefront-sport-hub-template.test.tsx",
+          "tests/storefront-sport-hub-wave40-reacceptance.test.ts",
+          "tests/storefront-street-drop-template.test.tsx",
+          "tests/storefront-street-drop-wave26-reacceptance.test.tsx",
+          "tests/storefront-template-library-ux.test.ts",
+          "tests/storefront-template-preview-access.test.ts",
+          "tests/visual-builder-v3-list-editing.test.ts"
         ],
         "authority": [
+          "admin-operations",
           "auth-access-authority",
-          "database-schema",
+          "builder-template-system",
+          "catalog-inventory-authority",
+          "commerce-core-authority",
+          "content-authority",
+          "integration-adapter-authority",
           "quality-knowledge-system",
-          "release-infrastructure",
+          "shared-storefront",
           "tenant-context-authority"
         ],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 4,
+        "score": 2,
         "maxPoints": 5,
-        "subsystemCount": 2,
+        "subsystemCount": 1,
         "maxSubsystems": 3,
         "subsystems": [
           {
-            "subsystem": "release-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "subsystem": "quality-infrastructure",
+            "subsystem": "admin-operations",
             "risk": "medium",
             "points": 2
           }
         ],
         "files": [
           {
-            "file": ".github/workflows/template-factory-quality-gate.yml",
-            "subsystem": "release-infrastructure",
+            "file": "src/app/admin/kommunikacio/layout.tsx",
+            "subsystem": "admin-operations",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "scripts/shoperation-external-proof-handoff.mjs",
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
+            "file": "tests/customer-email-plan-split.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
           },
           {
-            "file": "tests/shoperation-external-proof-handoff.test.ts",
+            "file": "tests/pro-entitlement-guards.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -425,37 +673,32 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 4,
+          "score": 2,
           "maxPoints": 5,
-          "subsystemCount": 2,
+          "subsystemCount": 1,
           "maxSubsystems": 3,
           "subsystems": [
             {
-              "subsystem": "release-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "subsystem": "quality-infrastructure",
+              "subsystem": "admin-operations",
               "risk": "medium",
               "points": 2
             }
           ],
           "files": [
             {
-              "file": ".github/workflows/template-factory-quality-gate.yml",
-              "subsystem": "release-infrastructure",
+              "file": "src/app/admin/kommunikacio/layout.tsx",
+              "subsystem": "admin-operations",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "scripts/shoperation-external-proof-handoff.mjs",
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
+              "file": "tests/customer-email-plan-split.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
             },
             {
-              "file": "tests/shoperation-external-proof-handoff.test.ts",
+              "file": "tests/pro-entitlement-guards.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -465,33 +708,12 @@
           "decision": "PASS"
         },
         "maxFilesPerUnit": 12,
-        "repositoryEdges": [
-          {
-            "from": "scripts/shoperation-external-proof-handoff.mjs",
-            "to": "tests/shoperation-external-proof-handoff.test.ts",
-            "type": "repository-dependency"
-          },
-          {
-            "from": "scripts/shoperation-external-proof-handoff.mjs",
-            "to": "tests/shoperation-external-proof-handoff.test.ts",
-            "type": "proof-ownership"
-          },
-          {
-            "from": "tests/shoperation-external-proof-handoff.test.ts",
-            "to": "scripts/shoperation-external-proof-handoff.mjs",
-            "type": "proof-ownership"
-          },
-          {
-            "from": "tests/shoperation-external-proof-handoff.test.ts",
-            "to": "tests/shoperation-external-proof-handoff.test.ts",
-            "type": "proof-ownership"
-          }
-        ],
+        "repositoryEdges": [],
         "atomicComponents": [
           {
             "id": 0,
             "files": [
-              ".github/workflows/template-factory-quality-gate.yml"
+              "src/app/admin/kommunikacio/layout.tsx"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -501,15 +723,15 @@
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "release-infrastructure",
+                  "subsystem": "admin-operations",
                   "risk": "medium",
                   "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": ".github/workflows/template-factory-quality-gate.yml",
-                  "subsystem": "release-infrastructure",
+                  "file": "src/app/admin/kommunikacio/layout.tsx",
+                  "subsystem": "admin-operations",
                   "risk": "medium",
                   "points": 2
                 }
@@ -521,31 +743,42 @@
           {
             "id": 1,
             "files": [
-              "scripts/shoperation-external-proof-handoff.mjs",
-              "tests/shoperation-external-proof-handoff.test.ts"
+              "tests/customer-email-plan-split.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 0,
               "maxPoints": 5,
-              "subsystemCount": 1,
+              "subsystemCount": 0,
               "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
+              "subsystems": [],
               "files": [
                 {
-                  "file": "scripts/shoperation-external-proof-handoff.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
+                  "file": "tests/customer-email-plan-split.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 2,
+            "files": [
+              "tests/pro-entitlement-guards.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
                 {
-                  "file": "tests/shoperation-external-proof-handoff.test.ts",
+                  "file": "tests/pro-entitlement-guards.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -563,85 +796,91 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "2e6e5e6b2ba13a8728f7d251812e78bf04c2e3ca"
+              "developmentBaseSha": "e95038886d2d5a5f14337abba659806642fa51df"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "2e6e5e6b2ba13a8728f7d251812e78bf04c2e3ca",
+            "targetBaseSha": "e95038886d2d5a5f14337abba659806642fa51df",
             "lease": {
-              "expectedBaseSha": "2e6e5e6b2ba13a8728f7d251812e78bf04c2e3ca",
+              "expectedBaseSha": "e95038886d2d5a5f14337abba659806642fa51df",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              ".github/workflows/template-factory-quality-gate.yml",
-              "scripts/shoperation-external-proof-handoff.mjs",
-              "tests/shoperation-external-proof-handoff.test.ts"
+              "src/app/admin/kommunikacio/layout.tsx",
+              "tests/customer-email-plan-split.test.ts",
+              "tests/pro-entitlement-guards.test.ts"
             ],
             "operations": [
               {
                 "operation": "modify",
-                "file": ".github/workflows/template-factory-quality-gate.yml",
+                "file": "src/app/admin/kommunikacio/layout.tsx",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "scripts/shoperation-external-proof-handoff.mjs",
+                "file": "tests/customer-email-plan-split.test.ts",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "tests/shoperation-external-proof-handoff.test.ts",
+                "file": "tests/pro-entitlement-guards.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [
-              "scripts/lib/shoperation-development-runtime.mjs",
-              "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-              "scripts/shoperation-external-proof-handoff.mjs"
+              "src/app/admin/kommunikacio/communication-app-final.css",
+              "src/app/admin/kommunikacio/digital-office-context-redesign.css",
+              "src/app/admin/kommunikacio/digital-office-file-picker-final.css",
+              "src/app/admin/kommunikacio/digital-office-height-final.css",
+              "src/app/admin/kommunikacio/digital-office-performance-hardening.css",
+              "src/app/admin/kommunikacio/digital-office-support-alert.css",
+              "src/app/admin/kommunikacio/digital-office-ui-consistency.css",
+              "src/app/admin/kommunikacio/digital-office-workspace-redesign.css",
+              "src/app/admin/kommunikacio/mobile-desktop-compat.css",
+              "src/app/admin/kommunikacio/team-chat-composer-hardening.css",
+              "src/components/admin/admin-mobile-desktop-compat.tsx",
+              "src/components/admin/digital-office-mobile-controller.tsx",
+              "src/components/admin/digital-office-support-alert.tsx",
+              "src/components/navigation/digital-office-navigation.tsx",
+              "src/lib/digital-office/access.ts",
+              "src/lib/plans/catalog.ts"
             ],
             "authorities": [
-              "quality-knowledge-system",
-              "release-infrastructure"
+              "admin-operations"
             ],
             "subsystems": [
-              "release-infrastructure",
-              "quality-infrastructure"
+              "admin-operations"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 4,
+              "score": 2,
               "maxPoints": 5,
-              "subsystemCount": 2,
+              "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "subsystem": "quality-infrastructure",
+                  "subsystem": "admin-operations",
                   "risk": "medium",
                   "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": ".github/workflows/template-factory-quality-gate.yml",
-                  "subsystem": "release-infrastructure",
+                  "file": "src/app/admin/kommunikacio/layout.tsx",
+                  "subsystem": "admin-operations",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "scripts/shoperation-external-proof-handoff.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "file": "tests/customer-email-plan-split.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
                 },
                 {
-                  "file": "tests/shoperation-external-proof-handoff.test.ts",
+                  "file": "tests/pro-entitlement-guards.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -651,10 +890,11 @@
               "decision": "PASS"
             },
             "requiredGates": [
-              "GUARD-COMPLETION-TRUTH",
+              "GUARD-CUSTOMER-BASELINE",
               "GUARD-EDIT-TIME",
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-MARKET-READY",
               "GUARD-PLAN-BEFORE-CODE",
               "GUARD-PRODUCTION-BUILD",
               "GUARD-QUALITY-TESTS",
@@ -664,10 +904,11 @@
             ],
             "requiredEvidence": {
               "gateIds": [
-                "GUARD-COMPLETION-TRUTH",
+                "GUARD-CUSTOMER-BASELINE",
                 "GUARD-EDIT-TIME",
                 "GUARD-INCREMENTAL-REPLAY",
                 "GUARD-KNOWLEDGE-PREFLIGHT",
+                "GUARD-MARKET-READY",
                 "GUARD-PLAN-BEFORE-CODE",
                 "GUARD-PRODUCTION-BUILD",
                 "GUARD-QUALITY-TESTS",
@@ -676,7 +917,8 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-external-proof-handoff.test.ts"
+                "tests/customer-email-plan-split.test.ts",
+                "tests/pro-entitlement-guards.test.ts"
               ],
               "externalGateIds": [
                 "GUARD-TEMPLATE-FACTORY"
@@ -684,18 +926,94 @@
             },
             "forbiddenPaths": [],
             "readOnlyPaths": [
-              "scripts/shoperation-verification-checkpoint.mjs",
-              "tests/control-plane-ecosystem-chain.test.ts",
-              "tests/shoperation-resumable-verification.test.ts"
+              "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+              "src/app/admin/automatizalas/esemenyek/page.tsx",
+              "src/app/admin/automatizalas/page.tsx",
+              "src/app/admin/beallitasok/fizetes-szallitas/page.tsx",
+              "src/app/admin/beallitasok/integraciok/[id]/page.tsx",
+              "src/app/admin/beszerzes/page.tsx",
+              "src/app/admin/cashflow/page.tsx",
+              "src/app/admin/elemzes/page.tsx",
+              "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
+              "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
+              "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
+              "src/app/admin/email-sablonok/brand-kit/page.tsx",
+              "src/app/admin/email-sablonok/page.tsx",
+              "src/app/admin/ertekesites/page.tsx",
+              "src/app/admin/integraciok/page.tsx",
+              "src/app/admin/iranyitokozpont/page.tsx",
+              "src/app/admin/kampanyok/[id]/page.tsx",
+              "src/app/admin/kampanyok/page.tsx",
+              "src/app/admin/keszlet-elemzes/layout.tsx",
+              "src/app/admin/keszlet-elemzes/page.tsx",
+              "src/app/admin/kommunikacio/chat/actions.ts",
+              "src/app/admin/kommunikacio/chat/page.tsx",
+              "src/app/admin/kommunikacio/felugyelet/layout.tsx",
+              "src/app/admin/kommunikacio/felugyelet/page.tsx",
+              "src/app/admin/kommunikacio/iroda/actions.ts",
+              "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
+              "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+              "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
+              "src/app/admin/kommunikacio/iroda/hub/page.tsx",
+              "src/app/admin/kommunikacio/iroda/page.tsx",
+              "src/app/admin/kommunikacio/iroda/uj/page.tsx",
+              "src/app/admin/kommunikacio/tiltolista/page.tsx",
+              "src/app/admin/kuponok/page.tsx",
+              "src/app/admin/layout.tsx",
+              "src/app/admin/marketing/page.tsx",
+              "src/app/admin/migracio/page.tsx",
+              "src/app/admin/novekedes/page.tsx",
+              "src/app/admin/optimalizalas/page.tsx",
+              "src/app/admin/page.tsx",
+              "src/app/admin/tartalom/builder/page.tsx",
+              "src/app/admin/tartalom/page.tsx",
+              "src/app/admin/tartalom/receptek/page.tsx",
+              "src/app/admin/tartalom/release-ek/page.tsx",
+              "src/app/admin/termekajanlasok/page.tsx",
+              "src/app/admin/termekek/feltoltes/[id]/page.tsx",
+              "src/app/admin/termekek/feltoltes/masolas/page.tsx",
+              "src/app/admin/termekek/feltoltes/page.tsx",
+              "src/app/admin/termekek/feltoltes/uj/page.tsx",
+              "src/app/admin/termekek/import-export/page.tsx",
+              "src/app/admin/termekek/tomeges/page.tsx",
+              "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
+              "src/app/admin/ugyfelszolgalat/page.tsx",
+              "src/app/admin/velemenyek/actions.ts",
+              "src/app/admin/velemenyek/page.tsx",
+              "src/app/api/admin/campaigns/manage/route.ts",
+              "src/app/api/admin/campaigns/route.ts",
+              "src/app/api/admin/communication/enqueue/route.ts",
+              "src/app/api/admin/communication/manage/route.ts",
+              "src/app/api/admin/communication/suppression/route.ts",
+              "src/app/api/admin/content/[id]/route.ts",
+              "src/app/api/admin/content/route.ts",
+              "src/app/api/admin/coupons/route.ts",
+              "src/app/api/admin/email-builder/brand-kit/route.ts",
+              "src/app/api/admin/email-builder/preview/route.ts",
+              "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
+              "src/app/api/admin/email-builder/saved-blocks/route.ts",
+              "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
+              "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
+              "src/app/api/admin/email-builder/templates/[id]/route.ts",
+              "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
+              "src/app/api/admin/email-builder/templates/route.ts",
+              "src/app/api/admin/growth/run/route.ts",
+              "src/app/api/admin/promotions/preview/route.ts",
+              "src/app/kereses/page.tsx",
+              "src/app/webaruhaz/page.tsx",
+              "src/lib/auth/store-capabilities.ts",
+              "src/lib/auth/store-rbac.ts",
+              "src/lib/digital-office/access.ts",
+              "src/lib/navigation/admin-ia.ts"
             ],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                ".github/workflows/template-factory-quality-gate.yml",
-                "scripts/shoperation-external-proof-handoff.mjs",
-                "tests/shoperation-external-proof-handoff.test.ts"
+                "src/app/admin/kommunikacio/layout.tsx",
+                "tests/customer-email-plan-split.test.ts",
+                "tests/pro-entitlement-guards.test.ts"
               ],
               "filesAbsent": []
             },
@@ -710,7 +1028,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "6e40a2b5",
+            "manifestDigest": "144df191",
             "decision": "PASS"
           }
         ],
@@ -723,14 +1041,15 @@
         "contract": "shoporation.gate-chain.v1",
         "phase": "PLAN",
         "orderedGateIds": [
+          "GUARD-CUSTOMER-BASELINE",
           "GUARD-KNOWLEDGE-PREFLIGHT",
           "GUARD-PLAN-BEFORE-CODE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
-          "GUARD-QUALITY-TESTS",
+          "GUARD-MARKET-READY",
           "GUARD-TYPECHECK",
           "GUARD-PRODUCTION-BUILD",
-          "GUARD-COMPLETION-TRUTH",
+          "GUARD-QUALITY-TESTS",
           "GUARD-RELEASE-RISK",
           "GUARD-TEMPLATE-FACTORY"
         ],
@@ -740,12 +1059,13 @@
           "GUARD-RELEASE-RISK"
         ],
         "futureGateIds": [
+          "GUARD-CUSTOMER-BASELINE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
-          "GUARD-QUALITY-TESTS",
+          "GUARD-MARKET-READY",
           "GUARD-TYPECHECK",
           "GUARD-PRODUCTION-BUILD",
-          "GUARD-COMPLETION-TRUTH",
+          "GUARD-QUALITY-TESTS",
           "GUARD-TEMPLATE-FACTORY"
         ],
         "externalGateIds": [
@@ -756,42 +1076,44 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The blocking Template Factory guard declares overly broad src/app/** semantic inputs while its producer workflow has narrower path filters. An unrelated Pro-only admin route update is therefore forced to await impossible exact-head external evidence although the canonical Template Factory runtime closure excludes it.",
+    "problemStatement": "The Alap officeCommunication entitlement is necessary for ordinary customer commerce email, but the Digital Office route shell currently permits an Alap customer to enter shared mail, staff tasks and other Pro-only workforce surfaces.",
     "observableOutcomes": [
-      "A complete PASS runtime dependency closure and validated workflow trigger set may prove that an unrelated admin route change does not require a Template Factory external artifact.",
-      "If an actual template runtime, producer workflow, classification input or declared external completion dependency changes, the exact-head external proof must remain mandatory.",
-      "The producer workflow must trigger on changes to its own external proof classification code so those modifications receive the complete required external acceptance proof."
+      "Direct navigation to any page under the Digital Office /admin/kommunikacio subtree rejects an Alap tenant using the existing server authoritative subscription entitlement, before any page queries run.",
+      "Pro tenants with the released officeCommunicationAdvanced entitlement retain their existing Digital Office navigation, pages and behaviors without new duplicate access systems.",
+      "Alap normal transaction emails, order notifications, ordinary marketing/newsletters, and support accessible outside the Digital Office subtree continue working unchanged."
     ],
     "unresolvedRisks": [
-      "The source runtime graph or path-filter declaration may be incomplete: absent, malformed, or unresolved authority must fail closed and retain external proof requirements.",
-      "Explicit Completion Contract TF evidence references and transitive guard dependencies may not be waived by a runtime classification result."
+      "Directly invoked server actions and API handlers do not inherit RSC layout access; they must remain PARTIAL and be separately tested in later bounded release units.",
+      "The shared officeCommunication baseline grants remain necessary for transactional email; tenant plan switches and manual override proof require separate downstream authorization closure."
     ],
     "scope": {
       "in": [
-        "Exact-runtime external proof requirement classifier and fail-closed regression tests",
-        "Align Template Factory workflow triggers with its external proof classifier source"
+        "Digital Office route shell server-side admission and its direct negative/positive regression tests",
+        "Update legacy test expectations from Alap shared office UI to Pro-only office UI with ordinary transactional Alap email preservation"
       ],
       "out": [
-        "Disable or downgrade Template Factory browser proof",
-        "Change Template Factory runtime engine or acceptance criteria",
-        "Modify shop data, other gates, Vercel deployments or template generation"
+        "Server Actions/APIs/worker authorization modifications",
+        "SQL grants or migration changes",
+        "Customer transactional email dispatcher changes",
+        "Any Builder or Template Factory work"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-EXTERNAL-PROOF-ALIGNMENT",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U04-DIGITAL-OFFICE-PRO-ROUTE",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
+        "GUARD-CUSTOMER-BASELINE",
         "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-EDIT-TIME",
         "GUARD-INCREMENTAL-REPLAY",
-        "GUARD-QUALITY-TESTS",
+        "GUARD-MARKET-READY",
         "GUARD-TYPECHECK",
         "GUARD-PRODUCTION-BUILD",
-        "GUARD-COMPLETION-TRUTH",
+        "GUARD-QUALITY-TESTS",
         "GUARD-RELEASE-RISK",
         "GUARD-TEMPLATE-FACTORY"
       ],
@@ -802,20 +1124,20 @@
     },
     "requirements": [
       {
-        "id": "REQ-CP-TF-EXACT-SCOPE",
-        "requirement": "Template Factory external proof required if, and only if, proven relevant or uncertain canonical evidence dependency exists, including all explicit and transitive required proofs.",
+        "id": "REQ-U04-PRO-OFFICE-ROUTE",
+        "requirement": "Any direct Digital Office nested page render is Pro-only under server authoritative advanced office entitlement, including Alap negative and Pro positive cases.",
         "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "external-proof-dependency-boundary",
+          "capability": "CAP-AUTH",
+          "breadth": "bounded-digital-office-route-ui",
           "strength": 2,
           "dimensions": [
-            "scope",
-            "evidence-scope",
-            "forbidden-state"
+            "status",
+            "forbidden-state",
+            "evidence-scope"
           ]
         },
         "requiredCapabilities": [
-          "CAP-QUALITY"
+          "CAP-AUTH"
         ],
         "evidence": {
           "implementation": [
@@ -827,8 +1149,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-CP-TF-UNSAFE-EXCLUSION",
-            "statement": "Unknown, explicit or affected TF dependencies may never be dismissed as unrelated.",
+            "id": "NEG-U04-ALAP-OFFICE-VIEW",
+            "statement": "Alap may not render full Digital Office via direct nested route.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -836,34 +1158,33 @@
         ]
       },
       {
-        "id": "REQ-CP-TF-TRIGGER-PARITY",
-        "requirement": "Any changes to external proof classifier trigger exact-head Template Factory producer verification.",
+        "id": "REQ-U04-ALAP-COMMERCE-PRESERVED",
+        "requirement": "Ordinary customer-facing transactional emails and support remain part of Alap independent of Digital Office route access.",
         "claimScope": {
-          "capability": "CAP-RELEASE",
-          "breadth": "producer-trigger-parity",
+          "capability": "CAP-COMMERCE",
+          "breadth": "bounded-alap-transaction-email-regression",
           "strength": 2,
           "dimensions": [
-            "risk",
-            "release-scope"
+            "status",
+            "forbidden-state",
+            "evidence-scope"
           ]
         },
         "requiredCapabilities": [
-          "CAP-RELEASE"
+          "CAP-COMMERCE"
         ],
         "evidence": {
           "implementation": [
-            "GUARD-RELEASE-RISK",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-RELEASE-RISK",
             "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-CP-TF-MISSING-WORKFLOW",
-            "statement": "The producer cannot omit its own classifier modifications from push or PR path triggers.",
+            "id": "NEG-U04-EMAIL-LOSS",
+            "statement": "Alap officeCommunication and support plan grants and order email dispatch must not be removed.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -872,18 +1193,5 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "835c516da8934467406b9e6ad6d87c113919b834",
-    "closedAt": "2026-10-09T14:45:28.045Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-EXTERNAL-PROOF-ALIGNMENT",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
 }
