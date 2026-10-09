@@ -944,7 +944,7 @@
   "executionSourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
   "closurePersistence": {
     "contract": "shoporation.release-parent-closure-persistence.v1",
-    "state": "PR_OPEN",
+    "state": "POST_MERGE_CI_PENDING",
     "branch": "release-execution/closure/dev-post-merge-exact-main-ci-e2e-v2",
     "prNumber": 1178,
     "headSha": "717f0d36ca4332b425041cb5f918e6aef9c9244c",
@@ -952,6 +952,18 @@
     "url": "https://github.com/infowaterk-max/water-K-/pull/1178",
     "ciDispatch": {
       "decision": "DISPATCHED"
+    },
+    "mergedMainSha": "995983131fa3aa1cb91794810c817f6b9b8846d9",
+    "postMergeMainCi": {
+      "contract": "shoporation.release-parent-post-merge-main-ci.v1",
+      "status": "INTENT_RECORDED",
+      "decision": "PENDING",
+      "runId": null,
+      "nonce": "parent-main-ci-2d42f9e50478bdfc36d4af9b58efa318",
+      "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+      "sourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
+      "mergedMainSha": "995983131fa3aa1cb91794810c817f6b9b8846d9",
+      "headBranch": "main"
     }
   }
 }
