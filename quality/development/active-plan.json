@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1186-U02-PLAN-GRANTS",
   "task": "Core #1186 U02 transactional Alap Team Chat plan-grant removal and idempotent tenant resync with customer baseline parity",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "2ebcb98e",
   "changeBaseSha": "dfac819a6336871bd2a669b09cd47755cd31ebbe",
   "plannedFilePatterns": [
@@ -993,5 +993,18 @@
     "For actual diff and planned projection at verified main, the sole owning authority is database-schema; the intermediate guard scan had included unrelated impacted auth/tenancy edges, which remain read-only dependencies and not direct mutation authorities.",
     "Exact-head CI #9351/#9352 failed ONLY tests/order-core-transactional-email-dispatch-contract.test.ts: legacy READY expectation conflicts with correct snapshot-reviewed 0046 source. Expanded guard before touching test, retained changeBaseSha original main dfac and all mandatory proof checks.",
     "Projected-only guard selection had added checkout/customer Known Failures before their regression file was edited; existing actual-diff Plan validator resolves the canonical eight database-schema Known Failures, risk 5/5 and the five applicable negative-knowledge items. The restored original main base is authority, not the intermediate commit."
-  ]
+  ],
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "38bb18b6d3020a18c95687a0c4340ee9568ef1f7",
+    "closedAt": "2026-10-09T10:17:44.545Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U02",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
