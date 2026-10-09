@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CP-ADMIN-API-DOMAIN-AUTHORITY",
   "task": "Control Plane prerequisite: canonical DOMAIN-ADMIN authority for protected /api/admin routes including Digital Office attachments",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "2fe9c7b0",
   "changeBaseSha": "f152620b23c764a2d98a1e1e56420da39aca1638",
   "plannedFilePatterns": [
@@ -1016,5 +1016,18 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "9676f17f09aed07729017c28fddb20b3f97918f3",
+    "closedAt": "2026-10-09T17:51:12.567Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-ADMIN-API-AUTHORITY",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
