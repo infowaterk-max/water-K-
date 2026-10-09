@@ -27,7 +27,7 @@ child.stderr?.on('data',chunk=>{process.stderr.write(chunk);stderr=capture(stder
 child.on('error',error=>{spawnError=error;});
 for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>{if(child.pid&&!child.killed)child.kill(signal);});
 const outcome=await new Promise(resolve=>child.on('close',(code,signal)=>resolve({code,signal})));
-const exitCode=Number.isInteger(outcome.code)?outcome.code:1;
+const result={status:outcome.code,signal:outcome.signal}; // Keep the original diagnostic exitCode contract.\nconst exitCode=Number.isInteger(result.status)?result.status:1;
 const text=sanitize(stdout+'\n'+stderr+(spawnError?'\nError: '+spawnError.message:''));
 const errors=[];
 const seen=new Set();
@@ -76,7 +76,7 @@ if(exitCode!==0&&errors.length===0){
 const report={
   contract:'shoporation.command-diagnostic.v1',gateId,decision:exitCode===0?'PASS':'FAIL',
   sourceCommit,environment,runId,command:[command,...args].map(sanitize),
-  exitCode:outcome.code,signal:outcome.signal??null,
+  exitCode:result.status,signal:result.signal??null,
   generatedAt:new Date().toISOString(),errors,
 };
 mkdirSync(dirname(output),{recursive:true});
