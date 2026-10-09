@@ -8,7 +8,8 @@
   "plannedFilePatterns": [
     "scripts/shoperation-external-proof-handoff.mjs",
     "tests/shoperation-external-proof-handoff.test.ts",
-    ".github/workflows/template-factory-quality-gate.yml"
+    ".github/workflows/template-factory-quality-gate.yml",
+    "tests/customer-email-plan-split.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -123,7 +124,8 @@
         "Touching any canonical TF runtime dependency, or a producer workflow path trigger, still requires the external Template Factory proof.",
         "Absent or blocked runtime graph, malformed or mismatched workflow trigger patterns, explicit TF evidence, or transitive TF dependencies remain fail-closed.",
         "The TF producer workflow must auto-trigger for edits to the cross-workflow proof classifier, on push and PR.",
-        "Negative unit tests, codebase Atlas closure, Development Guard, critical Plan Before Code, Edit-Time/Reference/Implementation Sync, Replay, Risk and exact-head CI must PASS; no gate is disabled."
+        "Negative unit tests, codebase Atlas closure, Development Guard, critical Plan Before Code, Edit-Time/Reference/Implementation Sync, Replay, Risk and exact-head CI must PASS; no gate is disabled.",
+        "Historical Fresh Install U03 regression proof remains anchored to immutable manifest, canonical CI baseline guard, and its validator rather than asserting the latest unrelated Control Plane plan mentions GUARD-CUSTOMER-BASELINE."
       ],
       "invariants": [
         "Preserve Template Factory Quality Gate v2, its complete 14-page/3-viewport proof, current truth authority and external artifact validator unchanged.",
@@ -134,7 +136,8 @@
         "Any new runtime route or build dependency silently bypasses TF proof when liveRuntime closure is unavailable.",
         "Explicit TF completion evidence requirement bypassed because planned files are unrelated.",
         "A changed proof classifier avoids launching its own TF verification workflow.",
-        "Truth gate marked PASS by inventing an external artifact or claiming a successful workflow that never ran."
+        "Truth gate marked PASS by inventing an external artifact or claiming a successful workflow that never ran.",
+        "A historical U03 Fresh Install regression incorrectly fails future unrelated active plans due to checking the mutable development plan instead of the immutable proof and canonical CI baseline guard."
       ]
     },
     "model": {
@@ -298,6 +301,13 @@
         "finding": "External proof evaluator is part of proof authority This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
         "resolution": "Workflow must automatically run and require TF proof Enforce the derived contract with negative tests before permitting the related release transaction to close.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-CP-TF-09",
+        "scenario": "Fresh Install U03 test is run under the new Control Plane active-plan while retaining the valid 0046 manifest.",
+        "finding": "A historical test asserts a dynamically selected current-plan guard and fails although the 0046 baseline proof remains valid.",
+        "resolution": "Assert canonical CI guard and immutable baseline proof contract independently of active-plan selection; keep the actual customer baseline guard in CI mandatory.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -305,7 +315,8 @@
       "Use real Atlas PASS runtime closure and workflow path globs to distinguish unrelated office route from root layout and storefront checkout.",
       "Assert fail-closed for missing or corrupt workflow, missing closure, explicit and transitive TF completion evidence.",
       "Confirm workflow push and PR filters include changed classifier source, targeted Vitest and TypeScript tests PASS.",
-      "Run Knowledge, Edit-Time/Reference/Implementation Sync, Incremental Replay, Release Risk and exact-head CI/Truth/Lifecycle before merge."
+      "Run Knowledge, Edit-Time/Reference/Implementation Sync, Incremental Replay, Release Risk and exact-head CI/Truth/Lifecycle before merge.",
+      "Re-run the historical U03 proof-contract test under this non-database Control Plane plan to demonstrate no false-positive mismatch."
     ],
     "semanticExecutionRoute": {
       "request": "Control Plane closure: exact runtime Template Factory proof classification and workflow trigger parity for unrelated admin route changes",
@@ -316,7 +327,8 @@
       "mustEdit": [
         ".github/workflows/template-factory-quality-gate.yml",
         "scripts/shoperation-external-proof-handoff.mjs",
-        "tests/shoperation-external-proof-handoff.test.ts"
+        "tests/shoperation-external-proof-handoff.test.ts",
+        "tests/customer-email-plan-split.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
