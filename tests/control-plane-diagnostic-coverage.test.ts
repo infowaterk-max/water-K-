@@ -105,7 +105,7 @@ describe('Control Plane diagnostic coverage',()=>{
     try{
       const out=path.join(dir,'pre-drive-source.json'),summary=path.join(dir,'summary.md');
       const token='ghp_simulated_sensitive_test_token_xyz';
-      const js='console.error("Error: RELEASE_UNIT_SOURCE_REVISION_MISMATCH: expected abc, actual def");console.error("credential "+process.env.GH_TOKEN);process.exit(17)';
+      const js='console.error("Error: RELEASE_UNIT_SOURCE_REVISION_MISMATCH: expected abc, actual def; credential="+process.env.GH_TOKEN);process.exit(17)';
       const result=spawnSync(process.execPath,['scripts/shoperation-command-diagnostic.mjs','--',process.execPath,'-e',js],{
         encoding:'utf8',env:{...process.env,GH_TOKEN:token,GITHUB_TOKEN:token,
           SHOPERATION_DIAGNOSTIC_GATE:'trusted-release-source',
