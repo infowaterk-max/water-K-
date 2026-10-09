@@ -1,13 +1,15 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2EBCB98E",
-  "task": "Core 1186 U03: attest genuine Fresh Install 0046 proof contract and ready manifest",
+  "task": "Core #1186 U03: truthful 0046 proof attestation plus focused Control Plane regression repair",
   "status": "ready-for-implementation",
   "guardDigest": "2ebcb98e",
   "changeBaseSha": "8b8ee1202480331c33e0d88639fa1370759d59f6",
   "plannedFilePatterns": [
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-email-plan-split.test.ts"
+    "tests/customer-email-plan-split.test.ts",
+    "tests/shoperation-operational-intelligence.test.ts",
+    "tests/shoperation-sentinel-integrity.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -57,17 +59,21 @@
         "GitHub Fresh Install preflight, ordered migrations through 0046, Auth bootstrap, neutral seed, postflight, and structured evidence uploaded as artifact 11613699688 are all PASS; job proof hash a04b0990e7cf7a0a21591b9fd81fa44d5010ca8818b7edb7f00397c6b84807bb.",
         "Change only customer baseline manifest to ready with freshInstallProofRequired false and exact current proofContractSha256; add test that prevents accidental pending/historic contract regression.",
         "No staging, production, Supabase migration or customer data mutation. Staging postrestore read only fingerprint remains 3 shops, 6 auth users, 75 feature entitlements, 39627923 bytes.",
-        "Exact source validator, focused tests, Development Guard, Plan Before Code, Edit-Time/Reference and Implementation Sync, Knowledge/Replay, Release Risk, exact-head CI Completion Truth/Lifecycle and postmerge main CI must pass."
+        "Exact source validator, focused tests, Development Guard, Plan Before Code, Edit-Time/Reference and Implementation Sync, Knowledge/Replay, Release Risk, exact-head CI Completion Truth/Lifecycle and postmerge main CI must pass.",
+        "Existing Control Plane critical-only semantic route regression tests must use an explicitly critical fixture independent of changing real active plan risk tier.",
+        "Completion evidence must not cite GUARD-CUSTOMER-BASELINE as a capability proof before Guard Registry defines proofSemantics; validator remains a compulsory CI lifecycle guard."
       ],
       "invariants": [
         "Actual main source has no substantive differences from proven Fresh Install source commit, and proof includes ordered migration 0046.",
         "Manifest hash must be recomputable by canonical validate-customer-baseline.mjs from the exact repository sources and match the external proof contract.",
-        "Fresh Install readiness is not equivalent to live staging/production migration deployment or #1186 Digital Office capability completion."
+        "Fresh Install readiness is not equivalent to live staging/production migration deployment or #1186 Digital Office capability completion.",
+        "Mandatory customer baseline validator remains in system obligations even when completion capability evidence uses GUARD-QUALITY-TESTS with declared semantics."
       ],
       "forbiddenStates": [
         "Claim full workflow success or whole #1186 DONE based on isolated proof job when unrelated branch Completion Truth failed.",
         "Use old 0045 proof hash, skip ready hash validation, or mutate customer migrations to match proof.",
-        "Change staging or platform schemas, entitlements, or Supabase environment in this metadata-only release."
+        "Change staging or platform schemas, entitlements, or Supabase environment in this metadata-only release.",
+        "Treat Sentinel REVIEW for unsupported customer baseline evidence semantics as PASS without re-scoping claim or adding canonical proof semantics."
       ]
     },
     "model": {
@@ -102,13 +108,15 @@
         "Stale 0045 proof hash passed off as 0046",
         "Partial GitHub workflow failure confused with isolated Fresh Install proof",
         "Accidental customer DB or plan grant mutation",
-        "New main commit changes baseline between evidence and review"
+        "New main commit changes baseline between evidence and review",
+        "Changing active plan from critical to medium silently invalidates test-only assumptions."
       ],
       "edgeCases": [
         "Structured artifact success but overall unrelated build Truth Gate fails",
         "Historic hashes in notes must remain historical",
         "No new migration means previously proven 0046 hash remains valid",
-        "Fresh Install paused while staging active healthy"
+        "Fresh Install paused while staging active healthy",
+        "Referenced CI validator exists but has no proofSemantics and cannot be used to establish a typed capability claim."
       ]
     },
     "alternatives": [
@@ -129,6 +137,12 @@
         "summary": "Leave snapshot-reviewed forever despite complete isolated proof success.",
         "disposition": "rejected",
         "reason": "Misrepresents the current 0046 readiness evidence and blocks canonical closure."
+      },
+      {
+        "id": "ALT-GUARD-REGISTRY-EXPANSION",
+        "summary": "Add separate canonical proof semantics to the baseline guard in the Guard Registry as an independently reviewed predecessor.",
+        "disposition": "rejected",
+        "reason": "Would mix quality-knowledge governance authority into this isolated database-schema release without a separate assurance decision; retain mandatory baseline validator and use validated existing test evidence."
       }
     ],
     "specialistReviews": [
@@ -164,6 +178,18 @@
           "scripts/validate-customer-baseline.mjs",
           ".github/workflows/ci.yml"
         ]
+      },
+      {
+        "role": "Security",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "The baseline CI guard has no declared proof semantics. Sentinel correctly surfaces unsupported capability evidence as REVIEW; merely overriding the status is forbidden.",
+        "resolution": "Use existing GUARD-QUALITY-TESTS for the bounded, explicit hash and manifest regression proof; preserve GUARD-CUSTOMER-BASELINE as a mandatory CI requirement and do not alter sentinel policy.",
+        "evidence": [
+          "quality/knowledge/guard-registry.v1.json",
+          "scripts/lib/shoperation-sentinel-integrity.mjs",
+          "scripts/validate-customer-baseline.mjs"
+        ]
       }
     ],
     "challenge": [
@@ -187,23 +213,38 @@
         "finding": "Proof target has zero customer tenant rows",
         "resolution": "Explicitly exclude live migration and #1186 full closure; retain dedicated downstream integration tests",
         "status": "resolved"
+      },
+      {
+        "id": "CH-U03-04",
+        "scenario": "Historical critical semantic-route test inherits medium active plan risk.",
+        "finding": "Testing critical-only validation against a medium plan yields no required critical errors.",
+        "resolution": "Set critical risk explicitly on the test fixture and preserve the production risk policy.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U03-05",
+        "scenario": "Attestation claims proof from a guard without defined producer proof semantics.",
+        "finding": "Sentinel raises REVIEW, which blocks claim closure.",
+        "resolution": "Limit claim evidence to established tests and release risk while retaining full baseline CI guard as mandatory obligation.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
       "Inspect exact job steps artifact ID 11613699688 and immutable source lineage; verify hash.",
       "Run node scripts/validate-customer-baseline.mjs and tests/customer-email-plan-split.test.ts on exact branch.",
-      "Development Guard, Plan Before Code, Edit-Time Guard, Knowledge, Replay, Release Risk, CI Truth and Lifecycle."
+      "Development Guard, Plan Before Code, Edit-Time Guard, Knowledge, Replay, Release Risk, CI Truth and Lifecycle.",
+      "Run the actual two failing CI regressions plus a new negative Sentinel unknown-proof-semantics test, and require their exact-head success."
     ],
     "semanticExecutionRoute": {
-      "request": "Core 1186 U03: attest genuine Fresh Install 0046 proof contract and ready manifest",
+      "request": "Core #1186 U03: truthful 0046 proof attestation plus focused Control Plane regression repair",
       "authority": [
-        "auth-access-authority",
-        "database-schema",
-        "tenant-context-authority"
+        "database-schema"
       ],
       "mustEdit": [
         "supabase/customer-baseline/manifest.json",
-        "tests/customer-email-plan-split.test.ts"
+        "tests/customer-email-plan-split.test.ts",
+        "tests/shoperation-operational-intelligence.test.ts",
+        "tests/shoperation-sentinel-integrity.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -302,7 +343,9 @@
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
           "supabase/customer-baseline/manifest.json",
-          "tests/customer-email-plan-split.test.ts"
+          "tests/customer-email-plan-split.test.ts",
+          "tests/shoperation-operational-intelligence.test.ts",
+          "tests/shoperation-sentinel-integrity.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [
@@ -423,6 +466,18 @@
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
+          },
+          {
+            "file": "tests/shoperation-operational-intelligence.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
+          },
+          {
+            "file": "tests/shoperation-sentinel-integrity.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
           }
         ],
         "violations": [],
@@ -454,6 +509,18 @@
             },
             {
               "file": "tests/customer-email-plan-split.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
+              "file": "tests/shoperation-operational-intelligence.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
+              "file": "tests/shoperation-sentinel-integrity.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -518,6 +585,54 @@
               "violations": [],
               "decision": "PASS"
             }
+          },
+          {
+            "id": 2,
+            "files": [
+              "tests/shoperation-operational-intelligence.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/shoperation-operational-intelligence.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 3,
+            "files": [
+              "tests/shoperation-sentinel-integrity.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/shoperation-sentinel-integrity.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
           }
         ],
         "releaseUnits": [
@@ -527,20 +642,22 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "8b8ee1202480331c33e0d88639fa1370759d59f6"
+              "developmentBaseSha": "3cbfb8fb01c77c3183d521edf69e0843209c07b4"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "8b8ee1202480331c33e0d88639fa1370759d59f6",
+            "targetBaseSha": "3cbfb8fb01c77c3183d521edf69e0843209c07b4",
             "lease": {
-              "expectedBaseSha": "8b8ee1202480331c33e0d88639fa1370759d59f6",
+              "expectedBaseSha": "3cbfb8fb01c77c3183d521edf69e0843209c07b4",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "tests/customer-email-plan-split.test.ts"
+              "tests/customer-email-plan-split.test.ts",
+              "tests/shoperation-operational-intelligence.test.ts",
+              "tests/shoperation-sentinel-integrity.test.ts"
             ],
             "operations": [
               {
@@ -552,9 +669,22 @@
                 "operation": "modify",
                 "file": "tests/customer-email-plan-split.test.ts",
                 "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "tests/shoperation-operational-intelligence.test.ts",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "tests/shoperation-sentinel-integrity.test.ts",
+                "generated": null
               }
             ],
             "requiredDependencyFiles": [
+              "scripts/lib/shoperation-operational-intelligence.mjs",
+              "scripts/lib/shoperation-release-unit-runtime.mjs",
+              "scripts/lib/shoperation-sentinel-integrity.mjs",
               "src/lib/plans/catalog.ts"
             ],
             "authorities": [
@@ -588,6 +718,18 @@
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
+                },
+                {
+                  "file": "tests/shoperation-operational-intelligence.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                },
+                {
+                  "file": "tests/shoperation-sentinel-integrity.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
                 }
               ],
               "violations": [],
@@ -615,7 +757,9 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-email-plan-split.test.ts"
+                "tests/customer-email-plan-split.test.ts",
+                "tests/shoperation-operational-intelligence.test.ts",
+                "tests/shoperation-sentinel-integrity.test.ts"
               ],
               "externalGateIds": []
             },
@@ -668,7 +812,9 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "tests/customer-email-plan-split.test.ts"
+                "tests/customer-email-plan-split.test.ts",
+                "tests/shoperation-operational-intelligence.test.ts",
+                "tests/shoperation-sentinel-integrity.test.ts"
               ],
               "filesAbsent": []
             },
@@ -683,7 +829,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "087626dc",
+            "manifestDigest": "6bc5bff7",
             "decision": "PASS"
           }
         ],
@@ -761,11 +907,11 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-CUSTOMER-BASELINE",
+            "GUARD-QUALITY-TESTS",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-CUSTOMER-BASELINE",
+            "GUARD-QUALITY-TESTS",
             "GUARD-QUALITY-TESTS"
           ]
         },
@@ -774,7 +920,7 @@
             "id": "NEG-U03-STALE-HASH",
             "statement": "A historic 0045 hash or fabricated proof must not mark 0046 ready.",
             "evidence": [
-              "GUARD-CUSTOMER-BASELINE"
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]

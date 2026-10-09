@@ -65,6 +65,13 @@ describe('Sentinel integrity correlation',()=>{
     expect(report.findings.some((x:{code:string})=>x.code==='SENTINEL_INTEGRITY_PROOF_SCOPE_OVERCLAIM')).toBe(true);
     expect(report.findings.some((x:{code:string})=>x.code==='SENTINEL_INTEGRITY_PROOF_DIMENSION_DRIFT')).toBe(true);
   });
+  it('fails closed when a completion evidence producer has no canonical proof semantics',()=>{
+    const unsupported=guard('G-QUALITY',{proofSemantics:undefined});
+    const report=evaluate({guardRegistry:registry([unsupported])});
+    expect(report.decision).not.toBe('PASS');
+    expect(report.findings.some((x:{code:string})=>x.code==='SENTINEL_INTEGRITY_PROOF_SEMANTICS_UNKNOWN')).toBe(true);
+  });
+
   it('normalizes real Control Plane-shaped evidence and catches object child decisions',()=>{
     const records=normalizeSentinelControlPlaneEvidence({
       plan:{changeBaseSha:'base-a'},

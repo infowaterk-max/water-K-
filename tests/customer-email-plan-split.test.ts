@@ -113,5 +113,8 @@ describe('Customer baseline 0046 genuine Fresh Install attestation',()=>{
     expect(manifest.notes).toContain('0046_alap_team_chat_plan_grant_reconcile.sql');
     expect(manifest.notes).toContain('not staging/production migration application');
     expect(manifest.notes).toContain('#1186 full authorization closure');
+    const plan=JSON.parse(read('quality/development/active-plan.json'));
+    expect(plan.completionContract.systemObligations.requiredGuards).toContain('GUARD-CUSTOMER-BASELINE');
+    expect(plan.completionContract.requirements.flatMap((r:any)=>[...(r.evidence.implementation??[]),...(r.evidence.outcome??[])])).not.toContain('GUARD-CUSTOMER-BASELINE');
   });
 });
