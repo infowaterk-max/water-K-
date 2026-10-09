@@ -1,0 +1,827 @@
+{
+  "contract": "shoporation.release-parent-execution.v1",
+  "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+  "decompositionContract": "shoporation.release-decomposition.v1",
+  "manifestChainDigest": "ca03705f",
+  "lifecyclePhase": "EXECUTE",
+  "unitIds": [
+    "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01"
+  ],
+  "activeUnitId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01",
+  "units": [
+    {
+      "contract": "shoporation.release-unit-execution.v1",
+      "releaseUnitId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01",
+      "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+      "order": 1,
+      "state": "PLANNED",
+      "manifest": {
+        "contract": "shoporation.release-unit-manifest.v1",
+        "transaction": {
+          "id": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+          "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+          "sourceRef": "PO-2026-10-09-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+          "developmentBaseSha": "7a580680f0260ec4ba104b7bfe9c01037b8e1eb7"
+        },
+        "releaseUnitId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01",
+        "order": 1,
+        "targetBaseSha": "7a580680f0260ec4ba104b7bfe9c01037b8e1eb7",
+        "lease": {
+          "expectedBaseSha": "7a580680f0260ec4ba104b7bfe9c01037b8e1eb7",
+          "failOnDrift": true,
+          "reconciled": true,
+          "reconciledFromSha": null
+        },
+        "intendedFiles": [
+          "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+          "tests/control-plane-release-unit-execution-binding.test.ts"
+        ],
+        "operations": [
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+            "generated": null
+          },
+          {
+            "operation": "modify",
+            "file": "tests/control-plane-release-unit-execution-binding.test.ts",
+            "generated": null
+          }
+        ],
+        "requiredDependencyFiles": [
+          "scripts/lib/shoperation-development-runtime.mjs",
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "scripts/release-unit-ci-context.mjs",
+          "scripts/release-unit-github-runtime.mjs",
+          "scripts/release-unit-parent-close.mjs"
+        ],
+        "authorities": [],
+        "subsystems": [
+          "quality-infrastructure"
+        ],
+        "projectedRisk": {
+          "contract": "shoporation.projected-release-risk.v1",
+          "score": 2,
+          "maxPoints": 5,
+          "subsystemCount": 1,
+          "maxSubsystems": 3,
+          "subsystems": [
+            {
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            }
+          ],
+          "files": [
+            {
+              "file": "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "tests/control-plane-release-unit-execution-binding.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            }
+          ],
+          "violations": [],
+          "decision": "PASS"
+        },
+        "requiredGates": [
+          "GUARD-EDIT-TIME",
+          "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-KNOWLEDGE-PREFLIGHT",
+          "GUARD-PLAN-BEFORE-CODE",
+          "GUARD-QUALITY-TESTS",
+          "GUARD-RELEASE-RISK",
+          "GUARD-TYPECHECK"
+        ],
+        "requiredEvidence": {
+          "gateIds": [
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS",
+            "GUARD-RELEASE-RISK",
+            "GUARD-TYPECHECK"
+          ],
+          "proofFiles": [
+            "tests/admin-mobile-desktop-compat.test.ts",
+            "tests/block4-ia-navigation-reporting.test.ts",
+            "tests/commerce-pricing.test.ts",
+            "tests/control-plane-release-unit-execution-binding.test.ts",
+            "tests/core-checkout-quote.test.ts",
+            "tests/customer-baseline-proof-contract.test.ts",
+            "tests/customer-baseline-target-postflight.test.ts",
+            "tests/digital-commerce-customer-baseline-parity.test.ts",
+            "tests/incident-intelligence-schema.test.ts",
+            "tests/navigation-workflows.test.ts",
+            "tests/operational-tenant-isolation.test.ts",
+            "tests/order-lifecycle-contracts.test.ts",
+            "tests/pilot-acceptance-access.test.ts",
+            "tests/platform-owner-zero-tenant-hotfix.test.ts",
+            "tests/rollout-readiness.test.ts",
+            "tests/shoperation-development-guard.test.ts",
+            "tests/shoperation-failure-intake-reconcile.test.ts",
+            "tests/shoperation-historical-support-backfill.test.ts",
+            "tests/shoperation-quality-knowledge.test.ts",
+            "tests/sql-migration-syntax-guard.test.ts",
+            "tests/storefront-account-capability-navigation.test.tsx",
+            "tests/storefront-auth-surface.test.ts",
+            "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+            "tests/storefront-preview-demo-content-routing.test.ts",
+            "tests/storefront-responsive-isolation.test.ts",
+            "tests/storefront-runtime-persistence.test.ts",
+            "tests/storefront-template-persistence.test.ts",
+            "tests/storefront-template-preview-access.test.ts",
+            "tests/storefront-template-preview-runtime.test.ts",
+            "tests/storefront-template-quality-gate-v2.test.ts",
+            "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+            "tests/template-factory-engine-functional-proof.test.ts",
+            "tests/template-factory-loot-vault-v2.test.ts",
+            "tests/template-factory-procedural-memory.test.ts",
+            "tests/template-factory-scaffold-v1.test.ts",
+            "tests/template-factory-storefront-contract.test.ts",
+            "tests/template-golden-baseline-promotion-policy.test.ts",
+            "tests/visual-builder-mobile-isolation.test.ts"
+          ],
+          "externalGateIds": []
+        },
+        "forbiddenPaths": [
+          "src/app/**",
+          "src/components/**",
+          "supabase/**",
+          ".github/workflows/**",
+          "deploy/**"
+        ],
+        "readOnlyPaths": [],
+        "generatedArtifactSemantics": [],
+        "prerequisites": [],
+        "predecessorUnits": [],
+        "expectedPostUnitState": {
+          "filesPresent": [
+            "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+            "tests/control-plane-release-unit-execution-binding.test.ts"
+          ],
+          "filesAbsent": []
+        },
+        "reconciliationPolicy": {
+          "mode": "merged-main-sequential",
+          "requireExactMainLease": true,
+          "requirePredecessorReceipts": false,
+          "requiresReconciliationAfterPredecessor": false,
+          "failOnUnrelatedMainDrift": true
+        },
+        "sourceIdentity": {
+          "sourceCommit": null,
+          "sealed": false
+        },
+        "manifestDigest": "8f0ae4ba",
+        "decision": "PASS",
+        "childDevelopmentTransaction": {
+          "contract": "shoporation.release-unit-child-transaction.v1",
+          "taskId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01-TX",
+          "planDigest": "a7884026f8e061d0929c9cbb2ac85976614cdf1d5e796fa186ed3d68ac0f7883",
+          "operationDigest": "93a6c22dad1619e4e8641d3e22cf8566de05e25f67c95b31674317c6c788b683",
+          "bindingDigest": "515f36fb5ddd05bf3882c73eeb0ad498e3a484816529ed3dfdf2cd7284126bf9",
+          "plan": {
+            "contract": "shoporation.development-plan.v1",
+            "taskId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01-TX",
+            "task": "Execute canonical release unit DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01 of DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2 without widening the manifest-authorized scope.",
+            "status": "ready-for-implementation",
+            "guardDigest": "a41cfd0c",
+            "changeBaseSha": "7a580680f0260ec4ba104b7bfe9c01037b8e1eb7",
+            "plannedFilePatterns": [
+              "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+              "tests/control-plane-release-unit-execution-binding.test.ts"
+            ],
+            "expectedSubsystems": [
+              "release-infrastructure"
+            ],
+            "expectedDomains": [
+              "DOMAIN-QUALITY"
+            ],
+            "expectedAuthorities": [
+              "quality-knowledge-system"
+            ],
+            "expectedKnownFailureIds": [
+              "SQ-KF-001",
+              "SQ-KF-002",
+              "SQ-KF-003",
+              "SQ-KF-004",
+              "SQ-KF-005",
+              "SQ-KF-006",
+              "SQ-KF-007",
+              "SQ-KF-008",
+              "SQ-KF-009",
+              "SQ-KF-010",
+              "SQ-KF-011",
+              "SQ-KF-012",
+              "SQ-KF-013",
+              "SQ-KF-014",
+              "SQ-KF-015",
+              "SQ-KF-016",
+              "SQ-KF-017",
+              "SQ-KF-018",
+              "SQ-KF-019",
+              "SQ-KF-020",
+              "SQ-KF-021",
+              "SQ-KF-022",
+              "SQ-KF-023",
+              "SQ-KF-024",
+              "TF-KF-001",
+              "TF-KF-002",
+              "TF-KF-003",
+              "TF-KF-004",
+              "TF-KF-005",
+              "TF-KF-006",
+              "TF-KF-007",
+              "TF-KF-008",
+              "TF-KF-009",
+              "TF-KF-010",
+              "TF-KF-011",
+              "TF-KF-012",
+              "TF-KF-013",
+              "TF-KF-014",
+              "TF-KF-015",
+              "TF-KF-016",
+              "TF-KF-017",
+              "TF-KF-018",
+              "TF-KF-019",
+              "TF-KF-020",
+              "TF-KF-021",
+              "TF-KF-022",
+              "TF-KF-023",
+              "TF-KF-024",
+              "TF-KF-025"
+            ],
+            "acknowledgedPoInstructionIds": [],
+            "acknowledgedNegativeKnowledgeIds": [
+              "SQ-NK-002",
+              "SQ-NK-003",
+              "SQ-NK-005",
+              "SQ-NK-010",
+              "SQ-NK-012",
+              "SQ-NK-016",
+              "SQ-NK-017",
+              "SQ-NK-018",
+              "SQ-NK-019",
+              "SQ-NK-020",
+              "SQ-NK-021",
+              "SQ-NK-022",
+              "SQ-NK-023"
+            ],
+            "exceptions": [],
+            "operationalIntelligence": {
+              "sourceKind": "product-owner-request",
+              "sourceRef": "PO-2026-10-09-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+              "riskTier": "critical",
+              "problemStatement": "Execute release unit DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01 as the exact manifest-authorized child transaction of DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2 while preserving parent lifecycle separation and all canonical gate obligations.",
+              "observableOutcomes": [
+                "The exact files and operations authorized by release unit DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01 are the only material changes present in the child PR.",
+                "All canonical child gate obligations pass on the exact materialized PR head before any merge receipt can be accepted.",
+                "Child Truth and Lifecycle evidence remain bound to DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01 and cannot close parent transaction DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2."
+              ],
+              "unresolvedRisks": [
+                "Repository or authority drift after predecessor merge can invalidate this child projection and must fail closed during fresh successor reconciliation.",
+                "Mutable PR metadata is not authority; CI context must remain cryptographically bound to the exact materialized commit and child plan digest.",
+                "A merge strategy may change resulting main identity, so successor base remains the explicit merged-main receipt rather than the PR source head."
+              ],
+              "scope": {
+                "in": [
+                  "One inert JSON fixture under a new dedicated quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2 directory.",
+                  "One development plan metadata update on an isolated source branch; no edits to application runtime, scripts, workflow or tests.",
+                  "One targeted regression assertion in the existing release-unit execution-binding test; this supplies the critical plan's explicit MUST_EDIT and PROOF routes without adding a new engine.",
+                  "Use only the existing canonical release-unit executor, source CI, child proof, parent PR, CAS persistence and post-merge dispatch implementation.",
+                  "Verify actual GitHub parent PR merge identity, nonce-bound workflow_dispatch run metadata, mandatory successful jobs and durable parent closure."
+                ],
+                "out": [
+                  "No modification of DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1 state, U01/U02/U03 receipts, or immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65.",
+                  "No production behavior, database schema, storefront, Builder, template, customer or payment changes.",
+                  "No manually fabricated release-state receipts, no forced closure, no bypass of Plan, Truth, Lifecycle or CI authority.",
+                  "No duplicate dispatch in the case of uncertain delivery; fail closed pending human review."
+                ]
+              },
+              "assuranceCeiling": {
+                "level": "critical-practical",
+                "rationale": "This proof drives real repository branch, pull-request, CI, merge and persisted orchestration state while deliberately restricting material changes to non-product fixtures. Exact identity, fail-closed transitions and final closure therefore require the strongest practical bounded assurance.",
+                "selectedTechniques": [
+                  "explicit-specification",
+                  "invariants",
+                  "state-model",
+                  "what-if-matrix",
+                  "adversarial-scenarios",
+                  "boundary-cases",
+                  "pairwise-interactions",
+                  "threat-failure-model",
+                  "fault-injection",
+                  "finite-state-exhaustion"
+                ],
+                "deferredTechniques": []
+              },
+              "definition": {
+                "acceptanceCriteria": [
+                  "Plan Before Code independently authorizes one inert fixture and one focused existing test update before either implementation edit, and source admission CI succeeds at the immutable exact head.",
+                  "Canonical decomposition contains exactly one authorized JSON fixture child with a valid source blob, and only its intended file is merged into main.",
+                  "A new parent PR is merged by github-actions[bot] with a trusted exact-head proof and parent state remains POST_MERGE_CI_PENDING until a separate main CI is proven.",
+                  "One source/parent/merged-main nonce is bound to the new workflow_dispatch CI, not an unrelated push or manual workflow event.",
+                  "Terminal SUCCESS of the exact main head run includes Bind exact parent post-merge main CI, Knowledge preflight, Incremental Replay, Quality tests, TypeScript check, Production build and security-audit.",
+                  "Persisted parent closure is MERGED / PARENT_CLOSED only after CI proof; all three older closed units and original parent proof remain unmodified."
+                ],
+                "invariants": [
+                  "New source transaction and stateRef are distinct from DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1.",
+                  "Exactly one inert fixture and one existing regression test file are the only material source edits, with no product runtime changes.",
+                  "Exact run identity requires GitHub-bot actor, workflow_dispatch, unique nonce, parent source, workflow identity and mergedMainSha.",
+                  "DISPATCH_ARMED is persisted by CAS before any side effect, and uncertain recovery cannot dispatch the same request again.",
+                  "No parent completion claim without a successful exact-head GitHub run and all mandatory job steps."
+                ],
+                "forbiddenStates": [
+                  "Old U01/U02/U03 state or proof artifact is overwritten or reclassified.",
+                  "Fixture or test implementation edit is created before the source plan gate proves PASS.",
+                  "Parent is marked MERGED immediately after bot PR merge while main CI remains absent.",
+                  "A manual push or unrelated successful main CI is accepted as the correlated post-merge dispatch.",
+                  "Two requests with the same parent nonce are sent after crash or delayed run visibility.",
+                  "Changed main SHA, wrong actor, missing security/build evidence or nonterminal CI closes the parent."
+                ]
+              },
+              "model": {
+                "phases": [
+                  "OBSERVE",
+                  "DEFINE",
+                  "MODEL",
+                  "PLAN",
+                  "CHALLENGE",
+                  "IMPROVE",
+                  "PROVE_PLAN",
+                  "EXECUTE",
+                  "VERIFY",
+                  "TRUTH_GATE",
+                  "CLOSE",
+                  "LEARN"
+                ],
+                "transitions": [
+                  "OBSERVE->DEFINE",
+                  "DEFINE->MODEL",
+                  "MODEL->PLAN",
+                  "PLAN->CHALLENGE",
+                  "CHALLENGE->IMPROVE",
+                  "IMPROVE->PROVE_PLAN",
+                  "PROVE_PLAN->EXECUTE",
+                  "EXECUTE->VERIFY",
+                  "VERIFY->TRUTH_GATE",
+                  "TRUTH_GATE->CLOSE",
+                  "CLOSE->LEARN"
+                ],
+                "failureModes": [
+                  "Plan scope or Known Failure projection drifts after new inert fixture declaration.",
+                  "Materialized fixture source blob is absent or mismatched on the immutable source commit.",
+                  "Child CI finishes without matching lifecycle proof, preventing child merge.",
+                  "Parent merge succeeds but persisted pending state or dispatch CAS experiences an interruption.",
+                  "GitHub dispatch request succeeds but the run ID is not immediately visible.",
+                  "Another GitHub event or main merge introduces a stale head before post-merge proof.",
+                  "Correlated CI fails, is cancelled, or lacks mandatory job evidence."
+                ],
+                "edgeCases": [
+                  "A single child follows the canonical decomposition and no child predecessor reconciliation is necessary.",
+                  "A `workflow_run` hook from a successful source push launches the trusted default-branch executor.",
+                  "GitHub bot-triggered merge does not create automatic main push CI, requiring explicit workflow_dispatch.",
+                  "The dispatch response is lost after the server accepts the request, leaving a durable DISPATCH_ARMED reservation.",
+                  "The valid run becomes visible on a later poll without repeating the dispatch.",
+                  "The CI run is terminal SUCCESS but unrelated actor or run title must be rejected."
+                ]
+              },
+              "alternatives": [
+                {
+                  "id": "ALT-ONE-INERT",
+                  "summary": "Use one inert fixture through the unchanged real GitHub executor.",
+                  "disposition": "selected",
+                  "reason": "This is the smallest safe material scope that actually reaches child merge, parent merge, bot dispatch and parent close."
+                },
+                {
+                  "id": "ALT-UNIT-MOCK",
+                  "summary": "Trust the already-green mock regression without a live GitHub rehearsal.",
+                  "disposition": "rejected",
+                  "reason": "A mock cannot independently demonstrate real workflow_run admission, GitHub actor identity or remote CAS evidence."
+                },
+                {
+                  "id": "ALT-MANY-UNITS",
+                  "summary": "Repeat the old multi-unit corpus with twenty-five files.",
+                  "disposition": "rejected",
+                  "reason": "The earlier rehearsal already proved child orchestration; repeating it adds CI and merge exposure unrelated to the missing post-merge edge."
+                }
+              ],
+              "specialistReviews": [
+                {
+                  "role": "Architecture",
+                  "mode": "review",
+                  "verdict": "pass",
+                  "finding": "The unproven scope is the live post-merge parent CI chain, not the existing multi-child orchestration.",
+                  "resolution": "Use exactly one independent inert fixture through the canonical executor without new control paths.",
+                  "evidence": [
+                    "scripts/release-unit-parent-close.mjs",
+                    "scripts/release-unit-execute.mjs"
+                  ]
+                },
+                {
+                  "role": "Security",
+                  "mode": "dissent",
+                  "verdict": "challenge-resolved",
+                  "finding": "Even an inert live rehearsal writes a branch, merges a PR and can dispatch GitHub Actions unexpectedly.",
+                  "resolution": "Isolate new parent identity, keep all original release-state immutable, require strict Plan Before Code and fail-closed CAS/dispatch handling.",
+                  "evidence": [
+                    ".github/workflows/release-unit-execution.yml",
+                    ".github/workflows/ci.yml"
+                  ]
+                },
+                {
+                  "role": "Release",
+                  "mode": "review",
+                  "verdict": "pass",
+                  "finding": "An ordinary successful push CI cannot prove the new workflow_dispatch parent binding.",
+                  "resolution": "Require a distinct bot-actor workflow_dispatch main CI with the exact nonce, SHA, run ID and mandatory successful jobs.",
+                  "evidence": [
+                    "scripts/release-unit-parent-close.mjs",
+                    "tests/control-plane-release-unit-execution-binding.test.ts"
+                  ]
+                },
+                {
+                  "role": "Known Failure",
+                  "mode": "review",
+                  "verdict": "pass",
+                  "finding": "Unknown plan semantics or a missing source fixture must not be reinterpreted as success.",
+                  "resolution": "Stop on every canonical failed gate and use Failure Intake for unexpected blockers.",
+                  "evidence": [
+                    "scripts/shoperation-plan-before-code.mjs",
+                    "scripts/shoperation-failure-intake.mjs"
+                  ]
+                }
+              ],
+              "challenge": [
+                {
+                  "id": "CH-PMCI-01",
+                  "scenario": "The new source is admitted without a successful Plan Before Code proof.",
+                  "finding": "An inert fixture alone does not exempt source transactions from governed authorization.",
+                  "resolution": "Validate the plan on an isolated plan branch before creating the fixture on the execution source branch.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-PMCI-02",
+                  "scenario": "The parent squash merge succeeds, but no ordinary main push CI appears.",
+                  "finding": "The missing GitHub GITHUB_TOKEN edge remains unproven by push-based checks.",
+                  "resolution": "Require a separate nonce-correlated workflow_dispatch run bound to exact mergedMainSha.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-PMCI-03",
+                  "scenario": "Workflow dispatch succeeds and the executor crashes before receiving or persisting run ID.",
+                  "finding": "Blind retry can create two indistinguishable dispatch attempts.",
+                  "resolution": "Require durable one-shot DISPATCH_ARMED and lookup only; uncertain recovery remains blocked without new dispatch.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-PMCI-04",
+                  "scenario": "A coincidental manual or push main CI succeeds on the same merged commit.",
+                  "finding": "Head SHA alone is insufficient evidence for the required bot dispatch path.",
+                  "resolution": "Verify bot actor, workflow, event, nonce, source parent and exact required successful steps.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-PMCI-05",
+                  "scenario": "An older legacy Release Unit Execution run remains queued.",
+                  "finding": "Its status is unrelated to proof for the new parent transaction.",
+                  "resolution": "Do not mutate or reuse #182; select only source-bound execution and correlated post-merge runs.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-PMCI-06",
+                  "scenario": "A normal CI push runs on the newly merged main commit and reports SUCCESS before the parent dispatch appears.",
+                  "finding": "The unrelated push lacks nonce and the bot workflow_dispatch identity, so it could falsely satisfy a loose exact-SHA-only proof.",
+                  "resolution": "Require an independent workflow_dispatch event with the deterministic parent nonce, accepted actor and recorded run ID; never reuse a push run.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-PMCI-07",
+                  "scenario": "The correlated main CI finishes with a successful workflow conclusion, but the security-audit or exact-parent-binding job step is absent.",
+                  "finding": "A green workflow summary alone does not show that the mandatory job-level proof actually executed.",
+                  "resolution": "Inspect the exact run jobs and every required binding, quality, typecheck, production build and security step before persisting PARENT_CLOSED.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-PMCI-08",
+                  "scenario": "An interrupted source executor restarts from a prior committed one-fixture child branch after another release changed main.",
+                  "finding": "A prior successful child proof cannot authorize materialization or parent closure against a different current main.",
+                  "resolution": "Enforce exact main lease with canonical source/PR/CAS identity, and stop on drift rather than creating another untracked branch.",
+                  "status": "resolved"
+                },
+                {
+                  "id": "CH-PMCI-09",
+                  "scenario": "The new child binder correctly adds release-unit lexical intent but the parent still has a neutral quality-fixture task.",
+                  "finding": "Before PR #1172 the projection inherited neutral parent scope, causing the prior child's Negative Knowledge and guard digest to drift.",
+                  "resolution": "Exercise the merged shared child-task authority in a freshly generated V2 child plan, rejecting any scope, negative-knowledge or digest disagreement.",
+                  "status": "resolved"
+                }
+              ],
+              "proofPlan": [
+                "Verify Plan Before Code PASS for this plan-only transaction before writing the one fixture or the new targeted test assertion.",
+                "Create the one inert JSON source fixture only on a dedicated release-execution/source/* branch after plan authorization.",
+                "Verify source exact-head CI is SUCCESS and inspect the admitted trusted Release Unit Execution run.",
+                "Verify the one child has exact source blob, materialized PR, completed gates and merged-main receipt.",
+                "Verify parent PR exact-head proof, trusted bot merge and persisted POST_MERGE_CI_PENDING state.",
+                "Verify a separately dispatched GitHub-bot CI with exact nonce, merged SHA, terminal SUCCESS and all required successful job steps.",
+                "Verify persisted MERGED / PARENT_CLOSED proof, final main identity and unchanged earlier parent state; otherwise stop as BLOCKED."
+              ],
+              "semanticExecutionRoute": {
+                "request": "PO-2026-10-09-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+                "authority": [
+                  "quality-knowledge-system"
+                ],
+                "mustEdit": [
+                  "tests/control-plane-release-unit-execution-binding.test.ts"
+                ],
+                "mayEdit": [],
+                "impactedReadOnly": [],
+                "mustCreate": [
+                  "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json"
+                ],
+                "forbidden": [
+                  ".github/workflows/**",
+                  "deploy/**",
+                  "src/app/**",
+                  "src/components/**",
+                  "supabase/**"
+                ],
+                "proof": [
+                  "tests/admin-mobile-desktop-compat.test.ts",
+                  "tests/block4-ia-navigation-reporting.test.ts",
+                  "tests/commerce-pricing.test.ts",
+                  "tests/control-plane-release-unit-execution-binding.test.ts",
+                  "tests/core-checkout-quote.test.ts",
+                  "tests/customer-baseline-proof-contract.test.ts",
+                  "tests/customer-baseline-target-postflight.test.ts",
+                  "tests/digital-commerce-customer-baseline-parity.test.ts",
+                  "tests/incident-intelligence-schema.test.ts",
+                  "tests/navigation-workflows.test.ts",
+                  "tests/operational-tenant-isolation.test.ts",
+                  "tests/order-lifecycle-contracts.test.ts",
+                  "tests/pilot-acceptance-access.test.ts",
+                  "tests/platform-owner-zero-tenant-hotfix.test.ts",
+                  "tests/rollout-readiness.test.ts",
+                  "tests/shoperation-development-guard.test.ts",
+                  "tests/shoperation-failure-intake-reconcile.test.ts",
+                  "tests/shoperation-historical-support-backfill.test.ts",
+                  "tests/shoperation-quality-knowledge.test.ts",
+                  "tests/sql-migration-syntax-guard.test.ts",
+                  "tests/storefront-account-capability-navigation.test.tsx",
+                  "tests/storefront-auth-surface.test.ts",
+                  "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+                  "tests/storefront-preview-demo-content-routing.test.ts",
+                  "tests/storefront-responsive-isolation.test.ts",
+                  "tests/storefront-runtime-persistence.test.ts",
+                  "tests/storefront-template-persistence.test.ts",
+                  "tests/storefront-template-preview-access.test.ts",
+                  "tests/storefront-template-preview-runtime.test.ts",
+                  "tests/storefront-template-quality-gate-v2.test.ts",
+                  "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+                  "tests/template-factory-engine-functional-proof.test.ts",
+                  "tests/template-factory-loot-vault-v2.test.ts",
+                  "tests/template-factory-procedural-memory.test.ts",
+                  "tests/template-factory-scaffold-v1.test.ts",
+                  "tests/template-factory-storefront-contract.test.ts",
+                  "tests/template-golden-baseline-promotion-policy.test.ts",
+                  "tests/visual-builder-mobile-isolation.test.ts"
+                ],
+                "unknown": [],
+                "plannedDeletions": [],
+                "plannedRenames": [],
+                "generatedArtifacts": []
+              },
+              "executionAuthorized": true
+            },
+            "completionContract": {
+              "sourceKind": "product-owner-request",
+              "sourceRef": "PO-2026-10-09-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+              "systemObligations": {
+                "derivation": "release-unit-manifest",
+                "requiredGuards": [
+                  "GUARD-EDIT-TIME",
+                  "GUARD-INCREMENTAL-REPLAY",
+                  "GUARD-KNOWLEDGE-PREFLIGHT",
+                  "GUARD-PLAN-BEFORE-CODE",
+                  "GUARD-QUALITY-TESTS",
+                  "GUARD-RELEASE-RISK",
+                  "GUARD-TYPECHECK"
+                ],
+                "externalGuards": [],
+                "phase": "EXECUTE"
+              },
+              "requirements": [
+                {
+                  "id": "REQ-RELEASE-UNIT-TRANSACTION-INTEGRITY",
+                  "requirement": "Release unit DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01 must implement only its manifest-authorized scope and pass exact-head child transaction verification without parent lifecycle conflation.",
+                  "claimScope": {
+                    "capability": "CAP-QUALITY",
+                    "breadth": "release-unit-transaction-integrity",
+                    "strength": 2,
+                    "dimensions": [
+                      "scope",
+                      "positive-state",
+                      "forbidden-state",
+                      "lifecycle",
+                      "actual-subset-plan",
+                      "required-subset-actual"
+                    ]
+                  },
+                  "requiredCapabilities": [
+                    "CAP-QUALITY"
+                  ],
+                  "evidence": {
+                    "implementation": [
+                      "GUARD-EDIT-TIME"
+                    ],
+                    "outcome": [
+                      "GUARD-QUALITY-TESTS"
+                    ]
+                  },
+                  "forbiddenRegressions": [
+                    {
+                      "id": "NEG-RELEASE-UNIT-SCOPE-WIDEN",
+                      "statement": "The child PR must not contain material changes outside the release-unit manifest scope or accept foreign parent or unit lifecycle evidence.",
+                      "evidence": [
+                        "GUARD-QUALITY-TESTS"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "REQ-RELEASE-UNIT-RISK-INTEGRITY",
+                  "requirement": "Release unit DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01 must remain within the unchanged canonical Release Risk Budget on its exact target-base transaction.",
+                  "claimScope": {
+                    "capability": "CAP-RELEASE",
+                    "breadth": "release-unit-risk-integrity",
+                    "strength": 2,
+                    "dimensions": [
+                      "risk",
+                      "release-scope"
+                    ]
+                  },
+                  "requiredCapabilities": [
+                    "CAP-RELEASE"
+                  ],
+                  "evidence": {
+                    "implementation": [
+                      "GUARD-RELEASE-RISK"
+                    ],
+                    "outcome": [
+                      "GUARD-RELEASE-RISK"
+                    ]
+                  },
+                  "forbiddenRegressions": [
+                    {
+                      "id": "NEG-RELEASE-UNIT-RISK-BYPASS",
+                      "statement": "No child transaction may reinterpret a canonical Release Risk BLOCK as executable.",
+                      "evidence": [
+                        "GUARD-RELEASE-RISK"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "notes": "Isolated V2 plan-only checkpoint after successful PR #1172 merge and exact-merged-main CI #9292. Preserve original CLOSED multi-unit parent and all U01/U02/U03 proofs; preserve failed DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V1 state as STALE without edits. First run Plan Before Code on this exact plan-only HEAD before creating a fixture or release-execution/source branch. This V2 uses one inert JSON fixture plus one targeted existing regression-test assertion; only existing canonical executor, child/parent merge, one-shot bot workflow_dispatch and nonce-bound exact-head main CI may complete parent closure.",
+            "releaseUnitContext": {
+              "contract": "shoporation.release-unit-child-transaction.v1",
+              "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+              "releaseUnitId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01",
+              "order": 1,
+              "targetBaseSha": "7a580680f0260ec4ba104b7bfe9c01037b8e1eb7",
+              "planAuthority": "release-unit-manifest#childDevelopmentTransaction"
+            }
+          }
+        }
+      },
+      "executionTransaction": {
+        "contract": "shoporation.release-unit-transaction-projection.v1",
+        "releaseUnitId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01",
+        "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+        "branchRef": "release-unit/dev-post-merge-exact-main-ci-e2e-v2-u01",
+        "changeBaseSha": "7a580680f0260ec4ba104b7bfe9c01037b8e1eb7",
+        "manifestDigest": "8f0ae4ba",
+        "plannedFilePatterns": [
+          "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+          "tests/control-plane-release-unit-execution-binding.test.ts"
+        ],
+        "operations": [
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+            "generated": null
+          },
+          {
+            "operation": "modify",
+            "file": "tests/control-plane-release-unit-execution-binding.test.ts",
+            "generated": null
+          }
+        ],
+        "authorities": [],
+        "subsystems": [
+          "quality-infrastructure"
+        ],
+        "requiredGates": [
+          "GUARD-EDIT-TIME",
+          "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-KNOWLEDGE-PREFLIGHT",
+          "GUARD-PLAN-BEFORE-CODE",
+          "GUARD-QUALITY-TESTS",
+          "GUARD-RELEASE-RISK",
+          "GUARD-TYPECHECK"
+        ],
+        "requiredEvidence": {
+          "gateIds": [
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY",
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-QUALITY-TESTS",
+            "GUARD-RELEASE-RISK",
+            "GUARD-TYPECHECK"
+          ],
+          "proofFiles": [
+            "tests/admin-mobile-desktop-compat.test.ts",
+            "tests/block4-ia-navigation-reporting.test.ts",
+            "tests/commerce-pricing.test.ts",
+            "tests/control-plane-release-unit-execution-binding.test.ts",
+            "tests/core-checkout-quote.test.ts",
+            "tests/customer-baseline-proof-contract.test.ts",
+            "tests/customer-baseline-target-postflight.test.ts",
+            "tests/digital-commerce-customer-baseline-parity.test.ts",
+            "tests/incident-intelligence-schema.test.ts",
+            "tests/navigation-workflows.test.ts",
+            "tests/operational-tenant-isolation.test.ts",
+            "tests/order-lifecycle-contracts.test.ts",
+            "tests/pilot-acceptance-access.test.ts",
+            "tests/platform-owner-zero-tenant-hotfix.test.ts",
+            "tests/rollout-readiness.test.ts",
+            "tests/shoperation-development-guard.test.ts",
+            "tests/shoperation-failure-intake-reconcile.test.ts",
+            "tests/shoperation-historical-support-backfill.test.ts",
+            "tests/shoperation-quality-knowledge.test.ts",
+            "tests/sql-migration-syntax-guard.test.ts",
+            "tests/storefront-account-capability-navigation.test.tsx",
+            "tests/storefront-auth-surface.test.ts",
+            "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+            "tests/storefront-preview-demo-content-routing.test.ts",
+            "tests/storefront-responsive-isolation.test.ts",
+            "tests/storefront-runtime-persistence.test.ts",
+            "tests/storefront-template-persistence.test.ts",
+            "tests/storefront-template-preview-access.test.ts",
+            "tests/storefront-template-preview-runtime.test.ts",
+            "tests/storefront-template-quality-gate-v2.test.ts",
+            "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+            "tests/template-factory-engine-functional-proof.test.ts",
+            "tests/template-factory-loot-vault-v2.test.ts",
+            "tests/template-factory-procedural-memory.test.ts",
+            "tests/template-factory-scaffold-v1.test.ts",
+            "tests/template-factory-storefront-contract.test.ts",
+            "tests/template-golden-baseline-promotion-policy.test.ts",
+            "tests/visual-builder-mobile-isolation.test.ts"
+          ],
+          "externalGateIds": []
+        },
+        "forbiddenPaths": [
+          ".github/workflows/**",
+          "deploy/**",
+          "src/app/**",
+          "src/components/**",
+          "supabase/**"
+        ],
+        "readOnlyPaths": [],
+        "sourceIdentity": {
+          "sourceCommit": null,
+          "sealed": false
+        },
+        "childTaskId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01-TX",
+        "childPlanDigest": "a7884026f8e061d0929c9cbb2ac85976614cdf1d5e796fa186ed3d68ac0f7883",
+        "bindingDigest": "515f36fb5ddd05bf3882c73eeb0ad498e3a484816529ed3dfdf2cd7284126bf9"
+      },
+      "authorization": null,
+      "materialization": null,
+      "pullRequest": null,
+      "verification": null,
+      "merge": null,
+      "closeReceipt": null,
+      "blocker": null,
+      "lastTransition": {
+        "to": "PLANNED",
+        "code": "RELEASE_UNIT_PLANNED"
+      }
+    }
+  ],
+  "blocker": null,
+  "closureEligible": false,
+  "closureComplete": false,
+  "closedReceipt": null,
+  "executionSourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74"
+}
