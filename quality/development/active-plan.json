@@ -1,19 +1,16 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-RELEASE-CHILD-TASK-SCOPE-PROJECTION-V1",
-  "task": "Correct canonical release child transaction scope projection to use the identical generated child task as its sealed development plan.",
-  "status": "closed",
-  "guardDigest": "a41cfd0c",
-  "changeBaseSha": "c19e49b0a6e29beffd949bf27df1d3963d43b39b",
+  "taskId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+  "task": "Create one inert fixture to exercise canonical parent closure and exact main CI without changing application behavior.",
+  "status": "ready-for-implementation",
+  "guardDigest": "aa79c504",
+  "changeBaseSha": "7a580680f0260ec4ba104b7bfe9c01037b8e1eb7",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/shoperation-plan-before-code.mjs",
-    "scripts/lib/shoperation-release-unit-runtime.mjs",
+    "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
     "tests/control-plane-release-unit-execution-binding.test.ts"
   ],
-  "expectedSubsystems": [
-    "release-infrastructure"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
     "DOMAIN-QUALITY"
   ],
@@ -73,51 +70,41 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-016",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-ISSUE-1170-CANONICAL-CHILD-INTENT-SCOPE",
+    "sourceRef": "PO-2026-10-09-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
     "riskTier": "critical",
-    "problemStatement": "The live bot-driven release rehearsal #372 generated U01 expected subsystem, Known Failure and guard digest from the parent task, but the child CI evaluates the different generated child task and correctly blocked due semantic scope drift.",
+    "problemStatement": "The merged post-merge CI hardening has exact-head unit regressions, but no new real GitHub-bot parent merge has yet exercised dispatch, correlated run proof and durable parent closure together.",
     "observableOutcomes": [
-      "Canonical release-unit child plan generation and subsequent child CI calculate subsystem, Negative Knowledge, Known Failure and guard digest using the identical generated child task identity.",
-      "Parent tasks without a lexical release term still project child release-infrastructure ownership when the canonical generated child task contains release unit.",
-      "Exact child CI no longer reports a false subsystem scope or guard digest disagreement when the source and materialized child plan are valid.",
-      "The existing Knowledge, Plan, Edit-Time, Incremental, Truth, Lifecycle and security gates remain authoritative and fail closed on genuine mismatches.",
-      "An isolated replacement rehearsal can exercise the entire bot-driven post-merge main CI closure without altering prior failed rehearsal state."
+      "Plan Before Code authorizes one new inert JSON fixture, one pre-existing release-execution regression test file and canonical development metadata without changing product runtime.",
+      "The trusted executor creates and closes one real child transaction against its exact materialized commit, without changing existing parent evidence.",
+      "A new bot-authored parent closure PR merges into main and persists POST_MERGE_CI_PENDING instead of prematurely closing the parent.",
+      "One uniquely correlated GitHub-bot workflow_dispatch CI runs against the exact merged main SHA, with binding, quality, TypeScript, build and security-audit jobs succeeding.",
+      "The new canonical parent state records the correlated successful CI run ID and transitions to MERGED / PARENT_CLOSED only after verified terminal success."
     ],
     "unresolvedRisks": [
-      "Updating canonical child task semantics may affect other release manifests or successor reprojection and needs adversarial regression.",
-      "Generated child proof identities include digests of sealed plan material; a mismatched task helper must be detected before materialization.",
-      "Active old release state is STALE and must never be rewritten to fabricate recovery or bypass the failed exact child CI.",
-      "An unrelated main commit can invalidate the new exact-head repair PR and must trigger revalidation before merging."
+      "GitHub may accept a dispatch but delay making the run visible, so the persisted DISPATCH_ARMED reservation must not authorize a blind retry.",
+      "An unrelated main merge during the rehearsal can invalidate the exact main lease and must block rather than reuse another CI.",
+      "CI duration or the separate legacy queued #182 anomaly must not be mistaken for live proof of this new transaction.",
+      "Any guard or proof semantic disagreement blocks the new run without modifying the already closed predecessor release state.",
+      "The original V1 child remains STALE and must not be replayed into V2; every V2 child and parent proof must reference only its own new source SHA."
     ],
     "scope": {
       "in": [
-        "Export exactly one shared canonical child-task text helper from scripts/lib/shoperation-release-unit-runtime.mjs.",
-        "Use that helper in both the child plan binder and scripts/shoperation-plan-before-code.mjs scope projection.",
-        "Add focused regression in existing release execution binding tests for lexical parent/child scope drift and digest identity.",
-        "Apply generated lifecycle closure evidence from actual exact-head CI before PR merge."
+        "One inert JSON fixture under a new dedicated quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2 directory.",
+        "One development plan metadata update on an isolated source branch; no edits to application runtime, scripts, workflow or tests.",
+        "One targeted regression assertion in the existing release-unit execution-binding test; this supplies the critical plan's explicit MUST_EDIT and PROOF routes without adding a new engine.",
+        "Use only the existing canonical release-unit executor, source CI, child proof, parent PR, CAS persistence and post-merge dispatch implementation.",
+        "Verify actual GitHub parent PR merge identity, nonce-bound workflow_dispatch run metadata, mandatory successful jobs and durable parent closure."
       ],
       "out": [
-        "No application runtime, database, auth, checkout, Builder, template or storefront changes.",
-        "No mutation to original source 65e52ffd, old U01/U02/U03 receipts, or failed DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V1 remote state.",
-        "No weakening of Plan, Truth, Lifecycle, security, edit-time, release risk or negative knowledge semantics.",
-        "No unverified reuse of an old failed child CI as valid proof for a new source."
+        "No modification of DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1 state, U01/U02/U03 receipts, or immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65.",
+        "No production behavior, database schema, storefront, Builder, template, customer or payment changes.",
+        "No manually fabricated release-state receipts, no forced closure, no bypass of Plan, Truth, Lifecycle or CI authority.",
+        "No duplicate dispatch in the case of uncertain delivery; fail closed pending human review."
       ]
     },
     "assuranceCeiling": {
@@ -139,26 +126,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Critical Plan Before Code passes before the first implementation edit; the exact intended files and affected domain authority are declared.",
-        "One canonical generated child-task text helper is reused by both child scope projection and sealed child development task identity.",
-        "Regression demonstrates that a parent task without release lexical intent produces child release-infrastructure scope and exact matching Known Failure, Negative Knowledge and digest projections.",
-        "All existing control-plane release-unit tests pass without changing expected production behavior or suppressing known failures.",
-        "Exact-head implementation CI passes Knowledge, Plan, Edit-Time, Incremental Replay, Quality, TypeScript, Build, Completion Truth, Lifecycle and security audit.",
-        "The repair PR merges on its exact green HEAD with a green follow-up main CI; closed older releases remain byte-identical."
+        "Plan Before Code independently authorizes one inert fixture and one focused existing test update before either implementation edit, and source admission CI succeeds at the immutable exact head.",
+        "Canonical decomposition contains exactly one authorized JSON fixture child with a valid source blob, and only its intended file is merged into main.",
+        "A new parent PR is merged by github-actions[bot] with a trusted exact-head proof and parent state remains POST_MERGE_CI_PENDING until a separate main CI is proven.",
+        "One source/parent/merged-main nonce is bound to the new workflow_dispatch CI, not an unrelated push or manual workflow event.",
+        "Terminal SUCCESS of the exact main head run includes Bind exact parent post-merge main CI, Knowledge preflight, Incremental Replay, Quality tests, TypeScript check, Production build and security-audit.",
+        "Persisted parent closure is MERGED / PARENT_CLOSED only after CI proof; all three older closed units and original parent proof remain unmodified."
       ],
       "invariants": [
-        "The generated child task and task used for scope/digest calculation are text-identical.",
-        "Child task classification includes relevant release-infrastructure intent even when parent task omits its lexical trigger.",
-        "No plan scope or digest is manually overwritten to hide a mismatch.",
-        "The old closed rehearsal and newly failed STALE state are immutable from this patch.",
-        "Exact-head proof and canonical PR merge are mandatory before claiming the code fix done."
+        "New source transaction and stateRef are distinct from DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1.",
+        "Exactly one inert fixture and one existing regression test file are the only material source edits, with no product runtime changes.",
+        "Exact run identity requires GitHub-bot actor, workflow_dispatch, unique nonce, parent source, workflow identity and mergedMainSha.",
+        "DISPATCH_ARMED is persisted by CAS before any side effect, and uncertain recovery cannot dispatch the same request again.",
+        "No parent completion claim without a successful exact-head GitHub run and all mandatory job steps."
       ],
       "forbiddenStates": [
-        "The parent task is used for child projection while a different task string is stored in its child plan.",
-        "Child projected Negative Knowledge and guard digest differ from freshly computed CI values at the same source head.",
-        "A test is weakened to skip Plan Before Code or erase an actual classification drift.",
-        "A failed child CI is reused for canonical closure or any remote state is forced to MERGED.",
-        "An implementation commit precedes a successful canonical Plan Before Code gate."
+        "Old U01/U02/U03 state or proof artifact is overwritten or reclassified.",
+        "Fixture or test implementation edit is created before the source plan gate proves PASS.",
+        "Parent is marked MERGED immediately after bot PR merge while main CI remains absent.",
+        "A manual push or unrelated successful main CI is accepted as the correlated post-merge dispatch.",
+        "Two requests with the same parent nonce are sent after crash or delayed run visibility.",
+        "Changed main SHA, wrong actor, missing security/build evidence or nonterminal CI closes the parent."
       ]
     },
     "model": {
@@ -190,40 +178,41 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Parent task lacks a lexical intent found in the canonical generated child task.",
-        "Task wording drifts between planning code and binder due duplicated template strings.",
-        "Child plan digest changes while binding digest or PR metadata still refers to old plan.",
-        "Scope classification widens due task intent but the negative knowledge list is not reconciled.",
-        "CI exact head differs from the source that was plan-authorized.",
-        "Existing release-unit test suite detects a changed manifest semantics or unexpected generated path."
+        "Plan scope or Known Failure projection drifts after new inert fixture declaration.",
+        "Materialized fixture source blob is absent or mismatched on the immutable source commit.",
+        "Child CI finishes without matching lifecycle proof, preventing child merge.",
+        "Parent merge succeeds but persisted pending state or dispatch CAS experiences an interruption.",
+        "GitHub dispatch request succeeds but the run ID is not immediately visible.",
+        "Another GitHub event or main merge introduces a stale head before post-merge proof.",
+        "Correlated CI fails, is cancelled, or lacks mandatory job evidence."
       ],
       "edgeCases": [
-        "Parent task is quality-fixture only; generated child task contains the words release unit.",
-        "Parent task already includes release intent; child classification remains stable.",
-        "Child release scope has only neutral test files and a generated inert quality knowledge JSON file.",
-        "One-unit and multi-unit decomposition must produce consistent task and digest.",
-        "A stale child manifest from the former source remains rejected and cannot be reclassified after the fact.",
-        "A newly discovered duplicate task string must not override the canonical helper or create a separate authority."
+        "A single child follows the canonical decomposition and no child predecessor reconciliation is necessary.",
+        "A `workflow_run` hook from a successful source push launches the trusted default-branch executor.",
+        "GitHub bot-triggered merge does not create automatic main push CI, requiring explicit workflow_dispatch.",
+        "The dispatch response is lost after the server accepts the request, leaving a durable DISPATCH_ARMED reservation.",
+        "The valid run becomes visible on a later poll without repeating the dispatch.",
+        "The CI run is terminal SUCCESS but unrelated actor or run title must be rejected."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-SHARED-TASK",
-        "summary": "Derive child task text once and reuse it for both projection and binder.",
+        "id": "ALT-ONE-INERT",
+        "summary": "Use one inert fixture through the unchanged real GitHub executor.",
         "disposition": "selected",
-        "reason": "A single canonical definition removes the cause of semantic intent drift while retaining the existing rule engine and digest semantics."
+        "reason": "This is the smallest safe material scope that actually reaches child merge, parent merge, bot dispatch and parent close."
       },
       {
-        "id": "ALT-LEXICAL-WORKAROUND",
-        "summary": "Rename each parent task to contain a release term to match generated child intent.",
+        "id": "ALT-UNIT-MOCK",
+        "summary": "Trust the already-green mock regression without a live GitHub rehearsal.",
         "disposition": "rejected",
-        "reason": "This depends on incidental source wording and leaves the canonical projection inconsistency for future release transactions."
+        "reason": "A mock cannot independently demonstrate real workflow_run admission, GitHub actor identity or remote CAS evidence."
       },
       {
-        "id": "ALT-GATE-EXCEPTION",
-        "summary": "Suppress the child subsystem scope guard when running an inert rehearsal fixture.",
+        "id": "ALT-MANY-UNITS",
+        "summary": "Repeat the old multi-unit corpus with twenty-five files.",
         "disposition": "rejected",
-        "reason": "This weakens fail-closed safety and would allow production release misclassification to escape proof."
+        "reason": "The earlier rehearsal already proved child orchestration; repeating it adds CI and merge exposure unrelated to the missing post-merge edge."
       }
     ],
     "specialistReviews": [
@@ -231,135 +220,140 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Two call sites derive different task text for a single child transaction, breaking architectural identity coherence.",
-        "resolution": "Expose a single pure child-task authority and use it before emitting the sealed child transaction.",
+        "finding": "The unproven scope is the live post-merge parent CI chain, not the existing multi-child orchestration.",
+        "resolution": "Use exactly one independent inert fixture through the canonical executor without new control paths.",
         "evidence": [
-          "scripts/lib/shoperation-release-unit-runtime.mjs",
-          "scripts/shoperation-plan-before-code.mjs"
+          "scripts/release-unit-parent-close.mjs",
+          "scripts/release-unit-execute.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "An automatic source classification change can silently broaden a release child's required authority or negative knowledge.",
-        "resolution": "Preserve strict scope/digest gates, test exact widened projection and reject unresolved differences instead of adding exemptions.",
+        "finding": "Even an inert live rehearsal writes a branch, merges a PR and can dispatch GitHub Actions unexpectedly.",
+        "resolution": "Isolate new parent identity, keep all original release-state immutable, require strict Plan Before Code and fail-closed CAS/dispatch handling.",
         "evidence": [
-          "scripts/lib/shoperation-development-runtime.mjs",
-          "tests/control-plane-release-unit-execution-binding.test.ts"
+          ".github/workflows/release-unit-execution.yml",
+          ".github/workflows/ci.yml"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The live #372 failure makes a retry unsafe while the initial child manifest is already sealed and STALE.",
-        "resolution": "Leave canonical remote state untouched, merge a properly gated repair, then start a distinct new source transaction.",
+        "finding": "An ordinary successful push CI cannot prove the new workflow_dispatch parent binding.",
+        "resolution": "Require a distinct bot-actor workflow_dispatch main CI with the exact nonce, SHA, run ID and mandatory successful jobs.",
         "evidence": [
-          "scripts/release-unit-execute.mjs",
-          "scripts/release-unit-github-runtime.mjs"
+          "scripts/release-unit-parent-close.mjs",
+          "tests/control-plane-release-unit-execution-binding.test.ts"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The category mismatch was correctly detected at child Plan Before Code and should be prevented in the upstream plan producer.",
-        "resolution": "Place a regression at child-plan projection and preserve the existing Knowledge/Atlas and failure-intake feedback.",
+        "finding": "Unknown plan semantics or a missing source fixture must not be reinterpreted as success.",
+        "resolution": "Stop on every canonical failed gate and use Failure Intake for unexpected blockers.",
         "evidence": [
-          "quality/knowledge/development-guard-policy.v1.json",
-          "tests/control-plane-release-unit-execution-binding.test.ts"
+          "scripts/shoperation-plan-before-code.mjs",
+          "scripts/shoperation-failure-intake.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-1170-01",
-        "scenario": "Parent task is a neutral fixture test but child task says release unit.",
-        "finding": "Using parent intent projects no release subsystem while child CI projects release-infrastructure.",
-        "resolution": "Compute child expected scope from the exact generated child task string before binding.",
+        "id": "CH-PMCI-01",
+        "scenario": "The new source is admitted without a successful Plan Before Code proof.",
+        "finding": "An inert fixture alone does not exempt source transactions from governed authorization.",
+        "resolution": "Validate the plan on an isolated plan branch before creating the fixture on the execution source branch.",
         "status": "resolved"
       },
       {
-        "id": "CH-1170-02",
-        "scenario": "A developer changes the generated child task wording in only the child binder.",
-        "finding": "Projection digests become stale even though materialized code changes are valid.",
-        "resolution": "Centralize task wording in one shared pure helper referenced by both paths.",
+        "id": "CH-PMCI-02",
+        "scenario": "The parent squash merge succeeds, but no ordinary main push CI appears.",
+        "finding": "The missing GitHub GITHUB_TOKEN edge remains unproven by push-based checks.",
+        "resolution": "Require a separate nonce-correlated workflow_dispatch run bound to exact mergedMainSha.",
         "status": "resolved"
       },
       {
-        "id": "CH-1170-03",
-        "scenario": "Child scope expands but its negative knowledge acknowledgements remain from the original parent.",
-        "finding": "A child can incorrectly carry one approved negative rule when thirteen are applicable.",
-        "resolution": "Recompute Negative Knowledge from child-classified scope with no manual exclusions.",
+        "id": "CH-PMCI-03",
+        "scenario": "Workflow dispatch succeeds and the executor crashes before receiving or persisting run ID.",
+        "finding": "Blind retry can create two indistinguishable dispatch attempts.",
+        "resolution": "Require durable one-shot DISPATCH_ARMED and lookup only; uncertain recovery remains blocked without new dispatch.",
         "status": "resolved"
       },
       {
-        "id": "CH-1170-04",
-        "scenario": "Child manifest already sealed on a failed source attempt is replayed after the code fix.",
-        "finding": "Old plan and binding hashes cannot authorize proof under a modified generator.",
-        "resolution": "Do not rewrite the failed remote state; require a new authorized source and exact-head child proof.",
+        "id": "CH-PMCI-04",
+        "scenario": "A coincidental manual or push main CI succeeds on the same merged commit.",
+        "finding": "Head SHA alone is insufficient evidence for the required bot dispatch path.",
+        "resolution": "Verify bot actor, workflow, event, nonce, source parent and exact required successful steps.",
         "status": "resolved"
       },
       {
-        "id": "CH-1170-05",
-        "scenario": "A release unit contains a test path and an inert quality fixture rather than production code.",
-        "finding": "Lexical release intent remains operationally relevant even for non-product material, and the child CI must agree.",
-        "resolution": "Retain the same classifier, recording actual released subsystem instead of downgrading classification.",
+        "id": "CH-PMCI-05",
+        "scenario": "An older legacy Release Unit Execution run remains queued.",
+        "finding": "Its status is unrelated to proof for the new parent transaction.",
+        "resolution": "Do not mutate or reuse #182; select only source-bound execution and correlated post-merge runs.",
         "status": "resolved"
       },
       {
-        "id": "CH-1170-06",
-        "scenario": "A helper returns an empty task or a different parent identifier from the one used to bind the child.",
-        "finding": "The child plan becomes mismatched to parent identity or loses required semantic task information.",
-        "resolution": "Make helper deterministic from manifest.releaseUnitId and parentPlan.taskId and regress exact output.",
+        "id": "CH-PMCI-06",
+        "scenario": "A normal CI push runs on the newly merged main commit and reports SUCCESS before the parent dispatch appears.",
+        "finding": "The unrelated push lacks nonce and the bot workflow_dispatch identity, so it could falsely satisfy a loose exact-SHA-only proof.",
+        "resolution": "Require an independent workflow_dispatch event with the deterministic parent nonce, accepted actor and recorded run ID; never reuse a push run.",
         "status": "resolved"
       },
       {
-        "id": "CH-1170-07",
-        "scenario": "A green CI exists for a previous branch head but implementation changes arrive later.",
-        "finding": "Evidence reuse would be stale and could hide an updated child planning regression.",
-        "resolution": "Require full exact final-head CI and lifecycle proof before merge.",
+        "id": "CH-PMCI-07",
+        "scenario": "The correlated main CI finishes with a successful workflow conclusion, but the security-audit or exact-parent-binding job step is absent.",
+        "finding": "A green workflow summary alone does not show that the mandatory job-level proof actually executed.",
+        "resolution": "Inspect the exact run jobs and every required binding, quality, typecheck, production build and security step before persisting PARENT_CLOSED.",
         "status": "resolved"
       },
       {
-        "id": "CH-1170-08",
-        "scenario": "The fix causes Atlas or Known Failure classification drift in unrelated scripts.",
-        "finding": "Scope and security authority may expand beyond the planned two canonical scripts and one test.",
-        "resolution": "Stop on any new scope blocker and re-plan before additional edits; do not suppress rules.",
+        "id": "CH-PMCI-08",
+        "scenario": "An interrupted source executor restarts from a prior committed one-fixture child branch after another release changed main.",
+        "finding": "A prior successful child proof cannot authorize materialization or parent closure against a different current main.",
+        "resolution": "Enforce exact main lease with canonical source/PR/CAS identity, and stop on drift rather than creating another untracked branch.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PMCI-09",
+        "scenario": "The new child binder correctly adds release-unit lexical intent but the parent still has a neutral quality-fixture task.",
+        "finding": "Before PR #1172 the projection inherited neutral parent scope, causing the prior child's Negative Knowledge and guard digest to drift.",
+        "resolution": "Exercise the merged shared child-task authority in a freshly generated V2 child plan, rejecting any scope, negative-knowledge or digest disagreement.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Commit plan-only critical envelope and obtain exact-head Plan Before Code PASS before writing implementation.",
-      "Review Knowledge Guard evidence, known-failure directives and the existing binder/planner source.",
-      "Add the shared child task helper and switch planner scope derivation and binder to the same authority.",
-      "Add a regression proving lexical parent/child scope consistency and digest alignment.",
-      "Run Edit-Time/Knowledge/Incremental and all exact-head PR gate checks; repair only actual failures.",
-      "Apply the CI-generated lifecycle closed plan on the authoritative head and rerun full CI.",
-      "Merge only if exact-head checks and GitHub protection rules PASS; verify merged main SHA and CI.",
-      "Keep old and failed rehearsal state unchanged; start a separate new E2E transaction only after code proof."
+      "Verify Plan Before Code PASS for this plan-only transaction before writing the one fixture or the new targeted test assertion.",
+      "Create the one inert JSON source fixture only on a dedicated release-execution/source/* branch after plan authorization.",
+      "Verify source exact-head CI is SUCCESS and inspect the admitted trusted Release Unit Execution run.",
+      "Verify the one child has exact source blob, materialized PR, completed gates and merged-main receipt.",
+      "Verify parent PR exact-head proof, trusted bot merge and persisted POST_MERGE_CI_PENDING state.",
+      "Verify a separately dispatched GitHub-bot CI with exact nonce, merged SHA, terminal SUCCESS and all required successful job steps.",
+      "Verify persisted MERGED / PARENT_CLOSED proof, final main identity and unchanged earlier parent state; otherwise stop as BLOCKED."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-08-ISSUE-1170-CANONICAL-CHILD-INTENT-SCOPE",
+      "request": "PO-2026-10-09-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
       "authority": [
         "quality-knowledge-system"
       ],
       "mustEdit": [
-        "scripts/shoperation-plan-before-code.mjs",
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
         "tests/control-plane-release-unit-execution-binding.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
-      "mustCreate": [],
+      "mustCreate": [
+        "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json"
+      ],
       "forbidden": [
-        ".github/workflows/**",
-        "deploy/**",
         "src/app/**",
         "src/components/**",
         "supabase/**",
-        "control-plane/release-state/**"
+        ".github/workflows/**",
+        "deploy/**"
       ],
       "proof": [
         "tests/control-plane-release-unit-execution-binding.test.ts"
@@ -373,7 +367,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-08-ISSUE-1170-CANONICAL-CHILD-INTENT-SCOPE",
+    "sourceRef": "PO-2026-10-09-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -391,15 +385,15 @@
     },
     "requirements": [
       {
-        "id": "REQ-CHILD-TASK-IDENTITY",
-        "requirement": "Child release task text must be identical for planning semantic scope projection and bound implementation transaction.",
+        "id": "REQ-ONE-INERT-SOURCE",
+        "requirement": "The new one-file inert source must be authorized and materially bounded by the canonical plan without modifying product runtime.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "canonical-release-child-scope",
+          "breadth": "single-inert-source",
           "strength": 2,
           "dimensions": [
-            "transaction-identity",
             "status",
+            "transaction-identity",
             "forbidden-state"
           ]
         },
@@ -417,8 +411,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-CHILD-TASK-DRIFT",
-            "statement": "Parent task lexical scope must not replace the actual canonical child task classification.",
+            "id": "NEG-SOURCE-WIDEN",
+            "statement": "No fixture outside the one-file scope or unauthenticated source operation may be accepted.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -426,50 +420,50 @@
         ]
       },
       {
-        "id": "REQ-CHILD-KNOWLEDGE",
-        "requirement": "Known Failure and Negative Knowledge projection must be derived from the generated child release subsystem scope.",
+        "id": "REQ-EXACT-RISK-BOUNDARY",
+        "requirement": "The rehearsal must preserve canonical release risk and reject unauthorized material changes or foreign state mutation.",
         "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "child-negative-knowledge",
+          "capability": "CAP-RELEASE",
+          "breadth": "bounded-release-proof",
           "strength": 2,
           "dimensions": [
-            "known-failure",
-            "scope",
-            "classification"
+            "risk",
+            "release-scope"
           ]
         },
         "requiredCapabilities": [
-          "CAP-ATLAS"
+          "CAP-RELEASE"
         ],
         "evidence": {
           "implementation": [
-            "GUARD-KNOWLEDGE-PREFLIGHT"
+            "GUARD-RELEASE-RISK"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-RELEASE-RISK"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-KNOWLEDGE-DRIFT",
-            "statement": "Expected child negative rules and guard digest may not be silently suppressed or downgraded.",
+            "id": "NEG-RISK-BYPASS",
+            "statement": "A blocked risk gate or stale source cannot be treated as executable.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-RELEASE-RISK"
             ]
           }
         ]
       },
       {
-        "id": "REQ-EXACT-CLOSURE",
-        "requirement": "The scoped repair must achieve exact-head Truth and Lifecycle closure before merging to main.",
+        "id": "REQ-POST-MERGE-CI-CONTRACT",
+        "requirement": "Parent execution must never close before a uniquely correlated bot-dispatched exact-merged-head main CI succeeds with all required job evidence.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-code-hardening",
+          "breadth": "post-merge-ci-execution-contract",
           "strength": 2,
           "dimensions": [
             "lifecycle",
             "truth",
             "status",
+            "transaction-identity",
             "close"
           ]
         },
@@ -487,8 +481,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-BYPASS",
-            "statement": "Blocked CI or unresolved canonical state cannot be presented as completed.",
+            "id": "NEG-EARLY-PARENT-CLOSE",
+            "statement": "Pending, missing, failed or unrelated main CI cannot be treated as PARENT_CLOSED.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -497,18 +491,5 @@
       }
     ]
   },
-  "notes": "Plan-only issue #1170 hardening. Live #372/child #9282 demonstrated a true canonical intent scope mismatch (expected [], actual release-infrastructure, guard drift aa79c504 vs a41cfd0c). The old failed state stays STALE and source identities remain immutable. This plan is an executable authority only after PROVE_PLAN PASS; no implementation code edits before it. Recompute scope from generated child task in planner and binder, not parent task. Full Known Failure replay required for shoperation infrastructure files. Exact-head #9287 Sentinel integrity regression correctly rejected two unsupported evidence semantics: Knowledge Preflight is CAP-ATLAS, not CAP-QUALITY; Plan/Edit-Time producers are CAP-QUALITY, not CAP-RELEASE. Requirements are now scoped to supported canonical capability/dimensions without altering guard implementation or weakening tests.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "05454279042acad60f0b5c83d82e16f720a355ac",
-    "closedAt": "2026-10-08T22:09:33.052Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-08-ISSUE-1170-CANONICAL-CHILD-INTENT-SCOPE",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Isolated V2 plan-only checkpoint after successful PR #1172 merge and exact-merged-main CI #9292. Preserve original CLOSED multi-unit parent and all U01/U02/U03 proofs; preserve failed DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V1 state as STALE without edits. First run Plan Before Code on this exact plan-only HEAD before creating a fixture or release-execution/source branch. This V2 uses one inert JSON fixture plus one targeted existing regression-test assertion; only existing canonical executor, child/parent merge, one-shot bot workflow_dispatch and nonce-bound exact-head main CI may complete parent closure."
 }
