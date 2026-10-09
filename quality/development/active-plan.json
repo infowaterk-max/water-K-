@@ -1,57 +1,51 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CORE-1186-U01-PRO-CHAT",
-  "task": "MR1 Core unit 1 Pro-only Team Chat deny stale Alap entitlement rows while preserving core customer email issue 1186",
+  "taskId": "DEV-CORE-1186-U02-PLAN-GRANTS",
+  "task": "Core #1186 U02 transactional Alap Team Chat plan-grant removal and idempotent tenant resync with customer baseline parity",
   "status": "closed",
-  "guardDigest": "d64b38b6",
-  "changeBaseSha": "32fcdb7ede3772dfd43ab9694c042404ba900d3c",
+  "guardDigest": "2ebcb98e",
+  "changeBaseSha": "dfac819a6336871bd2a669b09cd47755cd31ebbe",
   "plannedFilePatterns": [
-    "src/lib/plans/catalog.ts",
-    "src/lib/entitlements/access.ts",
-    "tests/plans-catalog.test.ts",
+    "supabase/migrations/20261009084550_alap_team_chat_plan_grant_reconcile.sql",
+    "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
+    "supabase/customer-baseline/manifest.json",
     "tests/block11-entitlement-system.test.ts",
     "tests/customer-email-plan-split.test.ts",
-    "tests/block4-ia-navigation-reporting.test.ts"
+    "tests/order-core-transactional-email-dispatch-contract.test.ts"
   ],
   "expectedSubsystems": [
-    "auth-access-authority",
-    "customer-account"
+    "database-schema"
   ],
   "expectedDomains": [
-    "DOMAIN-IDENTITY",
-    "DOMAIN-TENANCY"
+    "DOMAIN-DATA"
   ],
   "expectedAuthorities": [
-    "auth-access-authority",
-    "tenant-context-authority"
+    "database-schema"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-006",
+    "SQ-KF-009",
+    "SQ-KF-010",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-018",
     "SQ-KF-022",
-    "SQ-KF-001",
-    "SQ-KF-002",
-    "SQ-KF-007",
-    "SQ-KF-011",
-    "SQ-KF-017",
-    "TF-KF-002",
-    "TF-KF-008",
-    "TF-KF-012",
-    "TF-KF-020"
+    "SQ-KF-023"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-006",
-    "SQ-NK-012"
+    "SQ-NK-005",
+    "SQ-NK-012",
+    "SQ-NK-014"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CORE-DIGITAL-OFFICE-1186-U01",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U02",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Privilege to internal staff chat must be fail-closed at the server-owned tenant plan boundary even when an older DB entitlement row is positive. In scope is only the effective central access decision and plan catalog, not entire workspace or stored grants.",
+      "rationale": "The database plan grant is a sensitive authorization source and is read by privileged tenant synchronization. Removing only Alap chat must be fail-closed, forward-only, auditable, idempotent, and compatible with both the historical production and customer-baseline lineages. We do not claim deployment or live tenant correctness without actual database execution proof.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -68,23 +62,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Alap Team Chat absent from plan catalog; Pro Team Chat present; standard customer email and support preserved in Alap.",
-        "Effective entitlement resolver compares strict workspace capability against the actual persisted instance subscription plan, denying Alap before candidate precedence can grant access.",
-        "Pro entitlement policy still honors explicit revoked/manual/trial/platform source semantics and expiry.",
-        "Targeted tests plus Edit-Time Reference Sync, Knowledge, Replay, risk and all exact-head GitHub CI gates pass.",
-        "Scope truth explicitly remains PARTIAL for #1186 until SQL migration, UI/API and operation closure."
+        "The new migration removes only (alap,teamChat) from plan_capability_grants and reruns the existing tenant sync for subscription_plan=alap.",
+        "The SQL raises errors if Pro chat or the Alap officeCommunication and support baseline grants are absent and never rewrites the private sync function.",
+        "The next ordered customer baseline migration is materially equivalent to the canonical migration and preserves ordered replay.",
+        "Regression tests verify plan source grants are reconciled but higher-priority override rows, Pro grant, and customer email remain untouched.",
+        "Critical Plan Before Code, Edit-Time/Reference Sync, Knowledge, Incremental Replay, Release Risk, Quality, TypeScript, CI Truth and Lifecycle complete on exact head.",
+        "Baseline manifest is snapshot-reviewed, freshInstallProofRequired=true, proofContractSha256=null pending the separately executed empty-target Fresh Install proof; never assert ready without it.",
+        "Regression test distinguishes snapshot-reviewed/pending 0046 from ready only after verifiable 0046 proof/contract, and preserves the old 0045 proof solely as history."
       ],
       "invariants": [
-        "Server authorization uses actual current instance plan, not mutable client metadata or a stale UI badge.",
-        "Plan-based non-workspace features and transactional email remain functional for Alap.",
-        "No extra source-of-truth or substitute entitlement engine.",
-        "Invalid instance/subscription data fail closed, never silently upgrade to Pro."
+        "One existing plan grant table and existing private sync function remain the only canonical database authorities; no competing plan grants table.",
+        "No existing migration file is rewritten or deleted; the migration is safe to reapply without changing unrelated tenant or entitlement state.",
+        "Pro remains entitled to internal Team Chat and Alap remains entitled to normal customer email and support.",
+        "No claim that SQL migration has been applied to customer production until deployment and live proof are separately obtained."
       ],
       "forbiddenStates": [
-        "Alap with stale manual or platform teamChat grant receives enabled=true.",
-        "Pro lost teamChat through accidental removal from both catalog lists.",
-        "officeCommunication is removed from Alap and transactional customer email is broken.",
-        "All Digital Office backend and UI access is claimed complete after this single policy edit."
+        "An Alap positive Team Chat grant is preserved in canonical plan_capability_grants after applying the new migration.",
+        "Manual/platform/trial/addon grants are mass-deleted or an unrelated Pro tenant is re-synchronized.",
+        "The migration removes officeCommunication or support from Alap or adds internal office privileges to Alap.",
+        "Historical baseline schema or older migrations are rewritten to make tests green.",
+        "Baseline manifest stays READY using a proof hash from migration chain 0045 even though 0046 was added.",
+        "An unchanged hardcoded READY assertion forces reuse of an obsolete Fresh Install proof, or a hardcoded snapshot-reviewed assertion prevents legitimate later READY proof."
       ]
     },
     "model": {
@@ -116,38 +114,40 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Persisted Alap plan grant still has enabled=true and current resolver trusts it unconditionally.",
-        "An Alap trial/manual/platform override wins over the plan and incorrectly enables internal chat.",
-        "An invalid current plan or missing tenant organization falls back to Pro.",
-        "Plan change during request is not transactional with entitlement read; require fresh plan on next authorization.",
-        "Scope claims broader coverage than actual code proves."
+        "Older static list migration is edited while the latest Block 11 function keeps reading the unchanged plan_capability_grants table.",
+        "A broad DELETE removes all Team Chat including Pro or removes all Alap grants rather than exact pair.",
+        "Direct deletion of feature_entitlements erases manual, platform or trial override history.",
+        "Tenant sync is invoked across Pro instances rather than the Alap subset and causes an unrelated production rewrite.",
+        "A migration without a matching customer-baseline step causes fresh-install parity drift.",
+        "A test only greps file text but source SQL cannot be executed in a real Postgres database; describe that assurance limitation explicitly."
       ],
       "edgeCases": [
-        "Alap with valid grant from each source plan, trial, manual, platform.",
-        "Alap with positive organization-scoped row and expired instance-specific deny.",
-        "Pro tenant with manual explicit revocation.",
-        "Missing tenant, unknown feature, invalid subscription plan and expired grant.",
-        "Existing Alap core officeCommunication and support remain allowed while teamChat is not."
+        "Migration is retried after the grant already disappeared (idempotent).",
+        "An Alap tenant has an expired or manually revoked Team Chat row that must remain intact.",
+        "A Pro tenant still has its original Team Chat plan grant and plan entitlements.",
+        "The required customer-email grant or Pro Team Chat grant is missing: abort transaction for operator review.",
+        "An Alap tenant with null organization_id causes the canonical sync function to raise and rolls back the migration.",
+        "Fresh-install baseline snapshot plus migrations 0002-0046 executes with ordered source and no duplicated security-definer function."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-CENTRAL-POLICY",
-        "summary": "Use one central catalog and effective entitlement resolver to deny Pro-only internal chat on Alap, independent of stale positive DB rows.",
+        "id": "ALT-FORWARD-GRANT-RECONCILE",
+        "summary": "New migration deletes the exact Alap Team Chat plan grant and syncs Alap tenants through the existing canonical function; mirror in baseline.",
         "disposition": "selected",
-        "reason": "Minimal high-risk server authority update, preserves email, matches the existing runtime used by Digital Office."
+        "reason": "Transactional, non-destructive, forward-only and preserves source priority and production audit state."
       },
       {
-        "id": "ALT-UI-HIDE",
-        "summary": "Hide Team Chat navigation only.",
+        "id": "ALT-REWRITE-LEGACY-MIGRATIONS",
+        "summary": "Remove Alap Team Chat from older already-applied migrations.",
         "disposition": "rejected",
-        "reason": "Leaves backend API/job grants possible."
+        "reason": "Existing production deployments do not replay history, so it would be operationally ineffective and break migration provenance."
       },
       {
-        "id": "ALT-MIGRATION-ONLY",
-        "summary": "Delete Alap grants via SQL without changing effective resolver.",
+        "id": "ALT-MASS-DELETE-GRANTS",
+        "summary": "Delete Team Chat from every entitlement source or all tenants.",
         "disposition": "rejected",
-        "reason": "Future override/trial/manual records could still re-enable chat."
+        "reason": "Would destroy authorized Pro and manually audited overrides, violate source precedence and tenant data retention."
       }
     ],
     "specialistReviews": [
@@ -155,44 +155,43 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Existing centralized plan catalog and server-only entitlement batch resolver already serve shared Digital Office access, so no new service is needed.",
-        "resolution": "Enforce strict plan eligibility at that resolver with one exported catalog predicate.",
+        "finding": "The latest Block 11 plan sync reads public.plan_capability_grants, superseding earlier static feature arrays.",
+        "resolution": "Modify exact grant pair in a new migration, call existing private.sync_webshop_plan_entitlements for Alap only, and preserve both ordered migration lineages.",
         "evidence": [
-          "src/lib/plans/catalog.ts",
-          "src/lib/entitlements/access.ts",
-          "src/lib/digital-office/access.ts"
+          "supabase/migrations/20260910124500_block11_entitlement_contract_v1.sql",
+          "supabase/customer-baseline/migrations/0014_block11_entitlement_contract_v1.sql"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Changing only ALAP_FEATURES does not deny stale positive feature_entitlements rows, including high-precedence platform/manual/trial grants.",
-        "resolution": "Read instance subscription_plan server-side and refuse strict Pro chat before applying entitlement candidates; record persistence reconciliation as a separate mandatory dependency.",
+        "finding": "A blanket deletion of feature_entitlements would silently destroy manual and platform sources, and a broad Team Chat grant deletion would revoke Pro.",
+        "resolution": "DELETE only public.plan_capability_grants where plan_code=alap and capability_code=teamChat, use canonical sync which affects only plan-origin rows, and assert required grants remain.",
         "evidence": [
-          "src/lib/entitlements/access.ts",
-          "src/lib/entitlements/policy.ts"
+          "src/lib/entitlements/policy.ts",
+          "src/lib/entitlements/access.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "A complete workspace patch mixed with SQL and admin UI exceeds this single high-risk release unit.",
-        "resolution": "Keep strict policy code and tests in this unit; SQL synchronization and admin entrypoints follow separate verified release units.",
+        "finding": "Direct production SQL execution and baseline replay are separate authorities from a GitHub migration file.",
+        "resolution": "Prove repository migration source and CI exact head now, keep live-applied status explicitly unverified, and require later operational deployment proof.",
         "evidence": [
-          "deploy/release-risk-policy.json",
-          "quality/knowledge/living-roadmap.v2.json"
+          "AGENTS.md",
+          ".github/workflows/ci.yml",
+          "supabase/customer-baseline/manifest.json"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Old plan tests assert Team Chat enabled in Alap and are inadequate to catch stale overrides.",
-        "resolution": "Update package tests and a server source contract test while retaining existing precedence and email regression.",
+        "finding": "Historical migration tests retain older Alap grants by design and would not cover the latest forward-only correction.",
+        "resolution": "Add focused new-migration contract assertions to existing entitlement and customer email suites without rewriting historical evidence.",
         "evidence": [
-          "tests/plans-catalog.test.ts",
           "tests/block11-entitlement-system.test.ts",
           "tests/customer-email-plan-split.test.ts"
         ]
@@ -200,135 +199,114 @@
     ],
     "challenge": [
       {
-        "id": "CH-1186-U01-01",
-        "scenario": "Alap with plan source positive Team Chat row",
-        "finding": "Historical DB v4 sync still grants teamChat",
-        "resolution": "Return explicit disabled decision before candidate resolution",
+        "id": "CH-1186-U02-01",
+        "scenario": "Migration deletes the whole capability instead of the exact Alap grant",
+        "finding": "Both Pro and Alap lose Team Chat, contradicting the accepted package split",
+        "resolution": "Match the plan_code=alap AND capability_code=teamChat exact composite key",
         "status": "resolved"
       },
       {
-        "id": "CH-1186-U01-02",
-        "scenario": "Alap with manual positive Team Chat override",
-        "finding": "Higher precedence could bypass static package features",
-        "resolution": "Strict product plan boundary wins over generic overrides",
+        "id": "CH-1186-U02-02",
+        "scenario": "Migration rewrites a historical Block 11 file instead of creating a later one",
+        "finding": "Existing tenants never receive a new migration and current entitlements remain stale",
+        "resolution": "Create a new forward-only Supabase migration via CLI and preserve old files",
         "status": "resolved"
       },
       {
-        "id": "CH-1186-U01-03",
-        "scenario": "Alap with platform positive Team Chat override",
-        "finding": "Platform override could defeat Pro-only workspace rule",
-        "resolution": "Do not grant without actual Pro subscription; log future exception policy requirement",
+        "id": "CH-1186-U02-03",
+        "scenario": "A direct feature_entitlements delete removes override audit history",
+        "finding": "Manual, platform and trial entitlements disappear or lose precedence",
+        "resolution": "Delete only the canonical plan capability grant and invoke the existing sync for plan-source rows",
         "status": "resolved"
       },
       {
-        "id": "CH-1186-U01-04",
-        "scenario": "Pro with explicit manual revoke",
-        "finding": "Central guard could accidentally force enabled on Pro",
-        "resolution": "Leave Pro paths to existing priority and revocation resolver",
+        "id": "CH-1186-U02-04",
+        "scenario": "SQL resynchronizes every tenant rather than only Alap",
+        "finding": "Pro tenant plan rows are unnecessarily rewritten, causing avoidable release risk",
+        "resolution": "Iterate only webshop_instances where subscription_plan=alap",
         "status": "resolved"
       },
       {
-        "id": "CH-1186-U01-05",
-        "scenario": "Alap standard transactional email",
-        "finding": "Overbroad Digital Office restriction could block standard email",
-        "resolution": "Keep officeCommunication and support catalog features unchanged",
+        "id": "CH-1186-U02-05",
+        "scenario": "Office email baseline grant is missing after a faulty schema replay",
+        "finding": "Basic customer notification delivery is broken while chat appears fixed",
+        "resolution": "Fail closed if officeCommunication or support Alap grants are absent",
         "status": "resolved"
       },
       {
-        "id": "CH-1186-U01-06",
-        "scenario": "A tenant lookup returns an instance with missing organization identity or an unknown subscription plan.",
-        "finding": "An unsafe fallback could treat unresolvable tenant context as Pro and grant internal chat.",
-        "resolution": "Preserve the existing null decision when organization is missing, and deny restricted chat unless the server-fetched subscription_plan is exactly pro.",
+        "id": "CH-1186-U02-06",
+        "scenario": "Customer-baseline mirror is omitted",
+        "finding": "Fresh-install replay reinstates obsolete Alap Team Chat grant from legacy Block 11",
+        "resolution": "Include one matching ordered 0046 baseline migration with identical change semantics",
         "status": "resolved"
       },
       {
-        "id": "CH-1186-U01-07",
-        "scenario": "Subscription downgraded Pro to Alap with old positive rows",
-        "finding": "Stale database permissions could survive downgrade",
-        "resolution": "Check latest instance plan before interpreting row",
+        "id": "CH-1186-U02-07",
+        "scenario": "SQL is idempotently retried",
+        "finding": "A second attempt could fail or mutate unrelated tenant rows",
+        "resolution": "Use exact conditional DELETE and canonical deterministic re-sync; add explicit replay assertions",
         "status": "resolved"
       },
       {
-        "id": "CH-1186-U01-08",
-        "scenario": "Accidental claim of full Core closure",
-        "finding": "SQL/UI/API not touched by this unit",
-        "resolution": "Keep #1186 OPEN and report only strict effective chat denial",
+        "id": "CH-1186-U02-08",
+        "scenario": "Production proof is claimed from source tests alone",
+        "finding": "No actual database has run the SQL and old stored entitlements may remain",
+        "resolution": "Treat verified scope as migration source and leave #1186 PARTIAL until deployment and live authorization tests",
         "status": "resolved"
       },
       {
-        "id": "CH-1186-U01-09",
-        "scenario": "An existing admin IA navigation regression test expects Team Chat in the Alap menu even after the canonical package change.",
-        "finding": "The previously correct test contract is now stale and makes Incremental Replay fail despite the effective entitlement boundary being stricter.",
-        "resolution": "Extend the scoped regression file list and replace only the outdated Alap Team Chat expectation with false; preserve Pro visibility and all unrelated navigation assertions.",
+        "id": "CH-1186-U02-09",
+        "scenario": "The new 0046 migration changes the ordered customer baseline after a prior successful empty-target proof.",
+        "finding": "Exact-head CI Customer Database Baseline Guard detected stale READY proof, correctly blocked downstream Resumable Verification and Completion Truth.",
+        "resolution": "Explicitly reset the manifest to snapshot-reviewed, freshInstallProofRequired true, and null proof contract. Require a fresh empty-target proof on lineage 0046 before READY is restored; do not weaken the baseline guard or reuse earlier hashes.",
         "status": "resolved"
       },
       {
-        "id": "CH-1186-U01-10",
-        "scenario": "The Sentinel integrity probe evaluates CAP-AUTH proof obligations and finds GUARD-PLAN-BEFORE-CODE and GUARD-EDIT-TIME are registered for CAP-ATLAS and CAP-QUALITY only.",
-        "finding": "Using plan-shape or edit-scope guards as a substitute for executed authorization behavior proof overclaims their registered capabilities, even though those separate preconditions still pass.",
-        "resolution": "Bind CAP-AUTH implementation and outcome proof to the executed GUARD-QUALITY-TESTS, which explicitly supports all capabilities; retain both Plan and Edit-Time as mandatory independent system obligations without assigning them false CAP-AUTH authority.",
+        "id": "CH-1186-U02-10",
+        "scenario": "CI Quality suite includes a historical order-email test that hard-codes customer-baseline status READY after 0046 migration invalidated prior proof.",
+        "finding": "GitHub exact-head #9351/#9352 had 437 PASS but this test failed expecting READY while the baseline guard correctly asserted snapshot-reviewed.",
+        "resolution": "Amend only its lifecycle-proof expectations to validate pending snapshot-reviewed state with cleared hash OR genuinely READY with new 0046 proof provenance, retain all historical order/email assertions and actual baseline guard, and explicitly require a new Fresh Install proof.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Record current Alap teamChat grants in catalog and stale DB migration, and current server entitlements lack subscription plan validation.",
-      "Run Development Guard and Plan Before Code critical PASS with dissent before code editing.",
-      "Patch existing plan catalog and existing server-only entitlement resolver with fail-closed strict Pro rule; keep email unchanged.",
-      "Update existing regression suites and verify Alap/Pro/expired/override scenarios without bypassing release gates.",
-      "Run focused Vitest, Edit-Time, Reference Sync, Knowledge, Incremental Replay, risk, TypeScript and exact-head CI Truth/Lifecycle.",
-      "Keep issue #1186 PARTIAL until SQL resync, admin/API/job/worker and RLS proofs, then continue dependency chain.",
-      "Verify changed navigation fixture now expects Team Chat absent in Alap, while still present in Pro; keep admin navigation implementation unchanged."
+      "Confirm the latest main #1195 success and Block 11 grant-source authority; explicitly record that historical migrations stay immutable.",
+      "Run critical Development Guard, review scope/negative knowledge and Plan Before Code before editing new SQL migration.",
+      "Use Supabase CLI migration new to generate a canonical timestamped migration file; add exact narrow grants correction and matching baseline 0046.",
+      "Assert Alap Pro split, Pro preservation, override preservation, idempotency and fail-closed missing-grant behavior in existing tests.",
+      "Run focused tests, Edit-Time Reference Sync, Knowledge, Incremental Replay, risk, customer baseline checks and exact-head CI.",
+      "Commit CI-generated byte-exact Lifecycle closure; merge only when main-protective gates PASS. Keep full #1186 open pending deployment and UI/API/worker proof.",
+      "Demonstrate that READY proof from 0045 fails on new 0046, reset to snapshot-reviewed, run baseline guard PASS without claiming Fresh Install completed; request fresh-install-proof evidence before any READY status/merge claim.",
+      "Execute old contract against pending 0046 and verify corrected lifecycle assertions. If further required for customer readiness, separately run real [fresh-install-proof] on dedicated empty target; never synthesize a READY contract."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-09-CORE-DIGITAL-OFFICE-1186-U01",
+      "request": "PO-2026-10-09-CORE-1186-U02",
       "authority": [
-        "auth-access-authority",
-        "tenant-context-authority"
+        "database-schema"
       ],
       "mustEdit": [
-        "src/lib/entitlements/access.ts",
-        "src/lib/plans/catalog.ts",
+        "supabase/customer-baseline/manifest.json",
         "tests/block11-entitlement-system.test.ts",
         "tests/customer-email-plan-split.test.ts",
-        "tests/plans-catalog.test.ts",
-        "tests/block4-ia-navigation-reporting.test.ts"
+        "tests/order-core-transactional-email-dispatch-contract.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        ".github/workflows/playroom-page-family-visual-qa.yml",
-        "docs/RELEASE_CHECKPOINT_WAVE48_RECONCILIATION.md",
-        "docs/ROADMAP_BLOCK10_BUSINESS_PULSE.md",
-        "docs/ROADMAP_BLOCK11_ENTITLEMENTS.md",
-        "docs/ROADMAP_BLOCK12_MIGRATION_ASSISTANT.md",
-        "docs/ROADMAP_BLOCK13_ORDER_ORCHESTRATION_PAYMENT_CONTRACT.md",
-        "docs/ROADMAP_BLOCK14_CATALOG_PRODUCT_ONBOARDING_IMPORT_UX.md",
-        "docs/ROADMAP_BLOCK15_PRODUCT_DISCOVERY_DECISION_SUPPORT.md",
-        "docs/ROADMAP_BLOCK16_COMMERCE_AUTOMATION_RECOVERY.md",
-        "docs/ROADMAP_BLOCK17_EVENT_DRIVEN_WORKFLOW_AUTOMATION.md",
-        "scripts/block24-market-ready-gate.mjs",
-        "src/app/admin/csomag/page.tsx",
         "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
         "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
         "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
         "src/app/admin/email-sablonok/brand-kit/page.tsx",
         "src/app/admin/email-sablonok/page.tsx",
-        "src/app/admin/intezkedesek/page.tsx",
         "src/app/admin/kampanyok/[id]/page.tsx",
         "src/app/admin/kampanyok/page.tsx",
         "src/app/admin/kommunikacio/felugyelet/page.tsx",
         "src/app/admin/kommunikacio/iroda/page.tsx",
         "src/app/admin/kommunikacio/tiltolista/page.tsx",
         "src/app/admin/kuponok/page.tsx",
-        "src/app/admin/layout.tsx",
         "src/app/admin/marketing/page.tsx",
         "src/app/admin/novekedes/page.tsx",
         "src/app/admin/page.tsx",
-        "src/app/admin/platform/webaruhazak/actions.ts",
-        "src/app/admin/tartalom/builder/release-commerce-actions.ts",
         "src/app/admin/tartalom/page.tsx",
-        "src/app/admin/tartalom/receptek/actions.ts",
-        "src/app/admin/tartalom/release-ek/actions.ts",
-        "src/app/admin/tartalom/release-ek/page.tsx",
         "src/app/admin/velemenyek/actions.ts",
         "src/app/admin/velemenyek/page.tsx",
         "src/app/api/admin/campaigns/manage/route.ts",
@@ -350,84 +328,30 @@
         "src/app/api/admin/email-builder/templates/route.ts",
         "src/app/api/admin/growth/run/route.ts",
         "src/app/api/admin/promotions/preview/route.ts",
-        "src/app/api/platform/v1/events/route.ts",
-        "src/app/penztar/page.tsx",
-        "src/app/storefront-template-preview/page.tsx",
-        "src/app/visual-fidelity-qa/page.tsx",
-        "src/components/admin/storefront-template-library.tsx",
-        "src/components/admin/storefront-visual-builder-production.tsx",
-        "src/components/admin/storefront-visual-builder-v3.tsx",
-        "src/components/admin/storefront-visual-builder.tsx",
-        "src/lib/admin/ui-access-contract.ts",
         "src/lib/auth/store-capabilities.ts",
         "src/lib/auth/store-rbac.ts",
-        "src/lib/builder/storefront-ai-generator-server.ts",
-        "src/lib/builder/storefront-commerce.ts",
-        "src/lib/builder/storefront-configurator.ts",
-        "src/lib/builder/storefront-context-retention.ts",
-        "src/lib/builder/storefront-editorial.ts",
-        "src/lib/builder/storefront-foundation.ts",
-        "src/lib/builder/storefront-guided-finder.ts",
-        "src/lib/builder/storefront-multi-product-composer.ts",
-        "src/lib/builder/storefront-professional.ts",
-        "src/lib/builder/storefront-runtime-capability-server.ts",
-        "src/lib/builder/storefront-runtime.ts",
-        "src/lib/builder/storefront-story.ts",
-        "src/lib/builder/storefront-structured-product.ts",
-        "src/lib/builder/storefront-template-capability-discovery.ts",
-        "src/lib/builder/storefront-template-installation.ts",
-        "src/lib/builder/storefront-template-preview-auth.ts",
-        "src/lib/builder/template-factory/generator-readiness.ts",
-        "src/lib/builder/template-factory/scaffold.ts",
         "src/lib/digital-office/access.ts",
-        "src/lib/entitlements/catalog.ts",
-        "src/lib/instances/access.ts",
-        "src/lib/navigation/admin-ia.ts",
-        "src/lib/navigation/entitlement-navigation.ts",
-        "src/lib/plans/access.ts",
-        "src/lib/platform/ecosystem.ts",
-        "tests/admin-link-integrity.test.ts",
-        "tests/architecture-hardening.test.ts",
-        "tests/atomic-tenant-provisioning.test.ts",
-        "tests/block20-platform-ecosystem.test.ts",
-        "tests/block3-pilot-acceptance-batch.test.ts",
-        "tests/block4-ia-navigation-reporting.test.ts",
-        "tests/digital-commerce-builder-integration.test.tsx",
-        "tests/digital-office-unified-ui.test.ts",
-        "tests/executive-decision-workflows.test.ts",
-        "tests/platform-merchant-dashboard-access.test.ts",
-        "tests/pro-entitlement-guards.test.ts",
-        "tests/roadmap-block22-visual-builder.test.ts",
-        "tests/roadmap-block23-ai-builder-template-generation.test.ts",
-        "tests/roadmap-block24-commercial-security-maturity.test.ts",
-        "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
-        "tests/storefront-auth-intent-checkout.test.ts",
-        "tests/storefront-recipe-commerce.test.tsx",
-        "tests/storefront-release-commerce.test.tsx"
+        "src/lib/navigation/admin-ia.ts"
       ],
-      "mustCreate": [],
+      "mustCreate": [
+        "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
+        "supabase/migrations/20261009084550_alap_team_chat_plan_grant_reconcile.sql"
+      ],
       "forbidden": [],
       "proof": [
         "tests/admin-api-tenant-mutation-closure.test.ts",
         "tests/admin-growth-refresh-evidence.test.ts",
-        "tests/admin-link-integrity.test.ts",
         "tests/admin-route-rbac.test.ts",
-        "tests/architecture-hardening.test.ts",
-        "tests/atomic-tenant-provisioning.test.ts",
-        "tests/block11-entitlement-system.test.ts",
         "tests/block12-migration-assistant.test.ts",
         "tests/block14-catalog-onboarding-import-ux.test.ts",
         "tests/block16-commerce-recovery-integration.test.ts",
         "tests/block18-ai-assisted-decisioning.test.ts",
         "tests/block19-predictive-optimization-autonomy.test.ts",
         "tests/block20-platform-ecosystem.test.ts",
-        "tests/block3-pilot-acceptance-batch.test.ts",
-        "tests/block4-ia-navigation-reporting.test.ts",
         "tests/block5-role-aware-ui.test.ts",
         "tests/block7-b2b-account-ownership.test.ts",
         "tests/campaign-creation-fail-closed.test.ts",
         "tests/campaign-lifecycle-evidence-atomicity.test.ts",
-        "tests/customer-email-plan-split.test.ts",
         "tests/digital-commerce-builder-integration.test.tsx",
         "tests/digital-office-unified-ui.test.ts",
         "tests/email-builder-d1-admin-shell.test.ts",
@@ -437,60 +361,24 @@
         "tests/email-builder-saved-blocks.test.ts",
         "tests/event-driven-workflow-automation.test.ts",
         "tests/executive-analytics-ux-closure.test.ts",
-        "tests/executive-decision-workflows.test.ts",
         "tests/merchant-admin-tenant-closure.test.ts",
         "tests/pilot-acceptance-access.test.ts",
-        "tests/plans-catalog.test.ts",
-        "tests/platform-merchant-dashboard-access.test.ts",
-        "tests/pro-entitlement-guards.test.ts",
         "tests/roadmap-block21-page-schema-templates.test.ts",
         "tests/roadmap-block22-schema-policy.test.ts",
         "tests/roadmap-block22-visual-builder.test.ts",
-        "tests/roadmap-block23-ai-builder-template-generation.test.ts",
-        "tests/roadmap-block24-commercial-security-maturity.test.ts",
         "tests/special-commerce-wave5-existing-engine-closure.test.ts",
         "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
         "tests/special-commerce-wave7-template2-adoption.test.ts",
-        "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
-        "tests/storefront-alpine-lodge-template.test.tsx",
-        "tests/storefront-alpine-lodge-wave33-reacceptance.test.ts",
-        "tests/storefront-auth-intent-checkout.test.ts",
-        "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
         "tests/storefront-beauty-lab-reference-v2.test.ts",
-        "tests/storefront-beauty-lab-reference-v28.test.ts",
-        "tests/storefront-beauty-lab-template.test.tsx",
-        "tests/storefront-beauty-lab-visual-fidelity-recovery.test.ts",
-        "tests/storefront-beauty-lab-wave32-reacceptance.test.ts",
-        "tests/storefront-commerce-fidelity-slots.test.tsx",
         "tests/storefront-component-variants.test.ts",
-        "tests/storefront-core-commerce.test.ts",
-        "tests/storefront-creator-station-template.test.tsx",
-        "tests/storefront-creator-station-wave36-reacceptance.test.ts",
-        "tests/storefront-derma-studio-template.test.tsx",
-        "tests/storefront-derma-studio-wave30-reacceptance.test.tsx",
         "tests/storefront-editorial-atelier-template.test.tsx",
         "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
         "tests/storefront-fidelity-security.test.ts",
-        "tests/storefront-gallery-edit-template.test.tsx",
-        "tests/storefront-gallery-edit-wave34-reacceptance.test.ts",
         "tests/storefront-global-styles.test.ts",
-        "tests/storefront-guided-fidelity-slots.test.tsx",
-        "tests/storefront-heritage-atelier-template.test.tsx",
-        "tests/storefront-heritage-atelier-wave28-reacceptance.test.tsx",
         "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
         "tests/storefront-interactive-scene-commerce.test.tsx",
-        "tests/storefront-loot-vault-template.test.tsx",
-        "tests/storefront-loot-vault-wave39-reacceptance.test.ts",
-        "tests/storefront-market-pantry-template.test.tsx",
         "tests/storefront-modern-luxe-template.test.tsx",
-        "tests/storefront-modern-luxe-wave27-reacceptance.test.tsx",
-        "tests/storefront-modern-luxe-wave46-reacceptance.test.ts",
-        "tests/storefront-monarche-template.test.tsx",
-        "tests/storefront-monarche-wave43-reacceptance.test.ts",
-        "tests/storefront-my-pack-template.test.tsx",
-        "tests/storefront-page-templates.test.ts",
-        "tests/storefront-recipe-commerce.test.tsx",
-        "tests/storefront-release-commerce.test.tsx"
+        "tests/storefront-modern-luxe-wave46-reacceptance.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -501,48 +389,26 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "src/lib/entitlements/access.ts",
-          "src/lib/plans/catalog.ts",
           "tests/block11-entitlement-system.test.ts",
-          "tests/customer-email-plan-split.test.ts",
-          "tests/plans-catalog.test.ts"
+          "tests/customer-email-plan-split.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [
-          ".github/workflows/playroom-page-family-visual-qa.yml",
-          "docs/RELEASE_CHECKPOINT_WAVE48_RECONCILIATION.md",
-          "docs/ROADMAP_BLOCK10_BUSINESS_PULSE.md",
-          "docs/ROADMAP_BLOCK11_ENTITLEMENTS.md",
-          "docs/ROADMAP_BLOCK12_MIGRATION_ASSISTANT.md",
-          "docs/ROADMAP_BLOCK13_ORDER_ORCHESTRATION_PAYMENT_CONTRACT.md",
-          "docs/ROADMAP_BLOCK14_CATALOG_PRODUCT_ONBOARDING_IMPORT_UX.md",
-          "docs/ROADMAP_BLOCK15_PRODUCT_DISCOVERY_DECISION_SUPPORT.md",
-          "docs/ROADMAP_BLOCK16_COMMERCE_AUTOMATION_RECOVERY.md",
-          "docs/ROADMAP_BLOCK17_EVENT_DRIVEN_WORKFLOW_AUTOMATION.md",
-          "scripts/block24-market-ready-gate.mjs",
-          "src/app/admin/csomag/page.tsx",
           "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
           "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
           "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
           "src/app/admin/email-sablonok/brand-kit/page.tsx",
           "src/app/admin/email-sablonok/page.tsx",
-          "src/app/admin/intezkedesek/page.tsx",
           "src/app/admin/kampanyok/[id]/page.tsx",
           "src/app/admin/kampanyok/page.tsx",
           "src/app/admin/kommunikacio/felugyelet/page.tsx",
           "src/app/admin/kommunikacio/iroda/page.tsx",
           "src/app/admin/kommunikacio/tiltolista/page.tsx",
           "src/app/admin/kuponok/page.tsx",
-          "src/app/admin/layout.tsx",
           "src/app/admin/marketing/page.tsx",
           "src/app/admin/novekedes/page.tsx",
           "src/app/admin/page.tsx",
-          "src/app/admin/platform/webaruhazak/actions.ts",
-          "src/app/admin/tartalom/builder/release-commerce-actions.ts",
           "src/app/admin/tartalom/page.tsx",
-          "src/app/admin/tartalom/receptek/actions.ts",
-          "src/app/admin/tartalom/release-ek/actions.ts",
-          "src/app/admin/tartalom/release-ek/page.tsx",
           "src/app/admin/velemenyek/actions.ts",
           "src/app/admin/velemenyek/page.tsx",
           "src/app/api/admin/campaigns/manage/route.ts",
@@ -564,84 +430,29 @@
           "src/app/api/admin/email-builder/templates/route.ts",
           "src/app/api/admin/growth/run/route.ts",
           "src/app/api/admin/promotions/preview/route.ts",
-          "src/app/api/platform/v1/events/route.ts",
-          "src/app/penztar/page.tsx",
-          "src/app/storefront-template-preview/page.tsx",
-          "src/app/visual-fidelity-qa/page.tsx",
-          "src/components/admin/storefront-template-library.tsx",
-          "src/components/admin/storefront-visual-builder-production.tsx",
-          "src/components/admin/storefront-visual-builder-v3.tsx",
-          "src/components/admin/storefront-visual-builder.tsx",
-          "src/lib/admin/ui-access-contract.ts",
           "src/lib/auth/store-capabilities.ts",
           "src/lib/auth/store-rbac.ts",
-          "src/lib/builder/storefront-ai-generator-server.ts",
-          "src/lib/builder/storefront-commerce.ts",
-          "src/lib/builder/storefront-configurator.ts",
-          "src/lib/builder/storefront-context-retention.ts",
-          "src/lib/builder/storefront-editorial.ts",
-          "src/lib/builder/storefront-foundation.ts",
-          "src/lib/builder/storefront-guided-finder.ts",
-          "src/lib/builder/storefront-multi-product-composer.ts",
-          "src/lib/builder/storefront-professional.ts",
-          "src/lib/builder/storefront-runtime-capability-server.ts",
-          "src/lib/builder/storefront-runtime.ts",
-          "src/lib/builder/storefront-story.ts",
-          "src/lib/builder/storefront-structured-product.ts",
-          "src/lib/builder/storefront-template-capability-discovery.ts",
-          "src/lib/builder/storefront-template-installation.ts",
-          "src/lib/builder/storefront-template-preview-auth.ts",
-          "src/lib/builder/template-factory/generator-readiness.ts",
-          "src/lib/builder/template-factory/scaffold.ts",
           "src/lib/digital-office/access.ts",
-          "src/lib/entitlements/catalog.ts",
-          "src/lib/instances/access.ts",
-          "src/lib/navigation/admin-ia.ts",
-          "src/lib/navigation/entitlement-navigation.ts",
-          "src/lib/plans/access.ts",
-          "src/lib/platform/ecosystem.ts",
-          "tests/admin-link-integrity.test.ts",
-          "tests/architecture-hardening.test.ts",
-          "tests/atomic-tenant-provisioning.test.ts",
-          "tests/block20-platform-ecosystem.test.ts",
-          "tests/block3-pilot-acceptance-batch.test.ts",
-          "tests/block4-ia-navigation-reporting.test.ts",
-          "tests/digital-commerce-builder-integration.test.tsx",
-          "tests/digital-office-unified-ui.test.ts",
-          "tests/executive-decision-workflows.test.ts",
-          "tests/platform-merchant-dashboard-access.test.ts",
-          "tests/pro-entitlement-guards.test.ts",
-          "tests/roadmap-block22-visual-builder.test.ts",
-          "tests/roadmap-block23-ai-builder-template-generation.test.ts",
-          "tests/roadmap-block24-commercial-security-maturity.test.ts",
-          "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
-          "tests/storefront-auth-intent-checkout.test.ts",
-          "tests/storefront-recipe-commerce.test.tsx",
-          "tests/storefront-release-commerce.test.tsx"
+          "src/lib/navigation/admin-ia.ts"
         ],
-        "mustCreate": [],
+        "mustCreate": [
+          "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql"
+        ],
         "forbidden": [],
         "proof": [
           "tests/admin-api-tenant-mutation-closure.test.ts",
           "tests/admin-growth-refresh-evidence.test.ts",
-          "tests/admin-link-integrity.test.ts",
           "tests/admin-route-rbac.test.ts",
-          "tests/architecture-hardening.test.ts",
-          "tests/atomic-tenant-provisioning.test.ts",
-          "tests/block11-entitlement-system.test.ts",
           "tests/block12-migration-assistant.test.ts",
           "tests/block14-catalog-onboarding-import-ux.test.ts",
           "tests/block16-commerce-recovery-integration.test.ts",
           "tests/block18-ai-assisted-decisioning.test.ts",
           "tests/block19-predictive-optimization-autonomy.test.ts",
           "tests/block20-platform-ecosystem.test.ts",
-          "tests/block3-pilot-acceptance-batch.test.ts",
-          "tests/block4-ia-navigation-reporting.test.ts",
           "tests/block5-role-aware-ui.test.ts",
           "tests/block7-b2b-account-ownership.test.ts",
           "tests/campaign-creation-fail-closed.test.ts",
           "tests/campaign-lifecycle-evidence-atomicity.test.ts",
-          "tests/customer-email-plan-split.test.ts",
           "tests/digital-commerce-builder-integration.test.tsx",
           "tests/digital-office-unified-ui.test.ts",
           "tests/email-builder-d1-admin-shell.test.ts",
@@ -651,65 +462,26 @@
           "tests/email-builder-saved-blocks.test.ts",
           "tests/event-driven-workflow-automation.test.ts",
           "tests/executive-analytics-ux-closure.test.ts",
-          "tests/executive-decision-workflows.test.ts",
           "tests/merchant-admin-tenant-closure.test.ts",
           "tests/pilot-acceptance-access.test.ts",
-          "tests/plans-catalog.test.ts",
-          "tests/platform-merchant-dashboard-access.test.ts",
-          "tests/pro-entitlement-guards.test.ts",
           "tests/roadmap-block21-page-schema-templates.test.ts",
           "tests/roadmap-block22-schema-policy.test.ts",
           "tests/roadmap-block22-visual-builder.test.ts",
-          "tests/roadmap-block23-ai-builder-template-generation.test.ts",
-          "tests/roadmap-block24-commercial-security-maturity.test.ts",
           "tests/special-commerce-wave5-existing-engine-closure.test.ts",
           "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
           "tests/special-commerce-wave7-template2-adoption.test.ts",
-          "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
-          "tests/storefront-alpine-lodge-template.test.tsx",
-          "tests/storefront-alpine-lodge-wave33-reacceptance.test.ts",
-          "tests/storefront-auth-intent-checkout.test.ts",
-          "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
           "tests/storefront-beauty-lab-reference-v2.test.ts",
-          "tests/storefront-beauty-lab-reference-v28.test.ts",
-          "tests/storefront-beauty-lab-template.test.tsx",
-          "tests/storefront-beauty-lab-visual-fidelity-recovery.test.ts",
-          "tests/storefront-beauty-lab-wave32-reacceptance.test.ts",
-          "tests/storefront-commerce-fidelity-slots.test.tsx",
           "tests/storefront-component-variants.test.ts",
-          "tests/storefront-core-commerce.test.ts",
-          "tests/storefront-creator-station-template.test.tsx",
-          "tests/storefront-creator-station-wave36-reacceptance.test.ts",
-          "tests/storefront-derma-studio-template.test.tsx",
-          "tests/storefront-derma-studio-wave30-reacceptance.test.tsx",
           "tests/storefront-editorial-atelier-template.test.tsx",
           "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
           "tests/storefront-fidelity-security.test.ts",
-          "tests/storefront-gallery-edit-template.test.tsx",
-          "tests/storefront-gallery-edit-wave34-reacceptance.test.ts",
           "tests/storefront-global-styles.test.ts",
-          "tests/storefront-guided-fidelity-slots.test.tsx",
-          "tests/storefront-heritage-atelier-template.test.tsx",
-          "tests/storefront-heritage-atelier-wave28-reacceptance.test.tsx",
           "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
           "tests/storefront-interactive-scene-commerce.test.tsx",
-          "tests/storefront-loot-vault-template.test.tsx",
-          "tests/storefront-loot-vault-wave39-reacceptance.test.ts",
-          "tests/storefront-market-pantry-template.test.tsx",
           "tests/storefront-modern-luxe-template.test.tsx",
-          "tests/storefront-modern-luxe-wave27-reacceptance.test.tsx",
-          "tests/storefront-modern-luxe-wave46-reacceptance.test.ts",
-          "tests/storefront-monarche-template.test.tsx",
-          "tests/storefront-monarche-wave43-reacceptance.test.ts",
-          "tests/storefront-my-pack-template.test.tsx",
-          "tests/storefront-page-templates.test.ts",
-          "tests/storefront-recipe-commerce.test.tsx",
-          "tests/storefront-release-commerce.test.tsx"
+          "tests/storefront-modern-luxe-wave46-reacceptance.test.ts"
         ],
-        "authority": [
-          "auth-access-authority",
-          "tenant-context-authority"
-        ],
+        "authority": [],
         "unknown": []
       },
       "projectedReleaseRisk": {
@@ -720,21 +492,15 @@
         "maxSubsystems": 3,
         "subsystems": [
           {
-            "subsystem": "auth-access-authority",
+            "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           }
         ],
         "files": [
           {
-            "file": "src/lib/entitlements/access.ts",
-            "subsystem": "auth-access-authority",
-            "risk": "high",
-            "points": 5
-          },
-          {
-            "file": "src/lib/plans/catalog.ts",
-            "subsystem": "auth-access-authority",
+            "file": "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
+            "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           },
@@ -746,12 +512,6 @@
           },
           {
             "file": "tests/customer-email-plan-split.test.ts",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "tests/plans-catalog.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -772,21 +532,15 @@
           "maxSubsystems": 3,
           "subsystems": [
             {
-              "subsystem": "auth-access-authority",
+              "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             }
           ],
           "files": [
             {
-              "file": "src/lib/entitlements/access.ts",
-              "subsystem": "auth-access-authority",
-              "risk": "high",
-              "points": 5
-            },
-            {
-              "file": "src/lib/plans/catalog.ts",
-              "subsystem": "auth-access-authority",
+              "file": "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
+              "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             },
@@ -801,55 +555,18 @@
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
-            },
-            {
-              "file": "tests/plans-catalog.test.ts",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
             }
           ],
           "violations": [],
           "decision": "PASS"
         },
         "maxFilesPerUnit": 12,
-        "repositoryEdges": [
-          {
-            "from": "src/lib/plans/catalog.ts",
-            "to": "tests/customer-email-plan-split.test.ts",
-            "type": "repository-dependency"
-          },
-          {
-            "from": "src/lib/plans/catalog.ts",
-            "to": "tests/plans-catalog.test.ts",
-            "type": "repository-dependency"
-          },
-          {
-            "from": "src/lib/plans/catalog.ts",
-            "to": "tests/customer-email-plan-split.test.ts",
-            "type": "proof-ownership"
-          },
-          {
-            "from": "tests/customer-email-plan-split.test.ts",
-            "to": "src/lib/plans/catalog.ts",
-            "type": "proof-ownership"
-          },
-          {
-            "from": "src/lib/plans/catalog.ts",
-            "to": "tests/plans-catalog.test.ts",
-            "type": "proof-ownership"
-          },
-          {
-            "from": "tests/plans-catalog.test.ts",
-            "to": "src/lib/plans/catalog.ts",
-            "type": "proof-ownership"
-          }
-        ],
+        "repositoryEdges": [],
         "atomicComponents": [
           {
             "id": 0,
             "files": [
-              "src/lib/entitlements/access.ts"
+              "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -859,15 +576,15 @@
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "auth-access-authority",
+                  "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 }
               ],
               "files": [
                 {
-                  "file": "src/lib/entitlements/access.ts",
-                  "subsystem": "auth-access-authority",
+                  "file": "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
+                  "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 }
@@ -878,50 +595,6 @@
           },
           {
             "id": 1,
-            "files": [
-              "src/lib/plans/catalog.ts",
-              "tests/customer-email-plan-split.test.ts",
-              "tests/plans-catalog.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "auth-access-authority",
-                  "risk": "high",
-                  "points": 5
-                }
-              ],
-              "files": [
-                {
-                  "file": "src/lib/plans/catalog.ts",
-                  "subsystem": "auth-access-authority",
-                  "risk": "high",
-                  "points": 5
-                },
-                {
-                  "file": "tests/customer-email-plan-split.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "tests/plans-catalog.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 2,
             "files": [
               "tests/block11-entitlement-system.test.ts"
             ],
@@ -943,6 +616,30 @@
               "violations": [],
               "decision": "PASS"
             }
+          },
+          {
+            "id": 2,
+            "files": [
+              "tests/customer-email-plan-split.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/customer-email-plan-split.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
           }
         ],
         "releaseUnits": [
@@ -951,34 +648,27 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "PO-2026-10-09-CORE-DIGITAL-OFFICE-1186-U01",
-              "developmentBaseSha": "32fcdb7ede3772dfd43ab9694c042404ba900d3c"
+              "sourceRef": "PO-2026-10-09-CORE-1186-U02",
+              "developmentBaseSha": "dfac819a6336871bd2a669b09cd47755cd31ebbe"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "32fcdb7ede3772dfd43ab9694c042404ba900d3c",
+            "targetBaseSha": "dfac819a6336871bd2a669b09cd47755cd31ebbe",
             "lease": {
-              "expectedBaseSha": "32fcdb7ede3772dfd43ab9694c042404ba900d3c",
+              "expectedBaseSha": "dfac819a6336871bd2a669b09cd47755cd31ebbe",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "src/lib/entitlements/access.ts",
-              "src/lib/plans/catalog.ts",
+              "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
               "tests/block11-entitlement-system.test.ts",
-              "tests/customer-email-plan-split.test.ts",
-              "tests/plans-catalog.test.ts"
+              "tests/customer-email-plan-split.test.ts"
             ],
             "operations": [
               {
-                "operation": "modify",
-                "file": "src/lib/entitlements/access.ts",
-                "generated": null
-              },
-              {
-                "operation": "modify",
-                "file": "src/lib/plans/catalog.ts",
+                "operation": "create",
+                "file": "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
                 "generated": null
               },
               {
@@ -990,25 +680,16 @@
                 "operation": "modify",
                 "file": "tests/customer-email-plan-split.test.ts",
                 "generated": null
-              },
-              {
-                "operation": "modify",
-                "file": "tests/plans-catalog.test.ts",
-                "generated": null
               }
             ],
             "requiredDependencyFiles": [
               "src/lib/entitlements/catalog.ts",
               "src/lib/entitlements/policy.ts",
-              "src/lib/plans/catalog.ts",
-              "src/lib/supabase/admin.ts"
+              "src/lib/plans/catalog.ts"
             ],
-            "authorities": [
-              "auth-access-authority",
-              "tenant-context-authority"
-            ],
+            "authorities": [],
             "subsystems": [
-              "auth-access-authority"
+              "database-schema"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -1018,21 +699,15 @@
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "auth-access-authority",
+                  "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 }
               ],
               "files": [
                 {
-                  "file": "src/lib/entitlements/access.ts",
-                  "subsystem": "auth-access-authority",
-                  "risk": "high",
-                  "points": 5
-                },
-                {
-                  "file": "src/lib/plans/catalog.ts",
-                  "subsystem": "auth-access-authority",
+                  "file": "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
+                  "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 },
@@ -1047,12 +722,6 @@
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
-                },
-                {
-                  "file": "tests/plans-catalog.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
                 }
               ],
               "violations": [],
@@ -1063,9 +732,7 @@
               "GUARD-EDIT-TIME",
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-KNOWLEDGE-PREFLIGHT",
-              "GUARD-MARKET-READY",
               "GUARD-PLAN-BEFORE-CODE",
-              "GUARD-PRODUCTION-BUILD",
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK",
               "GUARD-TYPECHECK"
@@ -1076,56 +743,34 @@
                 "GUARD-EDIT-TIME",
                 "GUARD-INCREMENTAL-REPLAY",
                 "GUARD-KNOWLEDGE-PREFLIGHT",
-                "GUARD-MARKET-READY",
                 "GUARD-PLAN-BEFORE-CODE",
-                "GUARD-PRODUCTION-BUILD",
                 "GUARD-QUALITY-TESTS",
                 "GUARD-RELEASE-RISK",
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
                 "tests/block11-entitlement-system.test.ts",
-                "tests/customer-email-plan-split.test.ts",
-                "tests/plans-catalog.test.ts"
+                "tests/customer-email-plan-split.test.ts"
               ],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
             "readOnlyPaths": [
-              ".github/workflows/playroom-page-family-visual-qa.yml",
-              "docs/RELEASE_CHECKPOINT_WAVE48_RECONCILIATION.md",
-              "docs/ROADMAP_BLOCK10_BUSINESS_PULSE.md",
-              "docs/ROADMAP_BLOCK11_ENTITLEMENTS.md",
-              "docs/ROADMAP_BLOCK12_MIGRATION_ASSISTANT.md",
-              "docs/ROADMAP_BLOCK13_ORDER_ORCHESTRATION_PAYMENT_CONTRACT.md",
-              "docs/ROADMAP_BLOCK14_CATALOG_PRODUCT_ONBOARDING_IMPORT_UX.md",
-              "docs/ROADMAP_BLOCK15_PRODUCT_DISCOVERY_DECISION_SUPPORT.md",
-              "docs/ROADMAP_BLOCK16_COMMERCE_AUTOMATION_RECOVERY.md",
-              "docs/ROADMAP_BLOCK17_EVENT_DRIVEN_WORKFLOW_AUTOMATION.md",
-              "scripts/block24-market-ready-gate.mjs",
-              "src/app/admin/csomag/page.tsx",
               "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
               "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
               "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
               "src/app/admin/email-sablonok/brand-kit/page.tsx",
               "src/app/admin/email-sablonok/page.tsx",
-              "src/app/admin/intezkedesek/page.tsx",
               "src/app/admin/kampanyok/[id]/page.tsx",
               "src/app/admin/kampanyok/page.tsx",
               "src/app/admin/kommunikacio/felugyelet/page.tsx",
               "src/app/admin/kommunikacio/iroda/page.tsx",
               "src/app/admin/kommunikacio/tiltolista/page.tsx",
               "src/app/admin/kuponok/page.tsx",
-              "src/app/admin/layout.tsx",
               "src/app/admin/marketing/page.tsx",
               "src/app/admin/novekedes/page.tsx",
               "src/app/admin/page.tsx",
-              "src/app/admin/platform/webaruhazak/actions.ts",
-              "src/app/admin/tartalom/builder/release-commerce-actions.ts",
               "src/app/admin/tartalom/page.tsx",
-              "src/app/admin/tartalom/receptek/actions.ts",
-              "src/app/admin/tartalom/release-ek/actions.ts",
-              "src/app/admin/tartalom/release-ek/page.tsx",
               "src/app/admin/velemenyek/actions.ts",
               "src/app/admin/velemenyek/page.tsx",
               "src/app/api/admin/campaigns/manage/route.ts",
@@ -1147,71 +792,19 @@
               "src/app/api/admin/email-builder/templates/route.ts",
               "src/app/api/admin/growth/run/route.ts",
               "src/app/api/admin/promotions/preview/route.ts",
-              "src/app/api/platform/v1/events/route.ts",
-              "src/app/penztar/page.tsx",
-              "src/app/storefront-template-preview/page.tsx",
-              "src/app/visual-fidelity-qa/page.tsx",
-              "src/components/admin/storefront-template-library.tsx",
-              "src/components/admin/storefront-visual-builder-production.tsx",
-              "src/components/admin/storefront-visual-builder-v3.tsx",
-              "src/components/admin/storefront-visual-builder.tsx",
-              "src/lib/admin/ui-access-contract.ts",
               "src/lib/auth/store-capabilities.ts",
               "src/lib/auth/store-rbac.ts",
-              "src/lib/builder/storefront-ai-generator-server.ts",
-              "src/lib/builder/storefront-commerce.ts",
-              "src/lib/builder/storefront-configurator.ts",
-              "src/lib/builder/storefront-context-retention.ts",
-              "src/lib/builder/storefront-editorial.ts",
-              "src/lib/builder/storefront-foundation.ts",
-              "src/lib/builder/storefront-guided-finder.ts",
-              "src/lib/builder/storefront-multi-product-composer.ts",
-              "src/lib/builder/storefront-professional.ts",
-              "src/lib/builder/storefront-runtime-capability-server.ts",
-              "src/lib/builder/storefront-runtime.ts",
-              "src/lib/builder/storefront-story.ts",
-              "src/lib/builder/storefront-structured-product.ts",
-              "src/lib/builder/storefront-template-capability-discovery.ts",
-              "src/lib/builder/storefront-template-installation.ts",
-              "src/lib/builder/storefront-template-preview-auth.ts",
-              "src/lib/builder/template-factory/generator-readiness.ts",
-              "src/lib/builder/template-factory/scaffold.ts",
               "src/lib/digital-office/access.ts",
-              "src/lib/entitlements/catalog.ts",
-              "src/lib/instances/access.ts",
-              "src/lib/navigation/admin-ia.ts",
-              "src/lib/navigation/entitlement-navigation.ts",
-              "src/lib/plans/access.ts",
-              "src/lib/platform/ecosystem.ts",
-              "tests/admin-link-integrity.test.ts",
-              "tests/architecture-hardening.test.ts",
-              "tests/atomic-tenant-provisioning.test.ts",
-              "tests/block20-platform-ecosystem.test.ts",
-              "tests/block3-pilot-acceptance-batch.test.ts",
-              "tests/block4-ia-navigation-reporting.test.ts",
-              "tests/digital-commerce-builder-integration.test.tsx",
-              "tests/digital-office-unified-ui.test.ts",
-              "tests/executive-decision-workflows.test.ts",
-              "tests/platform-merchant-dashboard-access.test.ts",
-              "tests/pro-entitlement-guards.test.ts",
-              "tests/roadmap-block22-visual-builder.test.ts",
-              "tests/roadmap-block23-ai-builder-template-generation.test.ts",
-              "tests/roadmap-block24-commercial-security-maturity.test.ts",
-              "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
-              "tests/storefront-auth-intent-checkout.test.ts",
-              "tests/storefront-recipe-commerce.test.tsx",
-              "tests/storefront-release-commerce.test.tsx"
+              "src/lib/navigation/admin-ia.ts"
             ],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "src/lib/entitlements/access.ts",
-                "src/lib/plans/catalog.ts",
+                "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
                 "tests/block11-entitlement-system.test.ts",
-                "tests/customer-email-plan-split.test.ts",
-                "tests/plans-catalog.test.ts"
+                "tests/customer-email-plan-split.test.ts"
               ],
               "filesAbsent": []
             },
@@ -1226,7 +819,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "06f1e9e6",
+            "manifestDigest": "7cbfc1b0",
             "decision": "PASS"
           }
         ],
@@ -1244,11 +837,9 @@
           "GUARD-PLAN-BEFORE-CODE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
-          "GUARD-MARKET-READY",
-          "GUARD-TYPECHECK",
-          "GUARD-PRODUCTION-BUILD",
           "GUARD-QUALITY-TESTS",
-          "GUARD-RELEASE-RISK"
+          "GUARD-RELEASE-RISK",
+          "GUARD-TYPECHECK"
         ],
         "currentPhaseGateIds": [
           "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -1259,10 +850,8 @@
           "GUARD-CUSTOMER-BASELINE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
-          "GUARD-MARKET-READY",
-          "GUARD-TYPECHECK",
-          "GUARD-PRODUCTION-BUILD",
-          "GUARD-QUALITY-TESTS"
+          "GUARD-QUALITY-TESTS",
+          "GUARD-TYPECHECK"
         ],
         "externalGateIds": [],
         "issues": [],
@@ -1270,40 +859,45 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The accepted Digital Office Pro-only product decision conflicts with the central Alap plan catalog, which grants teamChat, and with persisted entitlement rows whose source precedence may grant teamChat to Alap. All entrypoints using getFeatureEntitlementDecisions must deny such stale grants. This unit affects only the central effective Team Chat boundary; generic customer email remains Alap and full Digital Office closure is not claimed.",
+    "problemStatement": "The central plan grant database still lists Alap teamChat even though #1186 U01 is merged and the current server entitlement resolver correctly denies it. The newest Block 11 private.sync_webshop_plan_entitlements routine dynamically reads plan_capability_grants, so changing a historical static SQL migration would not fix the canonical plan grant or resynchronization for existing Alap tenants.",
     "observableOutcomes": [
-      "hasPlanFeature(alap,teamChat) is false; hasPlanFeature(pro,teamChat) is true and denial reason is pro-required.",
-      "For an Alap instance, central effective entitlement decisions deny teamChat despite valid plan, trial, manual or platform grants in the database.",
-      "Pro tenants continue to use existing source precedence, expiry, instance specificity, role checks and fail-closed unknown behavior.",
-      "officeCommunication, support and standard transactional emails stay on their existing Alap path; officeCommunicationAdvanced remains Pro-only.",
-      "No SQL migration, admin UI route, Builder or Template Factory change is claimed in this bounded first Core release."
+      "A new forward-only SQL migration removes only the canonical (alap,teamChat) row from public.plan_capability_grants while preserving the (pro,teamChat) row.",
+      "The migration re-synchronizes only current Alap instances through the existing private.sync_webshop_plan_entitlements function, leaving manual, platform, trial and add-on entitlement records untouched.",
+      "Alap support and officeCommunication plan grants remain available for transactional webshop customer email, and other plan grants remain unchanged.",
+      "A matching ordered customer baseline migration proves replay parity without rewriting historical snapshot or Block 11 migrations.",
+      "Executable migration assertions fail closed when required canonical Pro chat or Alap customer-email grants are missing; this source-only unit does not claim to apply changes to live production.",
+      "The customer baseline manifest honestly returns to snapshot-reviewed and requires a new Fresh Install proof; no stale ready proof is reused.",
+      "Legacy order-email contract accepts snapshot-reviewed while 0046 Fresh Install proof is pending, and requires actual 0046 proof evidence before accepting READY again. Historic 0045 proof remains explicitly historic."
     ],
     "unresolvedRisks": [
-      "Legacy tenant plan sync still writes Alap teamChat rows; effective resolver must override them and a subsequent DB migration must reconcile persisted grants.",
-      "Customer inbox/workspace is still gated by officeCommunication, which is needed for Alap core email; a later Core release must separate Digital Office workspace from basic outbound email and backend APIs.",
-      "Database-level direct table access and background job paths are not proven by this bounded code-only release; remain PARTIAL.",
-      "Platform and trial entitlement rows may exist; this strict product boundary overrides them for Alap; any future approved exception must be modeled separately and audited."
+      "The future deployment database may contain custom manually granted Team Chat entitlement rows; U01 server denies them for Alap, and this migration deliberately does not delete custom or platform overrides.",
+      "Fresh-Install proof uses a separate customer baseline and may be unconfigured; static migration assertions alone cannot prove a remote database was modified.",
+      "A tenant may have unknown subscription_plan or missing organization_id; the sync function intentionally raises and must roll back rather than hiding broken tenant data.",
+      "SQL replay on a large tenant population may require batching or downtime planning in production; launch rollout is not part of this repository-only migration proof.",
+      "Fresh Install proof for baseline lineage 0046 is not yet available; the previous READY contract hash belongs to 0045. Do not keep READY or claim the external proof has been regenerated.",
+      "The old transactional email test permanently asserts READY; replacing it with unconditional snapshot-reviewed would become stale after a legitimate new Fresh Install proof, so require bounded lifecycle-aware assertions."
     ],
     "scope": {
       "in": [
-        "Move teamChat from ALAP_FEATURES to PRO_FEATURES in the existing central catalog.",
-        "Add an explicit central strict Pro workspace capability predicate, with no independent package engine.",
-        "In the existing server-only effective entitlement decision batch resolver load instance subscription_plan together with organization_id and fail closed for Pro-only chat when plan is Alap, before applying legacy override candidates.",
-        "Update existing plan, Block 11 entitlement and customer email regression suites for package separation, unchanged email and stale-override denial.",
-        "Use exact-head CI, Truth/Lifecycle and Release Risk evidence.",
-        "Reconcile existing admin IA navigation regression: Alap no longer shows Team Chat while Pro continues to offer it; do not change the admin navigation implementation in this release."
+        "Create a new forward-only Supabase SQL migration via the canonical Supabase CLI generator; do not rewrite historical migrations.",
+        "Remove exact Alap Team Chat plan grant, preserve Pro Team Chat and Alap support plus officeCommunication grants, and re-sync current Alap instances with the existing privileged private function.",
+        "Create matching next ordered customer-baseline migration to keep the fresh-install source in parity.",
+        "Add focused Block 11 entitlement and customer-email plan contract tests asserting no destructive broad deletes and enforcing source/plan exclusions.",
+        "Run critical plan, Edit-Time, Knowledge, Replay, high-risk database release isolation, CI Truth and exact-head Lifecycle evidence.",
+        "Invalidate the customer-baseline READY proof that was issued for the prior ordered lineage, setting status snapshot-reviewed, freshInstallProofRequired true, and proofContractSha256 null. A fresh empty-target proof for lineage including 0046 is mandatory.",
+        "Reconcile the existing transactional order-email regression contract whose fixed READY expectation contradicts the legitimately invalidated 0046 baseline proof; keep historic 0035/0045 provenance checks intact."
       ],
       "out": [
-        "No SQL schema or data mutation in this unit; required reconciliation is tracked as next dependency.",
-        "No whole Digital Office UI/API release; it must later be gated by a distinct Pro workspace entitlement while Alap transactional email continues.",
-        "No change to non-chat manual/trial/platform entitlement precedence, add-ons or customer basic email delivery.",
-        "Do not mark #1186 or MR1 package capability DONE without full database/API/UI/background job proof."
+        "No direct mutation of production or shared Supabase projects in this release; this is reviewed migration source only.",
+        "No deletion of manually overridden, trial, platform or add-on entitlement records, no new security-definer function or RLS policy.",
+        "No change to normal customer email, support, Pro feature grants, billing, schema ownership, auth policies or financial data.",
+        "No Digitális Iroda UI/API/worker closure; issue #1186 remains PARTIAL until direct-access and runtime tenant proof."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CORE-DIGITAL-OFFICE-1186-U01",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U02",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -1312,22 +906,20 @@
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-EDIT-TIME",
         "GUARD-INCREMENTAL-REPLAY",
-        "GUARD-MARKET-READY",
-        "GUARD-TYPECHECK",
-        "GUARD-PRODUCTION-BUILD",
         "GUARD-QUALITY-TESTS",
-        "GUARD-RELEASE-RISK"
+        "GUARD-RELEASE-RISK",
+        "GUARD-TYPECHECK"
       ],
       "externalGuards": [],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-U01-PRO-CHAT-ACCESS",
-        "requirement": "A stale positive grant never enables Team Chat for Alap at the central server-authoritative entitlement resolver; Pro source policy and core email remain unchanged.",
+        "id": "REQ-U02-PLAN-GRANT-SOURCE",
+        "requirement": "Forward-only canonical and baseline SQL source removes only Alap Team Chat plan grant and safely resyncs Alap plan-origin entitlements, retaining Pro and Alap customer email and all override sources.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "bounded-server-effective-teamchat",
+          "breadth": "bounded-forward-sql-migration-source",
           "strength": 2,
           "dimensions": [
             "status",
@@ -1348,8 +940,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-STALE-CHAT-GRANT",
-            "statement": "No Alap positive plan/manual/trial/platform grant may enable Team Chat through the server resolver.",
+            "id": "NEG-SOURCE-DESTRUCTIVE-DELETE",
+            "statement": "No Pro grant deletion, no removal of manual/trial/platform override records, no loss of Alap customer email.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1357,11 +949,11 @@
         ]
       },
       {
-        "id": "REQ-U01-RELEASE-ISOLATION",
-        "requirement": "This Core authorization change is an isolated high-risk release and does not claim wider Digital Office completion.",
+        "id": "REQ-U02-RELEASE-SCOPE",
+        "requirement": "The migration plus customer-baseline mirror is one bounded high-risk database authorization release, not whole Digital Office capability completeness.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "single-security-policy-release",
+          "breadth": "bounded-plan-grant-migration",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -1381,8 +973,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-HIGH-RISK-MIX",
-            "statement": "High-risk auth policy must not be mixed with unrelated medium-risk production code in one release.",
+            "id": "NEG-MIXED-MIGRATION-RELEASE",
+            "statement": "A database access control change cannot bypass the isolated high-risk release budget.",
             "evidence": [
               "GUARD-RELEASE-RISK"
             ]
@@ -1392,20 +984,23 @@
     ]
   },
   "notes": [
-    "Bounded #1186 U01 only. Digital Office workspace remains PARTIAL; Alap normal customer email continues.",
-    "No direct SQL/data mutation in this unit; next dependent release must correct persistent sync and direct access surfaces.",
-    "Original accepted entitlement source priority retained for all eligible Pro capabilities.",
-    "An additional legacy admin IA regression test was discovered as failing by mandatory Incremental Replay and included by an explicit refreshed Development Guard before editing it.",
-    "Change-base reconciled after the required Replay-discovered navigation test was added: the regenerated guard accidentally re-anchored at an intermediate local code commit. This release is verified against the original merged canonical main 32fcdb7ede3772dfd43ab9694c042404ba900d3c, so all six material files stay inside one exact-head authorization/replay diff.",
-    "PR exact-head #9340 quality CI identified Sentinel capability proof drift; corrected CAP-AUTH claim source to GUARD-QUALITY-TESTS only, preserving Plan/Edit-Time mandatory gates via systemObligations and leaving Core capability PARTIAL."
+    "U02 is repo-only forward SQL migration and baseline source parity, not actual Supabase production execution.",
+    "U01 Team Chat effective resolver is already merged and protected; manual and higher-priority overrides are intentionally untouched in storage.",
+    "Core #1186 stays OPEN/PARTIAL until real DB, API, worker, UI and RLS evidence closes every dependency.",
+    "Supabase CLI 2.81.3 generated the exact canonical migration path after planned-projection gate PASS. Development Guard rerun resolved the exact path while preserving its existing risk and assurance contracts; no SQL implementation occurred before the gate.",
+    "Existing checked-out CLI-generated canonical migration scaffold is planned, while baseline 0046 remains a true mustCreate; do not overclaim the semantic execution route with an existing but untracked file.",
+    "The first exact-head CI #9347/#9348 failed Customer database baseline guard with correct stale READY proof after added 0046. Scope expanded to manifest; old proof is invalid for this new lineage, reset must be explicit. Guard regenerated while local source commit existed, so original main base SHA dfac819 remains authoritative.",
+    "For actual diff and planned projection at verified main, the sole owning authority is database-schema; the intermediate guard scan had included unrelated impacted auth/tenancy edges, which remain read-only dependencies and not direct mutation authorities.",
+    "Exact-head CI #9351/#9352 failed ONLY tests/order-core-transactional-email-dispatch-contract.test.ts: legacy READY expectation conflicts with correct snapshot-reviewed 0046 source. Expanded guard before touching test, retained changeBaseSha original main dfac and all mandatory proof checks.",
+    "Projected-only guard selection had added checkout/customer Known Failures before their regression file was edited; existing actual-diff Plan validator resolves the canonical eight database-schema Known Failures, risk 5/5 and the five applicable negative-knowledge items. The restored original main base is authority, not the intermediate commit."
   ],
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "6dfda3778c789a1ab86983c5677c7fd9aa4f1c71",
-    "closedAt": "2026-10-09T07:58:51.062Z",
+    "verifiedImplementationHead": "38bb18b6d3020a18c95687a0c4340ee9568ef1f7",
+    "closedAt": "2026-10-09T10:17:44.545Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-09-CORE-DIGITAL-OFFICE-1186-U01",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U02",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
