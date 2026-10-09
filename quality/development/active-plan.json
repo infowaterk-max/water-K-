@@ -1,79 +1,140 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U03: truthful 0046 proof attestation plus focused Control Plane regression repair",
-  "status": "closed",
-  "guardDigest": "2ebcb98e",
-  "changeBaseSha": "8b8ee1202480331c33e0d88639fa1370759d59f6",
+  "taskId": "DEV-CP-TF-EXTERNAL-DEPENDENCY-ALIGN",
+  "task": "Control Plane closure: exact runtime Template Factory proof classification and workflow trigger parity for unrelated admin route changes",
+  "status": "ready-for-implementation",
+  "guardDigest": "9fe3f69d",
+  "changeBaseSha": "2e6e5e6b2ba13a8728f7d251812e78bf04c2e3ca",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/manifest.json",
-    "tests/customer-email-plan-split.test.ts",
-    "tests/shoperation-operational-intelligence.test.ts",
-    "tests/shoperation-sentinel-integrity.test.ts"
+    "scripts/shoperation-external-proof-handoff.mjs",
+    "tests/shoperation-external-proof-handoff.test.ts",
+    ".github/workflows/template-factory-quality-gate.yml"
   ],
   "expectedSubsystems": [
-    "database-schema"
+    "admin-operations",
+    "builder-template-system",
+    "quality-infrastructure",
+    "release-infrastructure",
+    "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-DATA"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "database-schema"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-022",
+    "SQ-KF-001",
+    "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
+    "SQ-KF-005",
     "SQ-KF-006",
+    "SQ-KF-007",
+    "SQ-KF-008",
     "SQ-KF-009",
     "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
     "SQ-KF-018",
-    "SQ-KF-023"
+    "SQ-KF-019",
+    "SQ-KF-020",
+    "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
+    "TF-KF-006",
+    "TF-KF-007",
+    "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
+    "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-004",
     "SQ-NK-005",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
+    "SQ-NK-010",
     "SQ-NK-012",
-    "SQ-NK-014"
+    "SQ-NK-016",
+    "SQ-NK-017",
+    "SQ-NK-018",
+    "SQ-NK-019",
+    "SQ-NK-020",
+    "SQ-NK-021",
+    "SQ-NK-022",
+    "SQ-NK-023"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CORE-1186-U03-FRESH-INSTALL-ATTESTATION",
-    "riskTier": "medium",
+    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-EXTERNAL-PROOF-ALIGNMENT",
+    "riskTier": "critical",
     "assuranceCeiling": {
-      "level": "state-and-failure-review",
-      "rationale": "This records completed external Fresh Install evidence, without changing database schemas, grants, routes, or tenant data; reject stale hash, unrelated workflow truth, or unproven deployment claims.",
+      "level": "critical-practical",
+      "rationale": "This is a dependency-authority correction for a blocking cross-workflow gate; only a complete canonical runtime graph, validated producer path trigger list, and absence of explicit or transitive obligations may justify not requesting the external artifact. Unknown states retain the proof requirement.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
+        "what-if-matrix",
         "adversarial-scenarios",
-        "boundary-cases"
+        "boundary-cases",
+        "pairwise-interactions",
+        "threat-failure-model",
+        "fault-injection",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "Exact 0046 customer baseline was applied on an initially empty disposable Supabase project by GitHub run 37919705159 attempt 2 job 113806799257 with SUCCESS at exact proof source commit 03a7f0f690f94fa955e1ad459e3d5eb1fe22cbf4; zero file difference against main 8b8ee1202480331c33e0d88639fa1370759d59f6.",
-        "GitHub Fresh Install preflight, ordered migrations through 0046, Auth bootstrap, neutral seed, postflight, and structured evidence uploaded as artifact 11613699688 are all PASS; job proof hash a04b0990e7cf7a0a21591b9fd81fa44d5010ca8818b7edb7f00397c6b84807bb.",
-        "Change only customer baseline manifest to ready with freshInstallProofRequired false and exact current proofContractSha256; add test that prevents accidental pending/historic contract regression.",
-        "No staging, production, Supabase migration or customer data mutation. Staging postrestore read only fingerprint remains 3 shops, 6 auth users, 75 feature entitlements, 39627923 bytes.",
-        "Exact source validator, focused tests, Development Guard, Plan Before Code, Edit-Time/Reference and Implementation Sync, Knowledge/Replay, Release Risk, exact-head CI Completion Truth/Lifecycle and postmerge main CI must pass.",
-        "Existing Control Plane critical-only semantic route regression tests must use an explicitly critical fixture independent of changing real active plan risk tier.",
-        "Completion evidence must not cite GUARD-CUSTOMER-BASELINE as a capability proof before Guard Registry defines proofSemantics; validator remains a compulsory CI lifecycle guard."
+        "Admin-only /admin/kommunikacio layout with no runtime closure intersection, nonmatching producer triggers and no explicit TF Completion evidence does not demand an impossible external TF artifact.",
+        "Touching any canonical TF runtime dependency, or a producer workflow path trigger, still requires the external Template Factory proof.",
+        "Absent or blocked runtime graph, malformed or mismatched workflow trigger patterns, explicit TF evidence, or transitive TF dependencies remain fail-closed.",
+        "The TF producer workflow must auto-trigger for edits to the cross-workflow proof classifier, on push and PR.",
+        "Negative unit tests, codebase Atlas closure, Development Guard, critical Plan Before Code, Edit-Time/Reference/Implementation Sync, Replay, Risk and exact-head CI must PASS; no gate is disabled."
       ],
       "invariants": [
-        "Actual main source has no substantive differences from proven Fresh Install source commit, and proof includes ordered migration 0046.",
-        "Manifest hash must be recomputable by canonical validate-customer-baseline.mjs from the exact repository sources and match the external proof contract.",
-        "Fresh Install readiness is not equivalent to live staging/production migration deployment or #1186 Digital Office capability completion.",
-        "Mandatory customer baseline validator remains in system obligations even when completion capability evidence uses GUARD-QUALITY-TESTS with declared semantics."
+        "Preserve Template Factory Quality Gate v2, its complete 14-page/3-viewport proof, current truth authority and external artifact validator unchanged.",
+        "Use the existing canonical liveRuntime closure and workflow trigger patterns rather than an invented bypass or hand-maintained exemption list.",
+        "Do not infer proof absence from UI navigation, static naming conventions alone or missing snapshot inputs."
       ],
       "forbiddenStates": [
-        "Claim full workflow success or whole #1186 DONE based on isolated proof job when unrelated branch Completion Truth failed.",
-        "Use old 0045 proof hash, skip ready hash validation, or mutate customer migrations to match proof.",
-        "Change staging or platform schemas, entitlements, or Supabase environment in this metadata-only release.",
-        "Treat Sentinel REVIEW for unsupported customer baseline evidence semantics as PASS without re-scoping claim or adding canonical proof semantics."
+        "Any new runtime route or build dependency silently bypasses TF proof when liveRuntime closure is unavailable.",
+        "Explicit TF completion evidence requirement bypassed because planned files are unrelated.",
+        "A changed proof classifier avoids launching its own TF verification workflow.",
+        "Truth gate marked PASS by inventing an external artifact or claiming a successful workflow that never ran."
       ]
     },
     "model": {
@@ -105,44 +166,38 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Stale 0045 proof hash passed off as 0046",
-        "Partial GitHub workflow failure confused with isolated Fresh Install proof",
-        "Accidental customer DB or plan grant mutation",
-        "New main commit changes baseline between evidence and review",
-        "Changing active plan from critical to medium silently invalidates test-only assumptions."
+        "False-positive broad src/app path makes CI wait for nonexistent TF workflow",
+        "Classifier code change fails to trigger producer",
+        "Malformed workflow path parsing silently returns empty filters",
+        "TF runtime graph unresolved but classified unrelated",
+        "Required external TF proof bypassed despite explicit requirement"
       ],
       "edgeCases": [
-        "Structured artifact success but overall unrelated build Truth Gate fails",
-        "Historic hashes in notes must remain historical",
-        "No new migration means previously proven 0046 hash remains valid",
-        "Fresh Install paused while staging active healthy",
-        "Referenced CI validator exists but has no proofSemantics and cannot be used to establish a typed capability claim."
+        "Admin communication nested layout does not belong to storefront template import closure",
+        "Shared root src/app/layout.tsx is in the Template Factory closure and must require proof",
+        "Storefront checkout route is producer-triggered even if newly added file is not imported",
+        "Unknown graph or missing workflow file requires proof",
+        "The workflow differs between push and pull_request path filters"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-ATTEST-CANONICAL",
-        "summary": "Write genuine proof hash and SUCCESS job details into existing customer-baseline manifest; enforce validator and regression test.",
+        "id": "ALT-RUNTIME-AUTHORITY",
+        "summary": "Use canonical live-runtime closure and validated producer workflow triggers to narrow only proven-unrelated external proof requirements.",
         "disposition": "selected",
-        "reason": "Existing ready lifecycle and hash validator are canonical; no competing proof authority."
+        "reason": "Preserves existing proof obligations for actual template inputs and returns fail-closed on unknowns."
       },
       {
-        "id": "ALT-NEW-ATTEST-SYSTEM",
-        "summary": "Create a separate proof ledger or hardcode READY in CI to bypass manifest.",
+        "id": "ALT-DISABLE-EXTERNAL",
+        "summary": "Remove Template Factory external guard from the CI dependency chain.",
         "disposition": "rejected",
-        "reason": "Duplicated authority, cannot protect stale source hash, and bypasses existing baseline gate."
+        "reason": "Would permit runtime and acceptance changes to close without required browser proof."
       },
       {
-        "id": "ALT-REMAIN-PENDING",
-        "summary": "Leave snapshot-reviewed forever despite complete isolated proof success.",
+        "id": "ALT-BROAD-TRIGGER",
+        "summary": "Run full 14×3 browser matrix for every unrelated administrative route modification.",
         "disposition": "rejected",
-        "reason": "Misrepresents the current 0046 readiness evidence and blocks canonical closure."
-      },
-      {
-        "id": "ALT-GUARD-REGISTRY-EXPANSION",
-        "summary": "Add separate canonical proof semantics to the baseline guard in the Guard Registry as an independently reviewed predecessor.",
-        "disposition": "rejected",
-        "reason": "Would mix quality-knowledge governance authority into this isolated database-schema release without a separate assurance decision; retain mandatory baseline validator and use validated existing test evidence."
+        "reason": "Unnecessary resource expense and unrelated acceptance gate coupling; leaves incorrect dependency authority uncorrected."
       }
     ],
     "specialistReviews": [
@@ -150,188 +205,131 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Only 0046 source migration changes grants. Fresh Install job was executed against empty disposable database with full ordered baseline and postflight.",
-        "resolution": "Record the proof result without new schema or staging/production migration application.",
+        "finding": "The existing canonical runtime closure covers imported assets and ancestors; current office layout is outside its 268-file PASS set.",
+        "resolution": "Consult runtime closure rather than generic src/app file overlap; require proof for any explicit or other scoped input.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
-          "supabase/customer-baseline/target-postflight.sql"
+          "scripts/lib/shoperation-template-factory-resumable-verification.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A successful database proof job does not prove any live tenant or full Digital Office access guard, and the sibling build Truth Gate failed.",
-        "resolution": "Limit READY to customer-baseline lifecycle only; issue #1186 remains OPEN/PARTIAL; separately require exact-head CI for the attestation PR.",
+        "finding": "Pruning external evidence on missing or unresolved runtime data could conceal a real proof omission.",
+        "resolution": "Require PASS runtime closure, nonempty equivalent push/PR triggers, and no explicit or transitive obligations before excluding the guard.",
         "evidence": [
-          "AGENTS.md",
-          "supabase/customer-baseline/manifest.json"
+          "quality/knowledge/guard-registry.v1.json"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Preserve deterministic hash and true job identity, not workflow aggregate or old 0045 proof.",
-        "resolution": "Use a04b... exact full digest and canonical validation, with exact-head CI gates before merge.",
+        "finding": "The producer workflow lacks the classifier file among its trigger paths despite that file being a runtime classifier input.",
+        "resolution": "Add the source file trigger for push and pull_request; verify exact context and exact head through original handoff.",
         "evidence": [
-          "scripts/validate-customer-baseline.mjs",
-          ".github/workflows/ci.yml"
+          ".github/workflows/template-factory-quality-gate.yml"
         ]
       },
       {
-        "role": "Security",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "The baseline CI guard has no declared proof semantics. Sentinel correctly surfaces unsupported capability evidence as REVIEW; merely overriding the status is forbidden.",
-        "resolution": "Use existing GUARD-QUALITY-TESTS for the bounded, explicit hash and manifest regression proof; preserve GUARD-CUSTOMER-BASELINE as a mandatory CI requirement and do not alter sentinel policy.",
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The current U04 CI waits for a Template Factory event that never occurred because dependency and trigger globs diverge.",
+        "resolution": "Add positive, negative, malformed and explicit-proof tests using existing contract, preserving failed unknown states.",
         "evidence": [
-          "quality/knowledge/guard-registry.v1.json",
-          "scripts/lib/shoperation-sentinel-integrity.mjs",
-          "scripts/validate-customer-baseline.mjs"
+          "tests/shoperation-external-proof-handoff.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U03-01",
-        "scenario": "Hash belongs to a previous 0045 schema",
-        "finding": "Canonical validator must reject stale proof",
-        "resolution": "Use exact 0046 contract sha256 from successful job and run baseline validator",
+        "id": "CH-CP-TF-1",
+        "scenario": "Office admin-only route changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
+        "finding": "Broad input creates a false positive This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
+        "resolution": "Exclude only after canonical proof of no intersection Enforce the derived contract with negative tests before permitting the related release transaction to close.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03-02",
-        "scenario": "Claim entire old branch workflow PASS",
-        "finding": "Its build Completion Truth failed",
-        "resolution": "Report isolated fresh-install job PASS only, and separately require this PR exact-head CI Truth/Lifecycle",
+        "id": "CH-CP-TF-2",
+        "scenario": "Root src/app layout changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
+        "finding": "A root ancestor affects all template pages This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
+        "resolution": "Always require external TF proof Enforce the derived contract with negative tests before permitting the related release transaction to close.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03-03",
-        "scenario": "Live tenant correctness inferred from empty-install pass",
-        "finding": "Proof target has zero customer tenant rows",
-        "resolution": "Explicitly exclude live migration and #1186 full closure; retain dedicated downstream integration tests",
+        "id": "CH-CP-TF-3",
+        "scenario": "New checkout file changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
+        "finding": "Not yet imported but matched workflow path This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
+        "resolution": "Require TF proof from producer triggers Enforce the derived contract with negative tests before permitting the related release transaction to close.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03-04",
-        "scenario": "Historical critical semantic-route test inherits medium active plan risk.",
-        "finding": "Testing critical-only validation against a medium plan yields no required critical errors.",
-        "resolution": "Set critical risk explicitly on the test fixture and preserve the production risk policy.",
+        "id": "CH-CP-TF-4",
+        "scenario": "Missing runtime graph changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
+        "finding": "Cannot establish safe independence This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
+        "resolution": "Require TF proof Enforce the derived contract with negative tests before permitting the related release transaction to close.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03-05",
-        "scenario": "Attestation claims proof from a guard without defined producer proof semantics.",
-        "finding": "Sentinel raises REVIEW, which blocks claim closure.",
-        "resolution": "Limit claim evidence to established tests and release risk while retaining full baseline CI guard as mandatory obligation.",
+        "id": "CH-CP-TF-5",
+        "scenario": "Malformed workflow paths changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
+        "finding": "Producer trigger authority cannot be trusted This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
+        "resolution": "Require TF proof Enforce the derived contract with negative tests before permitting the related release transaction to close.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-CP-TF-6",
+        "scenario": "Mismatched PR/push paths changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
+        "finding": "One side will not produce matched evidence This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
+        "resolution": "Require TF proof Enforce the derived contract with negative tests before permitting the related release transaction to close.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-CP-TF-7",
+        "scenario": "Explicit TF Completion requirement changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
+        "finding": "Product contract must override negative inference This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
+        "resolution": "Require TF proof Enforce the derived contract with negative tests before permitting the related release transaction to close.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-CP-TF-8",
+        "scenario": "Classifier changed changes on a code review branch while the cross-workflow Template Factory dependency classifier evaluates external evidence obligations.",
+        "finding": "External proof evaluator is part of proof authority This can invalidate claim-scope correctness or prevent the required exact-head producer artifact from being emitted.",
+        "resolution": "Workflow must automatically run and require TF proof Enforce the derived contract with negative tests before permitting the related release transaction to close.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Inspect exact job steps artifact ID 11613699688 and immutable source lineage; verify hash.",
-      "Run node scripts/validate-customer-baseline.mjs and tests/customer-email-plan-split.test.ts on exact branch.",
-      "Development Guard, Plan Before Code, Edit-Time Guard, Knowledge, Replay, Release Risk, CI Truth and Lifecycle.",
-      "Run the actual two failing CI regressions plus a new negative Sentinel unknown-proof-semantics test, and require their exact-head success."
+      "Run critical Plan Before Code with checked actual change scope and negative scenarios.",
+      "Use real Atlas PASS runtime closure and workflow path globs to distinguish unrelated office route from root layout and storefront checkout.",
+      "Assert fail-closed for missing or corrupt workflow, missing closure, explicit and transitive TF completion evidence.",
+      "Confirm workflow push and PR filters include changed classifier source, targeted Vitest and TypeScript tests PASS.",
+      "Run Knowledge, Edit-Time/Reference/Implementation Sync, Incremental Replay, Release Risk and exact-head CI/Truth/Lifecycle before merge."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U03: truthful 0046 proof attestation plus focused Control Plane regression repair",
+      "request": "Control Plane closure: exact runtime Template Factory proof classification and workflow trigger parity for unrelated admin route changes",
       "authority": [
-        "database-schema"
+        "quality-knowledge-system",
+        "release-infrastructure"
       ],
       "mustEdit": [
-        "supabase/customer-baseline/manifest.json",
-        "tests/customer-email-plan-split.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts",
-        "tests/shoperation-sentinel-integrity.test.ts"
+        ".github/workflows/template-factory-quality-gate.yml",
+        "scripts/shoperation-external-proof-handoff.mjs",
+        "tests/shoperation-external-proof-handoff.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
-        "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
-        "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
-        "src/app/admin/email-sablonok/brand-kit/page.tsx",
-        "src/app/admin/email-sablonok/page.tsx",
-        "src/app/admin/kampanyok/[id]/page.tsx",
-        "src/app/admin/kampanyok/page.tsx",
-        "src/app/admin/kommunikacio/felugyelet/page.tsx",
-        "src/app/admin/kommunikacio/iroda/page.tsx",
-        "src/app/admin/kommunikacio/tiltolista/page.tsx",
-        "src/app/admin/kuponok/page.tsx",
-        "src/app/admin/marketing/page.tsx",
-        "src/app/admin/novekedes/page.tsx",
-        "src/app/admin/page.tsx",
-        "src/app/admin/tartalom/page.tsx",
-        "src/app/admin/velemenyek/actions.ts",
-        "src/app/admin/velemenyek/page.tsx",
-        "src/app/api/admin/campaigns/manage/route.ts",
-        "src/app/api/admin/campaigns/route.ts",
-        "src/app/api/admin/communication/enqueue/route.ts",
-        "src/app/api/admin/communication/manage/route.ts",
-        "src/app/api/admin/communication/suppression/route.ts",
-        "src/app/api/admin/content/[id]/route.ts",
-        "src/app/api/admin/content/route.ts",
-        "src/app/api/admin/coupons/route.ts",
-        "src/app/api/admin/email-builder/brand-kit/route.ts",
-        "src/app/api/admin/email-builder/preview/route.ts",
-        "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
-        "src/app/api/admin/email-builder/saved-blocks/route.ts",
-        "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
-        "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
-        "src/app/api/admin/email-builder/templates/[id]/route.ts",
-        "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
-        "src/app/api/admin/email-builder/templates/route.ts",
-        "src/app/api/admin/growth/run/route.ts",
-        "src/app/api/admin/promotions/preview/route.ts",
-        "src/lib/auth/store-capabilities.ts",
-        "src/lib/auth/store-rbac.ts",
-        "src/lib/digital-office/access.ts",
-        "src/lib/navigation/admin-ia.ts"
+        "scripts/shoperation-verification-checkpoint.mjs",
+        "tests/control-plane-ecosystem-chain.test.ts",
+        "tests/shoperation-resumable-verification.test.ts"
       ],
       "mustCreate": [],
       "forbidden": [],
       "proof": [
-        "tests/admin-api-tenant-mutation-closure.test.ts",
-        "tests/admin-growth-refresh-evidence.test.ts",
-        "tests/admin-route-rbac.test.ts",
-        "tests/block12-migration-assistant.test.ts",
-        "tests/block14-catalog-onboarding-import-ux.test.ts",
-        "tests/block16-commerce-recovery-integration.test.ts",
-        "tests/block18-ai-assisted-decisioning.test.ts",
-        "tests/block19-predictive-optimization-autonomy.test.ts",
-        "tests/block20-platform-ecosystem.test.ts",
-        "tests/block5-role-aware-ui.test.ts",
-        "tests/block7-b2b-account-ownership.test.ts",
-        "tests/campaign-creation-fail-closed.test.ts",
-        "tests/campaign-lifecycle-evidence-atomicity.test.ts",
-        "tests/digital-commerce-builder-integration.test.tsx",
-        "tests/digital-office-unified-ui.test.ts",
-        "tests/email-builder-d1-admin-shell.test.ts",
-        "tests/email-builder-d2-editor.test.ts",
-        "tests/email-builder-foundation-b.test.ts",
-        "tests/email-builder-publication-lifecycle.test.ts",
-        "tests/email-builder-saved-blocks.test.ts",
-        "tests/event-driven-workflow-automation.test.ts",
-        "tests/executive-analytics-ux-closure.test.ts",
-        "tests/merchant-admin-tenant-closure.test.ts",
-        "tests/pilot-acceptance-access.test.ts",
-        "tests/roadmap-block21-page-schema-templates.test.ts",
-        "tests/roadmap-block22-schema-policy.test.ts",
-        "tests/roadmap-block22-visual-builder.test.ts",
-        "tests/special-commerce-wave5-existing-engine-closure.test.ts",
-        "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
-        "tests/special-commerce-wave7-template2-adoption.test.ts",
-        "tests/storefront-beauty-lab-reference-v2.test.ts",
-        "tests/storefront-component-variants.test.ts",
-        "tests/storefront-editorial-atelier-template.test.tsx",
-        "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
-        "tests/storefront-fidelity-security.test.ts",
-        "tests/storefront-global-styles.test.ts",
-        "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
-        "tests/storefront-interactive-scene-commerce.test.tsx",
-        "tests/storefront-modern-luxe-template.test.tsx",
-        "tests/storefront-modern-luxe-wave46-reacceptance.test.ts"
+        "tests/control-plane-ecosystem-chain.test.ts",
+        "tests/shoperation-external-proof-handoff.test.ts",
+        "tests/shoperation-resumable-verification.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -342,139 +340,65 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "supabase/customer-baseline/manifest.json",
-          "tests/customer-email-plan-split.test.ts",
-          "tests/shoperation-operational-intelligence.test.ts",
-          "tests/shoperation-sentinel-integrity.test.ts"
+          ".github/workflows/template-factory-quality-gate.yml",
+          "scripts/shoperation-external-proof-handoff.mjs",
+          "tests/shoperation-external-proof-handoff.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [
-          "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
-          "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
-          "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
-          "src/app/admin/email-sablonok/brand-kit/page.tsx",
-          "src/app/admin/email-sablonok/page.tsx",
-          "src/app/admin/kampanyok/[id]/page.tsx",
-          "src/app/admin/kampanyok/page.tsx",
-          "src/app/admin/kommunikacio/felugyelet/page.tsx",
-          "src/app/admin/kommunikacio/iroda/page.tsx",
-          "src/app/admin/kommunikacio/tiltolista/page.tsx",
-          "src/app/admin/kuponok/page.tsx",
-          "src/app/admin/marketing/page.tsx",
-          "src/app/admin/novekedes/page.tsx",
-          "src/app/admin/page.tsx",
-          "src/app/admin/tartalom/page.tsx",
-          "src/app/admin/velemenyek/actions.ts",
-          "src/app/admin/velemenyek/page.tsx",
-          "src/app/api/admin/campaigns/manage/route.ts",
-          "src/app/api/admin/campaigns/route.ts",
-          "src/app/api/admin/communication/enqueue/route.ts",
-          "src/app/api/admin/communication/manage/route.ts",
-          "src/app/api/admin/communication/suppression/route.ts",
-          "src/app/api/admin/content/[id]/route.ts",
-          "src/app/api/admin/content/route.ts",
-          "src/app/api/admin/coupons/route.ts",
-          "src/app/api/admin/email-builder/brand-kit/route.ts",
-          "src/app/api/admin/email-builder/preview/route.ts",
-          "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
-          "src/app/api/admin/email-builder/saved-blocks/route.ts",
-          "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
-          "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
-          "src/app/api/admin/email-builder/templates/[id]/route.ts",
-          "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
-          "src/app/api/admin/email-builder/templates/route.ts",
-          "src/app/api/admin/growth/run/route.ts",
-          "src/app/api/admin/promotions/preview/route.ts",
-          "src/lib/auth/store-capabilities.ts",
-          "src/lib/auth/store-rbac.ts",
-          "src/lib/digital-office/access.ts",
-          "src/lib/navigation/admin-ia.ts"
+          "scripts/shoperation-verification-checkpoint.mjs",
+          "tests/control-plane-ecosystem-chain.test.ts",
+          "tests/shoperation-resumable-verification.test.ts"
         ],
         "mustCreate": [],
         "forbidden": [],
         "proof": [
-          "tests/admin-api-tenant-mutation-closure.test.ts",
-          "tests/admin-growth-refresh-evidence.test.ts",
-          "tests/admin-route-rbac.test.ts",
-          "tests/block12-migration-assistant.test.ts",
-          "tests/block14-catalog-onboarding-import-ux.test.ts",
-          "tests/block16-commerce-recovery-integration.test.ts",
-          "tests/block18-ai-assisted-decisioning.test.ts",
-          "tests/block19-predictive-optimization-autonomy.test.ts",
-          "tests/block20-platform-ecosystem.test.ts",
-          "tests/block5-role-aware-ui.test.ts",
-          "tests/block7-b2b-account-ownership.test.ts",
-          "tests/campaign-creation-fail-closed.test.ts",
-          "tests/campaign-lifecycle-evidence-atomicity.test.ts",
-          "tests/digital-commerce-builder-integration.test.tsx",
-          "tests/digital-office-unified-ui.test.ts",
-          "tests/email-builder-d1-admin-shell.test.ts",
-          "tests/email-builder-d2-editor.test.ts",
-          "tests/email-builder-foundation-b.test.ts",
-          "tests/email-builder-publication-lifecycle.test.ts",
-          "tests/email-builder-saved-blocks.test.ts",
-          "tests/event-driven-workflow-automation.test.ts",
-          "tests/executive-analytics-ux-closure.test.ts",
-          "tests/merchant-admin-tenant-closure.test.ts",
-          "tests/pilot-acceptance-access.test.ts",
-          "tests/roadmap-block21-page-schema-templates.test.ts",
-          "tests/roadmap-block22-schema-policy.test.ts",
-          "tests/roadmap-block22-visual-builder.test.ts",
-          "tests/special-commerce-wave5-existing-engine-closure.test.ts",
-          "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
-          "tests/special-commerce-wave7-template2-adoption.test.ts",
-          "tests/storefront-beauty-lab-reference-v2.test.ts",
-          "tests/storefront-component-variants.test.ts",
-          "tests/storefront-editorial-atelier-template.test.tsx",
-          "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
-          "tests/storefront-fidelity-security.test.ts",
-          "tests/storefront-global-styles.test.ts",
-          "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
-          "tests/storefront-interactive-scene-commerce.test.tsx",
-          "tests/storefront-modern-luxe-template.test.tsx",
-          "tests/storefront-modern-luxe-wave46-reacceptance.test.ts"
+          "tests/control-plane-ecosystem-chain.test.ts",
+          "tests/shoperation-external-proof-handoff.test.ts",
+          "tests/shoperation-resumable-verification.test.ts"
         ],
         "authority": [
           "auth-access-authority",
           "database-schema",
+          "quality-knowledge-system",
+          "release-infrastructure",
           "tenant-context-authority"
         ],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 5,
+        "score": 4,
         "maxPoints": 5,
-        "subsystemCount": 1,
+        "subsystemCount": 2,
         "maxSubsystems": 3,
         "subsystems": [
           {
-            "subsystem": "database-schema",
-            "risk": "high",
-            "points": 5
+            "subsystem": "release-infrastructure",
+            "risk": "medium",
+            "points": 2
+          },
+          {
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
           }
         ],
         "files": [
           {
-            "file": "supabase/customer-baseline/manifest.json",
-            "subsystem": "database-schema",
-            "risk": "high",
-            "points": 5
+            "file": ".github/workflows/template-factory-quality-gate.yml",
+            "subsystem": "release-infrastructure",
+            "risk": "medium",
+            "points": 2
           },
           {
-            "file": "tests/customer-email-plan-split.test.ts",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
+            "file": "scripts/shoperation-external-proof-handoff.mjs",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
           },
           {
-            "file": "tests/shoperation-operational-intelligence.test.ts",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "tests/shoperation-sentinel-integrity.test.ts",
+            "file": "tests/shoperation-external-proof-handoff.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -489,38 +413,37 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 5,
+          "score": 4,
           "maxPoints": 5,
-          "subsystemCount": 1,
+          "subsystemCount": 2,
           "maxSubsystems": 3,
           "subsystems": [
             {
-              "subsystem": "database-schema",
-              "risk": "high",
-              "points": 5
+              "subsystem": "release-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
             }
           ],
           "files": [
             {
-              "file": "supabase/customer-baseline/manifest.json",
-              "subsystem": "database-schema",
-              "risk": "high",
-              "points": 5
+              "file": ".github/workflows/template-factory-quality-gate.yml",
+              "subsystem": "release-infrastructure",
+              "risk": "medium",
+              "points": 2
             },
             {
-              "file": "tests/customer-email-plan-split.test.ts",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
+              "file": "scripts/shoperation-external-proof-handoff.mjs",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
             },
             {
-              "file": "tests/shoperation-operational-intelligence.test.ts",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
-            {
-              "file": "tests/shoperation-sentinel-integrity.test.ts",
+              "file": "tests/shoperation-external-proof-handoff.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -530,32 +453,53 @@
           "decision": "PASS"
         },
         "maxFilesPerUnit": 12,
-        "repositoryEdges": [],
+        "repositoryEdges": [
+          {
+            "from": "scripts/shoperation-external-proof-handoff.mjs",
+            "to": "tests/shoperation-external-proof-handoff.test.ts",
+            "type": "repository-dependency"
+          },
+          {
+            "from": "scripts/shoperation-external-proof-handoff.mjs",
+            "to": "tests/shoperation-external-proof-handoff.test.ts",
+            "type": "proof-ownership"
+          },
+          {
+            "from": "tests/shoperation-external-proof-handoff.test.ts",
+            "to": "scripts/shoperation-external-proof-handoff.mjs",
+            "type": "proof-ownership"
+          },
+          {
+            "from": "tests/shoperation-external-proof-handoff.test.ts",
+            "to": "tests/shoperation-external-proof-handoff.test.ts",
+            "type": "proof-ownership"
+          }
+        ],
         "atomicComponents": [
           {
             "id": 0,
             "files": [
-              "supabase/customer-baseline/manifest.json"
+              ".github/workflows/template-factory-quality-gate.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
+              "score": 2,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "subsystem": "release-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/manifest.json",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "file": ".github/workflows/template-factory-quality-gate.yml",
+                  "subsystem": "release-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "violations": [],
@@ -565,66 +509,31 @@
           {
             "id": 1,
             "files": [
-              "tests/customer-email-plan-split.test.ts"
+              "scripts/shoperation-external-proof-handoff.mjs",
+              "tests/shoperation-external-proof-handoff.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
+              "score": 2,
               "maxPoints": 5,
-              "subsystemCount": 0,
+              "subsystemCount": 1,
               "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
+              "subsystems": [
                 {
-                  "file": "tests/customer-email-plan-split.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 2,
-            "files": [
-              "tests/shoperation-operational-intelligence.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-operational-intelligence.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 3,
-            "files": [
-              "tests/shoperation-sentinel-integrity.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
+                  "file": "scripts/shoperation-external-proof-handoff.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
                 {
-                  "file": "tests/shoperation-sentinel-integrity.test.ts",
+                  "file": "tests/shoperation-external-proof-handoff.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -642,91 +551,85 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "3cbfb8fb01c77c3183d521edf69e0843209c07b4"
+              "developmentBaseSha": "2e6e5e6b2ba13a8728f7d251812e78bf04c2e3ca"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "3cbfb8fb01c77c3183d521edf69e0843209c07b4",
+            "targetBaseSha": "2e6e5e6b2ba13a8728f7d251812e78bf04c2e3ca",
             "lease": {
-              "expectedBaseSha": "3cbfb8fb01c77c3183d521edf69e0843209c07b4",
+              "expectedBaseSha": "2e6e5e6b2ba13a8728f7d251812e78bf04c2e3ca",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "supabase/customer-baseline/manifest.json",
-              "tests/customer-email-plan-split.test.ts",
-              "tests/shoperation-operational-intelligence.test.ts",
-              "tests/shoperation-sentinel-integrity.test.ts"
+              ".github/workflows/template-factory-quality-gate.yml",
+              "scripts/shoperation-external-proof-handoff.mjs",
+              "tests/shoperation-external-proof-handoff.test.ts"
             ],
             "operations": [
               {
                 "operation": "modify",
-                "file": "supabase/customer-baseline/manifest.json",
+                "file": ".github/workflows/template-factory-quality-gate.yml",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "tests/customer-email-plan-split.test.ts",
+                "file": "scripts/shoperation-external-proof-handoff.mjs",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "tests/shoperation-operational-intelligence.test.ts",
-                "generated": null
-              },
-              {
-                "operation": "modify",
-                "file": "tests/shoperation-sentinel-integrity.test.ts",
+                "file": "tests/shoperation-external-proof-handoff.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [
-              "scripts/lib/shoperation-operational-intelligence.mjs",
-              "scripts/lib/shoperation-release-unit-runtime.mjs",
-              "scripts/lib/shoperation-sentinel-integrity.mjs",
-              "src/lib/plans/catalog.ts"
+              "scripts/lib/shoperation-development-runtime.mjs",
+              "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+              "scripts/shoperation-external-proof-handoff.mjs"
             ],
             "authorities": [
-              "database-schema"
+              "quality-knowledge-system",
+              "release-infrastructure"
             ],
             "subsystems": [
-              "database-schema"
+              "release-infrastructure",
+              "quality-infrastructure"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
+              "score": 4,
               "maxPoints": 5,
-              "subsystemCount": 1,
+              "subsystemCount": 2,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "subsystem": "release-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/manifest.json",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "file": ".github/workflows/template-factory-quality-gate.yml",
+                  "subsystem": "release-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 },
                 {
-                  "file": "tests/customer-email-plan-split.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
+                  "file": "scripts/shoperation-external-proof-handoff.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 },
                 {
-                  "file": "tests/shoperation-operational-intelligence.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "tests/shoperation-sentinel-integrity.test.ts",
+                  "file": "tests/shoperation-external-proof-handoff.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -736,85 +639,51 @@
               "decision": "PASS"
             },
             "requiredGates": [
-              "GUARD-CUSTOMER-BASELINE",
+              "GUARD-COMPLETION-TRUTH",
               "GUARD-EDIT-TIME",
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-KNOWLEDGE-PREFLIGHT",
               "GUARD-PLAN-BEFORE-CODE",
+              "GUARD-PRODUCTION-BUILD",
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK",
+              "GUARD-TEMPLATE-FACTORY",
               "GUARD-TYPECHECK"
             ],
             "requiredEvidence": {
               "gateIds": [
-                "GUARD-CUSTOMER-BASELINE",
+                "GUARD-COMPLETION-TRUTH",
                 "GUARD-EDIT-TIME",
                 "GUARD-INCREMENTAL-REPLAY",
                 "GUARD-KNOWLEDGE-PREFLIGHT",
                 "GUARD-PLAN-BEFORE-CODE",
+                "GUARD-PRODUCTION-BUILD",
                 "GUARD-QUALITY-TESTS",
                 "GUARD-RELEASE-RISK",
+                "GUARD-TEMPLATE-FACTORY",
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-email-plan-split.test.ts",
-                "tests/shoperation-operational-intelligence.test.ts",
-                "tests/shoperation-sentinel-integrity.test.ts"
+                "tests/shoperation-external-proof-handoff.test.ts"
               ],
-              "externalGateIds": []
+              "externalGateIds": [
+                "GUARD-TEMPLATE-FACTORY"
+              ]
             },
             "forbiddenPaths": [],
             "readOnlyPaths": [
-              "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
-              "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
-              "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
-              "src/app/admin/email-sablonok/brand-kit/page.tsx",
-              "src/app/admin/email-sablonok/page.tsx",
-              "src/app/admin/kampanyok/[id]/page.tsx",
-              "src/app/admin/kampanyok/page.tsx",
-              "src/app/admin/kommunikacio/felugyelet/page.tsx",
-              "src/app/admin/kommunikacio/iroda/page.tsx",
-              "src/app/admin/kommunikacio/tiltolista/page.tsx",
-              "src/app/admin/kuponok/page.tsx",
-              "src/app/admin/marketing/page.tsx",
-              "src/app/admin/novekedes/page.tsx",
-              "src/app/admin/page.tsx",
-              "src/app/admin/tartalom/page.tsx",
-              "src/app/admin/velemenyek/actions.ts",
-              "src/app/admin/velemenyek/page.tsx",
-              "src/app/api/admin/campaigns/manage/route.ts",
-              "src/app/api/admin/campaigns/route.ts",
-              "src/app/api/admin/communication/enqueue/route.ts",
-              "src/app/api/admin/communication/manage/route.ts",
-              "src/app/api/admin/communication/suppression/route.ts",
-              "src/app/api/admin/content/[id]/route.ts",
-              "src/app/api/admin/content/route.ts",
-              "src/app/api/admin/coupons/route.ts",
-              "src/app/api/admin/email-builder/brand-kit/route.ts",
-              "src/app/api/admin/email-builder/preview/route.ts",
-              "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
-              "src/app/api/admin/email-builder/saved-blocks/route.ts",
-              "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
-              "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
-              "src/app/api/admin/email-builder/templates/[id]/route.ts",
-              "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
-              "src/app/api/admin/email-builder/templates/route.ts",
-              "src/app/api/admin/growth/run/route.ts",
-              "src/app/api/admin/promotions/preview/route.ts",
-              "src/lib/auth/store-capabilities.ts",
-              "src/lib/auth/store-rbac.ts",
-              "src/lib/digital-office/access.ts",
-              "src/lib/navigation/admin-ia.ts"
+              "scripts/shoperation-verification-checkpoint.mjs",
+              "tests/control-plane-ecosystem-chain.test.ts",
+              "tests/shoperation-resumable-verification.test.ts"
             ],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "supabase/customer-baseline/manifest.json",
-                "tests/customer-email-plan-split.test.ts",
-                "tests/shoperation-operational-intelligence.test.ts",
-                "tests/shoperation-sentinel-integrity.test.ts"
+                ".github/workflows/template-factory-quality-gate.yml",
+                "scripts/shoperation-external-proof-handoff.mjs",
+                "tests/shoperation-external-proof-handoff.test.ts"
               ],
               "filesAbsent": []
             },
@@ -829,7 +698,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "6bc5bff7",
+            "manifestDigest": "6e40a2b5",
             "decision": "PASS"
           }
         ],
@@ -842,14 +711,16 @@
         "contract": "shoporation.gate-chain.v1",
         "phase": "PLAN",
         "orderedGateIds": [
-          "GUARD-CUSTOMER-BASELINE",
           "GUARD-KNOWLEDGE-PREFLIGHT",
           "GUARD-PLAN-BEFORE-CODE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
           "GUARD-QUALITY-TESTS",
+          "GUARD-TYPECHECK",
+          "GUARD-PRODUCTION-BUILD",
+          "GUARD-COMPLETION-TRUTH",
           "GUARD-RELEASE-RISK",
-          "GUARD-TYPECHECK"
+          "GUARD-TEMPLATE-FACTORY"
         ],
         "currentPhaseGateIds": [
           "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -857,68 +728,95 @@
           "GUARD-RELEASE-RISK"
         ],
         "futureGateIds": [
-          "GUARD-CUSTOMER-BASELINE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
           "GUARD-QUALITY-TESTS",
-          "GUARD-TYPECHECK"
+          "GUARD-TYPECHECK",
+          "GUARD-PRODUCTION-BUILD",
+          "GUARD-COMPLETION-TRUTH",
+          "GUARD-TEMPLATE-FACTORY"
         ],
-        "externalGateIds": [],
+        "externalGateIds": [
+          "GUARD-TEMPLATE-FACTORY"
+        ],
         "issues": [],
         "decision": "PASS"
       }
     },
-    "executionAuthorized": true
+    "executionAuthorized": true,
+    "problemStatement": "The blocking Template Factory guard declares overly broad src/app/** semantic inputs while its producer workflow has narrower path filters. An unrelated Pro-only admin route update is therefore forced to await impossible exact-head external evidence although the canonical Template Factory runtime closure excludes it.",
+    "observableOutcomes": [
+      "A complete PASS runtime dependency closure and validated workflow trigger set may prove that an unrelated admin route change does not require a Template Factory external artifact.",
+      "If an actual template runtime, producer workflow, classification input or declared external completion dependency changes, the exact-head external proof must remain mandatory.",
+      "The producer workflow must trigger on changes to its own external proof classification code so those modifications receive the complete required external acceptance proof."
+    ],
+    "unresolvedRisks": [
+      "The source runtime graph or path-filter declaration may be incomplete: absent, malformed, or unresolved authority must fail closed and retain external proof requirements.",
+      "Explicit Completion Contract TF evidence references and transitive guard dependencies may not be waived by a runtime classification result."
+    ],
+    "scope": {
+      "in": [
+        "Exact-runtime external proof requirement classifier and fail-closed regression tests",
+        "Align Template Factory workflow triggers with its external proof classifier source"
+      ],
+      "out": [
+        "Disable or downgrade Template Factory browser proof",
+        "Change Template Factory runtime engine or acceptance criteria",
+        "Modify shop data, other gates, Vercel deployments or template generation"
+      ]
+    }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CORE-1186-U03-FRESH-INSTALL-ATTESTATION",
+    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-EXTERNAL-PROOF-ALIGNMENT",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
-        "GUARD-CUSTOMER-BASELINE",
         "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-EDIT-TIME",
         "GUARD-INCREMENTAL-REPLAY",
         "GUARD-QUALITY-TESTS",
+        "GUARD-TYPECHECK",
+        "GUARD-PRODUCTION-BUILD",
+        "GUARD-COMPLETION-TRUTH",
         "GUARD-RELEASE-RISK",
-        "GUARD-TYPECHECK"
+        "GUARD-TEMPLATE-FACTORY"
       ],
-      "externalGuards": [],
+      "externalGuards": [
+        "GUARD-TEMPLATE-FACTORY"
+      ],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-U03-FRESH-INSTALL-READY",
-        "requirement": "Attest actual successful Fresh Install 0046 preflight, migration, postflight and proof contract in customer baseline manifest, with no schema or customer data mutation.",
+        "id": "REQ-CP-TF-EXACT-SCOPE",
+        "requirement": "Template Factory external proof required if, and only if, proven relevant or uncertain canonical evidence dependency exists, including all explicit and transitive required proofs.",
         "claimScope": {
-          "capability": "CAP-RELEASE",
-          "breadth": "bounded-customer-baseline-attestation",
+          "capability": "CAP-QUALITY",
+          "breadth": "external-proof-dependency-boundary",
           "strength": 2,
           "dimensions": [
-            "status",
+            "scope",
             "evidence-scope",
             "forbidden-state"
           ]
         },
         "requiredCapabilities": [
-          "CAP-RELEASE"
+          "CAP-QUALITY"
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS",
             "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U03-STALE-HASH",
-            "statement": "A historic 0045 hash or fabricated proof must not mark 0046 ready.",
+            "id": "NEG-CP-TF-UNSAFE-EXCLUSION",
+            "statement": "Unknown, explicit or affected TF dependencies may never be dismissed as unrelated.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -926,11 +824,11 @@
         ]
       },
       {
-        "id": "REQ-U03-RELEASE-SCOPE",
-        "requirement": "Ensure metadata-only attestation does not assert live tenant deployment or entire #1186 capability closure.",
+        "id": "REQ-CP-TF-TRIGGER-PARITY",
+        "requirement": "Any changes to external proof classifier trigger exact-head Template Factory producer verification.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "bounded-proof-contract-release",
+          "breadth": "producer-trigger-parity",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -942,36 +840,25 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-RELEASE-RISK"
+            "GUARD-RELEASE-RISK",
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-RELEASE-RISK"
+            "GUARD-RELEASE-RISK",
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U03-OVERCLAIM",
-            "statement": "An isolated Fresh Install PASS must not be misreported as full workflow or issue 1186 completion.",
+            "id": "NEG-CP-TF-MISSING-WORKFLOW",
+            "statement": "The producer cannot omit its own classifier modifications from push or PR path triggers.",
             "evidence": [
-              "GUARD-RELEASE-RISK"
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "8012179fd425cf7e681276fe478d21d65a050ed5",
-    "closedAt": "2026-10-09T13:18:16.843Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-09-CORE-1186-U03-FRESH-INSTALL-ATTESTATION",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
 }
