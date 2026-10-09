@@ -18,6 +18,8 @@ const planMigration=read('supabase/migrations/20260910061815_customer_email_plan
 describe('Customer e-mail Alap / Pro plan split',()=>{
   it('keeps core customer email in both packages and advanced workflow Pro-only',()=>{
     expect(hasPlanFeature('alap','officeCommunication')).toBe(true);
+    expect(hasPlanFeature('alap','teamChat')).toBe(false);
+    expect(hasPlanFeature('pro','teamChat')).toBe(true);
     expect(hasPlanFeature('pro','officeCommunication')).toBe(true);
     expect(hasPlanFeature('alap','officeCommunicationAdvanced')).toBe(false);
     expect(hasPlanFeature('pro','officeCommunicationAdvanced')).toBe(true);

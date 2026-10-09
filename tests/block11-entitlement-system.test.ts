@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { addonCapabilityCode, capabilityReleaseState, isCapabilityReleased } from '../src/lib/entitlements/catalog';
+import { isOfficeFeatureAllowedBySubscription } from '../src/lib/plans/catalog';
 import { ENTITLEMENT_SOURCE_PRIORITY, resolveEntitlementCandidate, type EntitlementCandidate } from '../src/lib/entitlements/policy';
 
 const root=process.cwd();
@@ -41,6 +42,20 @@ describe('Roadmap Block 11 effective entitlement contract',()=>{
     expect(entitlementAccess).not.toContain('getPlatformRole');
   });
 
+  it('applies the server-owned plan floor before positive historical entitlement rows',()=>{
+    for(const source of ['plan','trial','manual','platform']){
+      expect(resolveEntitlementCandidate([row(source,true)],'store-1',now)?.enabled).toBe(true);
+      expect(isOfficeFeatureAllowedBySubscription('alap','teamChat')).toBe(false);
+    }
+    expect(isOfficeFeatureAllowedBySubscription('pro','teamChat')).toBe(true);
+    expect(entitlementAccess).toContain("select('organization_id,subscription_plan')");
+    expect(entitlementAccess).toContain('isOfficeFeatureAllowedBySubscription(instance.subscription_plan,capabilityCode)');
+    expect(entitlementAccess).toContain("source:'plan-boundary'");
+    expect(entitlementAccess).toContain("reason:'revoked'");
+    expect(entitlementAccess).toContain('if(eligibleCodes.length===0)return decisions');
+    expect(entitlementAccess).toContain(".in('feature_code',eligibleCodes)");
+    expect(entitlementAccess).not.toContain(".in('feature_code',releasedCodes)");
+  });
   it('models current add-ons as separate namespaced entitlements instead of Pro inheritance',()=>{
     expect(addonCapabilityCode('ai-assistant')).toBe('addon:ai-assistant');expect(addonCapabilityCode('advanced-export')).toBe('addon:advanced-export');expect(isCapabilityReleased(addonCapabilityCode('priority-support'))).toBe(true);
     expect(planAccess).toContain('getFeatureEntitlementDecisions(instance.id,capabilityCodes)');expect(planAccess).toContain('ADDONS[addon].compatiblePlans.includes(plan)');
