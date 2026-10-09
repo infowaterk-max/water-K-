@@ -79,4 +79,27 @@ describe('Engine authority scope classification',()=>{
     expect(resolved.directSubsystems).toContain('payment-checkout-order-authority');
     expect(resolved.directSubsystems).not.toContain('commerce-read-model-authority');
   });
+
+  it('classifies Core entitlement catalogs and tenant-aware access under the existing high-risk authorities',()=>{
+    const auth=risk.subsystems.find(item=>item.name==='auth-access-authority');
+    const identity=domains.domains.find(item=>item.id==='DOMAIN-IDENTITY');
+    const tenancy=domains.domains.find(item=>item.id==='DOMAIN-TENANCY');
+    expect(auth?.risk).toBe('high');
+    expect(identity?.owner).toBe('auth-access-authority');
+    expect(tenancy?.owner).toBe('tenant-context-authority');
+    for(const pattern of ['src/lib/plans/**','src/lib/entitlements/**']){
+      expect(auth?.patterns).toContain(pattern);
+      expect(risk.subsystems.filter(item=>item.patterns.includes(pattern)).map(item=>item.name)).toEqual(['auth-access-authority']);
+    }
+    expect(identity?.canonicalPaths).toEqual(expect.arrayContaining(['src/lib/plans/catalog.ts','src/lib/plans/addons.ts','src/lib/entitlements/catalog.ts']));
+    expect(tenancy?.canonicalPaths).toEqual(expect.arrayContaining(['src/lib/plans/access.ts','src/lib/entitlements/access.ts','src/lib/entitlements/policy.ts']));
+    expect(identity?.canonicalPaths).not.toContain('src/lib/plans/**');
+    for(const file of ['src/lib/plans/catalog.ts','src/lib/plans/access.ts','src/lib/entitlements/access.ts','src/lib/entitlements/policy.ts']){
+      const resolved=resolveShoperationKnowledgeScope({changedFiles:[file]});
+      expect(resolved.unresolvedFiles,file).toEqual([]);
+      expect(resolved.directSubsystems,file).toContain('auth-access-authority');
+    }
+    expect(risk.riskWeights.high).toBe(risk.maxPoints);
+  });
+
 });

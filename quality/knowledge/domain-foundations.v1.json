@@ -73,7 +73,10 @@
       ],
       "canonicalPaths": [
         "src/lib/auth/**",
-        "src/app/api/auth/**"
+        "src/app/api/auth/**",
+        "src/lib/plans/catalog.ts",
+        "src/lib/plans/addons.ts",
+        "src/lib/entitlements/catalog.ts"
       ],
       "evidenceObligations": [
         "auth contract tests",
@@ -121,7 +124,10 @@
       "canonicalPaths": [
         "src/lib/instances/**",
         "src/lib/auth/store-rbac.ts",
-        "src/lib/storefront/pilot-access.ts"
+        "src/lib/storefront/pilot-access.ts",
+        "src/lib/plans/access.ts",
+        "src/lib/entitlements/access.ts",
+        "src/lib/entitlements/policy.ts"
       ],
       "evidenceObligations": [
         "tenant isolation regression",
