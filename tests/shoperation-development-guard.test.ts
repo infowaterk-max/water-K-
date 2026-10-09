@@ -6,6 +6,17 @@ import {resolveShoperationKnowledgeScope} from '@/lib/quality-system/scope-resol
 const policy=JSON.parse(readFileSync('quality/knowledge/development-guard-policy.v1.json','utf8')) as {generalRules:string[];intentMatchers:{pattern:string;subsystems:string[]}[];directives:Record<string,{preventiveDirective:string;forbiddenApproaches:string[];requiredBeforeEdit:string[]}>;editRules:{id:string;severity:string;failureIds:string[]}[];negativeKnowledgeApplicability:Record<string,string[]>;};
 const scopePolicy=JSON.parse(readFileSync('quality/knowledge/knowledge-scope-policy.v1.json','utf8')) as {dependencies:Record<string,string[]>;knowledgeInfrastructurePrefixes:string[]};
 describe('Shoperation Development-Time Known Failure Guard',()=>{
+  it('resolves the exact communication worker send-time scope without broadening sibling libraries',()=>{
+    const policy=JSON.parse(readFileSync('deploy/release-risk-policy.json','utf8')) as {subsystems:{name:string;patterns:string[]}[]};
+    const admin=policy.subsystems.find(item=>item.name==='admin-operations');
+    expect(admin?.patterns).toContain('src/lib/communication/worker.ts');
+    expect(admin?.patterns).not.toContain('src/lib/communication/**');
+    const scope=resolveShoperationKnowledgeScope({changedFiles:['src/lib/communication/worker.ts']});
+    expect(scope.directSubsystems).toContain('admin-operations');
+    expect(scope.unresolvedFiles).toEqual([]);
+    const sibling=resolveShoperationKnowledgeScope({changedFiles:['src/lib/communication/identity.ts']});
+    expect(sibling.directSubsystems).not.toContain('admin-operations');
+  });
 
   it('keeps the canonical Development Guard entrypoint syntactically executable',()=>{
     expect(()=>execFileSync(process.execPath,['--check','scripts/shoperation-development-guard.mjs'],{cwd:process.cwd(),encoding:'utf8'})).not.toThrow();

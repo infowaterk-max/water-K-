@@ -6,6 +6,7 @@ describe('Shoperation Domain Foundations v1',()=>{
     const result=validateDomainFoundations();
     expect(result.ok).toBe(true);
     expect(getDomainFoundation('DOMAIN-ADMIN')?.canonicalPaths).toContain('src/app/api/admin/**');
+    expect(getDomainFoundation('DOMAIN-ADMIN')?.canonicalPaths).toContain('src/lib/communication/worker.ts');
     expect(result.issues).toEqual([]);
     expect(result.domainCount).toBe(13);
     expect(result.truthOwnerCount).toBeGreaterThan(30);
