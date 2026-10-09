@@ -1,26 +1,23 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CP-1186-U07-WORKER-AUTHORITY",
-  "task": "Control Plane prerequisite for #1186 U07: canonical worker send-time domain and release-risk authority for communication worker",
-  "status": "closed",
-  "guardDigest": "a41cfd0c",
-  "changeBaseSha": "a7375489a7443c6c43279d36dd868eea7fbba431",
+  "taskId": "DEV-CORE-1186-U07-OFFICE-WORKER",
+  "task": "Core 1186 U07: revalidate Pro-only Office support_reply entitlement at worker send time under downgrade revocation and retry while preserving Alap transactional messages",
+  "status": "ready-for-implementation",
+  "guardDigest": "6a5adc3d",
+  "changeBaseSha": "a562005e74a3ad9d144905599a5f4b9aa950aecf",
   "plannedFilePatterns": [
-    "deploy/release-risk-policy.json",
-    "quality/knowledge/domain-foundations.v1.json",
-    "tests/domain-foundations.test.ts",
-    "tests/shoperation-development-guard.test.ts"
+    "src/lib/communication/worker.ts",
+    "tests/communication-worker-failclosed.test.ts",
+    "tests/customer-email-plan-split.test.ts"
   ],
   "expectedSubsystems": [
-    "release-infrastructure"
+    "admin-operations"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-ADMIN"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "admin-operations"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -28,85 +25,33 @@
     "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-005",
-    "SQ-KF-006",
-    "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
-    "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
-    "SQ-KF-015",
     "SQ-KF-016",
-    "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
-    "SQ-KF-023",
-    "SQ-KF-024",
-    "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
-    "TF-KF-006",
-    "TF-KF-007",
-    "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "SQ-KF-017"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-016",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023"
+    "SQ-NK-001",
+    "SQ-NK-006",
+    "SQ-NK-008",
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CORE-1186-U07-WORKER-AUTHORITY-PREREQUISITE",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U07-WORKER-SEND-TIME",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Correct two independent canonical authority datasets before any protected worker implementation; retain fail-closed unknown path and verify both ownership contracts.",
+      "rationale": "An asynchronous service-role send can cross a Pro-to-Alap transition; use the canonical current entitlement resolver, bounded explicit blocking, no provider send on denied/unknown, and both positive and negative regression evidence. Do not claim atomicity with external provider.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
-        "negative-regression",
-        "boundary-cases",
-        "adversarial-scenarios",
-        "proof-dimension-check",
-        "risk-budget",
         "state-model",
         "what-if-matrix",
+        "adversarial-scenarios",
+        "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
         "fault-injection",
@@ -116,21 +61,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Development Guard resolves src/lib/communication/worker.ts to admin-operations with zero unresolved files.",
-        "Domain Foundations maps exactly src/lib/communication/worker.ts to DOMAIN-ADMIN, preserving domain count and unique owner invariants.",
-        "Pattern does not widen to all src/lib/communication/** or unrelated mail systems.",
-        "All existing guard/source-domain regression tests, critical Plan Before Code, Edit-Time/Reference Sync, Replay, Release Risk <=5, exact-head CI, Truth and Lifecycle pass."
+        "Worker uses getFeatureEntitlementDecision(instanceId,officeCommunicationAdvanced) for support_reply at every claimed-send attempt, including retries, after claim identity/template/purpose validation.",
+        "Decision enabled false (plan boundary, revocation or expiry) records permanent fail_communication_job_v2 with retry=false, increases blocked count, and skips provider.send.",
+        "Unverifiable/null decision or resolver failure never sends; existing bounded retry handles temporary lookup failure and eventually fails after retry budget.",
+        "Enforcement occurs before Office reply mailbox and attachments are loaded and before provider.send; record tenant-scoped job claim evidence.",
+        "Other transactional/marketing messages do not enter Office Pro gate and retain suppression and consent policies.",
+        "Negative tests distinguish Office denial, unknown entitlement and standard Alap communication, and preserve retry evidence.",
+        "Plan Before Code, Reference/Implementation Sync, Knowledge/Atlas, replay, Release Risk, exact-head CI, Completion Truth and lifecycle closure must all PASS; no gate waiver."
       ],
       "invariants": [
-        "The worker continues to use the canonical communication delivery pipeline with no code or runtime mutation in this prerequisite.",
-        "No bypass, suppression, or relaxation of Development Guard SCOPE_UNRESOLVED or domain truth requirements.",
-        "Existing DOMAIN-INTEGRATIONS and DOMAIN-COMMERCE source authority boundaries remain distinct."
+        "The only Office send authorization feature is the existing officeCommunicationAdvanced canonical entitlement decision; no second controller or copied catalog list.",
+        "Existing tenant mismatch, provider template purpose, suppression/consent checks and claim token completion remain unchanged.",
+        "No queries or sends for any other tenant in a claimed instance loop; query uses current instanceId.",
+        "No alteration of normal Alap transactional/marketing capability behavior, including order confirmation and stock_available jobs."
       ],
       "forbiddenStates": [
-        "A new wildcard maps unrelated notification/auth libraries as admin operations.",
-        "An unresolved worker scope is considered PASS by tweaking check behavior.",
-        "An unrelated Domain Foundation truth owner or role is reassigned.",
-        "A plan is marked DONE without exact-head CI Truth and Lifecycle."
+        "A queued support_reply send proceeds solely because it was authorized when enqueued or appears to be transactional.",
+        "A revoked or plan-downgraded tenant gets an Office reply or its attachment sent by the service-role worker.",
+        "An entitlement resolver read failure defaults to enabled or permits provider.send.",
+        "Any blanket advanced Office gate blocks all standard Alap customer email jobs.",
+        "Worker claim failure is swallowed without durable fail_communication_job_v2 evidence.",
+        "U07 claims to solve all persistent-data/transition risks or mark #1186 DONE."
       ]
     },
     "model": {
@@ -162,257 +113,321 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Worker omitted from release-risk mapping",
-        "Atlas domain owner missing even though release-risk maps worker",
-        "Wildcard reassigns other communication runtimes",
-        "Control Plane drifts between domain and scope policies",
-        "Tests assert domain count but not target path"
+        "Pro tenant queues support_reply then downgrades to Alap before claim",
+        "Entitlement row revoked or expired after enqueue but before provider send",
+        "Admin service role bypasses Next.js layout and prior Server Action authorization",
+        "Unknown or null entitlement caused by missing row or database outage",
+        "Provider failure after passing current Pro entitlement still follows existing retry handling",
+        "Mixed tenant queue job triggers tenant identity mismatch",
+        "Normal Alap order confirmation incorrectly classified as Office",
+        "Read check passes but plan revoked in post-query race before external send"
       ],
       "edgeCases": [
-        "Development Guard planned file at exact worker path",
-        "Sibling communication identity.ts stays unchanged/unclaimed",
-        "An Admin API file continues using its existing domain mapping",
-        "Exact entrypoint imported by cron remains in DOMAIN-ADMIN composition authority",
-        "Projected Risk of config files stays 4/5 and not a fake neutral classification"
+        "support_reply always follows canonical current feature decision regardless of transactional purpose",
+        "Unknown decision never treated as allowed",
+        "Plan-boundary revoked returns explicit disabled decision",
+        "Retry-attempt count 4 permits a transient recheck; 5 exhausts current bounded retries",
+        "No transient Office error accidentally becomes permanent merely because message starts OFFICE_",
+        "Ordinary marketing messages retain consent checks",
+        "Office attachment not loaded on blocked job",
+        "External provider send is an irreversible side-effect, no imaginary atomic guarantee"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-EXACT-WORKER-OWNER",
-        "summary": "Add only worker.ts to canonical admin/operations ownership and exact guard policy.",
+        "id": "ALT-SEND-TIME-CANONICAL",
+        "summary": "Tenant-scoped getFeatureEntitlementDecision immediately before Office reply data resolution and provider send.",
         "disposition": "selected",
-        "reason": "Least scoped change with accountable owner and no runtime effect."
+        "reason": "Uses existing authoritative plan/entitlement resolver with downgrade checks and per-attempt freshness."
       },
       {
-        "id": "ALT-WILDCARD",
-        "summary": "Cover all of src/lib/communication/** at once.",
+        "id": "ALT-QUEUED-FLAG",
+        "summary": "Rely on queued Office enqueue-time authorized boolean.",
         "disposition": "rejected",
-        "reason": "Overbroad cross-domain ownership conceals unrelated transactional infrastructure."
+        "reason": "Stale after revocation/downgrade and forgeable in the queue payload."
       },
       {
-        "id": "ALT-IGNORE-GUARD",
-        "summary": "Implement U07 with an unresolved scope and bypass Development Guard.",
+        "id": "ALT-BLOCK-ALL-TRANSACTIONAL",
+        "summary": "Require Pro for any transactional email worker job.",
         "disposition": "rejected",
-        "reason": "Violates the mandatory architecture and plan-before-code gates."
+        "reason": "Breaks Alap order confirmations, support notifications and stock alerts."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Architecture",
+        "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Domain Foundations DOMAIN-ADMIN currently covers src/app/admin and src/app/api/admin but no delegated office worker.",
-        "resolution": "Classify only the centrally dispatched communication worker runtime file.",
+        "finding": "Service-role queued mail bypasses U04/U05/U06 request-time entitlement checks and must be guarded just before send.",
+        "resolution": "Use canonical current tenant entitlement result; block disabled, retry unknown without sending.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json"
+          "src/lib/entitlements/access.ts"
         ]
       },
       {
-        "role": "Security",
+        "role": "Known Failure",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Admin ownership must not imply authorization of queued sends, and could create false worker-ready conclusions.",
-        "resolution": "Explicitly exclude implementation and issue closure; worker must be separately Pro-gated after downgrade.",
+        "finding": "support_reply has purpose transactional but Office-only; applying Pro to all purpose transactional would break Alap.",
+        "resolution": "Restrict to template_key support_reply and regression prove unrelated commerce emails unaffected.",
         "evidence": [
-          "src/lib/communication/worker.ts"
+          "src/lib/communication/templates.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Development Guard release-risk policy lacks pattern so the file is SCOPE_UNRESOLVED.",
-        "resolution": "Add only exact file to admin-operations and keep expected 4/5 policy-risk.",
+        "finding": "Claim-token persistence and retry handling must record either durable blocked send or bounded unknown-error retry.",
+        "resolution": "Use existing persistFailedClaim and attempts ceiling; never return success without provider send or persist evidence.",
         "evidence": [
-          "deploy/release-risk-policy.json"
+          "src/lib/communication/worker.ts"
         ]
       },
       {
-        "role": "Known Failure",
+        "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Prior Admin API authority class gap required canonical ownership change, not a guard bypass.",
-        "resolution": "Add explicit tests for actual domain owner and scope resolver with negative sibling check.",
+        "finding": "Canonical policy derives current entitlement after reading webshop_instances subscription_plan; bypassing it with direct feature_entitlements read loses the fail-closed plan-boundary rule.",
+        "resolution": "Import only existing server-side getFeatureEntitlementDecision and keep tenant scoping and RLS unchanged.",
         "evidence": [
-          "tests/domain-foundations.test.ts",
-          "tests/shoperation-development-guard.test.ts"
+          "src/lib/entitlements/access.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-CP-U07-1",
-        "scenario": "Unmapped worker planned path during release authority reconciliation and safety review of canonical communication worker ownership.",
-        "finding": "Guard would BLOCK U07 before code This threatens source truth, scope or preservation invariants.",
-        "resolution": "Add canonical exact release-risk pattern Verify with a negative test and retained mandatory gates before shipping.",
+        "id": "CH-U07-01",
+        "scenario": "Queued Pro Office reply after downgrade in asynchronous tenant-scoped communication worker with stale queued data.",
+        "finding": "Historical enqueue flag remains valid incorrectly This violates the declared worker fail-closed invariant if unhandled.",
+        "resolution": "Re-evaluate current tenant Pro and block Validate with current canonical entitlement and deterministic code/test evidence, without weakening existing guards.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-U07-2",
-        "scenario": "Missing Atlas domain owner during release authority reconciliation and safety review of canonical communication worker ownership.",
-        "finding": "Domain runtime truth unknown This threatens source truth, scope or preservation invariants.",
-        "resolution": "Add canonical DOMAIN-ADMIN exact path Verify with a negative test and retained mandatory gates before shipping.",
+        "id": "CH-U07-02",
+        "scenario": "Stale enabled row on Alap in asynchronous tenant-scoped communication worker with stale queued data.",
+        "finding": "Manual row could bypass catalog only lookup This violates the declared worker fail-closed invariant if unhandled.",
+        "resolution": "Canonical plan boundary denies Validate with current canonical entitlement and deterministic code/test evidence, without weakening existing guards.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-U07-3",
-        "scenario": "Overbroad wildcard during release authority reconciliation and safety review of canonical communication worker ownership.",
-        "finding": "Other delivery code ownership drifts This threatens source truth, scope or preservation invariants.",
-        "resolution": "Keep exact worker.ts path Verify with a negative test and retained mandatory gates before shipping.",
+        "id": "CH-U07-03",
+        "scenario": "Explicit revoked entitlement in asynchronous tenant-scoped communication worker with stale queued data.",
+        "finding": "Provider could still send queued retry This violates the declared worker fail-closed invariant if unhandled.",
+        "resolution": "Fail claim retry false, never call provider Validate with current canonical entitlement and deterministic code/test evidence, without weakening existing guards.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-U07-4",
-        "scenario": "Worker live sends during release authority reconciliation and safety review of canonical communication worker ownership.",
-        "finding": "Authority patch could be confused with send validation This threatens source truth, scope or preservation invariants.",
-        "resolution": "Explicitly exclude worker modification Verify with a negative test and retained mandatory gates before shipping.",
+        "id": "CH-U07-04",
+        "scenario": "Missing entitlement candidate in asynchronous tenant-scoped communication worker with stale queued data.",
+        "finding": "Null decision could be treated permissive This violates the declared worker fail-closed invariant if unhandled.",
+        "resolution": "Fail closed and bounded retry Validate with current canonical entitlement and deterministic code/test evidence, without weakening existing guards.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-U07-5",
-        "scenario": "Existing Admin API during release authority reconciliation and safety review of canonical communication worker ownership.",
-        "finding": "Old domain owner accidentally overwritten This threatens source truth, scope or preservation invariants.",
-        "resolution": "Retain original canonical paths Verify with a negative test and retained mandatory gates before shipping.",
+        "id": "CH-U07-05",
+        "scenario": "Entitlement read outage in asynchronous tenant-scoped communication worker with stale queued data.",
+        "finding": "Operational retry should not destroy unknown send This violates the declared worker fail-closed invariant if unhandled.",
+        "resolution": "Throw distinct retryable non-OFFICE error Validate with current canonical entitlement and deterministic code/test evidence, without weakening existing guards.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-U07-6",
-        "scenario": "Non-worker sibling during release authority reconciliation and safety review of canonical communication worker ownership.",
-        "finding": "Sibling identity would be swept into admin This threatens source truth, scope or preservation invariants.",
-        "resolution": "Assert no accidental broad pattern Verify with a negative test and retained mandatory gates before shipping.",
+        "id": "CH-U07-06",
+        "scenario": "Mixed tenant instance_id in asynchronous tenant-scoped communication worker with stale queued data.",
+        "finding": "Wrong tenant entitlement could be read This violates the declared worker fail-closed invariant if unhandled.",
+        "resolution": "Preserve preexisting tenant mismatch before query Validate with current canonical entitlement and deterministic code/test evidence, without weakening existing guards.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-U07-7",
-        "scenario": "Risk>5 during release authority reconciliation and safety review of canonical communication worker ownership.",
-        "finding": "Multi-authority change exceeds release budget This threatens source truth, scope or preservation invariants.",
-        "resolution": "Keep two canonical policy files and tests only Verify with a negative test and retained mandatory gates before shipping.",
+        "id": "CH-U07-07",
+        "scenario": "Transactional order confirmation in Alap in asynchronous tenant-scoped communication worker with stale queued data.",
+        "finding": "Broad Pro guard stops normal commerce This violates the declared worker fail-closed invariant if unhandled.",
+        "resolution": "Gate support_reply only Validate with current canonical entitlement and deterministic code/test evidence, without weakening existing guards.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-U07-8",
-        "scenario": "Unknown source during release authority reconciliation and safety review of canonical communication worker ownership.",
-        "finding": "Fail-closed should not become soft warning This threatens source truth, scope or preservation invariants.",
-        "resolution": "Do not edit Development Guard runtime Verify with a negative test and retained mandatory gates before shipping.",
+        "id": "CH-U07-08",
+        "scenario": "Marketing email with consent in asynchronous tenant-scoped communication worker with stale queued data.",
+        "finding": "Office guard accidentally masks marketing rules This violates the declared worker fail-closed invariant if unhandled.",
+        "resolution": "Preserve consent and suppression behavior Validate with current canonical entitlement and deterministic code/test evidence, without weakening existing guards.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U07-09",
+        "scenario": "Attachment job revoked in asynchronous tenant-scoped communication worker with stale queued data.",
+        "finding": "Office attachments loaded before entitlement This violates the declared worker fail-closed invariant if unhandled.",
+        "resolution": "Check before resolver and attachments Validate with current canonical entitlement and deterministic code/test evidence, without weakening existing guards.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U07-10",
+        "scenario": "Provider external commit race in asynchronous tenant-scoped communication worker with stale queued data.",
+        "finding": "Revocation after query before provider send This violates the declared worker fail-closed invariant if unhandled.",
+        "resolution": "Limit accepted scope; do not falsely claim atomicity Validate with current canonical entitlement and deterministic code/test evidence, without weakening existing guards.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run critical Plan Before Code against the exact policy, domain and regression-test files.",
-      "Verify Development Guard resolves worker.ts under admin-operations only and sibling src/lib/communication/identity.ts remains outside exact pattern.",
-      "Verify Domain Foundations contains worker.ts in DOMAIN-ADMIN and graph remains valid and acyclic.",
-      "Run Knowledge/Deep Atlas, Edit-Time Reference Sync, Incremental Replay and Release Risk with unchanged enforcement.",
-      "Require exact-head GitHub CI/Truth/Lifecycle before merge; create U07 worker implementation in a separate unit on fresh main."
+      "Run critical Plan Before Code against worker-only implementation and two focused regression test files.",
+      "Prove using canonical feature decision and tenant plan boundary, not direct stale SQL rows.",
+      "Check false and null entail distinct durable block vs retry without provider or Office attachments.",
+      "Run targeted tests plus full TypeScript; verify unrelated order/marketing purposes bypass advanced gate.",
+      "Run Knowledge/Atlas, Edit-Time/Reference Sync, Incremental Replay, Release Risk and exact-head GitHub CI Truth/Lifecycle, then post-merge main CI."
     ],
     "semanticExecutionRoute": {
-      "request": "Control Plane prerequisite for #1186 U07: canonical worker send-time domain and release-risk authority for communication worker",
+      "request": "Core 1186 U07: revalidate Pro-only Office support_reply entitlement at worker send time under downgrade revocation and retry while preserving Alap transactional messages",
       "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
+        "admin-operations"
       ],
       "mustEdit": [
-        "deploy/release-risk-policy.json",
-        "quality/knowledge/domain-foundations.v1.json",
-        "tests/domain-foundations.test.ts",
-        "tests/shoperation-development-guard.test.ts"
+        "src/lib/communication/worker.ts",
+        "tests/communication-worker-failclosed.test.ts",
+        "tests/customer-email-plan-split.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "scripts/lib/shoperation-architecture-health.mjs",
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "scripts/lib/shoperation-development-runtime.mjs",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/lib/shoperation-reference-sync-runtime.mjs",
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-        "scripts/lib/shoperation-verification-reuse.mjs",
-        "scripts/release-risk-budget.mjs",
-        "scripts/release-unit-ci-context.mjs",
-        "scripts/release-unit-execute.mjs",
+        "docs/ROADMAP_BLOCK20_PLATFORM_ECOSYSTEM_ENTERPRISE_EXTENSIBILITY.md",
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+        "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+        "quality/knowledge/release-parent-closure-proofs/dev-post-merge-exact-main-ci-e2e-v2.json",
         "scripts/release-unit-github-runtime.mjs",
-        "scripts/release-unit-materialize.mjs",
-        "scripts/release-unit-orchestrate.mjs",
         "scripts/release-unit-parent-close.mjs",
-        "scripts/shoperation-close-development-plan.mjs",
-        "scripts/shoperation-codebase-atlas.mjs",
-        "scripts/shoperation-development-guard.mjs",
-        "scripts/shoperation-edit-time-guard.mjs",
-        "scripts/shoperation-external-proof-handoff.mjs",
-        "scripts/shoperation-incremental-replay.mjs",
-        "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-        "scripts/shoperation-knowledge-preflight.mjs",
-        "scripts/shoperation-plan-before-code.mjs",
-        "scripts/shoperation-sentinel-integrity-probe.mjs",
-        "scripts/shoperation-sentinel-scan.mjs",
-        "scripts/shoperation-truth-gate.mjs",
-        "src/lib/quality-system/architecture-constitution.ts",
-        "src/lib/quality-system/capability-evidence.ts",
-        "src/lib/quality-system/domain-foundations.ts",
-        "src/lib/quality-system/scope-resolver.ts",
-        "tests/architecture-constitution.test.ts",
-        "tests/capability-roadmap-evidence.test.ts",
-        "tests/control-plane-ecosystem-chain.test.ts",
-        "tests/control-plane-release-decomposition.test.ts",
-        "tests/control-plane-release-unit-execution-binding.test.ts",
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/deep-atlas-scan.test.ts",
-        "tests/dependency-security-contract.test.ts",
-        "tests/engine-authority-scope-classification.test.ts",
-        "tests/shoperation-change-impact-atlas.test.ts",
-        "tests/shoperation-codebase-atlas-v2.test.ts",
-        "tests/shoperation-external-proof-handoff.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts",
-        "tests/shoperation-proof-semantics.test.ts",
-        "tests/shoperation-quality-knowledge.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts",
-        "tests/template-factory-engine-functional-proof.test.ts"
+        "scripts/template-factory-product-owner-handoff.mjs",
+        "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
+        "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
+        "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
+        "src/app/admin/email-sablonok/brand-kit/page.tsx",
+        "src/app/admin/email-sablonok/page.tsx",
+        "src/app/admin/kampanyok/[id]/page.tsx",
+        "src/app/admin/kampanyok/page.tsx",
+        "src/app/admin/kommunikacio/felugyelet/page.tsx",
+        "src/app/admin/kommunikacio/iroda/page.tsx",
+        "src/app/admin/kommunikacio/tiltolista/page.tsx",
+        "src/app/admin/kuponok/page.tsx",
+        "src/app/admin/marketing/page.tsx",
+        "src/app/admin/novekedes/page.tsx",
+        "src/app/admin/page.tsx",
+        "src/app/admin/tartalom/page.tsx",
+        "src/app/admin/velemenyek/actions.ts",
+        "src/app/admin/velemenyek/page.tsx",
+        "src/app/api/account/b2b-quotes/route.ts",
+        "src/app/api/account/b2b/identity/route.ts",
+        "src/app/api/account/b2b/route.ts",
+        "src/app/api/account/checkout-recovery/route.ts",
+        "src/app/api/account/marketing-consent/route.ts",
+        "src/app/api/account/reseller-request/route.ts",
+        "src/app/api/account/returns/route.ts",
+        "src/app/api/account/support/[id]/messages/route.ts",
+        "src/app/api/admin/actions/proposal/route.ts",
+        "src/app/api/admin/actions/run/route.ts",
+        "src/app/api/admin/assurance/finding/route.ts",
+        "src/app/api/admin/assurance/run/route.ts",
+        "src/app/api/admin/automation/control/route.ts",
+        "src/app/api/admin/automation/events/route.ts",
+        "src/app/api/admin/automation/instance/route.ts",
+        "src/app/api/admin/automation/run/route.ts",
+        "src/app/api/admin/campaigns/manage/route.ts",
+        "src/app/api/admin/campaigns/route.ts",
+        "src/app/api/admin/catalog/bulk/route.ts",
+        "src/app/api/admin/catalog/copilot/route.ts",
+        "src/app/api/admin/catalog/copy/route.ts",
+        "src/app/api/admin/catalog/digital-assets/route.ts",
+        "src/app/api/admin/catalog/import-file/route.ts",
+        "src/app/api/admin/catalog/import/route.ts",
+        "src/app/api/admin/catalog/media/presentation/route.ts",
+        "src/app/api/admin/catalog/media/route.ts",
+        "src/app/api/admin/catalog/onboarding/route.ts",
+        "src/app/api/admin/catalog/product-documents/route.ts",
+        "src/app/api/admin/catalog/products/[id]/publish/route.ts",
+        "src/app/api/admin/commercial/actions/route.ts",
+        "src/app/api/admin/communication/enqueue/route.ts",
+        "src/app/api/admin/communication/manage/route.ts",
+        "src/app/api/admin/communication/suppression/route.ts",
+        "src/app/api/admin/content/[id]/route.ts",
+        "src/app/api/admin/content/route.ts",
+        "src/app/api/admin/coupons/route.ts",
+        "src/app/api/admin/email-builder/brand-kit/route.ts",
+        "src/app/api/admin/email-builder/preview/route.ts",
+        "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
+        "src/app/api/admin/email-builder/saved-blocks/route.ts",
+        "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
+        "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
+        "src/app/api/admin/email-builder/templates/[id]/route.ts",
+        "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
+        "src/app/api/admin/email-builder/templates/route.ts",
+        "src/app/api/admin/growth/run/route.ts",
+        "src/app/api/admin/promotions/preview/route.ts",
+        "src/app/api/cron/integrations/route.ts",
+        "src/app/api/internal/communication-worker/route.ts",
+        "src/lib/auth/store-capabilities.ts",
+        "src/lib/auth/store-rbac.ts",
+        "src/lib/digital-office/access.ts",
+        "src/lib/navigation/admin-ia.ts",
+        "tests/cron-tenant-worker-closure.test.ts"
       ],
       "mustCreate": [],
       "forbidden": [],
       "proof": [
-        "tests/architecture-constitution.test.ts",
-        "tests/architecture-health.test.ts",
-        "tests/capability-roadmap-evidence.test.ts",
-        "tests/control-plane-ecosystem-chain.test.ts",
-        "tests/control-plane-release-decomposition.test.ts",
+        "tests/admin-api-tenant-mutation-closure.test.ts",
+        "tests/admin-growth-refresh-evidence.test.ts",
+        "tests/admin-route-rbac.test.ts",
+        "tests/block11-entitlement-system.test.ts",
+        "tests/block12-migration-assistant.test.ts",
+        "tests/block14-catalog-onboarding-import-ux.test.ts",
+        "tests/block16-commerce-recovery-integration.test.ts",
+        "tests/block18-ai-assisted-decisioning.test.ts",
+        "tests/block19-predictive-optimization-autonomy.test.ts",
+        "tests/block20-platform-ecosystem.test.ts",
+        "tests/block5-role-aware-ui.test.ts",
+        "tests/block7-b2b-account-ownership.test.ts",
+        "tests/campaign-creation-fail-closed.test.ts",
+        "tests/campaign-lifecycle-evidence-atomicity.test.ts",
+        "tests/cart-style-quantity-control.test.tsx",
         "tests/control-plane-release-unit-execution-binding.test.ts",
         "tests/control-plane-release-unit-orchestration.test.ts",
         "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/deep-atlas-scan.test.ts",
-        "tests/dependency-security-contract.test.ts",
+        "tests/cron-tenant-worker-closure.test.ts",
+        "tests/customer-email-plan-split.test.ts",
         "tests/digital-commerce-builder-integration.test.tsx",
-        "tests/domain-foundations.test.ts",
-        "tests/engine-authority-scope-classification.test.ts",
-        "tests/playroom-v20-canonical-shell-content.test.ts",
-        "tests/release-unit-materialization.test.ts",
+        "tests/digital-office-chat-composer-hardening.test.ts",
+        "tests/digital-office-internal-chat-capability-gate.test.ts",
+        "tests/digital-office-private-attachments.test.ts",
+        "tests/digital-office-support-ticket-integration.test.ts",
+        "tests/digital-office-unified-ui.test.ts",
+        "tests/email-builder-d1-admin-shell.test.ts",
+        "tests/email-builder-d2-editor.test.ts",
+        "tests/email-builder-foundation-b.test.ts",
+        "tests/email-builder-publication-lifecycle.test.ts",
+        "tests/email-builder-saved-blocks.test.ts",
+        "tests/event-driven-workflow-automation.test.ts",
+        "tests/executive-analytics-ux-closure.test.ts",
+        "tests/fine-grained-store-rbac.test.ts",
+        "tests/merchant-admin-tenant-closure.test.ts",
+        "tests/merchant-read-page-scope.test.ts",
+        "tests/order-lifecycle-contracts.test.ts",
+        "tests/pilot-acceptance-access.test.ts",
+        "tests/post-purchase-service-contracts.test.ts",
+        "tests/pro-entitlement-guards.test.ts",
+        "tests/product-documents-merchant-acceptance.test.ts",
+        "tests/product-documents-product-scoped-ux.test.ts",
+        "tests/product-intake-center-v2.test.ts",
         "tests/roadmap-block21-page-schema-templates.test.ts",
+        "tests/roadmap-block22-schema-policy.test.ts",
         "tests/roadmap-block22-visual-builder.test.ts",
-        "tests/shoperation-change-impact-atlas.test.ts",
-        "tests/shoperation-codebase-atlas-v2.test.ts",
-        "tests/shoperation-development-guard.test.ts",
-        "tests/shoperation-external-proof-handoff.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts",
-        "tests/shoperation-proof-semantics.test.ts",
-        "tests/shoperation-quality-knowledge.test.ts",
-        "tests/shoperation-resumable-verification.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts",
-        "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
-        "tests/storefront-account-shell.test.ts",
-        "tests/storefront-beauty-lab-reference-v28.test.ts",
-        "tests/storefront-cart-presentation-contract.test.ts",
-        "tests/storefront-commerce-fidelity-slots.test.tsx",
-        "tests/storefront-core-commerce.test.ts",
-        "tests/storefront-fidelity-behavior.test.tsx",
-        "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
-        "tests/storefront-pilot-acceptance-authority.test.ts",
-        "tests/storefront-playroom-v18-image-slots.test.ts",
-        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
-        "tests/storefront-template-quality-gate-v2.test.ts",
-        "tests/template-factory-engine-functional-proof-entry.test.ts",
-        "tests/template-factory-engine-functional-proof-runner.test.ts",
-        "tests/template-factory-engine-functional-proof.test.ts",
-        "tests/template-factory-resumable-verification.test.ts",
-        "tests/template-factory-scaffold-v1.test.ts"
+        "tests/special-commerce-wave5-existing-engine-closure.test.ts",
+        "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
+        "tests/special-commerce-wave7-template2-adoption.test.ts",
+        "tests/storefront-auth-intent-checkout.test.ts",
+        "tests/storefront-beauty-lab-reference-v2.test.ts",
+        "tests/storefront-component-variants.test.ts",
+        "tests/storefront-editorial-atelier-template.test.tsx",
+        "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
+        "tests/storefront-fidelity-security.test.ts",
+        "tests/storefront-global-styles.test.ts",
+        "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
+        "tests/storefront-interactive-scene-commerce.test.tsx",
+        "tests/storefront-modern-luxe-template.test.tsx",
+        "tests/storefront-modern-luxe-wave46-reacceptance.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -423,157 +438,197 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "deploy/release-risk-policy.json",
-          "quality/knowledge/domain-foundations.v1.json",
-          "tests/domain-foundations.test.ts",
-          "tests/shoperation-development-guard.test.ts"
+          "src/lib/communication/worker.ts",
+          "tests/communication-worker-failclosed.test.ts",
+          "tests/customer-email-plan-split.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [
-          "scripts/lib/shoperation-architecture-health.mjs",
-          "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-          "scripts/lib/shoperation-development-runtime.mjs",
-          "scripts/lib/shoperation-operational-intelligence.mjs",
-          "scripts/lib/shoperation-reference-sync-runtime.mjs",
-          "scripts/lib/shoperation-release-unit-runtime.mjs",
-          "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-          "scripts/lib/shoperation-verification-reuse.mjs",
-          "scripts/release-risk-budget.mjs",
-          "scripts/release-unit-ci-context.mjs",
-          "scripts/release-unit-execute.mjs",
+          "docs/ROADMAP_BLOCK20_PLATFORM_ECOSYSTEM_ENTERPRISE_EXTENSIBILITY.md",
+          "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+          "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+          "quality/knowledge/release-parent-closure-proofs/dev-post-merge-exact-main-ci-e2e-v2.json",
           "scripts/release-unit-github-runtime.mjs",
-          "scripts/release-unit-materialize.mjs",
-          "scripts/release-unit-orchestrate.mjs",
           "scripts/release-unit-parent-close.mjs",
-          "scripts/shoperation-close-development-plan.mjs",
-          "scripts/shoperation-codebase-atlas.mjs",
-          "scripts/shoperation-development-guard.mjs",
-          "scripts/shoperation-edit-time-guard.mjs",
-          "scripts/shoperation-external-proof-handoff.mjs",
-          "scripts/shoperation-incremental-replay.mjs",
-          "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-          "scripts/shoperation-knowledge-preflight.mjs",
-          "scripts/shoperation-plan-before-code.mjs",
-          "scripts/shoperation-sentinel-integrity-probe.mjs",
-          "scripts/shoperation-sentinel-scan.mjs",
-          "scripts/shoperation-truth-gate.mjs",
-          "src/lib/quality-system/architecture-constitution.ts",
-          "src/lib/quality-system/capability-evidence.ts",
-          "src/lib/quality-system/domain-foundations.ts",
-          "src/lib/quality-system/scope-resolver.ts",
-          "tests/architecture-constitution.test.ts",
-          "tests/capability-roadmap-evidence.test.ts",
-          "tests/control-plane-ecosystem-chain.test.ts",
-          "tests/control-plane-release-decomposition.test.ts",
-          "tests/control-plane-release-unit-execution-binding.test.ts",
-          "tests/control-plane-release-unit-production-surface.test.ts",
-          "tests/deep-atlas-scan.test.ts",
-          "tests/dependency-security-contract.test.ts",
-          "tests/engine-authority-scope-classification.test.ts",
-          "tests/shoperation-change-impact-atlas.test.ts",
-          "tests/shoperation-codebase-atlas-v2.test.ts",
-          "tests/shoperation-external-proof-handoff.test.ts",
-          "tests/shoperation-operational-intelligence.test.ts",
-          "tests/shoperation-proof-semantics.test.ts",
-          "tests/shoperation-quality-knowledge.test.ts",
-          "tests/shoperation-semantic-execution-intelligence.test.ts",
-          "tests/template-factory-engine-functional-proof.test.ts"
+          "scripts/template-factory-product-owner-handoff.mjs",
+          "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
+          "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
+          "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
+          "src/app/admin/email-sablonok/brand-kit/page.tsx",
+          "src/app/admin/email-sablonok/page.tsx",
+          "src/app/admin/kampanyok/[id]/page.tsx",
+          "src/app/admin/kampanyok/page.tsx",
+          "src/app/admin/kommunikacio/felugyelet/page.tsx",
+          "src/app/admin/kommunikacio/iroda/page.tsx",
+          "src/app/admin/kommunikacio/tiltolista/page.tsx",
+          "src/app/admin/kuponok/page.tsx",
+          "src/app/admin/marketing/page.tsx",
+          "src/app/admin/novekedes/page.tsx",
+          "src/app/admin/page.tsx",
+          "src/app/admin/tartalom/page.tsx",
+          "src/app/admin/velemenyek/actions.ts",
+          "src/app/admin/velemenyek/page.tsx",
+          "src/app/api/account/b2b-quotes/route.ts",
+          "src/app/api/account/b2b/identity/route.ts",
+          "src/app/api/account/b2b/route.ts",
+          "src/app/api/account/checkout-recovery/route.ts",
+          "src/app/api/account/marketing-consent/route.ts",
+          "src/app/api/account/reseller-request/route.ts",
+          "src/app/api/account/returns/route.ts",
+          "src/app/api/account/support/[id]/messages/route.ts",
+          "src/app/api/admin/actions/proposal/route.ts",
+          "src/app/api/admin/actions/run/route.ts",
+          "src/app/api/admin/assurance/finding/route.ts",
+          "src/app/api/admin/assurance/run/route.ts",
+          "src/app/api/admin/automation/control/route.ts",
+          "src/app/api/admin/automation/events/route.ts",
+          "src/app/api/admin/automation/instance/route.ts",
+          "src/app/api/admin/automation/run/route.ts",
+          "src/app/api/admin/campaigns/manage/route.ts",
+          "src/app/api/admin/campaigns/route.ts",
+          "src/app/api/admin/catalog/bulk/route.ts",
+          "src/app/api/admin/catalog/copilot/route.ts",
+          "src/app/api/admin/catalog/copy/route.ts",
+          "src/app/api/admin/catalog/digital-assets/route.ts",
+          "src/app/api/admin/catalog/import-file/route.ts",
+          "src/app/api/admin/catalog/import/route.ts",
+          "src/app/api/admin/catalog/media/presentation/route.ts",
+          "src/app/api/admin/catalog/media/route.ts",
+          "src/app/api/admin/catalog/onboarding/route.ts",
+          "src/app/api/admin/catalog/product-documents/route.ts",
+          "src/app/api/admin/catalog/products/[id]/publish/route.ts",
+          "src/app/api/admin/commercial/actions/route.ts",
+          "src/app/api/admin/communication/enqueue/route.ts",
+          "src/app/api/admin/communication/manage/route.ts",
+          "src/app/api/admin/communication/suppression/route.ts",
+          "src/app/api/admin/content/[id]/route.ts",
+          "src/app/api/admin/content/route.ts",
+          "src/app/api/admin/coupons/route.ts",
+          "src/app/api/admin/email-builder/brand-kit/route.ts",
+          "src/app/api/admin/email-builder/preview/route.ts",
+          "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
+          "src/app/api/admin/email-builder/saved-blocks/route.ts",
+          "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
+          "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
+          "src/app/api/admin/email-builder/templates/[id]/route.ts",
+          "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
+          "src/app/api/admin/email-builder/templates/route.ts",
+          "src/app/api/admin/growth/run/route.ts",
+          "src/app/api/admin/promotions/preview/route.ts",
+          "src/app/api/cron/integrations/route.ts",
+          "src/app/api/internal/communication-worker/route.ts",
+          "src/lib/auth/store-capabilities.ts",
+          "src/lib/auth/store-rbac.ts",
+          "src/lib/digital-office/access.ts",
+          "src/lib/navigation/admin-ia.ts",
+          "tests/cron-tenant-worker-closure.test.ts"
         ],
         "mustCreate": [],
         "forbidden": [],
         "proof": [
-          "tests/architecture-constitution.test.ts",
-          "tests/architecture-health.test.ts",
-          "tests/capability-roadmap-evidence.test.ts",
-          "tests/control-plane-ecosystem-chain.test.ts",
-          "tests/control-plane-release-decomposition.test.ts",
+          "tests/admin-api-tenant-mutation-closure.test.ts",
+          "tests/admin-growth-refresh-evidence.test.ts",
+          "tests/admin-route-rbac.test.ts",
+          "tests/block11-entitlement-system.test.ts",
+          "tests/block12-migration-assistant.test.ts",
+          "tests/block14-catalog-onboarding-import-ux.test.ts",
+          "tests/block16-commerce-recovery-integration.test.ts",
+          "tests/block18-ai-assisted-decisioning.test.ts",
+          "tests/block19-predictive-optimization-autonomy.test.ts",
+          "tests/block20-platform-ecosystem.test.ts",
+          "tests/block5-role-aware-ui.test.ts",
+          "tests/block7-b2b-account-ownership.test.ts",
+          "tests/campaign-creation-fail-closed.test.ts",
+          "tests/campaign-lifecycle-evidence-atomicity.test.ts",
+          "tests/cart-style-quantity-control.test.tsx",
           "tests/control-plane-release-unit-execution-binding.test.ts",
           "tests/control-plane-release-unit-orchestration.test.ts",
           "tests/control-plane-release-unit-production-surface.test.ts",
-          "tests/deep-atlas-scan.test.ts",
-          "tests/dependency-security-contract.test.ts",
+          "tests/cron-tenant-worker-closure.test.ts",
+          "tests/customer-email-plan-split.test.ts",
           "tests/digital-commerce-builder-integration.test.tsx",
-          "tests/domain-foundations.test.ts",
-          "tests/engine-authority-scope-classification.test.ts",
-          "tests/playroom-v20-canonical-shell-content.test.ts",
-          "tests/release-unit-materialization.test.ts",
+          "tests/digital-office-chat-composer-hardening.test.ts",
+          "tests/digital-office-internal-chat-capability-gate.test.ts",
+          "tests/digital-office-private-attachments.test.ts",
+          "tests/digital-office-support-ticket-integration.test.ts",
+          "tests/digital-office-unified-ui.test.ts",
+          "tests/email-builder-d1-admin-shell.test.ts",
+          "tests/email-builder-d2-editor.test.ts",
+          "tests/email-builder-foundation-b.test.ts",
+          "tests/email-builder-publication-lifecycle.test.ts",
+          "tests/email-builder-saved-blocks.test.ts",
+          "tests/event-driven-workflow-automation.test.ts",
+          "tests/executive-analytics-ux-closure.test.ts",
+          "tests/fine-grained-store-rbac.test.ts",
+          "tests/merchant-admin-tenant-closure.test.ts",
+          "tests/merchant-read-page-scope.test.ts",
+          "tests/order-lifecycle-contracts.test.ts",
+          "tests/pilot-acceptance-access.test.ts",
+          "tests/post-purchase-service-contracts.test.ts",
+          "tests/pro-entitlement-guards.test.ts",
+          "tests/product-documents-merchant-acceptance.test.ts",
+          "tests/product-documents-product-scoped-ux.test.ts",
+          "tests/product-intake-center-v2.test.ts",
           "tests/roadmap-block21-page-schema-templates.test.ts",
+          "tests/roadmap-block22-schema-policy.test.ts",
           "tests/roadmap-block22-visual-builder.test.ts",
-          "tests/shoperation-change-impact-atlas.test.ts",
-          "tests/shoperation-codebase-atlas-v2.test.ts",
-          "tests/shoperation-development-guard.test.ts",
-          "tests/shoperation-external-proof-handoff.test.ts",
-          "tests/shoperation-operational-intelligence.test.ts",
-          "tests/shoperation-proof-semantics.test.ts",
-          "tests/shoperation-quality-knowledge.test.ts",
-          "tests/shoperation-resumable-verification.test.ts",
-          "tests/shoperation-semantic-execution-intelligence.test.ts",
-          "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
-          "tests/storefront-account-shell.test.ts",
-          "tests/storefront-beauty-lab-reference-v28.test.ts",
-          "tests/storefront-cart-presentation-contract.test.ts",
-          "tests/storefront-commerce-fidelity-slots.test.tsx",
-          "tests/storefront-core-commerce.test.ts",
-          "tests/storefront-fidelity-behavior.test.tsx",
-          "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
-          "tests/storefront-pilot-acceptance-authority.test.ts",
-          "tests/storefront-playroom-v18-image-slots.test.ts",
-          "tests/storefront-playroom-v20-functional-acceptance.test.ts",
-          "tests/storefront-template-quality-gate-v2.test.ts",
-          "tests/template-factory-engine-functional-proof-entry.test.ts",
-          "tests/template-factory-engine-functional-proof-runner.test.ts",
-          "tests/template-factory-engine-functional-proof.test.ts",
-          "tests/template-factory-resumable-verification.test.ts",
-          "tests/template-factory-scaffold-v1.test.ts"
+          "tests/special-commerce-wave5-existing-engine-closure.test.ts",
+          "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
+          "tests/special-commerce-wave7-template2-adoption.test.ts",
+          "tests/storefront-auth-intent-checkout.test.ts",
+          "tests/storefront-beauty-lab-reference-v2.test.ts",
+          "tests/storefront-component-variants.test.ts",
+          "tests/storefront-editorial-atelier-template.test.tsx",
+          "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
+          "tests/storefront-fidelity-security.test.ts",
+          "tests/storefront-global-styles.test.ts",
+          "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
+          "tests/storefront-interactive-scene-commerce.test.tsx",
+          "tests/storefront-modern-luxe-template.test.tsx",
+          "tests/storefront-modern-luxe-wave46-reacceptance.test.ts"
         ],
         "authority": [
+          "admin-operations",
           "auth-access-authority",
-          "database-schema",
+          "builder-template-system",
+          "catalog-inventory-authority",
+          "commerce-core-authority",
+          "content-authority",
+          "integration-adapter-authority",
           "quality-knowledge-system",
-          "release-infrastructure",
+          "shared-storefront",
           "tenant-context-authority"
         ],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 4,
+        "score": 2,
         "maxPoints": 5,
-        "subsystemCount": 2,
+        "subsystemCount": 1,
         "maxSubsystems": 3,
         "subsystems": [
           {
-            "subsystem": "release-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "subsystem": "quality-infrastructure",
+            "subsystem": "admin-operations",
             "risk": "medium",
             "points": 2
           }
         ],
         "files": [
           {
-            "file": "deploy/release-risk-policy.json",
-            "subsystem": "release-infrastructure",
+            "file": "src/lib/communication/worker.ts",
+            "subsystem": "admin-operations",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "quality/knowledge/domain-foundations.v1.json",
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "file": "tests/domain-foundations.test.ts",
+            "file": "tests/communication-worker-failclosed.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "tests/shoperation-development-guard.test.ts",
+            "file": "tests/customer-email-plan-split.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -588,43 +643,32 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 4,
+          "score": 2,
           "maxPoints": 5,
-          "subsystemCount": 2,
+          "subsystemCount": 1,
           "maxSubsystems": 3,
           "subsystems": [
             {
-              "subsystem": "release-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "subsystem": "quality-infrastructure",
+              "subsystem": "admin-operations",
               "risk": "medium",
               "points": 2
             }
           ],
           "files": [
             {
-              "file": "deploy/release-risk-policy.json",
-              "subsystem": "release-infrastructure",
+              "file": "src/lib/communication/worker.ts",
+              "subsystem": "admin-operations",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "quality/knowledge/domain-foundations.v1.json",
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "file": "tests/domain-foundations.test.ts",
+              "file": "tests/communication-worker-failclosed.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "tests/shoperation-development-guard.test.ts",
+              "file": "tests/customer-email-plan-split.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -639,7 +683,7 @@
           {
             "id": 0,
             "files": [
-              "deploy/release-risk-policy.json"
+              "src/lib/communication/worker.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -649,15 +693,15 @@
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "release-infrastructure",
+                  "subsystem": "admin-operations",
                   "risk": "medium",
                   "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": "deploy/release-risk-policy.json",
-                  "subsystem": "release-infrastructure",
+                  "file": "src/lib/communication/worker.ts",
+                  "subsystem": "admin-operations",
                   "risk": "medium",
                   "points": 2
                 }
@@ -669,37 +713,7 @@
           {
             "id": 1,
             "files": [
-              "quality/knowledge/domain-foundations.v1.json"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "files": [
-                {
-                  "file": "quality/knowledge/domain-foundations.v1.json",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 2,
-            "files": [
-              "tests/domain-foundations.test.ts"
+              "tests/communication-worker-failclosed.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -710,7 +724,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/domain-foundations.test.ts",
+                  "file": "tests/communication-worker-failclosed.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -721,9 +735,9 @@
             }
           },
           {
-            "id": 3,
+            "id": 2,
             "files": [
-              "tests/shoperation-development-guard.test.ts"
+              "tests/customer-email-plan-split.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -734,7 +748,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-development-guard.test.ts",
+                  "file": "tests/customer-email-plan-split.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -752,97 +766,81 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "a7375489a7443c6c43279d36dd868eea7fbba431"
+              "developmentBaseSha": "a562005e74a3ad9d144905599a5f4b9aa950aecf"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "a7375489a7443c6c43279d36dd868eea7fbba431",
+            "targetBaseSha": "a562005e74a3ad9d144905599a5f4b9aa950aecf",
             "lease": {
-              "expectedBaseSha": "a7375489a7443c6c43279d36dd868eea7fbba431",
+              "expectedBaseSha": "a562005e74a3ad9d144905599a5f4b9aa950aecf",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "deploy/release-risk-policy.json",
-              "quality/knowledge/domain-foundations.v1.json",
-              "tests/domain-foundations.test.ts",
-              "tests/shoperation-development-guard.test.ts"
+              "src/lib/communication/worker.ts",
+              "tests/communication-worker-failclosed.test.ts",
+              "tests/customer-email-plan-split.test.ts"
             ],
             "operations": [
               {
                 "operation": "modify",
-                "file": "deploy/release-risk-policy.json",
+                "file": "src/lib/communication/worker.ts",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "quality/knowledge/domain-foundations.v1.json",
+                "file": "tests/communication-worker-failclosed.test.ts",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "tests/domain-foundations.test.ts",
-                "generated": null
-              },
-              {
-                "operation": "modify",
-                "file": "tests/shoperation-development-guard.test.ts",
+                "file": "tests/customer-email-plan-split.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [
-              "src/lib/quality-system/domain-foundations.ts",
-              "src/lib/quality-system/scope-resolver.ts",
-              "src/lib/quality-system/shoperation-knowledge.ts"
+              "src/lib/communication/identity.ts",
+              "src/lib/communication/office-email-attachments.ts",
+              "src/lib/communication/provider.ts",
+              "src/lib/communication/templates.ts",
+              "src/lib/plans/catalog.ts",
+              "src/lib/supabase/admin.ts"
             ],
             "authorities": [
-              "quality-knowledge-system",
-              "release-infrastructure"
+              "admin-operations"
             ],
             "subsystems": [
-              "release-infrastructure",
-              "quality-infrastructure"
+              "admin-operations"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 4,
+              "score": 2,
               "maxPoints": 5,
-              "subsystemCount": 2,
+              "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "subsystem": "quality-infrastructure",
+                  "subsystem": "admin-operations",
                   "risk": "medium",
                   "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": "deploy/release-risk-policy.json",
-                  "subsystem": "release-infrastructure",
+                  "file": "src/lib/communication/worker.ts",
+                  "subsystem": "admin-operations",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "quality/knowledge/domain-foundations.v1.json",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "file": "tests/domain-foundations.test.ts",
+                  "file": "tests/communication-worker-failclosed.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "tests/shoperation-development-guard.test.ts",
+                  "file": "tests/customer-email-plan-split.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -858,6 +856,7 @@
               "GUARD-KNOWLEDGE-PREFLIGHT",
               "GUARD-MARKET-READY",
               "GUARD-PLAN-BEFORE-CODE",
+              "GUARD-PRODUCTION-BUILD",
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK",
               "GUARD-TYPECHECK"
@@ -870,76 +869,106 @@
                 "GUARD-KNOWLEDGE-PREFLIGHT",
                 "GUARD-MARKET-READY",
                 "GUARD-PLAN-BEFORE-CODE",
+                "GUARD-PRODUCTION-BUILD",
                 "GUARD-QUALITY-TESTS",
                 "GUARD-RELEASE-RISK",
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/domain-foundations.test.ts",
-                "tests/shoperation-development-guard.test.ts"
+                "tests/communication-worker-failclosed.test.ts",
+                "tests/customer-email-plan-split.test.ts"
               ],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
             "readOnlyPaths": [
-              "scripts/lib/shoperation-architecture-health.mjs",
-              "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-              "scripts/lib/shoperation-development-runtime.mjs",
-              "scripts/lib/shoperation-operational-intelligence.mjs",
-              "scripts/lib/shoperation-reference-sync-runtime.mjs",
-              "scripts/lib/shoperation-release-unit-runtime.mjs",
-              "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-              "scripts/lib/shoperation-verification-reuse.mjs",
-              "scripts/release-risk-budget.mjs",
-              "scripts/release-unit-ci-context.mjs",
-              "scripts/release-unit-execute.mjs",
+              "docs/ROADMAP_BLOCK20_PLATFORM_ECOSYSTEM_ENTERPRISE_EXTENSIBILITY.md",
+              "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+              "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+              "quality/knowledge/release-parent-closure-proofs/dev-post-merge-exact-main-ci-e2e-v2.json",
               "scripts/release-unit-github-runtime.mjs",
-              "scripts/release-unit-materialize.mjs",
-              "scripts/release-unit-orchestrate.mjs",
               "scripts/release-unit-parent-close.mjs",
-              "scripts/shoperation-close-development-plan.mjs",
-              "scripts/shoperation-codebase-atlas.mjs",
-              "scripts/shoperation-development-guard.mjs",
-              "scripts/shoperation-edit-time-guard.mjs",
-              "scripts/shoperation-external-proof-handoff.mjs",
-              "scripts/shoperation-incremental-replay.mjs",
-              "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-              "scripts/shoperation-knowledge-preflight.mjs",
-              "scripts/shoperation-plan-before-code.mjs",
-              "scripts/shoperation-sentinel-integrity-probe.mjs",
-              "scripts/shoperation-sentinel-scan.mjs",
-              "scripts/shoperation-truth-gate.mjs",
-              "src/lib/quality-system/architecture-constitution.ts",
-              "src/lib/quality-system/capability-evidence.ts",
-              "src/lib/quality-system/domain-foundations.ts",
-              "src/lib/quality-system/scope-resolver.ts",
-              "tests/architecture-constitution.test.ts",
-              "tests/capability-roadmap-evidence.test.ts",
-              "tests/control-plane-ecosystem-chain.test.ts",
-              "tests/control-plane-release-decomposition.test.ts",
-              "tests/control-plane-release-unit-execution-binding.test.ts",
-              "tests/control-plane-release-unit-production-surface.test.ts",
-              "tests/deep-atlas-scan.test.ts",
-              "tests/dependency-security-contract.test.ts",
-              "tests/engine-authority-scope-classification.test.ts",
-              "tests/shoperation-change-impact-atlas.test.ts",
-              "tests/shoperation-codebase-atlas-v2.test.ts",
-              "tests/shoperation-external-proof-handoff.test.ts",
-              "tests/shoperation-operational-intelligence.test.ts",
-              "tests/shoperation-proof-semantics.test.ts",
-              "tests/shoperation-quality-knowledge.test.ts",
-              "tests/shoperation-semantic-execution-intelligence.test.ts",
-              "tests/template-factory-engine-functional-proof.test.ts"
+              "scripts/template-factory-product-owner-handoff.mjs",
+              "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
+              "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
+              "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
+              "src/app/admin/email-sablonok/brand-kit/page.tsx",
+              "src/app/admin/email-sablonok/page.tsx",
+              "src/app/admin/kampanyok/[id]/page.tsx",
+              "src/app/admin/kampanyok/page.tsx",
+              "src/app/admin/kommunikacio/felugyelet/page.tsx",
+              "src/app/admin/kommunikacio/iroda/page.tsx",
+              "src/app/admin/kommunikacio/tiltolista/page.tsx",
+              "src/app/admin/kuponok/page.tsx",
+              "src/app/admin/marketing/page.tsx",
+              "src/app/admin/novekedes/page.tsx",
+              "src/app/admin/page.tsx",
+              "src/app/admin/tartalom/page.tsx",
+              "src/app/admin/velemenyek/actions.ts",
+              "src/app/admin/velemenyek/page.tsx",
+              "src/app/api/account/b2b-quotes/route.ts",
+              "src/app/api/account/b2b/identity/route.ts",
+              "src/app/api/account/b2b/route.ts",
+              "src/app/api/account/checkout-recovery/route.ts",
+              "src/app/api/account/marketing-consent/route.ts",
+              "src/app/api/account/reseller-request/route.ts",
+              "src/app/api/account/returns/route.ts",
+              "src/app/api/account/support/[id]/messages/route.ts",
+              "src/app/api/admin/actions/proposal/route.ts",
+              "src/app/api/admin/actions/run/route.ts",
+              "src/app/api/admin/assurance/finding/route.ts",
+              "src/app/api/admin/assurance/run/route.ts",
+              "src/app/api/admin/automation/control/route.ts",
+              "src/app/api/admin/automation/events/route.ts",
+              "src/app/api/admin/automation/instance/route.ts",
+              "src/app/api/admin/automation/run/route.ts",
+              "src/app/api/admin/campaigns/manage/route.ts",
+              "src/app/api/admin/campaigns/route.ts",
+              "src/app/api/admin/catalog/bulk/route.ts",
+              "src/app/api/admin/catalog/copilot/route.ts",
+              "src/app/api/admin/catalog/copy/route.ts",
+              "src/app/api/admin/catalog/digital-assets/route.ts",
+              "src/app/api/admin/catalog/import-file/route.ts",
+              "src/app/api/admin/catalog/import/route.ts",
+              "src/app/api/admin/catalog/media/presentation/route.ts",
+              "src/app/api/admin/catalog/media/route.ts",
+              "src/app/api/admin/catalog/onboarding/route.ts",
+              "src/app/api/admin/catalog/product-documents/route.ts",
+              "src/app/api/admin/catalog/products/[id]/publish/route.ts",
+              "src/app/api/admin/commercial/actions/route.ts",
+              "src/app/api/admin/communication/enqueue/route.ts",
+              "src/app/api/admin/communication/manage/route.ts",
+              "src/app/api/admin/communication/suppression/route.ts",
+              "src/app/api/admin/content/[id]/route.ts",
+              "src/app/api/admin/content/route.ts",
+              "src/app/api/admin/coupons/route.ts",
+              "src/app/api/admin/email-builder/brand-kit/route.ts",
+              "src/app/api/admin/email-builder/preview/route.ts",
+              "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
+              "src/app/api/admin/email-builder/saved-blocks/route.ts",
+              "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
+              "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
+              "src/app/api/admin/email-builder/templates/[id]/route.ts",
+              "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
+              "src/app/api/admin/email-builder/templates/route.ts",
+              "src/app/api/admin/growth/run/route.ts",
+              "src/app/api/admin/promotions/preview/route.ts",
+              "src/app/api/cron/integrations/route.ts",
+              "src/app/api/internal/communication-worker/route.ts",
+              "src/lib/auth/store-capabilities.ts",
+              "src/lib/auth/store-rbac.ts",
+              "src/lib/digital-office/access.ts",
+              "src/lib/navigation/admin-ia.ts",
+              "tests/cron-tenant-worker-closure.test.ts"
             ],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "deploy/release-risk-policy.json",
-                "quality/knowledge/domain-foundations.v1.json",
-                "tests/domain-foundations.test.ts",
-                "tests/shoperation-development-guard.test.ts"
+                "src/lib/communication/worker.ts",
+                "tests/communication-worker-failclosed.test.ts",
+                "tests/customer-email-plan-split.test.ts"
               ],
               "filesAbsent": []
             },
@@ -954,7 +983,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "365be2cc",
+            "manifestDigest": "b5fdb12e",
             "decision": "PASS"
           }
         ],
@@ -973,9 +1002,10 @@
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
           "GUARD-MARKET-READY",
+          "GUARD-TYPECHECK",
+          "GUARD-PRODUCTION-BUILD",
           "GUARD-QUALITY-TESTS",
-          "GUARD-RELEASE-RISK",
-          "GUARD-TYPECHECK"
+          "GUARD-RELEASE-RISK"
         ],
         "currentPhaseGateIds": [
           "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -987,8 +1017,9 @@
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
           "GUARD-MARKET-READY",
-          "GUARD-QUALITY-TESTS",
-          "GUARD-TYPECHECK"
+          "GUARD-TYPECHECK",
+          "GUARD-PRODUCTION-BUILD",
+          "GUARD-QUALITY-TESTS"
         ],
         "externalGateIds": [],
         "issues": [],
@@ -996,33 +1027,36 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "A Pro-only Office support-reply worker U07 is blocked by actual Development Guard SCOPE_UNRESOLVED for src/lib/communication/worker.ts, and canonical Domain Foundations lacks ownership for that communication runtime. The prerequisite is precise worker mapping in existing release-risk and domain authority, not blanket src/lib scope or guard waiver.",
+    "problemStatement": "The asynchronous service-role communication worker claims and sends queued support_reply Office messages after enqueue-time authorization, without rechecking the current tenant Pro-only officeCommunicationAdvanced entitlement at send time. Alap downgrade, revocation, stale grants or retries could still release the email and office attachment payload. Preserve all normal Alap transactional/marketing customer messages.",
     "observableOutcomes": [
-      "The exact communication worker source is classified as admin-operations and DOMAIN-ADMIN in canonical Control Plane authorities.",
-      "New unit tests verify Domain Foundations and Development Guard resolve the worker without classifying unrelated libs.",
-      "U07 worker entitlement code remains unmodified, production tenant and customer emails untouched; subsequent unit must pass its own critical gates."
+      "A claimed support_reply job must prove the current tenant officeCommunicationAdvanced Pro entitlement before reading its Office reply mailbox or attachments and before calling provider.send.",
+      "An explicitly revoked, downgraded, expired or plan-boundary denied Office entitlement is a durable blocked job with fail_communication_job_v2 evidence (retry false), not sent.",
+      "Null, missing or temporarily unavailable entitlement proof fails closed without sending and retries only within the bounded existing claim retry policy.",
+      "Non-support_reply transactional/marketing/stock-notification jobs preserve existing send, consent, suppression and suppression-error retry semantics."
     ],
     "unresolvedRisks": [
-      "Overbroad src/lib/communication/** ownership may unintentionally reassign other pipelines; only the exact worker file is authorized.",
-      "Two authority files create medium release+quality risk; preserve budget 4/5 and all cross-domain graph invariants.",
-      "Release guard or domain changes could overclaim actual worker runtime correctness; this unit only classifies ownership, does not authorize worker sends."
+      "Already accepted provider sends cannot be recalled by an entitlement change racing after the send-time authorization query; avoid overclaiming atomic provider + DB transaction.",
+      "The service-role worker needs a canonical tenant-scoped entitlement resolver, never trusting stale queued feature rows or caller flags.",
+      "A missing entitlement candidate and database read failure both resolve null; the bounded retry policy must prevent sending while those states remain unresolved."
     ],
     "scope": {
       "in": [
-        "Exact worker-file pattern in admin-operations release risk policy",
-        "Canonical DOMAIN-ADMIN ownership path and corresponding regression tests"
+        "Bounded send-time Pro entitlement validation in src/lib/communication/worker.ts only for support_reply",
+        "Negative downgrade/revocation and null-proof retry contract tests",
+        "Alap normal commerce customer email regression assertions"
       ],
       "out": [
-        "Change worker code or queued jobs",
-        "Change communication entitlement policy or SQL",
-        "Edit production/staging DB, CI gate semantics, or broad library pattern",
-        "Declare #1186 done"
+        "Rearchitect communication worker queue or claim/recovery SQL",
+        "Modify Supabase migrations, RLS, entitlements or organization data",
+        "Suppress customer order/marketing/stock email sending",
+        "Change email template/provider, reader UI, Team Chat, API attachment routes",
+        "Mark #1186 completely DONE without persistent-data/transition proof"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CORE-1186-U07-WORKER-AUTHORITY-PREREQUISITE",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U07-WORKER-SEND-TIME",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -1032,29 +1066,30 @@
         "GUARD-EDIT-TIME",
         "GUARD-INCREMENTAL-REPLAY",
         "GUARD-MARKET-READY",
+        "GUARD-TYPECHECK",
+        "GUARD-PRODUCTION-BUILD",
         "GUARD-QUALITY-TESTS",
-        "GUARD-RELEASE-RISK",
-        "GUARD-TYPECHECK"
+        "GUARD-RELEASE-RISK"
       ],
       "externalGuards": [],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-U07-CP-SCOPE",
-        "requirement": "Canonical policy and domain ownership resolve exactly the Office communication worker for bounded U07 implementation.",
+        "id": "REQ-U07-SEND-TIME-OFFICE",
+        "requirement": "Every Office support_reply claimed job is blocked from sending if current canonical Pro officeCommunicationAdvanced entitlement is denied or unavailable, with distinguishable permanent denial vs bounded unknown-proof retry.",
         "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "worker-architecture-ownership",
+          "capability": "CAP-AUTH",
+          "breadth": "worker-office-send-time",
           "strength": 2,
           "dimensions": [
+            "behavioral-proof",
             "scope",
-            "regression",
             "forbidden-state"
           ]
         },
         "requiredCapabilities": [
-          "CAP-QUALITY"
+          "CAP-AUTH"
         ],
         "evidence": {
           "implementation": [
@@ -1066,8 +1101,42 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U07-CP-WILDCARD",
-            "statement": "No broad communication-library wildcard or unresolved worker source may pass as an exact bounded owner.",
+            "id": "NEG-U07-REVOKED-OFFICE-SEND",
+            "statement": "A revoked/downgraded/unknown Pro tenant cannot send Office mail via claimed worker job.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-U07-ALAP-COMMERCE",
+        "requirement": "Standard Alap transactional and marketing communication worker flows remain permitted under existing consent and suppression policy.",
+        "claimScope": {
+          "capability": "CAP-AUTH",
+          "breadth": "customer-notification-preservation",
+          "strength": 2,
+          "dimensions": [
+            "regression",
+            "scope",
+            "forbidden-state"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-AUTH"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-U07-ALAP-NOTIFICATIONS",
+            "statement": "Pro-only Office logic cannot disable Alap normal purchase, stock or marketing communications.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1076,18 +1145,5 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "d80868946b1b9866485bdd3d2b47f260364d1e43",
-    "closedAt": "2026-10-09T19:38:41.975Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-09-CORE-1186-U07-WORKER-AUTHORITY-PREREQUISITE",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
 }
