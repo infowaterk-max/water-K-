@@ -1,23 +1,27 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CP-ADMIN-API-DOMAIN-AUTHORITY",
-  "task": "Control Plane prerequisite: canonical DOMAIN-ADMIN authority for protected /api/admin routes including Digital Office attachments",
+  "taskId": "DEV-CORE-1186-U06-OFFICE-ATTACHMENT-API",
+  "task": "Core 1186 U06: Pro-only Digital Office e-mail attachment HTTP endpoints and shared source-specific downloads, preserving Team Chat attachments and Alap transactional email",
   "status": "closed",
-  "guardDigest": "2fe9c7b0",
-  "changeBaseSha": "f152620b23c764a2d98a1e1e56420da39aca1638",
+  "guardDigest": "1d1d5f53",
+  "changeBaseSha": "8702a390534f17b9788c522e4c3356e5ea7041e2",
   "plannedFilePatterns": [
-    "quality/knowledge/domain-foundations.v1.json",
-    "tests/shoperation-semantic-execution-intelligence.test.ts",
-    "tests/domain-foundations.test.ts"
+    "src/app/api/admin/office/email-attachments/prepare/route.ts",
+    "src/app/api/admin/office/email-attachments/scan/route.ts",
+    "src/app/api/admin/office/email-attachments/status/route.ts",
+    "src/app/api/admin/office/attachments/[id]/route.ts",
+    "tests/digital-office-private-attachments.test.ts",
+    "tests/pro-entitlement-guards.test.ts"
   ],
   "expectedSubsystems": [
-    "admin-operations"
+    "admin-operations",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-ADMIN"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "admin-operations"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -25,50 +29,12 @@
     "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
-    "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
-    "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
-    "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
-    "SQ-KF-023",
-    "SQ-KF-024",
-    "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
-    "TF-KF-006",
-    "TF-KF-007",
-    "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "TF-KF-006"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -80,11 +46,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-ADMIN-API-AUTHORITY",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U06-OFFICE-ATTACHMENT-HTTP",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Security-sensitive admin API authority must be established before implementing further entitlement guards. Explicit state/pairwise/fault challenges prove both formerly unclassified admin API paths and unaffected identity/checkout paths. Assurance is limited to domain metadata and deterministic graph/path classification; API execution and storage/RPC remain separate later release units.",
+      "rationale": "The direct HTTP attachment routes and shared download are reachable without rendering the Pro-only Office page. Adversarial, pairwise, failure and finite-state checks cover Alap/Pro, Team Chat and source type, explicit RBAC, tenant isolation and 403 responses. Assurance is bounded to four HTTP endpoints; storage/RPC and downgrade remain unresolved release units.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -101,22 +67,26 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "classifyAtlasPath(src/app/api/admin/office/email-attachments/prepare/route.ts) derives DOMAIN-ADMIN and admin-operations authority.",
-        "All current and planned /api/admin paths derive the same canonical authority using glob matching, including nested and bracketed parameters.",
-        "Identity /api/auth and checkout /api/checkout retain their independent domain ownership; admin UI remains unchanged.",
-        "Domain foundations registry validates with no overlaps or duplicated truth ownership; Codebase Atlas PASS.",
-        "Critical Plan Before Code, Sentinel integrity, Knowledge/Atlas, Reference/Implementation Sync, Incremental Replay, Release Risk, TypeScript, exact-head CI, Completion Truth and Lifecycle prove the release without gate downgrade."
+        "Prepare, scan, status guard with hasCurrentPlanFeature(officeCommunicationAdvanced), status 403, before tenant-scoped RPC or scan work.",
+        "Shared private download maps internal_upload to teamChatSecureAttachments and provider_inbound/customer_outbound to officeCommunicationAdvanced with unknown source fail-closed.",
+        "The shared download source is resolved from tenant-scoped metadata; no error path exposes metadata to unauthorized Alap.",
+        "Chat attachment upload/download behavior and Team Chat entitlement remain unchanged.",
+        "Alap support/officeCommunication remains enabled; Alap advanced Office absent, Pro advanced present; transactional email pipeline unchanged.",
+        "All target tests including adversarial negative cases, Plan Before Code, Knowledge/Deep Atlas, Reference/Implementation Sync, Incremental Replay, Release Risk, exact-head CI, external-proofs where required, Completion Truth, Lifecycle PASS."
       ],
       "invariants": [
-        "One canonical domain owner per truth key, no fabricated proof or control plane skip.",
-        "No runtime, database or production modification in this metadata-only fix.",
-        "Future /api/admin files must not be silently omitted from architecture ownership."
+        "Authentication and support.manage RBAC are required in the email upload endpoints prior to plan gate.",
+        "Current plan feature must be checked on each direct request; no reliance on parent route.",
+        "Shared download must not permit an unknown source or mismatch instance scope.",
+        "No change to email sending, order notifications, suppression or feature entitlement catalog.",
+        "Main CI/production and staging customer data are protected; no fresh installs or migrations in this unit."
       ],
       "forbiddenStates": [
-        "An existing or newly planned /api/admin route remains path-unclassified.",
-        "An identity or checkout route is reclassified as admin.",
-        "An owner authority is assigned solely through a local plan exception or missing-proof override.",
-        "The main #1186 issue or U06 runtime is claimed closed by this metadata PR."
+        "An Alap tenant can reserve, scan, poll or download Office email attachments by hitting an API directly.",
+        "A Team Chat file becomes inaccessible due to the Office email-specific Pro gate.",
+        "An unknown metadata source defaults to an allowed feature.",
+        "The shared route discloses tenant metadata before authentication/tenant scope.",
+        "The parent issue is marked DONE based only on HTTP guard tests without RPC/storage audit."
       ]
     },
     "model": {
@@ -148,281 +118,352 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Admin API plan blocked as architecture unresolved",
-        "Wrong canonical domain ownership for security-critical HTTP surface",
-        "Domain glob overlaps specific identity or commerce route",
-        "Atlas file graph stale",
-        "Plan Before Code false claim due registry drift"
+        "Direct request skips route layout",
+        "Branch mapping accidentally overconstrains Team Chat",
+        "Changed feature guard return 403 missing",
+        "Source-unrecognized fail-open",
+        "One of scan/status callers retains base entitlement",
+        "Cross-tenant metadata leak",
+        "Alap customer order emails broken by broad plan catalog change"
       ],
       "edgeCases": [
-        "Nested admin/office/email-attachments/prepare/route.ts",
-        "Bracketed [id] admin download route",
-        "New yet-untracked /api/admin endpoint path",
-        "Existing src/app/admin page path",
-        "Unrelated src/app/api/auth/login/route.ts",
-        "Unrelated src/app/api/checkout/route.ts",
-        "Other admin modules under nested paths",
-        "API schema path with quote characters"
+        "Forged POST to prepare without rendering UI",
+        "Forgery sends existing draft ID to scan under Alap",
+        "Status GET with Alap support.manage present",
+        "Download provider_inbound from Alap despite valid UUID",
+        "Download customer_outbound from Alap despite valid UUID",
+        "internal_upload file from Team Chat Pro tenant",
+        "Unknown source metadata",
+        "Malformed UUID or missing actor",
+        "Plan downgrade while still holding old signed client upload request"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-CANONICAL-ADMIN-API",
-        "summary": "Classify /api/admin/** in the Admin domain canonical path list.",
+        "id": "ALT-API-SOURCE-GATES",
+        "summary": "Enforce the canonical Pro entitlement on email HTTP endpoints and by shared attachment source.",
         "disposition": "selected",
-        "reason": "Consistent ownership across admin UI and HTTP route boundary."
+        "reason": "Protects every targeted direct API call without altering the distinct Team Chat entitlement."
       },
       {
-        "id": "ALT-WAIVE-PLAN-GATE",
-        "summary": "Allow security-critical APIs without a declared domain.",
+        "id": "ALT-RELY-ON-LAYOUT",
+        "summary": "Use the U04 parent Pro-only route gate to protect HTTP endpoints.",
         "disposition": "rejected",
-        "reason": "Violates fail-closed architecture authority semantics."
+        "reason": "HTTP calls never need to render the restricted page."
       },
       {
-        "id": "ALT-SPECIAL-OFFICE-ONLY",
-        "summary": "Add an office-specific allowlist only.",
+        "id": "ALT-GLOBAL-PRO",
+        "summary": "Change officeCommunication catalog to Pro-only or gate all attachment downloads with advanced Office feature.",
         "disposition": "rejected",
-        "reason": "Would leave neighboring administrative HTTP routes unowned."
+        "reason": "Would break Alap transactional mail or alter Team Chat behavior."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Architecture",
+        "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Canonical Admin domain lists admin UI but omits admin API path family.",
-        "resolution": "Extend domain canonicalPaths with /api/admin/**, preserving other domain owners.",
+        "finding": "Three direct HTTP APIs currently gate on Alap base feature; layout cannot secure them.",
+        "resolution": "Require advanced feature server-side before tenant RPC and sensitive operations.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json"
+          "src/app/api/admin/office/email-attachments/prepare/route.ts",
+          "src/app/api/admin/office/email-attachments/status/route.ts"
         ]
       },
       {
-        "role": "Security",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "A broad admin API pattern could obscure more-specific security authority ownership.",
-        "resolution": "Test auth and checkout nonoverlap and scrutinize canonical path classification precedence.",
+        "role": "Architecture",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Shared attachment GET dispatches authorization by provider_inbound/customer_outbound/internal_upload source.",
+        "resolution": "Preserve source-based mapping; upgrade only the email sources to advanced Office, leave Team Chat feature exactly as before.",
         "evidence": [
-          "tests/shoperation-semantic-execution-intelligence.test.ts"
+          "src/app/api/admin/office/attachments/[id]/route.ts"
         ]
       },
       {
         "role": "Known Failure",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "New U06 planned routes currently lack path-derived domain and authority; Plan Before Code correctly halts implementation.",
-        "resolution": "Assert the four previously missing routes classify, and demonstrate no release gate bypass.",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Alap transactional email and base support must not be suppressed while locking down Office upload APIs.",
+        "resolution": "No catalog/sender changes; explicit Alap preservation and source-level regression checks.",
         "evidence": [
-          "tests/shoperation-semantic-execution-intelligence.test.ts"
+          "tests/customer-email-plan-split.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Registry change may alter architecture/release semantics across unrelated admin API work.",
-        "resolution": "Run full Atlas, planning, replay, Risk, exact-head CI and lifecycle, and keep U06 separate.",
+        "finding": "The unit cannot close full authorization until RPC/RLS/storage/worker downgrade semantics separately reviewed.",
+        "resolution": "Keep #1186 OPEN/PARTIAL and limit claim to four HTTP endpoints.",
         "evidence": [
-          "tests/domain-foundations.test.ts"
+          "tests/digital-office-private-attachments.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-CP-ADMIN-API-01",
-        "scenario": "Direct Office prepare route in canonical Atlas semantic path classification and planned change gate.",
-        "finding": "Current Atlas unresolved could compromise truthful architecture authorization classification.",
-        "resolution": "Assert admin domain with a directly executable negative or positive test and canonical gate evidence.",
+        "id": "CH-CORE-1186-U06-01",
+        "scenario": "Alap direct prepare POST through a direct HTTP/API request after login, under the current entitled tenant state.",
+        "finding": "Reservation possible despite locked Office UI This threatens a specific permission or tenant data invariant.",
+        "resolution": "Explicit Pro gate before scope and RPC Add exact static negative or behavioral regression evidence and preserve source-specific authorization.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-ADMIN-API-02",
-        "scenario": "Deep Office scan route in canonical Atlas semantic path classification and planned change gate.",
-        "finding": "Nested pattern may not match could compromise truthful architecture authorization classification.",
-        "resolution": "Assert glob domain with a directly executable negative or positive test and canonical gate evidence.",
+        "id": "CH-CORE-1186-U06-02",
+        "scenario": "Alap direct scan POST through a direct HTTP/API request after login, under the current entitled tenant state.",
+        "finding": "Scan possible with stale client This threatens a specific permission or tenant data invariant.",
+        "resolution": "Explicit Pro gate before scope and scanner Add exact static negative or behavioral regression evidence and preserve source-specific authorization.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-ADMIN-API-03",
-        "scenario": "Shared [id] download route in canonical Atlas semantic path classification and planned change gate.",
-        "finding": "Bracketed route might be unrecognized could compromise truthful architecture authorization classification.",
-        "resolution": "Assert admin domain with a directly executable negative or positive test and canonical gate evidence.",
+        "id": "CH-CORE-1186-U06-03",
+        "scenario": "Alap direct status GET through a direct HTTP/API request after login, under the current entitled tenant state.",
+        "finding": "File metadata polling possible from Alap This threatens a specific permission or tenant data invariant.",
+        "resolution": "Explicit Pro gate before response Add exact static negative or behavioral regression evidence and preserve source-specific authorization.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-ADMIN-API-04",
-        "scenario": "New admin API file in canonical Atlas semantic path classification and planned change gate.",
-        "finding": "Not yet in tracked file graph could compromise truthful architecture authorization classification.",
-        "resolution": "Use path-derived authority with a directly executable negative or positive test and canonical gate evidence.",
+        "id": "CH-CORE-1186-U06-04",
+        "scenario": "provider_inbound direct download through a direct HTTP/API request after login, under the current entitled tenant state.",
+        "finding": "Uses base email entitlement This threatens a specific permission or tenant data invariant.",
+        "resolution": "Map provider_inbound to advanced Office Add exact static negative or behavioral regression evidence and preserve source-specific authorization.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-ADMIN-API-05",
-        "scenario": "Login auth API in canonical Atlas semantic path classification and planned change gate.",
-        "finding": "Unexpected Admin override could compromise truthful architecture authorization classification.",
-        "resolution": "Assert DOMAIN-IDENTITY with a directly executable negative or positive test and canonical gate evidence.",
+        "id": "CH-CORE-1186-U06-05",
+        "scenario": "customer_outbound download through a direct HTTP/API request after login, under the current entitled tenant state.",
+        "finding": "Uses base email entitlement This threatens a specific permission or tenant data invariant.",
+        "resolution": "Map customer_outbound to advanced Office Add exact static negative or behavioral regression evidence and preserve source-specific authorization.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-ADMIN-API-06",
-        "scenario": "Customer checkout API in canonical Atlas semantic path classification and planned change gate.",
-        "finding": "Unexpected Admin override could compromise truthful architecture authorization classification.",
-        "resolution": "Assert DOMAIN-COMMERCE with a directly executable negative or positive test and canonical gate evidence.",
+        "id": "CH-CORE-1186-U06-06",
+        "scenario": "internal_upload Team Chat through a direct HTTP/API request after login, under the current entitled tenant state.",
+        "finding": "Overbroad fix blocks chat This threatens a specific permission or tenant data invariant.",
+        "resolution": "Retain teamChatSecureAttachments mapping Add exact static negative or behavioral regression evidence and preserve source-specific authorization.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-ADMIN-API-07",
-        "scenario": "Existing admin page in canonical Atlas semantic path classification and planned change gate.",
-        "finding": "Regress current admin ownership could compromise truthful architecture authorization classification.",
-        "resolution": "Assert unchanged DOMAIN-ADMIN with a directly executable negative or positive test and canonical gate evidence.",
+        "id": "CH-CORE-1186-U06-07",
+        "scenario": "Unknown attachment source through a direct HTTP/API request after login, under the current entitled tenant state.",
+        "finding": "Fallback could be permissive This threatens a specific permission or tenant data invariant.",
+        "resolution": "Return HTTP 403 unknown Add exact static negative or behavioral regression evidence and preserve source-specific authorization.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-ADMIN-API-08",
-        "scenario": "Registry truth ownership in canonical Atlas semantic path classification and planned change gate.",
-        "finding": "Duplicate domain authority could compromise truthful architecture authorization classification.",
-        "resolution": "Run foundation validator with a directly executable negative or positive test and canonical gate evidence.",
+        "id": "CH-CORE-1186-U06-08",
+        "scenario": "Cross-tenant UUID download through a direct HTTP/API request after login, under the current entitled tenant state.",
+        "finding": "Metadata may leak This threatens a specific permission or tenant data invariant.",
+        "resolution": "Retain instance-scoped metadata lookup Add exact static negative or behavioral regression evidence and preserve source-specific authorization.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-ADMIN-API-09",
-        "scenario": "Security workflow in canonical Atlas semantic path classification and planned change gate.",
-        "finding": "Reclassify domain without gate proof could compromise truthful architecture authorization classification.",
-        "resolution": "Full exact-head gates with a directly executable negative or positive test and canonical gate evidence.",
+        "id": "CH-CORE-1186-U06-09",
+        "scenario": "Alap transactional notification through a direct HTTP/API request after login, under the current entitled tenant state.",
+        "finding": "Catalog change could break sales emails This threatens a specific permission or tenant data invariant.",
+        "resolution": "Do not change global feature or sender Add exact static negative or behavioral regression evidence and preserve source-specific authorization.",
         "status": "resolved"
       },
       {
-        "id": "CH-CP-ADMIN-API-10",
-        "scenario": "U06 release sequencing in canonical Atlas semantic path classification and planned change gate.",
-        "finding": "Conflate authority and authorization fix could compromise truthful architecture authorization classification.",
-        "resolution": "Keep API runtime untouched with a directly executable negative or positive test and canonical gate evidence.",
+        "id": "CH-CORE-1186-U06-10",
+        "scenario": "Stale Pro session downgraded to Alap through a direct HTTP/API request after login, under the current entitled tenant state.",
+        "finding": "Old client resubmits upload call This threatens a specific permission or tenant data invariant.",
+        "resolution": "Check canonical plan entitlement per API request Add exact static negative or behavioral regression evidence and preserve source-specific authorization.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Prove Plan Before Code critical plan before editing canonical registry.",
-      "Extend DOMAIN-ADMIN canonicalPaths to /api/admin/** only; do not modify runtime.",
-      "Add positive nested/bracketed/newly planned admin APIs and negative unrelated auth/checkout tests.",
-      "Validate Domain Foundations, Codebase Atlas/Knowledge, Edit-Time Reference/Implementation Sync, Sentinel, Replay, Release Risk, TypeScript, exact-head GitHub CI and Lifecycle.",
-      "After verified merge and main CI, rebase separate U06 and re-run its strict Plan Before Code rather than waiving any boundary."
+      "Verify critical Plan Before Code prior to implementation; preserve ten adversarial challenges and explicit unresolved RPC/storage obligations.",
+      "Assert independent three email routes enforce officeCommunicationAdvanced and HTTP 403 before database/scan operations.",
+      "Assert source-specific shared GET maps chat to teamChatSecureAttachments, email to Office advanced and unknown to null, with instance-scoped metadata.",
+      "Run target tests, TypeScript, Knowledge/Atlas, Edit-Time/Reference/Implementation Sync, Replay and Risk; negative test false-gating cases.",
+      "Use exact-head GitHub PR+push CI and canonical Truth/Lifecycle; keep issue #1186 PARTIAL for later RPC/RLS/storage check.",
+      "Confirm canonical main after Admin API authority PR #1215 and verify planned scope spans the admin-operations and storefront-ui test consumers; do not hide or narrow cross-subsystem impact."
     ],
     "semanticExecutionRoute": {
-      "request": "Control Plane prerequisite: canonical DOMAIN-ADMIN authority for protected /api/admin routes including Digital Office attachments",
+      "request": "Core 1186 U06: Pro-only Digital Office e-mail attachment HTTP endpoints and shared source-specific downloads, preserving Team Chat attachments and Alap transactional email",
       "authority": [
-        "quality-knowledge-system"
+        "admin-operations"
       ],
       "mustEdit": [
-        "quality/knowledge/domain-foundations.v1.json",
-        "tests/domain-foundations.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "src/app/api/admin/office/attachments/[id]/route.ts",
+        "src/app/api/admin/office/email-attachments/prepare/route.ts",
+        "src/app/api/admin/office/email-attachments/scan/route.ts",
+        "src/app/api/admin/office/email-attachments/status/route.ts",
+        "tests/digital-office-private-attachments.test.ts",
+        "tests/pro-entitlement-guards.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/shoperation-close-development-plan.mjs",
-        "scripts/shoperation-development-guard.mjs",
-        "scripts/shoperation-plan-before-code.mjs",
-        "scripts/shoperation-truth-gate.mjs",
-        "src/components/admin/storefront-visual-builder-production.tsx",
-        "src/components/admin/storefront-visual-builder-v3.tsx",
-        "src/components/builder/storefront-commerce.tsx",
-        "src/lib/builder/storefront-commerce.ts",
-        "src/lib/builder/storefront-fidelity-behavior.ts",
-        "src/lib/builder/storefront-fidelity-interaction-state.ts",
-        "src/lib/builder/storefront-template-preview-demo.ts",
-        "src/lib/builder/storefront-template-route-integrity.ts",
-        "src/lib/builder/template-factory/scaffold.ts",
-        "src/lib/builder/templates/alpine-lodge.ts",
-        "src/lib/builder/templates/beauty-lab-fidelity.ts",
-        "src/lib/builder/templates/creator-station.ts",
-        "src/lib/builder/templates/derma-studio.ts",
-        "src/lib/builder/templates/editorial-atelier.ts",
-        "src/lib/builder/templates/gallery-edit.ts",
-        "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
-        "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
-        "src/lib/builder/templates/heritage-atelier.ts",
-        "src/lib/builder/templates/loot-vault.ts",
-        "src/lib/builder/templates/market-pantry.ts",
-        "src/lib/builder/templates/modern-luxe.ts",
-        "src/lib/builder/templates/monarche.ts",
-        "src/lib/builder/templates/my-pack.ts",
-        "src/lib/builder/templates/performance-lab.ts",
-        "src/lib/builder/templates/playroom-reference-v2.ts",
-        "src/lib/builder/templates/playroom.ts",
-        "src/lib/builder/templates/rig-forge.ts",
-        "src/lib/builder/templates/ritual-house.ts",
-        "src/lib/builder/templates/spec-lab.ts",
-        "src/lib/builder/templates/sport-hub.ts",
-        "src/lib/builder/templates/statement-lab.ts",
-        "src/lib/builder/templates/street-drop.ts",
-        "src/lib/builder/templates/table-gift.ts",
-        "src/lib/builder/templates/tech-deck.ts",
-        "src/lib/builder/templates/trail-expedition.ts",
-        "src/lib/quality-system/architecture-constitution.ts",
-        "src/lib/quality-system/capability-evidence.ts",
-        "src/lib/quality-system/domain-foundations.ts",
-        "tests/architecture-constitution.test.ts",
-        "tests/capability-roadmap-evidence.test.ts",
-        "tests/engine-authority-scope-classification.test.ts",
-        "tests/shoperation-change-impact-atlas.test.ts",
-        "tests/shoperation-codebase-atlas-v2.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts",
-        "tests/shoperation-proof-semantics.test.ts",
-        "tests/storefront-commerce-fidelity-slots.test.tsx",
-        "tests/storefront-core-commerce.test.ts",
-        "tests/storefront-fidelity-behavior.test.tsx",
-        "tests/storefront-fidelity-commerce-interaction-states.test.tsx"
+        "docs/ROADMAP_BLOCK20_PLATFORM_ECOSYSTEM_ENTERPRISE_EXTENSIBILITY.md",
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+        "quality/development/active-plan.json",
+        "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+        "quality/knowledge/release-parent-closure-proofs/dev-post-merge-exact-main-ci-e2e-v2.json",
+        "scripts/release-unit-github-runtime.mjs",
+        "scripts/release-unit-parent-close.mjs",
+        "scripts/template-factory-product-owner-handoff.mjs",
+        "src/app/admin/automatizalas/esemenyek/page.tsx",
+        "src/app/admin/automatizalas/page.tsx",
+        "src/app/admin/beallitasok/fizetes-szallitas/page.tsx",
+        "src/app/admin/beallitasok/integraciok/[id]/page.tsx",
+        "src/app/admin/beszerzes/page.tsx",
+        "src/app/admin/cashflow/page.tsx",
+        "src/app/admin/csapat/[userId]/page.tsx",
+        "src/app/admin/csapat/page.tsx",
+        "src/app/admin/elemzes/page.tsx",
+        "src/app/admin/ertekesites/page.tsx",
+        "src/app/admin/integraciok/page.tsx",
+        "src/app/admin/iranyitokozpont/page.tsx",
+        "src/app/admin/kampanyok/[id]/page.tsx",
+        "src/app/admin/kampanyok/page.tsx",
+        "src/app/admin/keszlet-elemzes/layout.tsx",
+        "src/app/admin/keszlet-elemzes/page.tsx",
+        "src/app/admin/kommunikacio/chat/actions.ts",
+        "src/app/admin/kommunikacio/chat/page.tsx",
+        "src/app/admin/kommunikacio/felugyelet/layout.tsx",
+        "src/app/admin/kommunikacio/felugyelet/page.tsx",
+        "src/app/admin/kommunikacio/iroda/actions.ts",
+        "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
+        "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+        "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
+        "src/app/admin/kommunikacio/iroda/hub/page.tsx",
+        "src/app/admin/kommunikacio/iroda/page.tsx",
+        "src/app/admin/kommunikacio/iroda/uj/page.tsx",
+        "src/app/admin/kommunikacio/layout.tsx",
+        "src/app/admin/marketing/page.tsx",
+        "src/app/admin/migracio/page.tsx",
+        "src/app/admin/novekedes/page.tsx",
+        "src/app/admin/optimalizalas/page.tsx",
+        "src/app/admin/page.tsx",
+        "src/app/admin/tartalom/builder/page.tsx",
+        "src/app/admin/tartalom/page.tsx",
+        "src/app/admin/tartalom/receptek/page.tsx",
+        "src/app/admin/tartalom/release-ek/page.tsx",
+        "src/app/admin/termekajanlasok/page.tsx",
+        "src/app/admin/termekek/feltoltes/[id]/page.tsx",
+        "src/app/admin/termekek/feltoltes/masolas/page.tsx",
+        "src/app/admin/termekek/feltoltes/page.tsx",
+        "src/app/admin/termekek/feltoltes/uj/page.tsx",
+        "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
+        "src/app/admin/ugyfelszolgalat/page.tsx",
+        "src/app/api/account/b2b-quotes/route.ts",
+        "src/app/api/account/b2b/identity/route.ts",
+        "src/app/api/account/b2b/route.ts",
+        "src/app/api/account/checkout-recovery/route.ts",
+        "src/app/api/account/marketing-consent/route.ts",
+        "src/app/api/account/reseller-request/route.ts",
+        "src/app/api/account/returns/route.ts",
+        "src/app/api/account/support/[id]/messages/route.ts",
+        "src/app/api/admin/actions/proposal/route.ts",
+        "src/app/api/admin/actions/run/route.ts",
+        "src/app/api/admin/assurance/finding/route.ts",
+        "src/app/api/admin/assurance/run/route.ts",
+        "src/app/api/admin/automation/control/route.ts",
+        "src/app/api/admin/automation/events/route.ts",
+        "src/app/api/admin/automation/instance/route.ts",
+        "src/app/api/admin/automation/run/route.ts",
+        "src/app/api/admin/campaigns/manage/route.ts",
+        "src/app/api/admin/campaigns/route.ts",
+        "src/app/api/admin/catalog/bulk/route.ts",
+        "src/app/api/admin/catalog/copilot/route.ts",
+        "src/app/api/admin/catalog/copy/route.ts",
+        "src/app/api/admin/catalog/digital-assets/route.ts",
+        "src/app/api/admin/communication/manage/route.ts",
+        "src/app/api/admin/office/business-objects/route.ts",
+        "src/app/api/admin/office/delegations/route.ts",
+        "src/app/api/admin/office/support-attention/route.ts",
+        "src/app/api/admin/support/[id]/messages/route.ts",
+        "src/app/api/admin/support/[id]/route.ts",
+        "src/app/storefront-template-preview/page.tsx",
+        "src/components/account/account-subnav.tsx",
+        "src/components/admin/digital-office-chat-dock.tsx",
+        "src/components/admin/digital-office-mobile-controller.tsx",
+        "src/components/admin/inventory-editor.tsx",
+        "src/components/admin/office-customer-email-form.tsx",
+        "src/components/admin/office-new-email-composer.tsx",
+        "src/components/admin/office-private-message-form.tsx",
+        "src/lib/auth/store-rbac.ts",
+        "src/lib/digital-office/access.ts",
+        "src/lib/navigation/admin-ia.ts",
+        "tests/digital-office-chat-composer-hardening.test.ts",
+        "tests/digital-office-internal-chat-capability-gate.test.ts",
+        "tests/digital-office-support-ticket-integration.test.ts",
+        "tests/digital-office-unified-ui.test.ts",
+        "tests/fine-grained-store-rbac.test.ts",
+        "tests/merchant-read-page-scope.test.ts"
       ],
       "mustCreate": [],
       "forbidden": [],
       "proof": [
-        "tests/architecture-constitution.test.ts",
-        "tests/capability-roadmap-evidence.test.ts",
+        "tests/admin-api-tenant-mutation-closure.test.ts",
+        "tests/admin-growth-refresh-evidence.test.ts",
+        "tests/admin-link-integrity.test.ts",
+        "tests/admin-route-rbac.test.ts",
+        "tests/advanced-integration-workflows.test.ts",
+        "tests/automation-workflows.test.ts",
+        "tests/block11-entitlement-system.test.ts",
+        "tests/block12-migration-assistant.test.ts",
+        "tests/block14-catalog-onboarding-import-ux.test.ts",
+        "tests/block16-commerce-recovery-integration.test.ts",
+        "tests/block18-ai-assisted-decisioning.test.ts",
+        "tests/block19-predictive-optimization-autonomy.test.ts",
+        "tests/block20-platform-ecosystem.test.ts",
+        "tests/block4-ia-navigation-reporting.test.ts",
+        "tests/block5-role-aware-ui.test.ts",
+        "tests/block7-b2b-account-ownership.test.ts",
+        "tests/campaign-creation-fail-closed.test.ts",
+        "tests/campaign-lifecycle-evidence-atomicity.test.ts",
+        "tests/campaign-office-mutation-read-safety.test.ts",
+        "tests/communication-app-final-shell.test.ts",
+        "tests/communication-hub-2-0.test.ts",
+        "tests/control-plane-release-unit-execution-binding.test.ts",
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-release-unit-production-surface.test.ts",
+        "tests/customer-email-plan-split.test.ts",
         "tests/digital-commerce-builder-integration.test.tsx",
-        "tests/domain-foundations.test.ts",
-        "tests/engine-authority-scope-classification.test.ts",
-        "tests/platform-device-lab.test.ts",
+        "tests/digital-office-attachment-quarantine-scan.test.ts",
+        "tests/digital-office-autosave-concurrency.test.ts",
+        "tests/digital-office-chat-composer-hardening.test.ts",
+        "tests/digital-office-composer-drafts-foundation.test.ts",
+        "tests/digital-office-internal-chat-capability-gate.test.ts",
+        "tests/digital-office-privacy-foundation.test.ts",
+        "tests/digital-office-private-attachments.test.ts",
+        "tests/digital-office-support-ticket-integration.test.ts",
+        "tests/digital-office-team-chat-2-foundation.test.ts",
+        "tests/digital-office-team-chat-final-ux.test.ts",
+        "tests/digital-office-unified-ui.test.ts",
+        "tests/digital-office-workstation-final.test.ts",
+        "tests/email-builder-d1-admin-shell.test.ts",
+        "tests/email-builder-d2-editor.test.ts",
+        "tests/email-builder-foundation-b.test.ts",
+        "tests/email-builder-publication-lifecycle.test.ts",
+        "tests/email-builder-saved-blocks.test.ts",
+        "tests/event-driven-workflow-automation.test.ts",
+        "tests/executive-analytics-ux-closure.test.ts",
+        "tests/executive-decision-workflows.test.ts",
+        "tests/fine-grained-store-rbac.test.ts",
+        "tests/merchant-admin-tenant-closure.test.ts",
+        "tests/merchant-read-page-scope.test.ts",
+        "tests/office-suppression-feedback.test.ts",
+        "tests/order-core-transactional-email-dispatch-contract.test.ts",
+        "tests/phase4-platform-pilot-acceptance-entry.test.ts",
+        "tests/pilot-acceptance-access.test.ts",
+        "tests/platform-admin-scope-closure.test.ts",
+        "tests/platform-owner-zero-tenant-hotfix.test.ts",
+        "tests/post-purchase-service-contracts.test.ts",
+        "tests/pro-entitlement-guards.test.ts",
+        "tests/pro-finance-analytics-contracts.test.ts",
+        "tests/procurement-workflows.test.ts",
+        "tests/product-documents-merchant-acceptance.test.ts",
+        "tests/product-documents-product-scoped-ux.test.ts",
+        "tests/product-intake-center-v2.test.ts",
         "tests/roadmap-block21-page-schema-templates.test.ts",
+        "tests/roadmap-block22-schema-policy.test.ts",
         "tests/roadmap-block22-visual-builder.test.ts",
-        "tests/roadmap-block23-ai-builder-template-generation.test.ts",
-        "tests/shoperation-change-impact-atlas.test.ts",
-        "tests/shoperation-codebase-atlas-v2.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts",
-        "tests/shoperation-proof-semantics.test.ts",
-        "tests/special-commerce-wave5-existing-engine-closure.test.ts",
-        "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
-        "tests/special-commerce-wave7-template2-adoption.test.ts",
-        "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
-        "tests/storefront-beauty-lab-reference-v28.test.ts",
-        "tests/storefront-cart-presentation-contract.test.ts",
-        "tests/storefront-commerce-fidelity-slots.test.tsx",
-        "tests/storefront-commerce-header.test.tsx",
-        "tests/storefront-core-commerce.test.ts",
-        "tests/storefront-creator-station-wave36-reacceptance.test.ts",
-        "tests/storefront-fidelity-behavior.test.tsx",
-        "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
-        "tests/storefront-fidelity-diagnostics.test.ts",
-        "tests/storefront-fidelity-inspector.test.ts",
-        "tests/storefront-fidelity-layout.test.ts",
-        "tests/storefront-fidelity-primitive-renderers.test.tsx",
-        "tests/storefront-fidelity-security.test.ts",
-        "tests/storefront-global-styles.test.ts",
-        "tests/storefront-guided-fidelity-slots.test.tsx",
-        "tests/storefront-heritage-atelier-template.test.tsx",
-        "tests/storefront-monarche-template.test.tsx",
-        "tests/storefront-monarche-wave43-reacceptance.test.ts",
-        "tests/storefront-performance-contract.test.ts",
-        "tests/storefront-playroom-reference-fidelity.test.ts",
-        "tests/storefront-playroom-reference-v2-fidelity.test.tsx",
-        "tests/storefront-playroom-template.test.tsx",
-        "tests/storefront-playroom-v18-image-slots.test.ts",
-        "tests/storefront-playroom-v19-complete.test.ts",
-        "tests/storefront-playroom-v19-page-family-presets.test.ts",
-        "tests/storefront-playroom-v19-visual-polish.test.ts",
-        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
-        "tests/storefront-playroom-wave38-reacceptance.test.ts",
-        "tests/storefront-preset-library.test.ts",
-        "tests/template-factory-scaffold-v1.test.ts"
+        "tests/storefront-template-library-ux.test.ts",
+        "tests/storefront-template-preview-access.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -433,151 +474,233 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "quality/knowledge/domain-foundations.v1.json",
-          "tests/domain-foundations.test.ts",
-          "tests/shoperation-semantic-execution-intelligence.test.ts"
+          "src/app/api/admin/office/attachments/[id]/route.ts",
+          "src/app/api/admin/office/email-attachments/prepare/route.ts",
+          "src/app/api/admin/office/email-attachments/scan/route.ts",
+          "src/app/api/admin/office/email-attachments/status/route.ts",
+          "tests/digital-office-private-attachments.test.ts",
+          "tests/pro-entitlement-guards.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [
-          "scripts/lib/shoperation-operational-intelligence.mjs",
-          "scripts/shoperation-close-development-plan.mjs",
-          "scripts/shoperation-development-guard.mjs",
-          "scripts/shoperation-plan-before-code.mjs",
-          "scripts/shoperation-truth-gate.mjs",
-          "src/components/admin/storefront-visual-builder-production.tsx",
-          "src/components/admin/storefront-visual-builder-v3.tsx",
-          "src/components/builder/storefront-commerce.tsx",
-          "src/lib/builder/storefront-commerce.ts",
-          "src/lib/builder/storefront-fidelity-behavior.ts",
-          "src/lib/builder/storefront-fidelity-interaction-state.ts",
-          "src/lib/builder/storefront-template-preview-demo.ts",
-          "src/lib/builder/storefront-template-route-integrity.ts",
-          "src/lib/builder/template-factory/scaffold.ts",
-          "src/lib/builder/templates/alpine-lodge.ts",
-          "src/lib/builder/templates/beauty-lab-fidelity.ts",
-          "src/lib/builder/templates/creator-station.ts",
-          "src/lib/builder/templates/derma-studio.ts",
-          "src/lib/builder/templates/editorial-atelier.ts",
-          "src/lib/builder/templates/gallery-edit.ts",
-          "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
-          "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
-          "src/lib/builder/templates/heritage-atelier.ts",
-          "src/lib/builder/templates/loot-vault.ts",
-          "src/lib/builder/templates/market-pantry.ts",
-          "src/lib/builder/templates/modern-luxe.ts",
-          "src/lib/builder/templates/monarche.ts",
-          "src/lib/builder/templates/my-pack.ts",
-          "src/lib/builder/templates/performance-lab.ts",
-          "src/lib/builder/templates/playroom-reference-v2.ts",
-          "src/lib/builder/templates/playroom.ts",
-          "src/lib/builder/templates/rig-forge.ts",
-          "src/lib/builder/templates/ritual-house.ts",
-          "src/lib/builder/templates/spec-lab.ts",
-          "src/lib/builder/templates/sport-hub.ts",
-          "src/lib/builder/templates/statement-lab.ts",
-          "src/lib/builder/templates/street-drop.ts",
-          "src/lib/builder/templates/table-gift.ts",
-          "src/lib/builder/templates/tech-deck.ts",
-          "src/lib/builder/templates/trail-expedition.ts",
-          "src/lib/quality-system/architecture-constitution.ts",
-          "src/lib/quality-system/capability-evidence.ts",
-          "src/lib/quality-system/domain-foundations.ts",
-          "tests/architecture-constitution.test.ts",
-          "tests/capability-roadmap-evidence.test.ts",
-          "tests/engine-authority-scope-classification.test.ts",
-          "tests/shoperation-change-impact-atlas.test.ts",
-          "tests/shoperation-codebase-atlas-v2.test.ts",
-          "tests/shoperation-operational-intelligence.test.ts",
-          "tests/shoperation-proof-semantics.test.ts",
-          "tests/storefront-commerce-fidelity-slots.test.tsx",
-          "tests/storefront-core-commerce.test.ts",
-          "tests/storefront-fidelity-behavior.test.tsx",
-          "tests/storefront-fidelity-commerce-interaction-states.test.tsx"
+          "docs/ROADMAP_BLOCK20_PLATFORM_ECOSYSTEM_ENTERPRISE_EXTENSIBILITY.md",
+          "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+          "quality/development/active-plan.json",
+          "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+          "quality/knowledge/release-parent-closure-proofs/dev-post-merge-exact-main-ci-e2e-v2.json",
+          "scripts/release-unit-github-runtime.mjs",
+          "scripts/release-unit-parent-close.mjs",
+          "scripts/template-factory-product-owner-handoff.mjs",
+          "src/app/admin/automatizalas/esemenyek/page.tsx",
+          "src/app/admin/automatizalas/page.tsx",
+          "src/app/admin/beallitasok/fizetes-szallitas/page.tsx",
+          "src/app/admin/beallitasok/integraciok/[id]/page.tsx",
+          "src/app/admin/beszerzes/page.tsx",
+          "src/app/admin/cashflow/page.tsx",
+          "src/app/admin/csapat/[userId]/page.tsx",
+          "src/app/admin/csapat/page.tsx",
+          "src/app/admin/elemzes/page.tsx",
+          "src/app/admin/ertekesites/page.tsx",
+          "src/app/admin/integraciok/page.tsx",
+          "src/app/admin/iranyitokozpont/page.tsx",
+          "src/app/admin/kampanyok/[id]/page.tsx",
+          "src/app/admin/kampanyok/page.tsx",
+          "src/app/admin/keszlet-elemzes/layout.tsx",
+          "src/app/admin/keszlet-elemzes/page.tsx",
+          "src/app/admin/kommunikacio/chat/actions.ts",
+          "src/app/admin/kommunikacio/chat/page.tsx",
+          "src/app/admin/kommunikacio/felugyelet/layout.tsx",
+          "src/app/admin/kommunikacio/felugyelet/page.tsx",
+          "src/app/admin/kommunikacio/iroda/actions.ts",
+          "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
+          "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+          "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
+          "src/app/admin/kommunikacio/iroda/hub/page.tsx",
+          "src/app/admin/kommunikacio/iroda/page.tsx",
+          "src/app/admin/kommunikacio/iroda/uj/page.tsx",
+          "src/app/admin/kommunikacio/layout.tsx",
+          "src/app/admin/marketing/page.tsx",
+          "src/app/admin/migracio/page.tsx",
+          "src/app/admin/novekedes/page.tsx",
+          "src/app/admin/optimalizalas/page.tsx",
+          "src/app/admin/page.tsx",
+          "src/app/admin/tartalom/builder/page.tsx",
+          "src/app/admin/tartalom/page.tsx",
+          "src/app/admin/tartalom/receptek/page.tsx",
+          "src/app/admin/tartalom/release-ek/page.tsx",
+          "src/app/admin/termekajanlasok/page.tsx",
+          "src/app/admin/termekek/feltoltes/[id]/page.tsx",
+          "src/app/admin/termekek/feltoltes/masolas/page.tsx",
+          "src/app/admin/termekek/feltoltes/page.tsx",
+          "src/app/admin/termekek/feltoltes/uj/page.tsx",
+          "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
+          "src/app/admin/ugyfelszolgalat/page.tsx",
+          "src/app/api/account/b2b-quotes/route.ts",
+          "src/app/api/account/b2b/identity/route.ts",
+          "src/app/api/account/b2b/route.ts",
+          "src/app/api/account/checkout-recovery/route.ts",
+          "src/app/api/account/marketing-consent/route.ts",
+          "src/app/api/account/reseller-request/route.ts",
+          "src/app/api/account/returns/route.ts",
+          "src/app/api/account/support/[id]/messages/route.ts",
+          "src/app/api/admin/actions/proposal/route.ts",
+          "src/app/api/admin/actions/run/route.ts",
+          "src/app/api/admin/assurance/finding/route.ts",
+          "src/app/api/admin/assurance/run/route.ts",
+          "src/app/api/admin/automation/control/route.ts",
+          "src/app/api/admin/automation/events/route.ts",
+          "src/app/api/admin/automation/instance/route.ts",
+          "src/app/api/admin/automation/run/route.ts",
+          "src/app/api/admin/campaigns/manage/route.ts",
+          "src/app/api/admin/campaigns/route.ts",
+          "src/app/api/admin/catalog/bulk/route.ts",
+          "src/app/api/admin/catalog/copilot/route.ts",
+          "src/app/api/admin/catalog/copy/route.ts",
+          "src/app/api/admin/catalog/digital-assets/route.ts",
+          "src/app/api/admin/communication/manage/route.ts",
+          "src/app/api/admin/office/business-objects/route.ts",
+          "src/app/api/admin/office/delegations/route.ts",
+          "src/app/api/admin/office/support-attention/route.ts",
+          "src/app/api/admin/support/[id]/messages/route.ts",
+          "src/app/api/admin/support/[id]/route.ts",
+          "src/app/storefront-template-preview/page.tsx",
+          "src/components/account/account-subnav.tsx",
+          "src/components/admin/digital-office-chat-dock.tsx",
+          "src/components/admin/digital-office-mobile-controller.tsx",
+          "src/components/admin/inventory-editor.tsx",
+          "src/components/admin/office-customer-email-form.tsx",
+          "src/components/admin/office-new-email-composer.tsx",
+          "src/components/admin/office-private-message-form.tsx",
+          "src/lib/auth/store-rbac.ts",
+          "src/lib/digital-office/access.ts",
+          "src/lib/navigation/admin-ia.ts",
+          "tests/digital-office-chat-composer-hardening.test.ts",
+          "tests/digital-office-internal-chat-capability-gate.test.ts",
+          "tests/digital-office-support-ticket-integration.test.ts",
+          "tests/digital-office-unified-ui.test.ts",
+          "tests/fine-grained-store-rbac.test.ts",
+          "tests/merchant-read-page-scope.test.ts"
         ],
         "mustCreate": [],
         "forbidden": [],
         "proof": [
-          "tests/architecture-constitution.test.ts",
-          "tests/capability-roadmap-evidence.test.ts",
+          "tests/admin-api-tenant-mutation-closure.test.ts",
+          "tests/admin-growth-refresh-evidence.test.ts",
+          "tests/admin-link-integrity.test.ts",
+          "tests/admin-route-rbac.test.ts",
+          "tests/advanced-integration-workflows.test.ts",
+          "tests/automation-workflows.test.ts",
+          "tests/block11-entitlement-system.test.ts",
+          "tests/block12-migration-assistant.test.ts",
+          "tests/block14-catalog-onboarding-import-ux.test.ts",
+          "tests/block16-commerce-recovery-integration.test.ts",
+          "tests/block18-ai-assisted-decisioning.test.ts",
+          "tests/block19-predictive-optimization-autonomy.test.ts",
+          "tests/block20-platform-ecosystem.test.ts",
+          "tests/block4-ia-navigation-reporting.test.ts",
+          "tests/block5-role-aware-ui.test.ts",
+          "tests/block7-b2b-account-ownership.test.ts",
+          "tests/campaign-creation-fail-closed.test.ts",
+          "tests/campaign-lifecycle-evidence-atomicity.test.ts",
+          "tests/campaign-office-mutation-read-safety.test.ts",
+          "tests/communication-app-final-shell.test.ts",
+          "tests/communication-hub-2-0.test.ts",
+          "tests/control-plane-release-unit-execution-binding.test.ts",
+          "tests/control-plane-release-unit-orchestration.test.ts",
+          "tests/control-plane-release-unit-production-surface.test.ts",
+          "tests/customer-email-plan-split.test.ts",
           "tests/digital-commerce-builder-integration.test.tsx",
-          "tests/domain-foundations.test.ts",
-          "tests/engine-authority-scope-classification.test.ts",
-          "tests/platform-device-lab.test.ts",
+          "tests/digital-office-attachment-quarantine-scan.test.ts",
+          "tests/digital-office-autosave-concurrency.test.ts",
+          "tests/digital-office-chat-composer-hardening.test.ts",
+          "tests/digital-office-composer-drafts-foundation.test.ts",
+          "tests/digital-office-internal-chat-capability-gate.test.ts",
+          "tests/digital-office-privacy-foundation.test.ts",
+          "tests/digital-office-private-attachments.test.ts",
+          "tests/digital-office-support-ticket-integration.test.ts",
+          "tests/digital-office-team-chat-2-foundation.test.ts",
+          "tests/digital-office-team-chat-final-ux.test.ts",
+          "tests/digital-office-unified-ui.test.ts",
+          "tests/digital-office-workstation-final.test.ts",
+          "tests/email-builder-d1-admin-shell.test.ts",
+          "tests/email-builder-d2-editor.test.ts",
+          "tests/email-builder-foundation-b.test.ts",
+          "tests/email-builder-publication-lifecycle.test.ts",
+          "tests/email-builder-saved-blocks.test.ts",
+          "tests/event-driven-workflow-automation.test.ts",
+          "tests/executive-analytics-ux-closure.test.ts",
+          "tests/executive-decision-workflows.test.ts",
+          "tests/fine-grained-store-rbac.test.ts",
+          "tests/merchant-admin-tenant-closure.test.ts",
+          "tests/merchant-read-page-scope.test.ts",
+          "tests/office-suppression-feedback.test.ts",
+          "tests/order-core-transactional-email-dispatch-contract.test.ts",
+          "tests/phase4-platform-pilot-acceptance-entry.test.ts",
+          "tests/pilot-acceptance-access.test.ts",
+          "tests/platform-admin-scope-closure.test.ts",
+          "tests/platform-owner-zero-tenant-hotfix.test.ts",
+          "tests/post-purchase-service-contracts.test.ts",
+          "tests/pro-entitlement-guards.test.ts",
+          "tests/pro-finance-analytics-contracts.test.ts",
+          "tests/procurement-workflows.test.ts",
+          "tests/product-documents-merchant-acceptance.test.ts",
+          "tests/product-documents-product-scoped-ux.test.ts",
+          "tests/product-intake-center-v2.test.ts",
           "tests/roadmap-block21-page-schema-templates.test.ts",
+          "tests/roadmap-block22-schema-policy.test.ts",
           "tests/roadmap-block22-visual-builder.test.ts",
-          "tests/roadmap-block23-ai-builder-template-generation.test.ts",
-          "tests/shoperation-change-impact-atlas.test.ts",
-          "tests/shoperation-codebase-atlas-v2.test.ts",
-          "tests/shoperation-operational-intelligence.test.ts",
-          "tests/shoperation-proof-semantics.test.ts",
-          "tests/special-commerce-wave5-existing-engine-closure.test.ts",
-          "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
-          "tests/special-commerce-wave7-template2-adoption.test.ts",
-          "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
-          "tests/storefront-beauty-lab-reference-v28.test.ts",
-          "tests/storefront-cart-presentation-contract.test.ts",
-          "tests/storefront-commerce-fidelity-slots.test.tsx",
-          "tests/storefront-commerce-header.test.tsx",
-          "tests/storefront-core-commerce.test.ts",
-          "tests/storefront-creator-station-wave36-reacceptance.test.ts",
-          "tests/storefront-fidelity-behavior.test.tsx",
-          "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
-          "tests/storefront-fidelity-diagnostics.test.ts",
-          "tests/storefront-fidelity-inspector.test.ts",
-          "tests/storefront-fidelity-layout.test.ts",
-          "tests/storefront-fidelity-primitive-renderers.test.tsx",
-          "tests/storefront-fidelity-security.test.ts",
-          "tests/storefront-global-styles.test.ts",
-          "tests/storefront-guided-fidelity-slots.test.tsx",
-          "tests/storefront-heritage-atelier-template.test.tsx",
-          "tests/storefront-monarche-template.test.tsx",
-          "tests/storefront-monarche-wave43-reacceptance.test.ts",
-          "tests/storefront-performance-contract.test.ts",
-          "tests/storefront-playroom-reference-fidelity.test.ts",
-          "tests/storefront-playroom-reference-v2-fidelity.test.tsx",
-          "tests/storefront-playroom-template.test.tsx",
-          "tests/storefront-playroom-v18-image-slots.test.ts",
-          "tests/storefront-playroom-v19-complete.test.ts",
-          "tests/storefront-playroom-v19-page-family-presets.test.ts",
-          "tests/storefront-playroom-v19-visual-polish.test.ts",
-          "tests/storefront-playroom-v20-functional-acceptance.test.ts",
-          "tests/storefront-playroom-wave38-reacceptance.test.ts",
-          "tests/storefront-preset-library.test.ts",
-          "tests/template-factory-scaffold-v1.test.ts"
+          "tests/storefront-template-library-ux.test.ts",
+          "tests/storefront-template-preview-access.test.ts"
         ],
-        "authority": [
-          "quality-knowledge-system"
-        ],
+        "authority": [],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 2,
+        "score": 1,
         "maxPoints": 5,
         "subsystemCount": 1,
         "maxSubsystems": 3,
         "subsystems": [
           {
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
+            "subsystem": "storefront-ui",
+            "risk": "low",
+            "points": 1
           }
         ],
         "files": [
           {
-            "file": "quality/knowledge/domain-foundations.v1.json",
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
+            "file": "src/app/api/admin/office/attachments/[id]/route.ts",
+            "subsystem": "storefront-ui",
+            "risk": "low",
+            "points": 1
           },
           {
-            "file": "tests/domain-foundations.test.ts",
+            "file": "src/app/api/admin/office/email-attachments/prepare/route.ts",
+            "subsystem": "storefront-ui",
+            "risk": "low",
+            "points": 1
+          },
+          {
+            "file": "src/app/api/admin/office/email-attachments/scan/route.ts",
+            "subsystem": "storefront-ui",
+            "risk": "low",
+            "points": 1
+          },
+          {
+            "file": "src/app/api/admin/office/email-attachments/status/route.ts",
+            "subsystem": "storefront-ui",
+            "risk": "low",
+            "points": 1
+          },
+          {
+            "file": "tests/digital-office-private-attachments.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "tests/shoperation-semantic-execution-intelligence.test.ts",
+            "file": "tests/pro-entitlement-guards.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -592,32 +715,50 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 2,
+          "score": 1,
           "maxPoints": 5,
           "subsystemCount": 1,
           "maxSubsystems": 3,
           "subsystems": [
             {
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
+              "subsystem": "storefront-ui",
+              "risk": "low",
+              "points": 1
             }
           ],
           "files": [
             {
-              "file": "quality/knowledge/domain-foundations.v1.json",
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
+              "file": "src/app/api/admin/office/attachments/[id]/route.ts",
+              "subsystem": "storefront-ui",
+              "risk": "low",
+              "points": 1
             },
             {
-              "file": "tests/domain-foundations.test.ts",
+              "file": "src/app/api/admin/office/email-attachments/prepare/route.ts",
+              "subsystem": "storefront-ui",
+              "risk": "low",
+              "points": 1
+            },
+            {
+              "file": "src/app/api/admin/office/email-attachments/scan/route.ts",
+              "subsystem": "storefront-ui",
+              "risk": "low",
+              "points": 1
+            },
+            {
+              "file": "src/app/api/admin/office/email-attachments/status/route.ts",
+              "subsystem": "storefront-ui",
+              "risk": "low",
+              "points": 1
+            },
+            {
+              "file": "tests/digital-office-private-attachments.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "tests/shoperation-semantic-execution-intelligence.test.ts",
+              "file": "tests/pro-entitlement-guards.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -632,27 +773,27 @@
           {
             "id": 0,
             "files": [
-              "quality/knowledge/domain-foundations.v1.json"
+              "src/app/api/admin/office/attachments/[id]/route.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 1,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "subsystem": "storefront-ui",
+                  "risk": "low",
+                  "points": 1
                 }
               ],
               "files": [
                 {
-                  "file": "quality/knowledge/domain-foundations.v1.json",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "file": "src/app/api/admin/office/attachments/[id]/route.ts",
+                  "subsystem": "storefront-ui",
+                  "risk": "low",
+                  "points": 1
                 }
               ],
               "violations": [],
@@ -662,7 +803,97 @@
           {
             "id": 1,
             "files": [
-              "tests/domain-foundations.test.ts"
+              "src/app/api/admin/office/email-attachments/prepare/route.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 1,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "storefront-ui",
+                  "risk": "low",
+                  "points": 1
+                }
+              ],
+              "files": [
+                {
+                  "file": "src/app/api/admin/office/email-attachments/prepare/route.ts",
+                  "subsystem": "storefront-ui",
+                  "risk": "low",
+                  "points": 1
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 2,
+            "files": [
+              "src/app/api/admin/office/email-attachments/scan/route.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 1,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "storefront-ui",
+                  "risk": "low",
+                  "points": 1
+                }
+              ],
+              "files": [
+                {
+                  "file": "src/app/api/admin/office/email-attachments/scan/route.ts",
+                  "subsystem": "storefront-ui",
+                  "risk": "low",
+                  "points": 1
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 3,
+            "files": [
+              "src/app/api/admin/office/email-attachments/status/route.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 1,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "storefront-ui",
+                  "risk": "low",
+                  "points": 1
+                }
+              ],
+              "files": [
+                {
+                  "file": "src/app/api/admin/office/email-attachments/status/route.ts",
+                  "subsystem": "storefront-ui",
+                  "risk": "low",
+                  "points": 1
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 4,
+            "files": [
+              "tests/digital-office-private-attachments.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -673,7 +904,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/domain-foundations.test.ts",
+                  "file": "tests/digital-office-private-attachments.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -684,9 +915,9 @@
             }
           },
           {
-            "id": 2,
+            "id": 5,
             "files": [
-              "tests/shoperation-semantic-execution-intelligence.test.ts"
+              "tests/pro-entitlement-guards.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -697,7 +928,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-semantic-execution-intelligence.test.ts",
+                  "file": "tests/pro-entitlement-guards.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -715,78 +946,116 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "f152620b23c764a2d98a1e1e56420da39aca1638"
+              "developmentBaseSha": "8702a390534f17b9788c522e4c3356e5ea7041e2"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "f152620b23c764a2d98a1e1e56420da39aca1638",
+            "targetBaseSha": "8702a390534f17b9788c522e4c3356e5ea7041e2",
             "lease": {
-              "expectedBaseSha": "f152620b23c764a2d98a1e1e56420da39aca1638",
+              "expectedBaseSha": "8702a390534f17b9788c522e4c3356e5ea7041e2",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "quality/knowledge/domain-foundations.v1.json",
-              "tests/domain-foundations.test.ts",
-              "tests/shoperation-semantic-execution-intelligence.test.ts"
+              "src/app/api/admin/office/attachments/[id]/route.ts",
+              "src/app/api/admin/office/email-attachments/prepare/route.ts",
+              "src/app/api/admin/office/email-attachments/scan/route.ts",
+              "src/app/api/admin/office/email-attachments/status/route.ts",
+              "tests/digital-office-private-attachments.test.ts",
+              "tests/pro-entitlement-guards.test.ts"
             ],
             "operations": [
               {
                 "operation": "modify",
-                "file": "quality/knowledge/domain-foundations.v1.json",
+                "file": "src/app/api/admin/office/attachments/[id]/route.ts",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "tests/domain-foundations.test.ts",
+                "file": "src/app/api/admin/office/email-attachments/prepare/route.ts",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "tests/shoperation-semantic-execution-intelligence.test.ts",
+                "file": "src/app/api/admin/office/email-attachments/scan/route.ts",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "src/app/api/admin/office/email-attachments/status/route.ts",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "tests/digital-office-private-attachments.test.ts",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "tests/pro-entitlement-guards.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [
-              "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-              "scripts/lib/shoperation-reference-sync-runtime.mjs",
-              "src/lib/quality-system/domain-foundations.ts"
+              "src/lib/auth/admin-api.ts",
+              "src/lib/instances/scope.ts",
+              "src/lib/office/attachment-content-security.ts",
+              "src/lib/office/attachment-malware-scanner.ts",
+              "src/lib/office/private-attachments.ts",
+              "src/lib/plans/access.ts",
+              "src/lib/supabase/admin.ts"
             ],
-            "authorities": [
-              "quality-knowledge-system"
-            ],
+            "authorities": [],
             "subsystems": [
-              "quality-infrastructure"
+              "storefront-ui"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 1,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "subsystem": "storefront-ui",
+                  "risk": "low",
+                  "points": 1
                 }
               ],
               "files": [
                 {
-                  "file": "quality/knowledge/domain-foundations.v1.json",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "file": "src/app/api/admin/office/attachments/[id]/route.ts",
+                  "subsystem": "storefront-ui",
+                  "risk": "low",
+                  "points": 1
                 },
                 {
-                  "file": "tests/domain-foundations.test.ts",
+                  "file": "src/app/api/admin/office/email-attachments/prepare/route.ts",
+                  "subsystem": "storefront-ui",
+                  "risk": "low",
+                  "points": 1
+                },
+                {
+                  "file": "src/app/api/admin/office/email-attachments/scan/route.ts",
+                  "subsystem": "storefront-ui",
+                  "risk": "low",
+                  "points": 1
+                },
+                {
+                  "file": "src/app/api/admin/office/email-attachments/status/route.ts",
+                  "subsystem": "storefront-ui",
+                  "risk": "low",
+                  "points": 1
+                },
+                {
+                  "file": "tests/digital-office-private-attachments.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "tests/shoperation-semantic-execution-intelligence.test.ts",
+                  "file": "tests/pro-entitlement-guards.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -796,95 +1065,151 @@
               "decision": "PASS"
             },
             "requiredGates": [
+              "GUARD-CUSTOMER-BASELINE",
               "GUARD-EDIT-TIME",
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-MARKET-READY",
               "GUARD-PLAN-BEFORE-CODE",
+              "GUARD-PRODUCTION-BUILD",
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK",
+              "GUARD-TEMPLATE-FACTORY",
               "GUARD-TYPECHECK"
             ],
             "requiredEvidence": {
               "gateIds": [
+                "GUARD-CUSTOMER-BASELINE",
                 "GUARD-EDIT-TIME",
                 "GUARD-INCREMENTAL-REPLAY",
                 "GUARD-KNOWLEDGE-PREFLIGHT",
+                "GUARD-MARKET-READY",
                 "GUARD-PLAN-BEFORE-CODE",
+                "GUARD-PRODUCTION-BUILD",
                 "GUARD-QUALITY-TESTS",
                 "GUARD-RELEASE-RISK",
+                "GUARD-TEMPLATE-FACTORY",
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/domain-foundations.test.ts",
-                "tests/shoperation-semantic-execution-intelligence.test.ts"
+                "tests/digital-office-private-attachments.test.ts",
+                "tests/pro-entitlement-guards.test.ts"
               ],
-              "externalGateIds": []
+              "externalGateIds": [
+                "GUARD-TEMPLATE-FACTORY"
+              ]
             },
             "forbiddenPaths": [],
             "readOnlyPaths": [
-              "scripts/lib/shoperation-operational-intelligence.mjs",
-              "scripts/shoperation-close-development-plan.mjs",
-              "scripts/shoperation-development-guard.mjs",
-              "scripts/shoperation-plan-before-code.mjs",
-              "scripts/shoperation-truth-gate.mjs",
-              "src/components/admin/storefront-visual-builder-production.tsx",
-              "src/components/admin/storefront-visual-builder-v3.tsx",
-              "src/components/builder/storefront-commerce.tsx",
-              "src/lib/builder/storefront-commerce.ts",
-              "src/lib/builder/storefront-fidelity-behavior.ts",
-              "src/lib/builder/storefront-fidelity-interaction-state.ts",
-              "src/lib/builder/storefront-template-preview-demo.ts",
-              "src/lib/builder/storefront-template-route-integrity.ts",
-              "src/lib/builder/template-factory/scaffold.ts",
-              "src/lib/builder/templates/alpine-lodge.ts",
-              "src/lib/builder/templates/beauty-lab-fidelity.ts",
-              "src/lib/builder/templates/creator-station.ts",
-              "src/lib/builder/templates/derma-studio.ts",
-              "src/lib/builder/templates/editorial-atelier.ts",
-              "src/lib/builder/templates/gallery-edit.ts",
-              "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
-              "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
-              "src/lib/builder/templates/heritage-atelier.ts",
-              "src/lib/builder/templates/loot-vault.ts",
-              "src/lib/builder/templates/market-pantry.ts",
-              "src/lib/builder/templates/modern-luxe.ts",
-              "src/lib/builder/templates/monarche.ts",
-              "src/lib/builder/templates/my-pack.ts",
-              "src/lib/builder/templates/performance-lab.ts",
-              "src/lib/builder/templates/playroom-reference-v2.ts",
-              "src/lib/builder/templates/playroom.ts",
-              "src/lib/builder/templates/rig-forge.ts",
-              "src/lib/builder/templates/ritual-house.ts",
-              "src/lib/builder/templates/spec-lab.ts",
-              "src/lib/builder/templates/sport-hub.ts",
-              "src/lib/builder/templates/statement-lab.ts",
-              "src/lib/builder/templates/street-drop.ts",
-              "src/lib/builder/templates/table-gift.ts",
-              "src/lib/builder/templates/tech-deck.ts",
-              "src/lib/builder/templates/trail-expedition.ts",
-              "src/lib/quality-system/architecture-constitution.ts",
-              "src/lib/quality-system/capability-evidence.ts",
-              "src/lib/quality-system/domain-foundations.ts",
-              "tests/architecture-constitution.test.ts",
-              "tests/capability-roadmap-evidence.test.ts",
-              "tests/engine-authority-scope-classification.test.ts",
-              "tests/shoperation-change-impact-atlas.test.ts",
-              "tests/shoperation-codebase-atlas-v2.test.ts",
-              "tests/shoperation-operational-intelligence.test.ts",
-              "tests/shoperation-proof-semantics.test.ts",
-              "tests/storefront-commerce-fidelity-slots.test.tsx",
-              "tests/storefront-core-commerce.test.ts",
-              "tests/storefront-fidelity-behavior.test.tsx",
-              "tests/storefront-fidelity-commerce-interaction-states.test.tsx"
+              "docs/ROADMAP_BLOCK20_PLATFORM_ECOSYSTEM_ENTERPRISE_EXTENSIBILITY.md",
+              "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+              "quality/development/active-plan.json",
+              "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+              "quality/knowledge/release-parent-closure-proofs/dev-post-merge-exact-main-ci-e2e-v2.json",
+              "scripts/release-unit-github-runtime.mjs",
+              "scripts/release-unit-parent-close.mjs",
+              "scripts/template-factory-product-owner-handoff.mjs",
+              "src/app/admin/automatizalas/esemenyek/page.tsx",
+              "src/app/admin/automatizalas/page.tsx",
+              "src/app/admin/beallitasok/fizetes-szallitas/page.tsx",
+              "src/app/admin/beallitasok/integraciok/[id]/page.tsx",
+              "src/app/admin/beszerzes/page.tsx",
+              "src/app/admin/cashflow/page.tsx",
+              "src/app/admin/csapat/[userId]/page.tsx",
+              "src/app/admin/csapat/page.tsx",
+              "src/app/admin/elemzes/page.tsx",
+              "src/app/admin/ertekesites/page.tsx",
+              "src/app/admin/integraciok/page.tsx",
+              "src/app/admin/iranyitokozpont/page.tsx",
+              "src/app/admin/kampanyok/[id]/page.tsx",
+              "src/app/admin/kampanyok/page.tsx",
+              "src/app/admin/keszlet-elemzes/layout.tsx",
+              "src/app/admin/keszlet-elemzes/page.tsx",
+              "src/app/admin/kommunikacio/chat/actions.ts",
+              "src/app/admin/kommunikacio/chat/page.tsx",
+              "src/app/admin/kommunikacio/felugyelet/layout.tsx",
+              "src/app/admin/kommunikacio/felugyelet/page.tsx",
+              "src/app/admin/kommunikacio/iroda/actions.ts",
+              "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
+              "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+              "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
+              "src/app/admin/kommunikacio/iroda/hub/page.tsx",
+              "src/app/admin/kommunikacio/iroda/page.tsx",
+              "src/app/admin/kommunikacio/iroda/uj/page.tsx",
+              "src/app/admin/kommunikacio/layout.tsx",
+              "src/app/admin/marketing/page.tsx",
+              "src/app/admin/migracio/page.tsx",
+              "src/app/admin/novekedes/page.tsx",
+              "src/app/admin/optimalizalas/page.tsx",
+              "src/app/admin/page.tsx",
+              "src/app/admin/tartalom/builder/page.tsx",
+              "src/app/admin/tartalom/page.tsx",
+              "src/app/admin/tartalom/receptek/page.tsx",
+              "src/app/admin/tartalom/release-ek/page.tsx",
+              "src/app/admin/termekajanlasok/page.tsx",
+              "src/app/admin/termekek/feltoltes/[id]/page.tsx",
+              "src/app/admin/termekek/feltoltes/masolas/page.tsx",
+              "src/app/admin/termekek/feltoltes/page.tsx",
+              "src/app/admin/termekek/feltoltes/uj/page.tsx",
+              "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
+              "src/app/admin/ugyfelszolgalat/page.tsx",
+              "src/app/api/account/b2b-quotes/route.ts",
+              "src/app/api/account/b2b/identity/route.ts",
+              "src/app/api/account/b2b/route.ts",
+              "src/app/api/account/checkout-recovery/route.ts",
+              "src/app/api/account/marketing-consent/route.ts",
+              "src/app/api/account/reseller-request/route.ts",
+              "src/app/api/account/returns/route.ts",
+              "src/app/api/account/support/[id]/messages/route.ts",
+              "src/app/api/admin/actions/proposal/route.ts",
+              "src/app/api/admin/actions/run/route.ts",
+              "src/app/api/admin/assurance/finding/route.ts",
+              "src/app/api/admin/assurance/run/route.ts",
+              "src/app/api/admin/automation/control/route.ts",
+              "src/app/api/admin/automation/events/route.ts",
+              "src/app/api/admin/automation/instance/route.ts",
+              "src/app/api/admin/automation/run/route.ts",
+              "src/app/api/admin/campaigns/manage/route.ts",
+              "src/app/api/admin/campaigns/route.ts",
+              "src/app/api/admin/catalog/bulk/route.ts",
+              "src/app/api/admin/catalog/copilot/route.ts",
+              "src/app/api/admin/catalog/copy/route.ts",
+              "src/app/api/admin/catalog/digital-assets/route.ts",
+              "src/app/api/admin/communication/manage/route.ts",
+              "src/app/api/admin/office/business-objects/route.ts",
+              "src/app/api/admin/office/delegations/route.ts",
+              "src/app/api/admin/office/support-attention/route.ts",
+              "src/app/api/admin/support/[id]/messages/route.ts",
+              "src/app/api/admin/support/[id]/route.ts",
+              "src/app/storefront-template-preview/page.tsx",
+              "src/components/account/account-subnav.tsx",
+              "src/components/admin/digital-office-chat-dock.tsx",
+              "src/components/admin/digital-office-mobile-controller.tsx",
+              "src/components/admin/inventory-editor.tsx",
+              "src/components/admin/office-customer-email-form.tsx",
+              "src/components/admin/office-new-email-composer.tsx",
+              "src/components/admin/office-private-message-form.tsx",
+              "src/lib/auth/store-rbac.ts",
+              "src/lib/digital-office/access.ts",
+              "src/lib/navigation/admin-ia.ts",
+              "tests/digital-office-chat-composer-hardening.test.ts",
+              "tests/digital-office-internal-chat-capability-gate.test.ts",
+              "tests/digital-office-support-ticket-integration.test.ts",
+              "tests/digital-office-unified-ui.test.ts",
+              "tests/fine-grained-store-rbac.test.ts",
+              "tests/merchant-read-page-scope.test.ts"
             ],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "quality/knowledge/domain-foundations.v1.json",
-                "tests/domain-foundations.test.ts",
-                "tests/shoperation-semantic-execution-intelligence.test.ts"
+                "src/app/api/admin/office/attachments/[id]/route.ts",
+                "src/app/api/admin/office/email-attachments/prepare/route.ts",
+                "src/app/api/admin/office/email-attachments/scan/route.ts",
+                "src/app/api/admin/office/email-attachments/status/route.ts",
+                "tests/digital-office-private-attachments.test.ts",
+                "tests/pro-entitlement-guards.test.ts"
               ],
               "filesAbsent": []
             },
@@ -899,7 +1224,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "b9b8431e",
+            "manifestDigest": "26167635",
             "decision": "PASS"
           }
         ],
@@ -912,13 +1237,17 @@
         "contract": "shoporation.gate-chain.v1",
         "phase": "PLAN",
         "orderedGateIds": [
+          "GUARD-CUSTOMER-BASELINE",
           "GUARD-KNOWLEDGE-PREFLIGHT",
           "GUARD-PLAN-BEFORE-CODE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-MARKET-READY",
+          "GUARD-TYPECHECK",
+          "GUARD-PRODUCTION-BUILD",
           "GUARD-QUALITY-TESTS",
           "GUARD-RELEASE-RISK",
-          "GUARD-TYPECHECK"
+          "GUARD-TEMPLATE-FACTORY"
         ],
         "currentPhaseGateIds": [
           "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -926,66 +1255,79 @@
           "GUARD-RELEASE-RISK"
         ],
         "futureGateIds": [
+          "GUARD-CUSTOMER-BASELINE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-MARKET-READY",
+          "GUARD-TYPECHECK",
+          "GUARD-PRODUCTION-BUILD",
           "GUARD-QUALITY-TESTS",
-          "GUARD-TYPECHECK"
+          "GUARD-TEMPLATE-FACTORY"
         ],
-        "externalGateIds": [],
+        "externalGateIds": [
+          "GUARD-TEMPLATE-FACTORY"
+        ],
         "issues": [],
         "decision": "PASS"
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The canonical domain authority registry recognizes src/app/admin/** but does not recognize src/app/api/admin/**. Plan Before Code correctly BLOCKs four real Digital Office attachment API files as architecture scope unresolved, preventing the independent #1186 U06 security release. The domain registry should classify admin HTTP endpoints under the canonical Admin Operations authority without altering runtime application code.",
+    "problemStatement": "The Digital Office Pro-only route and Server Actions are guarded, but direct e-mail attachment prepare/scan/status APIs accept Alap base officeCommunication. A shared download route selects the base feature for provider_inbound and customer_outbound sources while internal_upload Team Chat downloads use a separate Pro gate. Protect e-mail HTTP boundaries without blocking normal Alap transactional mail or unrelated chat.",
     "observableOutcomes": [
-      "Existing /api/admin/** HTTP route files and newly planned API route files classify deterministically under DOMAIN-ADMIN and admin-operations authority.",
-      "Identity and checkout APIs retain their existing distinct canonical domains; Admin UI retains DOMAIN-ADMIN.",
-      "Atlas/Plan Before Code/Reference Sync and full known-failure replay validate the authority expansion rather than any bypass.",
-      "No product runtime, authorization logic, database schema, security policy or external proof gate modified."
+      "All three e-mail attachment HTTP endpoints reject Alap via status 403 using canonical officeCommunicationAdvanced before tenant context, storage, RPC or response payloads.",
+      "The shared private attachment download requires officeCommunicationAdvanced for provider_inbound and customer_outbound sources and retains teamChatSecureAttachments for internal_upload.",
+      "Normal Alap base email/support entitlements, suppression and transactional commerce email pipelines remain unchanged.",
+      "Real schema/source-specific negative tests and canonical Control Plane Truth must demonstrate the narrow surface; parent #1186 remains PARTIAL for RPC/RLS/storage/downgrade evaluation."
     ],
     "unresolvedRisks": [
-      "Broad path canonicalization may alter execution routes or expected domains for previous admin API change plans; prove precedence and no overlaps.",
-      "Existing plan projection authority may be stale until rederived by Development Guard.",
-      "This fixes classification only; U06 API guards still await separate canonical proof."
+      "Direct HTTP invocation bypasses server-rendered Digital Office route protection.",
+      "A generic blanket Pro gate on shared downloads could unintentionally alter Team Chat grants.",
+      "The shared metadata query uses service DB before source authorization; it must remain tenant-scoped and never disclose metadata before gate.",
+      "Other RPC/storage authorization and downgrade paths remain independent release obligations."
     ],
     "scope": {
       "in": [
-        "Canonical Admin Operations domain path ownership in domain-foundations.v1.json",
-        "Negative/positive domain registry and semantic execution tests"
+        "Three email-attachment HTTP endpoints (prepare, scan, status) and source-specific shared attachment download gate",
+        "Adversarial regression tests for Alap/Pro and distinct internal_upload Team Chat source"
       ],
       "out": [
-        "Application authorization changes",
-        "U06 Digital Office API code",
-        "Release and Sentinel gates; CI exemptions",
-        "Downgrade/RPC/storage or issue #1186 closure"
+        "Alter catalog entitlements or Alap transactional commerce email/suppression",
+        "Change Team Chat upload/scan/finalize/status APIs",
+        "Database, RLS, storage bucket, worker and RPC privilege rework (subsequent issue unit)",
+        "Claim global issue #1186 DONE"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-ADMIN-API-AUTHORITY",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U06-OFFICE-ATTACHMENT-HTTP",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
+        "GUARD-CUSTOMER-BASELINE",
         "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-EDIT-TIME",
         "GUARD-INCREMENTAL-REPLAY",
+        "GUARD-MARKET-READY",
+        "GUARD-TYPECHECK",
+        "GUARD-PRODUCTION-BUILD",
         "GUARD-QUALITY-TESTS",
         "GUARD-RELEASE-RISK",
-        "GUARD-TYPECHECK"
+        "GUARD-TEMPLATE-FACTORY"
       ],
-      "externalGuards": [],
+      "externalGuards": [
+        "GUARD-TEMPLATE-FACTORY"
+      ],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-CP-ADMIN-API-AUTHORITY",
-        "requirement": "Canonical Atlas consistently assigns DOMAIN-ADMIN and admin-operations owner to any admin HTTP route path while preserving more specific distinct nonadmin route domains.",
+        "id": "REQ-U06-EMAIL-API-PRO",
+        "requirement": "Every direct Office e-mail attachment HTTP request is rejected for Alap, and shared downloads use source-specific Pro entitlement with Team Chat unchanged.",
         "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "canonical-admin-api-path-classification",
+          "capability": "CAP-AUTH",
+          "breadth": "office-email-http-boundary",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -994,7 +1336,7 @@
           ]
         },
         "requiredCapabilities": [
-          "CAP-QUALITY"
+          "CAP-AUTH"
         ],
         "evidence": {
           "implementation": [
@@ -1006,8 +1348,42 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-CP-ADMIN-NONOVERLAP",
-            "statement": "Auth and commerce API routes cannot change domain due to this Admin HTTP authority mapping.",
+            "id": "NEG-U06-ALAP-HTTP",
+            "statement": "Alap with support.manage cannot prepare, scan, poll or download Office email attachments via direct HTTP calls.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-U06-PLAN-ISOLATION",
+        "requirement": "Separate Team Chat secure attachment routing and ordinary Alap transactional support/commerce emails remain unchanged; future RPC/storage work is not claimed.",
+        "claimScope": {
+          "capability": "CAP-AUTH",
+          "breadth": "attachment-source-isolation",
+          "strength": 2,
+          "dimensions": [
+            "scope",
+            "regression",
+            "forbidden-state"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-AUTH"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-U06-TEAMCHAT",
+            "statement": "internal_upload Team Chat downloads must retain teamChatSecureAttachments; unknown sources must remain denied.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1020,10 +1396,10 @@
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "9676f17f09aed07729017c28fddb20b3f97918f3",
-    "closedAt": "2026-10-09T17:51:12.567Z",
+    "verifiedImplementationHead": "316f95bc3509880f085a84b2bf671b948aaaf0dd",
+    "closedAt": "2026-10-09T18:56:45.285Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-ADMIN-API-AUTHORITY",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U06-OFFICE-ATTACHMENT-HTTP",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

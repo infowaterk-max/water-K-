@@ -12,6 +12,32 @@ function source(path: string) { return readFileSync(resolve(process.cwd(), path)
 
 describe('Pro entitlement entrypoint guards', () => {
   it.each([
+    'src/app/api/admin/office/email-attachments/prepare/route.ts',
+    'src/app/api/admin/office/email-attachments/scan/route.ts',
+    'src/app/api/admin/office/email-attachments/status/route.ts',
+  ])('rejects Alap direct Office email attachment HTTP calls before tenant or database access: %s',(path)=>{
+    const code=source(path);
+    const base="hasCurrentPlanFeature('officeCommunication')";
+    const advanced="hasCurrentPlanFeature('officeCommunicationAdvanced')";
+    const pos=code.indexOf(advanced),scope=code.indexOf("requireCurrentStoreContext('support.manage')",code.indexOf('export async function'));
+    expect(pos).toBeGreaterThan(0);
+    expect(code).not.toContain(base);
+    expect(scope).toBeGreaterThan(pos);
+    expect(code.slice(pos,scope)).toContain('status:403');
+    expect(code).toContain("getAdminRequestUser('support.manage')");
+  });
+
+  it('routes inbound/outbound Office email downloads through advanced Pro entitlement while preserving Team Chat security',()=>{
+    const code=source('src/app/api/admin/office/attachments/[id]/route.ts');
+    expect(code).toContain("source==='internal_upload'?'teamChatSecureAttachments'");
+    expect(code).toContain("source==='provider_inbound'||source==='customer_outbound'?'officeCommunicationAdvanced':null");
+    expect(code).toContain('hasCurrentPlanFeature(feature)');
+    expect(code.indexOf('hasCurrentPlanFeature(feature)')).toBeLessThan(code.indexOf("db.rpc('admin_get_office_private_attachment_v1'"));
+    expect(code).not.toContain("?'officeCommunication':null");
+    expect(code).toContain('status:403');
+  });
+
+  it.each([
     ['src/app/admin/kommunikacio/iroda/actions.ts','async function supportAccess(){','async function privateChatAccess'],
     ['src/app/admin/kommunikacio/iroda/composer-actions.ts','async function access(){','function reasonFrom'],
     ['src/app/admin/kommunikacio/iroda/customer-read-actions.ts','export async function markCustomerThreadReadAction(', '  const db=createAdminClient();'],
