@@ -261,6 +261,13 @@
         "finding": "The previously correct test contract is now stale and makes Incremental Replay fail despite the effective entitlement boundary being stricter.",
         "resolution": "Extend the scoped regression file list and replace only the outdated Alap Team Chat expectation with false; preserve Pro visibility and all unrelated navigation assertions.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-1186-U01-10",
+        "scenario": "The Sentinel integrity probe evaluates CAP-AUTH proof obligations and finds GUARD-PLAN-BEFORE-CODE and GUARD-EDIT-TIME are registered for CAP-ATLAS and CAP-QUALITY only.",
+        "finding": "Using plan-shape or edit-scope guards as a substitute for executed authorization behavior proof overclaims their registered capabilities, even though those separate preconditions still pass.",
+        "resolution": "Bind CAP-AUTH implementation and outcome proof to the executed GUARD-QUALITY-TESTS, which explicitly supports all capabilities; retain both Plan and Edit-Time as mandatory independent system obligations without assigning them false CAP-AUTH authority.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -1333,8 +1340,7 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-EDIT-TIME"
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS"
@@ -1390,6 +1396,7 @@
     "No direct SQL/data mutation in this unit; next dependent release must correct persistent sync and direct access surfaces.",
     "Original accepted entitlement source priority retained for all eligible Pro capabilities.",
     "An additional legacy admin IA regression test was discovered as failing by mandatory Incremental Replay and included by an explicit refreshed Development Guard before editing it.",
-    "Change-base reconciled after the required Replay-discovered navigation test was added: the regenerated guard accidentally re-anchored at an intermediate local code commit. This release is verified against the original merged canonical main 32fcdb7ede3772dfd43ab9694c042404ba900d3c, so all six material files stay inside one exact-head authorization/replay diff."
+    "Change-base reconciled after the required Replay-discovered navigation test was added: the regenerated guard accidentally re-anchored at an intermediate local code commit. This release is verified against the original merged canonical main 32fcdb7ede3772dfd43ab9694c042404ba900d3c, so all six material files stay inside one exact-head authorization/replay diff.",
+    "PR exact-head #9340 quality CI identified Sentinel capability proof drift; corrected CAP-AUTH claim source to GUARD-QUALITY-TESTS only, preserving Plan/Edit-Time mandatory gates via systemObligations and leaving Core capability PARTIAL."
   ]
 }
