@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1186-U01-PRO-CHAT",
   "task": "MR1 Core unit 1 Pro-only Team Chat deny stale Alap entitlement rows while preserving core customer email issue 1186",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "d64b38b6",
   "changeBaseSha": "32fcdb7ede3772dfd43ab9694c042404ba900d3c",
   "plannedFilePatterns": [
@@ -1398,5 +1398,18 @@
     "An additional legacy admin IA regression test was discovered as failing by mandatory Incremental Replay and included by an explicit refreshed Development Guard before editing it.",
     "Change-base reconciled after the required Replay-discovered navigation test was added: the regenerated guard accidentally re-anchored at an intermediate local code commit. This release is verified against the original merged canonical main 32fcdb7ede3772dfd43ab9694c042404ba900d3c, so all six material files stay inside one exact-head authorization/replay diff.",
     "PR exact-head #9340 quality CI identified Sentinel capability proof drift; corrected CAP-AUTH claim source to GUARD-QUALITY-TESTS only, preserving Plan/Edit-Time mandatory gates via systemObligations and leaving Core capability PARTIAL."
-  ]
+  ],
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "6dfda3778c789a1ab86983c5677c7fd9aa4f1c71",
+    "closedAt": "2026-10-09T07:58:51.062Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-09-CORE-DIGITAL-OFFICE-1186-U01",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
