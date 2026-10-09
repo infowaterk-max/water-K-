@@ -1,29 +1,24 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-DIAGNOSTIC-SURFACE-1018",
-  "task": "Harden shared exact-error diagnostic collection for CI security-audit and trusted release executor and feed normalized artifacts into Failure Intake without weakening failure behavior.",
+  "taskId": "DEV-CONTROL-PLANE-EARLY-EXECUTOR-DIAGNOSTICS-1018-V2",
+  "task": "Bind early trusted release executor steps to the existing exact-error diagnostic and Failure Intake, including fail-closed stage localization for unavailable early errors.",
   "status": "closed",
-  "guardDigest": "a42319a7",
-  "changeBaseSha": "995983131fa3aa1cb91794810c817f6b9b8846d9",
+  "guardDigest": "1395803e",
+  "changeBaseSha": "1c59e38b406e1bd7e8d5f29a8d4dcd69db22ead6",
   "plannedFilePatterns": [
-    ".github/workflows/ci.yml",
     ".github/workflows/release-unit-execution.yml",
-    "scripts/shoperation-command-diagnostic.mjs",
     "tests/control-plane-diagnostic-coverage.test.ts",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
     "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-RELEASE",
-    "DOMAIN-QUALITY"
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "release-infrastructure",
-    "quality-knowledge-system"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-003",
@@ -71,74 +66,82 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-DIAGNOSTIC-SURFACE-1018",
+    "sourceRef": "PO-2026-10-09-RELEASE-PREDRIVE-DIAGNOSTIC-1018-V2",
     "riskTier": "critical",
-    "problemStatement": "Trusted release executor exceptions and security-audit errors may be visible only in GitHub job logs, not in one machine-readable Failure Intake artifact or job summary. Issue #1018 requires exact error code, nested reason, job/step location, source SHA, and durable evidence without operator log mining or fail-open success.",
+    "problemStatement": "Even after merged #1180, Release Unit Execution pre-drive dependency install, source fetch, Knowledge/Atlas, Plan and Risk command failures occur before the wrapped driver and are reported only as a generic RELEASE_UNIT_EXECUTION_FAILED. Preserve their original precise command error, causal step, SHA and job metadata automatically without bypassing authority, retrying release, or claiming unavailable root cause.",
     "observableOutcomes": [
-      "On release executor failure the existing diagnostic wrapper emits the original nested machine code and reason, identifies the release job/step and retains the raw error with secrets redacted.",
-      "The executor workflow runs the wrapped command but retains the exact nonzero child exit status; an always-running intake step uploads machine-readable evidence.",
-      "Security audit failures and exhausted retry/network failures produce normalized machine diagnostics and Failure Intake artifacts in the separate security-audit job.",
-      "A focused regression covers nested RELEASE_UNIT_EXECUTION_BLOCK with reason/error, fallback exception, secret scrubbing and exact nonzero exit code.",
-      "No reduction to Plan/Edit-Time/Truth/Lifecycle/Security gate checks and no duplicate executor or CI dispatch."
+      "Every executable trusted release pre-drive command is wrapped with the shared streamed command diagnostic, with distinct stage ID, output and fallback code.",
+      "The existing job-local Failure Intake collects all stage diagnostics from exactly this run and keeps the precise code/reason/evidence when available, not just generic release failure.",
+      "Unexpected GitHub action/setup failure before wrapper execution is reported as structured UNKNOWN/root-cause-not-captured with failed GitHub step identity; no fabricated exact error.",
+      "Representative simulated npm/install, source fetch and knowledge/risk faults preserve child nonzero status, secret redaction and precise stage localization, and successful steps remain PASS.",
+      "Exact-head CI guards and main merge proof remain mandatory; no rerun of an existing release transaction."
     ],
     "unresolvedRisks": [
-      "Wrapper output buffering can hide progress for a long-running release driver or exhaust memory; prefer streamed forwarding with bounded error tail.",
-      "npm audit may report network failure and retry; intake must capture only final failure rather than the first transient attempt.",
-      "Workflow cleanup must not mask the primary command failure or unexpectedly report success.",
-      "Token-bearing stderr may leak to persisted diagnostic artifacts; redact known CI credentials.",
-      "Security audit job independence means the build job cannot ingest its local files; each job must publish its own artifact and Failure Intake."
+      "Error in GitHub checkout before repository scripts are available cannot have a valid exact raw code from command wrapper; mark UNKNOWN instead of inventing.",
+      "`npm ci` dependency install must remain fail-closed even before lockfile modules are available; diagnostic uses Node core only.",
+      "Source-plan extraction pipeline must retain git SHA verification and exact output path, including no stale/source-injection acceptance.",
+      "All stage artifacts may contain sanitized command errors but raw CI token-bearing stdout is still console/logged; masked by runner; do not copy raw secrets to artifact.",
+      "Workflow `if: failure()` can run after any earlier failed step, but its intake script may itself be absent after checkout failure; never claim complete coverage for impossible path.",
+      "Generic Failure Intake must not misclassify skipped or successful stage artifacts as a failed gate.",
+      "Raw shared wrapper may report machine fallback for non-structured npm/git errors; preserve raw text and label fallback truthfully."
     ],
     "scope": {
       "in": [
-        "Extend existing shared scripts/shoperation-command-diagnostic.mjs with streamed output, exact nested error extraction and bounded sanitized raw diagnostics.",
-        "Bind trusted release-unit-execution.yml driver invocation to that shared command diagnostic and post-failure intake/artifact upload.",
-        "Bind the independent ci.yml security-audit job to its own normalized command diagnostic, artifact and intake without changing retry outcome.",
-        "Extend tests/control-plane-diagnostic-coverage.test.ts with positive/negative exact diagnostic and workflow wiring assertions."
+        "Change only `.github/workflows/release-unit-execution.yml` to invoke existing shared `scripts/shoperation-command-diagnostic.mjs` for install, exact source fetch, Knowledge/Atlas, Plan Before Code, Release Risk and git identity step, each with distinct machine code, stage name and output.",
+        "Keep existing `Drive canonical release-unit execution` as-is and extend job-local Failure Intake/Artifact upload to include all stage JSON files.",
+        "Provide early-action fallback summary diagnostic only when command artifacts are missing, without falsely claiming the root cause; never weaken GitHub action errors.",
+        "Add targeted tests to `tests/control-plane-diagnostic-coverage.test.ts`, including exact pre-drive stage wiring and a simulated failure boundary demonstrating stage/exit/code/source plus redaction."
       ],
       "out": [
-        "No edits to release-unit canonical state, existing receipts, immutable source, release authorization, CI gate thresholds, or merge policy.",
-        "No new separate generic diagnostic controller; reuse the existing command-diagnostic and Failure Intake v2.",
-        "No Builder, templates, storefront, customer, database or payments.",
-        "No background job or extra production deployment."
+        "No edit to scripts/release-unit-execute.mjs or canonical release-state branches/receipts.",
+        "No mutation of `scripts/shoperation-command-diagnostic.mjs` or `scripts/shoperation-failure-intake.mjs` unless new plan gate proves a true necessity and revised scope.",
+        "No edits to CI/Template Factory /fresh install /checkout action contracts, feature runtime, storefront, authentication, payment, database or prod deployment.",
+        "No bypass of Knowledge, Plan, Risk, Edit-Time, Truth, Lifecycle or release gate/merge thresholds.",
+        "No automated child release rehearsal or duplicate Vercel builds."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "False success or masked security/release failure threatens release correctness; implementation is observability only and must fail closed.",
+      "rationale": "An executor pre-drive failure is release-authoritative, so staging/fallback must preserve nonzero and no false completion or exact-code overclaims.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
-        "boundary-cases",
-        "adversarial-scenarios",
-        "threat-failure-model",
-        "fault-injection",
-        "pairwise-interactions",
         "state-model",
         "what-if-matrix",
+        "adversarial-scenarios",
+        "boundary-cases",
+        "pairwise-interactions",
+        "threat-failure-model",
+        "fault-injection",
         "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "A nested release failure emits exact code and nested error in structured artifact and GitHub summary without manual log retrieval.",
-        "Security audit failure yields its final precise npm error after existing bounded retries; the job still fails.",
-        "Interrupted/external failure returns the child's original nonzero exit code and fallback normalized code if the exact code is absent.",
-        "Intake artifacts preserve source/run/gate and secret-free evidence, failure classification and provide a machine-localized code.",
-        "Complete CI checks (Knowledge, Plan, Edit-Time, Replay, Risk, Tests, TypeScript, Build, Truth, Lifecycle) are unchanged and terminal PASS required before merging."
+        "Pre-drive trust steps keep exact source verification, Knowledge, Plan, Risk and identity semantics; exact success behavior unchanged.",
+        "When any covered pre-drive step fails, a distinct stage-specific diagnostic JSON captures original child failure code where present, redacted reason and source/run; workflow fails.",
+        "On pre-script checkout/setup failure, no fake exact code is emitted; the available step-outcome localization/fallback remains truthful and non-green.",
+        "Existing Failure Intake ingests all stage JSON and driver JSON into the same canonical report, with no duplicate standalone engine.",
+        "Regression tests cover original exit code, stage code, error redaction, and expected workflow bindings.",
+        "Plan Before Code, Edit-Time, Incremental Replay, release risk, full tests, TypeScript, production build, Completion Truth and lifecycle all PASS for the exact implementation SHA."
       ],
       "invariants": [
-        "Exit code and gate decisions remain authoritative: diagnostics may never downgrade a failure to PASS.",
-        "No new release execution attempts, dispatches or material changes are caused by diagnostics.",
-        "Every diagnostic binds to exact source SHA, job/gate and original stable code when present.",
-        "Only the bounded declared files may change after Plan PASS."
+        "Release executor admission and source provenance remain unchanged.",
+        "Stage diagnostic wrapper cannot convert a command failure to PASS or retry it.",
+        "Only actual JSON artifacts are used as concrete exact-code proof; missing artifacts are UNKNOWN.",
+        "Each stage artifact is assigned a stable gateCode and exact associated command.",
+        "No state mutation takes place in the diagnostic postflight/Failure Intake.",
+        "Observed child exit/status remains authoritative for CI and persisted state."
       ],
       "forbiddenStates": [
-        "Any failure is silently swallowed by cleanup or diagnostic parsing.",
-        "A GH_TOKEN/GITHUB_TOKEN secret is stored in a public workflow artifact.",
-        "A network timeout is diagnosed as clean successful security audit.",
-        "A stale or foreign PR is authorized because diagnostics ran.",
-        "The first implementation edit precedes an exact-head Plan Before Code PASS."
+        "GitHub raw checkout failure is labeled with a made-up exact root cause.",
+        "A failed npm install is swallowed as a passing prereq.",
+        "`git show` invalid source writes a supposedly valid immutable source plan or proceeds to driver.",
+        "A blocked Knowledge/Plan/Risk preflight is treated as successful.",
+        "A failed command causes a fresh release run/branch/PR as a diagnostic side effect.",
+        "Tokens are stored unredacted in release diagnostics or Failure Intake.",
+        "Edit-Time Reference Sync is bypassed to satisfy gate."
       ]
     },
     "model": {
@@ -170,40 +173,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Release driver exits nonzero with nested JSON error; parser only stores generic RELEASE_UNIT_EXECUTION_BLOCK.",
-        "npm audit network transient is retried then succeeds; stale failed diagnostics must not persist.",
-        "Job setup/checkout/install fails before diagnostic command; fallback step still emits step-localized evidence.",
-        "Child process sends >64 MB logs while workflow waits and old sync buffer overflows.",
-        "Error stderr contains GitHub token and leaks when copied verbatim.",
-        "Failure Intake itself throws and shadows original error."
+        "Checkout failed before repo scripts available.",
+        "Dependency install missing package/lock or npm transient network issue.",
+        "Source ref absent, invalid SHA, or git show fails.",
+        "Knowledge/Atlas preflight blocks, could leave artifact.",
+        "Plan Before Code denies forged/broadened plan.",
+        "Risk gate blocks dangerous candidate.",
+        "Git identity configuration fails.",
+        "Drive fails with nested RELEASE_UNIT_EXECUTION_BLOCK; existing #1180 handles it.",
+        "Failure Intake parser may not understand absent diagnostic artifact and use generic code."
       ],
       "edgeCases": [
-        "Nested reason is an object with code and details while error is a string.",
-        "Unknown exception has no formal code.",
-        "Child exits by signal or cannot spawn.",
-        "Security npm audit returns high vulnerabilities or terminal network failure.",
-        "Workflow steps are skipped because preceding step failed.",
-        "Exact commit and GH run identity are available without logging secrets."
+        "Only the active run's SHA must label emitted artifacts.",
+        "Skipped pre-drive stage should not be classified as FAIL.",
+        "npm stderr contains uppercase error tokens, exact machine code available only when truly in output.",
+        "Early exit before artifact generation yields explicit UNKNOWN and failed step ID.",
+        "Job-level failure remains red even if reporting step succeeds.",
+        "Github repository checkout failure makes local script missing; cannot claim impossible artifact.",
+        "Running actor/token remains workflow-scoped; no new Action permissions."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-SHARED-WRAPPER",
-        "summary": "Extend existing shared command-diagnostic and wire two independent job failure surfaces.",
+        "id": "ALT-BIND-SHARED",
+        "summary": "Reuse canonical command diagnostic around existing pre-drive commands and extend current job-local intake.",
         "disposition": "selected",
-        "reason": "One normalized command error implementation and existing Failure Intake preserve architecture and avoid two independent controllers."
+        "reason": "Covers command failures in same workflow with stable code and no additional execution authority."
       },
       {
-        "id": "ALT-LOG-ONLY",
-        "summary": "Require operators to query GitHub job logs for nested exceptions.",
+        "id": "ALT-CUSTOM-EXECUTOR",
+        "summary": "Replace full release workflow with new master CLI and installer/handler.",
         "disposition": "rejected",
-        "reason": "Violates #1018 observable code requirement and leaves same failure."
+        "reason": "Introduces duplicate execution authority and breaks trusted workflow_run admission."
       },
       {
-        "id": "ALT-GLOBAL-WORKFLOW-API",
-        "summary": "New central GitHub workflow API polling service for every job.",
+        "id": "ALT-GH-LOG-SCRAPE",
+        "summary": "Poll full GitHub job logs to infer a missing root cause, even before checkout.",
         "disposition": "rejected",
-        "reason": "Introduces unrelated permissions, eventual consistency and duplicate authority when job-local evidence is available."
+        "reason": "Sensitive, eventual-consistency prone and risks confusing diagnostic text with trusted evidence."
       }
     ],
     "specialistReviews": [
@@ -211,30 +218,30 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The shared diagnostic wrapper already exists but does not cover all authoritative jobs.",
-        "resolution": "Extend existing wrapper, with job-local Failure Intake steps.",
+        "finding": "Shared command diagnostic exists; failures occur earlier than its current driver-only use.",
+        "resolution": "Wrap existing pre-drive commands in same producer, collect stage artifacts via existing Failure Intake.",
         "evidence": [
-          "scripts/shoperation-command-diagnostic.mjs",
-          "scripts/shoperation-failure-intake.mjs"
+          ".github/workflows/release-unit-execution.yml",
+          "scripts/shoperation-command-diagnostic.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Persisting raw CLI stderr could leak GitHub credentials.",
-        "resolution": "Redact configured tokens from diagnostic and summary, retain original exit and exact error code, and avoid dumping all logs into artifacts.",
+        "finding": "GitHub secrets or bare shell error may leak into persistent artifacts or a misleading PASS, especially before dependency setup.",
+        "resolution": "No secret values in workflow arguments, use existing sanitized bounded wrapper, fail closed, do not produce exact claim if code unavailable.",
         "evidence": [
-          ".github/workflows/ci.yml",
-          "scripts/shoperation-command-diagnostic.mjs"
+          "scripts/shoperation-command-diagnostic.mjs",
+          "tests/control-plane-diagnostic-coverage.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Executor is a long-running side-effectful CLI; sync capture can mask progress and cannot alter state.",
-        "resolution": "Stream stdout/stderr with bounded capture and preserve exit code without dispatch/replay side effects.",
+        "finding": "Diagnostic wrapper must not rerun release side effects, shift source SHA or skip original Knowledge/Plan/Risk trust checks.",
+        "resolution": "Pre-drive command-only wrapping with original command content and unchanged driver invocation; no replay or new branch.",
         "evidence": [
           ".github/workflows/release-unit-execution.yml",
           "scripts/release-unit-execute.mjs"
@@ -244,8 +251,8 @@
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Intake already accepts generic code and structured artifact; must favor exact structured detail.",
-        "resolution": "Prefer parsed nested stable code while retaining fallback only if exact code absent.",
+        "finding": "Every new failure artifact needs a distinct gateCode, and absent precheckout error is unknown rather than a fake code.",
+        "resolution": "Use existing Failure Intake with stage-scoped JSON and explicit missing-artifact step fallback.",
         "evidence": [
           "scripts/shoperation-failure-intake.mjs",
           "tests/control-plane-diagnostic-coverage.test.ts"
@@ -254,78 +261,84 @@
     ],
     "challenge": [
       {
-        "id": "CH-DIAG-01",
-        "scenario": "Nested error's stable code sits in result.reason.code, not outer Error prefix.",
-        "finding": "Old wrapper can report generic RELEASE_UNIT_EXECUTION_BLOCK.",
-        "resolution": "Parse nested error JSON before regex and preserve both nested reason and original raw error sanitized.",
+        "id": "CH-PRE-01",
+        "scenario": "npm ci exits 1 before dependencies exist.",
+        "finding": "Third-party helper cannot run before install.",
+        "resolution": "Existing diagnostic is Node core-only and can wrap npm before installing modules.",
         "status": "resolved"
       },
       {
-        "id": "CH-DIAG-02",
-        "scenario": "Security audit retry 1 fails but retry 2 succeeds.",
-        "finding": "First diagnostic artifact might remain FAILED.",
-        "resolution": "Overwrite per-attempt report, publish intake only if final terminal job fails.",
+        "id": "CH-PRE-02",
+        "scenario": "Checkout fails and no tracked repository script is present.",
+        "finding": "An exact command wrapper cannot be executed.",
+        "resolution": "Record available GitHub step outcome only, label root cause unavailable, do not falsely certify exact source.",
         "status": "resolved"
       },
       {
-        "id": "CH-DIAG-03",
-        "scenario": "A blocked CI step prevents next steps, including diagnostic command.",
-        "finding": "No command artifact would exist.",
-        "resolution": "Record fallback step name and failed outcome in always-running postflight without classifying a successful job as failed.",
+        "id": "CH-PRE-03",
+        "scenario": "Source SHA invalid or source plan missing.",
+        "finding": "Partial source-plan artifact may remain.",
+        "resolution": "Keep git fetch/rev-parse/git show in `set -euo pipefail` and preserve exit through wrapper.",
         "status": "resolved"
       },
       {
-        "id": "CH-DIAG-04",
-        "scenario": "Executor issues GitHub remote side effects and then errors.",
-        "finding": "Restart or retry by diagnostic wrapper could duplicate operations.",
-        "resolution": "Never retry from wrapper; only record child nonzero outcome and let canonical release state control resumability.",
+        "id": "CH-PRE-04",
+        "scenario": "Knowledge preflight blocks with structured error.",
+        "finding": "Old driver-only reporting loses actual code.",
+        "resolution": "New per-stage diagnostics retain output and corresponding gate artifacts through current Failure Intake.",
         "status": "resolved"
       },
       {
-        "id": "CH-DIAG-05",
-        "scenario": "Unexpected large child stdout buffers during long executor.",
-        "finding": "Old spawnSync maxBuffer introduces diagnostic-induced failure.",
-        "resolution": "Stream child logs and capture bounded tail only.",
+        "id": "CH-PRE-05",
+        "scenario": "Failed stage makes later stages skipped.",
+        "finding": "Generic intake could misattribute skipped stages.",
+        "resolution": "Feed only existing artifacts; fallback reports first failed step and never assumes missing stages ran.",
         "status": "resolved"
       },
       {
-        "id": "CH-DIAG-06",
-        "scenario": "Raw error contains a credential.",
-        "finding": "Persistent intake may leak secret.",
-        "resolution": "Redact exact tokens before persisting while leaving stable code and location intact.",
+        "id": "CH-PRE-06",
+        "scenario": "Failure Intake itself fails after gate failure.",
+        "finding": "Reporting may mask original failure.",
+        "resolution": "Keep reporting conditional/after failed command, never override original nonzero status, archive diagnostics via independent upload.",
         "status": "resolved"
       },
       {
-        "id": "CH-DIAG-07",
-        "scenario": "An exact-code parser sees a stack trace with unrelated uppercase tokens and no valid nested error object.",
-        "finding": "A broad regex can synthesize a false stable error code.",
-        "resolution": "Prefer parsed structured release block or anchored `Error: <CODE>`; fall back to known gate code rather than unsafe pattern guesses.",
+        "id": "CH-PRE-07",
+        "scenario": "GH_TOKEN appears in a nested error.",
+        "finding": "Stored evidence can leak sensitive token.",
+        "resolution": "Use shared sanitizer, keep raw error only redacted and fail if test sees token.",
         "status": "resolved"
       },
       {
-        "id": "CH-DIAG-08",
-        "scenario": "An always-running failure-intake step runs after checkout/install has already failed.",
-        "finding": "The script may be unavailable or locked dependencies absent.",
-        "resolution": "Record failure step/outcome through job-local `always()` fallback with minimal Node runtime when repository is available; fail closed and retain original workflow job failure if unavailable.",
+        "id": "CH-PRE-08",
+        "scenario": "Target GitHub SHA drifts between source CI and trusted executor.",
+        "finding": "Might proceed from stale source.",
+        "resolution": "No change to immutable SHA check, no source branch inference, no force push.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-PRE-09",
+        "scenario": "Simple shell Git stderr has no stable uppercase machine code.",
+        "finding": "Fallback code is not truly exact Git root cause.",
+        "resolution": "Explicit fallback code with original sanitized stderr; never assert exact root-cause proven.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Plan-only exact-head gate PASS before code; reconcile Atlas scope/negative knowledge rather than overriding.",
-      "Implement shared streaming nested-code parser, plus diagnostic wiring in two authoritative workflow jobs.",
-      "Run focused regression covering nested error, generic fallback, secret scrub, signal/exit and unaffected success.",
-      "Run Knowledge/Plan/Edit-Time/Incremental, tests/typecheck/build and complete Truth/Lifecycle on exact implementation SHA.",
-      "Review actual separate security and executor job artifacts from CI; do not close #1018 until evidence proves every claimed source."
+      "Plan-only exact-head CI must show Plan Before Code PASS before editing implementation files.",
+      "Wrap early release authoritative commands with distinct diagnostic gates and bounded JSON artifacts, preserving nonzero.",
+      "Run focused tests demonstrating exact/non-exact source and npm failures, failure-intake wiring and positive passes.",
+      "Run Knowledge, Plan, Edit-Time, Incremental, Risk, full quality, TypeScript, production build, Truth and Lifecycle on exact head; fix failures without weakening.",
+      "Use emitted CI-owned closure artifact byte-exact; merge only with successful latest SHA and verify exact new main CI.",
+      "Leave #1018 open for separate external-proof and universal early job pre-checkout scenarios."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-09-CONTROL-PLANE-DIAGNOSTIC-SURFACE-1018",
+      "request": "PO-2026-10-09-RELEASE-PREDRIVE-DIAGNOSTIC-1018-V2",
       "authority": [
         "release-infrastructure",
         "quality-knowledge-system"
       ],
       "mustEdit": [
-        "scripts/shoperation-command-diagnostic.mjs",
-        ".github/workflows/ci.yml",
         ".github/workflows/release-unit-execution.yml",
         "tests/control-plane-diagnostic-coverage.test.ts"
       ],
@@ -333,18 +346,21 @@
         "quality/development/active-plan.json"
       ],
       "impactedReadOnly": [
+        "scripts/shoperation-command-diagnostic.mjs",
         "scripts/shoperation-failure-intake.mjs",
         "scripts/release-unit-execute.mjs"
       ],
       "mustCreate": [],
       "forbidden": [
-        "supabase/**",
+        ".github/workflows/ci.yml",
         "src/**",
+        "supabase/**",
         "control-plane/release-state/**"
       ],
       "proof": [
         "tests/control-plane-diagnostic-coverage.test.ts",
-        "artifacts/shoperation-failure-intake/failure-intake.json"
+        "artifacts/shoperation-command-diagnostics/**",
+        "artifacts/shoperation-failure-intake/**"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -355,7 +371,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-DIAGNOSTIC-SURFACE-1018",
+    "sourceRef": "PO-2026-10-09-RELEASE-PREDRIVE-DIAGNOSTIC-1018-V2",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -373,11 +389,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-EXECUTOR-EXACT-DIAGNOSTIC",
-        "requirement": "A release executor failure emits exact nested machine code, reason, location and source/run bound artifact/summary without altering execution status.",
+        "id": "REQ-EARLY-RELEASE-DIAGNOSTIC",
+        "requirement": "Release pre-drive command errors yield stage-specific machine diagnostics before driver, preserving original fail-closed outcome.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "executor-diagnostic-fidelity",
+          "breadth": "single-release-executor-preflight",
           "strength": 2,
           "dimensions": [
             "status",
@@ -400,8 +416,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-EXECUTOR-FAIL-OPEN",
-            "statement": "No wrapped child error is converted to a successful exit.",
+            "id": "NEG-PREFLIGHT-BYPASS",
+            "statement": "Early errors cannot become a passing driver result.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -409,51 +425,17 @@
         ]
       },
       {
-        "id": "REQ-SECURITY-AUDIT-DIAGNOSTIC",
-        "requirement": "A separate security audit job emits structured exact failure diagnostics and Failure Intake without weakening npm audit retry/fail rules.",
+        "id": "REQ-INTAKE-LOCATOR",
+        "requirement": "Failure Intake and run summary identify the first failed pre-drive stage, source/run and available original evidence without inventing unavailable checkout details.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "security-gate-diagnostic-fidelity",
+          "breadth": "bounded-intake-localization",
           "strength": 2,
           "dimensions": [
             "status",
             "evidence-scope",
+            "truth",
             "forbidden-state"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-EDIT-TIME"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-SECURITY-DOWNGRADE",
-            "statement": "Security audit nonzero failure still fails the entire security-audit job.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-FAILURE-INTAKE-BOUNDARY",
-        "requirement": "Normalize codes, locations, and sanitized raw errors without leaking credentials or creating a duplicate diagnostic authority.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "failure-intake-contract",
-          "strength": 2,
-          "dimensions": [
-            "evidence-scope",
-            "forbidden-state",
-            "truth"
           ]
         },
         "requiredCapabilities": [
@@ -469,10 +451,43 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SECRET-LEAK",
-            "statement": "No configured CI token is written to a diagnostic artifact or summary.",
+            "id": "NEG-FAKE-ROOT-CAUSE",
+            "statement": "Uncaptured early checkout failures cannot be claimed as exact known root cause.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-PREFLIGHT-RISK",
+        "requirement": "Release risk and source trust remain unchanged; no new authority, retry, state mutation or release dispatch.",
+        "claimScope": {
+          "capability": "CAP-RELEASE",
+          "breadth": "release-preflight-guard",
+          "strength": 2,
+          "dimensions": [
+            "risk",
+            "release-scope"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-RELEASE"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-RELEASE-RISK"
+          ],
+          "outcome": [
+            "GUARD-RELEASE-RISK"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-RISK-DOWNGRADE",
+            "statement": "No release-risk or source trust bypass.",
+            "evidence": [
+              "GUARD-RELEASE-RISK"
             ]
           }
         ]
@@ -480,17 +495,17 @@
     ]
   },
   "notes": [
-    "Plan-only checkpoint: no implementation change may be authored until exact-head Plan Before Code succeeds.",
-    "Historical issue #1018. Existing generic command-diagnostic is canonical; do not add a competing second diagnostics engine.",
-    "Sentinel proof-semantics correction: guard registry lacks a 'security' or generic 'evidence' dimension; use accurately provable CAP-QUALITY status/evidence-scope/forbidden-state. The security-audit job itself remains mandatory CI evidence, not a fabricated extra guard capability."
+    "Plan-only checkpoint; no implementation edits before exact-head Plan Before Code PASS.",
+    "Issue #1018 PARTIAL. Focus on the trusted release executor's pre-drive steps only; do not promise universal external-proof or pre-checkout raw-log coverage.",
+    "Reuse existing shoperation-command-diagnostic.mjs and shoperation-failure-intake.mjs; do not build a new parallel engine."
   ],
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "2e0d350f01649a9def9bb8881948b1295ae2e5d7",
-    "closedAt": "2026-10-09T04:17:40.618Z",
+    "verifiedImplementationHead": "b1a65a4effc400df34accb15066bb307afca5676",
+    "closedAt": "2026-10-09T04:54:53.925Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-DIAGNOSTIC-SURFACE-1018",
+    "sourceRef": "PO-2026-10-09-RELEASE-PREDRIVE-DIAGNOSTIC-1018-V2",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
