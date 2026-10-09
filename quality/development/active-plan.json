@@ -1,71 +1,32 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
-  "task": "Create one inert fixture to exercise canonical parent closure and exact main CI without changing application behavior.",
-  "status": "closed",
+  "taskId": "DEV-CONTROL-PLANE-DIAGNOSTIC-SURFACE-1018",
+  "task": "Harden shared exact-error diagnostic collection for CI security-audit and trusted release executor and feed normalized artifacts into Failure Intake without weakening failure behavior.",
+  "status": "ready-for-implementation",
   "guardDigest": "aa79c504",
-  "changeBaseSha": "9f16dbd8319d71e72087c1ba1085575c88ff09e0",
+  "changeBaseSha": "995983131fa3aa1cb91794810c817f6b9b8846d9",
   "plannedFilePatterns": [
-    "quality/development/active-plan.json",
-    "quality/knowledge/release-parent-closure-proofs/dev-post-merge-exact-main-ci-e2e-v2.json"
+    ".github/workflows/ci.yml",
+    ".github/workflows/release-unit-execution.yml",
+    "scripts/shoperation-command-diagnostic.mjs",
+    "tests/control-plane-diagnostic-coverage.test.ts",
+    "quality/development/active-plan.json"
   ],
-  "expectedSubsystems": [],
+  "expectedSubsystems": [
+    "release-infrastructure",
+    "quality-infrastructure"
+  ],
   "expectedDomains": [
+    "DOMAIN-RELEASE",
     "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
+    "release-infrastructure",
     "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
-    "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-005",
-    "SQ-KF-006",
-    "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
-    "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
-    "SQ-KF-013",
-    "SQ-KF-014",
-    "SQ-KF-015",
-    "SQ-KF-016",
-    "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
-    "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
-    "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
-    "TF-KF-006",
-    "TF-KF-007",
-    "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "SQ-KF-002"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -74,78 +35,71 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-DIAGNOSTIC-SURFACE-1018",
     "riskTier": "critical",
-    "problemStatement": "The merged post-merge CI hardening has exact-head unit regressions, but no new real GitHub-bot parent merge has yet exercised dispatch, correlated run proof and durable parent closure together.",
+    "problemStatement": "Trusted release executor exceptions and security-audit errors may be visible only in GitHub job logs, not in one machine-readable Failure Intake artifact or job summary. Issue #1018 requires exact error code, nested reason, job/step location, source SHA, and durable evidence without operator log mining or fail-open success.",
     "observableOutcomes": [
-      "Plan Before Code authorizes one new inert JSON fixture, one pre-existing release-execution regression test file and canonical development metadata without changing product runtime.",
-      "The trusted executor creates and closes one real child transaction against its exact materialized commit, without changing existing parent evidence.",
-      "A new bot-authored parent closure PR merges into main and persists POST_MERGE_CI_PENDING instead of prematurely closing the parent.",
-      "One uniquely correlated GitHub-bot workflow_dispatch CI runs against the exact merged main SHA, with binding, quality, TypeScript, build and security-audit jobs succeeding.",
-      "The new canonical parent state records the correlated successful CI run ID and transitions to MERGED / PARENT_CLOSED only after verified terminal success."
+      "On release executor failure the existing diagnostic wrapper emits the original nested machine code and reason, identifies the release job/step and retains the raw error with secrets redacted.",
+      "The executor workflow runs the wrapped command but retains the exact nonzero child exit status; an always-running intake step uploads machine-readable evidence.",
+      "Security audit failures and exhausted retry/network failures produce normalized machine diagnostics and Failure Intake artifacts in the separate security-audit job.",
+      "A focused regression covers nested RELEASE_UNIT_EXECUTION_BLOCK with reason/error, fallback exception, secret scrubbing and exact nonzero exit code.",
+      "No reduction to Plan/Edit-Time/Truth/Lifecycle/Security gate checks and no duplicate executor or CI dispatch."
     ],
     "unresolvedRisks": [
-      "GitHub may accept a dispatch but delay making the run visible, so the persisted DISPATCH_ARMED reservation must not authorize a blind retry.",
-      "An unrelated main merge during the rehearsal can invalidate the exact main lease and must block rather than reuse another CI.",
-      "CI duration or the separate legacy queued #182 anomaly must not be mistaken for live proof of this new transaction.",
-      "Any guard or proof semantic disagreement blocks the new run without modifying the already closed predecessor release state.",
-      "The original V1 child remains STALE and must not be replayed into V2; every V2 child and parent proof must reference only its own new source SHA."
+      "Wrapper output buffering can hide progress for a long-running release driver or exhaust memory; prefer streamed forwarding with bounded error tail.",
+      "npm audit may report network failure and retry; intake must capture only final failure rather than the first transient attempt.",
+      "Workflow cleanup must not mask the primary command failure or unexpectedly report success.",
+      "Token-bearing stderr may leak to persisted diagnostic artifacts; redact known CI credentials.",
+      "Security audit job independence means the build job cannot ingest its local files; each job must publish its own artifact and Failure Intake."
     ],
     "scope": {
       "in": [
-        "One inert JSON fixture under a new dedicated quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2 directory.",
-        "One development plan metadata update on an isolated source branch; no edits to application runtime, scripts, workflow or tests.",
-        "One targeted regression assertion in the existing release-unit execution-binding test; this supplies the critical plan's explicit MUST_EDIT and PROOF routes without adding a new engine.",
-        "Use only the existing canonical release-unit executor, source CI, child proof, parent PR, CAS persistence and post-merge dispatch implementation.",
-        "Verify actual GitHub parent PR merge identity, nonce-bound workflow_dispatch run metadata, mandatory successful jobs and durable parent closure."
+        "Extend existing shared scripts/shoperation-command-diagnostic.mjs with streamed output, exact nested error extraction and bounded sanitized raw diagnostics.",
+        "Bind trusted release-unit-execution.yml driver invocation to that shared command diagnostic and post-failure intake/artifact upload.",
+        "Bind the independent ci.yml security-audit job to its own normalized command diagnostic, artifact and intake without changing retry outcome.",
+        "Extend tests/control-plane-diagnostic-coverage.test.ts with positive/negative exact diagnostic and workflow wiring assertions."
       ],
       "out": [
-        "No modification of DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1 state, U01/U02/U03 receipts, or immutable source 65e52ffd1fd32f14353467eb7c52b2e06ba1be65.",
-        "No production behavior, database schema, storefront, Builder, template, customer or payment changes.",
-        "No manually fabricated release-state receipts, no forced closure, no bypass of Plan, Truth, Lifecycle or CI authority.",
-        "No duplicate dispatch in the case of uncertain delivery; fail closed pending human review."
+        "No edits to release-unit canonical state, existing receipts, immutable source, release authorization, CI gate thresholds, or merge policy.",
+        "No new separate generic diagnostic controller; reuse the existing command-diagnostic and Failure Intake v2.",
+        "No Builder, templates, storefront, customer, database or payments.",
+        "No background job or extra production deployment."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This proof drives real repository branch, pull-request, CI, merge and persisted orchestration state while deliberately restricting material changes to non-product fixtures. Exact identity, fail-closed transitions and final closure therefore require the strongest practical bounded assurance.",
+      "rationale": "False success or masked security/release failure threatens release correctness; implementation is observability only and must fail closed.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
-        "state-model",
-        "what-if-matrix",
-        "adversarial-scenarios",
         "boundary-cases",
-        "pairwise-interactions",
+        "adversarial-scenarios",
         "threat-failure-model",
         "fault-injection",
-        "finite-state-exhaustion"
+        "pairwise-interactions"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "Plan Before Code independently authorizes one inert fixture and one focused existing test update before either implementation edit, and source admission CI succeeds at the immutable exact head.",
-        "Canonical decomposition contains exactly one authorized JSON fixture child with a valid source blob, and only its intended file is merged into main.",
-        "A new parent PR is merged by github-actions[bot] with a trusted exact-head proof and parent state remains POST_MERGE_CI_PENDING until a separate main CI is proven.",
-        "One source/parent/merged-main nonce is bound to the new workflow_dispatch CI, not an unrelated push or manual workflow event.",
-        "Terminal SUCCESS of the exact main head run includes Bind exact parent post-merge main CI, Knowledge preflight, Incremental Replay, Quality tests, TypeScript check, Production build and security-audit.",
-        "Persisted parent closure is MERGED / PARENT_CLOSED only after CI proof; all three older closed units and original parent proof remain unmodified."
+        "A nested release failure emits exact code and nested error in structured artifact and GitHub summary without manual log retrieval.",
+        "Security audit failure yields its final precise npm error after existing bounded retries; the job still fails.",
+        "Interrupted/external failure returns the child's original nonzero exit code and fallback normalized code if the exact code is absent.",
+        "Intake artifacts preserve source/run/gate and secret-free evidence, failure classification and provide a machine-localized code.",
+        "Complete CI checks (Knowledge, Plan, Edit-Time, Replay, Risk, Tests, TypeScript, Build, Truth, Lifecycle) are unchanged and terminal PASS required before merging."
       ],
       "invariants": [
-        "New source transaction and stateRef are distinct from DEV-CONTROL-PLANE-MULTI-UNIT-REHEARSAL-V1.",
-        "Exactly one inert fixture and one existing regression test file are the only material source edits, with no product runtime changes.",
-        "Exact run identity requires GitHub-bot actor, workflow_dispatch, unique nonce, parent source, workflow identity and mergedMainSha.",
-        "DISPATCH_ARMED is persisted by CAS before any side effect, and uncertain recovery cannot dispatch the same request again.",
-        "No parent completion claim without a successful exact-head GitHub run and all mandatory job steps."
+        "Exit code and gate decisions remain authoritative: diagnostics may never downgrade a failure to PASS.",
+        "No new release execution attempts, dispatches or material changes are caused by diagnostics.",
+        "Every diagnostic binds to exact source SHA, job/gate and original stable code when present.",
+        "Only the bounded declared files may change after Plan PASS."
       ],
       "forbiddenStates": [
-        "Old U01/U02/U03 state or proof artifact is overwritten or reclassified.",
-        "Fixture or test implementation edit is created before the source plan gate proves PASS.",
-        "Parent is marked MERGED immediately after bot PR merge while main CI remains absent.",
-        "A manual push or unrelated successful main CI is accepted as the correlated post-merge dispatch.",
-        "Two requests with the same parent nonce are sent after crash or delayed run visibility.",
-        "Changed main SHA, wrong actor, missing security/build evidence or nonterminal CI closes the parent."
+        "Any failure is silently swallowed by cleanup or diagnostic parsing.",
+        "A GH_TOKEN/GITHUB_TOKEN secret is stored in a public workflow artifact.",
+        "A network timeout is diagnosed as clean successful security audit.",
+        "A stale or foreign PR is authorized because diagnostics ran.",
+        "The first implementation edit precedes an exact-head Plan Before Code PASS."
       ]
     },
     "model": {
@@ -177,41 +131,40 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Plan scope or Known Failure projection drifts after new inert fixture declaration.",
-        "Materialized fixture source blob is absent or mismatched on the immutable source commit.",
-        "Child CI finishes without matching lifecycle proof, preventing child merge.",
-        "Parent merge succeeds but persisted pending state or dispatch CAS experiences an interruption.",
-        "GitHub dispatch request succeeds but the run ID is not immediately visible.",
-        "Another GitHub event or main merge introduces a stale head before post-merge proof.",
-        "Correlated CI fails, is cancelled, or lacks mandatory job evidence."
+        "Release driver exits nonzero with nested JSON error; parser only stores generic RELEASE_UNIT_EXECUTION_BLOCK.",
+        "npm audit network transient is retried then succeeds; stale failed diagnostics must not persist.",
+        "Job setup/checkout/install fails before diagnostic command; fallback step still emits step-localized evidence.",
+        "Child process sends >64 MB logs while workflow waits and old sync buffer overflows.",
+        "Error stderr contains GitHub token and leaks when copied verbatim.",
+        "Failure Intake itself throws and shadows original error."
       ],
       "edgeCases": [
-        "A single child follows the canonical decomposition and no child predecessor reconciliation is necessary.",
-        "A `workflow_run` hook from a successful source push launches the trusted default-branch executor.",
-        "GitHub bot-triggered merge does not create automatic main push CI, requiring explicit workflow_dispatch.",
-        "The dispatch response is lost after the server accepts the request, leaving a durable DISPATCH_ARMED reservation.",
-        "The valid run becomes visible on a later poll without repeating the dispatch.",
-        "The CI run is terminal SUCCESS but unrelated actor or run title must be rejected."
+        "Nested reason is an object with code and details while error is a string.",
+        "Unknown exception has no formal code.",
+        "Child exits by signal or cannot spawn.",
+        "Security npm audit returns high vulnerabilities or terminal network failure.",
+        "Workflow steps are skipped because preceding step failed.",
+        "Exact commit and GH run identity are available without logging secrets."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-ONE-INERT",
-        "summary": "Use one inert fixture through the unchanged real GitHub executor.",
+        "id": "ALT-SHARED-WRAPPER",
+        "summary": "Extend existing shared command-diagnostic and wire two independent job failure surfaces.",
         "disposition": "selected",
-        "reason": "This is the smallest safe material scope that actually reaches child merge, parent merge, bot dispatch and parent close."
+        "reason": "One normalized command error implementation and existing Failure Intake preserve architecture and avoid two independent controllers."
       },
       {
-        "id": "ALT-UNIT-MOCK",
-        "summary": "Trust the already-green mock regression without a live GitHub rehearsal.",
+        "id": "ALT-LOG-ONLY",
+        "summary": "Require operators to query GitHub job logs for nested exceptions.",
         "disposition": "rejected",
-        "reason": "A mock cannot independently demonstrate real workflow_run admission, GitHub actor identity or remote CAS evidence."
+        "reason": "Violates #1018 observable code requirement and leaves same failure."
       },
       {
-        "id": "ALT-MANY-UNITS",
-        "summary": "Repeat the old multi-unit corpus with twenty-five files.",
+        "id": "ALT-GLOBAL-WORKFLOW-API",
+        "summary": "New central GitHub workflow API polling service for every job.",
         "disposition": "rejected",
-        "reason": "The earlier rehearsal already proved child orchestration; repeating it adds CI and merge exposure unrelated to the missing post-merge edge."
+        "reason": "Introduces unrelated permissions, eventual consistency and duplicate authority when job-local evidence is available."
       }
     ],
     "specialistReviews": [
@@ -219,143 +172,126 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The unproven scope is the live post-merge parent CI chain, not the existing multi-child orchestration.",
-        "resolution": "Use exactly one independent inert fixture through the canonical executor without new control paths.",
+        "finding": "The shared diagnostic wrapper already exists but does not cover all authoritative jobs.",
+        "resolution": "Extend existing wrapper, with job-local Failure Intake steps.",
         "evidence": [
-          "scripts/release-unit-parent-close.mjs",
-          "scripts/release-unit-execute.mjs"
+          "scripts/shoperation-command-diagnostic.mjs",
+          "scripts/shoperation-failure-intake.mjs"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Even an inert live rehearsal writes a branch, merges a PR and can dispatch GitHub Actions unexpectedly.",
-        "resolution": "Isolate new parent identity, keep all original release-state immutable, require strict Plan Before Code and fail-closed CAS/dispatch handling.",
+        "finding": "Persisting raw CLI stderr could leak GitHub credentials.",
+        "resolution": "Redact configured tokens from diagnostic and summary, retain original exit and exact error code, and avoid dumping all logs into artifacts.",
         "evidence": [
-          ".github/workflows/release-unit-execution.yml",
-          ".github/workflows/ci.yml"
+          ".github/workflows/ci.yml",
+          "scripts/shoperation-command-diagnostic.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "An ordinary successful push CI cannot prove the new workflow_dispatch parent binding.",
-        "resolution": "Require a distinct bot-actor workflow_dispatch main CI with the exact nonce, SHA, run ID and mandatory successful jobs.",
+        "finding": "Executor is a long-running side-effectful CLI; sync capture can mask progress and cannot alter state.",
+        "resolution": "Stream stdout/stderr with bounded capture and preserve exit code without dispatch/replay side effects.",
         "evidence": [
-          "scripts/release-unit-parent-close.mjs",
-          "tests/control-plane-release-unit-execution-binding.test.ts"
+          ".github/workflows/release-unit-execution.yml",
+          "scripts/release-unit-execute.mjs"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Unknown plan semantics or a missing source fixture must not be reinterpreted as success.",
-        "resolution": "Stop on every canonical failed gate and use Failure Intake for unexpected blockers.",
+        "finding": "Intake already accepts generic code and structured artifact; must favor exact structured detail.",
+        "resolution": "Prefer parsed nested stable code while retaining fallback only if exact code absent.",
         "evidence": [
-          "scripts/shoperation-plan-before-code.mjs",
-          "scripts/shoperation-failure-intake.mjs"
+          "scripts/shoperation-failure-intake.mjs",
+          "tests/control-plane-diagnostic-coverage.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-PMCI-01",
-        "scenario": "The new source is admitted without a successful Plan Before Code proof.",
-        "finding": "An inert fixture alone does not exempt source transactions from governed authorization.",
-        "resolution": "Validate the plan on an isolated plan branch before creating the fixture on the execution source branch.",
+        "id": "CH-DIAG-01",
+        "scenario": "Nested error's stable code sits in result.reason.code, not outer Error prefix.",
+        "finding": "Old wrapper can report generic RELEASE_UNIT_EXECUTION_BLOCK.",
+        "resolution": "Parse nested error JSON before regex and preserve both nested reason and original raw error sanitized.",
         "status": "resolved"
       },
       {
-        "id": "CH-PMCI-02",
-        "scenario": "The parent squash merge succeeds, but no ordinary main push CI appears.",
-        "finding": "The missing GitHub GITHUB_TOKEN edge remains unproven by push-based checks.",
-        "resolution": "Require a separate nonce-correlated workflow_dispatch run bound to exact mergedMainSha.",
+        "id": "CH-DIAG-02",
+        "scenario": "Security audit retry 1 fails but retry 2 succeeds.",
+        "finding": "First diagnostic artifact might remain FAILED.",
+        "resolution": "Overwrite per-attempt report, publish intake only if final terminal job fails.",
         "status": "resolved"
       },
       {
-        "id": "CH-PMCI-03",
-        "scenario": "Workflow dispatch succeeds and the executor crashes before receiving or persisting run ID.",
-        "finding": "Blind retry can create two indistinguishable dispatch attempts.",
-        "resolution": "Require durable one-shot DISPATCH_ARMED and lookup only; uncertain recovery remains blocked without new dispatch.",
+        "id": "CH-DIAG-03",
+        "scenario": "A blocked CI step prevents next steps, including diagnostic command.",
+        "finding": "No command artifact would exist.",
+        "resolution": "Record fallback step name and failed outcome in always-running postflight without classifying a successful job as failed.",
         "status": "resolved"
       },
       {
-        "id": "CH-PMCI-04",
-        "scenario": "A coincidental manual or push main CI succeeds on the same merged commit.",
-        "finding": "Head SHA alone is insufficient evidence for the required bot dispatch path.",
-        "resolution": "Verify bot actor, workflow, event, nonce, source parent and exact required successful steps.",
+        "id": "CH-DIAG-04",
+        "scenario": "Executor issues GitHub remote side effects and then errors.",
+        "finding": "Restart or retry by diagnostic wrapper could duplicate operations.",
+        "resolution": "Never retry from wrapper; only record child nonzero outcome and let canonical release state control resumability.",
         "status": "resolved"
       },
       {
-        "id": "CH-PMCI-05",
-        "scenario": "An older legacy Release Unit Execution run remains queued.",
-        "finding": "Its status is unrelated to proof for the new parent transaction.",
-        "resolution": "Do not mutate or reuse #182; select only source-bound execution and correlated post-merge runs.",
+        "id": "CH-DIAG-05",
+        "scenario": "Unexpected large child stdout buffers during long executor.",
+        "finding": "Old spawnSync maxBuffer introduces diagnostic-induced failure.",
+        "resolution": "Stream child logs and capture bounded tail only.",
         "status": "resolved"
       },
       {
-        "id": "CH-PMCI-06",
-        "scenario": "A normal CI push runs on the newly merged main commit and reports SUCCESS before the parent dispatch appears.",
-        "finding": "The unrelated push lacks nonce and the bot workflow_dispatch identity, so it could falsely satisfy a loose exact-SHA-only proof.",
-        "resolution": "Require an independent workflow_dispatch event with the deterministic parent nonce, accepted actor and recorded run ID; never reuse a push run.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-PMCI-07",
-        "scenario": "The correlated main CI finishes with a successful workflow conclusion, but the security-audit or exact-parent-binding job step is absent.",
-        "finding": "A green workflow summary alone does not show that the mandatory job-level proof actually executed.",
-        "resolution": "Inspect the exact run jobs and every required binding, quality, typecheck, production build and security step before persisting PARENT_CLOSED.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-PMCI-08",
-        "scenario": "An interrupted source executor restarts from a prior committed one-fixture child branch after another release changed main.",
-        "finding": "A prior successful child proof cannot authorize materialization or parent closure against a different current main.",
-        "resolution": "Enforce exact main lease with canonical source/PR/CAS identity, and stop on drift rather than creating another untracked branch.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-PMCI-09",
-        "scenario": "The new child binder correctly adds release-unit lexical intent but the parent still has a neutral quality-fixture task.",
-        "finding": "Before PR #1172 the projection inherited neutral parent scope, causing the prior child's Negative Knowledge and guard digest to drift.",
-        "resolution": "Exercise the merged shared child-task authority in a freshly generated V2 child plan, rejecting any scope, negative-knowledge or digest disagreement.",
+        "id": "CH-DIAG-06",
+        "scenario": "Raw error contains a credential.",
+        "finding": "Persistent intake may leak secret.",
+        "resolution": "Redact exact tokens before persisting while leaving stable code and location intact.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Verify Plan Before Code PASS for this plan-only transaction before writing the one fixture or the new targeted test assertion.",
-      "Create the one inert JSON source fixture only on a dedicated release-execution/source/* branch after plan authorization.",
-      "Verify source exact-head CI is SUCCESS and inspect the admitted trusted Release Unit Execution run.",
-      "Verify the one child has exact source blob, materialized PR, completed gates and merged-main receipt.",
-      "Verify parent PR exact-head proof, trusted bot merge and persisted POST_MERGE_CI_PENDING state.",
-      "Verify a separately dispatched GitHub-bot CI with exact nonce, merged SHA, terminal SUCCESS and all required successful job steps.",
-      "Verify persisted MERGED / PARENT_CLOSED proof, final main identity and unchanged earlier parent state; otherwise stop as BLOCKED."
+      "Plan-only exact-head gate PASS before code; reconcile Atlas scope/negative knowledge rather than overriding.",
+      "Implement shared streaming nested-code parser, plus diagnostic wiring in two authoritative workflow jobs.",
+      "Run focused regression covering nested error, generic fallback, secret scrub, signal/exit and unaffected success.",
+      "Run Knowledge/Plan/Edit-Time/Incremental, tests/typecheck/build and complete Truth/Lifecycle on exact implementation SHA.",
+      "Review actual separate security and executor job artifacts from CI; do not close #1018 until evidence proves every claimed source."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-09-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+      "request": "PO-2026-10-09-CONTROL-PLANE-DIAGNOSTIC-SURFACE-1018",
       "authority": [
+        "release-infrastructure",
         "quality-knowledge-system"
       ],
-      "mustEdit": [],
+      "mustEdit": [
+        "scripts/shoperation-command-diagnostic.mjs",
+        ".github/workflows/ci.yml",
+        ".github/workflows/release-unit-execution.yml",
+        "tests/control-plane-diagnostic-coverage.test.ts"
+      ],
       "mayEdit": [
         "quality/development/active-plan.json"
       ],
-      "impactedReadOnly": [],
-      "mustCreate": [
-        "quality/knowledge/release-parent-closure-proofs/dev-post-merge-exact-main-ci-e2e-v2.json"
+      "impactedReadOnly": [
+        "scripts/shoperation-failure-intake.mjs",
+        "scripts/release-unit-execute.mjs"
       ],
+      "mustCreate": [],
       "forbidden": [
-        ".github/workflows/**",
-        "deploy/**",
-        "src/app/**",
-        "src/components/**",
-        "supabase/**"
+        "supabase/**",
+        "src/**",
+        "control-plane/release-state/**"
       ],
       "proof": [
-        "quality/knowledge/release-parent-closure-proofs/dev-post-merge-exact-main-ci-e2e-v2.json"
+        "tests/control-plane-diagnostic-coverage.test.ts",
+        "artifacts/shoperation-failure-intake/failure-intake.json"
       ],
       "unknown": [],
       "plannedDeletions": [],
@@ -366,7 +302,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-DIAGNOSTIC-SURFACE-1018",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -384,50 +320,16 @@
     },
     "requirements": [
       {
-        "id": "REQ-ONE-INERT-SOURCE",
-        "requirement": "The new one-file inert source must be authorized and materially bounded by the canonical plan without modifying product runtime.",
+        "id": "REQ-EXECUTOR-EXACT-DIAGNOSTIC",
+        "requirement": "A release executor failure emits exact nested machine code, reason, location and source/run bound artifact/summary without altering execution status.",
         "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "single-inert-source",
+          "capability": "CAP-RELEASE",
+          "breadth": "executor-diagnostic-fidelity",
           "strength": 2,
           "dimensions": [
             "status",
             "transaction-identity",
-            "forbidden-state"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-EDIT-TIME"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-SOURCE-WIDEN",
-            "statement": "No fixture outside the one-file scope or unauthenticated source operation may be accepted.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-EXACT-RISK-BOUNDARY",
-        "requirement": "The rehearsal must preserve canonical release risk and reject unauthorized material changes or foreign state mutation.",
-        "claimScope": {
-          "capability": "CAP-RELEASE",
-          "breadth": "bounded-release-proof",
-          "strength": 2,
-          "dimensions": [
-            "risk",
-            "release-scope"
+            "evidence"
           ]
         },
         "requiredCapabilities": [
@@ -435,35 +337,34 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-RELEASE-RISK"
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME"
           ],
           "outcome": [
-            "GUARD-RELEASE-RISK"
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RISK-BYPASS",
-            "statement": "A blocked risk gate or stale source cannot be treated as executable.",
+            "id": "NEG-EXECUTOR-FAIL-OPEN",
+            "statement": "No wrapped child error is converted to a successful exit.",
             "evidence": [
-              "GUARD-RELEASE-RISK"
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       },
       {
-        "id": "REQ-POST-MERGE-CI-CONTRACT",
-        "requirement": "Parent execution must never close before a uniquely correlated bot-dispatched exact-merged-head main CI succeeds with all required job evidence.",
+        "id": "REQ-SECURITY-AUDIT-DIAGNOSTIC",
+        "requirement": "A separate security audit job emits structured exact failure diagnostics and Failure Intake without weakening npm audit retry/fail rules.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "post-merge-ci-execution-contract",
+          "breadth": "security-gate-diagnostic-fidelity",
           "strength": 2,
           "dimensions": [
-            "lifecycle",
-            "truth",
-            "status",
-            "transaction-identity",
-            "close"
+            "security",
+            "evidence",
+            "status"
           ]
         },
         "requiredCapabilities": [
@@ -480,8 +381,42 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-EARLY-PARENT-CLOSE",
-            "statement": "Pending, missing, failed or unrelated main CI cannot be treated as PARENT_CLOSED.",
+            "id": "NEG-SECURITY-DOWNGRADE",
+            "statement": "Security audit nonzero failure still fails the entire security-audit job.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-FAILURE-INTAKE-BOUNDARY",
+        "requirement": "Normalize codes, locations, and sanitized raw errors without leaking credentials or creating a duplicate diagnostic authority.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "failure-intake-contract",
+          "strength": 2,
+          "dimensions": [
+            "evidence",
+            "forbidden-state",
+            "truth"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-SECRET-LEAK",
+            "statement": "No configured CI token is written to a diagnostic artifact or summary.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -490,32 +425,8 @@
       }
     ]
   },
-  "notes": "Isolated V2 plan-only checkpoint after successful PR #1172 merge and exact-merged-main CI #9292. Preserve original CLOSED multi-unit parent and all U01/U02/U03 proofs; preserve failed DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V1 state as STALE without edits. First run Plan Before Code on this exact plan-only HEAD before creating a fixture or release-execution/source branch. This V2 uses one inert JSON fixture plus one targeted existing regression-test assertion; only existing canonical executor, child/parent merge, one-shot bot workflow_dispatch and nonce-bound exact-head main CI may complete parent closure. Executor-derived parent closure proof plan. Historical implementation remains authoritative through CLOSED child receipts and trusted-main evidence; this plan scopes only lifecycle metadata closure.",
-  "parentClosureContext": {
-    "contract": "shoporation.release-parent-closure-proof-context.v1",
-    "proofPlanContract": "shoporation.release-parent-closure-proof-plan.v1",
-    "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
-    "sourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
-    "sourcePlanDigest": "94acc459da76d855a79a84f33ea422a3f7a5de8a649c4e9bb9ce7fb488e36eeb",
-    "completionContractDigest": "204dfe84074fb0fa658af629349939738d1b5cf7fe1da3b11366635de7eeebf1",
-    "lastChildMainSha": "9f16dbd8319d71e72087c1ba1085575c88ff09e0",
-    "finalMainSha": "9f16dbd8319d71e72087c1ba1085575c88ff09e0",
-    "unitCloseReceiptDigests": [
-      "6e2f5076"
-    ],
-    "trustedMainAdvanceDigest": null
-  },
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "9f16dbd8319d71e72087c1ba1085575c88ff09e0",
-    "closedAt": "2026-10-09T03:25:21.263Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-09-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": [
+    "Plan-only checkpoint: no implementation change may be authored until exact-head Plan Before Code succeeds.",
+    "Historical issue #1018. Existing generic command-diagnostic is canonical; do not add a competing second diagnostics engine."
+  ]
 }
