@@ -2,7 +2,7 @@ import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {activeDevelopmentPlanPath,compileGateChain,deriveImplementationSkeleton,evaluateReleaseRiskFiles,exactPlannedPaths,getAllFailures,getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
 import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,classifyAtlasPath,resolveAtlasArchitectureForPath,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
 import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
-import {bindReleaseUnitChildTransaction,decomposeReleaseScope,derivePlannedOperations} from './lib/shoperation-release-unit-runtime.mjs';
+import {bindReleaseUnitChildTransaction,decomposeReleaseScope,derivePlannedOperations,releaseUnitChildTask} from './lib/shoperation-release-unit-runtime.mjs';
 
 const isKnowledgeInfrastructureFile=file=>scopePolicy.knowledgeInfrastructurePrefixes.some(prefix=>file.startsWith(prefix));
 const isArchitectureBearingProjectedFile=file=>!isNeutralFile(file)&&!isKnowledgeInfrastructureFile(file);
@@ -262,7 +262,7 @@ if(!plan.releaseUnitContext&&releaseDecomposition.decision==='PASS'){
     const unitArchitectureFor=file=>resolveAtlasArchitectureForPath(atlas,file,{plannedDeletions:unitDeletes,executionRoute:unitRoute});
     const unitDomains=domainsFor(unitFiles,unitArchitectureFor);
     const unitAuthorities=authoritiesFor(unitDomains);
-    const unitScope=resolveDevelopmentScope({files:unitFiles,task:plan.task});
+    const unitScope=resolveDevelopmentScope({files:unitFiles,task:releaseUnitChildTask(unit,plan)});
     const unitNegative=negativeFor(unitScope);
     const unitInstructions=applicablePoInstructions(atlas,unitFiles).map(item=>item.id).sort();
     const unitFailureIds=[...unitScope.activeFailureIds].sort();

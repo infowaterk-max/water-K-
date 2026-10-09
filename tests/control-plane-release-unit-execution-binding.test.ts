@@ -10,6 +10,7 @@ import {
   recordReleaseUnitVerification,
   reprojectReleaseUnitChildTransaction,
   releaseUnitChildPlanDigest,
+  releaseUnitChildTask,
   releaseUnitContextBindingDigest,
   sealReleaseUnitManifest,
   decodeReleaseUnitContextEnvelope,
@@ -29,6 +30,7 @@ import {
 } from '../scripts/release-unit-github-runtime.mjs';
 import {resolveReleaseUnitCiPullRequest} from '../scripts/release-unit-ci-context.mjs';
 import {advanceParentPostMergeMainCi,classifyParentPostMergeMainCiRun,createPendingParentMainCiState,dispatchArmedParentMainCi,ensureParentClosureCiDispatch,finishParentClosurePersistence,proveParentMainAdvance,requireExactParentClosurePrIdentity,proveInterruptedParentClosureProjection} from '../scripts/release-unit-parent-close.mjs';
+import {resolveDevelopmentScope,stableDigest,knowledge,guardPolicy} from '../scripts/lib/shoperation-development-runtime.mjs';
 
 const A='a'.repeat(40),H='1'.repeat(40);
 const parentPlan:any={
@@ -711,6 +713,33 @@ describe('release-unit execution binding hardening',()=>{
     main='f'.repeat(40);
     expect(advanceParentPostMergeMainCi({state:durablyReserved,sourceCommit:source,run:invoke})).toMatchObject({decision:'BLOCK',reason:'RELEASE_PARENT_POST_MERGE_MAIN_DRIFT'});
     expect(requests).toBe(1);
+  });
+
+  it('projects release-unit child scope and guard digest using the exact generated child task, not the neutral parent task',()=>{
+    const parent={taskId:'DEV-NEUTRAL-E2E-PARENT',task:'Create one inert JSON fixture without changing application runtime behavior.'};
+    const unit={releaseUnitId:'DEV-NEUTRAL-E2E-PARENT-U01'};
+    const files=['quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v1/proof-01.json'];
+    const childTask=releaseUnitChildTask(unit,parent);
+    const parentScope=resolveDevelopmentScope({files,task:parent.task});
+    const childScope=resolveDevelopmentScope({files,task:childTask});
+    expect(parentScope.impactedSubsystems).not.toContain('release-infrastructure');
+    expect(childScope.impactedSubsystems).toContain('release-infrastructure');
+    const applicableNegative=scope=>knowledge.negativeKnowledge.filter(item=>{
+      const active=guardPolicy.negativeKnowledgeApplicability[item.id]??[];
+      return active.includes('*')||active.some(name=>scope.impactedSubsystems.includes(name));
+    }).map(item=>item.id).sort();
+    const digest=scope=>stableDigest({
+      failureIds:[...scope.activeFailureIds].sort(),
+      subsystems:[...scope.impactedSubsystems].sort(),
+      negativeKnowledgeIds:applicableNegative(scope),
+    });
+    expect(applicableNegative(childScope)).toContain('SQ-NK-002');
+    expect(applicableNegative(childScope).length).toBeGreaterThan(applicableNegative(parentScope).length);
+    expect(digest(childScope)).not.toBe(digest(parentScope));
+    const planner=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
+    const binder=readFileSync('scripts/lib/shoperation-release-unit-runtime.mjs','utf8');
+    expect(planner).toContain('task:releaseUnitChildTask(unit,plan)');
+    expect(binder).toContain('childPlan.task=releaseUnitChildTask(manifest,parentPlan)');
   });
 
 });
