@@ -27,7 +27,8 @@ child.stderr?.on('data',chunk=>{process.stderr.write(chunk);stderr=capture(stder
 child.on('error',error=>{spawnError=error;});
 for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>{if(child.pid&&!child.killed)child.kill(signal);});
 const outcome=await new Promise(resolve=>child.on('close',(code,signal)=>resolve({code,signal})));
-const result={status:outcome.code,signal:outcome.signal}; // Keep the original diagnostic exitCode contract.\nconst exitCode=Number.isInteger(result.status)?result.status:1;
+const result={status:outcome.code,signal:outcome.signal}; // Keep the original diagnostic exitCode contract.
+const exitCode=Number.isInteger(result.status)?result.status:1;
 const text=sanitize(stdout+'\n'+stderr+(spawnError?'\nError: '+spawnError.message:''));
 const errors=[];
 const seen=new Set();
