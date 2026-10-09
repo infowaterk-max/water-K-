@@ -3,11 +3,14 @@ import {describe,expect,it} from 'vitest';
 import {
   completionEvidenceGuardIds,
   requiredExternalCompletionGuards,
+  templateFactoryProducerPaths,
+  templateFactoryIndependenceProof,
   validateTemplateFactoryExternalProof,
   mergeExternalCompletionEvidence,
 } from '../scripts/shoperation-external-proof-handoff.mjs';
 import {deriveTemplateLiveRuntimeClosure,templateFactoryEvidenceChecksum,templateLiveProofInputContractDigest} from '../scripts/lib/shoperation-template-factory-resumable-verification.mjs';
 import {readFileSync} from 'node:fs';
+import {globToRegExp} from '../scripts/lib/shoperation-development-runtime.mjs';
 
 const plan=(refs=['GUARD-QUALITY-TESTS','GUARD-TEMPLATE-FACTORY'])=>({
   status:'ready-for-implementation',
@@ -90,6 +93,50 @@ const manifest=(overrides={})=>{
 };
 
 describe('cross-workflow external completion proof handoff',()=>{
+  it('proves the unrelated office route has no Template Factory external dependency under a complete runtime graph',()=>{
+    const files=['src/app/admin/kommunikacio/layout.tsx','tests/customer-email-plan-split.test.ts','tests/pro-entitlement-guards.test.ts'];
+    const scoped={...plan(['GUARD-QUALITY-TESTS']),plannedFilePatterns:files};
+    expect(runtimeClosure.decision).toBe('PASS');
+    expect(runtimeClosure.files).not.toContain(files[0]);
+    expect(requiredExternalCompletionGuards({activePlan:scoped,verificationPlan,guardRegistry,liveClosure:runtimeClosure})).not.toContain('GUARD-TEMPLATE-FACTORY');
+    const proof=templateFactoryIndependenceProof({registry:guardRegistry,plannedFiles:files,liveClosure:runtimeClosure});
+    expect(proof.independent).toBe(true);
+    expect(proof.reason).toBe('complete-runtime-and-producer-independence');
+  });
+
+  it('never suppresses the external gate when actual runtime, producer or classifier input is touched',()=>{
+    for(const file of ['src/app/layout.tsx','src/app/penztar/page.tsx','scripts/shoperation-external-proof-handoff.mjs','quality/knowledge/guard-registry.v1.json']){
+      const proof=templateFactoryIndependenceProof({registry:guardRegistry,plannedFiles:[file],liveClosure:runtimeClosure});
+      expect(proof).toMatchObject({independent:false,reason:'runtime-or-producer-input-affected'});
+    }
+  });
+
+  it('requires external proof for explicit guard references, transitive consumers and unknown runtime states',()=>{
+    const office=['src/app/admin/kommunikacio/layout.tsx'];
+    expect(templateFactoryIndependenceProof({registry:guardRegistry,plannedFiles:office,liveClosure:runtimeClosure,explicitGuardIds:['GUARD-TEMPLATE-FACTORY']}).reason).toBe('explicit-proof-authority');
+    expect(templateFactoryIndependenceProof({registry:guardRegistry,plannedFiles:office,liveClosure:{decision:'BLOCK',files:[]}}).reason).toBe('runtime-closure-unproven');
+    expect(templateFactoryIndependenceProof({registry:guardRegistry,plannedFiles:[]}).reason).toBe('missing-file-scope');
+    const added={id:'DEPENDENT-TEST',verification:{dependsOn:['GUARD-TEMPLATE-FACTORY']}};
+    const registry={...guardRegistry,guards:[...guardRegistry.guards,added]};
+    expect(templateFactoryIndependenceProof({registry,plannedFiles:office,gateChain:{orderedGateIds:['DEPENDENT-TEST','GUARD-TEMPLATE-FACTORY']},liveClosure:runtimeClosure}).reason).toBe('transitive-proof-dependency');
+  });
+
+  it('validates exact push/PR producer path parity rather than treating malformed filters as absent proof need',()=>{
+    const original=readFileSync('.github/workflows/template-factory-quality-gate.yml','utf8');
+    const paths=templateFactoryProducerPaths(original);
+    expect(paths).toContain('scripts/shoperation-external-proof-handoff.mjs');
+    expect(paths).toContain('src/app/penztar/**');
+    for(const input of [...(liveRuntime?.classifierInputs??[]),...(liveRuntime?.globalRuntimeInputs??[]),...(liveRuntime?.entrypoints??[])]){
+      const covers=paths?.some(pattern=>pattern===input||globToRegExp(pattern).test(input));
+      expect(covers,'missing producer trigger for '+input).toBe(true);
+    }
+    const office=['src/app/admin/kommunikacio/layout.tsx'];
+    const mismatch=original.replace("      - 'scripts/shoperation-external-proof-handoff.mjs'\n", '');
+    expect(templateFactoryProducerPaths(mismatch)).toBeNull();
+    expect(templateFactoryIndependenceProof({registry:guardRegistry,plannedFiles:office,liveClosure:runtimeClosure,workflowSource:mismatch}).reason).toBe('producer-trigger-unknown');
+    expect(templateFactoryIndependenceProof({registry:guardRegistry,plannedFiles:office,liveClosure:runtimeClosure,workflowSource:'invalid'}).independent).toBe(false);
+  });
+
   it('derives only Completion Contract evidence absent from the local verification plan',()=>{
     expect(completionEvidenceGuardIds(plan())).toEqual(['GUARD-QUALITY-TESTS','GUARD-TEMPLATE-FACTORY']);
     expect(requiredExternalCompletionGuards({activePlan:plan(),verificationPlan})).toEqual(['GUARD-TEMPLATE-FACTORY']);

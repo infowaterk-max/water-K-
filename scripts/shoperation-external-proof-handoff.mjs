@@ -1,7 +1,7 @@
 import {appendFileSync,existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {dirname} from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {compileGateChain,exactPlannedPaths} from './lib/shoperation-development-runtime.mjs';
+import {compileGateChain,exactPlannedPaths,globToRegExp} from './lib/shoperation-development-runtime.mjs';
 import {deriveTemplateLiveRuntimeClosure,deriveTemplateLiveRuntimeOrigin,deriveTemplatePreviewAnchorCandidates,templateFactoryEvidenceChecksum,validateTemplateLiveProofRecord} from './lib/shoperation-template-factory-resumable-verification.mjs';
 
 export const EXTERNAL_PROOF_EVIDENCE_CONTRACT='shoporation.external-proof-evidence.v1';
@@ -22,7 +22,66 @@ export function completionEvidenceGuardIds(plan){
   return uniq(refs);
 }
 
-export function requiredExternalCompletionGuards({activePlan,verificationPlan,guardRegistry}={}){
+// Producer path filters are independent from broad registry semantic-input globs.
+// Independence is provable only with a complete runtime closure and exact trigger parity.
+export function templateFactoryProducerPaths(workflowSource){
+  if(typeof workflowSource!=='string'||!workflowSource.startsWith('name: Template Factory Quality Gate v2\n'))return null;
+  const patterns={push:[],pull_request:[]};
+  let event=null,withinOn=false;
+  for(const line of workflowSource.split('\n')){
+    if(line==='on:'){withinOn=true;continue;}
+    if(withinOn&&/^[^\s#]/.test(line)){withinOn=false;event=null;}
+    if(!withinOn)continue;
+    const eventMatch=line.match(/^  (push|pull_request|workflow_dispatch):/);
+    if(eventMatch){event=eventMatch[1];continue;}
+    const pathMatch=line.match(/^      - '([^']+)'$/);
+    if(pathMatch&&(event==='push'||event==='pull_request'))patterns[event].push(pathMatch[1]);
+  }
+  const push=[...new Set(patterns.push)].sort(),pr=[...new Set(patterns.pull_request)].sort();
+  if(!push.length||JSON.stringify(push)!==JSON.stringify(pr))return null;
+  return push;
+}
+
+export function templateFactoryIndependenceProof({registry,plannedFiles=[],explicitGuardIds=[],gateChain,liveClosure,workflowSource}={}){
+  const tfId='GUARD-TEMPLATE-FACTORY';
+  if(explicitGuardIds.includes(tfId))return{independent:false,reason:'explicit-proof-authority'};
+  if(!plannedFiles.length)return{independent:false,reason:'missing-file-scope'};
+  const guard=(registry?.guards??[]).find(item=>item.id===tfId);
+  if(!guard||!guard.chain?.liveRuntime)return{independent:false,reason:'runtime-contract-unavailable'};
+  const selected=gateChain?.orderedGateIds??[],byId=new Map((registry?.guards??[]).map(g=>[g.id,g]));
+  if(selected.some(id=>id!==tfId&&(byId.get(id)?.verification?.dependsOn??[]).includes(tfId)))
+    return{independent:false,reason:'transitive-proof-dependency'};
+  const workflowFile=guard.producer;
+  if(!workflowFile||!existsSync(workflowFile))return{independent:false,reason:'producer-workflow-missing'};
+  const workflow=workflowSource??readFileSync(workflowFile,'utf8');
+  const triggerPaths=templateFactoryProducerPaths(workflow);
+  if(!triggerPaths)return{independent:false,reason:'producer-trigger-unknown'};
+  const declared=[
+    ...(guard.chain.liveRuntime.classifierInputs??[]),
+    ...(guard.chain.liveRuntime.globalRuntimeInputs??[]),
+    ...(guard.chain.liveRuntime.entrypoints??[]),
+  ];
+  const triggerMatchers=triggerPaths.map(globToRegExp);
+  const uncovered=declared.filter(path=>!triggerPaths.includes(path)&&!triggerMatchers.some(re=>re.test(path)));
+  if(uncovered.length)return{independent:false,reason:'producer-trigger-coverage-gap',uncovered};
+  const atlasPath='artifacts/shoperation-atlas/codebase-atlas.json';
+  const atlas=existsSync(atlasPath)?readJson(atlasPath):null;
+  const closure=liveClosure??(atlas?deriveTemplateLiveRuntimeClosure({registry,atlas}):{decision:'UNKNOWN',files:[]});
+  if(closure?.decision!=='PASS'||!Array.isArray(closure.files)||!closure.files.length)
+    return{independent:false,reason:'runtime-closure-unproven'};
+  const closureFiles=new Set(closure.files);
+  const broad=new Set(['src/app/**','src/components/**']);
+  const scoped=[...(guard.verification?.semanticInputs??[]).filter(p=>!broad.has(p)),
+    ...(guard.verification?.configurationInputs??[]),
+    ...(guard.verification?.authorityInputs??[]),...triggerPaths];
+  const matchers=scoped.map(globToRegExp);
+  const relevantFiles=plannedFiles.filter(file=>closureFiles.has(file)||matchers.some(re=>re.test(file)));
+  return relevantFiles.length
+    ?{independent:false,reason:'runtime-or-producer-input-affected',relevantFiles}
+    :{independent:true,reason:'complete-runtime-and-producer-independence',runtimeFileCount:closureFiles.size,checkedFiles:plannedFiles};
+}
+
+export function requiredExternalCompletionGuards({activePlan,verificationPlan,guardRegistry,liveClosure}={}){
   if(activePlan?.status==='closed')return[];
   const explicit=completionEvidenceGuardIds(activePlan);
   const local=new Set(Object.keys(verificationPlan?.gates??{}));
@@ -35,7 +94,12 @@ export function requiredExternalCompletionGuards({activePlan,verificationPlan,gu
   const registry=guardRegistry??readJson('quality/knowledge/guard-registry.v1.json');
   const chain=compileGateChain({guardRegistry:registry,plannedFiles,phase:'VERIFY',explicitGuardIds:explicit});
   if(chain.decision!=='PASS')return [...new Set([...explicit.filter(id=>!local.has(id)),...chain.externalGateIds])];
-  return [...new Set([...explicit.filter(id=>!local.has(id)),...chain.externalGateIds.filter(id=>!local.has(id))])].sort();
+  const required=[...new Set([...explicit.filter(id=>!local.has(id)),...chain.externalGateIds.filter(id=>!local.has(id))])];
+  if(required.includes('GUARD-TEMPLATE-FACTORY')){
+    const independence=templateFactoryIndependenceProof({registry,plannedFiles,explicitGuardIds:explicit,gateChain:chain,liveClosure});
+    if(independence.independent)return required.filter(id=>id!=='GUARD-TEMPLATE-FACTORY').sort();
+  }
+  return required.sort();
 }
 
 export function validateTemplateFactoryExternalProof({
