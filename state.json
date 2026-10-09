@@ -14,7 +14,7 @@
       "releaseUnitId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01",
       "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
       "order": 1,
-      "state": "PLANNED",
+      "state": "PR_OPEN",
       "manifest": {
         "contract": "shoporation.release-unit-manifest.v1",
         "transaction": {
@@ -40,12 +40,24 @@
           {
             "operation": "create",
             "file": "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
-            "generated": null
+            "generated": null,
+            "source": {
+              "mode": "sealed",
+              "commit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
+              "blobSha": "dc402d1946c92226d6c0caf4fe0f34a179b54d62",
+              "fileMode": "100644"
+            }
           },
           {
             "operation": "modify",
             "file": "tests/control-plane-release-unit-execution-binding.test.ts",
-            "generated": null
+            "generated": null,
+            "source": {
+              "mode": "sealed",
+              "commit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
+              "blobSha": "05774d5bba0bf3faee3da82b87589fd255f8ae14",
+              "fileMode": "100644"
+            }
           }
         ],
         "requiredDependencyFiles": [
@@ -176,17 +188,17 @@
           "failOnUnrelatedMainDrift": true
         },
         "sourceIdentity": {
-          "sourceCommit": null,
-          "sealed": false
+          "sourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
+          "sealed": true
         },
-        "manifestDigest": "8f0ae4ba",
+        "manifestDigest": "6798a4ba",
         "decision": "PASS",
         "childDevelopmentTransaction": {
           "contract": "shoporation.release-unit-child-transaction.v1",
           "taskId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01-TX",
           "planDigest": "a7884026f8e061d0929c9cbb2ac85976614cdf1d5e796fa186ed3d68ac0f7883",
-          "operationDigest": "93a6c22dad1619e4e8641d3e22cf8566de05e25f67c95b31674317c6c788b683",
-          "bindingDigest": "515f36fb5ddd05bf3882c73eeb0ad498e3a484816529ed3dfdf2cd7284126bf9",
+          "operationDigest": "066102c97562a066f280630637e3c5195d4ff598b04794f4bf4e018d3a56d231",
+          "bindingDigest": "1bac655e5152ff02eb9b5410e157dc1b7cb27680b4f2eae065d87072115c435e",
           "plan": {
             "contract": "shoporation.development-plan.v1",
             "taskId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01-TX",
@@ -708,7 +720,7 @@
         "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
         "branchRef": "release-unit/dev-post-merge-exact-main-ci-e2e-v2-u01",
         "changeBaseSha": "7a580680f0260ec4ba104b7bfe9c01037b8e1eb7",
-        "manifestDigest": "8f0ae4ba",
+        "manifestDigest": "6798a4ba",
         "plannedFilePatterns": [
           "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
           "tests/control-plane-release-unit-execution-binding.test.ts"
@@ -799,23 +811,73 @@
         ],
         "readOnlyPaths": [],
         "sourceIdentity": {
-          "sourceCommit": null,
-          "sealed": false
+          "sourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
+          "sealed": true
         },
         "childTaskId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01-TX",
         "childPlanDigest": "a7884026f8e061d0929c9cbb2ac85976614cdf1d5e796fa186ed3d68ac0f7883",
-        "bindingDigest": "515f36fb5ddd05bf3882c73eeb0ad498e3a484816529ed3dfdf2cd7284126bf9"
+        "bindingDigest": "1bac655e5152ff02eb9b5410e157dc1b7cb27680b4f2eae065d87072115c435e"
       },
-      "authorization": null,
-      "materialization": null,
-      "pullRequest": null,
+      "authorization": {
+        "manifestDigest": "8f0ae4ba",
+        "targetBaseSha": "7a580680f0260ec4ba104b7bfe9c01037b8e1eb7",
+        "currentMainSha": "7a580680f0260ec4ba104b7bfe9c01037b8e1eb7",
+        "predecessorUnitIds": []
+      },
+      "materialization": {
+        "contract": "shoporation.release-unit-materialization.v1",
+        "status": "PREPARED",
+        "releaseUnitId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2-U01",
+        "targetBaseSha": "7a580680f0260ec4ba104b7bfe9c01037b8e1eb7",
+        "commitSha": "aa1447b17d7191d2d98c03fc78e1a0b4337616e3",
+        "materializedHeadSha": "aa1447b17d7191d2d98c03fc78e1a0b4337616e3",
+        "treeSha": "7ddf54485d018489e5bb80507236798be583e3d6",
+        "manifestDigest": "6798a4ba",
+        "bindingDigest": "1bac655e5152ff02eb9b5410e157dc1b7cb27680b4f2eae065d87072115c435e",
+        "sourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
+        "applied": [
+          {
+            "operation": "create",
+            "file": "quality/knowledge/rehearsal-fixtures/post-merge-exact-main-ci-v2/proof-01.json",
+            "generated": null,
+            "source": {
+              "mode": "sealed",
+              "commit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
+              "blobSha": "dc402d1946c92226d6c0caf4fe0f34a179b54d62",
+              "fileMode": "100644"
+            }
+          },
+          {
+            "operation": "modify",
+            "file": "tests/control-plane-release-unit-execution-binding.test.ts",
+            "generated": null,
+            "source": {
+              "mode": "sealed",
+              "commit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
+              "blobSha": "05774d5bba0bf3faee3da82b87589fd255f8ae14",
+              "fileMode": "100644"
+            }
+          }
+        ],
+        "alreadyApplied": [],
+        "branchRef": "release-unit/dev-post-merge-exact-main-ci-e2e-v2-u01"
+      },
+      "pullRequest": {
+        "number": 1177,
+        "headSha": "aa1447b17d7191d2d98c03fc78e1a0b4337616e3",
+        "baseSha": "7a580680f0260ec4ba104b7bfe9c01037b8e1eb7",
+        "manifestDigest": "6798a4ba",
+        "bindingDigest": "1bac655e5152ff02eb9b5410e157dc1b7cb27680b4f2eae065d87072115c435e",
+        "sourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
+        "url": "https://github.com/infowaterk-max/water-K-/pull/1177"
+      },
       "verification": null,
       "merge": null,
       "closeReceipt": null,
       "blocker": null,
       "lastTransition": {
-        "to": "PLANNED",
-        "code": "RELEASE_UNIT_PLANNED"
+        "to": "PR_OPEN",
+        "code": "RELEASE_UNIT_PR_OPEN"
       }
     }
   ],
