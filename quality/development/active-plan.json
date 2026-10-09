@@ -1,20 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CORE-1186-BOOTSTRAP-1187",
-  "task": "Restore broken canonical Shoperation Development Guard CLI syntax before Core entitlement MR1 work, with regression and no authority change.",
+  "taskId": "DEV-CORE-1192-AUTHORITY-SCOPE",
+  "task": "Restore canonical Core plan and entitlements security scope mapping for issue 1192",
   "status": "closed",
-  "guardDigest": "aa79c504",
-  "changeBaseSha": "89e01932556bc220e5bfa55ac0f5c3f7f8deee91",
+  "guardDigest": "a41cfd0c",
+  "changeBaseSha": "f3e7c0a8a475dfa1d07eddb47d3ad1735e47c09e",
   "plannedFilePatterns": [
-    "scripts/shoperation-development-guard.mjs",
-    "tests/shoperation-development-guard.test.ts"
+    "deploy/release-risk-policy.json",
+    "quality/knowledge/domain-foundations.v1.json",
+    "tests/engine-authority-scope-classification.test.ts",
+    "tests/control-plane-tenancy-scope-mapping.test.ts"
   ],
-  "expectedSubsystems": [],
+  "expectedSubsystems": [
+    "release-infrastructure"
+  ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -69,16 +75,28 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
+    "SQ-NK-010",
+    "SQ-NK-012",
+    "SQ-NK-016",
+    "SQ-NK-017",
+    "SQ-NK-018",
+    "SQ-NK-019",
+    "SQ-NK-020",
+    "SQ-NK-021",
+    "SQ-NK-022",
+    "SQ-NK-023"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CORE-1186-BOOTSTRAP-1187",
+    "sourceRef": "PO-2026-10-09-CORE-SCOPE-AUTHORITY-1192",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This repair restores a mandatory authorization gateway for all future product code changes. An incorrectly described capability or proof scope can falsely approve work or block the entire Core roadmap. We therefore require full critical plan semantics, real executable regression and fail-closed gate verification, without treating successful local checks as deployment proof.",
+      "rationale": "Authorization scope classification is a predecessor to enforcing paid capability boundaries and sensitive staff privilege. Misownership could silently suppress security evidence or produce false gate PASS. The scope repair is limited to existing metadata and tests, but requires critical planning depth, adversarial dependency-cycle checks and exact-head CI.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -95,20 +113,23 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Development Guard source passes node --check on Node 24.",
-        "A representative guard run executes and emits development-guard.json and development-guard.md including current task, graph and active Known Failure evidence.",
-        "Malformed/unauthorized scope remains fail-closed; no bypass or downgraded risk classification.",
-        "Existing guard unit tests, quality tests, typecheck and canonical plan/truth/lifecycle gates pass on exact head."
+        "Release Risk classifies src/lib/plans and src/lib/entitlements as auth-access-authority high risk and no other owner.",
+        "Deep Atlas resolves pure catalogs as Identity and instance-aware access as Tenancy, without cycles.",
+        "Plan Before Code, Edit-Time, Reference Sync, Knowledge and Incremental Replay succeed on the actual changes.",
+        "Security budget and weight semantics are unchanged and quality tests include scope ownership regression.",
+        "Exact-head CI, Completion Truth and Lifecycle close successfully before the issue can be marked completed."
       ],
       "invariants": [
-        "No alteration to computed guardDigest, gate-chain decisions, file classifications or release-risk projection.",
-        "Markdown output retains all current sections, failure directives and negative knowledge.",
-        "Canonical existing script remains the only Development Guard authority."
+        "No new domain, subsystem or guard implementation; canonical authorities remain single source of truth.",
+        "The release risk budget remains maxPoints five, maxSubsystems three, and auth access risk high.",
+        "Identity must not import from Tenancy as a canonical dependency and Tenancy retains its Identity dependency.",
+        "The package-authorization implementation remains unchanged until issue #1186 receives its own plan and proof."
       ],
       "forbiddenStates": [
-        "CLI parser SyntaxError at report emission.",
-        "Only static syntax testing while actual guard cannot run.",
-        "Passing by suppressing failed guard phases or removing active Known Failure coverage."
+        "An Alap/Pro entitlement source is silently treated as an unclassified medium-risk file.",
+        "A single broad Identity glob creates a forbidden Identity to Tenancy dependency edge.",
+        "Two release owners claim the same Core access policy directory.",
+        "Completion is asserted for the underlying Pro-only Digital Office authorization before any runtime tests."
       ]
     },
     "model": {
@@ -140,35 +161,38 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Invalid JavaScript escape prevents import/execution before CLI flags are checked.",
-        "Template interpolation emits malformed Markdown if backticks/escaping are wrong.",
-        "Passing syntax check but runtime guard fails on Atlas, missing dependencies or invalid scope.",
-        "Unexpected broad change triggers Reference Sync or lifecycle closure failure."
+        "Mis-scoped plan/access import creates a false Identity to Tenancy graph edge and Plan Before Code rejects the Atlas.",
+        "A glob not included by release pattern matching makes nested entitlement source files unclassified.",
+        "Mixed auth plus medium-risk release bypasses the maximum risk score of five.",
+        "A new proof claim demands dimensions from a guard that does not establish those dimensions.",
+        "A metadata-only fix is overclaimed as server authorization capability completeness."
       ],
       "edgeCases": [
-        "Task and file patterns containing non-English text and special characters.",
-        "Empty impacted subsystem remains accurately reported rather than fabricated.",
-        "Normal guard command failure preserves its original failure code and nonzero status."
+        "Deep nested entitlements submodule receives the existing auth high-risk release owner.",
+        "Pure add-on catalog remains Identity even when used by tenant-aware resolvers.",
+        "Tenant access module continues to depend on Identity catalog without cross-domain cycle.",
+        "Other commerce and UI authority paths retain original classification.",
+        "A test-only diff is neutral yet production security code cannot be downgraded."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-MINIMAL-TEMPLATE-DELIMITER",
-        "summary": "Restore the existing native template literals and add executable regression to existing test suite.",
+        "id": "ALT-EXACT-SPLIT",
+        "summary": "Extend existing release auth globs and split the exact module paths between Identity catalogs and Tenancy access/policy.",
         "disposition": "selected",
-        "reason": "Single-source minimal fix that preserves guard logic and avoids parallel tooling."
+        "reason": "Preserves the actual source import graph and both pre-existing authorities with the smallest metadata change."
       },
       {
-        "id": "ALT-REPLACE-GUARD-OR-BYPASS",
-        "summary": "Build new validator or skip Development Guard for Core work.",
+        "id": "ALT-ONE-BROAD-IDENTITY",
+        "summary": "Assign all plans and entitlements modules to DOMAIN-IDENTITY with broad directory patterns.",
         "disposition": "rejected",
-        "reason": "Duplicate authority and violates mandatory pre-code evidence."
+        "reason": "Deep Atlas finds a forbidden Identity-to-Tenancy edge through plans/access into instances/access."
       },
       {
-        "id": "ALT-DOC-ONLY",
-        "summary": "Document SyntaxError without restoring mandatory guard.",
+        "id": "ALT-IGNORE-SCOPE",
+        "summary": "Leave these source files unclassified and manually assert expected authority for feature development.",
         "disposition": "rejected",
-        "reason": "Leaves Core work blocked and the canonical executable broken."
+        "reason": "Would bypass the mandatory fail-closed Plan Before Code and hide security-sensitive entitlement changes."
       }
     ],
     "specialistReviews": [
@@ -176,119 +200,125 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Syntactically invalid delimiter literals in the single Markdown artifact writer stop canonical entrypoint before it runs.",
-        "resolution": "Correct only the escaped delimiters; keep existing data structures, contracts and emitted keys.",
+        "finding": "Pure catalog and tenant-aware access modules differ in dependency direction; the prior broad Identity ownership failed Deep Atlas.",
+        "resolution": "Use exact canonical paths for DOMAIN-IDENTITY catalogs and DOMAIN-TENANCY access/policy, without a new authority.",
         "evidence": [
-          "scripts/shoperation-development-guard.mjs"
+          "quality/knowledge/domain-foundations.v1.json",
+          "src/lib/plans/access.ts",
+          "src/lib/instances/access.ts"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Bootstrap repair technically precedes a successful Development Guard, and must not become precedent for skipping guards.",
-        "resolution": "Constrain first edit to restoring parser, record exact root cause and exception, immediately run restored guard and Plan Before Code before test edits.",
+        "finding": "Missing high-risk classification could permit mixed releases changing authorization decisions without isolation.",
+        "resolution": "Assign plans/** and entitlements/** to existing auth-access-authority risk HIGH with unchanged weights and boundaries.",
         "evidence": [
-          "AGENTS.md",
-          "scripts/shoperation-development-guard.mjs"
-        ]
-      },
-      {
-        "role": "Known Failure",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Main CI can remain green without invoking the Development Guard entrypoint directly.",
-        "resolution": "Add executable node --check and CLI regression in existing test contract.",
-        "evidence": [
-          "tests/shoperation-development-guard.test.ts"
+          "deploy/release-risk-policy.json",
+          "tests/engine-authority-scope-classification.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The syntax-only bootstrap repair is an infrastructure change whose gate and evidence acceptance must remain exact-head and fail-closed even while unrelated Core work is pending.",
-        "resolution": "Keep this repair a separate DRAFT PR and require exact-head CI, Completion Truth and Lifecycle validation before any merge or Core implementation proceeds.",
+        "finding": "Canonical mapping changes selection of all verification gates and can invalidate earlier cached proof semantics.",
+        "resolution": "Run Knowledge, Reference Sync, Incremental Replay, CI Truth and byte-identical lifecycle closure at exact head.",
         "evidence": [
-          ".github/workflows/ci.yml",
-          "scripts/shoperation-plan-before-code.mjs",
-          "AGENTS.md"
+          "AGENTS.md",
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Unresolved Core authority paths skip expected negative-knowledge and deep impact coverage when entitlement code changes.",
+        "resolution": "Add two existing-suite regression checks for classification and exact-domain edges, then replay all applicable failures.",
+        "evidence": [
+          "tests/control-plane-tenancy-scope-mapping.test.ts",
+          "tests/engine-authority-scope-classification.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-GUARD-01",
-        "scenario": "Node parser meets escaped backtick delimiters on the same report expression.",
-        "finding": "Script fails to start before it could emit any development plan.",
-        "resolution": "Use valid backticks only in this expression and prove entrypoint with node --check.",
+        "id": "CH-1192-01",
+        "scenario": "Core plan catalog file is edited but release pattern is missing",
+        "finding": "The checkout-adjacent access decision is treated as low or unclassified risk",
+        "resolution": "Add src/lib/plans/** to the existing high-risk authorization release bucket",
         "status": "resolved"
       },
       {
-        "id": "CH-GUARD-02",
-        "scenario": "Script parses but generator does not emit readable full markdown.",
-        "finding": "Syntax-only tests do not prove report runtime.",
-        "resolution": "Run actual node Development Guard CLI and assert emitted JSON/Markdown exists.",
+        "id": "CH-1192-02",
+        "scenario": "Tenant-aware plan access is assigned to pure Identity domain",
+        "finding": "An invalid Identity-to-Tenancy dependency edge appears in Deep Atlas",
+        "resolution": "Assign the instance-dependent plan access module to DOMAIN-TENANCY",
         "status": "resolved"
       },
       {
-        "id": "CH-GUARD-03",
-        "scenario": "Repair broadens to entitlement logic before valid Plan gate.",
-        "finding": "Violates first-edit guard and risk budget.",
-        "resolution": "Keep separate issue #1186 feature branch and no Core implementation in this unit.",
+        "id": "CH-1192-03",
+        "scenario": "Entitlement access has no canonical ownership",
+        "finding": "Proof graph cannot identify one trusted authorization owner",
+        "resolution": "Map access and policy to existing DOMAIN-TENANCY and test exact source paths",
         "status": "resolved"
       },
       {
-        "id": "CH-GUARD-04",
-        "scenario": "Only generated Markdown is modified, but the parse error remains in a compiled module import.",
-        "finding": "A documentation-only correction cannot make the CLI executable.",
-        "resolution": "Regression executes Node check on the source file and a representative CLI invocation.",
+        "id": "CH-1192-04",
+        "scenario": "Pure entitlement catalog is assigned into tenant-aware authority",
+        "finding": "The catalogue import graph loses intended Identity-to-Tenancy direction",
+        "resolution": "Map the entitlements catalog file to canonical DOMAIN-IDENTITY",
         "status": "resolved"
       },
       {
-        "id": "CH-GUARD-05",
-        "scenario": "Changed script unexpectedly changes failure scope or risk scoring.",
-        "finding": "Improper refactor could manufacture false PASS outcomes.",
-        "resolution": "Limit diff to 12 escaped delimiter characters, compare before/after data contract and verify full guard report.",
+        "id": "CH-1192-05",
+        "scenario": "Security and unrelated medium UI changes share one release unit",
+        "finding": "Release isolation is bypassed even though high and medium edits are mixed",
+        "resolution": "Keep risk high and test that budget blocks the mixed authority release",
         "status": "resolved"
       },
       {
-        "id": "CH-GUARD-06",
-        "scenario": "Later unrelated Core edits are bundled with bootstrap repair.",
-        "finding": "Would merge unproven high-risk entitlement changes through a guard repair release.",
-        "resolution": "Use separate fix branch and strict planned file allowlist; keep issue #1186 OPEN.",
+        "id": "CH-1192-06",
+        "scenario": "A broad wildcard also classifies unrelated commerce files",
+        "finding": "Canonical Atlas acquires overlapping owners for independent business engines",
+        "resolution": "Restrict identity domain to exact modules and preserve other domain paths",
         "status": "resolved"
       },
       {
-        "id": "CH-GUARD-07",
-        "scenario": "A package plan changes its claimed evidence scope from code validation to risk assessment but reuses quality test evidence.",
-        "finding": "Sentinel detects claim-dimension drift because quality tests do not establish the release risk budget or release-scope dimensions.",
-        "resolution": "Declare a separate CAP-RELEASE requirement and prove only risk and release-scope with the existing GUARD-RELEASE-RISK evidence.",
+        "id": "CH-1192-07",
+        "scenario": "Old Knowledge evidence applies after the mapping diff",
+        "finding": "Stale scope selection would produce unjustified release confidence",
+        "resolution": "Rerun Edit-Time Reference Sync, Knowledge and full Incremental Replay",
         "status": "resolved"
       },
       {
-        "id": "CH-GUARD-08",
-        "scenario": "A metadata-only plan is registered as high assurance while the semantic route regression expects a critical trust boundary.",
-        "finding": "Critical-only route invariants are skipped and the existing regression fails despite the mandatory authorization entrypoint being within scope.",
-        "resolution": "Adopt critical assurance for this bootstrap guard and retain the canonical authority and route checks without changing validator code.",
+        "id": "CH-1192-08",
+        "scenario": "An engineer declares Core Digital Office authorization complete",
+        "finding": "No tenant database or API operation has been touched by this metadata release",
+        "resolution": "Keep #1186 OPEN until actual implementation and operational verification",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Record main original node --check SyntaxError and source SHA 89e01932556bc220e5bfa55ac0f5c3f7f8deee91.",
-      "Bootstrap syntax repair only; rerun Development Guard with --write-plan --check and review complete guard report.",
-      "Plan Before Code PASS before editing regression test; then Edit-Time, Knowledge, Incremental Replay and known-failure regression.",
-      "Execute focused Vitest, TypeScript and full checks; record exact-head evidence and Completion Truth status.",
-      "Open DRAFT PR only; merge after exact-head CI and Lifecycle proof, then rerun issue #1186 MR1 Core work."
+      "Document Core #1186 mandatory guard BLOCK on f3e7c0a8 for three unresolved security source files.",
+      "Run issue #1192 Development Guard and Plan Before Code PASS before metadata implementation.",
+      "Add existing high-risk release patterns and exact-domain catalogs/access ownership with no cycle.",
+      "Run focused Atlas/tenancy tests, Plan, Edit-Time, Knowledge, full replay, release risk and CI.",
+      "Commit Truth-verified lifecycle closure from emitted CI evidence and rerun exact-head CI.",
+      "After merge and post-merge success, rerun Core #1186 Guard from real main; leave capability PARTIAL."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-09-CORE-1186-BOOTSTRAP-1187",
+      "request": "PO-2026-10-09-CORE-SCOPE-AUTHORITY-1192",
       "authority": [
-        "quality-knowledge-system"
+        "quality-knowledge-system",
+        "release-infrastructure"
       ],
       "mustEdit": [
-        "scripts/shoperation-development-guard.mjs",
-        "tests/shoperation-development-guard.test.ts"
+        "deploy/release-risk-policy.json",
+        "quality/knowledge/domain-foundations.v1.json",
+        "tests/control-plane-tenancy-scope-mapping.test.ts",
+        "tests/engine-authority-scope-classification.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -301,14 +331,10 @@
         "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
         "scripts/lib/shoperation-verification-reuse.mjs",
         "scripts/release-risk-budget.mjs",
-        "scripts/release-unit-ci-context.mjs",
         "scripts/release-unit-execute.mjs",
-        "scripts/release-unit-github-runtime.mjs",
-        "scripts/release-unit-materialize.mjs",
         "scripts/release-unit-orchestrate.mjs",
-        "scripts/release-unit-parent-close.mjs",
         "scripts/shoperation-close-development-plan.mjs",
-        "scripts/shoperation-codebase-atlas.mjs",
+        "scripts/shoperation-development-guard.mjs",
         "scripts/shoperation-edit-time-guard.mjs",
         "scripts/shoperation-external-proof-handoff.mjs",
         "scripts/shoperation-incremental-replay.mjs",
@@ -318,24 +344,31 @@
         "scripts/shoperation-sentinel-integrity-probe.mjs",
         "scripts/shoperation-sentinel-scan.mjs",
         "scripts/shoperation-truth-gate.mjs",
+        "src/lib/quality-system/architecture-constitution.ts",
+        "src/lib/quality-system/capability-evidence.ts",
+        "src/lib/quality-system/domain-foundations.ts",
         "src/lib/quality-system/scope-resolver.ts",
+        "tests/architecture-constitution.test.ts",
+        "tests/capability-roadmap-evidence.test.ts",
         "tests/control-plane-ecosystem-chain.test.ts",
-        "tests/control-plane-release-decomposition.test.ts",
         "tests/control-plane-release-unit-execution-binding.test.ts",
-        "tests/control-plane-release-unit-orchestration.test.ts",
         "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/deep-atlas-scan.test.ts",
         "tests/dependency-security-contract.test.ts",
-        "tests/engine-authority-scope-classification.test.ts",
+        "tests/domain-foundations.test.ts",
         "tests/shoperation-change-impact-atlas.test.ts",
         "tests/shoperation-codebase-atlas-v2.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/shoperation-development-guard.test.ts",
+        "tests/shoperation-operational-intelligence.test.ts",
+        "tests/shoperation-proof-semantics.test.ts",
+        "tests/shoperation-quality-knowledge.test.ts",
         "tests/template-factory-engine-functional-proof.test.ts"
       ],
       "mustCreate": [],
       "forbidden": [],
       "proof": [
+        "tests/architecture-constitution.test.ts",
         "tests/architecture-health.test.ts",
+        "tests/capability-roadmap-evidence.test.ts",
         "tests/control-plane-ecosystem-chain.test.ts",
         "tests/control-plane-release-decomposition.test.ts",
         "tests/control-plane-release-unit-execution-binding.test.ts",
@@ -352,15 +385,13 @@
         "tests/roadmap-block22-visual-builder.test.ts",
         "tests/shoperation-change-impact-atlas.test.ts",
         "tests/shoperation-codebase-atlas-v2.test.ts",
+        "tests/shoperation-development-guard.test.ts",
         "tests/shoperation-external-proof-handoff.test.ts",
         "tests/shoperation-operational-intelligence.test.ts",
         "tests/shoperation-proof-semantics.test.ts",
         "tests/shoperation-quality-knowledge.test.ts",
         "tests/shoperation-resumable-verification.test.ts",
         "tests/shoperation-semantic-execution-intelligence.test.ts",
-        "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
-        "tests/storefront-account-shell.test.ts",
-        "tests/storefront-beauty-lab-reference-v28.test.ts",
         "tests/storefront-cart-presentation-contract.test.ts",
         "tests/storefront-commerce-fidelity-slots.test.tsx",
         "tests/storefront-core-commerce.test.ts",
@@ -385,8 +416,10 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "scripts/shoperation-development-guard.mjs",
-          "tests/shoperation-development-guard.test.ts"
+          "deploy/release-risk-policy.json",
+          "quality/knowledge/domain-foundations.v1.json",
+          "tests/control-plane-tenancy-scope-mapping.test.ts",
+          "tests/engine-authority-scope-classification.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [
@@ -399,14 +432,10 @@
           "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
           "scripts/lib/shoperation-verification-reuse.mjs",
           "scripts/release-risk-budget.mjs",
-          "scripts/release-unit-ci-context.mjs",
           "scripts/release-unit-execute.mjs",
-          "scripts/release-unit-github-runtime.mjs",
-          "scripts/release-unit-materialize.mjs",
           "scripts/release-unit-orchestrate.mjs",
-          "scripts/release-unit-parent-close.mjs",
           "scripts/shoperation-close-development-plan.mjs",
-          "scripts/shoperation-codebase-atlas.mjs",
+          "scripts/shoperation-development-guard.mjs",
           "scripts/shoperation-edit-time-guard.mjs",
           "scripts/shoperation-external-proof-handoff.mjs",
           "scripts/shoperation-incremental-replay.mjs",
@@ -416,24 +445,31 @@
           "scripts/shoperation-sentinel-integrity-probe.mjs",
           "scripts/shoperation-sentinel-scan.mjs",
           "scripts/shoperation-truth-gate.mjs",
+          "src/lib/quality-system/architecture-constitution.ts",
+          "src/lib/quality-system/capability-evidence.ts",
+          "src/lib/quality-system/domain-foundations.ts",
           "src/lib/quality-system/scope-resolver.ts",
+          "tests/architecture-constitution.test.ts",
+          "tests/capability-roadmap-evidence.test.ts",
           "tests/control-plane-ecosystem-chain.test.ts",
-          "tests/control-plane-release-decomposition.test.ts",
           "tests/control-plane-release-unit-execution-binding.test.ts",
-          "tests/control-plane-release-unit-orchestration.test.ts",
           "tests/control-plane-release-unit-production-surface.test.ts",
-          "tests/deep-atlas-scan.test.ts",
           "tests/dependency-security-contract.test.ts",
-          "tests/engine-authority-scope-classification.test.ts",
+          "tests/domain-foundations.test.ts",
           "tests/shoperation-change-impact-atlas.test.ts",
           "tests/shoperation-codebase-atlas-v2.test.ts",
-          "tests/shoperation-semantic-execution-intelligence.test.ts",
+          "tests/shoperation-development-guard.test.ts",
+          "tests/shoperation-operational-intelligence.test.ts",
+          "tests/shoperation-proof-semantics.test.ts",
+          "tests/shoperation-quality-knowledge.test.ts",
           "tests/template-factory-engine-functional-proof.test.ts"
         ],
         "mustCreate": [],
         "forbidden": [],
         "proof": [
+          "tests/architecture-constitution.test.ts",
           "tests/architecture-health.test.ts",
+          "tests/capability-roadmap-evidence.test.ts",
           "tests/control-plane-ecosystem-chain.test.ts",
           "tests/control-plane-release-decomposition.test.ts",
           "tests/control-plane-release-unit-execution-binding.test.ts",
@@ -450,15 +486,13 @@
           "tests/roadmap-block22-visual-builder.test.ts",
           "tests/shoperation-change-impact-atlas.test.ts",
           "tests/shoperation-codebase-atlas-v2.test.ts",
+          "tests/shoperation-development-guard.test.ts",
           "tests/shoperation-external-proof-handoff.test.ts",
           "tests/shoperation-operational-intelligence.test.ts",
           "tests/shoperation-proof-semantics.test.ts",
           "tests/shoperation-quality-knowledge.test.ts",
           "tests/shoperation-resumable-verification.test.ts",
           "tests/shoperation-semantic-execution-intelligence.test.ts",
-          "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
-          "tests/storefront-account-shell.test.ts",
-          "tests/storefront-beauty-lab-reference-v28.test.ts",
           "tests/storefront-cart-presentation-contract.test.ts",
           "tests/storefront-commerce-fidelity-slots.test.tsx",
           "tests/storefront-core-commerce.test.ts",
@@ -475,17 +509,26 @@
           "tests/template-factory-scaffold-v1.test.ts"
         ],
         "authority": [
-          "quality-knowledge-system"
+          "auth-access-authority",
+          "database-schema",
+          "quality-knowledge-system",
+          "release-infrastructure",
+          "tenant-context-authority"
         ],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 2,
+        "score": 4,
         "maxPoints": 5,
-        "subsystemCount": 1,
+        "subsystemCount": 2,
         "maxSubsystems": 3,
         "subsystems": [
+          {
+            "subsystem": "release-infrastructure",
+            "risk": "medium",
+            "points": 2
+          },
           {
             "subsystem": "quality-infrastructure",
             "risk": "medium",
@@ -494,13 +537,25 @@
         ],
         "files": [
           {
-            "file": "scripts/shoperation-development-guard.mjs",
+            "file": "deploy/release-risk-policy.json",
+            "subsystem": "release-infrastructure",
+            "risk": "medium",
+            "points": 2
+          },
+          {
+            "file": "quality/knowledge/domain-foundations.v1.json",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/shoperation-development-guard.test.ts",
+            "file": "tests/control-plane-tenancy-scope-mapping.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
+          },
+          {
+            "file": "tests/engine-authority-scope-classification.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -515,11 +570,16 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 2,
+          "score": 4,
           "maxPoints": 5,
-          "subsystemCount": 1,
+          "subsystemCount": 2,
           "maxSubsystems": 3,
           "subsystems": [
+            {
+              "subsystem": "release-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
             {
               "subsystem": "quality-infrastructure",
               "risk": "medium",
@@ -528,13 +588,25 @@
           ],
           "files": [
             {
-              "file": "scripts/shoperation-development-guard.mjs",
+              "file": "deploy/release-risk-policy.json",
+              "subsystem": "release-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/domain-foundations.v1.json",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/shoperation-development-guard.test.ts",
+              "file": "tests/control-plane-tenancy-scope-mapping.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
+              "file": "tests/engine-authority-scope-classification.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -549,7 +621,37 @@
           {
             "id": 0,
             "files": [
-              "scripts/shoperation-development-guard.mjs"
+              "deploy/release-risk-policy.json"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 2,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "release-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "files": [
+                {
+                  "file": "deploy/release-risk-policy.json",
+                  "subsystem": "release-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 1,
+            "files": [
+              "quality/knowledge/domain-foundations.v1.json"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -566,7 +668,7 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-development-guard.mjs",
+                  "file": "quality/knowledge/domain-foundations.v1.json",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -577,9 +679,9 @@
             }
           },
           {
-            "id": 1,
+            "id": 2,
             "files": [
-              "tests/shoperation-development-guard.test.ts"
+              "tests/control-plane-tenancy-scope-mapping.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -590,7 +692,31 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-development-guard.test.ts",
+                  "file": "tests/control-plane-tenancy-scope-mapping.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 3,
+            "files": [
+              "tests/engine-authority-scope-classification.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/engine-authority-scope-classification.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -607,55 +733,69 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "PO-2026-10-09-CORE-1186-BOOTSTRAP-1187",
-              "developmentBaseSha": "89e01932556bc220e5bfa55ac0f5c3f7f8deee91"
+              "sourceRef": "PO-2026-10-09-CORE-SCOPE-AUTHORITY-1192",
+              "developmentBaseSha": "f3e7c0a8a475dfa1d07eddb47d3ad1735e47c09e"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "89e01932556bc220e5bfa55ac0f5c3f7f8deee91",
+            "targetBaseSha": "f3e7c0a8a475dfa1d07eddb47d3ad1735e47c09e",
             "lease": {
-              "expectedBaseSha": "89e01932556bc220e5bfa55ac0f5c3f7f8deee91",
+              "expectedBaseSha": "f3e7c0a8a475dfa1d07eddb47d3ad1735e47c09e",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "scripts/shoperation-development-guard.mjs",
-              "tests/shoperation-development-guard.test.ts"
+              "deploy/release-risk-policy.json",
+              "quality/knowledge/domain-foundations.v1.json",
+              "tests/control-plane-tenancy-scope-mapping.test.ts",
+              "tests/engine-authority-scope-classification.test.ts"
             ],
             "operations": [
               {
                 "operation": "modify",
-                "file": "scripts/shoperation-development-guard.mjs",
+                "file": "deploy/release-risk-policy.json",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "tests/shoperation-development-guard.test.ts",
+                "file": "quality/knowledge/domain-foundations.v1.json",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "tests/control-plane-tenancy-scope-mapping.test.ts",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "tests/engine-authority-scope-classification.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [
-              "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-              "scripts/lib/shoperation-development-runtime.mjs",
-              "scripts/lib/shoperation-operational-intelligence.mjs",
-              "scripts/lib/shoperation-release-unit-runtime.mjs",
-              "src/lib/quality-system/scope-resolver.ts",
-              "src/lib/quality-system/shoperation-knowledge.ts"
+              "src/lib/quality-system/scope-resolver.ts"
             ],
             "authorities": [
-              "quality-knowledge-system"
+              "quality-knowledge-system",
+              "release-infrastructure"
             ],
             "subsystems": [
+              "release-infrastructure",
               "quality-infrastructure"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 4,
               "maxPoints": 5,
-              "subsystemCount": 1,
+              "subsystemCount": 2,
               "maxSubsystems": 3,
               "subsystems": [
+                {
+                  "subsystem": "release-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
                 {
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
@@ -664,13 +804,25 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-development-guard.mjs",
+                  "file": "deploy/release-risk-policy.json",
+                  "subsystem": "release-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
+                {
+                  "file": "quality/knowledge/domain-foundations.v1.json",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/shoperation-development-guard.test.ts",
+                  "file": "tests/control-plane-tenancy-scope-mapping.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                },
+                {
+                  "file": "tests/engine-authority-scope-classification.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -680,9 +832,11 @@
               "decision": "PASS"
             },
             "requiredGates": [
+              "GUARD-CUSTOMER-BASELINE",
               "GUARD-EDIT-TIME",
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-MARKET-READY",
               "GUARD-PLAN-BEFORE-CODE",
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK",
@@ -690,16 +844,19 @@
             ],
             "requiredEvidence": {
               "gateIds": [
+                "GUARD-CUSTOMER-BASELINE",
                 "GUARD-EDIT-TIME",
                 "GUARD-INCREMENTAL-REPLAY",
                 "GUARD-KNOWLEDGE-PREFLIGHT",
+                "GUARD-MARKET-READY",
                 "GUARD-PLAN-BEFORE-CODE",
                 "GUARD-QUALITY-TESTS",
                 "GUARD-RELEASE-RISK",
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-development-guard.test.ts"
+                "tests/control-plane-tenancy-scope-mapping.test.ts",
+                "tests/engine-authority-scope-classification.test.ts"
               ],
               "externalGateIds": []
             },
@@ -714,14 +871,10 @@
               "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
               "scripts/lib/shoperation-verification-reuse.mjs",
               "scripts/release-risk-budget.mjs",
-              "scripts/release-unit-ci-context.mjs",
               "scripts/release-unit-execute.mjs",
-              "scripts/release-unit-github-runtime.mjs",
-              "scripts/release-unit-materialize.mjs",
               "scripts/release-unit-orchestrate.mjs",
-              "scripts/release-unit-parent-close.mjs",
               "scripts/shoperation-close-development-plan.mjs",
-              "scripts/shoperation-codebase-atlas.mjs",
+              "scripts/shoperation-development-guard.mjs",
               "scripts/shoperation-edit-time-guard.mjs",
               "scripts/shoperation-external-proof-handoff.mjs",
               "scripts/shoperation-incremental-replay.mjs",
@@ -731,18 +884,23 @@
               "scripts/shoperation-sentinel-integrity-probe.mjs",
               "scripts/shoperation-sentinel-scan.mjs",
               "scripts/shoperation-truth-gate.mjs",
+              "src/lib/quality-system/architecture-constitution.ts",
+              "src/lib/quality-system/capability-evidence.ts",
+              "src/lib/quality-system/domain-foundations.ts",
               "src/lib/quality-system/scope-resolver.ts",
+              "tests/architecture-constitution.test.ts",
+              "tests/capability-roadmap-evidence.test.ts",
               "tests/control-plane-ecosystem-chain.test.ts",
-              "tests/control-plane-release-decomposition.test.ts",
               "tests/control-plane-release-unit-execution-binding.test.ts",
-              "tests/control-plane-release-unit-orchestration.test.ts",
               "tests/control-plane-release-unit-production-surface.test.ts",
-              "tests/deep-atlas-scan.test.ts",
               "tests/dependency-security-contract.test.ts",
-              "tests/engine-authority-scope-classification.test.ts",
+              "tests/domain-foundations.test.ts",
               "tests/shoperation-change-impact-atlas.test.ts",
               "tests/shoperation-codebase-atlas-v2.test.ts",
-              "tests/shoperation-semantic-execution-intelligence.test.ts",
+              "tests/shoperation-development-guard.test.ts",
+              "tests/shoperation-operational-intelligence.test.ts",
+              "tests/shoperation-proof-semantics.test.ts",
+              "tests/shoperation-quality-knowledge.test.ts",
               "tests/template-factory-engine-functional-proof.test.ts"
             ],
             "generatedArtifactSemantics": [],
@@ -750,8 +908,10 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "scripts/shoperation-development-guard.mjs",
-                "tests/shoperation-development-guard.test.ts"
+                "deploy/release-risk-policy.json",
+                "quality/knowledge/domain-foundations.v1.json",
+                "tests/control-plane-tenancy-scope-mapping.test.ts",
+                "tests/engine-authority-scope-classification.test.ts"
               ],
               "filesAbsent": []
             },
@@ -766,7 +926,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "f9362947",
+            "manifestDigest": "6dd9264f",
             "decision": "PASS"
           }
         ],
@@ -779,10 +939,12 @@
         "contract": "shoporation.gate-chain.v1",
         "phase": "PLAN",
         "orderedGateIds": [
+          "GUARD-CUSTOMER-BASELINE",
           "GUARD-KNOWLEDGE-PREFLIGHT",
           "GUARD-PLAN-BEFORE-CODE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-MARKET-READY",
           "GUARD-QUALITY-TESTS",
           "GUARD-RELEASE-RISK",
           "GUARD-TYPECHECK"
@@ -793,8 +955,10 @@
           "GUARD-RELEASE-RISK"
         ],
         "futureGateIds": [
+          "GUARD-CUSTOMER-BASELINE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-MARKET-READY",
           "GUARD-QUALITY-TESTS",
           "GUARD-TYPECHECK"
         ],
@@ -804,41 +968,48 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The required Development Guard executable at main 89e0193 cannot parse due to 12 escaped backticks on its Markdown report line; this prevents every new Core transaction from entering the mandatory canonical Plan Before Code flow.",
+    "problemStatement": "The accepted Core Alap/Pro entitlement repair #1186 is currently blocked by SCOPE_UNRESOLVED for the plans and entitlements policy source directories. Existing canonical Release Risk and Domain Atlas omit these security-critical authorization modules. Their actual import graph crosses the established Identity and Tenancy domains, so a broad single-domain ownership rule is invalid.",
     "observableOutcomes": [
-      "Node parses the canonical Development Guard entrypoint without exceptions.",
-      "Normal guard invocation produces nonempty JSON and full Markdown evidence with exact scope and fails closed on substantive blocked inputs.",
-      "Regression test prevents escaped-backtick parser failure from returning unnoticed in future PRs.",
-      "No CI, Truth, Known Failure, policy or dependency guard authority is weakened."
+      "The two Core policy directories are assigned to the existing high-risk auth-access-authority release subsystem, not a generic fallback.",
+      "Canonical DOMAIN-IDENTITY owns pure plan and entitlement catalogs, while DOMAIN-TENANCY owns tenant-aware access and policy modules.",
+      "Deep Atlas and Plan Before Code pass without a new domain, a new owner, a missing dependency or an ambiguous classification.",
+      "Existing tenancy and release-risk contracts continue to enforce high-risk isolation, regression replay and fail-closed behavior.",
+      "Issue #1186 remains OPEN; this metadata repair does not claim to fix merchant entitlements, database state, APIs or navigation."
     ],
     "unresolvedRisks": [
-      "Already-applied minimum bootstrap syntax repair was unavoidable because the canonical pre-edit guard could not execute until repaired; record its exceptional ordering and subsequently run the restored guard.",
-      "Guard projection uses the exact main change base and must not silently include separate Alap/Pro entitlement implementation.",
-      "Test must invoke parser as an executable process to catch syntax failures independent of source-string expectations."
+      "A broad Identity glob can introduce a false dependency cycle from plan access into tenant instance access.",
+      "Metadata changes to knowledge/Atlas ownership affect the proof selection of later Core code, so full CI is still required.",
+      "Mixed high-risk entitlement code and unrelated medium-risk release diffs must be BLOCKED under existing strict risk budget.",
+      "No runtime-level Alap/Pro access proof is included in this narrow predecessor, and no package grant will change."
     ],
     "scope": {
       "in": [
-        "Correct escaped template literal delimiters only at the existing report-construction expression in scripts/shoperation-development-guard.mjs.",
-        "Add a focused source syntax/execution regression to existing tests/shoperation-development-guard.test.ts.",
-        "Prepare and close the canonical active-plan with exact-head proof."
+        "Add the two exact directory globs to the existing high-risk auth-access-authority release policy.",
+        "Map pure plan catalog, add-ons and entitlement catalog to DOMAIN-IDENTITY with their current import dependencies.",
+        "Map tenant-aware plan access and entitlement access/policy to DOMAIN-TENANCY with no Identity-to-Tenancy cycle.",
+        "Extend existing engine authority and tenancy scope regression tests; verify Knowledge, Edit-Time and full replay.",
+        "Commit exact-head Truth/Lifecycle evidence and only then merge this distinct scope metadata release."
       ],
       "out": [
-        "No change to decision semantics, rules, registry, release-risk policy, capability entitlement matrix, or database schema.",
-        "No implementation change to core Alap/Pro access, Digital Office, Builder or Template Factory in this bootstrap transaction.",
-        "No separate guard, no unsupported PASS claim, and no production database or secret mutation."
+        "Do not change actual plan feature grants or the entitlement decision algorithm in this predecessor.",
+        "Do not alter SQL migrations, customer email delivery, provider security, billing or checkout data.",
+        "Do not create another authority, relax the high risk weights, or bypass an Atlas/Reference Sync issue.",
+        "Do not touch Builder, Template Factory or mark the Core capability as DONE without operational proof."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CORE-1186-BOOTSTRAP-1187",
+    "sourceRef": "PO-2026-10-09-CORE-SCOPE-AUTHORITY-1192",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
+        "GUARD-CUSTOMER-BASELINE",
         "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-EDIT-TIME",
         "GUARD-INCREMENTAL-REPLAY",
+        "GUARD-MARKET-READY",
         "GUARD-QUALITY-TESTS",
         "GUARD-RELEASE-RISK",
         "GUARD-TYPECHECK"
@@ -848,20 +1019,21 @@
     },
     "requirements": [
       {
-        "id": "REQ-DEV-GUARD-RESTORED",
-        "requirement": "Canonical Development Guard parses and runs, generating JSON/Markdown with unchanged fail-closed assurance and comprehensive Known Failure report.",
+        "id": "REQ-CORE-SCOPE-ATLAS",
+        "requirement": "Core authorization source code is unambiguously classified by existing Atlas and no forbidden domain dependency appears.",
         "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "single-canonical-guard-entrypoint",
+          "capability": "CAP-ATLAS",
+          "breadth": "two-core-policy-directories",
           "strength": 2,
           "dimensions": [
-            "status",
-            "evidence-scope",
+            "scope",
+            "authority",
+            "classification",
             "forbidden-state"
           ]
         },
         "requiredCapabilities": [
-          "CAP-QUALITY"
+          "CAP-ATLAS"
         ],
         "evidence": {
           "implementation": [
@@ -874,8 +1046,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-GUARD-BYPASS",
-            "statement": "No skipped gate or substituted guard for an unparseable canonical tool.",
+            "id": "NEG-CORE-SCOPE",
+            "statement": "No unclassified or duplicate Core entitlement owner.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -883,44 +1055,11 @@
         ]
       },
       {
-        "id": "REQ-GUARD-NO-DRIFT",
-        "requirement": "Restore exact syntax without altering guard scope, gate decision, Known Failure selection, or release risk calculation.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "bounded-guard-bootstrap",
-          "strength": 2,
-          "dimensions": [
-            "scope",
-            "forbidden-state"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-GUARD-SEMANTICS",
-            "statement": "Decision logic is not removed, weakened, or replaced.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-GUARD-RELEASE-RISK",
-        "requirement": "The dedicated release-risk authority proves bounded release diff scope and risk budget for this guard bootstrap without claiming Core capability maturity.",
+        "id": "REQ-CORE-RISK",
+        "requirement": "Security entitlement paths stay within the existing high-risk release budget with mixed releases blocked.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "single-development-guard-bootstrap",
+          "breadth": "auth-access-risk-budget",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -940,8 +1079,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RISK-BYPASS",
-            "statement": "A failed release risk budget cannot be represented as successful verification.",
+            "id": "NEG-RISK-DOWNGRADE",
+            "statement": "Auth entitlement source must not be lowered to medium release risk.",
             "evidence": [
               "GUARD-RELEASE-RISK"
             ]
@@ -951,17 +1090,17 @@
     ]
   },
   "notes": [
-    "Bootstrap exception: first syntax-only edit was required because the existing canonical Development Guard threw a SyntaxError before running; restored guard PASS immediately afterwards. No unrelated implementation edits preceded Plan Before Code.",
-    "Only #1187 bootstrap guard repair is scoped here; #1186 Core entitlement matrix stays OPEN and unchanged.",
-    "Existing source code and baseline guard policy remain the sole authority."
+    "Prerequisite #1192 is bounded canonical metadata change after verified main #1188 merge; not the product authorization implementation.",
+    "Issue #1186 remains open and dependency incomplete.",
+    "No Builder, Template Factory, payment or database changes permitted."
   ],
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "e87711ad79ff135a8c924555664254de58afeef3",
-    "closedAt": "2026-10-09T06:13:27.686Z",
+    "verifiedImplementationHead": "043e20636c701f3c8f2c786c5092248548e901d1",
+    "closedAt": "2026-10-09T07:14:00.412Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-09-CORE-1186-BOOTSTRAP-1187",
+    "sourceRef": "PO-2026-10-09-CORE-SCOPE-AUTHORITY-1192",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
