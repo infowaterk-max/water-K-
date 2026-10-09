@@ -10,7 +10,8 @@
     "src/app/admin/kommunikacio/iroda/composer-actions.ts",
     "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
     "tests/pro-entitlement-guards.test.ts",
-    "tests/customer-email-plan-split.test.ts"
+    "tests/customer-email-plan-split.test.ts",
+    "tests/digital-office-internal-chat-capability-gate.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -72,7 +73,9 @@
         "Alap may not access the direct Digital Office actions even if manually invoking the Server Actions or bypassing admin layout.",
         "Alap retains hasPlanFeature(alap,support) and officeCommunication; Alap officeCommunicationAdvanced is false and Pro true, with transactional notification sender modules unchanged.",
         "Team Chat continues to be governed by teamChat, and U06 HTTP/API/storage work stays PARTIAL until separate proof.",
-        "Negative tests, exact-head tests/TypeScript/production build, Customer Baseline and Control Plane Truth/Lifecycle must pass; no suppression of unrelated gates."
+        "Negative tests, exact-head tests/TypeScript/production build, Customer Baseline and Control Plane Truth/Lifecycle must pass; no suppression of unrelated gates.",
+        "Legacy internal-chat regression must assert the new unconditional Pro gate for direct Digital Office actions without narrowing support.manage RBAC or Team Chat.",
+        "Sentinel proof semantics PASS: authorization and plan separation claims are backed by actual supported GUARD-QUALITY-TESTS behavioral-proof, scope, forbidden-state and regression dimensions, not invented evidence dimensions."
       ],
       "invariants": [
         "Authorization must be enforced on the server at the shared access helper, before tenant scope and createAdminClient operations.",
@@ -261,6 +264,13 @@
         "finding": "A stale client invokes a saved composer action after downgrade This can violate a required authorization or commerce-preservation invariant.",
         "resolution": "Enforce current server plan entitlement every invocation Record corresponding static and behavioral regression evidence before accepting the implementation.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-CORE-1186-U05-10",
+        "scenario": "A critical Pro-only Office claim advertises a proof dimension unsupported by its declared evidence producer.",
+        "finding": "Sentinel correctly BLOCKs two dimensions (authorization and feature-separation), even when the real entitlement checks are implemented.",
+        "resolution": "Declare the strongest actually supported claim dimensions (behavioral-proof and regression), preserve authorization requirements and forbidden regressions verbatim; verify Sentinel PASS rather than disabling its drift rule.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -268,7 +278,8 @@
       "Check source-level order of role gate, officeCommunication base gate, advanced Pro gate, tenant-scope resolution and DB access in each action helper.",
       "Exercise negative Alap and positive Pro entitlement cases; ensure standalone notification and customer emails keep Alap baseline.",
       "Execute targeted tests, TypeScript, Development Guard, Knowledge/Deep Atlas, Edit-Time Reference/Implementation Sync, Incremental Replay, Release Risk, then exact-head GitHub CI and canonical Truth/Lifecycle.",
-      "Maintain explicit follow-up obligation for email attachment HTTP/API and RPC/storage boundaries; parent #1186 stays PARTIAL."
+      "Maintain explicit follow-up obligation for email attachment HTTP/API and RPC/storage boundaries; parent #1186 stays PARTIAL.",
+      "Execute Sentinel integrity probe using the actual critical plan; require PASS with no unsupported claim dimensions and retain runtime fail-closed checks."
     ],
     "semanticExecutionRoute": {
       "request": "Core 1186 U05: enforce Pro-only Digital Office direct server actions and preserve Alap normal transactional support email",
@@ -280,7 +291,8 @@
         "src/app/admin/kommunikacio/iroda/composer-actions.ts",
         "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
         "tests/customer-email-plan-split.test.ts",
-        "tests/pro-entitlement-guards.test.ts"
+        "tests/pro-entitlement-guards.test.ts",
+        "tests/digital-office-internal-chat-capability-gate.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -1312,7 +1324,7 @@
           "breadth": "digital-office-direct-actions",
           "strength": 2,
           "dimensions": [
-            "authorization",
+            "behavioral-proof",
             "scope",
             "forbidden-state"
           ]
@@ -1346,7 +1358,7 @@
           "breadth": "commercial-plan-separation",
           "strength": 2,
           "dimensions": [
-            "feature-separation",
+            "regression",
             "forbidden-state"
           ]
         },
