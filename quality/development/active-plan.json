@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1186-BOOTSTRAP-1187",
   "task": "Restore broken canonical Shoperation Development Guard CLI syntax before Core entitlement MR1 work, with regression and no authority change.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "aa79c504",
   "changeBaseSha": "89e01932556bc220e5bfa55ac0f5c3f7f8deee91",
   "plannedFilePatterns": [
@@ -954,5 +954,18 @@
     "Bootstrap exception: first syntax-only edit was required because the existing canonical Development Guard threw a SyntaxError before running; restored guard PASS immediately afterwards. No unrelated implementation edits preceded Plan Before Code.",
     "Only #1187 bootstrap guard repair is scoped here; #1186 Core entitlement matrix stays OPEN and unchanged.",
     "Existing source code and baseline guard policy remain the sole authority."
-  ]
+  ],
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "e87711ad79ff135a8c924555664254de58afeef3",
+    "closedAt": "2026-10-09T06:13:27.686Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-09-CORE-1186-BOOTSTRAP-1187",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
