@@ -100,6 +100,101 @@ describe('Control Plane diagnostic coverage',()=>{
     expect(command).toContain('GITHUB_STEP_SUMMARY');
   });
 
+  it('captures precise pre-drive source errors with original exit, source/run and redaction',()=>{
+    const dir=mkdtempSync(path.join(tmpdir(),'trusted-release-predrive-'));
+    try{
+      const out=path.join(dir,'pre-drive-source.json'),summary=path.join(dir,'summary.md');
+      const token='ghp_simulated_sensitive_test_token_xyz';
+      const js='console.error("Error: RELEASE_UNIT_SOURCE_REVISION_MISMATCH: expected abc, actual def");console.error("credential "+process.env.GH_TOKEN);process.exit(17)';
+      const result=spawnSync(process.execPath,['scripts/shoperation-command-diagnostic.mjs','--',process.execPath,'-e',js],{
+        encoding:'utf8',env:{...process.env,GH_TOKEN:token,GITHUB_TOKEN:token,
+          SHOPERATION_DIAGNOSTIC_GATE:'trusted-release-source',
+          SHOPERATION_DIAGNOSTIC_CODE:'RELEASE_UNIT_SOURCE_FETCH_FAILED',
+          SHOPERATION_DIAGNOSTIC_OUTPUT:out,SHOPERATION_SOURCE_COMMIT:'a'.repeat(40),
+          GITHUB_RUN_ID:'987654',GITHUB_STEP_SUMMARY:summary},
+      });
+      const report=JSON.parse(read(out));
+      expect(result.status).toBe(17);
+      expect(report).toMatchObject({decision:'FAIL',gateId:'trusted-release-source',runId:'987654',sourceCommit:'a'.repeat(40),exitCode:17});
+      expect(report.errors.some((x:{code:string})=>x.code==='RELEASE_UNIT_SOURCE_REVISION_MISMATCH')).toBe(true);
+      expect(read(out)).toContain('[REDACTED]');
+      expect(read(out)).not.toContain(token);
+      expect(read(summary)).toContain('RELEASE_UNIT_SOURCE_REVISION_MISMATCH');
+      expect(read(summary)).not.toContain(token);
+    }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+
+  it('preserves fallback npm install errors without fabricating a specific error code',()=>{
+    const dir=mkdtempSync(path.join(tmpdir(),'trusted-release-npm-'));
+    try{
+      const out=path.join(dir,'pre-drive-install.json');
+      const result=spawnSync(process.execPath,['scripts/shoperation-command-diagnostic.mjs','--',process.execPath,'-e',
+        "console.error('npm error certificate verification failed');process.exit(23)"],{
+        encoding:'utf8',env:{...process.env,
+          SHOPERATION_DIAGNOSTIC_GATE:'trusted-release-install',
+          SHOPERATION_DIAGNOSTIC_CODE:'RELEASE_UNIT_DEPENDENCY_INSTALL_FAILED',SHOPERATION_DIAGNOSTIC_OUTPUT:out},
+      });
+      const report=JSON.parse(read(out));
+      expect(result.status).toBe(23);
+      expect(report.decision).toBe('FAIL');
+      expect(report.errors[0]).toMatchObject({code:'RELEASE_UNIT_DEPENDENCY_INSTALL_FAILED'});
+      expect(report.errors[0].reason).toContain('certificate verification failed');
+    }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+
+  it('binds every trusted pre-drive release command to a stage-scoped artifact and existing Failure Intake',()=>{
+    const workflow=read('.github/workflows/release-unit-execution.yml');
+    for(const token of[
+      'id: checkout-trusted','id: setup-node','id: install-locked','id: fetch-source',
+      'id: knowledge-proof','id: source-plan-proof','id: risk-proof','id: configure-identity',
+      'SHOPERATION_DIAGNOSTIC_GATE: trusted-release-install',
+      'SHOPERATION_DIAGNOSTIC_GATE: trusted-release-source',
+      'SHOPERATION_DIAGNOSTIC_GATE: trusted-release-knowledge',
+      'SHOPERATION_DIAGNOSTIC_GATE: trusted-release-plan',
+      'SHOPERATION_DIAGNOSTIC_GATE: trusted-release-risk',
+      'SHOPERATION_DIAGNOSTIC_GATE: trusted-release-identity',
+      'RELEASE_UNIT_DEPENDENCY_INSTALL_FAILED=artifacts/shoperation-command-diagnostics/pre-drive-install.json;',
+      'RELEASE_UNIT_SOURCE_FETCH_FAILED=artifacts/shoperation-command-diagnostics/pre-drive-source.json;',
+      'RELEASE_UNIT_KNOWLEDGE_PREFLIGHT_FAILED=artifacts/shoperation-command-diagnostics/pre-drive-knowledge.json;',
+      'RELEASE_UNIT_PLAN_PROOF_FAILED=artifacts/shoperation-command-diagnostics/pre-drive-plan.json;',
+      'RELEASE_UNIT_RISK_PROOF_FAILED=artifacts/shoperation-command-diagnostics/pre-drive-risk.json;',
+      'RELEASE_UNIT_GIT_IDENTITY_FAILED=artifacts/shoperation-command-diagnostics/pre-drive-identity.json;',
+      'RELEASE_UNIT_STEP_FAILURE_UNCAPTURED=artifacts/shoperation-command-diagnostics/pre-drive-fallback.json',
+      "if: failure() && steps.checkout-trusted.outcome == 'success'",
+      "test \"$(git rev-parse \"$SOURCE_SHA^{commit}\")\" = \"$SOURCE_SHA\"",
+      'git show "$SOURCE_SHA:quality/development/active-plan.json" > artifacts/release-execution/source-plan.json',
+      'node scripts/release-unit-execute.mjs',
+    ])expect(workflow).toContain(token);
+    expect((workflow.match(/node scripts\\/shoperation-command-diagnostic\\.mjs/g)??[]).length).toBe(7);
+    expect(workflow).toContain('artifacts/shoperation-command-diagnostics/*.json');
+  });
+
+  it('marks checkout/setup exceptions as UNKNOWN when original command artifact does not exist',()=>{
+    const workflow=read('.github/workflows/release-unit-execution.yml');
+    const section=workflow.split('      - name: Record unwrapped early failure location')[1]
+      ?.split('      - name: Record trusted executor failure intake')[0]??'';
+    const match=section.match(/node --input-type=module <<'NODE'\\n([\\s\\S]*?)\\n          NODE/);
+    expect(match).not.toBeNull();
+    const script=match![1].split('\\n').map(x=>x.replace(/^          /,'')).join('\\n');
+    const dir=mkdtempSync(path.join(tmpdir(),'release-fallback-stage-'));
+    try{
+      const result=spawnSync(process.execPath,['--input-type=module','-e',script],{
+        cwd:dir,encoding:'utf8',
+        env:{...process.env,CHECKOUT_OUTCOME:'failure',SETUP_OUTCOME:'skipped',
+          INSTALL_OUTCOME:'skipped',FETCH_OUTCOME:'skipped',KNOWLEDGE_OUTCOME:'skipped',
+          PLAN_OUTCOME:'skipped',RISK_OUTCOME:'skipped',IDENTITY_OUTCOME:'skipped',
+          DRIVER_OUTCOME:'skipped',SHOPERATION_SOURCE_COMMIT:'b'.repeat(40),GITHUB_RUN_ID:'123'},
+      });
+      expect(result.status).toBe(0);
+      const report=JSON.parse(read(path.join(dir,'artifacts/shoperation-command-diagnostics/pre-drive-fallback.json')));
+      expect(report.exactRootCauseAvailable).toBe(false);
+      expect(report.sourceCommit).toBe('b'.repeat(40));
+      expect(report.errors[0].code).toBe('RELEASE_UNIT_STEP_FAILURE_UNCAPTURED');
+      expect(report.errors[0].evidence).toContain('exact_root_cause=UNKNOWN');
+      expect(report.errors[0].evidence).toContain('step=Checkout trusted default-branch executor');
+    }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+
   it('wires core CI baseline, market-ready, typecheck and build failures into structured intake',()=>{
     const ci=read('.github/workflows/ci.yml');
     for(const marker of[
