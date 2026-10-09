@@ -1,0 +1,13 @@
+{
+  "contract": "shoporation.release-parent-closure-proof-artifact.v1",
+  "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
+  "sourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
+  "sourcePlanDigest": "94acc459da76d855a79a84f33ea422a3f7a5de8a649c4e9bb9ce7fb488e36eeb",
+  "completionContractDigest": "204dfe84074fb0fa658af629349939738d1b5cf7fe1da3b11366635de7eeebf1",
+  "finalMainSha": "9f16dbd8319d71e72087c1ba1085575c88ff09e0",
+  "unitCloseReceiptDigests": [
+    "6e2f5076"
+  ],
+  "trustedMainAdvanceDigest": null,
+  "parentClosureContextDigest": "1b9367897d67182ac57715524c4c854161786d6c4fd2ec973d8bb16716ead00f"
+}
