@@ -89,9 +89,11 @@ jobs:
           node-version: 24
 
       - name: Install locked dependencies
+        id: security-install
         run: npm ci --no-audit --no-fund
 
       - name: Production dependency security audit
+        id: security-audit-command
         shell: bash
         run: |
           set -u
@@ -100,7 +102,11 @@ jobs:
             audit_log="$(mktemp)"
             set +e
             npm_config_fetch_timeout=60000 npm_config_fetch_retries=1 npm_config_fetch_retry_maxtimeout=10000 \
-              npm audit --omit=dev --audit-level=high 2>&1 | tee "$audit_log"
+              SHOPERATION_DIAGNOSTIC_GATE=security-audit \
+              SHOPERATION_DIAGNOSTIC_CODE=SECURITY_AUDIT_FAILED \
+              SHOPERATION_DIAGNOSTIC_EXPECTED="npm audit --omit=dev --audit-level=high succeeds" \
+              SHOPERATION_DIAGNOSTIC_OUTPUT=artifacts/shoperation-command-diagnostics/security-audit.json \
+              node scripts/shoperation-command-diagnostic.mjs -- npm audit --omit=dev --audit-level=high 2>&1 | tee "$audit_log"
             audit_rc=${PIPESTATUS[0]}
             set -e
 
@@ -125,6 +131,52 @@ jobs:
             rm -f "$audit_log"
             sleep $((attempt * 5))
           done
+
+      - name: Normalize independent security audit failure
+        if: failure()
+        env:
+          SECURITY_INSTALL_OUTCOME: ${{ steps.security-install.outcome }}
+          SECURITY_AUDIT_OUTCOME: ${{ steps.security-audit-command.outcome }}
+          SHOPERATION_SOURCE_COMMIT: ${{ env.SHOPERATION_CI_HEAD_SHA }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {existsSync,mkdirSync,writeFileSync} from 'node:fs';
+          const file='artifacts/shoperation-command-diagnostics/security-audit.json';
+          if(existsSync(file))process.exit(0);
+          mkdirSync('artifacts/shoperation-command-diagnostics',{recursive:true});
+          const code=process.env.SECURITY_INSTALL_OUTCOME==='failure'
+            ?'SECURITY_AUDIT_DEPENDENCY_INSTALL_FAILED':'SECURITY_AUDIT_STEP_FAILED';
+          const location=process.env.SECURITY_INSTALL_OUTCOME==='failure'
+            ?'Install locked dependencies':'Production dependency security audit';
+          writeFileSync(file,JSON.stringify({
+            contract:'shoporation.command-diagnostic.v1',gateId:'security-audit',decision:'FAIL',
+            sourceCommit:process.env.SHOPERATION_SOURCE_COMMIT??null,runId:process.env.GITHUB_RUN_ID??null,
+            errors:[{code,reason:location+' failed before structured command diagnostics could complete',
+              expected:'Security audit job passes',actual:'failure',evidence:['step='+location]}]
+          },null,2)+'\n');
+          NODE
+
+      - name: Record security audit failure intake
+        if: failure()
+        env:
+          SHOPERATION_SOURCE_COMMIT: ${{ env.SHOPERATION_CI_HEAD_SHA }}
+          SHOPERATION_FAILURE_SOURCE: security-audit
+          SHOPERATION_ENVIRONMENT: ci
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_DIAGNOSTIC_ARTIFACTS: SECURITY_AUDIT_FAILED=artifacts/shoperation-command-diagnostics/security-audit.json
+          SHOPERATION_GENERIC_FAILURES: SECURITY_AUDIT_FAILED
+        run: node scripts/shoperation-failure-intake.mjs
+
+      - name: Upload security audit failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-security-audit-failure-${{ env.SHOPERATION_CI_HEAD_SHA }}
+          path: |
+            artifacts/shoperation-command-diagnostics/security-audit.json
+            artifacts/shoperation-failure-intake/**
+          if-no-files-found: warn
+          retention-days: 90
 
   build:
     runs-on: ubuntu-latest
