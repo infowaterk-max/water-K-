@@ -47,6 +47,32 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     expect(admin.domains).toEqual(['DOMAIN-ADMIN']);
     expect(admin.authorities).toEqual(['admin-operations']);
 
+    // Admin HTTP handlers, including newly planned deeply nested and bracketed routes,
+    // have the same canonical Admin authority as the admin UI; the registry, not
+    // a local Plan Before Code exception, supplies this authority.
+    for(const file of [
+      'src/app/api/admin/office/email-attachments/prepare/route.ts',
+      'src/app/api/admin/office/email-attachments/scan/route.ts',
+      'src/app/api/admin/office/email-attachments/status/route.ts',
+      'src/app/api/admin/office/attachments/[id]/route.ts',
+      'src/app/api/admin/new-module/untracked/route.ts',
+    ]){
+      const classified=classifyAtlasPath(file);
+      expect(classified.domains, file).toEqual(['DOMAIN-ADMIN']);
+      expect(classified.authorities, file).toEqual(['admin-operations']);
+      const resolved=resolveAtlasArchitectureForPath({} as any,file);
+      expect(resolved.resolved,file).toBe(true);
+      expect(resolved.pathDerived.domains,file).toEqual(['DOMAIN-ADMIN']);
+    }
+    for(const [file,domain,owner] of [
+      ['src/app/api/auth/login/route.ts','DOMAIN-IDENTITY','auth-access-authority'],
+      ['src/app/api/checkout/quote/route.ts','DOMAIN-COMMERCE','commerce-core-authority'],
+    ]as const){
+      const classified=classifyAtlasPath(file);
+      expect(classified.domains).toEqual([domain]);
+      expect(classified.authorities).toEqual([owner]);
+    }
+
     const builder=classifyAtlasPath('src/app/storefront-template-preview/page.tsx');
     expect(builder.domains).toEqual(['DOMAIN-BUILDER']);
     expect(builder.authorities).toEqual(['builder-template-system']);
