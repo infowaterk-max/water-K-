@@ -5,6 +5,7 @@ describe('Shoperation Domain Foundations v1',()=>{
   it('forms a valid canonical and acyclic domain authority registry',()=>{
     const result=validateDomainFoundations();
     expect(result.ok).toBe(true);
+    expect(getDomainFoundation('DOMAIN-ADMIN')?.canonicalPaths).toContain('src/app/api/admin/**');
     expect(result.issues).toEqual([]);
     expect(result.domainCount).toBe(13);
     expect(result.truthOwnerCount).toBeGreaterThan(30);

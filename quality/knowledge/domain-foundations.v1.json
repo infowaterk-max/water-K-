@@ -502,7 +502,8 @@
       ],
       "canonicalPaths": [
         "src/app/admin/**",
-        "src/components/admin/**"
+        "src/components/admin/**",
+        "src/app/api/admin/**"
       ],
       "evidenceObligations": [
         "role-aware navigation regression",
