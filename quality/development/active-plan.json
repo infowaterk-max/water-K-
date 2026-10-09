@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-DIAGNOSTIC-SURFACE-1018",
   "task": "Harden shared exact-error diagnostic collection for CI security-audit and trusted release executor and feed normalized artifacts into Failure Intake without weakening failure behavior.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a42319a7",
   "changeBaseSha": "995983131fa3aa1cb91794810c817f6b9b8846d9",
   "plannedFilePatterns": [
@@ -483,5 +483,18 @@
     "Plan-only checkpoint: no implementation change may be authored until exact-head Plan Before Code succeeds.",
     "Historical issue #1018. Existing generic command-diagnostic is canonical; do not add a competing second diagnostics engine.",
     "Sentinel proof-semantics correction: guard registry lacks a 'security' or generic 'evidence' dimension; use accurately provable CAP-QUALITY status/evidence-scope/forbidden-state. The security-audit job itself remains mandatory CI evidence, not a fabricated extra guard capability."
-  ]
+  ],
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "2e0d350f01649a9def9bb8881948b1295ae2e5d7",
+    "closedAt": "2026-10-09T04:17:40.618Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-09-CONTROL-PLANE-DIAGNOSTIC-SURFACE-1018",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
