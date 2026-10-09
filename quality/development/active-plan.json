@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1192-AUTHORITY-SCOPE",
   "task": "Restore canonical Core plan and entitlements security scope mapping for issue 1192",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "f3e7c0a8a475dfa1d07eddb47d3ad1735e47c09e",
   "plannedFilePatterns": [
@@ -1093,5 +1093,18 @@
     "Prerequisite #1192 is bounded canonical metadata change after verified main #1188 merge; not the product authorization implementation.",
     "Issue #1186 remains open and dependency incomplete.",
     "No Builder, Template Factory, payment or database changes permitted."
-  ]
+  ],
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "043e20636c701f3c8f2c786c5092248548e901d1",
+    "closedAt": "2026-10-09T07:14:00.412Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-09-CORE-SCOPE-AUTHORITY-1192",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
