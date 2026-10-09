@@ -3,6 +3,7 @@ import { getCommunicationProvider, isCommunicationProviderConfigured } from './p
 import { getCommunicationTemplate } from './templates';
 import { brandedSubject, getCommunicationIdentityForInstance } from './identity';
 import { officeAttachmentsForJob } from './office-email-attachments';
+import { getFeatureEntitlementDecision } from '@/lib/entitlements/access';
 
 type ClaimedJob={id:string;instance_id:string;recipient_email:string;purpose:'transactional'|'marketing';template_key:string;payload:Record<string,unknown>;claim_token:string;attempts:number};
 type OfficeThreadReplyRow={id:string;conversation_type:string;mailbox_key:string|null};
@@ -121,6 +122,22 @@ async function runForInstance(instanceId:string,limit:number):Promise<WorkerSumm
             if(consentError)throw consentError;
             if(allowed!==true){
               await persistFailedClaim(admin,instanceId,job,'MARKETING_CONSENT_MISSING_AT_SEND_TIME',false);
+              summary.blocked++;continue;
+            }
+          }
+          // A queued Office reply may outlive its enqueue-time Pro entitlement.
+          // The service-role worker must recheck the canonical tenant plan + current grant
+          // on every attempt, before reading Office attachments or calling the provider.
+          if(job.template_key==='support_reply'){
+            let officeEntitlement;
+            try{
+              officeEntitlement=await getFeatureEntitlementDecision(instanceId,'officeCommunicationAdvanced');
+            }catch{
+              throw new Error('ENTITLEMENT_PROOF_UNAVAILABLE_AT_SEND_TIME');
+            }
+            if(officeEntitlement===null)throw new Error('ENTITLEMENT_PROOF_UNAVAILABLE_AT_SEND_TIME');
+            if(officeEntitlement.enabled!==true){
+              await persistFailedClaim(admin,instanceId,job,'OFFICE_PRO_ENTITLEMENT_REVOKED_AT_SEND_TIME',false);
               summary.blocked++;continue;
             }
           }

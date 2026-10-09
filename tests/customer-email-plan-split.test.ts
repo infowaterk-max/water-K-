@@ -27,6 +27,7 @@ describe('Customer e-mail Alap / Pro plan split',()=>{
     expect(hasPlanFeature('alap','officeCommunication')).toBe(true);
     expect(hasPlanFeature('alap','support')).toBe(true);
     expect(hasPlanFeature('alap','officeCommunicationAdvanced')).toBe(false);
+    expect(read('src/lib/communication/worker.ts')).toContain("if(job.template_key==='support_reply')");
     expect(hasPlanFeature('pro','officeCommunicationAdvanced')).toBe(true);
     expect(hasPlanFeature('alap','teamChat')).toBe(false);
     expect(hasPlanFeature('pro','teamChat')).toBe(true);
