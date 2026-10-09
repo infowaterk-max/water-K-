@@ -36,30 +36,56 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout trusted default-branch executor
+        id: checkout-trusted
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
       - name: Setup Node.js
+        id: setup-node
         uses: actions/setup-node@v4
         with:
           node-version: 24
 
       - name: Install locked dependencies
-        run: npm ci --no-audit --no-fund
+        id: install-locked
+        env:
+          SHOPERATION_SOURCE_COMMIT: ${{ env.SOURCE_SHA }}
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_DIAGNOSTIC_GATE: trusted-release-install
+          SHOPERATION_DIAGNOSTIC_CODE: RELEASE_UNIT_DEPENDENCY_INSTALL_FAILED
+          SHOPERATION_DIAGNOSTIC_EXPECTED: Locked npm dependencies install successfully
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/pre-drive-install.json
+        run: node scripts/shoperation-command-diagnostic.mjs -- npm ci --no-audit --no-fund
 
       - name: Fetch source revision as data
+        id: fetch-source
         shell: bash
+        env:
+          SHOPERATION_SOURCE_COMMIT: ${{ env.SOURCE_SHA }}
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_DIAGNOSTIC_GATE: trusted-release-source
+          SHOPERATION_DIAGNOSTIC_CODE: RELEASE_UNIT_SOURCE_FETCH_FAILED
+          SHOPERATION_DIAGNOSTIC_EXPECTED: Exact immutable release source resolves and binds successfully
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/pre-drive-source.json
         run: |
-          set -euo pipefail
-          git fetch --no-tags origin "$SOURCE_SHA"
-          test "$(git rev-parse "$SOURCE_SHA^{commit}")" = "$SOURCE_SHA"
-          mkdir -p artifacts/release-execution
-          git show "$SOURCE_SHA:quality/development/active-plan.json" > artifacts/release-execution/source-plan.json
+          node scripts/shoperation-command-diagnostic.mjs -- bash -euo pipefail -c '
+            git fetch --no-tags origin "$SOURCE_SHA"
+            test "$(git rev-parse "$SOURCE_SHA^{commit}")" = "$SOURCE_SHA"
+            mkdir -p artifacts/release-execution
+            git show "$SOURCE_SHA:quality/development/active-plan.json" > artifacts/release-execution/source-plan.json
+          '
 
       - name: Recompute trusted Knowledge/Atlas evidence for exact source
+        id: knowledge-proof
         env:
+          SHOPERATION_SOURCE_COMMIT: ${{ env.SOURCE_SHA }}
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_DIAGNOSTIC_GATE: trusted-release-knowledge
+          SHOPERATION_DIAGNOSTIC_CODE: RELEASE_UNIT_KNOWLEDGE_PREFLIGHT_FAILED
+          SHOPERATION_DIAGNOSTIC_EXPECTED: Knowledge and Atlas preflight PASS for exact immutable source
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/pre-drive-knowledge.json
           SHOPERATION_ACTIVE_PLAN: artifacts/release-execution/source-plan.json
           DEVELOPMENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           QUALITY_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
@@ -68,28 +94,52 @@ jobs:
           SHOPERATION_REPLAY_BRANCH: ${{ github.event.workflow_run.head_branch }}
           GH_TOKEN: ''
           GITHUB_TOKEN: ''
-        run: node scripts/shoperation-knowledge-preflight.mjs
+        run: node scripts/shoperation-command-diagnostic.mjs -- node scripts/shoperation-knowledge-preflight.mjs
 
       - name: Recompute canonical source plan with trusted executor
+        id: source-plan-proof
         env:
+          SHOPERATION_SOURCE_COMMIT: ${{ env.SOURCE_SHA }}
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_DIAGNOSTIC_GATE: trusted-release-plan
+          SHOPERATION_DIAGNOSTIC_CODE: RELEASE_UNIT_PLAN_PROOF_FAILED
+          SHOPERATION_DIAGNOSTIC_EXPECTED: Plan Before Code PASS for exact immutable source
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/pre-drive-plan.json
           SHOPERATION_ACTIVE_PLAN: artifacts/release-execution/source-plan.json
           DEVELOPMENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           QUALITY_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           RELEASE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           SHOPERATION_REPLAY_HEAD: ${{ github.event.workflow_run.head_sha }}
           SHOPERATION_REPLAY_BRANCH: ${{ github.event.workflow_run.head_branch }}
-        run: node scripts/shoperation-plan-before-code.mjs --check
+        run: node scripts/shoperation-command-diagnostic.mjs -- node scripts/shoperation-plan-before-code.mjs --check
 
       - name: Recompute canonical Release Risk with trusted executor
+        id: risk-proof
         env:
+          SHOPERATION_SOURCE_COMMIT: ${{ env.SOURCE_SHA }}
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_DIAGNOSTIC_GATE: trusted-release-risk
+          SHOPERATION_DIAGNOSTIC_CODE: RELEASE_UNIT_RISK_PROOF_FAILED
+          SHOPERATION_DIAGNOSTIC_EXPECTED: Release Risk PASS for exact immutable source
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/pre-drive-risk.json
           SHOPERATION_ACTIVE_PLAN: artifacts/release-execution/source-plan.json
           RELEASE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-        run: node scripts/release-risk-budget.mjs
+        run: node scripts/shoperation-command-diagnostic.mjs -- node scripts/release-risk-budget.mjs
 
       - name: Configure release execution identity
+        id: configure-identity
+        env:
+          SHOPERATION_SOURCE_COMMIT: ${{ env.SOURCE_SHA }}
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_DIAGNOSTIC_GATE: trusted-release-identity
+          SHOPERATION_DIAGNOSTIC_CODE: RELEASE_UNIT_GIT_IDENTITY_FAILED
+          SHOPERATION_DIAGNOSTIC_EXPECTED: Canonical executor git identity configured
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/pre-drive-identity.json
         run: |
-          git config user.name "shoperation-release-executor"
-          git config user.email "shoperation-release-executor@users.noreply.github.com"
+          node scripts/shoperation-command-diagnostic.mjs -- bash -euo pipefail -c '
+            git config user.name "shoperation-release-executor"
+            git config user.email "shoperation-release-executor@users.noreply.github.com"
+          '
 
       - name: Drive canonical release-unit execution
         id: drive-release-executor
@@ -109,14 +159,77 @@ jobs:
           --decomposition-report artifacts/shoperation-development-guard/plan-before-code.json
           --source "$SOURCE_SHA"
 
-      - name: Record trusted executor failure intake
+      - name: Record unwrapped early failure location
         if: failure()
+        env:
+          SHOPERATION_SOURCE_COMMIT: ${{ env.SOURCE_SHA }}
+          CHECKOUT_OUTCOME: ${{ steps.checkout-trusted.outcome }}
+          SETUP_OUTCOME: ${{ steps.setup-node.outcome }}
+          INSTALL_OUTCOME: ${{ steps.install-locked.outcome }}
+          FETCH_OUTCOME: ${{ steps.fetch-source.outcome }}
+          KNOWLEDGE_OUTCOME: ${{ steps.knowledge-proof.outcome }}
+          PLAN_OUTCOME: ${{ steps.source-plan-proof.outcome }}
+          RISK_OUTCOME: ${{ steps.risk-proof.outcome }}
+          IDENTITY_OUTCOME: ${{ steps.configure-identity.outcome }}
+          DRIVER_OUTCOME: ${{ steps.drive-release-executor.outcome }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {existsSync,mkdirSync,writeFileSync,appendFileSync} from 'node:fs';
+          const stages=[
+            ['Checkout trusted default-branch executor',process.env.CHECKOUT_OUTCOME,'pre-drive-checkout'],
+            ['Setup Node.js',process.env.SETUP_OUTCOME,'pre-drive-node-setup'],
+            ['Install locked dependencies',process.env.INSTALL_OUTCOME,'pre-drive-install'],
+            ['Fetch source revision as data',process.env.FETCH_OUTCOME,'pre-drive-source'],
+            ['Recompute trusted Knowledge/Atlas evidence for exact source',process.env.KNOWLEDGE_OUTCOME,'pre-drive-knowledge'],
+            ['Recompute canonical source plan with trusted executor',process.env.PLAN_OUTCOME,'pre-drive-plan'],
+            ['Recompute canonical Release Risk with trusted executor',process.env.RISK_OUTCOME,'pre-drive-risk'],
+            ['Configure release execution identity',process.env.IDENTITY_OUTCOME,'pre-drive-identity'],
+            ['Drive canonical release-unit execution',process.env.DRIVER_OUTCOME,'trusted-release-executor'],
+          ];
+          const failed=stages.find(([,outcome])=>outcome==='failure');
+          if(!failed)process.exit(0);
+          const [step,,artifact]=failed;
+          const directory='artifacts/shoperation-command-diagnostics';
+          mkdirSync(directory,{recursive:true});
+          const reportPath=directory+'/'+artifact+'.json';
+          if(existsSync(reportPath))process.exit(0); // The command wrapper already captured a concrete error.
+          const file=directory+'/pre-drive-fallback.json';
+          const report={
+            contract:'shoporation.command-diagnostic.v1',gateId:'trusted-release-pre-drive',
+            decision:'FAIL',sourceCommit:process.env.SHOPERATION_SOURCE_COMMIT??null,
+            runId:process.env.GITHUB_RUN_ID??null,exactRootCauseAvailable:false,
+            errors:[{code:'RELEASE_UNIT_STEP_FAILURE_UNCAPTURED',status:'FAIL',
+              reason:step+' failed before a trustworthy exact command error artifact was available',
+              expected:'Step succeeds with captured exact diagnostic',
+              actual:'failed; exact underlying error unavailable',
+              evidence:['step='+step,'artifact_expected='+reportPath,'exact_root_cause=UNKNOWN']}]
+          };
+          writeFileSync(file,JSON.stringify(report,null,2)+'\n');
+          if(process.env.GITHUB_STEP_SUMMARY)
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+              '\n### Trusted release pre-drive failure (exact cause unavailable)\n'
+              +'- Failed step: '+step+'\n'
+              +'- Source: '+(report.sourceCommit??'unknown')+'\n'
+              +'- Run: '+(report.runId??'unknown')+'\n'
+              +'- Missing exact diagnostic: '+reportPath+'\n');
+          NODE
+
+      - name: Record trusted executor failure intake
+        if: failure() && steps.checkout-trusted.outcome == 'success'
         env:
           SHOPERATION_SOURCE_COMMIT: ${{ env.SOURCE_SHA }}
           SHOPERATION_FAILURE_SOURCE: trusted-release-executor
           SHOPERATION_ENVIRONMENT: release-execution
           SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
-          SHOPERATION_DIAGNOSTIC_ARTIFACTS: RELEASE_UNIT_EXECUTION_FAILED=artifacts/shoperation-command-diagnostics/trusted-release-executor.json
+          SHOPERATION_DIAGNOSTIC_ARTIFACTS: >-
+            RELEASE_UNIT_DEPENDENCY_INSTALL_FAILED=artifacts/shoperation-command-diagnostics/pre-drive-install.json;
+            RELEASE_UNIT_SOURCE_FETCH_FAILED=artifacts/shoperation-command-diagnostics/pre-drive-source.json;
+            RELEASE_UNIT_KNOWLEDGE_PREFLIGHT_FAILED=artifacts/shoperation-command-diagnostics/pre-drive-knowledge.json;
+            RELEASE_UNIT_PLAN_PROOF_FAILED=artifacts/shoperation-command-diagnostics/pre-drive-plan.json;
+            RELEASE_UNIT_RISK_PROOF_FAILED=artifacts/shoperation-command-diagnostics/pre-drive-risk.json;
+            RELEASE_UNIT_GIT_IDENTITY_FAILED=artifacts/shoperation-command-diagnostics/pre-drive-identity.json;
+            RELEASE_UNIT_EXECUTION_FAILED=artifacts/shoperation-command-diagnostics/trusted-release-executor.json;
+            RELEASE_UNIT_STEP_FAILURE_UNCAPTURED=artifacts/shoperation-command-diagnostics/pre-drive-fallback.json
           SHOPERATION_GENERIC_FAILURES: RELEASE_UNIT_EXECUTION_FAILED
         run: node scripts/shoperation-failure-intake.mjs
 
@@ -126,7 +239,7 @@ jobs:
         with:
           name: shoperation-trusted-executor-diagnostic-${{ env.SOURCE_SHA }}
           path: |
-            artifacts/shoperation-command-diagnostics/trusted-release-executor.json
+            artifacts/shoperation-command-diagnostics/*.json
             artifacts/shoperation-failure-intake/**
           if-no-files-found: warn
           retention-days: 90
