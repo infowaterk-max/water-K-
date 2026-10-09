@@ -43,7 +43,7 @@ describe('Customer e-mail Alap / Pro plan split',()=>{
   });
 
   it('enforces CC/BCC and multi-mailbox behavior server-side, not only in the UI',()=>{
-    expect(composerActions).toContain("hasCurrentPlanFeature('officeCommunicationAdvanced')");
+    expect(composerActions).toContain("requirePlanFeature('officeCommunicationAdvanced')");
     expect(composerActions).toContain("if(!advancedEmail&&(ccEmails.length>0||bccEmails.length>0))");
     expect(composerActions).toContain("throw new OfficeComposerError('OFFICE_EMAIL_ADVANCED_PLAN_REQUIRED')");
     expect(composerActions).toContain(".eq('instance_id',instanceId).eq('is_active',true).order('mailbox_key',{ascending:true}).limit(2)");
@@ -51,8 +51,8 @@ describe('Customer e-mail Alap / Pro plan split',()=>{
   });
 
   it('keeps assignment and communication tasks Pro-only while supervision remains permission-aware',()=>{
-    expect(workspaceActions).toContain("supportAccess({advanced:true})");
-    expect(workspaceActions).toContain("hasCurrentPlanFeature('officeCommunicationAdvanced')");
+    expect(workspaceActions).toContain("async function supportAccess(){");
+    expect(workspaceActions).toContain("await requirePlanFeature('officeCommunicationAdvanced')");
     expect(workspaceActions).toContain("select('assigned_to')");
     expect(workspace).toContain("hasStorePermission(scope.instanceId,'marketing.manage')");
     expect(workspace).toMatch(/advancedEmail&&canMarketing&&<Link href="\/admin\/kommunikacio\/felugyelet">/);

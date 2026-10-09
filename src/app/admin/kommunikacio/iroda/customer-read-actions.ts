@@ -10,6 +10,8 @@ export async function markCustomerThreadReadAction(form:FormData){
   const actor=await getAdminRequestUser('support.manage');
   if(!actor)throw new Error('Nincs jogosultság.');
   await requirePlanFeature('officeCommunication');
+  // A direct Server Action must not rely on the parent Digital Office layout gate.
+  await requirePlanFeature('officeCommunicationAdvanced');
   const scope=await requireCurrentStoreContext('support.manage');
   const threadId=String(form.get('threadId')??'').trim();
   if(!threadId)return;
