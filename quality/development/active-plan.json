@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1186-U04-OFFICE-ROUTE",
   "task": "Core 1186 U04: fail-closed Pro-only Digital Office route shell while keeping Alap transactional commerce emails",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "1d1d5f53",
   "changeBaseSha": "e95038886d2d5a5f14337abba659806642fa51df",
   "plannedFilePatterns": [
@@ -1193,5 +1193,18 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "9e7d4dd7739833fbda2529f119579a1adbb9d1b7",
+    "closedAt": "2026-10-09T15:17:22.376Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U04-DIGITAL-OFFICE-PRO-ROUTE",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
