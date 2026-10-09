@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-EARLY-EXECUTOR-DIAGNOSTICS-1018-V2",
   "task": "Bind early trusted release executor steps to the existing exact-error diagnostic and Failure Intake, including fail-closed stage localization for unavailable early errors.",
   "status": "ready-for-implementation",
-  "guardDigest": "a42319a7",
+  "guardDigest": "1395803e",
   "changeBaseSha": "1c59e38b406e1bd7e8d5f29a8d4dcd69db22ead6",
   "plannedFilePatterns": [
     ".github/workflows/release-unit-execution.yml",
@@ -11,16 +11,13 @@
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
     "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
