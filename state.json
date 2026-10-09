@@ -956,14 +956,15 @@
     "mergedMainSha": "995983131fa3aa1cb91794810c817f6b9b8846d9",
     "postMergeMainCi": {
       "contract": "shoporation.release-parent-post-merge-main-ci.v1",
-      "status": "DISPATCH_REQUESTED",
+      "status": "OBSERVED",
       "decision": "PENDING",
       "runId": 37879636617,
       "nonce": "parent-main-ci-2d42f9e50478bdfc36d4af9b58efa318",
       "parentTransactionId": "DEV-POST-MERGE-EXACT-MAIN-CI-E2E-V2",
       "sourceCommit": "e9817f4d6404fe16ef8ad8082773ba8d179c6e74",
       "mergedMainSha": "995983131fa3aa1cb91794810c817f6b9b8846d9",
-      "headBranch": "main"
+      "headBranch": "main",
+      "observedStatus": "queued"
     }
   }
 }
