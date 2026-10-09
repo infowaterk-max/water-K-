@@ -112,7 +112,8 @@
       "patterns": [
         "src/app/admin/**",
         "src/components/admin/**",
-        "src/lib/admin/**"
+        "src/lib/admin/**",
+        "src/lib/communication/worker.ts"
       ]
     },
     {
