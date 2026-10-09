@@ -956,7 +956,7 @@
     "mergedMainSha": "995983131fa3aa1cb91794810c817f6b9b8846d9",
     "postMergeMainCi": {
       "contract": "shoporation.release-parent-post-merge-main-ci.v1",
-      "status": "INTENT_RECORDED",
+      "status": "DISPATCH_ARMED",
       "decision": "PENDING",
       "runId": null,
       "nonce": "parent-main-ci-2d42f9e50478bdfc36d4af9b58efa318",
