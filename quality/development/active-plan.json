@@ -1,26 +1,29 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CORE-1192-AUTHORITY-SCOPE",
-  "task": "Restore canonical Core plan and entitlements security scope mapping for issue 1192",
+  "taskId": "DEV-CORE-1186-U01-PRO-CHAT",
+  "task": "MR1 Core unit 1 Pro-only Team Chat deny stale Alap entitlement rows while preserving core customer email issue 1186",
   "status": "closed",
-  "guardDigest": "a41cfd0c",
-  "changeBaseSha": "f3e7c0a8a475dfa1d07eddb47d3ad1735e47c09e",
+  "guardDigest": "d64b38b6",
+  "changeBaseSha": "32fcdb7ede3772dfd43ab9694c042404ba900d3c",
   "plannedFilePatterns": [
-    "deploy/release-risk-policy.json",
-    "quality/knowledge/domain-foundations.v1.json",
-    "tests/engine-authority-scope-classification.test.ts",
-    "tests/control-plane-tenancy-scope-mapping.test.ts"
+    "src/lib/plans/catalog.ts",
+    "src/lib/entitlements/access.ts",
+    "tests/plans-catalog.test.ts",
+    "tests/block11-entitlement-system.test.ts",
+    "tests/customer-email-plan-split.test.ts",
+    "tests/block4-ia-navigation-reporting.test.ts"
   ],
   "expectedSubsystems": [
-    "release-infrastructure"
+    "auth-access-authority",
+    "customer-account"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-IDENTITY",
+    "DOMAIN-TENANCY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "auth-access-authority",
+    "tenant-context-authority"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -28,75 +31,27 @@
     "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
-    "SQ-KF-010",
     "SQ-KF-011",
-    "SQ-KF-012",
-    "SQ-KF-015",
-    "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
-    "SQ-KF-023",
-    "SQ-KF-024",
-    "TF-KF-001",
     "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
-    "TF-KF-006",
-    "TF-KF-007",
     "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
     "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "TF-KF-020"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-016",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023"
+    "SQ-NK-006",
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CORE-SCOPE-AUTHORITY-1192",
+    "sourceRef": "PO-2026-10-09-CORE-DIGITAL-OFFICE-1186-U01",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Authorization scope classification is a predecessor to enforcing paid capability boundaries and sensitive staff privilege. Misownership could silently suppress security evidence or produce false gate PASS. The scope repair is limited to existing metadata and tests, but requires critical planning depth, adversarial dependency-cycle checks and exact-head CI.",
+      "rationale": "Privilege to internal staff chat must be fail-closed at the server-owned tenant plan boundary even when an older DB entitlement row is positive. In scope is only the effective central access decision and plan catalog, not entire workspace or stored grants.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -113,23 +68,23 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Release Risk classifies src/lib/plans and src/lib/entitlements as auth-access-authority high risk and no other owner.",
-        "Deep Atlas resolves pure catalogs as Identity and instance-aware access as Tenancy, without cycles.",
-        "Plan Before Code, Edit-Time, Reference Sync, Knowledge and Incremental Replay succeed on the actual changes.",
-        "Security budget and weight semantics are unchanged and quality tests include scope ownership regression.",
-        "Exact-head CI, Completion Truth and Lifecycle close successfully before the issue can be marked completed."
+        "Alap Team Chat absent from plan catalog; Pro Team Chat present; standard customer email and support preserved in Alap.",
+        "Effective entitlement resolver compares strict workspace capability against the actual persisted instance subscription plan, denying Alap before candidate precedence can grant access.",
+        "Pro entitlement policy still honors explicit revoked/manual/trial/platform source semantics and expiry.",
+        "Targeted tests plus Edit-Time Reference Sync, Knowledge, Replay, risk and all exact-head GitHub CI gates pass.",
+        "Scope truth explicitly remains PARTIAL for #1186 until SQL migration, UI/API and operation closure."
       ],
       "invariants": [
-        "No new domain, subsystem or guard implementation; canonical authorities remain single source of truth.",
-        "The release risk budget remains maxPoints five, maxSubsystems three, and auth access risk high.",
-        "Identity must not import from Tenancy as a canonical dependency and Tenancy retains its Identity dependency.",
-        "The package-authorization implementation remains unchanged until issue #1186 receives its own plan and proof."
+        "Server authorization uses actual current instance plan, not mutable client metadata or a stale UI badge.",
+        "Plan-based non-workspace features and transactional email remain functional for Alap.",
+        "No extra source-of-truth or substitute entitlement engine.",
+        "Invalid instance/subscription data fail closed, never silently upgrade to Pro."
       ],
       "forbiddenStates": [
-        "An Alap/Pro entitlement source is silently treated as an unclassified medium-risk file.",
-        "A single broad Identity glob creates a forbidden Identity to Tenancy dependency edge.",
-        "Two release owners claim the same Core access policy directory.",
-        "Completion is asserted for the underlying Pro-only Digital Office authorization before any runtime tests."
+        "Alap with stale manual or platform teamChat grant receives enabled=true.",
+        "Pro lost teamChat through accidental removal from both catalog lists.",
+        "officeCommunication is removed from Alap and transactional customer email is broken.",
+        "All Digital Office backend and UI access is claimed complete after this single policy edit."
       ]
     },
     "model": {
@@ -161,38 +116,38 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Mis-scoped plan/access import creates a false Identity to Tenancy graph edge and Plan Before Code rejects the Atlas.",
-        "A glob not included by release pattern matching makes nested entitlement source files unclassified.",
-        "Mixed auth plus medium-risk release bypasses the maximum risk score of five.",
-        "A new proof claim demands dimensions from a guard that does not establish those dimensions.",
-        "A metadata-only fix is overclaimed as server authorization capability completeness."
+        "Persisted Alap plan grant still has enabled=true and current resolver trusts it unconditionally.",
+        "An Alap trial/manual/platform override wins over the plan and incorrectly enables internal chat.",
+        "An invalid current plan or missing tenant organization falls back to Pro.",
+        "Plan change during request is not transactional with entitlement read; require fresh plan on next authorization.",
+        "Scope claims broader coverage than actual code proves."
       ],
       "edgeCases": [
-        "Deep nested entitlements submodule receives the existing auth high-risk release owner.",
-        "Pure add-on catalog remains Identity even when used by tenant-aware resolvers.",
-        "Tenant access module continues to depend on Identity catalog without cross-domain cycle.",
-        "Other commerce and UI authority paths retain original classification.",
-        "A test-only diff is neutral yet production security code cannot be downgraded."
+        "Alap with valid grant from each source plan, trial, manual, platform.",
+        "Alap with positive organization-scoped row and expired instance-specific deny.",
+        "Pro tenant with manual explicit revocation.",
+        "Missing tenant, unknown feature, invalid subscription plan and expired grant.",
+        "Existing Alap core officeCommunication and support remain allowed while teamChat is not."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-EXACT-SPLIT",
-        "summary": "Extend existing release auth globs and split the exact module paths between Identity catalogs and Tenancy access/policy.",
+        "id": "ALT-CENTRAL-POLICY",
+        "summary": "Use one central catalog and effective entitlement resolver to deny Pro-only internal chat on Alap, independent of stale positive DB rows.",
         "disposition": "selected",
-        "reason": "Preserves the actual source import graph and both pre-existing authorities with the smallest metadata change."
+        "reason": "Minimal high-risk server authority update, preserves email, matches the existing runtime used by Digital Office."
       },
       {
-        "id": "ALT-ONE-BROAD-IDENTITY",
-        "summary": "Assign all plans and entitlements modules to DOMAIN-IDENTITY with broad directory patterns.",
+        "id": "ALT-UI-HIDE",
+        "summary": "Hide Team Chat navigation only.",
         "disposition": "rejected",
-        "reason": "Deep Atlas finds a forbidden Identity-to-Tenancy edge through plans/access into instances/access."
+        "reason": "Leaves backend API/job grants possible."
       },
       {
-        "id": "ALT-IGNORE-SCOPE",
-        "summary": "Leave these source files unclassified and manually assert expected authority for feature development.",
+        "id": "ALT-MIGRATION-ONLY",
+        "summary": "Delete Alap grants via SQL without changing effective resolver.",
         "disposition": "rejected",
-        "reason": "Would bypass the mandatory fail-closed Plan Before Code and hide security-sensitive entitlement changes."
+        "reason": "Future override/trial/manual records could still re-enable chat."
       }
     ],
     "specialistReviews": [
@@ -200,212 +155,342 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Pure catalog and tenant-aware access modules differ in dependency direction; the prior broad Identity ownership failed Deep Atlas.",
-        "resolution": "Use exact canonical paths for DOMAIN-IDENTITY catalogs and DOMAIN-TENANCY access/policy, without a new authority.",
+        "finding": "Existing centralized plan catalog and server-only entitlement batch resolver already serve shared Digital Office access, so no new service is needed.",
+        "resolution": "Enforce strict plan eligibility at that resolver with one exported catalog predicate.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json",
-          "src/lib/plans/access.ts",
-          "src/lib/instances/access.ts"
+          "src/lib/plans/catalog.ts",
+          "src/lib/entitlements/access.ts",
+          "src/lib/digital-office/access.ts"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Missing high-risk classification could permit mixed releases changing authorization decisions without isolation.",
-        "resolution": "Assign plans/** and entitlements/** to existing auth-access-authority risk HIGH with unchanged weights and boundaries.",
+        "finding": "Changing only ALAP_FEATURES does not deny stale positive feature_entitlements rows, including high-precedence platform/manual/trial grants.",
+        "resolution": "Read instance subscription_plan server-side and refuse strict Pro chat before applying entitlement candidates; record persistence reconciliation as a separate mandatory dependency.",
         "evidence": [
-          "deploy/release-risk-policy.json",
-          "tests/engine-authority-scope-classification.test.ts"
+          "src/lib/entitlements/access.ts",
+          "src/lib/entitlements/policy.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Canonical mapping changes selection of all verification gates and can invalidate earlier cached proof semantics.",
-        "resolution": "Run Knowledge, Reference Sync, Incremental Replay, CI Truth and byte-identical lifecycle closure at exact head.",
+        "finding": "A complete workspace patch mixed with SQL and admin UI exceeds this single high-risk release unit.",
+        "resolution": "Keep strict policy code and tests in this unit; SQL synchronization and admin entrypoints follow separate verified release units.",
         "evidence": [
-          "AGENTS.md",
-          ".github/workflows/ci.yml"
+          "deploy/release-risk-policy.json",
+          "quality/knowledge/living-roadmap.v2.json"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Unresolved Core authority paths skip expected negative-knowledge and deep impact coverage when entitlement code changes.",
-        "resolution": "Add two existing-suite regression checks for classification and exact-domain edges, then replay all applicable failures.",
+        "finding": "Old plan tests assert Team Chat enabled in Alap and are inadequate to catch stale overrides.",
+        "resolution": "Update package tests and a server source contract test while retaining existing precedence and email regression.",
         "evidence": [
-          "tests/control-plane-tenancy-scope-mapping.test.ts",
-          "tests/engine-authority-scope-classification.test.ts"
+          "tests/plans-catalog.test.ts",
+          "tests/block11-entitlement-system.test.ts",
+          "tests/customer-email-plan-split.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-1192-01",
-        "scenario": "Core plan catalog file is edited but release pattern is missing",
-        "finding": "The checkout-adjacent access decision is treated as low or unclassified risk",
-        "resolution": "Add src/lib/plans/** to the existing high-risk authorization release bucket",
+        "id": "CH-1186-U01-01",
+        "scenario": "Alap with plan source positive Team Chat row",
+        "finding": "Historical DB v4 sync still grants teamChat",
+        "resolution": "Return explicit disabled decision before candidate resolution",
         "status": "resolved"
       },
       {
-        "id": "CH-1192-02",
-        "scenario": "Tenant-aware plan access is assigned to pure Identity domain",
-        "finding": "An invalid Identity-to-Tenancy dependency edge appears in Deep Atlas",
-        "resolution": "Assign the instance-dependent plan access module to DOMAIN-TENANCY",
+        "id": "CH-1186-U01-02",
+        "scenario": "Alap with manual positive Team Chat override",
+        "finding": "Higher precedence could bypass static package features",
+        "resolution": "Strict product plan boundary wins over generic overrides",
         "status": "resolved"
       },
       {
-        "id": "CH-1192-03",
-        "scenario": "Entitlement access has no canonical ownership",
-        "finding": "Proof graph cannot identify one trusted authorization owner",
-        "resolution": "Map access and policy to existing DOMAIN-TENANCY and test exact source paths",
+        "id": "CH-1186-U01-03",
+        "scenario": "Alap with platform positive Team Chat override",
+        "finding": "Platform override could defeat Pro-only workspace rule",
+        "resolution": "Do not grant without actual Pro subscription; log future exception policy requirement",
         "status": "resolved"
       },
       {
-        "id": "CH-1192-04",
-        "scenario": "Pure entitlement catalog is assigned into tenant-aware authority",
-        "finding": "The catalogue import graph loses intended Identity-to-Tenancy direction",
-        "resolution": "Map the entitlements catalog file to canonical DOMAIN-IDENTITY",
+        "id": "CH-1186-U01-04",
+        "scenario": "Pro with explicit manual revoke",
+        "finding": "Central guard could accidentally force enabled on Pro",
+        "resolution": "Leave Pro paths to existing priority and revocation resolver",
         "status": "resolved"
       },
       {
-        "id": "CH-1192-05",
-        "scenario": "Security and unrelated medium UI changes share one release unit",
-        "finding": "Release isolation is bypassed even though high and medium edits are mixed",
-        "resolution": "Keep risk high and test that budget blocks the mixed authority release",
+        "id": "CH-1186-U01-05",
+        "scenario": "Alap standard transactional email",
+        "finding": "Overbroad Digital Office restriction could block standard email",
+        "resolution": "Keep officeCommunication and support catalog features unchanged",
         "status": "resolved"
       },
       {
-        "id": "CH-1192-06",
-        "scenario": "A broad wildcard also classifies unrelated commerce files",
-        "finding": "Canonical Atlas acquires overlapping owners for independent business engines",
-        "resolution": "Restrict identity domain to exact modules and preserve other domain paths",
+        "id": "CH-1186-U01-06",
+        "scenario": "A tenant lookup returns an instance with missing organization identity or an unknown subscription plan.",
+        "finding": "An unsafe fallback could treat unresolvable tenant context as Pro and grant internal chat.",
+        "resolution": "Preserve the existing null decision when organization is missing, and deny restricted chat unless the server-fetched subscription_plan is exactly pro.",
         "status": "resolved"
       },
       {
-        "id": "CH-1192-07",
-        "scenario": "Old Knowledge evidence applies after the mapping diff",
-        "finding": "Stale scope selection would produce unjustified release confidence",
-        "resolution": "Rerun Edit-Time Reference Sync, Knowledge and full Incremental Replay",
+        "id": "CH-1186-U01-07",
+        "scenario": "Subscription downgraded Pro to Alap with old positive rows",
+        "finding": "Stale database permissions could survive downgrade",
+        "resolution": "Check latest instance plan before interpreting row",
         "status": "resolved"
       },
       {
-        "id": "CH-1192-08",
-        "scenario": "An engineer declares Core Digital Office authorization complete",
-        "finding": "No tenant database or API operation has been touched by this metadata release",
-        "resolution": "Keep #1186 OPEN until actual implementation and operational verification",
+        "id": "CH-1186-U01-08",
+        "scenario": "Accidental claim of full Core closure",
+        "finding": "SQL/UI/API not touched by this unit",
+        "resolution": "Keep #1186 OPEN and report only strict effective chat denial",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-1186-U01-09",
+        "scenario": "An existing admin IA navigation regression test expects Team Chat in the Alap menu even after the canonical package change.",
+        "finding": "The previously correct test contract is now stale and makes Incremental Replay fail despite the effective entitlement boundary being stricter.",
+        "resolution": "Extend the scoped regression file list and replace only the outdated Alap Team Chat expectation with false; preserve Pro visibility and all unrelated navigation assertions.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-1186-U01-10",
+        "scenario": "The Sentinel integrity probe evaluates CAP-AUTH proof obligations and finds GUARD-PLAN-BEFORE-CODE and GUARD-EDIT-TIME are registered for CAP-ATLAS and CAP-QUALITY only.",
+        "finding": "Using plan-shape or edit-scope guards as a substitute for executed authorization behavior proof overclaims their registered capabilities, even though those separate preconditions still pass.",
+        "resolution": "Bind CAP-AUTH implementation and outcome proof to the executed GUARD-QUALITY-TESTS, which explicitly supports all capabilities; retain both Plan and Edit-Time as mandatory independent system obligations without assigning them false CAP-AUTH authority.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Document Core #1186 mandatory guard BLOCK on f3e7c0a8 for three unresolved security source files.",
-      "Run issue #1192 Development Guard and Plan Before Code PASS before metadata implementation.",
-      "Add existing high-risk release patterns and exact-domain catalogs/access ownership with no cycle.",
-      "Run focused Atlas/tenancy tests, Plan, Edit-Time, Knowledge, full replay, release risk and CI.",
-      "Commit Truth-verified lifecycle closure from emitted CI evidence and rerun exact-head CI.",
-      "After merge and post-merge success, rerun Core #1186 Guard from real main; leave capability PARTIAL."
+      "Record current Alap teamChat grants in catalog and stale DB migration, and current server entitlements lack subscription plan validation.",
+      "Run Development Guard and Plan Before Code critical PASS with dissent before code editing.",
+      "Patch existing plan catalog and existing server-only entitlement resolver with fail-closed strict Pro rule; keep email unchanged.",
+      "Update existing regression suites and verify Alap/Pro/expired/override scenarios without bypassing release gates.",
+      "Run focused Vitest, Edit-Time, Reference Sync, Knowledge, Incremental Replay, risk, TypeScript and exact-head CI Truth/Lifecycle.",
+      "Keep issue #1186 PARTIAL until SQL resync, admin/API/job/worker and RLS proofs, then continue dependency chain.",
+      "Verify changed navigation fixture now expects Team Chat absent in Alap, while still present in Pro; keep admin navigation implementation unchanged."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-09-CORE-SCOPE-AUTHORITY-1192",
+      "request": "PO-2026-10-09-CORE-DIGITAL-OFFICE-1186-U01",
       "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
+        "auth-access-authority",
+        "tenant-context-authority"
       ],
       "mustEdit": [
-        "deploy/release-risk-policy.json",
-        "quality/knowledge/domain-foundations.v1.json",
-        "tests/control-plane-tenancy-scope-mapping.test.ts",
-        "tests/engine-authority-scope-classification.test.ts"
+        "src/lib/entitlements/access.ts",
+        "src/lib/plans/catalog.ts",
+        "tests/block11-entitlement-system.test.ts",
+        "tests/customer-email-plan-split.test.ts",
+        "tests/plans-catalog.test.ts",
+        "tests/block4-ia-navigation-reporting.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "scripts/lib/shoperation-architecture-health.mjs",
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "scripts/lib/shoperation-development-runtime.mjs",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/lib/shoperation-reference-sync-runtime.mjs",
-        "scripts/lib/shoperation-release-unit-runtime.mjs",
-        "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-        "scripts/lib/shoperation-verification-reuse.mjs",
-        "scripts/release-risk-budget.mjs",
-        "scripts/release-unit-execute.mjs",
-        "scripts/release-unit-orchestrate.mjs",
-        "scripts/shoperation-close-development-plan.mjs",
-        "scripts/shoperation-development-guard.mjs",
-        "scripts/shoperation-edit-time-guard.mjs",
-        "scripts/shoperation-external-proof-handoff.mjs",
-        "scripts/shoperation-incremental-replay.mjs",
-        "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-        "scripts/shoperation-knowledge-preflight.mjs",
-        "scripts/shoperation-plan-before-code.mjs",
-        "scripts/shoperation-sentinel-integrity-probe.mjs",
-        "scripts/shoperation-sentinel-scan.mjs",
-        "scripts/shoperation-truth-gate.mjs",
-        "src/lib/quality-system/architecture-constitution.ts",
-        "src/lib/quality-system/capability-evidence.ts",
-        "src/lib/quality-system/domain-foundations.ts",
-        "src/lib/quality-system/scope-resolver.ts",
-        "tests/architecture-constitution.test.ts",
-        "tests/capability-roadmap-evidence.test.ts",
-        "tests/control-plane-ecosystem-chain.test.ts",
-        "tests/control-plane-release-unit-execution-binding.test.ts",
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/dependency-security-contract.test.ts",
-        "tests/domain-foundations.test.ts",
-        "tests/shoperation-change-impact-atlas.test.ts",
-        "tests/shoperation-codebase-atlas-v2.test.ts",
-        "tests/shoperation-development-guard.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts",
-        "tests/shoperation-proof-semantics.test.ts",
-        "tests/shoperation-quality-knowledge.test.ts",
-        "tests/template-factory-engine-functional-proof.test.ts"
+        ".github/workflows/playroom-page-family-visual-qa.yml",
+        "docs/RELEASE_CHECKPOINT_WAVE48_RECONCILIATION.md",
+        "docs/ROADMAP_BLOCK10_BUSINESS_PULSE.md",
+        "docs/ROADMAP_BLOCK11_ENTITLEMENTS.md",
+        "docs/ROADMAP_BLOCK12_MIGRATION_ASSISTANT.md",
+        "docs/ROADMAP_BLOCK13_ORDER_ORCHESTRATION_PAYMENT_CONTRACT.md",
+        "docs/ROADMAP_BLOCK14_CATALOG_PRODUCT_ONBOARDING_IMPORT_UX.md",
+        "docs/ROADMAP_BLOCK15_PRODUCT_DISCOVERY_DECISION_SUPPORT.md",
+        "docs/ROADMAP_BLOCK16_COMMERCE_AUTOMATION_RECOVERY.md",
+        "docs/ROADMAP_BLOCK17_EVENT_DRIVEN_WORKFLOW_AUTOMATION.md",
+        "scripts/block24-market-ready-gate.mjs",
+        "src/app/admin/csomag/page.tsx",
+        "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
+        "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
+        "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
+        "src/app/admin/email-sablonok/brand-kit/page.tsx",
+        "src/app/admin/email-sablonok/page.tsx",
+        "src/app/admin/intezkedesek/page.tsx",
+        "src/app/admin/kampanyok/[id]/page.tsx",
+        "src/app/admin/kampanyok/page.tsx",
+        "src/app/admin/kommunikacio/felugyelet/page.tsx",
+        "src/app/admin/kommunikacio/iroda/page.tsx",
+        "src/app/admin/kommunikacio/tiltolista/page.tsx",
+        "src/app/admin/kuponok/page.tsx",
+        "src/app/admin/layout.tsx",
+        "src/app/admin/marketing/page.tsx",
+        "src/app/admin/novekedes/page.tsx",
+        "src/app/admin/page.tsx",
+        "src/app/admin/platform/webaruhazak/actions.ts",
+        "src/app/admin/tartalom/builder/release-commerce-actions.ts",
+        "src/app/admin/tartalom/page.tsx",
+        "src/app/admin/tartalom/receptek/actions.ts",
+        "src/app/admin/tartalom/release-ek/actions.ts",
+        "src/app/admin/tartalom/release-ek/page.tsx",
+        "src/app/admin/velemenyek/actions.ts",
+        "src/app/admin/velemenyek/page.tsx",
+        "src/app/api/admin/campaigns/manage/route.ts",
+        "src/app/api/admin/campaigns/route.ts",
+        "src/app/api/admin/communication/enqueue/route.ts",
+        "src/app/api/admin/communication/manage/route.ts",
+        "src/app/api/admin/communication/suppression/route.ts",
+        "src/app/api/admin/content/[id]/route.ts",
+        "src/app/api/admin/content/route.ts",
+        "src/app/api/admin/coupons/route.ts",
+        "src/app/api/admin/email-builder/brand-kit/route.ts",
+        "src/app/api/admin/email-builder/preview/route.ts",
+        "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
+        "src/app/api/admin/email-builder/saved-blocks/route.ts",
+        "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
+        "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
+        "src/app/api/admin/email-builder/templates/[id]/route.ts",
+        "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
+        "src/app/api/admin/email-builder/templates/route.ts",
+        "src/app/api/admin/growth/run/route.ts",
+        "src/app/api/admin/promotions/preview/route.ts",
+        "src/app/api/platform/v1/events/route.ts",
+        "src/app/penztar/page.tsx",
+        "src/app/storefront-template-preview/page.tsx",
+        "src/app/visual-fidelity-qa/page.tsx",
+        "src/components/admin/storefront-template-library.tsx",
+        "src/components/admin/storefront-visual-builder-production.tsx",
+        "src/components/admin/storefront-visual-builder-v3.tsx",
+        "src/components/admin/storefront-visual-builder.tsx",
+        "src/lib/admin/ui-access-contract.ts",
+        "src/lib/auth/store-capabilities.ts",
+        "src/lib/auth/store-rbac.ts",
+        "src/lib/builder/storefront-ai-generator-server.ts",
+        "src/lib/builder/storefront-commerce.ts",
+        "src/lib/builder/storefront-configurator.ts",
+        "src/lib/builder/storefront-context-retention.ts",
+        "src/lib/builder/storefront-editorial.ts",
+        "src/lib/builder/storefront-foundation.ts",
+        "src/lib/builder/storefront-guided-finder.ts",
+        "src/lib/builder/storefront-multi-product-composer.ts",
+        "src/lib/builder/storefront-professional.ts",
+        "src/lib/builder/storefront-runtime-capability-server.ts",
+        "src/lib/builder/storefront-runtime.ts",
+        "src/lib/builder/storefront-story.ts",
+        "src/lib/builder/storefront-structured-product.ts",
+        "src/lib/builder/storefront-template-capability-discovery.ts",
+        "src/lib/builder/storefront-template-installation.ts",
+        "src/lib/builder/storefront-template-preview-auth.ts",
+        "src/lib/builder/template-factory/generator-readiness.ts",
+        "src/lib/builder/template-factory/scaffold.ts",
+        "src/lib/digital-office/access.ts",
+        "src/lib/entitlements/catalog.ts",
+        "src/lib/instances/access.ts",
+        "src/lib/navigation/admin-ia.ts",
+        "src/lib/navigation/entitlement-navigation.ts",
+        "src/lib/plans/access.ts",
+        "src/lib/platform/ecosystem.ts",
+        "tests/admin-link-integrity.test.ts",
+        "tests/architecture-hardening.test.ts",
+        "tests/atomic-tenant-provisioning.test.ts",
+        "tests/block20-platform-ecosystem.test.ts",
+        "tests/block3-pilot-acceptance-batch.test.ts",
+        "tests/block4-ia-navigation-reporting.test.ts",
+        "tests/digital-commerce-builder-integration.test.tsx",
+        "tests/digital-office-unified-ui.test.ts",
+        "tests/executive-decision-workflows.test.ts",
+        "tests/platform-merchant-dashboard-access.test.ts",
+        "tests/pro-entitlement-guards.test.ts",
+        "tests/roadmap-block22-visual-builder.test.ts",
+        "tests/roadmap-block23-ai-builder-template-generation.test.ts",
+        "tests/roadmap-block24-commercial-security-maturity.test.ts",
+        "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
+        "tests/storefront-auth-intent-checkout.test.ts",
+        "tests/storefront-recipe-commerce.test.tsx",
+        "tests/storefront-release-commerce.test.tsx"
       ],
       "mustCreate": [],
       "forbidden": [],
       "proof": [
-        "tests/architecture-constitution.test.ts",
-        "tests/architecture-health.test.ts",
-        "tests/capability-roadmap-evidence.test.ts",
-        "tests/control-plane-ecosystem-chain.test.ts",
-        "tests/control-plane-release-decomposition.test.ts",
-        "tests/control-plane-release-unit-execution-binding.test.ts",
-        "tests/control-plane-release-unit-orchestration.test.ts",
-        "tests/control-plane-release-unit-production-surface.test.ts",
-        "tests/deep-atlas-scan.test.ts",
-        "tests/dependency-security-contract.test.ts",
+        "tests/admin-api-tenant-mutation-closure.test.ts",
+        "tests/admin-growth-refresh-evidence.test.ts",
+        "tests/admin-link-integrity.test.ts",
+        "tests/admin-route-rbac.test.ts",
+        "tests/architecture-hardening.test.ts",
+        "tests/atomic-tenant-provisioning.test.ts",
+        "tests/block11-entitlement-system.test.ts",
+        "tests/block12-migration-assistant.test.ts",
+        "tests/block14-catalog-onboarding-import-ux.test.ts",
+        "tests/block16-commerce-recovery-integration.test.ts",
+        "tests/block18-ai-assisted-decisioning.test.ts",
+        "tests/block19-predictive-optimization-autonomy.test.ts",
+        "tests/block20-platform-ecosystem.test.ts",
+        "tests/block3-pilot-acceptance-batch.test.ts",
+        "tests/block4-ia-navigation-reporting.test.ts",
+        "tests/block5-role-aware-ui.test.ts",
+        "tests/block7-b2b-account-ownership.test.ts",
+        "tests/campaign-creation-fail-closed.test.ts",
+        "tests/campaign-lifecycle-evidence-atomicity.test.ts",
+        "tests/customer-email-plan-split.test.ts",
         "tests/digital-commerce-builder-integration.test.tsx",
-        "tests/domain-foundations.test.ts",
-        "tests/engine-authority-scope-classification.test.ts",
-        "tests/playroom-v20-canonical-shell-content.test.ts",
-        "tests/release-unit-materialization.test.ts",
+        "tests/digital-office-unified-ui.test.ts",
+        "tests/email-builder-d1-admin-shell.test.ts",
+        "tests/email-builder-d2-editor.test.ts",
+        "tests/email-builder-foundation-b.test.ts",
+        "tests/email-builder-publication-lifecycle.test.ts",
+        "tests/email-builder-saved-blocks.test.ts",
+        "tests/event-driven-workflow-automation.test.ts",
+        "tests/executive-analytics-ux-closure.test.ts",
+        "tests/executive-decision-workflows.test.ts",
+        "tests/merchant-admin-tenant-closure.test.ts",
+        "tests/pilot-acceptance-access.test.ts",
+        "tests/plans-catalog.test.ts",
+        "tests/platform-merchant-dashboard-access.test.ts",
+        "tests/pro-entitlement-guards.test.ts",
         "tests/roadmap-block21-page-schema-templates.test.ts",
+        "tests/roadmap-block22-schema-policy.test.ts",
         "tests/roadmap-block22-visual-builder.test.ts",
-        "tests/shoperation-change-impact-atlas.test.ts",
-        "tests/shoperation-codebase-atlas-v2.test.ts",
-        "tests/shoperation-development-guard.test.ts",
-        "tests/shoperation-external-proof-handoff.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts",
-        "tests/shoperation-proof-semantics.test.ts",
-        "tests/shoperation-quality-knowledge.test.ts",
-        "tests/shoperation-resumable-verification.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts",
-        "tests/storefront-cart-presentation-contract.test.ts",
+        "tests/roadmap-block23-ai-builder-template-generation.test.ts",
+        "tests/roadmap-block24-commercial-security-maturity.test.ts",
+        "tests/special-commerce-wave5-existing-engine-closure.test.ts",
+        "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
+        "tests/special-commerce-wave7-template2-adoption.test.ts",
+        "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
+        "tests/storefront-alpine-lodge-template.test.tsx",
+        "tests/storefront-alpine-lodge-wave33-reacceptance.test.ts",
+        "tests/storefront-auth-intent-checkout.test.ts",
+        "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
+        "tests/storefront-beauty-lab-reference-v2.test.ts",
+        "tests/storefront-beauty-lab-reference-v28.test.ts",
+        "tests/storefront-beauty-lab-template.test.tsx",
+        "tests/storefront-beauty-lab-visual-fidelity-recovery.test.ts",
+        "tests/storefront-beauty-lab-wave32-reacceptance.test.ts",
         "tests/storefront-commerce-fidelity-slots.test.tsx",
+        "tests/storefront-component-variants.test.ts",
         "tests/storefront-core-commerce.test.ts",
-        "tests/storefront-fidelity-behavior.test.tsx",
-        "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
-        "tests/storefront-pilot-acceptance-authority.test.ts",
-        "tests/storefront-playroom-v18-image-slots.test.ts",
-        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
-        "tests/storefront-template-quality-gate-v2.test.ts",
-        "tests/template-factory-engine-functional-proof-entry.test.ts",
-        "tests/template-factory-engine-functional-proof-runner.test.ts",
-        "tests/template-factory-engine-functional-proof.test.ts",
-        "tests/template-factory-resumable-verification.test.ts",
-        "tests/template-factory-scaffold-v1.test.ts"
+        "tests/storefront-creator-station-template.test.tsx",
+        "tests/storefront-creator-station-wave36-reacceptance.test.ts",
+        "tests/storefront-derma-studio-template.test.tsx",
+        "tests/storefront-derma-studio-wave30-reacceptance.test.tsx",
+        "tests/storefront-editorial-atelier-template.test.tsx",
+        "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
+        "tests/storefront-fidelity-security.test.ts",
+        "tests/storefront-gallery-edit-template.test.tsx",
+        "tests/storefront-gallery-edit-wave34-reacceptance.test.ts",
+        "tests/storefront-global-styles.test.ts",
+        "tests/storefront-guided-fidelity-slots.test.tsx",
+        "tests/storefront-heritage-atelier-template.test.tsx",
+        "tests/storefront-heritage-atelier-wave28-reacceptance.test.tsx",
+        "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
+        "tests/storefront-interactive-scene-commerce.test.tsx",
+        "tests/storefront-loot-vault-template.test.tsx",
+        "tests/storefront-loot-vault-wave39-reacceptance.test.ts",
+        "tests/storefront-market-pantry-template.test.tsx",
+        "tests/storefront-modern-luxe-template.test.tsx",
+        "tests/storefront-modern-luxe-wave27-reacceptance.test.tsx",
+        "tests/storefront-modern-luxe-wave46-reacceptance.test.ts",
+        "tests/storefront-monarche-template.test.tsx",
+        "tests/storefront-monarche-wave43-reacceptance.test.ts",
+        "tests/storefront-my-pack-template.test.tsx",
+        "tests/storefront-page-templates.test.ts",
+        "tests/storefront-recipe-commerce.test.tsx",
+        "tests/storefront-release-commerce.test.tsx"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -416,146 +501,257 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "deploy/release-risk-policy.json",
-          "quality/knowledge/domain-foundations.v1.json",
-          "tests/control-plane-tenancy-scope-mapping.test.ts",
-          "tests/engine-authority-scope-classification.test.ts"
+          "src/lib/entitlements/access.ts",
+          "src/lib/plans/catalog.ts",
+          "tests/block11-entitlement-system.test.ts",
+          "tests/customer-email-plan-split.test.ts",
+          "tests/plans-catalog.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [
-          "scripts/lib/shoperation-architecture-health.mjs",
-          "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-          "scripts/lib/shoperation-development-runtime.mjs",
-          "scripts/lib/shoperation-operational-intelligence.mjs",
-          "scripts/lib/shoperation-reference-sync-runtime.mjs",
-          "scripts/lib/shoperation-release-unit-runtime.mjs",
-          "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-          "scripts/lib/shoperation-verification-reuse.mjs",
-          "scripts/release-risk-budget.mjs",
-          "scripts/release-unit-execute.mjs",
-          "scripts/release-unit-orchestrate.mjs",
-          "scripts/shoperation-close-development-plan.mjs",
-          "scripts/shoperation-development-guard.mjs",
-          "scripts/shoperation-edit-time-guard.mjs",
-          "scripts/shoperation-external-proof-handoff.mjs",
-          "scripts/shoperation-incremental-replay.mjs",
-          "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-          "scripts/shoperation-knowledge-preflight.mjs",
-          "scripts/shoperation-plan-before-code.mjs",
-          "scripts/shoperation-sentinel-integrity-probe.mjs",
-          "scripts/shoperation-sentinel-scan.mjs",
-          "scripts/shoperation-truth-gate.mjs",
-          "src/lib/quality-system/architecture-constitution.ts",
-          "src/lib/quality-system/capability-evidence.ts",
-          "src/lib/quality-system/domain-foundations.ts",
-          "src/lib/quality-system/scope-resolver.ts",
-          "tests/architecture-constitution.test.ts",
-          "tests/capability-roadmap-evidence.test.ts",
-          "tests/control-plane-ecosystem-chain.test.ts",
-          "tests/control-plane-release-unit-execution-binding.test.ts",
-          "tests/control-plane-release-unit-production-surface.test.ts",
-          "tests/dependency-security-contract.test.ts",
-          "tests/domain-foundations.test.ts",
-          "tests/shoperation-change-impact-atlas.test.ts",
-          "tests/shoperation-codebase-atlas-v2.test.ts",
-          "tests/shoperation-development-guard.test.ts",
-          "tests/shoperation-operational-intelligence.test.ts",
-          "tests/shoperation-proof-semantics.test.ts",
-          "tests/shoperation-quality-knowledge.test.ts",
-          "tests/template-factory-engine-functional-proof.test.ts"
+          ".github/workflows/playroom-page-family-visual-qa.yml",
+          "docs/RELEASE_CHECKPOINT_WAVE48_RECONCILIATION.md",
+          "docs/ROADMAP_BLOCK10_BUSINESS_PULSE.md",
+          "docs/ROADMAP_BLOCK11_ENTITLEMENTS.md",
+          "docs/ROADMAP_BLOCK12_MIGRATION_ASSISTANT.md",
+          "docs/ROADMAP_BLOCK13_ORDER_ORCHESTRATION_PAYMENT_CONTRACT.md",
+          "docs/ROADMAP_BLOCK14_CATALOG_PRODUCT_ONBOARDING_IMPORT_UX.md",
+          "docs/ROADMAP_BLOCK15_PRODUCT_DISCOVERY_DECISION_SUPPORT.md",
+          "docs/ROADMAP_BLOCK16_COMMERCE_AUTOMATION_RECOVERY.md",
+          "docs/ROADMAP_BLOCK17_EVENT_DRIVEN_WORKFLOW_AUTOMATION.md",
+          "scripts/block24-market-ready-gate.mjs",
+          "src/app/admin/csomag/page.tsx",
+          "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
+          "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
+          "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
+          "src/app/admin/email-sablonok/brand-kit/page.tsx",
+          "src/app/admin/email-sablonok/page.tsx",
+          "src/app/admin/intezkedesek/page.tsx",
+          "src/app/admin/kampanyok/[id]/page.tsx",
+          "src/app/admin/kampanyok/page.tsx",
+          "src/app/admin/kommunikacio/felugyelet/page.tsx",
+          "src/app/admin/kommunikacio/iroda/page.tsx",
+          "src/app/admin/kommunikacio/tiltolista/page.tsx",
+          "src/app/admin/kuponok/page.tsx",
+          "src/app/admin/layout.tsx",
+          "src/app/admin/marketing/page.tsx",
+          "src/app/admin/novekedes/page.tsx",
+          "src/app/admin/page.tsx",
+          "src/app/admin/platform/webaruhazak/actions.ts",
+          "src/app/admin/tartalom/builder/release-commerce-actions.ts",
+          "src/app/admin/tartalom/page.tsx",
+          "src/app/admin/tartalom/receptek/actions.ts",
+          "src/app/admin/tartalom/release-ek/actions.ts",
+          "src/app/admin/tartalom/release-ek/page.tsx",
+          "src/app/admin/velemenyek/actions.ts",
+          "src/app/admin/velemenyek/page.tsx",
+          "src/app/api/admin/campaigns/manage/route.ts",
+          "src/app/api/admin/campaigns/route.ts",
+          "src/app/api/admin/communication/enqueue/route.ts",
+          "src/app/api/admin/communication/manage/route.ts",
+          "src/app/api/admin/communication/suppression/route.ts",
+          "src/app/api/admin/content/[id]/route.ts",
+          "src/app/api/admin/content/route.ts",
+          "src/app/api/admin/coupons/route.ts",
+          "src/app/api/admin/email-builder/brand-kit/route.ts",
+          "src/app/api/admin/email-builder/preview/route.ts",
+          "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
+          "src/app/api/admin/email-builder/saved-blocks/route.ts",
+          "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
+          "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
+          "src/app/api/admin/email-builder/templates/[id]/route.ts",
+          "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
+          "src/app/api/admin/email-builder/templates/route.ts",
+          "src/app/api/admin/growth/run/route.ts",
+          "src/app/api/admin/promotions/preview/route.ts",
+          "src/app/api/platform/v1/events/route.ts",
+          "src/app/penztar/page.tsx",
+          "src/app/storefront-template-preview/page.tsx",
+          "src/app/visual-fidelity-qa/page.tsx",
+          "src/components/admin/storefront-template-library.tsx",
+          "src/components/admin/storefront-visual-builder-production.tsx",
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/components/admin/storefront-visual-builder.tsx",
+          "src/lib/admin/ui-access-contract.ts",
+          "src/lib/auth/store-capabilities.ts",
+          "src/lib/auth/store-rbac.ts",
+          "src/lib/builder/storefront-ai-generator-server.ts",
+          "src/lib/builder/storefront-commerce.ts",
+          "src/lib/builder/storefront-configurator.ts",
+          "src/lib/builder/storefront-context-retention.ts",
+          "src/lib/builder/storefront-editorial.ts",
+          "src/lib/builder/storefront-foundation.ts",
+          "src/lib/builder/storefront-guided-finder.ts",
+          "src/lib/builder/storefront-multi-product-composer.ts",
+          "src/lib/builder/storefront-professional.ts",
+          "src/lib/builder/storefront-runtime-capability-server.ts",
+          "src/lib/builder/storefront-runtime.ts",
+          "src/lib/builder/storefront-story.ts",
+          "src/lib/builder/storefront-structured-product.ts",
+          "src/lib/builder/storefront-template-capability-discovery.ts",
+          "src/lib/builder/storefront-template-installation.ts",
+          "src/lib/builder/storefront-template-preview-auth.ts",
+          "src/lib/builder/template-factory/generator-readiness.ts",
+          "src/lib/builder/template-factory/scaffold.ts",
+          "src/lib/digital-office/access.ts",
+          "src/lib/entitlements/catalog.ts",
+          "src/lib/instances/access.ts",
+          "src/lib/navigation/admin-ia.ts",
+          "src/lib/navigation/entitlement-navigation.ts",
+          "src/lib/plans/access.ts",
+          "src/lib/platform/ecosystem.ts",
+          "tests/admin-link-integrity.test.ts",
+          "tests/architecture-hardening.test.ts",
+          "tests/atomic-tenant-provisioning.test.ts",
+          "tests/block20-platform-ecosystem.test.ts",
+          "tests/block3-pilot-acceptance-batch.test.ts",
+          "tests/block4-ia-navigation-reporting.test.ts",
+          "tests/digital-commerce-builder-integration.test.tsx",
+          "tests/digital-office-unified-ui.test.ts",
+          "tests/executive-decision-workflows.test.ts",
+          "tests/platform-merchant-dashboard-access.test.ts",
+          "tests/pro-entitlement-guards.test.ts",
+          "tests/roadmap-block22-visual-builder.test.ts",
+          "tests/roadmap-block23-ai-builder-template-generation.test.ts",
+          "tests/roadmap-block24-commercial-security-maturity.test.ts",
+          "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
+          "tests/storefront-auth-intent-checkout.test.ts",
+          "tests/storefront-recipe-commerce.test.tsx",
+          "tests/storefront-release-commerce.test.tsx"
         ],
         "mustCreate": [],
         "forbidden": [],
         "proof": [
-          "tests/architecture-constitution.test.ts",
-          "tests/architecture-health.test.ts",
-          "tests/capability-roadmap-evidence.test.ts",
-          "tests/control-plane-ecosystem-chain.test.ts",
-          "tests/control-plane-release-decomposition.test.ts",
-          "tests/control-plane-release-unit-execution-binding.test.ts",
-          "tests/control-plane-release-unit-orchestration.test.ts",
-          "tests/control-plane-release-unit-production-surface.test.ts",
-          "tests/deep-atlas-scan.test.ts",
-          "tests/dependency-security-contract.test.ts",
+          "tests/admin-api-tenant-mutation-closure.test.ts",
+          "tests/admin-growth-refresh-evidence.test.ts",
+          "tests/admin-link-integrity.test.ts",
+          "tests/admin-route-rbac.test.ts",
+          "tests/architecture-hardening.test.ts",
+          "tests/atomic-tenant-provisioning.test.ts",
+          "tests/block11-entitlement-system.test.ts",
+          "tests/block12-migration-assistant.test.ts",
+          "tests/block14-catalog-onboarding-import-ux.test.ts",
+          "tests/block16-commerce-recovery-integration.test.ts",
+          "tests/block18-ai-assisted-decisioning.test.ts",
+          "tests/block19-predictive-optimization-autonomy.test.ts",
+          "tests/block20-platform-ecosystem.test.ts",
+          "tests/block3-pilot-acceptance-batch.test.ts",
+          "tests/block4-ia-navigation-reporting.test.ts",
+          "tests/block5-role-aware-ui.test.ts",
+          "tests/block7-b2b-account-ownership.test.ts",
+          "tests/campaign-creation-fail-closed.test.ts",
+          "tests/campaign-lifecycle-evidence-atomicity.test.ts",
+          "tests/customer-email-plan-split.test.ts",
           "tests/digital-commerce-builder-integration.test.tsx",
-          "tests/domain-foundations.test.ts",
-          "tests/engine-authority-scope-classification.test.ts",
-          "tests/playroom-v20-canonical-shell-content.test.ts",
-          "tests/release-unit-materialization.test.ts",
+          "tests/digital-office-unified-ui.test.ts",
+          "tests/email-builder-d1-admin-shell.test.ts",
+          "tests/email-builder-d2-editor.test.ts",
+          "tests/email-builder-foundation-b.test.ts",
+          "tests/email-builder-publication-lifecycle.test.ts",
+          "tests/email-builder-saved-blocks.test.ts",
+          "tests/event-driven-workflow-automation.test.ts",
+          "tests/executive-analytics-ux-closure.test.ts",
+          "tests/executive-decision-workflows.test.ts",
+          "tests/merchant-admin-tenant-closure.test.ts",
+          "tests/pilot-acceptance-access.test.ts",
+          "tests/plans-catalog.test.ts",
+          "tests/platform-merchant-dashboard-access.test.ts",
+          "tests/pro-entitlement-guards.test.ts",
           "tests/roadmap-block21-page-schema-templates.test.ts",
+          "tests/roadmap-block22-schema-policy.test.ts",
           "tests/roadmap-block22-visual-builder.test.ts",
-          "tests/shoperation-change-impact-atlas.test.ts",
-          "tests/shoperation-codebase-atlas-v2.test.ts",
-          "tests/shoperation-development-guard.test.ts",
-          "tests/shoperation-external-proof-handoff.test.ts",
-          "tests/shoperation-operational-intelligence.test.ts",
-          "tests/shoperation-proof-semantics.test.ts",
-          "tests/shoperation-quality-knowledge.test.ts",
-          "tests/shoperation-resumable-verification.test.ts",
-          "tests/shoperation-semantic-execution-intelligence.test.ts",
-          "tests/storefront-cart-presentation-contract.test.ts",
+          "tests/roadmap-block23-ai-builder-template-generation.test.ts",
+          "tests/roadmap-block24-commercial-security-maturity.test.ts",
+          "tests/special-commerce-wave5-existing-engine-closure.test.ts",
+          "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
+          "tests/special-commerce-wave7-template2-adoption.test.ts",
+          "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
+          "tests/storefront-alpine-lodge-template.test.tsx",
+          "tests/storefront-alpine-lodge-wave33-reacceptance.test.ts",
+          "tests/storefront-auth-intent-checkout.test.ts",
+          "tests/storefront-beauty-lab-canonical-upgrade.test.ts",
+          "tests/storefront-beauty-lab-reference-v2.test.ts",
+          "tests/storefront-beauty-lab-reference-v28.test.ts",
+          "tests/storefront-beauty-lab-template.test.tsx",
+          "tests/storefront-beauty-lab-visual-fidelity-recovery.test.ts",
+          "tests/storefront-beauty-lab-wave32-reacceptance.test.ts",
           "tests/storefront-commerce-fidelity-slots.test.tsx",
+          "tests/storefront-component-variants.test.ts",
           "tests/storefront-core-commerce.test.ts",
-          "tests/storefront-fidelity-behavior.test.tsx",
-          "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
-          "tests/storefront-pilot-acceptance-authority.test.ts",
-          "tests/storefront-playroom-v18-image-slots.test.ts",
-          "tests/storefront-playroom-v20-functional-acceptance.test.ts",
-          "tests/storefront-template-quality-gate-v2.test.ts",
-          "tests/template-factory-engine-functional-proof-entry.test.ts",
-          "tests/template-factory-engine-functional-proof-runner.test.ts",
-          "tests/template-factory-engine-functional-proof.test.ts",
-          "tests/template-factory-resumable-verification.test.ts",
-          "tests/template-factory-scaffold-v1.test.ts"
+          "tests/storefront-creator-station-template.test.tsx",
+          "tests/storefront-creator-station-wave36-reacceptance.test.ts",
+          "tests/storefront-derma-studio-template.test.tsx",
+          "tests/storefront-derma-studio-wave30-reacceptance.test.tsx",
+          "tests/storefront-editorial-atelier-template.test.tsx",
+          "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
+          "tests/storefront-fidelity-security.test.ts",
+          "tests/storefront-gallery-edit-template.test.tsx",
+          "tests/storefront-gallery-edit-wave34-reacceptance.test.ts",
+          "tests/storefront-global-styles.test.ts",
+          "tests/storefront-guided-fidelity-slots.test.tsx",
+          "tests/storefront-heritage-atelier-template.test.tsx",
+          "tests/storefront-heritage-atelier-wave28-reacceptance.test.tsx",
+          "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
+          "tests/storefront-interactive-scene-commerce.test.tsx",
+          "tests/storefront-loot-vault-template.test.tsx",
+          "tests/storefront-loot-vault-wave39-reacceptance.test.ts",
+          "tests/storefront-market-pantry-template.test.tsx",
+          "tests/storefront-modern-luxe-template.test.tsx",
+          "tests/storefront-modern-luxe-wave27-reacceptance.test.tsx",
+          "tests/storefront-modern-luxe-wave46-reacceptance.test.ts",
+          "tests/storefront-monarche-template.test.tsx",
+          "tests/storefront-monarche-wave43-reacceptance.test.ts",
+          "tests/storefront-my-pack-template.test.tsx",
+          "tests/storefront-page-templates.test.ts",
+          "tests/storefront-recipe-commerce.test.tsx",
+          "tests/storefront-release-commerce.test.tsx"
         ],
         "authority": [
           "auth-access-authority",
-          "database-schema",
-          "quality-knowledge-system",
-          "release-infrastructure",
           "tenant-context-authority"
         ],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 4,
+        "score": 5,
         "maxPoints": 5,
-        "subsystemCount": 2,
+        "subsystemCount": 1,
         "maxSubsystems": 3,
         "subsystems": [
           {
-            "subsystem": "release-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
+            "subsystem": "auth-access-authority",
+            "risk": "high",
+            "points": 5
           }
         ],
         "files": [
           {
-            "file": "deploy/release-risk-policy.json",
-            "subsystem": "release-infrastructure",
-            "risk": "medium",
-            "points": 2
+            "file": "src/lib/entitlements/access.ts",
+            "subsystem": "auth-access-authority",
+            "risk": "high",
+            "points": 5
           },
           {
-            "file": "quality/knowledge/domain-foundations.v1.json",
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
+            "file": "src/lib/plans/catalog.ts",
+            "subsystem": "auth-access-authority",
+            "risk": "high",
+            "points": 5
           },
           {
-            "file": "tests/control-plane-tenancy-scope-mapping.test.ts",
+            "file": "tests/block11-entitlement-system.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "tests/engine-authority-scope-classification.test.ts",
+            "file": "tests/customer-email-plan-split.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
+          },
+          {
+            "file": "tests/plans-catalog.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -570,43 +766,44 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 4,
+          "score": 5,
           "maxPoints": 5,
-          "subsystemCount": 2,
+          "subsystemCount": 1,
           "maxSubsystems": 3,
           "subsystems": [
             {
-              "subsystem": "release-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
+              "subsystem": "auth-access-authority",
+              "risk": "high",
+              "points": 5
             }
           ],
           "files": [
             {
-              "file": "deploy/release-risk-policy.json",
-              "subsystem": "release-infrastructure",
-              "risk": "medium",
-              "points": 2
+              "file": "src/lib/entitlements/access.ts",
+              "subsystem": "auth-access-authority",
+              "risk": "high",
+              "points": 5
             },
             {
-              "file": "quality/knowledge/domain-foundations.v1.json",
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
+              "file": "src/lib/plans/catalog.ts",
+              "subsystem": "auth-access-authority",
+              "risk": "high",
+              "points": 5
             },
             {
-              "file": "tests/control-plane-tenancy-scope-mapping.test.ts",
+              "file": "tests/block11-entitlement-system.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "tests/engine-authority-scope-classification.test.ts",
+              "file": "tests/customer-email-plan-split.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
+              "file": "tests/plans-catalog.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -616,32 +813,63 @@
           "decision": "PASS"
         },
         "maxFilesPerUnit": 12,
-        "repositoryEdges": [],
+        "repositoryEdges": [
+          {
+            "from": "src/lib/plans/catalog.ts",
+            "to": "tests/customer-email-plan-split.test.ts",
+            "type": "repository-dependency"
+          },
+          {
+            "from": "src/lib/plans/catalog.ts",
+            "to": "tests/plans-catalog.test.ts",
+            "type": "repository-dependency"
+          },
+          {
+            "from": "src/lib/plans/catalog.ts",
+            "to": "tests/customer-email-plan-split.test.ts",
+            "type": "proof-ownership"
+          },
+          {
+            "from": "tests/customer-email-plan-split.test.ts",
+            "to": "src/lib/plans/catalog.ts",
+            "type": "proof-ownership"
+          },
+          {
+            "from": "src/lib/plans/catalog.ts",
+            "to": "tests/plans-catalog.test.ts",
+            "type": "proof-ownership"
+          },
+          {
+            "from": "tests/plans-catalog.test.ts",
+            "to": "src/lib/plans/catalog.ts",
+            "type": "proof-ownership"
+          }
+        ],
         "atomicComponents": [
           {
             "id": 0,
             "files": [
-              "deploy/release-risk-policy.json"
+              "src/lib/entitlements/access.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 5,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "subsystem": "auth-access-authority",
+                  "risk": "high",
+                  "points": 5
                 }
               ],
               "files": [
                 {
-                  "file": "deploy/release-risk-policy.json",
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "file": "src/lib/entitlements/access.ts",
+                  "subsystem": "auth-access-authority",
+                  "risk": "high",
+                  "points": 5
                 }
               ],
               "violations": [],
@@ -651,48 +879,38 @@
           {
             "id": 1,
             "files": [
-              "quality/knowledge/domain-foundations.v1.json"
+              "src/lib/plans/catalog.ts",
+              "tests/customer-email-plan-split.test.ts",
+              "tests/plans-catalog.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 5,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "subsystem": "auth-access-authority",
+                  "risk": "high",
+                  "points": 5
                 }
               ],
               "files": [
                 {
-                  "file": "quality/knowledge/domain-foundations.v1.json",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 2,
-            "files": [
-              "tests/control-plane-tenancy-scope-mapping.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
+                  "file": "src/lib/plans/catalog.ts",
+                  "subsystem": "auth-access-authority",
+                  "risk": "high",
+                  "points": 5
+                },
                 {
-                  "file": "tests/control-plane-tenancy-scope-mapping.test.ts",
+                  "file": "tests/customer-email-plan-split.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                },
+                {
+                  "file": "tests/plans-catalog.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -703,9 +921,9 @@
             }
           },
           {
-            "id": 3,
+            "id": 2,
             "files": [
-              "tests/engine-authority-scope-classification.test.ts"
+              "tests/block11-entitlement-system.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -716,7 +934,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/engine-authority-scope-classification.test.ts",
+                  "file": "tests/block11-entitlement-system.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -733,96 +951,105 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "PO-2026-10-09-CORE-SCOPE-AUTHORITY-1192",
-              "developmentBaseSha": "f3e7c0a8a475dfa1d07eddb47d3ad1735e47c09e"
+              "sourceRef": "PO-2026-10-09-CORE-DIGITAL-OFFICE-1186-U01",
+              "developmentBaseSha": "32fcdb7ede3772dfd43ab9694c042404ba900d3c"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "f3e7c0a8a475dfa1d07eddb47d3ad1735e47c09e",
+            "targetBaseSha": "32fcdb7ede3772dfd43ab9694c042404ba900d3c",
             "lease": {
-              "expectedBaseSha": "f3e7c0a8a475dfa1d07eddb47d3ad1735e47c09e",
+              "expectedBaseSha": "32fcdb7ede3772dfd43ab9694c042404ba900d3c",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "deploy/release-risk-policy.json",
-              "quality/knowledge/domain-foundations.v1.json",
-              "tests/control-plane-tenancy-scope-mapping.test.ts",
-              "tests/engine-authority-scope-classification.test.ts"
+              "src/lib/entitlements/access.ts",
+              "src/lib/plans/catalog.ts",
+              "tests/block11-entitlement-system.test.ts",
+              "tests/customer-email-plan-split.test.ts",
+              "tests/plans-catalog.test.ts"
             ],
             "operations": [
               {
                 "operation": "modify",
-                "file": "deploy/release-risk-policy.json",
+                "file": "src/lib/entitlements/access.ts",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "quality/knowledge/domain-foundations.v1.json",
+                "file": "src/lib/plans/catalog.ts",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "tests/control-plane-tenancy-scope-mapping.test.ts",
+                "file": "tests/block11-entitlement-system.test.ts",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "tests/engine-authority-scope-classification.test.ts",
+                "file": "tests/customer-email-plan-split.test.ts",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "tests/plans-catalog.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [
-              "src/lib/quality-system/scope-resolver.ts"
+              "src/lib/entitlements/catalog.ts",
+              "src/lib/entitlements/policy.ts",
+              "src/lib/plans/catalog.ts",
+              "src/lib/supabase/admin.ts"
             ],
             "authorities": [
-              "quality-knowledge-system",
-              "release-infrastructure"
+              "auth-access-authority",
+              "tenant-context-authority"
             ],
             "subsystems": [
-              "release-infrastructure",
-              "quality-infrastructure"
+              "auth-access-authority"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 4,
+              "score": 5,
               "maxPoints": 5,
-              "subsystemCount": 2,
+              "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "subsystem": "auth-access-authority",
+                  "risk": "high",
+                  "points": 5
                 }
               ],
               "files": [
                 {
-                  "file": "deploy/release-risk-policy.json",
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "file": "src/lib/entitlements/access.ts",
+                  "subsystem": "auth-access-authority",
+                  "risk": "high",
+                  "points": 5
                 },
                 {
-                  "file": "quality/knowledge/domain-foundations.v1.json",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "file": "src/lib/plans/catalog.ts",
+                  "subsystem": "auth-access-authority",
+                  "risk": "high",
+                  "points": 5
                 },
                 {
-                  "file": "tests/control-plane-tenancy-scope-mapping.test.ts",
+                  "file": "tests/block11-entitlement-system.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "tests/engine-authority-scope-classification.test.ts",
+                  "file": "tests/customer-email-plan-split.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                },
+                {
+                  "file": "tests/plans-catalog.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -838,6 +1065,7 @@
               "GUARD-KNOWLEDGE-PREFLIGHT",
               "GUARD-MARKET-READY",
               "GUARD-PLAN-BEFORE-CODE",
+              "GUARD-PRODUCTION-BUILD",
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK",
               "GUARD-TYPECHECK"
@@ -850,68 +1078,140 @@
                 "GUARD-KNOWLEDGE-PREFLIGHT",
                 "GUARD-MARKET-READY",
                 "GUARD-PLAN-BEFORE-CODE",
+                "GUARD-PRODUCTION-BUILD",
                 "GUARD-QUALITY-TESTS",
                 "GUARD-RELEASE-RISK",
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/control-plane-tenancy-scope-mapping.test.ts",
-                "tests/engine-authority-scope-classification.test.ts"
+                "tests/block11-entitlement-system.test.ts",
+                "tests/customer-email-plan-split.test.ts",
+                "tests/plans-catalog.test.ts"
               ],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
             "readOnlyPaths": [
-              "scripts/lib/shoperation-architecture-health.mjs",
-              "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-              "scripts/lib/shoperation-development-runtime.mjs",
-              "scripts/lib/shoperation-operational-intelligence.mjs",
-              "scripts/lib/shoperation-reference-sync-runtime.mjs",
-              "scripts/lib/shoperation-release-unit-runtime.mjs",
-              "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-              "scripts/lib/shoperation-verification-reuse.mjs",
-              "scripts/release-risk-budget.mjs",
-              "scripts/release-unit-execute.mjs",
-              "scripts/release-unit-orchestrate.mjs",
-              "scripts/shoperation-close-development-plan.mjs",
-              "scripts/shoperation-development-guard.mjs",
-              "scripts/shoperation-edit-time-guard.mjs",
-              "scripts/shoperation-external-proof-handoff.mjs",
-              "scripts/shoperation-incremental-replay.mjs",
-              "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-              "scripts/shoperation-knowledge-preflight.mjs",
-              "scripts/shoperation-plan-before-code.mjs",
-              "scripts/shoperation-sentinel-integrity-probe.mjs",
-              "scripts/shoperation-sentinel-scan.mjs",
-              "scripts/shoperation-truth-gate.mjs",
-              "src/lib/quality-system/architecture-constitution.ts",
-              "src/lib/quality-system/capability-evidence.ts",
-              "src/lib/quality-system/domain-foundations.ts",
-              "src/lib/quality-system/scope-resolver.ts",
-              "tests/architecture-constitution.test.ts",
-              "tests/capability-roadmap-evidence.test.ts",
-              "tests/control-plane-ecosystem-chain.test.ts",
-              "tests/control-plane-release-unit-execution-binding.test.ts",
-              "tests/control-plane-release-unit-production-surface.test.ts",
-              "tests/dependency-security-contract.test.ts",
-              "tests/domain-foundations.test.ts",
-              "tests/shoperation-change-impact-atlas.test.ts",
-              "tests/shoperation-codebase-atlas-v2.test.ts",
-              "tests/shoperation-development-guard.test.ts",
-              "tests/shoperation-operational-intelligence.test.ts",
-              "tests/shoperation-proof-semantics.test.ts",
-              "tests/shoperation-quality-knowledge.test.ts",
-              "tests/template-factory-engine-functional-proof.test.ts"
+              ".github/workflows/playroom-page-family-visual-qa.yml",
+              "docs/RELEASE_CHECKPOINT_WAVE48_RECONCILIATION.md",
+              "docs/ROADMAP_BLOCK10_BUSINESS_PULSE.md",
+              "docs/ROADMAP_BLOCK11_ENTITLEMENTS.md",
+              "docs/ROADMAP_BLOCK12_MIGRATION_ASSISTANT.md",
+              "docs/ROADMAP_BLOCK13_ORDER_ORCHESTRATION_PAYMENT_CONTRACT.md",
+              "docs/ROADMAP_BLOCK14_CATALOG_PRODUCT_ONBOARDING_IMPORT_UX.md",
+              "docs/ROADMAP_BLOCK15_PRODUCT_DISCOVERY_DECISION_SUPPORT.md",
+              "docs/ROADMAP_BLOCK16_COMMERCE_AUTOMATION_RECOVERY.md",
+              "docs/ROADMAP_BLOCK17_EVENT_DRIVEN_WORKFLOW_AUTOMATION.md",
+              "scripts/block24-market-ready-gate.mjs",
+              "src/app/admin/csomag/page.tsx",
+              "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
+              "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
+              "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
+              "src/app/admin/email-sablonok/brand-kit/page.tsx",
+              "src/app/admin/email-sablonok/page.tsx",
+              "src/app/admin/intezkedesek/page.tsx",
+              "src/app/admin/kampanyok/[id]/page.tsx",
+              "src/app/admin/kampanyok/page.tsx",
+              "src/app/admin/kommunikacio/felugyelet/page.tsx",
+              "src/app/admin/kommunikacio/iroda/page.tsx",
+              "src/app/admin/kommunikacio/tiltolista/page.tsx",
+              "src/app/admin/kuponok/page.tsx",
+              "src/app/admin/layout.tsx",
+              "src/app/admin/marketing/page.tsx",
+              "src/app/admin/novekedes/page.tsx",
+              "src/app/admin/page.tsx",
+              "src/app/admin/platform/webaruhazak/actions.ts",
+              "src/app/admin/tartalom/builder/release-commerce-actions.ts",
+              "src/app/admin/tartalom/page.tsx",
+              "src/app/admin/tartalom/receptek/actions.ts",
+              "src/app/admin/tartalom/release-ek/actions.ts",
+              "src/app/admin/tartalom/release-ek/page.tsx",
+              "src/app/admin/velemenyek/actions.ts",
+              "src/app/admin/velemenyek/page.tsx",
+              "src/app/api/admin/campaigns/manage/route.ts",
+              "src/app/api/admin/campaigns/route.ts",
+              "src/app/api/admin/communication/enqueue/route.ts",
+              "src/app/api/admin/communication/manage/route.ts",
+              "src/app/api/admin/communication/suppression/route.ts",
+              "src/app/api/admin/content/[id]/route.ts",
+              "src/app/api/admin/content/route.ts",
+              "src/app/api/admin/coupons/route.ts",
+              "src/app/api/admin/email-builder/brand-kit/route.ts",
+              "src/app/api/admin/email-builder/preview/route.ts",
+              "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
+              "src/app/api/admin/email-builder/saved-blocks/route.ts",
+              "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
+              "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
+              "src/app/api/admin/email-builder/templates/[id]/route.ts",
+              "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
+              "src/app/api/admin/email-builder/templates/route.ts",
+              "src/app/api/admin/growth/run/route.ts",
+              "src/app/api/admin/promotions/preview/route.ts",
+              "src/app/api/platform/v1/events/route.ts",
+              "src/app/penztar/page.tsx",
+              "src/app/storefront-template-preview/page.tsx",
+              "src/app/visual-fidelity-qa/page.tsx",
+              "src/components/admin/storefront-template-library.tsx",
+              "src/components/admin/storefront-visual-builder-production.tsx",
+              "src/components/admin/storefront-visual-builder-v3.tsx",
+              "src/components/admin/storefront-visual-builder.tsx",
+              "src/lib/admin/ui-access-contract.ts",
+              "src/lib/auth/store-capabilities.ts",
+              "src/lib/auth/store-rbac.ts",
+              "src/lib/builder/storefront-ai-generator-server.ts",
+              "src/lib/builder/storefront-commerce.ts",
+              "src/lib/builder/storefront-configurator.ts",
+              "src/lib/builder/storefront-context-retention.ts",
+              "src/lib/builder/storefront-editorial.ts",
+              "src/lib/builder/storefront-foundation.ts",
+              "src/lib/builder/storefront-guided-finder.ts",
+              "src/lib/builder/storefront-multi-product-composer.ts",
+              "src/lib/builder/storefront-professional.ts",
+              "src/lib/builder/storefront-runtime-capability-server.ts",
+              "src/lib/builder/storefront-runtime.ts",
+              "src/lib/builder/storefront-story.ts",
+              "src/lib/builder/storefront-structured-product.ts",
+              "src/lib/builder/storefront-template-capability-discovery.ts",
+              "src/lib/builder/storefront-template-installation.ts",
+              "src/lib/builder/storefront-template-preview-auth.ts",
+              "src/lib/builder/template-factory/generator-readiness.ts",
+              "src/lib/builder/template-factory/scaffold.ts",
+              "src/lib/digital-office/access.ts",
+              "src/lib/entitlements/catalog.ts",
+              "src/lib/instances/access.ts",
+              "src/lib/navigation/admin-ia.ts",
+              "src/lib/navigation/entitlement-navigation.ts",
+              "src/lib/plans/access.ts",
+              "src/lib/platform/ecosystem.ts",
+              "tests/admin-link-integrity.test.ts",
+              "tests/architecture-hardening.test.ts",
+              "tests/atomic-tenant-provisioning.test.ts",
+              "tests/block20-platform-ecosystem.test.ts",
+              "tests/block3-pilot-acceptance-batch.test.ts",
+              "tests/block4-ia-navigation-reporting.test.ts",
+              "tests/digital-commerce-builder-integration.test.tsx",
+              "tests/digital-office-unified-ui.test.ts",
+              "tests/executive-decision-workflows.test.ts",
+              "tests/platform-merchant-dashboard-access.test.ts",
+              "tests/pro-entitlement-guards.test.ts",
+              "tests/roadmap-block22-visual-builder.test.ts",
+              "tests/roadmap-block23-ai-builder-template-generation.test.ts",
+              "tests/roadmap-block24-commercial-security-maturity.test.ts",
+              "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
+              "tests/storefront-auth-intent-checkout.test.ts",
+              "tests/storefront-recipe-commerce.test.tsx",
+              "tests/storefront-release-commerce.test.tsx"
             ],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "deploy/release-risk-policy.json",
-                "quality/knowledge/domain-foundations.v1.json",
-                "tests/control-plane-tenancy-scope-mapping.test.ts",
-                "tests/engine-authority-scope-classification.test.ts"
+                "src/lib/entitlements/access.ts",
+                "src/lib/plans/catalog.ts",
+                "tests/block11-entitlement-system.test.ts",
+                "tests/customer-email-plan-split.test.ts",
+                "tests/plans-catalog.test.ts"
               ],
               "filesAbsent": []
             },
@@ -926,7 +1226,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "6dd9264f",
+            "manifestDigest": "06f1e9e6",
             "decision": "PASS"
           }
         ],
@@ -945,9 +1245,10 @@
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
           "GUARD-MARKET-READY",
+          "GUARD-TYPECHECK",
+          "GUARD-PRODUCTION-BUILD",
           "GUARD-QUALITY-TESTS",
-          "GUARD-RELEASE-RISK",
-          "GUARD-TYPECHECK"
+          "GUARD-RELEASE-RISK"
         ],
         "currentPhaseGateIds": [
           "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -959,8 +1260,9 @@
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
           "GUARD-MARKET-READY",
-          "GUARD-QUALITY-TESTS",
-          "GUARD-TYPECHECK"
+          "GUARD-TYPECHECK",
+          "GUARD-PRODUCTION-BUILD",
+          "GUARD-QUALITY-TESTS"
         ],
         "externalGateIds": [],
         "issues": [],
@@ -968,39 +1270,40 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The accepted Core Alap/Pro entitlement repair #1186 is currently blocked by SCOPE_UNRESOLVED for the plans and entitlements policy source directories. Existing canonical Release Risk and Domain Atlas omit these security-critical authorization modules. Their actual import graph crosses the established Identity and Tenancy domains, so a broad single-domain ownership rule is invalid.",
+    "problemStatement": "The accepted Digital Office Pro-only product decision conflicts with the central Alap plan catalog, which grants teamChat, and with persisted entitlement rows whose source precedence may grant teamChat to Alap. All entrypoints using getFeatureEntitlementDecisions must deny such stale grants. This unit affects only the central effective Team Chat boundary; generic customer email remains Alap and full Digital Office closure is not claimed.",
     "observableOutcomes": [
-      "The two Core policy directories are assigned to the existing high-risk auth-access-authority release subsystem, not a generic fallback.",
-      "Canonical DOMAIN-IDENTITY owns pure plan and entitlement catalogs, while DOMAIN-TENANCY owns tenant-aware access and policy modules.",
-      "Deep Atlas and Plan Before Code pass without a new domain, a new owner, a missing dependency or an ambiguous classification.",
-      "Existing tenancy and release-risk contracts continue to enforce high-risk isolation, regression replay and fail-closed behavior.",
-      "Issue #1186 remains OPEN; this metadata repair does not claim to fix merchant entitlements, database state, APIs or navigation."
+      "hasPlanFeature(alap,teamChat) is false; hasPlanFeature(pro,teamChat) is true and denial reason is pro-required.",
+      "For an Alap instance, central effective entitlement decisions deny teamChat despite valid plan, trial, manual or platform grants in the database.",
+      "Pro tenants continue to use existing source precedence, expiry, instance specificity, role checks and fail-closed unknown behavior.",
+      "officeCommunication, support and standard transactional emails stay on their existing Alap path; officeCommunicationAdvanced remains Pro-only.",
+      "No SQL migration, admin UI route, Builder or Template Factory change is claimed in this bounded first Core release."
     ],
     "unresolvedRisks": [
-      "A broad Identity glob can introduce a false dependency cycle from plan access into tenant instance access.",
-      "Metadata changes to knowledge/Atlas ownership affect the proof selection of later Core code, so full CI is still required.",
-      "Mixed high-risk entitlement code and unrelated medium-risk release diffs must be BLOCKED under existing strict risk budget.",
-      "No runtime-level Alap/Pro access proof is included in this narrow predecessor, and no package grant will change."
+      "Legacy tenant plan sync still writes Alap teamChat rows; effective resolver must override them and a subsequent DB migration must reconcile persisted grants.",
+      "Customer inbox/workspace is still gated by officeCommunication, which is needed for Alap core email; a later Core release must separate Digital Office workspace from basic outbound email and backend APIs.",
+      "Database-level direct table access and background job paths are not proven by this bounded code-only release; remain PARTIAL.",
+      "Platform and trial entitlement rows may exist; this strict product boundary overrides them for Alap; any future approved exception must be modeled separately and audited."
     ],
     "scope": {
       "in": [
-        "Add the two exact directory globs to the existing high-risk auth-access-authority release policy.",
-        "Map pure plan catalog, add-ons and entitlement catalog to DOMAIN-IDENTITY with their current import dependencies.",
-        "Map tenant-aware plan access and entitlement access/policy to DOMAIN-TENANCY with no Identity-to-Tenancy cycle.",
-        "Extend existing engine authority and tenancy scope regression tests; verify Knowledge, Edit-Time and full replay.",
-        "Commit exact-head Truth/Lifecycle evidence and only then merge this distinct scope metadata release."
+        "Move teamChat from ALAP_FEATURES to PRO_FEATURES in the existing central catalog.",
+        "Add an explicit central strict Pro workspace capability predicate, with no independent package engine.",
+        "In the existing server-only effective entitlement decision batch resolver load instance subscription_plan together with organization_id and fail closed for Pro-only chat when plan is Alap, before applying legacy override candidates.",
+        "Update existing plan, Block 11 entitlement and customer email regression suites for package separation, unchanged email and stale-override denial.",
+        "Use exact-head CI, Truth/Lifecycle and Release Risk evidence.",
+        "Reconcile existing admin IA navigation regression: Alap no longer shows Team Chat while Pro continues to offer it; do not change the admin navigation implementation in this release."
       ],
       "out": [
-        "Do not change actual plan feature grants or the entitlement decision algorithm in this predecessor.",
-        "Do not alter SQL migrations, customer email delivery, provider security, billing or checkout data.",
-        "Do not create another authority, relax the high risk weights, or bypass an Atlas/Reference Sync issue.",
-        "Do not touch Builder, Template Factory or mark the Core capability as DONE without operational proof."
+        "No SQL schema or data mutation in this unit; required reconciliation is tracked as next dependency.",
+        "No whole Digital Office UI/API release; it must later be gated by a distinct Pro workspace entitlement while Alap transactional email continues.",
+        "No change to non-chat manual/trial/platform entitlement precedence, add-ons or customer basic email delivery.",
+        "Do not mark #1186 or MR1 package capability DONE without full database/API/UI/background job proof."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-CORE-SCOPE-AUTHORITY-1192",
+    "sourceRef": "PO-2026-10-09-CORE-DIGITAL-OFFICE-1186-U01",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -1010,35 +1313,34 @@
         "GUARD-EDIT-TIME",
         "GUARD-INCREMENTAL-REPLAY",
         "GUARD-MARKET-READY",
+        "GUARD-TYPECHECK",
+        "GUARD-PRODUCTION-BUILD",
         "GUARD-QUALITY-TESTS",
-        "GUARD-RELEASE-RISK",
-        "GUARD-TYPECHECK"
+        "GUARD-RELEASE-RISK"
       ],
       "externalGuards": [],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-CORE-SCOPE-ATLAS",
-        "requirement": "Core authorization source code is unambiguously classified by existing Atlas and no forbidden domain dependency appears.",
+        "id": "REQ-U01-PRO-CHAT-ACCESS",
+        "requirement": "A stale positive grant never enables Team Chat for Alap at the central server-authoritative entitlement resolver; Pro source policy and core email remain unchanged.",
         "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "two-core-policy-directories",
+          "capability": "CAP-AUTH",
+          "breadth": "bounded-server-effective-teamchat",
           "strength": 2,
           "dimensions": [
-            "scope",
-            "authority",
-            "classification",
+            "status",
+            "evidence-scope",
             "forbidden-state"
           ]
         },
         "requiredCapabilities": [
-          "CAP-ATLAS"
+          "CAP-AUTH"
         ],
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-EDIT-TIME"
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS"
@@ -1046,8 +1348,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-CORE-SCOPE",
-            "statement": "No unclassified or duplicate Core entitlement owner.",
+            "id": "NEG-STALE-CHAT-GRANT",
+            "statement": "No Alap positive plan/manual/trial/platform grant may enable Team Chat through the server resolver.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1055,11 +1357,11 @@
         ]
       },
       {
-        "id": "REQ-CORE-RISK",
-        "requirement": "Security entitlement paths stay within the existing high-risk release budget with mixed releases blocked.",
+        "id": "REQ-U01-RELEASE-ISOLATION",
+        "requirement": "This Core authorization change is an isolated high-risk release and does not claim wider Digital Office completion.",
         "claimScope": {
           "capability": "CAP-RELEASE",
-          "breadth": "auth-access-risk-budget",
+          "breadth": "single-security-policy-release",
           "strength": 2,
           "dimensions": [
             "risk",
@@ -1079,8 +1381,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RISK-DOWNGRADE",
-            "statement": "Auth entitlement source must not be lowered to medium release risk.",
+            "id": "NEG-HIGH-RISK-MIX",
+            "statement": "High-risk auth policy must not be mixed with unrelated medium-risk production code in one release.",
             "evidence": [
               "GUARD-RELEASE-RISK"
             ]
@@ -1090,17 +1392,20 @@
     ]
   },
   "notes": [
-    "Prerequisite #1192 is bounded canonical metadata change after verified main #1188 merge; not the product authorization implementation.",
-    "Issue #1186 remains open and dependency incomplete.",
-    "No Builder, Template Factory, payment or database changes permitted."
+    "Bounded #1186 U01 only. Digital Office workspace remains PARTIAL; Alap normal customer email continues.",
+    "No direct SQL/data mutation in this unit; next dependent release must correct persistent sync and direct access surfaces.",
+    "Original accepted entitlement source priority retained for all eligible Pro capabilities.",
+    "An additional legacy admin IA regression test was discovered as failing by mandatory Incremental Replay and included by an explicit refreshed Development Guard before editing it.",
+    "Change-base reconciled after the required Replay-discovered navigation test was added: the regenerated guard accidentally re-anchored at an intermediate local code commit. This release is verified against the original merged canonical main 32fcdb7ede3772dfd43ab9694c042404ba900d3c, so all six material files stay inside one exact-head authorization/replay diff.",
+    "PR exact-head #9340 quality CI identified Sentinel capability proof drift; corrected CAP-AUTH claim source to GUARD-QUALITY-TESTS only, preserving Plan/Edit-Time mandatory gates via systemObligations and leaving Core capability PARTIAL."
   ],
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "043e20636c701f3c8f2c786c5092248548e901d1",
-    "closedAt": "2026-10-09T07:14:00.412Z",
+    "verifiedImplementationHead": "6dfda3778c789a1ab86983c5677c7fd9aa4f1c71",
+    "closedAt": "2026-10-09T07:58:51.062Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-09-CORE-SCOPE-AUTHORITY-1192",
+    "sourceRef": "PO-2026-10-09-CORE-DIGITAL-OFFICE-1186-U01",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

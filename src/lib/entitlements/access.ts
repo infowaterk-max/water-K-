@@ -1,5 +1,6 @@
 import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { isOfficeFeatureAllowedBySubscription } from '@/lib/plans/catalog';
 import { capabilityReleaseState, isCapabilityReleased } from './catalog';
 import { resolveEntitlementCandidate, type EntitlementCandidate } from './policy';
 
@@ -38,7 +39,7 @@ export async function getFeatureEntitlementDecisions(
   if(releasedCodes.length===0)return decisions;
 
   const admin=createAdminClient();
-  const {data:instance,error:instanceError}=await admin.from('webshop_instances').select('organization_id').eq('id',instanceId).maybeSingle();
+  const {data:instance,error:instanceError}=await admin.from('webshop_instances').select('organization_id,subscription_plan').eq('id',instanceId).maybeSingle();
   if(instanceError){
     console.error('entitlement_instance_lookup_failed',{instanceId,capabilityCodes:releasedCodes,errorCode:instanceError.code});
   }
@@ -48,19 +49,34 @@ export async function getFeatureEntitlementDecisions(
     return decisions;
   }
 
+  // The actual tenant subscription is the product boundary for internal office features.
+  // A stale Alap plan row or a manual/trial/platform override must not grant Pro staff chat.
+  const eligibleCodes=releasedCodes.filter(capabilityCode=>{
+    if(isOfficeFeatureAllowedBySubscription(instance.subscription_plan,capabilityCode))return true;
+    decisions.set(capabilityCode,{
+      enabled:false,
+      source:'plan-boundary',
+      instanceId,
+      validUntil:null,
+      reason:'revoked',
+    });
+    return false;
+  });
+  if(eligibleCodes.length===0)return decisions;
+
   const {data,error}=await admin.from('feature_entitlements')
     .select('id,feature_code,enabled,source,instance_id,valid_from,valid_until,updated_at')
     .eq('organization_id',instance.organization_id)
-    .in('feature_code',releasedCodes);
+    .in('feature_code',eligibleCodes);
   if(error){
     console.error('entitlement_query_failed',{instanceId,capabilityCodes:releasedCodes,errorCode:error.code});
-    for(const capabilityCode of releasedCodes)decisions.set(capabilityCode,null);
+    for(const capabilityCode of eligibleCodes)decisions.set(capabilityCode,null);
     return decisions;
   }
 
   const rows=(data??[]) as EntitlementRow[];
   const now=new Date();
-  for(const capabilityCode of releasedCodes){
+  for(const capabilityCode of eligibleCodes){
     const candidates=rows.filter(row=>row.feature_code===capabilityCode);
     const winner=resolveEntitlementCandidate(candidates,instanceId,now);
     if(!winner){

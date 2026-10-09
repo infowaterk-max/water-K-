@@ -10,7 +10,7 @@ describe('Roadmap Block 4 IA, navigation and reporting contract',()=>{
     const alap=resolveMerchantNavigation('alap',allow,'active',allow).flatMap(section=>section.items);
     const pro=resolveMerchantNavigation('pro',allow,'active',allow).flatMap(section=>section.items);
     expect(alap.some(item=>item.href==='/admin/rendelesek')).toBe(true);
-    expect(alap.some(item=>item.href==='/admin/kommunikacio/chat')).toBe(true);
+    expect(alap.some(item=>item.href==='/admin/kommunikacio/chat')).toBe(false);
     expect(alap.some(item=>item.href==='/admin/kommunikacio')).toBe(true);
     expect(alap.some(item=>item.href==='/admin/elemzes')).toBe(false);
     expect(alap.some(item=>item.href==='/admin/cashflow')).toBe(false);
@@ -18,6 +18,7 @@ describe('Roadmap Block 4 IA, navigation and reporting contract',()=>{
     expect(pro.some(item=>item.href==='/admin/cashflow')).toBe(true);
     expect(pro.some(item=>item.href==='/admin/vezetoi')).toBe(true);
     expect(pro.some(item=>item.href==='/admin/kommunikacio')).toBe(true);
+    expect(pro.some(item=>item.href==='/admin/kommunikacio/chat')).toBe(true);
   });
 
   it('filters navigation and frequent tasks through least privilege, capability and pilot audience rules',()=>{
