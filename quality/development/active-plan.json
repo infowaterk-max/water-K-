@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1186-U07-OFFICE-WORKER",
   "task": "Core 1186 U07: revalidate Pro-only Office support_reply entitlement at worker send time under downgrade revocation and retry while preserving Alap transactional messages",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "6a5adc3d",
   "changeBaseSha": "a562005e74a3ad9d144905599a5f4b9aa950aecf",
   "plannedFilePatterns": [
@@ -1145,5 +1145,18 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "703a217f16ec79a1c84111cd689ad0785b302ff5",
+    "closedAt": "2026-10-09T21:44:03.832Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-09-CORE-1186-U07-WORKER-SEND-TIME",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
