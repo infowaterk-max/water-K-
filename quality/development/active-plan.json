@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-DIAGNOSTIC-SURFACE-1018",
   "task": "Harden shared exact-error diagnostic collection for CI security-audit and trusted release executor and feed normalized artifacts into Failure Intake without weakening failure behavior.",
   "status": "ready-for-implementation",
-  "guardDigest": "aa79c504",
+  "guardDigest": "a42319a7",
   "changeBaseSha": "995983131fa3aa1cb91794810c817f6b9b8846d9",
   "plannedFilePatterns": [
     ".github/workflows/ci.yml",
@@ -13,8 +13,9 @@
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "release-infrastructure",
-    "quality-infrastructure"
+    "quality-infrastructure",
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedDomains": [
     "DOMAIN-RELEASE",
@@ -25,12 +26,47 @@
     "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002"
+    "SQ-KF-003",
+    "SQ-KF-004",
+    "SQ-KF-006",
+    "SQ-KF-008",
+    "SQ-KF-009",
+    "SQ-KF-013",
+    "SQ-KF-014",
+    "SQ-KF-018",
+    "SQ-KF-020",
+    "SQ-KF-021",
+    "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
+    "TF-KF-001",
+    "TF-KF-005",
+    "TF-KF-007",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
+    "SQ-NK-010",
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015",
+    "SQ-NK-016",
+    "SQ-NK-017",
+    "SQ-NK-018",
+    "SQ-NK-019",
+    "SQ-NK-020",
+    "SQ-NK-021",
+    "SQ-NK-022",
+    "SQ-NK-023"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -76,7 +112,10 @@
         "adversarial-scenarios",
         "threat-failure-model",
         "fault-injection",
-        "pairwise-interactions"
+        "pairwise-interactions",
+        "state-model",
+        "what-if-matrix",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
@@ -254,6 +293,20 @@
         "scenario": "Raw error contains a credential.",
         "finding": "Persistent intake may leak secret.",
         "resolution": "Redact exact tokens before persisting while leaving stable code and location intact.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-DIAG-07",
+        "scenario": "An exact-code parser sees a stack trace with unrelated uppercase tokens and no valid nested error object.",
+        "finding": "A broad regex can synthesize a false stable error code.",
+        "resolution": "Prefer parsed structured release block or anchored `Error: <CODE>`; fall back to known gate code rather than unsafe pattern guesses.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-DIAG-08",
+        "scenario": "An always-running failure-intake step runs after checkout/install has already failed.",
+        "finding": "The script may be unavailable or locked dependencies absent.",
+        "resolution": "Record failure step/outcome through job-local `always()` fallback with minimal Node runtime when repository is available; fail closed and retain original workflow job failure if unavailable.",
         "status": "resolved"
       }
     ],
