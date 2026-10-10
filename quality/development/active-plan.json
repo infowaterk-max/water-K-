@@ -1,17 +1,16 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-E9266AF1",
-  "task": "Core #1186 U10A2 F14: append-only 0061 canonical Digital Office optimistic draft revision and autosave guard, no live DB writes",
+  "taskId": "DEV-2EBCB98E",
+  "task": "Core #1186 U10A2 F15: append-only 0062 canonical Office reply-draft singleton advisory-lock and unique index source; no target writes",
   "status": "ready-for-implementation",
-  "guardDigest": "e9266af1",
-  "changeBaseSha": "487893423ab395cd73e94e5a25b83e9918ffdaf9",
+  "guardDigest": "2ebcb98e",
+  "changeBaseSha": "406809bc1244e35d450b71365e2bbc89da5f6450",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0061_digital_office_draft_revision_guard_v1.sql",
+    "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-office-draft-revision-guard.test.ts"
+    "tests/customer-baseline-office-reply-draft-singleton.test.ts"
   ],
   "expectedSubsystems": [
-    "admin-operations",
     "database-schema"
   ],
   "expectedDomains": [
@@ -24,31 +23,22 @@
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-022",
-    "SQ-KF-001",
-    "SQ-KF-002",
     "SQ-KF-006",
     "SQ-KF-009",
     "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
-    "SQ-KF-016",
-    "SQ-KF-017",
     "SQ-KF-018",
     "SQ-KF-023"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-008",
     "SQ-NK-012",
     "SQ-NK-014"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F14-DRAFT-REVISION",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F15-REPLY-DRAFT-SINGLETON",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -69,27 +59,26 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "0061 exact complete canonical body and SHA256 from 20260909203208.",
-        "office_drafts revision column/check and optimistic edit logic requires expectedRevision and increments revision.",
-        "Reject stale version and tenant/author mismatches, preserve existing 0057 RLS/GRANT constraints.",
-        "Autosave permitted separately from manual save; no per-debounce audit insertion, intended manual audit preserved.",
-        "Customer-baseline 62 snapshot-reviewed and TypeScript/full tests PASS; 0060 stays forward-only unchanged.",
-        "Edit-Time Sync, Knowledge/Incremental Replay, Plan Before Code and exact-base Release Risk PASS, no real DB claims."
+        "0062 exactly matches canonical 20260909203242 source SQL SHA256 and follows 0061.",
+        "Trigger uses pg_advisory_xact_lock derived from instance/author/thread and is BEFORE INSERT OR UPDATE of identity fields.",
+        "Predicate rejects second matching reply draft with OFFICE_DRAFT_CONFLICT; excludes same row id.",
+        "Partial unique index on (instance_id,author_user_id,thread_id) WHERE draft_type reply and thread_id IS NOT NULL.",
+        "Revoke private trigger function execute from browser roles and preserve ordinary new_email flows.",
+        "Customer baseline guard 63, TypeScript/relevant tests and Control Plane risk gates PASS while real DB proof remains pending."
       ],
       "invariants": [
-        "No stale draft revision can overwrite newer draft on target PostgreSQL.",
-        "Tenant/context/actor/compose permissions are guarded before updates.",
-        "New email draft must remain within tenant even without thread.",
-        "Audit volume for autosave intentionally bounded.",
-        "Earlier 0060 and canonical 0057 identities immutable.",
-        "No unaudited live target change or public browser grants."
+        "Only one reply draft per tenant+author+thread.",
+        "Distinct authors and threads can have their own reply drafts.",
+        "New email drafts without thread are unaffected.",
+        "All prior canonical SQL and current private Office RLS unchanged.",
+        "No elevated browser direct grant or target write."
       ],
       "forbiddenStates": [
-        "Stale expectedRevision silently overwrites a draft.",
-        "Other tenant/author draft changed via caller-supplied p_actor.",
-        "Revision value null/zero/negative accepted.",
-        "Every debounce autosave emits an admin audit event.",
-        "Manifest marked ready from source tests alone."
+        "Two concurrent first reply drafts for same author/thread accepted in real DB.",
+        "Second draft overwritten without explicit conflict.",
+        "Unique index includes new_email drafts by mistake.",
+        "Trigger omits tenant or author identity.",
+        "Target marked ready based on source-only tests."
       ]
     },
     "model": {
@@ -121,51 +110,50 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "revision column does not exist on older office_drafts",
-        "missing expectedRevision slips through",
-        "revision checked but increment not atomic",
-        "service_role impersonated p_actor",
-        "cross-tenant draft ID used",
-        "non-owner staff sends arbitrary new_email",
-        "manual/audit mode swapped",
-        "legacy v1 RPC unintentionally shadowed",
-        "Postgres definer EXECUTE inherited by browser",
-        "canonical SQL body hash drift",
-        "manifest ready falsely",
-        "later migration reorders column"
+        "Advisory lock missing",
+        "Collision or hash key unexpectedly shared",
+        "Partial unique index missing",
+        "Existing duplicate reply drafts prevent CREATE INDEX",
+        "Trigger fires only INSERT, misses UPDATE identity",
+        "Same draft update rejected as conflict",
+        "Nonreply drafts blocked",
+        "Cross-instance collision",
+        "Wrong index column order",
+        "Definer caller impersonates author",
+        "Canonical SQL hash drift",
+        "Manifest falsely ready"
       ],
       "edgeCases": [
-        "First save new_email without id",
-        "First reply draft",
-        "autosave same revision race",
-        "two browsers edit same draft",
-        "expectedRevision missing or zero",
-        "deleted author",
-        "draft from another tenant",
-        "manual save after many autosaves",
-        "body size limit",
-        "duplicate draft update",
-        "owner versus delegated staff"
+        "Two concurrent fresh autosaves",
+        "Different tabs same revision 1",
+        "Different authors same thread",
+        "Same author different thread",
+        "New email draft no thread",
+        "Reply draft identity UPDATE",
+        "Idempotent repeated migrations",
+        "Existing duplicate legacy rows",
+        "Deleted thread tenant",
+        "Untrusted actor UUID"
       ]
     },
     "alternatives": [
       {
-        "id": "F14-CANONICAL",
-        "summary": "Append byte-identical draft revision SQL after 0060 with source test and no runtime writes",
+        "id": "F15-CANONICAL",
+        "summary": "Append original singleton trigger+partial unique index SQL as 0062",
         "disposition": "selected",
-        "reason": "Maintains canonical optimistic locking authority and release isolation."
+        "reason": "Provides DB-level serialization and unique constraint preserving source authority."
       },
       {
-        "id": "F14-UI-VERSION",
-        "summary": "Only compare browser draft state in React",
+        "id": "F15-UI-SINGLETON",
+        "summary": "Deduplicate drafts only in React UI",
         "disposition": "rejected",
-        "reason": "Concurrent service callers and multiple tabs bypass client-only check."
+        "reason": "Concurrent tabs and service caller bypass browser singleton check."
       },
       {
-        "id": "F14-BATCH-ADVANCED",
-        "summary": "Combine singleton, recipient and Advanced Office in 0061",
+        "id": "F15-JUMP-RECIPIENT",
+        "summary": "Skip singleton and implement recipient envelope immediately",
         "disposition": "rejected",
-        "reason": "Would obscure dependencies and exceed bounded proof scope."
+        "reason": "Leaves duplicate reply drafts despite available canonical fix."
       }
     ],
     "specialistReviews": [
@@ -173,28 +161,28 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Service-role definer may trust p_actor and static text cannot prove real author/tenant visibility or race behavior.",
-        "resolution": "No DONE; require real authenticated actor boundary and negative concurrent updates on disposable DB.",
+        "finding": "Source lock/index is not concurrent Postgres proof; service-role can still spoof author or disable triggers.",
+        "resolution": "Require disposable Postgres dual-connection race and effective actor grants tests before release.",
         "evidence": [
-          "supabase/migrations/20260909203208_digital_office_draft_revision_guard_v1.sql"
+          "supabase/migrations/20260909203242_digital_office_reply_draft_singleton_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "revision BIGINT and check constrain optimistic draft updates, but occupied target may contain conflicting schema.",
-        "resolution": "Preserve canonical body, exact predecessor and add real target preflight before apply.",
+        "finding": "Canonical partial unique index can fail when occupied target already has duplicates.",
+        "resolution": "No target apply; read-only duplicate inventory and remediation before migration.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0057_digital_office_composer_drafts_foundation_v1.sql"
+          "supabase/customer-baseline/migrations/0061_digital_office_draft_revision_guard_v1.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Only database-schema SQL change fits 5/5 risk if other dependency scope remains neutral.",
-        "resolution": "One migration plus manifest/tests, exact base risk and dedicated release.",
+        "finding": "Single high-risk DB-schema migration qualifies for isolated 5/5 release.",
+        "resolution": "One SQL+manifest+neutral test, exact F14 HEAD, no Preview.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -203,8 +191,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Autosave and human audit may have external email delivery interactions; source migration is not whole capability.",
-        "resolution": "No provider calls, staging writes or final release until integration acceptance.",
+        "finding": "Advisory transaction locks could impact autosave latency under load.",
+        "resolution": "Require performance/retry concurrency rehearsal, no production changes now.",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -212,72 +200,72 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F14-01",
-        "scenario": "Two tabs save same draft revision concurrently.",
-        "finding": "Last writer may overwrite first unless expectedRevision comparison is atomic.",
-        "resolution": "Preserve canonical expectedRevision and row lock and require future actual race test.",
+        "id": "CH-U10A2-F15-01",
+        "scenario": "Two browser tabs simultaneously auto-save their first reply draft for the same instance, signed-in author and customer thread.",
+        "finding": "Both inserts can pass an application-level existence check and create duplicate drafts before either transaction commits.",
+        "resolution": "Preserve the canonical pg_advisory_xact_lock scoped to instance/author/thread and partial unique index; a two-session Postgres race test must assert one conflict.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F14-02",
-        "scenario": "An autosave arrives with stale expectedRevision.",
-        "finding": "Older text silently replaces newer user edits.",
-        "resolution": "Require OFFICE_DRAFT_REVISION_CONFLICT and compare saved revision before mutation.",
+        "id": "CH-U10A2-F15-02",
+        "scenario": "Two distinct support employees each start a reply draft to the same customer support conversation.",
+        "finding": "A singleton keyed only by tenant and thread would incorrectly block legitimate separate authors from drafting independent replies.",
+        "resolution": "Keep author_user_id in both advisory hash construction and partial unique index and require real target positive two-author acceptance.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F14-03",
-        "scenario": "A browser attempts to edit draft id from another webshop.",
-        "finding": "SECURITY DEFINER could modify cross-tenant data if checks omitted.",
-        "resolution": "Canonical instance id and author private checks, later runtime negative test.",
+        "id": "CH-U10A2-F15-03",
+        "scenario": "One support employee edits reply drafts for two different customer threads in one tenant.",
+        "finding": "A singleton key missing thread_id would cause unrelated reply drafts to collide or serialize incorrectly.",
+        "resolution": "Require distinct thread_id in lock hash and uniqueness columns, then test two-thread separate insert acceptance.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F14-04",
-        "scenario": "A support actor tries writing another user draft.",
-        "finding": "Unauthorized content or recipient edits leak.",
-        "resolution": "Preserve author_user_id equality and support/compose permission.",
+        "id": "CH-U10A2-F15-04",
+        "scenario": "Two isolated webshop instances happen to reference equal user UUID and thread UUID due to imported or fixture data.",
+        "finding": "Cross-tenant draft uniqueness could leak or deny another tenant if instance_id is omitted from singleton key.",
+        "resolution": "Preserve instance_id in advisory lock text and unique index; use tenant-isolated test fixtures with both instances.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F14-05",
-        "scenario": "An autosave fires on each keystroke/debounce cycle.",
-        "finding": "Audit table flooding and high costs if every autosave is audited.",
-        "resolution": "Preserve canonical manual-vs-autosave branch without per-debounce audit.",
+        "id": "CH-U10A2-F15-05",
+        "scenario": "A user creates several ordinary new_email drafts with NULL thread_id while also composing reply drafts.",
+        "finding": "A broad unique index could incorrectly constrain unrelated outbound draft content and block legitimate new-email workflows.",
+        "resolution": "Trigger must early-return for draft_type not reply or NULL thread_id, and index must be partial WHERE reply and thread_id IS NOT NULL.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F14-06",
-        "scenario": "A new draft has no expectedRevision or draft ID.",
-        "finding": "Overrestrictive conflict logic can block creation.",
-        "resolution": "Revision required only for existing draft; default 1 on insert.",
+        "id": "CH-U10A2-F15-06",
+        "scenario": "A legitimate author updates the subject/body of their existing reply draft without changing the thread/tenant/author identity.",
+        "finding": "An existence check that matches the updated row itself would raise OFFICE_DRAFT_CONFLICT and make routine autosaves impossible.",
+        "resolution": "Canonical WHERE d.id<>new.id must exclude same row; prove a valid status/content UPDATE via actual disposable Postgres.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F14-07",
-        "scenario": "A draft row has revision 0 or NULL.",
-        "finding": "Nonpositive revisions cause optimistic comparisons to misbehave.",
-        "resolution": "Add CHECK (revision>0), NOT NULL default 1.",
+        "id": "CH-U10A2-F15-07",
+        "scenario": "An occupied staging database already contains duplicate reply drafts with the same tenant, author and thread created before this migration.",
+        "finding": "CREATE UNIQUE INDEX will fail during rollout or lock critical Office tables if legacy duplicate records are not identified.",
+        "resolution": "Keep production/staging unchanged and require read-only duplicate group inventory, remediation strategy and migration-window assessment.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F14-08",
-        "scenario": "A server worker supplies forged p_actor to service_role draft RPC.",
-        "finding": "Caller impersonation possible even if SQL compares p_actor to draft owner.",
-        "resolution": "Treat source-proof as partial and require server identity binding.",
+        "id": "CH-U10A2-F15-08",
+        "scenario": "A privileged background worker passes a forged author_user_id as it inserts a reply draft under service_role.",
+        "finding": "A uniqueness key scoped to that forged UUID does not authenticate the real caller and could impersonate another employee.",
+        "resolution": "Keep actor/session binding and effective privilege role verification as separate release blockers; never treat source hash tests as full identity proof.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code before SQL edit.",
-      "Verbatim canonical SQL SHA256, revisions/audit/RBAC negative source regression.",
-      "Baseline guard 62 ordered migrations snapshot-reviewed and TypeScript/full targeted tests.",
-      "Edit-Time Reference/Implementation Sync plus Knowledge/Incremental Replay.",
-      "Exact previous F13 head Release Risk 5/5 and no real DB accepted claim.",
-      "Disposable PostgreSQL concurrent/revision/tenant RPC tests remain blockers."
+      "Critical Plan Before Code PASS before 0062 edit.",
+      "SHA256 complete canonical SQL, trigger lock/unique index and nonreply assertions.",
+      "Customer baseline guard 63, full source regression tests and TypeScript.",
+      "Edit-Time Reference/Implementation Sync and Knowledge/Incremental Replay.",
+      "Exact F14 HEAD release risk 5/5, no actual DB claims.",
+      "Real disposable dual-session draft create race and legacy duplicate data preflight required for release."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F14: append-only 0061 canonical Digital Office optimistic draft revision and autosave guard, no live DB writes",
+      "request": "Core #1186 U10A2 F15: append-only 0062 canonical Office reply-draft singleton advisory-lock and unique index source; no target writes",
       "authority": [
         "database-schema"
       ],
@@ -287,17 +275,17 @@
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0061_digital_office_draft_revision_guard_v1.sql",
-        "tests/customer-baseline-office-draft-revision-guard.test.ts"
+        "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
+        "tests/customer-baseline-office-reply-draft-singleton.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code before SQL edit.",
-        "Verbatim canonical SQL SHA256, revisions/audit/RBAC negative source regression.",
-        "Baseline guard 62 ordered migrations snapshot-reviewed and TypeScript/full targeted tests.",
-        "Edit-Time Reference/Implementation Sync plus Knowledge/Incremental Replay.",
-        "Exact previous F13 head Release Risk 5/5 and no real DB accepted claim.",
-        "Disposable PostgreSQL concurrent/revision/tenant RPC tests remain blockers."
+        "Critical Plan Before Code PASS before 0062 edit.",
+        "SHA256 complete canonical SQL, trigger lock/unique index and nonreply assertions.",
+        "Customer baseline guard 63, full source regression tests and TypeScript.",
+        "Edit-Time Reference/Implementation Sync and Knowledge/Incremental Replay.",
+        "Exact F14 HEAD release risk 5/5, no actual DB claims.",
+        "Real disposable dual-session draft create race and legacy duplicate data preflight required for release."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -313,8 +301,8 @@
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0061_digital_office_draft_revision_guard_v1.sql",
-          "tests/customer-baseline-office-draft-revision-guard.test.ts"
+          "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
+          "tests/customer-baseline-office-reply-draft-singleton.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -346,13 +334,13 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0061_digital_office_draft_revision_guard_v1.sql",
+            "file": "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           },
           {
-            "file": "tests/customer-baseline-office-draft-revision-guard.test.ts",
+            "file": "tests/customer-baseline-office-reply-draft-singleton.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -386,13 +374,13 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0061_digital_office_draft_revision_guard_v1.sql",
+              "file": "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             },
             {
-              "file": "tests/customer-baseline-office-draft-revision-guard.test.ts",
+              "file": "tests/customer-baseline-office-reply-draft-singleton.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -437,7 +425,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0061_digital_office_draft_revision_guard_v1.sql"
+              "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -454,7 +442,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0061_digital_office_draft_revision_guard_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -467,7 +455,7 @@
           {
             "id": 2,
             "files": [
-              "tests/customer-baseline-office-draft-revision-guard.test.ts"
+              "tests/customer-baseline-office-reply-draft-singleton.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -478,7 +466,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-office-draft-revision-guard.test.ts",
+                  "file": "tests/customer-baseline-office-reply-draft-singleton.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -496,21 +484,21 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "487893423ab395cd73e94e5a25b83e9918ffdaf9"
+              "developmentBaseSha": "406809bc1244e35d450b71365e2bbc89da5f6450"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "487893423ab395cd73e94e5a25b83e9918ffdaf9",
+            "targetBaseSha": "406809bc1244e35d450b71365e2bbc89da5f6450",
             "lease": {
-              "expectedBaseSha": "487893423ab395cd73e94e5a25b83e9918ffdaf9",
+              "expectedBaseSha": "406809bc1244e35d450b71365e2bbc89da5f6450",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0061_digital_office_draft_revision_guard_v1.sql",
-              "tests/customer-baseline-office-draft-revision-guard.test.ts"
+              "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
+              "tests/customer-baseline-office-reply-draft-singleton.test.ts"
             ],
             "operations": [
               {
@@ -520,12 +508,12 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0061_digital_office_draft_revision_guard_v1.sql",
+                "file": "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-office-draft-revision-guard.test.ts",
+                "file": "tests/customer-baseline-office-reply-draft-singleton.test.ts",
                 "generated": null
               }
             ],
@@ -557,13 +545,13 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0061_digital_office_draft_revision_guard_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 },
                 {
-                  "file": "tests/customer-baseline-office-draft-revision-guard.test.ts",
+                  "file": "tests/customer-baseline-office-reply-draft-singleton.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -594,7 +582,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-office-draft-revision-guard.test.ts"
+                "tests/customer-baseline-office-reply-draft-singleton.test.ts"
               ],
               "externalGateIds": []
             },
@@ -606,8 +594,8 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0061_digital_office_draft_revision_guard_v1.sql",
-                "tests/customer-baseline-office-draft-revision-guard.test.ts"
+                "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
+                "tests/customer-baseline-office-reply-draft-singleton.test.ts"
               ],
               "filesAbsent": []
             },
@@ -622,7 +610,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "64567642",
+            "manifestDigest": "45c9ac30",
             "decision": "PASS"
           }
         ],
@@ -662,38 +650,37 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Canonical Digital Office draft revision producer 20260909203208 is not in customer Fresh Install baseline through 0060. Previous 0057 office_drafts are author-private but concurrent autosaves can overwrite a newer draft. Canonical migration adds revision BIGINT CHECK >0, admin_mutate_office_draft_v2 optimistic expectedRevision matching, manual vs autosave audit distinction, tenant/author and support/compose RBAC guards. Source-only forward append; legacy RPC compatibility, service-role actor binding and Postgres concurrency proof remain required before deployment.",
+    "problemStatement": "The 0061 draft optimistic revision RPC protects updating an existing draft, but two tabs concurrently creating the FIRST reply draft for one (instance, author, customer thread) may each generate a new ID/revision=1. Canonical 20260909203242 must follow 0061 in Fresh Install: it serializes first reply draft creation via transaction-scoped advisory lock, raises OFFICE_DRAFT_CONFLICT when a competing reply draft exists and enforces a partial unique index. Non-reply drafts and different authors/threads must remain unaffected; no real Postgres concurrency execution claimed.",
     "observableOutcomes": [
-      "Append 0061 exact SHA256-byte canonical draft revision SQL after existing 0060, with no rewrite of earlier 0001-0060 files.",
-      "office_drafts revision positive BIGINT column default 1 and explicit CHECK, revision increment on successful edits.",
-      "admin_mutate_office_draft_v2 rejects missing/stale expectedRevision and unauthorized cross-tenant or cross-author writes.",
-      "Manual versus autosave persistence preserves intended audit distinction without creating audit events on every autosave.",
-      "Customer baseline 62 ordered SQL migrations, snapshot-reviewed, freshInstallProofRequired true, null proof hash; targeted tests PASS.",
-      "No staged/prod DB SQL write, no actual PostgreSQL concurrency test or U10A1/Advanced Office DONE assertion."
+      "Append 0062 full-byte canonical draft singleton SQL with SHA256 source provenance.",
+      "A BEFORE INSERT and UPDATE-of-identity trigger takes tenant/author/thread hashed advisory transaction lock on reply draft.",
+      "Existing reply draft per tenant-author-thread raises OFFICE_DRAFT_CONFLICT instead of creating a second one.",
+      "Partial unique index enforces same invariant in database, excluding new_email and NULL thread_id cases.",
+      "Customer baseline guard validates 63 ordered migrations snapshot-reviewed, no target Fresh Install proof hash.",
+      "No actual concurrency/actor/bypass proof, advanced Pro SQL or DB target write."
     ],
     "unresolvedRisks": [
-      "Static SQL body parity cannot demonstrate atomic optimistic locking under actual PostgreSQL concurrent transaction isolation; require negative concurrent writes on disposable DB.",
-      "SECURITY DEFINER service_role RPC with p_actor can be impersonated by incorrectly implemented server caller; caller-to-actor session proof missing.",
-      "Existing office_drafts with revision column/default inconsistencies or conflicting constraints may fail migration on occupied target; preflight target schema/rows.",
-      "The earlier 0060 Office reply UPDATE guard still lacks real database trigger and queue status integration proof.",
-      "Other draft singleton/recipient/attachment/team chat/Communication Hub 2.0 and independent strict Pro SQL dependencies are missing from baseline."
+      "Hash collisions/advisory locks and unique index/trigger behavior under parallel sessions need actual disposable Postgres concurrency tests.",
+      "Existing duplicate legacy reply drafts would cause CREATE UNIQUE INDEX to fail on occupied target; require read-only duplicate count/remediation plan before rollout.",
+      "A service_role caller may forge author_user_id; SQL source alone does not bind actor to authenticated session.",
+      "Earlier customer baseline 0060 UPDATE route hardening still lacks actual trigger proof, later recipient/attachments/Advanced Office/strict Pro SQL missing."
     ],
     "scope": {
       "in": [
-        "One canonical append-only 0061 source SQL with recorded SHA256.",
-        "Manifest note preserving snapshot-reviewed, not ready.",
-        "Focused version validation, revision conflict, tenant+author and audit source regression tests."
+        "One exact canonical 0062 reply-draft singleton source SQL with SHA256 and predecessor.",
+        "Manifest note preserving snapshot-reviewed and blocking live proof.",
+        "Focused trigger, partial unique index, lock, tenant+author+thread and nonreply source tests."
       ],
       "out": [
-        "No historical 0001-0060 SQL edits.",
-        "No 0062+ singleton/recipient migrations or UI/server behavior in same release.",
-        "No staging/production/Fresh Install target DB writes, CI dispatch, preview or GitHub push."
+        "No modification of historical 0001-0061 SQL or production canonical source.",
+        "No actual database SQL, provider call, UI changes, GitHub push, CI or Vercel Preview.",
+        "No 0063+ recipient/attachment/advanced SQL in same high-risk release."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F14-DRAFT-REVISION",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F15-REPLY-DRAFT-SINGLETON",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -711,11 +698,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F14-DRAFT-REVISION",
-        "requirement": "Add canonical 0061 optimistic revision and autosave guard, with tenant/author and manual audit invariants; source-only.",
+        "id": "REQ-F15-REPLY-SINGLETON",
+        "requirement": "Append canonical 0062 reply draft per tenant/author/thread singleton advisory lock and partial unique index, preserving source and no fake runtime proof.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-draft-optimistic-lock-baseline",
+          "breadth": "office-reply-draft-singleton-source",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -737,8 +724,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F14-STALE",
-            "statement": "Concurrent stale revision cannot overwrite newer draft on real target; canonical source contract asserted now.",
+            "id": "NEG-F15-DUPLICATE",
+            "statement": "Concurrent first reply drafts per tenant-author-thread must produce a conflict under real PostgreSQL; static source proof now.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -747,5 +734,5 @@
       }
     ]
   },
-  "notes": "Core #1186 F14 canonical draft optimistic revision 0061 source-only. Future 0062+ singleton/recipient/attachments and Advanced Office/Pro plus real Postgres proof remain BLOCKED. Authority scope source-only database-schema; auth/tenant contexts are read-only dependency checks, not direct edits."
+  "notes": "F15 canonical 0062 singleton reply draft guard source-only after F14. Actual Postgres concurrent autosave proof and recipient/attachment/Advanced Office/Pro dependencies remain BLOCKED."
 }
