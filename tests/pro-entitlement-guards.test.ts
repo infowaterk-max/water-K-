@@ -11,6 +11,21 @@ const protectedApis = [
 function source(path: string) { return readFileSync(resolve(process.cwd(), path), 'utf8'); }
 
 describe('Pro entitlement entrypoint guards', () => {
+  it('rejects phantom strict Pro Office access without a current tenant, before profile/default plan fallback',()=>{
+    const resolver=source('src/lib/plans/access.ts');
+    const catalog=source('src/lib/plans/catalog.ts');
+    expect(catalog).toContain("export const STRICT_PRO_OFFICE_FEATURES = ['teamChat','officeCommunicationAdvanced']");
+    expect(resolver).toContain('isStrictProOfficeFeature');
+    const tenantBranch=resolver.indexOf('if(instance){');
+    const tenantGrant=resolver.indexOf('getFeatureEntitlementDecision(instance.id,feature)',tenantBranch);
+    const strictDeny=resolver.indexOf('if(isStrictProOfficeFeature(feature))return false;',tenantGrant);
+    const fallback=resolver.indexOf('return hasPlanFeature(await getCurrentPlan(),feature);',strictDeny);
+    expect(tenantBranch).toBeGreaterThanOrEqual(0);
+    expect(tenantGrant).toBeGreaterThan(tenantBranch);
+    expect(strictDeny).toBeGreaterThan(tenantGrant);
+    expect(fallback).toBeGreaterThan(strictDeny);
+    expect(resolver.slice(tenantBranch,strictDeny)).toContain('return explicit?.enabled===true;');
+  });
   it.each([
     'src/app/api/admin/office/email-attachments/prepare/route.ts',
     'src/app/api/admin/office/email-attachments/scan/route.ts',
