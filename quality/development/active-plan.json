@@ -1,46 +1,39 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2 F18: actual PostgreSQL empty-target proof found missing canonical record_inbound_office_email_v2 producer before 0054; add new sorted 0053_inbound_office_email_atomic_v2.sql plus regression and manifest, no live database writes",
+  "taskId": "DEV-52C0DEC9",
+  "task": "Core #1186 U10A2 F19: reproducible isolated real PostgreSQL customer baseline verification, clean SQL replay, permission/protected Office negative tests, no hosted DB calls",
   "status": "ready-for-implementation",
-  "guardDigest": "2ebcb98e",
-  "changeBaseSha": "6771d1eafded599f48119befbcb3e26d4ee65d0f",
+  "guardDigest": "52c0dec9",
+  "changeBaseSha": "c20ecec91527af40593d40301959c3b6635abbd9",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
-    "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
-    "tests/customer-baseline-office-real-inbound-foundation.test.ts"
+    "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+    "tests/fixtures/customer-baseline-postgres-shim.sql",
+    "tests/fixtures/customer-baseline-office-reply-negative.sql",
+    "tests/customer-baseline-postgres-rehearsal.test.ts"
   ],
   "expectedSubsystems": [
-    "database-schema"
+    "quality-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-DATA"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "database-schema"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-022",
-    "SQ-KF-006",
-    "SQ-KF-009",
-    "SQ-KF-010",
-    "SQ-KF-018",
-    "SQ-KF-023"
+    "SQ-KF-022"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-005",
-    "SQ-NK-012",
-    "SQ-NK-014"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F18-REAL-PG-PREDECESSOR",
-    "riskTier": "critical",
+    "sourceRef": "PO-2026-10-10-CORE-1186-F19-REPRODUCIBLE-REAL-POSTGRES",
+    "riskTier": "medium",
     "assuranceCeiling": {
       "level": "critical-practical",
       "rationale": "Tenant-scoped SQL authorization in SECURITY DEFINER and browser RLS can leak staff data or break Team Chat after migrations; require negative/positive state matrices, SQL syntax and real target proof.",
@@ -60,28 +53,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The new SQL body is byte-identical to production canonical 20260903180000_inbound_office_email_atomic_v2.sql and SHA256 matches.",
-        "New migration sorts strictly between 0053_digital_office_rls_helper_exposure_closure_v1.sql and 0054_digital_office_real_inbound_foundation_v1.sql according to customer guard ordering.",
-        "Existing 0054 statement revokes public.record_inbound_office_email_v2 signature from PUBLIC, anon, authenticated and service_role after v3 creation, without altering canonical body.",
-        "Customer baseline guard reports 66 ordered files status snapshot-reviewed, null proofContractSha256 and freshInstallProofRequired=true; all targeted Vitest/TypeScript and Control Plane local gates PASS.",
-        "Isolated clean PostgreSQL replay of 0001 through 0064 plus inserted precursor completes without manually injecting producer after migration start; role/fixture differences documented.",
-        "No full Supabase/Fresh Install or Pro Office release completion claim solely from passing PostgreSQL and source tests.",
-        "Prior F7 regression is updated only for actual production dependency chronology; no reduction of SQL behavior validation."
+        "Node script locates PostgreSQL 18 executable suite or errors, creates cluster in chmod 700 temp with listen_addresses empty and session-local socket, and cleans up even on error.",
+        "At runtime script executes fixture, official preflight, 66 on-disk sorted migrations with one file transaction each, official auth-bootstrap+seed+postflight.",
+        "A missing earlier producer fails at exact migrating filename; no fallback stub/dynamic SQL injection allowed.",
+        "Checks real browser role denial for sensitive Office tables, privileged v2/v3 rights, enabled 0060 queue triggers and rollback-only positive/negative SQL DML.",
+        "Only tests/fixtures and optional script changed; no host connection, no CI deployment; Vitest and TypeScript/regression/Control Plane risk gates PASS.",
+        "Script must report local-emulated-postgres proof only and manifest remains snapshot-reviewed/Pro dependency OPEN."
       ],
       "invariants": [
-        "No previously reviewed 0001-0064 bytes change or historical migration removed.",
-        "Sender-only v2 must not remain executable by service_role/anon/authenticated after 0054.",
-        "Original v3 tenant/mailbox/RFC/thread hardened path and 0060 UPDATE guard remain intact.",
-        "New 0053 precursor only used in offline fresh bootstraps before enabling any application request.",
-        "No hosted project mutation."
+        "No PostgreSQL server listens on TCP, no externally configurable database host or credentials.",
+        "All migrations executed directly from ordered customer-baseline, never merged/filtered according to test expectation.",
+        "Missing schema/role rights and real SQL error fail closed, not warning-only.",
+        "All inserted fixture data rolled back, process and temp dir cleaned.",
+        "No source migration or customer data mutation."
       ],
       "forbiddenStates": [
-        "Skipping missing producer with fake no-op stub or ignoring 0054 SQL error.",
-        "Altering 0054 canonical SQL to hide a missing dependency and claiming SHA identity anyway.",
-        "Leaving legacy v2 EXECUTE granted when application traffic begins.",
-        "Treating an assisted diagnostic injection as a clean 65 migration success.",
-        "Rewriting a deployed ledger without new authority.",
-        "Manifest marked ready before real roles/RLS/tenants/provider and dependency closure."
+        "Running pg_ctl in an existing platform/production cluster.",
+        "Accepting PGHOST from env or building remote DSN.",
+        "Giving PASS when SQL on-file migration fails.",
+        "Leaving legacy v2 executable to browser/service roles at completion.",
+        "Leaving privileged data / socket accessible to other host users.",
+        "Calling this test a verified hosted Supabase Fresh Install."
       ]
     },
     "model": {
@@ -113,47 +105,54 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Original 0053a filename fails guard or sorts after 0054",
-        "Canonical body truncated/source hash drift",
-        "Function v2 depends on a missing table/type at 0053",
-        "Original 0054 REVOKE fails on missing overload",
-        "Legacy v2 grant remains on service_role after 0054",
-        "Source test assumes latest migration at end rather than relative order",
-        "Standalone auth fixture silently masks real Supabase role mismatch",
-        "Previously applied migration ledger diverges from new inserted filename",
-        "Duplicate saved source 0053 conflicts with hash files",
-        "Proof tool reports assisted run as clean Fresh Install"
+        "PostgreSQL binaries unavailable",
+        "initdb fails or runs as root",
+        "Unix socket pathname too long",
+        "server accidentally listens on 127.0.0.1",
+        "concurrent rehearsals collide on port",
+        "Supabase fixture lacks managed schema field",
+        "0001 full snapshot role ownership failure",
+        "new migration missing dependency at N",
+        "Auth bootstrap auth.users DDL missing",
+        "unexpected browser table access",
+        "legacy v2 executable",
+        "office thread guard skips UPDATE",
+        "rollback fixture DML accidentally persists",
+        "cleanup fails on kill",
+        "output exposes data or misclaims DONE"
       ],
       "edgeCases": [
-        "File sort 0053_digital before 0053_inbound before 0054",
-        "PostgreSQL 18 fresh zero user rows",
-        "v2 producer includes service_role grant then v3 revokes it",
-        "Customer role has inherited privileges",
-        "v2 overload types text,text,text,text,text",
-        "Real Supabase schema differences",
-        "Previously applied hosted ledger",
-        "Old status snapshot-reviewed null hash",
-        "Legacy canonical table mutation during offline bootstrap"
+        "Empty database with no users",
+        "Pre-existing env PGHOST pointing to prod is ignored",
+        "Two concurrent isolated local harness runs",
+        "Intentionally missing psql binary",
+        "Migration file filename gap/duplicate",
+        "Existing hosted migration ledger not used",
+        "Postgres initialization failure midway",
+        "Test-only SQL error from negative subtransaction",
+        "Old v2 revoke and new v3 execute",
+        "New migration appended after 0064",
+        "SIGINT and Ctrl-C cleanup"
       ]
     },
     "alternatives": [
       {
-        "id": "F18-CANONICAL-PREDECESSOR",
-        "summary": "Insert immutable 0053_inbound producer between existing 0053 and 0054 in unmerged local baseline.",
+        "id": "F19-ISOLATED",
+        "summary": "Ship opt-in isolated PG18 rehearsal with minimum test-only fixture and actual SQL/ACL/trigger tests.",
         "disposition": "selected",
-        "reason": "Preserves canonical SQL identity and fixes actual missing producer proven by PostgreSQL error without hiding it."
+        "reason": "Future schema errors become deterministic, reproducible blockers without hosted Supabase risk or GitHub CI cost."
       },
       {
-        "id": "F18-STUB",
-        "summary": "Create an empty dummy v2 function in test or production just to satisfy REVOKE.",
+        "id": "F19-STATIC",
+        "summary": "Keep only Vitest source body/hash tests.",
         "disposition": "rejected",
-        "reason": "False source/functional evidence and inadequate migration reproducibility."
+        "reason": "Failed to detect missing v2 producer in 65 migration baseline."
       },
       {
-        "id": "F18-EDIT-0054",
-        "summary": "Change old canonical 0054 to conditional REVOKE based on to_regprocedure.",
+        "id": "F19-HOSTED",
+        "summary": "Apply on real staging/platform database every migration.",
         "disposition": "rejected",
-        "reason": "Breaks canonical source hash/historical immutability and can mask expected legacy state."
+        "reason": "Unnecessary production-data risk and cost; later requires explicit target readiness proof."
       }
     ],
     "specialistReviews": [
@@ -161,135 +160,129 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Producer v2 was retired for sender-only risky threading; temporarily restoring it risks unsafe API access if partial migration state is exposed.",
-        "resolution": "Only offline atomic new customer bootstrap before any app traffic; original 0054 revokes all direct execute roles, verify effective privileges and do not publish until full chain completes.",
+        "finding": "Trust authentication on test PG cluster and emulated Supabase roles can be dangerous if TCP exposed or used for hosted acceptance.",
+        "resolution": "Restrict cluster to private socket chmod 700, explicitly set listen_addresses empty, do not accept host DSN, clean process/temp; retain partial status.",
         "evidence": [
-          "supabase/migrations/20260903180000_inbound_office_email_atomic_v2.sql",
-          "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql"
+          "supabase/customer-baseline/manifest.json"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Actual PostgreSQL 18 stopped exactly at 0054 on undefined v2 REVOKE; diagnostic original v2 then 0054-0064 succeeded.",
-        "resolution": "Place whole canonical producer before 0054 and rerun clean isolated PostgreSQL without manual interstitial producer calls, keep logs.",
+        "finding": "Local PG fixture can drift from real Supabase schema but executes real FK/CHECK/TRIGGER logic, so report scope precisely.",
+        "resolution": "Official pre/postflight + deterministic ordered SQL and negative semantics; full Supabase-native proof later.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql"
+          "supabase/customer-baseline/target-postflight.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "New migration filename sits inside source-reviewed unmerged baseline; never retroactively patch a deployed migration ledger.",
-        "resolution": "Confine patch to locally unmerged branch and single SQL subsystem 5/5 budget, require target ledger verification before merge.",
+        "finding": "Harness is test-only quality-infrastructure, not a database DDL production change.",
+        "resolution": "Bound four test-only files, exact parent and Control Plane gates, no CI auto-trigger.",
         "evidence": [
-          "supabase/customer-baseline/manifest.json"
+          "quality/development/active-plan.json"
         ]
       },
       {
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Standalone PG bootstrap uses limited Auth/Storage fixtures; this is valuable SQL runtime evidence, not production-equivalent Supabase or hosted project safety.",
-        "resolution": "Record fixture caveats, keep snapshot-reviewed, continue with real target role/seed/reconciliation gates later.",
+        "finding": "Reusable local runner must not leave costly sandbox resources or local Postgres processes running.",
+        "resolution": "try/finally server stop+rm; no external project or Preview.",
         "evidence": [
-          "supabase/customer-baseline/manifest.json"
+          "supabase/customer-baseline/target-preflight.sql"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F18-01",
-        "scenario": "The initial 65 customer migrations execute on a blank PostgreSQL 18 instance and 0054 REVOKE names an undefined version 2 function.",
-        "finding": "Production-like Fresh Install stops at exactly 0054 instead of completing despite 133/133 static tests.",
-        "resolution": "Append full canonical 20260903180000 producer before 0054 and require an independent clean 66-file PostgreSQL replay, not a dummy function.",
+        "id": "CH-U10A2-F19-01",
+        "scenario": "Run harness with PGHOST set to a hosted Supabase endpoint.",
+        "finding": "An unsafe harness might mistakenly apply 66 migrations to production.",
+        "resolution": "Override PostgreSQL connection env with private Unix socket, fixed test db and random port; reject remote connection inputs.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F18-02",
-        "scenario": "An old app process can call the insecure sender-only v2 during a partially completed bootstrap between 0053 precursor and 0054 revocation.",
-        "finding": "Sender-only conversation merging could leak unrelated customer messages before a safer v3 routes by mailbox/token.",
-        "resolution": "Keep all migrations offline behind no-traffic gate and validate v2 EXECUTE revoked from service_role and browser roles at final state.",
+        "id": "CH-U10A2-F19-02",
+        "scenario": "A missing producer causes migration N to fail while static tests PASS.",
+        "finding": "False readiness repeats template re-acceptance failure pattern.",
+        "resolution": "Run exactly sorted on-disk SQL, report first failing file with psql exit and do not retry with ad hoc SQL.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F18-03",
-        "scenario": "The versioned filename does not sort before 0054, or violates strict four-digit filename grammar.",
-        "finding": "The REVOKE still fails or the guard rejects the new baseline even though a new SQL file exists.",
-        "resolution": "Use 0053_inbound_office_email_atomic_v2.sql after 0053_digital and before 0054, enforce lexicographic order in regression.",
+        "id": "CH-U10A2-F19-03",
+        "scenario": "A bad test SQL exits early leaving an elevated Postgres server running.",
+        "finding": "Leaked local trust cluster or unnecessary ongoing cost.",
+        "resolution": "Runner uses finally cleanup, PostgreSQL only listens on chmod 700 socket, temp directory removed.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F18-04",
-        "scenario": "A developer copies a v2 no-op stub rather than the original canonical producer to make the migration continue.",
-        "finding": "The installation may technically pass but no longer reconstruct the real audited source sequence.",
-        "resolution": "Full canonical source-body byte identity and SHA256 against producer SQL, no stub substitutions.",
+        "id": "CH-U10A2-F19-04",
+        "scenario": "A prior PostgreSQL/Supabase environment exports authentication tokens and CWD connection vars.",
+        "finding": "Sandbox rehearsal could pick up ambient credentials.",
+        "resolution": "Use an explicit PGHOST private path, PGUSER postgres, PGDATABASE local in subprocesses; no provider calls.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F18-05",
-        "scenario": "Original 0054 canonical source is modified to conditional REVOKE while its previously published SHA256 annotation remains unchanged.",
-        "finding": "Historical schema authority and regression data become misleading and prevent deterministic replays.",
-        "resolution": "No edits to 0054 or any other older migration, only add one predecessor and manifest/test files.",
+        "id": "CH-U10A2-F19-05",
+        "scenario": "An Office message function grants insecure v2 EXECUTE to service_role after 0054.",
+        "finding": "Legacy sender-only conversation merge bypass can become callable.",
+        "resolution": "Actual has_function_privilege checks fail closed on anon/authenticated/service_role, v3 service_role only.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F18-06",
-        "scenario": "The assisted diagnostic run with v2 directly injected is accidentally reported as successful clean Fresh Install.",
-        "finding": "Completion Truth would overstate the 65-file release and repeat previous template acceptance error.",
-        "resolution": "Record diagnostic separately and certify only a fresh empty DB with exact on-disk sorted source SQL and no manual insertion.",
+        "id": "CH-U10A2-F19-06",
+        "scenario": "A later SQL disables RLS on the private Office attachments table.",
+        "finding": "Source-only SAST tests may not discover effective role exposure.",
+        "resolution": "Run pg_class.relrowsecurity and actual SET ROLE SELECT attempts expecting permission denied.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F18-07",
-        "scenario": "An already deployed database applied 0054 with v2 present from a different lineage, while the new baseline file is inserted at an old logical position.",
-        "finding": "Replay of a retroactive migration on occupied target could regrant an old dangerous RPC or conflict with migration ledger.",
-        "resolution": "No hosted database writes, check migration ledger under explicit authority before any deployment, and source patch only in unmerged branch.",
+        "id": "CH-U10A2-F19-07",
+        "scenario": "Canonical reply trigger gets recreated as BEFORE INSERT only.",
+        "finding": "An existing job UPDATE can bypass tenant/mailbox validation.",
+        "resolution": "Check actual pg_trigger enabled mask plus rollback-only payload tag-add/strip/modify rejection.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F18-08",
-        "scenario": "The clean standalone PostgreSQL SQL replay succeeds but actual Supabase Auth, Storage or service-role semantics are different.",
-        "finding": "A green schema parse does not establish real RLS, actor binding, object access or subscription downgrade behavior.",
-        "resolution": "Keep status snapshot-reviewed and run disposable Supabase-compatible Auth/Storage/tenant/role integration and full dependency closure before DONE.",
+        "id": "CH-U10A2-F19-08",
+        "scenario": "The fixture simulates auth.users but not full Supabase managed internals.",
+        "finding": "A local PG PASS is incorrectly advertised as complete native Supabase integration.",
+        "resolution": "Label proof LOCAL_POSTGRES_TEST_FIXTURE, leave manifest snapshot-reviewed; require hosted-equivalent disposable testing before DONE.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code PASS BEFORE new SQL+manifest+tests write.",
-      "Canonical full source SHA256 and lexically ordered 0053<new<0054 and v2 retirement assertions.",
-      "Customer baseline 66 ordered SQL guard, full regression/TypeScript and Control Plane Edit-Time/Knowledge/Replay gates.",
-      "Exact previous F17 HEAD release risk single high-risk database-schema unit 5/5.",
-      "Independent zero-state PostgreSQL 18 socket-only database replay of all files with minimum explicitly documented Supabase fixture, no diagnostic injections.",
-      "Effective v2 revoke (anon/authenticated/service_role), preserved v3 grant and RLS fixture scope probes; actual Supabase full proof still blocked.",
-      "All existing previous regression tests, including updated F7 verified ordering, PASS."
+      "Critical Plan Before Code on four test-only files before edit.",
+      "CLI safety and negative regression unit tests plus actual fresh 66-file PostgreSQL empty DB replay.",
+      "Auth bootstrap/seed/official preflight/postflight, exact effective privileges/RLS, Office reply trigger DML proof.",
+      "Edit-Time/ReferenceSync, Knowledge and Incremental Replay plus exact F18 release-risk proof.",
+      "No CI/hosted deployment or false customer capability completion."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F18: isolated PG18 missing canonical v2 predecessor before 0054; add sorted 0053 inbound v2 and correct older F7 ordering regression, 66 migrations no hosted DB writes",
+      "request": "Core #1186 U10A2 F19: reproducible isolated real PostgreSQL customer baseline verification, clean SQL replay, permission/protected Office negative tests, no hosted DB calls",
       "authority": [
-        "database-schema"
+        "quality-knowledge-system"
       ],
-      "mustEdit": [
-        "supabase/customer-baseline/manifest.json",
-        "tests/customer-baseline-office-real-inbound-foundation.test.ts"
-      ],
+      "mustEdit": [],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
-        "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts"
+        "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+        "tests/customer-baseline-postgres-rehearsal.test.ts",
+        "tests/fixtures/customer-baseline-office-reply-negative.sql",
+        "tests/fixtures/customer-baseline-postgres-shim.sql"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code PASS BEFORE new SQL+manifest+tests write.",
-        "Canonical full source SHA256 and lexically ordered 0053<new<0054 and v2 retirement assertions.",
-        "Customer baseline 66 ordered SQL guard, full regression/TypeScript and Control Plane Edit-Time/Knowledge/Replay gates.",
-        "Exact previous F17 HEAD release risk single high-risk database-schema unit 5/5.",
-        "Independent zero-state PostgreSQL 18 socket-only database replay of all files with minimum explicitly documented Supabase fixture, no diagnostic injections.",
-        "Effective v2 revoke (anon/authenticated/service_role), preserved v3 grant and RLS fixture scope probes; actual Supabase full proof still blocked.",
-        "All existing previous regression tests, including updated F7 verified ordering, PASS."
+        "Critical Plan Before Code on four test-only files before edit.",
+        "CLI safety and negative regression unit tests plus actual fresh 66-file PostgreSQL empty DB replay.",
+        "Auth bootstrap/seed/official preflight/postflight, exact effective privileges/RLS, Office reply trigger DML proof.",
+        "Edit-Time/ReferenceSync, Knowledge and Incremental Replay plus exact F18 release-risk proof.",
+        "No CI/hosted deployment or false customer capability completion."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -299,59 +292,54 @@
       "phase": "PLAN",
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
-        "mustEdit": [
-          "supabase/customer-baseline/manifest.json",
-          "tests/customer-baseline-office-real-inbound-foundation.test.ts"
-        ],
+        "mustEdit": [],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
-          "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts"
+          "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+          "tests/customer-baseline-postgres-rehearsal.test.ts",
+          "tests/fixtures/customer-baseline-office-reply-negative.sql",
+          "tests/fixtures/customer-baseline-postgres-shim.sql"
         ],
         "forbidden": [],
         "proof": [],
-        "authority": [
-          "auth-access-authority",
-          "database-schema",
-          "tenant-context-authority"
-        ],
+        "authority": [],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 5,
+        "score": 2,
         "maxPoints": 5,
         "subsystemCount": 1,
         "maxSubsystems": 3,
         "subsystems": [
           {
-            "subsystem": "database-schema",
-            "risk": "high",
-            "points": 5
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
           }
         ],
         "files": [
           {
-            "file": "supabase/customer-baseline/manifest.json",
-            "subsystem": "database-schema",
-            "risk": "high",
-            "points": 5
+            "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
           },
           {
-            "file": "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
-            "subsystem": "database-schema",
-            "risk": "high",
-            "points": 5
-          },
-          {
-            "file": "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+            "file": "tests/customer-baseline-postgres-rehearsal.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
+            "file": "tests/fixtures/customer-baseline-office-reply-negative.sql",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
+          },
+          {
+            "file": "tests/fixtures/customer-baseline-postgres-shim.sql",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -366,38 +354,38 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 5,
+          "score": 2,
           "maxPoints": 5,
           "subsystemCount": 1,
           "maxSubsystems": 3,
           "subsystems": [
             {
-              "subsystem": "database-schema",
-              "risk": "high",
-              "points": 5
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
             }
           ],
           "files": [
             {
-              "file": "supabase/customer-baseline/manifest.json",
-              "subsystem": "database-schema",
-              "risk": "high",
-              "points": 5
+              "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
             },
             {
-              "file": "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
-              "subsystem": "database-schema",
-              "risk": "high",
-              "points": 5
-            },
-            {
-              "file": "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+              "file": "tests/customer-baseline-postgres-rehearsal.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
+              "file": "tests/fixtures/customer-baseline-office-reply-negative.sql",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
+              "file": "tests/fixtures/customer-baseline-postgres-shim.sql",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -412,27 +400,27 @@
           {
             "id": 0,
             "files": [
-              "supabase/customer-baseline/manifest.json"
+              "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
+              "score": 2,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/manifest.json",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "violations": [],
@@ -442,37 +430,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
-                }
-              ],
-              "files": [
-                {
-                  "file": "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 2,
-            "files": [
-              "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts"
+              "tests/customer-baseline-postgres-rehearsal.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -483,7 +441,31 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+                  "file": "tests/customer-baseline-postgres-rehearsal.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 2,
+            "files": [
+              "tests/fixtures/customer-baseline-office-reply-negative.sql"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/fixtures/customer-baseline-office-reply-negative.sql",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -496,7 +478,7 @@
           {
             "id": 3,
             "files": [
-              "tests/customer-baseline-office-real-inbound-foundation.test.ts"
+              "tests/fixtures/customer-baseline-postgres-shim.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -507,7 +489,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
+                  "file": "tests/fixtures/customer-baseline-postgres-shim.sql",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -525,86 +507,84 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "6771d1eafded599f48119befbcb3e26d4ee65d0f"
+              "developmentBaseSha": "c20ecec91527af40593d40301959c3b6635abbd9"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "6771d1eafded599f48119befbcb3e26d4ee65d0f",
+            "targetBaseSha": "c20ecec91527af40593d40301959c3b6635abbd9",
             "lease": {
-              "expectedBaseSha": "6771d1eafded599f48119befbcb3e26d4ee65d0f",
+              "expectedBaseSha": "c20ecec91527af40593d40301959c3b6635abbd9",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
-              "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
-              "tests/customer-baseline-office-real-inbound-foundation.test.ts"
+              "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+              "tests/customer-baseline-postgres-rehearsal.test.ts",
+              "tests/fixtures/customer-baseline-office-reply-negative.sql",
+              "tests/fixtures/customer-baseline-postgres-shim.sql"
             ],
             "operations": [
               {
-                "operation": "modify",
-                "file": "supabase/customer-baseline/manifest.json",
+                "operation": "create",
+                "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
+                "file": "tests/customer-baseline-postgres-rehearsal.test.ts",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+                "file": "tests/fixtures/customer-baseline-office-reply-negative.sql",
                 "generated": null
               },
               {
-                "operation": "modify",
-                "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
+                "operation": "create",
+                "file": "tests/fixtures/customer-baseline-postgres-shim.sql",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [],
-            "authorities": [
-              "database-schema"
-            ],
+            "authorities": [],
             "subsystems": [
-              "database-schema"
+              "quality-infrastructure"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
+              "score": 2,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/manifest.json",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
-                },
-                {
-                  "file": "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+                  "file": "tests/customer-baseline-postgres-rehearsal.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
+                  "file": "tests/fixtures/customer-baseline-office-reply-negative.sql",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                },
+                {
+                  "file": "tests/fixtures/customer-baseline-postgres-shim.sql",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -614,7 +594,6 @@
               "decision": "PASS"
             },
             "requiredGates": [
-              "GUARD-CUSTOMER-BASELINE",
               "GUARD-EDIT-TIME",
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -625,7 +604,6 @@
             ],
             "requiredEvidence": {
               "gateIds": [
-                "GUARD-CUSTOMER-BASELINE",
                 "GUARD-EDIT-TIME",
                 "GUARD-INCREMENTAL-REPLAY",
                 "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -635,8 +613,9 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
-                "tests/customer-baseline-office-real-inbound-foundation.test.ts"
+                "tests/customer-baseline-postgres-rehearsal.test.ts",
+                "tests/fixtures/customer-baseline-office-reply-negative.sql",
+                "tests/fixtures/customer-baseline-postgres-shim.sql"
               ],
               "externalGateIds": []
             },
@@ -647,10 +626,10 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
-                "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
-                "tests/customer-baseline-office-real-inbound-foundation.test.ts"
+                "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+                "tests/customer-baseline-postgres-rehearsal.test.ts",
+                "tests/fixtures/customer-baseline-office-reply-negative.sql",
+                "tests/fixtures/customer-baseline-postgres-shim.sql"
               ],
               "filesAbsent": []
             },
@@ -665,7 +644,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "a61148a2",
+            "manifestDigest": "0ca6aaa5",
             "decision": "PASS"
           }
         ],
@@ -678,7 +657,6 @@
         "contract": "shoporation.gate-chain.v1",
         "phase": "PLAN",
         "orderedGateIds": [
-          "GUARD-CUSTOMER-BASELINE",
           "GUARD-KNOWLEDGE-PREFLIGHT",
           "GUARD-PLAN-BEFORE-CODE",
           "GUARD-EDIT-TIME",
@@ -693,7 +671,6 @@
           "GUARD-RELEASE-RISK"
         ],
         "futureGateIds": [
-          "GUARD-CUSTOMER-BASELINE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
           "GUARD-QUALITY-TESTS",
@@ -705,43 +682,38 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The first actual isolated PostgreSQL 18 replay of 65 Customer Fresh Install source SQLs (with explicitly test-only Supabase Auth/Storage fixture) successfully applied 0001 through 0053 but failed at 0054_digital_office_real_inbound_foundation_v1.sql REVOKE on missing public.record_inbound_office_email_v2(text,text,text,text,text). The canonical producer 20260903180000_inbound_office_email_atomic_v2.sql exists in supabase/migrations but is absent in the customer-baseline chain. A diagnostic continuation adding that exact producer to the disposable DB before 0054 made all 0054-0064 scripts executable. We must repair the pre-0054 dependency in an unmerged local branch as a new ordered SQL source file without altering 0054 canonical content, and then independently prove a clean no-injection replay.",
+    "problemStatement": "F18 first real PostgreSQL baseline exercise found a genuine missing pre-0054 producer that 133/133 static tests missed. A one-off /tmp command sequence is not reproducible and can silently regress when later migrations are added. Implement a guarded read-only-to-repository, local-only isolated postgres execution harness: fail closed without PG18 executables, create a socket-only disposable PG cluster, supply minimal explicit Supabase Auth/Storage schema and roles for compatibility, execute official clean-target preflight, all on-disk migration files lexicographically in transactional order, auth-bootstrap+seed+postflight, and actual negative RLS/grant and Office reply UPDATE trigger tests; return nonzero first failing SQL without changing any production repo SQL or hosted database.",
     "observableOutcomes": [
-      "Create only one new customer baseline migration 0053_inbound_office_email_atomic_v2.sql, lexically after 0053_digital_office_rls_helper_exposure_closure_v1.sql and before 0054 real inbound, full canonical source body plus SHA256 provenance.",
-      "Preserve original 0001-0064 historical migration bytes; v2 is created for referential correctness and remains service_role-only temporarily during offline Fresh Install; 0054 immediately revokes all roles including service_role to retire vulnerable sender-only legacy RPC.",
-      "Add source regression asserting exact v2 signature, privilege chronology, original v3 functional replacement and 0053<new<0054 ordering plus explicit full clean-target proof requirement.",
-      "Keep customer baseline manifest status snapshot-reviewed, freshInstallProofRequired true and proofContractSha256 null; count 66 SQL files.",
-      "Execute all 66 migrations in a newly created, isolated socket-only PostgreSQL 18 database using documented disposable Supabase role/auth/storage fixture, with exact error and first-failing statement if anything fails.",
-      "No Supabase staging/production/Fresh Install target or provider changes, no Vercel Preview, GitHub push, CI or premature DONE.",
-      "Fix earlier F7 source test that assumed direct 0053 to 0054 adjacency; replacement asserts newly justified chronological v2 producer."
+      "New standalone node script verifies local PostgreSQL server commands and creates its own secure temp data/socket directory with listen_addresses empty (no TCP), runs entire on-disk customer-baseline SQL without per-file manual insertion.",
+      "Test-only Supabase shim fixture contains anon/authenticated/service_role/supabase_admin roles, auth.uid()/jwt(), minimal auth.users and storage.buckets/objects columns; fixtures explicitly NOT Supabase runtime parity.",
+      "Official target-preflight, auth-bootstrap, seed, postflight all executed on clean target, any failure aborts.",
+      "Database assertions effective legacy v2 revokes and v3 grant, Office sensitive table effective grants/RLS, enabled INSERT+UPDATE reply guard and UPDATE immutability, and rollback-only DML negative tests.",
+      "No GitHub workflow, package auto-trigger or CI charge; explicit opt-in local node command only, new unit has tests validating safety and fail-closed behavior.",
+      "On exit all processes stopped and temporary folders deleted; no real target connection secrets or external network DB path accepted; no full Supabase/Pro-ready claim."
     ],
     "unresolvedRisks": [
-      "The versioned 0053_inbound file is intentionally inserted in sorted order before previously reviewed 0054; it is safe for currently UNMERGED local baseline only. Any already deployed target would need independent ledger reconciliation instead of retroactive execution.",
-      "Legacy v2 resolves threads by sender and could incorrectly merge discussions if reachable. It must be revoked from public,anon,authenticated,service_role by 0054 before any app/database exposure or publish.",
-      "Standalone PostgreSQL fixtures do not equal a full Supabase-managed Auth/Storage environment; full effective RLS/identity and bucket/provider behavior still need actual Supabase-compatible disposable integration acceptance.",
-      "Actual DB concurrency, service-role actor binding, queue trigger UPDATE, strict Pro-to-Alap access and other Communication Hub dependencies remain unproved.",
-      "A clean SQL replay does not certify real deployment migration ledger, seed, postflight, E2E, email delivery or customer launch readiness.",
-      "Changing F7 historical test is a neutral evidence repair and must not weaken recipient/mailbox/thread assertions."
+      "Actual PostgreSQL 18/supabase compatibility fixture is not full managed Supabase Auth, Storage, JWT, Realtime or object ACL; source-only RLS and local role proof cannot certify hosted runtime.",
+      "Local postgres initdb bootstrap uses trust only on private chmod 700 Unix socket, no TCP and no long-running service; isolation must be tested.",
+      "Postgres command binary versions, package paths or local system constraints may block opt-in harness; hard fail with actionable error rather than skip pretending PASS.",
+      "A test-only fixture can diverge from Supabase managed schema in future; require active maintenance and eventual disposable Supabase-native acceptance.",
+      "CLI timeout/sandbox termination can interrupt cleanup; temp directory randomized and no privileged hosted services used; sandbox teardown is secondary failsafe."
     ],
     "scope": {
       "in": [
-        "New lexicographically interleaved 0053_inbound_office_email_atomic_v2.sql as a verbatim canonical producer before 0054 in the unmerged baseline tree.",
-        "Manifest append-only audit note retaining proof-required state and 66 source files.",
-        "Focused source regression proving predecessor, full SHA, v2/v3 revoke chain and guards.",
-        "Independent isolated socket-only PostgreSQL replay and accurate reporting, not live target.",
-        "Adjust existing F7 source regression to assert 0053_digital -> 0053_inbound -> 0054 exact required prerequisite order, no product SQL change."
+        "Standalone opt-in node PostgreSQL rehearsal runner scripts/shoperation-customer-baseline-postgres-rehearsal.mjs.",
+        "Two test-only fixtures for Supabase Auth/Storage mock and transactional Office negative-path probes.",
+        "Vitest harness regression for fail-closed no PG or missing source and no external network usage."
       ],
       "out": [
-        "No modification of existing 0001–0064 or canonical supabase/migrations original source.",
-        "No application/UI/worker changes, no legacy send endpoint use beyond defining it during offline bootstrap.",
-        "No direct writes or test role changes to staging, production or hosted Fresh Install projects.",
-        "No merging a multi-subsystem release or dispatching GitHub CI or Vercel Preview."
+        "No customer-baseline existing migration, manifest, canonical SQL, auth bootstrap, seed or postflight modification.",
+        "No platform/staging/production/Fresh Install hosted SQL, no GitHub workflow or package auto-run, no Vercel deployment.",
+        "No claim provider mail delivery or native Supabase emulator equivalence."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F18-REAL-PG-PREDECESSOR",
+    "sourceRef": "PO-2026-10-10-CORE-1186-F19-REPRODUCIBLE-REAL-POSTGRES",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -759,11 +731,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F18-CLEAN-PG-CHAIN",
-        "requirement": "Repair missing pre-0054 v2 source in unmerged customer baseline, prove clean PostgreSQL 18 migration chronology and retiring old service role permissions without false Supabase closure.",
+        "id": "REQ-F19-REPRODUCIBLE-DB",
+        "requirement": "Persist a fail-closed, isolated local PG18 customer-baseline replay and negative role/Office trigger acceptance harness, without editing production SQL or confusing it with hosted Supabase proof.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "customer-fresh-install-office-v2-source-order",
+          "breadth": "customer-fresh-install-local-postgres-rehearsal",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -776,7 +748,6 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-CUSTOMER-BASELINE",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
@@ -785,8 +756,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F18-MISSING-PREDECESSOR",
-            "statement": "A new empty target must create v2 producer before 0054 REVOKE, and service_role must lose EXECUTE afterward; actual isolated PostgreSQL plus source proof.",
+            "id": "NEG-F19-MISSING-PRODUCER",
+            "statement": "On missing or failing customer migration, real local Postgres rehearsal must fail nonzero with first filename; never source-only PASS.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -795,5 +766,5 @@
       }
     ]
   },
-  "notes": "F18 real isolated PG18 proof failure at 0054 missing canonical v2 producer; add 0053_inbound prerequisite sorted before 0054, 66 reviewed migrations; no actual hosted DB writes, live identity/security and strict Pro dependencies pending. Development Guard scope widened to F7 ordering source-test correction. Four files only, one database-schema authority."
+  "notes": "F19 opt-in reusable local PostgreSQL replay/test harness; no product DB migration/runtime files touched, no hosted Supabase acceptance claim."
 }
