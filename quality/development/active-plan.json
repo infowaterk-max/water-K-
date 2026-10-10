@@ -1,26 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-9AB61EBE",
-  "task": "Core #1186 U10A2 F27: create source-only Office/Communication RPC actor and tenant inventory contract plus fail-closed drift test, distinguish customer recipients from authenticated actor, no product changes",
+  "taskId": "DEV-87478699",
+  "task": "Core #1186 U10A2 F28: prove Office Composer and Advanced Communication Hub server action actor/tenant/pro plan/delegation/response receipts with dynamic mocked RPC positive-negative tests; narrowly harden mismatched SQL success evidence where proven; source-only no hosted writes",
   "status": "ready-for-implementation",
-  "guardDigest": "9ab61ebe",
-  "changeBaseSha": "69ffbb23af67679d5390866118faf812a32d176b",
+  "guardDigest": "87478699",
+  "changeBaseSha": "dbfe010c8320e728a7d668cc1c4e673ddaa0ab3e",
   "plannedFilePatterns": [
-    "scripts/shoperation-office-rpc-actor-inventory.mjs",
-    "quality/knowledge/office-rpc-actor-inventory.v1.json",
-    "tests/office-rpc-actor-inventory.test.ts",
-    "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md"
+    "tests/office-composer-action-actor-f28.test.ts",
+    "tests/communication-hub-action-actor-f28.test.ts",
+    "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+    "quality/development/active-plan.json",
+    "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
-    "shared-storefront",
+    "admin-operations",
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-ADMIN"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "admin-operations"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -76,22 +76,18 @@
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-004",
     "SQ-NK-006",
-    "SQ-NK-007",
     "SQ-NK-008",
-    "SQ-NK-009",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F27-OFFICE-RPC-INVENTORY",
-    "riskTier": "medium",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F28-OFFICE-ACTIONS",
+    "riskTier": "high",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Tenant-scoped SQL authorization in SECURITY DEFINER and browser RLS can leak staff data or break Team Chat after migrations; require negative/positive state matrices, SQL syntax and real target proof.",
+      "rationale": "Privileged service-role Office RPCs permit caller-supplied actor and tenant identifiers. This unit must prove trusted server provenance and negative rejection with executable isolated Server Action mocks, while native RLS and provider semantics remain out of scope.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -108,25 +104,26 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "All existing static RPC callsites in Office/Communication sensitive category inventory match frozen expected call ids, actor/tenant expressions and manual actor/customer subject classifications.",
-        "A new sensitive .rpc() call or changed p_actor/p_instance_id expression fails --check with actionable filename.",
-        "Recipient p_user_id for customer enqueue is not reported as authenticated user binding.",
-        "Test fixture verifies deliberate modified source causes nonzero audit result, no silent green.",
-        "All tests/typecheck/EditTime/Knowledge/Replay/Plan/risk PASS; no product runtime changes.",
-        "Document source-only proof ceiling and require native actor and tenant validation before release."
+        "All exported Office Composer and advanced Communication Hub actions derive actor and tenant from server authentication/scope, not forged FormData.",
+        "Missing actor, Pro entitlement and missing tenant stop before any privileged RPC invocation.",
+        "Positive mocked draft, advanced ownership, thread relationship and email queue calls use the actual authenticated actor and scoped tenant.",
+        "Delegated send keeps authenticated actor separate from actingForUserId and passes delegation evidence into SQL rather than assuming ownership.",
+        "Mismatched or incomplete RPC receipts are treated as failure, never successful mutation or send.",
+        "Existing Office SQL contract and customer baseline remain unchanged, no hosted Supabase mutation.",
+        "Vitest dynamic action-mock tests, related regression guards, TypeScript and Edit-Time/Knowledge/Replay pass before any F28 commit."
       ],
       "invariants": [
-        "No source RPC caller silently escapes reviewed inventory when literal call is introduced.",
-        "Untrusted input actor is not assumed safe just because field is named input.userId.",
-        "Customer recipient IDs are not conflated with authenticated administrator actor.",
-        "Audit does not send network calls, write to DB or modify product features."
+        "p_actor and p_instance_id originate from authenticated server request and required tenant context.",
+        "No denied access case calls service-role office RPC or revalidates a success path.",
+        "No mismatched returned id or draft/thread evidence can be accepted as successful.",
+        "Recipient customer, delegated user and sales owner fields are never elevated to authenticated p_actor."
       ],
       "forbiddenStates": [
-        "Unknown new RPC silently treated as reviewed.",
-        "Changed p_actor expression ignored by test.",
-        "Snapshot claims every RPC caller authenticated based only on regex.",
-        "Native Supabase provider proof claimed from AST audit.",
-        "Any checkout or production data modification."
+        "Caller-supplied actor or tenant becomes privileged RPC identity.",
+        "Alap user executes Pro-only advanced Office action.",
+        "Cross-tenant target silently passes without database source proof.",
+        "Mock tests are labeled as native Supabase JWT, RLS, provider or live entitlement proof.",
+        "CI/deployment or DB writes initiated by this local isolated unit."
       ]
     },
     "model": {
@@ -158,46 +155,43 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "New service-role Office RPC omitted from snapshot",
-        "Changed actor from auth user to form field",
-        "Changed instance to request JSON",
-        "Two identical RPC calls in same file collide",
-        "Renamed function silently passes",
-        "p_user_id customer misclassified",
-        "Nonliteral rpc function escapes coverage",
-        "Parser fails on TSX",
-        "Untracked generated artifact mistaken for canonical",
-        "Reviewer updates snapshot without validation"
+        "Actor from FormData forged into RPC identity",
+        "Tenant scope missing but action reaches RPC",
+        "Alap missing advanced entitlement reaches privileged RPC",
+        "Cross-tenant targets accepted by mocked RPC but wrongly claimed native proof",
+        "SQL error or inconsistent payload accepted as success",
+        "Delegation subject confused with operator actor",
+        "Misleading static string-test passes in place of executed action"
       ],
       "edgeCases": [
-        "Duplicate call name same file",
-        "Multi-line ObjectLiteral args",
-        "p_actor absent on system-only RPC",
-        "p_user_id is customer recipient",
-        "provider event with p_instance_id",
-        "literal vs computed RPC target",
-        "TSX page source",
-        "new dynamic RPC name blind spot"
+        "Nullable actor and tenant",
+        "Forgery of actorId/userId/instanceId keys",
+        "Missing SQL result fields",
+        "Wrong returned draftId/id",
+        "Wrong returned email id/messageId",
+        "Wrong thread ID for reply",
+        "Delegated actingForUserId differs from actor",
+        "Different target customer/user in advanced relationship update"
       ]
     },
     "alternatives": [
       {
-        "id": "F27-SNAPSHOT",
-        "summary": "Versioned AST-based source RPC caller inventory with manual review and fail-closed drift.",
+        "id": "F28-MOCK-BOUND",
+        "summary": "Vitest isolated dynamic Server Action mocks with strictly scoped response attestation tightening where negatives demonstrate a gap.",
         "disposition": "selected",
-        "reason": "Prevents silent new unreviewed service-role actor/tenant paths without speculative auth code rewrite."
+        "reason": "Gives executable positive and adversarial actor/tenant/plan/receipt proof without database or provider side effects."
       },
       {
-        "id": "F27-FREEZE-ALL",
-        "summary": "Ban all new Office RPCs or rewrite every caller immediately.",
+        "id": "F28-STATIC",
+        "summary": "Add source text assertions to existing Office static tests without importing and invoking actual Server Actions.",
         "disposition": "rejected",
-        "reason": "Blocks valid product work, significant unnecessary auth risk and open package decisions."
+        "reason": "Would not test the real runtime helper provenance and can hide authorization and response-identity mistakes."
       },
       {
-        "id": "F27-REGEX-SAMPLE",
-        "summary": "Test only three previously verified routes.",
+        "id": "F28-REWRITE",
+        "summary": "Rewrite all privileged Office RPCs and move auth into new SQL functions before targeted test evidence exists.",
         "disposition": "rejected",
-        "reason": "Leaves remaining source caller surface unobserved."
+        "reason": "High risk of duplicating canonical authorities and causing DB deployment mismatch, contrary to narrow F28 remit."
       }
     ],
     "specialistReviews": [
@@ -205,8 +199,8 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "AST snapshots are not security proof, especially values passed through helper parameters and service role jobs.",
-        "resolution": "Explicit source-only classification; native JWT and privilege-proof blockers remain and future caller changes fail until review.",
+        "finding": "A mocked service-role client can return any fabricated result; dynamic tests alone cannot prove deployed SQL and JWT/RLS boundaries.",
+        "resolution": "Mark evidence as local action provenance only, keep native Auth and target PostgreSQL/RLS blocker explicit.",
         "evidence": [
           "src/app/admin/kommunikacio/iroda/composer-actions.ts"
         ]
@@ -215,18 +209,18 @@
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Snapshot includes p_user_id subject IDs not always actors and cannot confuse customer recipient vs admin caller.",
-        "resolution": "Store exact named args with independent binding classification and annotate recipient flows.",
+        "finding": "Draft and outbound-mail receipts can contain individually valid but mutually inconsistent IDs.",
+        "resolution": "Challenge mismatched receipts in negative tests, harden existing composer source only if proven.",
         "evidence": [
-          "src/app/api/admin/communication/enqueue/route.ts"
+          "src/app/admin/kommunikacio/iroda/composer-actions.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "One source-only quality infrastructure slice should have limited release risk with no auto CI.",
-        "resolution": "Snapshot, guard, test and note only; exact F26 parent and no deployments.",
+        "finding": "Live hosted database and deployment releases lack necessary target readiness, and F27 is only on backup branch.",
+        "resolution": "Retain F27 as immutable parent, run isolated local tests and source gates, defer deployment/merge.",
         "evidence": [
           "quality/development/active-plan.json"
         ]
@@ -235,99 +229,165 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Fast deterministic local inventory should not run git fetch or connect to hosted databases.",
-        "resolution": "Read-only source scan, compare local JSON, require explicit review for changes.",
+        "finding": "Previous sandbox restarts consumed runtime without passing production readiness gates.",
+        "resolution": "Reuse existing named sandbox for bounded unit, do not issue unnecessary GitHub Actions, Vercel preview, or Supabase write.",
         "evidence": [
-          "scripts/shoperation-office-rpc-actor-inventory.mjs"
+          "AGENTS.md"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-F27-01",
-        "scenario": "Developer adds a privileged admin_queue_office_email_v7 RPC in a new API route.",
-        "finding": "A new service-role caller may bypass authenticated actor and tenant scope.",
-        "resolution": "AST scanner detects new RPC and fails --check until it is classified/reviewed.",
+        "id": "F28-CH1",
+        "scenario": "FormData contains actorId and instanceId belonging to an admin of a different tenant.",
+        "finding": "Server Action must ignore these values and obtain principal and tenant from trusted server scope.",
+        "resolution": "Spy on called RPC parameters and assert they equal mocked authenticated actor/tenant.",
         "status": "resolved"
       },
       {
-        "id": "CH-F27-02",
-        "scenario": "An existing owner transfer p_actor changes from userId to form.get(userId).",
-        "finding": "Actor spoof might reappear despite earlier F26 tests.",
-        "resolution": "Exact normalized p_actor expression snapshot drift causes hard fail.",
+        "id": "F28-CH2",
+        "scenario": "A support.manage actor is missing or has no Pro entitlement.",
+        "finding": "No privileged Office or advanced Hub RPC may be invoked by a denied actor.",
+        "resolution": "Fault-inject null actor and rejected plan gate and assert zero RPC invocations.",
         "status": "resolved"
       },
       {
-        "id": "CH-F27-03",
-        "scenario": "A high-level helper passes input.instanceId from request JSON into Office mutation.",
-        "finding": "Tenant context can be confused across shops.",
-        "resolution": "Changed named instance arg is detected and requires upstream provenance review, never assumed safe.",
+        "id": "F28-CH3",
+        "scenario": "Provider SQL response claims an id that differs from associated returned draftId or messageId.",
+        "finding": "A merely nonempty success receipt can be forged or stale without application noticing.",
+        "resolution": "Add negative success-receipt test and narrowly tighten existing source validation.",
         "status": "resolved"
       },
       {
-        "id": "CH-F27-04",
-        "scenario": "Communication enqueue p_user_id is a customer recipient ID.",
-        "finding": "Mislabeling it as a privileged operator leads to misleading audit findings.",
-        "resolution": "Classify separately as recipient, not verified actor.",
+        "id": "F28-CH4",
+        "scenario": "A staff member uses actingForUserId while composing delegated customer email.",
+        "finding": "Acting-for user is subject, not the actual caller; otherwise audit trail and SQL delegation can be falsified.",
+        "resolution": "Verify separate p_actor and actingForUserId in RPC payload, and prove SQL error is fail closed.",
         "status": "resolved"
       },
       {
-        "id": "CH-F27-05",
-        "scenario": "Two calls of same RPC are present in a file.",
-        "finding": "Snapshot keyed only by function name would silently cover one of them.",
-        "resolution": "Assign deterministic ordinal by encounter order and store each distinct call.",
+        "id": "F28-CH5",
+        "scenario": "Cross-tenant customer or thread target is sent in action payload and mocked SQL returns success.",
+        "finding": "Action-level provenance does not prove SQL member/read and tenant relationship constraints.",
+        "resolution": "Prove actor and tenant binding in action mocks; leave native SQL same-tenant and RLS proof open.",
         "status": "resolved"
       },
       {
-        "id": "CH-F27-06",
-        "scenario": "A newly added TypeScript TSX page calls Office list RPC.",
-        "finding": "A page bypass can leak private metadata.",
-        "resolution": "Scan both .ts and .tsx under src and reject untracked call.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-F27-07",
-        "scenario": "Dynamic function name is used as a call target.",
-        "finding": "Scanner cannot identify exact permissions needed, false certainty.",
-        "resolution": "Count and report dynamic rpc calls as blind spots, reject new dynamic Office-like call changes on sensitive paths.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-F27-08",
-        "scenario": "Snapshot is regenerated by generator without security review.",
-        "finding": "Source-only inventory marked safe despite malicious RPC.",
-        "resolution": "--print never writes; --check reads frozen reviewed file only, describe manual review requirement.",
+        "id": "F28-CH6",
+        "scenario": "Advanced relationships RPC returns a valid-looking success object with wrong target or false advancedEntitlement.",
+        "finding": "UI might report a relationship update despite failed entitlement or target substitution.",
+        "resolution": "Verify explicit target and advancedEntitlement equality checks and fail closed on mismatches.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code before writing files.",
-      "AST scan of src current 55 sensitive RPC callsites, frozen exact actor/instance expressions, manual per-entry actor/recipient/system class.",
-      "Vitest test --check PASS and in-memory injected new call/actor change FAIL.",
-      "TypeScript, related 191 tests, Edit-Time/Knowledge/Replay and exact parent release risk PASS.",
-      "No native Supabase runtime/JWT security claim."
+      "Generate and pass Development Guard plus independent Plan Before Code before implementation.",
+      "Use isolated Vitest imports/mocks to execute Server Actions with forged actor/tenant and denied Pro/scope.",
+      "Prove authenticated identity and scoped tenant are the only p_actor and p_instance_id values sent to privileged RPCs.",
+      "Inject inconsistent draft/email and advanced Hub success receipts; enforce fail-closed behavior.",
+      "Run targeted tests, Office/Team Chat source regressions, TypeScript, customer baseline, Edit-Time/Knowledge/Incremental Replay, and release-risk check.",
+      "No database write, provider send, main merge, new preview, or claim of native JWT/RLS proof."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F27: create source-only Office/Communication RPC actor and tenant inventory contract plus fail-closed drift test, distinguish customer recipients from authenticated actor, no product changes",
+      "request": "Core #1186 U10A2 F28: prove Office Composer and Advanced Communication Hub server action actor/tenant/pro plan/delegation/response receipts with dynamic mocked RPC positive-negative tests; narrowly harden mismatched SQL success evidence where proven; source-only no hosted writes",
       "authority": [
-        "quality-knowledge-system"
+        "admin-operations",
+        "auth-access-authority",
+        "builder-template-system",
+        "catalog-inventory-authority",
+        "commerce-core-authority",
+        "content-authority",
+        "integration-adapter-authority",
+        "quality-knowledge-system",
+        "shared-storefront",
+        "tenant-context-authority"
       ],
-      "mustEdit": [],
-      "mayEdit": [],
-      "impactedReadOnly": [],
-      "mustCreate": [
+      "mustEdit": [
+        "src/app/admin/kommunikacio/iroda/composer-actions.ts"
+      ],
+      "mayEdit": [
+        "quality/development/active-plan.json"
+      ],
+      "impactedReadOnly": [
         "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
-        "quality/knowledge/office-rpc-actor-inventory.v1.json",
-        "scripts/shoperation-office-rpc-actor-inventory.mjs",
-        "tests/office-rpc-actor-inventory.test.ts"
+        "src/app/adatvedelem/page.tsx",
+        "src/app/admin/kommunikacio/chat/page.tsx",
+        "src/app/admin/kommunikacio/iroda/actions.ts",
+        "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
+        "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
+        "src/app/admin/kommunikacio/iroda/hub/page.tsx",
+        "src/app/admin/kommunikacio/iroda/page.tsx",
+        "src/app/admin/kommunikacio/iroda/uj/page.tsx",
+        "src/app/admin/kommunikacio/loading.tsx",
+        "src/app/admin/page.tsx",
+        "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
+        "src/app/admin/ugyfelszolgalat/page.tsx",
+        "src/app/api/admin/communication/manage/route.ts",
+        "src/app/api/admin/office/business-objects/route.ts",
+        "src/app/api/admin/office/delegations/route.ts",
+        "src/app/api/admin/office/email-attachments/prepare/route.ts",
+        "src/app/api/admin/office/email-attachments/scan/route.ts",
+        "src/app/api/admin/office/email-attachments/status/route.ts",
+        "src/app/api/admin/office/support-attention/route.ts",
+        "src/app/api/admin/support/[id]/messages/route.ts",
+        "src/app/api/admin/support/[id]/route.ts",
+        "src/components/admin/digital-office-chat-dock.tsx",
+        "src/components/admin/office-customer-email-form.tsx",
+        "src/components/admin/office-new-email-composer.tsx",
+        "src/components/admin/use-office-draft-autosave.ts",
+        "src/lib/auth/store-rbac.ts",
+        "src/lib/digital-office/access.ts",
+        "src/lib/navigation/admin-ia.ts",
+        "tests/digital-office-autosave-concurrency.test.ts",
+        "tests/digital-office-chat-composer-hardening.test.ts",
+        "tests/digital-office-composer-drafts-foundation.test.ts",
+        "tests/digital-office-internal-chat-capability-gate.test.ts",
+        "tests/digital-office-private-attachments.test.ts",
+        "tests/digital-office-support-ticket-integration.test.ts",
+        "tests/digital-office-unified-ui.test.ts",
+        "tests/fine-grained-store-rbac.test.ts",
+        "tests/merchant-read-page-scope.test.ts",
+        "tests/office-suppression-feedback.test.ts",
+        "tests/pro-entitlement-guards.test.ts"
+      ],
+      "mustCreate": [
+        "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
+        "tests/communication-hub-action-actor-f28.test.ts",
+        "tests/office-composer-action-actor-f28.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code before writing files.",
-        "AST scan of src current 55 sensitive RPC callsites, frozen exact actor/instance expressions, manual per-entry actor/recipient/system class.",
-        "Vitest test --check PASS and in-memory injected new call/actor change FAIL.",
-        "TypeScript, related 191 tests, Edit-Time/Knowledge/Replay and exact parent release risk PASS.",
-        "No native Supabase runtime/JWT security claim."
+        "tests/admin-api-tenant-mutation-closure.test.ts",
+        "tests/admin-growth-refresh-evidence.test.ts",
+        "tests/admin-route-rbac.test.ts",
+        "tests/block5-role-aware-ui.test.ts",
+        "tests/campaign-creation-fail-closed.test.ts",
+        "tests/campaign-lifecycle-evidence-atomicity.test.ts",
+        "tests/campaign-office-mutation-read-safety.test.ts",
+        "tests/communication-app-final-shell.test.ts",
+        "tests/customer-email-plan-split.test.ts",
+        "tests/digital-office-autosave-concurrency.test.ts",
+        "tests/digital-office-chat-composer-hardening.test.ts",
+        "tests/digital-office-composer-drafts-foundation.test.ts",
+        "tests/digital-office-internal-chat-capability-gate.test.ts",
+        "tests/digital-office-privacy-foundation.test.ts",
+        "tests/digital-office-private-attachments.test.ts",
+        "tests/digital-office-support-ticket-integration.test.ts",
+        "tests/digital-office-team-chat-2-foundation.test.ts",
+        "tests/digital-office-unified-ui.test.ts",
+        "tests/digital-office-workstation-final.test.ts",
+        "tests/email-builder-d1-admin-shell.test.ts",
+        "tests/email-builder-d2-editor.test.ts",
+        "tests/email-builder-foundation-b.test.ts",
+        "tests/email-builder-publication-lifecycle.test.ts",
+        "tests/email-builder-saved-blocks.test.ts",
+        "tests/executive-analytics-ux-closure.test.ts",
+        "tests/fine-grained-store-rbac.test.ts",
+        "tests/merchant-read-page-scope.test.ts",
+        "tests/office-suppression-feedback.test.ts",
+        "tests/pro-entitlement-guards.test.ts",
+        "tests/product-documents-merchant-acceptance.test.ts",
+        "tests/team-chat-server-actor-binding.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -337,18 +397,104 @@
       "phase": "PLAN",
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
-        "mustEdit": [],
+        "mustEdit": [
+          "quality/development/active-plan.json",
+          "src/app/admin/kommunikacio/iroda/composer-actions.ts"
+        ],
         "mayEdit": [],
-        "impactedReadOnly": [],
-        "mustCreate": [
+        "impactedReadOnly": [
           "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
-          "quality/knowledge/office-rpc-actor-inventory.v1.json",
-          "scripts/shoperation-office-rpc-actor-inventory.mjs",
-          "tests/office-rpc-actor-inventory.test.ts"
+          "src/app/adatvedelem/page.tsx",
+          "src/app/admin/kommunikacio/chat/page.tsx",
+          "src/app/admin/kommunikacio/iroda/actions.ts",
+          "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
+          "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
+          "src/app/admin/kommunikacio/iroda/hub/page.tsx",
+          "src/app/admin/kommunikacio/iroda/page.tsx",
+          "src/app/admin/kommunikacio/iroda/uj/page.tsx",
+          "src/app/admin/kommunikacio/loading.tsx",
+          "src/app/admin/page.tsx",
+          "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
+          "src/app/admin/ugyfelszolgalat/page.tsx",
+          "src/app/api/admin/communication/manage/route.ts",
+          "src/app/api/admin/office/business-objects/route.ts",
+          "src/app/api/admin/office/delegations/route.ts",
+          "src/app/api/admin/office/email-attachments/prepare/route.ts",
+          "src/app/api/admin/office/email-attachments/scan/route.ts",
+          "src/app/api/admin/office/email-attachments/status/route.ts",
+          "src/app/api/admin/office/support-attention/route.ts",
+          "src/app/api/admin/support/[id]/messages/route.ts",
+          "src/app/api/admin/support/[id]/route.ts",
+          "src/components/admin/digital-office-chat-dock.tsx",
+          "src/components/admin/office-customer-email-form.tsx",
+          "src/components/admin/office-new-email-composer.tsx",
+          "src/components/admin/use-office-draft-autosave.ts",
+          "src/lib/auth/store-rbac.ts",
+          "src/lib/digital-office/access.ts",
+          "src/lib/navigation/admin-ia.ts",
+          "tests/digital-office-autosave-concurrency.test.ts",
+          "tests/digital-office-chat-composer-hardening.test.ts",
+          "tests/digital-office-composer-drafts-foundation.test.ts",
+          "tests/digital-office-internal-chat-capability-gate.test.ts",
+          "tests/digital-office-private-attachments.test.ts",
+          "tests/digital-office-support-ticket-integration.test.ts",
+          "tests/digital-office-unified-ui.test.ts",
+          "tests/fine-grained-store-rbac.test.ts",
+          "tests/merchant-read-page-scope.test.ts",
+          "tests/office-suppression-feedback.test.ts",
+          "tests/pro-entitlement-guards.test.ts"
+        ],
+        "mustCreate": [
+          "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
+          "tests/communication-hub-action-actor-f28.test.ts",
+          "tests/office-composer-action-actor-f28.test.ts"
         ],
         "forbidden": [],
-        "proof": [],
-        "authority": [],
+        "proof": [
+          "tests/admin-api-tenant-mutation-closure.test.ts",
+          "tests/admin-growth-refresh-evidence.test.ts",
+          "tests/admin-route-rbac.test.ts",
+          "tests/block5-role-aware-ui.test.ts",
+          "tests/campaign-creation-fail-closed.test.ts",
+          "tests/campaign-lifecycle-evidence-atomicity.test.ts",
+          "tests/campaign-office-mutation-read-safety.test.ts",
+          "tests/communication-app-final-shell.test.ts",
+          "tests/customer-email-plan-split.test.ts",
+          "tests/digital-office-autosave-concurrency.test.ts",
+          "tests/digital-office-chat-composer-hardening.test.ts",
+          "tests/digital-office-composer-drafts-foundation.test.ts",
+          "tests/digital-office-internal-chat-capability-gate.test.ts",
+          "tests/digital-office-privacy-foundation.test.ts",
+          "tests/digital-office-private-attachments.test.ts",
+          "tests/digital-office-support-ticket-integration.test.ts",
+          "tests/digital-office-team-chat-2-foundation.test.ts",
+          "tests/digital-office-unified-ui.test.ts",
+          "tests/digital-office-workstation-final.test.ts",
+          "tests/email-builder-d1-admin-shell.test.ts",
+          "tests/email-builder-d2-editor.test.ts",
+          "tests/email-builder-foundation-b.test.ts",
+          "tests/email-builder-publication-lifecycle.test.ts",
+          "tests/email-builder-saved-blocks.test.ts",
+          "tests/executive-analytics-ux-closure.test.ts",
+          "tests/fine-grained-store-rbac.test.ts",
+          "tests/merchant-read-page-scope.test.ts",
+          "tests/office-suppression-feedback.test.ts",
+          "tests/pro-entitlement-guards.test.ts",
+          "tests/product-documents-merchant-acceptance.test.ts",
+          "tests/team-chat-server-actor-binding.test.ts"
+        ],
+        "authority": [
+          "admin-operations",
+          "auth-access-authority",
+          "builder-template-system",
+          "catalog-inventory-authority",
+          "commerce-core-authority",
+          "content-authority",
+          "integration-adapter-authority",
+          "quality-knowledge-system",
+          "shared-storefront",
+          "tenant-context-authority"
+        ],
         "unknown": []
       },
       "projectedReleaseRisk": {
@@ -359,32 +505,38 @@
         "maxSubsystems": 3,
         "subsystems": [
           {
-            "subsystem": "quality-infrastructure",
+            "subsystem": "admin-operations",
             "risk": "medium",
             "points": 2
           }
         ],
         "files": [
           {
-            "file": "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
+            "file": "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "quality/knowledge/office-rpc-actor-inventory.v1.json",
-            "subsystem": "quality-infrastructure",
+            "file": "quality/development/active-plan.json",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
+          },
+          {
+            "file": "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+            "subsystem": "admin-operations",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "scripts/shoperation-office-rpc-actor-inventory.mjs",
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
+            "file": "tests/communication-hub-action-actor-f28.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
           },
           {
-            "file": "tests/office-rpc-actor-inventory.test.ts",
+            "file": "tests/office-composer-action-actor-f28.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -405,32 +557,38 @@
           "maxSubsystems": 3,
           "subsystems": [
             {
-              "subsystem": "quality-infrastructure",
+              "subsystem": "admin-operations",
               "risk": "medium",
               "points": 2
             }
           ],
           "files": [
             {
-              "file": "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
+              "file": "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "quality/knowledge/office-rpc-actor-inventory.v1.json",
-              "subsystem": "quality-infrastructure",
+              "file": "quality/development/active-plan.json",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
+              "file": "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+              "subsystem": "admin-operations",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "scripts/shoperation-office-rpc-actor-inventory.mjs",
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
+              "file": "tests/communication-hub-action-actor-f28.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
             },
             {
-              "file": "tests/office-rpc-actor-inventory.test.ts",
+              "file": "tests/office-composer-action-actor-f28.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -445,7 +603,7 @@
           {
             "id": 0,
             "files": [
-              "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md"
+              "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -456,7 +614,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
+                  "file": "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -469,27 +627,21 @@
           {
             "id": 1,
             "files": [
-              "quality/knowledge/office-rpc-actor-inventory.v1.json"
+              "quality/development/active-plan.json"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 0,
               "maxPoints": 5,
-              "subsystemCount": 1,
+              "subsystemCount": 0,
               "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
+              "subsystems": [],
               "files": [
                 {
-                  "file": "quality/knowledge/office-rpc-actor-inventory.v1.json",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "file": "quality/development/active-plan.json",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
                 }
               ],
               "violations": [],
@@ -499,7 +651,7 @@
           {
             "id": 2,
             "files": [
-              "scripts/shoperation-office-rpc-actor-inventory.mjs"
+              "src/app/admin/kommunikacio/iroda/composer-actions.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -509,15 +661,15 @@
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "quality-infrastructure",
+                  "subsystem": "admin-operations",
                   "risk": "medium",
                   "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-office-rpc-actor-inventory.mjs",
-                  "subsystem": "quality-infrastructure",
+                  "file": "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+                  "subsystem": "admin-operations",
                   "risk": "medium",
                   "points": 2
                 }
@@ -529,7 +681,7 @@
           {
             "id": 3,
             "files": [
-              "tests/office-rpc-actor-inventory.test.ts"
+              "tests/communication-hub-action-actor-f28.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -540,7 +692,31 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/office-rpc-actor-inventory.test.ts",
+                  "file": "tests/communication-hub-action-actor-f28.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 4,
+            "files": [
+              "tests/office-composer-action-actor-f28.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/office-composer-action-actor-f28.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -558,49 +734,63 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "69ffbb23af67679d5390866118faf812a32d176b"
+              "developmentBaseSha": "dbfe010c8320e728a7d668cc1c4e673ddaa0ab3e"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "69ffbb23af67679d5390866118faf812a32d176b",
+            "targetBaseSha": "dbfe010c8320e728a7d668cc1c4e673ddaa0ab3e",
             "lease": {
-              "expectedBaseSha": "69ffbb23af67679d5390866118faf812a32d176b",
+              "expectedBaseSha": "dbfe010c8320e728a7d668cc1c4e673ddaa0ab3e",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
-              "quality/knowledge/office-rpc-actor-inventory.v1.json",
-              "scripts/shoperation-office-rpc-actor-inventory.mjs",
-              "tests/office-rpc-actor-inventory.test.ts"
+              "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
+              "quality/development/active-plan.json",
+              "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+              "tests/communication-hub-action-actor-f28.test.ts",
+              "tests/office-composer-action-actor-f28.test.ts"
             ],
             "operations": [
               {
                 "operation": "create",
-                "file": "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
+                "file": "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "quality/development/active-plan.json",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "src/app/admin/kommunikacio/iroda/composer-actions.ts",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "quality/knowledge/office-rpc-actor-inventory.v1.json",
+                "file": "tests/communication-hub-action-actor-f28.test.ts",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "scripts/shoperation-office-rpc-actor-inventory.mjs",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "tests/office-rpc-actor-inventory.test.ts",
+                "file": "tests/office-composer-action-actor-f28.test.ts",
                 "generated": null
               }
             ],
-            "requiredDependencyFiles": [],
-            "authorities": [],
+            "requiredDependencyFiles": [
+              "src/lib/auth/admin-api.ts",
+              "src/lib/instances/scope.ts",
+              "src/lib/plans/access.ts",
+              "src/lib/supabase/admin.ts"
+            ],
+            "authorities": [
+              "admin-operations",
+              "quality-knowledge-system"
+            ],
             "subsystems": [
-              "quality-infrastructure"
+              "admin-operations"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -610,32 +800,38 @@
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "quality-infrastructure",
+                  "subsystem": "admin-operations",
                   "risk": "medium",
                   "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
+                  "file": "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "quality/knowledge/office-rpc-actor-inventory.v1.json",
-                  "subsystem": "quality-infrastructure",
+                  "file": "quality/development/active-plan.json",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                },
+                {
+                  "file": "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+                  "subsystem": "admin-operations",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "scripts/shoperation-office-rpc-actor-inventory.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "file": "tests/communication-hub-action-actor-f28.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
                 },
                 {
-                  "file": "tests/office-rpc-actor-inventory.test.ts",
+                  "file": "tests/office-composer-action-actor-f28.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -645,40 +841,95 @@
               "decision": "PASS"
             },
             "requiredGates": [
+              "GUARD-COMPLETION-TRUTH",
+              "GUARD-CUSTOMER-BASELINE",
               "GUARD-EDIT-TIME",
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-MARKET-READY",
               "GUARD-PLAN-BEFORE-CODE",
+              "GUARD-PRODUCTION-BUILD",
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK",
+              "GUARD-TEMPLATE-FACTORY",
               "GUARD-TYPECHECK"
             ],
             "requiredEvidence": {
               "gateIds": [
+                "GUARD-COMPLETION-TRUTH",
+                "GUARD-CUSTOMER-BASELINE",
                 "GUARD-EDIT-TIME",
                 "GUARD-INCREMENTAL-REPLAY",
                 "GUARD-KNOWLEDGE-PREFLIGHT",
+                "GUARD-MARKET-READY",
                 "GUARD-PLAN-BEFORE-CODE",
+                "GUARD-PRODUCTION-BUILD",
                 "GUARD-QUALITY-TESTS",
                 "GUARD-RELEASE-RISK",
+                "GUARD-TEMPLATE-FACTORY",
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/office-rpc-actor-inventory.test.ts"
+                "tests/communication-hub-action-actor-f28.test.ts",
+                "tests/office-composer-action-actor-f28.test.ts"
               ],
-              "externalGateIds": []
+              "externalGateIds": [
+                "GUARD-TEMPLATE-FACTORY"
+              ]
             },
             "forbiddenPaths": [],
-            "readOnlyPaths": [],
+            "readOnlyPaths": [
+              "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
+              "src/app/adatvedelem/page.tsx",
+              "src/app/admin/kommunikacio/chat/page.tsx",
+              "src/app/admin/kommunikacio/iroda/actions.ts",
+              "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
+              "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
+              "src/app/admin/kommunikacio/iroda/hub/page.tsx",
+              "src/app/admin/kommunikacio/iroda/page.tsx",
+              "src/app/admin/kommunikacio/iroda/uj/page.tsx",
+              "src/app/admin/kommunikacio/loading.tsx",
+              "src/app/admin/page.tsx",
+              "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
+              "src/app/admin/ugyfelszolgalat/page.tsx",
+              "src/app/api/admin/communication/manage/route.ts",
+              "src/app/api/admin/office/business-objects/route.ts",
+              "src/app/api/admin/office/delegations/route.ts",
+              "src/app/api/admin/office/email-attachments/prepare/route.ts",
+              "src/app/api/admin/office/email-attachments/scan/route.ts",
+              "src/app/api/admin/office/email-attachments/status/route.ts",
+              "src/app/api/admin/office/support-attention/route.ts",
+              "src/app/api/admin/support/[id]/messages/route.ts",
+              "src/app/api/admin/support/[id]/route.ts",
+              "src/components/admin/digital-office-chat-dock.tsx",
+              "src/components/admin/office-customer-email-form.tsx",
+              "src/components/admin/office-new-email-composer.tsx",
+              "src/components/admin/use-office-draft-autosave.ts",
+              "src/lib/auth/store-rbac.ts",
+              "src/lib/digital-office/access.ts",
+              "src/lib/navigation/admin-ia.ts",
+              "tests/digital-office-autosave-concurrency.test.ts",
+              "tests/digital-office-chat-composer-hardening.test.ts",
+              "tests/digital-office-composer-drafts-foundation.test.ts",
+              "tests/digital-office-internal-chat-capability-gate.test.ts",
+              "tests/digital-office-private-attachments.test.ts",
+              "tests/digital-office-support-ticket-integration.test.ts",
+              "tests/digital-office-unified-ui.test.ts",
+              "tests/fine-grained-store-rbac.test.ts",
+              "tests/merchant-read-page-scope.test.ts",
+              "tests/office-suppression-feedback.test.ts",
+              "tests/pro-entitlement-guards.test.ts"
+            ],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
-                "quality/knowledge/office-rpc-actor-inventory.v1.json",
-                "scripts/shoperation-office-rpc-actor-inventory.mjs",
-                "tests/office-rpc-actor-inventory.test.ts"
+                "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
+                "quality/development/active-plan.json",
+                "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+                "tests/communication-hub-action-actor-f28.test.ts",
+                "tests/office-composer-action-actor-f28.test.ts"
               ],
               "filesAbsent": []
             },
@@ -693,7 +944,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "07768db9",
+            "manifestDigest": "9d92b3ec",
             "decision": "PASS"
           }
         ],
@@ -711,8 +962,13 @@
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
           "GUARD-QUALITY-TESTS",
+          "GUARD-TYPECHECK",
+          "GUARD-PRODUCTION-BUILD",
+          "GUARD-COMPLETION-TRUTH",
+          "GUARD-CUSTOMER-BASELINE",
+          "GUARD-MARKET-READY",
           "GUARD-RELEASE-RISK",
-          "GUARD-TYPECHECK"
+          "GUARD-TEMPLATE-FACTORY"
         ],
         "currentPhaseGateIds": [
           "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -723,66 +979,80 @@
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
           "GUARD-QUALITY-TESTS",
-          "GUARD-TYPECHECK"
+          "GUARD-TYPECHECK",
+          "GUARD-PRODUCTION-BUILD",
+          "GUARD-COMPLETION-TRUTH",
+          "GUARD-CUSTOMER-BASELINE",
+          "GUARD-MARKET-READY",
+          "GUARD-TEMPLATE-FACTORY"
         ],
-        "externalGateIds": [],
+        "externalGateIds": [
+          "GUARD-TEMPLATE-FACTORY"
+        ],
         "issues": [],
         "decision": "PASS"
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "F26 audited 3 Team Chat entry points and 191/191 source/API tests but broader Office/Communication Hub has about 55 RPC calls across 35 files with intermediate input.userId, actorId, service-only actor-scoped SQL, and p_user_id customer recipients. Future changes can silently route caller-controlled actor/tenant values to privileged service-role RPC without being noticed by tests. Introduce a TypeScript AST-based source-only inventory of all statically named Office/communication/chat/thread/support/email/inbound RPC calls including literal argument bindings, with manually reviewed baseline classification for actor vs customer subject and fail-closed drift gate/test. Do not rewrite product logic or claim JWT/RLS native security proof.",
+    "problemStatement": "The current Digital Office Composer and advanced Communication Hub use service-role RPCs which accept p_actor and p_instance_id supplied by the application. F27 inventory classifies these sources but does not execute the actions, leaving indirect helper provenance, missing Pro/tenant failure handling, delegated email subject separation and inconsistent RPC success receipts unproven. F28 supplies bounded positive and negative dynamic tests and narrow fail-closed response checks without changing deployed SQL or using the hosted database.",
     "observableOutcomes": [
-      "Inventory AST checks all TypeScript and TSX src files for literal .rpc calls matching Office/Communication Hub RPC names; prints accurate call/file counts and snapshot of p_actor, p_instance_id, p_user_id.",
-      "Reviewed canonical snapshot lists each existing sensitive RPC call with file, name and argument expression, classifies authenticated actor vs recipient/system-scoped with source-only attestation; caller-controlled deltas require explicit review.",
-      "--check exits nonzero if a new RPC name/callsite appears, an actor/instance argument expression changes, a call is deleted/renamed or a reviewed entry becomes undocumented; --print is nonmutating for review.",
-      "Unit tests assert baseline coverage, deliberate new RPC and forged actor mutation fail closed against inventory comparator, source-only classification, no network calls.",
-      "Non-authoritative dated audit note explicitly separates 55 source calls from native authenticated JWT/RLS and provider integration and flags service-only p_actor attack surface.",
-      "No business SQL/route/actor runtime or customer baseline changes, Control Plane and regression PASS."
+      "Runnable mocks execute actual exported Composer and Hub Server Actions and confirm source identity matches authenticated request and scoped tenant even with malicious form fields.",
+      "Null auth actor, absent tenant and denied Pro all prevent privileged service-role RPC invocation.",
+      "Draft/send success receives complete consistent identifiers and negative inconsistent results fail closed.",
+      "Hub relationship and mailbox responsibility reject false entitlement and mismatched target receipts.",
+      "Local artifact states source-only proof ceiling and separates native Supabase/JWT/SQL and effective subscription blockers."
     ],
     "unresolvedRisks": [
-      "Static callsite/argument matching cannot prove transitive helper trust, signing of a Supabase JWT, or runtime RLS; manual review and dynamic tests needed.",
-      "Functions using nonliteral names or indirect RPC wrappers are not recognized; the script reports blind spots and limits claims.",
-      "A snapshot may be consciously changed to accept an unsafe actor mapping: review and stronger dynamic tests required before main acceptance.",
-      "Recipient p_user_id in enqueue_communication_v2 represents a customer subject, not an authenticated actor; review classification must not conflate these."
+      "Mock Supabase client does not prove actual role grants, JWT claims, service-role RPC deployed schema or native RLS.",
+      "External email provider send path and tenant-specific mailbox credentials are not tested in this F28 unit.",
+      "Pro to Alap transition and Fresh Install migration lineage require separate native database proof."
     ],
     "scope": {
       "in": [
-        "AST-based local deterministic sensitive RPC inventory command with --print/--check.",
-        "Versioned reviewed source-only snapshot, test fail-closed drift and factual evidence note."
+        "Local Office Composer Server Action mocks",
+        "Advanced Communication Hub Server Action mocks",
+        "Source-level response attestation fix if test fails"
       ],
       "out": [
-        "No prod routes, SQL, permission/plan rules, billing, Supabase Auth implementation or provider deployment change.",
-        "No GitHub Actions auto-install nor hosted project calls or PR push."
+        "Managed Supabase writes or native auth/RLS acceptance",
+        "Live email provider send and webhooks",
+        "Package commercial design changes",
+        "Vercel Preview deployment"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F27-OFFICE-RPC-INVENTORY",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F28-OFFICE-ACTIONS",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
-        "GUARD-CUSTOMER-BASELINE",
         "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-EDIT-TIME",
         "GUARD-INCREMENTAL-REPLAY",
         "GUARD-QUALITY-TESTS",
+        "GUARD-TYPECHECK",
+        "GUARD-PRODUCTION-BUILD",
+        "GUARD-COMPLETION-TRUTH",
+        "GUARD-CUSTOMER-BASELINE",
+        "GUARD-MARKET-READY",
         "GUARD-RELEASE-RISK",
-        "GUARD-TYPECHECK"
+        "GUARD-TEMPLATE-FACTORY"
       ],
-      "externalGuards": [],
+      "externalGuards": [
+        "GUARD-TEMPLATE-FACTORY"
+      ],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-F27-RPC-INVENTORY",
-        "requirement": "Every statically named sensitive Office/Communication RPC caller must have a reviewed actor/tenant binding in a fail-closed local snapshot guard; changes surface security review, not native Supabase proof.",
+        "id": "REQ-F28-OFFICE-ACTION-PROVENANCE",
+        "requirement": "Executable isolated Server Action positive and negative tests prove server-owned actor and tenant, strict Pro entitlement and fail-closed success receipts without claiming native database proof.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "static-source-rpc-binding-audit",
-          "strength": 1,
+          "breadth": "office-composer-advanced-hub-local-action-spy",
+          "strength": 2,
           "dimensions": [
             "scope",
             "forbidden-state",
@@ -794,7 +1064,8 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-QUALITY-TESTS",
+            "GUARD-TYPECHECK"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS"
@@ -802,8 +1073,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F27-UNREVIEWED-RPC",
-            "statement": "New/modified Office RPC actor/instance binding must not pass without snapshot review.",
+            "id": "NEG-F28-SPOOF",
+            "statement": "Forged operator or tenant fields never become privileged p_actor and p_instance_id.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          },
+          {
+            "id": "NEG-F28-RECEIPT",
+            "statement": "Contradictory or incomplete RPC receipts never return successful send/mutation.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -812,5 +1090,8 @@
       }
     ]
   },
-  "notes": "F27 static source-only Office/Communication RPC inventory, change-detection quality gate; no native Auth/tenant completion claim."
+  "notes": [
+    "F28 excludes live hosted Supabase, email send, native RLS and actual entitlement downgrade; source-only dynamic mock proof.",
+    "F28 semantic implementation authority clarification: active-plan.json is development metadata and is listed as mayEdit, not an executable mustEdit. getChangedFiles classifies it in metadataFiles; substantive composer-actions.ts remains mustEdit. No guard exception or relaxation of real implementation requirement."
+  ]
 }
