@@ -1,14 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2 F8: append-only 0055 canonical inbound mailbox normalization and uniqueness source, no real DB writes",
+  "task": "Core #1186 U10A2 F9: append-only 0056 canonical inbound mailbox and route service-role least privilege, route composite FK index, no live DB writes",
   "status": "ready-for-implementation",
   "guardDigest": "2ebcb98e",
-  "changeBaseSha": "83b414e4e8ea85e7020fd25842a856e38ab68846",
+  "changeBaseSha": "085ba2f4b549feb29656141f7f245d548f889f67",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0055_digital_office_mailbox_normalization_v1.sql",
+    "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-office-mailbox-normalization.test.ts"
+    "tests/customer-baseline-office-inbound-least-privilege.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -38,7 +38,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F8-MAILBOX-NORMALIZATION",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F9-INBOUND-LEAST-PRIVILEGE",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -59,24 +59,26 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "New 0055 canonical SQL body matches production 20260908030500 SHA256",
-        "SQL adds constraints for lower(trim(inbound_address)) and lower(trim(mailbox_key))",
-        "Prior 0054 mailbox foundation present and strict order 0054→0055",
-        "Manifest snapshot-reviewed, proofContractSha256 null, Fresh Install required, guard 56",
-        "No prior Alap/Pro Team Chat entitlement changes or false ready claim"
+        "0056 SQL is full unchanged canonical 20260908031000 body with correct SHA256 and after 0055.",
+        "Both secret routing tables have explicit revoke all from service_role and later CRUD-only grants without DDL.",
+        "Existing 0054 RLS and anon/authenticated table revokes remain intact; no direct browser route token grants are created.",
+        "Composite thread-instance FK index exists with same column order (thread_id,instance_id).",
+        "Customer baseline guard PASS with 57 files, snapshot-reviewed and old proof hash null, focused and TypeScript tests PASS.",
+        "No source tests mistaken for actual Postgres effective role/GRANT/DDL, or full Office/Pro capability closure."
       ],
       "invariants": [
-        "Mailbox keys and addresses cannot differ only by upper case/whitespace on future DB",
-        "Historical 0001–0054 not changed",
-        "Reply tokens remain service-only through 0054",
-        "No real target DDL or data cleanup during source proof"
+        "Routing reply_token remains confidential to service-side data operations.",
+        "service_role is not explicitly granted TRUNCATE, REFERENCES or TRIGGER by F9.",
+        "FK index uses thread_id before instance_id, preserving canonical optimization.",
+        "No direct anon/authenticated read or write GRANT to Office mailbox and reply route tables.",
+        "Existing 0001–0055 SQL is immutable; same canonical SQL body is source of truth."
       ],
       "forbiddenStates": [
-        "Constraint absent despite apparent source match",
-        "Wrong table altered",
-        "Applied before office_mailboxes exists",
-        "Old ready/hash claimed valid",
-        "Staging mailboxes edited without data preflight"
+        "A customer browser reads reply_token through a new F9 grant.",
+        "F9 omits REVOKE and leaves service_role grant all in source.",
+        "Index swaps instance_id and thread_id, defeating intended FK access path.",
+        "Proof manifest marks ready despite no new actual Fresh Install.",
+        "Occupied staging or production SQL is mutated by source migration checks."
       ]
     },
     "model": {
@@ -108,44 +110,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Existing invalid mailbox row breaks ALTER ADD CHECK",
-        "Address aliases bypass lookup",
-        "Mailbox key aliases duplicate",
-        "Canonical SQL copied incomplete",
-        "Migration ordered before mailbox table",
-        "Provider worker uses incompatible normalization",
-        "Old manifest stale proof",
-        "Wrong release base causes over-budget risk"
+        "A source copy retains GRANT ALL while omitting REVOKE ALL to service_role.",
+        "An ACL inherited through PUBLIC or owner means effective service privileges differ despite direct grants.",
+        "Anonymous Data API access accidentally added to secret routing table.",
+        "Composite route FK index missing or reversed.",
+        "DDL applied before tables from 0054 exist.",
+        "F9 SQL order executes GRANT before REVOKE, leaving privileges absent or broad.",
+        "Existing index name collides with different definition on occupied target.",
+        "Canonical source hash drifts or SQL lines truncated.",
+        "Manifest reuses invalid old proofContractSha256.",
+        "Later Office/Pro engine marked DONE despite missing upstream RPC chain."
       ],
       "edgeCases": [
-        "Uppercase domain",
-        "Trailing space",
-        "Leading whitespace",
-        "Mixed-case mailbox key",
-        "Empty input",
-        "Old invalid rows",
-        "Case-insensitive unique address index",
-        "Repeated migration"
+        "Role inherited from other role",
+        "Database table owner bypasses grants",
+        "PUBLIC default table privileges",
+        "Index exists with incompatible definition",
+        "Thread UUID from another instance",
+        "Concurrent route insert/delete",
+        "Composite FK with (thread_id,instance_id) ordering",
+        "Existing mailbox address not normalized",
+        "Missing 0054 table",
+        "Service worker uses TRIGGER/REFERENCES privilege unexpectedly"
       ]
     },
     "alternatives": [
       {
-        "id": "F8-CANONICAL",
-        "summary": "Append exactly canonical 0055 constraints after 0054",
+        "id": "F9-CANONICAL",
+        "summary": "Append unchanged canonical least-privilege SQL after 0055 and prove SHA256/order.",
         "disposition": "selected",
-        "reason": "Preserves single SQL authority with bounded release risk"
+        "reason": "Avoids diverging access-control implementations and confines risky DB change."
       },
       {
-        "id": "F8-APP-ONLY",
-        "summary": "Normalize only in the admin app",
+        "id": "F9-APP-RBAC",
+        "summary": "Implement least privilege only in worker application middleware.",
         "disposition": "rejected",
-        "reason": "Direct SQL/worker writes bypass app invariants"
+        "reason": "Cannot constrain actual SQL table ACL or leaked routing secrets."
       },
       {
-        "id": "F8-BULK",
-        "summary": "Combine mailbox least-privilege and advanced SQL in one patch",
+        "id": "F9-BATCH-ADVANCED",
+        "summary": "Bundle least privilege with Composer and Advanced Office migrations in 0056.",
         "disposition": "rejected",
-        "reason": "Breaks order/proof and release risk isolation"
+        "reason": "Violates required ordered dependency proof and risk isolation."
       }
     ],
     "specialistReviews": [
@@ -153,18 +159,18 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Occupied staging with nonnormalized mailbox rows may fail locking ALTER TABLE; source equality cannot prove runtime.",
-        "resolution": "Keep snapshot-reviewed, no live apply, require target preflight and disposable replay.",
+        "finding": "Direct REVOKE service_role does not establish effective ACL under PostgreSQL inherited roles/table ownership or other grants.",
+        "resolution": "Source proof only and block release pending disposable PostgreSQL has_table_privilege and anon/authenticated negative tests.",
         "evidence": [
-          "supabase/migrations/20260908030500_digital_office_mailbox_normalization_v1.sql"
+          "supabase/migrations/20260908031000_digital_office_real_inbound_least_privilege_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Requires office_mailboxes table from 0054.",
-        "resolution": "Prove 0054 before 0055 and exact original SHA256.",
+        "finding": "Index on thread_id,instance_id must match canonical route FK and wait for 0054 table.",
+        "resolution": "Retain exact source and assert 0054/0055 ordered prerequisites and intended index.",
         "evidence": [
           "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql"
         ]
@@ -173,8 +179,8 @@
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Only isolated DB migration fits 5/5 risk.",
-        "resolution": "Only SQL, manifest, neutral tests, no Preview/CI.",
+        "finding": "Database security privilege release is high risk and constrained to one subsystem.",
+        "resolution": "Only 0056 SQL, manifest and neutral test with exact-parent risk 5/5; no GitHub push/Preview.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -183,8 +189,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "No target environment has verified current migration ledger.",
-        "resolution": "No occupied DB writes until full lineage proof.",
+        "finding": "Staging is not a disposable Fresh Install target and may carry different ACLs and indexes.",
+        "resolution": "No SQL target write, preserve reviewed state and require ledger/role preflight before any rollout.",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -192,71 +198,71 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F8-01",
-        "scenario": "A new Office mailbox is entered in uppercase and whitespace even though inbound webhook normalizes the address to lowercase before routing.",
-        "finding": "Database accepts an alias that the webhook cannot match reliably, so inbound mail may be assigned to another address or lost.",
-        "resolution": "Add the canonical inbound_address=lower(trim(inbound_address)) CHECK in 0055 and later replay an invalid INSERT on real test DB.",
+        "id": "CH-U10A2-F9-01",
+        "scenario": "A service_role worker tries to truncate office_mailboxes while processing inbound mail because its former grant was ALL.",
+        "finding": "Overbroad table privileges would allow destructive DDL-like operations unnecessary for ingestion.",
+        "resolution": "Apply canonical REVOKE ALL followed only by select,insert,update,delete on office_mailboxes, and later prove effective TRUNCATE denied.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F8-02",
-        "scenario": "A tenant creates two mailbox keys with differently cased spelling while a server-side worker uses lowercased key to resolve a route.",
-        "finding": "Case-variant mailbox keys create inconsistent identity and may bypass expected key uniqueness or direct tenant routing behavior.",
-        "resolution": "Add the exact mailbox_key=lower(trim(mailbox_key)) CHECK and assert the original unique index remains in 0054.",
+        "id": "CH-U10A2-F9-02",
+        "scenario": "A worker calls REFERENCES or TRIGGER operation on office_thread_email_routes after the grant repair.",
+        "finding": "An unintended privilege may persist despite CRUD-only expectations and change routing enforcement.",
+        "resolution": "Preserve exact canonical service_role revoke/regrant for routes; later inspect effective PostgreSQL grants.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F8-03",
-        "scenario": "An occupied staging table already contains a mailbox address with trailing whitespace before the 0055 migration is deployed.",
-        "finding": "PostgreSQL ALTER TABLE ADD CHECK can fail on existing rows or take a lock and disrupt active inbound tenant messages.",
-        "resolution": "Keep staging untouched, require read-only invalid-row count/lock assessment and a separate rollback-safe data remediation before target migration.",
+        "id": "CH-U10A2-F9-03",
+        "scenario": "An authenticated browser attempts selecting reply_token from office_thread_email_routes.",
+        "finding": "A secret reply address routing token could be leaked if a role grant or RLS policy is broadened.",
+        "resolution": "Assert no new browser grants in 0056 and preserve 0054 RLS + anon/authenticated revokes; require DB negative actor test.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F8-04",
-        "scenario": "A new customer installation attempts 0055 normalization while 0054 mailbox foundation was skipped due to divergent migration ledger.",
-        "finding": "The Office mailbox table is missing and ALTER TABLE fails before the rest of the customer bootstrap can complete.",
-        "resolution": "Require strictly ordered append-only 0054 followed by 0055 in baseline guard and subsequent disposable empty-target proof.",
+        "id": "CH-U10A2-F9-04",
+        "scenario": "The composite FK causes deletes from office_threads to scan routes without a matching leading thread_id index.",
+        "finding": "Tenant data deletion may degrade due to swapped index columns despite both appearing in a name.",
+        "resolution": "Require exact office_thread_email_routes_thread_instance_idx on (thread_id,instance_id), not reversed.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F8-05",
-        "scenario": "A developer copies only DROP CONSTRAINT IF EXISTS from the canonical source but accidentally omits the subsequent ADD CHECK statements.",
-        "finding": "Future mailbox aliases become accepted despite tests seeing a matching constraint name and DROP statement in source.",
-        "resolution": "Prove full byte-for-byte SHA256 identity against canonical source and verify both ADD CONSTRAINT CHECK predicates.",
+        "id": "CH-U10A2-F9-05",
+        "scenario": "The index already exists on occupied target with same name but incompatible definition.",
+        "finding": "CREATE INDEX IF NOT EXISTS may silently skip a wrong index and performance proof would be misleading.",
+        "resolution": "Keep source unchanged, mandate later real pg_indexes definition reconciliation and do not claim target readiness.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F8-06",
-        "scenario": "A browser attempts SELECT from office_thread_email_routes after the mailbox normalization change and finds an old default GRANT.",
-        "finding": "The secret reply_token used by external inbound routing could be exposed even though normalization tests pass.",
-        "resolution": "Assert the unchanged 0054 RLS and explicit anon/authenticated revoke; require future real PostgreSQL effective privilege probes.",
+        "id": "CH-U10A2-F9-06",
+        "scenario": "A new Fresh Install runs 0056 before creating the office_mailboxes table in 0054.",
+        "finding": "REVOKE/GRANT and CREATE INDEX statements fail with missing relation during bootstrap.",
+        "resolution": "Assert 0054 and 0055 come before 0056 in ordered customer baseline and require eventual clean replay.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F8-07",
-        "scenario": "Release metadata automatically marks Fresh Install READY after 0055 because the migration count increased to 56.",
-        "finding": "CI may overstate full Office release completeness even though 0056 least-privilege, advanced provider SQL and runtime role proof are absent.",
-        "resolution": "Retain status=snapshot-reviewed, freshInstallProofRequired=true and proofContractSha256=null plus explicit outstanding dependency chain.",
+        "id": "CH-U10A2-F9-07",
+        "scenario": "PUBLIC or inherited role grants access to mailbox despite direct service_role restriction.",
+        "finding": "Source checks can report least privilege while effective PostgreSQL privilege remains broader.",
+        "resolution": "Keep release partial, require real has_table_privilege checks for PUBLIC, anon, authenticated, service_role.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F8-08",
-        "scenario": "The 0055 migration bundles 0056 service_role privilege changes and later Communication Hub advanced functions to reduce file count.",
-        "finding": "The 5/5 budget will mask unrelated privilege/routing behavior and break the independent source lineage proof required for safe rollout.",
-        "resolution": "Limit F8 strictly to canonical 0055 SQL+manifest+neutral tests, and create a separate guarded 0056 work unit afterwards.",
+        "id": "CH-U10A2-F9-08",
+        "scenario": "A new 0056 baseline is marked ready based only on its source hash.",
+        "finding": "CI would falsely certify real Office provider/RPC and strict Pro subscription behavior while later dependencies are absent.",
+        "resolution": "Keep manifest snapshot-reviewed with freshInstallProofRequired true and no old proof hash until full target acceptance.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code PASS before 0055 write",
-      "Canonical full body+SHA test and both negative alias SQL CHECKs",
-      "Baseline 56 snapshot-reviewed, SQL syntax, TypeScript tests",
-      "Edit-Time Sync, Knowledge, Incremental Replay",
-      "Exact-base release risk 5/5 and future actual target proof"
+      "Critical Plan Before Code PASS before editing 0056 implementation files.",
+      "Full canonical SHA256/body and explicit service_role CRUD grants, composite index and secret browser-revoke tests.",
+      "Customer baseline guard 57 ordered migrations snapshot-reviewed; SQL syntax and TypeScript.",
+      "Edit-Time Reference/Implementation Sync, Knowledge Preflight and full-shadow Incremental Replay.",
+      "Exact prior-head Release Risk 5/5, no live DB target rights, real role proof deferred."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F8: append-only 0055 canonical inbound mailbox normalization and uniqueness source, no real DB writes",
+      "request": "Core #1186 U10A2 F9: append-only 0056 canonical inbound mailbox and route service-role least privilege, route composite FK index, no live DB writes",
       "authority": [
         "database-schema"
       ],
@@ -266,16 +272,16 @@
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0055_digital_office_mailbox_normalization_v1.sql",
-        "tests/customer-baseline-office-mailbox-normalization.test.ts"
+        "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
+        "tests/customer-baseline-office-inbound-least-privilege.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code PASS before 0055 write",
-        "Canonical full body+SHA test and both negative alias SQL CHECKs",
-        "Baseline 56 snapshot-reviewed, SQL syntax, TypeScript tests",
-        "Edit-Time Sync, Knowledge, Incremental Replay",
-        "Exact-base release risk 5/5 and future actual target proof"
+        "Critical Plan Before Code PASS before editing 0056 implementation files.",
+        "Full canonical SHA256/body and explicit service_role CRUD grants, composite index and secret browser-revoke tests.",
+        "Customer baseline guard 57 ordered migrations snapshot-reviewed; SQL syntax and TypeScript.",
+        "Edit-Time Reference/Implementation Sync, Knowledge Preflight and full-shadow Incremental Replay.",
+        "Exact prior-head Release Risk 5/5, no live DB target rights, real role proof deferred."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -291,8 +297,8 @@
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0055_digital_office_mailbox_normalization_v1.sql",
-          "tests/customer-baseline-office-mailbox-normalization.test.ts"
+          "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
+          "tests/customer-baseline-office-inbound-least-privilege.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -324,13 +330,13 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0055_digital_office_mailbox_normalization_v1.sql",
+            "file": "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           },
           {
-            "file": "tests/customer-baseline-office-mailbox-normalization.test.ts",
+            "file": "tests/customer-baseline-office-inbound-least-privilege.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -364,13 +370,13 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0055_digital_office_mailbox_normalization_v1.sql",
+              "file": "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             },
             {
-              "file": "tests/customer-baseline-office-mailbox-normalization.test.ts",
+              "file": "tests/customer-baseline-office-inbound-least-privilege.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -415,7 +421,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0055_digital_office_mailbox_normalization_v1.sql"
+              "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -432,7 +438,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0055_digital_office_mailbox_normalization_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -445,7 +451,7 @@
           {
             "id": 2,
             "files": [
-              "tests/customer-baseline-office-mailbox-normalization.test.ts"
+              "tests/customer-baseline-office-inbound-least-privilege.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -456,7 +462,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-office-mailbox-normalization.test.ts",
+                  "file": "tests/customer-baseline-office-inbound-least-privilege.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -474,21 +480,21 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "83b414e4e8ea85e7020fd25842a856e38ab68846"
+              "developmentBaseSha": "085ba2f4b549feb29656141f7f245d548f889f67"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "83b414e4e8ea85e7020fd25842a856e38ab68846",
+            "targetBaseSha": "085ba2f4b549feb29656141f7f245d548f889f67",
             "lease": {
-              "expectedBaseSha": "83b414e4e8ea85e7020fd25842a856e38ab68846",
+              "expectedBaseSha": "085ba2f4b549feb29656141f7f245d548f889f67",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0055_digital_office_mailbox_normalization_v1.sql",
-              "tests/customer-baseline-office-mailbox-normalization.test.ts"
+              "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
+              "tests/customer-baseline-office-inbound-least-privilege.test.ts"
             ],
             "operations": [
               {
@@ -498,12 +504,12 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0055_digital_office_mailbox_normalization_v1.sql",
+                "file": "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-office-mailbox-normalization.test.ts",
+                "file": "tests/customer-baseline-office-inbound-least-privilege.test.ts",
                 "generated": null
               }
             ],
@@ -535,13 +541,13 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0055_digital_office_mailbox_normalization_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 },
                 {
-                  "file": "tests/customer-baseline-office-mailbox-normalization.test.ts",
+                  "file": "tests/customer-baseline-office-inbound-least-privilege.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -572,7 +578,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-office-mailbox-normalization.test.ts"
+                "tests/customer-baseline-office-inbound-least-privilege.test.ts"
               ],
               "externalGateIds": []
             },
@@ -584,8 +590,8 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0055_digital_office_mailbox_normalization_v1.sql",
-                "tests/customer-baseline-office-mailbox-normalization.test.ts"
+                "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
+                "tests/customer-baseline-office-inbound-least-privilege.test.ts"
               ],
               "filesAbsent": []
             },
@@ -600,7 +606,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "7c07c1de",
+            "manifestDigest": "e30b8f74",
             "decision": "PASS"
           }
         ],
@@ -640,35 +646,37 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Fresh Install 0054 introduced tenant Office mailbox tables with unique address/key indexes. A separate canonical normalization SQL 20260908030500 adds database CHECK constraints for lowercase/trimming to block case/whitespace routing aliases. F8 is source-only append after 0054; actual occupied mailbox rows have not been checked for ALTER TABLE compatibility, so deployment remains BLOCKED.",
+    "problemStatement": "The reviewed customer baseline 0054 introduces service-only Office mailbox and secret reply-token route tables, and 0055 normalizes their mailbox identity. Canonical production source 20260908031000 immediately follows to revoke all service_role privileges and regrant only SELECT, INSERT, UPDATE, DELETE while creating an index in thread_id,instance_id order for the composite FK. Without append-only 0056, Fresh Install diverges from canonical least-privilege SQL, but source equality alone cannot demonstrate effective inherited PostgreSQL privileges.",
     "observableOutcomes": [
-      "Append canonical SQL as 0055 exactly with SHA256 provenance",
-      "Both inbound_address and mailbox_key require lower(trim(value)) via SQL CHECK",
-      "Keep 0001-0054 immutable and 0054 immediately before 0055",
-      "Customer baseline guard reports 56 ordered migrations snapshot-reviewed and Fresh Install proof required",
-      "No real target migration or completion claim"
+      "New 0056 migration byte-for-byte copies canonical 20260908031000 Digital Office real inbound least-privilege SQL with SHA256 source authority.",
+      "Both office_mailboxes and office_thread_email_routes lose direct service_role ALL grants and regain only four CRUD grants, with no added anon/authenticated permissions.",
+      "Composite office_thread_email_routes_thread_instance_idx index covers (thread_id,instance_id) matching FK checks/deletes.",
+      "Immutable 0001–0055 customer baseline remains in order; manifest snapshot-reviewed, freshInstallProofRequired true and null previous contract hash with 57 migration files.",
+      "Run focused source/negative tests and baseline/Control Plane guards PASS; no real DB service role/effective privilege or Pro Office DONE claim."
     ],
     "unresolvedRisks": [
-      "Occupied target mailbox rows may violate new constraints; require read-only staging source/provenance and data preflight before rollout",
-      "No actual Postgres parser, RLS/GRANT or runtime test, only source hash and static regressions",
-      "Later 0056 least-privilege and Advanced Office SQL still missing",
-      "Source normalization does not verify inbound provider routing, DNS or webhook"
+      "Effective service_role privileges might include inherited/owner/PUBLIC paths; source REVOKE/GRANT is not role-level security acceptance until real PostgreSQL checks.",
+      "Real target may have existing altered grants/ownership and unexpected index lock/DDL issues; occupied staging is read-only.",
+      "Office composer/drafts/recipient/inbound provider and subsequent Communication Hub 2.0 advanced table/function migrations remain absent.",
+      "U10A1 strict Pro Office subscription SQL is separate, unmerged and cannot be marked released."
     ],
     "scope": {
       "in": [
-        "New canonical 0055 mailbox normalization SQL, sha provenance, tests",
-        "Manifest note preserving snapshot-reviewed"
+        "One append-only customer baseline 0056 SQL from original canonical least-privilege source with SHA256.",
+        "Manifest note preserving reviewed/not-Fresh-Installed state.",
+        "Focused SQL source, GRANT order/index, tenant secret protection and invariant regression tests."
       ],
       "out": [
-        "No 0056 or advanced Communication Hub SQL, no rewrites",
-        "No provider, staging, production, Fresh Install database operation",
-        "No Preview, CI or branch push"
+        "No modifications to 0001-0055 or canonical SQL in supabase/migrations.",
+        "No provider worker/webhook/DNS operations or target PostgreSQL SQL writes.",
+        "No 0057+ composer/drafts or Advanced Office migration in same 5/5 DB release.",
+        "No GitHub push, CI dispatch, Vercel Preview or main merge without Fresh Install and cost policy."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F8-MAILBOX-NORMALIZATION",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F9-INBOUND-LEAST-PRIVILEGE",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -686,11 +694,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F8-MAILBOX",
-        "requirement": "Append canonical 0055 lower/trim mailbox address/key constraints while preserving snapshot-reviewed state and immutable history.",
+        "id": "REQ-U10A2-F9-LEAST",
+        "requirement": "Append canonical 0056 least-privilege mailbox/routing source with service_role CRUD-only and composite FK index, no false Fresh Install acceptance.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-mailbox-normalization",
+          "breadth": "office-inbound-service-role-sql-source",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -712,8 +720,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F8-ALIAS",
-            "statement": "Case and whitespace mailbox aliases must fail on future real DB; source identity test now.",
+            "id": "NEG-U10A2-F9-GRANT",
+            "statement": "Original GRANT ALL from service_role must be revoked before only CRUD is regranted, and browser routing secrets remain inaccessible.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -722,5 +730,5 @@
       }
     ]
   },
-  "notes": "F8 0055 canonical mailbox normalization source-only after F7; F9 service-role least privilege, complete Communication Hub and U10A1 Pro SQL + target proof still BLOCK."
+  "notes": "U10A2 F9 0056 inbound least privilege canonical source; F8 0055 parent; modern 0057+ composer/drafts/Communication Hub and U10A1 Pro SQL plus real role Fresh Install proof pending."
 }
