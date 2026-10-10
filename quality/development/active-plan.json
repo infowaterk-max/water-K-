@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1186-U09-DB-READINESS",
   "task": "Core 1186 U09: read-only fail-closed Digital Office staging DB RLS and migration readiness gate, no schema changes",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "6d41d00a",
   "changeBaseSha": "68170dfb7d78bcf065a52540dda5bc9218009600",
   "plannedFilePatterns": [
@@ -728,5 +728,18 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "bc9cf8e0e194e27ab9155b15c45282ceb2ca8d6a",
+    "closedAt": "2026-10-10T06:57:58.521Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U09-DB-READINESS",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
