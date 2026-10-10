@@ -1,14 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2 F16: append-only 0063 canonical Office recipient envelope and private attachment metadata foundation, no target DB/provider writes",
+  "task": "Core #1186 U10A2 F17: append-only 0064 canonical Office attachment metadata storage locator integrity constraints, no live DB/provider writes",
   "status": "ready-for-implementation",
   "guardDigest": "2ebcb98e",
-  "changeBaseSha": "39bb4b9aac20df8f691dae3fafbe624a1f21a214",
+  "changeBaseSha": "351bea28051ddbd29aa1e914bb5c4034bec7b301",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
+    "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-office-recipient-envelope.test.ts"
+    "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -38,7 +38,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F16-RECIPIENT-ENVELOPE",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F17-ATTACHMENT-INTEGRITY",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -59,27 +59,26 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "0063 source body exactly matches production 20260909203604 with SHA256 identity.",
-        "Cc/Bcc fields and count CHECKs are present on both Office drafts and messages; helper normalizes/deduplicates recipients with limit and role revokes.",
-        "Office attachment metadata table maintains exactly-one draft/message anchor, tenant-bound composite FKs, size bounds, RLS and explicit browser grants revoked.",
-        "Versioned mutate_v3 and queue_v4 RPCs preserve actor/tenant permission and send idempotency/recipient checks and service-role grants.",
-        "Previous 0061/0062 optimistic revision/first-reply singleton remain unchanged and 0063 ordered after 0062.",
-        "64 SQL baseline, 100% focused tests/typecheck and postcommit sync/replay/risk gates PASS; actual PostgreSQL and Pro-only capability remain BLOCKED."
+        "Complete canonical 0064 SQL unchanged with SHA256, exactly ordered after 0063.",
+        "Three named constraints and original COMMENT statements for storage pair, ready locator and deleted locator.",
+        "Ready may use provider ID alone, non-ready states may have null metadata, deleted cannot retain pointers.",
+        "Preceding 0063 attachment RLS and browser revokes intact.",
+        "65 ordered migrations snapshot-reviewed, TypeScript/quality gates PASS, real target/Storage proof pending."
       ],
       "invariants": [
-        "Recipient Cc/Bcc count bounded, normalized and duplicate-eliminated, including collision with To where applicable.",
-        "No attachment row crosses instance boundary to another tenant draft or Office message.",
-        "Exactly one attachment owner among draft_id or message_id.",
-        "Direct browser roles cannot read/write Office attachment metadata.",
-        "No actual external storage upload, provider mail, live DB execution or email transmission.",
-        "Canonical migration SQL identity immutable."
+        "No half-specified private Storage locator.",
+        "No ready row without provider/storage locator.",
+        "No deleted row retaining live Storage/provider identifiers.",
+        "No altered RLS grants or binary uploads.",
+        "Canonical source/history preserved and no false READY status."
       ],
       "forbiddenStates": [
-        "A cross-tenant attachment draft or message link is accepted on real DB.",
-        "An attachment is orphaned or linked to both a draft and a message.",
-        "A browser role directly SELECTs or writes attachment metadata through a new grant.",
-        "Cc/Bcc over-limit or invalid address input silently accepted by guarded RPC.",
-        "Source-only test marks actual Fresh Install/Provider/Pro DONE."
+        "storage_bucket nonnull with null path",
+        "ready with no locator or blank provider ID",
+        "deleted with provider ID or bucket/path",
+        "source tests interpreted as bucket ACL proof",
+        "historical SQL overwritten",
+        "snapshot ready without database acceptance"
       ]
     },
     "model": {
@@ -111,54 +110,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Office messages baseline table absent or mismatched schema",
-        "Missing office_drafts or office_messages instance-index prerequisite",
-        "Cc/Bcc array CHECK or normalization omitted",
-        "Recipient list includes duplicate or To alias",
-        "Cross-instance composite FK missing",
-        "Attachment sizes/sha validation missing",
-        "RLS not enabled or PUBLIC table default privileges",
-        "Unauthorized service_role p_actor forged",
-        "Draft v3 RPC discards revision check",
-        "Queue v4 bypasses active mailbox or idempotency",
-        "Function versioned overload SQL errors",
-        "Production source hash copied incompletely",
-        "Manifest prematurely ready"
+        "Existing invalid rows fail constraint",
+        "NULL SQL three-valued check surprises runtime",
+        "Whitespace provider ID passes ready check",
+        "Ready provider-only row wrongly rejected",
+        "Deleted source pointer remains",
+        "Missing COMMENT for a constraint",
+        "Attachment table absent",
+        "PUBLIC role sees attachment metadata",
+        "Incomplete canonical copy",
+        "Premature readiness"
       ],
       "edgeCases": [
-        "Empty/null CC list",
-        "Repeated mixed-case recipient",
-        "BCC duplicate of To/CC",
-        "More than 10 recipients",
-        "Invalid JSON list type",
-        "Attachment with neither owner",
-        "Attachment with both owners",
-        "Cross-tenant draft UUID",
-        "Attachment size 0 or >25 MB",
-        "Missing storage bucket",
-        "Untrusted MIME filename",
-        "Legacy recipient envelope columns",
-        "Multiple simultaneous autosaves"
+        "both storage fields null",
+        "both populated",
+        "only bucket",
+        "only path",
+        "ready provider-only",
+        "ready whitespace provider ID",
+        "deleted with stale provider ID",
+        "registered with no locator",
+        "quarantined before upload",
+        "failed upload cleanup"
       ]
     },
     "alternatives": [
       {
-        "id": "F16-CANONICAL",
-        "summary": "Append exact 20260909203604 recipient/attachment SQL in one dependency-preserving 0063.",
+        "id": "F17-CANONICAL",
+        "summary": "Append original three CHECKs and comments in 0064 with SHA256.",
         "disposition": "selected",
-        "reason": "Keeps governed SQL authority and required cross-function semantics while preserving 5/5 database-schema scope."
+        "reason": "Ensures one canonical DB state contract and bounded release risk."
       },
       {
-        "id": "F16-SPLIT",
-        "summary": "Copy only Cc/Bcc field migrations and omit attachment metadata and new RPC versions.",
+        "id": "F17-UI-ONLY",
+        "summary": "Validate ready/deleted and locator fields solely in React/admin API.",
         "disposition": "rejected",
-        "reason": "Breaks downstream producer dependencies and claim closure with incomplete versioned functions."
+        "reason": "Service-role/backfill SQL bypasses UI and direct data writes."
       },
       {
-        "id": "F16-ADVANCED",
-        "summary": "Jump directly to Communication Hub advanced source before recipient and attachment producers.",
+        "id": "F17-SKIP",
+        "summary": "Skip integrity and jump to Advanced Office.",
         "disposition": "rejected",
-        "reason": "Missing schema/RPC dependencies and insecure premature completion."
+        "reason": "Leaves metadata state invariants broken and dependencies unresolved."
       }
     ],
     "specialistReviews": [
@@ -166,28 +159,28 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "SECURITY DEFINER RPC actor binding and storage object access cannot be validated by static migration strings.",
-        "resolution": "Keep blocked until real Postgres RLS/role/tenant tests, server caller session binding and Storage policy/attachment download gates.",
+        "finding": "Metadata constraints do not enforce Storage policy, binary scan or authorized object download.",
+        "resolution": "Mark source-only and require real Storage, tenant/actor ACL and cleanup acceptance before release.",
         "evidence": [
-          "supabase/migrations/20260909203604_digital_office_recipient_envelope_v1.sql"
+          "supabase/migrations/20260909203629_digital_office_attachment_metadata_integrity_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Attachment cross-tenant composite FK requires ID+instance unique indexes and existing office_drafts/messages tables.",
-        "resolution": "Canonical migration supplies indexes before attachment table; assert predecessor 0057/0062 and source body identity.",
+        "finding": "Invalid historical locator/status rows may prevent ALTER TABLE CHECK in occupied target.",
+        "resolution": "No live apply; separate read-only incompatible-row inventory, remediation and rollback.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql"
+          "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Combined canonical recipient envelope and attachment metadata is high risk but one SQL source release unit.",
-        "resolution": "One 0063 SQL, manifest and tests, exact F15 risk 5/5; no Preview/CI.",
+        "finding": "Only one DB-schema subsystem must stay 5/5 budget.",
+        "resolution": "Source SQL+manifest+neutral tests, exact F16 base, no Preview/CI.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -196,8 +189,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Existing tenants may not have new attachment bucket/recipient arrays or SMTP sender verification.",
-        "resolution": "Do not run occupied target/provider operations; require clean-target rehearsal and storage/provider readiness proof.",
+        "finding": "Deleting locator is not Storage object deletion and provider storage may remain.",
+        "resolution": "Keep object lifecycle/cleanup separate dependency and no external writes.",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -205,72 +198,71 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F16-01",
-        "scenario": "An external actor supplies Cc/Bcc entries with mixed case, whitespace and duplicate of the To recipient.",
-        "finding": "Incorrect normalization can create unintended duplicate recipients and leak private message headers.",
-        "resolution": "Preserve canonical private.normalize_office_email_list_v1, dedupe with excluded list and per-field count constraints; demand real provider acceptance.",
+        "id": "CH-U10A2-F17-01",
+        "scenario": "Upload worker sets a storage bucket then crashes before writing storage path.",
+        "finding": "A partial locator cannot be securely resolved for download and should never persist.",
+        "resolution": "The storage_pair CHECK compares bucket/path nullness and rejects mismatch.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F16-02",
-        "scenario": "A draft payload contains a recipient array with invalid JSON types or >10 distinct addresses.",
-        "finding": "Malformed inputs might bypass recipient envelope checks or overload provider recipient limits.",
-        "resolution": "Retain office_jsonb_text_array_v1 conversion guard, address validation and cardinality CHECK on drafts/messages.",
+        "id": "CH-U10A2-F17-02",
+        "scenario": "A ready attachment has no bucket/path and no provider attachment ID.",
+        "finding": "The UI could display an unusable download and misstate attachment readiness.",
+        "resolution": "Ready CHECK requires full pair or nonblank trimmed provider ID.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F16-03",
-        "scenario": "An attachment row references a draft of another webshop while using a locally valid instance_id.",
-        "finding": "A data/API worker could leak a tenant draft attachment across organizations.",
-        "resolution": "Require composite foreign key (draft_id,instance_id) to office_drafts(id,instance_id), similarly messages.",
+        "id": "CH-U10A2-F17-03",
+        "scenario": "An attachment is stored with third-party provider ID but no internal bucket/path.",
+        "finding": "An overly broad requirement for internal Storage would reject legitimate provider-only attachments.",
+        "resolution": "Keep provider_attachment_id as valid alternative for ready state.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F16-04",
-        "scenario": "An attachment row uses both draft_id and message_id or neither.",
-        "finding": "Ambiguous attachment ownership can leak drafts into inbound messages or create orphan metadata.",
-        "resolution": "Retain exactly-one-anchor CHECK on attachment row.",
+        "id": "CH-U10A2-F17-04",
+        "scenario": "An attachment is marked deleted while retaining bucket, path or provider ID.",
+        "finding": "Residual private metadata can disclose stale locators and obstruct cleanup.",
+        "resolution": "Deleted CHECK requires all locator fields NULL.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F16-05",
-        "scenario": "Anonymous or authenticated user SELECTs private attachment metadata directly through Data API.",
-        "finding": "File names, SHA and provider attachment IDs could reveal private correspondence.",
-        "resolution": "Enable RLS and revoke all table grants from public,anon,authenticated; verify effective privileges on disposable target.",
+        "id": "CH-U10A2-F17-05",
+        "scenario": "A quarantined or registered attachment has not yet obtained any object locator.",
+        "finding": "A universal locator requirement would break valid ingestion and scanning lifecycle.",
+        "resolution": "Constraints only strengthen ready and deleted status transitions.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F16-06",
-        "scenario": "A forged service_role caller queues email with another operator p_actor or unrelated instance.",
-        "finding": "Definer RPC bypasses row-level security and actor impersonation can send across tenant.",
-        "resolution": "Preserve source checks and require real server request-to-actor identity proof before final release.",
+        "id": "CH-U10A2-F17-06",
+        "scenario": "Occupied staging contains old rows with storage_bucket but no storage_path.",
+        "finding": "Adding CHECK would fail or lock a populated Office table at deployment.",
+        "resolution": "Demand read-only incompatible-row inventory and approved remediation plan before live apply.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F16-07",
-        "scenario": "A draft v3 autosave arrives with stale revision after another tab already saved new recipients.",
-        "finding": "Cc/Bcc may overwrite latest content if revision protection dropped by new version.",
-        "resolution": "Preserve expectedRevision optimistic predicate in admin_mutate_office_draft_v3 and add runtime two-tab race later.",
+        "id": "CH-U10A2-F17-07",
+        "scenario": "Authenticated browser selects Office attachment metadata even though CHECKs are valid.",
+        "finding": "Correct row consistency does not prevent cross-tenant file metadata leakage.",
+        "resolution": "Preserve 0063 RLS/browser revokes and require real effective PostgreSQL+Storage policy test.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F16-08",
-        "scenario": "A migration author copies 0063 only partially, omitting one RPC GRANT/REVOKE or index.",
-        "finding": "Table source checks might PASS while live new mail/attachment API fails or is exposed.",
-        "resolution": "Verify byte-identical entire canonical SQL body with SHA256 plus versioned RPC grants and dependent tables in regression.",
+        "id": "CH-U10A2-F17-08",
+        "scenario": "A developer copies only two of three constraints yet declares F17 complete.",
+        "finding": "Deleted attachment provider pointers might remain and release truth would be false.",
+        "resolution": "Byte-for-byte SHA256 canonical source identity plus three CHECK and COMMENT tests.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code PASS before editing canonical 0063 SQL.",
-      "Canonical source SHA256 full identity and recipient/attachment tenant/grant/RPC tests.",
-      "Customer baseline 64 ordered migrations snapshot-reviewed, complete U10A2 source regression and TypeScript.",
-      "Edit-Time Reference/Implementation Sync/PO retention, Knowledge Preflight and Incremental Replay FULL shadow.",
-      "Exact F15 head Release Risk 5/5 and no real target/vendor result overclaim.",
-      "Disposable Postgres role/tenant/attachment/FK and provider/storage flow acceptance outstanding."
+      "Critical Plan Before Code PASS before 0064 SQL edit.",
+      "Source full SHA256 and three locator state checks plus comments regression.",
+      "Baseline 65 snapshot-reviewed and TypeScript/full tests.",
+      "Edit-Time Sync, Knowledge Preflight and Incremental Replay.",
+      "Exact F16 release risk 5/5; real DB and Storage/object ACL still BLOCKED."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F16: append-only 0063 canonical Office recipient envelope and private attachment metadata foundation, no target DB/provider writes",
+      "request": "Core #1186 U10A2 F17: append-only 0064 canonical Office attachment metadata storage locator integrity constraints, no live DB/provider writes",
       "authority": [
         "database-schema"
       ],
@@ -280,17 +272,16 @@
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
-        "tests/customer-baseline-office-recipient-envelope.test.ts"
+        "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
+        "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code PASS before editing canonical 0063 SQL.",
-        "Canonical source SHA256 full identity and recipient/attachment tenant/grant/RPC tests.",
-        "Customer baseline 64 ordered migrations snapshot-reviewed, complete U10A2 source regression and TypeScript.",
-        "Edit-Time Reference/Implementation Sync/PO retention, Knowledge Preflight and Incremental Replay FULL shadow.",
-        "Exact F15 head Release Risk 5/5 and no real target/vendor result overclaim.",
-        "Disposable Postgres role/tenant/attachment/FK and provider/storage flow acceptance outstanding."
+        "Critical Plan Before Code PASS before 0064 SQL edit.",
+        "Source full SHA256 and three locator state checks plus comments regression.",
+        "Baseline 65 snapshot-reviewed and TypeScript/full tests.",
+        "Edit-Time Sync, Knowledge Preflight and Incremental Replay.",
+        "Exact F16 release risk 5/5; real DB and Storage/object ACL still BLOCKED."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -306,8 +297,8 @@
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
-          "tests/customer-baseline-office-recipient-envelope.test.ts"
+          "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
+          "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -339,13 +330,13 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
+            "file": "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           },
           {
-            "file": "tests/customer-baseline-office-recipient-envelope.test.ts",
+            "file": "tests/customer-baseline-office-attachment-metadata-integrity.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -379,13 +370,13 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
+              "file": "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             },
             {
-              "file": "tests/customer-baseline-office-recipient-envelope.test.ts",
+              "file": "tests/customer-baseline-office-attachment-metadata-integrity.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -430,7 +421,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql"
+              "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -447,7 +438,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -460,7 +451,7 @@
           {
             "id": 2,
             "files": [
-              "tests/customer-baseline-office-recipient-envelope.test.ts"
+              "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -471,7 +462,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-office-recipient-envelope.test.ts",
+                  "file": "tests/customer-baseline-office-attachment-metadata-integrity.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -489,21 +480,21 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "39bb4b9aac20df8f691dae3fafbe624a1f21a214"
+              "developmentBaseSha": "351bea28051ddbd29aa1e914bb5c4034bec7b301"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "39bb4b9aac20df8f691dae3fafbe624a1f21a214",
+            "targetBaseSha": "351bea28051ddbd29aa1e914bb5c4034bec7b301",
             "lease": {
-              "expectedBaseSha": "39bb4b9aac20df8f691dae3fafbe624a1f21a214",
+              "expectedBaseSha": "351bea28051ddbd29aa1e914bb5c4034bec7b301",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
-              "tests/customer-baseline-office-recipient-envelope.test.ts"
+              "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
+              "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
             ],
             "operations": [
               {
@@ -513,12 +504,12 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
+                "file": "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-office-recipient-envelope.test.ts",
+                "file": "tests/customer-baseline-office-attachment-metadata-integrity.test.ts",
                 "generated": null
               }
             ],
@@ -550,13 +541,13 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 },
                 {
-                  "file": "tests/customer-baseline-office-recipient-envelope.test.ts",
+                  "file": "tests/customer-baseline-office-attachment-metadata-integrity.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -587,7 +578,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-office-recipient-envelope.test.ts"
+                "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
               ],
               "externalGateIds": []
             },
@@ -599,8 +590,8 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
-                "tests/customer-baseline-office-recipient-envelope.test.ts"
+                "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
+                "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
               ],
               "filesAbsent": []
             },
@@ -615,7 +606,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "459537dd",
+            "manifestDigest": "4fe381fe",
             "decision": "PASS"
           }
         ],
@@ -655,38 +646,32 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Customer Fresh Install 0062 contains Office draft optimistic revision and singleton guards but lacks original 20260909203604 Recipient Envelope: Cc/Bcc normalization, protected attachment metadata references and updated draft mutation+queue RPCs. New outgoing and reply email must not leak another tenant attachment, improperly format recipients, or bypass actor capability and mailbox checks. This is a byte-identical source-only migration append, not a real Postgres/provider acceptance.",
+    "problemStatement": "Customer baseline 0063 introduced Office attachment metadata but still accepts incomplete storage bucket/path pairs, ready status without usable locator, and deleted rows retaining private provider/storage locators. Canonical 20260909203629 adds three CHECK constraints and documentation to close these data-state gaps, without changing the existing historical migrations or providing actual Storage ACL, upload, scan, binary deletion or real target PostgreSQL proof.",
     "observableOutcomes": [
-      "Append full 0063 canonical SQL body with SHA256 provenance after 0062, unchanged history.",
-      "office_drafts and office_messages gain bounded cc_emails/bcc_emails arrays, normalized recipient lists, email helper private EXECUTE revokes.",
-      "New office_attachments table has tenant-bounded composite draft/message FKs, exactly-one owner invariant, size/sha constraints, RLS enabled and no browser table grants.",
-      "Updated admin_mutate_office_draft_v3 and admin_queue_office_email_v4 RPC sources retain service-only execution, tenant/author/capability checks, recipient normalization and idempotency.",
-      "Customer baseline guard 64 ordered files remains snapshot-reviewed with freshInstallProofRequired and null proof hash; Vitest/TypeScript and Control Plane PASS.",
-      "No actual mailbox/provider email, attachment upload, real DB RLS/GRANT or strict Pro Office security completion is claimed."
+      "0064 copied byte-identically from canonical attachment metadata integrity SQL with SHA256 identity and ordered after 0063.",
+      "Storage pair constraint requires bucket and path both present or both null.",
+      "Ready metadata requires complete storage pair or nonblank provider attachment ID; deleted must retain no locator.",
+      "All three constraint comments preserved; 65 migrations snapshot-reviewed and previous Fresh Install proof null.",
+      "All focused tests, TypeScript, Development/Plan/Edit-Time, Knowledge/Replay and risk 5/5 PASS source-only."
     ],
     "unresolvedRisks": [
-      "Canonical 429-line SQL source-only parity and regex tests cannot certify multi-RPC PostgreSQL semantics/transaction concurrency or service_role actor/session binding.",
-      "Existing target draft/mail columns/owner FKs, duplicate indexes, SQL function overloads and legacy data may be incompatible; disposable empty Postgres + occupied read-only ledger needed.",
-      "Attachment table stores metadata, NOT actual object Storage bucket access controls or virus scanning, and does not prove link authorization at download time.",
-      "Untrusted recipient input may include Unicode / MIME formatting outside canonical regex, requiring real provider and application abuse tests.",
-      "Later canonical attachment metadata integrity and Team Chat/Communication Hub Advanced SQL plus separate strict U10A1 Pro gating remain absent; real Fresh Install unproved."
+      "Legacy occupied table may have invalid partial/ready/deleted records, and ADD CHECK might fail; read-only dirty-row inventory needed before target application.",
+      "A valid metadata locator is not proof of object existence, bucket policy, malware scan or deletion.",
+      "Actual Postgres NULL/CHECK behavior, trigger and actor/tenant RLS and effective grants are untested in disposable DB.",
+      "Office Attachment upload/downloading runtime, later Communication Hub Advanced and strict Pro SQL still incomplete."
     ],
     "scope": {
       "in": [
-        "One append-only 0063 complete canonical recipient-envelope SQL with source hash.",
-        "Manifest status source-only and explicit blockers.",
-        "Focused tests for Cc/Bcc validation, attachment tenant FKs, RLS browser revokes, service-only RPC and chronology."
+        "One canonical 0064 attachment integrity SQL; status-only manifest note; focused neutral tests."
       ],
       "out": [
-        "No alteration of 0001–0062 historical migration files or canonical production source.",
-        "No separate 0064 attachment integrity migration in F16, no frontend/worker changes or provider/storage uploads.",
-        "No staging/production/Fresh Install target SQL writes, CI dispatch, GitHub branch push or Vercel Preview."
+        "No 0001–0063 historical edits, no bucket/API/provider/worker changes, no Supabase target writes, CI/Preview or GitHub push."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F16-RECIPIENT-ENVELOPE",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F17-ATTACHMENT-INTEGRITY",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -704,11 +689,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F16-RECIPIENT",
-        "requirement": "Append exact canonical 0063 Cc/Bcc recipient envelope, tenant-bounded private attachment metadata and versioned draft/email RPCs while preventing false live Fresh Install closure.",
+        "id": "REQ-F17-ATTACH",
+        "requirement": "Append canonical 0064 storage pair, ready/deleted attachment locator CHECKs, without misclaiming object ACL or real database proof.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-recipient-attachment-source-baseline",
+          "breadth": "office-attachment-metadata-integrity-source",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -730,8 +715,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F16-ATTACH-TENANT",
-            "statement": "Browser roles cannot directly access Office attachment metadata and cross-tenant owner FKs must fail in real Postgres; source guards now.",
+            "id": "NEG-F17-LOCATOR",
+            "statement": "Ready without locator or deleted with locator should be rejected by future real PostgreSQL; source proof now.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -740,5 +725,5 @@
       }
     ]
   },
-  "notes": "F16 0063 canonical full recipient envelope and attachment metadata after 0062, source-only. Next 0064 metadata integrity then Advanced Office/strict Pro and real database/providers proof still BLOCKED."
+  "notes": "U10A2 F17 0064 attachment metadata integrity source-only after F16; real PostgreSQL/Storage/Pro and Communication Hub dependencies BLOCKED."
 }
