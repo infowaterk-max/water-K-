@@ -1,13 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2-F1: append-only customer baseline team permissions foundation from canonical source; no Office closure or target DB writes",
+  "task": "Core #1186 U10A2-F2: append-only customer baseline 0048 scoped delegation v2 with forward-compatible chain tests",
   "status": "ready-for-implementation",
   "guardDigest": "2ebcb98e",
-  "changeBaseSha": "615700e74c25b0f87b33318402e24eeb5a44a032",
+  "changeBaseSha": "229db55f0b8f46a5402c022b32a1850b87b9e762",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
+    "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
     "supabase/customer-baseline/manifest.json",
+    "tests/customer-baseline-team-delegation-v2.test.ts",
     "tests/customer-baseline-team-permissions-prerequisites.test.ts"
   ],
   "expectedSubsystems": [
@@ -38,7 +39,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F1-TEAM-PERMISSIONS",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F2-SCOPED-DELEGATION",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -59,26 +60,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Immutable 0001–0046 baseline untouched; new 0047 is exact source copy with comment provenance prefix and recorded SHA256.",
-        "All direct table/auth prerequisites in canonical foundation are present before 0047, including role_bindings, webshop_instances, admin_audit_log.",
-        "New 0047 does not grant anon/authenticated public table access and preserves service_role execution through canonical SQL.",
-        "New baseline manifest explicitly marks freshInstallProofRequired true and no unsupported completion assertion.",
-        "Negative regression rejects SQL provenance drift or missing prerequisite table, checks 0047 ordering and baseline guard.",
-        "No staging/production writes and no release DONE until next migrations and actual empty-target Fresh Install + role proof."
+        "0048 body is byte-for-byte canonical scoped delegation source with recorded digest",
+        "0047 foundation exists earlier and defines store_delegations and original evaluate_store_capability_v1",
+        "Permission/delegation upgrade DDL, private scoped helper and v2 RPC preserve canonical names and grants",
+        "Baseline guard passes 49 migrations in snapshot-reviewed, freshInstallProofRequired true and hash null",
+        "No customer/Alap/Team Chat privilege broadening or unproven production/fresh acceptance",
+        "Existing 0047 provenance test must remain valid when 0048 and later migrations are appended"
       ],
       "invariants": [
-        "Canonical SQL source is the sole authority; customer baseline exact-match copy only.",
-        "Team Chat remains separate Pro capability and Alap support/email remain available.",
-        "New source migration never broadens authenticated Data API access without RLS.",
-        "No production/staging schema or data changes.",
-        "Main migration lineage and earlier 0001-0046 baseline are immutable."
+        "Existing U10A2 F1 foundation commit is unchanged",
+        "Store-team capability resolver authority comes exclusively from canonical source",
+        "Real DB role and Fresh Install acceptance is required before merging SQL chain",
+        "Alap base support and transactional email continue independent of Team Chat Pro"
       ],
       "forbiddenStates": [
-        "Source mismatch accepted as equivalent",
-        "Migration applied with missing prerequisite tables",
-        "Production DB or Vercel deployed before actual replay",
-        "New 0047 treated as complete Office privacy baseline",
-        "Alap gains Pro internal Office access"
+        "0048 runs ahead of 0047",
+        "Original scoped delegation source silently diverges",
+        "Manifest flips to ready without fresh proof",
+        "Authenticated receives unexpected grant from the baseline copy",
+        "U10A1 deployed ahead of 0049+ privacy dependencies"
       ]
     },
     "model": {
@@ -110,43 +110,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Missing predecessor public.role_bindings, webshop_instances or audit_log",
-        "Canonical source drift or modified copy",
-        "PostgreSQL syntax invalid despite string markers",
-        "Grant/RLS privilege escalation via role mismatch",
-        "Existing customer snapshot contains conflicting later authority",
-        "Critical release mixed with quality-infrastructure implementation",
-        "Manifest READY wrongly interpreted as Fresh Install proof",
-        "Mutable staging migration history silently treated as canonical"
+        "Scoped delegation column not present before v2 helper references it",
+        "Store delegation rule weakening from incorrect source copy",
+        "Existing legacy function signature remains after 0048",
+        "Silent RLS or service_role grant loss",
+        "Source hash copied without checking actual body",
+        "Fresh Install proof hash incorrectly reused",
+        "Merged baseline missing complete Office chain",
+        "Wrong release base includes earlier high-risk migrations"
       ],
       "edgeCases": [
-        "Quoted pg_dump schema and target public tables",
-        "No known auth.users bootstrap",
-        "Existing store permission tables from previous release",
-        "Source role preset ON CONFLICT behavior",
-        "Function SECURITY DEFINER search_path",
-        "Anonymous vs authenticated function grants",
-        "Old staged branch commit with wrong main base"
+        "Missing foundational store_delegations",
+        "Null/expired delegate time",
+        "Cross-tenant delegated scope",
+        "Existing duplicate scope permissions",
+        "Old legacy v1 RPC callable by service role",
+        "Untrusted auth/session user",
+        "A source migration ordering mismatch",
+        "Partial baseline update"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F1-CANONICAL-COPY",
-        "summary": "Append only baseline 0047 with exact existing canonical Team Permissions foundation SQL, verified by SHA256.",
+        "id": "ALT-F2-CANONICAL-V2",
+        "summary": "Append the unchanged scoped delegation v2 main SQL as 0048, with SHA256 and source ordering proof.",
         "disposition": "selected",
-        "reason": "Preserves original schema authority and deploy order without independent conflicting SQL interpretation."
+        "reason": "Preserves the canonical permission model while keeping 5/5 release scope isolated."
       },
       {
-        "id": "ALT-F1-PATCH-LATEST",
-        "summary": "Apply final Office advanced SQL first to fresh install.",
+        "id": "ALT-F2-REIMPLEMENT",
+        "summary": "Rewrite scoped evaluation locally inside customer baseline.",
         "disposition": "rejected",
-        "reason": "Unresolved intermediate role and participant dependencies."
+        "reason": "Creates second divergent authorization authority."
       },
       {
-        "id": "ALT-F1-BLIND-STAGING",
-        "summary": "Run migrations directly on occupied staging to discover errors.",
+        "id": "ALT-F2-MERGE-OFFICE",
+        "summary": "Bundle privacy/RPC SQL and 0048 together.",
         "disposition": "rejected",
-        "reason": "Missing migration provenance makes data/role changes unsafe."
+        "reason": "High-risk scope and dependency breadth exceed bounded verification."
       }
     ],
     "specialistReviews": [
@@ -154,28 +155,28 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Copying SQL without real PostgreSQL role/GRANT behavior proof could claim a false security success.",
-        "resolution": "Keep source-only scope and explicitly block release until actual empty-target and role tests.",
+        "finding": "A copied v2 helper could still bypass browser RLS or actor checks when running under service_role.",
+        "resolution": "Keep source-only status, preserve grant/revoke and require later live actor-scoped security proof before DONE.",
         "evidence": [
-          "supabase/migrations/20260907203000_team_permissions_foundation_v1.sql"
+          "supabase/migrations/20260907205500_team_permissions_scoped_delegation_v2.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Main foundation needs baseline role_bindings, webshop_instances and admin_audit_log.",
-        "resolution": "Preflight source references, exact hash and strictly append after 0046.",
+        "finding": "Scoped delegation depends on columns and tables established by canonical 0047.",
+        "resolution": "Prove migration file ordering and exact byte identity; never rewrite historic files.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql"
+          "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Schema high-risk cannot mix other nonneutral subsystems.",
-        "resolution": "Only baseline SQL, manifest and evidence-neutral tests, require release risk 5/5 and later separate 0048+ units.",
+        "finding": "Database-schema patch high risk must stand alone.",
+        "resolution": "Only new 0048 and evidence-neutral test and plan, 5/5 risk.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -184,8 +185,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Staging real catalog has old participant rules, Fresh Install inactive.",
-        "resolution": "Source work only; no migrations on real projects.",
+        "finding": "Existing staging tenant schema lacks the latest Office privacy migrations and F2 source-only evidence cannot be production proof.",
+        "resolution": "No schema writes, no merged runtime and no changes to live project status before real clean-target acceptance.",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -193,92 +194,93 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F1-01",
-        "scenario": "A fresh customer database has not yet created role_bindings before the Team Permissions foundation migration is replayed.",
-        "finding": "The foreign key from store_permission_overrides to role_bindings cannot be resolved and SQL replay aborts in the middle of setup.",
-        "resolution": "Require prerequisite checks against the immutable customer baseline before generating 0047, and preserve an empty-target verification blocker.",
+        "id": "CH-U10A2-F2-01",
+        "scenario": "A 0048 source migration runs without the 0047 store_delegations table being available.",
+        "finding": "The alter table statements cannot execute and the customer bootstrap stops before creating its permission evaluator.",
+        "resolution": "Require 0047 filename, source hash and foundation signatures in regression tests, and retain real replay as an explicit blocker.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F1-02",
-        "scenario": "A customer instance table has not received its expected organization identity before the composite permission-reference migration executes.",
-        "finding": "The composite foreign key will reference incompatible identity columns and a later authorization decision may become cross-tenant or invalid.",
-        "resolution": "Verify webshop_instances identity columns and composite uniqueness in baseline, and reject an incompatible dependency rather than weakening the foreign key.",
+        "id": "CH-U10A2-F2-02",
+        "scenario": "A scoped delegation authorizer reads wrong organization context after a clone.",
+        "finding": "A delegate could obtain rights in another tenant without intended owner authorization or could be blocked erroneously.",
+        "resolution": "Preserve every canonical tenant/organization scope predicate byte-for-byte and prove read-path roles in disposable PostgreSQL.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F1-03",
-        "scenario": "Existing public table defaults could accidentally grant broad Data API access when the new permission tables are created.",
-        "finding": "The browser role might read policy or delegation rows if the source grant and RLS statements are omitted during copying.",
-        "resolution": "Copy the canonical RLS and explicit revokes verbatim, then test all affected tables and require a real role-level PostgreSQL rehearsal.",
+        "id": "CH-U10A2-F2-03",
+        "scenario": "A v2 source evaluator is modified locally to simplify permissions.",
+        "finding": "A parallel authorization rule would bypass canonical source grants and earlier PO capability invariants.",
+        "resolution": "Compare source SHA256 and complete SQL body exactly, rejecting mismatched or truncated migration contents.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F1-04",
-        "scenario": "The service_role API runs canonical evaluate_store_capability_v1 after applying the permission tables.",
-        "finding": "Removing an original service_role execute grant will break legitimate secure staff authorization even if the source SQL migration otherwise parses.",
-        "resolution": "Preserve source function grants and SECURITY DEFINER boundaries exactly, and compare byte-for-byte source content before accepting baseline parity.",
+        "id": "CH-U10A2-F2-04",
+        "scenario": "The v2 source includes a grant to a broader role than intended.",
+        "finding": "An incorrectly edited customer baseline could expose privileged delegation methods to anon or authenticated Data API roles.",
+        "resolution": "Verify canonical source revoke/grant statements and use real RLS/GRANT role tests before target rollout.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F1-05",
-        "scenario": "A generated 0047 SQL file silently changes a condition in the role delegation validator.",
-        "finding": "A textual search for function names passes while access-control semantics drift from canonical existing production migration authority.",
-        "resolution": "Require cryptographic hash equality for the complete original migration body, with no local reimplementation of permission semantics.",
+        "id": "CH-U10A2-F2-05",
+        "scenario": "A customer baseline is called ready immediately after adding v2 scoped delegation.",
+        "finding": "The manifest may retain stale proof and mislead CI into believing later Office privacy/RPC migrations have run.",
+        "resolution": "Keep snapshot-reviewed state with freshInstallProofRequired true and null proof hash until full clean replay.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F1-06",
-        "scenario": "The manifest continues to say the earlier source snapshot had completed its Fresh Install proof after adding an unverified 0047.",
-        "finding": "A CI or planning gate might equate a READY manifest with the actual Office schema having been installed and role-tested.",
-        "resolution": "Mark the newly added baseline as requiring actual Fresh Install proof while explicitly recording that the overall Office closure is still blocked.",
+        "id": "CH-U10A2-F2-06",
+        "scenario": "An F2 commit changes 0047 or earlier SQL while adding 0048.",
+        "finding": "The foundational migration provenance and role mappings become invalid and release risk isolation is broken.",
+        "resolution": "Assert immutable 0047 hash and limit diff to F2 migration, neutral test and governance plan.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F1-07",
-        "scenario": "The latest U10A1 Pro-only Office SQL is deployed to production ahead of all its required prerequisite helpers.",
-        "finding": "RPC and read policy functions fail when invoked, and security authorizations no longer match the running schema.",
-        "resolution": "Keep the U10A1 release blocked until all ordered F1 and subsequent Office-related migrations pass a verified target-state compatibility rehearsal.",
+        "id": "CH-U10A2-F2-07",
+        "scenario": "A legacy v1 function remains unexpectedly available to server-side service_role.",
+        "finding": "The runtime may call the wrong function signature or use old delegation rules despite adding v2.",
+        "resolution": "Record canonical function signature behavior and require future service-role runtime and negative actor tests.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F1-08",
-        "scenario": "An engineer tries to fix a staging policy directly even though its migration ledger lacks source predecessors.",
-        "finding": "Blind cherry-picking bypasses the required order and may damage an occupied database or create a false release completion claim.",
-        "resolution": "Use a source-only customer-baseline migration branch, preserve staging unchanged, and require separate read-only lineage and approved deployment verification.",
+        "id": "CH-U10A2-F2-08",
+        "scenario": "A deployment migrates occupied staging that lacks prerequisite Office tables.",
+        "finding": "The DB may reject or partially execute the chain, leaving platform and runtime semantics misaligned.",
+        "resolution": "Keep current work source-only and mandate migration-ledger reconciliation plus disposable Fresh Install first.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Plan Before Code critical PASS before any SQL/file implementation edit",
-      "Byte-for-byte canonical source and SHA256 provenance assertion for 0047",
-      "Negative missing-prerequisite/changed-source test and baseline ordered-number guard",
-      "Syntax sensitive SQL migration test, customer baseline validation and TypeScript check",
-      "Edit-Time Reference/Implementation Sync PASS, Knowledge and Incremental Replay PASS",
-      "Release Risk 5/5 exact main base; no merge/real database mutation until subsequent 0048+ and disposable Fresh Install proof"
+      "Critical Plan Before Code before implementation change and single-subsystem 5/5 projected risk",
+      "SHA256 byte-for-byte canonical F2 source copy including all DDL/RLS/GRANT statements",
+      "Negative source divergence and missing 0047 prerequisite test",
+      "SQL syntax, customer baseline 49-file guard and TypeScript check",
+      "Reference/Implementation Sync, Knowledge, Incremental Replay and exact-base Release Risk",
+      "Fresh Install and live actor/role behavior are separate blockers, no CI or merge on this unproven partial baseline"
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2-F1: append-only customer baseline team permissions foundation from canonical source; no Office closure or target DB writes",
+      "request": "Core #1186 U10A2-F2: append-only customer baseline 0048 scoped delegation v2 with forward-compatible chain tests",
       "authority": [
         "database-schema"
       ],
       "mustEdit": [
-        "supabase/customer-baseline/manifest.json"
+        "supabase/customer-baseline/manifest.json",
+        "tests/customer-baseline-team-permissions-prerequisites.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
-        "tests/customer-baseline-team-permissions-prerequisites.test.ts"
+        "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
+        "tests/customer-baseline-team-delegation-v2.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Plan Before Code critical PASS before any SQL/file implementation edit",
-        "Byte-for-byte canonical source and SHA256 provenance assertion for 0047",
-        "Negative missing-prerequisite/changed-source test and baseline ordered-number guard",
-        "Syntax sensitive SQL migration test, customer baseline validation and TypeScript check",
-        "Edit-Time Reference/Implementation Sync PASS, Knowledge and Incremental Replay PASS",
-        "Release Risk 5/5 exact main base; no merge/real database mutation until subsequent 0048+ and disposable Fresh Install proof"
+        "Critical Plan Before Code before implementation change and single-subsystem 5/5 projected risk",
+        "SHA256 byte-for-byte canonical F2 source copy including all DDL/RLS/GRANT statements",
+        "Negative source divergence and missing 0047 prerequisite test",
+        "SQL syntax, customer baseline 49-file guard and TypeScript check",
+        "Reference/Implementation Sync, Knowledge, Incremental Replay and exact-base Release Risk",
+        "Fresh Install and live actor/role behavior are separate blockers, no CI or merge on this unproven partial baseline"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -289,13 +291,14 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "supabase/customer-baseline/manifest.json"
+          "supabase/customer-baseline/manifest.json",
+          "tests/customer-baseline-team-permissions-prerequisites.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
-          "tests/customer-baseline-team-permissions-prerequisites.test.ts"
+          "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
+          "tests/customer-baseline-team-delegation-v2.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -327,10 +330,16 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
+            "file": "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
+          },
+          {
+            "file": "tests/customer-baseline-team-delegation-v2.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
           },
           {
             "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
@@ -367,10 +376,16 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
+              "file": "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
+            },
+            {
+              "file": "tests/customer-baseline-team-delegation-v2.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
             },
             {
               "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
@@ -418,7 +433,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql"
+              "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -435,7 +450,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -447,6 +462,30 @@
           },
           {
             "id": 2,
+            "files": [
+              "tests/customer-baseline-team-delegation-v2.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/customer-baseline-team-delegation-v2.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 3,
             "files": [
               "tests/customer-baseline-team-permissions-prerequisites.test.ts"
             ],
@@ -477,20 +516,21 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "615700e74c25b0f87b33318402e24eeb5a44a032"
+              "developmentBaseSha": "229db55f0b8f46a5402c022b32a1850b87b9e762"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "615700e74c25b0f87b33318402e24eeb5a44a032",
+            "targetBaseSha": "229db55f0b8f46a5402c022b32a1850b87b9e762",
             "lease": {
-              "expectedBaseSha": "615700e74c25b0f87b33318402e24eeb5a44a032",
+              "expectedBaseSha": "229db55f0b8f46a5402c022b32a1850b87b9e762",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
+              "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
+              "tests/customer-baseline-team-delegation-v2.test.ts",
               "tests/customer-baseline-team-permissions-prerequisites.test.ts"
             ],
             "operations": [
@@ -501,11 +541,16 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
+                "file": "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
                 "generated": null
               },
               {
                 "operation": "create",
+                "file": "tests/customer-baseline-team-delegation-v2.test.ts",
+                "generated": null
+              },
+              {
+                "operation": "modify",
                 "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
                 "generated": null
               }
@@ -538,10 +583,16 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
+                },
+                {
+                  "file": "tests/customer-baseline-team-delegation-v2.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
                 },
                 {
                   "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
@@ -575,6 +626,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
+                "tests/customer-baseline-team-delegation-v2.test.ts",
                 "tests/customer-baseline-team-permissions-prerequisites.test.ts"
               ],
               "externalGateIds": []
@@ -587,7 +639,8 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
+                "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
+                "tests/customer-baseline-team-delegation-v2.test.ts",
                 "tests/customer-baseline-team-permissions-prerequisites.test.ts"
               ],
               "filesAbsent": []
@@ -603,7 +656,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "7f245651",
+            "manifestDigest": "cb901399",
             "decision": "PASS"
           }
         ],
@@ -643,37 +696,37 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The 47-migration customer baseline 0001-0046 lacks the canonical 20260907203000 Team Permissions foundation objects and evaluate_store_capability_v1 needed by later Digital Office privacy/Team Chat source SQL. Directly copying the final Pro-only Office SQL into 0047 fails on missing objects; fresh installs need a strictly ordered, provenance-preserved first foundation release, without mutating existing tenants.",
+    "problemStatement": "Customer Fresh Install now has a source-reviewed Team Permissions foundation 0047 but the canonical main migration 20260907205500 scoped delegation v2 changes permission delegation columns, helper functions and evaluate_store_capability_v1 semantics. Without this ordered patch, later Digital Office privacy calls a stale role delegation authority and loses cross-tenant/scope hardening. The source must be preserved in an append-only 0048 without modifying any real Supabase database.",
     "observableOutcomes": [
-      "New append-only customer-baseline 0047 contains the exact canonical Team Permissions foundation SQL and matches SHA256 body provenance verified against 20260907203000 main source.",
-      "Source baseline includes required customer-instance roles, role_bindings and audit prerequisites before the new foundation; source checks explicitly BLOCK missing predecessors.",
-      "The customer-baseline validator verifies 48 ordered migrations after adding 0047; no claim of replay success or Office completeness is made.",
-      "Existing Alap customer support / transactional mail and Team Chat independent features are not altered by this foundational source-only change.",
-      "SQL syntax-sensitive and known-failure tests pass, projected release risk is 5/5, existing Fresh Install remains NOT PROVEN for this new migration."
+      "The new 0048 contains exact canonical 20260907205500 scoped delegation v2 SQL and SHA256 provenance",
+      "Review that 0047 prerequisite schema exists ahead of 0048 and that 0001-0047 are not rewritten",
+      "The expanded baseline validator returns snapshot-reviewed with 49 ordered SQL migrations and Fresh Install proof still required",
+      "Scoped delegation and evaluate_store_capability_v1 signatures are preserved, with RLS and service_role execution grant unmodified",
+      "No modern Office privacy/RPC completion or real database readiness is claimed"
     ],
     "unresolvedRisks": [
-      "Actual empty-target PostgreSQL execution and privilege grants are not certified by SQL source matching; need disposable true Fresh Install proof.",
-      "Future Office privacy/RPC migrations and 0048+ customer-baseline lineage are still missing; #1186 stays PARTIAL.",
-      "Source canonical team permission DDL may rely on implicit auth and audit schemas; real clean-DB proof remains a release blocker.",
-      "Source duplication into customer baseline can drift; verify exact SHA and do not silently modify canonical source or historical migrations."
+      "Actual Postgres empty-target execution remains unproved, and 0049+ Office privacy and communication SQL dependencies remain absent",
+      "Staging migration history is stale, no target SQL writes are authorized",
+      "Original 20260907205500 function changes could depend on historical schema not visible to source-only assertion, requiring role-level runtime acceptance"
     ],
     "scope": {
       "in": [
-        "One new append-only customer-baseline 0047 SQL deriving from canonical 20260907203000 team permission foundation",
-        "Customer baseline manifest provenance update, no READY/DONE overclaim",
-        "Focused provenance, schema prerequisite, SQL syntax and plan-aware tests"
+        "Append only 0048 canonical scoped delegation upgrade directly after reviewed 0047 foundation",
+        "SHA256 provenance and critical regression test covering 0047->0048 grant/DDL dependency",
+        "No new completion assertion; keep manifest snapshot-reviewed",
+        "Forward-compatible update to 0047 F1 test: assert exact order and no fixed last-filename invariant"
       ],
       "out": [
-        "No staging, production, platform or Fresh Install Supabase project mutations",
-        "No migration rewrite 0001–0046 and no changes to canonical 20260907203000 main migration",
-        "No Office advanced/team-chat/RLS 0048+ migration in same high-risk release",
-        "No Vercel deployment, no new sandbox and no GitHub branch push until target proof"
+        "No production or staging DB changes",
+        "No 0049+ Digital Office privacy or modern mailbox migration",
+        "No changes to canonical main 20260907205500 SQL or existing 0001-0047 baseline",
+        "No PR push, Vercel preview or full CI until complete ordered release"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F1-TEAM-PERMISSIONS",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F2-SCOPED-DELEGATION",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -691,11 +744,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F1-FOUNDATION",
-        "requirement": "Append-only baseline 0047 exactly reproduces canonical Team Permissions foundation with preflighted predecessors and source SHA256, no unrelated SQL.",
+        "id": "REQ-U10A2-F2-SCOPED",
+        "requirement": "Append-only 0048 exactly matches canonical scoped delegation v2 with 0047 prerequisite and no false readiness claim.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "customer-baseline-foundation-source",
+          "breadth": "team-scoped-delegation-baseline-source",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -717,41 +770,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F1-PROVENANCE",
-            "statement": "Source drift or missing predecessor cannot be accepted as ready.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-F1-NOT-DONE",
-        "requirement": "Full Office Fresh Install proof remains BLOCKED pending dependent 0048+ migrations and runtime role/RLS tests.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "no-false-completion",
-          "strength": 2,
-          "dimensions": [
-            "scope",
-            "forbidden-state"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-CUSTOMER-BASELINE"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-F1-FALSE-DONE",
-            "statement": "Adding 0047 cannot justify production Office DONE.",
+            "id": "NEG-U10A2-F2-DRIFT",
+            "statement": "Version/order/source drift must BLOCK migration chain acceptance.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -760,5 +780,5 @@
       }
     ]
   },
-  "notes": "U10A2-F1 is a bounded forward-only canonical Team Permissions foundation for missing baseline dependencies; no DB execute/merge/no Office closure; staging old. U10A1 and U10A2-P in separate saved worktrees."
+  "notes": "U10A2-F2 append-only scoped delegation v2; follows reviewed 0047 F1. No real target schema changes; needs 0049+ and Fresh Install proof."
 }

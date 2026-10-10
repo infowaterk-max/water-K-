@@ -25,9 +25,10 @@ describe('Core #1186 U10A2-F1: first append-only Team Permissions Fresh Install 
  it('keeps historical customer migrations immutable and appends exactly 0047 in order',()=>{
    const files=readdirSync(root).filter(f=>f.endsWith('.sql')).sort();
    expect(files[0]).toBe('0001_shoperation_v1_schema.sql');
-   expect(files.at(-2)).toBe('0046_alap_team_chat_plan_grant_reconcile.sql');
-   expect(files.at(-1)).toBe('0047_team_permissions_foundation_v1.sql');
-   expect(files.length).toBe(48);
+   const prior=files.indexOf('0046_alap_team_chat_plan_grant_reconcile.sql');
+   expect(prior).toBeGreaterThanOrEqual(0);
+   expect(files[prior+1]).toBe('0047_team_permissions_foundation_v1.sql');
+   expect(files.length).toBeGreaterThanOrEqual(48);
  });
  it('preserves prerequisite role/instance/audit tables in earlier customer snapshot',()=>{
    const historical=read(root+'0001_shoperation_v1_schema.sql').toLowerCase();
