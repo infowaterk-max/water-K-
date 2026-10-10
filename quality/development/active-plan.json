@@ -1,16 +1,17 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2 F2C: append forward-only customer baseline 0049 canonical revoke of legacy delegation v1 service-role EXECUTE after scoped v2",
+  "taskId": "DEV-E9266AF1",
+  "task": "Core #1186 U10A2 F3: forward-only customer baseline 0050 canonical Digital Office participant-only privacy foundation, retaining Team Chat/Alap split and staging read-only",
   "status": "ready-for-implementation",
-  "guardDigest": "2ebcb98e",
-  "changeBaseSha": "92da3319a7726b416d68bf238e0dfb5d97ab9b4a",
+  "guardDigest": "e9266af1",
+  "changeBaseSha": "270dca53c5fc59c64bf2e65134a6b018b585ccb3",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
+    "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-legacy-delegation-revoke.test.ts"
+    "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
   ],
   "expectedSubsystems": [
+    "admin-operations",
     "database-schema"
   ],
   "expectedDomains": [
@@ -23,22 +24,31 @@
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-022",
+    "SQ-KF-001",
+    "SQ-KF-002",
     "SQ-KF-006",
     "SQ-KF-009",
     "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
+    "SQ-KF-016",
+    "SQ-KF-017",
     "SQ-KF-018",
     "SQ-KF-023"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-005",
+    "SQ-NK-006",
+    "SQ-NK-008",
     "SQ-NK-012",
     "SQ-NK-014"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F2C-LEGACY-REVOKE",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F3-OFFICE-PRIVACY",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -59,24 +69,26 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "New 0049 contains exactly canonical REVOKE statement byte-for-byte with source SHA256",
-        "Correct migration ordering 0047 foundation -> 0048 scoped v2 -> 0049 legacy v1 revoke, preserving earlier files",
-        "Source includes service_role revoked on exact v1 creator signature, does not drop v1 function and retains v2 create service role grant",
-        "Manifest preserves snapshot-reviewed and proof-required, invalid previous contract hash",
-        "Target actual role SQL replay deferred with explicit blocker; no DONE claim"
+        "Only append new 0050 canonical participant-aware Office SQL from 20260908022500, compare full original SHA256/body",
+        "Require predecessor capability evaluate_store_capability_v1, scope-delegation v2, schema office_threads/messages/tasks, auth.users and role bindings",
+        "Preserve original customer support visibility and independent internal private/group participant membership plus office.internal_chat capability checks",
+        "Confirm source contains participant-table RLS, authenticated SELECT policy and browser write revokes, preserving canonical GRANT semantics",
+        "Customer baseline guard reports 51 migrations status snapshot-reviewed and Fresh Install proof required",
+        "No child or parent DONE until real target behavior and remaining hardening verified"
       ],
       "invariants": [
-        "Never broaden privilege by preserving legacy v1 service_role grant",
-        "Do not accidentally revoke v2 creator or non-delegation capability",
-        "SHA source authority byte-identical, original 0001-0048 immutable",
-        "Alap email and Team Chat Pro entitlement independent, untouched"
+        "No direct anonymous office data grant newly introduced",
+        "Private thread membership cannot be replaced by elevated support or platform role",
+        "Team Chat capability remains independent of officeCommunicationAdvanced",
+        "Alap base transactional email never depends on internal Office Pro private-table access",
+        "No production or staging schema/data modifications or historical migration rewrites"
       ],
       "forbiddenStates": [
-        "v1 service_role remains allowed in newly built fresh target",
-        "v2 service_role accidentally revoked instead",
-        "Fresh Install marked READY without role proof",
-        "Canonical hash mismatch silently allowed",
-        "Schema/target deployments used for source-only testing"
+        "Store owner sees private Team Chat without participant membership",
+        "Customer Office content accessible to Alap after later Pro-only closure",
+        "Authenticated Office browser writes remain in newly replayed canonical baseline",
+        "New 0050 treated as final security migration without 0051+",
+        "Wrong source SHA or missing FK silently accepted"
       ]
     },
     "model": {
@@ -108,44 +120,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "v1 exact function signature mismatch causes REVOKE SQL execution to fail",
-        "v2 grant revoked accidentally instead of v1",
-        "Previous 0048 not applied when 0049 runs",
-        "Source SQL copied incorrectly or historical source drift",
-        "Manifest old fresh proof hash reused",
-        "A role inheritance path permits EXECUTE despite direct revoke",
-        "Service role delegated through PUBLIC unexpectedly",
-        "New staging schema write bypasses migrated chain"
+        "Existing office_threads lacks id-instance composite prerequisite or created_by column",
+        "Participant FK incorrectly crosses instance",
+        "Anonymous/authenticated table GRANT unexpectedly exposes internal chat through permissive policy",
+        "Internal_private route authorizes nonmember owner or platform user",
+        "Customer Office support read loses original support RBAC",
+        "SQL SECURITY DEFINER function in public leaks access to anon via inherited PUBLIC EXECUTE",
+        "Missing later private current_user helper leaves broadly exposed RLS",
+        "Wrong canonical SQL source byte copy or malformed quotes",
+        "Fresh Install manifest mistakenly sets ready",
+        "Staging legacy migration history incompatible"
       ],
       "edgeCases": [
-        "Deprecated v1 signature with text[] and timestamptz args",
-        "EXECUTE granted through PUBLIC or inherited role",
-        "v1 declaration exists but is not callable by service role",
-        "v2 stored function signature and service role grant",
-        "Empty target with no v1 foundation",
-        "Snapshot-reviewed manifest guard state",
-        "Later 0050 Office private participant",
-        "Wrong exact main base changes unit risk"
+        "Guest access/no auth.uid()",
+        "Cross-instance thread UUID swap",
+        "Private thread participant left_at not null",
+        "Two-member vs group conversation types",
+        "Customer thread subject/topic/mailbox scope",
+        "Missing organization or role binding",
+        "Actor with revoked feature entitlement",
+        "Orphan messages and unthreaded tasks",
+        "User account deleted during migration",
+        "Legacy data backfill participant joins"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F2C-SOURCE-REVOKE",
-        "summary": "Append canonical one-statement v1 EXECUTE revoke with proof and role requirement",
+        "id": "ALT-F3-SOURCE-MIGRATION",
+        "summary": "Add exact canonical Office privacy foundation as new 0050 after scoped permissions with SHA proof and no target writes.",
         "disposition": "selected",
-        "reason": "Least change to canonical schema semantics and strict old RPC closure"
+        "reason": "Preserves canonical participant-aware security design and migration ordering."
       },
       {
-        "id": "ALT-F2C-DROP-V1",
-        "summary": "Delete historic v1 function",
+        "id": "ALT-F3-INTERMEDIATE-LIVE",
+        "summary": "Patch occupied staging with direct RLS changes to see whether they work.",
         "disposition": "rejected",
-        "reason": "Breaks historic migration and dependencies"
+        "reason": "Incomplete migration ledger and no current empty-target proof."
       },
       {
-        "id": "ALT-F2C-SKIP",
-        "summary": "Ignore legacy creator because v2 exists",
+        "id": "ALT-F3-SKIP-PARTICIPANT",
+        "summary": "Skip 0050 and rely only on Next.js route Pro feature checks.",
         "disposition": "rejected",
-        "reason": "Leaves privileged old API callable"
+        "reason": "Bypasses participant privacy inside SECURITY DEFINER SQL and browser RLS."
       }
     ],
     "specialistReviews": [
@@ -153,28 +169,28 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Direct REVOKE in SQL may not prevent inherited/PUBLIC role invocation in real Postgres.",
-        "resolution": "Retain source-only status and require actual role/RPC tests on disposable Fresh Install before deployment",
+        "finding": "Source 0050 creates an interim participant-aware RLS without later stricter Pro tenancy and private-schema closure; a premature deploy could be unsafe.",
+        "resolution": "Implement source only, keep baseline snapshot-reviewed, no merge/deploy and require 0051+ plus U10A1 strict RLS and real role/actor tests.",
         "evidence": [
-          "supabase/migrations/20260907205600_team_permissions_disable_legacy_delegation_creator.sql"
+          "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Original v1 function is defined in 0047 and upgraded v2 in 0048.",
-        "resolution": "Append 0049 exact source after both, no history edits",
+        "finding": "Participant FK requires existing office_threads composite index and role/user tables.",
+        "resolution": "Canonical 0050 creates composite thread index before table and tests required predecessors and source hash.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql"
+          "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "High-risk database schema unit must be isolated and exact base checked.",
-        "resolution": "One migration plus manifest and neutral tests, Release Risk 5/5",
+        "finding": "Pro-only Office privacy DB patch high-risk and cross-tenant; release only single database-schema subsystem.",
+        "resolution": "Focused 0050 plus manifest/tests, exact-base risk 5/5 and subsequent separate release units.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -183,8 +199,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Staging missing canonical Office sequence is not a suitable rehearsal target.",
-        "resolution": "No current target writes or Vercel deployments",
+        "finding": "Real staging lacks modern Office foundations and is not safe as migration rehearsal.",
+        "resolution": "No real target writes or Vercel preview; require disposable Fresh Install and precise lineage checks.",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -192,72 +208,72 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F2C-1",
-        "scenario": "An older service-role integration continues to call v1 delegation creation after applying 0048.",
-        "finding": "The RPC remains executable and bypasses newer scoped delegation logic.",
-        "resolution": "Exact signature REVOKE on v1 before exposing modern Office paths, while preserving v2 grant.",
+        "id": "CH-U10A2-F3-1",
+        "scenario": "A Pro store owner loads a private Team Chat conversation they did not participate in.",
+        "finding": "General support role or operator authority could leak internal private messages.",
+        "resolution": "Verify can_read_office_thread_v1 enforces private.office_active_participant_v1 before scoped office.internal_chat capability.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2C-2",
-        "scenario": "An engineer mistakes the v2 function for the legacy v1 during revoke copy.",
-        "finding": "Secure scoped delegation becomes unavailable to the worker, while old v1 stays callable.",
-        "resolution": "Byte-identical source comparison and tests asserting v1 signature and v2 grant independently.",
+        "id": "CH-U10A2-F3-2",
+        "scenario": "A user switches tenant context while retaining a valid private thread identifier.",
+        "finding": "Thread ownership across instances could leak another organization’s chat messages.",
+        "resolution": "Ensure reader and participant checks share p_instance_id and office_threads composite id-instance binding.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2C-3",
-        "scenario": "The source migration is applied before 0047 or 0048.",
-        "finding": "The named v1 function does not exist or latest v2 is missing, causing role security drift.",
-        "resolution": "Require strict filenames in ordered baseline and clean replay before acceptance.",
+        "id": "CH-U10A2-F3-3",
+        "scenario": "A customer support agent opens a legitimate customer thread after participant RLS installation.",
+        "finding": "Overly strict internal-only predicates could break ordinary customer support functionality.",
+        "resolution": "Preserve canonical customer branch can_manage_support while independent internal Team Chat requires participant membership.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2C-4",
-        "scenario": "Role EXECUTE privilege is inherited from PUBLIC despite direct service_role revoke.",
-        "finding": "A database user might execute the legacy RPC even with a direct deny on service_role.",
-        "resolution": "Treat source check as insufficient and demand PostgreSQL has_function_privilege probes for relevant roles.",
+        "id": "CH-U10A2-F3-4",
+        "scenario": "A browser attempts an INSERT, UPDATE or DELETE on an Office thread after new policies are installed.",
+        "finding": "Old ALL policies or lingering direct grants could permit a client to mutate private workspace outside audited RPC.",
+        "resolution": "Copy canonical policy replacement and revoke browser write privileges; require real auth role policy rehearsal.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2C-5",
-        "scenario": "A stale proofContractSha256 remains in ready customer manifest after new 0049.",
-        "finding": "Automated release gate falsely claims an untested security migration exists on a real target.",
-        "resolution": "Enforce snapshot-reviewed with freshInstallProofRequired true and null old contract hash.",
+        "id": "CH-U10A2-F3-5",
+        "scenario": "An Office service-role function is invoked with forged actor UUID after canonical 0050 has been applied.",
+        "finding": "RLS is bypassed by SECURITY DEFINER, and source-only checker might misstate actor authorization.",
+        "resolution": "Do not claim live security PASS, require explicit authenticated actor/session proofs for RPC paths in final acceptance.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2C-6",
-        "scenario": "A forward migration rewrites historic team permissions definitions to fix grant semantics.",
-        "finding": "The baseline no longer matches source and prior migrations, corrupting deterministic identity.",
-        "resolution": "Only append canonical new file and keep 0001-0048 unchanged.",
+        "id": "CH-U10A2-F3-6",
+        "scenario": "Legacy customer threads without participants are replayed by the new privacy backfill.",
+        "finding": "Incorrect assignments can delete or omit support references or expose internal messages.",
+        "resolution": "Preserve canonical idempotent backfill statements unchanged and require data shape checks on disposable target.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2C-7",
-        "scenario": "A staging apply is attempted while occupied environment has incomplete migration history.",
-        "finding": "The single revoke may fail or affect a different deployed v1 RPC than expected.",
-        "resolution": "No target writes until full canonical lineage diff and approved safe deployment plan.",
+        "id": "CH-U10A2-F3-7",
+        "scenario": "The legacy baseline advertises READY after inserting 0050.",
+        "finding": "CI would falsely certify incomplete modern Office privacy and Pro SQL hardening.",
+        "resolution": "Keep snapshot-reviewed, freshInstallProofRequired=true and proofContractSha256 null until full chain.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2C-8",
-        "scenario": "The deprecated v1 function was already revoked but v2 grant is missing.",
-        "finding": "Checking only v1 denies might report COMPLETE while legitimate scoped delegation is broken.",
-        "resolution": "Assert v2 function and service role grant in 0048 source and verify both on real DB.",
+        "id": "CH-U10A2-F3-8",
+        "scenario": "An engineer copies only SQL functions but omits policy grants and private participant table.",
+        "finding": "Local text assertion may see function names yet runtime RLS remains broad or broken.",
+        "resolution": "Byte-for-byte hash of complete migration including DDL, grants, revokes and policy declarations.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Plan Before Code critical PASS with Security dissent before edit",
-      "Byte-for-byte SHA canonical SQL copy and strict 0047->0048->0049 order",
-      "Negative legacy grant and positive v2 authorization regression",
-      "SQL syntax guard, customer baseline guard and TypeScript",
-      "Edit-Time reference implementation synchronization, knowledge, full incremental replay",
-      "Exact-base release risk 5/5; real DB role test and later Office migrations remain blockers"
+      "Critical Plan Before Code PASS on 0050 source, manifest and tests before first edit",
+      "SHA256 exact-source copy of full privacy foundation with source/object dependency assertions",
+      "Targeted SQL/RLS/role privacy contract tests and existing 0047-0049 regressions",
+      "Customer baseline guard status snapshot-reviewed 51 versions, TypeScript and SQL syntax checks",
+      "Edit-Time reference sync, implementation sync, Knowledge Preflight and full shadow Incremental Replay",
+      "Exact-base risk 5/5, no staging writes, future 0051+ and live Fresh Install proof explicitly pending"
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F2C: append forward-only customer baseline 0049 canonical revoke of legacy delegation v1 service-role EXECUTE after scoped v2",
+      "request": "Core #1186 U10A2 F3: forward-only customer baseline 0050 canonical Digital Office participant-only privacy foundation, retaining Team Chat/Alap split and staging read-only",
       "authority": [
         "database-schema"
       ],
@@ -267,17 +283,17 @@
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
-        "tests/customer-baseline-legacy-delegation-revoke.test.ts"
+        "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
+        "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Plan Before Code critical PASS with Security dissent before edit",
-        "Byte-for-byte SHA canonical SQL copy and strict 0047->0048->0049 order",
-        "Negative legacy grant and positive v2 authorization regression",
-        "SQL syntax guard, customer baseline guard and TypeScript",
-        "Edit-Time reference implementation synchronization, knowledge, full incremental replay",
-        "Exact-base release risk 5/5; real DB role test and later Office migrations remain blockers"
+        "Critical Plan Before Code PASS on 0050 source, manifest and tests before first edit",
+        "SHA256 exact-source copy of full privacy foundation with source/object dependency assertions",
+        "Targeted SQL/RLS/role privacy contract tests and existing 0047-0049 regressions",
+        "Customer baseline guard status snapshot-reviewed 51 versions, TypeScript and SQL syntax checks",
+        "Edit-Time reference sync, implementation sync, Knowledge Preflight and full shadow Incremental Replay",
+        "Exact-base risk 5/5, no staging writes, future 0051+ and live Fresh Install proof explicitly pending"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -293,8 +309,8 @@
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
-          "tests/customer-baseline-legacy-delegation-revoke.test.ts"
+          "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
+          "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -326,13 +342,13 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
+            "file": "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           },
           {
-            "file": "tests/customer-baseline-legacy-delegation-revoke.test.ts",
+            "file": "tests/customer-baseline-digital-office-privacy-foundation.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -366,13 +382,13 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
+              "file": "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             },
             {
-              "file": "tests/customer-baseline-legacy-delegation-revoke.test.ts",
+              "file": "tests/customer-baseline-digital-office-privacy-foundation.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -417,7 +433,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql"
+              "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -434,7 +450,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
+                  "file": "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -447,7 +463,7 @@
           {
             "id": 2,
             "files": [
-              "tests/customer-baseline-legacy-delegation-revoke.test.ts"
+              "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -458,7 +474,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-legacy-delegation-revoke.test.ts",
+                  "file": "tests/customer-baseline-digital-office-privacy-foundation.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -476,21 +492,21 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "92da3319a7726b416d68bf238e0dfb5d97ab9b4a"
+              "developmentBaseSha": "270dca53c5fc59c64bf2e65134a6b018b585ccb3"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "92da3319a7726b416d68bf238e0dfb5d97ab9b4a",
+            "targetBaseSha": "270dca53c5fc59c64bf2e65134a6b018b585ccb3",
             "lease": {
-              "expectedBaseSha": "92da3319a7726b416d68bf238e0dfb5d97ab9b4a",
+              "expectedBaseSha": "270dca53c5fc59c64bf2e65134a6b018b585ccb3",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
-              "tests/customer-baseline-legacy-delegation-revoke.test.ts"
+              "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
+              "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
             ],
             "operations": [
               {
@@ -500,12 +516,12 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
+                "file": "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-legacy-delegation-revoke.test.ts",
+                "file": "tests/customer-baseline-digital-office-privacy-foundation.test.ts",
                 "generated": null
               }
             ],
@@ -537,13 +553,13 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
+                  "file": "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 },
                 {
-                  "file": "tests/customer-baseline-legacy-delegation-revoke.test.ts",
+                  "file": "tests/customer-baseline-digital-office-privacy-foundation.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -574,7 +590,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-legacy-delegation-revoke.test.ts"
+                "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
               ],
               "externalGateIds": []
             },
@@ -586,8 +602,8 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
-                "tests/customer-baseline-legacy-delegation-revoke.test.ts"
+                "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
+                "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
               ],
               "filesAbsent": []
             },
@@ -602,7 +618,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "67625c5d",
+            "manifestDigest": "9e5e5a1c",
             "decision": "PASS"
           }
         ],
@@ -642,35 +658,37 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "After canonical customer baseline scoped delegation v2 in 0048, the original merchant_create_store_delegation_v1 remains executable by service_role unless the canonical main 20260907205600 security closure revoking that signature is replayed in correct order. The Fresh Install sequence must remove this obsolete privileged path before adding modern Office privacy participant RPCs.",
+    "problemStatement": "Customer Fresh Install baseline through 0049 has canonical role and scoped delegation authority but lacks the 20260908022500 Digital Office privacy foundation: office_thread_participants, participant-only internal chat read guards, updated customer support reader function, and privacy RLS policies. Modern U10A1 requires these helpers, yet the legacy snapshot still contains broad support-role ALL policies. A forward-only 0050 copy is essential but alone not safe to deploy without the later 0051+ privacy hardening, strict Pro tenancy and real role proof.",
     "observableOutcomes": [
-      "Append exact canonical revoke SQL as forward-only 0049 after scoped delegation v2 0048",
-      "Byte-for-byte canonical body and SHA-256 proof; do not redefine or drop old v1 function",
-      "Customer baseline guard remains snapshot-reviewed with 50 migrations, proofContractSha256 null and Fresh Install proof required",
-      "SQL statement explicitly revokes service_role EXECUTE on v1 function while retaining v2 canonical service_role execute grant",
-      "No target database writes or deployed completion claims"
+      "New customer baseline 0050 reproduces source 20260908022500 byte-for-byte including participant table, unique tenant thread index and privacy read helpers",
+      "Canonical customer-thread and internal-private/team participant paths remain distinct with office.internal_chat checked for private chats",
+      "Source migration revokes browser writes in three Office tables and adds participant-aware read policies instead of broad ALL",
+      "50 migration predecessors remain immutable; manifest stays snapshot-reviewed with real Fresh Install proof required and null contract hash",
+      "Do not claim end-to-end Pro-only database closure until later 0051+ policies, 005x U10A1 subscription SQL and live GRANT/RLS tests are verified"
     ],
     "unresolvedRisks": [
-      "Source-level revoke does not prove effective actual PostgreSQL grant inheritance; real role proof remains required",
-      "Fresh Install still lacks later Office privacy and advanced SQL; #1186 remains PARTIAL",
-      "Canonical source might rely on historic function signature mismatch in replay; requires actual empty-target SQL proof"
+      "Direct client roles in staging and schema version remain unverified, so source-only SQL copy is not a production privacy acceptance",
+      "Subsequent privacy hardening migration 20260908023000, 23500 and 24000 and advanced SQL still missing from customer baseline; customer browser read could be underprotected in intermediate state",
+      "SERVICE_ROLE bypasses RLS and privileged RPC must have explicit current tenant and actor checks; U10A1 still unmerged local",
+      "Baseline source 0050 includes policy grants that must be replay-tested on disposable database before deployment"
     ],
     "scope": {
       "in": [
-        "Append exactly source 20260907205600 canonical v1 revoke as customer-baseline 0049",
-        "Update manifest notes, keeping snapshot-reviewed status and no new proof hash",
-        "Test old v1 signature REVOKE alongside existing 0048 v2 service_role grant and monotonic order"
+        "Append forward-only 0050 privacy foundation as exact canonical source SQL with SHA256 provenance",
+        "Manifest notes preserve snapshot-reviewed and fresh proof requirement",
+        "Focused 0050 dependency, RLS contract, Alap/Team Chat split and history preservation regressions"
       ],
       "out": [
-        "No changes to 0001-0048 historical baseline",
-        "No main SQL migration changes or Office 0050+ within this release",
-        "No staging/production/Fresh Install database writes and no deployment or GitHub PR"
+        "No runtime staging/production or Fresh Install project migrations or SQL writes",
+        "No modification of 0001–0049 baseline SQL or canonical main source",
+        "No 0051+ privacy hardening, advanced RPC or U10A1 strict subscription SQL in same high-risk unit",
+        "No production deploy or PR and no claim of full customer Office database security"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F2C-LEGACY-REVOKE",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F3-OFFICE-PRIVACY",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -688,11 +706,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-U10A2-F2C-LEGACY",
-        "requirement": "Canonical 0049 removes legacy v1 delegation creator service_role EXECUTE while preserving v2 and no false DB READY.",
+        "id": "REQ-U10A2-F3-PRIVACY",
+        "requirement": "Append exact canonical participant privacy foundation 0050 with source hash, tenant identity, Team Chat participant and Alap customer branch invariants; no false security completion.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "fresh-install-service-role-legacy-delegation",
+          "breadth": "office-private-participant-baseline-source",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -714,8 +732,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U10A2-F2C-V1",
-            "statement": "Legacy v1 RPC must not remain granted to service_role after 0049.",
+            "id": "NEG-U10A2-F3-PRIVATE-CHAT",
+            "statement": "Unauthorized nonparticipant never gains internal private/group Office thread access on real target; source preservation required now, live role proof later.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -724,5 +742,5 @@
       }
     ]
   },
-  "notes": "U10A2 F2C source-only revoke of legacy delegation v1 follows 0048; full 0050+ Office and real role proof still BLOCKED"
+  "notes": "U10A2 F3 source-only Digital Office privacy foundation 0050; 0051+ and U10A1 subscription hardening still missing. No staging/production writes or merge."
 }
