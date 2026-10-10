@@ -1,14 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2 F4: append-only customer baseline 0051 canonical Office private-thread membership and assignee hardening, no live DB writes",
+  "task": "Core #1186 U10A2 F5: append-only customer baseline 0052 canonical private Office author read-state trigger after member hardening, no target DB writes",
   "status": "ready-for-implementation",
   "guardDigest": "2ebcb98e",
-  "changeBaseSha": "8004c9bc7e4e2d618591bdd4a74168868e08b93c",
+  "changeBaseSha": "3a1fbd510414ac6632750e8f569645e33611b7a1",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
+    "supabase/customer-baseline/migrations/0052_digital_office_private_author_read_sync_v1.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-office-membership-hardening.test.ts"
+    "tests/customer-baseline-office-private-author-read.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -38,7 +38,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F4-MEMBERSHIP-HARDENING",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F5-PRIVATE-AUTHOR-READ",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -59,28 +59,26 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "0051 is byte-for-byte the canonical membership migration with source SHA256 and is ordered immediately after 0050",
-        "Customer assignee eligibility trigger requires both active store membership and support rights",
-        "Leave-private RPC requires instance, actor, thread, checks private/group type, and updates only active matching participant with audit trail",
-        "Browser EXECUTE revocations and service_role grants are unmodified from canonical SQL",
-        "Manifest remains snapshot-reviewed and invalidated prior Fresh Install proof, baseline guard counts 52",
-        "No production or browser role acceptance asserted without real PostgreSQL and U10A1 dependency closure"
+        "The 0052 SQL body and recorded SHA256 are identical to canonical 20260908023500 migration",
+        "An internal author update requires participant matching instance/thread/user and left_at is null; failure raises expected exception",
+        "last_read_at cannot move backwards and customer/non-internal messages remain unaffected",
+        "Canonical trigger after insert on office_messages and private helper EXECUTE revoke are preserved",
+        "Baseline 53 ordered versions remain snapshot-reviewed with Fresh Install proof required",
+        "Real RLS/GRANT/tenant and service_role actor binding proof are still explicitly not DONE"
       ],
       "invariants": [
-        "No external organization user may become an assignee",
-        "Nonparticipant and already-left participants cannot leave private thread as active members",
-        "Membership left_at must immediately deny subsequent private read via current 0050 participant helper",
-        "Ordinary Alap support and Team Chat Pro entitlement separation untouched",
-        "SECURITY DEFINER never interpreted as RLS proof or actor-authentication proof",
-        "Prior 0001–0050 history and canonical main migration immutable"
+        "No private membership auto-created or restored for exited author",
+        "No read state updated across instances or unrelated threads",
+        "Existing later read timestamp never decreases",
+        "Customer/Alap support and independent Team Chat Pro grants untouched",
+        "Database source identity and historical migration order preserved"
       ],
       "forbiddenStates": [
-        "Inactive customer assignee accepted",
-        "Cross-tenant thread can be left by arbitrary actor",
-        "Private conversation persists readable after left_at",
-        "Old manifest ready claimed based on previous baseline proof",
-        "New source grants broad browser EXECUTE to untrusted roles",
-        "0051 declared final Office security closure"
+        "Author who left private conversation becomes active again",
+        "Wrong user or tenant read marker updated",
+        "Read timestamp rewinds on older message",
+        "Trigger executes publicly via untrusted RPC grant",
+        "A source-only baseline check reports real Fresh Install READY"
       ]
     },
     "model": {
@@ -112,48 +110,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Trigger not present or assignment validation missing",
-        "Active-membership check incorrectly authorizes inactive support staff",
-        "Left participant remains readable due to private helper bug",
-        "Caller supplies unrelated p_actor to service_role RPC",
-        "Thread id belongs to different webshop instance",
-        "Missing admin_audit_log breaks leave transaction",
-        "Legacy public/anon EXECUTE grant introduced",
-        "SQL copy mutates tenant or membership check",
-        "Premature fake fresh proof",
-        "Release risk exceeded by mixing other subsystem"
+        "Missing office_thread_participants table from 0050",
+        "Trigger function references missing author_id or created_at in old office_messages",
+        "Forged author_id used by server-side privileged caller",
+        "Left participant update accepted instead of raising",
+        "Non-internal messages affect private state",
+        "Race between leave and message insert",
+        "Missing original EXECUTE revoke or audit proof",
+        "Static source copied inaccurately or stale hash",
+        "Manifest incorrectly reused old proof",
+        "Release risk crosses another subsystem"
       ],
       "edgeCases": [
-        "Null user or instance/thread ID",
-        "Private versus group thread",
-        "Customer conversation leave attempt",
-        "Already left_at non-null",
-        "User support role revoked",
-        "Expired/disabled role binding",
-        "Tenant context swap with same thread UUID",
-        "Concurrent leave update and audit",
-        "Trigger fires on conversation_type change",
-        "Service role EXECUTE with untrusted caller-supplied actor"
+        "Null author_id",
+        "kind not internal",
+        "No internal thread found",
+        "Customer conversation with internal message kind",
+        "Author who has already left",
+        "Last_read_at later than new message created_at",
+        "Equal timestamps",
+        "Tenant/thread UUID mismatch",
+        "Concurrent participant leave and insert",
+        "Anonymous-authenticated direct trigger invocation"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F4-CANONICAL-APPEND",
-        "summary": "Append immutable canonical membership/assignee hardening SQL after 0050 with hash proof",
+        "id": "F5-CANONICAL",
+        "summary": "Copy only canonical read-sync SQL into ordered 0052 and prove hash",
         "disposition": "selected",
-        "reason": "Maintains canonical database authority and protects scope/order."
+        "reason": "Preserves database behavior and 5/5 independent risk scope"
       },
       {
-        "id": "ALT-F4-APP-ONLY",
-        "summary": "Enforce membership solely through admin Next.js actions",
+        "id": "F5-CLIENT-ONLY",
+        "summary": "Set read marker via browser on sender message",
         "disposition": "rejected",
-        "reason": "Does not protect service_role SQL actor and direct data mutations."
+        "reason": "Bypasses database invariants and allows invalid actor/scope"
       },
       {
-        "id": "ALT-F4-MERGE-ALL",
-        "summary": "Combine assignee, advanced mail and Pro SQL hardening into 0051",
+        "id": "F5-MERGE-PRIVACY",
+        "summary": "Append all next SQL files in same high-risk unit",
         "disposition": "rejected",
-        "reason": "Confounds dependencies and exceeds bounded high-risk unit."
+        "reason": "Prevents bounded dependency proof and release risk isolation"
       }
     ],
     "specialistReviews": [
@@ -161,28 +159,28 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Caller-supplied p_actor under SECURITY DEFINER can impersonate if server does not validate actor; source-only positive tests cannot certify privileged RPC",
-        "resolution": "Retain separate service_role authentication/actor binding proof obligation, no merge/release until final acceptance.",
+        "finding": "Source trigger only checks new.author_id with service-role caller and is not a substitute for server-to-actor identity binding.",
+        "resolution": "Treat static proof as partial; require real actor/RPC tests before release and no direct target writes now.",
         "evidence": [
-          "supabase/migrations/20260908023000_digital_office_privacy_membership_hardening_v1.sql"
+          "supabase/migrations/20260908023500_digital_office_private_author_read_sync_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Trigger and leave updates depend on 0050 participant table and private membership helper.",
-        "resolution": "Require strict 0050 to 0051 ordering, full source hash and data/audit compatibility tests.",
+        "finding": "Monotonic last_read_at and LEFT participant rejection depend on canonical 0050 and 0051 functions and indexes.",
+        "resolution": "Check sequential migration names and full original source identity.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql"
+          "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "DB-schema security migration warrants isolated Release Risk 5/5 and actual-diff authority.",
-        "resolution": "One SQL file, neutral tests and manifest, exact-base release risk, source-only status.",
+        "finding": "Canonical data-schema migration must stay inside 5/5 budget as its own F5 unit.",
+        "resolution": "SQL+manifest+neutral tests only; no cross-domain code.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -191,8 +189,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Staging baseline does not have prerequisite modern privacy, so applying 0051 there is unverified and unsafe.",
-        "resolution": "No target schema writes; real disposable target replay and staging ledger provenance required later.",
+        "finding": "Customer baseline has not been replayed on disposable target, and staging remains older.",
+        "resolution": "No live database writes, preserve snapshot-reviewed and require actual proof.",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -200,72 +198,71 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F4-01",
-        "scenario": "A disabled support employee is assigned to customer Office thread.",
-        "finding": "Missing trigger permits support ticket exposure to deactivated member.",
-        "resolution": "Preserve both private.office_active_store_member_v1 and public.can_manage_support conditions in canonical eligibility trigger.",
+        "id": "CH-U10A2-F5-01",
+        "scenario": "An internal message is inserted by user who already left participant list.",
+        "finding": "Their author read update might reactivate read or leave stale message that falsely appears accepted.",
+        "resolution": "Verify left_at is null filter plus OFFICE_PRIVATE_AUTHOR_PARTICIPANT_REQUIRED on no updated row.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F4-02",
-        "scenario": "A store owner tries assigning an outside-tenant user to an Office customer thread.",
-        "finding": "A cross-tenant assignee might gain customer information.",
-        "resolution": "Assert instance-bound store membership query and support RBAC; verify live tenant negative later.",
+        "id": "CH-U10A2-F5-02",
+        "scenario": "A client forges the author_id of an unrelated participant through privileged worker.",
+        "finding": "A valid participant read marker could be updated for another user, compromising audit.",
+        "resolution": "Retain database tenant/user matching and require separate runtime service_role actor binding evidence before DONE.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F4-03",
-        "scenario": "A private participant calls leave, then immediately requests the same thread read.",
-        "finding": "A stale membership path may continue permitting chat access after leave.",
-        "resolution": "Require left_at mutation filtered by instance/thread/actor and 0050 active participant predicate in tests.",
+        "id": "CH-U10A2-F5-03",
+        "scenario": "The inserted message belongs to another tenant even though thread_id resembles a valid private conversation.",
+        "finding": "Cross-tenant last_read_at of matching UUID could be changed.",
+        "resolution": "Require both new.instance_id and new.thread_id in thread lookup and participant update.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F4-04",
-        "scenario": "A nonparticipant or already-left user calls the leave RPC.",
-        "finding": "Unaudited or misattributed exit could conceal attempted actor spoof.",
-        "resolution": "Verify update WHERE left_at is null and explicit OFFICE_PRIVATE_PARTICIPANT_NOT_ACTIVE exception.",
+        "id": "CH-U10A2-F5-04",
+        "scenario": "An older queued message is inserted after a newer read marker.",
+        "finding": "last_read_at could move backwards, changing unread flags.",
+        "resolution": "Retain CASE protecting last_read_at whenever it is newer than created_at.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F4-05",
-        "scenario": "A client calls leave RPC with a customer rather than private/group thread.",
-        "finding": "Customer support conversation could be modified by private chat feature.",
-        "resolution": "Assert conversation_type in internal_private/internal_group and OFFICE_INTERNAL_THREAD_NOT_FOUND exception.",
+        "id": "CH-U10A2-F5-05",
+        "scenario": "A customer message has internal kind but thread type customer.",
+        "finding": "Private read-state trigger may update unrelated support participant.",
+        "resolution": "Verify internal_private/internal_group conversation_type check before update.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F4-06",
-        "scenario": "The service-role caller supplies another user UUID as p_actor.",
-        "finding": "Postgres SECURITY DEFINER bypasses RLS and trusts supplied actor, potentially impersonating participant.",
-        "resolution": "Do not treat static source PASS as RPC security proof; demand end-to-end server-session binding before DONE.",
+        "id": "CH-U10A2-F5-06",
+        "scenario": "Trigger function becomes callable to authenticated clients due to inherited default EXECUTE.",
+        "finding": "Untrusted roles could invoke helper or cause unauthorized read marker mutation.",
+        "resolution": "Retain canonical revoke and confirm runtime pg_catalog effective privileges in disposable proof.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F4-07",
-        "scenario": "A migration excludes private audit insert despite successful left_at update.",
-        "finding": "Participant exits become untraceable and capability closure is false.",
-        "resolution": "Full canonical source hash and explicit admin_audit_log office.private_thread_left proof.",
+        "id": "CH-U10A2-F5-07",
+        "scenario": "A newer 0053+ migration is added and old F5 test pins 0052 as final entry.",
+        "finding": "Valid future append-only release is wrongly blocked by stale test.",
+        "resolution": "Use relative ordered filename assertion and open-ended migration count.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F4-08",
-        "scenario": "The baseline is marked ready after append-only 0051 without later helper hardening or Fresh Install.",
-        "finding": "CI overclaims security/proof and makes incomplete Office schema appear deployable.",
-        "resolution": "Keep snapshot-reviewed, null proof hash, and next 0052+ and runtime blockers explicit.",
+        "id": "CH-U10A2-F5-08",
+        "scenario": "Manifest reports READY before direct clean database replay.",
+        "finding": "Automated truth incorrectly claims completed private read-state support.",
+        "resolution": "Require snapshot-reviewed, proofContractSha256 null and explicit missing 0053+ obligations.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code PASS before editing 0051",
-      "Byte-for-byte source SHA256 provenance and tenant/actor/trigger regression assertions",
-      "SQL syntax, baseline 52 ordered migrations snapshot-reviewed and TypeScript checks",
-      "Edit-Time Reference/Implementation Sync and PO instruction retention PASS",
-      "Knowledge Preflight and incremental full shadow replay",
-      "Release Risk 5/5 exact prior head; no live SQL or DONE until full chain"
+      "Critical Plan Before Code PASS before first 0052 source edit",
+      "Full canonical SQL SHA256/source-body and tenant/author/monotonic tests",
+      "SQL syntax plus 0050/0051 prior regression and 53 baseline guard",
+      "TypeScript, Edit-Time Reference and Implementation Sync, Knowledge Preflight and Incremental Replay",
+      "Exact-base release risk 5/5 and ongoing real Postgres actor/role tests blocked"
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F4: append-only customer baseline 0051 canonical Office private-thread membership and assignee hardening, no live DB writes",
+      "request": "Core #1186 U10A2 F5: append-only customer baseline 0052 canonical private Office author read-state trigger after member hardening, no target DB writes",
       "authority": [
         "database-schema"
       ],
@@ -275,17 +272,16 @@
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
-        "tests/customer-baseline-office-membership-hardening.test.ts"
+        "supabase/customer-baseline/migrations/0052_digital_office_private_author_read_sync_v1.sql",
+        "tests/customer-baseline-office-private-author-read.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code PASS before editing 0051",
-        "Byte-for-byte source SHA256 provenance and tenant/actor/trigger regression assertions",
-        "SQL syntax, baseline 52 ordered migrations snapshot-reviewed and TypeScript checks",
-        "Edit-Time Reference/Implementation Sync and PO instruction retention PASS",
-        "Knowledge Preflight and incremental full shadow replay",
-        "Release Risk 5/5 exact prior head; no live SQL or DONE until full chain"
+        "Critical Plan Before Code PASS before first 0052 source edit",
+        "Full canonical SQL SHA256/source-body and tenant/author/monotonic tests",
+        "SQL syntax plus 0050/0051 prior regression and 53 baseline guard",
+        "TypeScript, Edit-Time Reference and Implementation Sync, Knowledge Preflight and Incremental Replay",
+        "Exact-base release risk 5/5 and ongoing real Postgres actor/role tests blocked"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -301,8 +297,8 @@
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
-          "tests/customer-baseline-office-membership-hardening.test.ts"
+          "supabase/customer-baseline/migrations/0052_digital_office_private_author_read_sync_v1.sql",
+          "tests/customer-baseline-office-private-author-read.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -334,13 +330,13 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
+            "file": "supabase/customer-baseline/migrations/0052_digital_office_private_author_read_sync_v1.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           },
           {
-            "file": "tests/customer-baseline-office-membership-hardening.test.ts",
+            "file": "tests/customer-baseline-office-private-author-read.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -374,13 +370,13 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
+              "file": "supabase/customer-baseline/migrations/0052_digital_office_private_author_read_sync_v1.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             },
             {
-              "file": "tests/customer-baseline-office-membership-hardening.test.ts",
+              "file": "tests/customer-baseline-office-private-author-read.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -425,7 +421,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql"
+              "supabase/customer-baseline/migrations/0052_digital_office_private_author_read_sync_v1.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -442,7 +438,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0052_digital_office_private_author_read_sync_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -455,7 +451,7 @@
           {
             "id": 2,
             "files": [
-              "tests/customer-baseline-office-membership-hardening.test.ts"
+              "tests/customer-baseline-office-private-author-read.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -466,7 +462,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-office-membership-hardening.test.ts",
+                  "file": "tests/customer-baseline-office-private-author-read.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -484,21 +480,21 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "8004c9bc7e4e2d618591bdd4a74168868e08b93c"
+              "developmentBaseSha": "3a1fbd510414ac6632750e8f569645e33611b7a1"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "8004c9bc7e4e2d618591bdd4a74168868e08b93c",
+            "targetBaseSha": "3a1fbd510414ac6632750e8f569645e33611b7a1",
             "lease": {
-              "expectedBaseSha": "8004c9bc7e4e2d618591bdd4a74168868e08b93c",
+              "expectedBaseSha": "3a1fbd510414ac6632750e8f569645e33611b7a1",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
-              "tests/customer-baseline-office-membership-hardening.test.ts"
+              "supabase/customer-baseline/migrations/0052_digital_office_private_author_read_sync_v1.sql",
+              "tests/customer-baseline-office-private-author-read.test.ts"
             ],
             "operations": [
               {
@@ -508,12 +504,12 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
+                "file": "supabase/customer-baseline/migrations/0052_digital_office_private_author_read_sync_v1.sql",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-office-membership-hardening.test.ts",
+                "file": "tests/customer-baseline-office-private-author-read.test.ts",
                 "generated": null
               }
             ],
@@ -545,13 +541,13 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0052_digital_office_private_author_read_sync_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 },
                 {
-                  "file": "tests/customer-baseline-office-membership-hardening.test.ts",
+                  "file": "tests/customer-baseline-office-private-author-read.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -582,7 +578,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-office-membership-hardening.test.ts"
+                "tests/customer-baseline-office-private-author-read.test.ts"
               ],
               "externalGateIds": []
             },
@@ -594,8 +590,8 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
-                "tests/customer-baseline-office-membership-hardening.test.ts"
+                "supabase/customer-baseline/migrations/0052_digital_office_private_author_read_sync_v1.sql",
+                "tests/customer-baseline-office-private-author-read.test.ts"
               ],
               "filesAbsent": []
             },
@@ -610,7 +606,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "e221c4e1",
+            "manifestDigest": "0cf02cd4",
             "decision": "PASS"
           }
         ],
@@ -650,37 +646,36 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The 0050 Office participant privacy foundation in the staged customer baseline lacks its canonical follow-up 20260908023000 membership hardening. Customer thread assignments must reject inactive or unsupported employees; internal private-thread participants must be able to leave, immediately revoking read access while preserving auditable tenant boundaries. This is only a source migration, not a live role/tenant proof.",
+    "problemStatement": "After 0050 participant-aware private/group Office threads and 0051 assignee/private leave hardening, the canonical 20260908023500 author-read sync SQL is absent from Fresh Install. New internal messages must only update their legitimate active author participant last_read_at; nonparticipants and previously left members must be rejected, never silently reactivated or granted read. This unit appends canonical source, does not execute on real DB.",
     "observableOutcomes": [
-      "Append exactly one 0051 migration copied byte-for-byte from canonical 20260908023000 Office membership-hardening SQL with SHA256 provenance",
-      "Customer assignee trigger validates active store membership and support rights on insertion or reassignment",
-      "Private/group leave RPC uses tenant/thread/actor-bound update, removes active membership via left_at, raises on nonparticipant and writes office audit event",
-      "Customer baseline guard advances to 52 ordered migrations while status remains snapshot-reviewed with freshInstallProofRequired=true",
-      "No claim of Pro-only SQL closure, live service_role actor binding or verified Fresh Install is made"
+      "Append exact canonical 20260908023500 Digital Office private author-read SQL as 0052 with SHA256 source provenance",
+      "Trigger updates only active author participant read marker on internal messages in same tenant/thread, while preserving later read timestamp",
+      "Absent/left author participant results in OFFICE_PRIVATE_AUTHOR_PARTICIPANT_REQUIRED rather than implicit membership creation",
+      "Ordinary non-internal/customer messages do not change participant read markers",
+      "Customer baseline guard passes 53 migrations, status snapshot-reviewed and prior real proof invalidated",
+      "No staging/production/Fresh Install target writes or Pro-only Office DONE claim"
     ],
     "unresolvedRisks": [
-      "Source checks cannot prove that a service_role RPC caller binds p_actor to the actual authenticated session; final runtime must verify caller-to-actor checks",
-      "Existing staging has legacy Office RLS and missing prerequisites and must remain unchanged",
-      "Later 0052+ privacy author-read synchronization and helper exposure, and U10A1 Pro SQL, are unresolved",
-      "The actual PostgreSQL GRANT inheritance and SECURITY DEFINER bypass implications need separate disposable empty-target tests"
+      "Actual PostgreSQL trigger behavior and SQL transaction permissions still require disposable empty-target replay",
+      "A privileged service_role writer could forge author_id; caller/session binding remains independent proof obligation",
+      "Later private current-user RLS helper and advanced Pro subscription guards are absent from Fresh Install"
     ],
     "scope": {
       "in": [
-        "One forward-only 0051 canonical SQL for Office assignee and private membership hardening",
-        "Baseline manifest notes preserving snapshot-reviewed with no false proof hash",
-        "Focused tests verifying source byte provenance, tenant/actor predicates, audit and relative ordering"
+        "One forward-only 0052 canonical Office private author-read trigger and function, SHA256 exact identity",
+        "Manifest note without changing unproved snapshot-reviewed status",
+        "Focused positive/negative SQL-source tests on private author membership, tenant and monotonic last-read"
       ],
       "out": [
-        "No rewrite of 0001–0050 migrations or main canonical SQL",
-        "No real target DDL/privileged RPC execution or staging/production modification",
-        "No 0052+ Office/privacy advanced migrations or Pro subscription SQL within this 5/5 unit",
-        "No Vercel deployment, GitHub CI dispatch or PR push"
+        "No rewrite of 0001–0051 migration history or canonical main SQL",
+        "No subsequent 0053+ private helper and advanced Pro SQL migrations in same release",
+        "No target DB writes, PR push, build or Vercel Preview"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F4-MEMBERSHIP-HARDENING",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F5-PRIVATE-AUTHOR-READ",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -698,16 +693,16 @@
     },
     "requirements": [
       {
-        "id": "REQ-U10A2-F4-MEMBERSHIP",
-        "requirement": "Canonical customer-baseline 0051 enforces eligible support assignee and private membership leave with tenant, audit and grant protections while avoiding false Fresh Install closure.",
+        "id": "REQ-U10A2-F5-PRIVATE-AUTHOR",
+        "requirement": "Append canonical 0052 private author read sync preserving monotonic tenant-bound active participant state, no false Fresh Install completion.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-membership-hardening-baseline-source",
+          "breadth": "office-private-author-read-source",
           "strength": 2,
           "dimensions": [
             "scope",
-            "behavioral-proof",
-            "forbidden-state"
+            "forbidden-state",
+            "behavioral-proof"
           ]
         },
         "requiredCapabilities": [
@@ -724,8 +719,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U10A2-F4-ACTOR",
-            "statement": "No unauthenticated or cross-tenant private membership leave is authorized; source proof only, later real RPC proof required.",
+            "id": "NEG-U10A2-F5-LEFT-AUTHOR",
+            "statement": "Private author read-state cannot be updated for left/nonparticipant author.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -734,5 +729,5 @@
       }
     ]
   },
-  "notes": "Core #1186 U10A2 F4 canonical Office membership hardening 0051; prerequisite 0050 local; source-only. Later 0052+ private read sync/helper and U10A1 Pro SQL and live role proof remain BLOCK."
+  "notes": "U10A2 F5 source-only Office private author read sync 0052 follows F4; modern privacy helper 0053+ and advanced Pro DB guards unverified; no target writes."
 }
