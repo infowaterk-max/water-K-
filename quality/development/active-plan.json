@@ -1,13 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2 F11: append-only 0058 canonical Office reply queue mailbox/route guard on communication_jobs, source-only no live DB or sending",
+  "task": "Core #1186 U10A2 F12: append-only 0059 canonical draft tenant FK plus forward-compatible F11 regression removing transient plan-text assertion, no live DB writes",
   "status": "ready-for-implementation",
   "guardDigest": "2ebcb98e",
-  "changeBaseSha": "53ae6d47ada3fa3c209f36dfffadf8f498f76ccf",
+  "changeBaseSha": "24fee2d5ac48c5a27a79ea60dcce7514993a5bc5",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0058_digital_office_reply_queue_guard_v1.sql",
+    "supabase/customer-baseline/migrations/0059_digital_office_drafts_tenant_integrity_v1.sql",
     "supabase/customer-baseline/manifest.json",
+    "tests/customer-baseline-office-draft-tenant-integrity.test.ts",
     "tests/customer-baseline-office-reply-queue-guard.test.ts"
   ],
   "expectedSubsystems": [
@@ -38,7 +39,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F11-REPLY-QUEUE-GUARD",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F12-DRAFT-TENANT-INTEGRITY",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -59,28 +60,26 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "0058 SQL body is exactly canonical 20260908034500 with SHA256 source header.",
-        "Requires officeThreadId and support_reply to invoke hard guard; invalid thread UUID or cross-instance/noncustomer thread is rejected.",
-        "No inactive/unconfigured mailbox or absent office_thread_email_routes reply route is accepted for Office reply job.",
-        "Canonical INSERT-only trigger exists on public.communication_jobs and private trigger function has no browser EXECUTE grant.",
-        "0054/0057 prerequisites and communication_jobs customer-baseline schema exist before 0058.",
-        "Customer baseline guard counts 59, remains snapshot-reviewed, all local quality checks PASS; live proof explicitly incomplete."
+        "Canonical 0059 SQL full body matches source SHA256.",
+        "Direct FK on draft instance_id to webshop_instances(id) with ON DELETE CASCADE and proper pre-drop.",
+        "Index on (author_user_id,instance_id) and ordered predecessor 0057,0058.",
+        "F11 test inspects canonical INSERT-only SQL, not ephemeral active plan.",
+        "Customer baseline 60 migrations snapshot-reviewed, no false DB Done claim.",
+        "All plan, regression, typecheck, knowledge/replay and exact-base risk gates PASS."
       ],
       "invariants": [
-        "No support_reply Office email can enter queue without active dedicated mailbox and private route.",
-        "Cross-tenant thread identifiers cannot select another customer conversation.",
-        "Non-Office communication jobs retain current queue behavior.",
-        "No untrusted client direct execution of private helper.",
-        "Existing Alap support/email and independent Team Chat Pro rules untouched.",
-        "No target schema or external delivery changed."
+        "Every draft tenant must exist, including threadless new_email drafts.",
+        "No browser Office draft privilege broadening.",
+        "F11 UPDATE queue bypass remains open pending separate forward-only fix.",
+        "Historical source SQL and canonical production migration unchanged.",
+        "No occupied DB writes or new deployment."
       ],
       "forbiddenStates": [
-        "Internal private/group chat routed to customer support email.",
-        "Inactive/unknown mailbox bypasses queue guard.",
-        "Missing private token route accepted.",
-        "Browser role can directly call security definer queue trigger helper.",
-        "Manifest READY or DONE without real target proof.",
-        "U10A2 F11 presented as complete INSERT+UPDATE queue protection: canonical trigger only covers INSERT."
+        "Orphan threadless draft admitted on new DB.",
+        "Wrong tenant/author index order.",
+        "An old regression depends on mutable active plan text.",
+        "Source-only SQL marked Fresh Install verified.",
+        "F11 UPDATE gap silently treated as closed."
       ]
     },
     "model": {
@@ -112,50 +111,45 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Legacy communication_jobs lacks payload or template_key expected by trigger",
-        "Invalid officeThreadId UUID cast accepted",
-        "Thread matches UUID but belongs to another instance",
-        "Customer thread has no mailbox_key",
-        "Mailbox inactive or absent",
-        "No route for thread",
-        "Private group conversation allowed as customer reply",
-        "Trigger not installed for update path",
-        "Malformed or partial canonical SQL copy",
-        "Privilege inherited despite private revoke",
-        "U10A1 Pro downgrade bypass independent",
-        "Post-INSERT UPDATE modifies officeThreadId, template_key or instance_id without rechecking mailbox/route."
+        "Orphan old rows prevent FK creation",
+        "Missing office_drafts or webshop_instances",
+        "Wrong FK cascade semantics",
+        "Index wrong order/collision",
+        "F11 test falsely fails as plan changes",
+        "Cross-tenant draft mutation via server definer actor forge",
+        "F11 job payload UPDATE bypass persists",
+        "Manifest fake READY",
+        "Real target migrations executed unapproved"
       ],
       "edgeCases": [
-        "Non-support reply job",
-        "No officeThreadId key",
-        "Empty/malformed UUID",
-        "Null payload",
-        "Different tenant same thread UUID",
-        "Inactive mailbox",
-        "Missing private route",
-        "Thread deleted concurrently",
-        "Legacy support reply payload keys",
-        "Queue updates after mailbox deactivation"
+        "Threadless new_email",
+        "Reply linked to existing thread",
+        "Shop deletion",
+        "Missing tenant instance",
+        "Cross-tenant author",
+        "Orphan legacy data",
+        "Old active plan replaced",
+        "Future 0060 migration append"
       ]
     },
     "alternatives": [
       {
-        "id": "F11-CANONICAL",
-        "summary": "Append canonical reply-queue guard SQL with source identity and isolated tests.",
+        "id": "F12-CANONICAL",
+        "summary": "Append original tenant integrity SQL as 0059 and fix plan-coupled regression.",
         "disposition": "selected",
-        "reason": "Single governed DB authority for legacy and modern queue paths."
+        "reason": "One immutable source-of-truth migration, future-proof evidence."
       },
       {
-        "id": "F11-API-ONLY",
-        "summary": "Validate active mailbox solely in new Next.js email queue action.",
+        "id": "F12-APP",
+        "summary": "Enforce instance ID only in application draft editor.",
         "disposition": "rejected",
-        "reason": "Legacy service_role and other producers may bypass route checks."
+        "reason": "Privileged RPC and SQL writes bypass UI."
       },
       {
-        "id": "F11-MERGE",
-        "summary": "Bundle draft tenant integrity and advanced Office in 0058.",
+        "id": "F12-BUNDLE",
+        "summary": "Add F11 UPDATE guard to 0059.",
         "disposition": "rejected",
-        "reason": "Violates source ordering, proof scope and bounded risk."
+        "reason": "Breaks separation of canonical source and independently proven security repair."
       }
     ],
     "specialistReviews": [
@@ -163,18 +157,18 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Static SQL guards do not demonstrate that all real communication jobs and privilege-inherited call paths honor trigger or protect actor identity.",
-        "resolution": "Require actual disposable target INSERT/UPDATE negative tests, effective grants, actor and tenant/session proof before merge or DONE.",
+        "finding": "Tenant FK does not prove actor/tenant authorization or fix queued Office reply UPDATE bypass.",
+        "resolution": "Keep F11 UPDATE blocker and full Postgres negative actor/RLS tests as prerequisites before release.",
         "evidence": [
-          "supabase/migrations/20260908034500_digital_office_reply_queue_guard_v1.sql"
+          "supabase/migrations/20260908034600_digital_office_drafts_tenant_integrity_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Trigger references legacy communication_jobs plus 0054 mailbox/routing and 0057 queue.",
-        "resolution": "Verify predecessor table and source signatures and exact canonical body, real schema replay later.",
+        "finding": "Threadless drafts miss composite FK checks and occupied legacy orphan rows may exist.",
+        "resolution": "Direct canonical instance FK and ordered source verification, live compatibility preflight later.",
         "evidence": [
           "supabase/customer-baseline/migrations/0057_digital_office_composer_drafts_foundation_v1.sql"
         ]
@@ -183,8 +177,8 @@
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "High-risk DB trigger unit fits a single 5/5 data-schema risk if not combined with other subsystems.",
-        "resolution": "Only one SQL, manifest, neutral tests and exact base release risk.",
+        "finding": "High-risk database migration can include evidence-only test corrections without additional release subsystem.",
+        "resolution": "One 0059 SQL plus manifest/tests and exact-base 5/5 risk.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -193,8 +187,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Absent mailbox routes on occupied staging could block legitimate support work if trigger applied prematurely.",
-        "resolution": "No occupied target apply, keep reviewed state, require read-only data inventory and rollback plan.",
+        "finding": "FK cascade and active support reply UPDATE gap require real Postgres data and job tests.",
+        "resolution": "No target writes; keep snapshot-reviewed and block DONE.",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -202,91 +196,91 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F11-01",
-        "scenario": "A legacy producer inserts support_reply with officeThreadId referencing a different tenant.",
-        "finding": "Cross-instance mail could be sent to an unrelated customer conversation.",
-        "resolution": "Check thread where id and instance_id match job instance and conversation_type customer.",
+        "id": "CH-U10A2-F12-01",
+        "scenario": "A new_email draft is created with null thread_id and nonexistent instance_id.",
+        "finding": "Old composite thread FK does not check row when thread is null, allowing orphan tenant drafts.",
+        "resolution": "Append canonical direct instance FK to reject missing webshop.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F11-02",
-        "scenario": "An attacker inserts malformed officeThreadId UUID in support_reply payload.",
-        "finding": "Invalid UUID may escape validation or create job without associated thread.",
-        "resolution": "Canonical exception block must raise OFFICE_REPLY_THREAD_REQUIRED on cast failure.",
+        "id": "CH-U10A2-F12-02",
+        "scenario": "An occupied target contains historic orphan office_drafts rows.",
+        "finding": "ALTER TABLE ADD FK fails, potentially delaying live service.",
+        "resolution": "Read-only orphan inventory and migration remediation before any target write.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F11-03",
-        "scenario": "A customer thread has no configured mailbox_key when an outbound reply is queued.",
-        "finding": "Reply from-address is undefined and privacy route cannot be ensured.",
-        "resolution": "Guard must raise OFFICE_MAILBOX_NOT_CONFIGURED.",
+        "id": "CH-U10A2-F12-03",
+        "scenario": "A webshop is deleted while author drafts remain.",
+        "finding": "ON DELETE CASCADE removes draft content, which may conflict with retention requirements.",
+        "resolution": "Keep canonical source but require data-retention decision before applying.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F11-04",
-        "scenario": "A mailbox exists but has is_active=false.",
-        "finding": "Sending would use an inactive/unverified inbound-outbound identity.",
-        "resolution": "Verify active mailbox is required in same instance with matching mailbox_key.",
+        "id": "CH-U10A2-F12-04",
+        "scenario": "Index office_drafts_author_instance_idx exists in reverse order.",
+        "finding": "CREATE INDEX IF NOT EXISTS skips actual intended lookup index.",
+        "resolution": "Assert source order and real pg_indexes definition in future disposable target.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F11-05",
-        "scenario": "No office_thread_email_routes entry exists for the candidate customer thread.",
-        "finding": "Reply path would be untraceable to private token routing, risking loss/misdelivery.",
-        "resolution": "Guard must raise OFFICE_EMAIL_ROUTE_MISSING before inserting queue job.",
+        "id": "CH-U10A2-F12-05",
+        "scenario": "A later development plan overwrites quality/development/active-plan.json.",
+        "finding": "Prior F11 regression tied to ephemeral plan text fails despite unchanged SQL semantics.",
+        "resolution": "Remove transient plan text assertions and assert immutable canonical INSERT-only trigger in F11 source test.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F11-06",
-        "scenario": "An unrelated non-support or untagged communication job is inserted.",
-        "finding": "Overly broad trigger blocks transactional mail that is not Office reply.",
-        "resolution": "Early-return unless template_key support_reply and payload has officeThreadId.",
+        "id": "CH-U10A2-F12-06",
+        "scenario": "A malicious worker updates a previously valid support_reply job to a new officeThreadId.",
+        "finding": "Canonical F11 BEFORE INSERT trigger never rechecks UPDATE payload.",
+        "resolution": "Explicitly retain this known security gap, require forward-only UPDATE guard migration.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F11-07",
-        "scenario": "A legacy job updates its Office payload after initial queue insertion.",
-        "finding": "One-time INSERT-only check could be bypassed by UPDATE replacing thread identifier.",
-        "resolution": "Preserve canonical before INSERT OR UPDATE OF payload, template_key and tenant boundaries.",
+        "id": "CH-U10A2-F12-07",
+        "scenario": "A browser role gains direct office_drafts table access through an unrelated GRANT.",
+        "finding": "Tenant FK does not protect draft text or other owners.",
+        "resolution": "Preserve 0057 RLS/browser revokes and require real effective privilege tests.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F11-08",
-        "scenario": "A privileged legacy producer inserts an untagged communication job and then updates its payload to include officeThreadId and support_reply.",
-        "finding": "Canonical 20260908034500 trigger runs BEFORE INSERT only. An UPDATE can bypass the active mailbox/private route prerequisite, so this source migration is not the complete queue security fix.",
-        "resolution": "Preserve original source identity, assert INSERT-only trigger explicitly, record mandatory separate forward-only UPDATE guard and actual negative UPDATE test before release; keep #1186 PARTIAL.",
+        "id": "CH-U10A2-F12-08",
+        "scenario": "New baseline is called ready after 0059 while U10A1 strict Pro SQL is still unmerged.",
+        "finding": "CI/Truth may falsely signal complete Digital Office security.",
+        "resolution": "Keep snapshot-reviewed and proofContractSha256 null, enforce dependency closure.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code PASS before 0058 source edit.",
-      "Full SHA256 canonical body and negative tenant/thread/mailbox/route and trigger source regression.",
-      "Customer baseline 59 ordered migrations snapshot-reviewed, SQL syntax and TypeScript.",
-      "Edit-Time Reference/Implementation Sync and Knowledge/Incremental Replay PASS.",
-      "Exact previous-head Release Risk 5/5; real target and outbound provider remain BLOCKED.",
-      "Explicit regression records canonical INSERT-only limitation and requires forward-only update path closure before final authority or deployment."
+      "Critical Plan Before Code PASS with four planned files.",
+      "Canonical body SHA256 + source-only FK/index assertions, F11 immutable source regression.",
+      "Baseline guard 60 SQL and TypeScript and full customer tests.",
+      "Edit-Time Reference/Implementation Sync, Knowledge and Incremental Replay.",
+      "Exact F11 parent 5/5 release risk, no actual DB or Pro acceptance."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F11: append-only 0058 canonical Office reply queue mailbox/route guard on communication_jobs, source-only no live DB or sending",
+      "request": "Core #1186 U10A2 F12: append-only 0059 canonical draft tenant FK plus forward-compatible F11 regression removing transient plan-text assertion, no live DB writes",
       "authority": [
         "database-schema"
       ],
       "mustEdit": [
-        "supabase/customer-baseline/manifest.json"
+        "supabase/customer-baseline/manifest.json",
+        "tests/customer-baseline-office-reply-queue-guard.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0058_digital_office_reply_queue_guard_v1.sql",
-        "tests/customer-baseline-office-reply-queue-guard.test.ts"
+        "supabase/customer-baseline/migrations/0059_digital_office_drafts_tenant_integrity_v1.sql",
+        "tests/customer-baseline-office-draft-tenant-integrity.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code PASS before 0058 source edit.",
-        "Full SHA256 canonical body and negative tenant/thread/mailbox/route and trigger source regression.",
-        "Customer baseline 59 ordered migrations snapshot-reviewed, SQL syntax and TypeScript.",
-        "Edit-Time Reference/Implementation Sync and Knowledge/Incremental Replay PASS.",
-        "Exact previous-head Release Risk 5/5; real target and outbound provider remain BLOCKED."
+        "Critical Plan Before Code PASS with four planned files.",
+        "Canonical body SHA256 + source-only FK/index assertions, F11 immutable source regression.",
+        "Baseline guard 60 SQL and TypeScript and full customer tests.",
+        "Edit-Time Reference/Implementation Sync, Knowledge and Incremental Replay.",
+        "Exact F11 parent 5/5 release risk, no actual DB or Pro acceptance."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -297,13 +291,14 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "supabase/customer-baseline/manifest.json"
+          "supabase/customer-baseline/manifest.json",
+          "tests/customer-baseline-office-reply-queue-guard.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0058_digital_office_reply_queue_guard_v1.sql",
-          "tests/customer-baseline-office-reply-queue-guard.test.ts"
+          "supabase/customer-baseline/migrations/0059_digital_office_drafts_tenant_integrity_v1.sql",
+          "tests/customer-baseline-office-draft-tenant-integrity.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -335,10 +330,16 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0058_digital_office_reply_queue_guard_v1.sql",
+            "file": "supabase/customer-baseline/migrations/0059_digital_office_drafts_tenant_integrity_v1.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
+          },
+          {
+            "file": "tests/customer-baseline-office-draft-tenant-integrity.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
           },
           {
             "file": "tests/customer-baseline-office-reply-queue-guard.test.ts",
@@ -375,10 +376,16 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0058_digital_office_reply_queue_guard_v1.sql",
+              "file": "supabase/customer-baseline/migrations/0059_digital_office_drafts_tenant_integrity_v1.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
+            },
+            {
+              "file": "tests/customer-baseline-office-draft-tenant-integrity.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
             },
             {
               "file": "tests/customer-baseline-office-reply-queue-guard.test.ts",
@@ -426,7 +433,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0058_digital_office_reply_queue_guard_v1.sql"
+              "supabase/customer-baseline/migrations/0059_digital_office_drafts_tenant_integrity_v1.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -443,7 +450,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0058_digital_office_reply_queue_guard_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0059_digital_office_drafts_tenant_integrity_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -455,6 +462,30 @@
           },
           {
             "id": 2,
+            "files": [
+              "tests/customer-baseline-office-draft-tenant-integrity.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/customer-baseline-office-draft-tenant-integrity.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 3,
             "files": [
               "tests/customer-baseline-office-reply-queue-guard.test.ts"
             ],
@@ -485,20 +516,21 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "53ae6d47ada3fa3c209f36dfffadf8f498f76ccf"
+              "developmentBaseSha": "24fee2d5ac48c5a27a79ea60dcce7514993a5bc5"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "53ae6d47ada3fa3c209f36dfffadf8f498f76ccf",
+            "targetBaseSha": "24fee2d5ac48c5a27a79ea60dcce7514993a5bc5",
             "lease": {
-              "expectedBaseSha": "53ae6d47ada3fa3c209f36dfffadf8f498f76ccf",
+              "expectedBaseSha": "24fee2d5ac48c5a27a79ea60dcce7514993a5bc5",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0058_digital_office_reply_queue_guard_v1.sql",
+              "supabase/customer-baseline/migrations/0059_digital_office_drafts_tenant_integrity_v1.sql",
+              "tests/customer-baseline-office-draft-tenant-integrity.test.ts",
               "tests/customer-baseline-office-reply-queue-guard.test.ts"
             ],
             "operations": [
@@ -509,11 +541,16 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0058_digital_office_reply_queue_guard_v1.sql",
+                "file": "supabase/customer-baseline/migrations/0059_digital_office_drafts_tenant_integrity_v1.sql",
                 "generated": null
               },
               {
                 "operation": "create",
+                "file": "tests/customer-baseline-office-draft-tenant-integrity.test.ts",
+                "generated": null
+              },
+              {
+                "operation": "modify",
                 "file": "tests/customer-baseline-office-reply-queue-guard.test.ts",
                 "generated": null
               }
@@ -546,10 +583,16 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0058_digital_office_reply_queue_guard_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0059_digital_office_drafts_tenant_integrity_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
+                },
+                {
+                  "file": "tests/customer-baseline-office-draft-tenant-integrity.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
                 },
                 {
                   "file": "tests/customer-baseline-office-reply-queue-guard.test.ts",
@@ -583,6 +626,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
+                "tests/customer-baseline-office-draft-tenant-integrity.test.ts",
                 "tests/customer-baseline-office-reply-queue-guard.test.ts"
               ],
               "externalGateIds": []
@@ -595,7 +639,8 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0058_digital_office_reply_queue_guard_v1.sql",
+                "supabase/customer-baseline/migrations/0059_digital_office_drafts_tenant_integrity_v1.sql",
+                "tests/customer-baseline-office-draft-tenant-integrity.test.ts",
                 "tests/customer-baseline-office-reply-queue-guard.test.ts"
               ],
               "filesAbsent": []
@@ -611,7 +656,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "2ea6890f",
+            "manifestDigest": "5a0e039d",
             "decision": "PASS"
           }
         ],
@@ -651,39 +696,36 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The Fresh Install baseline through 0057 now contains original Office composer and active mailbox/secret reply routes, but lacks canonical 20260908034500 reply-queue trigger. A legacy service_role or server call path may otherwise insert a communication_jobs support_reply payload containing officeThreadId without checking that the thread is customer-only, belongs to the same instance, has a configured active mailbox, and has a secret private reply route. Append canonical trigger as 0058 in isolation, do not deliver email or execute target SQL.",
+    "problemStatement": "Customer Fresh Install baseline 0057 has new_email drafts with null thread_id, so composite thread FK does not enforce tenant ownership. Canonical 20260908034600 adds direct FK from office_drafts.instance_id to webshop_instances(id) ON DELETE CASCADE and author-instance index. F12 also corrects a brittle earlier F11 regression that referenced transient quality/development active-plan text rather than immutable canonical SQL; the F11 INSERT-only / UPDATE bypass stays an explicit release blocker.",
     "observableOutcomes": [
-      "Append byte-identical canonical 20260908034500 SQL as customer baseline 0058 with SHA256.",
-      "Office-tagged support_reply jobs are rejected with explicit exceptions when thread is invalid/cross-tenant, mailbox missing/inactive, or reply route missing.",
-      "Ordinary jobs that are not Office support replies retain their original behavior without extra Office checks.",
-      "Before-INSERT-only canonical trigger is installed on existing communication_jobs with private SECURITY DEFINER helper and browser EXECUTE revoke.",
-      "Customer baseline guard PASS 59 ordered migrations snapshot-reviewed and old Fresh Install proof null, TypeScript/tests/Control Plane PASS.",
-      "No actual queued email/provider delivery, real effective RLS/GRANT, U10A1 Pro Office subscription or target Fresh Install acceptance claimed."
+      "0059 exact canonical SQL source and SHA256 provenance with tenant FK and author-instance index.",
+      "Original 0001–0058 immutable and 0059 ordered after 0058.",
+      "F11 source test asserts INSERT-only and keeps update hole explicit without depending on currently active plan text.",
+      "Baseline 60 SQL migration guard snapshot-reviewed and Fresh Install proof still required.",
+      "No real staging/production, provider, Postgres role or Pro subscription proof claimed."
     ],
     "unresolvedRisks": [
-      "Actual PostgreSQL trigger install and runtime behavior require disposable target and preflight on legacy communication_jobs schema.",
-      "Service-role caller may forge thread/instance payload, source checks prove only SQL code not authenticated actor binding.",
-      "A missing/incorrect mailbox route on occupied staging could cause legitimate inbound/outbound disruptions if applied without data remediation.",
-      "Following canonical 20260908034600 draft tenant FK and multiple later Advanced Office/Pro SQL migrations still missing.",
-      "SECURITY GAP DISCOVERED: canonical 20260908034500 installs before INSERT only, not UPDATE of template_key, payload or instance_id; existing communication_jobs row might be modified after validation by service_role or privileged function. Forward-only update-path guard and real negative UPDATE proof required before release."
+      "Existing orphan office_drafts rows may fail new FK on occupied target; target read-only compatibility preflight required.",
+      "ON DELETE CASCADE affects draft retention and needs operational approval before real apply.",
+      "Canonical F11 trigger fires on INSERT only; mutating existing communication_jobs payload/tenant could bypass unless a separate forward-only UPDATE trigger is added and role-tested.",
+      "SQL snapshot review is not empty-target Fresh Install proof or effective browser/service grants.",
+      "Later 0060+ Advanced Office/Team Chat/strict U10A1 SQL remains missing."
     ],
     "scope": {
       "in": [
-        "Single append-only 0058 canonical Office support_reply queue guard SQL with SHA256.",
-        "Customer baseline manifest note preserving snapshot-reviewed.",
-        "Focused negative/positive source assertions for tenant/thread, mailbox, route, trigger, and guard bypass when unrelated job."
+        "One canonical 0059 SQL and manifest note.",
+        "New 0059 focused FK/index/source tests.",
+        "Fix earlier F11 test to avoid active-plan transient prose dependencies while preserving INSERT-only and release-blocker assertion."
       ],
       "out": [
-        "No rewrite of historical 0001–0057 or canonical supabase/migrations.",
-        "No actual service_role outbound email jobs or provider calls.",
-        "No 0059 tenant integrity or later security SQL in F11 5/5 risk unit.",
-        "No staging/production/Fresh Install database writes, GitHub push/Preview or CI."
+        "No old 0001–0058 SQL modifications, no server routes or migrations for F11 UPDATE in same unit.",
+        "No target SQL writes or provider send and no GitHub push/CI/Preview."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F11-REPLY-QUEUE-GUARD",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F12-DRAFT-TENANT-INTEGRITY",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -701,11 +743,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F11-REPLY-QUEUE",
-        "requirement": "Append canonical 0058 Office support reply queue hard gate with customer thread, active mailbox and route; no false release proof.",
+        "id": "REQ-F12-DRAFT-TENANT",
+        "requirement": "Append canonical 0059 threadless Office draft instance FK and neutral F11 plan-independent regression; no false closure.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-reply-queue-db-source",
+          "breadth": "office-drafts-tenant-source",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -727,8 +769,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F11-UNROUTABLE",
-            "statement": "Unroutable Office support reply must not enter queue when enacted on real database; source proof now.",
+            "id": "NEG-F12-ORPHAN",
+            "statement": "Threadless draft cannot reference nonexistent store on real target; source FK and gap proof now.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -737,5 +779,5 @@
       }
     ]
   },
-  "notes": "U10A2 F11 canonical 0058 reply queue guard source only after F10; 0059 draft tenant integrity and Communication Hub/strict Pro SQL + actual target role/tenant proof pending. KNOWN BLOCKER: F11 canonical trigger is INSERT-only; UPDATE of queued job fields may bypass, must be addressed by separate forward-only SQL prior to any release."
+  "notes": "U10A2 F12 canonical 0059 draft tenant FK/index plus future-proof F11 source regression, known F11 UPDATE bypass remains BLOCKED; real Fresh Install and Advanced Pro pending."
 }

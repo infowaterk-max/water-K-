@@ -46,9 +46,9 @@ describe('Core #1186 U10A2 F11 Office reply queue canonical INSERT boundary',()=
   expect(source).toContain('create trigger communication_jobs_office_reply_mailbox_guard');
   expect(source).toContain('before insert on public.communication_jobs');
   expect(source).not.toMatch(/before insert or update\b/i);
-  const plan=JSON.parse(read('quality/development/active-plan.json'));
-  expect(plan.notes).toContain('F11 canonical trigger is INSERT-only');
-  expect(plan.operationalIntelligence.unresolvedRisks.join(' ')).toContain('Forward-only update-path guard');
+  // Canonical producer only validates INSERT. UPDATE-path closure requires a separate forward-only migration.
+  expect(target).toContain('before insert on public.communication_jobs');
+  expect(source).not.toContain('before update on public.communication_jobs');
  });
  it('keeps 59-migration baseline unproved, without claiming target email delivery',()=>{
   expect(manifest.status).toBe('snapshot-reviewed');
