@@ -1,14 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2 F15: append-only 0062 canonical Office reply-draft singleton advisory-lock and unique index source; no target writes",
+  "task": "Core #1186 U10A2 F16: append-only 0063 canonical Office recipient envelope and private attachment metadata foundation, no target DB/provider writes",
   "status": "ready-for-implementation",
   "guardDigest": "2ebcb98e",
-  "changeBaseSha": "406809bc1244e35d450b71365e2bbc89da5f6450",
+  "changeBaseSha": "39bb4b9aac20df8f691dae3fafbe624a1f21a214",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
+    "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-office-reply-draft-singleton.test.ts"
+    "tests/customer-baseline-office-recipient-envelope.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -38,7 +38,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F15-REPLY-DRAFT-SINGLETON",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F16-RECIPIENT-ENVELOPE",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -59,26 +59,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "0062 exactly matches canonical 20260909203242 source SQL SHA256 and follows 0061.",
-        "Trigger uses pg_advisory_xact_lock derived from instance/author/thread and is BEFORE INSERT OR UPDATE of identity fields.",
-        "Predicate rejects second matching reply draft with OFFICE_DRAFT_CONFLICT; excludes same row id.",
-        "Partial unique index on (instance_id,author_user_id,thread_id) WHERE draft_type reply and thread_id IS NOT NULL.",
-        "Revoke private trigger function execute from browser roles and preserve ordinary new_email flows.",
-        "Customer baseline guard 63, TypeScript/relevant tests and Control Plane risk gates PASS while real DB proof remains pending."
+        "0063 source body exactly matches production 20260909203604 with SHA256 identity.",
+        "Cc/Bcc fields and count CHECKs are present on both Office drafts and messages; helper normalizes/deduplicates recipients with limit and role revokes.",
+        "Office attachment metadata table maintains exactly-one draft/message anchor, tenant-bound composite FKs, size bounds, RLS and explicit browser grants revoked.",
+        "Versioned mutate_v3 and queue_v4 RPCs preserve actor/tenant permission and send idempotency/recipient checks and service-role grants.",
+        "Previous 0061/0062 optimistic revision/first-reply singleton remain unchanged and 0063 ordered after 0062.",
+        "64 SQL baseline, 100% focused tests/typecheck and postcommit sync/replay/risk gates PASS; actual PostgreSQL and Pro-only capability remain BLOCKED."
       ],
       "invariants": [
-        "Only one reply draft per tenant+author+thread.",
-        "Distinct authors and threads can have their own reply drafts.",
-        "New email drafts without thread are unaffected.",
-        "All prior canonical SQL and current private Office RLS unchanged.",
-        "No elevated browser direct grant or target write."
+        "Recipient Cc/Bcc count bounded, normalized and duplicate-eliminated, including collision with To where applicable.",
+        "No attachment row crosses instance boundary to another tenant draft or Office message.",
+        "Exactly one attachment owner among draft_id or message_id.",
+        "Direct browser roles cannot read/write Office attachment metadata.",
+        "No actual external storage upload, provider mail, live DB execution or email transmission.",
+        "Canonical migration SQL identity immutable."
       ],
       "forbiddenStates": [
-        "Two concurrent first reply drafts for same author/thread accepted in real DB.",
-        "Second draft overwritten without explicit conflict.",
-        "Unique index includes new_email drafts by mistake.",
-        "Trigger omits tenant or author identity.",
-        "Target marked ready based on source-only tests."
+        "A cross-tenant attachment draft or message link is accepted on real DB.",
+        "An attachment is orphaned or linked to both a draft and a message.",
+        "A browser role directly SELECTs or writes attachment metadata through a new grant.",
+        "Cc/Bcc over-limit or invalid address input silently accepted by guarded RPC.",
+        "Source-only test marks actual Fresh Install/Provider/Pro DONE."
       ]
     },
     "model": {
@@ -110,50 +111,54 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Advisory lock missing",
-        "Collision or hash key unexpectedly shared",
-        "Partial unique index missing",
-        "Existing duplicate reply drafts prevent CREATE INDEX",
-        "Trigger fires only INSERT, misses UPDATE identity",
-        "Same draft update rejected as conflict",
-        "Nonreply drafts blocked",
-        "Cross-instance collision",
-        "Wrong index column order",
-        "Definer caller impersonates author",
-        "Canonical SQL hash drift",
-        "Manifest falsely ready"
+        "Office messages baseline table absent or mismatched schema",
+        "Missing office_drafts or office_messages instance-index prerequisite",
+        "Cc/Bcc array CHECK or normalization omitted",
+        "Recipient list includes duplicate or To alias",
+        "Cross-instance composite FK missing",
+        "Attachment sizes/sha validation missing",
+        "RLS not enabled or PUBLIC table default privileges",
+        "Unauthorized service_role p_actor forged",
+        "Draft v3 RPC discards revision check",
+        "Queue v4 bypasses active mailbox or idempotency",
+        "Function versioned overload SQL errors",
+        "Production source hash copied incompletely",
+        "Manifest prematurely ready"
       ],
       "edgeCases": [
-        "Two concurrent fresh autosaves",
-        "Different tabs same revision 1",
-        "Different authors same thread",
-        "Same author different thread",
-        "New email draft no thread",
-        "Reply draft identity UPDATE",
-        "Idempotent repeated migrations",
-        "Existing duplicate legacy rows",
-        "Deleted thread tenant",
-        "Untrusted actor UUID"
+        "Empty/null CC list",
+        "Repeated mixed-case recipient",
+        "BCC duplicate of To/CC",
+        "More than 10 recipients",
+        "Invalid JSON list type",
+        "Attachment with neither owner",
+        "Attachment with both owners",
+        "Cross-tenant draft UUID",
+        "Attachment size 0 or >25 MB",
+        "Missing storage bucket",
+        "Untrusted MIME filename",
+        "Legacy recipient envelope columns",
+        "Multiple simultaneous autosaves"
       ]
     },
     "alternatives": [
       {
-        "id": "F15-CANONICAL",
-        "summary": "Append original singleton trigger+partial unique index SQL as 0062",
+        "id": "F16-CANONICAL",
+        "summary": "Append exact 20260909203604 recipient/attachment SQL in one dependency-preserving 0063.",
         "disposition": "selected",
-        "reason": "Provides DB-level serialization and unique constraint preserving source authority."
+        "reason": "Keeps governed SQL authority and required cross-function semantics while preserving 5/5 database-schema scope."
       },
       {
-        "id": "F15-UI-SINGLETON",
-        "summary": "Deduplicate drafts only in React UI",
+        "id": "F16-SPLIT",
+        "summary": "Copy only Cc/Bcc field migrations and omit attachment metadata and new RPC versions.",
         "disposition": "rejected",
-        "reason": "Concurrent tabs and service caller bypass browser singleton check."
+        "reason": "Breaks downstream producer dependencies and claim closure with incomplete versioned functions."
       },
       {
-        "id": "F15-JUMP-RECIPIENT",
-        "summary": "Skip singleton and implement recipient envelope immediately",
+        "id": "F16-ADVANCED",
+        "summary": "Jump directly to Communication Hub advanced source before recipient and attachment producers.",
         "disposition": "rejected",
-        "reason": "Leaves duplicate reply drafts despite available canonical fix."
+        "reason": "Missing schema/RPC dependencies and insecure premature completion."
       }
     ],
     "specialistReviews": [
@@ -161,28 +166,28 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Source lock/index is not concurrent Postgres proof; service-role can still spoof author or disable triggers.",
-        "resolution": "Require disposable Postgres dual-connection race and effective actor grants tests before release.",
+        "finding": "SECURITY DEFINER RPC actor binding and storage object access cannot be validated by static migration strings.",
+        "resolution": "Keep blocked until real Postgres RLS/role/tenant tests, server caller session binding and Storage policy/attachment download gates.",
         "evidence": [
-          "supabase/migrations/20260909203242_digital_office_reply_draft_singleton_v1.sql"
+          "supabase/migrations/20260909203604_digital_office_recipient_envelope_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Canonical partial unique index can fail when occupied target already has duplicates.",
-        "resolution": "No target apply; read-only duplicate inventory and remediation before migration.",
+        "finding": "Attachment cross-tenant composite FK requires ID+instance unique indexes and existing office_drafts/messages tables.",
+        "resolution": "Canonical migration supplies indexes before attachment table; assert predecessor 0057/0062 and source body identity.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0061_digital_office_draft_revision_guard_v1.sql"
+          "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Single high-risk DB-schema migration qualifies for isolated 5/5 release.",
-        "resolution": "One SQL+manifest+neutral test, exact F14 HEAD, no Preview.",
+        "finding": "Combined canonical recipient envelope and attachment metadata is high risk but one SQL source release unit.",
+        "resolution": "One 0063 SQL, manifest and tests, exact F15 risk 5/5; no Preview/CI.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -191,8 +196,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Advisory transaction locks could impact autosave latency under load.",
-        "resolution": "Require performance/retry concurrency rehearsal, no production changes now.",
+        "finding": "Existing tenants may not have new attachment bucket/recipient arrays or SMTP sender verification.",
+        "resolution": "Do not run occupied target/provider operations; require clean-target rehearsal and storage/provider readiness proof.",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -200,72 +205,72 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F15-01",
-        "scenario": "Two browser tabs simultaneously auto-save their first reply draft for the same instance, signed-in author and customer thread.",
-        "finding": "Both inserts can pass an application-level existence check and create duplicate drafts before either transaction commits.",
-        "resolution": "Preserve the canonical pg_advisory_xact_lock scoped to instance/author/thread and partial unique index; a two-session Postgres race test must assert one conflict.",
+        "id": "CH-U10A2-F16-01",
+        "scenario": "An external actor supplies Cc/Bcc entries with mixed case, whitespace and duplicate of the To recipient.",
+        "finding": "Incorrect normalization can create unintended duplicate recipients and leak private message headers.",
+        "resolution": "Preserve canonical private.normalize_office_email_list_v1, dedupe with excluded list and per-field count constraints; demand real provider acceptance.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F15-02",
-        "scenario": "Two distinct support employees each start a reply draft to the same customer support conversation.",
-        "finding": "A singleton keyed only by tenant and thread would incorrectly block legitimate separate authors from drafting independent replies.",
-        "resolution": "Keep author_user_id in both advisory hash construction and partial unique index and require real target positive two-author acceptance.",
+        "id": "CH-U10A2-F16-02",
+        "scenario": "A draft payload contains a recipient array with invalid JSON types or >10 distinct addresses.",
+        "finding": "Malformed inputs might bypass recipient envelope checks or overload provider recipient limits.",
+        "resolution": "Retain office_jsonb_text_array_v1 conversion guard, address validation and cardinality CHECK on drafts/messages.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F15-03",
-        "scenario": "One support employee edits reply drafts for two different customer threads in one tenant.",
-        "finding": "A singleton key missing thread_id would cause unrelated reply drafts to collide or serialize incorrectly.",
-        "resolution": "Require distinct thread_id in lock hash and uniqueness columns, then test two-thread separate insert acceptance.",
+        "id": "CH-U10A2-F16-03",
+        "scenario": "An attachment row references a draft of another webshop while using a locally valid instance_id.",
+        "finding": "A data/API worker could leak a tenant draft attachment across organizations.",
+        "resolution": "Require composite foreign key (draft_id,instance_id) to office_drafts(id,instance_id), similarly messages.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F15-04",
-        "scenario": "Two isolated webshop instances happen to reference equal user UUID and thread UUID due to imported or fixture data.",
-        "finding": "Cross-tenant draft uniqueness could leak or deny another tenant if instance_id is omitted from singleton key.",
-        "resolution": "Preserve instance_id in advisory lock text and unique index; use tenant-isolated test fixtures with both instances.",
+        "id": "CH-U10A2-F16-04",
+        "scenario": "An attachment row uses both draft_id and message_id or neither.",
+        "finding": "Ambiguous attachment ownership can leak drafts into inbound messages or create orphan metadata.",
+        "resolution": "Retain exactly-one-anchor CHECK on attachment row.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F15-05",
-        "scenario": "A user creates several ordinary new_email drafts with NULL thread_id while also composing reply drafts.",
-        "finding": "A broad unique index could incorrectly constrain unrelated outbound draft content and block legitimate new-email workflows.",
-        "resolution": "Trigger must early-return for draft_type not reply or NULL thread_id, and index must be partial WHERE reply and thread_id IS NOT NULL.",
+        "id": "CH-U10A2-F16-05",
+        "scenario": "Anonymous or authenticated user SELECTs private attachment metadata directly through Data API.",
+        "finding": "File names, SHA and provider attachment IDs could reveal private correspondence.",
+        "resolution": "Enable RLS and revoke all table grants from public,anon,authenticated; verify effective privileges on disposable target.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F15-06",
-        "scenario": "A legitimate author updates the subject/body of their existing reply draft without changing the thread/tenant/author identity.",
-        "finding": "An existence check that matches the updated row itself would raise OFFICE_DRAFT_CONFLICT and make routine autosaves impossible.",
-        "resolution": "Canonical WHERE d.id<>new.id must exclude same row; prove a valid status/content UPDATE via actual disposable Postgres.",
+        "id": "CH-U10A2-F16-06",
+        "scenario": "A forged service_role caller queues email with another operator p_actor or unrelated instance.",
+        "finding": "Definer RPC bypasses row-level security and actor impersonation can send across tenant.",
+        "resolution": "Preserve source checks and require real server request-to-actor identity proof before final release.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F15-07",
-        "scenario": "An occupied staging database already contains duplicate reply drafts with the same tenant, author and thread created before this migration.",
-        "finding": "CREATE UNIQUE INDEX will fail during rollout or lock critical Office tables if legacy duplicate records are not identified.",
-        "resolution": "Keep production/staging unchanged and require read-only duplicate group inventory, remediation strategy and migration-window assessment.",
+        "id": "CH-U10A2-F16-07",
+        "scenario": "A draft v3 autosave arrives with stale revision after another tab already saved new recipients.",
+        "finding": "Cc/Bcc may overwrite latest content if revision protection dropped by new version.",
+        "resolution": "Preserve expectedRevision optimistic predicate in admin_mutate_office_draft_v3 and add runtime two-tab race later.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F15-08",
-        "scenario": "A privileged background worker passes a forged author_user_id as it inserts a reply draft under service_role.",
-        "finding": "A uniqueness key scoped to that forged UUID does not authenticate the real caller and could impersonate another employee.",
-        "resolution": "Keep actor/session binding and effective privilege role verification as separate release blockers; never treat source hash tests as full identity proof.",
+        "id": "CH-U10A2-F16-08",
+        "scenario": "A migration author copies 0063 only partially, omitting one RPC GRANT/REVOKE or index.",
+        "finding": "Table source checks might PASS while live new mail/attachment API fails or is exposed.",
+        "resolution": "Verify byte-identical entire canonical SQL body with SHA256 plus versioned RPC grants and dependent tables in regression.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code PASS before 0062 edit.",
-      "SHA256 complete canonical SQL, trigger lock/unique index and nonreply assertions.",
-      "Customer baseline guard 63, full source regression tests and TypeScript.",
-      "Edit-Time Reference/Implementation Sync and Knowledge/Incremental Replay.",
-      "Exact F14 HEAD release risk 5/5, no actual DB claims.",
-      "Real disposable dual-session draft create race and legacy duplicate data preflight required for release."
+      "Critical Plan Before Code PASS before editing canonical 0063 SQL.",
+      "Canonical source SHA256 full identity and recipient/attachment tenant/grant/RPC tests.",
+      "Customer baseline 64 ordered migrations snapshot-reviewed, complete U10A2 source regression and TypeScript.",
+      "Edit-Time Reference/Implementation Sync/PO retention, Knowledge Preflight and Incremental Replay FULL shadow.",
+      "Exact F15 head Release Risk 5/5 and no real target/vendor result overclaim.",
+      "Disposable Postgres role/tenant/attachment/FK and provider/storage flow acceptance outstanding."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F15: append-only 0062 canonical Office reply-draft singleton advisory-lock and unique index source; no target writes",
+      "request": "Core #1186 U10A2 F16: append-only 0063 canonical Office recipient envelope and private attachment metadata foundation, no target DB/provider writes",
       "authority": [
         "database-schema"
       ],
@@ -275,17 +280,17 @@
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
-        "tests/customer-baseline-office-reply-draft-singleton.test.ts"
+        "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
+        "tests/customer-baseline-office-recipient-envelope.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code PASS before 0062 edit.",
-        "SHA256 complete canonical SQL, trigger lock/unique index and nonreply assertions.",
-        "Customer baseline guard 63, full source regression tests and TypeScript.",
-        "Edit-Time Reference/Implementation Sync and Knowledge/Incremental Replay.",
-        "Exact F14 HEAD release risk 5/5, no actual DB claims.",
-        "Real disposable dual-session draft create race and legacy duplicate data preflight required for release."
+        "Critical Plan Before Code PASS before editing canonical 0063 SQL.",
+        "Canonical source SHA256 full identity and recipient/attachment tenant/grant/RPC tests.",
+        "Customer baseline 64 ordered migrations snapshot-reviewed, complete U10A2 source regression and TypeScript.",
+        "Edit-Time Reference/Implementation Sync/PO retention, Knowledge Preflight and Incremental Replay FULL shadow.",
+        "Exact F15 head Release Risk 5/5 and no real target/vendor result overclaim.",
+        "Disposable Postgres role/tenant/attachment/FK and provider/storage flow acceptance outstanding."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -301,8 +306,8 @@
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
-          "tests/customer-baseline-office-reply-draft-singleton.test.ts"
+          "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
+          "tests/customer-baseline-office-recipient-envelope.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -334,13 +339,13 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
+            "file": "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           },
           {
-            "file": "tests/customer-baseline-office-reply-draft-singleton.test.ts",
+            "file": "tests/customer-baseline-office-recipient-envelope.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -374,13 +379,13 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
+              "file": "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             },
             {
-              "file": "tests/customer-baseline-office-reply-draft-singleton.test.ts",
+              "file": "tests/customer-baseline-office-recipient-envelope.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -425,7 +430,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql"
+              "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -442,7 +447,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -455,7 +460,7 @@
           {
             "id": 2,
             "files": [
-              "tests/customer-baseline-office-reply-draft-singleton.test.ts"
+              "tests/customer-baseline-office-recipient-envelope.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -466,7 +471,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-office-reply-draft-singleton.test.ts",
+                  "file": "tests/customer-baseline-office-recipient-envelope.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -484,21 +489,21 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "406809bc1244e35d450b71365e2bbc89da5f6450"
+              "developmentBaseSha": "39bb4b9aac20df8f691dae3fafbe624a1f21a214"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "406809bc1244e35d450b71365e2bbc89da5f6450",
+            "targetBaseSha": "39bb4b9aac20df8f691dae3fafbe624a1f21a214",
             "lease": {
-              "expectedBaseSha": "406809bc1244e35d450b71365e2bbc89da5f6450",
+              "expectedBaseSha": "39bb4b9aac20df8f691dae3fafbe624a1f21a214",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
-              "tests/customer-baseline-office-reply-draft-singleton.test.ts"
+              "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
+              "tests/customer-baseline-office-recipient-envelope.test.ts"
             ],
             "operations": [
               {
@@ -508,12 +513,12 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
+                "file": "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-office-reply-draft-singleton.test.ts",
+                "file": "tests/customer-baseline-office-recipient-envelope.test.ts",
                 "generated": null
               }
             ],
@@ -545,13 +550,13 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 },
                 {
-                  "file": "tests/customer-baseline-office-reply-draft-singleton.test.ts",
+                  "file": "tests/customer-baseline-office-recipient-envelope.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -582,7 +587,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-office-reply-draft-singleton.test.ts"
+                "tests/customer-baseline-office-recipient-envelope.test.ts"
               ],
               "externalGateIds": []
             },
@@ -594,8 +599,8 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0062_digital_office_reply_draft_singleton_v1.sql",
-                "tests/customer-baseline-office-reply-draft-singleton.test.ts"
+                "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql",
+                "tests/customer-baseline-office-recipient-envelope.test.ts"
               ],
               "filesAbsent": []
             },
@@ -610,7 +615,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "45c9ac30",
+            "manifestDigest": "459537dd",
             "decision": "PASS"
           }
         ],
@@ -650,37 +655,38 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The 0061 draft optimistic revision RPC protects updating an existing draft, but two tabs concurrently creating the FIRST reply draft for one (instance, author, customer thread) may each generate a new ID/revision=1. Canonical 20260909203242 must follow 0061 in Fresh Install: it serializes first reply draft creation via transaction-scoped advisory lock, raises OFFICE_DRAFT_CONFLICT when a competing reply draft exists and enforces a partial unique index. Non-reply drafts and different authors/threads must remain unaffected; no real Postgres concurrency execution claimed.",
+    "problemStatement": "Customer Fresh Install 0062 contains Office draft optimistic revision and singleton guards but lacks original 20260909203604 Recipient Envelope: Cc/Bcc normalization, protected attachment metadata references and updated draft mutation+queue RPCs. New outgoing and reply email must not leak another tenant attachment, improperly format recipients, or bypass actor capability and mailbox checks. This is a byte-identical source-only migration append, not a real Postgres/provider acceptance.",
     "observableOutcomes": [
-      "Append 0062 full-byte canonical draft singleton SQL with SHA256 source provenance.",
-      "A BEFORE INSERT and UPDATE-of-identity trigger takes tenant/author/thread hashed advisory transaction lock on reply draft.",
-      "Existing reply draft per tenant-author-thread raises OFFICE_DRAFT_CONFLICT instead of creating a second one.",
-      "Partial unique index enforces same invariant in database, excluding new_email and NULL thread_id cases.",
-      "Customer baseline guard validates 63 ordered migrations snapshot-reviewed, no target Fresh Install proof hash.",
-      "No actual concurrency/actor/bypass proof, advanced Pro SQL or DB target write."
+      "Append full 0063 canonical SQL body with SHA256 provenance after 0062, unchanged history.",
+      "office_drafts and office_messages gain bounded cc_emails/bcc_emails arrays, normalized recipient lists, email helper private EXECUTE revokes.",
+      "New office_attachments table has tenant-bounded composite draft/message FKs, exactly-one owner invariant, size/sha constraints, RLS enabled and no browser table grants.",
+      "Updated admin_mutate_office_draft_v3 and admin_queue_office_email_v4 RPC sources retain service-only execution, tenant/author/capability checks, recipient normalization and idempotency.",
+      "Customer baseline guard 64 ordered files remains snapshot-reviewed with freshInstallProofRequired and null proof hash; Vitest/TypeScript and Control Plane PASS.",
+      "No actual mailbox/provider email, attachment upload, real DB RLS/GRANT or strict Pro Office security completion is claimed."
     ],
     "unresolvedRisks": [
-      "Hash collisions/advisory locks and unique index/trigger behavior under parallel sessions need actual disposable Postgres concurrency tests.",
-      "Existing duplicate legacy reply drafts would cause CREATE UNIQUE INDEX to fail on occupied target; require read-only duplicate count/remediation plan before rollout.",
-      "A service_role caller may forge author_user_id; SQL source alone does not bind actor to authenticated session.",
-      "Earlier customer baseline 0060 UPDATE route hardening still lacks actual trigger proof, later recipient/attachments/Advanced Office/strict Pro SQL missing."
+      "Canonical 429-line SQL source-only parity and regex tests cannot certify multi-RPC PostgreSQL semantics/transaction concurrency or service_role actor/session binding.",
+      "Existing target draft/mail columns/owner FKs, duplicate indexes, SQL function overloads and legacy data may be incompatible; disposable empty Postgres + occupied read-only ledger needed.",
+      "Attachment table stores metadata, NOT actual object Storage bucket access controls or virus scanning, and does not prove link authorization at download time.",
+      "Untrusted recipient input may include Unicode / MIME formatting outside canonical regex, requiring real provider and application abuse tests.",
+      "Later canonical attachment metadata integrity and Team Chat/Communication Hub Advanced SQL plus separate strict U10A1 Pro gating remain absent; real Fresh Install unproved."
     ],
     "scope": {
       "in": [
-        "One exact canonical 0062 reply-draft singleton source SQL with SHA256 and predecessor.",
-        "Manifest note preserving snapshot-reviewed and blocking live proof.",
-        "Focused trigger, partial unique index, lock, tenant+author+thread and nonreply source tests."
+        "One append-only 0063 complete canonical recipient-envelope SQL with source hash.",
+        "Manifest status source-only and explicit blockers.",
+        "Focused tests for Cc/Bcc validation, attachment tenant FKs, RLS browser revokes, service-only RPC and chronology."
       ],
       "out": [
-        "No modification of historical 0001-0061 SQL or production canonical source.",
-        "No actual database SQL, provider call, UI changes, GitHub push, CI or Vercel Preview.",
-        "No 0063+ recipient/attachment/advanced SQL in same high-risk release."
+        "No alteration of 0001–0062 historical migration files or canonical production source.",
+        "No separate 0064 attachment integrity migration in F16, no frontend/worker changes or provider/storage uploads.",
+        "No staging/production/Fresh Install target SQL writes, CI dispatch, GitHub branch push or Vercel Preview."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F15-REPLY-DRAFT-SINGLETON",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F16-RECIPIENT-ENVELOPE",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -698,11 +704,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F15-REPLY-SINGLETON",
-        "requirement": "Append canonical 0062 reply draft per tenant/author/thread singleton advisory lock and partial unique index, preserving source and no fake runtime proof.",
+        "id": "REQ-F16-RECIPIENT",
+        "requirement": "Append exact canonical 0063 Cc/Bcc recipient envelope, tenant-bounded private attachment metadata and versioned draft/email RPCs while preventing false live Fresh Install closure.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-reply-draft-singleton-source",
+          "breadth": "office-recipient-attachment-source-baseline",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -724,8 +730,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F15-DUPLICATE",
-            "statement": "Concurrent first reply drafts per tenant-author-thread must produce a conflict under real PostgreSQL; static source proof now.",
+            "id": "NEG-F16-ATTACH-TENANT",
+            "statement": "Browser roles cannot directly access Office attachment metadata and cross-tenant owner FKs must fail in real Postgres; source guards now.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -734,5 +740,5 @@
       }
     ]
   },
-  "notes": "F15 canonical 0062 singleton reply draft guard source-only after F14. Actual Postgres concurrent autosave proof and recipient/attachment/Advanced Office/Pro dependencies remain BLOCKED."
+  "notes": "F16 0063 canonical full recipient envelope and attachment metadata after 0062, source-only. Next 0064 metadata integrity then Advanced Office/strict Pro and real database/providers proof still BLOCKED."
 }
