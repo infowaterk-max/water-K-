@@ -1,27 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CORE-1186-U08-NO-TENANT-STRICT-PRO-OFFICE",
-  "task": "Core 1186 U08: deny strict Pro Digital Office capabilities without canonical webshop instance; preserve Alap commerce plan fallback",
-  "status": "closed",
-  "guardDigest": "c3d81a1f",
-  "changeBaseSha": "ad5dd579aa862f52f089993e489e61c19cbc6454",
+  "taskId": "DEV-CORE-1186-U09-DB-READINESS",
+  "task": "Core 1186 U09: read-only fail-closed Digital Office staging DB RLS and migration readiness gate, no schema changes",
+  "status": "ready-for-implementation",
+  "guardDigest": "6d41d00a",
+  "changeBaseSha": "68170dfb7d78bcf065a52540dda5bc9218009600",
   "plannedFilePatterns": [
-    "src/lib/plans/access.ts",
+    "scripts/shoperation-office-db-readiness.mjs",
+    "tests/shoperation-office-db-readiness.test.ts",
     "tests/pro-entitlement-guards.test.ts",
-    "tests/customer-email-plan-split.test.ts"
+    "scripts/shoperation-office-db-readiness.d.mts"
   ],
   "expectedSubsystems": [
     "admin-operations",
-    "auth-access-authority",
-    "customer-account",
-    "shared-storefront",
-    "storefront-ui"
+    "database-schema",
+    "quality-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-TENANCY"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "tenant-context-authority"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -29,52 +28,33 @@
     "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-004",
-    "SQ-KF-005",
-    "SQ-KF-007",
+    "SQ-KF-006",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
-    "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-019",
-    "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-004",
-    "TF-KF-006",
-    "TF-KF-008",
-    "TF-KF-012",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "SQ-KF-018",
+    "SQ-KF-023"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
-    "SQ-NK-007",
     "SQ-NK-008",
-    "SQ-NK-009",
-    "SQ-NK-012"
+    "SQ-NK-012",
+    "SQ-NK-014"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U08-STRICT-PRO-OFFICE-NO-INSTANCE",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U09-DB-READINESS",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Authorization-critical missing tenant context is a trusted-boundary fault. The precise central strict-Pro feature taxonomy already exists and must be reused, not duplicated. Deny before fallback to profile/default; preserve explicit current-instance entitlement authority and all other feature behavior.",
+      "rationale": "Authority-bearing RLS drift detection must be fail-closed against missing/malformed/stale reports, while never upgrading static observation to final security proof.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -91,26 +71,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "hasCurrentPlanFeature(teamChat) returns false if getCurrentWebshopInstance() returns null, independent of Pro fallback via WEBSHOP_DEFAULT_PLAN or profiles.subscription_plan.",
-        "hasCurrentPlanFeature(officeCommunicationAdvanced) returns false without a current instance, independent of profile/default plan.",
-        "Strict Pro Office feature list comes only from existing src/lib/plans/catalog.ts isStrictProOfficeFeature, not a second plan controller.",
-        "If an instance exists, hasCurrentPlanFeature continues to require getFeatureEntitlementDecision(instance.id,feature).enabled===true.",
-        "If no instance and feature is not strict Pro Office, fallback behavior remains the previous hasPlanFeature(await getCurrentPlan(),feature).",
-        "Alap support, basic officeCommunication transactional email, standard customer notifications and Pro permitted feature handling are unchanged.",
-        "Pro boundary negative and positive tests plus Critical Plan Before Code, Knowledge/Atlas, Edit-Time/Reference/Implementation Sync, Incremental Replay, Release Risk, exact-head CI/Truth/Lifecycle PASS."
+        "Fail-closed BLOCK when any of the three Office table policy sets uses legacy ALL or lacks an exact authenticated SELECT row gate.",
+        "Fail-closed BLOCK when privacy migration, membership hardening, helper exposure closure or target function is missing.",
+        "Reject missing, stale, invalid or unscoped inputs; never consider an empty policy list as safe.",
+        "Provide the exact required canonical SQL snapshot query so the gate can be run without DB writes and without guessing schema.",
+        "Only READY_FOR_VERIFICATION for a structurally clean, recent supplied snapshot; never claim authoritative RLS DONE based on static JSON.",
+        "Negative test covers legacy actual staging policy facts: three PERMISSIVE ALL can_manage_support policies and missing can_read function/migrations.",
+        "Critical Plan Before Code, Edit-Time Reference Sync, Atlas, Replay, Risk, exact-head CI, Truth and Lifecycle required; issue #1186 remains PARTIAL.",
+        "TypeScript declares the new read-only JS analyzer contract without implicitly typed callback or module imports; no ts-ignore suppression."
       ],
       "invariants": [
-        "Tenant-scoped Pro-only capabilities require an actual canonical current webshop instance and explicit current instance entitlement.",
-        "No fallback profile/default plan can stand in for tenant subscription and entitlement for internal office operations.",
-        "Preserve normal Alap transactional email and other non-Office fallback semantics.",
-        "Never grant a strict Pro Office feature when no canonical tenant is resolved; deny as early as possible."
+        "No direct DB mutation or network call from the preflight tool; supplied snapshots are read-only, operator-provided evidence.",
+        "Never use platform role or user-editable JWT profile metadata as plan authority.",
+        "Worker/service role bypass not certified merely because browser-side RLS appears safe.",
+        "Keep Alap transactional email/support outside the Digital Office Pro-only workspace.",
+        "Never silently accept missing migration provenance or run-id as success."
       ],
       "forbiddenStates": [
-        "A profile with subscription_plan pro but no valid current webshop resolves hasCurrentPlanFeature(teamChat) or hasCurrentPlanFeature(officeCommunicationAdvanced) true.",
-        "WEBSHOP_DEFAULT_PLAN=pro without current webshop authorizes private Office/Team Chat.",
-        "Change hasPlanFeature fallback for non-strict-Office capabilities.",
-        "Introduce a new hard-coded teamChat/officeCommunicationAdvanced list independent of the canonical catalog.",
-        "Mark #1186 DONE while RLS, downgrade/expiry and real tenant-acceptance closure are unverified."
+        "The legacy staging ALL policies yield READY.",
+        "A function-name-only positive without row policies yields READY.",
+        "One of the Office tables lacks the expected read policy but is silently ignored.",
+        "An incomplete/old snapshot yields authoritative production-like closure.",
+        "Any schema, seed, migration history, entitlement or production environment is changed."
       ]
     },
     "model": {
@@ -142,329 +124,198 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Missing current tenant resolved to profile plan Pro and false authorization to Office",
-        "Environment default Pro creates phantom tenant entitlement",
-        "Premature no-instance return disables normal transactional email fallback",
-        "Office strict feature list copied and drifts from catalog",
-        "Explicit instance entitlement is bypassed by default/profile fallback",
-        "Unreleased feature becomes available via fallback",
-        "Tenant lookup API errors surface as instance missing and Pro feature remains denied"
+        "Legacy permissive ALL policies leave customer Office data exposed under basic support grant",
+        "Office privacy and RLS helper migration missing in target despite repository source existing",
+        "No actual entitlement evidence but caller claims positive RLS closure",
+        "A missing table/policy silently degrades report to success",
+        "A malformed command/role alias results in empty validation",
+        "Unscoped snapshot points at an unintended production target",
+        "A passing static candidate masks worker or service_role access bypass"
       ],
       "edgeCases": [
-        "No Supabase env and WEBSHOP_DEFAULT_PLAN=pro",
-        "Logged-in user profile subscription_plan=pro but no owned webshop",
-        "Platform operator has no selected tenant",
-        "Stale cookie references a deleted or suspended webshop",
-        "Actual Pro webshop with enabled entitlement",
-        "Actual Alap webshop with stale enabled Pro feature_entitlements row",
-        "Normal support email capability without webshop retains original demo fallback",
-        "teamChatSecureAttachments reserved remains unavailable"
+        "All three tables have permissive ALL and old support-only condition",
+        "Two tables are modern but office_tasks remains stale",
+        "Helper exists but exposure closure migration absent",
+        "Matching policies but no authenticated role",
+        "Snapshot is expired/invalid timestamp",
+        "One migration missing, others present",
+        "Only service_role policies are present",
+        "Case/whitespace differences in role and SQL policy text",
+        "Valid modern snapshot still cannot assert full plan/tenant proof"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-CANONICAL-CATALOG-GUARD",
-        "summary": "Reuse isStrictProOfficeFeature in plan access and fail closed only when no canonical webshop exists.",
+        "id": "ALT-READONLY-DB-PREFLIGHT",
+        "summary": "Create deterministic, credential-free catalog snapshot evaluator with fail-closed negative readiness and nonauthoritative positive candidate.",
         "disposition": "selected",
-        "reason": "Narrow bounded denial without a parallel package controller or normal Alap regression."
+        "reason": "Reveals real staging drift without applying selective SQL changes over unverified migration history."
       },
       {
-        "id": "ALT-GLOBAL-NO-TENANT-DENY",
-        "summary": "Return false for every capability when no instance is available.",
+        "id": "ALT-BLIND-DB-PATCH",
+        "summary": "Immediately apply isolated Office RLS migration to staging.",
         "disposition": "rejected",
-        "reason": "Broad unrelated behavior change to legacy, demo and commerce fallback."
+        "reason": "Real migration ledger lacks privacy prerequisites; may break staging and skip required ordered Fresh Install proof."
       },
       {
-        "id": "ALT-ROUTE-ONLY",
-        "summary": "Rely on existing Digital Office layout and individual HTTP/Server Action guards.",
+        "id": "ALT-MARK-DONE",
+        "summary": "Treat repository SQL migration files as evidence that target policies are live.",
         "disposition": "rejected",
-        "reason": "Central feature checks remain an independent authorization path and can be consumed by future routes."
+        "reason": "The actual staging pg_policies result disproves this claim."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Security",
+        "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Profile/default Pro is not a tenant entitlement and cannot enable strict Office operations without a canonical instance.",
-        "resolution": "Add fail-closed branch after null instance, before profile/default plan fallback.",
+        "finding": "Staging pg_policies still shows 3 permissive ALL policies and the desired privacy RLS helper is absent.",
+        "resolution": "Define strict expected policy/function/migration report contract and BLOCK legacy states.",
         "evidence": [
-          "src/lib/plans/access.ts",
-          "src/lib/entitlements/access.ts"
+          "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql"
         ]
       },
       {
-        "role": "Data Integrity",
+        "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A broad return-false when tenant is absent would also change normal Alap transaction/notification demos and legacy capabilities.",
-        "resolution": "Limit new check to preexisting STRICT_PRO_OFFICE_FEATURES; verify basic officeCommunication and support fallback unchanged.",
-        "evidence": [
-          "src/lib/plans/catalog.ts",
-          "tests/customer-email-plan-split.test.ts"
-        ]
-      },
-      {
-        "role": "Architecture",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Real tenant branches already query the per-instance decision and hard-filter Alap strict Office features using tenant subscription.",
-        "resolution": "Preserve exact instance branch and add only missing null-instance restriction.",
+        "finding": "A supplied snapshot could be forged, stale or show browser RLS while service_role APIs remain open.",
+        "resolution": "Make success only READY_FOR_VERIFICATION (not DONE); reject malformed/stale/missing evidence and require separate tenant/worker acceptance.",
         "evidence": [
           "src/lib/entitlements/access.ts"
         ]
       },
       {
-        "role": "Known Failure",
+        "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Legacy package tests previously asserted the old plan split and may mask phantom plan fallback without explicit positive/negative no-instance case.",
-        "resolution": "Add canonical catalog and no-instance decision-order regressions, checking both Team Chat and Advanced Office.",
+        "finding": "Schema target and source files are out of sync; a selective direct patch is unsafe.",
+        "resolution": "Keep staging/production untouched and record exact prerequisite failures in a machine-readable report.",
         "evidence": [
-          "tests/pro-entitlement-guards.test.ts"
+          "supabase/customer-baseline/manifest.json"
+        ]
+      },
+      {
+        "role": "Operations",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Alap ordinary emails and support must remain functional outside Digital Office.",
+        "resolution": "Read-only checks scope exclusively to Office data tables and privacy migrations.",
+        "evidence": [
+          "src/lib/plans/catalog.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-CORE-1186-U08-01",
-        "scenario": "Unbound Pro profile — No tenant, profile says Pro while the central plan feature check runs without a proven tenant-scoped subscription.",
-        "finding": "Possible inconsistent entitlement or unauthorized workspace visibility: No strict Office authorization.",
-        "resolution": "Check canonical isStrictProOfficeFeature on the no-instance path, preserve tenant-current decisions, and assert No strict Office authorization with negative tests.",
+        "id": "CH-CORE-1186-U09-01",
+        "scenario": "Legacy ALL Office read policy during a staging catalog verification of Office tenant-specific authorization.",
+        "finding": "Authenticated support can read data under basic Alap grant This can lead to a dangerous false-positive readiness claim.",
+        "resolution": "BLOCK with policy identifier and command Test this as a negative case before accepting the release.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U08-02",
-        "scenario": "Pro environment fallback — No tenant, WEBSHOP_DEFAULT_PLAN=pro while the central plan feature check runs without a proven tenant-scoped subscription.",
-        "finding": "Possible inconsistent entitlement or unauthorized workspace visibility: No strict Office authorization.",
-        "resolution": "Check canonical isStrictProOfficeFeature on the no-instance path, preserve tenant-current decisions, and assert No strict Office authorization with negative tests.",
+        "id": "CH-CORE-1186-U09-02",
+        "scenario": "Missing private read helper during a staging catalog verification of Office tenant-specific authorization.",
+        "finding": "Target lacks canonical participant-aware function This can lead to a dangerous false-positive readiness claim.",
+        "resolution": "BLOCK with missing function Test this as a negative case before accepting the release.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U08-03",
-        "scenario": "Alap regular email — No tenant, ordinary notification features while the central plan feature check runs without a proven tenant-scoped subscription.",
-        "finding": "Possible inconsistent entitlement or unauthorized workspace visibility: Retain existing non-strict fallback.",
-        "resolution": "Check canonical isStrictProOfficeFeature on the no-instance path, preserve tenant-current decisions, and assert Retain existing non-strict fallback with negative tests.",
+        "id": "CH-CORE-1186-U09-03",
+        "scenario": "Missing ordered privacy migration during a staging catalog verification of Office tenant-specific authorization.",
+        "finding": "Repository SQL is not target execution evidence This can lead to a dangerous false-positive readiness claim.",
+        "resolution": "BLOCK with required migration version Test this as a negative case before accepting the release.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U08-04",
-        "scenario": "Active Pro with grant — Bound Pro tenant and current entitlement enabled while the central plan feature check runs without a proven tenant-scoped subscription.",
-        "finding": "Possible inconsistent entitlement or unauthorized workspace visibility: Preserve enabled resolution.",
-        "resolution": "Check canonical isStrictProOfficeFeature on the no-instance path, preserve tenant-current decisions, and assert Preserve enabled resolution with negative tests.",
+        "id": "CH-CORE-1186-U09-04",
+        "scenario": "Modern candidate with no tenant tests during a staging catalog verification of Office tenant-specific authorization.",
+        "finding": "Static metadata alone cannot prove authorization This can lead to a dangerous false-positive readiness claim.",
+        "resolution": "READY_FOR_VERIFICATION only Test this as a negative case before accepting the release.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U08-05",
-        "scenario": "Active Alap stale grant — Bound Alap with stale Pro entitlement row while the central plan feature check runs without a proven tenant-scoped subscription.",
-        "finding": "Possible inconsistent entitlement or unauthorized workspace visibility: Remain denied by explicit instance resolver.",
-        "resolution": "Check canonical isStrictProOfficeFeature on the no-instance path, preserve tenant-current decisions, and assert Remain denied by explicit instance resolver with negative tests.",
+        "id": "CH-CORE-1186-U09-05",
+        "scenario": "Policy on wrong database schema during a staging catalog verification of Office tenant-specific authorization.",
+        "finding": "Fake table identity cannot certify Office This can lead to a dangerous false-positive readiness claim.",
+        "resolution": "BLOCK missing required public table policy Test this as a negative case before accepting the release.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U08-06",
-        "scenario": "Tenant resolution error — getCurrentWebshopInstance null while the central plan feature check runs without a proven tenant-scoped subscription.",
-        "finding": "Possible inconsistent entitlement or unauthorized workspace visibility: Deny strict Office, no profile Pro fallback.",
-        "resolution": "Check canonical isStrictProOfficeFeature on the no-instance path, preserve tenant-current decisions, and assert Deny strict Office, no profile Pro fallback with negative tests.",
+        "id": "CH-CORE-1186-U09-06",
+        "scenario": "Mixed modern and legacy policies during a staging catalog verification of Office tenant-specific authorization.",
+        "finding": "Extra legacy ALL can permit broader access This can lead to a dangerous false-positive readiness claim.",
+        "resolution": "BLOCK if any broad policy remains Test this as a negative case before accepting the release.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U08-07",
-        "scenario": "Platform operator no tenant — Privileged operator has no selected tenant while the central plan feature check runs without a proven tenant-scoped subscription.",
-        "finding": "Possible inconsistent entitlement or unauthorized workspace visibility: No phantom Office grant.",
-        "resolution": "Check canonical isStrictProOfficeFeature on the no-instance path, preserve tenant-current decisions, and assert No phantom Office grant with negative tests.",
+        "id": "CH-CORE-1186-U09-07",
+        "scenario": "Missing authenticated role during a staging catalog verification of Office tenant-specific authorization.",
+        "finding": "Service-only policy is not browser read proof This can lead to a dangerous false-positive readiness claim.",
+        "resolution": "BLOCK policy role missing Test this as a negative case before accepting the release.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U08-08",
-        "scenario": "Unknown strict feature expansion — Canonical catalog adds a strict Office capability while the central plan feature check runs without a proven tenant-scoped subscription.",
-        "finding": "Possible inconsistent entitlement or unauthorized workspace visibility: Reuse catalog classification with no second allow list.",
-        "resolution": "Check canonical isStrictProOfficeFeature on the no-instance path, preserve tenant-current decisions, and assert Reuse catalog classification with no second allow list with negative tests.",
+        "id": "CH-CORE-1186-U09-08",
+        "scenario": "Malformed/old capture time during a staging catalog verification of Office tenant-specific authorization.",
+        "finding": "Evidence freshness unknown This can lead to a dangerous false-positive readiness claim.",
+        "resolution": "BLOCK stale/unparseable snapshot Test this as a negative case before accepting the release.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U08-09",
-        "scenario": "Reserved chat attachments — Feature unreleased while the central plan feature check runs without a proven tenant-scoped subscription.",
-        "finding": "Possible inconsistent entitlement or unauthorized workspace visibility: Retain existing not-released denial.",
-        "resolution": "Check canonical isStrictProOfficeFeature on the no-instance path, preserve tenant-current decisions, and assert Retain existing not-released denial with negative tests.",
+        "id": "CH-CORE-1186-U09-09",
+        "scenario": "Service role bypass during a staging catalog verification of Office tenant-specific authorization.",
+        "finding": "Browser RLS cannot imply service role denial This can lead to a dangerous false-positive readiness claim.",
+        "resolution": "Explicitly out-of-scope and require separate proof Test this as a negative case before accepting the release.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U08-10",
-        "scenario": "Direct API consumer — A future route invokes hasCurrentPlanFeature before instance context while the central plan feature check runs without a proven tenant-scoped subscription.",
-        "finding": "Possible inconsistent entitlement or unauthorized workspace visibility: Fail closed for strict Office features.",
-        "resolution": "Check canonical isStrictProOfficeFeature on the no-instance path, preserve tenant-current decisions, and assert Fail closed for strict Office features with negative tests.",
+        "id": "CH-CORE-1186-U09-10",
+        "scenario": "Alap transactional email during a staging catalog verification of Office tenant-specific authorization.",
+        "finding": "Removing core support to fix Office would regress commerce This can lead to a dangerous false-positive readiness claim.",
+        "resolution": "No data or catalog modifications Test this as a negative case before accepting the release.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run critical Plan Before Code and review current no-instance fallback and per-instance denial in actual main.",
-      "Add only the strict Pro Office null-instance denial through the canonical catalog classifier and preserve normal fallback.",
-      "Add isolated unit tests/proof of branch order and positive/negative subscription taxonomy, then targeted tests and TypeScript.",
-      "Run Knowledge/Deep Atlas, Reference Sync, Implementation Sync, Incremental Replay, Release Risk; retain any BLOCK fail-closed.",
-      "Run exact-head PR/push CI, Truth and Lifecycle, merge and verify main CI before claiming this bounded unit done."
+      "Critical Plan Before Code PASS before any implementation",
+      "Run deterministic negative and positive fixtures with no live database writes",
+      "Validate observable real staging 3 ALL policies/missing helper/migrations against BLOCK fixture",
+      "Run TypeScript, targeted quality tests, Knowledge/Atlas, Edit-Time/Reference Sync, Incremental Replay, Release Risk",
+      "Exact-head GitHub CI, Completion Truth and Lifecycle Closure before merge, without treating positive static results as DB acceptance",
+      "Compile the typed readiness consumer with strict TypeScript before exact-head acceptance."
     ],
     "semanticExecutionRoute": {
-      "request": "Core 1186 U08: deny strict Pro Digital Office capabilities without canonical webshop instance; preserve Alap commerce plan fallback",
+      "request": "Core 1186 U09: read-only fail-closed Digital Office staging DB RLS and migration readiness gate, no schema changes",
       "authority": [
-        "auth-access-authority",
-        "tenant-context-authority"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        "src/lib/plans/access.ts",
-        "tests/customer-email-plan-split.test.ts",
         "tests/pro-entitlement-guards.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
-        "src/app/admin/automatizalas/esemenyek/page.tsx",
-        "src/app/admin/automatizalas/page.tsx",
-        "src/app/admin/beallitasok/integraciok/[id]/page.tsx",
-        "src/app/admin/beszerzes/page.tsx",
-        "src/app/admin/cashflow/page.tsx",
-        "src/app/admin/csomag/page.tsx",
-        "src/app/admin/elemzes/page.tsx",
-        "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
-        "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
-        "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
-        "src/app/admin/email-sablonok/brand-kit/page.tsx",
-        "src/app/admin/email-sablonok/page.tsx",
-        "src/app/admin/ertekesites/page.tsx",
-        "src/app/admin/indulas/page.tsx",
-        "src/app/admin/integraciok/page.tsx",
-        "src/app/admin/iranyitokozpont/page.tsx",
-        "src/app/admin/kampanyok/[id]/page.tsx",
-        "src/app/admin/kampanyok/page.tsx",
-        "src/app/admin/keszlet-elemzes/layout.tsx",
-        "src/app/admin/keszlet-elemzes/page.tsx",
-        "src/app/admin/kommunikacio/chat/actions.ts",
-        "src/app/admin/kommunikacio/chat/page.tsx",
-        "src/app/admin/kommunikacio/felugyelet/layout.tsx",
-        "src/app/admin/kommunikacio/felugyelet/page.tsx",
-        "src/app/admin/kommunikacio/iroda/actions.ts",
-        "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
-        "src/app/admin/kommunikacio/iroda/composer-actions.ts",
-        "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
-        "src/app/admin/kommunikacio/iroda/hub/page.tsx",
-        "src/app/admin/kommunikacio/iroda/page.tsx",
-        "src/app/admin/kommunikacio/iroda/uj/page.tsx",
-        "src/app/admin/kommunikacio/layout.tsx",
-        "src/app/admin/kommunikacio/tiltolista/page.tsx",
-        "src/app/admin/kuponok/page.tsx",
-        "src/app/admin/layout.tsx",
-        "src/app/admin/marketing/page.tsx",
-        "src/app/admin/migracio/page.tsx",
-        "src/app/admin/novekedes/page.tsx",
-        "src/app/admin/optimalizalas/page.tsx",
-        "src/app/admin/page.tsx",
-        "src/app/admin/tartalom/builder/page.tsx",
-        "src/app/admin/tartalom/page.tsx",
-        "src/app/admin/tartalom/receptek/page.tsx",
-        "src/app/admin/tartalom/release-ek/page.tsx",
-        "src/app/admin/termekajanlasok/page.tsx",
-        "src/app/admin/termekek/feltoltes/[id]/page.tsx",
-        "src/app/admin/termekek/feltoltes/masolas/page.tsx",
-        "src/app/admin/termekek/feltoltes/page.tsx",
-        "src/app/admin/termekek/feltoltes/uj/page.tsx",
-        "src/app/admin/velemenyek/actions.ts",
-        "src/app/admin/velemenyek/page.tsx",
-        "src/app/api/admin/campaigns/manage/route.ts",
-        "src/app/api/admin/campaigns/route.ts",
-        "src/app/api/admin/communication/enqueue/route.ts",
-        "src/app/api/admin/communication/manage/route.ts",
-        "src/app/api/admin/communication/suppression/route.ts",
-        "src/app/api/admin/content/[id]/route.ts",
-        "src/app/api/admin/content/route.ts",
-        "src/app/api/admin/coupons/route.ts",
-        "src/app/api/admin/email-builder/brand-kit/route.ts",
-        "src/app/api/admin/email-builder/preview/route.ts",
-        "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
-        "src/app/api/admin/email-builder/saved-blocks/route.ts",
-        "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
-        "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
-        "src/app/api/admin/email-builder/templates/[id]/route.ts",
-        "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
-        "src/app/api/admin/email-builder/templates/route.ts",
-        "src/app/api/admin/growth/run/route.ts",
-        "src/app/api/admin/promotions/preview/route.ts",
-        "src/lib/auth/store-capabilities.ts",
-        "src/lib/auth/store-rbac.ts",
-        "src/lib/digital-office/access.ts",
-        "src/lib/navigation/admin-ia.ts"
+        "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql",
+        "supabase/customer-baseline/manifest.json",
+        "src/lib/plans/catalog.ts"
       ],
-      "mustCreate": [],
-      "forbidden": [],
+      "mustCreate": [
+        "scripts/shoperation-office-db-readiness.mjs",
+        "tests/shoperation-office-db-readiness.test.ts",
+        "scripts/shoperation-office-db-readiness.d.mts"
+      ],
+      "forbidden": [
+        "supabase/migrations/**",
+        "supabase/customer-baseline/**",
+        "src/app/**"
+      ],
       "proof": [
-        "tests/admin-api-tenant-mutation-closure.test.ts",
-        "tests/admin-growth-refresh-evidence.test.ts",
-        "tests/admin-link-integrity.test.ts",
-        "tests/admin-route-rbac.test.ts",
-        "tests/advanced-integration-workflows.test.ts",
-        "tests/automation-workflows.test.ts",
-        "tests/block12-migration-assistant.test.ts",
-        "tests/block14-catalog-onboarding-import-ux.test.ts",
-        "tests/block16-commerce-recovery-integration.test.ts",
-        "tests/block18-ai-assisted-decisioning.test.ts",
-        "tests/block19-predictive-optimization-autonomy.test.ts",
-        "tests/block20-platform-ecosystem.test.ts",
-        "tests/block4-ia-navigation-reporting.test.ts",
-        "tests/block5-role-aware-ui.test.ts",
-        "tests/block7-b2b-account-ownership.test.ts",
-        "tests/campaign-creation-fail-closed.test.ts",
-        "tests/campaign-lifecycle-evidence-atomicity.test.ts",
-        "tests/campaign-office-mutation-read-safety.test.ts",
-        "tests/communication-hub-2-0.test.ts",
-        "tests/customer-email-plan-split.test.ts",
-        "tests/digital-commerce-builder-integration.test.tsx",
-        "tests/digital-office-attachment-quarantine-scan.test.ts",
-        "tests/digital-office-chat-composer-hardening.test.ts",
-        "tests/digital-office-internal-chat-capability-gate.test.ts",
-        "tests/digital-office-privacy-foundation.test.ts",
-        "tests/digital-office-private-attachments.test.ts",
-        "tests/digital-office-support-ticket-integration.test.ts",
-        "tests/digital-office-team-chat-2-foundation.test.ts",
-        "tests/digital-office-team-chat-final-ux.test.ts",
-        "tests/digital-office-unified-ui.test.ts",
-        "tests/digital-office-workstation-final.test.ts",
-        "tests/email-builder-d1-admin-shell.test.ts",
-        "tests/email-builder-d2-editor.test.ts",
-        "tests/email-builder-foundation-b.test.ts",
-        "tests/email-builder-publication-lifecycle.test.ts",
-        "tests/email-builder-saved-blocks.test.ts",
-        "tests/event-driven-workflow-automation.test.ts",
-        "tests/executive-analytics-ux-closure.test.ts",
-        "tests/executive-decision-workflows.test.ts",
-        "tests/fine-grained-store-rbac.test.ts",
-        "tests/merchant-admin-tenant-closure.test.ts",
-        "tests/merchant-read-page-scope.test.ts",
-        "tests/order-core-transactional-email-dispatch-contract.test.ts",
-        "tests/phase4-platform-pilot-acceptance-entry.test.ts",
-        "tests/pilot-acceptance-access.test.ts",
-        "tests/platform-admin-scope-closure.test.ts",
-        "tests/platform-owner-zero-tenant-hotfix.test.ts",
-        "tests/pro-entitlement-guards.test.ts",
-        "tests/pro-finance-analytics-contracts.test.ts",
-        "tests/procurement-workflows.test.ts",
-        "tests/roadmap-block21-page-schema-templates.test.ts",
-        "tests/roadmap-block22-schema-policy.test.ts",
-        "tests/roadmap-block22-visual-builder.test.ts",
-        "tests/special-commerce-wave5-existing-engine-closure.test.ts",
-        "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
-        "tests/special-commerce-wave7-template2-adoption.test.ts",
-        "tests/storefront-beauty-lab-reference-v2.test.ts",
-        "tests/storefront-component-variants.test.ts",
-        "tests/storefront-editorial-atelier-template.test.tsx",
-        "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
-        "tests/storefront-fidelity-security.test.ts",
-        "tests/storefront-global-styles.test.ts",
-        "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
-        "tests/storefront-interactive-scene-commerce.test.tsx",
-        "tests/storefront-modern-luxe-template.test.tsx",
-        "tests/storefront-modern-luxe-wave46-reacceptance.test.ts",
-        "tests/storefront-template-library-ux.test.ts",
-        "tests/storefront-template-preview-access.test.ts",
-        "tests/team-chat-secure-attachments-launch-gate.test.ts"
+        "GUARD-QUALITY-TESTS",
+        "GUARD-PLAN-BEFORE-CODE",
+        "GUARD-EDIT-TIME",
+        "GUARD-INCREMENTAL-REPLAY",
+        "GUARD-RELEASE-RISK"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -474,196 +325,40 @@
       "phase": "PLAN",
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
-        "mustEdit": [
-          "src/lib/plans/access.ts",
-          "tests/customer-email-plan-split.test.ts",
-          "tests/pro-entitlement-guards.test.ts"
-        ],
+        "mustEdit": [],
         "mayEdit": [],
-        "impactedReadOnly": [
-          "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
-          "src/app/admin/automatizalas/esemenyek/page.tsx",
-          "src/app/admin/automatizalas/page.tsx",
-          "src/app/admin/beallitasok/integraciok/[id]/page.tsx",
-          "src/app/admin/beszerzes/page.tsx",
-          "src/app/admin/cashflow/page.tsx",
-          "src/app/admin/csomag/page.tsx",
-          "src/app/admin/elemzes/page.tsx",
-          "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
-          "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
-          "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
-          "src/app/admin/email-sablonok/brand-kit/page.tsx",
-          "src/app/admin/email-sablonok/page.tsx",
-          "src/app/admin/ertekesites/page.tsx",
-          "src/app/admin/indulas/page.tsx",
-          "src/app/admin/integraciok/page.tsx",
-          "src/app/admin/iranyitokozpont/page.tsx",
-          "src/app/admin/kampanyok/[id]/page.tsx",
-          "src/app/admin/kampanyok/page.tsx",
-          "src/app/admin/keszlet-elemzes/layout.tsx",
-          "src/app/admin/keszlet-elemzes/page.tsx",
-          "src/app/admin/kommunikacio/chat/actions.ts",
-          "src/app/admin/kommunikacio/chat/page.tsx",
-          "src/app/admin/kommunikacio/felugyelet/layout.tsx",
-          "src/app/admin/kommunikacio/felugyelet/page.tsx",
-          "src/app/admin/kommunikacio/iroda/actions.ts",
-          "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
-          "src/app/admin/kommunikacio/iroda/composer-actions.ts",
-          "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
-          "src/app/admin/kommunikacio/iroda/hub/page.tsx",
-          "src/app/admin/kommunikacio/iroda/page.tsx",
-          "src/app/admin/kommunikacio/iroda/uj/page.tsx",
-          "src/app/admin/kommunikacio/layout.tsx",
-          "src/app/admin/kommunikacio/tiltolista/page.tsx",
-          "src/app/admin/kuponok/page.tsx",
-          "src/app/admin/layout.tsx",
-          "src/app/admin/marketing/page.tsx",
-          "src/app/admin/migracio/page.tsx",
-          "src/app/admin/novekedes/page.tsx",
-          "src/app/admin/optimalizalas/page.tsx",
-          "src/app/admin/page.tsx",
-          "src/app/admin/tartalom/builder/page.tsx",
-          "src/app/admin/tartalom/page.tsx",
-          "src/app/admin/tartalom/receptek/page.tsx",
-          "src/app/admin/tartalom/release-ek/page.tsx",
-          "src/app/admin/termekajanlasok/page.tsx",
-          "src/app/admin/termekek/feltoltes/[id]/page.tsx",
-          "src/app/admin/termekek/feltoltes/masolas/page.tsx",
-          "src/app/admin/termekek/feltoltes/page.tsx",
-          "src/app/admin/termekek/feltoltes/uj/page.tsx",
-          "src/app/admin/velemenyek/actions.ts",
-          "src/app/admin/velemenyek/page.tsx",
-          "src/app/api/admin/campaigns/manage/route.ts",
-          "src/app/api/admin/campaigns/route.ts",
-          "src/app/api/admin/communication/enqueue/route.ts",
-          "src/app/api/admin/communication/manage/route.ts",
-          "src/app/api/admin/communication/suppression/route.ts",
-          "src/app/api/admin/content/[id]/route.ts",
-          "src/app/api/admin/content/route.ts",
-          "src/app/api/admin/coupons/route.ts",
-          "src/app/api/admin/email-builder/brand-kit/route.ts",
-          "src/app/api/admin/email-builder/preview/route.ts",
-          "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
-          "src/app/api/admin/email-builder/saved-blocks/route.ts",
-          "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
-          "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
-          "src/app/api/admin/email-builder/templates/[id]/route.ts",
-          "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
-          "src/app/api/admin/email-builder/templates/route.ts",
-          "src/app/api/admin/growth/run/route.ts",
-          "src/app/api/admin/promotions/preview/route.ts",
-          "src/lib/auth/store-capabilities.ts",
-          "src/lib/auth/store-rbac.ts",
-          "src/lib/digital-office/access.ts",
-          "src/lib/navigation/admin-ia.ts"
+        "impactedReadOnly": [],
+        "mustCreate": [
+          "scripts/shoperation-office-db-readiness.mjs",
+          "tests/shoperation-office-db-readiness.test.ts"
         ],
-        "mustCreate": [],
         "forbidden": [],
-        "proof": [
-          "tests/admin-api-tenant-mutation-closure.test.ts",
-          "tests/admin-growth-refresh-evidence.test.ts",
-          "tests/admin-link-integrity.test.ts",
-          "tests/admin-route-rbac.test.ts",
-          "tests/advanced-integration-workflows.test.ts",
-          "tests/automation-workflows.test.ts",
-          "tests/block12-migration-assistant.test.ts",
-          "tests/block14-catalog-onboarding-import-ux.test.ts",
-          "tests/block16-commerce-recovery-integration.test.ts",
-          "tests/block18-ai-assisted-decisioning.test.ts",
-          "tests/block19-predictive-optimization-autonomy.test.ts",
-          "tests/block20-platform-ecosystem.test.ts",
-          "tests/block4-ia-navigation-reporting.test.ts",
-          "tests/block5-role-aware-ui.test.ts",
-          "tests/block7-b2b-account-ownership.test.ts",
-          "tests/campaign-creation-fail-closed.test.ts",
-          "tests/campaign-lifecycle-evidence-atomicity.test.ts",
-          "tests/campaign-office-mutation-read-safety.test.ts",
-          "tests/communication-hub-2-0.test.ts",
-          "tests/customer-email-plan-split.test.ts",
-          "tests/digital-commerce-builder-integration.test.tsx",
-          "tests/digital-office-attachment-quarantine-scan.test.ts",
-          "tests/digital-office-chat-composer-hardening.test.ts",
-          "tests/digital-office-internal-chat-capability-gate.test.ts",
-          "tests/digital-office-privacy-foundation.test.ts",
-          "tests/digital-office-private-attachments.test.ts",
-          "tests/digital-office-support-ticket-integration.test.ts",
-          "tests/digital-office-team-chat-2-foundation.test.ts",
-          "tests/digital-office-team-chat-final-ux.test.ts",
-          "tests/digital-office-unified-ui.test.ts",
-          "tests/digital-office-workstation-final.test.ts",
-          "tests/email-builder-d1-admin-shell.test.ts",
-          "tests/email-builder-d2-editor.test.ts",
-          "tests/email-builder-foundation-b.test.ts",
-          "tests/email-builder-publication-lifecycle.test.ts",
-          "tests/email-builder-saved-blocks.test.ts",
-          "tests/event-driven-workflow-automation.test.ts",
-          "tests/executive-analytics-ux-closure.test.ts",
-          "tests/executive-decision-workflows.test.ts",
-          "tests/fine-grained-store-rbac.test.ts",
-          "tests/merchant-admin-tenant-closure.test.ts",
-          "tests/merchant-read-page-scope.test.ts",
-          "tests/order-core-transactional-email-dispatch-contract.test.ts",
-          "tests/phase4-platform-pilot-acceptance-entry.test.ts",
-          "tests/pilot-acceptance-access.test.ts",
-          "tests/platform-admin-scope-closure.test.ts",
-          "tests/platform-owner-zero-tenant-hotfix.test.ts",
-          "tests/pro-entitlement-guards.test.ts",
-          "tests/pro-finance-analytics-contracts.test.ts",
-          "tests/procurement-workflows.test.ts",
-          "tests/roadmap-block21-page-schema-templates.test.ts",
-          "tests/roadmap-block22-schema-policy.test.ts",
-          "tests/roadmap-block22-visual-builder.test.ts",
-          "tests/special-commerce-wave5-existing-engine-closure.test.ts",
-          "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
-          "tests/special-commerce-wave7-template2-adoption.test.ts",
-          "tests/storefront-beauty-lab-reference-v2.test.ts",
-          "tests/storefront-component-variants.test.ts",
-          "tests/storefront-editorial-atelier-template.test.tsx",
-          "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
-          "tests/storefront-fidelity-security.test.ts",
-          "tests/storefront-global-styles.test.ts",
-          "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
-          "tests/storefront-interactive-scene-commerce.test.tsx",
-          "tests/storefront-modern-luxe-template.test.tsx",
-          "tests/storefront-modern-luxe-wave46-reacceptance.test.ts",
-          "tests/storefront-template-library-ux.test.ts",
-          "tests/storefront-template-preview-access.test.ts",
-          "tests/team-chat-secure-attachments-launch-gate.test.ts"
-        ],
-        "authority": [
-          "auth-access-authority",
-          "tenant-context-authority"
-        ],
+        "proof": [],
+        "authority": [],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 5,
+        "score": 2,
         "maxPoints": 5,
         "subsystemCount": 1,
         "maxSubsystems": 3,
         "subsystems": [
           {
-            "subsystem": "auth-access-authority",
-            "risk": "high",
-            "points": 5
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
           }
         ],
         "files": [
           {
-            "file": "src/lib/plans/access.ts",
-            "subsystem": "auth-access-authority",
-            "risk": "high",
-            "points": 5
+            "file": "scripts/shoperation-office-db-readiness.mjs",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
           },
           {
-            "file": "tests/customer-email-plan-split.test.ts",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "tests/pro-entitlement-guards.test.ts",
+            "file": "tests/shoperation-office-db-readiness.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -678,32 +373,26 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 5,
+          "score": 2,
           "maxPoints": 5,
           "subsystemCount": 1,
           "maxSubsystems": 3,
           "subsystems": [
             {
-              "subsystem": "auth-access-authority",
-              "risk": "high",
-              "points": 5
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
             }
           ],
           "files": [
             {
-              "file": "src/lib/plans/access.ts",
-              "subsystem": "auth-access-authority",
-              "risk": "high",
-              "points": 5
+              "file": "scripts/shoperation-office-db-readiness.mjs",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
             },
             {
-              "file": "tests/customer-email-plan-split.test.ts",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
-            {
-              "file": "tests/pro-entitlement-guards.test.ts",
+              "file": "tests/shoperation-office-db-readiness.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -718,27 +407,27 @@
           {
             "id": 0,
             "files": [
-              "src/lib/plans/access.ts"
+              "scripts/shoperation-office-db-readiness.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
+              "score": 2,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "auth-access-authority",
-                  "risk": "high",
-                  "points": 5
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": "src/lib/plans/access.ts",
-                  "subsystem": "auth-access-authority",
-                  "risk": "high",
-                  "points": 5
+                  "file": "scripts/shoperation-office-db-readiness.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "violations": [],
@@ -748,7 +437,7 @@
           {
             "id": 1,
             "files": [
-              "tests/customer-email-plan-split.test.ts"
+              "tests/shoperation-office-db-readiness.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -759,31 +448,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-email-plan-split.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 2,
-            "files": [
-              "tests/pro-entitlement-guards.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "tests/pro-entitlement-guards.test.ts",
+                  "file": "tests/shoperation-office-db-readiness.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -801,81 +466,60 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "ad5dd579aa862f52f089993e489e61c19cbc6454"
+              "developmentBaseSha": "68170dfb7d78bcf065a52540dda5bc9218009600"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "ad5dd579aa862f52f089993e489e61c19cbc6454",
+            "targetBaseSha": "68170dfb7d78bcf065a52540dda5bc9218009600",
             "lease": {
-              "expectedBaseSha": "ad5dd579aa862f52f089993e489e61c19cbc6454",
+              "expectedBaseSha": "68170dfb7d78bcf065a52540dda5bc9218009600",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "src/lib/plans/access.ts",
-              "tests/customer-email-plan-split.test.ts",
-              "tests/pro-entitlement-guards.test.ts"
+              "scripts/shoperation-office-db-readiness.mjs",
+              "tests/shoperation-office-db-readiness.test.ts"
             ],
             "operations": [
               {
-                "operation": "modify",
-                "file": "src/lib/plans/access.ts",
+                "operation": "create",
+                "file": "scripts/shoperation-office-db-readiness.mjs",
                 "generated": null
               },
               {
-                "operation": "modify",
-                "file": "tests/customer-email-plan-split.test.ts",
-                "generated": null
-              },
-              {
-                "operation": "modify",
-                "file": "tests/pro-entitlement-guards.test.ts",
+                "operation": "create",
+                "file": "tests/shoperation-office-db-readiness.test.ts",
                 "generated": null
               }
             ],
-            "requiredDependencyFiles": [
-              "src/lib/entitlements/access.ts",
-              "src/lib/entitlements/catalog.ts",
-              "src/lib/instances/access.ts",
-              "src/lib/plans/addons.ts",
-              "src/lib/plans/catalog.ts",
-              "src/lib/supabase/server.ts"
-            ],
-            "authorities": [
-              "tenant-context-authority"
-            ],
+            "requiredDependencyFiles": [],
+            "authorities": [],
             "subsystems": [
-              "auth-access-authority"
+              "quality-infrastructure"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
+              "score": 2,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "auth-access-authority",
-                  "risk": "high",
-                  "points": 5
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": "src/lib/plans/access.ts",
-                  "subsystem": "auth-access-authority",
-                  "risk": "high",
-                  "points": 5
+                  "file": "scripts/shoperation-office-db-readiness.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 },
                 {
-                  "file": "tests/customer-email-plan-split.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "tests/pro-entitlement-guards.test.ts",
+                  "file": "tests/shoperation-office-db-readiness.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -885,122 +529,38 @@
               "decision": "PASS"
             },
             "requiredGates": [
-              "GUARD-CUSTOMER-BASELINE",
               "GUARD-EDIT-TIME",
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-KNOWLEDGE-PREFLIGHT",
-              "GUARD-MARKET-READY",
               "GUARD-PLAN-BEFORE-CODE",
-              "GUARD-PRODUCTION-BUILD",
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK",
               "GUARD-TYPECHECK"
             ],
             "requiredEvidence": {
               "gateIds": [
-                "GUARD-CUSTOMER-BASELINE",
                 "GUARD-EDIT-TIME",
                 "GUARD-INCREMENTAL-REPLAY",
                 "GUARD-KNOWLEDGE-PREFLIGHT",
-                "GUARD-MARKET-READY",
                 "GUARD-PLAN-BEFORE-CODE",
-                "GUARD-PRODUCTION-BUILD",
                 "GUARD-QUALITY-TESTS",
                 "GUARD-RELEASE-RISK",
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-email-plan-split.test.ts",
-                "tests/pro-entitlement-guards.test.ts"
+                "tests/shoperation-office-db-readiness.test.ts"
               ],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
-            "readOnlyPaths": [
-              "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
-              "src/app/admin/automatizalas/esemenyek/page.tsx",
-              "src/app/admin/automatizalas/page.tsx",
-              "src/app/admin/beallitasok/integraciok/[id]/page.tsx",
-              "src/app/admin/beszerzes/page.tsx",
-              "src/app/admin/cashflow/page.tsx",
-              "src/app/admin/csomag/page.tsx",
-              "src/app/admin/elemzes/page.tsx",
-              "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
-              "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
-              "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
-              "src/app/admin/email-sablonok/brand-kit/page.tsx",
-              "src/app/admin/email-sablonok/page.tsx",
-              "src/app/admin/ertekesites/page.tsx",
-              "src/app/admin/indulas/page.tsx",
-              "src/app/admin/integraciok/page.tsx",
-              "src/app/admin/iranyitokozpont/page.tsx",
-              "src/app/admin/kampanyok/[id]/page.tsx",
-              "src/app/admin/kampanyok/page.tsx",
-              "src/app/admin/keszlet-elemzes/layout.tsx",
-              "src/app/admin/keszlet-elemzes/page.tsx",
-              "src/app/admin/kommunikacio/chat/actions.ts",
-              "src/app/admin/kommunikacio/chat/page.tsx",
-              "src/app/admin/kommunikacio/felugyelet/layout.tsx",
-              "src/app/admin/kommunikacio/felugyelet/page.tsx",
-              "src/app/admin/kommunikacio/iroda/actions.ts",
-              "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
-              "src/app/admin/kommunikacio/iroda/composer-actions.ts",
-              "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
-              "src/app/admin/kommunikacio/iroda/hub/page.tsx",
-              "src/app/admin/kommunikacio/iroda/page.tsx",
-              "src/app/admin/kommunikacio/iroda/uj/page.tsx",
-              "src/app/admin/kommunikacio/layout.tsx",
-              "src/app/admin/kommunikacio/tiltolista/page.tsx",
-              "src/app/admin/kuponok/page.tsx",
-              "src/app/admin/layout.tsx",
-              "src/app/admin/marketing/page.tsx",
-              "src/app/admin/migracio/page.tsx",
-              "src/app/admin/novekedes/page.tsx",
-              "src/app/admin/optimalizalas/page.tsx",
-              "src/app/admin/page.tsx",
-              "src/app/admin/tartalom/builder/page.tsx",
-              "src/app/admin/tartalom/page.tsx",
-              "src/app/admin/tartalom/receptek/page.tsx",
-              "src/app/admin/tartalom/release-ek/page.tsx",
-              "src/app/admin/termekajanlasok/page.tsx",
-              "src/app/admin/termekek/feltoltes/[id]/page.tsx",
-              "src/app/admin/termekek/feltoltes/masolas/page.tsx",
-              "src/app/admin/termekek/feltoltes/page.tsx",
-              "src/app/admin/termekek/feltoltes/uj/page.tsx",
-              "src/app/admin/velemenyek/actions.ts",
-              "src/app/admin/velemenyek/page.tsx",
-              "src/app/api/admin/campaigns/manage/route.ts",
-              "src/app/api/admin/campaigns/route.ts",
-              "src/app/api/admin/communication/enqueue/route.ts",
-              "src/app/api/admin/communication/manage/route.ts",
-              "src/app/api/admin/communication/suppression/route.ts",
-              "src/app/api/admin/content/[id]/route.ts",
-              "src/app/api/admin/content/route.ts",
-              "src/app/api/admin/coupons/route.ts",
-              "src/app/api/admin/email-builder/brand-kit/route.ts",
-              "src/app/api/admin/email-builder/preview/route.ts",
-              "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
-              "src/app/api/admin/email-builder/saved-blocks/route.ts",
-              "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
-              "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
-              "src/app/api/admin/email-builder/templates/[id]/route.ts",
-              "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
-              "src/app/api/admin/email-builder/templates/route.ts",
-              "src/app/api/admin/growth/run/route.ts",
-              "src/app/api/admin/promotions/preview/route.ts",
-              "src/lib/auth/store-capabilities.ts",
-              "src/lib/auth/store-rbac.ts",
-              "src/lib/digital-office/access.ts",
-              "src/lib/navigation/admin-ia.ts"
-            ],
+            "readOnlyPaths": [],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "src/lib/plans/access.ts",
-                "tests/customer-email-plan-split.test.ts",
-                "tests/pro-entitlement-guards.test.ts"
+                "scripts/shoperation-office-db-readiness.mjs",
+                "tests/shoperation-office-db-readiness.test.ts"
               ],
               "filesAbsent": []
             },
@@ -1015,7 +575,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "ca5ca094",
+            "manifestDigest": "26ec9919",
             "decision": "PASS"
           }
         ],
@@ -1028,16 +588,13 @@
         "contract": "shoporation.gate-chain.v1",
         "phase": "PLAN",
         "orderedGateIds": [
-          "GUARD-CUSTOMER-BASELINE",
           "GUARD-KNOWLEDGE-PREFLIGHT",
           "GUARD-PLAN-BEFORE-CODE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
-          "GUARD-MARKET-READY",
-          "GUARD-TYPECHECK",
-          "GUARD-PRODUCTION-BUILD",
           "GUARD-QUALITY-TESTS",
-          "GUARD-RELEASE-RISK"
+          "GUARD-RELEASE-RISK",
+          "GUARD-TYPECHECK"
         ],
         "currentPhaseGateIds": [
           "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -1045,13 +602,10 @@
           "GUARD-RELEASE-RISK"
         ],
         "futureGateIds": [
-          "GUARD-CUSTOMER-BASELINE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
-          "GUARD-MARKET-READY",
-          "GUARD-TYPECHECK",
-          "GUARD-PRODUCTION-BUILD",
-          "GUARD-QUALITY-TESTS"
+          "GUARD-QUALITY-TESTS",
+          "GUARD-TYPECHECK"
         ],
         "externalGateIds": [],
         "issues": [],
@@ -1059,57 +613,57 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Current hasCurrentPlanFeature() falls back to profiles.subscription_plan or WEBSHOP_DEFAULT_PLAN whenever getCurrentWebshopInstance() cannot resolve the canonical webshop. A profile or environment set to Pro can thereby advertise access to strict Pro-only Digital Office features despite no tenant-scoped subscription or entitlement. This violates fail-closed tenant authority for internal Office permissions.",
+    "problemStatement": "The repository includes Digital Office restrictive participant read RLS migrations, but the real read-only staging catalog shows legacy ALL policies on office_threads, office_messages, office_tasks and no installed can_read_office_thread_v1 helper. The migration ledger lacks later Office privacy/RLS releases. A staged/production-like acceptance claim must fail closed on this drift before any data mutation.",
     "observableOutcomes": [
-      "No tenant instance means teamChat and officeCommunicationAdvanced always return false, even when profile or environment fallback is Pro.",
-      "When tenant instance exists, the existing explicit entitlement resolver and actual instance subscription remain authoritative, unchanged.",
-      "Normal released capabilities may retain their original documented no-instance profile/default behavior; no other package entitlement or transaction email changes.",
-      "Tests include anti-bypass, positive instance-delegation, and Alap baseline preservation."
+      "A credential-free, read-only snapshot analyzer reports exact missing canonical migration versions and RLS/function gaps against the actual Supabase pg_catalog evidence shape.",
+      "A legacy staging report with office_* ALL permissive policies, missing privacy migration/function must BLOCK, never certify Office as Pro/RLS ready.",
+      "A modern candidate with expected SELECT policies/function/migrations may only REPORT READY_FOR_VERIFICATION, not authoritative production closure; real tenant role and upgrade/downgrade behavior needs separate proof.",
+      "No database schema or data is modified, no production or staging migrations are applied and #1186 remains OPEN/PARTIAL."
     ],
     "unresolvedRisks": [
-      "The no-tenant fallback is shared with standalone demo/legacy features; only strict Pro Office codes are excluded and no broad fallback deletion is allowed.",
-      "Malformed instance resolution or stale session may be hidden by profile pro fallback; this change must prevent office only and not mask the missing store context.",
-      "Backend RLS, subscription transitions, UI entitlement snapshots and other direct paths remain separate bounded closure units; #1186 must stay OPEN/PARTIAL."
+      "An exported JSON snapshot is not cryptographically authoritative or a substitute for a live authenticated role proof.",
+      "Staging is behind multiple migrations and a selective policy patch could conflict with pending upstream schema changes.",
+      "Service-role RPC and per-tenant plan transitions remain outside this bounded preflight."
     ],
     "scope": {
       "in": [
-        "hasCurrentPlanFeature no-instance strict Pro Office denial using existing isStrictProOfficeFeature canonical catalog",
-        "Targeted regression tests for profile/default-plan no-tenant bypass and preserved Alap/email baseline"
+        "scripts/shoperation-office-db-readiness.mjs deterministic command-line read-only readiness analyzer",
+        "tests/shoperation-office-db-readiness.test.ts negative legacy/unknown/partial and positive candidate fixtures",
+        "tests/pro-entitlement-guards.test.ts integrated Office authorization preflight regression",
+        "Typed JavaScript preflight module declaration for existing strict TypeScript consumers"
       ],
       "out": [
-        "Change central plan catalog grants, SQL migrations, tenant plan-sync or Pro entitlements",
-        "Change non-Office fallback behavior, Team Chat separate RBAC gates, worker, API or storage",
-        "Claim RLS/down-grade/full Digital Office package closure, close parent issue #1186"
+        "SQL migration creation or application to any database",
+        "Changing Supabase project states, auth users, entitlements, policies, credentials or secrets",
+        "Declaring DB tenant RLS, worker and plan transition end-to-end closure",
+        "Builder/Template Factory development"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U08-STRICT-PRO-OFFICE-NO-INSTANCE",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U09-DB-READINESS",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
-        "GUARD-CUSTOMER-BASELINE",
         "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-EDIT-TIME",
         "GUARD-INCREMENTAL-REPLAY",
-        "GUARD-MARKET-READY",
-        "GUARD-TYPECHECK",
-        "GUARD-PRODUCTION-BUILD",
         "GUARD-QUALITY-TESTS",
-        "GUARD-RELEASE-RISK"
+        "GUARD-RELEASE-RISK",
+        "GUARD-TYPECHECK"
       ],
       "externalGuards": [],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-U08-STRICT-PRO-NO-INSTANCE",
-        "requirement": "Without a current canonical webshop instance, strict Pro-only Digital Office feature checks deny access even when profile or environment fallback reports Pro.",
+        "id": "REQ-U09-DB-DRIFT-BLOCK",
+        "requirement": "Fail closed on actual legacy Office table broad SELECT/ALL policies, missing canonical privacy migrations or helper functions; no false-positive readiness.",
         "claimScope": {
-          "capability": "CAP-AUTH",
-          "breadth": "strict-pro-office-null-instance",
+          "capability": "CAP-QUALITY",
+          "breadth": "office-db-staging-readiness",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -1118,7 +672,7 @@
           ]
         },
         "requiredCapabilities": [
-          "CAP-AUTH"
+          "CAP-QUALITY"
         ],
         "evidence": {
           "implementation": [
@@ -1130,8 +684,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U08-PHANTOM-PRO-PLAN",
-            "statement": "No profile or WEBSHOP_DEFAULT_PLAN Pro fallback can authorize Team Chat or Advanced Office without a current webshop.",
+            "id": "NEG-U09-STALE-RLS",
+            "statement": "Legacy staging permissive ALL policies must yield BLOCK, never READY.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1139,20 +693,20 @@
         ]
       },
       {
-        "id": "REQ-U08-NORMAL-ALAP-COMMERCE",
-        "requirement": "Alap support, standard transaction email, and all unrelated no-instance fallback behavior remain unchanged.",
+        "id": "REQ-U09-NONAUTHORITATIVE-POSITIVE",
+        "requirement": "Even a clean metadata snapshot is only a readiness candidate, not full tenant and service-role proof; no mutation occurs.",
         "claimScope": {
-          "capability": "CAP-AUTH",
-          "breadth": "commerce-fallback-preservation",
+          "capability": "CAP-QUALITY",
+          "breadth": "office-db-proof-boundary",
           "strength": 2,
           "dimensions": [
+            "evidence-scope",
             "regression",
-            "scope",
             "forbidden-state"
           ]
         },
         "requiredCapabilities": [
-          "CAP-AUTH"
+          "CAP-QUALITY"
         ],
         "evidence": {
           "implementation": [
@@ -1164,8 +718,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U08-NORMAL-FALLBACK-LOSS",
-            "statement": "Non-strict capabilities must retain previous legacy/demo fallback exactly.",
+            "id": "NEG-U09-FALSE-DB-CLOSURE",
+            "statement": "Never report authoritative DONE for unverified DB RLS/tenant transitions.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1174,18 +728,5 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "164909df5a8b407cfffb22ea3429a83da204fda1",
-    "closedAt": "2026-10-10T05:31:55.606Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U08-STRICT-PRO-OFFICE-NO-INSTANCE",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
 }

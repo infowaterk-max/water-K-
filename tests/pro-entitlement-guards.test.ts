@@ -11,6 +11,10 @@ const protectedApis = [
 function source(path: string) { return readFileSync(resolve(process.cwd(), path), 'utf8'); }
 
 describe('Pro entitlement entrypoint guards', () => {
+  it('requires catalog RLS evidence before Digital Office DB closure',()=>{
+    const code=source('scripts/shoperation-office-db-readiness.mjs');
+    for(const marker of ['OFFICE_DB_BROAD_ALL_POLICY','OFFICE_DB_PARTICIPANT_READ_HELPER_MISSING','OFFICE_DB_PRO_SUBSCRIPTION_RLS_MISSING','METADATA_CANDIDATE_ONLY','authoritative:false'])expect(code).toContain(marker);
+  });
   it('rejects phantom strict Pro Office access without a current tenant, before profile/default plan fallback',()=>{
     const resolver=source('src/lib/plans/access.ts');
     const catalog=source('src/lib/plans/catalog.ts');
