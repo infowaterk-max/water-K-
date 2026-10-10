@@ -1,17 +1,16 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-E9266AF1",
-  "task": "Core #1186 U10A2 F3: forward-only customer baseline 0050 canonical Digital Office participant-only privacy foundation, retaining Team Chat/Alap split and staging read-only",
+  "taskId": "DEV-2EBCB98E",
+  "task": "Core #1186 U10A2 F4: append-only customer baseline 0051 canonical Office private-thread membership and assignee hardening, no live DB writes",
   "status": "ready-for-implementation",
-  "guardDigest": "e9266af1",
-  "changeBaseSha": "270dca53c5fc59c64bf2e65134a6b018b585ccb3",
+  "guardDigest": "2ebcb98e",
+  "changeBaseSha": "8004c9bc7e4e2d618591bdd4a74168868e08b93c",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
+    "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
+    "tests/customer-baseline-office-membership-hardening.test.ts"
   ],
   "expectedSubsystems": [
-    "admin-operations",
     "database-schema"
   ],
   "expectedDomains": [
@@ -24,31 +23,22 @@
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-022",
-    "SQ-KF-001",
-    "SQ-KF-002",
     "SQ-KF-006",
     "SQ-KF-009",
     "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
-    "SQ-KF-016",
-    "SQ-KF-017",
     "SQ-KF-018",
     "SQ-KF-023"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-008",
     "SQ-NK-012",
     "SQ-NK-014"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F3-OFFICE-PRIVACY",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F4-MEMBERSHIP-HARDENING",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -69,26 +59,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Only append new 0050 canonical participant-aware Office SQL from 20260908022500, compare full original SHA256/body",
-        "Require predecessor capability evaluate_store_capability_v1, scope-delegation v2, schema office_threads/messages/tasks, auth.users and role bindings",
-        "Preserve original customer support visibility and independent internal private/group participant membership plus office.internal_chat capability checks",
-        "Confirm source contains participant-table RLS, authenticated SELECT policy and browser write revokes, preserving canonical GRANT semantics",
-        "Customer baseline guard reports 51 migrations status snapshot-reviewed and Fresh Install proof required",
-        "No child or parent DONE until real target behavior and remaining hardening verified"
+        "0051 is byte-for-byte the canonical membership migration with source SHA256 and is ordered immediately after 0050",
+        "Customer assignee eligibility trigger requires both active store membership and support rights",
+        "Leave-private RPC requires instance, actor, thread, checks private/group type, and updates only active matching participant with audit trail",
+        "Browser EXECUTE revocations and service_role grants are unmodified from canonical SQL",
+        "Manifest remains snapshot-reviewed and invalidated prior Fresh Install proof, baseline guard counts 52",
+        "No production or browser role acceptance asserted without real PostgreSQL and U10A1 dependency closure"
       ],
       "invariants": [
-        "No direct anonymous office data grant newly introduced",
-        "Private thread membership cannot be replaced by elevated support or platform role",
-        "Team Chat capability remains independent of officeCommunicationAdvanced",
-        "Alap base transactional email never depends on internal Office Pro private-table access",
-        "No production or staging schema/data modifications or historical migration rewrites"
+        "No external organization user may become an assignee",
+        "Nonparticipant and already-left participants cannot leave private thread as active members",
+        "Membership left_at must immediately deny subsequent private read via current 0050 participant helper",
+        "Ordinary Alap support and Team Chat Pro entitlement separation untouched",
+        "SECURITY DEFINER never interpreted as RLS proof or actor-authentication proof",
+        "Prior 0001–0050 history and canonical main migration immutable"
       ],
       "forbiddenStates": [
-        "Store owner sees private Team Chat without participant membership",
-        "Customer Office content accessible to Alap after later Pro-only closure",
-        "Authenticated Office browser writes remain in newly replayed canonical baseline",
-        "New 0050 treated as final security migration without 0051+",
-        "Wrong source SHA or missing FK silently accepted"
+        "Inactive customer assignee accepted",
+        "Cross-tenant thread can be left by arbitrary actor",
+        "Private conversation persists readable after left_at",
+        "Old manifest ready claimed based on previous baseline proof",
+        "New source grants broad browser EXECUTE to untrusted roles",
+        "0051 declared final Office security closure"
       ]
     },
     "model": {
@@ -120,48 +112,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Existing office_threads lacks id-instance composite prerequisite or created_by column",
-        "Participant FK incorrectly crosses instance",
-        "Anonymous/authenticated table GRANT unexpectedly exposes internal chat through permissive policy",
-        "Internal_private route authorizes nonmember owner or platform user",
-        "Customer Office support read loses original support RBAC",
-        "SQL SECURITY DEFINER function in public leaks access to anon via inherited PUBLIC EXECUTE",
-        "Missing later private current_user helper leaves broadly exposed RLS",
-        "Wrong canonical SQL source byte copy or malformed quotes",
-        "Fresh Install manifest mistakenly sets ready",
-        "Staging legacy migration history incompatible"
+        "Trigger not present or assignment validation missing",
+        "Active-membership check incorrectly authorizes inactive support staff",
+        "Left participant remains readable due to private helper bug",
+        "Caller supplies unrelated p_actor to service_role RPC",
+        "Thread id belongs to different webshop instance",
+        "Missing admin_audit_log breaks leave transaction",
+        "Legacy public/anon EXECUTE grant introduced",
+        "SQL copy mutates tenant or membership check",
+        "Premature fake fresh proof",
+        "Release risk exceeded by mixing other subsystem"
       ],
       "edgeCases": [
-        "Guest access/no auth.uid()",
-        "Cross-instance thread UUID swap",
-        "Private thread participant left_at not null",
-        "Two-member vs group conversation types",
-        "Customer thread subject/topic/mailbox scope",
-        "Missing organization or role binding",
-        "Actor with revoked feature entitlement",
-        "Orphan messages and unthreaded tasks",
-        "User account deleted during migration",
-        "Legacy data backfill participant joins"
+        "Null user or instance/thread ID",
+        "Private versus group thread",
+        "Customer conversation leave attempt",
+        "Already left_at non-null",
+        "User support role revoked",
+        "Expired/disabled role binding",
+        "Tenant context swap with same thread UUID",
+        "Concurrent leave update and audit",
+        "Trigger fires on conversation_type change",
+        "Service role EXECUTE with untrusted caller-supplied actor"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F3-SOURCE-MIGRATION",
-        "summary": "Add exact canonical Office privacy foundation as new 0050 after scoped permissions with SHA proof and no target writes.",
+        "id": "ALT-F4-CANONICAL-APPEND",
+        "summary": "Append immutable canonical membership/assignee hardening SQL after 0050 with hash proof",
         "disposition": "selected",
-        "reason": "Preserves canonical participant-aware security design and migration ordering."
+        "reason": "Maintains canonical database authority and protects scope/order."
       },
       {
-        "id": "ALT-F3-INTERMEDIATE-LIVE",
-        "summary": "Patch occupied staging with direct RLS changes to see whether they work.",
+        "id": "ALT-F4-APP-ONLY",
+        "summary": "Enforce membership solely through admin Next.js actions",
         "disposition": "rejected",
-        "reason": "Incomplete migration ledger and no current empty-target proof."
+        "reason": "Does not protect service_role SQL actor and direct data mutations."
       },
       {
-        "id": "ALT-F3-SKIP-PARTICIPANT",
-        "summary": "Skip 0050 and rely only on Next.js route Pro feature checks.",
+        "id": "ALT-F4-MERGE-ALL",
+        "summary": "Combine assignee, advanced mail and Pro SQL hardening into 0051",
         "disposition": "rejected",
-        "reason": "Bypasses participant privacy inside SECURITY DEFINER SQL and browser RLS."
+        "reason": "Confounds dependencies and exceeds bounded high-risk unit."
       }
     ],
     "specialistReviews": [
@@ -169,28 +161,28 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Source 0050 creates an interim participant-aware RLS without later stricter Pro tenancy and private-schema closure; a premature deploy could be unsafe.",
-        "resolution": "Implement source only, keep baseline snapshot-reviewed, no merge/deploy and require 0051+ plus U10A1 strict RLS and real role/actor tests.",
+        "finding": "Caller-supplied p_actor under SECURITY DEFINER can impersonate if server does not validate actor; source-only positive tests cannot certify privileged RPC",
+        "resolution": "Retain separate service_role authentication/actor binding proof obligation, no merge/release until final acceptance.",
         "evidence": [
-          "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql"
+          "supabase/migrations/20260908023000_digital_office_privacy_membership_hardening_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Participant FK requires existing office_threads composite index and role/user tables.",
-        "resolution": "Canonical 0050 creates composite thread index before table and tests required predecessors and source hash.",
+        "finding": "Trigger and leave updates depend on 0050 participant table and private membership helper.",
+        "resolution": "Require strict 0050 to 0051 ordering, full source hash and data/audit compatibility tests.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql"
+          "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Pro-only Office privacy DB patch high-risk and cross-tenant; release only single database-schema subsystem.",
-        "resolution": "Focused 0050 plus manifest/tests, exact-base risk 5/5 and subsequent separate release units.",
+        "finding": "DB-schema security migration warrants isolated Release Risk 5/5 and actual-diff authority.",
+        "resolution": "One SQL file, neutral tests and manifest, exact-base release risk, source-only status.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -199,8 +191,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Real staging lacks modern Office foundations and is not safe as migration rehearsal.",
-        "resolution": "No real target writes or Vercel preview; require disposable Fresh Install and precise lineage checks.",
+        "finding": "Staging baseline does not have prerequisite modern privacy, so applying 0051 there is unverified and unsafe.",
+        "resolution": "No target schema writes; real disposable target replay and staging ledger provenance required later.",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -208,72 +200,72 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F3-1",
-        "scenario": "A Pro store owner loads a private Team Chat conversation they did not participate in.",
-        "finding": "General support role or operator authority could leak internal private messages.",
-        "resolution": "Verify can_read_office_thread_v1 enforces private.office_active_participant_v1 before scoped office.internal_chat capability.",
+        "id": "CH-U10A2-F4-01",
+        "scenario": "A disabled support employee is assigned to customer Office thread.",
+        "finding": "Missing trigger permits support ticket exposure to deactivated member.",
+        "resolution": "Preserve both private.office_active_store_member_v1 and public.can_manage_support conditions in canonical eligibility trigger.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F3-2",
-        "scenario": "A user switches tenant context while retaining a valid private thread identifier.",
-        "finding": "Thread ownership across instances could leak another organization’s chat messages.",
-        "resolution": "Ensure reader and participant checks share p_instance_id and office_threads composite id-instance binding.",
+        "id": "CH-U10A2-F4-02",
+        "scenario": "A store owner tries assigning an outside-tenant user to an Office customer thread.",
+        "finding": "A cross-tenant assignee might gain customer information.",
+        "resolution": "Assert instance-bound store membership query and support RBAC; verify live tenant negative later.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F3-3",
-        "scenario": "A customer support agent opens a legitimate customer thread after participant RLS installation.",
-        "finding": "Overly strict internal-only predicates could break ordinary customer support functionality.",
-        "resolution": "Preserve canonical customer branch can_manage_support while independent internal Team Chat requires participant membership.",
+        "id": "CH-U10A2-F4-03",
+        "scenario": "A private participant calls leave, then immediately requests the same thread read.",
+        "finding": "A stale membership path may continue permitting chat access after leave.",
+        "resolution": "Require left_at mutation filtered by instance/thread/actor and 0050 active participant predicate in tests.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F3-4",
-        "scenario": "A browser attempts an INSERT, UPDATE or DELETE on an Office thread after new policies are installed.",
-        "finding": "Old ALL policies or lingering direct grants could permit a client to mutate private workspace outside audited RPC.",
-        "resolution": "Copy canonical policy replacement and revoke browser write privileges; require real auth role policy rehearsal.",
+        "id": "CH-U10A2-F4-04",
+        "scenario": "A nonparticipant or already-left user calls the leave RPC.",
+        "finding": "Unaudited or misattributed exit could conceal attempted actor spoof.",
+        "resolution": "Verify update WHERE left_at is null and explicit OFFICE_PRIVATE_PARTICIPANT_NOT_ACTIVE exception.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F3-5",
-        "scenario": "An Office service-role function is invoked with forged actor UUID after canonical 0050 has been applied.",
-        "finding": "RLS is bypassed by SECURITY DEFINER, and source-only checker might misstate actor authorization.",
-        "resolution": "Do not claim live security PASS, require explicit authenticated actor/session proofs for RPC paths in final acceptance.",
+        "id": "CH-U10A2-F4-05",
+        "scenario": "A client calls leave RPC with a customer rather than private/group thread.",
+        "finding": "Customer support conversation could be modified by private chat feature.",
+        "resolution": "Assert conversation_type in internal_private/internal_group and OFFICE_INTERNAL_THREAD_NOT_FOUND exception.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F3-6",
-        "scenario": "Legacy customer threads without participants are replayed by the new privacy backfill.",
-        "finding": "Incorrect assignments can delete or omit support references or expose internal messages.",
-        "resolution": "Preserve canonical idempotent backfill statements unchanged and require data shape checks on disposable target.",
+        "id": "CH-U10A2-F4-06",
+        "scenario": "The service-role caller supplies another user UUID as p_actor.",
+        "finding": "Postgres SECURITY DEFINER bypasses RLS and trusts supplied actor, potentially impersonating participant.",
+        "resolution": "Do not treat static source PASS as RPC security proof; demand end-to-end server-session binding before DONE.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F3-7",
-        "scenario": "The legacy baseline advertises READY after inserting 0050.",
-        "finding": "CI would falsely certify incomplete modern Office privacy and Pro SQL hardening.",
-        "resolution": "Keep snapshot-reviewed, freshInstallProofRequired=true and proofContractSha256 null until full chain.",
+        "id": "CH-U10A2-F4-07",
+        "scenario": "A migration excludes private audit insert despite successful left_at update.",
+        "finding": "Participant exits become untraceable and capability closure is false.",
+        "resolution": "Full canonical source hash and explicit admin_audit_log office.private_thread_left proof.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F3-8",
-        "scenario": "An engineer copies only SQL functions but omits policy grants and private participant table.",
-        "finding": "Local text assertion may see function names yet runtime RLS remains broad or broken.",
-        "resolution": "Byte-for-byte hash of complete migration including DDL, grants, revokes and policy declarations.",
+        "id": "CH-U10A2-F4-08",
+        "scenario": "The baseline is marked ready after append-only 0051 without later helper hardening or Fresh Install.",
+        "finding": "CI overclaims security/proof and makes incomplete Office schema appear deployable.",
+        "resolution": "Keep snapshot-reviewed, null proof hash, and next 0052+ and runtime blockers explicit.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code PASS on 0050 source, manifest and tests before first edit",
-      "SHA256 exact-source copy of full privacy foundation with source/object dependency assertions",
-      "Targeted SQL/RLS/role privacy contract tests and existing 0047-0049 regressions",
-      "Customer baseline guard status snapshot-reviewed 51 versions, TypeScript and SQL syntax checks",
-      "Edit-Time reference sync, implementation sync, Knowledge Preflight and full shadow Incremental Replay",
-      "Exact-base risk 5/5, no staging writes, future 0051+ and live Fresh Install proof explicitly pending"
+      "Critical Plan Before Code PASS before editing 0051",
+      "Byte-for-byte source SHA256 provenance and tenant/actor/trigger regression assertions",
+      "SQL syntax, baseline 52 ordered migrations snapshot-reviewed and TypeScript checks",
+      "Edit-Time Reference/Implementation Sync and PO instruction retention PASS",
+      "Knowledge Preflight and incremental full shadow replay",
+      "Release Risk 5/5 exact prior head; no live SQL or DONE until full chain"
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F3: forward-only customer baseline 0050 canonical Digital Office participant-only privacy foundation, retaining Team Chat/Alap split and staging read-only",
+      "request": "Core #1186 U10A2 F4: append-only customer baseline 0051 canonical Office private-thread membership and assignee hardening, no live DB writes",
       "authority": [
         "database-schema"
       ],
@@ -283,17 +275,17 @@
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
-        "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
+        "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
+        "tests/customer-baseline-office-membership-hardening.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code PASS on 0050 source, manifest and tests before first edit",
-        "SHA256 exact-source copy of full privacy foundation with source/object dependency assertions",
-        "Targeted SQL/RLS/role privacy contract tests and existing 0047-0049 regressions",
-        "Customer baseline guard status snapshot-reviewed 51 versions, TypeScript and SQL syntax checks",
-        "Edit-Time reference sync, implementation sync, Knowledge Preflight and full shadow Incremental Replay",
-        "Exact-base risk 5/5, no staging writes, future 0051+ and live Fresh Install proof explicitly pending"
+        "Critical Plan Before Code PASS before editing 0051",
+        "Byte-for-byte source SHA256 provenance and tenant/actor/trigger regression assertions",
+        "SQL syntax, baseline 52 ordered migrations snapshot-reviewed and TypeScript checks",
+        "Edit-Time Reference/Implementation Sync and PO instruction retention PASS",
+        "Knowledge Preflight and incremental full shadow replay",
+        "Release Risk 5/5 exact prior head; no live SQL or DONE until full chain"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -309,8 +301,8 @@
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
-          "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
+          "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
+          "tests/customer-baseline-office-membership-hardening.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -342,13 +334,13 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
+            "file": "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           },
           {
-            "file": "tests/customer-baseline-digital-office-privacy-foundation.test.ts",
+            "file": "tests/customer-baseline-office-membership-hardening.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -382,13 +374,13 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
+              "file": "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             },
             {
-              "file": "tests/customer-baseline-digital-office-privacy-foundation.test.ts",
+              "file": "tests/customer-baseline-office-membership-hardening.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -433,7 +425,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql"
+              "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -450,7 +442,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -463,7 +455,7 @@
           {
             "id": 2,
             "files": [
-              "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
+              "tests/customer-baseline-office-membership-hardening.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -474,7 +466,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-digital-office-privacy-foundation.test.ts",
+                  "file": "tests/customer-baseline-office-membership-hardening.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -492,21 +484,21 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "270dca53c5fc59c64bf2e65134a6b018b585ccb3"
+              "developmentBaseSha": "8004c9bc7e4e2d618591bdd4a74168868e08b93c"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "270dca53c5fc59c64bf2e65134a6b018b585ccb3",
+            "targetBaseSha": "8004c9bc7e4e2d618591bdd4a74168868e08b93c",
             "lease": {
-              "expectedBaseSha": "270dca53c5fc59c64bf2e65134a6b018b585ccb3",
+              "expectedBaseSha": "8004c9bc7e4e2d618591bdd4a74168868e08b93c",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
-              "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
+              "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
+              "tests/customer-baseline-office-membership-hardening.test.ts"
             ],
             "operations": [
               {
@@ -516,12 +508,12 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
+                "file": "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-digital-office-privacy-foundation.test.ts",
+                "file": "tests/customer-baseline-office-membership-hardening.test.ts",
                 "generated": null
               }
             ],
@@ -553,13 +545,13 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 },
                 {
-                  "file": "tests/customer-baseline-digital-office-privacy-foundation.test.ts",
+                  "file": "tests/customer-baseline-office-membership-hardening.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -590,7 +582,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
+                "tests/customer-baseline-office-membership-hardening.test.ts"
               ],
               "externalGateIds": []
             },
@@ -602,8 +594,8 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql",
-                "tests/customer-baseline-digital-office-privacy-foundation.test.ts"
+                "supabase/customer-baseline/migrations/0051_digital_office_privacy_membership_hardening_v1.sql",
+                "tests/customer-baseline-office-membership-hardening.test.ts"
               ],
               "filesAbsent": []
             },
@@ -618,7 +610,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "9e5e5a1c",
+            "manifestDigest": "e221c4e1",
             "decision": "PASS"
           }
         ],
@@ -658,37 +650,37 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Customer Fresh Install baseline through 0049 has canonical role and scoped delegation authority but lacks the 20260908022500 Digital Office privacy foundation: office_thread_participants, participant-only internal chat read guards, updated customer support reader function, and privacy RLS policies. Modern U10A1 requires these helpers, yet the legacy snapshot still contains broad support-role ALL policies. A forward-only 0050 copy is essential but alone not safe to deploy without the later 0051+ privacy hardening, strict Pro tenancy and real role proof.",
+    "problemStatement": "The 0050 Office participant privacy foundation in the staged customer baseline lacks its canonical follow-up 20260908023000 membership hardening. Customer thread assignments must reject inactive or unsupported employees; internal private-thread participants must be able to leave, immediately revoking read access while preserving auditable tenant boundaries. This is only a source migration, not a live role/tenant proof.",
     "observableOutcomes": [
-      "New customer baseline 0050 reproduces source 20260908022500 byte-for-byte including participant table, unique tenant thread index and privacy read helpers",
-      "Canonical customer-thread and internal-private/team participant paths remain distinct with office.internal_chat checked for private chats",
-      "Source migration revokes browser writes in three Office tables and adds participant-aware read policies instead of broad ALL",
-      "50 migration predecessors remain immutable; manifest stays snapshot-reviewed with real Fresh Install proof required and null contract hash",
-      "Do not claim end-to-end Pro-only database closure until later 0051+ policies, 005x U10A1 subscription SQL and live GRANT/RLS tests are verified"
+      "Append exactly one 0051 migration copied byte-for-byte from canonical 20260908023000 Office membership-hardening SQL with SHA256 provenance",
+      "Customer assignee trigger validates active store membership and support rights on insertion or reassignment",
+      "Private/group leave RPC uses tenant/thread/actor-bound update, removes active membership via left_at, raises on nonparticipant and writes office audit event",
+      "Customer baseline guard advances to 52 ordered migrations while status remains snapshot-reviewed with freshInstallProofRequired=true",
+      "No claim of Pro-only SQL closure, live service_role actor binding or verified Fresh Install is made"
     ],
     "unresolvedRisks": [
-      "Direct client roles in staging and schema version remain unverified, so source-only SQL copy is not a production privacy acceptance",
-      "Subsequent privacy hardening migration 20260908023000, 23500 and 24000 and advanced SQL still missing from customer baseline; customer browser read could be underprotected in intermediate state",
-      "SERVICE_ROLE bypasses RLS and privileged RPC must have explicit current tenant and actor checks; U10A1 still unmerged local",
-      "Baseline source 0050 includes policy grants that must be replay-tested on disposable database before deployment"
+      "Source checks cannot prove that a service_role RPC caller binds p_actor to the actual authenticated session; final runtime must verify caller-to-actor checks",
+      "Existing staging has legacy Office RLS and missing prerequisites and must remain unchanged",
+      "Later 0052+ privacy author-read synchronization and helper exposure, and U10A1 Pro SQL, are unresolved",
+      "The actual PostgreSQL GRANT inheritance and SECURITY DEFINER bypass implications need separate disposable empty-target tests"
     ],
     "scope": {
       "in": [
-        "Append forward-only 0050 privacy foundation as exact canonical source SQL with SHA256 provenance",
-        "Manifest notes preserve snapshot-reviewed and fresh proof requirement",
-        "Focused 0050 dependency, RLS contract, Alap/Team Chat split and history preservation regressions"
+        "One forward-only 0051 canonical SQL for Office assignee and private membership hardening",
+        "Baseline manifest notes preserving snapshot-reviewed with no false proof hash",
+        "Focused tests verifying source byte provenance, tenant/actor predicates, audit and relative ordering"
       ],
       "out": [
-        "No runtime staging/production or Fresh Install project migrations or SQL writes",
-        "No modification of 0001–0049 baseline SQL or canonical main source",
-        "No 0051+ privacy hardening, advanced RPC or U10A1 strict subscription SQL in same high-risk unit",
-        "No production deploy or PR and no claim of full customer Office database security"
+        "No rewrite of 0001–0050 migrations or main canonical SQL",
+        "No real target DDL/privileged RPC execution or staging/production modification",
+        "No 0052+ Office/privacy advanced migrations or Pro subscription SQL within this 5/5 unit",
+        "No Vercel deployment, GitHub CI dispatch or PR push"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F3-OFFICE-PRIVACY",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F4-MEMBERSHIP-HARDENING",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -706,11 +698,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-U10A2-F3-PRIVACY",
-        "requirement": "Append exact canonical participant privacy foundation 0050 with source hash, tenant identity, Team Chat participant and Alap customer branch invariants; no false security completion.",
+        "id": "REQ-U10A2-F4-MEMBERSHIP",
+        "requirement": "Canonical customer-baseline 0051 enforces eligible support assignee and private membership leave with tenant, audit and grant protections while avoiding false Fresh Install closure.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-private-participant-baseline-source",
+          "breadth": "office-membership-hardening-baseline-source",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -732,8 +724,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U10A2-F3-PRIVATE-CHAT",
-            "statement": "Unauthorized nonparticipant never gains internal private/group Office thread access on real target; source preservation required now, live role proof later.",
+            "id": "NEG-U10A2-F4-ACTOR",
+            "statement": "No unauthenticated or cross-tenant private membership leave is authorized; source proof only, later real RPC proof required.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -742,5 +734,5 @@
       }
     ]
   },
-  "notes": "U10A2 F3 source-only Digital Office privacy foundation 0050; 0051+ and U10A1 subscription hardening still missing. No staging/production writes or merge."
+  "notes": "Core #1186 U10A2 F4 canonical Office membership hardening 0051; prerequisite 0050 local; source-only. Later 0052+ private read sync/helper and U10A1 Pro SQL and live role proof remain BLOCK."
 }
