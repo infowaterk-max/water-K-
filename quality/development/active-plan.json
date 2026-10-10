@@ -1,14 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2 F6: append-only 0053 canonical Office RLS current-user helper exposure hardening, actor-target RPC service-only, no target DB writes",
+  "task": "Core #1186 U10A2 F7: append-only customer baseline 0054 canonical Office real inbound mailbox/routing foundation, service-only tenant secrets, no live DB writes",
   "status": "ready-for-implementation",
   "guardDigest": "2ebcb98e",
-  "changeBaseSha": "c0a65e1918746607bb608340ac3c6decc1f165f2",
+  "changeBaseSha": "ea93177a9060d204c7b1a2e57b388ee202abce14",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0053_digital_office_rls_helper_exposure_closure_v1.sql",
+    "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-office-rls-helper-exposure.test.ts"
+    "tests/customer-baseline-office-real-inbound-foundation.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -38,7 +38,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F6-OFFICE-RLS-EXPOSURE",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F7-INBOUND-FOUNDATION",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -59,26 +59,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "0053 body matches canonical 20260908024000 exactly and hash is correct",
-        "private helper uses public.can_read_office_thread_v1(...,auth.uid()) without browser-settable arbitrary user ID",
-        "Actor-parameterized public helper revoke for public/anon/authenticated, grant execute service_role only",
-        "All three Office SELECT RLS policies refer only to current-user private helper (except support fallback for unthreaded task)",
-        "Canonical baseline ordering 0050-0053, manifest snapshot-reviewed 54 migration guard and TypeScript test PASS",
-        "Full actual PostgreSQL role/GRANT/RLS and Pro subscription proof remains blocked and not misclaimed"
+        "New 0054 is canonical 20260908030000 complete unchanged SQL body and source SHA256",
+        "Mailboxes and thread reply route table deny anon/authenticated direct grant and retain service_role with enabled RLS",
+        "Reply-token uniqueness, tenant-scoped composite thread FK and sync trigger/backfill are included verbatim",
+        "Inbound v3 SQL function preserves canonical credential/routing/ingest checks and anonymous/browser EXECUTE revoke",
+        "Baseline checker passes 55 migrations snapshot-reviewed with null proof hash, TypeScript and SQL regressions pass",
+        "No misleading READY/DONE or real target security/Delivery claims before normalization+advanced lineage and real Postgres role tests"
       ],
       "invariants": [
-        "No browser RPC may query arbitrary p_user_id through public definer helper",
-        "Participant-only internal Chat membership is preserved by called 0050 helper",
-        "Unthreaded customer support task remains constrained by can_manage_support current user",
-        "Alap ordinary transactional mail and separate Team Chat entitlement remain untouched",
-        "No fake Fresh Install proof or historical baseline rewrite"
+        "Route token never becomes column in browser-visible office_threads or office_messages",
+        "Mailbox address/routing credentials are service-only",
+        "No cross-instance thread route correlation",
+        "Inbound customer content cannot execute business actions",
+        "Existing Alap customer support/transactional email and independent Team Chat Pro policy remain unaffected",
+        "All earlier 0001-0053 migration identities remain immutable"
       ],
       "forbiddenStates": [
-        "Actor-parameterized helper executable by anon or authenticated",
-        "Browser RLS predicate evaluates another user ID instead of auth.uid()",
-        "Broad ALL policy reintroduced to Office tables",
-        "SQL source copied partially, dropping revoke/grant",
-        "Old ready manifest or stale proof hash retained"
+        "Reply token readable by authenticated or anon directly",
+        "Cross-instance FK absent or tenant route mismatch",
+        "Canonical data/RLS/GRANT statements dropped during source copy",
+        "External email provider webhook invoked or DNS changed by migration proof",
+        "Customer baseline flagged READY without actual clean-target role test",
+        "Two high-risk subsystems merged into one release unit"
       ]
     },
     "model": {
@@ -110,47 +112,52 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Private schema privilege inaccessible to authenticated for RLS",
-        "Public actor helper retains implicit default PUBLIC execute",
-        "Missing RLS drop/recreate for one Office table",
-        "Unthreaded task support remains accessible to unintended roles",
-        "Cross-instance thread read leak",
-        "SQL source differs from canonical",
-        "Security-definer bypass under service_role",
-        "Premature Pro closure assertion",
-        "Staging migration provenance not reconciled"
+        "Missing office_threads unique instance index from 0050",
+        "Missing preexisting record_inbound_office_email_v2 signature in first schema",
+        "Incorrect composite FK permits another tenant thread route",
+        "Reply token leaks through office_threads browser columns",
+        "Anon/authenticated grants remain inherited",
+        "RLS policies misconfigured for service_role",
+        "Malformed column/constraint on legacy office_messages",
+        "Inbox threading duplicates inbound message despite rfc checks",
+        "Untrusted inbound body triggers business mutation",
+        "Schema source SHA drifts",
+        "Provider signature not validated by worker outside SQL",
+        "Staging receives unreviewed DDL"
       ],
       "edgeCases": [
-        "auth.uid() null guest",
-        "Cross-tenant thread ID",
-        "Customer versus internal conversation",
-        "Office tasks thread_id null",
-        "Participant left_at set",
-        "Role revoked while JWT stale",
-        "Public function default grants",
-        "Private schema usage grants",
-        "Missing 0050 participant helper",
-        "RLS SELECT with authenticated role only"
+        "Unrelated thread with identical UUID different instance",
+        "Customer thread versus internal_private routing",
+        "Mailbox inactive",
+        "Duplicate RFC message ID",
+        "No reply token",
+        "Empty to-address",
+        "Provider message missing headers",
+        "Existing customer message data backfill",
+        "Service_role privilege inheritance",
+        "Untrusted MIME attachment count",
+        "Duplicate mailbox inbound_address case-insensitive",
+        "Rollback of partially provisioned routes"
       ]
     },
     "alternatives": [
       {
-        "id": "F6-CANONICAL-CURRENT-USER",
-        "summary": "Append canonical 0053 RLS helper closure with verbatim grants and predicates",
+        "id": "ALT-F7-CANONICAL",
+        "summary": "Append exact Office real inbound foundation migration with complete canonical RLS, functions, triggers and SHA256.",
         "disposition": "selected",
-        "reason": "One source authority and narrowest browser surface"
+        "reason": "Preserves source authority, avoids a second email ingestion implementation and isolates a 5/5 database release."
       },
       {
-        "id": "F6-ROUTE-ONLY",
-        "summary": "Protect actor-target RPC only in Next.js API routes",
+        "id": "ALT-F7-INDEPENDENT",
+        "summary": "Implement a new simplified inbound record function directly in customer baseline.",
         "disposition": "rejected",
-        "reason": "Untrusted PostgREST RPC caller can still probe another actor"
+        "reason": "Conflicting canonical authorization, threading and service-role boundaries."
       },
       {
-        "id": "F6-BULK",
-        "summary": "Merge all remaining Pro advanced SQL into one baseline patch",
+        "id": "ALT-F7-JUMP-ADVANCED",
+        "summary": "Copy Communication Hub advanced SQL ahead of mailboxes and canonical inbound/Drafts migration dependencies.",
         "disposition": "rejected",
-        "reason": "Unclear dependencies and risk/assurance exceed isolated unit"
+        "reason": "Would refer to nonexistent tables, secrets and per-tenant email metadata."
       }
     ],
     "specialistReviews": [
@@ -158,18 +165,18 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Direct revoke from named roles may not prevent PUBLIC/inherited effective EXECUTE after replay; source proof is insufficient.",
-        "resolution": "Use exact canonical revoke, but retain real PostgreSQL has_function_privilege checks and data role negative tests as release blockers.",
+        "finding": "Static source code equality does not establish provider webhook signature validation, effective PostgreSQL browser grants, or safe untrusted email handling.",
+        "resolution": "Limit completion scope to canonical source; require real Postgres RLS/GRANT, worker signature, actor binding and untrusted email behavior checks before deployment.",
         "evidence": [
-          "supabase/migrations/20260908024000_digital_office_rls_helper_exposure_closure_v1.sql"
+          "supabase/migrations/20260908030000_digital_office_real_inbound_foundation_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "0053 functions refer to 0050 current public can_read and Office tables/RLS.",
-        "resolution": "Order 0050–0053 and validate canonical full bytes and table policy recreation.",
+        "finding": "Composite (thread_id,instance_id) FK requires 0050 Office thread index and existing customer thread schema.",
+        "resolution": "Verify 0050 predecessor and full canonical 0054 FK/backfill/RFC idempotency source statements.",
         "evidence": [
           "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql"
         ]
@@ -178,8 +185,8 @@
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "RLS/security schema is a high-risk isolated release and must not claim production readiness.",
-        "resolution": "Release Risk 5/5 source-only, future actor and tenant proof before merge.",
+        "finding": "Inbound mailbox schema and routing are high-risk database scope; merging quality runtime or provider integration would exceed budget.",
+        "resolution": "SQL+manifest+neutral tests only; Release Risk <=5/5 exact previous head; no CI/push Preview before dependency closure.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -188,8 +195,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Staging still shows older Office SQL catalog and missing modern lineage.",
-        "resolution": "No target writes, no deployment; full disposable replay and staging ledger diff required.",
+        "finding": "Production inbound MX/domain and active staging must not be modified to prove a source migration.",
+        "resolution": "No target writes/provider calls; keep snapshot-reviewed until isolated disposable Fresh Install and ledger verified.",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -197,71 +204,71 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F6-01",
-        "scenario": "An authenticated browser calls public.can_read_office_thread_v1 with a different p_user_id.",
-        "finding": "The caller could discover another user private thread visibility through definer RPC.",
-        "resolution": "Explicitly revoke execute on public parameterized helper from public/anon/authenticated and retain service_role only.",
+        "id": "CH-U10A2-F7-01",
+        "scenario": "A buyer-support thread exists for tenant A and guessed thread UUID is used from tenant B.",
+        "finding": "An inbound route may forward mail to an unrelated tenant if the composite FK is lost.",
+        "resolution": "Require route table foreign key(thread_id,instance_id) to same instance Office thread, and isolated real tenant proof.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F6-02",
-        "scenario": "A browser RLS policy passes an attacker-chosen author UUID.",
-        "finding": "Rows could be seen based on a different participant identity.",
-        "resolution": "All select policies use current-user private helper, which binds auth.uid() internally.",
+        "id": "CH-U10A2-F7-02",
+        "scenario": "An authenticated user queries office_thread_email_routes through Data API.",
+        "finding": "Reply_token routing secret or private inbound mailbox address could be leaked.",
+        "resolution": "Preserve RLS on both new tables and explicit revoke all from public,anon,authenticated; verify effective grants in real Postgres later.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F6-03",
-        "scenario": "Anonymous user attempts reading a private thread by guessed tenant and id.",
-        "finding": "An RLS policy or RPC default grant could expose a thread title.",
-        "resolution": "Policies target authenticated and anon loses private current-user helper/public helper execute.",
+        "id": "CH-U10A2-F7-03",
+        "scenario": "An attacker sends fake inbound email body containing instructions to perform store operations.",
+        "finding": "Untrusted email content could be executed as business actions by downstream workers.",
+        "resolution": "Preserve data-only storage contract and defer provider webhook signature/agent safeguards to dedicated capability proof.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F6-04",
-        "scenario": "A user calls Office task SELECT with thread_id null.",
-        "finding": "Private thread predicate may be skipped without any support membership check.",
-        "resolution": "Preserve current-user public.can_manage_support(instance_id,auth.uid()) for unthreaded tasks.",
+        "id": "CH-U10A2-F7-04",
+        "scenario": "A duplicate RFC Message-ID is replayed by the provider.",
+        "finding": "Duplicate customer messages or cross-thread correlation could result without canonical record_inbound_v3 guard.",
+        "resolution": "Preserve complete canonical inbound RPC and RFC index, test source and require real idempotency rehearsal.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F6-05",
-        "scenario": "Private participant leaves a thread then requests messages after 0053.",
-        "finding": "Read helper might ignore left_at and leak old private messages.",
-        "resolution": "Retain 0050 active participant check transitively in private current-user helper; require role tests.",
+        "id": "CH-U10A2-F7-05",
+        "scenario": "An internal private Team Chat message acquires a routable external mailbox token.",
+        "finding": "Private staff conversation content may become addressable through public reply route.",
+        "resolution": "Preserve canonical conversation_type customer filter in route synchronization and backfill.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F6-06",
-        "scenario": "A role inherits public EXECUTE despite explicit revoke on authenticated.",
-        "finding": "Static tests might report secure despite effective PostgreSQL privilege.",
-        "resolution": "Require later pg_catalog has_function_privilege for PUBLIC, anon, authenticated and service_role before release.",
+        "id": "CH-U10A2-F7-06",
+        "scenario": "A mailbox is marked active before external provider DNS/domain is verified.",
+        "finding": "Live inbound traffic might be misrouted or lost, and tenant onboarding becomes partially enabled.",
+        "resolution": "No external provider actions, preserve is_active default false, require later rollout gate.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F6-07",
-        "scenario": "An Office migration copies only helper function, not all three RLS policies.",
-        "finding": "One table continues using unbound old actor helper.",
-        "resolution": "Hash-verify canonical entire file including exact drop/recreate policies.",
+        "id": "CH-U10A2-F7-07",
+        "scenario": "A 0054 migration includes only table creation but omits trigger or GRANT revocation.",
+        "finding": "Static function markers appear present while runtime remains unsafe or broken.",
+        "resolution": "Require full body SHA256 equality with main canonical SQL and focused RLS/route contract tests.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F6-08",
-        "scenario": "The customer baseline is marked ready immediately after 0053.",
-        "finding": "Missing advanced tenant subscription guard would be hidden.",
-        "resolution": "Stay snapshot-reviewed with old proof null and block actual completion until U10A1 plus full runtime schema proof.",
+        "id": "CH-U10A2-F7-08",
+        "scenario": "The manifest is marked ready immediately after 0054 even though mailbox normalization/Advanced Office are absent.",
+        "finding": "Incomplete product capability is overclaimed and may trigger risky deployment.",
+        "resolution": "Keep snapshot-reviewed, null proof hash, and block completion until ordered 0055+ plus disposable Fresh Install acceptance.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code PASS before 0053 edit",
-      "Canonical source-body SHA256, current-user auth.uid() RLS/GRANT regression tests",
-      "Existing 0050–0052 54-version customer baseline SQL syntax and TypeScript",
-      "Edit-Time Reference/Implementation Sync PASS, Knowledge and Incremental Replay",
-      "Exact-base Release Risk 5/5 and no real DB writes or false U10A1 DONE"
+      "Critical Plan Before Code PASS before new SQL file and manifest edits",
+      "SHA256 exact source SQL and routing secret/RLS composite FK, v3 ingest regression tests",
+      "Customer baseline 55 ordered migrations snapshot-reviewed, SQL syntax and TypeScript",
+      "Edit-Time Reference Sync, Implementation Sync, Knowledge Preflight, full-shadow Incremental Replay",
+      "Exact-base Release Risk 5/5, no real database or provider calls and no false closure"
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F6: append-only 0053 canonical Office RLS current-user helper exposure hardening, actor-target RPC service-only, no target DB writes",
+      "request": "Core #1186 U10A2 F7: append-only customer baseline 0054 canonical Office real inbound mailbox/routing foundation, service-only tenant secrets, no live DB writes",
       "authority": [
         "database-schema"
       ],
@@ -271,16 +278,16 @@
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0053_digital_office_rls_helper_exposure_closure_v1.sql",
-        "tests/customer-baseline-office-rls-helper-exposure.test.ts"
+        "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql",
+        "tests/customer-baseline-office-real-inbound-foundation.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code PASS before 0053 edit",
-        "Canonical source-body SHA256, current-user auth.uid() RLS/GRANT regression tests",
-        "Existing 0050–0052 54-version customer baseline SQL syntax and TypeScript",
-        "Edit-Time Reference/Implementation Sync PASS, Knowledge and Incremental Replay",
-        "Exact-base Release Risk 5/5 and no real DB writes or false U10A1 DONE"
+        "Critical Plan Before Code PASS before new SQL file and manifest edits",
+        "SHA256 exact source SQL and routing secret/RLS composite FK, v3 ingest regression tests",
+        "Customer baseline 55 ordered migrations snapshot-reviewed, SQL syntax and TypeScript",
+        "Edit-Time Reference Sync, Implementation Sync, Knowledge Preflight, full-shadow Incremental Replay",
+        "Exact-base Release Risk 5/5, no real database or provider calls and no false closure"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -296,8 +303,8 @@
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0053_digital_office_rls_helper_exposure_closure_v1.sql",
-          "tests/customer-baseline-office-rls-helper-exposure.test.ts"
+          "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql",
+          "tests/customer-baseline-office-real-inbound-foundation.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -329,13 +336,13 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0053_digital_office_rls_helper_exposure_closure_v1.sql",
+            "file": "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           },
           {
-            "file": "tests/customer-baseline-office-rls-helper-exposure.test.ts",
+            "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -369,13 +376,13 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0053_digital_office_rls_helper_exposure_closure_v1.sql",
+              "file": "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             },
             {
-              "file": "tests/customer-baseline-office-rls-helper-exposure.test.ts",
+              "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -420,7 +427,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0053_digital_office_rls_helper_exposure_closure_v1.sql"
+              "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -437,7 +444,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0053_digital_office_rls_helper_exposure_closure_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -450,7 +457,7 @@
           {
             "id": 2,
             "files": [
-              "tests/customer-baseline-office-rls-helper-exposure.test.ts"
+              "tests/customer-baseline-office-real-inbound-foundation.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -461,7 +468,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-office-rls-helper-exposure.test.ts",
+                  "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -479,21 +486,21 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "c0a65e1918746607bb608340ac3c6decc1f165f2"
+              "developmentBaseSha": "ea93177a9060d204c7b1a2e57b388ee202abce14"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "c0a65e1918746607bb608340ac3c6decc1f165f2",
+            "targetBaseSha": "ea93177a9060d204c7b1a2e57b388ee202abce14",
             "lease": {
-              "expectedBaseSha": "c0a65e1918746607bb608340ac3c6decc1f165f2",
+              "expectedBaseSha": "ea93177a9060d204c7b1a2e57b388ee202abce14",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0053_digital_office_rls_helper_exposure_closure_v1.sql",
-              "tests/customer-baseline-office-rls-helper-exposure.test.ts"
+              "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql",
+              "tests/customer-baseline-office-real-inbound-foundation.test.ts"
             ],
             "operations": [
               {
@@ -503,12 +510,12 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0053_digital_office_rls_helper_exposure_closure_v1.sql",
+                "file": "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-office-rls-helper-exposure.test.ts",
+                "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
                 "generated": null
               }
             ],
@@ -540,13 +547,13 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0053_digital_office_rls_helper_exposure_closure_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 },
                 {
-                  "file": "tests/customer-baseline-office-rls-helper-exposure.test.ts",
+                  "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -577,7 +584,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-office-rls-helper-exposure.test.ts"
+                "tests/customer-baseline-office-real-inbound-foundation.test.ts"
               ],
               "externalGateIds": []
             },
@@ -589,8 +596,8 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0053_digital_office_rls_helper_exposure_closure_v1.sql",
-                "tests/customer-baseline-office-rls-helper-exposure.test.ts"
+                "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql",
+                "tests/customer-baseline-office-real-inbound-foundation.test.ts"
               ],
               "filesAbsent": []
             },
@@ -605,7 +612,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "b263c8bd",
+            "manifestDigest": "8371b4e2",
             "decision": "PASS"
           }
         ],
@@ -645,37 +652,38 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The staged customer baseline 0050-0052 has participant-aware Office RLS but its public actor-parameterized SECURITY DEFINER can_read_office_thread_v1 may be callable by browser users and allow probing another actor thread visibility. The canonical 20260908024000 SQL closes this by exposing only private.current_user_can_read_office_thread_v1 that binds auth.uid(), revoking public parameterized helper from anon/authenticated and binding RLS to the current signed-in user. Append it before advanced Pro-only SQL, no live DB changes.",
+    "problemStatement": "The customer Fresh Install baseline contains the 0050-0053 current-user Office privacy foundations but does not contain canonical 20260908030000 Digital Office real inbound: protected instance-scoped mailboxes, secret reply-token routing, idempotent customer-thread route synchronization, and RFC-aware inbound email service-role RPC. Later 20260908030500 normalization and Communication Hub 2.0 require this foundation. Copy only existing canonical SQL in the correct order, do not add public browser grants, trigger any email worker or change an occupied database.",
     "observableOutcomes": [
-      "0053 SQL is exact canonical 20260908024000 source with SHA256 and ordered after 0052",
-      "Browser RLS for Office threads/messages/tasks calls only private.current_user_can_read_office_thread_v1 instance/thread, which uses auth.uid()",
-      "Public actor-parameterized helper EXECUTE is revoked for public/anon/authenticated and allowed to service_role",
-      "Private current-user helper grants authenticated only as needed for RLS, not arbitrary actor parameter",
-      "Baseline reaches 54 ordered migrations snapshot-reviewed with real Fresh Install still pending",
-      "No claim that advanced Pro-only SQL, private actor binding, full email or runtime DB security is verified"
+      "0054 SQL is byte-for-byte identical to canonical 20260908030000 SQL with computed SHA256 provenance",
+      "Public office_mailboxes and office_thread_email_routes tables have RLS enabled and all anon/authenticated direct table grants revoked, service_role-only",
+      "Reply tokens remain in separate route table rather than browser-readable office_threads; composite thread/instance FK enforces tenant boundary",
+      "Canonical route sync trigger, idempotent row backfill and record_inbound_office_email_v3 RPC are preserved with permission statements",
+      "Customer baseline guard validates 55 ordered source migrations with snapshot-reviewed and freshInstallProofRequired true",
+      "No claim that inbound provider delivery or all Communication Hub/Advanced Office dependencies are closed or deployed"
     ],
     "unresolvedRisks": [
-      "SECURITY DEFINER execution depends on actual PostgreSQL function ownership/default PUBLIC grants; effective privilege proof needs a real disposable target",
-      "Even with current-user helper, customer Office base read may remain available to Alap until U10A1 strict Pro tenant gate is integrated",
-      "Advanced Office SQL helpers and later mailbox/composer/private attachment dependencies remain absent",
-      "RLS semantics are not validated by static SQL string tests"
+      "Actual disposable PostgreSQL runtime migration, service_role effective privileges, RLS and inbound RPC idempotency need live proof before release",
+      "Inbound content is untrusted and must not execute business actions; the source RPC does not establish email worker security or provider signature validation",
+      "Later mailbox normalization, least privilege, draft/recipient/team-chat/attachment/Communication Hub migrations are not yet in baseline",
+      "Staging migration ledger is stale and occupied; must stay untouched during source preparation",
+      "Main U10A1 Pro-only SQL is not yet integrated, and browser data policy may be incomplete until final strict subscription gate"
     ],
     "scope": {
       "in": [
-        "Append 0053 canonical private current-user helper and RLS replacements with SHA proof",
-        "Manifest note stays snapshot-reviewed, no old proof reuse",
-        "Focused source, GRANT, current-user binding and privacy regression tests"
+        "Append new canonical 0054 Office real inbound mailbox/reply token/routing SQL with SHA256",
+        "Preserve reviewed 0001-0053 and source-based manifest proof-required state",
+        "Add focused negative source-contract tests for route secrets, RLS grants, tenant FK and v3 RPC"
       ],
       "out": [
-        "No modifications to 0001-0052 history or canonical original SQL",
-        "No 0054+ advanced SQL or U10A1 strict Pro gating in same risk release",
-        "No staging/production/Fresh Install project writes, no Vercel deploy or GitHub CI"
+        "No 0055+ mailbox normalization, least privilege, Communication Hub, advanced Pro SQL or worker code in same release unit",
+        "No actual external email provider send/inbound actions or DNS/MX modification",
+        "No staging/production/Fresh Install DB schema/data write and no Vercel Preview or GitHub push"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F6-OFFICE-RLS-EXPOSURE",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F7-INBOUND-FOUNDATION",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -693,16 +701,16 @@
     },
     "requirements": [
       {
-        "id": "REQ-U10A2-F6-RLS",
-        "requirement": "Canonical 0053 binds browser Office RLS to auth.uid() via private helper while denying arbitrary actor-target public RPC and retaining service_role, source-only no false security proof.",
+        "id": "REQ-U10A2-F7-INBOUND",
+        "requirement": "Append byte-identical canonical 0054 tenant-bound Office real inbound mailbox/routing foundation while keeping reply secrets service-only, retaining original RLS/GRANT and deferring provider/live proof.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-current-user-rls-helper-baseline",
+          "breadth": "office-real-inbound-source-baseline",
           "strength": 2,
           "dimensions": [
             "scope",
-            "behavioral-proof",
-            "forbidden-state"
+            "forbidden-state",
+            "behavioral-proof"
           ]
         },
         "requiredCapabilities": [
@@ -719,8 +727,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U10A2-F6-ACTOR-PROBE",
-            "statement": "Authenticated browser cannot execute actor-parameterized public Office can_read helper.",
+            "id": "NEG-U10A2-F7-SECRET",
+            "statement": "Browser roles cannot directly query tenant mailbox and secret routing token tables; source-only evidence, actual effective privilege proof required.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -729,5 +737,5 @@
       }
     ]
   },
-  "notes": "U10A2 F6 canonical RLS helper exposure closure 0053, exact source only. U10A1 strict current Pro SQL and other Office core migrations remain blocked pending true disposable DB proof."
+  "notes": "U10A2 F7 canonical 0054 real inbound Office foundation source-only; no provider worker/domain changes; mailbox normalization, advanced SQL, RLS/role and true Fresh Install pending; #1186 PARTIAL"
 }
