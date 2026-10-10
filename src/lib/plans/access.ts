@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { addonCapabilityCode, isCapabilityReleased } from '@/lib/entitlements/catalog';
 import { getFeatureEntitlementDecision, getFeatureEntitlementDecisions } from '@/lib/entitlements/access';
-import { getPlanFeatureDenialReason, hasPlanFeature, isPlanCode, type FeatureCode, type PlanCode } from './catalog';
+import { getPlanFeatureDenialReason, hasPlanFeature, isPlanCode, isStrictProOfficeFeature, type FeatureCode, type PlanCode } from './catalog';
 import { ADDONS, parseAddonList, type AddonCode } from './addons';
 
 export async function getCurrentPlan(): Promise<PlanCode> {
@@ -30,6 +30,9 @@ export async function hasCurrentPlanFeature(feature: FeatureCode): Promise<boole
     const explicit=await getFeatureEntitlementDecision(instance.id,feature);
     return explicit?.enabled===true;
   }
+  // A Pro profile or default plan is never proof of a tenant-scoped Office entitlement.
+  // Fail closed if no canonical webshop instance can be resolved, including platform users.
+  if(isStrictProOfficeFeature(feature))return false;
   return hasPlanFeature(await getCurrentPlan(),feature);
 }
 

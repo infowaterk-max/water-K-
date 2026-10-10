@@ -1,7 +1,7 @@
 import {describe,expect,it} from 'vitest';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
-import {hasPlanFeature} from '../src/lib/plans/catalog';
+import {isStrictProOfficeFeature,hasPlanFeature} from '../src/lib/plans/catalog';
 
 const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
 const composerActions=read('src/app/admin/kommunikacio/iroda/composer-actions.ts');
@@ -29,6 +29,12 @@ describe('Customer e-mail Alap / Pro plan split',()=>{
     expect(hasPlanFeature('alap','officeCommunicationAdvanced')).toBe(false);
     expect(read('src/lib/communication/worker.ts')).toContain("if(job.template_key==='support_reply')");
     expect(hasPlanFeature('pro','officeCommunicationAdvanced')).toBe(true);
+    // Tenant-bound Pro-only Office capabilities cannot fall back to an unbound profile/default plan.
+    expect(isStrictProOfficeFeature('officeCommunicationAdvanced')).toBe(true);
+    expect(isStrictProOfficeFeature('teamChat')).toBe(true);
+    expect(isStrictProOfficeFeature('officeCommunication')).toBe(false);
+    expect(isStrictProOfficeFeature('support')).toBe(false);
+
     expect(hasPlanFeature('alap','teamChat')).toBe(false);
     expect(hasPlanFeature('pro','teamChat')).toBe(true);
   });
