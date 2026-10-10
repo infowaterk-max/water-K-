@@ -1,0 +1,526 @@
+{
+  "contract": "shoperation.office-rpc-source-actor-inventory.v1",
+  "proofCeiling": "SOURCE_EXPRESSIONS_ONLY_NOT_NATIVE_SUPABASE_AUTH",
+  "decision": "review-required-for-any-callsite-or-binding-change",
+  "calls": [
+    {
+      "file": "src/app/admin/kommunikacio/chat/actions.ts",
+      "rpc": "admin_mutate_office_team_chat_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "input.instanceId",
+        "p_actor": "input.userId"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/admin/kommunikacio/chat/actions.ts",
+      "rpc": "admin_transfer_office_thread_owner_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "instanceId",
+        "p_actor": "userId"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/admin/kommunikacio/chat/page.tsx",
+      "rpc": "office_accessible_thread_ids_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_user_id": "actor.id"
+      },
+      "classification": "user-subject-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/admin/kommunikacio/iroda/actions.ts",
+      "rpc": "admin_mutate_office_privacy_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "input.instanceId",
+        "p_actor": "input.userId"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/admin/kommunikacio/iroda/actions.ts",
+      "rpc": "admin_mutate_office_team_chat_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "input.instanceId",
+        "p_actor": "input.userId"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/admin/kommunikacio/iroda/actions.ts",
+      "rpc": "admin_mutate_office_workspace_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "input.instanceId",
+        "p_actor": "input.userId"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/admin/kommunikacio/iroda/actions.ts",
+      "rpc": "admin_transfer_office_thread_owner_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "instanceId",
+        "p_actor": "userId"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
+      "rpc": "admin_update_office_mailbox_responsibility_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "instanceId",
+        "p_actor": "actorId"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
+      "rpc": "admin_update_office_thread_relationships_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "instanceId",
+        "p_actor": "actorId"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+      "rpc": "admin_mutate_office_draft_v3",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "input.instanceId",
+        "p_actor": "input.userId"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+      "rpc": "admin_queue_office_email_v6",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "input.instanceId",
+        "p_actor": "input.userId"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
+      "rpc": "admin_mutate_office_privacy_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/admin/kommunikacio/page.tsx",
+      "rpc": "office_accessible_thread_ids_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_user_id": "actor.id"
+      },
+      "classification": "user-subject-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/api/admin/communication/enqueue/route.ts",
+      "rpc": "enqueue_communication_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_user_id": "o.customer_id"
+      },
+      "classification": "customer-recipient-NOT-operator"
+    },
+    {
+      "file": "src/app/api/admin/communication/enqueue/route.ts",
+      "rpc": "enqueue_communication_v2",
+      "ordinal": 2,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_user_id": "last.customer_id"
+      },
+      "classification": "customer-recipient-NOT-operator"
+    },
+    {
+      "file": "src/app/api/admin/communication/manage/route.ts",
+      "rpc": "admin_approve_communication_job_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/communication/manage/route.ts",
+      "rpc": "admin_manage_communication_job_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/communication/suppression/route.ts",
+      "rpc": "admin_block_communication_email_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/communication/suppression/route.ts",
+      "rpc": "admin_release_communication_suppression_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/email-builder/brand-kit/route.ts",
+      "rpc": "save_default_email_brand_kit_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "auth.scope.instanceId",
+        "p_actor": "auth.actor.id"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
+      "rpc": "delete_email_saved_block_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "auth.scope.instanceId",
+        "p_actor": "auth.actor.id"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/api/admin/email-builder/saved-blocks/route.ts",
+      "rpc": "save_email_saved_block_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "auth.scope.instanceId",
+        "p_actor": "auth.actor.id"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
+      "rpc": "create_email_template_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
+      "rpc": "activate_email_template_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/email-builder/templates/[id]/route.ts",
+      "rpc": "save_email_template_draft_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "auth.scope.instanceId",
+        "p_actor": "auth.actor.id"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
+      "rpc": "save_email_template_draft_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/email-builder/templates/route.ts",
+      "rpc": "create_email_template_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "auth.scope.instanceId",
+        "p_actor": "auth.actor.id"
+      },
+      "classification": "indirect-actor-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/api/admin/office/attachments/[id]/route.ts",
+      "rpc": "admin_get_office_private_attachment_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/office/attachments/finalize/route.ts",
+      "rpc": "admin_finalize_office_private_message_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/office/attachments/prepare/route.ts",
+      "rpc": "admin_prepare_office_private_attachments_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/office/attachments/scan/route.ts",
+      "rpc": "admin_begin_office_attachment_scan_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/office/attachments/scan/route.ts",
+      "rpc": "admin_complete_office_attachment_scan_v1",
+      "ordinal": 1,
+      "bindings": {},
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/api/admin/office/chat/message/route.ts",
+      "rpc": "admin_mutate_office_team_chat_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/office/email-attachments/prepare/route.ts",
+      "rpc": "admin_prepare_office_email_attachments_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/office/email-attachments/scan/route.ts",
+      "rpc": "admin_begin_office_email_attachment_scan_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/office/email-attachments/scan/route.ts",
+      "rpc": "admin_complete_office_attachment_scan_v1",
+      "ordinal": 1,
+      "bindings": {},
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/api/admin/support/[id]/messages/route.ts",
+      "rpc": "admin_add_support_reply_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/admin/support/[id]/route.ts",
+      "rpc": "admin_update_support_ticket_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "scope.instanceId",
+        "p_actor": "actor.id"
+      },
+      "classification": "direct-server-actor-expression-UNVERIFIED"
+    },
+    {
+      "file": "src/app/api/communication/inbound/route.ts",
+      "rpc": "record_inbound_office_email_v3",
+      "ordinal": 1,
+      "bindings": {},
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/api/support/route.ts",
+      "rpc": "create_support_ticket_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "instance.id",
+        "p_user_id": "user?.id??null"
+      },
+      "classification": "user-subject-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/api/webhooks/communication/route.ts",
+      "rpc": "record_inbound_office_email_v3",
+      "ordinal": 1,
+      "bindings": {},
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/app/api/webhooks/communication/route.ts",
+      "rpc": "record_provider_communication_suppression_v2",
+      "ordinal": 1,
+      "bindings": {},
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/components/admin/digital-office-chat-dock.tsx",
+      "rpc": "office_accessible_thread_ids_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "instanceId",
+        "p_user_id": "actorId"
+      },
+      "classification": "user-subject-expression-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/lib/communication/office-email-attachments.ts",
+      "rpc": "admin_complete_office_attachment_scan_v1",
+      "ordinal": 1,
+      "bindings": {},
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/lib/communication/office-email-attachments.ts",
+      "rpc": "service_begin_inbound_office_attachment_scan_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "input.instanceId"
+      },
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/lib/communication/office-email-attachments.ts",
+      "rpc": "service_finalize_inbound_office_attachment_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "input.instanceId"
+      },
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/lib/communication/office-email-attachments.ts",
+      "rpc": "service_prepare_inbound_office_attachments_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "input.instanceId"
+      },
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/lib/communication/worker.ts",
+      "rpc": "claim_communication_jobs_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "instanceId"
+      },
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/lib/communication/worker.ts",
+      "rpc": "complete_communication_job_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "instanceId"
+      },
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/lib/communication/worker.ts",
+      "rpc": "fail_communication_job_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "instanceId"
+      },
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/lib/communication/worker.ts",
+      "rpc": "is_communication_suppressed_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "instanceId"
+      },
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/lib/communication/worker.ts",
+      "rpc": "is_communication_suppressed_v2",
+      "ordinal": 2,
+      "bindings": {
+        "p_instance_id": "instanceId"
+      },
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/lib/communication/worker.ts",
+      "rpc": "recover_stale_communication_jobs_v2",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "instanceId"
+      },
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/lib/office/private-attachment-cleanup.ts",
+      "rpc": "admin_revoke_expired_office_private_attachment_v1",
+      "ordinal": 1,
+      "bindings": {},
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    },
+    {
+      "file": "src/lib/office/team-chat-retention.ts",
+      "rpc": "admin_run_office_team_chat_retention_v1",
+      "ordinal": 1,
+      "bindings": {
+        "p_instance_id": "instanceId"
+      },
+      "classification": "no-actor-binding-system-or-read-TRACE-REQUIRED"
+    }
+  ]
+}

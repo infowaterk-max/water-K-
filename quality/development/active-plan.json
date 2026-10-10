@@ -1,20 +1,27 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-F8395E8F",
-  "task": "Core #1186 U10A2 F26: server-bound Team Chat p_actor / store tenant confused deputy negative regression: test API forged user/instance fields, denied plan/capability/context, source contract for server actions; no product SQL or hosted writes",
+  "taskId": "DEV-9AB61EBE",
+  "task": "Core #1186 U10A2 F27: create source-only Office/Communication RPC actor and tenant inventory contract plus fail-closed drift test, distinguish customer recipients from authenticated actor, no product changes",
   "status": "ready-for-implementation",
-  "guardDigest": "f8395e8f",
-  "changeBaseSha": "3b4c7afed73a20eaf64ef96be9566c10a1eee834",
+  "guardDigest": "9ab61ebe",
+  "changeBaseSha": "69ffbb23af67679d5390866118faf812a32d176b",
   "plannedFilePatterns": [
-    "tests/team-chat-server-actor-binding.test.ts",
-    "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md"
+    "scripts/shoperation-office-rpc-actor-inventory.mjs",
+    "quality/knowledge/office-rpc-actor-inventory.v1.json",
+    "tests/office-rpc-actor-inventory.test.ts",
+    "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md"
   ],
   "expectedSubsystems": [
+    "quality-infrastructure",
     "shared-storefront",
     "storefront-ui"
   ],
-  "expectedDomains": [],
-  "expectedAuthorities": [],
+  "expectedDomains": [
+    "DOMAIN-QUALITY"
+  ],
+  "expectedAuthorities": [
+    "quality-knowledge-system"
+  ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
@@ -80,7 +87,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-F26-TEAM-CHAT-ACTOR-PROVENANCE",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F27-OFFICE-RPC-INVENTORY",
     "riskTier": "medium",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -101,27 +108,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Route positive spy proves p_actor is authenticated server actor and p_instance_id scoped store even if request body sends forged actorId and instanceId.",
-        "Unauthenticated, plan denial, missing store, capability denial, invalid body and duplicate mention all block DB RPC.",
-        "RPC error and invalid result cannot be returned as a successful send.",
-        "Both Team Chat and Office server actions always bind p_actor from authenticated user and scope instanceId from server in mutation/owner transfer.",
-        "Recorded audit makes explicit mock-bound proof only; F25 real PostgreSQL owner test, native JWT and strict Pro still separate gates.",
-        "Vitest, customer regression/TS and Knowledge/Replay/Plan/Risk PASS; no business/runtime changes."
+        "All existing static RPC callsites in Office/Communication sensitive category inventory match frozen expected call ids, actor/tenant expressions and manual actor/customer subject classifications.",
+        "A new sensitive .rpc() call or changed p_actor/p_instance_id expression fails --check with actionable filename.",
+        "Recipient p_user_id for customer enqueue is not reported as authenticated user binding.",
+        "Test fixture verifies deliberate modified source causes nonzero audit result, no silent green.",
+        "All tests/typecheck/EditTime/Knowledge/Replay/Plan/risk PASS; no product runtime changes.",
+        "Document source-only proof ceiling and require native actor and tenant validation before release."
       ],
       "invariants": [
-        "Caller-submitted actor/instance fields cannot become service-role RPC scope.",
-        "Authentication, plan, store scope and chat capability remain fail-closed prerequisites.",
-        "Client may provide threadId/body/mentions only under validated constraints.",
-        "Both server action implementations preserve server-derived owner transfer identity.",
-        "No source migration, actual provider JWT claim or account changed."
+        "No source RPC caller silently escapes reviewed inventory when literal call is introduced.",
+        "Untrusted input actor is not assumed safe just because field is named input.userId.",
+        "Customer recipient IDs are not conflated with authenticated administrator actor.",
+        "Audit does not send network calls, write to DB or modify product features."
       ],
       "forbiddenStates": [
-        "User-provided actorId passed as p_actor.",
-        "Untrusted instanceId passed as p_instance_id.",
-        "Anon/non-Pro executes RPC.",
-        "Denied office.internal_chat executes RPC.",
-        "RPC error represented as success.",
-        "Mocked unit test claimed actual Supabase-JWT cryptographic proof."
+        "Unknown new RPC silently treated as reviewed.",
+        "Changed p_actor expression ignored by test.",
+        "Snapshot claims every RPC caller authenticated based only on regex.",
+        "Native Supabase provider proof claimed from AST audit.",
+        "Any checkout or production data modification."
       ]
     },
     "model": {
@@ -153,51 +158,46 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "forged actorId forwarded",
-        "forged instanceId forwarded",
-        "omitted auth guard",
-        "missing plan guard",
-        "removed capability guard",
-        "missing store context",
-        "malformed body bypass",
-        "duplicate mentions accepted",
-        "service_role RPC error mislabeled success",
-        "mismatched response thread accepted",
-        "Office actions drift away from secure shared access"
+        "New service-role Office RPC omitted from snapshot",
+        "Changed actor from auth user to form field",
+        "Changed instance to request JSON",
+        "Two identical RPC calls in same file collide",
+        "Renamed function silently passes",
+        "p_user_id customer misclassified",
+        "Nonliteral rpc function escapes coverage",
+        "Parser fails on TSX",
+        "Untracked generated artifact mistaken for canonical",
+        "Reviewer updates snapshot without validation"
       ],
       "edgeCases": [
-        "caller actorId conflicting with authenticated actor",
-        "userId in body",
-        "instanceId in body",
-        "no auth user",
-        "Alap plan teamChat false",
-        "store context throws",
-        "capability false",
-        "invalid UUID",
-        "empty body",
-        "duplicate mentions",
-        "failing RPC",
-        "unverifiable message id"
+        "Duplicate call name same file",
+        "Multi-line ObjectLiteral args",
+        "p_actor absent on system-only RPC",
+        "p_user_id is customer recipient",
+        "provider event with p_instance_id",
+        "literal vs computed RPC target",
+        "TSX page source",
+        "new dynamic RPC name blind spot"
       ]
     },
     "alternatives": [
       {
-        "id": "F26-VERIFICATION-FIRST",
-        "summary": "Implement positive/negative dynamic handler spy plus server actions actor provenance contract, document native proof gap.",
+        "id": "F27-SNAPSHOT",
+        "summary": "Versioned AST-based source RPC caller inventory with manual review and fail-closed drift.",
         "disposition": "selected",
-        "reason": "No demonstrated exploit yet; strengthens regressions without speculative breaking auth changes."
+        "reason": "Prevents silent new unreviewed service-role actor/tenant paths without speculative auth code rewrite."
       },
       {
-        "id": "F26-REWRITE",
-        "summary": "Rewrite getAdminRequestUser and SQL security definer functions without reproducing a defect.",
+        "id": "F27-FREEZE-ALL",
+        "summary": "Ban all new Office RPCs or rewrite every caller immediately.",
         "disposition": "rejected",
-        "reason": "Risky changes to connected auth and tenant authority without native integration target or decision approval."
+        "reason": "Blocks valid product work, significant unnecessary auth risk and open package decisions."
       },
       {
-        "id": "F26-CALL-NATIVE",
-        "summary": "Use occupied hosted Supabase project to test actor spoof.",
+        "id": "F27-REGEX-SAMPLE",
+        "summary": "Test only three previously verified routes.",
         "disposition": "rejected",
-        "reason": "Not authorized as a disposable empty target, significant data/privacy risk."
+        "reason": "Leaves remaining source caller surface unobserved."
       }
     ],
     "specialistReviews": [
@@ -205,28 +205,28 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Mocks can show route code chooses server actor but not prove JWT signature or role authority in native Supabase.",
-        "resolution": "Call result route-contract only and continue to require native user/session/CORS-CSRF/admin service_role inventory prior to release.",
+        "finding": "AST snapshots are not security proof, especially values passed through helper parameters and service role jobs.",
+        "resolution": "Explicit source-only classification; native JWT and privilege-proof blockers remain and future caller changes fail until review.",
         "evidence": [
-          "src/app/api/admin/office/chat/message/route.ts"
+          "src/app/admin/kommunikacio/iroda/composer-actions.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Every service_role Team Chat mutation must be bound to a tenant and actor selected before writing private chat objects.",
-        "resolution": "Verify p_actor/p_instance_id arguments at observed RPC call and block on scope failure.",
+        "finding": "Snapshot includes p_user_id subject IDs not always actors and cannot confuse customer recipient vs admin caller.",
+        "resolution": "Store exact named args with independent binding classification and annotate recipient flows.",
         "evidence": [
-          "src/app/admin/kommunikacio/chat/actions.ts"
+          "src/app/api/admin/communication/enqueue/route.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Test-only and nonauthoritative audit note should use small quality-infrastructure budget, not a production auth migration.",
-        "resolution": "Scope 2 files, exact F25 parent and no deploy.",
+        "finding": "One source-only quality infrastructure slice should have limited release risk with no auto CI.",
+        "resolution": "Snapshot, guard, test and note only; exact F26 parent and no deployments.",
         "evidence": [
           "quality/development/active-plan.json"
         ]
@@ -235,95 +235,99 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Keep strict native JWT/Pro and source lifecycle blockers visible rather than overclaiming a mocked handler.",
-        "resolution": "Audit note tracks mocked vs native proof explicitly; leave #1186 PARTIAL.",
+        "finding": "Fast deterministic local inventory should not run git fetch or connect to hosted databases.",
+        "resolution": "Read-only source scan, compare local JSON, require explicit review for changes.",
         "evidence": [
-          "supabase/customer-baseline/manifest.json"
+          "scripts/shoperation-office-rpc-actor-inventory.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-F26-01",
-        "scenario": "Authenticated actor A includes actorId=B in JSON POST.",
-        "finding": "RPC service_role must not send as B.",
-        "resolution": "Spy verifies p_actor=A from server auth.user.",
+        "id": "CH-F27-01",
+        "scenario": "Developer adds a privileged admin_queue_office_email_v7 RPC in a new API route.",
+        "finding": "A new service-role caller may bypass authenticated actor and tenant scope.",
+        "resolution": "AST scanner detects new RPC and fails --check until it is classified/reviewed.",
         "status": "resolved"
       },
       {
-        "id": "CH-F26-02",
-        "scenario": "Caller includes instanceId of another shop in JSON POST.",
-        "finding": "Cross-tenant confused deputy could write in other shop.",
-        "resolution": "Spy verifies p_instance_id from requireCurrentStoreContext.",
+        "id": "CH-F27-02",
+        "scenario": "An existing owner transfer p_actor changes from userId to form.get(userId).",
+        "finding": "Actor spoof might reappear despite earlier F26 tests.",
+        "resolution": "Exact normalized p_actor expression snapshot drift causes hard fail.",
         "status": "resolved"
       },
       {
-        "id": "CH-F26-03",
-        "scenario": "Anonymous caller POSTs valid thread/body.",
-        "finding": "Unauthenticated private Team Chat send could bypass Pro entitlement.",
-        "resolution": "403 before service_role RPC invocation.",
+        "id": "CH-F27-03",
+        "scenario": "A high-level helper passes input.instanceId from request JSON into Office mutation.",
+        "finding": "Tenant context can be confused across shops.",
+        "resolution": "Changed named instance arg is detected and requires upstream provenance review, never assumed safe.",
         "status": "resolved"
       },
       {
-        "id": "CH-F26-04",
-        "scenario": "Alap user POSTs valid Team Chat message.",
-        "finding": "Pro-only Digital Office leaked to Alap.",
-        "resolution": "403 teamChat plan denial before any privileged query.",
+        "id": "CH-F27-04",
+        "scenario": "Communication enqueue p_user_id is a customer recipient ID.",
+        "finding": "Mislabeling it as a privileged operator leads to misleading audit findings.",
+        "resolution": "Classify separately as recipient, not verified actor.",
         "status": "resolved"
       },
       {
-        "id": "CH-F26-05",
-        "scenario": "Authenticated Pro user without office.internal_chat submits message.",
-        "finding": "Private conversation permissions could be bypassed.",
-        "resolution": "403 and no RPC call.",
+        "id": "CH-F27-05",
+        "scenario": "Two calls of same RPC are present in a file.",
+        "finding": "Snapshot keyed only by function name would silently cover one of them.",
+        "resolution": "Assign deterministic ordinal by encounter order and store each distinct call.",
         "status": "resolved"
       },
       {
-        "id": "CH-F26-06",
-        "scenario": "Authenticated caller has no active store context.",
-        "finding": "Arbitrary/null scoped tenant risk.",
-        "resolution": "Catch context exception, return 403 with no RPC call.",
+        "id": "CH-F27-06",
+        "scenario": "A newly added TypeScript TSX page calls Office list RPC.",
+        "finding": "A page bypass can leak private metadata.",
+        "resolution": "Scan both .ts and .tsx under src and reject untracked call.",
         "status": "resolved"
       },
       {
-        "id": "CH-F26-07",
-        "scenario": "Payload contains duplicate mention IDs or wrong object pairing.",
-        "finding": "Inconsistent or forged private notification/object links.",
-        "resolution": "Schema 400 before service_role RPC call.",
+        "id": "CH-F27-07",
+        "scenario": "Dynamic function name is used as a call target.",
+        "finding": "Scanner cannot identify exact permissions needed, false certainty.",
+        "resolution": "Count and report dynamic rpc calls as blind spots, reject new dynamic Office-like call changes on sensitive paths.",
         "status": "resolved"
       },
       {
-        "id": "CH-F26-08",
-        "scenario": "RPC returns mismatched thread/message or throws.",
-        "finding": "UI could claim success with wrong chat metadata or failed write.",
-        "resolution": "Require real matching threadId/messageId and fail otherwise.",
+        "id": "CH-F27-08",
+        "scenario": "Snapshot is regenerated by generator without security review.",
+        "finding": "Source-only inventory marked safe despite malicious RPC.",
+        "resolution": "--print never writes; --check reads frozen reviewed file only, describe manual review requirement.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Pass Plan Before Code on test/doc-only changes before writing new files.",
-      "Run dynamic route mock suite with forged actor and tenant inputs plus negative plan/auth/capability/error cases.",
-      "Run server actions provenance source-level regression for both parallel paths.",
-      "Run customer and relevant existing auth/Office tests and TypeScript, all Control Plane edit/knowledge/replay gates, risk budget.",
-      "Record explicit no-native-JWT-proof ceiling in GitHub issue."
+      "Critical Plan Before Code before writing files.",
+      "AST scan of src current 55 sensitive RPC callsites, frozen exact actor/instance expressions, manual per-entry actor/recipient/system class.",
+      "Vitest test --check PASS and in-memory injected new call/actor change FAIL.",
+      "TypeScript, related 191 tests, Edit-Time/Knowledge/Replay and exact parent release risk PASS.",
+      "No native Supabase runtime/JWT security claim."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F26: server-bound Team Chat p_actor / store tenant confused deputy negative regression: test API forged user/instance fields, denied plan/capability/context, source contract for server actions; no product SQL or hosted writes",
-      "authority": [],
+      "request": "Core #1186 U10A2 F27: create source-only Office/Communication RPC actor and tenant inventory contract plus fail-closed drift test, distinguish customer recipients from authenticated actor, no product changes",
+      "authority": [
+        "quality-knowledge-system"
+      ],
       "mustEdit": [],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
-        "tests/team-chat-server-actor-binding.test.ts"
+        "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
+        "quality/knowledge/office-rpc-actor-inventory.v1.json",
+        "scripts/shoperation-office-rpc-actor-inventory.mjs",
+        "tests/office-rpc-actor-inventory.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Pass Plan Before Code on test/doc-only changes before writing new files.",
-        "Run dynamic route mock suite with forged actor and tenant inputs plus negative plan/auth/capability/error cases.",
-        "Run server actions provenance source-level regression for both parallel paths.",
-        "Run customer and relevant existing auth/Office tests and TypeScript, all Control Plane edit/knowledge/replay gates, risk budget.",
-        "Record explicit no-native-JWT-proof ceiling in GitHub issue."
+        "Critical Plan Before Code before writing files.",
+        "AST scan of src current 55 sensitive RPC callsites, frozen exact actor/instance expressions, manual per-entry actor/recipient/system class.",
+        "Vitest test --check PASS and in-memory injected new call/actor change FAIL.",
+        "TypeScript, related 191 tests, Edit-Time/Knowledge/Replay and exact parent release risk PASS.",
+        "No native Supabase runtime/JWT security claim."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -337,8 +341,10 @@
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
-          "tests/team-chat-server-actor-binding.test.ts"
+          "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
+          "quality/knowledge/office-rpc-actor-inventory.v1.json",
+          "scripts/shoperation-office-rpc-actor-inventory.mjs",
+          "tests/office-rpc-actor-inventory.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -347,20 +353,38 @@
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 0,
+        "score": 2,
         "maxPoints": 5,
-        "subsystemCount": 0,
+        "subsystemCount": 1,
         "maxSubsystems": 3,
-        "subsystems": [],
+        "subsystems": [
+          {
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          }
+        ],
         "files": [
           {
-            "file": "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
+            "file": "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "tests/team-chat-server-actor-binding.test.ts",
+            "file": "quality/knowledge/office-rpc-actor-inventory.v1.json",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          },
+          {
+            "file": "scripts/shoperation-office-rpc-actor-inventory.mjs",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          },
+          {
+            "file": "tests/office-rpc-actor-inventory.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -375,20 +399,38 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 0,
+          "score": 2,
           "maxPoints": 5,
-          "subsystemCount": 0,
+          "subsystemCount": 1,
           "maxSubsystems": 3,
-          "subsystems": [],
+          "subsystems": [
+            {
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            }
+          ],
           "files": [
             {
-              "file": "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
+              "file": "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "tests/team-chat-server-actor-binding.test.ts",
+              "file": "quality/knowledge/office-rpc-actor-inventory.v1.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "scripts/shoperation-office-rpc-actor-inventory.mjs",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "tests/office-rpc-actor-inventory.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -403,7 +445,7 @@
           {
             "id": 0,
             "files": [
-              "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md"
+              "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -414,7 +456,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
+                  "file": "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -427,7 +469,67 @@
           {
             "id": 1,
             "files": [
-              "tests/team-chat-server-actor-binding.test.ts"
+              "quality/knowledge/office-rpc-actor-inventory.v1.json"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 2,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "files": [
+                {
+                  "file": "quality/knowledge/office-rpc-actor-inventory.v1.json",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 2,
+            "files": [
+              "scripts/shoperation-office-rpc-actor-inventory.mjs"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 2,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "files": [
+                {
+                  "file": "scripts/shoperation-office-rpc-actor-inventory.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 3,
+            "files": [
+              "tests/office-rpc-actor-inventory.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -438,7 +540,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/team-chat-server-actor-binding.test.ts",
+                  "file": "tests/office-rpc-actor-inventory.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -456,52 +558,84 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "3b4c7afed73a20eaf64ef96be9566c10a1eee834"
+              "developmentBaseSha": "69ffbb23af67679d5390866118faf812a32d176b"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "3b4c7afed73a20eaf64ef96be9566c10a1eee834",
+            "targetBaseSha": "69ffbb23af67679d5390866118faf812a32d176b",
             "lease": {
-              "expectedBaseSha": "3b4c7afed73a20eaf64ef96be9566c10a1eee834",
+              "expectedBaseSha": "69ffbb23af67679d5390866118faf812a32d176b",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
-              "tests/team-chat-server-actor-binding.test.ts"
+              "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
+              "quality/knowledge/office-rpc-actor-inventory.v1.json",
+              "scripts/shoperation-office-rpc-actor-inventory.mjs",
+              "tests/office-rpc-actor-inventory.test.ts"
             ],
             "operations": [
               {
                 "operation": "create",
-                "file": "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
+                "file": "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/team-chat-server-actor-binding.test.ts",
+                "file": "quality/knowledge/office-rpc-actor-inventory.v1.json",
+                "generated": null
+              },
+              {
+                "operation": "create",
+                "file": "scripts/shoperation-office-rpc-actor-inventory.mjs",
+                "generated": null
+              },
+              {
+                "operation": "create",
+                "file": "tests/office-rpc-actor-inventory.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [],
             "authorities": [],
-            "subsystems": [],
+            "subsystems": [
+              "quality-infrastructure"
+            ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
+              "score": 2,
               "maxPoints": 5,
-              "subsystemCount": 0,
+              "subsystemCount": 1,
               "maxSubsystems": 3,
-              "subsystems": [],
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
               "files": [
                 {
-                  "file": "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
+                  "file": "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "tests/team-chat-server-actor-binding.test.ts",
+                  "file": "quality/knowledge/office-rpc-actor-inventory.v1.json",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
+                {
+                  "file": "scripts/shoperation-office-rpc-actor-inventory.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
+                {
+                  "file": "tests/office-rpc-actor-inventory.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -530,7 +664,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/team-chat-server-actor-binding.test.ts"
+                "tests/office-rpc-actor-inventory.test.ts"
               ],
               "externalGateIds": []
             },
@@ -541,8 +675,10 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
-                "tests/team-chat-server-actor-binding.test.ts"
+                "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
+                "quality/knowledge/office-rpc-actor-inventory.v1.json",
+                "scripts/shoperation-office-rpc-actor-inventory.mjs",
+                "tests/office-rpc-actor-inventory.test.ts"
               ],
               "filesAbsent": []
             },
@@ -557,7 +693,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "15a99405",
+            "manifestDigest": "07768db9",
             "decision": "PASS"
           }
         ],
@@ -595,35 +731,35 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "F25 proved PostgreSQL Team Chat owner transfer semantics but actual server-bound p_actor provenance had not been tested against caller-supplied actor/instance IDs. Audit finds Team Chat API and two parallel server action paths use getAdminRequestUser() -> Supabase auth.getUser(), current scoped webshop, Pro teamChat plan gate and office.internal_chat capability; none currently accepts actor ID from untrusted payload. Add a dynamic mocked-handler adversarial regression that verifies an authenticated actor and server scope override forged actorId/instanceId fields, that missing authentication, Pro plan, active store context and chat permission block service_role RPC execution, and that malformed body and unverified RPC response do not claim success. Add source binding checks for BOTH server action owner-transfer/Team Chat paths plus explicit truth boundary note. Do not modify production auth logic without an actual defect, and do not claim native Supabase JWT cryptographic integration from mocked auth.",
+    "problemStatement": "F26 audited 3 Team Chat entry points and 191/191 source/API tests but broader Office/Communication Hub has about 55 RPC calls across 35 files with intermediate input.userId, actorId, service-only actor-scoped SQL, and p_user_id customer recipients. Future changes can silently route caller-controlled actor/tenant values to privileged service-role RPC without being noticed by tests. Introduce a TypeScript AST-based source-only inventory of all statically named Office/communication/chat/thread/support/email/inbound RPC calls including literal argument bindings, with manually reviewed baseline classification for actor vs customer subject and fail-closed drift gate/test. Do not rewrite product logic or claim JWT/RLS native security proof.",
     "observableOutcomes": [
-      "Dynamic direct POST handler proof: despite forged actorId/userId/instanceId in caller JSON, RPC p_actor equals server getAdminRequestUser user.id and p_instance_id equals server scoped instance.",
-      "Unauthenticated request, non-Pro plan, missing current store context, denied office.internal_chat permission, invalid request body must never invoke privileged service_role RPC.",
-      "Post RPC result mismatches requested thread/message reject success, RPC error is fail closed; keep valid authorized request accepted.",
-      "Source-level server action regressions assert both /admin/kommunikacio/chat and /admin/kommunikacio/iroda owner/Team Chat entry points bind actor/instance via getAdminRequestUser, requireCurrentStoreContext, requirePlanFeature(teamChat) and hasStoreCapability rather than client-submitted IDs.",
-      "Dated evidence note documents accepted server provenance, remaining native Supabase Auth/JWT/session and service-role p_actor spoof threat from any different privileged caller; no fake DONE.",
-      "No product runtime, auth helpers, canonical SQL, entitlements, billing or hosted DB changes; existing full source regression/TypeScript and Control Plane gates PASS."
+      "Inventory AST checks all TypeScript and TSX src files for literal .rpc calls matching Office/Communication Hub RPC names; prints accurate call/file counts and snapshot of p_actor, p_instance_id, p_user_id.",
+      "Reviewed canonical snapshot lists each existing sensitive RPC call with file, name and argument expression, classifies authenticated actor vs recipient/system-scoped with source-only attestation; caller-controlled deltas require explicit review.",
+      "--check exits nonzero if a new RPC name/callsite appears, an actor/instance argument expression changes, a call is deleted/renamed or a reviewed entry becomes undocumented; --print is nonmutating for review.",
+      "Unit tests assert baseline coverage, deliberate new RPC and forged actor mutation fail closed against inventory comparator, source-only classification, no network calls.",
+      "Non-authoritative dated audit note explicitly separates 55 source calls from native authenticated JWT/RLS and provider integration and flags service-only p_actor attack surface.",
+      "No business SQL/route/actor runtime or customer baseline changes, Control Plane and regression PASS."
     ],
     "unresolvedRisks": [
-      "Mocked getAdminRequestUser does not cryptographically verify auth.getUser session; native Supabase JWT authentication proof remains required.",
-      "Source-based server action regression can miss runtime nuance; future request mocks or integration E2E required.",
-      "Existing getAdminRequestUser platform-role exceptions and session-store context may need native multi-tenant session integration, not addressed here.",
-      "Service_role can invoke SQL with any p_actor outside audited routes; forbid nontrusted callers and complete provider runtime/trace proof before release."
+      "Static callsite/argument matching cannot prove transitive helper trust, signing of a Supabase JWT, or runtime RLS; manual review and dynamic tests needed.",
+      "Functions using nonliteral names or indirect RPC wrappers are not recognized; the script reports blind spots and limits claims.",
+      "A snapshot may be consciously changed to accept an unsafe actor mapping: review and stronger dynamic tests required before main acceptance.",
+      "Recipient p_user_id in enqueue_communication_v2 represents a customer subject, not an authenticated actor; review classification must not conflate these."
     ],
     "scope": {
       "in": [
-        "One dynamic vitest Next.js Team Chat API action negative + positive spy test and two server action provenance assertions.",
-        "Non-authoritative factual security boundary audit note, explicitly tracking native JWT/protected RPC blockers."
+        "AST-based local deterministic sensitive RPC inventory command with --print/--check.",
+        "Versioned reviewed source-only snapshot, test fail-closed drift and factual evidence note."
       ],
       "out": [
-        "No change to existing Team Chat route/actions/auth DB/SQL, Pro/Alap entitlement, checkout or communication worker behavior.",
-        "No new CI/workflow, preview, GitHub push or hosted Supabase connection."
+        "No prod routes, SQL, permission/plan rules, billing, Supabase Auth implementation or provider deployment change.",
+        "No GitHub Actions auto-install nor hosted project calls or PR push."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-F26-TEAM-CHAT-ACTOR-PROVENANCE",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F27-OFFICE-RPC-INVENTORY",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -641,12 +777,12 @@
     },
     "requirements": [
       {
-        "id": "REQ-F26-ACTOR-BOUNDARY",
-        "requirement": "Require server authenticated user and scoped store for all Team Chat privileged RPCs; verify request body actor/instance spoof cannot substitute, while leaving native JWT acceptance pending.",
+        "id": "REQ-F27-RPC-INVENTORY",
+        "requirement": "Every statically named sensitive Office/Communication RPC caller must have a reviewed actor/tenant binding in a fail-closed local snapshot guard; changes surface security review, not native Supabase proof.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "api-server-actor-provenance-mocked",
-          "strength": 2,
+          "breadth": "static-source-rpc-binding-audit",
+          "strength": 1,
           "dimensions": [
             "scope",
             "forbidden-state",
@@ -666,8 +802,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F26-ACTOR-SPOOF",
-            "statement": "Caller-supplied actor/instance cannot alter service-role p_actor/p_instance_id; unauthenticated/denied cannot invoke the RPC.",
+            "id": "NEG-F27-UNREVIEWED-RPC",
+            "statement": "New/modified Office RPC actor/instance binding must not pass without snapshot review.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -676,5 +812,5 @@
       }
     ]
   },
-  "notes": "F26 actor-boundary verification only, no production auth mutation; native Supabase JWT/session and plan/tenant E2E still BLOCKED."
+  "notes": "F27 static source-only Office/Communication RPC inventory, change-detection quality gate; no native Auth/tenant completion claim."
 }
