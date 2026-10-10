@@ -1,15 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2-F2: append-only customer baseline 0048 scoped delegation v2 with forward-compatible chain tests",
+  "task": "Core #1186 U10A2 F2C: append forward-only customer baseline 0049 canonical revoke of legacy delegation v1 service-role EXECUTE after scoped v2",
   "status": "ready-for-implementation",
   "guardDigest": "2ebcb98e",
-  "changeBaseSha": "229db55f0b8f46a5402c022b32a1850b87b9e762",
+  "changeBaseSha": "92da3319a7726b416d68bf238e0dfb5d97ab9b4a",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
+    "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-team-delegation-v2.test.ts",
-    "tests/customer-baseline-team-permissions-prerequisites.test.ts"
+    "tests/customer-baseline-legacy-delegation-revoke.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -39,7 +38,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F2-SCOPED-DELEGATION",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F2C-LEGACY-REVOKE",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -60,25 +59,24 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "0048 body is byte-for-byte canonical scoped delegation source with recorded digest",
-        "0047 foundation exists earlier and defines store_delegations and original evaluate_store_capability_v1",
-        "Permission/delegation upgrade DDL, private scoped helper and v2 RPC preserve canonical names and grants",
-        "Baseline guard passes 49 migrations in snapshot-reviewed, freshInstallProofRequired true and hash null",
-        "No customer/Alap/Team Chat privilege broadening or unproven production/fresh acceptance",
-        "Existing 0047 provenance test must remain valid when 0048 and later migrations are appended"
+        "New 0049 contains exactly canonical REVOKE statement byte-for-byte with source SHA256",
+        "Correct migration ordering 0047 foundation -> 0048 scoped v2 -> 0049 legacy v1 revoke, preserving earlier files",
+        "Source includes service_role revoked on exact v1 creator signature, does not drop v1 function and retains v2 create service role grant",
+        "Manifest preserves snapshot-reviewed and proof-required, invalid previous contract hash",
+        "Target actual role SQL replay deferred with explicit blocker; no DONE claim"
       ],
       "invariants": [
-        "Existing U10A2 F1 foundation commit is unchanged",
-        "Store-team capability resolver authority comes exclusively from canonical source",
-        "Real DB role and Fresh Install acceptance is required before merging SQL chain",
-        "Alap base support and transactional email continue independent of Team Chat Pro"
+        "Never broaden privilege by preserving legacy v1 service_role grant",
+        "Do not accidentally revoke v2 creator or non-delegation capability",
+        "SHA source authority byte-identical, original 0001-0048 immutable",
+        "Alap email and Team Chat Pro entitlement independent, untouched"
       ],
       "forbiddenStates": [
-        "0048 runs ahead of 0047",
-        "Original scoped delegation source silently diverges",
-        "Manifest flips to ready without fresh proof",
-        "Authenticated receives unexpected grant from the baseline copy",
-        "U10A1 deployed ahead of 0049+ privacy dependencies"
+        "v1 service_role remains allowed in newly built fresh target",
+        "v2 service_role accidentally revoked instead",
+        "Fresh Install marked READY without role proof",
+        "Canonical hash mismatch silently allowed",
+        "Schema/target deployments used for source-only testing"
       ]
     },
     "model": {
@@ -110,44 +108,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Scoped delegation column not present before v2 helper references it",
-        "Store delegation rule weakening from incorrect source copy",
-        "Existing legacy function signature remains after 0048",
-        "Silent RLS or service_role grant loss",
-        "Source hash copied without checking actual body",
-        "Fresh Install proof hash incorrectly reused",
-        "Merged baseline missing complete Office chain",
-        "Wrong release base includes earlier high-risk migrations"
+        "v1 exact function signature mismatch causes REVOKE SQL execution to fail",
+        "v2 grant revoked accidentally instead of v1",
+        "Previous 0048 not applied when 0049 runs",
+        "Source SQL copied incorrectly or historical source drift",
+        "Manifest old fresh proof hash reused",
+        "A role inheritance path permits EXECUTE despite direct revoke",
+        "Service role delegated through PUBLIC unexpectedly",
+        "New staging schema write bypasses migrated chain"
       ],
       "edgeCases": [
-        "Missing foundational store_delegations",
-        "Null/expired delegate time",
-        "Cross-tenant delegated scope",
-        "Existing duplicate scope permissions",
-        "Old legacy v1 RPC callable by service role",
-        "Untrusted auth/session user",
-        "A source migration ordering mismatch",
-        "Partial baseline update"
+        "Deprecated v1 signature with text[] and timestamptz args",
+        "EXECUTE granted through PUBLIC or inherited role",
+        "v1 declaration exists but is not callable by service role",
+        "v2 stored function signature and service role grant",
+        "Empty target with no v1 foundation",
+        "Snapshot-reviewed manifest guard state",
+        "Later 0050 Office private participant",
+        "Wrong exact main base changes unit risk"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F2-CANONICAL-V2",
-        "summary": "Append the unchanged scoped delegation v2 main SQL as 0048, with SHA256 and source ordering proof.",
+        "id": "ALT-F2C-SOURCE-REVOKE",
+        "summary": "Append canonical one-statement v1 EXECUTE revoke with proof and role requirement",
         "disposition": "selected",
-        "reason": "Preserves the canonical permission model while keeping 5/5 release scope isolated."
+        "reason": "Least change to canonical schema semantics and strict old RPC closure"
       },
       {
-        "id": "ALT-F2-REIMPLEMENT",
-        "summary": "Rewrite scoped evaluation locally inside customer baseline.",
+        "id": "ALT-F2C-DROP-V1",
+        "summary": "Delete historic v1 function",
         "disposition": "rejected",
-        "reason": "Creates second divergent authorization authority."
+        "reason": "Breaks historic migration and dependencies"
       },
       {
-        "id": "ALT-F2-MERGE-OFFICE",
-        "summary": "Bundle privacy/RPC SQL and 0048 together.",
+        "id": "ALT-F2C-SKIP",
+        "summary": "Ignore legacy creator because v2 exists",
         "disposition": "rejected",
-        "reason": "High-risk scope and dependency breadth exceed bounded verification."
+        "reason": "Leaves privileged old API callable"
       }
     ],
     "specialistReviews": [
@@ -155,28 +153,28 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A copied v2 helper could still bypass browser RLS or actor checks when running under service_role.",
-        "resolution": "Keep source-only status, preserve grant/revoke and require later live actor-scoped security proof before DONE.",
+        "finding": "Direct REVOKE in SQL may not prevent inherited/PUBLIC role invocation in real Postgres.",
+        "resolution": "Retain source-only status and require actual role/RPC tests on disposable Fresh Install before deployment",
         "evidence": [
-          "supabase/migrations/20260907205500_team_permissions_scoped_delegation_v2.sql"
+          "supabase/migrations/20260907205600_team_permissions_disable_legacy_delegation_creator.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Scoped delegation depends on columns and tables established by canonical 0047.",
-        "resolution": "Prove migration file ordering and exact byte identity; never rewrite historic files.",
+        "finding": "Original v1 function is defined in 0047 and upgraded v2 in 0048.",
+        "resolution": "Append 0049 exact source after both, no history edits",
         "evidence": [
-          "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql"
+          "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Database-schema patch high risk must stand alone.",
-        "resolution": "Only new 0048 and evidence-neutral test and plan, 5/5 risk.",
+        "finding": "High-risk database schema unit must be isolated and exact base checked.",
+        "resolution": "One migration plus manifest and neutral tests, Release Risk 5/5",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -185,8 +183,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Existing staging tenant schema lacks the latest Office privacy migrations and F2 source-only evidence cannot be production proof.",
-        "resolution": "No schema writes, no merged runtime and no changes to live project status before real clean-target acceptance.",
+        "finding": "Staging missing canonical Office sequence is not a suitable rehearsal target.",
+        "resolution": "No current target writes or Vercel deployments",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -194,93 +192,92 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F2-01",
-        "scenario": "A 0048 source migration runs without the 0047 store_delegations table being available.",
-        "finding": "The alter table statements cannot execute and the customer bootstrap stops before creating its permission evaluator.",
-        "resolution": "Require 0047 filename, source hash and foundation signatures in regression tests, and retain real replay as an explicit blocker.",
+        "id": "CH-U10A2-F2C-1",
+        "scenario": "An older service-role integration continues to call v1 delegation creation after applying 0048.",
+        "finding": "The RPC remains executable and bypasses newer scoped delegation logic.",
+        "resolution": "Exact signature REVOKE on v1 before exposing modern Office paths, while preserving v2 grant.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2-02",
-        "scenario": "A scoped delegation authorizer reads wrong organization context after a clone.",
-        "finding": "A delegate could obtain rights in another tenant without intended owner authorization or could be blocked erroneously.",
-        "resolution": "Preserve every canonical tenant/organization scope predicate byte-for-byte and prove read-path roles in disposable PostgreSQL.",
+        "id": "CH-U10A2-F2C-2",
+        "scenario": "An engineer mistakes the v2 function for the legacy v1 during revoke copy.",
+        "finding": "Secure scoped delegation becomes unavailable to the worker, while old v1 stays callable.",
+        "resolution": "Byte-identical source comparison and tests asserting v1 signature and v2 grant independently.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2-03",
-        "scenario": "A v2 source evaluator is modified locally to simplify permissions.",
-        "finding": "A parallel authorization rule would bypass canonical source grants and earlier PO capability invariants.",
-        "resolution": "Compare source SHA256 and complete SQL body exactly, rejecting mismatched or truncated migration contents.",
+        "id": "CH-U10A2-F2C-3",
+        "scenario": "The source migration is applied before 0047 or 0048.",
+        "finding": "The named v1 function does not exist or latest v2 is missing, causing role security drift.",
+        "resolution": "Require strict filenames in ordered baseline and clean replay before acceptance.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2-04",
-        "scenario": "The v2 source includes a grant to a broader role than intended.",
-        "finding": "An incorrectly edited customer baseline could expose privileged delegation methods to anon or authenticated Data API roles.",
-        "resolution": "Verify canonical source revoke/grant statements and use real RLS/GRANT role tests before target rollout.",
+        "id": "CH-U10A2-F2C-4",
+        "scenario": "Role EXECUTE privilege is inherited from PUBLIC despite direct service_role revoke.",
+        "finding": "A database user might execute the legacy RPC even with a direct deny on service_role.",
+        "resolution": "Treat source check as insufficient and demand PostgreSQL has_function_privilege probes for relevant roles.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2-05",
-        "scenario": "A customer baseline is called ready immediately after adding v2 scoped delegation.",
-        "finding": "The manifest may retain stale proof and mislead CI into believing later Office privacy/RPC migrations have run.",
-        "resolution": "Keep snapshot-reviewed state with freshInstallProofRequired true and null proof hash until full clean replay.",
+        "id": "CH-U10A2-F2C-5",
+        "scenario": "A stale proofContractSha256 remains in ready customer manifest after new 0049.",
+        "finding": "Automated release gate falsely claims an untested security migration exists on a real target.",
+        "resolution": "Enforce snapshot-reviewed with freshInstallProofRequired true and null old contract hash.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2-06",
-        "scenario": "An F2 commit changes 0047 or earlier SQL while adding 0048.",
-        "finding": "The foundational migration provenance and role mappings become invalid and release risk isolation is broken.",
-        "resolution": "Assert immutable 0047 hash and limit diff to F2 migration, neutral test and governance plan.",
+        "id": "CH-U10A2-F2C-6",
+        "scenario": "A forward migration rewrites historic team permissions definitions to fix grant semantics.",
+        "finding": "The baseline no longer matches source and prior migrations, corrupting deterministic identity.",
+        "resolution": "Only append canonical new file and keep 0001-0048 unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2-07",
-        "scenario": "A legacy v1 function remains unexpectedly available to server-side service_role.",
-        "finding": "The runtime may call the wrong function signature or use old delegation rules despite adding v2.",
-        "resolution": "Record canonical function signature behavior and require future service-role runtime and negative actor tests.",
+        "id": "CH-U10A2-F2C-7",
+        "scenario": "A staging apply is attempted while occupied environment has incomplete migration history.",
+        "finding": "The single revoke may fail or affect a different deployed v1 RPC than expected.",
+        "resolution": "No target writes until full canonical lineage diff and approved safe deployment plan.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F2-08",
-        "scenario": "A deployment migrates occupied staging that lacks prerequisite Office tables.",
-        "finding": "The DB may reject or partially execute the chain, leaving platform and runtime semantics misaligned.",
-        "resolution": "Keep current work source-only and mandate migration-ledger reconciliation plus disposable Fresh Install first.",
+        "id": "CH-U10A2-F2C-8",
+        "scenario": "The deprecated v1 function was already revoked but v2 grant is missing.",
+        "finding": "Checking only v1 denies might report COMPLETE while legitimate scoped delegation is broken.",
+        "resolution": "Assert v2 function and service role grant in 0048 source and verify both on real DB.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code before implementation change and single-subsystem 5/5 projected risk",
-      "SHA256 byte-for-byte canonical F2 source copy including all DDL/RLS/GRANT statements",
-      "Negative source divergence and missing 0047 prerequisite test",
-      "SQL syntax, customer baseline 49-file guard and TypeScript check",
-      "Reference/Implementation Sync, Knowledge, Incremental Replay and exact-base Release Risk",
-      "Fresh Install and live actor/role behavior are separate blockers, no CI or merge on this unproven partial baseline"
+      "Plan Before Code critical PASS with Security dissent before edit",
+      "Byte-for-byte SHA canonical SQL copy and strict 0047->0048->0049 order",
+      "Negative legacy grant and positive v2 authorization regression",
+      "SQL syntax guard, customer baseline guard and TypeScript",
+      "Edit-Time reference implementation synchronization, knowledge, full incremental replay",
+      "Exact-base release risk 5/5; real DB role test and later Office migrations remain blockers"
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2-F2: append-only customer baseline 0048 scoped delegation v2 with forward-compatible chain tests",
+      "request": "Core #1186 U10A2 F2C: append forward-only customer baseline 0049 canonical revoke of legacy delegation v1 service-role EXECUTE after scoped v2",
       "authority": [
         "database-schema"
       ],
       "mustEdit": [
-        "supabase/customer-baseline/manifest.json",
-        "tests/customer-baseline-team-permissions-prerequisites.test.ts"
+        "supabase/customer-baseline/manifest.json"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
-        "tests/customer-baseline-team-delegation-v2.test.ts"
+        "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
+        "tests/customer-baseline-legacy-delegation-revoke.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code before implementation change and single-subsystem 5/5 projected risk",
-        "SHA256 byte-for-byte canonical F2 source copy including all DDL/RLS/GRANT statements",
-        "Negative source divergence and missing 0047 prerequisite test",
-        "SQL syntax, customer baseline 49-file guard and TypeScript check",
-        "Reference/Implementation Sync, Knowledge, Incremental Replay and exact-base Release Risk",
-        "Fresh Install and live actor/role behavior are separate blockers, no CI or merge on this unproven partial baseline"
+        "Plan Before Code critical PASS with Security dissent before edit",
+        "Byte-for-byte SHA canonical SQL copy and strict 0047->0048->0049 order",
+        "Negative legacy grant and positive v2 authorization regression",
+        "SQL syntax guard, customer baseline guard and TypeScript",
+        "Edit-Time reference implementation synchronization, knowledge, full incremental replay",
+        "Exact-base release risk 5/5; real DB role test and later Office migrations remain blockers"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -291,14 +288,13 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "supabase/customer-baseline/manifest.json",
-          "tests/customer-baseline-team-permissions-prerequisites.test.ts"
+          "supabase/customer-baseline/manifest.json"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
-          "tests/customer-baseline-team-delegation-v2.test.ts"
+          "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
+          "tests/customer-baseline-legacy-delegation-revoke.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -330,19 +326,13 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
+            "file": "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           },
           {
-            "file": "tests/customer-baseline-team-delegation-v2.test.ts",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
+            "file": "tests/customer-baseline-legacy-delegation-revoke.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -376,19 +366,13 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
+              "file": "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             },
             {
-              "file": "tests/customer-baseline-team-delegation-v2.test.ts",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
-            {
-              "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
+              "file": "tests/customer-baseline-legacy-delegation-revoke.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -433,7 +417,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql"
+              "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -450,7 +434,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
+                  "file": "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -463,7 +447,7 @@
           {
             "id": 2,
             "files": [
-              "tests/customer-baseline-team-delegation-v2.test.ts"
+              "tests/customer-baseline-legacy-delegation-revoke.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -474,31 +458,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-team-delegation-v2.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 3,
-            "files": [
-              "tests/customer-baseline-team-permissions-prerequisites.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
+                  "file": "tests/customer-baseline-legacy-delegation-revoke.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -516,22 +476,21 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "229db55f0b8f46a5402c022b32a1850b87b9e762"
+              "developmentBaseSha": "92da3319a7726b416d68bf238e0dfb5d97ab9b4a"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "229db55f0b8f46a5402c022b32a1850b87b9e762",
+            "targetBaseSha": "92da3319a7726b416d68bf238e0dfb5d97ab9b4a",
             "lease": {
-              "expectedBaseSha": "229db55f0b8f46a5402c022b32a1850b87b9e762",
+              "expectedBaseSha": "92da3319a7726b416d68bf238e0dfb5d97ab9b4a",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
-              "tests/customer-baseline-team-delegation-v2.test.ts",
-              "tests/customer-baseline-team-permissions-prerequisites.test.ts"
+              "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
+              "tests/customer-baseline-legacy-delegation-revoke.test.ts"
             ],
             "operations": [
               {
@@ -541,17 +500,12 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
+                "file": "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-team-delegation-v2.test.ts",
-                "generated": null
-              },
-              {
-                "operation": "modify",
-                "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
+                "file": "tests/customer-baseline-legacy-delegation-revoke.test.ts",
                 "generated": null
               }
             ],
@@ -583,19 +537,13 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
+                  "file": "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 },
                 {
-                  "file": "tests/customer-baseline-team-delegation-v2.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
+                  "file": "tests/customer-baseline-legacy-delegation-revoke.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -626,8 +574,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-team-delegation-v2.test.ts",
-                "tests/customer-baseline-team-permissions-prerequisites.test.ts"
+                "tests/customer-baseline-legacy-delegation-revoke.test.ts"
               ],
               "externalGateIds": []
             },
@@ -639,9 +586,8 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0048_team_permissions_scoped_delegation_v2.sql",
-                "tests/customer-baseline-team-delegation-v2.test.ts",
-                "tests/customer-baseline-team-permissions-prerequisites.test.ts"
+                "supabase/customer-baseline/migrations/0049_team_permissions_disable_legacy_delegation_creator.sql",
+                "tests/customer-baseline-legacy-delegation-revoke.test.ts"
               ],
               "filesAbsent": []
             },
@@ -656,7 +602,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "cb901399",
+            "manifestDigest": "67625c5d",
             "decision": "PASS"
           }
         ],
@@ -696,37 +642,35 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Customer Fresh Install now has a source-reviewed Team Permissions foundation 0047 but the canonical main migration 20260907205500 scoped delegation v2 changes permission delegation columns, helper functions and evaluate_store_capability_v1 semantics. Without this ordered patch, later Digital Office privacy calls a stale role delegation authority and loses cross-tenant/scope hardening. The source must be preserved in an append-only 0048 without modifying any real Supabase database.",
+    "problemStatement": "After canonical customer baseline scoped delegation v2 in 0048, the original merchant_create_store_delegation_v1 remains executable by service_role unless the canonical main 20260907205600 security closure revoking that signature is replayed in correct order. The Fresh Install sequence must remove this obsolete privileged path before adding modern Office privacy participant RPCs.",
     "observableOutcomes": [
-      "The new 0048 contains exact canonical 20260907205500 scoped delegation v2 SQL and SHA256 provenance",
-      "Review that 0047 prerequisite schema exists ahead of 0048 and that 0001-0047 are not rewritten",
-      "The expanded baseline validator returns snapshot-reviewed with 49 ordered SQL migrations and Fresh Install proof still required",
-      "Scoped delegation and evaluate_store_capability_v1 signatures are preserved, with RLS and service_role execution grant unmodified",
-      "No modern Office privacy/RPC completion or real database readiness is claimed"
+      "Append exact canonical revoke SQL as forward-only 0049 after scoped delegation v2 0048",
+      "Byte-for-byte canonical body and SHA-256 proof; do not redefine or drop old v1 function",
+      "Customer baseline guard remains snapshot-reviewed with 50 migrations, proofContractSha256 null and Fresh Install proof required",
+      "SQL statement explicitly revokes service_role EXECUTE on v1 function while retaining v2 canonical service_role execute grant",
+      "No target database writes or deployed completion claims"
     ],
     "unresolvedRisks": [
-      "Actual Postgres empty-target execution remains unproved, and 0049+ Office privacy and communication SQL dependencies remain absent",
-      "Staging migration history is stale, no target SQL writes are authorized",
-      "Original 20260907205500 function changes could depend on historical schema not visible to source-only assertion, requiring role-level runtime acceptance"
+      "Source-level revoke does not prove effective actual PostgreSQL grant inheritance; real role proof remains required",
+      "Fresh Install still lacks later Office privacy and advanced SQL; #1186 remains PARTIAL",
+      "Canonical source might rely on historic function signature mismatch in replay; requires actual empty-target SQL proof"
     ],
     "scope": {
       "in": [
-        "Append only 0048 canonical scoped delegation upgrade directly after reviewed 0047 foundation",
-        "SHA256 provenance and critical regression test covering 0047->0048 grant/DDL dependency",
-        "No new completion assertion; keep manifest snapshot-reviewed",
-        "Forward-compatible update to 0047 F1 test: assert exact order and no fixed last-filename invariant"
+        "Append exactly source 20260907205600 canonical v1 revoke as customer-baseline 0049",
+        "Update manifest notes, keeping snapshot-reviewed status and no new proof hash",
+        "Test old v1 signature REVOKE alongside existing 0048 v2 service_role grant and monotonic order"
       ],
       "out": [
-        "No production or staging DB changes",
-        "No 0049+ Digital Office privacy or modern mailbox migration",
-        "No changes to canonical main 20260907205500 SQL or existing 0001-0047 baseline",
-        "No PR push, Vercel preview or full CI until complete ordered release"
+        "No changes to 0001-0048 historical baseline",
+        "No main SQL migration changes or Office 0050+ within this release",
+        "No staging/production/Fresh Install database writes and no deployment or GitHub PR"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F2-SCOPED-DELEGATION",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F2C-LEGACY-REVOKE",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -744,16 +688,16 @@
     },
     "requirements": [
       {
-        "id": "REQ-U10A2-F2-SCOPED",
-        "requirement": "Append-only 0048 exactly matches canonical scoped delegation v2 with 0047 prerequisite and no false readiness claim.",
+        "id": "REQ-U10A2-F2C-LEGACY",
+        "requirement": "Canonical 0049 removes legacy v1 delegation creator service_role EXECUTE while preserving v2 and no false DB READY.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "team-scoped-delegation-baseline-source",
+          "breadth": "fresh-install-service-role-legacy-delegation",
           "strength": 2,
           "dimensions": [
             "scope",
-            "forbidden-state",
-            "behavioral-proof"
+            "behavioral-proof",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -770,8 +714,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U10A2-F2-DRIFT",
-            "statement": "Version/order/source drift must BLOCK migration chain acceptance.",
+            "id": "NEG-U10A2-F2C-V1",
+            "statement": "Legacy v1 RPC must not remain granted to service_role after 0049.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -780,5 +724,5 @@
       }
     ]
   },
-  "notes": "U10A2-F2 append-only scoped delegation v2; follows reviewed 0047 F1. No real target schema changes; needs 0049+ and Fresh Install proof."
+  "notes": "U10A2 F2C source-only revoke of legacy delegation v1 follows 0048; full 0050+ Office and real role proof still BLOCKED"
 }
