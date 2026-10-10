@@ -1,45 +1,74 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2 F22: append canonical 0067 Team Chat owner transfer, active owner/member and audit invariants, full isolated PG18 69-migration replay, no hosted DB writes",
+  "taskId": "DEV-BBD150EE",
+  "task": "Core #1186 U10A2 F23: extend isolated PG18 Fresh Install rehearsal with effective Team Chat RLS/revokes, trigger and owner unique index catalog, rollback negative mention/object DML, no hosted targets",
   "status": "ready-for-implementation",
-  "guardDigest": "2ebcb98e",
-  "changeBaseSha": "54ca7804602eeb95a1311889594a9a315c7cca0e",
+  "guardDigest": "bbd150ee",
+  "changeBaseSha": "330a34cde7b419753256f84a11734fbc2d1804a1",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql",
-    "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-office-team-chat-owner-transfer.test.ts"
+    "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+    "tests/fixtures/customer-baseline-team-chat-negative.sql",
+    "tests/customer-baseline-team-chat-postgres.test.ts"
   ],
   "expectedSubsystems": [
-    "database-schema"
+    "quality-infrastructure",
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-DATA"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "database-schema"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-022",
-    "SQ-KF-006",
-    "SQ-KF-009",
+    "SQ-KF-001",
+    "SQ-KF-002",
+    "SQ-KF-004",
+    "SQ-KF-005",
+    "SQ-KF-007",
     "SQ-KF-010",
-    "SQ-KF-018",
-    "SQ-KF-023"
+    "SQ-KF-011",
+    "SQ-KF-012",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
+    "SQ-KF-019",
+    "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-004",
+    "TF-KF-006",
+    "TF-KF-012",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-005",
-    "SQ-NK-012",
-    "SQ-NK-014"
+    "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-004",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F22-TEAM-CHAT-OWNER-TRANSFER",
-    "riskTier": "critical",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F23-TEAM-CHAT-PG-NEGATIVE",
+    "riskTier": "medium",
     "assuranceCeiling": {
       "level": "critical-practical",
       "rationale": "Tenant-scoped SQL authorization in SECURITY DEFINER and browser RLS can leak staff data or break Team Chat after migrations; require negative/positive state matrices, SQL syntax and real target proof.",
@@ -59,29 +88,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Complete canonical source 20260909204547 v1 byte parity/SHA and 0067 ordered immediately after 0066.",
-        "Current active owner and valid source membership required; only internal chat thread allowed.",
-        "Target active member must not be current owner or nonparticipant and must have read access.",
-        "Transaction FOR UPDATE locks and demote-before-promote with both row_counts and final owner verified; audit log entry.",
-        "Function EXECUTE revoked from public/anon/authenticated, granted to service_role only.",
-        "69 migrations real clean PostgreSQL and full official checks PASS, baseline 69 snapshot-reviewed, no live proof overclaim."
+        "Both office_message_mentions and office_message_object_links deny direct SELECT to anon/authenticated, service_role can SELECT, RLS enabled.",
+        "Named Team Chat mention/object triggers are actually enabled BEFORE INSERT and identity-field UPDATE in pg_trigger.",
+        "Exact index office_thread_participants_active_owner_uidx exists and is unique/partial, checked via pg_index.",
+        "Effective admin_transfer_office_thread_owner_v1 execute denied to browser and allowed service role.",
+        "Test-only SQL injects nonexistent message refs into mentions and object link and rejects with OFFICE_MENTION_MESSAGE_INTEGRITY_INVALID and OFFICE_OBJECT_MESSAGE_INTEGRITY_INVALID; transaction ends ROLLBACK.",
+        "Full isolated PG69 clean replay, official pre/postflight, existing Office reply negative paths, all customer unit regressions, typecheck and Plan/Knowledge/Replay/risk PASS."
       ],
       "invariants": [
-        "Only current active owner may authorize transfer.",
-        "Transfer ends with exactly one active owner, and original owner becomes member.",
-        "Other users/tenants cannot be assigned owner without membership/read access.",
-        "A failed transaction cannot leave an ownerless state after rollback.",
-        "Transfer must write immutable audit log metadata.",
-        "No prior SQL or live hosted database mutated."
+        "Only local ephemeral PG DB is ever used; remote PGHOST ignored.",
+        "Team Chat private mentions/object links cannot be selected directly by browser roles.",
+        "Missing message/integrity trigger must fail closed.",
+        "Unique active owner constraint present and service-only transfer RPC is never public.",
+        "No test fixture rows or temp PostgreSQL process remain afterward.",
+        "No product SQL history mutated; native Supabase actor claims remain blocked."
       ],
       "forbiddenStates": [
-        "Privilege role can seize ownership by substituting p_actor without native identity proof",
-        "Target user is not active thread member",
-        "Promotion executes before demotion violating unique owner index",
-        "Source or target update affects 0 or >1 rows and is treated as success",
-        "No admin_audit_log entry",
-        "Browser direct EXECUTE on definer owner transfer",
-        "Source-only PASS treated as complete Supabase security acceptance"
+        "Source-only mention checks reported actual database RLS proof without SET ROLE.",
+        "Disabled or missing Team Chat message integrity triggers accepted.",
+        "Browser can execute owner transfer RPC.",
+        "Insert with nonexistent Team Chat message ID succeeds.",
+        "A negative test swallows unexpected errors or leaves test fixture data.",
+        "Any user or production database touched."
       ]
     },
     "model": {
@@ -113,51 +141,50 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Missing office_active_thread_owner_v1 from 0065",
-        "Unique partial owner index missing",
-        "Noninternal thread transferred",
-        "Forged actor owner check",
-        "Target member left thread",
-        "Same actor and target",
-        "Transaction races participant removal",
-        "Demote source affects 0 rows",
-        "Promote target affects 0 rows",
-        "Audit missing or wrong tenant",
-        "EXECUTE permission inherited",
-        "Local PG18 replay fails at 0067",
-        "Native JWT/session actor unbound"
+        "Missing pg_trigger integrity trigger",
+        "Disabled trigger",
+        "Incorrect BEFORE/UPDATE flags",
+        "No partial unique owner index",
+        "Function public EXECUTE grants",
+        "Browser selects mentions metadata",
+        "Wrong error code interpreted as expected",
+        "DO block exception catches its own success sentinel",
+        "SQL input changes after rehearsal",
+        "Cleanup leaves socket server",
+        "Access denied due to fixture mismodeling",
+        "Source syntax test green while SQL broken"
       ],
       "edgeCases": [
-        "Only owner in internal_private thread",
-        "Owner self-transfer",
-        "Transfer to inactive member",
-        "Transfer across tenant",
-        "Transfer to external customer participant",
-        "Concurrent transfers",
-        "Source owner deleted",
-        "Target not readable",
-        "Forced rollback after demote",
-        "Owner role integrity after retry"
+        "Empty tenant with no Team Chat users",
+        "Nonexistent message UUID",
+        "Untrusted mentioned_user_id",
+        "Wrong object order reference",
+        "Unsupported object_type",
+        "Two conflicting active owner rows",
+        "Browser authenticated/anon SELECT",
+        "Service_role SELECT owner",
+        "No active Service role RPC",
+        "PostgreSQL runner SIGTERM cleanup"
       ]
     },
     "alternatives": [
       {
-        "id": "F22-CANONICAL",
-        "summary": "Append canonical atomic owner transfer v1 in isolated 0067 with full PostgreSQL replay.",
+        "id": "F23-RUNTIME-NEGATIVES",
+        "summary": "Extend reusable isolated PG harness with actual Team Chat ACL/cat/negative message and object DML proof.",
         "disposition": "selected",
-        "reason": "Fills lifecycle hole using original governed source, audited and bounded."
+        "reason": "Catches runtime regressions for new Team Chat schema with bounded test-only quality risk."
       },
       {
-        "id": "F22-UI-ROLES",
-        "summary": "Swap owner designation only in UI or two unconstrained updates.",
+        "id": "F23-STATIC-ONLY",
+        "summary": "Count source tests from migrations and declare RLS/trigger DONE.",
         "disposition": "rejected",
-        "reason": "Allows owner-seize or transient multiple/zero owner states."
+        "reason": "Recreates earlier unsupported acceptance style and misses effective database grants."
       },
       {
-        "id": "F22-COMBINED",
-        "summary": "Integrate owner transfer plus future Communication Hub advanced in same PR unit.",
+        "id": "F23-HOSTED",
+        "summary": "Run arbitrary DML against staging or Fresh Install Supabase to verify.",
         "disposition": "rejected",
-        "reason": "Risk exceeds a single provable schema subsystem. Limits error localization."
+        "reason": "Unapproved risk/cost; local fixture first then staged native proof separately."
       }
     ],
     "specialistReviews": [
@@ -165,28 +192,28 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Despite source-only owner predicate, trusted service_role may pass spoofed p_actor without actual caller claim binding.",
-        "resolution": "Keep capability PARTIAL; require native authenticated server actor test and no direct public RPC privilege.",
+        "finding": "The new negative DML validates missing messages but not authenticated live actor identity or cross-tenant valid-row cases.",
+        "resolution": "Keep source-only-plus-local-PG status; require native Supabase tenant/JWT actor and owner transfer adversarial tests before DONE.",
         "evidence": [
-          "supabase/migrations/20260909204547_digital_office_team_chat_owner_transfer_v1.sql"
+          "supabase/customer-baseline/migrations/0066_digital_office_team_chat_2_integrity_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Unique active-owner index requires source demotion before target promotion in same transaction, protected by row lock.",
-        "resolution": "Preserve canonical SQL and actual database install; next DML negative tests must exercise retry/rollback.",
+        "finding": "Actual catalog checks and failing nonexistent message mutations increase proof strength but do not validate old occupied rows.",
+        "resolution": "Use clean local socket DB with rollback; occupied data compatibility remains prerequisite.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql"
+          "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Owner lifecycle SQL is high-risk database-schema and must remain one 5/5 bounded unit.",
-        "resolution": "One original SQL, manifest/test and exact F21 base risk, no preview/CI.",
+        "finding": "Only isolated quality infra script and neutral fixtures change, risk 2/5.",
+        "resolution": "No product SQL, hosted DB or workflow edits, exact parent F22.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -195,99 +222,99 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Owner transfer must be auditable and should handle member removal races and existing malformed owner data.",
-        "resolution": "Require immutable audit and occupied-target compatibility inventory before deployment.",
+        "finding": "PG harness must always stop and not share private trust socket with other workspaces.",
+        "resolution": "Retain F19 guarded socket-only initdb and finally cleanup; assert no leftovers.",
         "evidence": [
-          "supabase/customer-baseline/manifest.json"
+          "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F22-01",
-        "scenario": "Existing group owner attempts to transfer ownership to their own user ID.",
-        "finding": "Self-transfer could create noisy duplicate audit or mask no-op owner state.",
-        "resolution": "Canonical OWNER_TRANSFER_SELF_FORBIDDEN blocks it before row changes.",
+        "id": "CH-U10A2-F23-01",
+        "scenario": "Anonymous browser queries office_message_mentions on empty store using SELECT count(*).",
+        "finding": "If grant/RLS is accidentally broadened, mention user IDs leak despite source checks.",
+        "resolution": "Execute SELECT after SET ROLE anon and require actual Postgres permission denied.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F22-02",
-        "scenario": "Another ordinary member tries to transfer ownership to themself.",
-        "finding": "Actor could seize control of group and private messages.",
-        "resolution": "Require private.office_active_thread_owner_v1 for original active owner plus read access.",
+        "id": "CH-U10A2-F23-02",
+        "scenario": "Authenticated browser queries office_message_object_links directly without private thread membership.",
+        "finding": "Business object metadata could disclose private group commercial activities across tenants.",
+        "resolution": "Execute SELECT after SET ROLE authenticated and require actual permission denied.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F22-03",
-        "scenario": "Current owner chooses a user who left the group.",
-        "finding": "Inactive user could become privileged chat owner with no read access.",
-        "resolution": "SELECT active participant with left_at IS NULL and participant_role member plus thread readability.",
+        "id": "CH-U10A2-F23-03",
+        "scenario": "Admin disables office_message_mentions_integrity trigger while leaving SQL source unchanged.",
+        "finding": "Malformed mentions can be inserted from service-role worker; source assertion would falsely PASS.",
+        "resolution": "Require tgenabled=O and BEFORE INSERT/UPDATE bits from pg_trigger each fresh replay.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F22-04",
-        "scenario": "Current owner chooses a user from another tenant.",
-        "finding": "Cross-tenant owner assignment may reveal private workspace data.",
-        "resolution": "Require participant lookup by instance_id and thread_id and target_user_id.",
+        "id": "CH-U10A2-F23-04",
+        "scenario": "Admin removes partial unique active owner index.",
+        "finding": "Concurrent group owner operations can create duplicate active owners.",
+        "resolution": "Query pg_index unique/partial metadata for canonical index; fail rehearsal if absent.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F22-05",
-        "scenario": "Two owners are created while changing roles.",
-        "finding": "Unique active owner index raises error or corrupts owner state.",
-        "resolution": "Demote current owner first then promote member, both updates in same transaction.",
+        "id": "CH-U10A2-F23-05",
+        "scenario": "An anonymous browser invokes public.admin_transfer_office_thread_owner_v1 directly.",
+        "finding": "Ownership could be seized without server-side entitlement checks.",
+        "resolution": "Test has_function_privilege false for anon/authenticated and true for service_role.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F22-06",
-        "scenario": "Target member leaves between lookup and promotion.",
-        "finding": "No target remains and ownerless state may commit.",
-        "resolution": "Lock target FOR UPDATE and check exactly one affected source/target row.",
+        "id": "CH-U10A2-F23-06",
+        "scenario": "Privileged service worker inserts mention for random message ID absent from this tenant.",
+        "finding": "Message identity integrity must not accept orphan mentions before FK check.",
+        "resolution": "Rollback-only test insert must raise exact OFFICE_MENTION_MESSAGE_INTEGRITY_INVALID from the trigger.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F22-07",
-        "scenario": "A concurrent transaction aborts after old owner is demoted.",
-        "finding": "Partial transfer could leave group without owner.",
-        "resolution": "Use atomic function transaction and raise exception on all missing evidence to roll back both steps.",
+        "id": "CH-U10A2-F23-07",
+        "scenario": "Privileged service worker inserts object link for random message ID absent from this tenant.",
+        "finding": "Invalid business link may be persisted without source message or author.",
+        "resolution": "Rollback-only test insert must raise exact OFFICE_OBJECT_MESSAGE_INTEGRITY_INVALID.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F22-08",
-        "scenario": "Transfer is performed with forged p_actor under service_role.",
-        "finding": "Definer SQL does not itself authenticate requesting user; impersonation remains possible.",
-        "resolution": "Require native server identity binding/proof; mark current SQL+local PG as partial until verified.",
+        "id": "CH-U10A2-F23-08",
+        "scenario": "Rehearsal throws before SQL negative test and leaves trust PG server alive.",
+        "finding": "Local server resources and socket permissions could leak.",
+        "resolution": "Keep try/finally stop and rmSync on exception; no TCP listen and private chmod 700 socket.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code PASS before SQL modifications.",
-      "Canonical full SHA256, role ownership, lock order, audit, RPC privilege and blocker regression.",
-      "69 migration isolated PostgreSQL18 real clean replay with official pre/postflight, browser/RLS/Office baseline negatives.",
-      "Customer full tests TypeScript Edit-Time/Knowledge/Replay exact F21 Release Risk 5/5.",
-      "Actual owner transfer DML in active actor/tenant session and native Supabase Pro business capability remain BLOCKED."
+      "Pre-implementation Critical Plan Before Code PASS.",
+      "Vitest checks runner safety, effective target table ACL, trigger/index authority, expected SQL error, and rollback fixture.",
+      "Re-execute all 69 migrations, official preflight/bootstrap/seed/postflight with enhanced runtime negative Team Chat probes.",
+      "Customer-regression, typecheck, Edit-Time/Knowledge/Replay and exact F22 risk <=5/5 PASS.",
+      "Native Supabase actor/tenant owner transfer and Pro remain BLOCKED."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F22: append canonical 0067 Team Chat owner transfer, active owner/member and audit invariants, full isolated PG18 69-migration replay, no hosted DB writes",
+      "request": "Core #1186 U10A2 F23: extend isolated PG18 Fresh Install rehearsal with effective Team Chat RLS/revokes, trigger and owner unique index catalog, rollback negative mention/object DML, no hosted targets",
       "authority": [
-        "database-schema"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        "supabase/customer-baseline/manifest.json"
+        "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql",
-        "tests/customer-baseline-office-team-chat-owner-transfer.test.ts"
+        "tests/customer-baseline-team-chat-postgres.test.ts",
+        "tests/fixtures/customer-baseline-team-chat-negative.sql"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code PASS before SQL modifications.",
-        "Canonical full SHA256, role ownership, lock order, audit, RPC privilege and blocker regression.",
-        "69 migration isolated PostgreSQL18 real clean replay with official pre/postflight, browser/RLS/Office baseline negatives.",
-        "Customer full tests TypeScript Edit-Time/Knowledge/Replay exact F21 Release Risk 5/5.",
-        "Actual owner transfer DML in active actor/tenant session and native Supabase Pro business capability remain BLOCKED."
+        "Pre-implementation Critical Plan Before Code PASS.",
+        "Vitest checks runner safety, effective target table ACL, trigger/index authority, expected SQL error, and rollback fixture.",
+        "Re-execute all 69 migrations, official preflight/bootstrap/seed/postflight with enhanced runtime negative Team Chat probes.",
+        "Customer-regression, typecheck, Edit-Time/Knowledge/Replay and exact F22 risk <=5/5 PASS.",
+        "Native Supabase actor/tenant owner transfer and Pro remain BLOCKED."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -298,51 +325,49 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "supabase/customer-baseline/manifest.json"
+          "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql",
-          "tests/customer-baseline-office-team-chat-owner-transfer.test.ts"
+          "tests/customer-baseline-team-chat-postgres.test.ts",
+          "tests/fixtures/customer-baseline-team-chat-negative.sql"
         ],
         "forbidden": [],
         "proof": [],
         "authority": [
-          "auth-access-authority",
-          "database-schema",
-          "tenant-context-authority"
+          "quality-knowledge-system"
         ],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 5,
+        "score": 2,
         "maxPoints": 5,
         "subsystemCount": 1,
         "maxSubsystems": 3,
         "subsystems": [
           {
-            "subsystem": "database-schema",
-            "risk": "high",
-            "points": 5
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
           }
         ],
         "files": [
           {
-            "file": "supabase/customer-baseline/manifest.json",
-            "subsystem": "database-schema",
-            "risk": "high",
-            "points": 5
+            "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
           },
           {
-            "file": "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql",
-            "subsystem": "database-schema",
-            "risk": "high",
-            "points": 5
+            "file": "tests/customer-baseline-team-chat-postgres.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
           },
           {
-            "file": "tests/customer-baseline-office-team-chat-owner-transfer.test.ts",
+            "file": "tests/fixtures/customer-baseline-team-chat-negative.sql",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -357,32 +382,32 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 5,
+          "score": 2,
           "maxPoints": 5,
           "subsystemCount": 1,
           "maxSubsystems": 3,
           "subsystems": [
             {
-              "subsystem": "database-schema",
-              "risk": "high",
-              "points": 5
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
             }
           ],
           "files": [
             {
-              "file": "supabase/customer-baseline/manifest.json",
-              "subsystem": "database-schema",
-              "risk": "high",
-              "points": 5
+              "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
             },
             {
-              "file": "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql",
-              "subsystem": "database-schema",
-              "risk": "high",
-              "points": 5
+              "file": "tests/customer-baseline-team-chat-postgres.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
             },
             {
-              "file": "tests/customer-baseline-office-team-chat-owner-transfer.test.ts",
+              "file": "tests/fixtures/customer-baseline-team-chat-negative.sql",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -397,27 +422,27 @@
           {
             "id": 0,
             "files": [
-              "supabase/customer-baseline/manifest.json"
+              "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
+              "score": 2,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/manifest.json",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "violations": [],
@@ -427,37 +452,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
-                }
-              ],
-              "files": [
-                {
-                  "file": "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 2,
-            "files": [
-              "tests/customer-baseline-office-team-chat-owner-transfer.test.ts"
+              "tests/customer-baseline-team-chat-postgres.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -468,7 +463,31 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-office-team-chat-owner-transfer.test.ts",
+                  "file": "tests/customer-baseline-team-chat-postgres.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 2,
+            "files": [
+              "tests/fixtures/customer-baseline-team-chat-negative.sql"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/fixtures/customer-baseline-team-chat-negative.sql",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -486,74 +505,74 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "54ca7804602eeb95a1311889594a9a315c7cca0e"
+              "developmentBaseSha": "330a34cde7b419753256f84a11734fbc2d1804a1"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "54ca7804602eeb95a1311889594a9a315c7cca0e",
+            "targetBaseSha": "330a34cde7b419753256f84a11734fbc2d1804a1",
             "lease": {
-              "expectedBaseSha": "54ca7804602eeb95a1311889594a9a315c7cca0e",
+              "expectedBaseSha": "330a34cde7b419753256f84a11734fbc2d1804a1",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql",
-              "tests/customer-baseline-office-team-chat-owner-transfer.test.ts"
+              "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+              "tests/customer-baseline-team-chat-postgres.test.ts",
+              "tests/fixtures/customer-baseline-team-chat-negative.sql"
             ],
             "operations": [
               {
                 "operation": "modify",
-                "file": "supabase/customer-baseline/manifest.json",
+                "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql",
+                "file": "tests/customer-baseline-team-chat-postgres.test.ts",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-office-team-chat-owner-transfer.test.ts",
+                "file": "tests/fixtures/customer-baseline-team-chat-negative.sql",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [],
             "authorities": [
-              "database-schema"
+              "quality-knowledge-system"
             ],
             "subsystems": [
-              "database-schema"
+              "quality-infrastructure"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
+              "score": 2,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/manifest.json",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "file": "tests/customer-baseline-team-chat-postgres.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
                 },
                 {
-                  "file": "tests/customer-baseline-office-team-chat-owner-transfer.test.ts",
+                  "file": "tests/fixtures/customer-baseline-team-chat-negative.sql",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -563,7 +582,6 @@
               "decision": "PASS"
             },
             "requiredGates": [
-              "GUARD-CUSTOMER-BASELINE",
               "GUARD-EDIT-TIME",
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -574,7 +592,6 @@
             ],
             "requiredEvidence": {
               "gateIds": [
-                "GUARD-CUSTOMER-BASELINE",
                 "GUARD-EDIT-TIME",
                 "GUARD-INCREMENTAL-REPLAY",
                 "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -584,7 +601,8 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-office-team-chat-owner-transfer.test.ts"
+                "tests/customer-baseline-team-chat-postgres.test.ts",
+                "tests/fixtures/customer-baseline-team-chat-negative.sql"
               ],
               "externalGateIds": []
             },
@@ -595,9 +613,9 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql",
-                "tests/customer-baseline-office-team-chat-owner-transfer.test.ts"
+                "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+                "tests/customer-baseline-team-chat-postgres.test.ts",
+                "tests/fixtures/customer-baseline-team-chat-negative.sql"
               ],
               "filesAbsent": []
             },
@@ -612,7 +630,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "5757a49d",
+            "manifestDigest": "5f5603c6",
             "decision": "PASS"
           }
         ],
@@ -625,7 +643,6 @@
         "contract": "shoporation.gate-chain.v1",
         "phase": "PLAN",
         "orderedGateIds": [
-          "GUARD-CUSTOMER-BASELINE",
           "GUARD-KNOWLEDGE-PREFLIGHT",
           "GUARD-PLAN-BEFORE-CODE",
           "GUARD-EDIT-TIME",
@@ -640,7 +657,6 @@
           "GUARD-RELEASE-RISK"
         ],
         "futureGateIds": [
-          "GUARD-CUSTOMER-BASELINE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
           "GUARD-QUALITY-TESTS",
@@ -652,38 +668,35 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Canonical Team Chat 2 foundation/integrity through 0066 supports at most one active owner via unique partial index but lacks an authorized, auditable transaction to transfer owner without exposing an unauthorized owner-seize route. Append exact canonical 20260909204547 owner transfer v1 as 0067: only current active owner in internal_private/group with read access can transfer to another active member with read access. Acquire FOR UPDATE row locks, demote source then promote target atomically preserving unique owner index, require row_count 1 both and final evidence; create audit and service_role-only EXECUTE. Rehearse 69 clean files on disposable socket-only PG18, no hosted DB updates. Native server actor binding remains partial.",
+    "problemStatement": "Fresh Install 0065-0067 Team Chat 2 schema, table-boundary triggers and owner transfer all install on local PostgreSQL 18, but F19 reusable real-PG harness still checks browser RLS and direct EXECUTE only for earlier Office tables and reply job. That leaves Team Chat mention/object table ACL, enabled triggers, active owner uniqueness, service-only RPC grants, and actual malformed message/link direct SQL untested. Extend only test fixtures and isolated opt-in PG harness with effective role negative SELECT checks, real pg_trigger/pg_index catalogs and rollback-only insert negatives for non-existent message; do not modify customer SQL or call hosted Supabase.",
     "observableOutcomes": [
-      "Append 0067 byte-identical canonical source with SHA256, after 0066, preserving prior 0001-0066.",
-      "Ownership transfer RPC accepts instance, actor, internal thread and distinct target IDs, checks active source owner, active target member and both read permissions.",
-      "Concurrency protects thread/target with FOR UPDATE and performs source demotion before target promotion, checks exact row_count and target final owner.",
-      "Audit admin_audit_log records transfer, only service_role may execute RPC and browser direct invocation revoked.",
-      "69 SQL files run in isolated PG18 fresh with F19 real PostgreSQL harness official preflight/bootstrap/seed/postflight + inherited Office security probes.",
-      "Customer tests, TS, Plan, Edit-Time, Knowledge, Replay, exact F21 bounded 5/5 risk PASS with no native Supabase/Pro claim."
+      "On every F19 PG rehearsal, assert Office Team Chat mentions and object link tables have RLS and that anon/authenticated cannot read either by SET ROLE.",
+      "Inspect actual pg_trigger metadata for both mention/object before INSERT+UPDATE triggers enabled, plus active-owner partial unique index.",
+      "Check admin_transfer_office_thread_owner_v1 EXECUTE denied to anon/authenticated and allowed service_role; do not claim caller JWT binding.",
+      "Execute transactional SQL negative probes which attempt insert mentions and object links referencing non-existent message IDs and require exact canonical exception names, followed by ROLLBACK.",
+      "No permanent mock data left in target DB or PostgreSQL process, no production SQL changes.",
+      "Maintain original 69/69 PG migration + auth bootstrap/seed/postflight, 144+ regressions and Control Plane/Release Risk 2/5 PASS."
     ],
     "unresolvedRisks": [
-      "Without native service-role request-to-actor binding, a service path may supply forged p_actor and transfer ownership; SQL alone cannot authenticate JWT.",
-      "Owner transfer potentially blocks on concurrent participant mutations; empty-target PostgreSQL installation is not race-positive functional proof.",
-      "Occupied target may contain zero/multiple owner and nonmember subjects; read-only inventory/repair needed before rolling out.",
-      "Local Auth/Storage shim cannot prove managed Supabase Realtime, JWT, security-definer search_path or full subscription isolation.",
-      "Missing Communication Hub and strict Pro dependency chain still BLOCKED; Team Chat functional DML replay needs its own targeted next proof."
+      "Nonexistent-message negative inserts do not prove authorized valid team-chat send, race/owner transfer, cross-tenant row access or session identity; add native full-feature test later.",
+      "PostgreSQL 18 test fixture emulates only a subset of Supabase Auth/Storage and is not managed provider acceptance.",
+      "Owner partial unique index introspection proves DDL installed but must be followed by concurrent real transfer tests for full lifecycle.",
+      "Runner changes can accidentally leak a long-running PostgreSQL instance or misparse role output; preserve isolation and fail-closed cleanup."
     ],
     "scope": {
       "in": [
-        "Canonical full 0067 Team Chat owner transfer SQL with original SHA256.",
-        "Manifest snapshot-reviewed provenance note and focused owner-transfer source regressions.",
-        "Reusable F19 PG18 harness 69 migration real schema replay."
+        "Enhance F19 isolated PG runner with Team Chat RLS/grant/trigger/catalog checks and new rollback negative SQL fixture.",
+        "New test-only Vitest safety regression of harness and fixture."
       ],
       "out": [
-        "No 0001–0066 historical modification or canonical production source mutation.",
-        "No further 0068+ SQL or additional product subsystems in same release budget.",
-        "No hosted Supabase database writes, Vercel Preview, GitHub CI or branch push."
+        "No original migration SQL/manifest, server routes, provider code or GitHub workflow modification.",
+        "No native hosted Supabase project calls, CI, Preview or external network DB address."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F22-TEAM-CHAT-OWNER-TRANSFER",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F23-TEAM-CHAT-PG-NEGATIVE",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -701,11 +714,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F22-OWNER-TRANSFER",
-        "requirement": "Append canonical Team Chat 2 owner transfer with active owner/member and atomic audit, SQL source parity and clean PostgreSQL installation; native session actor proof pending.",
+        "id": "REQ-F23-TEAM-CHAT-NEGATIVE",
+        "requirement": "Prove real isolated PG RLS/browser grant, installed triggers/unique owner and rejects invalid Team Chat message inserts without hosted DB or false native Supabase claim.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-team-chat-2-owner-transfer-local-pg",
+          "breadth": "local-pg-team-chat-adversarial-proof",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -718,7 +731,6 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-CUSTOMER-BASELINE",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
@@ -727,8 +739,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F22-OWNER",
-            "statement": "Non-owner and nonparticipant owner transfer must not succeed; source and clean PG install now, native actor negative pending.",
+            "id": "NEG-F23-MENTION-OBJECT",
+            "statement": "Missing Team Chat message IDs must be rejected by actual DB triggers and no browser may directly query private mention/link tables.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -737,5 +749,5 @@
       }
     ]
   },
-  "notes": "U10A2 F22 Team Chat 2 owner transfer 0067 after foundation/integrity. Full local 69 PG SQL replay; next targeted Team Chat DML/role and Pro/Communication Hub closure."
+  "notes": "F23 enhances isolated local PG team chat role/trigger/index DML proof, no product SQL/DB changes. Native Supabase/Pro completion remains BLOCKED."
 }

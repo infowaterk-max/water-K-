@@ -52,12 +52,26 @@ function prove(){
  ].join('\n');
  const result=query(q,'ACTUAL_FUNCTION_RIGHTS_AND_TRIGGER_EVENTS').split('|');
  if(result.length!==9||result.some(x=>x!=='t'))throw Error('POSTGRES_SECURITY_CATALOG_PROOF_FAILED: '+result.join('|'));
- for(const table of ['office_attachments','office_drafts','office_mailboxes','office_thread_email_routes']){
+ for(const table of ['office_attachments','office_drafts','office_mailboxes','office_thread_email_routes','office_message_mentions','office_message_object_links']){
    if(query("SELECT relrowsecurity FROM pg_class WHERE oid='public."+table+"'::regclass",'RLS_'+table)!=='t')throw Error('RLS_NOT_ENABLED: '+table);
    deny('anon',table);deny('authenticated',table);
  }
  const serviceResult=query('SET ROLE service_role; SELECT count(*) FROM public.office_drafts','SERVICE_ROLE_READ').split('\n').at(-1);
  if(serviceResult!=='0')throw Error('SERVICE_ROLE_READ_FAILED: '+serviceResult);
+ const teamChatProof=query([
+   "SELECT",
+   "(SELECT count(*)=2 FROM pg_trigger WHERE tgrelid IN ('public.office_message_mentions'::regclass,'public.office_message_object_links'::regclass) AND tgname IN ('office_message_mentions_integrity','office_message_object_links_integrity') AND tgenabled='O' AND NOT tgisinternal AND (tgtype & 2)=2 AND (tgtype & 4)=4 AND (tgtype & 16)=16),",
+   "(SELECT indisunique AND indpred IS NOT NULL FROM pg_index WHERE indexrelid='public.office_thread_participants_active_owner_uidx'::regclass),",
+   "NOT has_function_privilege('anon','public.admin_transfer_office_thread_owner_v1(uuid,uuid,uuid,uuid)','EXECUTE'),",
+   "NOT has_function_privilege('authenticated','public.admin_transfer_office_thread_owner_v1(uuid,uuid,uuid,uuid)','EXECUTE'),",
+   "has_function_privilege('service_role','public.admin_transfer_office_thread_owner_v1(uuid,uuid,uuid,uuid)','EXECUTE')"
+ ].join('\n'),'TEAM_CHAT_REAL_POSTGRES_CATALOG').split('|');
+ if(teamChatProof.length!==5||teamChatProof.some(flag=>flag!=='t'))throw Error('TEAM_CHAT_RLS_TRIGGER_OWNER_PROOF_FAILED: '+teamChatProof.join('|'));
+ for(const table of ['office_message_mentions','office_message_object_links']){
+   const roleResult=query('SET ROLE service_role; SELECT count(*) FROM public.'+table,'TEAM_CHAT_SERVICE_ROLE_READ_'+table).split('\n').at(-1);
+   if(roleResult!=='0')throw Error('TEAM_CHAT_SERVICE_ROLE_READ_FAILED: '+table+'='+roleResult);
+ }
+ console.log('LOCAL_POSTGRES_TEAM_CHAT_RLS_TRIGGER_OWNER_PROOF_PASS');
  console.log('LOCAL_POSTGRES_EFFECTIVE_GRANTS_RLS_TRIGGER_PASS');
 }
 function main(){
@@ -93,6 +107,8 @@ function main(){
  console.log('OFFICIAL_PREFLIGHT_AUTH_SEED_POSTFLIGHT_PASS');
  prove();
  file('tests/fixtures/customer-baseline-office-reply-negative.sql','OFFICE_REPLY_ROLLBACK_NEGATIVE_DML');
+ file('tests/fixtures/customer-baseline-team-chat-negative.sql','TEAM_CHAT_ROLLBACK_NEGATIVE_DML');
+ console.log('LOCAL_POSTGRES_TEAM_CHAT_NEGATIVE_INSERT_PROOF_PASS');
  if(query("SELECT count(*) FROM public.webshop_instances WHERE id='a1111111-1111-4111-8111-111111111111'",'ROLLBACK_VERIFICATION')!=='0')throw Error('FIXTURE_ROLLBACK_FAILED');
  console.log('OFFICE_REPLY_REAL_INSERT_UPDATE_NEGATIVE_PASS');
  console.log('LOCAL_POSTGRES_TEST_FIXTURE_PASS count='+n);
