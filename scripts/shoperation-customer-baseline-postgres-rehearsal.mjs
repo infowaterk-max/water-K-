@@ -109,6 +109,10 @@ function main(){
  file('tests/fixtures/customer-baseline-office-reply-negative.sql','OFFICE_REPLY_ROLLBACK_NEGATIVE_DML');
  file('tests/fixtures/customer-baseline-team-chat-negative.sql','TEAM_CHAT_ROLLBACK_NEGATIVE_DML');
  console.log('LOCAL_POSTGRES_TEAM_CHAT_NEGATIVE_INSERT_PROOF_PASS');
+ file('tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql','TEAM_CHAT_OWNER_TRANSFER_POSITIVE_NEGATIVE_DML');
+ const reverted=query("SELECT count(*) FROM public.webshop_instances WHERE slug IN ('f25-shop-a','f25-shop-b')",'TEAM_CHAT_OWNER_FIXTURE_ROLLBACK');
+ if(reverted!=='0')throw Error('TEAM_CHAT_OWNER_FIXTURE_NOT_ROLLED_BACK');
+ console.log('LOCAL_POSTGRES_TEAM_CHAT_OWNER_TRANSFER_POSITIVE_NEGATIVE_PASS');
  if(query("SELECT count(*) FROM public.webshop_instances WHERE id='a1111111-1111-4111-8111-111111111111'",'ROLLBACK_VERIFICATION')!=='0')throw Error('FIXTURE_ROLLBACK_FAILED');
  console.log('OFFICE_REPLY_REAL_INSERT_UPDATE_NEGATIVE_PASS');
  console.log('LOCAL_POSTGRES_TEST_FIXTURE_PASS count='+n);

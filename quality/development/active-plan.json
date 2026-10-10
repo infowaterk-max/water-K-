@@ -1,18 +1,17 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-8A5FE84F",
-  "task": "Core #1186 F24 accepted PO package decision reconciliation: Alap complete B2C plus simple B2B/partner pricing/MOQ/RFQ without Digital Office; Pro advanced contractual B2B and full Digital Office only; canonical Living Roadmap and regression, no product runtime or hosted writes",
+  "taskId": "DEV-BBD150EE",
+  "task": "Core #1186 U10A2 F25: add local isolated real PG18 positive and adversarial Team Chat owner transfer with two tenant fixture users, roles, group, transaction rollback; no product SQL or hosted DB",
   "status": "ready-for-implementation",
-  "guardDigest": "8a5fe84f",
-  "changeBaseSha": "02c7f35a92786260cbc819de87c498b402389bd0",
+  "guardDigest": "bbd150ee",
+  "changeBaseSha": "63e3cc8d1a4c4432f26e8113d0e3e91dbda9c768",
   "plannedFilePatterns": [
-    "quality/knowledge/living-roadmap.v2.json",
-    "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
-    "tests/product-decision-b2b-capability-reconciliation.test.ts"
+    "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+    "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql",
+    "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts"
   ],
   "expectedSubsystems": [
-    "admin-operations",
-    "dependency-contract",
+    "quality-infrastructure",
     "shared-storefront",
     "storefront-ui"
   ],
@@ -28,40 +27,21 @@
     "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
-    "TF-KF-003",
     "TF-KF-004",
-    "TF-KF-005",
     "TF-KF-006",
-    "TF-KF-007",
-    "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
     "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
     "TF-KF-016",
     "TF-KF-017",
     "TF-KF-018",
@@ -87,8 +67,8 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-B2B-ALAP-SIMPLE-RFQ-PRO-GOVERNED-20261010-SYNC",
-    "riskTier": "critical",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F25-TEAM-CHAT-OWNER-PG-ROLE-TEST",
+    "riskTier": "medium",
     "assuranceCeiling": {
       "level": "critical-practical",
       "rationale": "Tenant-scoped SQL authorization in SECURITY DEFINER and browser RLS can leak staff data or break Team Chat after migrations; require negative/positive state matrices, SQL syntax and real target proof.",
@@ -108,27 +88,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Accepted B2B boundary explicit in both canonical MR1 scope and structured Alap/Pro packageMatrix.",
-        "Alap has simple partner onboarding and standard partner pricing, MOQ, partner groups and RFQ separate from Digital Office; Pro retains multiuser approval/contract complexity.",
-        "Original premium Digital Office and special commerce exclusions from Alap remain intact.",
-        "Dated reconciliation note transparently states accepted Trial/paid account/archiving/domain decisions are NOT yet sync-implemented, and repeat pause restriction still OPEN.",
-        "No existing roadmap entry lost, item count/status/IDs unchanged, JSON valid and existing architecture governance passes.",
-        "New targeted tests and TypeScript/Knowledge/Edit-Time/Replay/risk budget pass with no runtime/prod effects."
+        "Admin owner RPC called on real PostgreSQL 18 with seeded valid owner and member; transfers and verifies exactly one active owner and audit.",
+        "Nonowner cannot transfer, self-transfer is rejected, nonparticipant target rejected and wrong-tenant instance/thread combinations fail closed.",
+        "A valid new owner can transfer back and the original owner is restored; no partial state or test rows persist after rollback.",
+        "Full 69 migration clean rehearsal/official pre-post and previous negative tests still pass.",
+        "Vitest, TypeScript, Plan, Edit-Time, Knowledge, Shadow Replay and exact F24 Release Risk <=5 all PASS.",
+        "Test claims only local-PG role-bound proof and does not call native JWT, hosted Supabase or Pro DONE."
       ],
       "invariants": [
-        "Alap B2C plus simple B2B must work without Office or Pro entitlements once implemented.",
-        "Digital Office/Team Chat stay Pro-only in canonical roadmap.",
-        "Only advanced governed B2B privileges are Pro, not basic partner pricing/MOQ/RFQ.",
-        "No claim of functional runtime completeness or Ready status based on roadmap text.",
-        "Canonical roadmap remains unique product authority; nonauthoritative doc records blockers only."
+        "Only current active owner on internal group thread can transfer.",
+        "Target is active same-thread member of same store with read permission.",
+        "Owner singleton unique partial index remains obeyed during both transfers.",
+        "Service-role RPC permission not exposed to anon/authenticated.",
+        "Test changes never leave fixture data in local DB or contact external providers."
       ],
       "forbiddenStates": [
-        "Entire RFQ reserved Pro in packageMatrix.",
-        "Alap simple RFQ depends on officeCommunicationAdvanced or Team Chat.",
-        "Pro advanced supplier/contract rules automatically granted to Alap.",
-        "No decision gate despite account/trial unresolved dependencies.",
-        "Product runtime mutated without dependency review.",
-        "Full B2B/Office capability marked DONE from this metadata-only edit."
+        "Owner transfer accepted from non-owner.",
+        "Owner transfer grants a role to different-tenant user.",
+        "Two active owners after valid transfer.",
+        "Self-transfer treated as success.",
+        "No-audit transfer",
+        "Misleading native Supabase DONE claim",
+        "Any hosted database connection accepted."
       ]
     },
     "model": {
@@ -160,216 +141,179 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Scope narrative updated but structured packageMatrix retains Pro-only RFQ",
-        "Alap advanced B2B accidentally granted",
-        "Pro Digital Office boundary loosened",
-        "Different page preset logic changes from unrequested roadmap edit",
-        "Changes touch planned builder/portfolio phase",
-        "Missing negative regression",
-        "Older repo entitlement SQL still contradicts accepted boundary",
-        "Trial pricing modified without final policy",
-        "Two competing canonical product truth files"
+        "Role fixture lacks support grant",
+        "Missing auth.users foreign key",
+        "Active participant not readable",
+        "Owner transfer RPC fails despite all conditions",
+        "Wrong exception code on self transfer",
+        "Implicit service-role privilege bypass",
+        "Participant role unique index anomaly",
+        "Cross-instance target accepted",
+        "Audit row absent",
+        "ROLLBACK fixture persists",
+        "Temporary PG cluster left running"
       ],
       "edgeCases": [
-        "Simple RFQ without Digital Office",
-        "B2B company with one approved buyer",
-        "B2B standard MOQ/partner price",
-        "Pro multi-actor approvals",
-        "Expired quote convert order in Alap simple state",
-        "RFQ email notifications without Office",
-        "Trial webshop with domain deferred",
-        "Archived activated shop pending 1yr window"
+        "Internal group valid two users",
+        "Nonowner actor tries transfer",
+        "Owner target equals actor",
+        "Target unbound to group",
+        "Target in another store",
+        "New owner transfer back",
+        "Cross-tenant wrong instance",
+        "Duplicate active owner index",
+        "No live records after rollback",
+        "DB fixture only with RLS identity caution"
       ]
     },
     "alternatives": [
       {
-        "id": "F24-SCOPE-SYNC",
-        "summary": "Bounded canonical roadmap B2B packageMatrix reconciliation and nonauthoritative open-decision ledger.",
+        "id": "F25-PG-DML",
+        "summary": "Extend opt-in local socket-only PG harness with positive and negative audited owner transfer fixture.",
         "disposition": "selected",
-        "reason": "Removes an accepted product conflict before Pro entitlement implementation without touching transactional code."
+        "reason": "Turns installed schema/RPC into actual observed behavior without product decisions or hosted risk."
       },
       {
-        "id": "F24-KEEP-CONFLICT",
-        "summary": "Continue copying Advanced Communication Hub SQL without reconciling Alap RFQ boundary.",
+        "id": "F25-SOURCE-ONLY",
+        "summary": "Rely on 0067 source regex, triggers and static syntax.",
         "disposition": "rejected",
-        "reason": "Risks expensive redesign after unknowingly restricting baseline B2B."
+        "reason": "Cannot prove owner/audit changes or reason for rejection."
       },
       {
-        "id": "F24-FULL-PRICING",
-        "summary": "Implement all Trial/account pricing, archive and B2B entitlement code in one unit.",
+        "id": "F25-HOSTED",
+        "summary": "Use occupied staging or Fresh Install Supabase for direct owner transfer tests.",
         "disposition": "rejected",
-        "reason": "Contains still-open rules and crosses package/billing/commerce/Office security dependency chain."
+        "reason": "Would mutate user data/roles without disposable approved target and native auth proof."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Data Integrity",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Later explicitly accepted Alap simple B2B/RFQ supersedes older categorical Pro RFQ wording.",
-        "resolution": "Update same canonical roadmap scope and packageMatrix; keep implementation BLOCKED until entitlement/notification chain review.",
-        "evidence": [
-          "quality/knowledge/living-roadmap.v2.json"
-        ]
-      },
-      {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Publishing Alap RFQ in documentation without server entitlements would make an unimplemented baseline capability look ready.",
-        "resolution": "Use metadata-only accepted status and conspicuous runtime/SQL/API blockers in reconciliation note; never silently set capability DONE.",
+        "finding": "A locally seeded role-bound owner passing p_actor is not cryptographic server session identity proof.",
+        "resolution": "Keep native JWT-to-actor binding and Pro entitlement proof BLOCKED, run only disposable role-backed DB behavior.",
         "evidence": [
-          "quality/knowledge/living-roadmap.v2.json"
+          "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql"
         ]
       },
       {
-        "role": "Operations",
+        "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Previous acceptance mismatch could recur if text edited but structured package matrix remains Pro-only.",
-        "resolution": "Add regression asserts to check both narrative scope and matrix, plus Pro-only Office boundary.",
+        "finding": "Owner demotion and promotion must be transactionally safe and auditable.",
+        "resolution": "Assert exactly one owner and corresponding audit before and after reversible transfer; keep all data rollback.",
         "evidence": [
-          "tests/control-plane-ecosystem-chain.test.ts"
+          "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Roadmap authority updates are governance changes that should not be merged with new SQL migrations.",
-        "resolution": "One bounded documentation/authority unit local only, exact F23 base and no deployment.",
+        "finding": "Test-only local PostgreSQL fixture is single medium quality infra unit.",
+        "resolution": "Exact F24 parent Release Risk 2/5, no product migration or hosted target.",
         "evidence": [
-          "quality/knowledge/architecture-constitution.v1.json"
+          "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
+        ]
+      },
+      {
+        "role": "Operations",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Rollback and local ephemeral Postgres cleanup must remain fail closed.",
+        "resolution": "Keep one transaction with ROLLBACK and assert no fixture records; stop isolated database.",
+        "evidence": [
+          "tests/fixtures/customer-baseline-team-chat-negative.sql"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-F24-01",
-        "scenario": "An Alap merchant submits an ordinary RFQ without using any Digital Office UI.",
-        "finding": "Old packageMatrix could reject RFQ outright because RFQ is bundled with Pro commercial opportunity workflow.",
-        "resolution": "Canonical Alap matrix must state independent simple request/response/offer/order path; execution remains blocked until safe API/DB implementation.",
+        "id": "CH-U10A2-F25-01",
+        "scenario": "A non-owner member attempts to transfer group ownership to another participant.",
+        "finding": "Could steal owner role through service-role RPC if owner predicate ineffective.",
+        "resolution": "Seed nonowner member; require OFFICE_THREAD_OWNER_REQUIRED.",
         "status": "resolved"
       },
       {
-        "id": "CH-F24-02",
-        "scenario": "An Alap merchant uses basic partner registration and merchant approval.",
-        "finding": "Old roadmap only recognizes ordinary customer group and might force verified multiuser company governance.",
-        "resolution": "Add simple partner onboarding to Alap while leaving multi-actor company approval/credit policies in Pro.",
+        "id": "CH-U10A2-F25-02",
+        "scenario": "Current owner selects themselves as the new owner.",
+        "finding": "Could log meaningless transfer and mask missing target guard.",
+        "resolution": "Require OFFICE_OWNER_TRANSFER_SELF_FORBIDDEN.",
         "status": "resolved"
       },
       {
-        "id": "CH-F24-03",
-        "scenario": "A Pro customer creates a contract-price list with signed terms.",
-        "finding": "Overbroad Alap entitlement might accidentally grant advanced pricing to baseline.",
-        "resolution": "Keep contract-specific price books, multi-level governance and credit policy Pro only.",
+        "id": "CH-U10A2-F25-03",
+        "scenario": "Current owner selects an account not participating in the group.",
+        "finding": "Cross-thread privilege escalation or ownerless state.",
+        "resolution": "Require OFFICE_OWNER_TRANSFER_TARGET_MEMBER_REQUIRED and unchanged state.",
         "status": "resolved"
       },
       {
-        "id": "CH-F24-04",
-        "scenario": "A Team Chat module is enabled for an Alap merchant due to legacy migration grants.",
-        "finding": "Old versioned SQL can make product copy contradictory to effective role authority.",
-        "resolution": "Keep Pro-only Office/Team Chat boundary, make effective entitlement reconciliation a separate mandatory downstream gate.",
+        "id": "CH-U10A2-F25-04",
+        "scenario": "A target exists in another tenant store, not this group.",
+        "finding": "Cross-tenant private chat role escalation.",
+        "resolution": "Create two real store fixtures; transfer must reject target with exact same-thread membership condition.",
         "status": "resolved"
       },
       {
-        "id": "CH-F24-05",
-        "scenario": "A developer updates prose but not machine-readable packageMatrix.",
-        "finding": "Runtime generators or agents may still source outdated Pro-only RFQ semantics.",
-        "resolution": "Automated test reads both scope and packageMatrix and rejects disagreement.",
+        "id": "CH-U10A2-F25-05",
+        "scenario": "An actor supplies thread id from second tenant but instance id from first.",
+        "finding": "Could authorize different tenant via mismatched parameter.",
+        "resolution": "Require OFFICE_INTERNAL_THREAD_NOT_FOUND for mismatched pair.",
         "status": "resolved"
       },
       {
-        "id": "CH-F24-06",
-        "scenario": "Another discussion later changes the Trial domain/retention policy.",
-        "finding": "Premature implementing partially collected commercial decisions can trigger destructive archival behavior.",
-        "resolution": "Record accepted-but-unsynced policies and open repeat-pause decision, hold runtime changes.",
+        "id": "CH-U10A2-F25-06",
+        "scenario": "Valid transfer demotes source but target promotion fails.",
+        "finding": "Group could become ownerless or have two owners.",
+        "resolution": "In one transaction, assert single owner, demoted source, and target owner; rollback on any exception.",
         "status": "resolved"
       },
       {
-        "id": "CH-F24-07",
-        "scenario": "Pro contract approvals are conflated with simple Alap RFQ.",
-        "finding": "Alap would be artificially crippled or Pro advanced governance accidentally enabled.",
-        "resolution": "Distinguish minimal RFQ route from governed RFQ→opportunity→approval→order in canonical matrix.",
+        "id": "CH-U10A2-F25-07",
+        "scenario": "Ownership transfer succeeds without audit log.",
+        "finding": "No accountable record of private group governance.",
+        "resolution": "Check admin_audit_log typed event, instance/thread metadata after transfer.",
         "status": "resolved"
       },
       {
-        "id": "CH-F24-08",
-        "scenario": "An agent sees roadmap accepted and declares B2B DONE.",
-        "finding": "No real entitlement/tenant/notification/quote→order end-to-end proof exists.",
-        "resolution": "Keep noSilentCompletion/Capability Closure and explicit implementation-proof blocker in note.",
+        "id": "CH-U10A2-F25-08",
+        "scenario": "New owner cannot transfer authority back.",
+        "finding": "Owner lifecycle not reversible or reads stale old owner state.",
+        "resolution": "Perform valid transfer back, assert original owner restored and sole-owner count.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Pass Critical Plan Before Code before editing roadmap.",
-      "Run B2B product decision sync regression checking scope and structured matrix plus no Office leakage.",
-      "Run architecture/roadmap authority guard, edit-time Reference Sync, Knowledge/Atlas and full shadow Replay.",
-      "Run exact F23 base release risk and TypeScript, no CI/Preview or data migrations.",
-      "Before advancing relevant production code verify Pro/Alap runtime entitlement and B2B/RFQ dependency closure on a separate release plan."
+      "Critical Plan Before Code before SQL test fixture edit.",
+      "One rollback-only positive/negative SQL test in real local PG18 with two store tenants, role memberships, owner transfer and audit.",
+      "Complete 69 on-disk SQL migrations and official pre/postflight, existing RLS/trigger negative DML.",
+      "New Vitest plus full customer regressions, TypeScript, Edit-Time, Knowledge and full incremental Shadow Replay, exact F24 risk 2/5.",
+      "Native managed Supabase JWT/session and Pro downgrade remain BLOCKED."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 F24 accepted PO package decision reconciliation: Alap complete B2C plus simple B2B/partner pricing/MOQ/RFQ without Digital Office; Pro advanced contractual B2B and full Digital Office only; canonical Living Roadmap and regression, no product runtime or hosted writes",
+      "request": "Core #1186 U10A2 F25: add local isolated real PG18 positive and adversarial Team Chat owner transfer with two tenant fixture users, roles, group, transaction rollback; no product SQL or hosted DB",
       "authority": [
         "quality-knowledge-system"
       ],
       "mustEdit": [
-        "quality/knowledge/living-roadmap.v2.json"
+        "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
       ],
       "mayEdit": [],
-      "impactedReadOnly": [
-        "quality/knowledge/architecture-constitution.v1.json",
-        "quality/knowledge/codebase-atlas-policy.v2.json",
-        "quality/knowledge/development-guard-policy.v1.json",
-        "quality/knowledge/shoperation-quality-knowledge.v1.json",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/lib/shoperation-reference-sync-runtime.mjs",
-        "scripts/template-factory-quality-gate.mjs",
-        "src/app/account-workflow.css",
-        "src/app/adatvedelem/page.tsx",
-        "src/app/admin/indulas/page.tsx",
-        "src/app/api/visual-fidelity/templates/route.ts",
-        "src/app/aszf/page.tsx",
-        "src/app/impresszum/page.tsx",
-        "src/app/kereses/page.tsx",
-        "src/app/oldal/[slug]/page.tsx",
-        "src/app/szallitas-es-fizetes/page.tsx",
-        "src/components/account/storefront-account-shell.tsx",
-        "src/components/admin/content-manager.tsx",
-        "src/components/admin/storefront-fidelity-layout-controls.tsx",
-        "src/components/admin/storefront-fidelity-node-controls.tsx",
-        "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
-        "src/components/admin/storefront-saved-blocks-panel.tsx",
-        "src/components/admin/storefront-visual-builder-production.tsx",
-        "src/components/admin/storefront-visual-builder-v3.tsx",
-        "src/components/admin/team-member-controls.tsx",
-        "src/components/builder/storefront-commerce-header.module.css",
-        "src/components/builder/storefront-commerce-header.tsx",
-        "src/components/builder/storefront-commerce.tsx",
-        "src/components/builder/storefront-primitives.tsx",
-        "src/components/builder/storefront-purchase-controls.tsx",
-        "src/components/builder/storefront-structured-product.tsx",
-        "src/components/builder/storefront-support.tsx",
-        "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
-        "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
-        "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
-        "src/lib/quality-system/architecture-constitution.ts",
-        "src/lib/quality-system/capability-evidence.ts",
-        "src/lib/quality-system/domain-foundations.ts",
-        "src/lib/quality-system/shoperation-knowledge.ts",
-        "tests/capability-roadmap-evidence.test.ts"
-      ],
+      "impactedReadOnly": [],
       "mustCreate": [
-        "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
-        "tests/product-decision-b2b-capability-reconciliation.test.ts"
+        "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+        "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql"
       ],
       "forbidden": [],
       "proof": [
-        "Pass Critical Plan Before Code before editing roadmap.",
-        "Run B2B product decision sync regression checking scope and structured matrix plus no Office leakage.",
-        "Run architecture/roadmap authority guard, edit-time Reference Sync, Knowledge/Atlas and full shadow Replay.",
-        "Run exact F23 base release risk and TypeScript, no CI/Preview or data migrations.",
-        "Before advancing relevant production code verify Pro/Alap runtime entitlement and B2B/RFQ dependency closure on a separate release plan."
+        "Critical Plan Before Code before SQL test fixture edit.",
+        "One rollback-only positive/negative SQL test in real local PG18 with two store tenants, role memberships, owner transfer and audit.",
+        "Complete 69 on-disk SQL migrations and official pre/postflight, existing RLS/trigger negative DML.",
+        "New Vitest plus full customer regressions, TypeScript, Edit-Time, Knowledge and full incremental Shadow Replay, exact F24 risk 2/5.",
+        "Native managed Supabase JWT/session and Pro downgrade remain BLOCKED."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -380,98 +324,16 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "quality/knowledge/living-roadmap.v2.json"
+          "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
         ],
         "mayEdit": [],
-        "impactedReadOnly": [
-          "quality/knowledge/architecture-constitution.v1.json",
-          "quality/knowledge/codebase-atlas-policy.v2.json",
-          "quality/knowledge/development-guard-policy.v1.json",
-          "quality/knowledge/shoperation-quality-knowledge.v1.json",
-          "scripts/lib/shoperation-operational-intelligence.mjs",
-          "scripts/lib/shoperation-reference-sync-runtime.mjs",
-          "scripts/template-factory-quality-gate.mjs",
-          "src/app/account-workflow.css",
-          "src/app/adatvedelem/page.tsx",
-          "src/app/admin/indulas/page.tsx",
-          "src/app/api/visual-fidelity/templates/route.ts",
-          "src/app/aszf/page.tsx",
-          "src/app/impresszum/page.tsx",
-          "src/app/kereses/page.tsx",
-          "src/app/oldal/[slug]/page.tsx",
-          "src/app/szallitas-es-fizetes/page.tsx",
-          "src/components/account/storefront-account-shell.tsx",
-          "src/components/admin/content-manager.tsx",
-          "src/components/admin/storefront-fidelity-layout-controls.tsx",
-          "src/components/admin/storefront-fidelity-node-controls.tsx",
-          "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
-          "src/components/admin/storefront-saved-blocks-panel.tsx",
-          "src/components/admin/storefront-visual-builder-production.tsx",
-          "src/components/admin/storefront-visual-builder-v3.tsx",
-          "src/components/admin/team-member-controls.tsx",
-          "src/components/builder/storefront-commerce-header.module.css",
-          "src/components/builder/storefront-commerce-header.tsx",
-          "src/components/builder/storefront-commerce.tsx",
-          "src/components/builder/storefront-primitives.tsx",
-          "src/components/builder/storefront-purchase-controls.tsx",
-          "src/components/builder/storefront-structured-product.tsx",
-          "src/components/builder/storefront-support.tsx",
-          "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
-          "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
-          "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
-          "src/lib/quality-system/architecture-constitution.ts",
-          "src/lib/quality-system/capability-evidence.ts",
-          "src/lib/quality-system/domain-foundations.ts",
-          "src/lib/quality-system/shoperation-knowledge.ts",
-          "tests/capability-roadmap-evidence.test.ts"
-        ],
+        "impactedReadOnly": [],
         "mustCreate": [
-          "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
-          "tests/product-decision-b2b-capability-reconciliation.test.ts"
+          "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+          "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql"
         ],
         "forbidden": [],
-        "proof": [
-          "tests/capability-roadmap-evidence.test.ts",
-          "tests/digital-commerce-builder-integration.test.tsx",
-          "tests/playroom-v20-canonical-shell-content.test.ts",
-          "tests/roadmap-block21-page-schema-templates.test.ts",
-          "tests/roadmap-block22-visual-builder.test.ts",
-          "tests/roadmap-block23-ai-builder-template-generation.test.ts",
-          "tests/shoperation-semantic-execution-intelligence.test.ts",
-          "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
-          "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
-          "tests/storefront-account-shell.test.ts",
-          "tests/storefront-beauty-lab-reference-v28.test.ts",
-          "tests/storefront-cart-presentation-contract.test.ts",
-          "tests/storefront-commerce-fidelity-slots.test.tsx",
-          "tests/storefront-commerce-header.test.tsx",
-          "tests/storefront-core-commerce.test.ts",
-          "tests/storefront-creator-station-wave36-reacceptance.test.ts",
-          "tests/storefront-fidelity-behavior.test.tsx",
-          "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
-          "tests/storefront-fidelity-diagnostics.test.ts",
-          "tests/storefront-fidelity-inspector.test.ts",
-          "tests/storefront-fidelity-layout.test.ts",
-          "tests/storefront-fidelity-primitive-renderers.test.tsx",
-          "tests/storefront-fidelity-security.test.ts",
-          "tests/storefront-global-styles.test.ts",
-          "tests/storefront-guided-fidelity-slots.test.tsx",
-          "tests/storefront-heritage-atelier-template.test.tsx",
-          "tests/storefront-heritage-atelier-wave28-reacceptance.test.tsx",
-          "tests/storefront-monarche-template.test.tsx",
-          "tests/storefront-monarche-wave43-reacceptance.test.ts",
-          "tests/storefront-performance-contract.test.ts",
-          "tests/storefront-playroom-reference-fidelity.test.ts",
-          "tests/storefront-playroom-reference-v2-fidelity.test.tsx",
-          "tests/storefront-playroom-template.test.tsx",
-          "tests/storefront-playroom-v18-image-slots.test.ts",
-          "tests/storefront-playroom-v19-complete.test.ts",
-          "tests/storefront-playroom-v19-page-family-presets.test.ts",
-          "tests/storefront-playroom-v19-subpage-parity.test.ts",
-          "tests/storefront-playroom-v19-visual-polish.test.ts",
-          "tests/storefront-playroom-v20-capability-consolidation.test.ts",
-          "tests/storefront-playroom-v20-functional-acceptance.test.ts"
-        ],
+        "proof": [],
         "authority": [
           "quality-knowledge-system"
         ],
@@ -492,19 +354,19 @@
         ],
         "files": [
           {
-            "file": "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "quality/knowledge/living-roadmap.v2.json",
+            "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/product-decision-b2b-capability-reconciliation.test.ts",
+            "file": "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
+          },
+          {
+            "file": "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -532,19 +394,19 @@
           ],
           "files": [
             {
-              "file": "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
-            {
-              "file": "quality/knowledge/living-roadmap.v2.json",
+              "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/product-decision-b2b-capability-reconciliation.test.ts",
+              "file": "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
+              "file": "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -559,31 +421,7 @@
           {
             "id": 0,
             "files": [
-              "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 1,
-            "files": [
-              "quality/knowledge/living-roadmap.v2.json"
+              "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -600,7 +438,7 @@
               ],
               "files": [
                 {
-                  "file": "quality/knowledge/living-roadmap.v2.json",
+                  "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -611,9 +449,9 @@
             }
           },
           {
-            "id": 2,
+            "id": 1,
             "files": [
-              "tests/product-decision-b2b-capability-reconciliation.test.ts"
+              "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -624,7 +462,31 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/product-decision-b2b-capability-reconciliation.test.ts",
+                  "file": "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 2,
+            "files": [
+              "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -642,36 +504,36 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "02c7f35a92786260cbc819de87c498b402389bd0"
+              "developmentBaseSha": "63e3cc8d1a4c4432f26e8113d0e3e91dbda9c768"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "02c7f35a92786260cbc819de87c498b402389bd0",
+            "targetBaseSha": "63e3cc8d1a4c4432f26e8113d0e3e91dbda9c768",
             "lease": {
-              "expectedBaseSha": "02c7f35a92786260cbc819de87c498b402389bd0",
+              "expectedBaseSha": "63e3cc8d1a4c4432f26e8113d0e3e91dbda9c768",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
-              "quality/knowledge/living-roadmap.v2.json",
-              "tests/product-decision-b2b-capability-reconciliation.test.ts"
+              "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+              "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+              "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql"
             ],
             "operations": [
               {
-                "operation": "create",
-                "file": "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
-                "generated": null
-              },
-              {
                 "operation": "modify",
-                "file": "quality/knowledge/living-roadmap.v2.json",
+                "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/product-decision-b2b-capability-reconciliation.test.ts",
+                "file": "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+                "generated": null
+              },
+              {
+                "operation": "create",
+                "file": "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql",
                 "generated": null
               }
             ],
@@ -697,19 +559,19 @@
               ],
               "files": [
                 {
-                  "file": "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "quality/knowledge/living-roadmap.v2.json",
+                  "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/product-decision-b2b-capability-reconciliation.test.ts",
+                  "file": "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                },
+                {
+                  "file": "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -738,61 +600,21 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/product-decision-b2b-capability-reconciliation.test.ts"
+                "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+                "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql"
               ],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
-            "readOnlyPaths": [
-              "quality/knowledge/architecture-constitution.v1.json",
-              "quality/knowledge/codebase-atlas-policy.v2.json",
-              "quality/knowledge/development-guard-policy.v1.json",
-              "quality/knowledge/shoperation-quality-knowledge.v1.json",
-              "scripts/lib/shoperation-operational-intelligence.mjs",
-              "scripts/lib/shoperation-reference-sync-runtime.mjs",
-              "scripts/template-factory-quality-gate.mjs",
-              "src/app/account-workflow.css",
-              "src/app/adatvedelem/page.tsx",
-              "src/app/admin/indulas/page.tsx",
-              "src/app/api/visual-fidelity/templates/route.ts",
-              "src/app/aszf/page.tsx",
-              "src/app/impresszum/page.tsx",
-              "src/app/kereses/page.tsx",
-              "src/app/oldal/[slug]/page.tsx",
-              "src/app/szallitas-es-fizetes/page.tsx",
-              "src/components/account/storefront-account-shell.tsx",
-              "src/components/admin/content-manager.tsx",
-              "src/components/admin/storefront-fidelity-layout-controls.tsx",
-              "src/components/admin/storefront-fidelity-node-controls.tsx",
-              "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
-              "src/components/admin/storefront-saved-blocks-panel.tsx",
-              "src/components/admin/storefront-visual-builder-production.tsx",
-              "src/components/admin/storefront-visual-builder-v3.tsx",
-              "src/components/admin/team-member-controls.tsx",
-              "src/components/builder/storefront-commerce-header.module.css",
-              "src/components/builder/storefront-commerce-header.tsx",
-              "src/components/builder/storefront-commerce.tsx",
-              "src/components/builder/storefront-primitives.tsx",
-              "src/components/builder/storefront-purchase-controls.tsx",
-              "src/components/builder/storefront-structured-product.tsx",
-              "src/components/builder/storefront-support.tsx",
-              "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
-              "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
-              "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
-              "src/lib/quality-system/architecture-constitution.ts",
-              "src/lib/quality-system/capability-evidence.ts",
-              "src/lib/quality-system/domain-foundations.ts",
-              "src/lib/quality-system/shoperation-knowledge.ts",
-              "tests/capability-roadmap-evidence.test.ts"
-            ],
+            "readOnlyPaths": [],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
-                "quality/knowledge/living-roadmap.v2.json",
-                "tests/product-decision-b2b-capability-reconciliation.test.ts"
+                "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+                "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+                "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql"
               ],
               "filesAbsent": []
             },
@@ -807,7 +629,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "2b006e27",
+            "manifestDigest": "08010378",
             "decision": "PASS"
           }
         ],
@@ -845,40 +667,36 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Product Owner explicitly accepted on 2026-10-09 Alap as complete B2C plus functional SIMPLE B2B partner registration/approval, partner groups/pricing, MOQ and RFQ even WITHOUT Pro Digital Office; Pro adds advanced contractual B2B, company multi-actor roles, credit limits and maker-checker. The canonical Living Roadmap v2 packageMatrix currently reserves all RFQ/offer, partner pricing and MOQ for Pro: silent authority conflict would cause wrong entitlement implementation. Reconcile ONLY accepted B2B package boundary in one canonical roadmap update, and add a transparent dated decision reconciliation note for separate accepted Trial/account/archive decisions that require their own work units; no runtime/API/SQL changes, no Full Capability Closure claim.",
+    "problemStatement": "Team Chat 2 owner transfer 0067 and integrity 0066 are already installed and basic privilege negative probes PASS on isolated PostgreSQL 18, but no actual authorized owner transfer or cross-tenant/forged actor rejection is tested. Extend only the existing local socket-only PG18 Fresh Install rehearsal with a rollback-only fixture that provisions disposable users, two tenant organizations/instances, scoped support role_bindings, an internal group thread and active owner/member participants; prove positive owner transfer, resulting sole owner and audit, self-transfer/nonowner/nonparticipant/cross-tenant rejection and reversible owner transfer. Preserve canonical 69 SQL migrations and pending managed Supabase/JWT/Pro acceptance.",
     "observableOutcomes": [
-      "Canonical MR1-PACKAGE-CAPABILITY-MATRIX scope 8 explicitly states Alap simple B2B RFQ works without Pro Digital Office, Pro only governed contract/complex B2B.",
-      "Structured packageMatrix.alap.capabilities explicitly enumerates partner registration/merchant approval, groups, standard partner prices/MOQ and simple RFQ/quote/order workflow without office; Pro retains advanced company governance and conditional RFQ/offer approval/terms.",
-      "B2B-MATURITY roadmap scope separates Alap baseline from advanced Pro requirements while preserving already accepted server-authority price provenance controls.",
-      "Dated product-decision discrepancy note explicitly distinguishes implemented canonical B2B delta, known accepted yet unsynced trial/store/account/archive decisions, truly open repeat-pause rule, and dependent product runtime that cannot be implemented before Decision Dependency Sync.",
-      "Targeted regression reads canonical roadmap object, checks accepted B2B package boundaries and no Pro Office leakage into Alap; whole-scope roadmap/Knowledge guard PASS.",
-      "No tenant/product or money-related runtime changes, no new grant/plan feature entitlement DDL and no hosted writes."
+      "All current 69 Fresh Install migrations still run on disposable PostgreSQL 18 with official preflight/auth/seed/postflight.",
+      "One rollback-only fixture creates two isolated test store identities and role-bound group participants; checks current owner and new member read permissions before transfer.",
+      "Real service-role-only owner RPC transfers active owner to member, verifies single owner, demoted source, audit and second transfer back.",
+      "Invalid self-transfer, non-owner, unknown target and cross-instance target are rejected with exact canonical error codes, not arbitrary failure.",
+      "Existing Team Chat RLS/catalog/mention negatives and Office email/reply proofs remain PASS; fixture data entirely rolled back.",
+      "Tests and Control Plane quality-infra risk 2/5 pass; native provider Auth/JWT, concurrency and Pro downgrade remain open."
     ],
     "unresolvedRisks": [
-      "Changing product roadmap alone does not change plan_capability_grants, storefront/admin/API or SQL rights; subsequent implementation is explicitly blocked on dependency chain closure.",
-      "Separate recent product decisions for Trial, account multi-store, domain/retention will need independent compatibility+schema impact assessment before code; note is not alternative canonical authority.",
-      "The module-by-module audit in other conversation is still ongoing: future accepted corrections may supersede these scope details and require re-reconciliation.",
-      "Older historical B2B narrative and code may still reserve all RFQ for Pro; requires explicit authority audit and migration-safe entitlement reconciliation.",
-      "No complete RFQ email/notification workflow or unit proof yet: avoid saying current Alap RFQ already works."
+      "Local trust fixture does not authenticate signed-in request to p_actor; forged service_role API identity remains a blocker for native Supabase proof.",
+      "Positive transfer under empty fixture cannot prove lock contention or concurrent transfers on populated tenants.",
+      "Actual role_binding/store permissions may differ on hosted target; native postflight and occupied-target read-only inventory required.",
+      "Two tenant fixture cannot simulate real multi-tenant JWT restrictions without native Auth claim binding."
     ],
     "scope": {
       "in": [
-        "Canonical roadmap wording/structured package matrix for accepted Alap simple B2B vs Pro advanced B2B.",
-        "B2B-MATURITY accepted boundary scope only, keep commercial rules intact.",
-        "Dated read-only decision discrepancy and implementation blocker doc with proven current vs accepted state.",
-        "Targeted product decision regression that fails if simple Alap RFQ disappears or Office leaks to Alap."
+        "Isolated Team Chat owner transfer positive/negative SQL fixture.",
+        "Existing local PostgreSQL harness invocation and rollback no-persist assertion.",
+        "Vitest fixture/harness security-contract source regressions."
       ],
       "out": [
-        "No actual plan_capability_grants/SQL/Core/Office/UI/server entitlement modification.",
-        "No alteration of template ordering, full Builder authority, 14 page matrix or other roadmap items.",
-        "No creation of independently competing product authority; canonical roadmap remains source of truth.",
-        "No staged/prod/Fresh Install DB, Vercel Preview, GitHub CI/PR push."
+        "No customer migrations, roadmap, plan capability grants or product worker/UI route changes.",
+        "No native hosted Supabase project writes, CI, Preview, PR push or subscriptions."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-09-B2B-ALAP-SIMPLE-RFQ-PRO-GOVERNED-20261010-SYNC",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F25-TEAM-CHAT-OWNER-PG-ROLE-TEST",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -896,11 +714,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F24-ALAP-RFQ-DECISION",
-        "requirement": "Reflect accepted Alap simple B2B/RFQ without Office in canonical structured package matrix; preserve Pro advanced B2B and Office and block product implementation pending dependencies.",
+        "id": "REQ-F25-OWNER-PG-POSITIVE",
+        "requirement": "Prove actual accepted/rejected Team Chat owner transfer on isolated local PostgreSQL with audit and owner singleton for two tenants; not native session authority.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "product-package-decision-authority-only",
+          "breadth": "local-pg-owner-transfer-runtime",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -921,8 +739,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F24-RFQ-PRO-ONLY",
-            "statement": "Canonical roadmap must not reserve all partner prices/MOQ/RFQ to Pro, nor allow Digital Office in Alap.",
+            "id": "NEG-F25-OWNER-SEIZE",
+            "statement": "Owner RPC must reject non-owner and other-tenant targets and preserve exactly one owner and audit under valid transfers.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -931,5 +749,5 @@
       }
     ]
   },
-  "notes": "F24 metadata-only accepted B2B PO package boundary sync, roadmap source of truth, explicit open Trial/account decisions and blocked runtime dependencies. NO entitlements implemented."
+  "notes": "F25 local-only owner transfer actual tenant/role positive negative DML, no product changes; managed Supabase and decisions remain OPEN."
 }
