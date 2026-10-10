@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1186-U08-NO-TENANT-STRICT-PRO-OFFICE",
   "task": "Core 1186 U08: deny strict Pro Digital Office capabilities without canonical webshop instance; preserve Alap commerce plan fallback",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "c3d81a1f",
   "changeBaseSha": "ad5dd579aa862f52f089993e489e61c19cbc6454",
   "plannedFilePatterns": [
@@ -1174,5 +1174,18 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "164909df5a8b407cfffb22ea3429a83da204fda1",
+    "closedAt": "2026-10-10T05:31:55.606Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U08-STRICT-PRO-OFFICE-NO-INSTANCE",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
