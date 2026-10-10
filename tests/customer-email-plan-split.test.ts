@@ -111,17 +111,25 @@ describe('Customer e-mail Alap / Pro plan split',()=>{
 });
 
 
-describe('Customer baseline 0046 genuine Fresh Install attestation',()=>{
-  it('attests the exact successful 0046 Fresh Install proof without claiming full Digital Office closure',()=>{
+describe('Historical 0046 Fresh Install proof versus current customer baseline authority',()=>{
+  it('retains the exact historical 0046 proof but rejects READY for the appended, unverified Office lineage',()=>{
     const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'));
-    expect(manifest.status).toBe('ready');
-    expect(manifest.freshInstallProofRequired).toBe(false);
-    expect(manifest.proofContractSha256).toBe('a04b0990e7cf7a0a21591b9fd81fa44d5010ca8818b7edb7f00397c6b84807bb');
+    // 0046 really passed an isolated empty-target replay. Subsequent 0047+ Office
+    // migrations are source reviewed, NOT part of that earlier successful run.
     expect(manifest.notes).toContain('37919705159');
     expect(manifest.notes).toContain('113806799257');
     expect(manifest.notes).toContain('0046_alap_team_chat_plan_grant_reconcile.sql');
+    expect(manifest.notes).toContain('a04b0990e7cf7a0a21591b9fd81fa44d5010ca8818b7edb7f00397c6b84807bb');
     expect(manifest.notes).toContain('not staging/production migration application');
     expect(manifest.notes).toContain('#1186 full authorization closure');
+
+    // F28/F28B's current lineage has 69 ordered SQL files through U10A2-F22.
+    // That expanded baseline must fail closed until its own *new* real proof.
+    expect(manifest.status).toBe('snapshot-reviewed');
+    expect(manifest.freshInstallProofRequired).toBe(true);
+    expect(manifest.proofContractSha256).toBeNull();
+    expect(manifest.notes).toContain('U10A2-F22');
+    expect(manifest.notes).toContain('native actor/tenant/Pro proofs still required');
     const ci=read('.github/workflows/ci.yml');
     expect(ci).toContain('name: Customer database baseline guard');
     expect(ci).toContain('npm run db:customer:guard');

@@ -46,20 +46,19 @@ describe('core transactional e-mail dispatch and order operational privilege con
 
   test('retains historical order e-mail Fresh Install evidence without claiming new migration proof prematurely',()=>{
     const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json')) as {status:string;freshInstallProofRequired:boolean;proofContractSha256:string|null;notes:string};
-    // Source changes after 0045 invalidate READY until a genuine empty-target
-    // proof of the new ordered migration chain has been recorded.
-    expect(['snapshot-reviewed','ready']).toContain(manifest.status);
+    // Historical 0046 Fresh Install passed, but U10A2 appended Office migrations
+    // after that proof. Current source-only status MUST NOT inherit old READY.
+    expect(manifest.status).toBe('snapshot-reviewed');
     if(manifest.status==='snapshot-reviewed'){
       expect(manifest.freshInstallProofRequired).toBe(true);
       expect(manifest.proofContractSha256).toBeNull();
       expect(manifest.notes).toContain('0046_alap_team_chat_plan_grant_reconcile.sql');
-      expect(manifest.notes).toContain('not yet empty-target verified');
+      expect(manifest.notes).toContain('GitHub Actions run 37919705159');
+      expect(manifest.notes).toContain('U10A2-F22');
+      expect(manifest.notes).toContain('native actor/tenant/Pro proofs still required');
     }else{
-      expect(manifest.freshInstallProofRequired).toBe(false);
-      expect(manifest.proofContractSha256).toMatch(/^[a-f0-9]{64}$/);
-      // The ready proof must cover the migration added after historical 0045.
-      expect(manifest.notes).toContain('0046_alap_team_chat_plan_grant_reconcile.sql');
-      expect(manifest.notes).toMatch(/0046[\s\S]*Fresh Install proof|Fresh Install proof[\s\S]*0046/i);
+      // A later real Fresh Install proof requires separately reviewed authority.
+      throw new Error('CUSTOMER_BASELINE_CURRENT_PROOF_NOT_ATTESTED');
     }
     expect(manifest.notes).toContain('0035_order_operational_authenticated_privilege_contract.sql');
     expect(manifest.notes).toContain('0036_product_documents_post_purchase_account_authority.sql');

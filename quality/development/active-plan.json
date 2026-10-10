@@ -1,39 +1,32 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-87478699",
-  "task": "Core #1186 U10A2 F28: prove Office Composer and Advanced Communication Hub server action actor/tenant/pro plan/delegation/response receipts with dynamic mocked RPC positive-negative tests; narrowly harden mismatched SQL success evidence where proven; source-only no hosted writes",
+  "taskId": "DEV-A4B8FDD7",
+  "task": "Core #1186 F28B: reconcile two stale CI tests with actually snapshot-reviewed 69-file customer baseline while preserving genuine historical 0046 Fresh Install proof and fail-closed native blockers; no product code, schema or policy changes",
   "status": "ready-for-implementation",
-  "guardDigest": "87478699",
-  "changeBaseSha": "dbfe010c8320e728a7d668cc1c4e673ddaa0ab3e",
+  "guardDigest": "a4b8fdd7",
+  "changeBaseSha": "5755f023f09ad7914faab554ce630e46cd4c9705",
   "plannedFilePatterns": [
-    "tests/office-composer-action-actor-f28.test.ts",
-    "tests/communication-hub-action-actor-f28.test.ts",
-    "src/app/admin/kommunikacio/iroda/composer-actions.ts",
-    "quality/development/active-plan.json",
-    "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md"
+    "tests/customer-email-plan-split.test.ts",
+    "tests/order-core-transactional-email-dispatch-contract.test.ts",
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "admin-operations",
+    "database-schema",
+    "shared-storefront",
     "storefront-ui"
   ],
-  "expectedDomains": [
-    "DOMAIN-ADMIN"
-  ],
-  "expectedAuthorities": [
-    "admin-operations"
-  ],
+  "expectedDomains": [],
+  "expectedAuthorities": [],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
     "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
     "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
@@ -43,25 +36,12 @@
     "SQ-KF-017",
     "SQ-KF-018",
     "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
-    "TF-KF-003",
     "TF-KF-004",
-    "TF-KF-005",
     "TF-KF-006",
-    "TF-KF-007",
-    "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
     "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
     "TF-KF-016",
     "TF-KF-017",
     "TF-KF-018",
@@ -76,18 +56,24 @@
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
+    "SQ-NK-007",
     "SQ-NK-008",
-    "SQ-NK-012"
+    "SQ-NK-009",
+    "SQ-NK-012",
+    "SQ-NK-014"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F28-OFFICE-ACTIONS",
-    "riskTier": "high",
+    "sourceRef": "PO-2026-10-11-CORE-1186-F28B-CI-BASELINE-TRUTH",
+    "riskTier": "medium",
     "assuranceCeiling": {
-      "level": "critical-practical",
-      "rationale": "Privileged service-role Office RPCs permit caller-supplied actor and tenant identifiers. This unit must prove trusted server provenance and negative rejection with executable isolated Server Action mocks, while native RLS and provider semantics remain out of scope.",
+      "level": "bounded-proof-correction",
+      "rationale": "CI quality tests for F28 contain stale assertions that mistake a previously verified 0046 Fresh Install state for the current 69-migration unverified baseline. Repair only the obsolete expectations, explicitly preserve historical 0046 run identity and current source-only blocked truth.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -100,30 +86,30 @@
         "fault-injection",
         "finite-state-exhaustion"
       ],
-      "deferredTechniques": []
+      "deferredTechniques": [
+        "native-managed-supabase-replay",
+        "customer-jwt-rls",
+        "migration-deployment"
+      ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "All exported Office Composer and advanced Communication Hub actions derive actor and tenant from server authentication/scope, not forged FormData.",
-        "Missing actor, Pro entitlement and missing tenant stop before any privileged RPC invocation.",
-        "Positive mocked draft, advanced ownership, thread relationship and email queue calls use the actual authenticated actor and scoped tenant.",
-        "Delegated send keeps authenticated actor separate from actingForUserId and passes delegation evidence into SQL rather than assuming ownership.",
-        "Mismatched or incomplete RPC receipts are treated as failure, never successful mutation or send.",
-        "Existing Office SQL contract and customer baseline remain unchanged, no hosted Supabase mutation.",
-        "Vitest dynamic action-mock tests, related regression guards, TypeScript and Edit-Time/Knowledge/Replay pass before any F28 commit."
+        "Historical 0046 Fresh Install proof identity, run, job and SHA remain asserted but are not used to mark the expanded 69-file baseline READY.",
+        "Both previously red tests verify current snapshot-reviewed status, freshInstallProofRequired true, proofContractSha256 null and late baseline dependency blockers.",
+        "The 0046 historical attestation does not get deleted, rewritten or falsely extended to 0067.",
+        "No product runtime code, migration or manifest status or customer data are changed for a stale test assertion.",
+        "Targeted tests, baseline validation, Plan Before Code, Edit-Time/Reference/Implementation, Knowledge/Replay and TypeScript pass on exact new commit."
       ],
       "invariants": [
-        "p_actor and p_instance_id originate from authenticated server request and required tenant context.",
-        "No denied access case calls service-role office RPC or revalidates a success path.",
-        "No mismatched returned id or draft/thread evidence can be accepted as successful.",
-        "Recipient customer, delegated user and sales owner fields are never elevated to authenticated p_actor."
+        "A historical 0046 clean-target proof is not a current full-baseline proof.",
+        "A snapshot-reviewed customer baseline cannot claim ready or a current proof hash.",
+        "CI harness never changes source truth or weakens application auth to force a pass."
       ],
       "forbiddenStates": [
-        "Caller-supplied actor or tenant becomes privileged RPC identity.",
-        "Alap user executes Pro-only advanced Office action.",
-        "Cross-tenant target silently passes without database source proof.",
-        "Mock tests are labeled as native Supabase JWT, RLS, provider or live entitlement proof.",
-        "CI/deployment or DB writes initiated by this local isolated unit."
+        "Test demands ready while manifest correctly has unverified append-only migrations.",
+        "An old proof SHA is copied into current manifest without current clean-target replay.",
+        "A test assertion for historical proof is dropped entirely.",
+        "Hosted database writes or deployments while addressing source-only CI harness drift."
       ]
     },
     "model": {
@@ -155,43 +141,37 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Actor from FormData forged into RPC identity",
-        "Tenant scope missing but action reaches RPC",
-        "Alap missing advanced entitlement reaches privileged RPC",
-        "Cross-tenant targets accepted by mocked RPC but wrongly claimed native proof",
-        "SQL error or inconsistent payload accepted as success",
-        "Delegation subject confused with operator actor",
-        "Misleading static string-test passes in place of executed action"
+        "Stale test expects READY from a historical 0046 proof even though 0067 is appended.",
+        "A removed literal phrase masks missing customer baseline proof.",
+        "A test can pass despite manifest switching to READY without new current-base attestation.",
+        "CI green is mislabeled native Supabase proof."
       ],
       "edgeCases": [
-        "Nullable actor and tenant",
-        "Forgery of actorId/userId/instanceId keys",
-        "Missing SQL result fields",
-        "Wrong returned draftId/id",
-        "Wrong returned email id/messageId",
-        "Wrong thread ID for reply",
-        "Delegated actingForUserId differs from actor",
-        "Different target customer/user in advanced relationship update"
+        "Historical proof number remains in appended notes",
+        "Later source-only migration appended after 0067",
+        "Manifest is snapshot-reviewed and null proof digest",
+        "Real future Fresh Install changes manifest to READY",
+        "Documentation vocabulary changes while machine status stays valid"
       ]
     },
     "alternatives": [
       {
-        "id": "F28-MOCK-BOUND",
-        "summary": "Vitest isolated dynamic Server Action mocks with strictly scoped response attestation tightening where negatives demonstrate a gap.",
+        "id": "F28B-TRUE-ASSERT",
+        "summary": "Update two stale tests to assert current machine-readable snapshot state, historical 0046 record and latest native blockers.",
         "disposition": "selected",
-        "reason": "Gives executable positive and adversarial actor/tenant/plan/receipt proof without database or provider side effects."
+        "reason": "Restores CI accuracy without weakening product code or lying about database readiness."
       },
       {
-        "id": "F28-STATIC",
-        "summary": "Add source text assertions to existing Office static tests without importing and invoking actual Server Actions.",
+        "id": "F28B-FAKE-READY",
+        "summary": "Change manifest status to READY and backfill the historical 0046 proof digest to satisfy obsolete tests.",
         "disposition": "rejected",
-        "reason": "Would not test the real runtime helper provenance and can hide authorization and response-identity mistakes."
+        "reason": "Would make a false statement about the expanded 69-migration baseline and violate Truth Gate."
       },
       {
-        "id": "F28-REWRITE",
-        "summary": "Rewrite all privileged Office RPCs and move auth into new SQL functions before targeted test evidence exists.",
+        "id": "F28B-SKIP",
+        "summary": "Disable the two failing test cases or CI quality step while the baseline migration work continues.",
         "disposition": "rejected",
-        "reason": "High risk of duplicating canonical authorities and causing DB deployment mismatch, contrary to narrow F28 remit."
+        "reason": "Would remove the safety assertion rather than correct the stale oracle."
       }
     ],
     "specialistReviews": [
@@ -199,195 +179,178 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A mocked service-role client can return any fabricated result; dynamic tests alone cannot prove deployed SQL and JWT/RLS boundaries.",
-        "resolution": "Mark evidence as local action provenance only, keep native Auth and target PostgreSQL/RLS blocker explicit.",
+        "finding": "Changing a CI test could suppress detection of a genuine new migration security regression.",
+        "resolution": "Preserve negative assertions for current snapshot-only manifest with true Fresh Install required and no current proof digest, and retain the native actor/RLS blocker.",
         "evidence": [
-          "src/app/admin/kommunikacio/iroda/composer-actions.ts"
+          "supabase/customer-baseline/manifest.json",
+          "tests/customer-email-plan-split.test.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Draft and outbound-mail receipts can contain individually valid but mutually inconsistent IDs.",
-        "resolution": "Challenge mismatched receipts in negative tests, harden existing composer source only if proven.",
+        "finding": "Historical 0046 run metadata is valid for the old lineage but does not prove newly added Office migrations.",
+        "resolution": "Assert historical job, run and digest only in explanatory notes, never as current machine proof digest.",
         "evidence": [
-          "src/app/admin/kommunikacio/iroda/composer-actions.ts"
+          "supabase/customer-baseline/manifest.json"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Live hosted database and deployment releases lack necessary target readiness, and F27 is only on backup branch.",
-        "resolution": "Retain F27 as immutable parent, run isolated local tests and source gates, defer deployment/merge.",
+        "finding": "Full CI failed on two obsolete test oracles, causing expected downstream Completion Truth blocking.",
+        "resolution": "Use a new branch off exact F28 commit, update assertions only, run targeted local tests and exact-head CI; keep main untouched.",
         "evidence": [
-          "quality/development/active-plan.json"
+          "tests/order-core-transactional-email-dispatch-contract.test.ts"
         ]
       },
       {
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Previous sandbox restarts consumed runtime without passing production readiness gates.",
-        "resolution": "Reuse existing named sandbox for bounded unit, do not issue unnecessary GitHub Actions, Vercel preview, or Supabase write.",
+        "finding": "No extra paid infrastructure or target DB reset is needed for correcting test assertions.",
+        "resolution": "Use existing original sandbox snapshot and no provider calls/deployments.",
         "evidence": [
-          "AGENTS.md"
+          "quality/development/active-plan.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "F28-CH1",
-        "scenario": "FormData contains actorId and instanceId belonging to an admin of a different tenant.",
-        "finding": "Server Action must ignore these values and obtain principal and tenant from trusted server scope.",
-        "resolution": "Spy on called RPC parameters and assert they equal mocked authenticated actor/tenant.",
+        "id": "F28B-CH-01",
+        "scenario": "Snapshot contains a valid historical 0046 proof but is not current clean-target verified after U10A2 F22.",
+        "finding": "Old READY test would fail despite system being correctly fail-closed.",
+        "resolution": "Assert current snapshot-reviewed, empty current proof digest and historical attestation separately.",
         "status": "resolved"
       },
       {
-        "id": "F28-CH2",
-        "scenario": "A support.manage actor is missing or has no Pro entitlement.",
-        "finding": "No privileged Office or advanced Hub RPC may be invoked by a denied actor.",
-        "resolution": "Fault-inject null actor and rejected plan gate and assert zero RPC invocations.",
+        "id": "F28B-CH-02",
+        "scenario": "Tester replaces an old phrase with a trivial string presence check.",
+        "finding": "CI could become green even when actual Fresh Install readiness is fabricated.",
+        "resolution": "Couple textual historical evidence to mandatory machine status, freshInstallProofRequired and proofContractSha256 null.",
         "status": "resolved"
       },
       {
-        "id": "F28-CH3",
-        "scenario": "Provider SQL response claims an id that differs from associated returned draftId or messageId.",
-        "finding": "A merely nonempty success receipt can be forged or stale without application noticing.",
-        "resolution": "Add negative success-receipt test and narrowly tighten existing source validation.",
+        "id": "F28B-CH-03",
+        "scenario": "Current baseline is later upgraded to READY on a genuine verified target.",
+        "finding": "The deliberately pinned snapshot expectation should block unreviewed state promotion until true proof is independently assessed.",
+        "resolution": "Treat future READY as a separate explicit proof update with new exact-head CI and review, not an auto-pass.",
         "status": "resolved"
       },
       {
-        "id": "F28-CH4",
-        "scenario": "A staff member uses actingForUserId while composing delegated customer email.",
-        "finding": "Acting-for user is subject, not the actual caller; otherwise audit trail and SQL delegation can be falsified.",
-        "resolution": "Verify separate p_actor and actingForUserId in RPC payload, and prove SQL error is fail closed.",
-        "status": "resolved"
-      },
-      {
-        "id": "F28-CH5",
-        "scenario": "Cross-tenant customer or thread target is sent in action payload and mocked SQL returns success.",
-        "finding": "Action-level provenance does not prove SQL member/read and tenant relationship constraints.",
-        "resolution": "Prove actor and tenant binding in action mocks; leave native SQL same-tenant and RLS proof open.",
-        "status": "resolved"
-      },
-      {
-        "id": "F28-CH6",
-        "scenario": "Advanced relationships RPC returns a valid-looking success object with wrong target or false advancedEntitlement.",
-        "finding": "UI might report a relationship update despite failed entitlement or target substitution.",
-        "resolution": "Verify explicit target and advancedEntitlement equality checks and fail closed on mismatches.",
+        "id": "F28B-CH-04",
+        "scenario": "CI fails downstream Completion Truth because the quality test command was nonzero.",
+        "finding": "Patching Completion Truth rather than test oracle would undermine evidence integrity.",
+        "resolution": "Leave all gates intact; repair only the invalid test assertions and verify downstream gate independently.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Generate and pass Development Guard plus independent Plan Before Code before implementation.",
-      "Use isolated Vitest imports/mocks to execute Server Actions with forged actor/tenant and denied Pro/scope.",
-      "Prove authenticated identity and scoped tenant are the only p_actor and p_instance_id values sent to privileged RPCs.",
-      "Inject inconsistent draft/email and advanced Hub success receipts; enforce fail-closed behavior.",
-      "Run targeted tests, Office/Team Chat source regressions, TypeScript, customer baseline, Edit-Time/Knowledge/Incremental Replay, and release-risk check.",
-      "No database write, provider send, main merge, new preview, or claim of native JWT/RLS proof."
+      "Read actual full CI failed test expectations and compare with manifest truth of current 69-file baseline.",
+      "Prove both red tests fail before repair and pass after narrow assertion edits.",
+      "Run customer-baseline guard, relevant customer-email and order email tests and source security regressions.",
+      "Run Plan Before Code, Edit-Time/Reference/Implementation Sync, Knowledge/Replay, TypeScript and release risk.",
+      "Push a new non-merged branch with separate exact-head CI; no hosted database or preview."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F28: prove Office Composer and Advanced Communication Hub server action actor/tenant/pro plan/delegation/response receipts with dynamic mocked RPC positive-negative tests; narrowly harden mismatched SQL success evidence where proven; source-only no hosted writes",
+      "request": "Core #1186 F28B: reconcile two stale CI tests with actually snapshot-reviewed 69-file customer baseline while preserving genuine historical 0046 Fresh Install proof and fail-closed native blockers; no product code, schema or policy changes",
       "authority": [
-        "admin-operations",
-        "auth-access-authority",
-        "builder-template-system",
-        "catalog-inventory-authority",
-        "commerce-core-authority",
-        "content-authority",
-        "integration-adapter-authority",
-        "quality-knowledge-system",
-        "shared-storefront",
-        "tenant-context-authority"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        "src/app/admin/kommunikacio/iroda/composer-actions.ts"
+        "tests/customer-email-plan-split.test.ts",
+        "tests/order-core-transactional-email-dispatch-contract.test.ts"
       ],
       "mayEdit": [
         "quality/development/active-plan.json"
       ],
       "impactedReadOnly": [
-        "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
-        "src/app/adatvedelem/page.tsx",
-        "src/app/admin/kommunikacio/chat/page.tsx",
-        "src/app/admin/kommunikacio/iroda/actions.ts",
-        "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
-        "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
-        "src/app/admin/kommunikacio/iroda/hub/page.tsx",
+        "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
+        "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
+        "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
+        "src/app/admin/email-sablonok/brand-kit/page.tsx",
+        "src/app/admin/email-sablonok/page.tsx",
+        "src/app/admin/kampanyok/[id]/page.tsx",
+        "src/app/admin/kampanyok/page.tsx",
+        "src/app/admin/kommunikacio/felugyelet/page.tsx",
         "src/app/admin/kommunikacio/iroda/page.tsx",
-        "src/app/admin/kommunikacio/iroda/uj/page.tsx",
-        "src/app/admin/kommunikacio/loading.tsx",
+        "src/app/admin/kommunikacio/tiltolista/page.tsx",
+        "src/app/admin/kuponok/page.tsx",
+        "src/app/admin/marketing/page.tsx",
+        "src/app/admin/novekedes/page.tsx",
         "src/app/admin/page.tsx",
-        "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
-        "src/app/admin/ugyfelszolgalat/page.tsx",
+        "src/app/admin/tartalom/page.tsx",
+        "src/app/admin/velemenyek/actions.ts",
+        "src/app/admin/velemenyek/page.tsx",
+        "src/app/api/admin/campaigns/manage/route.ts",
+        "src/app/api/admin/campaigns/route.ts",
+        "src/app/api/admin/communication/enqueue/route.ts",
         "src/app/api/admin/communication/manage/route.ts",
-        "src/app/api/admin/office/business-objects/route.ts",
-        "src/app/api/admin/office/delegations/route.ts",
-        "src/app/api/admin/office/email-attachments/prepare/route.ts",
-        "src/app/api/admin/office/email-attachments/scan/route.ts",
-        "src/app/api/admin/office/email-attachments/status/route.ts",
-        "src/app/api/admin/office/support-attention/route.ts",
-        "src/app/api/admin/support/[id]/messages/route.ts",
-        "src/app/api/admin/support/[id]/route.ts",
-        "src/components/admin/digital-office-chat-dock.tsx",
-        "src/components/admin/office-customer-email-form.tsx",
-        "src/components/admin/office-new-email-composer.tsx",
-        "src/components/admin/use-office-draft-autosave.ts",
+        "src/app/api/admin/communication/suppression/route.ts",
+        "src/app/api/admin/content/[id]/route.ts",
+        "src/app/api/admin/content/route.ts",
+        "src/app/api/admin/coupons/route.ts",
+        "src/app/api/admin/email-builder/brand-kit/route.ts",
+        "src/app/api/admin/email-builder/preview/route.ts",
+        "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
+        "src/app/api/admin/email-builder/saved-blocks/route.ts",
+        "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
+        "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
+        "src/app/api/admin/email-builder/templates/[id]/route.ts",
+        "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
+        "src/app/api/admin/email-builder/templates/route.ts",
+        "src/app/api/admin/growth/run/route.ts",
+        "src/app/api/admin/promotions/preview/route.ts",
+        "src/lib/auth/store-capabilities.ts",
         "src/lib/auth/store-rbac.ts",
         "src/lib/digital-office/access.ts",
-        "src/lib/navigation/admin-ia.ts",
-        "tests/digital-office-autosave-concurrency.test.ts",
-        "tests/digital-office-chat-composer-hardening.test.ts",
-        "tests/digital-office-composer-drafts-foundation.test.ts",
-        "tests/digital-office-internal-chat-capability-gate.test.ts",
-        "tests/digital-office-private-attachments.test.ts",
-        "tests/digital-office-support-ticket-integration.test.ts",
-        "tests/digital-office-unified-ui.test.ts",
-        "tests/fine-grained-store-rbac.test.ts",
-        "tests/merchant-read-page-scope.test.ts",
-        "tests/office-suppression-feedback.test.ts",
-        "tests/pro-entitlement-guards.test.ts"
+        "src/lib/navigation/admin-ia.ts"
       ],
-      "mustCreate": [
-        "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
-        "tests/communication-hub-action-actor-f28.test.ts",
-        "tests/office-composer-action-actor-f28.test.ts"
-      ],
+      "mustCreate": [],
       "forbidden": [],
       "proof": [
         "tests/admin-api-tenant-mutation-closure.test.ts",
         "tests/admin-growth-refresh-evidence.test.ts",
         "tests/admin-route-rbac.test.ts",
+        "tests/block12-migration-assistant.test.ts",
+        "tests/block14-catalog-onboarding-import-ux.test.ts",
+        "tests/block16-commerce-recovery-integration.test.ts",
+        "tests/block18-ai-assisted-decisioning.test.ts",
+        "tests/block19-predictive-optimization-autonomy.test.ts",
+        "tests/block20-platform-ecosystem.test.ts",
         "tests/block5-role-aware-ui.test.ts",
+        "tests/block7-b2b-account-ownership.test.ts",
         "tests/campaign-creation-fail-closed.test.ts",
         "tests/campaign-lifecycle-evidence-atomicity.test.ts",
-        "tests/campaign-office-mutation-read-safety.test.ts",
-        "tests/communication-app-final-shell.test.ts",
-        "tests/customer-email-plan-split.test.ts",
-        "tests/digital-office-autosave-concurrency.test.ts",
-        "tests/digital-office-chat-composer-hardening.test.ts",
-        "tests/digital-office-composer-drafts-foundation.test.ts",
-        "tests/digital-office-internal-chat-capability-gate.test.ts",
-        "tests/digital-office-privacy-foundation.test.ts",
-        "tests/digital-office-private-attachments.test.ts",
-        "tests/digital-office-support-ticket-integration.test.ts",
-        "tests/digital-office-team-chat-2-foundation.test.ts",
+        "tests/digital-commerce-builder-integration.test.tsx",
         "tests/digital-office-unified-ui.test.ts",
-        "tests/digital-office-workstation-final.test.ts",
         "tests/email-builder-d1-admin-shell.test.ts",
         "tests/email-builder-d2-editor.test.ts",
         "tests/email-builder-foundation-b.test.ts",
         "tests/email-builder-publication-lifecycle.test.ts",
         "tests/email-builder-saved-blocks.test.ts",
+        "tests/event-driven-workflow-automation.test.ts",
         "tests/executive-analytics-ux-closure.test.ts",
-        "tests/fine-grained-store-rbac.test.ts",
-        "tests/merchant-read-page-scope.test.ts",
-        "tests/office-suppression-feedback.test.ts",
-        "tests/pro-entitlement-guards.test.ts",
-        "tests/product-documents-merchant-acceptance.test.ts",
-        "tests/team-chat-server-actor-binding.test.ts"
+        "tests/merchant-admin-tenant-closure.test.ts",
+        "tests/pilot-acceptance-access.test.ts",
+        "tests/roadmap-block21-page-schema-templates.test.ts",
+        "tests/roadmap-block22-schema-policy.test.ts",
+        "tests/roadmap-block22-visual-builder.test.ts",
+        "tests/special-commerce-wave5-existing-engine-closure.test.ts",
+        "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
+        "tests/special-commerce-wave7-template2-adoption.test.ts",
+        "tests/storefront-beauty-lab-reference-v2.test.ts",
+        "tests/storefront-component-variants.test.ts",
+        "tests/storefront-editorial-atelier-template.test.tsx",
+        "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
+        "tests/storefront-fidelity-security.test.ts",
+        "tests/storefront-global-styles.test.ts",
+        "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
+        "tests/storefront-interactive-scene-commerce.test.tsx",
+        "tests/storefront-modern-luxe-template.test.tsx",
+        "tests/storefront-modern-luxe-wave46-reacceptance.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -399,124 +362,109 @@
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
           "quality/development/active-plan.json",
-          "src/app/admin/kommunikacio/iroda/composer-actions.ts"
+          "tests/customer-email-plan-split.test.ts",
+          "tests/order-core-transactional-email-dispatch-contract.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [
-          "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
-          "src/app/adatvedelem/page.tsx",
-          "src/app/admin/kommunikacio/chat/page.tsx",
-          "src/app/admin/kommunikacio/iroda/actions.ts",
-          "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
-          "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
-          "src/app/admin/kommunikacio/iroda/hub/page.tsx",
+          "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
+          "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
+          "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
+          "src/app/admin/email-sablonok/brand-kit/page.tsx",
+          "src/app/admin/email-sablonok/page.tsx",
+          "src/app/admin/kampanyok/[id]/page.tsx",
+          "src/app/admin/kampanyok/page.tsx",
+          "src/app/admin/kommunikacio/felugyelet/page.tsx",
           "src/app/admin/kommunikacio/iroda/page.tsx",
-          "src/app/admin/kommunikacio/iroda/uj/page.tsx",
-          "src/app/admin/kommunikacio/loading.tsx",
+          "src/app/admin/kommunikacio/tiltolista/page.tsx",
+          "src/app/admin/kuponok/page.tsx",
+          "src/app/admin/marketing/page.tsx",
+          "src/app/admin/novekedes/page.tsx",
           "src/app/admin/page.tsx",
-          "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
-          "src/app/admin/ugyfelszolgalat/page.tsx",
+          "src/app/admin/tartalom/page.tsx",
+          "src/app/admin/velemenyek/actions.ts",
+          "src/app/admin/velemenyek/page.tsx",
+          "src/app/api/admin/campaigns/manage/route.ts",
+          "src/app/api/admin/campaigns/route.ts",
+          "src/app/api/admin/communication/enqueue/route.ts",
           "src/app/api/admin/communication/manage/route.ts",
-          "src/app/api/admin/office/business-objects/route.ts",
-          "src/app/api/admin/office/delegations/route.ts",
-          "src/app/api/admin/office/email-attachments/prepare/route.ts",
-          "src/app/api/admin/office/email-attachments/scan/route.ts",
-          "src/app/api/admin/office/email-attachments/status/route.ts",
-          "src/app/api/admin/office/support-attention/route.ts",
-          "src/app/api/admin/support/[id]/messages/route.ts",
-          "src/app/api/admin/support/[id]/route.ts",
-          "src/components/admin/digital-office-chat-dock.tsx",
-          "src/components/admin/office-customer-email-form.tsx",
-          "src/components/admin/office-new-email-composer.tsx",
-          "src/components/admin/use-office-draft-autosave.ts",
+          "src/app/api/admin/communication/suppression/route.ts",
+          "src/app/api/admin/content/[id]/route.ts",
+          "src/app/api/admin/content/route.ts",
+          "src/app/api/admin/coupons/route.ts",
+          "src/app/api/admin/email-builder/brand-kit/route.ts",
+          "src/app/api/admin/email-builder/preview/route.ts",
+          "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
+          "src/app/api/admin/email-builder/saved-blocks/route.ts",
+          "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
+          "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
+          "src/app/api/admin/email-builder/templates/[id]/route.ts",
+          "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
+          "src/app/api/admin/email-builder/templates/route.ts",
+          "src/app/api/admin/growth/run/route.ts",
+          "src/app/api/admin/promotions/preview/route.ts",
+          "src/lib/auth/store-capabilities.ts",
           "src/lib/auth/store-rbac.ts",
           "src/lib/digital-office/access.ts",
-          "src/lib/navigation/admin-ia.ts",
-          "tests/digital-office-autosave-concurrency.test.ts",
-          "tests/digital-office-chat-composer-hardening.test.ts",
-          "tests/digital-office-composer-drafts-foundation.test.ts",
-          "tests/digital-office-internal-chat-capability-gate.test.ts",
-          "tests/digital-office-private-attachments.test.ts",
-          "tests/digital-office-support-ticket-integration.test.ts",
-          "tests/digital-office-unified-ui.test.ts",
-          "tests/fine-grained-store-rbac.test.ts",
-          "tests/merchant-read-page-scope.test.ts",
-          "tests/office-suppression-feedback.test.ts",
-          "tests/pro-entitlement-guards.test.ts"
+          "src/lib/navigation/admin-ia.ts"
         ],
-        "mustCreate": [
-          "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
-          "tests/communication-hub-action-actor-f28.test.ts",
-          "tests/office-composer-action-actor-f28.test.ts"
-        ],
+        "mustCreate": [],
         "forbidden": [],
         "proof": [
           "tests/admin-api-tenant-mutation-closure.test.ts",
           "tests/admin-growth-refresh-evidence.test.ts",
           "tests/admin-route-rbac.test.ts",
+          "tests/block12-migration-assistant.test.ts",
+          "tests/block14-catalog-onboarding-import-ux.test.ts",
+          "tests/block16-commerce-recovery-integration.test.ts",
+          "tests/block18-ai-assisted-decisioning.test.ts",
+          "tests/block19-predictive-optimization-autonomy.test.ts",
+          "tests/block20-platform-ecosystem.test.ts",
           "tests/block5-role-aware-ui.test.ts",
+          "tests/block7-b2b-account-ownership.test.ts",
           "tests/campaign-creation-fail-closed.test.ts",
           "tests/campaign-lifecycle-evidence-atomicity.test.ts",
-          "tests/campaign-office-mutation-read-safety.test.ts",
-          "tests/communication-app-final-shell.test.ts",
-          "tests/customer-email-plan-split.test.ts",
-          "tests/digital-office-autosave-concurrency.test.ts",
-          "tests/digital-office-chat-composer-hardening.test.ts",
-          "tests/digital-office-composer-drafts-foundation.test.ts",
-          "tests/digital-office-internal-chat-capability-gate.test.ts",
-          "tests/digital-office-privacy-foundation.test.ts",
-          "tests/digital-office-private-attachments.test.ts",
-          "tests/digital-office-support-ticket-integration.test.ts",
-          "tests/digital-office-team-chat-2-foundation.test.ts",
+          "tests/digital-commerce-builder-integration.test.tsx",
           "tests/digital-office-unified-ui.test.ts",
-          "tests/digital-office-workstation-final.test.ts",
           "tests/email-builder-d1-admin-shell.test.ts",
           "tests/email-builder-d2-editor.test.ts",
           "tests/email-builder-foundation-b.test.ts",
           "tests/email-builder-publication-lifecycle.test.ts",
           "tests/email-builder-saved-blocks.test.ts",
+          "tests/event-driven-workflow-automation.test.ts",
           "tests/executive-analytics-ux-closure.test.ts",
-          "tests/fine-grained-store-rbac.test.ts",
-          "tests/merchant-read-page-scope.test.ts",
-          "tests/office-suppression-feedback.test.ts",
-          "tests/pro-entitlement-guards.test.ts",
-          "tests/product-documents-merchant-acceptance.test.ts",
-          "tests/team-chat-server-actor-binding.test.ts"
+          "tests/merchant-admin-tenant-closure.test.ts",
+          "tests/pilot-acceptance-access.test.ts",
+          "tests/roadmap-block21-page-schema-templates.test.ts",
+          "tests/roadmap-block22-schema-policy.test.ts",
+          "tests/roadmap-block22-visual-builder.test.ts",
+          "tests/special-commerce-wave5-existing-engine-closure.test.ts",
+          "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
+          "tests/special-commerce-wave7-template2-adoption.test.ts",
+          "tests/storefront-beauty-lab-reference-v2.test.ts",
+          "tests/storefront-component-variants.test.ts",
+          "tests/storefront-editorial-atelier-template.test.tsx",
+          "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
+          "tests/storefront-fidelity-security.test.ts",
+          "tests/storefront-global-styles.test.ts",
+          "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
+          "tests/storefront-interactive-scene-commerce.test.tsx",
+          "tests/storefront-modern-luxe-template.test.tsx",
+          "tests/storefront-modern-luxe-wave46-reacceptance.test.ts"
         ],
         "authority": [
-          "admin-operations",
-          "auth-access-authority",
-          "builder-template-system",
-          "catalog-inventory-authority",
-          "commerce-core-authority",
-          "content-authority",
-          "integration-adapter-authority",
-          "quality-knowledge-system",
-          "shared-storefront",
-          "tenant-context-authority"
+          "quality-knowledge-system"
         ],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 2,
+        "score": 0,
         "maxPoints": 5,
-        "subsystemCount": 1,
+        "subsystemCount": 0,
         "maxSubsystems": 3,
-        "subsystems": [
-          {
-            "subsystem": "admin-operations",
-            "risk": "medium",
-            "points": 2
-          }
-        ],
+        "subsystems": [],
         "files": [
-          {
-            "file": "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
           {
             "file": "quality/development/active-plan.json",
             "subsystem": "evidence-neutral",
@@ -524,19 +472,13 @@
             "points": 0
           },
           {
-            "file": "src/app/admin/kommunikacio/iroda/composer-actions.ts",
-            "subsystem": "admin-operations",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "file": "tests/communication-hub-action-actor-f28.test.ts",
+            "file": "tests/customer-email-plan-split.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "tests/office-composer-action-actor-f28.test.ts",
+            "file": "tests/order-core-transactional-email-dispatch-contract.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -551,24 +493,12 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 2,
+          "score": 0,
           "maxPoints": 5,
-          "subsystemCount": 1,
+          "subsystemCount": 0,
           "maxSubsystems": 3,
-          "subsystems": [
-            {
-              "subsystem": "admin-operations",
-              "risk": "medium",
-              "points": 2
-            }
-          ],
+          "subsystems": [],
           "files": [
-            {
-              "file": "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
             {
               "file": "quality/development/active-plan.json",
               "subsystem": "evidence-neutral",
@@ -576,19 +506,13 @@
               "points": 0
             },
             {
-              "file": "src/app/admin/kommunikacio/iroda/composer-actions.ts",
-              "subsystem": "admin-operations",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "file": "tests/communication-hub-action-actor-f28.test.ts",
+              "file": "tests/customer-email-plan-split.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "tests/office-composer-action-actor-f28.test.ts",
+              "file": "tests/order-core-transactional-email-dispatch-contract.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -602,30 +526,6 @@
         "atomicComponents": [
           {
             "id": 0,
-            "files": [
-              "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 1,
             "files": [
               "quality/development/active-plan.json"
             ],
@@ -649,39 +549,9 @@
             }
           },
           {
-            "id": 2,
+            "id": 1,
             "files": [
-              "src/app/admin/kommunikacio/iroda/composer-actions.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "admin-operations",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "files": [
-                {
-                  "file": "src/app/admin/kommunikacio/iroda/composer-actions.ts",
-                  "subsystem": "admin-operations",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 3,
-            "files": [
-              "tests/communication-hub-action-actor-f28.test.ts"
+              "tests/customer-email-plan-split.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -692,7 +562,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/communication-hub-action-actor-f28.test.ts",
+                  "file": "tests/customer-email-plan-split.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -703,9 +573,9 @@
             }
           },
           {
-            "id": 4,
+            "id": 2,
             "files": [
-              "tests/office-composer-action-actor-f28.test.ts"
+              "tests/order-core-transactional-email-dispatch-contract.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -716,7 +586,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/office-composer-action-actor-f28.test.ts",
+                  "file": "tests/order-core-transactional-email-dispatch-contract.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -734,30 +604,23 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "dbfe010c8320e728a7d668cc1c4e673ddaa0ab3e"
+              "developmentBaseSha": "5755f023f09ad7914faab554ce630e46cd4c9705"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "dbfe010c8320e728a7d668cc1c4e673ddaa0ab3e",
+            "targetBaseSha": "5755f023f09ad7914faab554ce630e46cd4c9705",
             "lease": {
-              "expectedBaseSha": "dbfe010c8320e728a7d668cc1c4e673ddaa0ab3e",
+              "expectedBaseSha": "5755f023f09ad7914faab554ce630e46cd4c9705",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
               "quality/development/active-plan.json",
-              "src/app/admin/kommunikacio/iroda/composer-actions.ts",
-              "tests/communication-hub-action-actor-f28.test.ts",
-              "tests/office-composer-action-actor-f28.test.ts"
+              "tests/customer-email-plan-split.test.ts",
+              "tests/order-core-transactional-email-dispatch-contract.test.ts"
             ],
             "operations": [
-              {
-                "operation": "create",
-                "file": "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
-                "generated": null
-              },
               {
                 "operation": "modify",
                 "file": "quality/development/active-plan.json",
@@ -765,53 +628,30 @@
               },
               {
                 "operation": "modify",
-                "file": "src/app/admin/kommunikacio/iroda/composer-actions.ts",
+                "file": "tests/customer-email-plan-split.test.ts",
                 "generated": null
               },
               {
-                "operation": "create",
-                "file": "tests/communication-hub-action-actor-f28.test.ts",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "tests/office-composer-action-actor-f28.test.ts",
+                "operation": "modify",
+                "file": "tests/order-core-transactional-email-dispatch-contract.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [
-              "src/lib/auth/admin-api.ts",
-              "src/lib/instances/scope.ts",
-              "src/lib/plans/access.ts",
-              "src/lib/supabase/admin.ts"
+              "src/lib/plans/catalog.ts"
             ],
             "authorities": [
-              "admin-operations",
               "quality-knowledge-system"
             ],
-            "subsystems": [
-              "admin-operations"
-            ],
+            "subsystems": [],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 0,
               "maxPoints": 5,
-              "subsystemCount": 1,
+              "subsystemCount": 0,
               "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "admin-operations",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
+              "subsystems": [],
               "files": [
-                {
-                  "file": "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
                 {
                   "file": "quality/development/active-plan.json",
                   "subsystem": "evidence-neutral",
@@ -819,19 +659,13 @@
                   "points": 0
                 },
                 {
-                  "file": "src/app/admin/kommunikacio/iroda/composer-actions.ts",
-                  "subsystem": "admin-operations",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "file": "tests/communication-hub-action-actor-f28.test.ts",
+                  "file": "tests/customer-email-plan-split.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "tests/office-composer-action-actor-f28.test.ts",
+                  "file": "tests/order-core-transactional-email-dispatch-contract.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -842,94 +676,84 @@
             },
             "requiredGates": [
               "GUARD-COMPLETION-TRUTH",
-              "GUARD-CUSTOMER-BASELINE",
               "GUARD-EDIT-TIME",
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-KNOWLEDGE-PREFLIGHT",
-              "GUARD-MARKET-READY",
               "GUARD-PLAN-BEFORE-CODE",
               "GUARD-PRODUCTION-BUILD",
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK",
-              "GUARD-TEMPLATE-FACTORY",
               "GUARD-TYPECHECK"
             ],
             "requiredEvidence": {
               "gateIds": [
                 "GUARD-COMPLETION-TRUTH",
-                "GUARD-CUSTOMER-BASELINE",
                 "GUARD-EDIT-TIME",
                 "GUARD-INCREMENTAL-REPLAY",
                 "GUARD-KNOWLEDGE-PREFLIGHT",
-                "GUARD-MARKET-READY",
                 "GUARD-PLAN-BEFORE-CODE",
                 "GUARD-PRODUCTION-BUILD",
                 "GUARD-QUALITY-TESTS",
                 "GUARD-RELEASE-RISK",
-                "GUARD-TEMPLATE-FACTORY",
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/communication-hub-action-actor-f28.test.ts",
-                "tests/office-composer-action-actor-f28.test.ts"
+                "tests/customer-email-plan-split.test.ts",
+                "tests/order-core-transactional-email-dispatch-contract.test.ts"
               ],
-              "externalGateIds": [
-                "GUARD-TEMPLATE-FACTORY"
-              ]
+              "externalGateIds": []
             },
             "forbiddenPaths": [],
             "readOnlyPaths": [
-              "docs/architecture/SHOPERATION_OFFICE_RPC_ACTOR_INVENTORY_20261010.md",
-              "src/app/adatvedelem/page.tsx",
-              "src/app/admin/kommunikacio/chat/page.tsx",
-              "src/app/admin/kommunikacio/iroda/actions.ts",
-              "src/app/admin/kommunikacio/iroda/communication-hub-actions.ts",
-              "src/app/admin/kommunikacio/iroda/customer-read-actions.ts",
-              "src/app/admin/kommunikacio/iroda/hub/page.tsx",
+              "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
+              "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
+              "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
+              "src/app/admin/email-sablonok/brand-kit/page.tsx",
+              "src/app/admin/email-sablonok/page.tsx",
+              "src/app/admin/kampanyok/[id]/page.tsx",
+              "src/app/admin/kampanyok/page.tsx",
+              "src/app/admin/kommunikacio/felugyelet/page.tsx",
               "src/app/admin/kommunikacio/iroda/page.tsx",
-              "src/app/admin/kommunikacio/iroda/uj/page.tsx",
-              "src/app/admin/kommunikacio/loading.tsx",
+              "src/app/admin/kommunikacio/tiltolista/page.tsx",
+              "src/app/admin/kuponok/page.tsx",
+              "src/app/admin/marketing/page.tsx",
+              "src/app/admin/novekedes/page.tsx",
               "src/app/admin/page.tsx",
-              "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
-              "src/app/admin/ugyfelszolgalat/page.tsx",
+              "src/app/admin/tartalom/page.tsx",
+              "src/app/admin/velemenyek/actions.ts",
+              "src/app/admin/velemenyek/page.tsx",
+              "src/app/api/admin/campaigns/manage/route.ts",
+              "src/app/api/admin/campaigns/route.ts",
+              "src/app/api/admin/communication/enqueue/route.ts",
               "src/app/api/admin/communication/manage/route.ts",
-              "src/app/api/admin/office/business-objects/route.ts",
-              "src/app/api/admin/office/delegations/route.ts",
-              "src/app/api/admin/office/email-attachments/prepare/route.ts",
-              "src/app/api/admin/office/email-attachments/scan/route.ts",
-              "src/app/api/admin/office/email-attachments/status/route.ts",
-              "src/app/api/admin/office/support-attention/route.ts",
-              "src/app/api/admin/support/[id]/messages/route.ts",
-              "src/app/api/admin/support/[id]/route.ts",
-              "src/components/admin/digital-office-chat-dock.tsx",
-              "src/components/admin/office-customer-email-form.tsx",
-              "src/components/admin/office-new-email-composer.tsx",
-              "src/components/admin/use-office-draft-autosave.ts",
+              "src/app/api/admin/communication/suppression/route.ts",
+              "src/app/api/admin/content/[id]/route.ts",
+              "src/app/api/admin/content/route.ts",
+              "src/app/api/admin/coupons/route.ts",
+              "src/app/api/admin/email-builder/brand-kit/route.ts",
+              "src/app/api/admin/email-builder/preview/route.ts",
+              "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
+              "src/app/api/admin/email-builder/saved-blocks/route.ts",
+              "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
+              "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
+              "src/app/api/admin/email-builder/templates/[id]/route.ts",
+              "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
+              "src/app/api/admin/email-builder/templates/route.ts",
+              "src/app/api/admin/growth/run/route.ts",
+              "src/app/api/admin/promotions/preview/route.ts",
+              "src/lib/auth/store-capabilities.ts",
               "src/lib/auth/store-rbac.ts",
               "src/lib/digital-office/access.ts",
-              "src/lib/navigation/admin-ia.ts",
-              "tests/digital-office-autosave-concurrency.test.ts",
-              "tests/digital-office-chat-composer-hardening.test.ts",
-              "tests/digital-office-composer-drafts-foundation.test.ts",
-              "tests/digital-office-internal-chat-capability-gate.test.ts",
-              "tests/digital-office-private-attachments.test.ts",
-              "tests/digital-office-support-ticket-integration.test.ts",
-              "tests/digital-office-unified-ui.test.ts",
-              "tests/fine-grained-store-rbac.test.ts",
-              "tests/merchant-read-page-scope.test.ts",
-              "tests/office-suppression-feedback.test.ts",
-              "tests/pro-entitlement-guards.test.ts"
+              "src/lib/navigation/admin-ia.ts"
             ],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "docs/architecture/SHOPERATION_F28_OFFICE_ACTION_SECURITY_20261010.md",
                 "quality/development/active-plan.json",
-                "src/app/admin/kommunikacio/iroda/composer-actions.ts",
-                "tests/communication-hub-action-actor-f28.test.ts",
-                "tests/office-composer-action-actor-f28.test.ts"
+                "tests/customer-email-plan-split.test.ts",
+                "tests/order-core-transactional-email-dispatch-contract.test.ts"
               ],
               "filesAbsent": []
             },
@@ -944,7 +768,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "9d92b3ec",
+            "manifestDigest": "90673819",
             "decision": "PASS"
           }
         ],
@@ -965,10 +789,7 @@
           "GUARD-TYPECHECK",
           "GUARD-PRODUCTION-BUILD",
           "GUARD-COMPLETION-TRUTH",
-          "GUARD-CUSTOMER-BASELINE",
-          "GUARD-MARKET-READY",
-          "GUARD-RELEASE-RISK",
-          "GUARD-TEMPLATE-FACTORY"
+          "GUARD-RELEASE-RISK"
         ],
         "currentPhaseGateIds": [
           "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -981,49 +802,40 @@
           "GUARD-QUALITY-TESTS",
           "GUARD-TYPECHECK",
           "GUARD-PRODUCTION-BUILD",
-          "GUARD-COMPLETION-TRUTH",
-          "GUARD-CUSTOMER-BASELINE",
-          "GUARD-MARKET-READY",
-          "GUARD-TEMPLATE-FACTORY"
+          "GUARD-COMPLETION-TRUTH"
         ],
-        "externalGateIds": [
-          "GUARD-TEMPLATE-FACTORY"
-        ],
+        "externalGateIds": [],
         "issues": [],
         "decision": "PASS"
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The current Digital Office Composer and advanced Communication Hub use service-role RPCs which accept p_actor and p_instance_id supplied by the application. F27 inventory classifies these sources but does not execute the actions, leaving indirect helper provenance, missing Pro/tenant failure handling, delegated email subject separation and inconsistent RPC success receipts unproven. F28 supplies bounded positive and negative dynamic tests and narrow fail-closed response checks without changing deployed SQL or using the hosted database.",
+    "problemStatement": "Two pre-existing CI tests referenced superseded Fresh Install proof semantics: customer-email-plan-split expected READY and legacy order-email contract expected a removed prose marker. Current machine manifest is snapshot-reviewed with proof required and null current digest, while its long notes preserve authentic historical 0046 successful proof. Updating the legacy tests without changing the manifest prevents falsely attributing the 0046 proof to a much larger baseline.",
     "observableOutcomes": [
-      "Runnable mocks execute actual exported Composer and Hub Server Actions and confirm source identity matches authenticated request and scoped tenant even with malicious form fields.",
-      "Null auth actor, absent tenant and denied Pro all prevent privileged service-role RPC invocation.",
-      "Draft/send success receives complete consistent identifiers and negative inconsistent results fail closed.",
-      "Hub relationship and mailbox responsibility reject false entitlement and mismatched target receipts.",
-      "Local artifact states source-only proof ceiling and separates native Supabase/JWT/SQL and effective subscription blockers."
+      "Two original failing test cases pass while manifest remains snapshot-reviewed and historical exact run/job retained.",
+      "No machine proof contract is copied or invented; native checks remain explicitly blocked.",
+      "Tests guard against future incorrect automatic promotion and preserve code-free change scope."
     ],
     "unresolvedRisks": [
-      "Mock Supabase client does not prove actual role grants, JWT claims, service-role RPC deployed schema or native RLS.",
-      "External email provider send path and tenant-specific mailbox credentials are not tested in this F28 unit.",
-      "Pro to Alap transition and Fresh Install migration lineage require separate native database proof."
+      "Current appended Office and Team Chat migration lineage still lacks complete target Fresh Install proof.",
+      "Staging still has older Office RLS and no relevant advanced helper functions."
     ],
     "scope": {
       "in": [
-        "Local Office Composer Server Action mocks",
-        "Advanced Communication Hub Server Action mocks",
-        "Source-level response attestation fix if test fails"
+        "Two exact failing test contracts",
+        "Non-executable plan metadata"
       ],
       "out": [
-        "Managed Supabase writes or native auth/RLS acceptance",
-        "Live email provider send and webhooks",
-        "Package commercial design changes",
-        "Vercel Preview deployment"
+        "Customer baseline schema and manifest data",
+        "Production runtime source",
+        "Supabase hosted database operations",
+        "Vercel deployment"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F28-OFFICE-ACTIONS",
+    "sourceRef": "PO-2026-10-11-CORE-1186-F28B-CI-BASELINE-TRUTH",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -1035,24 +847,19 @@
         "GUARD-TYPECHECK",
         "GUARD-PRODUCTION-BUILD",
         "GUARD-COMPLETION-TRUTH",
-        "GUARD-CUSTOMER-BASELINE",
-        "GUARD-MARKET-READY",
-        "GUARD-RELEASE-RISK",
-        "GUARD-TEMPLATE-FACTORY"
+        "GUARD-RELEASE-RISK"
       ],
-      "externalGuards": [
-        "GUARD-TEMPLATE-FACTORY"
-      ],
+      "externalGuards": [],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-F28-OFFICE-ACTION-PROVENANCE",
-        "requirement": "Executable isolated Server Action positive and negative tests prove server-owned actor and tenant, strict Pro entitlement and fail-closed success receipts without claiming native database proof.",
+        "id": "REQ-F28B-CI-FRESH-TRUTH",
+        "requirement": "The two legacy CI test oracles must distinguish actual current baseline snapshot-reviewed state and historical 0046 ready proof without changing authoritative manifest.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-composer-advanced-hub-local-action-spy",
-          "strength": 2,
+          "breadth": "static-customer-baseline-test-contract",
+          "strength": 1,
           "dimensions": [
             "scope",
             "forbidden-state",
@@ -1065,23 +872,17 @@
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS",
-            "GUARD-TYPECHECK"
+            "GUARD-CUSTOMER-BASELINE"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-QUALITY-TESTS",
+            "GUARD-CUSTOMER-BASELINE"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F28-SPOOF",
-            "statement": "Forged operator or tenant fields never become privileged p_actor and p_instance_id.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          },
-          {
-            "id": "NEG-F28-RECEIPT",
-            "statement": "Contradictory or incomplete RPC receipts never return successful send/mutation.",
+            "id": "NEG-F28B-FAKE-READY",
+            "statement": "Tests must never imply current complete Fresh Install proof from a historical 0046 run.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1091,7 +892,6 @@
     ]
   },
   "notes": [
-    "F28 excludes live hosted Supabase, email send, native RLS and actual entitlement downgrade; source-only dynamic mock proof.",
-    "F28 semantic implementation authority clarification: active-plan.json is development metadata and is listed as mayEdit, not an executable mustEdit. getChangedFiles classifies it in metadataFiles; substantive composer-actions.ts remains mustEdit. No guard exception or relaxation of real implementation requirement."
+    "F28B CI failure correction is only test authority alignment, never source manifest or SQL modification."
   ]
 }
