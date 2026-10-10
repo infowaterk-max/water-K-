@@ -21,7 +21,8 @@ describe('Core #1186 U10A2 F7 canonical real inbound Office mailbox/routing base
   const files=readdirSync(root).filter(x=>x.endsWith('.sql')).sort();
   const idx=files.indexOf('0053_digital_office_rls_helper_exposure_closure_v1.sql');
   expect(idx).toBeGreaterThan(0);
-  expect(files[idx+1]).toBe('0054_digital_office_real_inbound_foundation_v1.sql');
+  expect(files[idx+1]).toBe('0053_inbound_office_email_atomic_v2.sql');
+  expect(files[idx+2]).toBe('0054_digital_office_real_inbound_foundation_v1.sql');
   expect(files.length).toBeGreaterThanOrEqual(55);
   expect(read(root+'0050_digital_office_privacy_foundation_v1.sql')).toContain('office_threads_id_instance_unique');
  });

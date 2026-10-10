@@ -1,14 +1,15 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2 F17: append-only 0064 canonical Office attachment metadata storage locator integrity constraints, no live DB/provider writes",
+  "task": "Core #1186 U10A2 F18: actual PostgreSQL empty-target proof found missing canonical record_inbound_office_email_v2 producer before 0054; add new sorted 0053_inbound_office_email_atomic_v2.sql plus regression and manifest, no live database writes",
   "status": "ready-for-implementation",
   "guardDigest": "2ebcb98e",
-  "changeBaseSha": "351bea28051ddbd29aa1e914bb5c4034bec7b301",
+  "changeBaseSha": "6771d1eafded599f48119befbcb3e26d4ee65d0f",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
+    "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
+    "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+    "tests/customer-baseline-office-real-inbound-foundation.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -38,7 +39,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F17-ATTACHMENT-INTEGRITY",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F18-REAL-PG-PREDECESSOR",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -59,26 +60,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Complete canonical 0064 SQL unchanged with SHA256, exactly ordered after 0063.",
-        "Three named constraints and original COMMENT statements for storage pair, ready locator and deleted locator.",
-        "Ready may use provider ID alone, non-ready states may have null metadata, deleted cannot retain pointers.",
-        "Preceding 0063 attachment RLS and browser revokes intact.",
-        "65 ordered migrations snapshot-reviewed, TypeScript/quality gates PASS, real target/Storage proof pending."
+        "The new SQL body is byte-identical to production canonical 20260903180000_inbound_office_email_atomic_v2.sql and SHA256 matches.",
+        "New migration sorts strictly between 0053_digital_office_rls_helper_exposure_closure_v1.sql and 0054_digital_office_real_inbound_foundation_v1.sql according to customer guard ordering.",
+        "Existing 0054 statement revokes public.record_inbound_office_email_v2 signature from PUBLIC, anon, authenticated and service_role after v3 creation, without altering canonical body.",
+        "Customer baseline guard reports 66 ordered files status snapshot-reviewed, null proofContractSha256 and freshInstallProofRequired=true; all targeted Vitest/TypeScript and Control Plane local gates PASS.",
+        "Isolated clean PostgreSQL replay of 0001 through 0064 plus inserted precursor completes without manually injecting producer after migration start; role/fixture differences documented.",
+        "No full Supabase/Fresh Install or Pro Office release completion claim solely from passing PostgreSQL and source tests.",
+        "Prior F7 regression is updated only for actual production dependency chronology; no reduction of SQL behavior validation."
       ],
       "invariants": [
-        "No half-specified private Storage locator.",
-        "No ready row without provider/storage locator.",
-        "No deleted row retaining live Storage/provider identifiers.",
-        "No altered RLS grants or binary uploads.",
-        "Canonical source/history preserved and no false READY status."
+        "No previously reviewed 0001-0064 bytes change or historical migration removed.",
+        "Sender-only v2 must not remain executable by service_role/anon/authenticated after 0054.",
+        "Original v3 tenant/mailbox/RFC/thread hardened path and 0060 UPDATE guard remain intact.",
+        "New 0053 precursor only used in offline fresh bootstraps before enabling any application request.",
+        "No hosted project mutation."
       ],
       "forbiddenStates": [
-        "storage_bucket nonnull with null path",
-        "ready with no locator or blank provider ID",
-        "deleted with provider ID or bucket/path",
-        "source tests interpreted as bucket ACL proof",
-        "historical SQL overwritten",
-        "snapshot ready without database acceptance"
+        "Skipping missing producer with fake no-op stub or ignoring 0054 SQL error.",
+        "Altering 0054 canonical SQL to hide a missing dependency and claiming SHA identity anyway.",
+        "Leaving legacy v2 EXECUTE granted when application traffic begins.",
+        "Treating an assisted diagnostic injection as a clean 65 migration success.",
+        "Rewriting a deployed ledger without new authority.",
+        "Manifest marked ready before real roles/RLS/tenants/provider and dependency closure."
       ]
     },
     "model": {
@@ -110,48 +113,47 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Existing invalid rows fail constraint",
-        "NULL SQL three-valued check surprises runtime",
-        "Whitespace provider ID passes ready check",
-        "Ready provider-only row wrongly rejected",
-        "Deleted source pointer remains",
-        "Missing COMMENT for a constraint",
-        "Attachment table absent",
-        "PUBLIC role sees attachment metadata",
-        "Incomplete canonical copy",
-        "Premature readiness"
+        "Original 0053a filename fails guard or sorts after 0054",
+        "Canonical body truncated/source hash drift",
+        "Function v2 depends on a missing table/type at 0053",
+        "Original 0054 REVOKE fails on missing overload",
+        "Legacy v2 grant remains on service_role after 0054",
+        "Source test assumes latest migration at end rather than relative order",
+        "Standalone auth fixture silently masks real Supabase role mismatch",
+        "Previously applied migration ledger diverges from new inserted filename",
+        "Duplicate saved source 0053 conflicts with hash files",
+        "Proof tool reports assisted run as clean Fresh Install"
       ],
       "edgeCases": [
-        "both storage fields null",
-        "both populated",
-        "only bucket",
-        "only path",
-        "ready provider-only",
-        "ready whitespace provider ID",
-        "deleted with stale provider ID",
-        "registered with no locator",
-        "quarantined before upload",
-        "failed upload cleanup"
+        "File sort 0053_digital before 0053_inbound before 0054",
+        "PostgreSQL 18 fresh zero user rows",
+        "v2 producer includes service_role grant then v3 revokes it",
+        "Customer role has inherited privileges",
+        "v2 overload types text,text,text,text,text",
+        "Real Supabase schema differences",
+        "Previously applied hosted ledger",
+        "Old status snapshot-reviewed null hash",
+        "Legacy canonical table mutation during offline bootstrap"
       ]
     },
     "alternatives": [
       {
-        "id": "F17-CANONICAL",
-        "summary": "Append original three CHECKs and comments in 0064 with SHA256.",
+        "id": "F18-CANONICAL-PREDECESSOR",
+        "summary": "Insert immutable 0053_inbound producer between existing 0053 and 0054 in unmerged local baseline.",
         "disposition": "selected",
-        "reason": "Ensures one canonical DB state contract and bounded release risk."
+        "reason": "Preserves canonical SQL identity and fixes actual missing producer proven by PostgreSQL error without hiding it."
       },
       {
-        "id": "F17-UI-ONLY",
-        "summary": "Validate ready/deleted and locator fields solely in React/admin API.",
+        "id": "F18-STUB",
+        "summary": "Create an empty dummy v2 function in test or production just to satisfy REVOKE.",
         "disposition": "rejected",
-        "reason": "Service-role/backfill SQL bypasses UI and direct data writes."
+        "reason": "False source/functional evidence and inadequate migration reproducibility."
       },
       {
-        "id": "F17-SKIP",
-        "summary": "Skip integrity and jump to Advanced Office.",
+        "id": "F18-EDIT-0054",
+        "summary": "Change old canonical 0054 to conditional REVOKE based on to_regprocedure.",
         "disposition": "rejected",
-        "reason": "Leaves metadata state invariants broken and dependencies unresolved."
+        "reason": "Breaks canonical source hash/historical immutability and can mask expected legacy state."
       }
     ],
     "specialistReviews": [
@@ -159,38 +161,39 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Metadata constraints do not enforce Storage policy, binary scan or authorized object download.",
-        "resolution": "Mark source-only and require real Storage, tenant/actor ACL and cleanup acceptance before release.",
+        "finding": "Producer v2 was retired for sender-only risky threading; temporarily restoring it risks unsafe API access if partial migration state is exposed.",
+        "resolution": "Only offline atomic new customer bootstrap before any app traffic; original 0054 revokes all direct execute roles, verify effective privileges and do not publish until full chain completes.",
         "evidence": [
-          "supabase/migrations/20260909203629_digital_office_attachment_metadata_integrity_v1.sql"
+          "supabase/migrations/20260903180000_inbound_office_email_atomic_v2.sql",
+          "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Invalid historical locator/status rows may prevent ALTER TABLE CHECK in occupied target.",
-        "resolution": "No live apply; separate read-only incompatible-row inventory, remediation and rollback.",
+        "finding": "Actual PostgreSQL 18 stopped exactly at 0054 on undefined v2 REVOKE; diagnostic original v2 then 0054-0064 succeeded.",
+        "resolution": "Place whole canonical producer before 0054 and rerun clean isolated PostgreSQL without manual interstitial producer calls, keep logs.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0063_digital_office_recipient_envelope_v1.sql"
+          "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Only one DB-schema subsystem must stay 5/5 budget.",
-        "resolution": "Source SQL+manifest+neutral tests, exact F16 base, no Preview/CI.",
+        "finding": "New migration filename sits inside source-reviewed unmerged baseline; never retroactively patch a deployed migration ledger.",
+        "resolution": "Confine patch to locally unmerged branch and single SQL subsystem 5/5 budget, require target ledger verification before merge.",
         "evidence": [
-          "deploy/release-risk-policy.json"
+          "supabase/customer-baseline/manifest.json"
         ]
       },
       {
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Deleting locator is not Storage object deletion and provider storage may remain.",
-        "resolution": "Keep object lifecycle/cleanup separate dependency and no external writes.",
+        "finding": "Standalone PG bootstrap uses limited Auth/Storage fixtures; this is valuable SQL runtime evidence, not production-equivalent Supabase or hosted project safety.",
+        "resolution": "Record fixture caveats, keep snapshot-reviewed, continue with real target role/seed/reconciliation gates later.",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -198,90 +201,95 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F17-01",
-        "scenario": "Upload worker sets a storage bucket then crashes before writing storage path.",
-        "finding": "A partial locator cannot be securely resolved for download and should never persist.",
-        "resolution": "The storage_pair CHECK compares bucket/path nullness and rejects mismatch.",
+        "id": "CH-U10A2-F18-01",
+        "scenario": "The initial 65 customer migrations execute on a blank PostgreSQL 18 instance and 0054 REVOKE names an undefined version 2 function.",
+        "finding": "Production-like Fresh Install stops at exactly 0054 instead of completing despite 133/133 static tests.",
+        "resolution": "Append full canonical 20260903180000 producer before 0054 and require an independent clean 66-file PostgreSQL replay, not a dummy function.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F17-02",
-        "scenario": "A ready attachment has no bucket/path and no provider attachment ID.",
-        "finding": "The UI could display an unusable download and misstate attachment readiness.",
-        "resolution": "Ready CHECK requires full pair or nonblank trimmed provider ID.",
+        "id": "CH-U10A2-F18-02",
+        "scenario": "An old app process can call the insecure sender-only v2 during a partially completed bootstrap between 0053 precursor and 0054 revocation.",
+        "finding": "Sender-only conversation merging could leak unrelated customer messages before a safer v3 routes by mailbox/token.",
+        "resolution": "Keep all migrations offline behind no-traffic gate and validate v2 EXECUTE revoked from service_role and browser roles at final state.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F17-03",
-        "scenario": "An attachment is stored with third-party provider ID but no internal bucket/path.",
-        "finding": "An overly broad requirement for internal Storage would reject legitimate provider-only attachments.",
-        "resolution": "Keep provider_attachment_id as valid alternative for ready state.",
+        "id": "CH-U10A2-F18-03",
+        "scenario": "The versioned filename does not sort before 0054, or violates strict four-digit filename grammar.",
+        "finding": "The REVOKE still fails or the guard rejects the new baseline even though a new SQL file exists.",
+        "resolution": "Use 0053_inbound_office_email_atomic_v2.sql after 0053_digital and before 0054, enforce lexicographic order in regression.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F17-04",
-        "scenario": "An attachment is marked deleted while retaining bucket, path or provider ID.",
-        "finding": "Residual private metadata can disclose stale locators and obstruct cleanup.",
-        "resolution": "Deleted CHECK requires all locator fields NULL.",
+        "id": "CH-U10A2-F18-04",
+        "scenario": "A developer copies a v2 no-op stub rather than the original canonical producer to make the migration continue.",
+        "finding": "The installation may technically pass but no longer reconstruct the real audited source sequence.",
+        "resolution": "Full canonical source-body byte identity and SHA256 against producer SQL, no stub substitutions.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F17-05",
-        "scenario": "A quarantined or registered attachment has not yet obtained any object locator.",
-        "finding": "A universal locator requirement would break valid ingestion and scanning lifecycle.",
-        "resolution": "Constraints only strengthen ready and deleted status transitions.",
+        "id": "CH-U10A2-F18-05",
+        "scenario": "Original 0054 canonical source is modified to conditional REVOKE while its previously published SHA256 annotation remains unchanged.",
+        "finding": "Historical schema authority and regression data become misleading and prevent deterministic replays.",
+        "resolution": "No edits to 0054 or any other older migration, only add one predecessor and manifest/test files.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F17-06",
-        "scenario": "Occupied staging contains old rows with storage_bucket but no storage_path.",
-        "finding": "Adding CHECK would fail or lock a populated Office table at deployment.",
-        "resolution": "Demand read-only incompatible-row inventory and approved remediation plan before live apply.",
+        "id": "CH-U10A2-F18-06",
+        "scenario": "The assisted diagnostic run with v2 directly injected is accidentally reported as successful clean Fresh Install.",
+        "finding": "Completion Truth would overstate the 65-file release and repeat previous template acceptance error.",
+        "resolution": "Record diagnostic separately and certify only a fresh empty DB with exact on-disk sorted source SQL and no manual insertion.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F17-07",
-        "scenario": "Authenticated browser selects Office attachment metadata even though CHECKs are valid.",
-        "finding": "Correct row consistency does not prevent cross-tenant file metadata leakage.",
-        "resolution": "Preserve 0063 RLS/browser revokes and require real effective PostgreSQL+Storage policy test.",
+        "id": "CH-U10A2-F18-07",
+        "scenario": "An already deployed database applied 0054 with v2 present from a different lineage, while the new baseline file is inserted at an old logical position.",
+        "finding": "Replay of a retroactive migration on occupied target could regrant an old dangerous RPC or conflict with migration ledger.",
+        "resolution": "No hosted database writes, check migration ledger under explicit authority before any deployment, and source patch only in unmerged branch.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F17-08",
-        "scenario": "A developer copies only two of three constraints yet declares F17 complete.",
-        "finding": "Deleted attachment provider pointers might remain and release truth would be false.",
-        "resolution": "Byte-for-byte SHA256 canonical source identity plus three CHECK and COMMENT tests.",
+        "id": "CH-U10A2-F18-08",
+        "scenario": "The clean standalone PostgreSQL SQL replay succeeds but actual Supabase Auth, Storage or service-role semantics are different.",
+        "finding": "A green schema parse does not establish real RLS, actor binding, object access or subscription downgrade behavior.",
+        "resolution": "Keep status snapshot-reviewed and run disposable Supabase-compatible Auth/Storage/tenant/role integration and full dependency closure before DONE.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code PASS before 0064 SQL edit.",
-      "Source full SHA256 and three locator state checks plus comments regression.",
-      "Baseline 65 snapshot-reviewed and TypeScript/full tests.",
-      "Edit-Time Sync, Knowledge Preflight and Incremental Replay.",
-      "Exact F16 release risk 5/5; real DB and Storage/object ACL still BLOCKED."
+      "Critical Plan Before Code PASS BEFORE new SQL+manifest+tests write.",
+      "Canonical full source SHA256 and lexically ordered 0053<new<0054 and v2 retirement assertions.",
+      "Customer baseline 66 ordered SQL guard, full regression/TypeScript and Control Plane Edit-Time/Knowledge/Replay gates.",
+      "Exact previous F17 HEAD release risk single high-risk database-schema unit 5/5.",
+      "Independent zero-state PostgreSQL 18 socket-only database replay of all files with minimum explicitly documented Supabase fixture, no diagnostic injections.",
+      "Effective v2 revoke (anon/authenticated/service_role), preserved v3 grant and RLS fixture scope probes; actual Supabase full proof still blocked.",
+      "All existing previous regression tests, including updated F7 verified ordering, PASS."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F17: append-only 0064 canonical Office attachment metadata storage locator integrity constraints, no live DB/provider writes",
+      "request": "Core #1186 U10A2 F18: isolated PG18 missing canonical v2 predecessor before 0054; add sorted 0053 inbound v2 and correct older F7 ordering regression, 66 migrations no hosted DB writes",
       "authority": [
         "database-schema"
       ],
       "mustEdit": [
-        "supabase/customer-baseline/manifest.json"
+        "supabase/customer-baseline/manifest.json",
+        "tests/customer-baseline-office-real-inbound-foundation.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
-        "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
+        "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
+        "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code PASS before 0064 SQL edit.",
-        "Source full SHA256 and three locator state checks plus comments regression.",
-        "Baseline 65 snapshot-reviewed and TypeScript/full tests.",
-        "Edit-Time Sync, Knowledge Preflight and Incremental Replay.",
-        "Exact F16 release risk 5/5; real DB and Storage/object ACL still BLOCKED."
+        "Critical Plan Before Code PASS BEFORE new SQL+manifest+tests write.",
+        "Canonical full source SHA256 and lexically ordered 0053<new<0054 and v2 retirement assertions.",
+        "Customer baseline 66 ordered SQL guard, full regression/TypeScript and Control Plane Edit-Time/Knowledge/Replay gates.",
+        "Exact previous F17 HEAD release risk single high-risk database-schema unit 5/5.",
+        "Independent zero-state PostgreSQL 18 socket-only database replay of all files with minimum explicitly documented Supabase fixture, no diagnostic injections.",
+        "Effective v2 revoke (anon/authenticated/service_role), preserved v3 grant and RLS fixture scope probes; actual Supabase full proof still blocked.",
+        "All existing previous regression tests, including updated F7 verified ordering, PASS."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -292,13 +300,14 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "supabase/customer-baseline/manifest.json"
+          "supabase/customer-baseline/manifest.json",
+          "tests/customer-baseline-office-real-inbound-foundation.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
-          "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
+          "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
+          "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -330,13 +339,19 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
+            "file": "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           },
           {
-            "file": "tests/customer-baseline-office-attachment-metadata-integrity.test.ts",
+            "file": "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
+          },
+          {
+            "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -370,13 +385,19 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
+              "file": "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             },
             {
-              "file": "tests/customer-baseline-office-attachment-metadata-integrity.test.ts",
+              "file": "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
+              "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -421,7 +442,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql"
+              "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -438,7 +459,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -451,7 +472,7 @@
           {
             "id": 2,
             "files": [
-              "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
+              "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -462,7 +483,31 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-office-attachment-metadata-integrity.test.ts",
+                  "file": "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 3,
+            "files": [
+              "tests/customer-baseline-office-real-inbound-foundation.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -480,21 +525,22 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "351bea28051ddbd29aa1e914bb5c4034bec7b301"
+              "developmentBaseSha": "6771d1eafded599f48119befbcb3e26d4ee65d0f"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "351bea28051ddbd29aa1e914bb5c4034bec7b301",
+            "targetBaseSha": "6771d1eafded599f48119befbcb3e26d4ee65d0f",
             "lease": {
-              "expectedBaseSha": "351bea28051ddbd29aa1e914bb5c4034bec7b301",
+              "expectedBaseSha": "6771d1eafded599f48119befbcb3e26d4ee65d0f",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
-              "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
+              "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
+              "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+              "tests/customer-baseline-office-real-inbound-foundation.test.ts"
             ],
             "operations": [
               {
@@ -504,12 +550,17 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
+                "file": "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-office-attachment-metadata-integrity.test.ts",
+                "file": "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
                 "generated": null
               }
             ],
@@ -541,13 +592,19 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 },
                 {
-                  "file": "tests/customer-baseline-office-attachment-metadata-integrity.test.ts",
+                  "file": "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                },
+                {
+                  "file": "tests/customer-baseline-office-real-inbound-foundation.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -578,7 +635,8 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
+                "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+                "tests/customer-baseline-office-real-inbound-foundation.test.ts"
               ],
               "externalGateIds": []
             },
@@ -590,8 +648,9 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0064_digital_office_attachment_metadata_integrity_v1.sql",
-                "tests/customer-baseline-office-attachment-metadata-integrity.test.ts"
+                "supabase/customer-baseline/migrations/0053_inbound_office_email_atomic_v2.sql",
+                "tests/customer-baseline-office-legacy-inbound-prerequisite.test.ts",
+                "tests/customer-baseline-office-real-inbound-foundation.test.ts"
               ],
               "filesAbsent": []
             },
@@ -606,7 +665,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "4fe381fe",
+            "manifestDigest": "a61148a2",
             "decision": "PASS"
           }
         ],
@@ -646,32 +705,43 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Customer baseline 0063 introduced Office attachment metadata but still accepts incomplete storage bucket/path pairs, ready status without usable locator, and deleted rows retaining private provider/storage locators. Canonical 20260909203629 adds three CHECK constraints and documentation to close these data-state gaps, without changing the existing historical migrations or providing actual Storage ACL, upload, scan, binary deletion or real target PostgreSQL proof.",
+    "problemStatement": "The first actual isolated PostgreSQL 18 replay of 65 Customer Fresh Install source SQLs (with explicitly test-only Supabase Auth/Storage fixture) successfully applied 0001 through 0053 but failed at 0054_digital_office_real_inbound_foundation_v1.sql REVOKE on missing public.record_inbound_office_email_v2(text,text,text,text,text). The canonical producer 20260903180000_inbound_office_email_atomic_v2.sql exists in supabase/migrations but is absent in the customer-baseline chain. A diagnostic continuation adding that exact producer to the disposable DB before 0054 made all 0054-0064 scripts executable. We must repair the pre-0054 dependency in an unmerged local branch as a new ordered SQL source file without altering 0054 canonical content, and then independently prove a clean no-injection replay.",
     "observableOutcomes": [
-      "0064 copied byte-identically from canonical attachment metadata integrity SQL with SHA256 identity and ordered after 0063.",
-      "Storage pair constraint requires bucket and path both present or both null.",
-      "Ready metadata requires complete storage pair or nonblank provider attachment ID; deleted must retain no locator.",
-      "All three constraint comments preserved; 65 migrations snapshot-reviewed and previous Fresh Install proof null.",
-      "All focused tests, TypeScript, Development/Plan/Edit-Time, Knowledge/Replay and risk 5/5 PASS source-only."
+      "Create only one new customer baseline migration 0053_inbound_office_email_atomic_v2.sql, lexically after 0053_digital_office_rls_helper_exposure_closure_v1.sql and before 0054 real inbound, full canonical source body plus SHA256 provenance.",
+      "Preserve original 0001-0064 historical migration bytes; v2 is created for referential correctness and remains service_role-only temporarily during offline Fresh Install; 0054 immediately revokes all roles including service_role to retire vulnerable sender-only legacy RPC.",
+      "Add source regression asserting exact v2 signature, privilege chronology, original v3 functional replacement and 0053<new<0054 ordering plus explicit full clean-target proof requirement.",
+      "Keep customer baseline manifest status snapshot-reviewed, freshInstallProofRequired true and proofContractSha256 null; count 66 SQL files.",
+      "Execute all 66 migrations in a newly created, isolated socket-only PostgreSQL 18 database using documented disposable Supabase role/auth/storage fixture, with exact error and first-failing statement if anything fails.",
+      "No Supabase staging/production/Fresh Install target or provider changes, no Vercel Preview, GitHub push, CI or premature DONE.",
+      "Fix earlier F7 source test that assumed direct 0053 to 0054 adjacency; replacement asserts newly justified chronological v2 producer."
     ],
     "unresolvedRisks": [
-      "Legacy occupied table may have invalid partial/ready/deleted records, and ADD CHECK might fail; read-only dirty-row inventory needed before target application.",
-      "A valid metadata locator is not proof of object existence, bucket policy, malware scan or deletion.",
-      "Actual Postgres NULL/CHECK behavior, trigger and actor/tenant RLS and effective grants are untested in disposable DB.",
-      "Office Attachment upload/downloading runtime, later Communication Hub Advanced and strict Pro SQL still incomplete."
+      "The versioned 0053_inbound file is intentionally inserted in sorted order before previously reviewed 0054; it is safe for currently UNMERGED local baseline only. Any already deployed target would need independent ledger reconciliation instead of retroactive execution.",
+      "Legacy v2 resolves threads by sender and could incorrectly merge discussions if reachable. It must be revoked from public,anon,authenticated,service_role by 0054 before any app/database exposure or publish.",
+      "Standalone PostgreSQL fixtures do not equal a full Supabase-managed Auth/Storage environment; full effective RLS/identity and bucket/provider behavior still need actual Supabase-compatible disposable integration acceptance.",
+      "Actual DB concurrency, service-role actor binding, queue trigger UPDATE, strict Pro-to-Alap access and other Communication Hub dependencies remain unproved.",
+      "A clean SQL replay does not certify real deployment migration ledger, seed, postflight, E2E, email delivery or customer launch readiness.",
+      "Changing F7 historical test is a neutral evidence repair and must not weaken recipient/mailbox/thread assertions."
     ],
     "scope": {
       "in": [
-        "One canonical 0064 attachment integrity SQL; status-only manifest note; focused neutral tests."
+        "New lexicographically interleaved 0053_inbound_office_email_atomic_v2.sql as a verbatim canonical producer before 0054 in the unmerged baseline tree.",
+        "Manifest append-only audit note retaining proof-required state and 66 source files.",
+        "Focused source regression proving predecessor, full SHA, v2/v3 revoke chain and guards.",
+        "Independent isolated socket-only PostgreSQL replay and accurate reporting, not live target.",
+        "Adjust existing F7 source regression to assert 0053_digital -> 0053_inbound -> 0054 exact required prerequisite order, no product SQL change."
       ],
       "out": [
-        "No 0001–0063 historical edits, no bucket/API/provider/worker changes, no Supabase target writes, CI/Preview or GitHub push."
+        "No modification of existing 0001–0064 or canonical supabase/migrations original source.",
+        "No application/UI/worker changes, no legacy send endpoint use beyond defining it during offline bootstrap.",
+        "No direct writes or test role changes to staging, production or hosted Fresh Install projects.",
+        "No merging a multi-subsystem release or dispatching GitHub CI or Vercel Preview."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F17-ATTACHMENT-INTEGRITY",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F18-REAL-PG-PREDECESSOR",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -689,11 +759,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F17-ATTACH",
-        "requirement": "Append canonical 0064 storage pair, ready/deleted attachment locator CHECKs, without misclaiming object ACL or real database proof.",
+        "id": "REQ-F18-CLEAN-PG-CHAIN",
+        "requirement": "Repair missing pre-0054 v2 source in unmerged customer baseline, prove clean PostgreSQL 18 migration chronology and retiring old service role permissions without false Supabase closure.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-attachment-metadata-integrity-source",
+          "breadth": "customer-fresh-install-office-v2-source-order",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -715,8 +785,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F17-LOCATOR",
-            "statement": "Ready without locator or deleted with locator should be rejected by future real PostgreSQL; source proof now.",
+            "id": "NEG-F18-MISSING-PREDECESSOR",
+            "statement": "A new empty target must create v2 producer before 0054 REVOKE, and service_role must lose EXECUTE afterward; actual isolated PostgreSQL plus source proof.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -725,5 +795,5 @@
       }
     ]
   },
-  "notes": "U10A2 F17 0064 attachment metadata integrity source-only after F16; real PostgreSQL/Storage/Pro and Communication Hub dependencies BLOCKED."
+  "notes": "F18 real isolated PG18 proof failure at 0054 missing canonical v2 producer; add 0053_inbound prerequisite sorted before 0054, 66 reviewed migrations; no actual hosted DB writes, live identity/security and strict Pro dependencies pending. Development Guard scope widened to F7 ordering source-test correction. Four files only, one database-schema authority."
 }
