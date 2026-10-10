@@ -1,14 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2 F9: append-only 0056 canonical inbound mailbox and route service-role least privilege, route composite FK index, no live DB writes",
+  "task": "Core #1186 U10A2 F10: append-only customer baseline 0057 canonical Office composer/drafts foundation and queued email RPC, no external send or live database writes",
   "status": "ready-for-implementation",
   "guardDigest": "2ebcb98e",
-  "changeBaseSha": "085ba2f4b549feb29656141f7f245d548f889f67",
+  "changeBaseSha": "1028085040ead3e7a7d6b1f98d1dfa5985cdb074",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
+    "supabase/customer-baseline/migrations/0057_digital_office_composer_drafts_foundation_v1.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-office-inbound-least-privilege.test.ts"
+    "tests/customer-baseline-office-composer-drafts.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -38,7 +38,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F9-INBOUND-LEAST-PRIVILEGE",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F10-COMPOSER-DRAFTS",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -59,26 +59,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "0056 SQL is full unchanged canonical 20260908031000 body with correct SHA256 and after 0055.",
-        "Both secret routing tables have explicit revoke all from service_role and later CRUD-only grants without DDL.",
-        "Existing 0054 RLS and anon/authenticated table revokes remain intact; no direct browser route token grants are created.",
-        "Composite thread-instance FK index exists with same column order (thread_id,instance_id).",
-        "Customer baseline guard PASS with 57 files, snapshot-reviewed and old proof hash null, focused and TypeScript tests PASS.",
-        "No source tests mistaken for actual Postgres effective role/GRANT/DDL, or full Office/Pro capability closure."
+        "Canonical full SQL body/source SHA256 and 0056 predecessor order",
+        "New office.email.compose permission and no default role preset grants",
+        "Office drafts author and tenant FK, RLS, browser revokes, service role CRUD only",
+        "admin_mutate_office_draft_v1 and admin_queue_office_email_v3 service-only RPCs preserved with guards",
+        "Baseline guard 58 migrations snapshot-reviewed, SQL syntax and TypeScript tests",
+        "No real target or provider proof overclaim"
       ],
       "invariants": [
-        "Routing reply_token remains confidential to service-side data operations.",
-        "service_role is not explicitly granted TRUNCATE, REFERENCES or TRIGGER by F9.",
-        "FK index uses thread_id before instance_id, preserving canonical optimization.",
-        "No direct anon/authenticated read or write GRANT to Office mailbox and reply route tables.",
-        "Existing 0001–0055 SQL is immutable; same canonical SQL body is source of truth."
+        "Author-private drafts within same tenant",
+        "Opt-in arbitrary staff email capability",
+        "Active mailbox required for outbound queue",
+        "No direct browser draft table CRUD",
+        "Historical migration identity unchanged",
+        "No real provider email sent"
       ],
       "forbiddenStates": [
-        "A customer browser reads reply_token through a new F9 grant.",
-        "F9 omits REVOKE and leaves service_role grant all in source.",
-        "Index swaps instance_id and thread_id, defeating intended FK access path.",
-        "Proof manifest marks ready despite no new actual Fresh Install.",
-        "Occupied staging or production SQL is mutated by source migration checks."
+        "Anonymous or authenticated direct office_drafts access",
+        "Unrestricted staff email compose preset",
+        "Cross-tenant draft edit",
+        "Queue outbound mail without active mailbox",
+        "Snapshot READY without actual target"
       ]
     },
     "model": {
@@ -110,48 +111,49 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A source copy retains GRANT ALL while omitting REVOKE ALL to service_role.",
-        "An ACL inherited through PUBLIC or owner means effective service privileges differ despite direct grants.",
-        "Anonymous Data API access accidentally added to secret routing table.",
-        "Composite route FK index missing or reversed.",
-        "DDL applied before tables from 0054 exist.",
-        "F9 SQL order executes GRANT before REVOKE, leaving privileges absent or broad.",
-        "Existing index name collides with different definition on occupied target.",
-        "Canonical source hash drifts or SQL lines truncated.",
-        "Manifest reuses invalid old proofContractSha256.",
-        "Later Office/Pro engine marked DONE despite missing upstream RPC chain."
+        "Missing store_permission_catalog",
+        "Missing composite office_threads FK",
+        "Wrong office_drafts RLS",
+        "Default role auto-grants compose",
+        "Actor forge through service_role",
+        "Tenant crossed in draft mutation",
+        "Unconfigured mailbox still queues",
+        "Duplicate idempotency job",
+        "Legacy communication_jobs schema incompatible",
+        "RPC EXECUTE public by default",
+        "Manifest falsely ready"
       ],
       "edgeCases": [
-        "Role inherited from other role",
-        "Database table owner bypasses grants",
-        "PUBLIC default table privileges",
-        "Index exists with incompatible definition",
-        "Thread UUID from another instance",
-        "Concurrent route insert/delete",
-        "Composite FK with (thread_id,instance_id) ordering",
-        "Existing mailbox address not normalized",
-        "Missing 0054 table",
-        "Service worker uses TRIGGER/REFERENCES privilege unexpectedly"
+        "New versus reply draft",
+        "Null mailbox",
+        "Inactive mailbox",
+        "Owner versus delegate",
+        "Author role revoked",
+        "Invalid to_email",
+        "Duplicate idempotency_key",
+        "Cross-tenant thread",
+        "Long subject/body",
+        "Service_role actor mismatch"
       ]
     },
     "alternatives": [
       {
-        "id": "F9-CANONICAL",
-        "summary": "Append unchanged canonical least-privilege SQL after 0055 and prove SHA256/order.",
+        "id": "F10-CANONICAL",
+        "summary": "Append exact canonical 0057 Office Composer+Drafts source with SHA256",
         "disposition": "selected",
-        "reason": "Avoids diverging access-control implementations and confines risky DB change."
+        "reason": "Existing governed SQL authority and bounded 5/5 risk"
       },
       {
-        "id": "F9-APP-RBAC",
-        "summary": "Implement least privilege only in worker application middleware.",
+        "id": "F10-APP-ONLY",
+        "summary": "Store drafts in browser and send directly",
         "disposition": "rejected",
-        "reason": "Cannot constrain actual SQL table ACL or leaked routing secrets."
+        "reason": "Cross-tenant/author privacy and audit bypass"
       },
       {
-        "id": "F9-BATCH-ADVANCED",
-        "summary": "Bundle least privilege with Composer and Advanced Office migrations in 0056.",
+        "id": "F10-BULK",
+        "summary": "Bundle all later Composer/Advanced Office SQL in 0057",
         "disposition": "rejected",
-        "reason": "Violates required ordered dependency proof and risk isolation."
+        "reason": "Breaks dependency proof and bounded risk"
       }
     ],
     "specialistReviews": [
@@ -159,28 +161,28 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Direct REVOKE service_role does not establish effective ACL under PostgreSQL inherited roles/table ownership or other grants.",
-        "resolution": "Source proof only and block release pending disposable PostgreSQL has_table_privilege and anon/authenticated negative tests.",
+        "finding": "SERVICE_ROLE definer RPC with p_actor and inherited browser EXECUTE could impersonate draft authors.",
+        "resolution": "Preserve exact revokes/tenant checks and retain real actor/effective privilege proof blocker.",
         "evidence": [
-          "supabase/migrations/20260908031000_digital_office_real_inbound_least_privilege_v1.sql"
+          "supabase/migrations/20260908034000_digital_office_composer_drafts_foundation_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Index on thread_id,instance_id must match canonical route FK and wait for 0054 table.",
-        "resolution": "Retain exact source and assert 0054/0055 ordered prerequisites and intended index.",
+        "finding": "Office draft thread FK and communication jobs require predecessor tables.",
+        "resolution": "Check 0047, 0050, 0054, 0056 prerequisite SQL and real empty replay before release.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0054_digital_office_real_inbound_foundation_v1.sql"
+          "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Database security privilege release is high risk and constrained to one subsystem.",
-        "resolution": "Only 0056 SQL, manifest and neutral test with exact-parent risk 5/5; no GitHub push/Preview.",
+        "finding": "Mail queue and drafts SQL high risk must be isolated.",
+        "resolution": "Only SQL, manifest, neutral tests, exact base 5/5.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -189,8 +191,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Staging is not a disposable Fresh Install target and may carry different ACLs and indexes.",
-        "resolution": "No SQL target write, preserve reviewed state and require ledger/role preflight before any rollout.",
+        "finding": "Real email/provider calls are not data-source acceptance.",
+        "resolution": "No provider or live target writes, snapshot-reviewed until real proof.",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -198,71 +200,71 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F9-01",
-        "scenario": "A service_role worker tries to truncate office_mailboxes while processing inbound mail because its former grant was ALL.",
-        "finding": "Overbroad table privileges would allow destructive DDL-like operations unnecessary for ingestion.",
-        "resolution": "Apply canonical REVOKE ALL followed only by select,insert,update,delete on office_mailboxes, and later prove effective TRUNCATE denied.",
+        "id": "CH-U10A2-F10-01",
+        "scenario": "An authenticated browser selects another employee draft row through Data API.",
+        "finding": "Private draft content and recipient leak if table RLS/ACL not enforced.",
+        "resolution": "Preserve canonical office_drafts RLS, revoke browser grants and require real role SELECT negatives.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F9-02",
-        "scenario": "A worker calls REFERENCES or TRIGGER operation on office_thread_email_routes after the grant repair.",
-        "finding": "An unintended privilege may persist despite CRUD-only expectations and change routing enforcement.",
-        "resolution": "Preserve exact canonical service_role revoke/regrant for routes; later inspect effective PostgreSQL grants.",
+        "id": "CH-U10A2-F10-02",
+        "scenario": "A generic support staff role gets arbitrary email compose via default preset.",
+        "finding": "Unapproved staff can email any buyer without opt-in.",
+        "resolution": "Assert catalog office.email.compose but no store_role_permission_presets writes.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F9-03",
-        "scenario": "An authenticated browser attempts selecting reply_token from office_thread_email_routes.",
-        "finding": "A secret reply address routing token could be leaked if a role grant or RLS policy is broadened.",
-        "resolution": "Assert no new browser grants in 0056 and preserve 0054 RLS + anon/authenticated revokes; require DB negative actor test.",
+        "id": "CH-U10A2-F10-03",
+        "scenario": "A delegated actor edits a draft belonging to a different tenant.",
+        "finding": "Privileged RPC could modify another organization draft due to service_role bypass.",
+        "resolution": "Keep tenant/author checks in canonical mutate RPC and require real caller-binding tests.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F9-04",
-        "scenario": "The composite FK causes deletes from office_threads to scan routes without a matching leading thread_id index.",
-        "finding": "Tenant data deletion may degrade due to swapped index columns despite both appearing in a name.",
-        "resolution": "Require exact office_thread_email_routes_thread_instance_idx on (thread_id,instance_id), not reversed.",
+        "id": "CH-U10A2-F10-04",
+        "scenario": "An outbound draft is queued without an active configured mailbox.",
+        "finding": "The job may send from an unverified address or never deliver.",
+        "resolution": "Retain canonical active mailbox guard and do not claim provider delivery.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F9-05",
-        "scenario": "The index already exists on occupied target with same name but incompatible definition.",
-        "finding": "CREATE INDEX IF NOT EXISTS may silently skip a wrong index and performance proof would be misleading.",
-        "resolution": "Keep source unchanged, mandate later real pg_indexes definition reconciliation and do not claim target readiness.",
+        "id": "CH-U10A2-F10-05",
+        "scenario": "A malicious client retries same queue idempotency key repeatedly.",
+        "finding": "Duplicate jobs might send repeated external emails.",
+        "resolution": "Preserve canonical job idempotency condition and perform later real replay tests.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F9-06",
-        "scenario": "A new Fresh Install runs 0056 before creating the office_mailboxes table in 0054.",
-        "finding": "REVOKE/GRANT and CREATE INDEX statements fail with missing relation during bootstrap.",
-        "resolution": "Assert 0054 and 0055 come before 0056 in ordered customer baseline and require eventual clean replay.",
+        "id": "CH-U10A2-F10-06",
+        "scenario": "A reply draft has no matching thread or a new email draft carries an unrelated thread.",
+        "finding": "Invalid drafting context can cause cross-thread leakage.",
+        "resolution": "Preserve draft_type and thread_id CHECK and queue RPC thread restrictions.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F9-07",
-        "scenario": "PUBLIC or inherited role grants access to mailbox despite direct service_role restriction.",
-        "finding": "Source checks can report least privilege while effective PostgreSQL privilege remains broader.",
-        "resolution": "Keep release partial, require real has_table_privilege checks for PUBLIC, anon, authenticated, service_role.",
+        "id": "CH-U10A2-F10-07",
+        "scenario": "The service-role caller supplies a forged p_actor UUID to definer RPC.",
+        "finding": "Actor impersonation bypasses row-level security and consent.",
+        "resolution": "Require future end-to-end authenticated caller-to-actor proof in addition to static source checks.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F9-08",
-        "scenario": "A new 0056 baseline is marked ready based only on its source hash.",
-        "finding": "CI would falsely certify real Office provider/RPC and strict Pro subscription behavior while later dependencies are absent.",
-        "resolution": "Keep manifest snapshot-reviewed with freshInstallProofRequired true and no old proof hash until full target acceptance.",
+        "id": "CH-U10A2-F10-08",
+        "scenario": "Baseline manifest is switched to READY directly after adding 0057.",
+        "finding": "Downstream reply guard, tenant integrity and Pro SQL are missing yet CI claims full closure.",
+        "resolution": "Keep snapshot-reviewed, freshInstallProofRequired=true and proofContractSha256 null.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code PASS before editing 0056 implementation files.",
-      "Full canonical SHA256/body and explicit service_role CRUD grants, composite index and secret browser-revoke tests.",
-      "Customer baseline guard 57 ordered migrations snapshot-reviewed; SQL syntax and TypeScript.",
-      "Edit-Time Reference/Implementation Sync, Knowledge Preflight and full-shadow Incremental Replay.",
-      "Exact prior-head Release Risk 5/5, no live DB target rights, real role proof deferred."
+      "Critical Plan Before Code before SQL edit",
+      "Exact SQL source SHA256 and opt-in/draft/RPC grants tests",
+      "Baseline 58 reviewed migrations and SQL syntax plus TypeScript",
+      "Edit-Time Sync Knowledge Preflight and Incremental Replay",
+      "Exact prior SHA release risk 5/5, real DB and provider proof pending"
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F9: append-only 0056 canonical inbound mailbox and route service-role least privilege, route composite FK index, no live DB writes",
+      "request": "Core #1186 U10A2 F10: append-only customer baseline 0057 canonical Office composer/drafts foundation and queued email RPC, no external send or live database writes",
       "authority": [
         "database-schema"
       ],
@@ -272,16 +274,16 @@
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
-        "tests/customer-baseline-office-inbound-least-privilege.test.ts"
+        "supabase/customer-baseline/migrations/0057_digital_office_composer_drafts_foundation_v1.sql",
+        "tests/customer-baseline-office-composer-drafts.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code PASS before editing 0056 implementation files.",
-        "Full canonical SHA256/body and explicit service_role CRUD grants, composite index and secret browser-revoke tests.",
-        "Customer baseline guard 57 ordered migrations snapshot-reviewed; SQL syntax and TypeScript.",
-        "Edit-Time Reference/Implementation Sync, Knowledge Preflight and full-shadow Incremental Replay.",
-        "Exact prior-head Release Risk 5/5, no live DB target rights, real role proof deferred."
+        "Critical Plan Before Code before SQL edit",
+        "Exact SQL source SHA256 and opt-in/draft/RPC grants tests",
+        "Baseline 58 reviewed migrations and SQL syntax plus TypeScript",
+        "Edit-Time Sync Knowledge Preflight and Incremental Replay",
+        "Exact prior SHA release risk 5/5, real DB and provider proof pending"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -297,8 +299,8 @@
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
-          "tests/customer-baseline-office-inbound-least-privilege.test.ts"
+          "supabase/customer-baseline/migrations/0057_digital_office_composer_drafts_foundation_v1.sql",
+          "tests/customer-baseline-office-composer-drafts.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -330,13 +332,13 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
+            "file": "supabase/customer-baseline/migrations/0057_digital_office_composer_drafts_foundation_v1.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           },
           {
-            "file": "tests/customer-baseline-office-inbound-least-privilege.test.ts",
+            "file": "tests/customer-baseline-office-composer-drafts.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -370,13 +372,13 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
+              "file": "supabase/customer-baseline/migrations/0057_digital_office_composer_drafts_foundation_v1.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             },
             {
-              "file": "tests/customer-baseline-office-inbound-least-privilege.test.ts",
+              "file": "tests/customer-baseline-office-composer-drafts.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -421,7 +423,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql"
+              "supabase/customer-baseline/migrations/0057_digital_office_composer_drafts_foundation_v1.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -438,7 +440,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0057_digital_office_composer_drafts_foundation_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -451,7 +453,7 @@
           {
             "id": 2,
             "files": [
-              "tests/customer-baseline-office-inbound-least-privilege.test.ts"
+              "tests/customer-baseline-office-composer-drafts.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -462,7 +464,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-office-inbound-least-privilege.test.ts",
+                  "file": "tests/customer-baseline-office-composer-drafts.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -480,21 +482,21 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "085ba2f4b549feb29656141f7f245d548f889f67"
+              "developmentBaseSha": "1028085040ead3e7a7d6b1f98d1dfa5985cdb074"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "085ba2f4b549feb29656141f7f245d548f889f67",
+            "targetBaseSha": "1028085040ead3e7a7d6b1f98d1dfa5985cdb074",
             "lease": {
-              "expectedBaseSha": "085ba2f4b549feb29656141f7f245d548f889f67",
+              "expectedBaseSha": "1028085040ead3e7a7d6b1f98d1dfa5985cdb074",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
-              "tests/customer-baseline-office-inbound-least-privilege.test.ts"
+              "supabase/customer-baseline/migrations/0057_digital_office_composer_drafts_foundation_v1.sql",
+              "tests/customer-baseline-office-composer-drafts.test.ts"
             ],
             "operations": [
               {
@@ -504,12 +506,12 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
+                "file": "supabase/customer-baseline/migrations/0057_digital_office_composer_drafts_foundation_v1.sql",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-office-inbound-least-privilege.test.ts",
+                "file": "tests/customer-baseline-office-composer-drafts.test.ts",
                 "generated": null
               }
             ],
@@ -541,13 +543,13 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0057_digital_office_composer_drafts_foundation_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 },
                 {
-                  "file": "tests/customer-baseline-office-inbound-least-privilege.test.ts",
+                  "file": "tests/customer-baseline-office-composer-drafts.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -578,7 +580,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-office-inbound-least-privilege.test.ts"
+                "tests/customer-baseline-office-composer-drafts.test.ts"
               ],
               "externalGateIds": []
             },
@@ -590,8 +592,8 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0056_digital_office_real_inbound_least_privilege_v1.sql",
-                "tests/customer-baseline-office-inbound-least-privilege.test.ts"
+                "supabase/customer-baseline/migrations/0057_digital_office_composer_drafts_foundation_v1.sql",
+                "tests/customer-baseline-office-composer-drafts.test.ts"
               ],
               "filesAbsent": []
             },
@@ -606,7 +608,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "e30b8f74",
+            "manifestDigest": "224a5fbc",
             "decision": "PASS"
           }
         ],
@@ -646,37 +648,35 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The reviewed customer baseline 0054 introduces service-only Office mailbox and secret reply-token route tables, and 0055 normalizes their mailbox identity. Canonical production source 20260908031000 immediately follows to revoke all service_role privileges and regrant only SELECT, INSERT, UPDATE, DELETE while creating an index in thread_id,instance_id order for the composite FK. Without append-only 0056, Fresh Install diverges from canonical least-privilege SQL, but source equality alone cannot demonstrate effective inherited PostgreSQL privileges.",
+    "problemStatement": "The customer baseline through 0056 has Office participant privacy, mailbox routes and least privilege, but lacks canonical 20260908034000 Composer+Drafts SQL. This adds an explicit office.email.compose permission, private author-scoped drafts, and service-only compose/queue RPCs that must fail closed for inactive mailbox, mismatched tenant and missing actor privileges. Append original SQL as 0057 without sending email or changing real DB and keep later composer/advanced/Pro proof pending.",
     "observableOutcomes": [
-      "New 0056 migration byte-for-byte copies canonical 20260908031000 Digital Office real inbound least-privilege SQL with SHA256 source authority.",
-      "Both office_mailboxes and office_thread_email_routes lose direct service_role ALL grants and regain only four CRUD grants, with no added anon/authenticated permissions.",
-      "Composite office_thread_email_routes_thread_instance_idx index covers (thread_id,instance_id) matching FK checks/deletes.",
-      "Immutable 0001–0055 customer baseline remains in order; manifest snapshot-reviewed, freshInstallProofRequired true and null previous contract hash with 57 migration files.",
-      "Run focused source/negative tests and baseline/Control Plane guards PASS; no real DB service role/effective privilege or Pro Office DONE claim."
+      "Canonical 0057 full body SHA256 source parity",
+      "Office drafts author/tenant scope, no browser table grants, RLS enabled",
+      "New compose permission remains opt-in with no default role presets grants",
+      "Service-only draft and queue RPC retain active mailbox, tenant, capability and idempotency guards",
+      "58 ordered baseline files snapshot-reviewed, old proof null and actual DB/provider verification BLOCKED"
     ],
     "unresolvedRisks": [
-      "Effective service_role privileges might include inherited/owner/PUBLIC paths; source REVOKE/GRANT is not role-level security acceptance until real PostgreSQL checks.",
-      "Real target may have existing altered grants/ownership and unexpected index lock/DDL issues; occupied staging is read-only.",
-      "Office composer/drafts/recipient/inbound provider and subsequent Communication Hub 2.0 advanced table/function migrations remain absent.",
-      "U10A1 strict Pro Office subscription SQL is separate, unmerged and cannot be marked released."
+      "SERVICE_ROLE actor parameter under definer needs live caller-binding proof",
+      "Existing communication_jobs schema and RPC compatibility not proven on empty target",
+      "External provider acceptance and no send-path proof",
+      "Subsequent 0058+ reply guard, draft tenant integrity, attachment, Communication Hub and strict Pro SQL absent"
     ],
     "scope": {
       "in": [
-        "One append-only customer baseline 0056 SQL from original canonical least-privilege source with SHA256.",
-        "Manifest note preserving reviewed/not-Fresh-Installed state.",
-        "Focused SQL source, GRANT order/index, tenant secret protection and invariant regression tests."
+        "One 0057 canonical Composer+Drafts SQL plus manifest and source-only tests"
       ],
       "out": [
-        "No modifications to 0001-0055 or canonical SQL in supabase/migrations.",
-        "No provider worker/webhook/DNS operations or target PostgreSQL SQL writes.",
-        "No 0057+ composer/drafts or Advanced Office migration in same 5/5 DB release.",
-        "No GitHub push, CI dispatch, Vercel Preview or main merge without Fresh Install and cost policy."
+        "No older migrations changed",
+        "No provider sending or mailbox activation",
+        "No other SQL migrations in same release",
+        "No production/staging/Fresh Install target writes or branch push/Preview"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F9-INBOUND-LEAST-PRIVILEGE",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F10-COMPOSER-DRAFTS",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -694,11 +694,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-U10A2-F9-LEAST",
-        "requirement": "Append canonical 0056 least-privilege mailbox/routing source with service_role CRUD-only and composite FK index, no false Fresh Install acceptance.",
+        "id": "REQ-F10-DRAFT",
+        "requirement": "Append canonical 0057 author-private Office drafts and opt-in queue RPC source with no false runtime proof.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-inbound-service-role-sql-source",
+          "breadth": "office-composer-drafts-source",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -720,8 +720,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U10A2-F9-GRANT",
-            "statement": "Original GRANT ALL from service_role must be revoked before only CRUD is regranted, and browser routing secrets remain inaccessible.",
+            "id": "NEG-F10-AUTHOR",
+            "statement": "Browser cannot read foreign drafts and unauthorized actor cannot queue arbitrary tenant email.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -730,5 +730,5 @@
       }
     ]
   },
-  "notes": "U10A2 F9 0056 inbound least privilege canonical source; F8 0055 parent; modern 0057+ composer/drafts/Communication Hub and U10A1 Pro SQL plus real role Fresh Install proof pending."
+  "notes": "F10 0057 Composer/Drafts canonical source after F9; reply guard, draft integrity, Advanced Office, U10A1 strict Pro and actual DB proof remain BLOCKED."
 }
