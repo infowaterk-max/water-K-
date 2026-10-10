@@ -1,47 +1,60 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-BBD150EE",
-  "task": "Core #1186 U10A2 F25: add local isolated real PG18 positive and adversarial Team Chat owner transfer with two tenant fixture users, roles, group, transaction rollback; no product SQL or hosted DB",
+  "taskId": "DEV-F8395E8F",
+  "task": "Core #1186 U10A2 F26: server-bound Team Chat p_actor / store tenant confused deputy negative regression: test API forged user/instance fields, denied plan/capability/context, source contract for server actions; no product SQL or hosted writes",
   "status": "ready-for-implementation",
-  "guardDigest": "bbd150ee",
-  "changeBaseSha": "63e3cc8d1a4c4432f26e8113d0e3e91dbda9c768",
+  "guardDigest": "f8395e8f",
+  "changeBaseSha": "3b4c7afed73a20eaf64ef96be9566c10a1eee834",
   "plannedFilePatterns": [
-    "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-    "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql",
-    "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts"
+    "tests/team-chat-server-actor-binding.test.ts",
+    "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
     "shared-storefront",
     "storefront-ui"
   ],
-  "expectedDomains": [
-    "DOMAIN-QUALITY"
-  ],
-  "expectedAuthorities": [
-    "quality-knowledge-system"
-  ],
+  "expectedDomains": [],
+  "expectedAuthorities": [],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
+    "TF-KF-003",
     "TF-KF-004",
+    "TF-KF-005",
     "TF-KF-006",
+    "TF-KF-007",
+    "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
     "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
     "TF-KF-016",
     "TF-KF-017",
     "TF-KF-018",
@@ -67,7 +80,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F25-TEAM-CHAT-OWNER-PG-ROLE-TEST",
+    "sourceRef": "PO-2026-10-10-CORE-1186-F26-TEAM-CHAT-ACTOR-PROVENANCE",
     "riskTier": "medium",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -88,28 +101,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Admin owner RPC called on real PostgreSQL 18 with seeded valid owner and member; transfers and verifies exactly one active owner and audit.",
-        "Nonowner cannot transfer, self-transfer is rejected, nonparticipant target rejected and wrong-tenant instance/thread combinations fail closed.",
-        "A valid new owner can transfer back and the original owner is restored; no partial state or test rows persist after rollback.",
-        "Full 69 migration clean rehearsal/official pre-post and previous negative tests still pass.",
-        "Vitest, TypeScript, Plan, Edit-Time, Knowledge, Shadow Replay and exact F24 Release Risk <=5 all PASS.",
-        "Test claims only local-PG role-bound proof and does not call native JWT, hosted Supabase or Pro DONE."
+        "Route positive spy proves p_actor is authenticated server actor and p_instance_id scoped store even if request body sends forged actorId and instanceId.",
+        "Unauthenticated, plan denial, missing store, capability denial, invalid body and duplicate mention all block DB RPC.",
+        "RPC error and invalid result cannot be returned as a successful send.",
+        "Both Team Chat and Office server actions always bind p_actor from authenticated user and scope instanceId from server in mutation/owner transfer.",
+        "Recorded audit makes explicit mock-bound proof only; F25 real PostgreSQL owner test, native JWT and strict Pro still separate gates.",
+        "Vitest, customer regression/TS and Knowledge/Replay/Plan/Risk PASS; no business/runtime changes."
       ],
       "invariants": [
-        "Only current active owner on internal group thread can transfer.",
-        "Target is active same-thread member of same store with read permission.",
-        "Owner singleton unique partial index remains obeyed during both transfers.",
-        "Service-role RPC permission not exposed to anon/authenticated.",
-        "Test changes never leave fixture data in local DB or contact external providers."
+        "Caller-submitted actor/instance fields cannot become service-role RPC scope.",
+        "Authentication, plan, store scope and chat capability remain fail-closed prerequisites.",
+        "Client may provide threadId/body/mentions only under validated constraints.",
+        "Both server action implementations preserve server-derived owner transfer identity.",
+        "No source migration, actual provider JWT claim or account changed."
       ],
       "forbiddenStates": [
-        "Owner transfer accepted from non-owner.",
-        "Owner transfer grants a role to different-tenant user.",
-        "Two active owners after valid transfer.",
-        "Self-transfer treated as success.",
-        "No-audit transfer",
-        "Misleading native Supabase DONE claim",
-        "Any hosted database connection accepted."
+        "User-provided actorId passed as p_actor.",
+        "Untrusted instanceId passed as p_instance_id.",
+        "Anon/non-Pro executes RPC.",
+        "Denied office.internal_chat executes RPC.",
+        "RPC error represented as success.",
+        "Mocked unit test claimed actual Supabase-JWT cryptographic proof."
       ]
     },
     "model": {
@@ -141,49 +153,51 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Role fixture lacks support grant",
-        "Missing auth.users foreign key",
-        "Active participant not readable",
-        "Owner transfer RPC fails despite all conditions",
-        "Wrong exception code on self transfer",
-        "Implicit service-role privilege bypass",
-        "Participant role unique index anomaly",
-        "Cross-instance target accepted",
-        "Audit row absent",
-        "ROLLBACK fixture persists",
-        "Temporary PG cluster left running"
+        "forged actorId forwarded",
+        "forged instanceId forwarded",
+        "omitted auth guard",
+        "missing plan guard",
+        "removed capability guard",
+        "missing store context",
+        "malformed body bypass",
+        "duplicate mentions accepted",
+        "service_role RPC error mislabeled success",
+        "mismatched response thread accepted",
+        "Office actions drift away from secure shared access"
       ],
       "edgeCases": [
-        "Internal group valid two users",
-        "Nonowner actor tries transfer",
-        "Owner target equals actor",
-        "Target unbound to group",
-        "Target in another store",
-        "New owner transfer back",
-        "Cross-tenant wrong instance",
-        "Duplicate active owner index",
-        "No live records after rollback",
-        "DB fixture only with RLS identity caution"
+        "caller actorId conflicting with authenticated actor",
+        "userId in body",
+        "instanceId in body",
+        "no auth user",
+        "Alap plan teamChat false",
+        "store context throws",
+        "capability false",
+        "invalid UUID",
+        "empty body",
+        "duplicate mentions",
+        "failing RPC",
+        "unverifiable message id"
       ]
     },
     "alternatives": [
       {
-        "id": "F25-PG-DML",
-        "summary": "Extend opt-in local socket-only PG harness with positive and negative audited owner transfer fixture.",
+        "id": "F26-VERIFICATION-FIRST",
+        "summary": "Implement positive/negative dynamic handler spy plus server actions actor provenance contract, document native proof gap.",
         "disposition": "selected",
-        "reason": "Turns installed schema/RPC into actual observed behavior without product decisions or hosted risk."
+        "reason": "No demonstrated exploit yet; strengthens regressions without speculative breaking auth changes."
       },
       {
-        "id": "F25-SOURCE-ONLY",
-        "summary": "Rely on 0067 source regex, triggers and static syntax.",
+        "id": "F26-REWRITE",
+        "summary": "Rewrite getAdminRequestUser and SQL security definer functions without reproducing a defect.",
         "disposition": "rejected",
-        "reason": "Cannot prove owner/audit changes or reason for rejection."
+        "reason": "Risky changes to connected auth and tenant authority without native integration target or decision approval."
       },
       {
-        "id": "F25-HOSTED",
-        "summary": "Use occupied staging or Fresh Install Supabase for direct owner transfer tests.",
+        "id": "F26-CALL-NATIVE",
+        "summary": "Use occupied hosted Supabase project to test actor spoof.",
         "disposition": "rejected",
-        "reason": "Would mutate user data/roles without disposable approved target and native auth proof."
+        "reason": "Not authorized as a disposable empty target, significant data/privacy risk."
       }
     ],
     "specialistReviews": [
@@ -191,129 +205,125 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A locally seeded role-bound owner passing p_actor is not cryptographic server session identity proof.",
-        "resolution": "Keep native JWT-to-actor binding and Pro entitlement proof BLOCKED, run only disposable role-backed DB behavior.",
+        "finding": "Mocks can show route code chooses server actor but not prove JWT signature or role authority in native Supabase.",
+        "resolution": "Call result route-contract only and continue to require native user/session/CORS-CSRF/admin service_role inventory prior to release.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql"
+          "src/app/api/admin/office/chat/message/route.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Owner demotion and promotion must be transactionally safe and auditable.",
-        "resolution": "Assert exactly one owner and corresponding audit before and after reversible transfer; keep all data rollback.",
+        "finding": "Every service_role Team Chat mutation must be bound to a tenant and actor selected before writing private chat objects.",
+        "resolution": "Verify p_actor/p_instance_id arguments at observed RPC call and block on scope failure.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql"
+          "src/app/admin/kommunikacio/chat/actions.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Test-only local PostgreSQL fixture is single medium quality infra unit.",
-        "resolution": "Exact F24 parent Release Risk 2/5, no product migration or hosted target.",
+        "finding": "Test-only and nonauthoritative audit note should use small quality-infrastructure budget, not a production auth migration.",
+        "resolution": "Scope 2 files, exact F25 parent and no deploy.",
         "evidence": [
-          "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
+          "quality/development/active-plan.json"
         ]
       },
       {
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Rollback and local ephemeral Postgres cleanup must remain fail closed.",
-        "resolution": "Keep one transaction with ROLLBACK and assert no fixture records; stop isolated database.",
+        "finding": "Keep strict native JWT/Pro and source lifecycle blockers visible rather than overclaiming a mocked handler.",
+        "resolution": "Audit note tracks mocked vs native proof explicitly; leave #1186 PARTIAL.",
         "evidence": [
-          "tests/fixtures/customer-baseline-team-chat-negative.sql"
+          "supabase/customer-baseline/manifest.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F25-01",
-        "scenario": "A non-owner member attempts to transfer group ownership to another participant.",
-        "finding": "Could steal owner role through service-role RPC if owner predicate ineffective.",
-        "resolution": "Seed nonowner member; require OFFICE_THREAD_OWNER_REQUIRED.",
+        "id": "CH-F26-01",
+        "scenario": "Authenticated actor A includes actorId=B in JSON POST.",
+        "finding": "RPC service_role must not send as B.",
+        "resolution": "Spy verifies p_actor=A from server auth.user.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F25-02",
-        "scenario": "Current owner selects themselves as the new owner.",
-        "finding": "Could log meaningless transfer and mask missing target guard.",
-        "resolution": "Require OFFICE_OWNER_TRANSFER_SELF_FORBIDDEN.",
+        "id": "CH-F26-02",
+        "scenario": "Caller includes instanceId of another shop in JSON POST.",
+        "finding": "Cross-tenant confused deputy could write in other shop.",
+        "resolution": "Spy verifies p_instance_id from requireCurrentStoreContext.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F25-03",
-        "scenario": "Current owner selects an account not participating in the group.",
-        "finding": "Cross-thread privilege escalation or ownerless state.",
-        "resolution": "Require OFFICE_OWNER_TRANSFER_TARGET_MEMBER_REQUIRED and unchanged state.",
+        "id": "CH-F26-03",
+        "scenario": "Anonymous caller POSTs valid thread/body.",
+        "finding": "Unauthenticated private Team Chat send could bypass Pro entitlement.",
+        "resolution": "403 before service_role RPC invocation.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F25-04",
-        "scenario": "A target exists in another tenant store, not this group.",
-        "finding": "Cross-tenant private chat role escalation.",
-        "resolution": "Create two real store fixtures; transfer must reject target with exact same-thread membership condition.",
+        "id": "CH-F26-04",
+        "scenario": "Alap user POSTs valid Team Chat message.",
+        "finding": "Pro-only Digital Office leaked to Alap.",
+        "resolution": "403 teamChat plan denial before any privileged query.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F25-05",
-        "scenario": "An actor supplies thread id from second tenant but instance id from first.",
-        "finding": "Could authorize different tenant via mismatched parameter.",
-        "resolution": "Require OFFICE_INTERNAL_THREAD_NOT_FOUND for mismatched pair.",
+        "id": "CH-F26-05",
+        "scenario": "Authenticated Pro user without office.internal_chat submits message.",
+        "finding": "Private conversation permissions could be bypassed.",
+        "resolution": "403 and no RPC call.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F25-06",
-        "scenario": "Valid transfer demotes source but target promotion fails.",
-        "finding": "Group could become ownerless or have two owners.",
-        "resolution": "In one transaction, assert single owner, demoted source, and target owner; rollback on any exception.",
+        "id": "CH-F26-06",
+        "scenario": "Authenticated caller has no active store context.",
+        "finding": "Arbitrary/null scoped tenant risk.",
+        "resolution": "Catch context exception, return 403 with no RPC call.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F25-07",
-        "scenario": "Ownership transfer succeeds without audit log.",
-        "finding": "No accountable record of private group governance.",
-        "resolution": "Check admin_audit_log typed event, instance/thread metadata after transfer.",
+        "id": "CH-F26-07",
+        "scenario": "Payload contains duplicate mention IDs or wrong object pairing.",
+        "finding": "Inconsistent or forged private notification/object links.",
+        "resolution": "Schema 400 before service_role RPC call.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F25-08",
-        "scenario": "New owner cannot transfer authority back.",
-        "finding": "Owner lifecycle not reversible or reads stale old owner state.",
-        "resolution": "Perform valid transfer back, assert original owner restored and sole-owner count.",
+        "id": "CH-F26-08",
+        "scenario": "RPC returns mismatched thread/message or throws.",
+        "finding": "UI could claim success with wrong chat metadata or failed write.",
+        "resolution": "Require real matching threadId/messageId and fail otherwise.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code before SQL test fixture edit.",
-      "One rollback-only positive/negative SQL test in real local PG18 with two store tenants, role memberships, owner transfer and audit.",
-      "Complete 69 on-disk SQL migrations and official pre/postflight, existing RLS/trigger negative DML.",
-      "New Vitest plus full customer regressions, TypeScript, Edit-Time, Knowledge and full incremental Shadow Replay, exact F24 risk 2/5.",
-      "Native managed Supabase JWT/session and Pro downgrade remain BLOCKED."
+      "Pass Plan Before Code on test/doc-only changes before writing new files.",
+      "Run dynamic route mock suite with forged actor and tenant inputs plus negative plan/auth/capability/error cases.",
+      "Run server actions provenance source-level regression for both parallel paths.",
+      "Run customer and relevant existing auth/Office tests and TypeScript, all Control Plane edit/knowledge/replay gates, risk budget.",
+      "Record explicit no-native-JWT-proof ceiling in GitHub issue."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F25: add local isolated real PG18 positive and adversarial Team Chat owner transfer with two tenant fixture users, roles, group, transaction rollback; no product SQL or hosted DB",
-      "authority": [
-        "quality-knowledge-system"
-      ],
-      "mustEdit": [
-        "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
-      ],
+      "request": "Core #1186 U10A2 F26: server-bound Team Chat p_actor / store tenant confused deputy negative regression: test API forged user/instance fields, denied plan/capability/context, source contract for server actions; no product SQL or hosted writes",
+      "authority": [],
+      "mustEdit": [],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
-        "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql"
+        "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
+        "tests/team-chat-server-actor-binding.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code before SQL test fixture edit.",
-        "One rollback-only positive/negative SQL test in real local PG18 with two store tenants, role memberships, owner transfer and audit.",
-        "Complete 69 on-disk SQL migrations and official pre/postflight, existing RLS/trigger negative DML.",
-        "New Vitest plus full customer regressions, TypeScript, Edit-Time, Knowledge and full incremental Shadow Replay, exact F24 risk 2/5.",
-        "Native managed Supabase JWT/session and Pro downgrade remain BLOCKED."
+        "Pass Plan Before Code on test/doc-only changes before writing new files.",
+        "Run dynamic route mock suite with forged actor and tenant inputs plus negative plan/auth/capability/error cases.",
+        "Run server actions provenance source-level regression for both parallel paths.",
+        "Run customer and relevant existing auth/Office tests and TypeScript, all Control Plane edit/knowledge/replay gates, risk budget.",
+        "Record explicit no-native-JWT-proof ceiling in GitHub issue."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -323,50 +333,34 @@
       "phase": "PLAN",
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
-        "mustEdit": [
-          "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
-        ],
+        "mustEdit": [],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
-          "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql"
+          "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
+          "tests/team-chat-server-actor-binding.test.ts"
         ],
         "forbidden": [],
         "proof": [],
-        "authority": [
-          "quality-knowledge-system"
-        ],
+        "authority": [],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 2,
+        "score": 0,
         "maxPoints": 5,
-        "subsystemCount": 1,
+        "subsystemCount": 0,
         "maxSubsystems": 3,
-        "subsystems": [
-          {
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
-          }
-        ],
+        "subsystems": [],
         "files": [
           {
-            "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "file": "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+            "file": "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql",
+            "file": "tests/team-chat-server-actor-binding.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -381,32 +375,20 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 2,
+          "score": 0,
           "maxPoints": 5,
-          "subsystemCount": 1,
+          "subsystemCount": 0,
           "maxSubsystems": 3,
-          "subsystems": [
-            {
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
-            }
-          ],
+          "subsystems": [],
           "files": [
             {
-              "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "file": "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+              "file": "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql",
+              "file": "tests/team-chat-server-actor-binding.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -421,37 +403,7 @@
           {
             "id": 0,
             "files": [
-              "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "files": [
-                {
-                  "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 1,
-            "files": [
-              "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts"
+              "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -462,7 +414,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+                  "file": "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -473,9 +425,9 @@
             }
           },
           {
-            "id": 2,
+            "id": 1,
             "files": [
-              "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql"
+              "tests/team-chat-server-actor-binding.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -486,7 +438,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql",
+                  "file": "tests/team-chat-server-actor-binding.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -504,74 +456,52 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "63e3cc8d1a4c4432f26e8113d0e3e91dbda9c768"
+              "developmentBaseSha": "3b4c7afed73a20eaf64ef96be9566c10a1eee834"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "63e3cc8d1a4c4432f26e8113d0e3e91dbda9c768",
+            "targetBaseSha": "3b4c7afed73a20eaf64ef96be9566c10a1eee834",
             "lease": {
-              "expectedBaseSha": "63e3cc8d1a4c4432f26e8113d0e3e91dbda9c768",
+              "expectedBaseSha": "3b4c7afed73a20eaf64ef96be9566c10a1eee834",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-              "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
-              "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql"
+              "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
+              "tests/team-chat-server-actor-binding.test.ts"
             ],
             "operations": [
               {
-                "operation": "modify",
-                "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+                "operation": "create",
+                "file": "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql",
+                "file": "tests/team-chat-server-actor-binding.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [],
-            "authorities": [
-              "quality-knowledge-system"
-            ],
-            "subsystems": [
-              "quality-infrastructure"
-            ],
+            "authorities": [],
+            "subsystems": [],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 0,
               "maxPoints": 5,
-              "subsystemCount": 1,
+              "subsystemCount": 0,
               "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
+              "subsystems": [],
               "files": [
                 {
-                  "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "file": "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
+                  "file": "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql",
+                  "file": "tests/team-chat-server-actor-binding.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -600,8 +530,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
-                "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql"
+                "tests/team-chat-server-actor-binding.test.ts"
               ],
               "externalGateIds": []
             },
@@ -612,9 +541,8 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-                "tests/customer-baseline-team-chat-owner-transfer-runtime.test.ts",
-                "tests/fixtures/customer-baseline-team-chat-owner-transfer-runtime.sql"
+                "docs/architecture/SHOPERATION_TEAM_CHAT_SERVER_ACTOR_AUDIT_20261010.md",
+                "tests/team-chat-server-actor-binding.test.ts"
               ],
               "filesAbsent": []
             },
@@ -629,7 +557,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "08010378",
+            "manifestDigest": "15a99405",
             "decision": "PASS"
           }
         ],
@@ -667,36 +595,35 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Team Chat 2 owner transfer 0067 and integrity 0066 are already installed and basic privilege negative probes PASS on isolated PostgreSQL 18, but no actual authorized owner transfer or cross-tenant/forged actor rejection is tested. Extend only the existing local socket-only PG18 Fresh Install rehearsal with a rollback-only fixture that provisions disposable users, two tenant organizations/instances, scoped support role_bindings, an internal group thread and active owner/member participants; prove positive owner transfer, resulting sole owner and audit, self-transfer/nonowner/nonparticipant/cross-tenant rejection and reversible owner transfer. Preserve canonical 69 SQL migrations and pending managed Supabase/JWT/Pro acceptance.",
+    "problemStatement": "F25 proved PostgreSQL Team Chat owner transfer semantics but actual server-bound p_actor provenance had not been tested against caller-supplied actor/instance IDs. Audit finds Team Chat API and two parallel server action paths use getAdminRequestUser() -> Supabase auth.getUser(), current scoped webshop, Pro teamChat plan gate and office.internal_chat capability; none currently accepts actor ID from untrusted payload. Add a dynamic mocked-handler adversarial regression that verifies an authenticated actor and server scope override forged actorId/instanceId fields, that missing authentication, Pro plan, active store context and chat permission block service_role RPC execution, and that malformed body and unverified RPC response do not claim success. Add source binding checks for BOTH server action owner-transfer/Team Chat paths plus explicit truth boundary note. Do not modify production auth logic without an actual defect, and do not claim native Supabase JWT cryptographic integration from mocked auth.",
     "observableOutcomes": [
-      "All current 69 Fresh Install migrations still run on disposable PostgreSQL 18 with official preflight/auth/seed/postflight.",
-      "One rollback-only fixture creates two isolated test store identities and role-bound group participants; checks current owner and new member read permissions before transfer.",
-      "Real service-role-only owner RPC transfers active owner to member, verifies single owner, demoted source, audit and second transfer back.",
-      "Invalid self-transfer, non-owner, unknown target and cross-instance target are rejected with exact canonical error codes, not arbitrary failure.",
-      "Existing Team Chat RLS/catalog/mention negatives and Office email/reply proofs remain PASS; fixture data entirely rolled back.",
-      "Tests and Control Plane quality-infra risk 2/5 pass; native provider Auth/JWT, concurrency and Pro downgrade remain open."
+      "Dynamic direct POST handler proof: despite forged actorId/userId/instanceId in caller JSON, RPC p_actor equals server getAdminRequestUser user.id and p_instance_id equals server scoped instance.",
+      "Unauthenticated request, non-Pro plan, missing current store context, denied office.internal_chat permission, invalid request body must never invoke privileged service_role RPC.",
+      "Post RPC result mismatches requested thread/message reject success, RPC error is fail closed; keep valid authorized request accepted.",
+      "Source-level server action regressions assert both /admin/kommunikacio/chat and /admin/kommunikacio/iroda owner/Team Chat entry points bind actor/instance via getAdminRequestUser, requireCurrentStoreContext, requirePlanFeature(teamChat) and hasStoreCapability rather than client-submitted IDs.",
+      "Dated evidence note documents accepted server provenance, remaining native Supabase Auth/JWT/session and service-role p_actor spoof threat from any different privileged caller; no fake DONE.",
+      "No product runtime, auth helpers, canonical SQL, entitlements, billing or hosted DB changes; existing full source regression/TypeScript and Control Plane gates PASS."
     ],
     "unresolvedRisks": [
-      "Local trust fixture does not authenticate signed-in request to p_actor; forged service_role API identity remains a blocker for native Supabase proof.",
-      "Positive transfer under empty fixture cannot prove lock contention or concurrent transfers on populated tenants.",
-      "Actual role_binding/store permissions may differ on hosted target; native postflight and occupied-target read-only inventory required.",
-      "Two tenant fixture cannot simulate real multi-tenant JWT restrictions without native Auth claim binding."
+      "Mocked getAdminRequestUser does not cryptographically verify auth.getUser session; native Supabase JWT authentication proof remains required.",
+      "Source-based server action regression can miss runtime nuance; future request mocks or integration E2E required.",
+      "Existing getAdminRequestUser platform-role exceptions and session-store context may need native multi-tenant session integration, not addressed here.",
+      "Service_role can invoke SQL with any p_actor outside audited routes; forbid nontrusted callers and complete provider runtime/trace proof before release."
     ],
     "scope": {
       "in": [
-        "Isolated Team Chat owner transfer positive/negative SQL fixture.",
-        "Existing local PostgreSQL harness invocation and rollback no-persist assertion.",
-        "Vitest fixture/harness security-contract source regressions."
+        "One dynamic vitest Next.js Team Chat API action negative + positive spy test and two server action provenance assertions.",
+        "Non-authoritative factual security boundary audit note, explicitly tracking native JWT/protected RPC blockers."
       ],
       "out": [
-        "No customer migrations, roadmap, plan capability grants or product worker/UI route changes.",
-        "No native hosted Supabase project writes, CI, Preview, PR push or subscriptions."
+        "No change to existing Team Chat route/actions/auth DB/SQL, Pro/Alap entitlement, checkout or communication worker behavior.",
+        "No new CI/workflow, preview, GitHub push or hosted Supabase connection."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F25-TEAM-CHAT-OWNER-PG-ROLE-TEST",
+    "sourceRef": "PO-2026-10-10-CORE-1186-F26-TEAM-CHAT-ACTOR-PROVENANCE",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -714,11 +641,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F25-OWNER-PG-POSITIVE",
-        "requirement": "Prove actual accepted/rejected Team Chat owner transfer on isolated local PostgreSQL with audit and owner singleton for two tenants; not native session authority.",
+        "id": "REQ-F26-ACTOR-BOUNDARY",
+        "requirement": "Require server authenticated user and scoped store for all Team Chat privileged RPCs; verify request body actor/instance spoof cannot substitute, while leaving native JWT acceptance pending.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "local-pg-owner-transfer-runtime",
+          "breadth": "api-server-actor-provenance-mocked",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -739,8 +666,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F25-OWNER-SEIZE",
-            "statement": "Owner RPC must reject non-owner and other-tenant targets and preserve exactly one owner and audit under valid transfers.",
+            "id": "NEG-F26-ACTOR-SPOOF",
+            "statement": "Caller-supplied actor/instance cannot alter service-role p_actor/p_instance_id; unauthenticated/denied cannot invoke the RPC.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -749,5 +676,5 @@
       }
     ]
   },
-  "notes": "F25 local-only owner transfer actual tenant/role positive negative DML, no product changes; managed Supabase and decisions remain OPEN."
+  "notes": "F26 actor-boundary verification only, no production auth mutation; native Supabase JWT/session and plan/tenant E2E still BLOCKED."
 }
