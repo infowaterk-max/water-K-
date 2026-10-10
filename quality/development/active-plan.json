@@ -1,17 +1,18 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-BBD150EE",
-  "task": "Core #1186 U10A2 F23: extend isolated PG18 Fresh Install rehearsal with effective Team Chat RLS/revokes, trigger and owner unique index catalog, rollback negative mention/object DML, no hosted targets",
+  "taskId": "DEV-8A5FE84F",
+  "task": "Core #1186 F24 accepted PO package decision reconciliation: Alap complete B2C plus simple B2B/partner pricing/MOQ/RFQ without Digital Office; Pro advanced contractual B2B and full Digital Office only; canonical Living Roadmap and regression, no product runtime or hosted writes",
   "status": "ready-for-implementation",
-  "guardDigest": "bbd150ee",
-  "changeBaseSha": "330a34cde7b419753256f84a11734fbc2d1804a1",
+  "guardDigest": "8a5fe84f",
+  "changeBaseSha": "02c7f35a92786260cbc819de87c498b402389bd0",
   "plannedFilePatterns": [
-    "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-    "tests/fixtures/customer-baseline-team-chat-negative.sql",
-    "tests/customer-baseline-team-chat-postgres.test.ts"
+    "quality/knowledge/living-roadmap.v2.json",
+    "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
+    "tests/product-decision-b2b-capability-reconciliation.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
+    "admin-operations",
+    "dependency-contract",
     "shared-storefront",
     "storefront-ui"
   ],
@@ -27,21 +28,40 @@
     "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
+    "TF-KF-003",
     "TF-KF-004",
+    "TF-KF-005",
     "TF-KF-006",
+    "TF-KF-007",
+    "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
     "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
     "TF-KF-016",
     "TF-KF-017",
     "TF-KF-018",
@@ -67,8 +87,8 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F23-TEAM-CHAT-PG-NEGATIVE",
-    "riskTier": "medium",
+    "sourceRef": "PO-2026-10-09-B2B-ALAP-SIMPLE-RFQ-PRO-GOVERNED-20261010-SYNC",
+    "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
       "rationale": "Tenant-scoped SQL authorization in SECURITY DEFINER and browser RLS can leak staff data or break Team Chat after migrations; require negative/positive state matrices, SQL syntax and real target proof.",
@@ -88,28 +108,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Both office_message_mentions and office_message_object_links deny direct SELECT to anon/authenticated, service_role can SELECT, RLS enabled.",
-        "Named Team Chat mention/object triggers are actually enabled BEFORE INSERT and identity-field UPDATE in pg_trigger.",
-        "Exact index office_thread_participants_active_owner_uidx exists and is unique/partial, checked via pg_index.",
-        "Effective admin_transfer_office_thread_owner_v1 execute denied to browser and allowed service role.",
-        "Test-only SQL injects nonexistent message refs into mentions and object link and rejects with OFFICE_MENTION_MESSAGE_INTEGRITY_INVALID and OFFICE_OBJECT_MESSAGE_INTEGRITY_INVALID; transaction ends ROLLBACK.",
-        "Full isolated PG69 clean replay, official pre/postflight, existing Office reply negative paths, all customer unit regressions, typecheck and Plan/Knowledge/Replay/risk PASS."
+        "Accepted B2B boundary explicit in both canonical MR1 scope and structured Alap/Pro packageMatrix.",
+        "Alap has simple partner onboarding and standard partner pricing, MOQ, partner groups and RFQ separate from Digital Office; Pro retains multiuser approval/contract complexity.",
+        "Original premium Digital Office and special commerce exclusions from Alap remain intact.",
+        "Dated reconciliation note transparently states accepted Trial/paid account/archiving/domain decisions are NOT yet sync-implemented, and repeat pause restriction still OPEN.",
+        "No existing roadmap entry lost, item count/status/IDs unchanged, JSON valid and existing architecture governance passes.",
+        "New targeted tests and TypeScript/Knowledge/Edit-Time/Replay/risk budget pass with no runtime/prod effects."
       ],
       "invariants": [
-        "Only local ephemeral PG DB is ever used; remote PGHOST ignored.",
-        "Team Chat private mentions/object links cannot be selected directly by browser roles.",
-        "Missing message/integrity trigger must fail closed.",
-        "Unique active owner constraint present and service-only transfer RPC is never public.",
-        "No test fixture rows or temp PostgreSQL process remain afterward.",
-        "No product SQL history mutated; native Supabase actor claims remain blocked."
+        "Alap B2C plus simple B2B must work without Office or Pro entitlements once implemented.",
+        "Digital Office/Team Chat stay Pro-only in canonical roadmap.",
+        "Only advanced governed B2B privileges are Pro, not basic partner pricing/MOQ/RFQ.",
+        "No claim of functional runtime completeness or Ready status based on roadmap text.",
+        "Canonical roadmap remains unique product authority; nonauthoritative doc records blockers only."
       ],
       "forbiddenStates": [
-        "Source-only mention checks reported actual database RLS proof without SET ROLE.",
-        "Disabled or missing Team Chat message integrity triggers accepted.",
-        "Browser can execute owner transfer RPC.",
-        "Insert with nonexistent Team Chat message ID succeeds.",
-        "A negative test swallows unexpected errors or leaves test fixture data.",
-        "Any user or production database touched."
+        "Entire RFQ reserved Pro in packageMatrix.",
+        "Alap simple RFQ depends on officeCommunicationAdvanced or Team Chat.",
+        "Pro advanced supplier/contract rules automatically granted to Alap.",
+        "No decision gate despite account/trial unresolved dependencies.",
+        "Product runtime mutated without dependency review.",
+        "Full B2B/Office capability marked DONE from this metadata-only edit."
       ]
     },
     "model": {
@@ -141,180 +160,216 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Missing pg_trigger integrity trigger",
-        "Disabled trigger",
-        "Incorrect BEFORE/UPDATE flags",
-        "No partial unique owner index",
-        "Function public EXECUTE grants",
-        "Browser selects mentions metadata",
-        "Wrong error code interpreted as expected",
-        "DO block exception catches its own success sentinel",
-        "SQL input changes after rehearsal",
-        "Cleanup leaves socket server",
-        "Access denied due to fixture mismodeling",
-        "Source syntax test green while SQL broken"
+        "Scope narrative updated but structured packageMatrix retains Pro-only RFQ",
+        "Alap advanced B2B accidentally granted",
+        "Pro Digital Office boundary loosened",
+        "Different page preset logic changes from unrequested roadmap edit",
+        "Changes touch planned builder/portfolio phase",
+        "Missing negative regression",
+        "Older repo entitlement SQL still contradicts accepted boundary",
+        "Trial pricing modified without final policy",
+        "Two competing canonical product truth files"
       ],
       "edgeCases": [
-        "Empty tenant with no Team Chat users",
-        "Nonexistent message UUID",
-        "Untrusted mentioned_user_id",
-        "Wrong object order reference",
-        "Unsupported object_type",
-        "Two conflicting active owner rows",
-        "Browser authenticated/anon SELECT",
-        "Service_role SELECT owner",
-        "No active Service role RPC",
-        "PostgreSQL runner SIGTERM cleanup"
+        "Simple RFQ without Digital Office",
+        "B2B company with one approved buyer",
+        "B2B standard MOQ/partner price",
+        "Pro multi-actor approvals",
+        "Expired quote convert order in Alap simple state",
+        "RFQ email notifications without Office",
+        "Trial webshop with domain deferred",
+        "Archived activated shop pending 1yr window"
       ]
     },
     "alternatives": [
       {
-        "id": "F23-RUNTIME-NEGATIVES",
-        "summary": "Extend reusable isolated PG harness with actual Team Chat ACL/cat/negative message and object DML proof.",
+        "id": "F24-SCOPE-SYNC",
+        "summary": "Bounded canonical roadmap B2B packageMatrix reconciliation and nonauthoritative open-decision ledger.",
         "disposition": "selected",
-        "reason": "Catches runtime regressions for new Team Chat schema with bounded test-only quality risk."
+        "reason": "Removes an accepted product conflict before Pro entitlement implementation without touching transactional code."
       },
       {
-        "id": "F23-STATIC-ONLY",
-        "summary": "Count source tests from migrations and declare RLS/trigger DONE.",
+        "id": "F24-KEEP-CONFLICT",
+        "summary": "Continue copying Advanced Communication Hub SQL without reconciling Alap RFQ boundary.",
         "disposition": "rejected",
-        "reason": "Recreates earlier unsupported acceptance style and misses effective database grants."
+        "reason": "Risks expensive redesign after unknowingly restricting baseline B2B."
       },
       {
-        "id": "F23-HOSTED",
-        "summary": "Run arbitrary DML against staging or Fresh Install Supabase to verify.",
+        "id": "F24-FULL-PRICING",
+        "summary": "Implement all Trial/account pricing, archive and B2B entitlement code in one unit.",
         "disposition": "rejected",
-        "reason": "Unapproved risk/cost; local fixture first then staged native proof separately."
+        "reason": "Contains still-open rules and crosses package/billing/commerce/Office security dependency chain."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Security",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "The new negative DML validates missing messages but not authenticated live actor identity or cross-tenant valid-row cases.",
-        "resolution": "Keep source-only-plus-local-PG status; require native Supabase tenant/JWT actor and owner transfer adversarial tests before DONE.",
-        "evidence": [
-          "supabase/customer-baseline/migrations/0066_digital_office_team_chat_2_integrity_v1.sql"
-        ]
-      },
-      {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Actual catalog checks and failing nonexistent message mutations increase proof strength but do not validate old occupied rows.",
-        "resolution": "Use clean local socket DB with rollback; occupied data compatibility remains prerequisite.",
+        "finding": "Later explicitly accepted Alap simple B2B/RFQ supersedes older categorical Pro RFQ wording.",
+        "resolution": "Update same canonical roadmap scope and packageMatrix; keep implementation BLOCKED until entitlement/notification chain review.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0067_digital_office_team_chat_owner_transfer_v1.sql"
+          "quality/knowledge/living-roadmap.v2.json"
         ]
       },
       {
-        "role": "Release",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Only isolated quality infra script and neutral fixtures change, risk 2/5.",
-        "resolution": "No product SQL, hosted DB or workflow edits, exact parent F22.",
+        "role": "Security",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Publishing Alap RFQ in documentation without server entitlements would make an unimplemented baseline capability look ready.",
+        "resolution": "Use metadata-only accepted status and conspicuous runtime/SQL/API blockers in reconciliation note; never silently set capability DONE.",
         "evidence": [
-          "deploy/release-risk-policy.json"
+          "quality/knowledge/living-roadmap.v2.json"
         ]
       },
       {
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "PG harness must always stop and not share private trust socket with other workspaces.",
-        "resolution": "Retain F19 guarded socket-only initdb and finally cleanup; assert no leftovers.",
+        "finding": "Previous acceptance mismatch could recur if text edited but structured package matrix remains Pro-only.",
+        "resolution": "Add regression asserts to check both narrative scope and matrix, plus Pro-only Office boundary.",
         "evidence": [
-          "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
+          "tests/control-plane-ecosystem-chain.test.ts"
+        ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Roadmap authority updates are governance changes that should not be merged with new SQL migrations.",
+        "resolution": "One bounded documentation/authority unit local only, exact F23 base and no deployment.",
+        "evidence": [
+          "quality/knowledge/architecture-constitution.v1.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F23-01",
-        "scenario": "Anonymous browser queries office_message_mentions on empty store using SELECT count(*).",
-        "finding": "If grant/RLS is accidentally broadened, mention user IDs leak despite source checks.",
-        "resolution": "Execute SELECT after SET ROLE anon and require actual Postgres permission denied.",
+        "id": "CH-F24-01",
+        "scenario": "An Alap merchant submits an ordinary RFQ without using any Digital Office UI.",
+        "finding": "Old packageMatrix could reject RFQ outright because RFQ is bundled with Pro commercial opportunity workflow.",
+        "resolution": "Canonical Alap matrix must state independent simple request/response/offer/order path; execution remains blocked until safe API/DB implementation.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F23-02",
-        "scenario": "Authenticated browser queries office_message_object_links directly without private thread membership.",
-        "finding": "Business object metadata could disclose private group commercial activities across tenants.",
-        "resolution": "Execute SELECT after SET ROLE authenticated and require actual permission denied.",
+        "id": "CH-F24-02",
+        "scenario": "An Alap merchant uses basic partner registration and merchant approval.",
+        "finding": "Old roadmap only recognizes ordinary customer group and might force verified multiuser company governance.",
+        "resolution": "Add simple partner onboarding to Alap while leaving multi-actor company approval/credit policies in Pro.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F23-03",
-        "scenario": "Admin disables office_message_mentions_integrity trigger while leaving SQL source unchanged.",
-        "finding": "Malformed mentions can be inserted from service-role worker; source assertion would falsely PASS.",
-        "resolution": "Require tgenabled=O and BEFORE INSERT/UPDATE bits from pg_trigger each fresh replay.",
+        "id": "CH-F24-03",
+        "scenario": "A Pro customer creates a contract-price list with signed terms.",
+        "finding": "Overbroad Alap entitlement might accidentally grant advanced pricing to baseline.",
+        "resolution": "Keep contract-specific price books, multi-level governance and credit policy Pro only.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F23-04",
-        "scenario": "Admin removes partial unique active owner index.",
-        "finding": "Concurrent group owner operations can create duplicate active owners.",
-        "resolution": "Query pg_index unique/partial metadata for canonical index; fail rehearsal if absent.",
+        "id": "CH-F24-04",
+        "scenario": "A Team Chat module is enabled for an Alap merchant due to legacy migration grants.",
+        "finding": "Old versioned SQL can make product copy contradictory to effective role authority.",
+        "resolution": "Keep Pro-only Office/Team Chat boundary, make effective entitlement reconciliation a separate mandatory downstream gate.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F23-05",
-        "scenario": "An anonymous browser invokes public.admin_transfer_office_thread_owner_v1 directly.",
-        "finding": "Ownership could be seized without server-side entitlement checks.",
-        "resolution": "Test has_function_privilege false for anon/authenticated and true for service_role.",
+        "id": "CH-F24-05",
+        "scenario": "A developer updates prose but not machine-readable packageMatrix.",
+        "finding": "Runtime generators or agents may still source outdated Pro-only RFQ semantics.",
+        "resolution": "Automated test reads both scope and packageMatrix and rejects disagreement.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F23-06",
-        "scenario": "Privileged service worker inserts mention for random message ID absent from this tenant.",
-        "finding": "Message identity integrity must not accept orphan mentions before FK check.",
-        "resolution": "Rollback-only test insert must raise exact OFFICE_MENTION_MESSAGE_INTEGRITY_INVALID from the trigger.",
+        "id": "CH-F24-06",
+        "scenario": "Another discussion later changes the Trial domain/retention policy.",
+        "finding": "Premature implementing partially collected commercial decisions can trigger destructive archival behavior.",
+        "resolution": "Record accepted-but-unsynced policies and open repeat-pause decision, hold runtime changes.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F23-07",
-        "scenario": "Privileged service worker inserts object link for random message ID absent from this tenant.",
-        "finding": "Invalid business link may be persisted without source message or author.",
-        "resolution": "Rollback-only test insert must raise exact OFFICE_OBJECT_MESSAGE_INTEGRITY_INVALID.",
+        "id": "CH-F24-07",
+        "scenario": "Pro contract approvals are conflated with simple Alap RFQ.",
+        "finding": "Alap would be artificially crippled or Pro advanced governance accidentally enabled.",
+        "resolution": "Distinguish minimal RFQ route from governed RFQ→opportunity→approval→order in canonical matrix.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F23-08",
-        "scenario": "Rehearsal throws before SQL negative test and leaves trust PG server alive.",
-        "finding": "Local server resources and socket permissions could leak.",
-        "resolution": "Keep try/finally stop and rmSync on exception; no TCP listen and private chmod 700 socket.",
+        "id": "CH-F24-08",
+        "scenario": "An agent sees roadmap accepted and declares B2B DONE.",
+        "finding": "No real entitlement/tenant/notification/quote→order end-to-end proof exists.",
+        "resolution": "Keep noSilentCompletion/Capability Closure and explicit implementation-proof blocker in note.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Pre-implementation Critical Plan Before Code PASS.",
-      "Vitest checks runner safety, effective target table ACL, trigger/index authority, expected SQL error, and rollback fixture.",
-      "Re-execute all 69 migrations, official preflight/bootstrap/seed/postflight with enhanced runtime negative Team Chat probes.",
-      "Customer-regression, typecheck, Edit-Time/Knowledge/Replay and exact F22 risk <=5/5 PASS.",
-      "Native Supabase actor/tenant owner transfer and Pro remain BLOCKED."
+      "Pass Critical Plan Before Code before editing roadmap.",
+      "Run B2B product decision sync regression checking scope and structured matrix plus no Office leakage.",
+      "Run architecture/roadmap authority guard, edit-time Reference Sync, Knowledge/Atlas and full shadow Replay.",
+      "Run exact F23 base release risk and TypeScript, no CI/Preview or data migrations.",
+      "Before advancing relevant production code verify Pro/Alap runtime entitlement and B2B/RFQ dependency closure on a separate release plan."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F23: extend isolated PG18 Fresh Install rehearsal with effective Team Chat RLS/revokes, trigger and owner unique index catalog, rollback negative mention/object DML, no hosted targets",
+      "request": "Core #1186 F24 accepted PO package decision reconciliation: Alap complete B2C plus simple B2B/partner pricing/MOQ/RFQ without Digital Office; Pro advanced contractual B2B and full Digital Office only; canonical Living Roadmap and regression, no product runtime or hosted writes",
       "authority": [
         "quality-knowledge-system"
       ],
       "mustEdit": [
-        "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
+        "quality/knowledge/living-roadmap.v2.json"
       ],
       "mayEdit": [],
-      "impactedReadOnly": [],
+      "impactedReadOnly": [
+        "quality/knowledge/architecture-constitution.v1.json",
+        "quality/knowledge/codebase-atlas-policy.v2.json",
+        "quality/knowledge/development-guard-policy.v1.json",
+        "quality/knowledge/shoperation-quality-knowledge.v1.json",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        "scripts/lib/shoperation-reference-sync-runtime.mjs",
+        "scripts/template-factory-quality-gate.mjs",
+        "src/app/account-workflow.css",
+        "src/app/adatvedelem/page.tsx",
+        "src/app/admin/indulas/page.tsx",
+        "src/app/api/visual-fidelity/templates/route.ts",
+        "src/app/aszf/page.tsx",
+        "src/app/impresszum/page.tsx",
+        "src/app/kereses/page.tsx",
+        "src/app/oldal/[slug]/page.tsx",
+        "src/app/szallitas-es-fizetes/page.tsx",
+        "src/components/account/storefront-account-shell.tsx",
+        "src/components/admin/content-manager.tsx",
+        "src/components/admin/storefront-fidelity-layout-controls.tsx",
+        "src/components/admin/storefront-fidelity-node-controls.tsx",
+        "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
+        "src/components/admin/storefront-saved-blocks-panel.tsx",
+        "src/components/admin/storefront-visual-builder-production.tsx",
+        "src/components/admin/storefront-visual-builder-v3.tsx",
+        "src/components/admin/team-member-controls.tsx",
+        "src/components/builder/storefront-commerce-header.module.css",
+        "src/components/builder/storefront-commerce-header.tsx",
+        "src/components/builder/storefront-commerce.tsx",
+        "src/components/builder/storefront-primitives.tsx",
+        "src/components/builder/storefront-purchase-controls.tsx",
+        "src/components/builder/storefront-structured-product.tsx",
+        "src/components/builder/storefront-support.tsx",
+        "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+        "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
+        "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+        "src/lib/quality-system/architecture-constitution.ts",
+        "src/lib/quality-system/capability-evidence.ts",
+        "src/lib/quality-system/domain-foundations.ts",
+        "src/lib/quality-system/shoperation-knowledge.ts",
+        "tests/capability-roadmap-evidence.test.ts"
+      ],
       "mustCreate": [
-        "tests/customer-baseline-team-chat-postgres.test.ts",
-        "tests/fixtures/customer-baseline-team-chat-negative.sql"
+        "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
+        "tests/product-decision-b2b-capability-reconciliation.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Pre-implementation Critical Plan Before Code PASS.",
-        "Vitest checks runner safety, effective target table ACL, trigger/index authority, expected SQL error, and rollback fixture.",
-        "Re-execute all 69 migrations, official preflight/bootstrap/seed/postflight with enhanced runtime negative Team Chat probes.",
-        "Customer-regression, typecheck, Edit-Time/Knowledge/Replay and exact F22 risk <=5/5 PASS.",
-        "Native Supabase actor/tenant owner transfer and Pro remain BLOCKED."
+        "Pass Critical Plan Before Code before editing roadmap.",
+        "Run B2B product decision sync regression checking scope and structured matrix plus no Office leakage.",
+        "Run architecture/roadmap authority guard, edit-time Reference Sync, Knowledge/Atlas and full shadow Replay.",
+        "Run exact F23 base release risk and TypeScript, no CI/Preview or data migrations.",
+        "Before advancing relevant production code verify Pro/Alap runtime entitlement and B2B/RFQ dependency closure on a separate release plan."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -325,16 +380,98 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
+          "quality/knowledge/living-roadmap.v2.json"
         ],
         "mayEdit": [],
-        "impactedReadOnly": [],
+        "impactedReadOnly": [
+          "quality/knowledge/architecture-constitution.v1.json",
+          "quality/knowledge/codebase-atlas-policy.v2.json",
+          "quality/knowledge/development-guard-policy.v1.json",
+          "quality/knowledge/shoperation-quality-knowledge.v1.json",
+          "scripts/lib/shoperation-operational-intelligence.mjs",
+          "scripts/lib/shoperation-reference-sync-runtime.mjs",
+          "scripts/template-factory-quality-gate.mjs",
+          "src/app/account-workflow.css",
+          "src/app/adatvedelem/page.tsx",
+          "src/app/admin/indulas/page.tsx",
+          "src/app/api/visual-fidelity/templates/route.ts",
+          "src/app/aszf/page.tsx",
+          "src/app/impresszum/page.tsx",
+          "src/app/kereses/page.tsx",
+          "src/app/oldal/[slug]/page.tsx",
+          "src/app/szallitas-es-fizetes/page.tsx",
+          "src/components/account/storefront-account-shell.tsx",
+          "src/components/admin/content-manager.tsx",
+          "src/components/admin/storefront-fidelity-layout-controls.tsx",
+          "src/components/admin/storefront-fidelity-node-controls.tsx",
+          "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
+          "src/components/admin/storefront-saved-blocks-panel.tsx",
+          "src/components/admin/storefront-visual-builder-production.tsx",
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/components/admin/team-member-controls.tsx",
+          "src/components/builder/storefront-commerce-header.module.css",
+          "src/components/builder/storefront-commerce-header.tsx",
+          "src/components/builder/storefront-commerce.tsx",
+          "src/components/builder/storefront-primitives.tsx",
+          "src/components/builder/storefront-purchase-controls.tsx",
+          "src/components/builder/storefront-structured-product.tsx",
+          "src/components/builder/storefront-support.tsx",
+          "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+          "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
+          "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "src/lib/quality-system/architecture-constitution.ts",
+          "src/lib/quality-system/capability-evidence.ts",
+          "src/lib/quality-system/domain-foundations.ts",
+          "src/lib/quality-system/shoperation-knowledge.ts",
+          "tests/capability-roadmap-evidence.test.ts"
+        ],
         "mustCreate": [
-          "tests/customer-baseline-team-chat-postgres.test.ts",
-          "tests/fixtures/customer-baseline-team-chat-negative.sql"
+          "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
+          "tests/product-decision-b2b-capability-reconciliation.test.ts"
         ],
         "forbidden": [],
-        "proof": [],
+        "proof": [
+          "tests/capability-roadmap-evidence.test.ts",
+          "tests/digital-commerce-builder-integration.test.tsx",
+          "tests/playroom-v20-canonical-shell-content.test.ts",
+          "tests/roadmap-block21-page-schema-templates.test.ts",
+          "tests/roadmap-block22-visual-builder.test.ts",
+          "tests/roadmap-block23-ai-builder-template-generation.test.ts",
+          "tests/shoperation-semantic-execution-intelligence.test.ts",
+          "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
+          "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
+          "tests/storefront-account-shell.test.ts",
+          "tests/storefront-beauty-lab-reference-v28.test.ts",
+          "tests/storefront-cart-presentation-contract.test.ts",
+          "tests/storefront-commerce-fidelity-slots.test.tsx",
+          "tests/storefront-commerce-header.test.tsx",
+          "tests/storefront-core-commerce.test.ts",
+          "tests/storefront-creator-station-wave36-reacceptance.test.ts",
+          "tests/storefront-fidelity-behavior.test.tsx",
+          "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
+          "tests/storefront-fidelity-diagnostics.test.ts",
+          "tests/storefront-fidelity-inspector.test.ts",
+          "tests/storefront-fidelity-layout.test.ts",
+          "tests/storefront-fidelity-primitive-renderers.test.tsx",
+          "tests/storefront-fidelity-security.test.ts",
+          "tests/storefront-global-styles.test.ts",
+          "tests/storefront-guided-fidelity-slots.test.tsx",
+          "tests/storefront-heritage-atelier-template.test.tsx",
+          "tests/storefront-heritage-atelier-wave28-reacceptance.test.tsx",
+          "tests/storefront-monarche-template.test.tsx",
+          "tests/storefront-monarche-wave43-reacceptance.test.ts",
+          "tests/storefront-performance-contract.test.ts",
+          "tests/storefront-playroom-reference-fidelity.test.ts",
+          "tests/storefront-playroom-reference-v2-fidelity.test.tsx",
+          "tests/storefront-playroom-template.test.tsx",
+          "tests/storefront-playroom-v18-image-slots.test.ts",
+          "tests/storefront-playroom-v19-complete.test.ts",
+          "tests/storefront-playroom-v19-page-family-presets.test.ts",
+          "tests/storefront-playroom-v19-subpage-parity.test.ts",
+          "tests/storefront-playroom-v19-visual-polish.test.ts",
+          "tests/storefront-playroom-v20-capability-consolidation.test.ts",
+          "tests/storefront-playroom-v20-functional-acceptance.test.ts"
+        ],
         "authority": [
           "quality-knowledge-system"
         ],
@@ -355,19 +492,19 @@
         ],
         "files": [
           {
-            "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "file": "tests/customer-baseline-team-chat-postgres.test.ts",
+            "file": "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "tests/fixtures/customer-baseline-team-chat-negative.sql",
+            "file": "quality/knowledge/living-roadmap.v2.json",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          },
+          {
+            "file": "tests/product-decision-b2b-capability-reconciliation.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -395,19 +532,19 @@
           ],
           "files": [
             {
-              "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "file": "tests/customer-baseline-team-chat-postgres.test.ts",
+              "file": "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "tests/fixtures/customer-baseline-team-chat-negative.sql",
+              "file": "quality/knowledge/living-roadmap.v2.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "tests/product-decision-b2b-capability-reconciliation.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -422,7 +559,31 @@
           {
             "id": 0,
             "files": [
-              "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
+              "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 1,
+            "files": [
+              "quality/knowledge/living-roadmap.v2.json"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -439,7 +600,7 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+                  "file": "quality/knowledge/living-roadmap.v2.json",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -450,33 +611,9 @@
             }
           },
           {
-            "id": 1,
-            "files": [
-              "tests/customer-baseline-team-chat-postgres.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "tests/customer-baseline-team-chat-postgres.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
             "id": 2,
             "files": [
-              "tests/fixtures/customer-baseline-team-chat-negative.sql"
+              "tests/product-decision-b2b-capability-reconciliation.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -487,7 +624,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/fixtures/customer-baseline-team-chat-negative.sql",
+                  "file": "tests/product-decision-b2b-capability-reconciliation.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -505,36 +642,36 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "330a34cde7b419753256f84a11734fbc2d1804a1"
+              "developmentBaseSha": "02c7f35a92786260cbc819de87c498b402389bd0"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "330a34cde7b419753256f84a11734fbc2d1804a1",
+            "targetBaseSha": "02c7f35a92786260cbc819de87c498b402389bd0",
             "lease": {
-              "expectedBaseSha": "330a34cde7b419753256f84a11734fbc2d1804a1",
+              "expectedBaseSha": "02c7f35a92786260cbc819de87c498b402389bd0",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-              "tests/customer-baseline-team-chat-postgres.test.ts",
-              "tests/fixtures/customer-baseline-team-chat-negative.sql"
+              "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
+              "quality/knowledge/living-roadmap.v2.json",
+              "tests/product-decision-b2b-capability-reconciliation.test.ts"
             ],
             "operations": [
               {
+                "operation": "create",
+                "file": "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
+                "generated": null
+              },
+              {
                 "operation": "modify",
-                "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+                "file": "quality/knowledge/living-roadmap.v2.json",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-team-chat-postgres.test.ts",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "tests/fixtures/customer-baseline-team-chat-negative.sql",
+                "file": "tests/product-decision-b2b-capability-reconciliation.test.ts",
                 "generated": null
               }
             ],
@@ -560,19 +697,19 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "file": "tests/customer-baseline-team-chat-postgres.test.ts",
+                  "file": "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "tests/fixtures/customer-baseline-team-chat-negative.sql",
+                  "file": "quality/knowledge/living-roadmap.v2.json",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
+                {
+                  "file": "tests/product-decision-b2b-capability-reconciliation.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -601,21 +738,61 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-team-chat-postgres.test.ts",
-                "tests/fixtures/customer-baseline-team-chat-negative.sql"
+                "tests/product-decision-b2b-capability-reconciliation.test.ts"
               ],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
-            "readOnlyPaths": [],
+            "readOnlyPaths": [
+              "quality/knowledge/architecture-constitution.v1.json",
+              "quality/knowledge/codebase-atlas-policy.v2.json",
+              "quality/knowledge/development-guard-policy.v1.json",
+              "quality/knowledge/shoperation-quality-knowledge.v1.json",
+              "scripts/lib/shoperation-operational-intelligence.mjs",
+              "scripts/lib/shoperation-reference-sync-runtime.mjs",
+              "scripts/template-factory-quality-gate.mjs",
+              "src/app/account-workflow.css",
+              "src/app/adatvedelem/page.tsx",
+              "src/app/admin/indulas/page.tsx",
+              "src/app/api/visual-fidelity/templates/route.ts",
+              "src/app/aszf/page.tsx",
+              "src/app/impresszum/page.tsx",
+              "src/app/kereses/page.tsx",
+              "src/app/oldal/[slug]/page.tsx",
+              "src/app/szallitas-es-fizetes/page.tsx",
+              "src/components/account/storefront-account-shell.tsx",
+              "src/components/admin/content-manager.tsx",
+              "src/components/admin/storefront-fidelity-layout-controls.tsx",
+              "src/components/admin/storefront-fidelity-node-controls.tsx",
+              "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
+              "src/components/admin/storefront-saved-blocks-panel.tsx",
+              "src/components/admin/storefront-visual-builder-production.tsx",
+              "src/components/admin/storefront-visual-builder-v3.tsx",
+              "src/components/admin/team-member-controls.tsx",
+              "src/components/builder/storefront-commerce-header.module.css",
+              "src/components/builder/storefront-commerce-header.tsx",
+              "src/components/builder/storefront-commerce.tsx",
+              "src/components/builder/storefront-primitives.tsx",
+              "src/components/builder/storefront-purchase-controls.tsx",
+              "src/components/builder/storefront-structured-product.tsx",
+              "src/components/builder/storefront-support.tsx",
+              "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+              "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
+              "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+              "src/lib/quality-system/architecture-constitution.ts",
+              "src/lib/quality-system/capability-evidence.ts",
+              "src/lib/quality-system/domain-foundations.ts",
+              "src/lib/quality-system/shoperation-knowledge.ts",
+              "tests/capability-roadmap-evidence.test.ts"
+            ],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-                "tests/customer-baseline-team-chat-postgres.test.ts",
-                "tests/fixtures/customer-baseline-team-chat-negative.sql"
+                "docs/architecture/SHOPERATION_PRODUCT_DECISION_RECONCILIATION_20261010.md",
+                "quality/knowledge/living-roadmap.v2.json",
+                "tests/product-decision-b2b-capability-reconciliation.test.ts"
               ],
               "filesAbsent": []
             },
@@ -630,7 +807,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "5f5603c6",
+            "manifestDigest": "2b006e27",
             "decision": "PASS"
           }
         ],
@@ -668,35 +845,40 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Fresh Install 0065-0067 Team Chat 2 schema, table-boundary triggers and owner transfer all install on local PostgreSQL 18, but F19 reusable real-PG harness still checks browser RLS and direct EXECUTE only for earlier Office tables and reply job. That leaves Team Chat mention/object table ACL, enabled triggers, active owner uniqueness, service-only RPC grants, and actual malformed message/link direct SQL untested. Extend only test fixtures and isolated opt-in PG harness with effective role negative SELECT checks, real pg_trigger/pg_index catalogs and rollback-only insert negatives for non-existent message; do not modify customer SQL or call hosted Supabase.",
+    "problemStatement": "Product Owner explicitly accepted on 2026-10-09 Alap as complete B2C plus functional SIMPLE B2B partner registration/approval, partner groups/pricing, MOQ and RFQ even WITHOUT Pro Digital Office; Pro adds advanced contractual B2B, company multi-actor roles, credit limits and maker-checker. The canonical Living Roadmap v2 packageMatrix currently reserves all RFQ/offer, partner pricing and MOQ for Pro: silent authority conflict would cause wrong entitlement implementation. Reconcile ONLY accepted B2B package boundary in one canonical roadmap update, and add a transparent dated decision reconciliation note for separate accepted Trial/account/archive decisions that require their own work units; no runtime/API/SQL changes, no Full Capability Closure claim.",
     "observableOutcomes": [
-      "On every F19 PG rehearsal, assert Office Team Chat mentions and object link tables have RLS and that anon/authenticated cannot read either by SET ROLE.",
-      "Inspect actual pg_trigger metadata for both mention/object before INSERT+UPDATE triggers enabled, plus active-owner partial unique index.",
-      "Check admin_transfer_office_thread_owner_v1 EXECUTE denied to anon/authenticated and allowed service_role; do not claim caller JWT binding.",
-      "Execute transactional SQL negative probes which attempt insert mentions and object links referencing non-existent message IDs and require exact canonical exception names, followed by ROLLBACK.",
-      "No permanent mock data left in target DB or PostgreSQL process, no production SQL changes.",
-      "Maintain original 69/69 PG migration + auth bootstrap/seed/postflight, 144+ regressions and Control Plane/Release Risk 2/5 PASS."
+      "Canonical MR1-PACKAGE-CAPABILITY-MATRIX scope 8 explicitly states Alap simple B2B RFQ works without Pro Digital Office, Pro only governed contract/complex B2B.",
+      "Structured packageMatrix.alap.capabilities explicitly enumerates partner registration/merchant approval, groups, standard partner prices/MOQ and simple RFQ/quote/order workflow without office; Pro retains advanced company governance and conditional RFQ/offer approval/terms.",
+      "B2B-MATURITY roadmap scope separates Alap baseline from advanced Pro requirements while preserving already accepted server-authority price provenance controls.",
+      "Dated product-decision discrepancy note explicitly distinguishes implemented canonical B2B delta, known accepted yet unsynced trial/store/account/archive decisions, truly open repeat-pause rule, and dependent product runtime that cannot be implemented before Decision Dependency Sync.",
+      "Targeted regression reads canonical roadmap object, checks accepted B2B package boundaries and no Pro Office leakage into Alap; whole-scope roadmap/Knowledge guard PASS.",
+      "No tenant/product or money-related runtime changes, no new grant/plan feature entitlement DDL and no hosted writes."
     ],
     "unresolvedRisks": [
-      "Nonexistent-message negative inserts do not prove authorized valid team-chat send, race/owner transfer, cross-tenant row access or session identity; add native full-feature test later.",
-      "PostgreSQL 18 test fixture emulates only a subset of Supabase Auth/Storage and is not managed provider acceptance.",
-      "Owner partial unique index introspection proves DDL installed but must be followed by concurrent real transfer tests for full lifecycle.",
-      "Runner changes can accidentally leak a long-running PostgreSQL instance or misparse role output; preserve isolation and fail-closed cleanup."
+      "Changing product roadmap alone does not change plan_capability_grants, storefront/admin/API or SQL rights; subsequent implementation is explicitly blocked on dependency chain closure.",
+      "Separate recent product decisions for Trial, account multi-store, domain/retention will need independent compatibility+schema impact assessment before code; note is not alternative canonical authority.",
+      "The module-by-module audit in other conversation is still ongoing: future accepted corrections may supersede these scope details and require re-reconciliation.",
+      "Older historical B2B narrative and code may still reserve all RFQ for Pro; requires explicit authority audit and migration-safe entitlement reconciliation.",
+      "No complete RFQ email/notification workflow or unit proof yet: avoid saying current Alap RFQ already works."
     ],
     "scope": {
       "in": [
-        "Enhance F19 isolated PG runner with Team Chat RLS/grant/trigger/catalog checks and new rollback negative SQL fixture.",
-        "New test-only Vitest safety regression of harness and fixture."
+        "Canonical roadmap wording/structured package matrix for accepted Alap simple B2B vs Pro advanced B2B.",
+        "B2B-MATURITY accepted boundary scope only, keep commercial rules intact.",
+        "Dated read-only decision discrepancy and implementation blocker doc with proven current vs accepted state.",
+        "Targeted product decision regression that fails if simple Alap RFQ disappears or Office leaks to Alap."
       ],
       "out": [
-        "No original migration SQL/manifest, server routes, provider code or GitHub workflow modification.",
-        "No native hosted Supabase project calls, CI, Preview or external network DB address."
+        "No actual plan_capability_grants/SQL/Core/Office/UI/server entitlement modification.",
+        "No alteration of template ordering, full Builder authority, 14 page matrix or other roadmap items.",
+        "No creation of independently competing product authority; canonical roadmap remains source of truth.",
+        "No staged/prod/Fresh Install DB, Vercel Preview, GitHub CI/PR push."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F23-TEAM-CHAT-PG-NEGATIVE",
+    "sourceRef": "PO-2026-10-09-B2B-ALAP-SIMPLE-RFQ-PRO-GOVERNED-20261010-SYNC",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -714,11 +896,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F23-TEAM-CHAT-NEGATIVE",
-        "requirement": "Prove real isolated PG RLS/browser grant, installed triggers/unique owner and rejects invalid Team Chat message inserts without hosted DB or false native Supabase claim.",
+        "id": "REQ-F24-ALAP-RFQ-DECISION",
+        "requirement": "Reflect accepted Alap simple B2B/RFQ without Office in canonical structured package matrix; preserve Pro advanced B2B and Office and block product implementation pending dependencies.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "local-pg-team-chat-adversarial-proof",
+          "breadth": "product-package-decision-authority-only",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -739,8 +921,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F23-MENTION-OBJECT",
-            "statement": "Missing Team Chat message IDs must be rejected by actual DB triggers and no browser may directly query private mention/link tables.",
+            "id": "NEG-F24-RFQ-PRO-ONLY",
+            "statement": "Canonical roadmap must not reserve all partner prices/MOQ/RFQ to Pro, nor allow Digital Office in Alap.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -749,5 +931,5 @@
       }
     ]
   },
-  "notes": "F23 enhances isolated local PG team chat role/trigger/index DML proof, no product SQL/DB changes. Native Supabase/Pro completion remains BLOCKED."
+  "notes": "F24 metadata-only accepted B2B PO package boundary sync, roadmap source of truth, explicit open Trial/account decisions and blocked runtime dependencies. NO entitlements implemented."
 }
