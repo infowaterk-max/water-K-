@@ -1,39 +1,45 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-52C0DEC9",
-  "task": "Core #1186 U10A2 F19: reproducible isolated real PostgreSQL customer baseline verification, clean SQL replay, permission/protected Office negative tests, no hosted DB calls",
+  "taskId": "DEV-2EBCB98E",
+  "task": "Core #1186 U10A2 F20: append canonical 0065 Team Chat 2 foundation with message mentions, tenant-bound business-object links, owner/participant actions; full local PostgreSQL rehearsal, no live DB writes",
   "status": "ready-for-implementation",
-  "guardDigest": "52c0dec9",
-  "changeBaseSha": "c20ecec91527af40593d40301959c3b6635abbd9",
+  "guardDigest": "2ebcb98e",
+  "changeBaseSha": "d40fe5d487a410ddab2274c75200f616c3394ae3",
   "plannedFilePatterns": [
-    "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-    "tests/fixtures/customer-baseline-postgres-shim.sql",
-    "tests/fixtures/customer-baseline-office-reply-negative.sql",
-    "tests/customer-baseline-postgres-rehearsal.test.ts"
+    "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+    "supabase/customer-baseline/manifest.json",
+    "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure"
+    "database-schema"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-DATA"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "database-schema"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-022"
+    "SQ-KF-022",
+    "SQ-KF-006",
+    "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-018",
+    "SQ-KF-023"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-005",
+    "SQ-NK-012",
+    "SQ-NK-014"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-F19-REPRODUCIBLE-REAL-POSTGRES",
-    "riskTier": "medium",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F20-TEAM-CHAT-2-FOUNDATION",
+    "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
       "rationale": "Tenant-scoped SQL authorization in SECURITY DEFINER and browser RLS can leak staff data or break Team Chat after migrations; require negative/positive state matrices, SQL syntax and real target proof.",
@@ -53,27 +59,29 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Node script locates PostgreSQL 18 executable suite or errors, creates cluster in chmod 700 temp with listen_addresses empty and session-local socket, and cleans up even on error.",
-        "At runtime script executes fixture, official preflight, 66 on-disk sorted migrations with one file transaction each, official auth-bootstrap+seed+postflight.",
-        "A missing earlier producer fails at exact migrating filename; no fallback stub/dynamic SQL injection allowed.",
-        "Checks real browser role denial for sensitive Office tables, privileged v2/v3 rights, enabled 0060 queue triggers and rollback-only positive/negative SQL DML.",
-        "Only tests/fixtures and optional script changed; no host connection, no CI deployment; Vitest and TypeScript/regression/Control Plane risk gates PASS.",
-        "Script must report local-emulated-postgres proof only and manifest remains snapshot-reviewed/Pro dependency OPEN."
+        "Full original Team Chat 2 SQL source body 20260909204503 exact SHA256 and lexically ordered new 0065 after 0064.",
+        "Active owner uniqueness, member/owner role check, mentions and object links tenant/message composite FK and RLS/browse privilege revokes.",
+        "Object reference helper validates supported order/offer/return/support/task IDs under instance_id, no cross-tenant links.",
+        "Team Chat v2 mutator limited to service_role and protected against unauthorized participant/owner changes by canonical SQL.",
+        "67 SQL files reviewed with no fake proof hash, customer regression tests and TS pass.",
+        "Isolated REAL local PG18 clean 67-file replay with actual preflight/bootstrap/seed/postflight and effective grants/reply trigger negative tests pass, else BLOCK.",
+        "Plan/Development/Edit-Time/Knowledge/Replay/exact F19 base risk pass, no native hosted Supabase/Pro completion claim."
       ],
       "invariants": [
-        "No PostgreSQL server listens on TCP, no externally configurable database host or credentials.",
-        "All migrations executed directly from ordered customer-baseline, never merged/filtered according to test expectation.",
-        "Missing schema/role rights and real SQL error fail closed, not warning-only.",
-        "All inserted fixture data rolled back, process and temp dir cleaned.",
-        "No source migration or customer data mutation."
+        "At most one active owner per internal team chat thread.",
+        "Mention and linked business object never cross instance/thread/message boundary.",
+        "Anon/authenticated cannot directly read or write private Team Chat mention/object records.",
+        "Only authorized service-role admin mutator may manage Team Chat v2 actions.",
+        "Earlier Office customer message and reply queue paths remain intact.",
+        "Historic SQL source immutable and no target data mutation."
       ],
       "forbiddenStates": [
-        "Running pg_ctl in an existing platform/production cluster.",
-        "Accepting PGHOST from env or building remote DSN.",
-        "Giving PASS when SQL on-file migration fails.",
-        "Leaving legacy v2 executable to browser/service roles at completion.",
-        "Leaving privileged data / socket accessible to other host users.",
-        "Calling this test a verified hosted Supabase Fresh Install."
+        "Multiple active owners in same internal group thread",
+        "Cross-tenant object link accepted",
+        "Direct browser SELECT on new private Team Chat mention/object tables",
+        "Canonical RPC callable by anonymous/authenticated",
+        "Missing dependency hidden by a dummy function",
+        "Source-only tests claimed equivalent to real Supabase production proof"
       ]
     },
     "model": {
@@ -105,54 +113,49 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "PostgreSQL binaries unavailable",
-        "initdb fails or runs as root",
-        "Unix socket pathname too long",
-        "server accidentally listens on 127.0.0.1",
-        "concurrent rehearsals collide on port",
-        "Supabase fixture lacks managed schema field",
-        "0001 full snapshot role ownership failure",
-        "new migration missing dependency at N",
-        "Auth bootstrap auth.users DDL missing",
-        "unexpected browser table access",
-        "legacy v2 executable",
-        "office thread guard skips UPDATE",
-        "rollback fixture DML accidentally persists",
-        "cleanup fails on kill",
-        "output exposes data or misclaims DONE"
+        "Referenced business table absent from customer baseline",
+        "Composite FK message unique index missing",
+        "Existing participant data violates owner partial unique index",
+        "No membership check before mention creation",
+        "Cross-instance link accepted",
+        "Owner transfer without audit",
+        "Anonymous role inherits grant",
+        "Service-only mutator has insecure p_actor",
+        "Future migration changes Table DDL unexpectedly",
+        "Postgres replay fails before/at 0065",
+        "Snapshot silently marked ready"
       ],
       "edgeCases": [
-        "Empty database with no users",
-        "Pre-existing env PGHOST pointing to prod is ignored",
-        "Two concurrent isolated local harness runs",
-        "Intentionally missing psql binary",
-        "Migration file filename gap/duplicate",
-        "Existing hosted migration ledger not used",
-        "Postgres initialization failure midway",
-        "Test-only SQL error from negative subtransaction",
-        "Old v2 revoke and new v3 execute",
-        "New migration appended after 0064",
-        "SIGINT and Ctrl-C cleanup"
+        "Private thread with no participants",
+        "Group thread creator invited",
+        "Two owners already active",
+        "Mention author not participant",
+        "Cross-tenant referenced order",
+        "Deleted message with mention",
+        "Object link refers to support ticket from other instance",
+        "Owner leaves thread",
+        "Archived thread",
+        "Customer thread should not use internal team chat mutator"
       ]
     },
     "alternatives": [
       {
-        "id": "F19-ISOLATED",
-        "summary": "Ship opt-in isolated PG18 rehearsal with minimum test-only fixture and actual SQL/ACL/trigger tests.",
+        "id": "F20-CANONICAL",
+        "summary": "Append byte-identical Team Chat 2 foundation 0065 and prove real PostgreSQL install.",
         "disposition": "selected",
-        "reason": "Future schema errors become deterministic, reproducible blockers without hosted Supabase risk or GitHub CI cost."
+        "reason": "Canonical existing design with original source, bounded DDL unit and dynamic DB evidence."
       },
       {
-        "id": "F19-STATIC",
-        "summary": "Keep only Vitest source body/hash tests.",
+        "id": "F20-APP-ONLY",
+        "summary": "Only add Team Chat functionality to app UI without DB constraints.",
         "disposition": "rejected",
-        "reason": "Failed to detect missing v2 producer in 65 migration baseline."
+        "reason": "Leaves private messages and owner uniqueness bypassable through service-role SQL."
       },
       {
-        "id": "F19-HOSTED",
-        "summary": "Apply on real staging/platform database every migration.",
+        "id": "F20-BATCH",
+        "summary": "Bundle foundation, integrity and owner transfer in one risky release.",
         "disposition": "rejected",
-        "reason": "Unnecessary production-data risk and cost; later requires explicit target readiness proof."
+        "reason": "Exceeds one independently proven migration and obscures first failing dependency."
       }
     ],
     "specialistReviews": [
@@ -160,129 +163,131 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Trust authentication on test PG cluster and emulated Supabase roles can be dangerous if TCP exposed or used for hosted acceptance.",
-        "resolution": "Restrict cluster to private socket chmod 700, explicitly set listen_addresses empty, do not accept host DSN, clean process/temp; retain partial status.",
+        "finding": "Source-only owner/mention role logic plus local PG fixture cannot prove signed-in actor identity or direct object link fetch ACL in native Supabase.",
+        "resolution": "Keep partial; require native Supabase disposable actor/tenant/role negative runtime checks before release.",
         "evidence": [
-          "supabase/customer-baseline/manifest.json"
+          "supabase/migrations/20260909204503_digital_office_team_chat_2_foundation_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Local PG fixture can drift from real Supabase schema but executes real FK/CHECK/TRIGGER logic, so report scope precisely.",
-        "resolution": "Official pre/postflight + deterministic ordered SQL and negative semantics; full Supabase-native proof later.",
+        "finding": "Adding unique active owner index may fail if an occupied target already contains multiple active owners.",
+        "resolution": "No live database writes; require read-only duplicate-owner inventory before applying outside clean rehearsal.",
         "evidence": [
-          "supabase/customer-baseline/target-postflight.sql"
+          "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Harness is test-only quality-infrastructure, not a database DDL production change.",
-        "resolution": "Bound four test-only files, exact parent and Control Plane gates, no CI auto-trigger.",
+        "finding": "One canonical DB schema subsystem uses exact-parent bounded 5/5 risk, but source SQL is multi-table/RPC and needs runtime proof.",
+        "resolution": "Isolate 0065 migration, manifest and tests; run opt-in F19 PG18 harness after edits.",
         "evidence": [
-          "quality/development/active-plan.json"
+          "deploy/release-risk-policy.json"
         ]
       },
       {
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Reusable local runner must not leave costly sandbox resources or local Postgres processes running.",
-        "resolution": "try/finally server stop+rm; no external project or Preview.",
+        "finding": "New chat mentions/object link references could later need notification runtime and data retention support.",
+        "resolution": "Capability Dependency Closure stays PARTIAL for sender/notification/read receipts until downstream integration is proven.",
         "evidence": [
-          "supabase/customer-baseline/target-preflight.sql"
+          "supabase/customer-baseline/manifest.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F19-01",
-        "scenario": "Run harness with PGHOST set to a hosted Supabase endpoint.",
-        "finding": "An unsafe harness might mistakenly apply 66 migrations to production.",
-        "resolution": "Override PostgreSQL connection env with private Unix socket, fixed test db and random port; reject remote connection inputs.",
+        "id": "CH-U10A2-F20-01",
+        "scenario": "Existing internal thread contains two active owner participants.",
+        "finding": "Partial unique owner index would fail or owner designation becomes inconsistent.",
+        "resolution": "Preserve canonical owner uniqueness and require occupied-target read-only duplicate-owner inventory before rollout.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F19-02",
-        "scenario": "A missing producer causes migration N to fail while static tests PASS.",
-        "finding": "False readiness repeats template re-acceptance failure pattern.",
-        "resolution": "Run exactly sorted on-disk SQL, report first failing file with psql exit and do not retry with ad hoc SQL.",
+        "id": "CH-U10A2-F20-02",
+        "scenario": "A malicious service request adds a mention of a user outside the webshop.",
+        "finding": "Mention metadata could reveal private correspondence across tenants.",
+        "resolution": "Use canonical composite instance/message FK, actor permissions and native authenticated negative test later.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F19-03",
-        "scenario": "A bad test SQL exits early leaving an elevated Postgres server running.",
-        "finding": "Leaked local trust cluster or unnecessary ongoing cost.",
-        "resolution": "Runner uses finally cleanup, PostgreSQL only listens on chmod 700 socket, temp directory removed.",
+        "id": "CH-U10A2-F20-03",
+        "scenario": "A message attaches an order from another tenant while reusing a valid UUID.",
+        "finding": "Linked business card can expose another shop commercial data.",
+        "resolution": "Require private.office_chat_object_exists_v1 with instance_id predicate and real cross-tenant test.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F19-04",
-        "scenario": "A prior PostgreSQL/Supabase environment exports authentication tokens and CWD connection vars.",
-        "finding": "Sandbox rehearsal could pick up ambient credentials.",
-        "resolution": "Use an explicit PGHOST private path, PGUSER postgres, PGDATABASE local in subprocesses; no provider calls.",
+        "id": "CH-U10A2-F20-04",
+        "scenario": "Browser role reads office_message_mentions without corresponding access to private thread.",
+        "finding": "Mention identities and private message relationships become visible through Data API.",
+        "resolution": "RLS enabled and revoke all from public/anon/authenticated; actual PostgreSQL role SELECT denial and Supabase check.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F19-05",
-        "scenario": "An Office message function grants insecure v2 EXECUTE to service_role after 0054.",
-        "finding": "Legacy sender-only conversation merge bypass can become callable.",
-        "resolution": "Actual has_function_privilege checks fail closed on anon/authenticated/service_role, v3 service_role only.",
+        "id": "CH-U10A2-F20-05",
+        "scenario": "Two admins concurrently grant owner on one active thread.",
+        "finding": "Multiple active owners possible without DB unique constraint.",
+        "resolution": "Create partial unique index for active owner scoped to instance and thread.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F19-06",
-        "scenario": "A later SQL disables RLS on the private Office attachments table.",
-        "finding": "Source-only SAST tests may not discover effective role exposure.",
-        "resolution": "Run pg_class.relrowsecurity and actual SET ROLE SELECT attempts expecting permission denied.",
+        "id": "CH-U10A2-F20-06",
+        "scenario": "Support customer thread is passed into team chat group action.",
+        "finding": "Internal workspace mutation can incorrectly change customer correspondence state.",
+        "resolution": "Canonical RPC enforces internal_private/internal_group guards and object/membership rules.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F19-07",
-        "scenario": "Canonical reply trigger gets recreated as BEFORE INSERT only.",
-        "finding": "An existing job UPDATE can bypass tenant/mailbox validation.",
-        "resolution": "Check actual pg_trigger enabled mask plus rollback-only payload tag-add/strip/modify rejection.",
+        "id": "CH-U10A2-F20-07",
+        "scenario": "Thread creator leaves the group and an owner transfer is requested.",
+        "finding": "Foundation owner model may lack complete transfer semantics.",
+        "resolution": "Keep Team Chat owner transfer as separate later migration, do not mark capability DONE.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F19-08",
-        "scenario": "The fixture simulates auth.users but not full Supabase managed internals.",
-        "finding": "A local PG PASS is incorrectly advertised as complete native Supabase integration.",
-        "resolution": "Label proof LOCAL_POSTGRES_TEST_FIXTURE, leave manifest snapshot-reviewed; require hosted-equivalent disposable testing before DONE.",
+        "id": "CH-U10A2-F20-08",
+        "scenario": "Caller passes a forged p_actor to service_role mutator.",
+        "finding": "SQL comparison to p_actor does not validate the actual authenticated caller.",
+        "resolution": "Release blocked until server session-to-actor binding verified on native Supabase.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code on four test-only files before edit.",
-      "CLI safety and negative regression unit tests plus actual fresh 66-file PostgreSQL empty DB replay.",
-      "Auth bootstrap/seed/official preflight/postflight, exact effective privileges/RLS, Office reply trigger DML proof.",
-      "Edit-Time/ReferenceSync, Knowledge and Incremental Replay plus exact F18 release-risk proof.",
-      "No CI/hosted deployment or false customer capability completion."
+      "Critical Plan Before Code PASS before 0065 SQL modification.",
+      "Canonical source SHA256 and scoped owner/mention/link/service RPC negative source regressions.",
+      "Customer baseline guard 67, TS, Edit-Time Sync/PO instruction retention.",
+      "F19 isolated actual PostgreSQL18 rehearsal 67/67 including official pre/postflight and effective rights/reply negative DML.",
+      "Knowledge/Atlas/Incremental Replay FULL/shadow and exact F19 Release Risk <=5/5.",
+      "Native Supabase actor/tenant/RLS, Pro entitlement and full Capability Closure still pending."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F19: reproducible isolated real PostgreSQL customer baseline verification, clean SQL replay, permission/protected Office negative tests, no hosted DB calls",
+      "request": "Core #1186 U10A2 F20: append canonical 0065 Team Chat 2 foundation with message mentions, tenant-bound business-object links, owner/participant actions; full local PostgreSQL rehearsal, no live DB writes",
       "authority": [
-        "quality-knowledge-system"
+        "database-schema"
       ],
-      "mustEdit": [],
+      "mustEdit": [
+        "supabase/customer-baseline/manifest.json"
+      ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-        "tests/customer-baseline-postgres-rehearsal.test.ts",
-        "tests/fixtures/customer-baseline-office-reply-negative.sql",
-        "tests/fixtures/customer-baseline-postgres-shim.sql"
+        "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+        "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code on four test-only files before edit.",
-        "CLI safety and negative regression unit tests plus actual fresh 66-file PostgreSQL empty DB replay.",
-        "Auth bootstrap/seed/official preflight/postflight, exact effective privileges/RLS, Office reply trigger DML proof.",
-        "Edit-Time/ReferenceSync, Knowledge and Incremental Replay plus exact F18 release-risk proof.",
-        "No CI/hosted deployment or false customer capability completion."
+        "Critical Plan Before Code PASS before 0065 SQL modification.",
+        "Canonical source SHA256 and scoped owner/mention/link/service RPC negative source regressions.",
+        "Customer baseline guard 67, TS, Edit-Time Sync/PO instruction retention.",
+        "F19 isolated actual PostgreSQL18 rehearsal 67/67 including official pre/postflight and effective rights/reply negative DML.",
+        "Knowledge/Atlas/Incremental Replay FULL/shadow and exact F19 Release Risk <=5/5.",
+        "Native Supabase actor/tenant/RLS, Pro entitlement and full Capability Closure still pending."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -292,54 +297,52 @@
       "phase": "PLAN",
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
-        "mustEdit": [],
+        "mustEdit": [
+          "supabase/customer-baseline/manifest.json"
+        ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-          "tests/customer-baseline-postgres-rehearsal.test.ts",
-          "tests/fixtures/customer-baseline-office-reply-negative.sql",
-          "tests/fixtures/customer-baseline-postgres-shim.sql"
+          "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+          "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
         ],
         "forbidden": [],
         "proof": [],
-        "authority": [],
+        "authority": [
+          "auth-access-authority",
+          "database-schema",
+          "tenant-context-authority"
+        ],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 2,
+        "score": 5,
         "maxPoints": 5,
         "subsystemCount": 1,
         "maxSubsystems": 3,
         "subsystems": [
           {
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
+            "subsystem": "database-schema",
+            "risk": "high",
+            "points": 5
           }
         ],
         "files": [
           {
-            "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
+            "file": "supabase/customer-baseline/manifest.json",
+            "subsystem": "database-schema",
+            "risk": "high",
+            "points": 5
           },
           {
-            "file": "tests/customer-baseline-postgres-rehearsal.test.ts",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
+            "file": "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+            "subsystem": "database-schema",
+            "risk": "high",
+            "points": 5
           },
           {
-            "file": "tests/fixtures/customer-baseline-office-reply-negative.sql",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "tests/fixtures/customer-baseline-postgres-shim.sql",
+            "file": "tests/customer-baseline-office-team-chat-2-foundation.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -354,38 +357,32 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 2,
+          "score": 5,
           "maxPoints": 5,
           "subsystemCount": 1,
           "maxSubsystems": 3,
           "subsystems": [
             {
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
+              "subsystem": "database-schema",
+              "risk": "high",
+              "points": 5
             }
           ],
           "files": [
             {
-              "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
+              "file": "supabase/customer-baseline/manifest.json",
+              "subsystem": "database-schema",
+              "risk": "high",
+              "points": 5
             },
             {
-              "file": "tests/customer-baseline-postgres-rehearsal.test.ts",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
+              "file": "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+              "subsystem": "database-schema",
+              "risk": "high",
+              "points": 5
             },
             {
-              "file": "tests/fixtures/customer-baseline-office-reply-negative.sql",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
-            {
-              "file": "tests/fixtures/customer-baseline-postgres-shim.sql",
+              "file": "tests/customer-baseline-office-team-chat-2-foundation.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -400,27 +397,27 @@
           {
             "id": 0,
             "files": [
-              "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs"
+              "supabase/customer-baseline/manifest.json"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 5,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "subsystem": "database-schema",
+                  "risk": "high",
+                  "points": 5
                 }
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "file": "supabase/customer-baseline/manifest.json",
+                  "subsystem": "database-schema",
+                  "risk": "high",
+                  "points": 5
                 }
               ],
               "violations": [],
@@ -430,21 +427,27 @@
           {
             "id": 1,
             "files": [
-              "tests/customer-baseline-postgres-rehearsal.test.ts"
+              "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
+              "score": 5,
               "maxPoints": 5,
-              "subsystemCount": 0,
+              "subsystemCount": 1,
               "maxSubsystems": 3,
-              "subsystems": [],
+              "subsystems": [
+                {
+                  "subsystem": "database-schema",
+                  "risk": "high",
+                  "points": 5
+                }
+              ],
               "files": [
                 {
-                  "file": "tests/customer-baseline-postgres-rehearsal.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
+                  "file": "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+                  "subsystem": "database-schema",
+                  "risk": "high",
+                  "points": 5
                 }
               ],
               "violations": [],
@@ -454,7 +457,7 @@
           {
             "id": 2,
             "files": [
-              "tests/fixtures/customer-baseline-office-reply-negative.sql"
+              "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -465,31 +468,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/fixtures/customer-baseline-office-reply-negative.sql",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 3,
-            "files": [
-              "tests/fixtures/customer-baseline-postgres-shim.sql"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "tests/fixtures/customer-baseline-postgres-shim.sql",
+                  "file": "tests/customer-baseline-office-team-chat-2-foundation.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -507,84 +486,74 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "c20ecec91527af40593d40301959c3b6635abbd9"
+              "developmentBaseSha": "d40fe5d487a410ddab2274c75200f616c3394ae3"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "c20ecec91527af40593d40301959c3b6635abbd9",
+            "targetBaseSha": "d40fe5d487a410ddab2274c75200f616c3394ae3",
             "lease": {
-              "expectedBaseSha": "c20ecec91527af40593d40301959c3b6635abbd9",
+              "expectedBaseSha": "d40fe5d487a410ddab2274c75200f616c3394ae3",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-              "tests/customer-baseline-postgres-rehearsal.test.ts",
-              "tests/fixtures/customer-baseline-office-reply-negative.sql",
-              "tests/fixtures/customer-baseline-postgres-shim.sql"
+              "supabase/customer-baseline/manifest.json",
+              "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+              "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
             ],
             "operations": [
               {
-                "operation": "create",
-                "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
+                "operation": "modify",
+                "file": "supabase/customer-baseline/manifest.json",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-postgres-rehearsal.test.ts",
+                "file": "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/fixtures/customer-baseline-office-reply-negative.sql",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "tests/fixtures/customer-baseline-postgres-shim.sql",
+                "file": "tests/customer-baseline-office-team-chat-2-foundation.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [],
-            "authorities": [],
+            "authorities": [
+              "database-schema"
+            ],
             "subsystems": [
-              "quality-infrastructure"
+              "database-schema"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 5,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "subsystem": "database-schema",
+                  "risk": "high",
+                  "points": 5
                 }
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "file": "supabase/customer-baseline/manifest.json",
+                  "subsystem": "database-schema",
+                  "risk": "high",
+                  "points": 5
                 },
                 {
-                  "file": "tests/customer-baseline-postgres-rehearsal.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
+                  "file": "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+                  "subsystem": "database-schema",
+                  "risk": "high",
+                  "points": 5
                 },
                 {
-                  "file": "tests/fixtures/customer-baseline-office-reply-negative.sql",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "tests/fixtures/customer-baseline-postgres-shim.sql",
+                  "file": "tests/customer-baseline-office-team-chat-2-foundation.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -594,6 +563,7 @@
               "decision": "PASS"
             },
             "requiredGates": [
+              "GUARD-CUSTOMER-BASELINE",
               "GUARD-EDIT-TIME",
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -604,6 +574,7 @@
             ],
             "requiredEvidence": {
               "gateIds": [
+                "GUARD-CUSTOMER-BASELINE",
                 "GUARD-EDIT-TIME",
                 "GUARD-INCREMENTAL-REPLAY",
                 "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -613,9 +584,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-postgres-rehearsal.test.ts",
-                "tests/fixtures/customer-baseline-office-reply-negative.sql",
-                "tests/fixtures/customer-baseline-postgres-shim.sql"
+                "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
               ],
               "externalGateIds": []
             },
@@ -626,10 +595,9 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "scripts/shoperation-customer-baseline-postgres-rehearsal.mjs",
-                "tests/customer-baseline-postgres-rehearsal.test.ts",
-                "tests/fixtures/customer-baseline-office-reply-negative.sql",
-                "tests/fixtures/customer-baseline-postgres-shim.sql"
+                "supabase/customer-baseline/manifest.json",
+                "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+                "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
               ],
               "filesAbsent": []
             },
@@ -644,7 +612,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "0ca6aaa5",
+            "manifestDigest": "ad4a306e",
             "decision": "PASS"
           }
         ],
@@ -657,6 +625,7 @@
         "contract": "shoporation.gate-chain.v1",
         "phase": "PLAN",
         "orderedGateIds": [
+          "GUARD-CUSTOMER-BASELINE",
           "GUARD-KNOWLEDGE-PREFLIGHT",
           "GUARD-PLAN-BEFORE-CODE",
           "GUARD-EDIT-TIME",
@@ -671,6 +640,7 @@
           "GUARD-RELEASE-RISK"
         ],
         "futureGateIds": [
+          "GUARD-CUSTOMER-BASELINE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
           "GUARD-QUALITY-TESTS",
@@ -682,38 +652,40 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "F18 first real PostgreSQL baseline exercise found a genuine missing pre-0054 producer that 133/133 static tests missed. A one-off /tmp command sequence is not reproducible and can silently regress when later migrations are added. Implement a guarded read-only-to-repository, local-only isolated postgres execution harness: fail closed without PG18 executables, create a socket-only disposable PG cluster, supply minimal explicit Supabase Auth/Storage schema and roles for compatibility, execute official clean-target preflight, all on-disk migration files lexicographically in transactional order, auth-bootstrap+seed+postflight, and actual negative RLS/grant and Office reply UPDATE trigger tests; return nonzero first failing SQL without changing any production repo SQL or hosted database.",
+    "problemStatement": "Existing Fresh Install customer baseline 0064 has initial private/group Office conversations but lacks canonical 20260909204503 Team Chat 2 foundation including exactly one active owner per thread, private mention records and tenant-validated object cards. This is a 361-line high-risk multi-function DB schema change using a service_role-only SECURITY DEFINER admin_mutate_office_team_chat_v2; all dependent Office/private/auth/commerce tables must already exist. Append unchanged canonical source after 0064 and run the recently created isolated PostgreSQL 18 FULL migration chain and critical actual effective role tests. No hosted DB writes or false full Supabase acceptance.",
     "observableOutcomes": [
-      "New standalone node script verifies local PostgreSQL server commands and creates its own secure temp data/socket directory with listen_addresses empty (no TCP), runs entire on-disk customer-baseline SQL without per-file manual insertion.",
-      "Test-only Supabase shim fixture contains anon/authenticated/service_role/supabase_admin roles, auth.uid()/jwt(), minimal auth.users and storage.buckets/objects columns; fixtures explicitly NOT Supabase runtime parity.",
-      "Official target-preflight, auth-bootstrap, seed, postflight all executed on clean target, any failure aborts.",
-      "Database assertions effective legacy v2 revokes and v3 grant, Office sensitive table effective grants/RLS, enabled INSERT+UPDATE reply guard and UPDATE immutability, and rollback-only DML negative tests.",
-      "No GitHub workflow, package auto-trigger or CI charge; explicit opt-in local node command only, new unit has tests validating safety and fail-closed behavior.",
-      "On exit all processes stopped and temporary folders deleted; no real target connection secrets or external network DB path accepted; no full Supabase/Pro-ready claim."
+      "0065 SQL canonical original body byte-identical SHA256 and forward ordered after 0064; 67 SQL baseline files and prior source unchanged.",
+      "Owner-per-thread unique partial index on active office_thread_participants plus participant role owner/member check.",
+      "New tenant/author/message-bound office_message_mentions and office_message_object_links with composite FK, RLS and browser access revokes.",
+      "Private office_chat_is_owner_v1 and office_chat_object_exists_v1 enforce authorization and tenant-bound commercial object references.",
+      "admin_mutate_office_team_chat_v2 protects participant/owner permissions, mentions and object links, executes as service_role only; actual runtime trust/actor binding remains blocked.",
+      "All 67 migrations execute on isolated local PostgreSQL 18 using reusable F19 harness with official preflight/bootstrap/seed/postflight and actual Office security negative tests.",
+      "Developer Guard/Plan/Regression/TypeScript/Edit-Time/Knowledge/Replay/Release Risk PASS single schema 5/5; proof claims remain limited to local PostgreSQL+fixture."
     ],
     "unresolvedRisks": [
-      "Actual PostgreSQL 18/supabase compatibility fixture is not full managed Supabase Auth, Storage, JWT, Realtime or object ACL; source-only RLS and local role proof cannot certify hosted runtime.",
-      "Local postgres initdb bootstrap uses trust only on private chmod 700 Unix socket, no TCP and no long-running service; isolation must be tested.",
-      "Postgres command binary versions, package paths or local system constraints may block opt-in harness; hard fail with actionable error rather than skip pretending PASS.",
-      "A test-only fixture can diverge from Supabase managed schema in future; require active maintenance and eventual disposable Supabase-native acceptance.",
-      "CLI timeout/sandbox termination can interrupt cleanup; temp directory randomized and no privileged hosted services used; sandbox teardown is secondary failsafe."
+      "A canonical service_role SECURITY DEFINER RPC accepting p_actor can be impersonated by an incorrect server caller; actual JWT/session binding is not proved locally.",
+      "Only empty test target tested: on an occupied database owner unique partial index can reject existing duplicate owners and requires read-only data compatibility preflight before deployment.",
+      "Local PostgreSQL with minimal Supabase Auth/Storage shim is not native Supabase Auth/JWT/RLS/provider/Storage acceptance.",
+      "Business object cards may link to invalid cross-tenant orders/offers/tickets when runtime actor checks are weak; require negative functional tests in disposable native tenant DB later.",
+      "Later canonical Team Chat 2 integrity and owner transfer SQL remain pending and capability is PARTIAL, and strict Pro entitlement controls U10A1 remain unmerged."
     ],
     "scope": {
       "in": [
-        "Standalone opt-in node PostgreSQL rehearsal runner scripts/shoperation-customer-baseline-postgres-rehearsal.mjs.",
-        "Two test-only fixtures for Supabase Auth/Storage mock and transactional Office negative-path probes.",
-        "Vitest harness regression for fail-closed no PG or missing source and no external network usage."
+        "Append immutable canonical Team Chat 2 Foundation as 0065 plus source checksum.",
+        "Update reviewed-only manifest notes, retain true proof required and null hash.",
+        "Focused baseline regression tests for owner uniqueness, composite FKs, browser RLS revokes, service only mutator and exact source chronology.",
+        "Opt-in local real PostgreSQL 18 rehearsal on resulting 67-migration customer baseline."
       ],
       "out": [
-        "No customer-baseline existing migration, manifest, canonical SQL, auth bootstrap, seed or postflight modification.",
-        "No platform/staging/production/Fresh Install hosted SQL, no GitHub workflow or package auto-run, no Vercel deployment.",
-        "No claim provider mail delivery or native Supabase emulator equivalence."
+        "No historical 0001–0064 SQL edits, no repo canonical source rewrite.",
+        "No separate 0066 Team Chat integrity or 0067 owner transfer in same risk budget.",
+        "No Supabase platform/staging/production/Fresh Install DB mutation, outbound message send, new Vercel project/Preview, GitHub CI/push."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-F19-REPRODUCIBLE-REAL-POSTGRES",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F20-TEAM-CHAT-2-FOUNDATION",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -731,11 +703,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F19-REPRODUCIBLE-DB",
-        "requirement": "Persist a fail-closed, isolated local PG18 customer-baseline replay and negative role/Office trigger acceptance harness, without editing production SQL or confusing it with hosted Supabase proof.",
+        "id": "REQ-F20-TEAM-CHAT",
+        "requirement": "Append Team Chat 2 foundation with protected participants/mentions/tenant object links and service-only mutator, prove clean PG installation with truthful partial status.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "customer-fresh-install-local-postgres-rehearsal",
+          "breadth": "office-team-chat-2-foundation-source-local-pg",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -748,6 +720,7 @@
         ],
         "evidence": {
           "implementation": [
+            "GUARD-CUSTOMER-BASELINE",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
@@ -756,8 +729,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F19-MISSING-PRODUCER",
-            "statement": "On missing or failing customer migration, real local Postgres rehearsal must fail nonzero with first filename; never source-only PASS.",
+            "id": "NEG-F20-TENANT",
+            "statement": "Cross-tenant message/mention/card links and browser private mention reads must fail on native role target; SQL and local effective grants now.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -766,5 +739,5 @@
       }
     ]
   },
-  "notes": "F19 opt-in reusable local PostgreSQL replay/test harness; no product DB migration/runtime files touched, no hosted Supabase acceptance claim."
+  "notes": "F20 canonical Team Chat 2 Foundation 0065; local isolated PG18 must actually replay 67 migrations. Team Chat integrity/owner transfer and native Supabase/Pro not ready."
 }
