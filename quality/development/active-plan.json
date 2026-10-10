@@ -1,14 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2EBCB98E",
-  "task": "Core #1186 U10A2 F20: append canonical 0065 Team Chat 2 foundation with message mentions, tenant-bound business-object links, owner/participant actions; full local PostgreSQL rehearsal, no live DB writes",
+  "task": "Core #1186 U10A2 F21: append canonical 0066 Team Chat 2 mentions/object links insert/update integrity triggers; prove full local PostgreSQL 68 migration install, no hosted DB writes",
   "status": "ready-for-implementation",
   "guardDigest": "2ebcb98e",
-  "changeBaseSha": "d40fe5d487a410ddab2274c75200f616c3394ae3",
+  "changeBaseSha": "5f1fbc2ef5a6cd1418eaaed3a8db4549991d4330",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+    "supabase/customer-baseline/migrations/0066_digital_office_team_chat_2_integrity_v1.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
+    "tests/customer-baseline-office-team-chat-2-integrity.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -38,7 +38,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F20-TEAM-CHAT-2-FOUNDATION",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F21-TEAM-CHAT-2-INTEGRITY",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -59,29 +59,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Full original Team Chat 2 SQL source body 20260909204503 exact SHA256 and lexically ordered new 0065 after 0064.",
-        "Active owner uniqueness, member/owner role check, mentions and object links tenant/message composite FK and RLS/browse privilege revokes.",
-        "Object reference helper validates supported order/offer/return/support/task IDs under instance_id, no cross-tenant links.",
-        "Team Chat v2 mutator limited to service_role and protected against unauthorized participant/owner changes by canonical SQL.",
-        "67 SQL files reviewed with no fake proof hash, customer regression tests and TS pass.",
-        "Isolated REAL local PG18 clean 67-file replay with actual preflight/bootstrap/seed/postflight and effective grants/reply trigger negative tests pass, else BLOCK.",
-        "Plan/Development/Edit-Time/Knowledge/Replay/exact F19 base risk pass, no native hosted Supabase/Pro completion claim."
+        "Complete source body 20260909204524 preserved byte-by-byte with SHA256; order after 0065.",
+        "Mention trigger rejects wrong message internal kind, author mismatch, nonprivate/group thread and nonparticipant.",
+        "Object link trigger rejects wrong author, unauthorized creator, and referenced object missing from the same tenant.",
+        "Both triggers fire on BEFORE INSERT and selected identity UPDATE, original RLS revoked browser access.",
+        "Customer baseline 68 status snapshot-reviewed, null proof SHA and true full proof required.",
+        "Isolated PG18 clean 68 migration test plus full baseline regression/TS and all Control Plane risk gates PASS, no hosted acceptance claim."
       ],
       "invariants": [
-        "At most one active owner per internal team chat thread.",
-        "Mention and linked business object never cross instance/thread/message boundary.",
-        "Anon/authenticated cannot directly read or write private Team Chat mention/object records.",
-        "Only authorized service-role admin mutator may manage Team Chat v2 actions.",
-        "Earlier Office customer message and reply queue paths remain intact.",
-        "Historic SQL source immutable and no target data mutation."
+        "Mention author matches actual internal message author in same tenant/thread.",
+        "Mentioned user has thread read access and is not mentioned_by.",
+        "Business object link author has read+support rights and object exists in same store.",
+        "Browser roles cannot execute private validation helpers or read new tables directly.",
+        "Historical canonical foundation stays immutable, no direct hosted writes."
       ],
       "forbiddenStates": [
-        "Multiple active owners in same internal group thread",
-        "Cross-tenant object link accepted",
-        "Direct browser SELECT on new private Team Chat mention/object tables",
-        "Canonical RPC callable by anonymous/authenticated",
-        "Missing dependency hidden by a dummy function",
-        "Source-only tests claimed equivalent to real Supabase production proof"
+        "Service role writes cross-tenant link without exception.",
+        "Customer email message gets internal mention.",
+        "Unrelated user is mentioned in private chat.",
+        "A forged author bypasses message integrity.",
+        "Identity-field UPDATE skips integrity trigger.",
+        "Source-only PASS claimed final production readiness."
       ]
     },
     "model": {
@@ -113,49 +111,49 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Referenced business table absent from customer baseline",
-        "Composite FK message unique index missing",
-        "Existing participant data violates owner partial unique index",
-        "No membership check before mention creation",
-        "Cross-instance link accepted",
-        "Owner transfer without audit",
-        "Anonymous role inherits grant",
-        "Service-only mutator has insecure p_actor",
-        "Future migration changes Table DDL unexpectedly",
-        "Postgres replay fails before/at 0065",
-        "Snapshot silently marked ready"
+        "Wrong trigger name on office_message_mentions",
+        "No BEFORE UPDATE event",
+        "Mention author_id wrong mapping",
+        "Internal thread conversion to customer",
+        "Wrong object tenant existence helper",
+        "Lack of support permission on object insert",
+        "RLS/direct grant broadened",
+        "Private trigger EXECUTE public grant",
+        "SQL fails PG18 due to dependency",
+        "Old owner uniqueness index drift",
+        "Native JWT p_actor forged"
       ],
       "edgeCases": [
-        "Private thread with no participants",
-        "Group thread creator invited",
-        "Two owners already active",
-        "Mention author not participant",
-        "Cross-tenant referenced order",
-        "Deleted message with mention",
-        "Object link refers to support ticket from other instance",
-        "Owner leaves thread",
-        "Archived thread",
-        "Customer thread should not use internal team chat mutator"
+        "mention on internal_group message",
+        "mention in customer thread",
+        "self mention",
+        "missing mentioned participant",
+        "edited message_id on mention",
+        "object card order in other tenant",
+        "object card with missing ID",
+        "new support case in same instance",
+        "deleted message cascades",
+        "unauthorized user for object link"
       ]
     },
     "alternatives": [
       {
-        "id": "F20-CANONICAL",
-        "summary": "Append byte-identical Team Chat 2 foundation 0065 and prove real PostgreSQL install.",
+        "id": "F21-CANONICAL",
+        "summary": "Append full canonical 0066 triggers as isolated risk unit and run real PG.",
         "disposition": "selected",
-        "reason": "Canonical existing design with original source, bounded DDL unit and dynamic DB evidence."
+        "reason": "DB-enforced invariants beyond RPC, already governed original source."
       },
       {
-        "id": "F20-APP-ONLY",
-        "summary": "Only add Team Chat functionality to app UI without DB constraints.",
+        "id": "F21-RPC-ONLY",
+        "summary": "Keep 0065 RPC validation without table triggers.",
         "disposition": "rejected",
-        "reason": "Leaves private messages and owner uniqueness bypassable through service-role SQL."
+        "reason": "Service-role mistakes could bypass business/mention integrity."
       },
       {
-        "id": "F20-BATCH",
-        "summary": "Bundle foundation, integrity and owner transfer in one risky release.",
+        "id": "F21-MIX-OWNER",
+        "summary": "Combine integrity and owner transfer at once.",
         "disposition": "rejected",
-        "reason": "Exceeds one independently proven migration and obscures first failing dependency."
+        "reason": "Mixes distinct owner lifecycle and message integrity high-risk units."
       }
     ],
     "specialistReviews": [
@@ -163,28 +161,28 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Source-only owner/mention role logic plus local PG fixture cannot prove signed-in actor identity or direct object link fetch ACL in native Supabase.",
-        "resolution": "Keep partial; require native Supabase disposable actor/tenant/role negative runtime checks before release.",
+        "finding": "SQL functions validate row author and thread, but cannot attest server caller identity or broad target privilege model.",
+        "resolution": "Require native Supabase actor/session bindings and negative row tests before DONE.",
         "evidence": [
-          "supabase/migrations/20260909204503_digital_office_team_chat_2_foundation_v1.sql"
+          "supabase/migrations/20260909204524_digital_office_team_chat_2_integrity_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Adding unique active owner index may fail if an occupied target already contains multiple active owners.",
-        "resolution": "No live database writes; require read-only duplicate-owner inventory before applying outside clean rehearsal.",
+        "finding": "Trigger depends on 0065 foundation tables/functions and earlier private thread visibility.",
+        "resolution": "Append after 0065, preserve original and verify full isolated PostgreSQL baseline.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0050_digital_office_privacy_foundation_v1.sql"
+          "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "One canonical DB schema subsystem uses exact-parent bounded 5/5 risk, but source SQL is multi-table/RPC and needs runtime proof.",
-        "resolution": "Isolate 0065 migration, manifest and tests; run opt-in F19 PG18 harness after edits.",
+        "finding": "High-risk DB schema deserves 5/5 one-subsystem release; do not conflate owner transfer.",
+        "resolution": "One canonical SQL, manifest/test neutral, exact F20 parent and complete local PG.",
         "evidence": [
           "deploy/release-risk-policy.json"
         ]
@@ -193,8 +191,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "New chat mentions/object link references could later need notification runtime and data retention support.",
-        "resolution": "Capability Dependency Closure stays PARTIAL for sender/notification/read receipts until downstream integration is proven.",
+        "finding": "Existing malformed mention rows not retroactively fixed by trigger; require occupied data compatibility review.",
+        "resolution": "Do not apply live; keep source-only and local empty DB proof.",
         "evidence": [
           "supabase/customer-baseline/manifest.json"
         ]
@@ -202,72 +200,71 @@
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-F20-01",
-        "scenario": "Existing internal thread contains two active owner participants.",
-        "finding": "Partial unique owner index would fail or owner designation becomes inconsistent.",
-        "resolution": "Preserve canonical owner uniqueness and require occupied-target read-only duplicate-owner inventory before rollout.",
+        "id": "CH-U10A2-F21-01",
+        "scenario": "A service worker inserts a mention on a customer-service email message.",
+        "finding": "Customer conversation privacy may expose external user identity as internal chat mention.",
+        "resolution": "Trigger rejects v_message.kind not internal and noninternal thread.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F20-02",
-        "scenario": "A malicious service request adds a mention of a user outside the webshop.",
-        "finding": "Mention metadata could reveal private correspondence across tenants.",
-        "resolution": "Use canonical composite instance/message FK, actor permissions and native authenticated negative test later.",
+        "id": "CH-U10A2-F21-02",
+        "scenario": "A privileged service-role worker inserts a mention with mentioned_by set to a different author than the actual office_messages.author_id stored on the same thread and instance.",
+        "finding": "Without a message-author equality verification the service-role caller could impersonate an unrelated support employee in an internal Office chat and create fraudulent notifications or audit references.",
+        "resolution": "The canonical BEFORE INSERT/UPDATE mention integrity trigger must query the referenced message by message_id/thread_id/instance_id and reject when v_message.author_id IS DISTINCT FROM new.mentioned_by; verify source and later actual Postgres negative DML.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F20-03",
-        "scenario": "A message attaches an order from another tenant while reusing a valid UUID.",
-        "finding": "Linked business card can expose another shop commercial data.",
-        "resolution": "Require private.office_chat_object_exists_v1 with instance_id predicate and real cross-tenant test.",
+        "id": "CH-U10A2-F21-03",
+        "scenario": "A mention targets employee without access to private chat.",
+        "finding": "Private thread existence or metadata could leak across membership boundaries.",
+        "resolution": "Trigger calls can_read_office_thread_v1 with mentioned user.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F20-04",
-        "scenario": "Browser role reads office_message_mentions without corresponding access to private thread.",
-        "finding": "Mention identities and private message relationships become visible through Data API.",
-        "resolution": "RLS enabled and revoke all from public/anon/authenticated; actual PostgreSQL role SELECT denial and Supabase check.",
+        "id": "CH-U10A2-F21-04",
+        "scenario": "A signed-in team member attempts to create a self-mention in an internal_private conversation by submitting their own author UUID as mentioned_user_id through a privileged Office service path.",
+        "finding": "If the validator allows self mentions, the system can generate self-notifications and duplicate participant mention state while bypassing the intended recipient-only notification contract.",
+        "resolution": "Require private.enforce_office_message_mention_integrity_v1 to reject new.mentioned_user_id=new.mentioned_by and verify thread participant access; add regression text assertion and later native PostgreSQL role negative test.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F20-05",
-        "scenario": "Two admins concurrently grant owner on one active thread.",
-        "finding": "Multiple active owners possible without DB unique constraint.",
-        "resolution": "Create partial unique index for active owner scoped to instance and thread.",
+        "id": "CH-U10A2-F21-05",
+        "scenario": "Service worker changes thread_id on existing mention via UPDATE.",
+        "finding": "Old valid mention could be retargeted to an unrelated thread without check.",
+        "resolution": "BEFORE UPDATE OF identity fields revalidates message/thread/member.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F20-06",
-        "scenario": "Support customer thread is passed into team chat group action.",
-        "finding": "Internal workspace mutation can incorrectly change customer correspondence state.",
-        "resolution": "Canonical RPC enforces internal_private/internal_group guards and object/membership rules.",
+        "id": "CH-U10A2-F21-06",
+        "scenario": "Linked order belongs to a different webshop instance.",
+        "finding": "Cross-tenant business card can reveal commercial data.",
+        "resolution": "private.office_chat_object_exists_v1 checks instance_id and actual target object.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F20-07",
-        "scenario": "Thread creator leaves the group and an owner transfer is requested.",
-        "finding": "Foundation owner model may lack complete transfer semantics.",
-        "resolution": "Keep Team Chat owner transfer as separate later migration, do not mark capability DONE.",
+        "id": "CH-U10A2-F21-07",
+        "scenario": "Business object card is created by thread reader lacking support permission.",
+        "finding": "Content exposes business data beyond roles.",
+        "resolution": "Trigger checks can_read_office_thread_v1 and can_manage_support.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-F20-08",
-        "scenario": "Caller passes a forged p_actor to service_role mutator.",
-        "finding": "SQL comparison to p_actor does not validate the actual authenticated caller.",
-        "resolution": "Release blocked until server session-to-actor binding verified on native Supabase.",
+        "id": "CH-U10A2-F21-08",
+        "scenario": "An occupied target has legacy invalid link rows.",
+        "finding": "New triggers do not clean historical bad rows automatically.",
+        "resolution": "Read-only compatibility inventory and manual remediation before target apply.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code PASS before 0065 SQL modification.",
-      "Canonical source SHA256 and scoped owner/mention/link/service RPC negative source regressions.",
-      "Customer baseline guard 67, TS, Edit-Time Sync/PO instruction retention.",
-      "F19 isolated actual PostgreSQL18 rehearsal 67/67 including official pre/postflight and effective rights/reply negative DML.",
-      "Knowledge/Atlas/Incremental Replay FULL/shadow and exact F19 Release Risk <=5/5.",
-      "Native Supabase actor/tenant/RLS, Pro entitlement and full Capability Closure still pending."
+      "Critical Plan Before Code PASS before 0066 SQL edit.",
+      "Exact canonical checksum + mention/object auth/tenant trigger regression.",
+      "67 to 68 full isolated PostgreSQL18 clean replay and official pre/postflight; inherited reply queue ACL negatives.",
+      "Customer baseline guard/TypeScript, Edit-Time/Knowledge/Replay exact F20 Release Risk 5/5.",
+      "Real native Supabase/actor/owner transfer/Pro security remain BLOCKED."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 U10A2 F20: append canonical 0065 Team Chat 2 foundation with message mentions, tenant-bound business-object links, owner/participant actions; full local PostgreSQL rehearsal, no live DB writes",
+      "request": "Core #1186 U10A2 F21: append canonical 0066 Team Chat 2 mentions/object links insert/update integrity triggers; prove full local PostgreSQL 68 migration install, no hosted DB writes",
       "authority": [
         "database-schema"
       ],
@@ -277,17 +274,16 @@
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
-        "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
+        "supabase/customer-baseline/migrations/0066_digital_office_team_chat_2_integrity_v1.sql",
+        "tests/customer-baseline-office-team-chat-2-integrity.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "Critical Plan Before Code PASS before 0065 SQL modification.",
-        "Canonical source SHA256 and scoped owner/mention/link/service RPC negative source regressions.",
-        "Customer baseline guard 67, TS, Edit-Time Sync/PO instruction retention.",
-        "F19 isolated actual PostgreSQL18 rehearsal 67/67 including official pre/postflight and effective rights/reply negative DML.",
-        "Knowledge/Atlas/Incremental Replay FULL/shadow and exact F19 Release Risk <=5/5.",
-        "Native Supabase actor/tenant/RLS, Pro entitlement and full Capability Closure still pending."
+        "Critical Plan Before Code PASS before 0066 SQL edit.",
+        "Exact canonical checksum + mention/object auth/tenant trigger regression.",
+        "67 to 68 full isolated PostgreSQL18 clean replay and official pre/postflight; inherited reply queue ACL negatives.",
+        "Customer baseline guard/TypeScript, Edit-Time/Knowledge/Replay exact F20 Release Risk 5/5.",
+        "Real native Supabase/actor/owner transfer/Pro security remain BLOCKED."
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -303,8 +299,8 @@
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
-          "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
+          "supabase/customer-baseline/migrations/0066_digital_office_team_chat_2_integrity_v1.sql",
+          "tests/customer-baseline-office-team-chat-2-integrity.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -336,13 +332,13 @@
             "points": 5
           },
           {
-            "file": "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+            "file": "supabase/customer-baseline/migrations/0066_digital_office_team_chat_2_integrity_v1.sql",
             "subsystem": "database-schema",
             "risk": "high",
             "points": 5
           },
           {
-            "file": "tests/customer-baseline-office-team-chat-2-foundation.test.ts",
+            "file": "tests/customer-baseline-office-team-chat-2-integrity.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -376,13 +372,13 @@
               "points": 5
             },
             {
-              "file": "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+              "file": "supabase/customer-baseline/migrations/0066_digital_office_team_chat_2_integrity_v1.sql",
               "subsystem": "database-schema",
               "risk": "high",
               "points": 5
             },
             {
-              "file": "tests/customer-baseline-office-team-chat-2-foundation.test.ts",
+              "file": "tests/customer-baseline-office-team-chat-2-integrity.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -427,7 +423,7 @@
           {
             "id": 1,
             "files": [
-              "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql"
+              "supabase/customer-baseline/migrations/0066_digital_office_team_chat_2_integrity_v1.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -444,7 +440,7 @@
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0066_digital_office_team_chat_2_integrity_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
@@ -457,7 +453,7 @@
           {
             "id": 2,
             "files": [
-              "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
+              "tests/customer-baseline-office-team-chat-2-integrity.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -468,7 +464,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-office-team-chat-2-foundation.test.ts",
+                  "file": "tests/customer-baseline-office-team-chat-2-integrity.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -486,21 +482,21 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "d40fe5d487a410ddab2274c75200f616c3394ae3"
+              "developmentBaseSha": "5f1fbc2ef5a6cd1418eaaed3a8db4549991d4330"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "d40fe5d487a410ddab2274c75200f616c3394ae3",
+            "targetBaseSha": "5f1fbc2ef5a6cd1418eaaed3a8db4549991d4330",
             "lease": {
-              "expectedBaseSha": "d40fe5d487a410ddab2274c75200f616c3394ae3",
+              "expectedBaseSha": "5f1fbc2ef5a6cd1418eaaed3a8db4549991d4330",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
-              "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
+              "supabase/customer-baseline/migrations/0066_digital_office_team_chat_2_integrity_v1.sql",
+              "tests/customer-baseline-office-team-chat-2-integrity.test.ts"
             ],
             "operations": [
               {
@@ -510,12 +506,12 @@
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+                "file": "supabase/customer-baseline/migrations/0066_digital_office_team_chat_2_integrity_v1.sql",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-office-team-chat-2-foundation.test.ts",
+                "file": "tests/customer-baseline-office-team-chat-2-integrity.test.ts",
                 "generated": null
               }
             ],
@@ -547,13 +543,13 @@
                   "points": 5
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
+                  "file": "supabase/customer-baseline/migrations/0066_digital_office_team_chat_2_integrity_v1.sql",
                   "subsystem": "database-schema",
                   "risk": "high",
                   "points": 5
                 },
                 {
-                  "file": "tests/customer-baseline-office-team-chat-2-foundation.test.ts",
+                  "file": "tests/customer-baseline-office-team-chat-2-integrity.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -584,7 +580,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
+                "tests/customer-baseline-office-team-chat-2-integrity.test.ts"
               ],
               "externalGateIds": []
             },
@@ -596,8 +592,8 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0065_digital_office_team_chat_2_foundation_v1.sql",
-                "tests/customer-baseline-office-team-chat-2-foundation.test.ts"
+                "supabase/customer-baseline/migrations/0066_digital_office_team_chat_2_integrity_v1.sql",
+                "tests/customer-baseline-office-team-chat-2-integrity.test.ts"
               ],
               "filesAbsent": []
             },
@@ -612,7 +608,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "ad4a306e",
+            "manifestDigest": "e71c080c",
             "decision": "PASS"
           }
         ],
@@ -652,40 +648,36 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Existing Fresh Install customer baseline 0064 has initial private/group Office conversations but lacks canonical 20260909204503 Team Chat 2 foundation including exactly one active owner per thread, private mention records and tenant-validated object cards. This is a 361-line high-risk multi-function DB schema change using a service_role-only SECURITY DEFINER admin_mutate_office_team_chat_v2; all dependent Office/private/auth/commerce tables must already exist. Append unchanged canonical source after 0064 and run the recently created isolated PostgreSQL 18 FULL migration chain and critical actual effective role tests. No hosted DB writes or false full Supabase acceptance.",
+    "problemStatement": "Canonical Team Chat 2 Foundation 0065 introduced participant-scoped mentions and business object link tables. Under service_role, direct SQL writes could bypass RPC checks on invalid messages, nonparticipants and cross-tenant object links. Append exact original 20260909204524 Team Chat 2 Integrity before/after triggers in new 0066 after 0065, no prior source mutation. These reject non-internal or cross-instance message/thread references, forged mentioned_by/created_by, unauthorized mentions, and unsupported/mismatched tenant object IDs on INSERT or identity-field UPDATE. Prove full real isolated PG18 68/68 install; actual actor identity and native Supabase still separate. No target writes.",
     "observableOutcomes": [
-      "0065 SQL canonical original body byte-identical SHA256 and forward ordered after 0064; 67 SQL baseline files and prior source unchanged.",
-      "Owner-per-thread unique partial index on active office_thread_participants plus participant role owner/member check.",
-      "New tenant/author/message-bound office_message_mentions and office_message_object_links with composite FK, RLS and browser access revokes.",
-      "Private office_chat_is_owner_v1 and office_chat_object_exists_v1 enforce authorization and tenant-bound commercial object references.",
-      "admin_mutate_office_team_chat_v2 protects participant/owner permissions, mentions and object links, executes as service_role only; actual runtime trust/actor binding remains blocked.",
-      "All 67 migrations execute on isolated local PostgreSQL 18 using reusable F19 harness with official preflight/bootstrap/seed/postflight and actual Office security negative tests.",
-      "Developer Guard/Plan/Regression/TypeScript/Edit-Time/Knowledge/Replay/Release Risk PASS single schema 5/5; proof claims remain limited to local PostgreSQL+fixture."
+      "Append full byte-identical canonical 0066 Team Chat integrity source with SHA256 header after 0065 and leave all old migrations intact.",
+      "New security definer mention integrity trigger checks internal message, valid same-tenant internal thread, authorship and mentioned participant access on INSERT and identity UPDATE.",
+      "New object link integrity trigger checks message author, internal thread, creator read+support permission and private tenant-scoped business object existence on INSERT and identity UPDATE.",
+      "Both trigger functions direct EXECUTE revoked from public/anon/authenticated; original 0065 RLS and service role table grants preserved.",
+      "68 baseline migrations remain source-reviewed; customer tests, TypeScript and complete isolated local PostgreSQL 68/68 clean schema replay and official pre/postflight PASS.",
+      "Exact-base bounded 5/5, Edit-Time/Knowledge/Replay PASS, without native Supabase JWT/Storage or final Team Chat owner transfer DONE claim."
     ],
     "unresolvedRisks": [
-      "A canonical service_role SECURITY DEFINER RPC accepting p_actor can be impersonated by an incorrect server caller; actual JWT/session binding is not proved locally.",
-      "Only empty test target tested: on an occupied database owner unique partial index can reject existing duplicate owners and requires read-only data compatibility preflight before deployment.",
-      "Local PostgreSQL with minimal Supabase Auth/Storage shim is not native Supabase Auth/JWT/RLS/provider/Storage acceptance.",
-      "Business object cards may link to invalid cross-tenant orders/offers/tickets when runtime actor checks are weak; require negative functional tests in disposable native tenant DB later.",
-      "Later canonical Team Chat 2 integrity and owner transfer SQL remain pending and capability is PARTIAL, and strict Pro entitlement controls U10A1 remain unmerged."
+      "Trigger semantics are on selected identity UPDATE fields; nonidentity updates do not revalidate all old metadata; actual integration/actor tests required.",
+      "Existing occupied target with invalid mentioned users/business objects would require read-only inventory and remediation before deployment.",
+      "Definer function uses caller-supplied author_id and p_actor; forged service_role identity is not blocked by a native session binding, so release still partial.",
+      "Local PostgreSQL fixture is not native Supabase security/user ecosystem, provider sends and strict Pro subscription SQL still unmerged.",
+      "Next canonical owner transfer migration 20260909204547 is needed to close participant owner lifecycle."
     ],
     "scope": {
       "in": [
-        "Append immutable canonical Team Chat 2 Foundation as 0065 plus source checksum.",
-        "Update reviewed-only manifest notes, retain true proof required and null hash.",
-        "Focused baseline regression tests for owner uniqueness, composite FKs, browser RLS revokes, service only mutator and exact source chronology.",
-        "Opt-in local real PostgreSQL 18 rehearsal on resulting 67-migration customer baseline."
+        "One canonical append-only Team Chat 2 integrity 0066 SQL, manifest note, seven or more neutral tests.",
+        "Prove SQL implementation by PostgreSQL 18 clean full 68-file replay via opt-in harness."
       ],
       "out": [
-        "No historical 0001–0064 SQL edits, no repo canonical source rewrite.",
-        "No separate 0066 Team Chat integrity or 0067 owner transfer in same risk budget.",
-        "No Supabase platform/staging/production/Fresh Install DB mutation, outbound message send, new Vercel project/Preview, GitHub CI/push."
+        "No 0001–0065 edits, no next owner transfer F22 in same 5/5 unit.",
+        "No staging/production/platform/Fresh Install project mutation or Vercel Preview/GitHub CI."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F20-TEAM-CHAT-2-FOUNDATION",
+    "sourceRef": "PO-2026-10-10-CORE-1186-U10A2-F21-TEAM-CHAT-2-INTEGRITY",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -703,11 +695,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F20-TEAM-CHAT",
-        "requirement": "Append Team Chat 2 foundation with protected participants/mentions/tenant object links and service-only mutator, prove clean PG installation with truthful partial status.",
+        "id": "REQ-F21-TEAM-CHAT-INTEGRITY",
+        "requirement": "Append canonical Team Chat 2 mentions and business object link insert/update integrity constraints with real clean PostgreSQL proof and truthful partial status.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-team-chat-2-foundation-source-local-pg",
+          "breadth": "office-team-chat-2-integrity-local-pg",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -729,8 +721,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F20-TENANT",
-            "statement": "Cross-tenant message/mention/card links and browser private mention reads must fail on native role target; SQL and local effective grants now.",
+            "id": "NEG-F21-CROSS-TENANT",
+            "statement": "Mention/object metadata must not link unauthorized authors/tenants in real DB; canonical trigger integrity source proof, native actor negative still pending.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -739,5 +731,5 @@
       }
     ]
   },
-  "notes": "F20 canonical Team Chat 2 Foundation 0065; local isolated PG18 must actually replay 67 migrations. Team Chat integrity/owner transfer and native Supabase/Pro not ready."
+  "notes": "F21 Team Chat 2 integrity 0066 after 0065, bounded 5/5, full local PG18; owner transfer and native Supabase/Pro still pending."
 }
