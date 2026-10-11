@@ -1,92 +1,46 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-F33-FACTORY-CATALOG-PROVENANCE",
-  "task": "F33 template factory showroom compiler provenance and route catalog evidence projection, preserving true owner approval",
+  "taskId": "DEV-F34-PO-WORKFORCE-AUTH",
+  "task": "F34 real Product Owner preview journey: converge to canonical Workforce login with exact template return and mandatory role/MFA, preserving all runtime, route and account checks",
   "status": "ready-for-implementation",
-  "guardDigest": "2ea57cdf",
-  "changeBaseSha": "bdcb77a9148e841397ce4b7b9b3e1bfc2811c60a",
+  "guardDigest": "5a7401a6",
+  "changeBaseSha": "b20ee4470b17fc1ccfe57026e12e5230acc103b6",
   "plannedFilePatterns": [
-    "docs/architecture/SHOPERATION_F33_FACTORY_CATALOG_PROOF_FIELDS_20261011.md",
+    "docs/architecture/SHOPERATION_F34_WORKFORCE_PO_JOURNEY_20261011.md",
     "quality/development/active-plan.json",
-    "src/app/api/visual-fidelity/templates/route.ts",
-    "tests/template-factory-catalog-proof-fields.test.ts"
+    "scripts/template-factory-product-owner-handoff.mjs",
+    "tests/template-factory-po-workforce-auth.test.ts"
   ],
   "expectedSubsystems": [
-    "builder-template-system",
-    "shared-storefront",
-    "storefront-ui"
+    "quality-knowledge-system"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "builder-template-system"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-005",
-    "SQ-KF-006",
-    "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
-    "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-015",
-    "SQ-KF-016",
-    "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-021",
     "SQ-KF-022",
     "SQ-KF-023",
-    "SQ-KF-024",
-    "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
-    "TF-KF-006",
-    "TF-KF-007",
-    "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "SQ-KF-024"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-004",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
     "SQ-NK-010",
+    "SQ-NK-011",
     "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015",
+    "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
+    "SQ-NK-019",
+    "SQ-NK-020",
     "SQ-NK-021",
     "SQ-NK-022",
     "SQ-NK-023"
@@ -94,11 +48,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-F33-FACTORY-CATALOG-EVIDENCE",
+    "sourceRef": "PO-2026-10-11-F34-WORKFORCE-PO-JOURNEY",
     "riskTier": "high",
     "assuranceCeiling": {
-      "level": "exact-candidate-source-and-browser-evidence-transport",
-      "rationale": "Candidate route provenance and showroom evidence are existing compiler outputs. Passing them to the browser gate is required but not sufficient for separate Preview owner-login proof and Product Owner approval; this unit must not invent rows or weaken acceptance criteria.",
+      "level": "bound-workforce-po-real-journey",
+      "rationale": "Only the browser-runner expectation is updated to match canonical workforce auth. The same preview source, role checks, TOTP and browser route checks remain enforced; an authenticated session is necessary but insufficient for template technical acceptance.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -113,22 +67,23 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "QA catalog candidate provenance is exactly the canonical Factory compiler's own report object.",
-        "QA catalog showroom evidence is nonempty and exactly matches existing report rows for the same template key/version.",
-        "Production and legacy non-Factory template entries do not acquire misleading candidate provenance.",
-        "Browser acceptance and Product Owner login proof remain separate external requirements, never auto-passed by compiler metadata."
+        "PO proof follows exact /api/auth/workforce-login?next=/storefront-template-preview identity, never expects removed custom auth shell.",
+        "Workforce login uses the existing staff form; successful navigation back to exact template version 2 Factory preview is required.",
+        "No credentials, mismatched next URL, missing real form, unverified MFA or denied role blocks proof.",
+        "All post-login candidate Page Schema, engine, showroom, account and route checks remain mandatory."
       ],
       "invariants": [
-        "Factory catalog may only copy, not invent or reinterpret, compiler provenance and showroom evidence.",
-        "Every showroom row is tied to the genuine canonical package Page Schema and route.",
-        "The catalog remains gated behind VISUAL_FIDELITY_QA and its 404 behavior is retained.",
-        "No hidden auto-accept flag, runtime renderer change or production activation."
+        "No automation-side session fabrication or MFA bypass.",
+        "Template key, version, Factory marker and home page must survive login redirect.",
+        "Authenticated return must be observed in the browser, not inferred from HTTP 200 or server-side auth success.",
+        "Owner preview proof remains accepted:false without explicit human approval."
       ],
       "forbiddenStates": [
-        "Synthetic showroom rows or fixed strings masquerade as compiler-generated proof.",
-        "Missing/failing showroom validation is accepted as pass.",
-        "A Factory candidate is released solely because its catalog has two metadata fields.",
-        "Unapproved production-facing template activation is introduced."
+        "Legacy preview-specific form resurrected as a second auth authority.",
+        "A Workforce login to /admin/platform counts as exact Factory candidate proof.",
+        "Mismatched or external return destination can be used as a trust-equivalent proof.",
+        "Failed/timeout MFA is treated as a pass.",
+        "A technical screenshot implicitly marks final Product Owner acceptance."
       ]
     },
     "model": {
@@ -160,146 +115,145 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The response serializer drops metadata fields despite the compiler's completed report.",
-        "Incorrect candidate identity maps metadata from a different template version.",
-        "Product Owner handoff is permitted from a fake metadata object without journey proof.",
-        "QA flag is disabled, but the route becomes public.",
-        "Extra or incomplete showroom rows obscure missing shopper routes."
+        "Legacy Playwright selectors skip the canonical Workforce login and cannot reach preview.",
+        "Workforce redirects to platform rather than preserving Factory preview context.",
+        "MFA is outstanding; browser remains in challenge state and fails closed.",
+        "Incorrect role lacks preview authorization, causing /fiokom forbidden redirect.",
+        "The deployed Preview lacks candidate v2 and cannot render exact stamp after login."
       ],
       "edgeCases": [
-        "Loot Vault v2 candidate exact report and 20 showroom surfaces.",
-        "Noncandidate Playroom and quality candidate catalog entries.",
-        "Disabled VISUAL_FIDELITY_QA environment returns 404.",
-        "A compiled Factory candidate fails productOwnerReady and should be excluded.",
-        "Showroom row lacks pageKey, presentationAuthority or entrypoint and must stay blocked."
+        "Next URL includes URL-encoded template, version, page, viewport and factory marker.",
+        "Preview requires Workforce user session and role but external PO credentials are missing.",
+        "MFA enabled on platform owner with two factors.",
+        "Login redirects to a wrong template version or non-Factory accepted template.",
+        "Auth form present without visible unique email/password/submit controls.",
+        "Existing valid storageState returns to correct template directly."
       ]
     },
     "alternatives": [
       {
-        "id": "F33-EXACT-REPORT-PROJECTION",
-        "summary": "Project compiled report provenance and showroom rows in the existing catalog response, with exact-copy tests.",
+        "id": "F34-CANONICAL-WORKFORCE",
+        "summary": "Use the existing Workforce auth screen and verify exact return-target and actual candidate display.",
         "disposition": "selected",
-        "reason": "Repairs the observable missing fields at the consumer boundary without changing source-of-truth or acceptance."
+        "reason": "Single auth authority, no secret changes, genuine browser evidence; aligns with E13 already proven."
       },
       {
-        "id": "F33-FABRICATED-DEFAULT",
-        "summary": "Add default catalog provenance and synthetic showroom rows for missing data.",
+        "id": "F34-LEGACY-AUTH",
+        "summary": "Restore a dedicated template login form or route-specific credential handling.",
         "disposition": "rejected",
-        "reason": "Would produce counterfeit proof even when the compiled canonical package is incomplete."
+        "reason": "Creates duplicate auth authority and violates workforce identity/MFA convergence."
       },
       {
-        "id": "F33-WAIVE-CHECKS",
-        "summary": "Mark candidates factory-identity-pinned or showroom-passed when browser cases pass.",
+        "id": "F34-BYPASS-LOGIN",
+        "summary": "Assume E13 platform login proves the candidate owner journey and skip candidate auth.",
         "disposition": "rejected",
-        "reason": "Lowers the Product Owner gate and loses the independent source/route provenance contract."
+        "reason": "Would leave exact template identity, owner preview navigation and permissions unproven."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Architecture",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The Factory compile report is already canonical metadata authority, while the QA route drops its provenance and showroom rows.",
-        "resolution": "Project the original report properties unchanged, avoiding a parallel contract.",
-        "evidence": [
-          "src/app/api/visual-fidelity/templates/route.ts",
-          "src/lib/builder/template-factory/scaffold.ts"
-        ]
-      },
-      {
-        "role": "Security",
+        "role": "Identity/Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Adding metadata might be wrongly interpreted as production readiness or Product Owner approval.",
-        "resolution": "Retain the QA feature gate, source-only projection, external buyer journey and PO independent approval requirements.",
+        "finding": "Moving the proof runner to Workforce could mask an MFA-required challenge or unexpectedly accept platform login.",
+        "resolution": "Require exact next target, actual visible Workforce form, staff-auth browser navigation and original candidate-source/route checks; MFA timeout remains failure.",
         "evidence": [
-          "tests/template-factory-catalog-proof-fields.test.ts",
-          ".github/workflows/template-factory-quality-gate.yml"
+          "scripts/template-factory-product-owner-handoff.mjs",
+          "src/lib/auth/workforce-auth-form.tsx"
         ]
       },
       {
-        "role": "Runtime",
+        "role": "Template QA",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The browser quality runner consumes catalog data and refuses Factory targets missing exact provenance and showroom fields.",
-        "resolution": "Assert exact serializer output against compiled reports, then let full browser/E13 runtime proof independently validate.",
+        "finding": "The template-aware login route currently redirects to canonical Workforce, so the previous runner's login-shell assumptions are stale.",
+        "resolution": "Update only runner UI selectors, not Factory acceptance or showroom requirements.",
         "evidence": [
-          "src/app/api/visual-fidelity/templates/route.ts",
-          "tests/template-factory-catalog-proof-fields.test.ts"
+          "src/app/storefront-template-preview-login/page.tsx",
+          "scripts/template-factory-product-owner-handoff.mjs"
+        ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Cross-workflow completion must remain blocked if the updated PO runner fails or runs without exact source identity.",
+        "resolution": "Retain original failed workflow outcome and independent final proof-assimilation requirement.",
+        "evidence": [
+          ".github/workflows/template-factory-quality-gate.yml"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "F33-CH1",
-        "scenario": "Factory compiler has correct provenance but catalog omits it.",
-        "finding": "The gate reports CANDIDATE_IDENTITY_NOT_PINNED.",
-        "resolution": "Expose report.provenance unchanged on Factory entries only.",
+        "id": "F34-CH1",
+        "scenario": "Workforce login returns a valid 200 but is on the wrong route.",
+        "finding": "Old runner would report final identity mismatch.",
+        "resolution": "Assert workforce next candidate identity before entering credentials.",
         "status": "resolved"
       },
       {
-        "id": "F33-CH2",
-        "scenario": "A generated showroom has 20 valid surface rows, none sent downstream.",
-        "finding": "The gate reports SHOWROOM_CONTRACT_NOT_PROVEN.",
-        "resolution": "Pass through report.showroomEvidence as a copied array of original rows.",
+        "id": "F34-CH2",
+        "scenario": "Preview URL loses factory=1 or template version.",
+        "finding": "Wrong template could be shown after authentication.",
+        "resolution": "Fail at next-target verification and final candidate root stamp.",
         "status": "resolved"
       },
       {
-        "id": "F33-CH3",
-        "scenario": "Another template version has different source metadata.",
-        "finding": "A hand-authored key or default could certify the wrong candidate.",
-        "resolution": "Bind metadata to the same build result and verify key/version through test.",
+        "id": "F34-CH3",
+        "scenario": "Staff MFA challenge is still outstanding.",
+        "finding": "Page will not return to candidate preview.",
+        "resolution": "Timeout with explicit auth/MFA failure; never inject bypass.",
         "status": "resolved"
       },
       {
-        "id": "F33-CH4",
-        "scenario": "QA endpoint is disabled outside gated environment.",
-        "finding": "Accidental exposure reveals internal candidate report.",
-        "resolution": "Preserve the existing VISUAL_FIDELITY_QA flag and assert 404 disabled.",
+        "id": "F34-CH4",
+        "scenario": "Credential form is duplicated or not visible.",
+        "finding": "Automation might target a hidden/incorrect login.",
+        "resolution": "Require exactly one visible official form and inputs.",
         "status": "resolved"
       },
       {
-        "id": "F33-CH5",
-        "scenario": "Compiler identifies a structurally invalid candidate.",
-        "finding": "Adding transport must not override productOwnerReady filtering.",
-        "resolution": "Do not change compiler readiness or catalog exclusion guards.",
+        "id": "F34-CH5",
+        "scenario": "Login succeeds but role disallows owner preview.",
+        "finding": "Preview access guard redirects to forbidden.",
+        "resolution": "Require genuine exact preview destination and full rendered candidate stamps.",
         "status": "resolved"
       },
       {
-        "id": "F33-CH6",
-        "scenario": "Candidate is catalog-pinned but Product Owner login journey has not run.",
-        "finding": "Gate may be misread as final acceptance.",
-        "resolution": "Retain separate owner Preview gate and honest PARTIALLY_VERIFIED until proof.",
+        "id": "F34-CH6",
+        "scenario": "E13 functional proof is successful but PO candidate showroom fails.",
+        "finding": "Acceptance might be falsely considered complete.",
+        "resolution": "Do not modify existing per-page convergence, engine, account and placeholder checks; preserve separate PO handoff.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Test the actual QA GET route response under QA flag against immutable Factory compiler report provenance and showroom evidence.",
-      "Verify non-Factory entries unchanged and QA disabled returns 404, preserving fail-closed behavior.",
-      "Run Plan Before Code with full known-failure replay, Source tests, TypeScript, build, Factory Browser 14x3 and E13 proof where required.",
-      "Require independently verified Product Owner login and exact-head Preview before any end-to-end Factory closure; do not invent credentials.",
-      "Keep F31 and F32 draft, no merge to main, no production or Supabase mutations.",
-      "Sentinel-integrity test must remain strict; F33 source claim uses canonical source tests, while mandatory external Factory proof and Product Owner acceptance remain independent."
+      "Verify live CI's original browser diagnostic and canonical Workforce login implementation before changing runner.",
+      "Static and unit regressions verify exact return identity and the absence of legacy auth selectors in PO runner.",
+      "Run the real E13 and 14-page x 3-viewport Factory PR quality workflow without fabricated credentials, MFA or deployment.",
+      "Observe genuine Workforce credentials and exact source-stamped candidate Preview return; preserve failures if role or MFA denies.",
+      "Treat succeeding PO run as technical handoff evidence only; release closure remains blocked until separately verified manifest reconciliation."
     ],
     "semanticExecutionRoute": {
-      "request": "F33 compiler report metadata catalog projection",
+      "request": "F34 canonical Workforce owner preview proof",
       "authority": [
-        "builder-template-system"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        "src/app/api/visual-fidelity/templates/route.ts"
+        "scripts/template-factory-product-owner-handoff.mjs"
       ],
       "mayEdit": [
         "quality/development/active-plan.json"
       ],
       "impactedReadOnly": [
-        "src/lib/builder/template-factory/scaffold.ts",
-        "scripts/template-factory-quality-gate.mjs",
-        "scripts/template-factory-product-owner-handoff.mjs"
+        "src/app/storefront-template-preview-login/page.tsx",
+        "src/lib/auth/workforce-auth-form.tsx",
+        "scripts/template-factory-quality-gate.mjs"
       ],
       "mustCreate": [
-        "tests/template-factory-catalog-proof-fields.test.ts",
-        "docs/architecture/SHOPERATION_F33_FACTORY_CATALOG_PROOF_FIELDS_20261011.md"
+        "tests/template-factory-po-workforce-auth.test.ts",
+        "docs/architecture/SHOPERATION_F34_WORKFORCE_PO_JOURNEY_20261011.md"
       ],
       "forbidden": [],
       "proof": [
@@ -310,37 +264,40 @@
       "plannedDeletions": []
     },
     "executionAuthorized": true,
-    "problemStatement": "The canonical Factory candidate compiler returns accurate provenance and showroom evidence, but its quality-catalog API omits both, causing source-bound browser acceptance to reject the candidate as not pinned without running a Product Owner journey.",
+    "problemStatement": "The exact PR Template Factory 42-case and E13 functional proof pass, but PO browser verification fails at FINAL_PREVIEW_IDENTITY_MISMATCH because its obsolete login-surface selector ignores canonical Workforce login redirect.",
     "observableOutcomes": [
-      "Factory catalog exposes the exact compiler provenance for gaming.loot-vault@2 with no inferred values.",
-      "Factory catalog exposes the complete exact compiler showroom rows and rejects placeholder or missing authority.",
-      "The Quality Gate still determines candidate identity and showroom validity from those rows; owner login and browser proofs remain independently required."
+      "Unauthenticated Factory preview preserves exact template key/version/factory/page in Workforce login 'next'.",
+      "Automation authenticates through the existing Workforce form and only passes after the actual app redirects to exact candidate preview.",
+      "MFA or role denial is not bypassed; failure is a blocking proof error, not a skipped or synthetic pass.",
+      "The original 20 showroom rows, 14x3 browser matrix, runtime source stamps, navigation, account and purchase checks are still executed."
     ],
     "unresolvedRisks": [
-      "A corrected QA catalog does not prove authenticated Vercel Product Owner preview without separately executed journey.",
-      "Changes to the catalog runtime can require exact-head Vercel Preview and fresh 14x3 browser evidence; no stale source is sufficient.",
-      "The existing Loot Vault visual fidelity and Product Owner sign-off are distinct from this transport repair."
+      "The existing Preview deployment can remain incompatible with current Factory candidate runtime even when E13 login passes.",
+      "The final manifest currently precedes separate PO proof and needs independent output reconciliation before cross-workflow external closure.",
+      "Human Product Owner approval is never implied by successful machine login."
     ],
     "scope": {
       "in": [
-        "Factory compiler-to-QA-catalog metadata mapping",
-        "exact generated provenance and showroom rows",
-        "read-only QA catalog verification"
+        "existing Product Owner Playwright login verification flow",
+        "exact Workforce return destination and candidate identity assertions",
+        "narrow regression test for canonical auth path"
       ],
       "out": [
-        "fabrication of Factory metadata",
-        "Product Owner approval",
-        "golden-image acceptance",
-        "production catalog promotion",
-        "Supabase",
+        "auth policy",
+        "MFA bypass",
+        "secrets",
+        "Preview deployment",
+        "Vercel settings",
+        "Factory quality thresholds",
         "main merge",
-        "Vercel deployment changes"
+        "Supabase schema",
+        "faking handoff readiness"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-F33-FACTORY-CATALOG-EVIDENCE",
+    "sourceRef": "PO-2026-10-11-F34-WORKFORCE-PO-JOURNEY",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -361,11 +318,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F33-EXACT-FACTORY-REPORT",
-        "requirement": "The QA candidate manifest must receive exact genuine compiler provenance and showroom route evidence without claiming separate Product Owner approval.",
+        "id": "REQ-F34-REAL-WORKFORCE-PO-JOURNEY",
+        "requirement": "Product Owner preview proof must use exact canonical Workforce login and prove authenticated return to the true Factory candidate without relaxing MFA or downstream route checks.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "Factory-QA-catalog-source-contract-only",
+          "breadth": "source-level-product-owner-browser-runner-only",
           "strength": 1,
           "dimensions": [
             "status",
@@ -386,8 +343,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F33-SYNTHETIC-ACCEPTANCE",
-            "statement": "Synthetic identity/showroom metadata or bypass of login and external Factory gates must never yield Product Owner approval.",
+            "id": "NEG-F34-LOGIN-BYPASS",
+            "statement": "The PO runner cannot fake or skip Workforce login, MFA, role gating or candidate provenance.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -396,5 +353,5 @@
       }
     ]
   },
-  "notes": "F33 scoped supplier-to-consumer Factory proof handoff, stacked on F32 PR #1238 (and F31 #1236). An existing compiler creates provenance and showroom evidence but the QA catalog omits both. Transport only genuine report fields, never self-certify Product Owner journey or promote a template. No main/production/Supabase/Vercel changes. Full known-failure replay is mandatory because of architecture note.\nF33 Completion Contract claims only exact source metadata projection (source quality regression). GUARD-TEMPLATE-FACTORY remains mandatory under systemObligations.externalGuards, semantic proof route, actual gate-chain selection and separate production Product Owner acceptance. This avoids falsely treating external Factory gate lacking proofSemantics as direct semantic evidence for source-only claim."
+  "notes": "F34 bounded Quality runner fix stacked on F33 PR #1243 / F32 #1238 / F31 #1236. The preview login entrypoint legitimately redirects to the canonical Workforce login, but the old Product Owner Playwright proof still expects a legacy template-specific form. This unit validates exact workforce return-target identity, real authentication, role/MFA enforcement and actual candidate presentation rather than bypassing or changing any auth authority. Missing separate PO proof reconciliation is tracked as distinct subsequent dependency. No main merge, production, Vercel or Supabase mutation."
 }
