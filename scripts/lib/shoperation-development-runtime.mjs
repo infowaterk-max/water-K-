@@ -78,7 +78,21 @@ export function deriveImplementationSkeleton({plannedFilePatterns=[],atlasFiles=
   const forbidden=[...new Set([...(executionRoute?.FORBIDDEN_ROUTE_TOMBSTONES??[]),...(executionRoute?.PLANNED_FORBIDDEN_ROUTE_DELETIONS??[]),...(forbiddenPatterns??[])])].sort();
   return{contract:'shoporation.implementation-skeleton.v1',mustEdit,mayEdit,impactedReadOnly,mustCreate,forbidden,proof:[...new Set(executionRoute?.PROOF??[])].sort(),authority:[...new Set(executionRoute?.AUTHORITY??[])].sort(),unknown:[...(executionRoute?.UNKNOWN??[])]};
 }
-function guardInputPatterns(guard){return [...new Set([...(guard?.verification?.semanticInputs??[]),...(guard?.verification?.configurationInputs??[]),...(guard?.verification?.authorityInputs??[])])];}
+// Gate selection must consume the same precise live-runtime authority declared
+// by each guard, not only its older verification patterns. Do NOT include
+// safetyFallbackRuntimePatterns here: broad src/** safety classification is
+// reserved for uncertain runtime-origin proof, not normal gate applicability.
+function guardInputPatterns(guard){
+  const live=guard?.chain?.liveRuntime??{};
+  return [...new Set([
+    ...(guard?.verification?.semanticInputs??[]),
+    ...(guard?.verification?.configurationInputs??[]),
+    ...(guard?.verification?.authorityInputs??[]),
+    ...(live.classifierInputs??[]),
+    ...(live.globalRuntimeInputs??[]),
+    ...(live.entrypoints??[]),
+  ])];
+}
 export function guardAppliesToFiles(guard,files=[]){
   if(guard?.chain?.alwaysApplicable===true)return true;
   const inputs=guardInputPatterns(guard);

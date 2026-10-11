@@ -750,7 +750,8 @@
             "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
             ".github/workflows/template-factory-quality-gate.yml",
             "scripts/template-factory-quality-gate.mjs",
-            "scripts/shoperation-external-proof-handoff.mjs"
+            "scripts/shoperation-external-proof-handoff.mjs",
+            "scripts/lib/shoperation-development-runtime.mjs"
           ],
           "safetyFallbackRuntimePatterns": [
             "src/**",
