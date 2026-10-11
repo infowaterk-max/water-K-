@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-F32-CI-PR-PROOF-ORIGIN",
   "task": "F32 CI cross-workflow PR-origin verification without accepting any push canary or non-equivalent proof",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "8caec2ab32e947156e6514bd2b01459c7285d258",
   "plannedFilePatterns": [
@@ -384,5 +384,18 @@
       }
     ]
   },
-  "notes": "F32 independent release-infrastructure source transaction stacked on F31 PR #1236. Does not claim Factory visual or PO approval. Exact head/base GitHub identity, CI gates and no production changes.\nExact-head Plan Before Code validated: docs/architecture is canonical knowledge-infrastructure, therefore F32 deliberately requires FULL global + Template Factory known-failure replay (49 failure IDs). Expected failure IDs and guard digest are taken from remote gate diagnostics; no failures or gates are waived.\nF32 first exact-head source suite: 3742 PASS, two old regressions require source-authority update. Keep F31 regression pinned to immutable F31 plan; replace old push-event text snapshot with stronger exact PR/base assertions. No waivers."
+  "notes": "F32 independent release-infrastructure source transaction stacked on F31 PR #1236. Does not claim Factory visual or PO approval. Exact head/base GitHub identity, CI gates and no production changes.\nExact-head Plan Before Code validated: docs/architecture is canonical knowledge-infrastructure, therefore F32 deliberately requires FULL global + Template Factory known-failure replay (49 failure IDs). Expected failure IDs and guard digest are taken from remote gate diagnostics; no failures or gates are waived.\nF32 first exact-head source suite: 3742 PASS, two old regressions require source-authority update. Keep F31 regression pinned to immutable F31 plan; replace old push-event text snapshot with stronger exact PR/base assertions. No waivers.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "4c008a453e77544b3bbc624c0ad7f56e3d428a0d",
+    "closedAt": "2026-10-11T21:01:07.404Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-11-F32-CI-PR-ORIGIN",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
