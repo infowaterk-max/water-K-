@@ -388,45 +388,60 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const fs=require('fs');
+            const {pathToFileURL}=require('url');
+            const {selectExactPrTemplateFactoryProofRuns}=await import(
+              pathToFileURL(process.cwd()+'/scripts/shoperation-external-proof-handoff.mjs').href
+            );
             const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
             const {owner,repo}=context.repo;
             const sha=context.payload.pull_request?.head?.sha??context.sha;
-            const workflowName='Template Factory Quality Gate v2';
-            const expectedEvent=context.eventName==='pull_request'?'pull_request':'push';
             const expectedBranch=context.payload.pull_request?.head?.ref??context.ref.replace('refs/heads/','');
-            const expectedPrNumber=context.payload.pull_request?.number??null;
-            const sameExecutionContext=run=>{
-              if(run.name!==workflowName||run.head_sha!==sha)return false;
-              if(run.event!==expectedEvent||run.head_branch!==expectedBranch)return false;
-              if(expectedPrNumber===null)return true;
-              return (run.pull_requests??[]).some(pr=>pr.number===expectedPrNumber);
-            };
+            const plan=JSON.parse(fs.readFileSync('quality/development/active-plan.json','utf8'));
+            const expectedBaseSha=String(plan.changeBaseSha??'').trim();
+            const shaPattern=/^[0-9a-f]{40}$/i;
+            if(!shaPattern.test(sha)||!shaPattern.test(expectedBaseSha)||/^0+$/.test(sha)||/^0+$/.test(expectedBaseSha)){
+              core.setFailed('EXTERNAL_TEMPLATE_FACTORY_PR_COMMIT_IDENTITY_UNPROVEN');return;
+            }
+            // Push CI cannot use a push canary as 42/42 acceptance. Resolve an open,
+            // repository-native PR whose exact HEAD and BASE match the active plan.
+            const associated=context.payload.pull_request
+              ?[context.payload.pull_request]
+              :await github.paginate(github.rest.pulls.list,{owner,repo,head:`${owner}:${expectedBranch}`,state:'open',per_page:100});
+            const verifiedPrNumbers=associated.filter(pr=>
+              pr.state==='open'&&pr.head?.sha===sha&&pr.head?.ref===expectedBranch&&
+              pr.base?.sha===expectedBaseSha&&
+              pr.head?.repo?.full_name===`${owner}/${repo}`&&
+              pr.base?.repo?.full_name===`${owner}/${repo}`
+            ).map(pr=>pr.number);
+            if(!verifiedPrNumbers.length){
+              core.setFailed('EXTERNAL_TEMPLATE_FACTORY_AUTHORIZED_PR_CONTEXT_MISSING');return;
+            }
+            const workflowName='Template Factory Quality Gate v2';
             for(let attempt=0;attempt<180;attempt+=1){
               const response=await github.rest.actions.listWorkflowRunsForRepo({owner,repo,head_sha:sha,per_page:100});
               const allExactHead=(response.data.workflow_runs??[])
                 .filter(run=>run.name===workflowName&&run.head_sha===sha);
-              const candidates=allExactHead
-                .filter(sameExecutionContext)
-                .sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at));
-              const rejected=allExactHead.filter(run=>!sameExecutionContext(run));
+              const candidates=selectExactPrTemplateFactoryProofRuns({
+                runs:allExactHead,head:sha,branch:expectedBranch,
+                baseSha:expectedBaseSha,prNumbers:verifiedPrNumbers
+              });
               const successful=candidates.find(run=>run.status==='completed'&&run.conclusion==='success');
               if(successful){
                 core.setOutput('run_id',String(successful.id));
                 core.setOutput('conclusion',successful.conclusion);
                 core.setOutput('workflow_name',workflowName);
-                core.info(`Exact-context Template Factory proof resolved from run ${successful.id}; event=${successful.event}; branch=${successful.head_branch}; pr=${expectedPrNumber??'none'}.`);
+                core.info(`Exact PR-context Template Factory proof resolved: run=${successful.id}; head=${sha}; base=${expectedBaseSha}; prs=${verifiedPrNumbers.join(',')}.`);
                 return;
               }
-              const active=candidates.some(run=>run.status==='queued'||run.status==='in_progress'||run.status==='waiting'||run.status==='requested'||run.status==='pending');
+              const active=candidates.some(run=>['queued','in_progress','waiting','requested','pending'].includes(run.status));
               const terminal=candidates.filter(run=>run.status==='completed');
               if(!active&&terminal.length){
                 const actual=terminal.map(run=>`${run.id}:${run.conclusion}`).join(',');
-                core.setFailed(`EXTERNAL_TEMPLATE_FACTORY_RUN_NOT_SUCCESS:${actual}`);
-                return;
+                core.setFailed(`EXTERNAL_TEMPLATE_FACTORY_RUN_NOT_SUCCESS:${actual}`);return;
               }
               if(attempt%12===0){
-                const rejectedContext=rejected.map(run=>`${run.id}:${run.event}:${run.head_branch}`).join(',')||'none';
-                core.info(`Waiting for exact-context Template Factory proof for ${sha}; event=${expectedEvent}; branch=${expectedBranch}; pr=${expectedPrNumber??'none'}; candidates=${candidates.length}; rejected=${rejectedContext}.`);
+                core.info(`Waiting for exact PR-context Factory proof: head=${sha}; base=${expectedBaseSha}; prs=${verifiedPrNumbers.join(',')}; candidates=${candidates.length}.`);
               }
               await sleep(5000);
             }

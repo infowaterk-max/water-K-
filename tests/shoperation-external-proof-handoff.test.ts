@@ -8,6 +8,7 @@ import {
   isCustomerBaselineOnlyRegistryDelta,
   exactCustomerBaselineRegistryDelta,
   validateTemplateFactoryExternalProof,
+  selectExactPrTemplateFactoryProofRuns,
   mergeExternalCompletionEvidence,
 } from '../scripts/shoperation-external-proof-handoff.mjs';
 import {deriveTemplateLiveRuntimeClosure,templateFactoryEvidenceChecksum,templateLiveProofInputContractDigest} from '../scripts/lib/shoperation-template-factory-resumable-verification.mjs';
@@ -324,6 +325,32 @@ describe('cross-workflow external completion proof handoff',()=>{
     });
     expect(result.ok).toBe(false);
     expect(result.issues.map(item=>item.code)).toContain('TEMPLATE_LIVE_PROOF_DEPLOYMENT_NOT_PREVIEW');
+  });
+
+  it('accepts only real exact-base PR runs for external Factory proof, never a push canary',()=>{
+    const head='a'.repeat(40),baseSha='b'.repeat(40),branch='feature/test';
+    const original={name:'Template Factory Quality Gate v2',head_sha:head,head_branch:branch,
+      event:'pull_request',status:'completed',conclusion:'success',created_at:'2026-10-11T20:00:00Z',
+      pull_requests:[{number:1236,head:{sha:head,ref:branch},base:{sha:baseSha}}]};
+    const selected=selectExactPrTemplateFactoryProofRuns({
+      runs:[{...original,event:'push'},{...original,pull_requests:[{...original.pull_requests[0],base:{sha:'c'.repeat(40)}}]},original],
+      head,baseSha,branch,prNumbers:[1236],
+    });
+    expect(selected).toEqual([original]);
+    expect(selectExactPrTemplateFactoryProofRuns({runs:[original],head,baseSha,branch,prNumbers:[999]})).toEqual([]);
+    expect(selectExactPrTemplateFactoryProofRuns({runs:[original],head:'0'.repeat(40),baseSha,branch,prNumbers:[1236]})).toEqual([]);
+  });
+
+  it('rejects a compiled Factory candidate with missing Product Owner handoff even at 42/42',()=>{
+    const blocked=validateTemplateFactoryExternalProof({
+      manifest:manifest({acceptanceProofs:[{templateKey:'gaming.loot-vault',factoryCandidate:true,
+        browserMatrixPassed:true,browserMatrixComplete:true,browserMatrixCaseCount:42,
+        handoffReady:false,blockers:['VERCEL_PRODUCT_OWNER_JOURNEY_PROOF_REQUIRED']}]}),
+      expectedHead:'head-1',expectedBranch:'feature/test',runId:'123',
+      workflowConclusion:'success',guardRegistry,runtimeOrigin,previewAnchorCandidates,
+    });
+    expect(blocked.ok).toBe(false);
+    expect(blocked.issues.map(item=>item.code)).toContain('EXTERNAL_PROOF_PRODUCT_OWNER_HANDOFF_MISSING');
   });
 
   it('accepts an exact-head successful Template Factory artifact with complete browser evidence',()=>{
