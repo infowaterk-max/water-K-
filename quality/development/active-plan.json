@@ -278,7 +278,8 @@
       "Verify non-Factory entries unchanged and QA disabled returns 404, preserving fail-closed behavior.",
       "Run Plan Before Code with full known-failure replay, Source tests, TypeScript, build, Factory Browser 14x3 and E13 proof where required.",
       "Require independently verified Product Owner login and exact-head Preview before any end-to-end Factory closure; do not invent credentials.",
-      "Keep F31 and F32 draft, no merge to main, no production or Supabase mutations."
+      "Keep F31 and F32 draft, no merge to main, no production or Supabase mutations.",
+      "Sentinel-integrity test must remain strict; F33 source claim uses canonical source tests, while mandatory external Factory proof and Product Owner acceptance remain independent."
     ],
     "semanticExecutionRoute": {
       "request": "F33 compiler report metadata catalog projection",
@@ -380,7 +381,7 @@
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-TEMPLATE-FACTORY"
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
@@ -395,5 +396,5 @@
       }
     ]
   },
-  "notes": "F33 scoped supplier-to-consumer Factory proof handoff, stacked on F32 PR #1238 (and F31 #1236). An existing compiler creates provenance and showroom evidence but the QA catalog omits both. Transport only genuine report fields, never self-certify Product Owner journey or promote a template. No main/production/Supabase/Vercel changes. Full known-failure replay is mandatory because of architecture note."
+  "notes": "F33 scoped supplier-to-consumer Factory proof handoff, stacked on F32 PR #1238 (and F31 #1236). An existing compiler creates provenance and showroom evidence but the QA catalog omits both. Transport only genuine report fields, never self-certify Product Owner journey or promote a template. No main/production/Supabase/Vercel changes. Full known-failure replay is mandatory because of architecture note.\nF33 Completion Contract claims only exact source metadata projection (source quality regression). GUARD-TEMPLATE-FACTORY remains mandatory under systemObligations.externalGuards, semantic proof route, actual gate-chain selection and separate production Product Owner acceptance. This avoids falsely treating external Factory gate lacking proofSemantics as direct semantic evidence for source-only claim."
 }
