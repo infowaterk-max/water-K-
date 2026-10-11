@@ -1,4 +1,5 @@
 import {appendFileSync,existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
 import {dirname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {compileGateChain,exactPlannedPaths,globToRegExp} from './lib/shoperation-development-runtime.mjs';
@@ -42,7 +43,61 @@ export function templateFactoryProducerPaths(workflowSource){
   return push;
 }
 
-export function templateFactoryIndependenceProof({registry,plannedFiles=[],explicitGuardIds=[],gateChain,liveClosure,workflowSource}={}){
+// Only a fully established Git ancestor + exact registry semantic delta may excuse
+// the shared registry path from Template Factory *visual* proof. Unknowns fail closed.
+export function isCustomerBaselineOnlyRegistryDelta({before,after}={}){
+  const fail=reason=>({independent:false,reason});
+  if(!before||!after||!Array.isArray(before.guards)||!Array.isArray(after.guards))return fail('registry-snapshot-unavailable');
+  const other=registry=>Object.fromEntries(Object.entries(registry).filter(([key])=>key!=='guards'));
+  if(JSON.stringify(other(before))!==JSON.stringify(other(after)))return fail('registry-global-contract-changed');
+  if(before.guards.length!==after.guards.length)return fail('registry-guard-membership-changed');
+  let delta=false;
+  for(let index=0;index<before.guards.length;index++){
+    const b=before.guards[index],a=after.guards[index];
+    if(!b?.id||b.id!==a?.id)return fail('registry-guard-order-changed');
+    if(b.id!=='GUARD-CUSTOMER-BASELINE'){
+      if(JSON.stringify(b)!==JSON.stringify(a))return fail('other-guard-contract-changed');
+      continue;
+    }
+    const stable=guard=>Object.fromEntries(Object.entries(guard).filter(([key])=>!['producer','evidence','proofSemantics'].includes(key)));
+    if(JSON.stringify(stable(b))!==JSON.stringify(stable(a)))return fail('baseline-dependency-or-gate-policy-changed');
+    // This deliberately authorizes only the verified F29 source-validator migration,
+    // never arbitrary baseline guard or future classifier updates.
+    if(b.producer!=='scripts/customer-baseline-guard.mjs'||
+      b.evidence!=='artifacts/customer-baseline/**'||
+      b.proofSemantics!==undefined||
+      a.producer!=='scripts/validate-customer-baseline.mjs'||
+      a.evidence!=='artifacts/shoperation-command-diagnostics/customer-baseline.json'||
+      JSON.stringify(a.proofSemantics)!==JSON.stringify({
+        capabilities:['CAP-QUALITY'],scopeStrength:1,
+        scope:'source-only-customer-baseline-manifest-and-migration-structure',
+        dimensions:['status','scope','limitations','baseline-manifest','migration-source','fresh-install-required-state'],
+      }))return fail('baseline-semantic-delta-not-allowlisted');
+    delta=true;
+  }
+  return delta?{independent:true,reason:'exact-f29-baseline-only-proof-semantics'}:fail('registry-no-relevant-delta');
+}
+
+export function exactCustomerBaselineRegistryDelta({baseSha='',headSha='',registry,readGit,gitIsAncestor}={}){
+  const fail=reason=>({independent:false,reason});
+  const sha=/^[a-f0-9]{40}$/i;
+  if(!sha.test(baseSha)||!sha.test(headSha)||/^0+$/.test(baseSha)||/^0+$/.test(headSha)||baseSha===headSha)
+    return fail('registry-exact-identity-missing');
+  const git=(args)=>execFileSync('git',args,{encoding:'utf8'}).trim();
+  try{
+    const head=git(['rev-parse','HEAD']);
+    if(head!==headSha)return fail('registry-head-not-checked-out');
+    if((process.env.SHOPERATION_CI_HEAD_SHA||head)!==headSha)return fail('registry-ci-head-mismatch');
+    const ancestor=gitIsAncestor??((base,current)=>{execFileSync('git',['merge-base','--is-ancestor',base,current]);return true;});
+    if(ancestor(baseSha,headSha)!==true)return fail('registry-not-ancestor');
+    const show=readGit??((revision)=>git(['show',revision+':quality/knowledge/guard-registry.v1.json']));
+    const base=JSON.parse(show(baseSha)),current=JSON.parse(show(headSha));
+    if(JSON.stringify(current)!==JSON.stringify(registry))return fail('registry-loaded-content-drift');
+    return isCustomerBaselineOnlyRegistryDelta({before:base,after:current});
+  }catch{return fail('registry-ancestry-or-content-unverified');}
+}
+
+export function templateFactoryIndependenceProof({registry,plannedFiles=[],explicitGuardIds=[],gateChain,liveClosure,workflowSource,baseSha='',headSha=''}={}){
   const tfId='GUARD-TEMPLATE-FACTORY';
   if(explicitGuardIds.includes(tfId))return{independent:false,reason:'explicit-proof-authority'};
   if(!plannedFiles.length)return{independent:false,reason:'missing-file-scope'};
@@ -75,7 +130,16 @@ export function templateFactoryIndependenceProof({registry,plannedFiles=[],expli
     ...(guard.verification?.configurationInputs??[]),
     ...(guard.verification?.authorityInputs??[]),...triggerPaths];
   const matchers=scoped.map(globToRegExp);
-  const relevantFiles=plannedFiles.filter(file=>closureFiles.has(file)||matchers.some(re=>re.test(file)));
+  const affected=plannedFiles.filter(file=>closureFiles.has(file)||matchers.some(re=>re.test(file)));
+  // Registry changes are a broad classifier trigger. Only the F29 *exact*
+  // known-source provenance correction can be shown irrelevant to Template
+  // Factory. All other runtime/producer paths remain externally proof-gated.
+  const delta=affected.includes('quality/knowledge/guard-registry.v1.json')
+    ?exactCustomerBaselineRegistryDelta({baseSha,headSha,registry})
+    :{independent:false,reason:'no-registry-delta'};
+  const relevantFiles=delta.independent
+    ?affected.filter(file=>file!=='quality/knowledge/guard-registry.v1.json')
+    :affected;
   return relevantFiles.length
     ?{independent:false,reason:'runtime-or-producer-input-affected',relevantFiles}
     :{independent:true,reason:'complete-runtime-and-producer-independence',runtimeFileCount:closureFiles.size,checkedFiles:plannedFiles};
@@ -96,7 +160,13 @@ export function requiredExternalCompletionGuards({activePlan,verificationPlan,gu
   if(chain.decision!=='PASS')return [...new Set([...explicit.filter(id=>!local.has(id)),...chain.externalGateIds])];
   const required=[...new Set([...explicit.filter(id=>!local.has(id)),...chain.externalGateIds.filter(id=>!local.has(id))])];
   if(required.includes('GUARD-TEMPLATE-FACTORY')){
-    const independence=templateFactoryIndependenceProof({registry,plannedFiles,explicitGuardIds:explicit,gateChain:chain,liveClosure});
+    const actualHead=String(process.env.SHOPERATION_CI_HEAD_SHA??process.env.GITHUB_SHA??'').trim();
+    let headSha=actualHead;
+    if(!headSha){try{headSha=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();}catch{}}
+    const independence=templateFactoryIndependenceProof({
+      registry,plannedFiles,explicitGuardIds:explicit,gateChain:chain,liveClosure,
+      baseSha:String(activePlan?.changeBaseSha??'').trim(),headSha,
+    });
     if(independence.independent)return required.filter(id=>id!=='GUARD-TEMPLATE-FACTORY').sort();
   }
   return required.sort();

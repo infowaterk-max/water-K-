@@ -1,19 +1,20 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-7DADA58F",
-  "task": "Core #1186 F29: truthful Customer Baseline source-only Proof Semantics and adversarial scope-overclaim tests, with actual Supabase staging gap report, without hosted database writes",
+  "taskId": "DEV-95BBBC73",
+  "task": "F30 Control Plane: fail-closed semantic isolation for unrelated Customer Baseline Guard Registry changes in Template Factory proof gating; exact parent/head git delta and full proof on Template Factory authority, runtime or unknown ancestry",
   "status": "ready-for-implementation",
-  "guardDigest": "7dada58f",
-  "changeBaseSha": "b35590b372172a6727e59db27e9d67ee8a8da0ab",
+  "guardDigest": "95bbbc73",
+  "changeBaseSha": "dcc17408049b26feee8d19c21cbdf07dc885dbd3",
   "plannedFilePatterns": [
-    "quality/knowledge/guard-registry.v1.json",
-    "tests/customer-baseline-proof-semantics-f29.test.ts",
-    "tests/shoperation-sentinel-integrity.test.ts",
-    "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
-    "quality/development/active-plan.json"
+    "scripts/shoperation-external-proof-handoff.mjs",
+    "tests/shoperation-external-proof-handoff.test.ts",
+    "quality/development/active-plan.json",
+    "docs/architecture/SHOPERATION_F30_TEMPLATE_FACTORY_SCOPED_REGISTRY_DEPENDENCY_20261011.md"
   ],
   "expectedSubsystems": [
-    "database-schema"
+    "builder-template-system",
+    "quality-infrastructure",
+    "shared-storefront"
   ],
   "expectedDomains": [
     "DOMAIN-QUALITY"
@@ -74,18 +75,30 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-005",
+    "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-004",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
+    "SQ-NK-010",
     "SQ-NK-012",
-    "SQ-NK-014"
+    "SQ-NK-017",
+    "SQ-NK-018",
+    "SQ-NK-021",
+    "SQ-NK-022",
+    "SQ-NK-023"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-CORE-1186-F29-BASELINE-SEMANTICS",
+    "sourceRef": "PO-2026-10-11-F30-CONTROLPLANE-SCOPED-TEMPLATE-DEPENDENCY",
     "riskTier": "medium",
     "assuranceCeiling": {
-      "level": "source-only-baseline-evidence",
-      "rationale": "Customer Baseline guard checks 69 source migration filenames, structural markers, manifest status and hash preconditions, but does not run clean-target migration replay or native Supabase JWT/RLS. The registry must name real producer and diagnostic artifact and must never claim authorization or runtime proof.",
+      "level": "fail-closed-exact-diff-source-assurance",
+      "rationale": "F29 changed only Customer Baseline registry proof semantics but the common registry path is also a Template Factory classifier input; F30 separates proven unrelated guard object delta from changed Template Factory or unknown lineage. The new classifier itself remains Template Factory scope and requires full external proof before full release closure.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -98,34 +111,31 @@
         "fault-injection"
       ],
       "deferredTechniques": [
-        "native-postgres-fresh-install",
-        "supabase-jwt-rls",
-        "live-tenant-plan-downgrade"
+        "full-42-case-browser-factory-preview",
+        "customer-native-Supabase-RLS"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Guard Registry uses real scripts/validate-customer-baseline.mjs producer and current CI diagnostic artifact artifacts/shoperation-command-diagnostics/customer-baseline.json instead of nonexistent file paths.",
-        "Customer Baseline declares a source-level scopeStrength 1 capability for CAP-QUALITY only, with narrow migration metadata, fail-closed manifest and source-file limitations.",
-        "Registry never declares CAP-AUTH or wildcard capability, native Fresh Install, deployed SQL, tenant isolation or RLS as proven by this guard.",
-        "Executable Sentinel tests prove the declared bounded source semantics are accepted for matching source-only claims and fail CAP-AUTH overclaim.",
-        "Daily Sentinel fixture now passes without the old missing Proof Semantics REVIEW for this guard, while other unexpected findings remain blocking.",
-        "Canonical existing 69 SQL file snapshot stays snapshot-reviewed with freshInstallProofRequired true and proofContractSha256 null.",
-        "F29 staging evidence is read-only: current advanced Office RPCs missing, actual Auth/RLS and Fresh Install unresolved, no provider write.",
-        "Plan, CI identity, Edit-Time/Reference/Implementation Sync, guarded regressions, TypeScript, Knowledge/Replay and Release Risk pass before source commit."
+        "Source-only Customer Baseline guard producer/evidence/proofSemantics changes are provably unrelated to the Template Factory guard and dependency closure under exact Git parent/head identity.",
+        "A modification to Template Factory own guard, its dependency guards, registry ecosystem, runtime or classifier implementation cannot suppress external proof.",
+        "Unknown, diverged, missing SHA or malformed/extra registry delta remains external proof REQUIRED.",
+        "Negative regression tests prove every guarded state and direct explicit Template Factory evidence remains mandatory.",
+        "F30 classifier runtime change is itself fully subject to external proof: no false completion of F29 or F30 without actual 42-case evidence.",
+        "Source tests, Plan Before Code and local guards pass, no SQL, main, provider or production writes."
       ],
       "invariants": [
-        "Source manifest validation cannot stand in for real target database migration execution.",
-        "Proof registry producer and artifact must match actual existing CI execution commands.",
-        "Missing advanced Office deployed RPCs keep F28 authorization and #1186 PARTIAL.",
-        "No false capability promotion to CAP-AUTH or wildcard.",
-        "GitHub parent SHA is real remote F28D closure HEAD."
+        "Only the known baseline guard source-only provenance/proofSemantics keys may be ignored in Template Factory visual dependency impact, never global structural changes.",
+        "Registry non-baseline guards, ecosystem and Template Factory closure must be byte-semantically equal.",
+        "Unproven ancestry and unexpected diff fail closed.",
+        "An explicit Template Factory evidence requirement cannot be bypassed.",
+        "CI and Lifecycle authority remains in force; main stays unchanged."
       ],
       "forbiddenStates": [
-        "Baseline guard claims to prove native Auth/JWT/RLS or active Pro subscription.",
-        "A missing producer path is accepted as valid guard evidence.",
-        "Snapshot-reviewed baseline promoted to ready without clean-target proof.",
-        "Staging or production database touched by DDL or data writes."
+        "Global classifier input excused for arbitrary metadata updates.",
+        "Template Factory guard or production-build dependency changed with required proof waived.",
+        "External browser 18/42 canary labeled 42/42 acceptance.",
+        "Zero-SHA ancestry accepted as proof."
       ]
     },
     "model": {
@@ -157,39 +167,37 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Misdeclared registry producer silently masks absent evidence file.",
-        "Source-only migration structural check mislabelled native Fresh Install proof.",
-        "CAP-AUTH claim improperly supported by source baseline guard.",
-        "Existing staging lacks advanced Office RPCs even though baseline source contains them.",
-        "Sentinel returns fabricated PASS for missing registry proof contracts.",
-        "Future manifest flips to ready without exact hash and full replay"
+        "The common registry is treated as a content-free wildcard and invokes irrelevant browser proof.",
+        "A classifier change unintentionally bypasses TF proof via vague path prefix filters.",
+        "Parent/head diff fabricated or stale after GitHub connector commit creates different commit SHA.",
+        "A change to the TF guard dependency subtree is incorrectly treated as a benign unrelated guard."
       ],
       "edgeCases": [
-        "Current manifest 69 migrations and proofContractSha256 null.",
-        "Guard registry source changed but CI diagnostic file path not updated.",
-        "Registry proof claims CAP-AUTH or wildcard and slips through static assertion.",
-        "Sentinel synthetic requirement asks for CAP-AUTH with only Customer Baseline guard.",
-        "A genuine future clean-target proof may warrant a separate new dedicated producer and semantics."
+        "F29 exact baseline registry delta is limited to proofSemantics and producer path.",
+        "A changed guards array order, removed guard, or ecosystem policy change is not ignored.",
+        "A different guard changed or runtime source file changed.",
+        "Explicit Template Factory reference remains external evidence required.",
+        "Unknown git ancestor or invalid revision must not be accepted."
       ]
     },
     "alternatives": [
       {
-        "id": "F29-TRUTHFUL-SEMANTICS",
-        "summary": "Align producer/evidence with the real CI execution, describe source-only CAP-QUALITY semantics, assert adversarial scope limits.",
+        "id": "F30-SCOPED-DIFF",
+        "summary": "Exact Git comparison of registry structure and allowed isolated baseline provenance subobject, with deny-by-default fallback.",
         "disposition": "selected",
-        "reason": "Repairs actual Registry/CI source drift and prevents privilege overclaim while retaining native blockers."
+        "reason": "Preserves required Template Factory assurance while avoiding false cross-domain dependencies."
       },
       {
-        "id": "F29-PRETEND-RLS",
-        "summary": "Declare source guard evidence as full native Auth, tenant RLS and Fresh Install proof.",
+        "id": "F30-DISABLE-TF",
+        "summary": "Remove Template Factory guard from Control Plane or weaken 42/42 acceptance to canary.",
         "disposition": "rejected",
-        "reason": "The validator never connects to native Postgres or tests real role, JWT or deployed SQL."
+        "reason": "Destroys binding visual proof and violates PO decisions."
       },
       {
-        "id": "F29-EMPTY-REVIEW",
-        "summary": "Leave registry without proofSemantics and keep tolerating indefinite Sentinel REVIEW.",
+        "id": "F30-FULL-BROWSER-EVERY-REGISTRY-CHANGE",
+        "summary": "Require full 42-case visual proof even if a single unrelated source-only baseline guard description changes.",
         "disposition": "rejected",
-        "reason": "Misses the chance to state an accurate bounded semantics contract and fix nonexistent provenance paths."
+        "reason": "Expensive, noisy, and contradicts proven semantic independence, but stays mandatory when runtime classifier itself changes."
       }
     ],
     "specialistReviews": [
@@ -197,40 +205,39 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "CAP-QUALITY may still be read as authorization assurance if consumers disregard scope and evidence type.",
-        "resolution": "Use source-only strength 1, narrow dimensions, explicit no CAP-AUTH wildcard and negative adversarial Sentinel test; keep native entitlement/RLS proof open.",
+        "finding": "Registry metadata could influence Template Factory gate behavior through undeclared dependencies.",
+        "resolution": "Allow only known baseline guard producer/evidence/proofSemantics changes; verify every other registry subobject remains equal plus strict exact Git ancestry and mandatory negative TF dependency tests.",
         "evidence": [
-          "scripts/validate-customer-baseline.mjs",
-          "quality/knowledge/guard-registry.v1.json"
+          "quality/knowledge/guard-registry.v1.json",
+          "scripts/shoperation-external-proof-handoff.mjs"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The registry currently points to scripts/customer-baseline-guard.mjs and artifacts/customer-baseline/**, neither of which exists.",
-        "resolution": "Align producer to scripts/validate-customer-baseline.mjs and actual CI diagnostic artifacts/shoperation-command-diagnostics/customer-baseline.json.",
+        "finding": "F29 external proof falsely called required even though only Customer Baseline evidence fields changed.",
+        "resolution": "Use exact parent/head registry object snapshots, not source path alone; fail closed if provenance is missing.",
         "evidence": [
-          ".github/workflows/ci.yml",
-          "package.json"
+          "tests/shoperation-external-proof-handoff.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "F28D was closed but broader #1186/#1228 lack native target Fresh Install.",
-        "resolution": "Open an independent F29 development transaction from exact published b35590b parent and forbid full capability closure.",
+        "finding": "F30 code modifies an actual Template Factory proof classifier; full external acceptance is mandatory for F30 itself.",
+        "resolution": "Keep F30 scoped as implementation work with no verified Lifecycle claim until real visual proof; F29 stays blocked until independently reconciled.",
         "evidence": [
-          "quality/development/active-plan.json"
+          ".github/workflows/template-factory-quality-gate.yml"
         ]
       },
       {
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "GitHub upload must avoid repeated device codes and stale local base SHAs.",
-        "resolution": "Use connected Git Data API with verified blob/tree SHA, one branch and exact-head CI; no hosted DB writes.",
+        "finding": "Repeated full visual runs for benign proof semantics changes cost money.",
+        "resolution": "Disallow false cross-domain triggering only after exact semantic evidence, no preview deployment by this unit.",
         "evidence": [
           "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md"
         ]
@@ -238,71 +245,67 @@
     ],
     "challenge": [
       {
-        "id": "F29-CH1",
-        "scenario": "Registry producer or artifact path points to files that do not exist.",
-        "finding": "Proof provenance could be invented without the CI source.",
-        "resolution": "Validate registry fields are exact real paths and CI step actually invokes the diagnostic wrapper.",
+        "id": "F30-CH-01",
+        "scenario": "Baseline source-only semantic diff with verified exact parent/head",
+        "finding": "Template visual renderer and factory classifier unchanged",
+        "resolution": "Permit narrow producer independence",
         "status": "resolved"
       },
       {
-        "id": "F29-CH2",
-        "scenario": "A requirement claims CAP-AUTH with evidence only from Customer Baseline guard.",
-        "finding": "Source file presence cannot prove roles, JWT/RLS, tenant isolation.",
-        "resolution": "Sentinel must report PROOF_CAPABILITY_DRIFT; test negative claim.",
+        "id": "F30-CH-02",
+        "scenario": "Template Factory own guard, dependency, or ecosystem changes",
+        "finding": "Runtime classifier semantics could change",
+        "resolution": "Require full external proof",
         "status": "resolved"
       },
       {
-        "id": "F29-CH3",
-        "scenario": "Baseline manifest is snapshot-reviewed with 69 forward migrations but historical 0046 proof notes exist.",
-        "finding": "Historical proof does not cover later migrations.",
-        "resolution": "Keep current manifest unchanged and explicitly state new 69-file clean-target proof is outstanding.",
+        "id": "F30-CH-03",
+        "scenario": "Unknown git ancestry, non-ancestor SHA or other planned files",
+        "finding": "Cannot prove benign registry delta",
+        "resolution": "Fail closed",
         "status": "resolved"
       },
       {
-        "id": "F29-CH4",
-        "scenario": "Staging has only three legacy office tables and no advanced Office RPC.",
-        "finding": "Advanced service-role mutations cannot be considered target-runtime complete.",
-        "resolution": "Record verified read-only inventory and do not deploy or label as PROD READY.",
-        "status": "resolved"
-      },
-      {
-        "id": "F29-CH5",
-        "scenario": "Daily Sentinel claims unknown proof semantic finding once explicit bounded guard semantics exist.",
-        "finding": "Fixture must accept actual clean PASS and reject arbitrary REVIEW or BLOCK.",
-        "resolution": "Retain strict no-other-review test and independent exact registry positive/negative suite.",
+        "id": "F30-CH-04",
+        "scenario": "F30 itself edits classifier source",
+        "finding": "External proof genuinely required for releasing classifier logic",
+        "resolution": "Do not bypass this gate; separate bounded static assurance from release acceptance",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Validate remote F28D closed parent, current CI, two open issues and actual Supabase staging objects read-only.",
-      "Generate Development Guard and obtain Plan Before Code PASS with source-only assertions before modifying registry and tests.",
-      "Implement narrow baseline proofSemantics, correct actual CI producer/evidence, and adversarial Sentinel regression.",
-      "Run baseline validator, registry/Sentinel tests, full Quality suite when resource permits, TypeScript and all development sync/knowledge/replay/risk checks.",
-      "Batch upload exact reviewed Git blobs/tree via connected GitHub, verify real remote commit parent and CI, defer lifecycle closure until real truth emission.",
-      "Do not apply migration, reset database, trigger deployment, change main or assert native security proof."
+      "Check current remote F29 failure, exact Git ancestry and guard/template workflows.",
+      "Plan Before Code PASS before implementation.",
+      "Add deterministic exact semantic registry-delta proof and integration into external guard applicability, preserving explicit/transitive/unknown negative cases.",
+      "Run targeted anti-bypass tests and Quality/TypeScript/Control Plane checks, including real F29 base/head fixtures.",
+      "Never claim F30 release closure without legitimate complete Template Factory external proof.",
+      "Publish separate verified branch through connected GitHub only after local gates and source diff evidence."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 F29: truthful Customer Baseline source-only Proof Semantics and adversarial scope-overclaim tests, with actual Supabase staging gap report, without hosted database writes",
+      "request": "F30 Control Plane: fail-closed semantic isolation for unrelated Customer Baseline Guard Registry changes in Template Factory proof gating; exact parent/head git delta and full proof on Template Factory authority, runtime or unknown ancestry",
       "authority": [
-        "quality-knowledge-system"
+        "quality-knowledge-system",
+        "builder-template-system"
       ],
       "mustEdit": [
-        "quality/knowledge/guard-registry.v1.json"
+        "scripts/shoperation-external-proof-handoff.mjs",
+        "tests/shoperation-external-proof-handoff.test.ts"
       ],
       "mayEdit": [
-        "quality/development/active-plan.json",
-        "tests/shoperation-sentinel-integrity.test.ts"
+        "quality/development/active-plan.json"
       ],
-      "impactedReadOnly": [],
+      "impactedReadOnly": [
+        "scripts/shoperation-verification-checkpoint.mjs",
+        "tests/control-plane-ecosystem-chain.test.ts",
+        "tests/shoperation-resumable-verification.test.ts"
+      ],
       "mustCreate": [
-        "tests/customer-baseline-proof-semantics-f29.test.ts",
-        "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md"
+        "docs/architecture/SHOPERATION_F30_TEMPLATE_FACTORY_SCOPED_REGISTRY_DEPENDENCY_20261011.md"
       ],
       "forbidden": [],
       "proof": [
         "GUARD-PLAN-BEFORE-CODE",
-        "GUARD-QUALITY-TESTS",
-        "GUARD-CUSTOMER-BASELINE"
+        "GUARD-QUALITY-TESTS"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -314,17 +317,24 @@
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
           "quality/development/active-plan.json",
-          "quality/knowledge/guard-registry.v1.json",
-          "tests/shoperation-sentinel-integrity.test.ts"
+          "scripts/shoperation-external-proof-handoff.mjs",
+          "tests/shoperation-external-proof-handoff.test.ts"
         ],
         "mayEdit": [],
-        "impactedReadOnly": [],
+        "impactedReadOnly": [
+          "scripts/shoperation-verification-checkpoint.mjs",
+          "tests/control-plane-ecosystem-chain.test.ts",
+          "tests/shoperation-resumable-verification.test.ts"
+        ],
         "mustCreate": [
-          "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
-          "tests/customer-baseline-proof-semantics-f29.test.ts"
+          "docs/architecture/SHOPERATION_F30_TEMPLATE_FACTORY_SCOPED_REGISTRY_DEPENDENCY_20261011.md"
         ],
         "forbidden": [],
-        "proof": [],
+        "proof": [
+          "tests/control-plane-ecosystem-chain.test.ts",
+          "tests/shoperation-external-proof-handoff.test.ts",
+          "tests/shoperation-resumable-verification.test.ts"
+        ],
         "authority": [
           "quality-knowledge-system"
         ],
@@ -345,7 +355,7 @@
         ],
         "files": [
           {
-            "file": "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
+            "file": "docs/architecture/SHOPERATION_F30_TEMPLATE_FACTORY_SCOPED_REGISTRY_DEPENDENCY_20261011.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -357,19 +367,13 @@
             "points": 0
           },
           {
-            "file": "quality/knowledge/guard-registry.v1.json",
+            "file": "scripts/shoperation-external-proof-handoff.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/customer-baseline-proof-semantics-f29.test.ts",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "tests/shoperation-sentinel-integrity.test.ts",
+            "file": "tests/shoperation-external-proof-handoff.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -397,7 +401,7 @@
           ],
           "files": [
             {
-              "file": "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
+              "file": "docs/architecture/SHOPERATION_F30_TEMPLATE_FACTORY_SCOPED_REGISTRY_DEPENDENCY_20261011.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -409,19 +413,13 @@
               "points": 0
             },
             {
-              "file": "quality/knowledge/guard-registry.v1.json",
+              "file": "scripts/shoperation-external-proof-handoff.mjs",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/customer-baseline-proof-semantics-f29.test.ts",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
-            {
-              "file": "tests/shoperation-sentinel-integrity.test.ts",
+              "file": "tests/shoperation-external-proof-handoff.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -431,12 +429,33 @@
           "decision": "PASS"
         },
         "maxFilesPerUnit": 12,
-        "repositoryEdges": [],
+        "repositoryEdges": [
+          {
+            "from": "scripts/shoperation-external-proof-handoff.mjs",
+            "to": "tests/shoperation-external-proof-handoff.test.ts",
+            "type": "repository-dependency"
+          },
+          {
+            "from": "scripts/shoperation-external-proof-handoff.mjs",
+            "to": "tests/shoperation-external-proof-handoff.test.ts",
+            "type": "proof-ownership"
+          },
+          {
+            "from": "tests/shoperation-external-proof-handoff.test.ts",
+            "to": "scripts/shoperation-external-proof-handoff.mjs",
+            "type": "proof-ownership"
+          },
+          {
+            "from": "tests/shoperation-external-proof-handoff.test.ts",
+            "to": "tests/shoperation-external-proof-handoff.test.ts",
+            "type": "proof-ownership"
+          }
+        ],
         "atomicComponents": [
           {
             "id": 0,
             "files": [
-              "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md"
+              "docs/architecture/SHOPERATION_F30_TEMPLATE_FACTORY_SCOPED_REGISTRY_DEPENDENCY_20261011.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -447,7 +466,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
+                  "file": "docs/architecture/SHOPERATION_F30_TEMPLATE_FACTORY_SCOPED_REGISTRY_DEPENDENCY_20261011.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -484,7 +503,8 @@
           {
             "id": 2,
             "files": [
-              "quality/knowledge/guard-registry.v1.json"
+              "scripts/shoperation-external-proof-handoff.mjs",
+              "tests/shoperation-external-proof-handoff.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -501,55 +521,13 @@
               ],
               "files": [
                 {
-                  "file": "quality/knowledge/guard-registry.v1.json",
+                  "file": "scripts/shoperation-external-proof-handoff.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 3,
-            "files": [
-              "tests/customer-baseline-proof-semantics-f29.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
+                },
                 {
-                  "file": "tests/customer-baseline-proof-semantics-f29.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 4,
-            "files": [
-              "tests/shoperation-sentinel-integrity.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "tests/shoperation-sentinel-integrity.test.ts",
+                  "file": "tests/shoperation-external-proof-handoff.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -567,28 +545,27 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "b35590b372172a6727e59db27e9d67ee8a8da0ab"
+              "developmentBaseSha": "dcc17408049b26feee8d19c21cbdf07dc885dbd3"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "b35590b372172a6727e59db27e9d67ee8a8da0ab",
+            "targetBaseSha": "dcc17408049b26feee8d19c21cbdf07dc885dbd3",
             "lease": {
-              "expectedBaseSha": "b35590b372172a6727e59db27e9d67ee8a8da0ab",
+              "expectedBaseSha": "dcc17408049b26feee8d19c21cbdf07dc885dbd3",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
+              "docs/architecture/SHOPERATION_F30_TEMPLATE_FACTORY_SCOPED_REGISTRY_DEPENDENCY_20261011.md",
               "quality/development/active-plan.json",
-              "quality/knowledge/guard-registry.v1.json",
-              "tests/customer-baseline-proof-semantics-f29.test.ts",
-              "tests/shoperation-sentinel-integrity.test.ts"
+              "scripts/shoperation-external-proof-handoff.mjs",
+              "tests/shoperation-external-proof-handoff.test.ts"
             ],
             "operations": [
               {
                 "operation": "create",
-                "file": "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
+                "file": "docs/architecture/SHOPERATION_F30_TEMPLATE_FACTORY_SCOPED_REGISTRY_DEPENDENCY_20261011.md",
                 "generated": null
               },
               {
@@ -598,22 +575,19 @@
               },
               {
                 "operation": "modify",
-                "file": "quality/knowledge/guard-registry.v1.json",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "tests/customer-baseline-proof-semantics-f29.test.ts",
+                "file": "scripts/shoperation-external-proof-handoff.mjs",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "tests/shoperation-sentinel-integrity.test.ts",
+                "file": "tests/shoperation-external-proof-handoff.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [
-              "scripts/lib/shoperation-sentinel-integrity.mjs"
+              "scripts/lib/shoperation-development-runtime.mjs",
+              "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+              "scripts/shoperation-external-proof-handoff.mjs"
             ],
             "authorities": [
               "quality-knowledge-system"
@@ -636,7 +610,7 @@
               ],
               "files": [
                 {
-                  "file": "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
+                  "file": "docs/architecture/SHOPERATION_F30_TEMPLATE_FACTORY_SCOPED_REGISTRY_DEPENDENCY_20261011.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -648,19 +622,13 @@
                   "points": 0
                 },
                 {
-                  "file": "quality/knowledge/guard-registry.v1.json",
+                  "file": "scripts/shoperation-external-proof-handoff.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/customer-baseline-proof-semantics-f29.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "tests/shoperation-sentinel-integrity.test.ts",
+                  "file": "tests/shoperation-external-proof-handoff.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -678,7 +646,6 @@
               "GUARD-PRODUCTION-BUILD",
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK",
-              "GUARD-TEMPLATE-FACTORY",
               "GUARD-TYPECHECK"
             ],
             "requiredEvidence": {
@@ -691,29 +658,28 @@
                 "GUARD-PRODUCTION-BUILD",
                 "GUARD-QUALITY-TESTS",
                 "GUARD-RELEASE-RISK",
-                "GUARD-TEMPLATE-FACTORY",
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-proof-semantics-f29.test.ts",
-                "tests/shoperation-sentinel-integrity.test.ts"
+                "tests/shoperation-external-proof-handoff.test.ts"
               ],
-              "externalGateIds": [
-                "GUARD-TEMPLATE-FACTORY"
-              ]
+              "externalGateIds": []
             },
             "forbiddenPaths": [],
-            "readOnlyPaths": [],
+            "readOnlyPaths": [
+              "scripts/shoperation-verification-checkpoint.mjs",
+              "tests/control-plane-ecosystem-chain.test.ts",
+              "tests/shoperation-resumable-verification.test.ts"
+            ],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
+                "docs/architecture/SHOPERATION_F30_TEMPLATE_FACTORY_SCOPED_REGISTRY_DEPENDENCY_20261011.md",
                 "quality/development/active-plan.json",
-                "quality/knowledge/guard-registry.v1.json",
-                "tests/customer-baseline-proof-semantics-f29.test.ts",
-                "tests/shoperation-sentinel-integrity.test.ts"
+                "scripts/shoperation-external-proof-handoff.mjs",
+                "tests/shoperation-external-proof-handoff.test.ts"
               ],
               "filesAbsent": []
             },
@@ -728,7 +694,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "971cb848",
+            "manifestDigest": "002059b1",
             "decision": "PASS"
           }
         ],
@@ -749,8 +715,7 @@
           "GUARD-TYPECHECK",
           "GUARD-PRODUCTION-BUILD",
           "GUARD-COMPLETION-TRUTH",
-          "GUARD-RELEASE-RISK",
-          "GUARD-TEMPLATE-FACTORY"
+          "GUARD-RELEASE-RISK"
         ],
         "currentPhaseGateIds": [
           "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -763,48 +728,44 @@
           "GUARD-QUALITY-TESTS",
           "GUARD-TYPECHECK",
           "GUARD-PRODUCTION-BUILD",
-          "GUARD-COMPLETION-TRUTH",
-          "GUARD-TEMPLATE-FACTORY"
+          "GUARD-COMPLETION-TRUTH"
         ],
-        "externalGateIds": [
-          "GUARD-TEMPLATE-FACTORY"
-        ],
+        "externalGateIds": [],
         "issues": [],
         "decision": "PASS"
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Guard Registry currently has no Customer Baseline proof semantics and also points at a producer and evidence folder which are absent from the repository. The actual source-only validator checks structural migration and manifest invariants but never verifies deployed PostgreSQL/JWT/RLS. F29 makes the scope/provenance explicit with adversarial anti-overclaim tests, while the current staging lacks the advanced Office RPCs and the 69-migration Fresh Install proof remains open.",
+    "problemStatement": "Common Guard Registry path participates in Template Factory runtime classifier, but F29 changed only the unrelated Customer Baseline producer/evidence/proofSemantics. Factory workflow produced a canary 18/42 and null runtime origin; its own success was not an acceptable external handoff. F30 strengthens semantically scoped independence for exact benign registry diffs while ensuring classifier code edits and true runtime changes remain fully proof-gated.",
     "observableOutcomes": [
-      "Sentinel Registry proof scope is explicit and bounded to structural baseline source validation, with real existing producer and CI artifact references.",
-      "Source proof passes correct CAP-QUALITY claim but rejects CAP-AUTH-only evidence.",
-      "69 migrations, historical 0046 proof, snapshot-reviewed status and null current proof digest remain unchanged.",
-      "Read-only staging inventory documents why native Office Auth/RLS and actual transport are still blocked."
+      "F29 exact baseline-only registry diff is recognized as unrelated when all proof conditions are met.",
+      "Actual F30 runtime-classifier edits remain Template Factory affected and proof-gated.",
+      "No fake 42/42 browser acceptance or zero-SHA provenance is introduced.",
+      "All relevant regression/guards pass and the repository remains main-safe."
     ],
     "unresolvedRisks": [
-      "Staging schema and RLS do not yet include F28 Office RPC lineage.",
-      "Fresh Install complete 69-migration clean-target proof must run in disposable target before capability closure.",
-      "Provider email, real service-role SQL and Alap/Pro downgrade need separately reviewed native security negative proof."
+      "F29 actual exact-head external acceptance still blocked until correctly reconciled proof under updated trusted classifier.",
+      "F30 implementation itself needs full external Template Factory acceptance before lifecycle closure.",
+      "Core #1186/#1228 native Supabase Fresh Install remains open."
     ],
     "scope": {
       "in": [
-        "Guard Registry Customer Baseline producer/evidence/proofSemantics",
-        "New Sentinel adversarial source-evidence regression tests",
-        "Existing daily Sentinel test behavior if needed",
-        "Evidence/target parity note",
-        "Active development plan"
+        "Template Factory external proof applicability algorithm",
+        "Exact ancestry-scoped semantics test fixture",
+        "F30 architecture note",
+        "Active-plan metadata"
       ],
       "out": [
-        "Schema migration changes",
-        "Supabase project reset/DDL/data mutations",
-        "F28 application source and real provider email send",
-        "Automatic main merge or Vercel deployment"
+        "Template Factory browser matrix threshold",
+        "Live deployment and PO acceptance",
+        "Supabase SQL/Auth/RLS",
+        "Production and main merge"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-CORE-1186-F29-BASELINE-SEMANTICS",
+    "sourceRef": "PO-2026-10-11-F30-CONTROLPLANE-SCOPED-TEMPLATE-DEPENDENCY",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -816,26 +777,23 @@
         "GUARD-TYPECHECK",
         "GUARD-PRODUCTION-BUILD",
         "GUARD-COMPLETION-TRUTH",
-        "GUARD-RELEASE-RISK",
-        "GUARD-TEMPLATE-FACTORY"
+        "GUARD-RELEASE-RISK"
       ],
-      "externalGuards": [
-        "GUARD-TEMPLATE-FACTORY"
-      ],
+      "externalGuards": [],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-F29-CUSTOMER-BASELINE-TRUTH",
-        "requirement": "Registry baseline proof semantics must describe actual source-only structural validation and real CI provenance, rejecting Auth/RLS overclaim while preserving Fresh Install blockers.",
+        "id": "REQ-F30-TEMPLATE-DEPENDENCY-SEMANTICS",
+        "requirement": "Known unrelated Customer Baseline registry proof metadata may be excluded from Template Factory source runtime proof only under exact semantic and ancestry proof; actual TF classifier changes require full external evidence.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "customer-baseline-source-metadata-and-proof-semantics-registry",
+          "breadth": "test-driven-source-classifier-change-only",
           "strength": 1,
           "dimensions": [
             "status",
             "scope",
-            "limitations"
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -843,28 +801,23 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-CUSTOMER-BASELINE"
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-CUSTOMER-BASELINE"
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F29-NATIVE-OVERCLAIM",
-            "statement": "Customer Baseline source validation alone does not establish CAP-AUTH/JWT/RLS or native Fresh Install evidence.",
+            "id": "NEG-F30-TF-PROOF-BYPASS",
+            "statement": "Any actual TF guard runtime or unknown ancestry remains externally proof-required.",
             "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-CUSTOMER-BASELINE"
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       }
     ]
   },
-  "notes": [
-    "F29 explicitly limits Customer Baseline guard to source checks; staging current native RPC gaps and full 69-file Fresh Install remain OPEN."
-  ]
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
 }

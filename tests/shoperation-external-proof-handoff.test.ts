@@ -5,11 +5,14 @@ import {
   requiredExternalCompletionGuards,
   templateFactoryProducerPaths,
   templateFactoryIndependenceProof,
+  isCustomerBaselineOnlyRegistryDelta,
+  exactCustomerBaselineRegistryDelta,
   validateTemplateFactoryExternalProof,
   mergeExternalCompletionEvidence,
 } from '../scripts/shoperation-external-proof-handoff.mjs';
 import {deriveTemplateLiveRuntimeClosure,templateFactoryEvidenceChecksum,templateLiveProofInputContractDigest} from '../scripts/lib/shoperation-template-factory-resumable-verification.mjs';
 import {readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
 import {globToRegExp} from '../scripts/lib/shoperation-development-runtime.mjs';
 
 const plan=(refs=['GUARD-QUALITY-TESTS','GUARD-TEMPLATE-FACTORY'])=>({
@@ -109,6 +112,70 @@ describe('cross-workflow external completion proof handoff',()=>{
       const proof=templateFactoryIndependenceProof({registry:guardRegistry,plannedFiles:[file],liveClosure:runtimeClosure});
       expect(proof).toMatchObject({independent:false,reason:'runtime-or-producer-input-affected'});
     }
+  });
+
+  it('recognizes only the real F29 isolated registry transition with exact Git ancestry',()=>{
+    const baseSha='b35590b372172a6727e59db27e9d67ee8a8da0ab';
+    const headSha=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+    const from=(sha)=>JSON.parse(execFileSync('git',['show',sha+':quality/knowledge/guard-registry.v1.json'],{encoding:'utf8'}));
+    const before=from(baseSha),after=from(headSha);
+    expect(isCustomerBaselineOnlyRegistryDelta({before,after})).toMatchObject({
+      independent:true,reason:'exact-f29-baseline-only-proof-semantics',
+    });
+    expect(exactCustomerBaselineRegistryDelta({baseSha,headSha,registry:after})).toMatchObject({independent:true});
+    expect(templateFactoryIndependenceProof({
+      registry:after,plannedFiles:['quality/knowledge/guard-registry.v1.json'],
+      liveClosure:runtimeClosure,baseSha,headSha,
+    })).toMatchObject({independent:true,reason:'complete-runtime-and-producer-independence'});
+    const scoped={...plan(['GUARD-QUALITY-TESTS']),changeBaseSha:baseSha,plannedFilePatterns:[
+      'quality/knowledge/guard-registry.v1.json',
+      'tests/customer-baseline-proof-semantics-f29.test.ts',
+      'docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md',
+    ]};
+    // Contract is additionally checked by the real head Git identity.
+    expect(requiredExternalCompletionGuards({activePlan:scoped,verificationPlan,guardRegistry:after,liveClosure:runtimeClosure}))
+      .not.toContain('GUARD-TEMPLATE-FACTORY');
+  });
+
+  it('fails closed for unknown revisions, altered Template Factory guard, and registry-global drift',()=>{
+    const baseSha='b35590b372172a6727e59db27e9d67ee8a8da0ab';
+    const headSha=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+    const from=(sha)=>JSON.parse(execFileSync('git',['show',sha+':quality/knowledge/guard-registry.v1.json'],{encoding:'utf8'}));
+    const before=from(baseSha),after=from(headSha);
+    const altered=change=>{const clone=JSON.parse(JSON.stringify(after));change(clone);return clone;};
+    for(const mutate of [
+      x=>{x.guards.find(g=>g.id==='GUARD-TEMPLATE-FACTORY').chain.liveRuntime.unknownPolicy='ignore';},
+      x=>{x.guards.find(g=>g.id==='GUARD-CUSTOMER-BASELINE').verification.impactTier=0;},
+      x=>{x.guards.find(g=>g.id==='GUARD-CUSTOMER-BASELINE').proofSemantics.capabilities=['CAP-AUTH'];},
+      x=>{x.guards.pop();},
+      x=>{x.ecosystem={changed:true};},
+    ]){
+      expect(isCustomerBaselineOnlyRegistryDelta({before,after:altered(mutate)}).independent).toBe(false);
+    }
+    expect(exactCustomerBaselineRegistryDelta({
+      baseSha:'0'.repeat(40),headSha,registry:after,
+    }).independent).toBe(false);
+    expect(exactCustomerBaselineRegistryDelta({
+      baseSha:headSha,headSha:baseSha,registry:after,
+    }).independent).toBe(false);
+    expect(exactCustomerBaselineRegistryDelta({
+      baseSha,headSha,registry:altered(x=>{x.guards.find(g=>g.id==='GUARD-TEMPLATE-FACTORY').chain.liveRuntime.unknownPolicy='ignore';}),
+    }).independent).toBe(false);
+    // Without *both* proven identities, a touched classifier input requires external proof.
+    expect(templateFactoryIndependenceProof({
+      registry:after,plannedFiles:['quality/knowledge/guard-registry.v1.json'],
+      liveClosure:runtimeClosure,
+    })).toMatchObject({independent:false,reason:'runtime-or-producer-input-affected'});
+    expect(templateFactoryIndependenceProof({
+      registry:after,
+      plannedFiles:['quality/knowledge/guard-registry.v1.json','scripts/shoperation-external-proof-handoff.mjs'],
+      liveClosure:runtimeClosure,baseSha,headSha,
+    })).toMatchObject({independent:false,reason:'runtime-or-producer-input-affected'});
+    expect(templateFactoryIndependenceProof({
+      registry:after,plannedFiles:['quality/knowledge/guard-registry.v1.json'],
+      liveClosure:runtimeClosure,explicitGuardIds:['GUARD-TEMPLATE-FACTORY'],
+      baseSha,headSha,
+    })).toMatchObject({independent:false,reason:'explicit-proof-authority'});
   });
 
   it('requires external proof for explicit guard references, transitive consumers and unknown runtime states',()=>{
