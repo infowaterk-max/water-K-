@@ -672,7 +672,12 @@
         "Alap coupon baseline: coupon code with fixed-amount or percentage discount, start/end validity, minimum order amount and maximum order amount; one coupon per cart",
         "Pro promotion depth: multiple coupon combination/compatibility rules, richer product/category/customer targeting, automated or triggered coupon logic and Smart Coupon behavior",
         "order lifecycle, return lifecycle and financial refund lifecycle remain separate but coordinated canonical authorities",
-        "customer account plus guest checkout, secure guest-order claim, SEO, promotions and operational bulk workflows are launch capabilities"
+        "customer account plus guest checkout, secure guest-order claim, SEO, promotions and operational bulk workflows are launch capabilities",
+        "Accepted Module 3 checkout baseline (3.1): merchant-configurable guest vs registered-only B2C checkout, guest default; server-authoritative price/stock/discount validation, idempotent order submission and tenant isolation are Alap+Pro; no split checkout authority.",
+        "Accepted Module 3 cart and recovery (3.2): persistent carts, safe authenticated sync, no cart-level stock reservation, price/stock revalidation, consent-governed simple abandoned-checkout email in Alap+Pro; advanced multi-step recovery remains Pro using the shared communication/workflow authority.",
+        "Accepted Module 3 fulfillment and returns (3.5–3.6): normal multi-parcel and partial fulfillment, auditable shipment/return/refund coordination, guest self-service return via secure order authority, and basic safe bulk order actions are Alap+Pro; configurable high-volume workflow automation and analytics are Pro.",
+        "Accepted Module 3 manual order/change baseline (3.9–3.10): authorized merchant-created phone/email/in-person orders through the same order/price/stock/payment/invoice path; controlled pre-dispatch address/line/quantity amendments, cancellation, buyer approval where required, delta payment/refund, fiscal correction and audit in Alap+Pro; complex workflow automation Pro.",
+        "Accepted Module 3 exception closure (3.11): order-linked error reason, retry vs uncertain-provider reconciliation, merchant-visible manual recovery and audit always Alap+Pro; complex prioritized workflow queues Pro only. Closure must prove end-to-end domain dependencies, not status labels or source presence."
       ],
       "evidenceRefs": [],
       "dependsOn": [
@@ -704,7 +709,10 @@
         "provider setup UX is selection-first and wizard-like; only the selected provider's credentials/configuration are shown",
         "provider self-test and fail-closed live activation",
         "Provider Change / Integration Health Watch observes official API documentation, authentication requirements, changelogs, deprecated versions/endpoints, webhook requirements and provider incidents; it warns the platform owner and never mutates adapters autonomously",
-        "qvik support belongs inside a supporting payment-provider adapter capability rather than creating a second payment authority"
+        "qvik support belongs inside a supporting payment-provider adapter capability rather than creating a second payment authority",
+        "Accepted Module 3 (3.4, 3.6, 3.12) launch closure: provider-authoritative full/partial card refunds and reconciled states, dispute/chargeback intake or service-provider-supported manual evidence path, and double-refund prevention; never treat a manual admin status update as proof of a provider refund.",
+        "Guest checkout must have a secure, rate-limited order-bound retry-payment path without forcing account registration; keep idempotent attempts and confirmed-provider payment truth authoritative (3.1, 3.4).",
+        "Basic refund, status safety and dispute visibility are Alap+Pro; configurable advanced payment workflows may be Pro. No platform-owned card processor."
       ],
       "evidenceRefs": []
     },
@@ -729,7 +737,8 @@
         "wizard setup with provider-specific credentials/configuration only after provider selection",
         "provider self-test, pickup/parcel-point capability where supported, label creation, status, tracking and webhook handling",
         "Provider Change / Integration Health Watch observes official API/auth/changelog/deprecation/webhook/status changes and warns the platform owner without autonomous adapter mutation",
-        "no carrier-specific commerce authority"
+        "no carrier-specific commerce authority",
+        "Accepted Module 3 (3.3, 3.5) launch proof includes merchant-configured rates, threshold, carrier/product restrictions and international zones in Alap+Pro; digital-only checkout without physical shipping, mixed-cart shipping by physical lines, multi-parcel and partial dispatch with tracking and auditable inventory/notification handoff."
       ],
       "evidenceRefs": [],
       "dependsOn": [
@@ -758,13 +767,14 @@
         "merchant-configurable Hungarian net/gross price and VAT-class/rate behavior with consistent product/variant, discount, refund and order calculations",
         "B2C and B2B/company billing tax data, including Hungarian tax-number handling, must remain coherent with checkout and invoice-provider handoff",
         "invoice-provider payloads must carry authoritative tax/VAT data; Shoperation does not become its own invoicing/tax-reporting product at launch",
-        "architecture remains extensible for future country tax policies, multi-country VAT/OSS/IOSS and other jurisdictions, but those are not Market Ready 1.0 blockers"
+        "architecture remains extensible for future country tax policies, multi-country VAT/OSS/IOSS and other jurisdictions, but those are not Market Ready 1.0 blockers",
+        "Accepted product/checkout rule: merchant-classified DRS/relevant regulated charges must remain separate authoritative amount/line in checkout/order and invoice-provider payload, including bundle/component quantity where applicable; seller retains correct product legal classification and reporting responsibility."
       ],
       "evidenceRefs": []
     },
     {
       "id": "INVOICE-FOUNDATION",
-      "title": "Invoice Integration Foundation + Számlázz.hu Hardening",
+      "title": "Invoice Integration Foundation + Számlázz.hu and Billingo Launch Hardening",
       "status": "planned",
       "phase": "core-capability",
       "order": 210,
@@ -778,7 +788,11 @@
         "provider-agnostic invoice integration contract",
         "Számlázz.hu production hardening",
         "invoice lifecycle/audit and failure handling",
-        "no home-grown tax authority in Market Ready 1.0"
+        "no home-grown tax authority in Market Ready 1.0",
+        "Accepted Module 3.7 launch providers are Számlázz.hu AND Billingo: both built-in Alap+Pro with no Shoperation-specific connector surcharge; merchants remain responsible for their own provider subscription/API charges.",
+        "Each independent webshop/tenant uses its own securely scoped, revocable and verified provider credentials, not a shared platform-wide Számlázz Agent key or cross-tenant invoice identity.",
+        "Alap+Pro invoice lifecycle must prove manual and configurable verified-trigger issuance, external-id idempotency, provider reconciliation on uncertain outcomes, buyer access, proper cancellation/correction/credit evidence and financial refund coordination. Unsupported provider actions must fail closed with explicit safe/manual escalation.",
+        "Invoice line-item handoff must preserve tax snapshots and separately itemize applicable configured DRS/regulated fees; no silent merging into product prices. Pro adds only advanced configurable workflow automation."
       ],
       "evidenceRefs": [],
       "dependsOn": [
@@ -894,7 +908,9 @@
       "scope": [
         "shared email/template authority",
         "campaign/newsletter operational maturity",
-        "dynamic handoff without a parallel communication engine"
+        "dynamic handoff without a parallel communication engine",
+        "Accepted Module 3.8 launch transaction notices (Alap+Pro): order receipt, payment success/failure as applicable, dispatch/tracking, completion, cancellation, return/refund state and recoverable delivery failures; templates must reuse shared communication/email authority rather than a parallel engine.",
+        "Transactional essential notifications remain distinct from opted-in marketing; simple consent-compliant abandoned-checkout reminder in Alap+Pro, multistep recovery/advanced analytics Pro; SMS is post-launch only."
       ],
       "evidenceRefs": [],
       "dependsOn": [
@@ -1082,7 +1098,8 @@
         "payment self-test",
         "shipping self-test",
         "invoice self-test",
-        "fail-closed readiness evidence before live activation"
+        "fail-closed readiness evidence before live activation",
+        "Module 3 closure evidence must prove selected payment, shipping and both launch invoice-provider adapters across sandbox/test and provider fault cases, including missing credentials, timeout, duplicate replay, wrong-tenant credentials, refund ambiguity and invoice already created."
       ],
       "evidenceRefs": [],
       "dependsOn": [
@@ -1637,7 +1654,8 @@
         "final full product audit/certification must run only after Surface Reduction / dead-code and unused-surface cleanup is complete",
         "Stage 9 is final closure/certification, not the stage where missing Core, Builder or Template capabilities are first created",
         "revalidate security/privacy, backup/restore, observability, load/scale/chaos/soak, tenant isolation, integration health, release/rollback and merchant-pilot evidence on the reduced production candidate",
-        "certification fails on stale, partial, missing, failed or overclaimed lower-layer evidence"
+        "certification fails on stale, partial, missing, failed or overclaimed lower-layer evidence",
+        "Module 3 commerce operations/checkout-to-closure acceptance requires evidence-backed full dependency coverage for accepted 3.1–3.12 across orders, payment/refund/dispute, stock, shipping, Számlázz.hu/Billingo, email, returns and exception handling; mere adapter or route presence does not satisfy Market Ready."
       ],
       "evidenceRefs": []
     },
@@ -1789,7 +1807,7 @@
       ],
       "scope": [
         "broader shipping carrier catalog",
-        "Billingo and ERP/invoice adapters",
+        "ERP/invoice adapters beyond launch-required Számlázz.hu and Billingo",
         "deeper WMS connectors",
         "Klaviyo/Brevo/ActiveCampaign class marketing connectors",
         "SMS/push adapters",
