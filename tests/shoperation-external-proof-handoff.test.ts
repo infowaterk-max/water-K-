@@ -96,6 +96,48 @@ const manifest=(overrides={})=>{
 };
 
 describe('cross-workflow external completion proof handoff',()=>{
+  it('requires real external proof for the exact F30 source that changed a declared Factory classifier',()=>{
+    const actualF30Plan=JSON.parse(execFileSync('git',[
+      'show','228a4d4bd7d75352cb6fbf4d041aef5107d40e8e:quality/development/active-plan.json',
+    ],{encoding:'utf8'}));
+    expect(actualF30Plan.plannedFilePatterns).toContain('scripts/shoperation-external-proof-handoff.mjs');
+    const required=requiredExternalCompletionGuards({
+      activePlan:actualF30Plan,verificationPlan,
+      guardRegistry,liveClosure:runtimeClosure,
+    });
+    expect(required).toContain('GUARD-TEMPLATE-FACTORY');
+    // Prior F30 CI reported no external requirements. This must never recur.
+    expect(required).not.toEqual([]);
+    expect(templateFactoryIndependenceProof({
+      registry:guardRegistry,
+      plannedFiles:actualF30Plan.plannedFilePatterns.filter((f:string)=>f!=='quality/development/active-plan.json'),
+      liveClosure:runtimeClosure,
+    })).toMatchObject({independent:false,reason:'runtime-or-producer-input-affected'});
+  });
+
+
+  it('requires external Factory evidence for its own shared compiler and real F31 scope',()=>{
+    const current=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
+    expect(current.plannedFilePatterns).toContain('scripts/lib/shoperation-development-runtime.mjs');
+    expect(guardRegistry.guards.find((g:any)=>g.id==='GUARD-TEMPLATE-FACTORY').chain.liveRuntime.classifierInputs)
+      .toContain('scripts/lib/shoperation-development-runtime.mjs');
+    expect(requiredExternalCompletionGuards({
+      activePlan:current,verificationPlan,guardRegistry,liveClosure:runtimeClosure,
+    })).toContain('GUARD-TEMPLATE-FACTORY');
+    // A planned/shadow local gate is not externally executed proof.
+    const shadow={gates:{...verificationPlan.gates,
+      'GUARD-TEMPLATE-FACTORY':{gateId:'GUARD-TEMPLATE-FACTORY',status:'PENDING'},
+    }};
+    expect(requiredExternalCompletionGuards({
+      activePlan:current,verificationPlan:shadow,guardRegistry,liveClosure:runtimeClosure,
+    })).toContain('GUARD-TEMPLATE-FACTORY');
+    expect(templateFactoryIndependenceProof({
+      registry:guardRegistry,
+      plannedFiles:current.plannedFilePatterns.filter((f:string)=>f!=='quality/development/active-plan.json'),
+      liveClosure:runtimeClosure,
+    })).toMatchObject({independent:false,reason:'runtime-or-producer-input-affected'});
+  });
+
   it('proves the unrelated office route has no Template Factory external dependency under a complete runtime graph',()=>{
     const files=['src/app/admin/kommunikacio/layout.tsx','tests/customer-email-plan-split.test.ts','tests/pro-entitlement-guards.test.ts'];
     const scoped={...plan(['GUARD-QUALITY-TESTS']),plannedFilePatterns:files};
@@ -114,32 +156,36 @@ describe('cross-workflow external completion proof handoff',()=>{
     }
   });
 
-  it('recognizes only the real F29 isolated registry transition with exact Git ancestry',()=>{
+  it('preserves F29 historic semantic independence but refuses proof reuse on F31 HEAD',()=>{
     const baseSha='b35590b372172a6727e59db27e9d67ee8a8da0ab';
-    const headSha=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+    const headSha='dcc17408049b26feee8d19c21cbdf07dc885dbd3';
+    const actualHead=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
     const from=(sha)=>JSON.parse(execFileSync('git',['show',sha+':quality/knowledge/guard-registry.v1.json'],{encoding:'utf8'}));
     const before=from(baseSha),after=from(headSha);
     expect(isCustomerBaselineOnlyRegistryDelta({before,after})).toMatchObject({
       independent:true,reason:'exact-f29-baseline-only-proof-semantics',
     });
-    expect(exactCustomerBaselineRegistryDelta({baseSha,headSha,registry:after})).toMatchObject({independent:true});
+    // This cannot become a blanket exemption: F31 changed the actual guard
+    // runtime and its registry, so the historic F29 exact HEAD is not current.
+    expect(actualHead).not.toBe(headSha);
+    expect(exactCustomerBaselineRegistryDelta({baseSha,headSha,registry:after}).independent).toBe(false);
     expect(templateFactoryIndependenceProof({
       registry:after,plannedFiles:['quality/knowledge/guard-registry.v1.json'],
       liveClosure:runtimeClosure,baseSha,headSha,
-    })).toMatchObject({independent:true,reason:'complete-runtime-and-producer-independence'});
+    })).toMatchObject({independent:false,reason:'runtime-or-producer-input-affected'});
     const scoped={...plan(['GUARD-QUALITY-TESTS']),changeBaseSha:baseSha,plannedFilePatterns:[
       'quality/knowledge/guard-registry.v1.json',
       'tests/customer-baseline-proof-semantics-f29.test.ts',
       'docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md',
     ]};
-    // Contract is additionally checked by the real head Git identity.
-    expect(requiredExternalCompletionGuards({activePlan:scoped,verificationPlan,guardRegistry:after,liveClosure:runtimeClosure}))
-      .not.toContain('GUARD-TEMPLATE-FACTORY');
+    expect(requiredExternalCompletionGuards({
+      activePlan:scoped,verificationPlan,guardRegistry:after,liveClosure:runtimeClosure,
+    })).toContain('GUARD-TEMPLATE-FACTORY');
   });
 
   it('fails closed for unknown revisions, altered Template Factory guard, and registry-global drift',()=>{
     const baseSha='b35590b372172a6727e59db27e9d67ee8a8da0ab';
-    const headSha=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+    const headSha='dcc17408049b26feee8d19c21cbdf07dc885dbd3';
     const from=(sha)=>JSON.parse(execFileSync('git',['show',sha+':quality/knowledge/guard-registry.v1.json'],{encoding:'utf8'}));
     const before=from(baseSha),after=from(headSha);
     const altered=change=>{const clone=JSON.parse(JSON.stringify(after));change(clone);return clone;};

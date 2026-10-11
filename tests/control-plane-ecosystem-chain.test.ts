@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {
   compileGateChain,
+  guardAppliesToFiles,
   deriveImplementationSkeleton,
   evaluateReleaseRiskFiles,
 } from '../scripts/lib/shoperation-development-runtime.mjs';
@@ -11,6 +12,31 @@ import {requiredExternalCompletionGuards} from '../scripts/shoperation-external-
 const registry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
 
 describe('Control Plane ecosystem chain',()=>{
+  it('selects declared Template Factory classifier and runtime inputs as real external gate edges, without broad fallback',()=>{
+    const tf=registry.guards.find((g:any)=>g.id==='GUARD-TEMPLATE-FACTORY');
+    const live=tf.chain.liveRuntime;
+    const concrete=[
+      'scripts/shoperation-external-proof-handoff.mjs',
+      'scripts/lib/shoperation-development-runtime.mjs',
+      'scripts/lib/shoperation-template-factory-resumable-verification.mjs',
+      '.github/workflows/template-factory-quality-gate.yml',
+      'src/app/layout.tsx',
+      'src/app/storefront-template-preview/page.tsx',
+    ];
+    for(const file of concrete){
+      expect(live.classifierInputs.includes(file)||live.globalRuntimeInputs.includes(file)||live.entrypoints.includes(file),file).toBe(true);
+      expect(guardAppliesToFiles(tf,[file]),file).toBe(true);
+      const chain=compileGateChain({guardRegistry:registry,plannedFiles:[file],phase:'VERIFY'});
+      expect(chain.decision,file).toBe('PASS');
+      expect(chain.externalGateIds,file).toContain('GUARD-TEMPLATE-FACTORY');
+    }
+    expect(live.safetyFallbackRuntimePatterns).toContain('src/**');
+    expect(guardAppliesToFiles(tf,['src/lib/office/office-rpc-contract.ts'])).toBe(false);
+    expect(compileGateChain({guardRegistry:registry,plannedFiles:['src/lib/office/office-rpc-contract.ts'],phase:'VERIFY'}).externalGateIds)
+      .not.toContain('GUARD-TEMPLATE-FACTORY');
+  });
+
+
   it('gives every blocking guard an explicit chain contract and one canonical data-product registry',()=>{
     expect(registry.ecosystem?.contract).toBe('shoporation.gate-ecosystem.v1');
     expect(registry.ecosystem?.principles).toMatchObject({

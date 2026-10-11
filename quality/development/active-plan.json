@@ -1,15 +1,18 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-95BBBC73",
-  "task": "F30 Control Plane: fail-closed semantic isolation for unrelated Customer Baseline Guard Registry changes in Template Factory proof gating; exact parent/head git delta and full proof on Template Factory authority, runtime or unknown ancestry",
+  "task": "F31 Control Plane: close Template Factory semantic runtime classifier input omission and local-plan external proof suppression in gate chain; exact parent/head and authentic external 42-case evidence mandatory; fail closed on unknown dependencies",
   "status": "ready-for-implementation",
   "guardDigest": "95bbbc73",
-  "changeBaseSha": "dcc17408049b26feee8d19c21cbdf07dc885dbd3",
+  "changeBaseSha": "228a4d4bd7d75352cb6fbf4d041aef5107d40e8e",
   "plannedFilePatterns": [
+    "scripts/lib/shoperation-development-runtime.mjs",
     "scripts/shoperation-external-proof-handoff.mjs",
+    "quality/knowledge/guard-registry.v1.json",
+    "tests/control-plane-ecosystem-chain.test.ts",
     "tests/shoperation-external-proof-handoff.test.ts",
-    "quality/development/active-plan.json",
-    "docs/architecture/SHOPERATION_F30_TEMPLATE_FACTORY_SCOPED_REGISTRY_DEPENDENCY_20261011.md"
+    "docs/architecture/SHOPERATION_F31_TEMPLATE_GATE_CHAIN_CLASSIFIER_INPUTS_20261011.md",
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -94,11 +97,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-F30-CONTROLPLANE-SCOPED-TEMPLATE-DEPENDENCY",
+    "sourceRef": "PO-2026-10-11-F31-TEMPLATE-GATE-CHAIN-CLASSIFIER",
     "riskTier": "medium",
     "assuranceCeiling": {
-      "level": "fail-closed-exact-diff-source-assurance",
-      "rationale": "F29 changed only Customer Baseline registry proof semantics but the common registry path is also a Template Factory classifier input; F30 separates proven unrelated guard object delta from changed Template Factory or unknown lineage. The new classifier itself remains Template Factory scope and requires full external proof before full release closure.",
+      "level": "bounded-source-verification-no-external-visual-proof",
+      "rationale": "F30 changed an exact Template Factory classifier input but the gate selector did not include liveRuntime.classifierInputs; F31 must restore the required external gate without claiming browser or PO proof.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -111,31 +114,30 @@
         "fault-injection"
       ],
       "deferredTechniques": [
-        "full-42-case-browser-factory-preview",
-        "customer-native-Supabase-RLS"
+        "full-42-case-browser-matrix",
+        "preview-product-owner-fidelity-proof"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Source-only Customer Baseline guard producer/evidence/proofSemantics changes are provably unrelated to the Template Factory guard and dependency closure under exact Git parent/head identity.",
-        "A modification to Template Factory own guard, its dependency guards, registry ecosystem, runtime or classifier implementation cannot suppress external proof.",
-        "Unknown, diverged, missing SHA or malformed/extra registry delta remains external proof REQUIRED.",
-        "Negative regression tests prove every guarded state and direct explicit Template Factory evidence remains mandatory.",
-        "F30 classifier runtime change is itself fully subject to external proof: no false completion of F29 or F30 without actual 42-case evidence.",
-        "Source tests, Plan Before Code and local guards pass, no SQL, main, provider or production writes."
+        "The canonical external GUARD-TEMPLATE-FACTORY is selected when its classifierInputs, globalRuntimeInputs or entrypoints change.",
+        "F30's edited classifier source is explicitly covered and local verificationPlan gate entries do not discharge real external evidence.",
+        "Precise input lists prevent unrelated Office backend files from demanding Factory browser proof.",
+        "Historic F29 source-only registry correction remains independent only at its exact parent/head; unknown ancestry and changed TF rules fail closed.",
+        "The 42-case browser, runtime origin and Product Owner visual proof remain required for F31 release.",
+        "All source tests, Plan Before Code, TypeScript, Knowledge/Replay, Reference/Implementation Sync and Release Risk must pass before remote truth is considered."
       ],
       "invariants": [
-        "Only the known baseline guard source-only provenance/proofSemantics keys may be ignored in Template Factory visual dependency impact, never global structural changes.",
-        "Registry non-baseline guards, ecosystem and Template Factory closure must be byte-semantically equal.",
-        "Unproven ancestry and unexpected diff fail closed.",
-        "An explicit Template Factory evidence requirement cannot be bypassed.",
-        "CI and Lifecycle authority remains in force; main stays unchanged."
+        "Declared liveRuntime input paths select their owning guards.",
+        "A verificationPlan gate entry is not a real external browser artifact.",
+        "Unknown/missing runtime lineage cannot yield verified Template Factory approval.",
+        "Feature branch only; no main/production/Supabase modifications."
       ],
       "forbiddenStates": [
-        "Global classifier input excused for arbitrary metadata updates.",
-        "Template Factory guard or production-build dependency changed with required proof waived.",
-        "External browser 18/42 canary labeled 42/42 acceptance.",
-        "Zero-SHA ancestry accepted as proof."
+        "F30 classifier edit produces externalGateIds [].",
+        "Canary Playroom 18/42 passes as full 42/42.",
+        "Zero source SHA treated as runtime origin.",
+        "CI source verification promoted to complete Lifecycle without a valid external proof artifact."
       ]
     },
     "model": {
@@ -167,37 +169,38 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The common registry is treated as a content-free wildcard and invokes irrelevant browser proof.",
-        "A classifier change unintentionally bypasses TF proof via vague path prefix filters.",
-        "Parent/head diff fabricated or stale after GitHub connector commit creates different commit SHA.",
-        "A change to the TF guard dependency subtree is incorrectly treated as a benign unrelated guard."
+        "Generic guardInputPatterns omits liveRuntime.classifierInputs.",
+        "External proof selector subtracts gate keys from a local plan that do not constitute real evidence.",
+        "A broad src/** fallback would incorrectly couple unrelated Office files to Factory.",
+        "Historic F29 exact SHA exception accidentally reused at later F31 HEAD."
       ],
       "edgeCases": [
-        "F29 exact baseline registry delta is limited to proofSemantics and producer path.",
-        "A changed guards array order, removed guard, or ecosystem policy change is not ignored.",
-        "A different guard changed or runtime source file changed.",
-        "Explicit Template Factory reference remains external evidence required.",
-        "Unknown git ancestor or invalid revision must not be accepted."
+        "Direct edit of external proof handoff classifier.",
+        "Shared runtime compiler source edit.",
+        "Edit of globalRuntimeInputs/entrypoints.",
+        "Actual F29 registry semantic change but F31 different HEAD.",
+        "Existing local planned gate without a true external artifact.",
+        "Missing runtime closure, invalid zero SHA, incomplete browser matrix."
       ]
     },
     "alternatives": [
       {
-        "id": "F30-SCOPED-DIFF",
-        "summary": "Exact Git comparison of registry structure and allowed isolated baseline provenance subobject, with deny-by-default fallback.",
+        "id": "F31-CANONICAL-LIVE-RUNTIME-INPUTS",
+        "summary": "Consume declared precise liveRuntime input lists in the generic gate chain and require genuine independent external evidence.",
         "disposition": "selected",
-        "reason": "Preserves required Template Factory assurance while avoiding false cross-domain dependencies."
+        "reason": "Restores the missing authority edge, fixes local-plan-versus-proof confusion and preserves fail-closed behaviour."
       },
       {
-        "id": "F30-DISABLE-TF",
-        "summary": "Remove Template Factory guard from Control Plane or weaken 42/42 acceptance to canary.",
+        "id": "F31-HARDCODE",
+        "summary": "Hardcode one classifier file path in an isolated test or guard.",
         "disposition": "rejected",
-        "reason": "Destroys binding visual proof and violates PO decisions."
+        "reason": "Future declared classifier and entrypoint files could still be silently omitted."
       },
       {
-        "id": "F30-FULL-BROWSER-EVERY-REGISTRY-CHANGE",
-        "summary": "Require full 42-case visual proof even if a single unrelated source-only baseline guard description changes.",
+        "id": "F31-SKIP-EXTERNAL",
+        "summary": "Treat locally planned Template Factory gate or canary as full external acceptance.",
         "disposition": "rejected",
-        "reason": "Expensive, noisy, and contradicts proven semantic independence, but stays mandatory when runtime classifier itself changes."
+        "reason": "Contradicts the Product Owner 42-case and provenance assurance requirement."
       }
     ],
     "specialistReviews": [
@@ -205,39 +208,38 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Registry metadata could influence Template Factory gate behavior through undeclared dependencies.",
-        "resolution": "Allow only known baseline guard producer/evidence/proofSemantics changes; verify every other registry subobject remains equal plus strict exact Git ancestry and mandatory negative TF dependency tests.",
+        "finding": "Adding generic fallback globs could trigger unrelated Core and allow false proof scope.",
+        "resolution": "Use only precise classifierInputs, globalRuntimeInputs and entrypoints, with explicit negative unrelated-source tests.",
         "evidence": [
-          "quality/knowledge/guard-registry.v1.json",
-          "scripts/shoperation-external-proof-handoff.mjs"
+          "scripts/lib/shoperation-development-runtime.mjs"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "F29 external proof falsely called required even though only Customer Baseline evidence fields changed.",
-        "resolution": "Use exact parent/head registry object snapshots, not source path alone; fail closed if provenance is missing.",
+        "finding": "F30 reported no external gate even with an edited classified file.",
+        "resolution": "Test compileGateChain against real F30 source list and expected externalGateIds.",
         "evidence": [
-          "tests/shoperation-external-proof-handoff.test.ts"
+          "tests/control-plane-ecosystem-chain.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "F30 code modifies an actual Template Factory proof classifier; full external acceptance is mandatory for F30 itself.",
-        "resolution": "Keep F30 scoped as implementation work with no verified Lifecycle claim until real visual proof; F29 stays blocked until independently reconciled.",
+        "finding": "Local verificationPlan gate keys must not substitute for external 42-case browser and runtime provenance.",
+        "resolution": "Do not subtract shadow-plan keys and keep external artifact contract independently required.",
         "evidence": [
-          ".github/workflows/template-factory-quality-gate.yml"
+          "scripts/shoperation-external-proof-handoff.mjs"
         ]
       },
       {
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Repeated full visual runs for benign proof semantics changes cost money.",
-        "resolution": "Disallow false cross-domain triggering only after exact semantic evidence, no preview deployment by this unit.",
+        "finding": "Repeated GitHub device-code login in ephemeral sandbox is operationally brittle.",
+        "resolution": "Publish Git objects using preauthorized connected GitHub integration, and independently verify exact remote CI.",
         "evidence": [
           "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md"
         ]
@@ -245,50 +247,52 @@
     ],
     "challenge": [
       {
-        "id": "F30-CH-01",
-        "scenario": "Baseline source-only semantic diff with verified exact parent/head",
-        "finding": "Template visual renderer and factory classifier unchanged",
-        "resolution": "Permit narrow producer independence",
+        "id": "F31-CH1",
+        "scenario": "Classifier script is modified but not present in verification.semanticInputs.",
+        "finding": "Previous selector silently returned no external gate.",
+        "resolution": "Include the canonical liveRuntime input lists in the gate chain.",
         "status": "resolved"
       },
       {
-        "id": "F30-CH-02",
-        "scenario": "Template Factory own guard, dependency, or ecosystem changes",
-        "finding": "Runtime classifier semantics could change",
-        "resolution": "Require full external proof",
+        "id": "F31-CH2",
+        "scenario": "A local verification plan names a Template Factory gate.",
+        "finding": "Planned guard is not executed visual proof.",
+        "resolution": "Do not subtract external guards based solely on local plan keys.",
         "status": "resolved"
       },
       {
-        "id": "F30-CH-03",
-        "scenario": "Unknown git ancestry, non-ancestor SHA or other planned files",
-        "finding": "Cannot prove benign registry delta",
-        "resolution": "Fail closed",
+        "id": "F31-CH3",
+        "scenario": "An unrelated Office backend file changes.",
+        "finding": "An overbroad src/** match triggers costly unrelated Factory proof.",
+        "resolution": "Keep safetyFallbackRuntimePatterns outside normal applicability selection.",
         "status": "resolved"
       },
       {
-        "id": "F30-CH-04",
-        "scenario": "F30 itself edits classifier source",
-        "finding": "External proof genuinely required for releasing classifier logic",
-        "resolution": "Do not bypass this gate; separate bounded static assurance from release acceptance",
+        "id": "F31-CH4",
+        "scenario": "F29 historical proof is reused on later F31 HEAD.",
+        "finding": "Wrong Git ancestry could waive real Factory source modifications.",
+        "resolution": "Keep exact parent/head check and negative regression.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Check current remote F29 failure, exact Git ancestry and guard/template workflows.",
-      "Plan Before Code PASS before implementation.",
-      "Add deterministic exact semantic registry-delta proof and integration into external guard applicability, preserving explicit/transitive/unknown negative cases.",
-      "Run targeted anti-bypass tests and Quality/TypeScript/Control Plane checks, including real F29 base/head fixtures.",
-      "Never claim F30 release closure without legitimate complete Template Factory external proof.",
-      "Publish separate verified branch through connected GitHub only after local gates and source diff evidence."
+      "Verify actual F30 remote parent, F31 six source/test Git blob identities, and the distinct GitHub reconstruction of the active development plan.",
+      "No device-code auth: create this plan from the already remote F30 plan using the connected Github App, not truncated sandbox content.",
+      "Check all seven exact changed Git objects and create one F31 feature commit with F30 parent; never rewrite main.",
+      "Run full exact-head CI, typecheck, 3726 source tests and required Factory quality proof.",
+      "If Template Factory 42-case/browser/runtime/PO proof is unavailable, report BLOCK or PARTIAL; no false Lifecycle closure."
     ],
     "semanticExecutionRoute": {
-      "request": "F30 Control Plane: fail-closed semantic isolation for unrelated Customer Baseline Guard Registry changes in Template Factory proof gating; exact parent/head git delta and full proof on Template Factory authority, runtime or unknown ancestry",
+      "request": "F31 Control Plane: restore canonical Template Factory classifier selection and prevent local verification plan keys from shadowing external evidence",
       "authority": [
         "quality-knowledge-system",
         "builder-template-system"
       ],
       "mustEdit": [
+        "scripts/lib/shoperation-development-runtime.mjs",
         "scripts/shoperation-external-proof-handoff.mjs",
+        "quality/knowledge/guard-registry.v1.json",
+        "tests/control-plane-ecosystem-chain.test.ts",
         "tests/shoperation-external-proof-handoff.test.ts"
       ],
       "mayEdit": [
@@ -300,7 +304,7 @@
         "tests/shoperation-resumable-verification.test.ts"
       ],
       "mustCreate": [
-        "docs/architecture/SHOPERATION_F30_TEMPLATE_FACTORY_SCOPED_REGISTRY_DEPENDENCY_20261011.md"
+        "docs/architecture/SHOPERATION_F31_TEMPLATE_GATE_CHAIN_CLASSIFIER_INPUTS_20261011.md"
       ],
       "forbidden": [],
       "proof": [
@@ -736,36 +740,37 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Common Guard Registry path participates in Template Factory runtime classifier, but F29 changed only the unrelated Customer Baseline producer/evidence/proofSemantics. Factory workflow produced a canary 18/42 and null runtime origin; its own success was not an acceptable external handoff. F30 strengthens semantically scoped independence for exact benign registry diffs while ensuring classifier code edits and true runtime changes remain fully proof-gated.",
+    "problemStatement": "F30 CI failed Lifecycle, and its semantic gate selected zero external proof despite touching the Template Factory classifier; F31 repairs both canonical classifier input dependency and exclusion of external guards based on merely planned local verification entries.",
     "observableOutcomes": [
-      "F29 exact baseline-only registry diff is recognized as unrelated when all proof conditions are met.",
-      "Actual F30 runtime-classifier edits remain Template Factory affected and proof-gated.",
-      "No fake 42/42 browser acceptance or zero-SHA provenance is introduced.",
-      "All relevant regression/guards pass and the repository remains main-safe."
+      "F30 classifier/runtime changes now select GUARD-TEMPLATE-FACTORY.",
+      "Local shadow gate cannot suppress authentic browser, runtime or PO evidence.",
+      "Historic F29 scope-only proof does not apply to a different Git HEAD.",
+      "Exact-head CI and independent external proof remain release authorities."
     ],
     "unresolvedRisks": [
-      "F29 actual exact-head external acceptance still blocked until correctly reconciled proof under updated trusted classifier.",
-      "F30 implementation itself needs full external Template Factory acceptance before lifecycle closure.",
-      "Core #1186/#1228 native Supabase Fresh Install remains open."
+      "F31's own Template Factory visual proof, actual 42-case browser matrix and valid runtime origin are still unverified.",
+      "Core #1186 and Fresh Install #1228 native JWT/RLS and full 69-file migration replay remain open.",
+      "This reconstructed remote plan is content-distinct from local a05eea90, and the resulting commit must pass fresh exact-head CI."
     ],
     "scope": {
       "in": [
-        "Template Factory external proof applicability algorithm",
-        "Exact ancestry-scoped semantics test fixture",
-        "F30 architecture note",
-        "Active-plan metadata"
+        "Generic gate applicability compiler",
+        "External proof requirement resolver",
+        "Template Factory registry input authority",
+        "Control Plane/Factory integration regressions",
+        "Development plan metadata"
       ],
       "out": [
-        "Template Factory browser matrix threshold",
-        "Live deployment and PO acceptance",
-        "Supabase SQL/Auth/RLS",
-        "Production and main merge"
+        "Template visual threshold or PO acceptance",
+        "Supabase live SQL and production release",
+        "main branch merge",
+        "Provider delivery"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-F30-CONTROLPLANE-SCOPED-TEMPLATE-DEPENDENCY",
+    "sourceRef": "PO-2026-10-11-F31-TEMPLATE-GATE-CHAIN-CLASSIFIER",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -779,21 +784,23 @@
         "GUARD-COMPLETION-TRUTH",
         "GUARD-RELEASE-RISK"
       ],
-      "externalGuards": [],
+      "externalGuards": [
+        "GUARD-TEMPLATE-FACTORY"
+      ],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-F30-TEMPLATE-DEPENDENCY-SEMANTICS",
-        "requirement": "Known unrelated Customer Baseline registry proof metadata may be excluded from Template Factory source runtime proof only under exact semantic and ancestry proof; actual TF classifier changes require full external evidence.",
+        "id": "REQ-F31-TEMPLATE-GATE-DEPENDENCY-CLOSURE",
+        "requirement": "Template Factory classifier source and declared liveRuntime paths must select a mandatory external proof gate, which cannot be discharged by a local plan key.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "test-driven-source-classifier-change-only",
+          "breadth": "source-level-gate-selection-contract-only",
           "strength": 1,
           "dimensions": [
             "status",
             "scope",
-            "forbidden-state"
+            "limitations"
           ]
         },
         "requiredCapabilities": [
@@ -809,8 +816,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F30-TF-PROOF-BYPASS",
-            "statement": "Any actual TF guard runtime or unknown ancestry remains externally proof-required.",
+            "id": "NEG-F31-EXTERNAL-GATE-OMISSION",
+            "statement": "F30 classifier source changes cannot silently skip GUARD-TEMPLATE-FACTORY, even if a local verification plan already contains the gate key.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -819,5 +826,5 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.\nF31 GitHub-native plan reconstruction from trusted remote F30 (not a copy of blocked sandbox plan); original local F31 source blobs retained and exact-head CI required; external visual proof not implied."
 }

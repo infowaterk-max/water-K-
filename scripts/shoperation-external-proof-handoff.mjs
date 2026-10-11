@@ -156,9 +156,13 @@ export function requiredExternalCompletionGuards({activePlan,verificationPlan,gu
     ...(declaredRoute.mustCreate??[]),
   ])].filter(file=>file!=='quality/development/active-plan.json').sort();
   const registry=guardRegistry??readJson('quality/knowledge/guard-registry.v1.json');
+  // A gate appearing in a local verification *plan* is not executed external
+  // evidence. External guards are never discharged by local gate keys.
+  const byId=new Map((registry.guards??[]).map(guard=>[guard.id,guard]));
+  const requiredFromPlan=id=>byId.get(id)?.chain?.execution==='external'||!local.has(id);
   const chain=compileGateChain({guardRegistry:registry,plannedFiles,phase:'VERIFY',explicitGuardIds:explicit});
-  if(chain.decision!=='PASS')return [...new Set([...explicit.filter(id=>!local.has(id)),...chain.externalGateIds])];
-  const required=[...new Set([...explicit.filter(id=>!local.has(id)),...chain.externalGateIds.filter(id=>!local.has(id))])];
+  if(chain.decision!=='PASS')return [...new Set([...explicit.filter(requiredFromPlan),...chain.externalGateIds])];
+  const required=[...new Set([...explicit.filter(requiredFromPlan),...chain.externalGateIds])];
   if(required.includes('GUARD-TEMPLATE-FACTORY')){
     const actualHead=String(process.env.SHOPERATION_CI_HEAD_SHA??process.env.GITHUB_SHA??'').trim();
     let headSha=actualHead;
