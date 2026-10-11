@@ -182,15 +182,19 @@ describe('Control Plane ecosystem chain',()=>{
     expect(checkpoint).not.toContain('requiredIds:completionEvidenceGuardIds(activePlan)');
   });
 
-  it('binds cross-workflow Template Factory proof lookup to PR execution identity, not SHA alone',()=>{
+  it('binds cross-workflow Factory proof to exact current PR head/base instead of accepting successful push canaries',()=>{
     const ci=readFileSync('.github/workflows/ci.yml','utf8');
-    expect(ci).toContain("const expectedEvent=context.eventName==='pull_request'?'pull_request':'push'");
-    expect(ci).toContain("const expectedBranch=context.payload.pull_request?.head?.ref??context.ref.replace('refs/heads/','')");
-    expect(ci).toContain('const expectedPrNumber=context.payload.pull_request?.number??null');
-    expect(ci).toContain('run.event!==expectedEvent||run.head_branch!==expectedBranch');
-    expect(ci).toContain('(run.pull_requests??[]).some(pr=>pr.number===expectedPrNumber)');
-    expect(ci).toContain('const rejected=allExactHead.filter(run=>!sameExecutionContext(run))');
-    expect(ci).toContain('Exact-context Template Factory proof resolved');
+    const selector=readFileSync('scripts/release-external-proof-selection.mjs','utf8');
+    expect(ci).toContain("github.paginate(github.rest.pulls.list");
+    expect(ci).toContain('eligibleOpenProofPrNumbers({pulls,owner,repo,head:sha,branch,baseSha})');
+    expect(ci).toContain('selectExactPrFactoryProofRuns({');
+    expect(ci).toContain("core.setFailed('EXTERNAL_TEMPLATE_FACTORY_AUTHORIZED_EXACT_PR_MISSING')");
+    expect(ci).toContain("const baseSha=String(plan.changeBaseSha??'').trim()");
+    expect(selector).toContain("run.event==='pull_request'");
+    expect(selector).toContain('run.head_sha===head&&run.head_branch===branch');
+    expect(selector).toContain('pr.base?.sha===baseSha');
+    expect(selector).toContain('pr.head?.repo?.full_name===full&&pr.base?.repo?.full_name===full');
+    expect(ci).not.toContain("const expectedEvent=context.eventName==='pull_request'?'pull_request':'push'");
   });
 
   it('routes Template Factory live proof through Atlas-derived runtime identity without hiding current proof execution',()=>{
