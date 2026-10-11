@@ -1,20 +1,16 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-A4B8FDD7",
-  "task": "Core #1186 F28B: reconcile two stale CI tests with actually snapshot-reviewed 69-file customer baseline while preserving genuine historical 0046 Fresh Install proof and fail-closed native blockers; no product code, schema or policy changes",
+  "taskId": "DEV-AA79C504",
+  "task": "Shoperation F28C: fix Sentinel CI fixture's obsolete unconditional PASS expectation without masking real missing Customer Baseline proof semantics; document connected-GitHub batch Git Data API workflow to avoid repeated device codes and preserve guard/CI gating",
   "status": "ready-for-implementation",
-  "guardDigest": "a4b8fdd7",
-  "changeBaseSha": "5755f023f09ad7914faab554ce630e46cd4c9705",
+  "guardDigest": "aa79c504",
+  "changeBaseSha": "0bf4d1e4fd49fb430e7499324dcf4ddfad30535d",
   "plannedFilePatterns": [
-    "tests/customer-email-plan-split.test.ts",
-    "tests/order-core-transactional-email-dispatch-contract.test.ts",
+    "tests/shoperation-sentinel-integrity.test.ts",
+    "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
     "quality/development/active-plan.json"
   ],
-  "expectedSubsystems": [
-    "database-schema",
-    "shared-storefront",
-    "storefront-ui"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [],
   "expectedAuthorities": [],
   "expectedKnownFailureIds": [
@@ -23,10 +19,12 @@
     "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
     "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
     "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
@@ -36,12 +34,25 @@
     "SQ-KF-017",
     "SQ-KF-018",
     "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
+    "TF-KF-003",
     "TF-KF-004",
+    "TF-KF-005",
     "TF-KF-006",
+    "TF-KF-007",
+    "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
     "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
     "TF-KF-016",
     "TF-KF-017",
     "TF-KF-018",
@@ -55,25 +66,16 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-004",
-    "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
-    "SQ-NK-012",
-    "SQ-NK-014"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-CORE-1186-F28B-CI-BASELINE-TRUTH",
+    "sourceRef": "PO-2026-10-11-SHOPERATION-BATCH-GITHUB-F28C",
     "riskTier": "medium",
     "assuranceCeiling": {
-      "level": "bounded-proof-correction",
-      "rationale": "CI quality tests for F28 contain stale assertions that mistake a previously verified 0046 Fresh Install state for the current 69-migration unverified baseline. Repair only the obsolete expectations, explicitly preserve historical 0046 run identity and current source-only blocked truth.",
+      "level": "source-and-ci-fixture-proof",
+      "rationale": "Sentinel correctly reports REVIEW for missing Customer Baseline proof semantics; test fixture must assert exact finding without inventing PASS. Connected GitHub Git Data API will be used for authenticated batch promotion after local gate proof, with exact Git SHA checks and no sandbox GitHub token.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -83,33 +85,33 @@
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
-        "fault-injection",
-        "finite-state-exhaustion"
+        "fault-injection"
       ],
       "deferredTechniques": [
-        "native-managed-supabase-replay",
-        "customer-jwt-rls",
-        "migration-deployment"
+        "native-Supabase-RLS",
+        "end-to-end-production-deployment"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Historical 0046 Fresh Install proof identity, run, job and SHA remain asserted but are not used to mark the expanded 69-file baseline READY.",
-        "Both previously red tests verify current snapshot-reviewed status, freshInstallProofRequired true, proofContractSha256 null and late baseline dependency blockers.",
-        "The 0046 historical attestation does not get deleted, rewritten or falsely extended to 0067.",
-        "No product runtime code, migration or manifest status or customer data are changed for a stale test assertion.",
-        "Targeted tests, baseline validation, Plan Before Code, Edit-Time/Reference/Implementation, Knowledge/Replay and TypeScript pass on exact new commit."
+        "Sentinel probe refuses to claim unconditional PASS when active plan references a guard with no proofSemantics.",
+        "Existing leaked parent/child fixture still BLOCKS, real probe reviews only the known missing GUARD-CUSTOMER-BASELINE semantics or PASS when resolved.",
+        "Unknown additional review findings and any BLOCK cause test failure, preventing future silent drift.",
+        "Existing comprehensive Sentinel regression tests pass on real source.",
+        "Connected GitHub Git Data API can publish a reviewed small, multi-file transaction without a new device code or sandbox credential.",
+        "The development guide explicitly requires guard plan, targeted/full CI, exact HEAD parent and atomic tree, no implicit merge/deployment and no credential persistence."
       ],
       "invariants": [
-        "A historical 0046 clean-target proof is not a current full-baseline proof.",
-        "A snapshot-reviewed customer baseline cannot claim ready or a current proof hash.",
-        "CI harness never changes source truth or weakens application auth to force a pass."
+        "Real Sentinel BLOCK never reclassified as PASS.",
+        "Missing baseline guard proof semantics remains visible, not silently excused.",
+        "GitHub credentials remain in host connector rather than sandbox.",
+        "Original F28B and main commits remain intact."
       ],
       "forbiddenStates": [
-        "Test demands ready while manifest correctly has unverified append-only migrations.",
-        "An old proof SHA is copied into current manifest without current clean-target replay.",
-        "A test assertion for historical proof is dropped entirely.",
-        "Hosted database writes or deployments while addressing source-only CI harness drift."
+        "Test coerces REVIEW to PASS or hardcodes false production truth.",
+        "A new Git commit bypasses Plan Before Code, local tests or exact-head CI.",
+        "Non-fast-forward branch rewrites or pushes directly to main.",
+        "Long-lived GitHub token persisted in Vercel sandbox snapshot."
       ]
     },
     "model": {
@@ -141,37 +143,45 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Stale test expects READY from a historical 0046 proof even though 0067 is appended.",
-        "A removed literal phrase masks missing customer baseline proof.",
-        "A test can pass despite manifest switching to READY without new current-base attestation.",
-        "CI green is mislabeled native Supabase proof."
+        "Sentinel says REVIEW because a live requirement cites unsupported guard semantics",
+        "Test expected PASS and fails CI despite truthful REVIEW",
+        "Tolerating arbitrary REVIEW would mask a newly introduced missing guard semantics",
+        "Connector Git Data API creates wrong base tree or mismatched file blobs",
+        "GitHub commit is published before local proof passes"
       ],
       "edgeCases": [
-        "Historical proof number remains in appended notes",
-        "Later source-only migration appended after 0067",
-        "Manifest is snapshot-reviewed and null proof digest",
-        "Real future Fresh Install changes manifest to READY",
-        "Documentation vocabulary changes while machine status stays valid"
+        "Today missing GUARD-CUSTOMER-BASELINE semantics",
+        "Later guard gains defensible semantics and test should PASS",
+        "Unexpected new REVIEW beyond baseline guard",
+        "Changed active development plan used by probe",
+        "Multiple files and metadata in one Git commit",
+        "Concurrent branch head changed before commit"
       ]
     },
     "alternatives": [
       {
-        "id": "F28B-TRUE-ASSERT",
-        "summary": "Update two stale tests to assert current machine-readable snapshot state, historical 0046 record and latest native blockers.",
+        "id": "SENTINEL-TRUTHFUL-TEST",
+        "summary": "Assert expected REVIEW only for exact unsupported baseline producer and PASS once canonical semantics are present; keep other findings blocking.",
         "disposition": "selected",
-        "reason": "Restores CI accuracy without weakening product code or lying about database readiness."
+        "reason": "Preserves legitimate Sentinel diagnostic authority without concealing problems."
       },
       {
-        "id": "F28B-FAKE-READY",
-        "summary": "Change manifest status to READY and backfill the historical 0046 proof digest to satisfy obsolete tests.",
+        "id": "SENTINEL-FORCED-PASS",
+        "summary": "Force the Sentinel to return PASS whenever existing quality tests pass.",
         "disposition": "rejected",
-        "reason": "Would make a false statement about the expanded 69-migration baseline and violate Truth Gate."
+        "reason": "Would conceal missing proof semantics and violate Control Plane truth."
       },
       {
-        "id": "F28B-SKIP",
-        "summary": "Disable the two failing test cases or CI quality step while the baseline migration work continues.",
+        "id": "SENTINEL-FALSE-SEMANTICS",
+        "summary": "Declare GUARD-CUSTOMER-BASELINE a comprehensive native Auth/RLS proof without implementation evidence.",
         "disposition": "rejected",
-        "reason": "Would remove the safety assertion rather than correct the stale oracle."
+        "reason": "Would overclaim source-only baseline manifest validation."
+      },
+      {
+        "id": "DEVICE-LOGIN-FOREVER",
+        "summary": "Use gh auth login for every tiny commit or save credentials inside the snapshot.",
+        "disposition": "rejected",
+        "reason": "Unnecessary manual friction or persistent-token risk given connected GitHub API."
       }
     ],
     "specialistReviews": [
@@ -179,39 +189,38 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Changing a CI test could suppress detection of a genuine new migration security regression.",
-        "resolution": "Preserve negative assertions for current snapshot-only manifest with true Fresh Install required and no current proof digest, and retain the native actor/RLS blocker.",
+        "finding": "A test accepting REVIEW could be used to mask a security guard unable to attest authorization.",
+        "resolution": "Assert the exact expected finding, guard ID, count and no action-level findings; no generic REVIEW tolerance.",
         "evidence": [
-          "supabase/customer-baseline/manifest.json",
-          "tests/customer-email-plan-split.test.ts"
-        ]
-      },
-      {
-        "role": "Data Integrity",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Historical 0046 run metadata is valid for the old lineage but does not prove newly added Office migrations.",
-        "resolution": "Assert historical job, run and digest only in explanatory notes, never as current machine proof digest.",
-        "evidence": [
-          "supabase/customer-baseline/manifest.json"
+          "scripts/lib/shoperation-sentinel-integrity.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Full CI failed on two obsolete test oracles, causing expected downstream Completion Truth blocking.",
-        "resolution": "Use a new branch off exact F28 commit, update assertions only, run targeted local tests and exact-head CI; keep main untouched.",
+        "finding": "The failed F28B CI is still not release-closed, even if only one source fixture expectation is wrong.",
+        "resolution": "One F28C follow-up commit with exact-parent lineage, local source proof, and automatic full GitHub CI before any merge.",
         "evidence": [
-          "tests/order-core-transactional-email-dispatch-contract.test.ts"
+          "tests/shoperation-sentinel-integrity.test.ts"
         ]
       },
       {
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "No extra paid infrastructure or target DB reset is needed for correcting test assertions.",
-        "resolution": "Use existing original sandbox snapshot and no provider calls/deployments.",
+        "finding": "Repeated device logins and sandbox restarts create friction and potentially cost.",
+        "resolution": "Publish fully verified Git tree/commit using connected host GitHub plugin, avoid sandbox CLI auth, stop sandbox after code gates.",
+        "evidence": [
+          "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md"
+        ]
+      },
+      {
+        "role": "Data Integrity",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Unverified local code might differ from host-connector uploaded blobs.",
+        "resolution": "Verify each Git object SHA matches local git blob SHA and remote commit file list, parent and main branch.",
         "evidence": [
           "quality/development/active-plan.json"
         ]
@@ -219,139 +228,59 @@
     ],
     "challenge": [
       {
-        "id": "F28B-CH-01",
-        "scenario": "Snapshot contains a valid historical 0046 proof but is not current clean-target verified after U10A2 F22.",
-        "finding": "Old READY test would fail despite system being correctly fail-closed.",
-        "resolution": "Assert current snapshot-reviewed, empty current proof digest and historical attestation separately.",
+        "id": "F28C-CH1",
+        "scenario": "F28B active plan references baseline guard without proofSemantics",
+        "finding": "Sentinel correctly emits REVIEW",
+        "resolution": "Check exact SENTINEL_INTEGRITY_PROOF_SEMANTICS_UNKNOWN and guardId GUARD-CUSTOMER-BASELINE instead of insisting on PASS.",
         "status": "resolved"
       },
       {
-        "id": "F28B-CH-02",
-        "scenario": "Tester replaces an old phrase with a trivial string presence check.",
-        "finding": "CI could become green even when actual Fresh Install readiness is fabricated.",
-        "resolution": "Couple textual historical evidence to mandatory machine status, freshInstallProofRequired and proofContractSha256 null.",
+        "id": "F28C-CH2",
+        "scenario": "A second unknown review appears",
+        "finding": "Fixture must not go green with arbitrary new missing evidence",
+        "resolution": "Require exact allowed review set and count.",
         "status": "resolved"
       },
       {
-        "id": "F28B-CH-03",
-        "scenario": "Current baseline is later upgraded to READY on a genuine verified target.",
-        "finding": "The deliberately pinned snapshot expectation should block unreviewed state promotion until true proof is independently assessed.",
-        "resolution": "Treat future READY as a separate explicit proof update with new exact-head CI and review, not an auto-pass.",
+        "id": "F28C-CH3",
+        "scenario": "Host GitHub connector commit SHA differs from locally reviewed source",
+        "finding": "Change provenance and gate validity are lost",
+        "resolution": "Use git hash-object SHA parity for all uploaded files and independently inspect remote commit.",
         "status": "resolved"
       },
       {
-        "id": "F28B-CH-04",
-        "scenario": "CI fails downstream Completion Truth because the quality test command was nonzero.",
-        "finding": "Patching Completion Truth rather than test oracle would undermine evidence integrity.",
-        "resolution": "Leave all gates intact; repair only the invalid test assertions and verify downstream gate independently.",
+        "id": "F28C-CH4",
+        "scenario": "New feature release after source-level F28C tests pass but SQL still absent in staging",
+        "finding": "Production cannot accept code relying on undeployed Office RPCs",
+        "resolution": "No main merge or provider write without fresh-install and existing-target schema parity.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Read actual full CI failed test expectations and compare with manifest truth of current 69-file baseline.",
-      "Prove both red tests fail before repair and pass after narrow assertion edits.",
-      "Run customer-baseline guard, relevant customer-email and order email tests and source security regressions.",
-      "Run Plan Before Code, Edit-Time/Reference/Implementation Sync, Knowledge/Replay, TypeScript and release risk.",
-      "Push a new non-merged branch with separate exact-head CI; no hosted database or preview."
+      "Run Development Guard and Plan Before Code for test + process doc scope.",
+      "Demonstrate real Sentinel REVIEW finding first.",
+      "Change test fixture to require exact expected REVIEW or PASS when proof semantics verified, reject all other findings.",
+      "Run targeted sentinel tests, relevant source tests, baseline guard and Edit-Time/Reference/Implementation Sync.",
+      "Publish via connected GitHub blobs/tree/commit/branch with exact local blob and parent SHA parity, no CLI login.",
+      "Verify remote SHA and wait for full GitHub CI without automatic main merge."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 F28B: reconcile two stale CI tests with actually snapshot-reviewed 69-file customer baseline while preserving genuine historical 0046 Fresh Install proof and fail-closed native blockers; no product code, schema or policy changes",
+      "request": "Shoperation F28C: fix Sentinel CI fixture's obsolete unconditional PASS expectation without masking real missing Customer Baseline proof semantics; document connected-GitHub batch Git Data API workflow to avoid repeated device codes and preserve guard/CI gating",
       "authority": [
         "quality-knowledge-system"
       ],
       "mustEdit": [
-        "tests/customer-email-plan-split.test.ts",
-        "tests/order-core-transactional-email-dispatch-contract.test.ts"
+        "tests/shoperation-sentinel-integrity.test.ts"
       ],
       "mayEdit": [
         "quality/development/active-plan.json"
       ],
-      "impactedReadOnly": [
-        "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
-        "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
-        "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
-        "src/app/admin/email-sablonok/brand-kit/page.tsx",
-        "src/app/admin/email-sablonok/page.tsx",
-        "src/app/admin/kampanyok/[id]/page.tsx",
-        "src/app/admin/kampanyok/page.tsx",
-        "src/app/admin/kommunikacio/felugyelet/page.tsx",
-        "src/app/admin/kommunikacio/iroda/page.tsx",
-        "src/app/admin/kommunikacio/tiltolista/page.tsx",
-        "src/app/admin/kuponok/page.tsx",
-        "src/app/admin/marketing/page.tsx",
-        "src/app/admin/novekedes/page.tsx",
-        "src/app/admin/page.tsx",
-        "src/app/admin/tartalom/page.tsx",
-        "src/app/admin/velemenyek/actions.ts",
-        "src/app/admin/velemenyek/page.tsx",
-        "src/app/api/admin/campaigns/manage/route.ts",
-        "src/app/api/admin/campaigns/route.ts",
-        "src/app/api/admin/communication/enqueue/route.ts",
-        "src/app/api/admin/communication/manage/route.ts",
-        "src/app/api/admin/communication/suppression/route.ts",
-        "src/app/api/admin/content/[id]/route.ts",
-        "src/app/api/admin/content/route.ts",
-        "src/app/api/admin/coupons/route.ts",
-        "src/app/api/admin/email-builder/brand-kit/route.ts",
-        "src/app/api/admin/email-builder/preview/route.ts",
-        "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
-        "src/app/api/admin/email-builder/saved-blocks/route.ts",
-        "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
-        "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
-        "src/app/api/admin/email-builder/templates/[id]/route.ts",
-        "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
-        "src/app/api/admin/email-builder/templates/route.ts",
-        "src/app/api/admin/growth/run/route.ts",
-        "src/app/api/admin/promotions/preview/route.ts",
-        "src/lib/auth/store-capabilities.ts",
-        "src/lib/auth/store-rbac.ts",
-        "src/lib/digital-office/access.ts",
-        "src/lib/navigation/admin-ia.ts"
+      "impactedReadOnly": [],
+      "mustCreate": [
+        "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md"
       ],
-      "mustCreate": [],
       "forbidden": [],
-      "proof": [
-        "tests/admin-api-tenant-mutation-closure.test.ts",
-        "tests/admin-growth-refresh-evidence.test.ts",
-        "tests/admin-route-rbac.test.ts",
-        "tests/block12-migration-assistant.test.ts",
-        "tests/block14-catalog-onboarding-import-ux.test.ts",
-        "tests/block16-commerce-recovery-integration.test.ts",
-        "tests/block18-ai-assisted-decisioning.test.ts",
-        "tests/block19-predictive-optimization-autonomy.test.ts",
-        "tests/block20-platform-ecosystem.test.ts",
-        "tests/block5-role-aware-ui.test.ts",
-        "tests/block7-b2b-account-ownership.test.ts",
-        "tests/campaign-creation-fail-closed.test.ts",
-        "tests/campaign-lifecycle-evidence-atomicity.test.ts",
-        "tests/digital-commerce-builder-integration.test.tsx",
-        "tests/digital-office-unified-ui.test.ts",
-        "tests/email-builder-d1-admin-shell.test.ts",
-        "tests/email-builder-d2-editor.test.ts",
-        "tests/email-builder-foundation-b.test.ts",
-        "tests/email-builder-publication-lifecycle.test.ts",
-        "tests/email-builder-saved-blocks.test.ts",
-        "tests/event-driven-workflow-automation.test.ts",
-        "tests/executive-analytics-ux-closure.test.ts",
-        "tests/merchant-admin-tenant-closure.test.ts",
-        "tests/pilot-acceptance-access.test.ts",
-        "tests/roadmap-block21-page-schema-templates.test.ts",
-        "tests/roadmap-block22-schema-policy.test.ts",
-        "tests/roadmap-block22-visual-builder.test.ts",
-        "tests/special-commerce-wave5-existing-engine-closure.test.ts",
-        "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
-        "tests/special-commerce-wave7-template2-adoption.test.ts",
-        "tests/storefront-beauty-lab-reference-v2.test.ts",
-        "tests/storefront-component-variants.test.ts",
-        "tests/storefront-editorial-atelier-template.test.tsx",
-        "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
-        "tests/storefront-fidelity-security.test.ts",
-        "tests/storefront-global-styles.test.ts",
-        "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
-        "tests/storefront-interactive-scene-commerce.test.tsx",
-        "tests/storefront-modern-luxe-template.test.tsx",
-        "tests/storefront-modern-luxe-wave46-reacceptance.test.ts"
-      ],
+      "proof": [],
       "unknown": [],
       "plannedDeletions": []
     },
@@ -362,96 +291,15 @@
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
           "quality/development/active-plan.json",
-          "tests/customer-email-plan-split.test.ts",
-          "tests/order-core-transactional-email-dispatch-contract.test.ts"
+          "tests/shoperation-sentinel-integrity.test.ts"
         ],
         "mayEdit": [],
-        "impactedReadOnly": [
-          "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
-          "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
-          "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
-          "src/app/admin/email-sablonok/brand-kit/page.tsx",
-          "src/app/admin/email-sablonok/page.tsx",
-          "src/app/admin/kampanyok/[id]/page.tsx",
-          "src/app/admin/kampanyok/page.tsx",
-          "src/app/admin/kommunikacio/felugyelet/page.tsx",
-          "src/app/admin/kommunikacio/iroda/page.tsx",
-          "src/app/admin/kommunikacio/tiltolista/page.tsx",
-          "src/app/admin/kuponok/page.tsx",
-          "src/app/admin/marketing/page.tsx",
-          "src/app/admin/novekedes/page.tsx",
-          "src/app/admin/page.tsx",
-          "src/app/admin/tartalom/page.tsx",
-          "src/app/admin/velemenyek/actions.ts",
-          "src/app/admin/velemenyek/page.tsx",
-          "src/app/api/admin/campaigns/manage/route.ts",
-          "src/app/api/admin/campaigns/route.ts",
-          "src/app/api/admin/communication/enqueue/route.ts",
-          "src/app/api/admin/communication/manage/route.ts",
-          "src/app/api/admin/communication/suppression/route.ts",
-          "src/app/api/admin/content/[id]/route.ts",
-          "src/app/api/admin/content/route.ts",
-          "src/app/api/admin/coupons/route.ts",
-          "src/app/api/admin/email-builder/brand-kit/route.ts",
-          "src/app/api/admin/email-builder/preview/route.ts",
-          "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
-          "src/app/api/admin/email-builder/saved-blocks/route.ts",
-          "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
-          "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
-          "src/app/api/admin/email-builder/templates/[id]/route.ts",
-          "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
-          "src/app/api/admin/email-builder/templates/route.ts",
-          "src/app/api/admin/growth/run/route.ts",
-          "src/app/api/admin/promotions/preview/route.ts",
-          "src/lib/auth/store-capabilities.ts",
-          "src/lib/auth/store-rbac.ts",
-          "src/lib/digital-office/access.ts",
-          "src/lib/navigation/admin-ia.ts"
+        "impactedReadOnly": [],
+        "mustCreate": [
+          "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md"
         ],
-        "mustCreate": [],
         "forbidden": [],
-        "proof": [
-          "tests/admin-api-tenant-mutation-closure.test.ts",
-          "tests/admin-growth-refresh-evidence.test.ts",
-          "tests/admin-route-rbac.test.ts",
-          "tests/block12-migration-assistant.test.ts",
-          "tests/block14-catalog-onboarding-import-ux.test.ts",
-          "tests/block16-commerce-recovery-integration.test.ts",
-          "tests/block18-ai-assisted-decisioning.test.ts",
-          "tests/block19-predictive-optimization-autonomy.test.ts",
-          "tests/block20-platform-ecosystem.test.ts",
-          "tests/block5-role-aware-ui.test.ts",
-          "tests/block7-b2b-account-ownership.test.ts",
-          "tests/campaign-creation-fail-closed.test.ts",
-          "tests/campaign-lifecycle-evidence-atomicity.test.ts",
-          "tests/digital-commerce-builder-integration.test.tsx",
-          "tests/digital-office-unified-ui.test.ts",
-          "tests/email-builder-d1-admin-shell.test.ts",
-          "tests/email-builder-d2-editor.test.ts",
-          "tests/email-builder-foundation-b.test.ts",
-          "tests/email-builder-publication-lifecycle.test.ts",
-          "tests/email-builder-saved-blocks.test.ts",
-          "tests/event-driven-workflow-automation.test.ts",
-          "tests/executive-analytics-ux-closure.test.ts",
-          "tests/merchant-admin-tenant-closure.test.ts",
-          "tests/pilot-acceptance-access.test.ts",
-          "tests/roadmap-block21-page-schema-templates.test.ts",
-          "tests/roadmap-block22-schema-policy.test.ts",
-          "tests/roadmap-block22-visual-builder.test.ts",
-          "tests/special-commerce-wave5-existing-engine-closure.test.ts",
-          "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
-          "tests/special-commerce-wave7-template2-adoption.test.ts",
-          "tests/storefront-beauty-lab-reference-v2.test.ts",
-          "tests/storefront-component-variants.test.ts",
-          "tests/storefront-editorial-atelier-template.test.tsx",
-          "tests/storefront-editorial-atelier-wave44-reacceptance.test.ts",
-          "tests/storefront-fidelity-security.test.ts",
-          "tests/storefront-global-styles.test.ts",
-          "tests/storefront-heritage-atelier-wave47-reacceptance.test.ts",
-          "tests/storefront-interactive-scene-commerce.test.tsx",
-          "tests/storefront-modern-luxe-template.test.tsx",
-          "tests/storefront-modern-luxe-wave46-reacceptance.test.ts"
-        ],
+        "proof": [],
         "authority": [
           "quality-knowledge-system"
         ],
@@ -466,19 +314,19 @@
         "subsystems": [],
         "files": [
           {
+            "file": "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
+          },
+          {
             "file": "quality/development/active-plan.json",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "tests/customer-email-plan-split.test.ts",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "tests/order-core-transactional-email-dispatch-contract.test.ts",
+            "file": "tests/shoperation-sentinel-integrity.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -500,19 +348,19 @@
           "subsystems": [],
           "files": [
             {
+              "file": "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
               "file": "quality/development/active-plan.json",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "tests/customer-email-plan-split.test.ts",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
-            {
-              "file": "tests/order-core-transactional-email-dispatch-contract.test.ts",
+              "file": "tests/shoperation-sentinel-integrity.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -526,6 +374,30 @@
         "atomicComponents": [
           {
             "id": 0,
+            "files": [
+              "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 1,
             "files": [
               "quality/development/active-plan.json"
             ],
@@ -549,33 +421,9 @@
             }
           },
           {
-            "id": 1,
-            "files": [
-              "tests/customer-email-plan-split.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "tests/customer-email-plan-split.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
             "id": 2,
             "files": [
-              "tests/order-core-transactional-email-dispatch-contract.test.ts"
+              "tests/shoperation-sentinel-integrity.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -586,7 +434,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/order-core-transactional-email-dispatch-contract.test.ts",
+                  "file": "tests/shoperation-sentinel-integrity.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -604,23 +452,28 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "5755f023f09ad7914faab554ce630e46cd4c9705"
+              "developmentBaseSha": "0bf4d1e4fd49fb430e7499324dcf4ddfad30535d"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "5755f023f09ad7914faab554ce630e46cd4c9705",
+            "targetBaseSha": "0bf4d1e4fd49fb430e7499324dcf4ddfad30535d",
             "lease": {
-              "expectedBaseSha": "5755f023f09ad7914faab554ce630e46cd4c9705",
+              "expectedBaseSha": "0bf4d1e4fd49fb430e7499324dcf4ddfad30535d",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
+              "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
               "quality/development/active-plan.json",
-              "tests/customer-email-plan-split.test.ts",
-              "tests/order-core-transactional-email-dispatch-contract.test.ts"
+              "tests/shoperation-sentinel-integrity.test.ts"
             ],
             "operations": [
+              {
+                "operation": "create",
+                "file": "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
+                "generated": null
+              },
               {
                 "operation": "modify",
                 "file": "quality/development/active-plan.json",
@@ -628,17 +481,12 @@
               },
               {
                 "operation": "modify",
-                "file": "tests/customer-email-plan-split.test.ts",
-                "generated": null
-              },
-              {
-                "operation": "modify",
-                "file": "tests/order-core-transactional-email-dispatch-contract.test.ts",
+                "file": "tests/shoperation-sentinel-integrity.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [
-              "src/lib/plans/catalog.ts"
+              "scripts/lib/shoperation-sentinel-integrity.mjs"
             ],
             "authorities": [
               "quality-knowledge-system"
@@ -653,19 +501,19 @@
               "subsystems": [],
               "files": [
                 {
+                  "file": "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                },
+                {
                   "file": "quality/development/active-plan.json",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "tests/customer-email-plan-split.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "tests/order-core-transactional-email-dispatch-contract.test.ts",
+                  "file": "tests/shoperation-sentinel-integrity.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -698,62 +546,20 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-email-plan-split.test.ts",
-                "tests/order-core-transactional-email-dispatch-contract.test.ts"
+                "tests/shoperation-sentinel-integrity.test.ts"
               ],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
-            "readOnlyPaths": [
-              "src/app/admin/email-sablonok/[id]/elonezet/page.tsx",
-              "src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx",
-              "src/app/admin/email-sablonok/[id]/verziok/page.tsx",
-              "src/app/admin/email-sablonok/brand-kit/page.tsx",
-              "src/app/admin/email-sablonok/page.tsx",
-              "src/app/admin/kampanyok/[id]/page.tsx",
-              "src/app/admin/kampanyok/page.tsx",
-              "src/app/admin/kommunikacio/felugyelet/page.tsx",
-              "src/app/admin/kommunikacio/iroda/page.tsx",
-              "src/app/admin/kommunikacio/tiltolista/page.tsx",
-              "src/app/admin/kuponok/page.tsx",
-              "src/app/admin/marketing/page.tsx",
-              "src/app/admin/novekedes/page.tsx",
-              "src/app/admin/page.tsx",
-              "src/app/admin/tartalom/page.tsx",
-              "src/app/admin/velemenyek/actions.ts",
-              "src/app/admin/velemenyek/page.tsx",
-              "src/app/api/admin/campaigns/manage/route.ts",
-              "src/app/api/admin/campaigns/route.ts",
-              "src/app/api/admin/communication/enqueue/route.ts",
-              "src/app/api/admin/communication/manage/route.ts",
-              "src/app/api/admin/communication/suppression/route.ts",
-              "src/app/api/admin/content/[id]/route.ts",
-              "src/app/api/admin/content/route.ts",
-              "src/app/api/admin/coupons/route.ts",
-              "src/app/api/admin/email-builder/brand-kit/route.ts",
-              "src/app/api/admin/email-builder/preview/route.ts",
-              "src/app/api/admin/email-builder/saved-blocks/[id]/route.ts",
-              "src/app/api/admin/email-builder/saved-blocks/route.ts",
-              "src/app/api/admin/email-builder/system-templates/essential-order-confirmation/route.ts",
-              "src/app/api/admin/email-builder/templates/[id]/activate/route.ts",
-              "src/app/api/admin/email-builder/templates/[id]/route.ts",
-              "src/app/api/admin/email-builder/templates/[id]/versions/[versionId]/restore-draft/route.ts",
-              "src/app/api/admin/email-builder/templates/route.ts",
-              "src/app/api/admin/growth/run/route.ts",
-              "src/app/api/admin/promotions/preview/route.ts",
-              "src/lib/auth/store-capabilities.ts",
-              "src/lib/auth/store-rbac.ts",
-              "src/lib/digital-office/access.ts",
-              "src/lib/navigation/admin-ia.ts"
-            ],
+            "readOnlyPaths": [],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
+                "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
                 "quality/development/active-plan.json",
-                "tests/customer-email-plan-split.test.ts",
-                "tests/order-core-transactional-email-dispatch-contract.test.ts"
+                "tests/shoperation-sentinel-integrity.test.ts"
               ],
               "filesAbsent": []
             },
@@ -768,7 +574,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "90673819",
+            "manifestDigest": "55f09d74",
             "decision": "PASS"
           }
         ],
@@ -810,32 +616,33 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Two pre-existing CI tests referenced superseded Fresh Install proof semantics: customer-email-plan-split expected READY and legacy order-email contract expected a removed prose marker. Current machine manifest is snapshot-reviewed with proof required and null current digest, while its long notes preserve authentic historical 0046 successful proof. Updating the legacy tests without changing the manifest prevents falsely attributing the 0046 proof to a much larger baseline.",
+    "problemStatement": "F28B CI now has 3712/3713 tests passing, but the daily Sentinel fixture expects PASS even though the live F28B completion contract references GUARD-CUSTOMER-BASELINE with no declared proof semantics. The correct response is REVIEW, not a Sentinel bug. Reconcile fixture to guarded evidence and adopt connector-based, batched GitHub publishing to avoid repeated user device-code authorizations.",
     "observableOutcomes": [
-      "Two original failing test cases pass while manifest remains snapshot-reviewed and historical exact run/job retained.",
-      "No machine proof contract is copied or invented; native checks remain explicitly blocked.",
-      "Tests guard against future incorrect automatic promotion and preserve code-free change scope."
+      "Sentinel test accepts solely authentic known REVIEW evidence or future clean PASS and rejects any unexpected BLOCK/REVIEW.",
+      "Feature source, permission guards and manifest unchanged.",
+      "First connector-based F28C GitHub commit saved without device code; main and F28B ref unchanged."
     ],
     "unresolvedRisks": [
-      "Current appended Office and Team Chat migration lineage still lacks complete target Fresh Install proof.",
-      "Staging still has older Office RLS and no relevant advanced helper functions."
+      "The Customer Baseline guard still lacks canonical Proof Semantics; F28B full production claim remains OPEN/PARTIAL.",
+      "Fresh Install and existing staging schema parity still require native proof."
     ],
     "scope": {
       "in": [
-        "Two exact failing test contracts",
-        "Non-executable plan metadata"
+        "Sentinel integrity regression fixture",
+        "Development operational workflow document",
+        "Active development plan metadata"
       ],
       "out": [
-        "Customer baseline schema and manifest data",
-        "Production runtime source",
-        "Supabase hosted database operations",
-        "Vercel deployment"
+        "Runtime Sentinel findings/decision engine",
+        "Customer Baseline guard proof-semantic registry rewrite",
+        "Hosted Supabase migration or live data",
+        "Vercel deployment and main merge"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-CORE-1186-F28B-CI-BASELINE-TRUTH",
+    "sourceRef": "PO-2026-10-11-SHOPERATION-BATCH-GITHUB-F28C",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -854,35 +661,33 @@
     },
     "requirements": [
       {
-        "id": "REQ-F28B-CI-FRESH-TRUTH",
-        "requirement": "The two legacy CI test oracles must distinguish actual current baseline snapshot-reviewed state and historical 0046 ready proof without changing authoritative manifest.",
+        "id": "REQ-F28C-SENTINEL-TRUTHFUL-FIXTURE",
+        "requirement": "The daily Sentinel fixture must not overclaim PASS when canonical proof semantics for referenced guards are unknown, and connected GitHub publish must preserve exact reviewed code identities.",
         "claimScope": {
-          "capability": "CAP-AUTH",
-          "breadth": "static-customer-baseline-test-contract",
+          "capability": "CAP-QUALITY",
+          "breadth": "sentinel-daily-probe-regression-and-github-publish",
           "strength": 1,
           "dimensions": [
-            "scope",
-            "forbidden-state",
-            "behavioral-proof"
+            "status",
+            "truth",
+            "regression"
           ]
         },
         "requiredCapabilities": [
-          "CAP-AUTH"
+          "CAP-QUALITY"
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-CUSTOMER-BASELINE"
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS",
-            "GUARD-CUSTOMER-BASELINE"
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F28B-FAKE-READY",
-            "statement": "Tests must never imply current complete Fresh Install proof from a historical 0046 run.",
+            "id": "NEG-SENTINEL-NO-FALSE-PASS",
+            "statement": "Unexpected REVIEW or BLOCK cannot satisfy daily integrity proof.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -892,6 +697,244 @@
     ]
   },
   "notes": [
-    "F28B CI failure correction is only test authority alignment, never source manifest or SQL modification."
+    "C",
+    "o",
+    "m",
+    "p",
+    "l",
+    "e",
+    "t",
+    "e",
+    " ",
+    "t",
+    "h",
+    "e",
+    " ",
+    "a",
+    "s",
+    "s",
+    "u",
+    "r",
+    "a",
+    "n",
+    "c",
+    "e",
+    " ",
+    "c",
+    "e",
+    "i",
+    "l",
+    "i",
+    "n",
+    "g",
+    ",",
+    " ",
+    "D",
+    "E",
+    "F",
+    "I",
+    "N",
+    "E",
+    "/",
+    "M",
+    "O",
+    "D",
+    "E",
+    "L",
+    "/",
+    "P",
+    "L",
+    "A",
+    "N",
+    "/",
+    "C",
+    "H",
+    "A",
+    "L",
+    "L",
+    "E",
+    "N",
+    "G",
+    "E",
+    " ",
+    "e",
+    "v",
+    "i",
+    "d",
+    "e",
+    "n",
+    "c",
+    "e",
+    ",",
+    " ",
+    "s",
+    "p",
+    "e",
+    "c",
+    "i",
+    "a",
+    "l",
+    "i",
+    "s",
+    "t",
+    " ",
+    "r",
+    "e",
+    "v",
+    "i",
+    "e",
+    "w",
+    "s",
+    " ",
+    "a",
+    "n",
+    "d",
+    " ",
+    "P",
+    "O",
+    "-",
+    "d",
+    "e",
+    "r",
+    "i",
+    "v",
+    "e",
+    "d",
+    " ",
+    "C",
+    "o",
+    "m",
+    "p",
+    "l",
+    "e",
+    "t",
+    "i",
+    "o",
+    "n",
+    " ",
+    "C",
+    "o",
+    "n",
+    "t",
+    "r",
+    "a",
+    "c",
+    "t",
+    ".",
+    " ",
+    "O",
+    "n",
+    "l",
+    "y",
+    " ",
+    "t",
+    "h",
+    "e",
+    "n",
+    " ",
+    "s",
+    "e",
+    "t",
+    " ",
+    "s",
+    "t",
+    "a",
+    "t",
+    "u",
+    "s",
+    " ",
+    "t",
+    "o",
+    " ",
+    "r",
+    "e",
+    "a",
+    "d",
+    "y",
+    "-",
+    "f",
+    "o",
+    "r",
+    "-",
+    "i",
+    "m",
+    "p",
+    "l",
+    "e",
+    "m",
+    "e",
+    "n",
+    "t",
+    "a",
+    "t",
+    "i",
+    "o",
+    "n",
+    " ",
+    "a",
+    "n",
+    "d",
+    " ",
+    "e",
+    "x",
+    "e",
+    "c",
+    "u",
+    "t",
+    "i",
+    "o",
+    "n",
+    "A",
+    "u",
+    "t",
+    "h",
+    "o",
+    "r",
+    "i",
+    "z",
+    "e",
+    "d",
+    " ",
+    "t",
+    "o",
+    " ",
+    "t",
+    "r",
+    "u",
+    "e",
+    " ",
+    "b",
+    "e",
+    "f",
+    "o",
+    "r",
+    "e",
+    " ",
+    "r",
+    "u",
+    "n",
+    "n",
+    "i",
+    "n",
+    "g",
+    " ",
+    "P",
+    "l",
+    "a",
+    "n",
+    " ",
+    "B",
+    "e",
+    "f",
+    "o",
+    "r",
+    "e",
+    " ",
+    "C",
+    "o",
+    "d",
+    "e",
+    ".",
+    "F28C is a quality-harness correction plus authenticated GitHub workflow; prior F28B Customer Baseline guard Proof Semantics gap is OPEN and not auto-certified by this unit."
   ]
 }
