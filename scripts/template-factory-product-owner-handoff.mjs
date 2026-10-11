@@ -383,6 +383,9 @@ try{
   }
   let current=new URL(page.url());
   checks.entryPath=current.pathname;
+  // The legacy bridge is still a valid redirecting route, never a final auth surface.
+  checks.previewLoginBridgeConverged=current.pathname!=='/storefront-template-preview-login';
+  if(!checks.previewLoginBridgeConverged)throw new Error('PREVIEW_LOGIN_BRIDGE_NOT_CONVERGED');
   if(current.pathname==='/api/auth/workforce-login'){
     checks.workforceLoginRoute=true;
     const next=current.searchParams.get('next');
