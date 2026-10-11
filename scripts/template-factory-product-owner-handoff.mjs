@@ -376,69 +376,59 @@ try{
   checks.entryResponse=Boolean(response);
   await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
   if(!storageState){
-    checks.templateAwareLoginRedirectSettled=await page
-      .waitForURL(url=>url.pathname==='/storefront-template-preview-login',{timeout:10000})
-      .then(()=>true)
-      .catch(()=>false);
-    if(!checks.templateAwareLoginRedirectSettled)errors.push('TEMPLATE_AWARE_LOGIN_REDIRECT_NOT_SETTLED');
+    checks.workforceLoginRedirectSettled=await page
+      .waitForURL(url=>url.pathname==='/api/auth/workforce-login',{timeout:10000})
+      .then(()=>true).catch(()=>false);
+    if(!checks.workforceLoginRedirectSettled)errors.push('WORKFORCE_LOGIN_REDIRECT_NOT_SETTLED');
   }
-
   let current=new URL(page.url());
   checks.entryPath=current.pathname;
-  if(current.pathname==='/storefront-template-preview-login'){
-    checks.templateAwareLoginRoute=true;
-    checks.loginIdentity=current.searchParams.get('template')===templateKey
-      &&Number(current.searchParams.get('version'))===templateVersion
-      &&current.searchParams.get('factory')==='1';
-    if(!checks.loginIdentity)errors.push('LOGIN_TEMPLATE_IDENTITY_MISMATCH');
-
+  // The legacy bridge is still a valid redirecting route, never a final auth surface.
+  checks.previewLoginBridgeConverged=current.pathname!=='/storefront-template-preview-login';
+  if(!checks.previewLoginBridgeConverged)throw new Error('PREVIEW_LOGIN_BRIDGE_NOT_CONVERGED');
+  if(current.pathname==='/api/auth/workforce-login'){
+    checks.workforceLoginRoute=true;
     const next=current.searchParams.get('next');
-    checks.returnTargetPreserved=Boolean(next&&exactIdentity(new URL(next,current.origin).toString()));
-    if(!checks.returnTargetPreserved)errors.push('LOGIN_RETURN_TARGET_MISMATCH');
+    checks.workforceReturnTargetPreserved=Boolean(next&&candidatePageIdentity(new URL(next,current.origin).toString(),'home'));
+    if(!checks.workforceReturnTargetPreserved)throw new Error('WORKFORCE_PREVIEW_RETURN_TARGET_MISMATCH');
 
-    const shell=page.locator(`[data-storefront-account-shell="preview"][data-storefront-template="${templateKey}"]`);
-    await shell.waitFor({state:'visible',timeout:10000}).catch(()=>undefined);
-    checks.templateAwareAuthShellCount=await shell.count();
-    checks.templateAwareAuthShell=checks.templateAwareAuthShellCount===1;
-    if(!checks.templateAwareAuthShell)errors.push('TEMPLATE_AWARE_AUTH_SHELL_MISSING');
-
-    const styles=page.locator(`[data-storefront-global-styles-v1="true"][data-storefront-template="${templateKey}"][data-storefront-template-version="${templateVersion}"]`);
-    checks.templateVersionedAuthStyle=await styles.count()>0;
-    if(!checks.templateVersionedAuthStyle)errors.push('TEMPLATE_AUTH_STYLE_IDENTITY_MISSING');
-
-    const allAuthSurfaces=page.locator('[data-storefront-auth-surface="true"]');
-    const authSurface=page.locator('[data-storefront-auth-surface="true"]:visible');
-    await authSurface.waitFor({state:'visible',timeout:10000}).catch(()=>undefined);
-    checks.sharedAuthSurfaceCount=await allAuthSurfaces.count();
-    checks.visibleSharedAuthSurfaceCount=await authSurface.count();
-    checks.sharedAuthSurface=checks.visibleSharedAuthSurfaceCount===1;
-    if(!checks.sharedAuthSurface)errors.push('VISIBLE_SHARED_AUTH_SURFACE_NOT_UNIQUE');
-
-    if(email&&password){
-      const visibleEmail=authSurface.locator('input[name="email"]');
-      const visiblePassword=authSurface.locator('input[name="password"]');
-      const visibleLoginButton=authSurface.locator('button[type="submit"]:visible');
-      checks.visibleAuthEmailTargetCount=await visibleEmail.count();
-      checks.visibleAuthPasswordTargetCount=await visiblePassword.count();
-      checks.visibleAuthSubmitTargetCount=await visibleLoginButton.count();
-      if(checks.visibleAuthEmailTargetCount!==1)errors.push('VISIBLE_AUTH_EMAIL_TARGET_NOT_UNIQUE');
-      if(checks.visibleAuthPasswordTargetCount!==1)errors.push('VISIBLE_AUTH_PASSWORD_TARGET_NOT_UNIQUE');
-      if(checks.visibleAuthSubmitTargetCount!==1)errors.push('VISIBLE_AUTH_SUBMIT_TARGET_NOT_UNIQUE');
-      if(checks.visibleAuthEmailTargetCount===1&&checks.visibleAuthPasswordTargetCount===1&&checks.visibleAuthSubmitTargetCount===1){
-        await visibleEmail.fill(email);
-        await visiblePassword.fill(password);
-        await Promise.all([
-          page.waitForURL(url=>url.pathname==='/storefront-template-preview',{timeout:30000}),
-          visibleLoginButton.click(),
-        ]).catch(error=>errors.push(`AUTHENTICATED_RETURN_FAILED:${error instanceof Error?error.message:String(error)}`));
-        await page.waitForLoadState('domcontentloaded',{timeout:15000}).catch(()=>undefined);
-        await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
-      }
-    }else if(!storageState){
-      errors.push('PRODUCT_OWNER_AUTH_CREDENTIALS_OR_STORAGE_STATE_REQUIRED');
+    // Workforce is the one canonical staff authentication authority. Never
+    // recreate the legacy preview-specific credential surface or bypass MFA.
+    await dismissCookieConsent(page);
+    const auth=page.locator('[data-workforce-auth="true"]:visible');
+    await auth.waitFor({state:'visible',timeout:10000});
+    checks.visibleWorkforceAuthSurfaces=await auth.count();
+    checks.workforceAuthSurfaceUnique=checks.visibleWorkforceAuthSurfaces===1;
+    if(!checks.workforceAuthSurfaceUnique)throw new Error('WORKFORCE_AUTH_SURFACE_NOT_UNIQUE');
+    // The canonical Workforce screen must not reproduce the removed preview
+    // account-auth authority, even if an unrelated template uses that marker.
+    checks.noParallelPreviewAuthShell=await page.locator('[data-storefront-account-shell="preview"]').count()===0;
+    if(!checks.noParallelPreviewAuthShell)throw new Error('PARALLEL_TEMPLATE_ACCOUNT_AUTH_SHELL_PRESENT');
+    if(!email||!password)throw new Error('PRODUCT_OWNER_WORKFORCE_CREDENTIALS_REQUIRED');
+    const visibleEmail=auth.locator('input[type="email"]:visible');
+    const visiblePassword=auth.locator('input[type="password"]:visible');
+    const submit=auth.getByRole('button',{name:'Tovább a biztonsági ellenőrzéshez',exact:true});
+    await visibleEmail.waitFor({state:'visible',timeout:10000});
+    await visiblePassword.waitFor({state:'visible',timeout:10000});
+    await submit.waitFor({state:'visible',timeout:10000});
+    checks.workforceInputsUnique=await visibleEmail.count()===1
+      &&await visiblePassword.count()===1&&await submit.count()===1;
+    if(!checks.workforceInputsUnique)throw new Error('WORKFORCE_AUTH_INPUTS_NOT_UNIQUE');
+    await visibleEmail.fill(email);
+    await visiblePassword.fill(password);
+    await submit.click();
+    checks.authenticatedWorkforceReturn=await page
+      .waitForURL(url=>candidatePageIdentity(url.toString(),'home'),{waitUntil:'commit',timeout:30000})
+      .then(()=>true).catch(()=>false);
+    if(!checks.authenticatedWorkforceReturn){
+      const diagnostic=await page.locator('.notice,[role="alert"]').filter({visible:true}).last().innerText().catch(()=>null);
+      throw new Error('WORKFORCE_AUTH_OR_MFA_RETURN_NOT_PROVEN:path='+new URL(page.url()).pathname
+        +';diagnostic='+String(diagnostic??'no diagnostic').replace(/\\s+/g,' ').slice(0,200));
     }
-  }else{
-    checks.templateAwareLoginRoute=storageState?true:false;
+    await page.waitForLoadState('domcontentloaded',{timeout:15000}).catch(()=>undefined);
+    await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+  }else if(!storageState){
+    throw new Error('WORKFORCE_LOGIN_SURFACE_MISSING:path='+current.pathname);
   }
 
   current=new URL(page.url());
@@ -454,6 +444,14 @@ try{
     checks.visiblePreviewRootCount=await root.count();
     checks.previewProvenanceStamp=checks.visiblePreviewRootCount===1;
     if(!checks.previewProvenanceStamp)errors.push('PREVIEW_PROVENANCE_STAMP_MISSING');
+    if(checks.visiblePreviewRootCount===1){
+      // Validate the actual shared renderer's versioned presentation tokens;
+      // never depend on the obsolete login screen to prove these consumers.
+      const styles=root.first().locator(`[data-storefront-global-styles-v1][data-storefront-template="${templateKey}"][data-storefront-template-version="${templateVersion}"]`);
+      checks.previewVersionedGlobalStyleCount=await styles.count();
+      checks.previewVersionedGlobalStyle=checks.previewVersionedGlobalStyleCount===1;
+      if(!checks.previewVersionedGlobalStyle)errors.push('PREVIEW_VERSIONED_GLOBAL_STYLE_IDENTITY_MISSING');
+    }
     if(checks.visiblePreviewRootCount===1){
       const provenance=await root.first().evaluate(element=>({
         templateKey:element.getAttribute('data-template-key'),
