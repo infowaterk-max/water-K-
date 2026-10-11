@@ -387,8 +387,8 @@
       "lifecycle": "release",
       "blocking": true,
       "responsibilityKey": "customer-schema-baseline",
-      "producer": "scripts/customer-baseline-guard.mjs",
-      "evidence": "artifacts/customer-baseline/**",
+      "producer": "scripts/validate-customer-baseline.mjs",
+      "evidence": "artifacts/shoperation-command-diagnostics/customer-baseline.json",
       "verification": {
         "reusePolicy": "safe",
         "dependsOn": [],
@@ -414,6 +414,21 @@
         ],
         "produces": [
           "customer.baseline"
+        ]
+      },
+      "proofSemantics": {
+        "capabilities": [
+          "CAP-QUALITY"
+        ],
+        "scopeStrength": 1,
+        "scope": "source-only-customer-baseline-manifest-and-migration-structure",
+        "dimensions": [
+          "status",
+          "scope",
+          "limitations",
+          "baseline-manifest",
+          "migration-source",
+          "fresh-install-required-state"
         ]
       }
     },

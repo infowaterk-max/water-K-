@@ -1,34 +1,91 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-430B0BBA",
-  "task": "Core #1186 F28D: finish critical semantic route test fixture correctness by supplying canonical executable proof in synthetic critical plan, test empty-proof rejection, preserve Sentinel REVIEW and existing application guards; source-only grouped CI fix",
-  "status": "closed",
-  "guardDigest": "430b0bba",
-  "changeBaseSha": "77dbadeb28466a20275c1c30b256a660963c60da",
+  "taskId": "DEV-7DADA58F",
+  "task": "Core #1186 F29: truthful Customer Baseline source-only Proof Semantics and adversarial scope-overclaim tests, with actual Supabase staging gap report, without hosted database writes",
+  "status": "ready-for-implementation",
+  "guardDigest": "7dada58f",
+  "changeBaseSha": "b35590b372172a6727e59db27e9d67ee8a8da0ab",
   "plannedFilePatterns": [
-    "tests/shoperation-operational-intelligence.test.ts",
+    "quality/knowledge/guard-registry.v1.json",
+    "tests/customer-baseline-proof-semantics-f29.test.ts",
+    "tests/shoperation-sentinel-integrity.test.ts",
+    "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
     "quality/development/active-plan.json"
   ],
-  "expectedSubsystems": [],
-  "expectedDomains": [],
-  "expectedAuthorities": [],
+  "expectedSubsystems": [
+    "database-schema"
+  ],
+  "expectedDomains": [
+    "DOMAIN-QUALITY"
+  ],
+  "expectedAuthorities": [
+    "quality-knowledge-system"
+  ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-022"
+    "SQ-KF-022",
+    "SQ-KF-001",
+    "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
+    "SQ-KF-005",
+    "SQ-KF-006",
+    "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
+    "SQ-KF-018",
+    "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
+    "SQ-KF-023",
+    "SQ-KF-024",
+    "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
+    "TF-KF-006",
+    "TF-KF-007",
+    "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
+    "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-005",
+    "SQ-NK-012",
+    "SQ-NK-014"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-SHOPERATION-CORE-1186-F28D-FIXTURE-ROUTE",
+    "sourceRef": "PO-2026-10-11-CORE-1186-F29-BASELINE-SEMANTICS",
     "riskTier": "medium",
     "assuranceCeiling": {
-      "level": "bounded-ci-fixture-proof",
-      "rationale": "A critical-route test must provide a complete synthetic semantic route to isolate authority set parity. Missing proof must remain blocked; only fixture data changes, not production guard policy.",
+      "level": "source-only-baseline-evidence",
+      "rationale": "Customer Baseline guard checks 69 source migration filenames, structural markers, manifest status and hash preconditions, but does not run clean-target migration replay or native Supabase JWT/RLS. The registry must name real producer and diagnostic artifact and must never claim authorization or runtime proof.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -41,27 +98,34 @@
         "fault-injection"
       ],
       "deferredTechniques": [
-        "native-supabase-auth-rls",
-        "hosted-schema-parity"
+        "native-postgres-fresh-install",
+        "supabase-jwt-rls",
+        "live-tenant-plan-downgrade"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "A synthetic critical route with empty expectedAuthorities and empty route authority but complete proof is accepted by the ROUTE_REQUIRED and AUTHORITY_DRIFT checks.",
-        "Missing explicit authority, wrong authority, or missing proof is detected fail-closed in the critical-route test.",
-        "Production Operational Intelligence validation semantics and thresholds remain unchanged.",
-        "Sentinel truthful REVIEW contract and Customer Baseline 69-migration snapshot-reviewed remain intact.",
-        "Full Quality suite, Edit-Time/Reference/Implementation, TypeScript, Knowledge/Replay and Release Risk pass on exact source."
+        "Guard Registry uses real scripts/validate-customer-baseline.mjs producer and current CI diagnostic artifact artifacts/shoperation-command-diagnostics/customer-baseline.json instead of nonexistent file paths.",
+        "Customer Baseline declares a source-level scopeStrength 1 capability for CAP-QUALITY only, with narrow migration metadata, fail-closed manifest and source-file limitations.",
+        "Registry never declares CAP-AUTH or wildcard capability, native Fresh Install, deployed SQL, tenant isolation or RLS as proven by this guard.",
+        "Executable Sentinel tests prove the declared bounded source semantics are accepted for matching source-only claims and fail CAP-AUTH overclaim.",
+        "Daily Sentinel fixture now passes without the old missing Proof Semantics REVIEW for this guard, while other unexpected findings remain blocking.",
+        "Canonical existing 69 SQL file snapshot stays snapshot-reviewed with freshInstallProofRequired true and proofContractSha256 null.",
+        "F29 staging evidence is read-only: current advanced Office RPCs missing, actual Auth/RLS and Fresh Install unresolved, no provider write.",
+        "Plan, CI identity, Edit-Time/Reference/Implementation Sync, guarded regressions, TypeScript, Knowledge/Replay and Release Risk pass before source commit."
       ],
       "invariants": [
-        "Critical semantic execution requires nonempty PROOF even when authority scope is neutrally empty.",
-        "No arbitrary REVIEW or authority mismatch becomes PASS.",
-        "Only test and development plan metadata are modified."
+        "Source manifest validation cannot stand in for real target database migration execution.",
+        "Proof registry producer and artifact must match actual existing CI execution commands.",
+        "Missing advanced Office deployed RPCs keep F28 authorization and #1186 PARTIAL.",
+        "No false capability promotion to CAP-AUTH or wildcard.",
+        "GitHub parent SHA is real remote F28D closure HEAD."
       ],
       "forbiddenStates": [
-        "Runtime guard check weakened to satisfy test fixture.",
-        "Fixture accidentally assumes active work item has a critical proof category populated.",
-        "Migration manifest promoted to READY without native empty-target attestation."
+        "Baseline guard claims to prove native Auth/JWT/RLS or active Pro subscription.",
+        "A missing producer path is accepted as valid guard evidence.",
+        "Snapshot-reviewed baseline promoted to ready without clean-target proof.",
+        "Staging or production database touched by DDL or data writes."
       ]
     },
     "model": {
@@ -93,37 +157,39 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Inherited active source medium-risk route has no proof and fails synthetic critical test",
-        "Missing critical authority incorrectly reported as neutral",
-        "Wrong authority scope passes",
-        "CI mistakenly treats missing proof as a production defect"
+        "Misdeclared registry producer silently masks absent evidence file.",
+        "Source-only migration structural check mislabelled native Fresh Install proof.",
+        "CAP-AUTH claim improperly supported by source baseline guard.",
+        "Existing staging lacks advanced Office RPCs even though baseline source contains them.",
+        "Sentinel returns fabricated PASS for missing registry proof contracts.",
+        "Future manifest flips to ready without exact hash and full replay"
       ],
       "edgeCases": [
-        "Empty expected authorities and empty declared authority",
-        "Undefined declared authority",
-        "Single mismatched authority",
-        "Reordered but equivalent authority list",
-        "Absent critical route proof"
+        "Current manifest 69 migrations and proofContractSha256 null.",
+        "Guard registry source changed but CI diagnostic file path not updated.",
+        "Registry proof claims CAP-AUTH or wildcard and slips through static assertion.",
+        "Sentinel synthetic requirement asks for CAP-AUTH with only Customer Baseline guard.",
+        "A genuine future clean-target proof may warrant a separate new dedicated producer and semantics."
       ]
     },
     "alternatives": [
       {
-        "id": "FIX-FIXTURE",
-        "summary": "Construct complete synthetic critical-route input in the focused test, including canonical proof and unknown categories.",
+        "id": "F29-TRUTHFUL-SEMANTICS",
+        "summary": "Align producer/evidence with the real CI execution, describe source-only CAP-QUALITY semantics, assert adversarial scope limits.",
         "disposition": "selected",
-        "reason": "Existing validator is correct; test must independently supply all mandatory preconditions."
+        "reason": "Repairs actual Registry/CI source drift and prevents privilege overclaim while retaining native blockers."
       },
       {
-        "id": "WEAKEN-VALIDATOR",
-        "summary": "Let critical route pass without any proof solely to satisfy the test.",
+        "id": "F29-PRETEND-RLS",
+        "summary": "Declare source guard evidence as full native Auth, tenant RLS and Fresh Install proof.",
         "disposition": "rejected",
-        "reason": "Breaks Control Plane assurance contract."
+        "reason": "The validator never connects to native Postgres or tests real role, JWT or deployed SQL."
       },
       {
-        "id": "DISABLE-TEST",
-        "summary": "Skip critical-route authority test.",
+        "id": "F29-EMPTY-REVIEW",
+        "summary": "Leave registry without proofSemantics and keep tolerating indefinite Sentinel REVIEW.",
         "disposition": "rejected",
-        "reason": "Loses effective authority parity regression coverage."
+        "reason": "Misses the chance to state an accurate bounded semantics contract and fix nonexistent provenance paths."
       }
     ],
     "specialistReviews": [
@@ -131,28 +197,30 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Making route complete inside fixture must not hide missing proof rejection.",
-        "resolution": "Add an explicit regression that omits proof and expects DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED.",
+        "finding": "CAP-QUALITY may still be read as authorization assurance if consumers disregard scope and evidence type.",
+        "resolution": "Use source-only strength 1, narrow dimensions, explicit no CAP-AUTH wildcard and negative adversarial Sentinel test; keep native entitlement/RLS proof open.",
         "evidence": [
-          "tests/shoperation-operational-intelligence.test.ts"
+          "scripts/validate-customer-baseline.mjs",
+          "quality/knowledge/guard-registry.v1.json"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Synthetic critical test inherited a medium-risk active plan with intentionally empty proof route.",
-        "resolution": "Set minimal canonical MUST_EDIT, PROOF and UNKNOWN in synthetic input only.",
+        "finding": "The registry currently points to scripts/customer-baseline-guard.mjs and artifacts/customer-baseline/**, neither of which exists.",
+        "resolution": "Align producer to scripts/validate-customer-baseline.mjs and actual CI diagnostic artifacts/shoperation-command-diagnostics/customer-baseline.json.",
         "evidence": [
-          "scripts/lib/shoperation-operational-intelligence.mjs"
+          ".github/workflows/ci.yml",
+          "package.json"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Two prior F28 corrections pass but CI chain still fails on a stale test premise.",
-        "resolution": "Run entire suite locally before one new GitHub exact-head CI run; keep main unchanged.",
+        "finding": "F28D was closed but broader #1186/#1228 lack native target Fresh Install.",
+        "resolution": "Open an independent F29 development transaction from exact published b35590b parent and forbid full capability closure.",
         "evidence": [
           "quality/development/active-plan.json"
         ]
@@ -161,8 +229,8 @@
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Repeated device codes create manual friction.",
-        "resolution": "Use verified connected GitHub blob/tree/commit delivery and stop sandbox.",
+        "finding": "GitHub upload must avoid repeated device codes and stale local base SHAs.",
+        "resolution": "Use connected Git Data API with verified blob/tree SHA, one branch and exact-head CI; no hosted DB writes.",
         "evidence": [
           "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md"
         ]
@@ -170,54 +238,72 @@
     ],
     "challenge": [
       {
-        "id": "F28D-CH1",
-        "scenario": "Neutral expectedAuthorities and route authority are both [] but test inherits empty PROOF.",
-        "finding": "Validator must refuse incomplete critical route with ROUTE_REQUIRED.",
-        "resolution": "Create an explicit complete synthetic route with a canonical proof producer.",
+        "id": "F29-CH1",
+        "scenario": "Registry producer or artifact path points to files that do not exist.",
+        "finding": "Proof provenance could be invented without the CI source.",
+        "resolution": "Validate registry fields are exact real paths and CI step actually invokes the diagnostic wrapper.",
         "status": "resolved"
       },
       {
-        "id": "F28D-CH2",
-        "scenario": "Synthetic critical route has undefined AUTHORITY.",
-        "finding": "A critical route must not invent an authority fallback.",
-        "resolution": "Retain existing missing-authority negative assertion.",
+        "id": "F29-CH2",
+        "scenario": "A requirement claims CAP-AUTH with evidence only from Customer Baseline guard.",
+        "finding": "Source file presence cannot prove roles, JWT/RLS, tenant isolation.",
+        "resolution": "Sentinel must report PROOF_CAPABILITY_DRIFT; test negative claim.",
         "status": "resolved"
       },
       {
-        "id": "F28D-CH3",
-        "scenario": "Synthetic critical route PROOF is empty.",
-        "finding": "A regression must prove validation remains fail-closed.",
-        "resolution": "Add explicit empty-proof negative assertion.",
+        "id": "F29-CH3",
+        "scenario": "Baseline manifest is snapshot-reviewed with 69 forward migrations but historical 0046 proof notes exist.",
+        "finding": "Historical proof does not cover later migrations.",
+        "resolution": "Keep current manifest unchanged and explicitly state new 69-file clean-target proof is outstanding.",
         "status": "resolved"
       },
       {
-        "id": "F28D-CH4",
-        "scenario": "A future developer modifies active plan route while fixture tests unrelated authority parity.",
-        "finding": "Test must stay independent of unrelated medium-risk active-plan proof state.",
-        "resolution": "Set complete route categories inside local test helper with no production policy changes.",
+        "id": "F29-CH4",
+        "scenario": "Staging has only three legacy office tables and no advanced Office RPC.",
+        "finding": "Advanced service-role mutations cannot be considered target-runtime complete.",
+        "resolution": "Record verified read-only inventory and do not deploy or label as PROD READY.",
+        "status": "resolved"
+      },
+      {
+        "id": "F29-CH5",
+        "scenario": "Daily Sentinel claims unknown proof semantic finding once explicit bounded guard semantics exist.",
+        "finding": "Fixture must accept actual clean PASS and reject arbitrary REVIEW or BLOCK.",
+        "resolution": "Retain strict no-other-review test and independent exact registry positive/negative suite.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Confirm exact F28C CI failure and locally reproduce the failing Operational Intelligence test.",
-      "Pass Development Guard and Plan Before Code before modifying fixture.",
-      "Set synthetic critical route MUST_EDIT and nonempty PROOF with known canonical guard; retain authority neutral/mismatch cases and negative missing-proof regression.",
-      "Run full local Vitest suite in serial isolated workers, TypeScript and critical quality gates, with no hosted environment calls.",
-      "Publish a single exact reviewed GitHub source tree via connected Git Data API, verify base/tree/branch and full GitHub CI."
+      "Validate remote F28D closed parent, current CI, two open issues and actual Supabase staging objects read-only.",
+      "Generate Development Guard and obtain Plan Before Code PASS with source-only assertions before modifying registry and tests.",
+      "Implement narrow baseline proofSemantics, correct actual CI producer/evidence, and adversarial Sentinel regression.",
+      "Run baseline validator, registry/Sentinel tests, full Quality suite when resource permits, TypeScript and all development sync/knowledge/replay/risk checks.",
+      "Batch upload exact reviewed Git blobs/tree via connected GitHub, verify real remote commit parent and CI, defer lifecycle closure until real truth emission.",
+      "Do not apply migration, reset database, trigger deployment, change main or assert native security proof."
     ],
     "semanticExecutionRoute": {
-      "request": "Core #1186 F28D: finish critical semantic route test fixture correctness by supplying canonical executable proof in synthetic critical plan, test empty-proof rejection, preserve Sentinel REVIEW and existing application guards; source-only grouped CI fix",
-      "authority": [],
+      "request": "Core #1186 F29: truthful Customer Baseline source-only Proof Semantics and adversarial scope-overclaim tests, with actual Supabase staging gap report, without hosted database writes",
+      "authority": [
+        "quality-knowledge-system"
+      ],
       "mustEdit": [
-        "tests/shoperation-operational-intelligence.test.ts"
+        "quality/knowledge/guard-registry.v1.json"
       ],
       "mayEdit": [
-        "quality/development/active-plan.json"
+        "quality/development/active-plan.json",
+        "tests/shoperation-sentinel-integrity.test.ts"
       ],
       "impactedReadOnly": [],
-      "mustCreate": [],
+      "mustCreate": [
+        "tests/customer-baseline-proof-semantics-f29.test.ts",
+        "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md"
+      ],
       "forbidden": [],
-      "proof": [],
+      "proof": [
+        "GUARD-PLAN-BEFORE-CODE",
+        "GUARD-QUALITY-TESTS",
+        "GUARD-CUSTOMER-BASELINE"
+      ],
       "unknown": [],
       "plannedDeletions": []
     },
@@ -228,12 +314,14 @@
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
           "quality/development/active-plan.json",
+          "quality/knowledge/guard-registry.v1.json",
           "tests/shoperation-sentinel-integrity.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md"
+          "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
+          "tests/customer-baseline-proof-semantics-f29.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -244,20 +332,38 @@
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 0,
+        "score": 2,
         "maxPoints": 5,
-        "subsystemCount": 0,
+        "subsystemCount": 1,
         "maxSubsystems": 3,
-        "subsystems": [],
+        "subsystems": [
+          {
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          }
+        ],
         "files": [
           {
-            "file": "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
+            "file": "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
             "file": "quality/development/active-plan.json",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
+          },
+          {
+            "file": "quality/knowledge/guard-registry.v1.json",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          },
+          {
+            "file": "tests/customer-baseline-proof-semantics-f29.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -278,20 +384,38 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 0,
+          "score": 2,
           "maxPoints": 5,
-          "subsystemCount": 0,
+          "subsystemCount": 1,
           "maxSubsystems": 3,
-          "subsystems": [],
+          "subsystems": [
+            {
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            }
+          ],
           "files": [
             {
-              "file": "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
+              "file": "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
               "file": "quality/development/active-plan.json",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
+              "file": "quality/knowledge/guard-registry.v1.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "tests/customer-baseline-proof-semantics-f29.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -312,7 +436,7 @@
           {
             "id": 0,
             "files": [
-              "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md"
+              "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -323,7 +447,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
+                  "file": "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -360,6 +484,60 @@
           {
             "id": 2,
             "files": [
+              "quality/knowledge/guard-registry.v1.json"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 2,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "files": [
+                {
+                  "file": "quality/knowledge/guard-registry.v1.json",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 3,
+            "files": [
+              "tests/customer-baseline-proof-semantics-f29.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/customer-baseline-proof-semantics-f29.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 4,
+            "files": [
               "tests/shoperation-sentinel-integrity.test.ts"
             ],
             "risk": {
@@ -389,31 +567,43 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "",
-              "developmentBaseSha": "0bf4d1e4fd49fb430e7499324dcf4ddfad30535d"
+              "developmentBaseSha": "b35590b372172a6727e59db27e9d67ee8a8da0ab"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "0bf4d1e4fd49fb430e7499324dcf4ddfad30535d",
+            "targetBaseSha": "b35590b372172a6727e59db27e9d67ee8a8da0ab",
             "lease": {
-              "expectedBaseSha": "0bf4d1e4fd49fb430e7499324dcf4ddfad30535d",
+              "expectedBaseSha": "b35590b372172a6727e59db27e9d67ee8a8da0ab",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
+              "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
               "quality/development/active-plan.json",
+              "quality/knowledge/guard-registry.v1.json",
+              "tests/customer-baseline-proof-semantics-f29.test.ts",
               "tests/shoperation-sentinel-integrity.test.ts"
             ],
             "operations": [
               {
                 "operation": "create",
-                "file": "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
+                "file": "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
                 "generated": null
               },
               {
                 "operation": "modify",
                 "file": "quality/development/active-plan.json",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "quality/knowledge/guard-registry.v1.json",
+                "generated": null
+              },
+              {
+                "operation": "create",
+                "file": "tests/customer-baseline-proof-semantics-f29.test.ts",
                 "generated": null
               },
               {
@@ -428,23 +618,43 @@
             "authorities": [
               "quality-knowledge-system"
             ],
-            "subsystems": [],
+            "subsystems": [
+              "quality-infrastructure"
+            ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
+              "score": 2,
               "maxPoints": 5,
-              "subsystemCount": 0,
+              "subsystemCount": 1,
               "maxSubsystems": 3,
-              "subsystems": [],
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
               "files": [
                 {
-                  "file": "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
+                  "file": "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
                   "file": "quality/development/active-plan.json",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                },
+                {
+                  "file": "quality/knowledge/guard-registry.v1.json",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
+                {
+                  "file": "tests/customer-baseline-proof-semantics-f29.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -468,6 +678,7 @@
               "GUARD-PRODUCTION-BUILD",
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK",
+              "GUARD-TEMPLATE-FACTORY",
               "GUARD-TYPECHECK"
             ],
             "requiredEvidence": {
@@ -480,12 +691,16 @@
                 "GUARD-PRODUCTION-BUILD",
                 "GUARD-QUALITY-TESTS",
                 "GUARD-RELEASE-RISK",
+                "GUARD-TEMPLATE-FACTORY",
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
+                "tests/customer-baseline-proof-semantics-f29.test.ts",
                 "tests/shoperation-sentinel-integrity.test.ts"
               ],
-              "externalGateIds": []
+              "externalGateIds": [
+                "GUARD-TEMPLATE-FACTORY"
+              ]
             },
             "forbiddenPaths": [],
             "readOnlyPaths": [],
@@ -494,8 +709,10 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
+                "docs/architecture/SHOPERATION_F29_CUSTOMER_BASELINE_PROOF_SEMANTICS_20261011.md",
                 "quality/development/active-plan.json",
+                "quality/knowledge/guard-registry.v1.json",
+                "tests/customer-baseline-proof-semantics-f29.test.ts",
                 "tests/shoperation-sentinel-integrity.test.ts"
               ],
               "filesAbsent": []
@@ -511,7 +728,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "55f09d74",
+            "manifestDigest": "971cb848",
             "decision": "PASS"
           }
         ],
@@ -532,7 +749,8 @@
           "GUARD-TYPECHECK",
           "GUARD-PRODUCTION-BUILD",
           "GUARD-COMPLETION-TRUTH",
-          "GUARD-RELEASE-RISK"
+          "GUARD-RELEASE-RISK",
+          "GUARD-TEMPLATE-FACTORY"
         ],
         "currentPhaseGateIds": [
           "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -545,41 +763,48 @@
           "GUARD-QUALITY-TESTS",
           "GUARD-TYPECHECK",
           "GUARD-PRODUCTION-BUILD",
-          "GUARD-COMPLETION-TRUTH"
+          "GUARD-COMPLETION-TRUTH",
+          "GUARD-TEMPLATE-FACTORY"
         ],
-        "externalGateIds": [],
+        "externalGateIds": [
+          "GUARD-TEMPLATE-FACTORY"
+        ],
         "issues": [],
         "decision": "PASS"
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "F28C exact-head GitHub CI fails 1 of 3713 tests because operational-intelligence test clones a medium-risk active-plan route with no required proof and then artificially marks it critical. The validator correctly returns DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED; update the fixture rather than weakening the validator.",
+    "problemStatement": "Guard Registry currently has no Customer Baseline proof semantics and also points at a producer and evidence folder which are absent from the repository. The actual source-only validator checks structural migration and manifest invariants but never verifies deployed PostgreSQL/JWT/RLS. F29 makes the scope/provenance explicit with adversarial anti-overclaim tests, while the current staging lacks the advanced Office RPCs and the 69-migration Fresh Install proof remains open.",
     "observableOutcomes": [
-      "Neutral critical authority scope accepted only when synthetic critical route includes its mandatory PROOF.",
-      "Missing proof and authority mismatch still fail closed in targeted regression.",
-      "No business runtime, SQL, manifest or plan readiness claims are elevated.",
-      "Batch connector upload continues to avoid repeated GitHub code."
+      "Sentinel Registry proof scope is explicit and bounded to structural baseline source validation, with real existing producer and CI artifact references.",
+      "Source proof passes correct CAP-QUALITY claim but rejects CAP-AUTH-only evidence.",
+      "69 migrations, historical 0046 proof, snapshot-reviewed status and null current proof digest remain unchanged.",
+      "Read-only staging inventory documents why native Office Auth/RLS and actual transport are still blocked."
     ],
     "unresolvedRisks": [
-      "Current customer baseline lacks actual 69-migration clean-target Supabase proof.",
-      "GUARD-CUSTOMER-BASELINE proof semantics for authorization remain incomplete."
+      "Staging schema and RLS do not yet include F28 Office RPC lineage.",
+      "Fresh Install complete 69-migration clean-target proof must run in disposable target before capability closure.",
+      "Provider email, real service-role SQL and Alap/Pro downgrade need separately reviewed native security negative proof."
     ],
     "scope": {
       "in": [
-        "Operational Intelligence regression fixture",
-        "Active development plan metadata"
+        "Guard Registry Customer Baseline producer/evidence/proofSemantics",
+        "New Sentinel adversarial source-evidence regression tests",
+        "Existing daily Sentinel test behavior if needed",
+        "Evidence/target parity note",
+        "Active development plan"
       ],
       "out": [
-        "Validator runtime and security guard policy",
-        "Customer Baseline manifest",
-        "Production deployment",
-        "Supabase Auth/RLS parity"
+        "Schema migration changes",
+        "Supabase project reset/DDL/data mutations",
+        "F28 application source and real provider email send",
+        "Automatic main merge or Vercel deployment"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-SHOPERATION-CORE-1186-F28D-FIXTURE-ROUTE",
+    "sourceRef": "PO-2026-10-11-CORE-1186-F29-BASELINE-SEMANTICS",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -591,22 +816,26 @@
         "GUARD-TYPECHECK",
         "GUARD-PRODUCTION-BUILD",
         "GUARD-COMPLETION-TRUTH",
-        "GUARD-RELEASE-RISK"
+        "GUARD-RELEASE-RISK",
+        "GUARD-TEMPLATE-FACTORY"
       ],
-      "externalGuards": [],
+      "externalGuards": [
+        "GUARD-TEMPLATE-FACTORY"
+      ],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-F28D-CRITICAL-ROUTE-FIXTURE",
-        "requirement": "Synthetic critical Operational Intelligence route tests require the mandatory proof producer and retain explicit negative missing-proof and authority drift behavior.",
+        "id": "REQ-F29-CUSTOMER-BASELINE-TRUTH",
+        "requirement": "Registry baseline proof semantics must describe actual source-only structural validation and real CI provenance, rejecting Auth/RLS overclaim while preserving Fresh Install blockers.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "isolated-critical-route-guard-regression",
+          "breadth": "customer-baseline-source-metadata-and-proof-semantics-registry",
           "strength": 1,
           "dimensions": [
             "status",
-            "regression"
+            "scope",
+            "limitations"
           ]
         },
         "requiredCapabilities": [
@@ -614,18 +843,21 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-QUALITY-TESTS",
+            "GUARD-CUSTOMER-BASELINE"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-QUALITY-TESTS",
+            "GUARD-CUSTOMER-BASELINE"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F28D-MISSING-PROOF",
-            "statement": "A critical semantic route with empty PROOF is rejected, never silently accepted.",
+            "id": "NEG-F29-NATIVE-OVERCLAIM",
+            "statement": "Customer Baseline source validation alone does not establish CAP-AUTH/JWT/RLS or native Fresh Install evidence.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-QUALITY-TESTS",
+              "GUARD-CUSTOMER-BASELINE"
             ]
           }
         ]
@@ -633,258 +865,6 @@
     ]
   },
   "notes": [
-    "C",
-    "o",
-    "m",
-    "p",
-    "l",
-    "e",
-    "t",
-    "e",
-    " ",
-    "t",
-    "h",
-    "e",
-    " ",
-    "a",
-    "s",
-    "s",
-    "u",
-    "r",
-    "a",
-    "n",
-    "c",
-    "e",
-    " ",
-    "c",
-    "e",
-    "i",
-    "l",
-    "i",
-    "n",
-    "g",
-    ",",
-    " ",
-    "D",
-    "E",
-    "F",
-    "I",
-    "N",
-    "E",
-    "/",
-    "M",
-    "O",
-    "D",
-    "E",
-    "L",
-    "/",
-    "P",
-    "L",
-    "A",
-    "N",
-    "/",
-    "C",
-    "H",
-    "A",
-    "L",
-    "L",
-    "E",
-    "N",
-    "G",
-    "E",
-    " ",
-    "e",
-    "v",
-    "i",
-    "d",
-    "e",
-    "n",
-    "c",
-    "e",
-    ",",
-    " ",
-    "s",
-    "p",
-    "e",
-    "c",
-    "i",
-    "a",
-    "l",
-    "i",
-    "s",
-    "t",
-    " ",
-    "r",
-    "e",
-    "v",
-    "i",
-    "e",
-    "w",
-    "s",
-    " ",
-    "a",
-    "n",
-    "d",
-    " ",
-    "P",
-    "O",
-    "-",
-    "d",
-    "e",
-    "r",
-    "i",
-    "v",
-    "e",
-    "d",
-    " ",
-    "C",
-    "o",
-    "m",
-    "p",
-    "l",
-    "e",
-    "t",
-    "i",
-    "o",
-    "n",
-    " ",
-    "C",
-    "o",
-    "n",
-    "t",
-    "r",
-    "a",
-    "c",
-    "t",
-    ".",
-    " ",
-    "O",
-    "n",
-    "l",
-    "y",
-    " ",
-    "t",
-    "h",
-    "e",
-    "n",
-    " ",
-    "s",
-    "e",
-    "t",
-    " ",
-    "s",
-    "t",
-    "a",
-    "t",
-    "u",
-    "s",
-    " ",
-    "t",
-    "o",
-    " ",
-    "r",
-    "e",
-    "a",
-    "d",
-    "y",
-    "-",
-    "f",
-    "o",
-    "r",
-    "-",
-    "i",
-    "m",
-    "p",
-    "l",
-    "e",
-    "m",
-    "e",
-    "n",
-    "t",
-    "a",
-    "t",
-    "i",
-    "o",
-    "n",
-    " ",
-    "a",
-    "n",
-    "d",
-    " ",
-    "e",
-    "x",
-    "e",
-    "c",
-    "u",
-    "t",
-    "i",
-    "o",
-    "n",
-    "A",
-    "u",
-    "t",
-    "h",
-    "o",
-    "r",
-    "i",
-    "z",
-    "e",
-    "d",
-    " ",
-    "t",
-    "o",
-    " ",
-    "t",
-    "r",
-    "u",
-    "e",
-    " ",
-    "b",
-    "e",
-    "f",
-    "o",
-    "r",
-    "e",
-    " ",
-    "r",
-    "u",
-    "n",
-    "n",
-    "i",
-    "n",
-    "g",
-    " ",
-    "P",
-    "l",
-    "a",
-    "n",
-    " ",
-    "B",
-    "e",
-    "f",
-    "o",
-    "r",
-    "e",
-    " ",
-    "C",
-    "o",
-    "d",
-    "e",
-    ".",
-    "F28D is a fixture correction; actual proof semantics, native SQL and full release readiness are not implied.",
-    "F28D canonical transaction correction: branch parent and changeBaseSha must be the exact GitHub-hosted F28C commit 77dbadeb28466a20275c1c30b256a660963c60da, not an equivalent local commit with identical tree. Prior source-only F28D run 38124633422 correctly blocked on unresolved local base."
-  ],
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "178103db47da2c5a640effcdff90fbe280a9b81e",
-    "closedAt": "2026-10-11T08:44:30.656Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-11-SHOPERATION-CORE-1186-F28D-FIXTURE-ROUTE",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+    "F29 explicitly limits Customer Baseline guard to source checks; staging current native RPC gaps and full 69-file Fresh Install remain OPEN."
+  ]
 }
