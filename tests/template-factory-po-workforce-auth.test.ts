@@ -19,6 +19,11 @@ describe('F34 Product Owner workforce journey is real and template-bound',()=>{
     expect(runner).toContain('candidatePageIdentity(new URL(next,current.origin).toString()');
     expect(runner).toContain("page.locator('[data-workforce-auth=\"true\"]:visible')");
     expect(runner).toContain('authenticatedWorkforceReturn');
+    expect(runner).toContain("page.locator('[data-storefront-account-shell=\"preview\"]')");
+    expect(runner).toContain('PARALLEL_TEMPLATE_ACCOUNT_AUTH_SHELL_PRESENT');
+    expect(runner).toContain('PREVIEW_VERSIONED_GLOBAL_STYLE_IDENTITY_MISSING');
+    expect(runner).toContain('data-storefront-global-styles-v1');
+    expect(runner).toContain('data-storefront-template-version');
     expect(runner).toContain("new Error('WORKFORCE_AUTH_OR_MFA_RETURN_NOT_PROVEN:");
     expect(runner).toContain("getByRole('button',{name:'Tovább a biztonsági ellenőrzéshez',exact:true})");
     expect(runner).not.toContain("page.locator('[data-storefront-auth-surface=\"true\"]')");

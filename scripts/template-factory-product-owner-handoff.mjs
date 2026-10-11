@@ -397,6 +397,10 @@ try{
     checks.visibleWorkforceAuthSurfaces=await auth.count();
     checks.workforceAuthSurfaceUnique=checks.visibleWorkforceAuthSurfaces===1;
     if(!checks.workforceAuthSurfaceUnique)throw new Error('WORKFORCE_AUTH_SURFACE_NOT_UNIQUE');
+    // The canonical Workforce screen must not reproduce the removed preview
+    // account-auth authority, even if an unrelated template uses that marker.
+    checks.noParallelPreviewAuthShell=await page.locator('[data-storefront-account-shell="preview"]').count()===0;
+    if(!checks.noParallelPreviewAuthShell)throw new Error('PARALLEL_TEMPLATE_ACCOUNT_AUTH_SHELL_PRESENT');
     if(!email||!password)throw new Error('PRODUCT_OWNER_WORKFORCE_CREDENTIALS_REQUIRED');
     const visibleEmail=auth.locator('input[type="email"]:visible');
     const visiblePassword=auth.locator('input[type="password"]:visible');
@@ -437,6 +441,14 @@ try{
     checks.visiblePreviewRootCount=await root.count();
     checks.previewProvenanceStamp=checks.visiblePreviewRootCount===1;
     if(!checks.previewProvenanceStamp)errors.push('PREVIEW_PROVENANCE_STAMP_MISSING');
+    if(checks.visiblePreviewRootCount===1){
+      // Validate the actual shared renderer's versioned presentation tokens;
+      // never depend on the obsolete login screen to prove these consumers.
+      const styles=root.first().locator(`[data-storefront-global-styles-v1][data-storefront-template="${templateKey}"][data-storefront-template-version="${templateVersion}"]`);
+      checks.previewVersionedGlobalStyleCount=await styles.count();
+      checks.previewVersionedGlobalStyle=checks.previewVersionedGlobalStyleCount===1;
+      if(!checks.previewVersionedGlobalStyle)errors.push('PREVIEW_VERSIONED_GLOBAL_STYLE_IDENTITY_MISSING');
+    }
     if(checks.visiblePreviewRootCount===1){
       const provenance=await root.first().evaluate(element=>({
         templateKey:element.getAttribute('data-template-key'),
