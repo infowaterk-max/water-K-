@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-430B0BBA",
   "task": "Core #1186 F28D: finish critical semantic route test fixture correctness by supplying canonical executable proof in synthetic critical plan, test empty-proof rejection, preserve Sentinel REVIEW and existing application guards; source-only grouped CI fix",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "430b0bba",
   "changeBaseSha": "77dbadeb28466a20275c1c30b256a660963c60da",
   "plannedFilePatterns": [
@@ -873,5 +873,18 @@
     ".",
     "F28D is a fixture correction; actual proof semantics, native SQL and full release readiness are not implied.",
     "F28D canonical transaction correction: branch parent and changeBaseSha must be the exact GitHub-hosted F28C commit 77dbadeb28466a20275c1c30b256a660963c60da, not an equivalent local commit with identical tree. Prior source-only F28D run 38124633422 correctly blocked on unresolved local base."
-  ]
+  ],
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "178103db47da2c5a640effcdff90fbe280a9b81e",
+    "closedAt": "2026-10-11T08:44:30.656Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-11-SHOPERATION-CORE-1186-F28D-FIXTURE-ROUTE",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
