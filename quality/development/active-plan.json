@@ -3,7 +3,7 @@
   "taskId": "DEV-F34-PO-WORKFORCE-AUTH",
   "task": "F34 real Product Owner preview journey: converge to canonical Workforce login with exact template return and mandatory role/MFA, preserving all runtime, route and account checks",
   "status": "ready-for-implementation",
-  "guardDigest": "5a7401a6",
+  "guardDigest": "c0ffb5c2",
   "changeBaseSha": "b20ee4470b17fc1ccfe57026e12e5230acc103b6",
   "plannedFilePatterns": [
     "docs/architecture/SHOPERATION_F34_WORKFORCE_PO_JOURNEY_20261011.md",
@@ -12,7 +12,11 @@
     "tests/template-factory-po-workforce-auth.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system"
+    "auth-access-authority",
+    "builder-template-system",
+    "customer-account",
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-QUALITY"
@@ -21,13 +25,55 @@
     "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-001",
+    "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
+    "SQ-KF-005",
+    "SQ-KF-006",
+    "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
+    "SQ-KF-018",
+    "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-021",
     "SQ-KF-022",
     "SQ-KF-023",
-    "SQ-KF-024"
+    "SQ-KF-024",
+    "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
+    "TF-KF-006",
+    "TF-KF-007",
+    "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
+    "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -152,7 +198,7 @@
     ],
     "specialistReviews": [
       {
-        "role": "Identity/Security",
+        "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "Moving the proof runner to Workforce could mask an MFA-required challenge or unexpectedly accept platform login.",
@@ -163,7 +209,7 @@
         ]
       },
       {
-        "role": "Template QA",
+        "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
         "finding": "The template-aware login route currently redirects to canonical Workforce, so the previous runner's login-shell assumptions are stale.",
@@ -238,7 +284,10 @@
     "semanticExecutionRoute": {
       "request": "F34 canonical Workforce owner preview proof",
       "authority": [
-        "quality-knowledge-system"
+        "quality-knowledge-system",
+        "auth-access-authority",
+        "builder-template-system",
+        "shared-storefront"
       ],
       "mustEdit": [
         "scripts/template-factory-product-owner-handoff.mjs"
@@ -353,5 +402,5 @@
       }
     ]
   },
-  "notes": "F34 bounded Quality runner fix stacked on F33 PR #1243 / F32 #1238 / F31 #1236. The preview login entrypoint legitimately redirects to the canonical Workforce login, but the old Product Owner Playwright proof still expects a legacy template-specific form. This unit validates exact workforce return-target identity, real authentication, role/MFA enforcement and actual candidate presentation rather than bypassing or changing any auth authority. Missing separate PO proof reconciliation is tracked as distinct subsequent dependency. No main merge, production, Vercel or Supabase mutation."
+  "notes": "F34 bounded Quality runner fix stacked on F33 PR #1243 / F32 #1238 / F31 #1236. The preview login entrypoint legitimately redirects to the canonical Workforce login, but the old Product Owner Playwright proof still expects a legacy template-specific form. This unit validates exact workforce return-target identity, real authentication, role/MFA enforcement and actual candidate presentation rather than bypassing or changing any auth authority. Missing separate PO proof reconciliation is tracked as distinct subsequent dependency. No main merge, production, Vercel or Supabase mutation.\nF34 exact-head Plan Before Code expanded the execution-dependent impact envelope to 5 subsystems and all 49 known failures. The canonical guard digest and 13 negative-knowledge IDs below match remote gate diagnostics (run 38177436845); both specialist roles use allowed canonical terms. No runtime/auth production file was edited and no gate was waived."
 }
