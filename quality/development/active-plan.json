@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-AA79C504",
   "task": "Module 3 commerce requirements and roadmap closure",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "aa79c504",
   "changeBaseSha": "615700e74c25b0f87b33318402e24eeb5a44a032",
   "plannedFilePatterns": [
@@ -933,5 +933,18 @@
       }
     ]
   },
-  "notes": "Prepared for independent canonical Plan Before Code verification against main SHA 615700e. This is the bounded documentation transaction only; no commerce runtime acceptance or product completion implied. SpecialistReviews record role-based source-review analyses, not independent human attestations. On a changed main base, regenerate the transaction before execution. Completion Truth, required CI and lifecycle remain outstanding."
+  "notes": "Prepared for independent canonical Plan Before Code verification against main SHA 615700e. This is the bounded documentation transaction only; no commerce runtime acceptance or product completion implied. SpecialistReviews record role-based source-review analyses, not independent human attestations. On a changed main base, regenerate the transaction before execution. Completion Truth, required CI and lifecycle remain outstanding.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "f8bfd8058716316f16e25791d17b02002a15be27",
+    "closedAt": "2026-10-11T20:29:15.747Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-11-MODULE3-CLOSURE",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
