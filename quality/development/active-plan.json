@@ -10,7 +10,9 @@
     "docs/architecture/SHOPERATION_F32_CI_EXTERNAL_PR_PROOF_ORIGIN_20261011.md",
     "quality/development/active-plan.json",
     "scripts/release-external-proof-selection.mjs",
-    "tests/release-external-proof-selection.test.ts"
+    "tests/control-plane-ecosystem-chain.test.ts",
+    "tests/release-external-proof-selection.test.ts",
+    "tests/shoperation-external-proof-handoff.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
@@ -268,7 +270,8 @@
       "Pin F31 parent HEAD, stage bounded release-only source unit and keep original F31 draft unchanged.",
       "Test exact PR selection and all negative context mismatches in source Vitest suite.",
       "Check remotely executed Plan Before Code, known failure replay, Reference/Implementation Sync, TypeScript and CI.",
-      "Leave unproven Factory PO journey blocked and do not merge or deploy."
+      "Leave unproven Factory PO journey blocked and do not merge or deploy.",
+      "Keep historic F31 regression pinned to immutable Git source and update the CI selector regression to assert the stronger exact PR provenance contract without removing negative assertions."
     ],
     "semanticExecutionRoute": {
       "request": "F32 CI exact open PR producer evidence",
@@ -276,7 +279,9 @@
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/ci.yml"
+        ".github/workflows/ci.yml",
+        "tests/control-plane-ecosystem-chain.test.ts",
+        "tests/shoperation-external-proof-handoff.test.ts"
       ],
       "mayEdit": [
         "quality/development/active-plan.json"
@@ -379,5 +384,5 @@
       }
     ]
   },
-  "notes": "F32 independent release-infrastructure source transaction stacked on F31 PR #1236. Does not claim Factory visual or PO approval. Exact head/base GitHub identity, CI gates and no production changes.\nExact-head Plan Before Code validated: docs/architecture is canonical knowledge-infrastructure, therefore F32 deliberately requires FULL global + Template Factory known-failure replay (49 failure IDs). Expected failure IDs and guard digest are taken from remote gate diagnostics; no failures or gates are waived."
+  "notes": "F32 independent release-infrastructure source transaction stacked on F31 PR #1236. Does not claim Factory visual or PO approval. Exact head/base GitHub identity, CI gates and no production changes.\nExact-head Plan Before Code validated: docs/architecture is canonical knowledge-infrastructure, therefore F32 deliberately requires FULL global + Template Factory known-failure replay (49 failure IDs). Expected failure IDs and guard digest are taken from remote gate diagnostics; no failures or gates are waived.\nF32 first exact-head source suite: 3742 PASS, two old regressions require source-authority update. Keep F31 regression pinned to immutable F31 plan; replace old push-event text snapshot with stronger exact PR/base assertions. No waivers."
 }

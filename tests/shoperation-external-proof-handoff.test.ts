@@ -116,8 +116,12 @@ describe('cross-workflow external completion proof handoff',()=>{
   });
 
 
-  it('requires external Factory evidence for its own shared compiler and real F31 scope',()=>{
-    const current=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
+  it('requires external Factory evidence for its own shared compiler and immutable historic F31 scope',()=>{
+    // Do not bind a historical F31 regression to whichever development plan is active
+    // in a later, separately scoped F32 transaction. Pin original F31 Git evidence.
+    const current=JSON.parse(execFileSync('git',[
+      'show','8caec2ab32e947156e6514bd2b01459c7285d258:quality/development/active-plan.json',
+    ],{encoding:'utf8'}));
     expect(current.plannedFilePatterns).toContain('scripts/lib/shoperation-development-runtime.mjs');
     expect(guardRegistry.guards.find((g:any)=>g.id==='GUARD-TEMPLATE-FACTORY').chain.liveRuntime.classifierInputs)
       .toContain('scripts/lib/shoperation-development-runtime.mjs');
