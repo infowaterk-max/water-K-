@@ -1,13 +1,12 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-AA79C504",
-  "task": "Shoperation F28C: fix Sentinel CI fixture's obsolete unconditional PASS expectation without masking real missing Customer Baseline proof semantics; document connected-GitHub batch Git Data API workflow to avoid repeated device codes and preserve guard/CI gating",
+  "taskId": "DEV-430B0BBA",
+  "task": "Core #1186 F28D: finish critical semantic route test fixture correctness by supplying canonical executable proof in synthetic critical plan, test empty-proof rejection, preserve Sentinel REVIEW and existing application guards; source-only grouped CI fix",
   "status": "ready-for-implementation",
-  "guardDigest": "aa79c504",
-  "changeBaseSha": "0bf4d1e4fd49fb430e7499324dcf4ddfad30535d",
+  "guardDigest": "430b0bba",
+  "changeBaseSha": "2eab4940bcee033f1f9980498f6b0e80d2a0b5d0",
   "plannedFilePatterns": [
-    "tests/shoperation-sentinel-integrity.test.ts",
-    "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md",
+    "tests/shoperation-operational-intelligence.test.ts",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [],
@@ -16,53 +15,7 @@
   "expectedKnownFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-022",
-    "SQ-KF-001",
-    "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-005",
-    "SQ-KF-006",
-    "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
-    "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
-    "SQ-KF-015",
-    "SQ-KF-016",
-    "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
-    "SQ-KF-023",
-    "SQ-KF-024",
-    "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
-    "TF-KF-006",
-    "TF-KF-007",
-    "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "SQ-KF-022"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -71,11 +24,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-SHOPERATION-BATCH-GITHUB-F28C",
+    "sourceRef": "PO-2026-10-11-SHOPERATION-CORE-1186-F28D-FIXTURE-ROUTE",
     "riskTier": "medium",
     "assuranceCeiling": {
-      "level": "source-and-ci-fixture-proof",
-      "rationale": "Sentinel correctly reports REVIEW for missing Customer Baseline proof semantics; test fixture must assert exact finding without inventing PASS. Connected GitHub Git Data API will be used for authenticated batch promotion after local gate proof, with exact Git SHA checks and no sandbox GitHub token.",
+      "level": "bounded-ci-fixture-proof",
+      "rationale": "A critical-route test must provide a complete synthetic semantic route to isolate authority set parity. Missing proof must remain blocked; only fixture data changes, not production guard policy.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -88,30 +41,27 @@
         "fault-injection"
       ],
       "deferredTechniques": [
-        "native-Supabase-RLS",
-        "end-to-end-production-deployment"
+        "native-supabase-auth-rls",
+        "hosted-schema-parity"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Sentinel probe refuses to claim unconditional PASS when active plan references a guard with no proofSemantics.",
-        "Existing leaked parent/child fixture still BLOCKS, real probe reviews only the known missing GUARD-CUSTOMER-BASELINE semantics or PASS when resolved.",
-        "Unknown additional review findings and any BLOCK cause test failure, preventing future silent drift.",
-        "Existing comprehensive Sentinel regression tests pass on real source.",
-        "Connected GitHub Git Data API can publish a reviewed small, multi-file transaction without a new device code or sandbox credential.",
-        "The development guide explicitly requires guard plan, targeted/full CI, exact HEAD parent and atomic tree, no implicit merge/deployment and no credential persistence."
+        "A synthetic critical route with empty expectedAuthorities and empty route authority but complete proof is accepted by the ROUTE_REQUIRED and AUTHORITY_DRIFT checks.",
+        "Missing explicit authority, wrong authority, or missing proof is detected fail-closed in the critical-route test.",
+        "Production Operational Intelligence validation semantics and thresholds remain unchanged.",
+        "Sentinel truthful REVIEW contract and Customer Baseline 69-migration snapshot-reviewed remain intact.",
+        "Full Quality suite, Edit-Time/Reference/Implementation, TypeScript, Knowledge/Replay and Release Risk pass on exact source."
       ],
       "invariants": [
-        "Real Sentinel BLOCK never reclassified as PASS.",
-        "Missing baseline guard proof semantics remains visible, not silently excused.",
-        "GitHub credentials remain in host connector rather than sandbox.",
-        "Original F28B and main commits remain intact."
+        "Critical semantic execution requires nonempty PROOF even when authority scope is neutrally empty.",
+        "No arbitrary REVIEW or authority mismatch becomes PASS.",
+        "Only test and development plan metadata are modified."
       ],
       "forbiddenStates": [
-        "Test coerces REVIEW to PASS or hardcodes false production truth.",
-        "A new Git commit bypasses Plan Before Code, local tests or exact-head CI.",
-        "Non-fast-forward branch rewrites or pushes directly to main.",
-        "Long-lived GitHub token persisted in Vercel sandbox snapshot."
+        "Runtime guard check weakened to satisfy test fixture.",
+        "Fixture accidentally assumes active work item has a critical proof category populated.",
+        "Migration manifest promoted to READY without native empty-target attestation."
       ]
     },
     "model": {
@@ -143,45 +93,37 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Sentinel says REVIEW because a live requirement cites unsupported guard semantics",
-        "Test expected PASS and fails CI despite truthful REVIEW",
-        "Tolerating arbitrary REVIEW would mask a newly introduced missing guard semantics",
-        "Connector Git Data API creates wrong base tree or mismatched file blobs",
-        "GitHub commit is published before local proof passes"
+        "Inherited active source medium-risk route has no proof and fails synthetic critical test",
+        "Missing critical authority incorrectly reported as neutral",
+        "Wrong authority scope passes",
+        "CI mistakenly treats missing proof as a production defect"
       ],
       "edgeCases": [
-        "Today missing GUARD-CUSTOMER-BASELINE semantics",
-        "Later guard gains defensible semantics and test should PASS",
-        "Unexpected new REVIEW beyond baseline guard",
-        "Changed active development plan used by probe",
-        "Multiple files and metadata in one Git commit",
-        "Concurrent branch head changed before commit"
+        "Empty expected authorities and empty declared authority",
+        "Undefined declared authority",
+        "Single mismatched authority",
+        "Reordered but equivalent authority list",
+        "Absent critical route proof"
       ]
     },
     "alternatives": [
       {
-        "id": "SENTINEL-TRUTHFUL-TEST",
-        "summary": "Assert expected REVIEW only for exact unsupported baseline producer and PASS once canonical semantics are present; keep other findings blocking.",
+        "id": "FIX-FIXTURE",
+        "summary": "Construct complete synthetic critical-route input in the focused test, including canonical proof and unknown categories.",
         "disposition": "selected",
-        "reason": "Preserves legitimate Sentinel diagnostic authority without concealing problems."
+        "reason": "Existing validator is correct; test must independently supply all mandatory preconditions."
       },
       {
-        "id": "SENTINEL-FORCED-PASS",
-        "summary": "Force the Sentinel to return PASS whenever existing quality tests pass.",
+        "id": "WEAKEN-VALIDATOR",
+        "summary": "Let critical route pass without any proof solely to satisfy the test.",
         "disposition": "rejected",
-        "reason": "Would conceal missing proof semantics and violate Control Plane truth."
+        "reason": "Breaks Control Plane assurance contract."
       },
       {
-        "id": "SENTINEL-FALSE-SEMANTICS",
-        "summary": "Declare GUARD-CUSTOMER-BASELINE a comprehensive native Auth/RLS proof without implementation evidence.",
+        "id": "DISABLE-TEST",
+        "summary": "Skip critical-route authority test.",
         "disposition": "rejected",
-        "reason": "Would overclaim source-only baseline manifest validation."
-      },
-      {
-        "id": "DEVICE-LOGIN-FOREVER",
-        "summary": "Use gh auth login for every tiny commit or save credentials inside the snapshot.",
-        "disposition": "rejected",
-        "reason": "Unnecessary manual friction or persistent-token risk given connected GitHub API."
+        "reason": "Loses effective authority parity regression coverage."
       }
     ],
     "specialistReviews": [
@@ -189,96 +131,91 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A test accepting REVIEW could be used to mask a security guard unable to attest authorization.",
-        "resolution": "Assert the exact expected finding, guard ID, count and no action-level findings; no generic REVIEW tolerance.",
+        "finding": "Making route complete inside fixture must not hide missing proof rejection.",
+        "resolution": "Add an explicit regression that omits proof and expects DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED.",
         "evidence": [
-          "scripts/lib/shoperation-sentinel-integrity.mjs"
-        ]
-      },
-      {
-        "role": "Release",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "The failed F28B CI is still not release-closed, even if only one source fixture expectation is wrong.",
-        "resolution": "One F28C follow-up commit with exact-parent lineage, local source proof, and automatic full GitHub CI before any merge.",
-        "evidence": [
-          "tests/shoperation-sentinel-integrity.test.ts"
-        ]
-      },
-      {
-        "role": "Operations",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Repeated device logins and sandbox restarts create friction and potentially cost.",
-        "resolution": "Publish fully verified Git tree/commit using connected host GitHub plugin, avoid sandbox CLI auth, stop sandbox after code gates.",
-        "evidence": [
-          "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md"
+          "tests/shoperation-operational-intelligence.test.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Unverified local code might differ from host-connector uploaded blobs.",
-        "resolution": "Verify each Git object SHA matches local git blob SHA and remote commit file list, parent and main branch.",
+        "finding": "Synthetic critical test inherited a medium-risk active plan with intentionally empty proof route.",
+        "resolution": "Set minimal canonical MUST_EDIT, PROOF and UNKNOWN in synthetic input only.",
+        "evidence": [
+          "scripts/lib/shoperation-operational-intelligence.mjs"
+        ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Two prior F28 corrections pass but CI chain still fails on a stale test premise.",
+        "resolution": "Run entire suite locally before one new GitHub exact-head CI run; keep main unchanged.",
         "evidence": [
           "quality/development/active-plan.json"
+        ]
+      },
+      {
+        "role": "Operations",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Repeated device codes create manual friction.",
+        "resolution": "Use verified connected GitHub blob/tree/commit delivery and stop sandbox.",
+        "evidence": [
+          "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "F28C-CH1",
-        "scenario": "F28B active plan references baseline guard without proofSemantics",
-        "finding": "Sentinel correctly emits REVIEW",
-        "resolution": "Check exact SENTINEL_INTEGRITY_PROOF_SEMANTICS_UNKNOWN and guardId GUARD-CUSTOMER-BASELINE instead of insisting on PASS.",
+        "id": "F28D-CH1",
+        "scenario": "Neutral expectedAuthorities and route authority are both [] but test inherits empty PROOF.",
+        "finding": "Validator must refuse incomplete critical route with ROUTE_REQUIRED.",
+        "resolution": "Create an explicit complete synthetic route with a canonical proof producer.",
         "status": "resolved"
       },
       {
-        "id": "F28C-CH2",
-        "scenario": "A second unknown review appears",
-        "finding": "Fixture must not go green with arbitrary new missing evidence",
-        "resolution": "Require exact allowed review set and count.",
+        "id": "F28D-CH2",
+        "scenario": "Synthetic critical route has undefined AUTHORITY.",
+        "finding": "A critical route must not invent an authority fallback.",
+        "resolution": "Retain existing missing-authority negative assertion.",
         "status": "resolved"
       },
       {
-        "id": "F28C-CH3",
-        "scenario": "Host GitHub connector commit SHA differs from locally reviewed source",
-        "finding": "Change provenance and gate validity are lost",
-        "resolution": "Use git hash-object SHA parity for all uploaded files and independently inspect remote commit.",
+        "id": "F28D-CH3",
+        "scenario": "Synthetic critical route PROOF is empty.",
+        "finding": "A regression must prove validation remains fail-closed.",
+        "resolution": "Add explicit empty-proof negative assertion.",
         "status": "resolved"
       },
       {
-        "id": "F28C-CH4",
-        "scenario": "New feature release after source-level F28C tests pass but SQL still absent in staging",
-        "finding": "Production cannot accept code relying on undeployed Office RPCs",
-        "resolution": "No main merge or provider write without fresh-install and existing-target schema parity.",
+        "id": "F28D-CH4",
+        "scenario": "A future developer modifies active plan route while fixture tests unrelated authority parity.",
+        "finding": "Test must stay independent of unrelated medium-risk active-plan proof state.",
+        "resolution": "Set complete route categories inside local test helper with no production policy changes.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Development Guard and Plan Before Code for test + process doc scope.",
-      "Demonstrate real Sentinel REVIEW finding first.",
-      "Change test fixture to require exact expected REVIEW or PASS when proof semantics verified, reject all other findings.",
-      "Run targeted sentinel tests, relevant source tests, baseline guard and Edit-Time/Reference/Implementation Sync.",
-      "Publish via connected GitHub blobs/tree/commit/branch with exact local blob and parent SHA parity, no CLI login.",
-      "Verify remote SHA and wait for full GitHub CI without automatic main merge."
+      "Confirm exact F28C CI failure and locally reproduce the failing Operational Intelligence test.",
+      "Pass Development Guard and Plan Before Code before modifying fixture.",
+      "Set synthetic critical route MUST_EDIT and nonempty PROOF with known canonical guard; retain authority neutral/mismatch cases and negative missing-proof regression.",
+      "Run full local Vitest suite in serial isolated workers, TypeScript and critical quality gates, with no hosted environment calls.",
+      "Publish a single exact reviewed GitHub source tree via connected Git Data API, verify base/tree/branch and full GitHub CI."
     ],
     "semanticExecutionRoute": {
-      "request": "Shoperation F28C: fix Sentinel CI fixture's obsolete unconditional PASS expectation without masking real missing Customer Baseline proof semantics; document connected-GitHub batch Git Data API workflow to avoid repeated device codes and preserve guard/CI gating",
-      "authority": [
-        "quality-knowledge-system"
-      ],
+      "request": "Core #1186 F28D: finish critical semantic route test fixture correctness by supplying canonical executable proof in synthetic critical plan, test empty-proof rejection, preserve Sentinel REVIEW and existing application guards; source-only grouped CI fix",
+      "authority": [],
       "mustEdit": [
-        "tests/shoperation-sentinel-integrity.test.ts"
+        "tests/shoperation-operational-intelligence.test.ts"
       ],
       "mayEdit": [
         "quality/development/active-plan.json"
       ],
       "impactedReadOnly": [],
-      "mustCreate": [
-        "docs/architecture/SHOPERATION_CONNECTED_GITHUB_BATCH_WORKFLOW_20261011.md"
-      ],
+      "mustCreate": [],
       "forbidden": [],
       "proof": [],
       "unknown": [],
@@ -616,33 +553,33 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "F28B CI now has 3712/3713 tests passing, but the daily Sentinel fixture expects PASS even though the live F28B completion contract references GUARD-CUSTOMER-BASELINE with no declared proof semantics. The correct response is REVIEW, not a Sentinel bug. Reconcile fixture to guarded evidence and adopt connector-based, batched GitHub publishing to avoid repeated user device-code authorizations.",
+    "problemStatement": "F28C exact-head GitHub CI fails 1 of 3713 tests because operational-intelligence test clones a medium-risk active-plan route with no required proof and then artificially marks it critical. The validator correctly returns DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED; update the fixture rather than weakening the validator.",
     "observableOutcomes": [
-      "Sentinel test accepts solely authentic known REVIEW evidence or future clean PASS and rejects any unexpected BLOCK/REVIEW.",
-      "Feature source, permission guards and manifest unchanged.",
-      "First connector-based F28C GitHub commit saved without device code; main and F28B ref unchanged."
+      "Neutral critical authority scope accepted only when synthetic critical route includes its mandatory PROOF.",
+      "Missing proof and authority mismatch still fail closed in targeted regression.",
+      "No business runtime, SQL, manifest or plan readiness claims are elevated.",
+      "Batch connector upload continues to avoid repeated GitHub code."
     ],
     "unresolvedRisks": [
-      "The Customer Baseline guard still lacks canonical Proof Semantics; F28B full production claim remains OPEN/PARTIAL.",
-      "Fresh Install and existing staging schema parity still require native proof."
+      "Current customer baseline lacks actual 69-migration clean-target Supabase proof.",
+      "GUARD-CUSTOMER-BASELINE proof semantics for authorization remain incomplete."
     ],
     "scope": {
       "in": [
-        "Sentinel integrity regression fixture",
-        "Development operational workflow document",
+        "Operational Intelligence regression fixture",
         "Active development plan metadata"
       ],
       "out": [
-        "Runtime Sentinel findings/decision engine",
-        "Customer Baseline guard proof-semantic registry rewrite",
-        "Hosted Supabase migration or live data",
-        "Vercel deployment and main merge"
+        "Validator runtime and security guard policy",
+        "Customer Baseline manifest",
+        "Production deployment",
+        "Supabase Auth/RLS parity"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-SHOPERATION-BATCH-GITHUB-F28C",
+    "sourceRef": "PO-2026-10-11-SHOPERATION-CORE-1186-F28D-FIXTURE-ROUTE",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -661,15 +598,14 @@
     },
     "requirements": [
       {
-        "id": "REQ-F28C-SENTINEL-TRUTHFUL-FIXTURE",
-        "requirement": "The daily Sentinel fixture must not overclaim PASS when canonical proof semantics for referenced guards are unknown, and connected GitHub publish must preserve exact reviewed code identities.",
+        "id": "REQ-F28D-CRITICAL-ROUTE-FIXTURE",
+        "requirement": "Synthetic critical Operational Intelligence route tests require the mandatory proof producer and retain explicit negative missing-proof and authority drift behavior.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "sentinel-daily-probe-regression-and-github-publish",
+          "breadth": "isolated-critical-route-guard-regression",
           "strength": 1,
           "dimensions": [
             "status",
-            "truth",
             "regression"
           ]
         },
@@ -686,8 +622,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SENTINEL-NO-FALSE-PASS",
-            "statement": "Unexpected REVIEW or BLOCK cannot satisfy daily integrity proof.",
+            "id": "NEG-F28D-MISSING-PROOF",
+            "statement": "A critical semantic route with empty PROOF is rejected, never silently accepted.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -935,6 +871,6 @@
     "d",
     "e",
     ".",
-    "F28C is a quality-harness correction plus authenticated GitHub workflow; prior F28B Customer Baseline guard Proof Semantics gap is OPEN and not auto-certified by this unit."
+    "F28D is a fixture correction; actual proof semantics, native SQL and full release readiness are not implied."
   ]
 }

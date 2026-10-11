@@ -143,12 +143,17 @@ describe('Control Plane Operational Intelligence',()=>{
     const registry=json<any>('quality/knowledge/guard-registry.v1.json');
     const basePlan=json<any>('quality/development/active-plan.json');
     const guardIds=registry.guards.map((item:any)=>item.id);
-    const codesFor=(expectedAuthorities:string[],routeAuthority:string[]|undefined)=>{
+    const codesFor=(expectedAuthorities:string[],routeAuthority:string[]|undefined,proof:string[]=['GUARD-QUALITY-TESTS'])=>{
       const plan=JSON.parse(JSON.stringify(basePlan));
       plan.expectedAuthorities=expectedAuthorities;
-      // This test validates critical-only routing independently of the active work item risk tier.
+      // Test the critical routing policy with a complete synthetic critical route,
+      // not the current medium-risk work item's optionally empty proof category.
       plan.operationalIntelligence.riskTier='critical';
-      const route={...plan.operationalIntelligence.semanticExecutionRoute};
+      const route={...plan.operationalIntelligence.semanticExecutionRoute,
+        mustEdit:['tests/shoperation-operational-intelligence.test.ts'],
+        proof,
+        unknown:[],
+      };
       if(routeAuthority===undefined)delete route.authority;
       else route.authority=routeAuthority;
       plan.operationalIntelligence.semanticExecutionRoute=route;
@@ -158,6 +163,9 @@ describe('Control Plane Operational Intelligence',()=>{
     const neutral=codesFor([],[]);
     expect(neutral).not.toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
     expect(neutral).not.toContain('DEV_PLAN_SEMANTIC_EXECUTION_AUTHORITY_DRIFT');
+
+    // Missing PROOF remains forbidden, even with a neutral authority scope.
+    expect(codesFor([],[],[])).toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
 
     expect(codesFor([],undefined)).toContain('DEV_PLAN_SEMANTIC_EXECUTION_ROUTE_REQUIRED');
     expect(codesFor([],['release-infrastructure'])).toContain('DEV_PLAN_SEMANTIC_EXECUTION_AUTHORITY_DRIFT');
