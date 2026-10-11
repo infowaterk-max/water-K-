@@ -1,21 +1,15 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CORE-1186-U09-DB-READINESS",
-  "task": "Core 1186 U09: read-only fail-closed Digital Office staging DB RLS and migration readiness gate, no schema changes",
+  "taskId": "DEV-AA79C504",
+  "task": "Module 3 commerce requirements and roadmap closure",
   "status": "closed",
-  "guardDigest": "6d41d00a",
-  "changeBaseSha": "68170dfb7d78bcf065a52540dda5bc9218009600",
+  "guardDigest": "aa79c504",
+  "changeBaseSha": "615700e74c25b0f87b33318402e24eeb5a44a032",
   "plannedFilePatterns": [
-    "scripts/shoperation-office-db-readiness.mjs",
-    "tests/shoperation-office-db-readiness.test.ts",
-    "tests/pro-entitlement-guards.test.ts",
-    "scripts/shoperation-office-db-readiness.d.mts"
+    "quality/knowledge/living-roadmap.v2.json",
+    "docs/audits/SHOPERATION_MODULE3_COMMERCE_CLOSURE_2026-10-11.md"
   ],
-  "expectedSubsystems": [
-    "admin-operations",
-    "database-schema",
-    "quality-infrastructure"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
     "DOMAIN-QUALITY"
   ],
@@ -28,33 +22,63 @@
     "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
+    "SQ-KF-005",
     "SQ-KF-006",
+    "SQ-KF-007",
+    "SQ-KF-008",
     "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
+    "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
     "SQ-KF-018",
-    "SQ-KF-023"
+    "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
+    "SQ-KF-023",
+    "SQ-KF-024",
+    "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
+    "TF-KF-006",
+    "TF-KF-007",
+    "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
+    "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-008",
-    "SQ-NK-012",
-    "SQ-NK-014"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U09-DB-READINESS",
-    "riskTier": "critical",
+    "sourceRef": "PO-2026-10-11-MODULE3-CLOSURE",
+    "riskTier": "high",
     "assuranceCeiling": {
-      "level": "critical-practical",
-      "rationale": "Authority-bearing RLS drift detection must be fail-closed against missing/malformed/stale reports, while never upgrading static observation to final security proof.",
+      "level": "strong-behavioral-proof",
+      "rationale": "The change affects the canonical roadmap authority rather than commerce runtime. High-risk review is deliberately retained because accepted merchant and customer obligations, package entitlements, and launch priority could be distorted by a misleading roadmap edit. Assurance covers exact two-file scope, truth-status preservation, source-bound audit traceability, valid canonical guard selection and regression evidence. It explicitly does not certify live Szamlazz.hu, Billingo, refunds, shipping, payment gateways, tax behavior, provider credentials, production schema, or end-to-end commerce functionality.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -64,35 +88,31 @@
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
-        "fault-injection",
-        "finite-state-exhaustion"
+        "fault-injection"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "Fail-closed BLOCK when any of the three Office table policy sets uses legacy ALL or lacks an exact authenticated SELECT row gate.",
-        "Fail-closed BLOCK when privacy migration, membership hardening, helper exposure closure or target function is missing.",
-        "Reject missing, stale, invalid or unscoped inputs; never consider an empty policy list as safe.",
-        "Provide the exact required canonical SQL snapshot query so the gate can be run without DB writes and without guessing schema.",
-        "Only READY_FOR_VERIFICATION for a structurally clean, recent supplied snapshot; never claim authoritative RLS DONE based on static JSON.",
-        "Negative test covers legacy actual staging policy facts: three PERMISSIVE ALL can_manage_support policies and missing can_read function/migrations.",
-        "Critical Plan Before Code, Edit-Time Reference Sync, Atlas, Replay, Risk, exact-head CI, Truth and Lifecycle required; issue #1186 remains PARTIAL.",
-        "TypeScript declares the new read-only JS analyzer contract without implicitly typed callback or module imports; no ts-ignore suppression."
+        "The only business-content changes are the Module 3 audit document and the existing canonical living-roadmap JSON; the old closed Development Transaction remains preserved on main and is replaced only by this new scoped local planning transaction.",
+        "The audit contains accepted functional obligations 3.1 through 3.12, a per-capability implementation/proof discrepancy crosswalk, precise partial or unproven status, and explicit source-inspection limitations.",
+        "The existing roadmap items retain their identity and maturity status; Billingo becomes a launch obligation alongside Szamlazz.hu in INVOICE-FOUNDATION while unrelated future invoice and ERP adapters remain post-launch.",
+        "Every financial, tax, provider and entitlement claim is a scope or verification requirement, never a statement that production behavior has passed. Alap retains essential safe commerce, invoicing and recovery; Pro only adds advanced workflow.",
+        "The exact two-file change passes the repository canonical preflight, plan-before-code, edit-time, replay, roadmap/quality regression, risk, CI, Completion Truth and lifecycle gates with evidence tied to the actual branch and source commit."
       ],
       "invariants": [
-        "No direct DB mutation or network call from the preflight tool; supplied snapshots are read-only, operator-provided evidence.",
-        "Never use platform role or user-editable JWT profile metadata as plan authority.",
-        "Worker/service role bypass not certified merely because browser-side RLS appears safe.",
-        "Keep Alap transactional email/support outside the Digital Office Pro-only workspace.",
-        "Never silently accept missing migration provenance or run-id as success."
+        "No runtime, database, payment, invoice, fulfillment, email, secret, production environment or customer state is changed by this docs-and-roadmap transaction.",
+        "No accepted PO business decision is reopened or silently weakened, especially Billingo and Szamlazz.hu Alap+Pro launch scope and guest, refund, fiscal and merchant operations.",
+        "Roadmap statuses and closed-loop proof remain unchanged: documentation of a launch requirement is never implementation completion evidence.",
+        "The canonical roadmap and the new audit are the only material deliverables; do not create duplicate capability engines, parallel roadmap authorities or independently invented gates.",
+        "The Development Transaction base remains the actual main HEAD at the time of planning and requires reconciliation if the target main HEAD advances before execution."
       ],
       "forbiddenStates": [
-        "The legacy staging ALL policies yield READY.",
-        "A function-name-only positive without row policies yields READY.",
-        "One of the Office tables lacks the expected read policy but is silently ignored.",
-        "An incomplete/old snapshot yields authoritative production-like closure.",
-        "Any schema, seed, migration history, entitlement or production environment is changed."
+        "Billingo remains described as post-launch-only while the PO has accepted it for initial launch.",
+        "Any roadmap capability is promoted to DONE because its requirement was documented.",
+        "A cosmetic green CI result replaces exact base identity, Completion Truth, lifecycle closure or real implementation proof.",
+        "The old closed DEV-CORE-1186 transaction is repurposed by merely patching its base SHA.",
+        "Implementation files, provider credentials or production schemas are changed within this documentation-only release."
       ]
     },
     "model": {
@@ -124,198 +144,253 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Legacy permissive ALL policies leave customer Office data exposed under basic support grant",
-        "Office privacy and RLS helper migration missing in target despite repository source existing",
-        "No actual entitlement evidence but caller claims positive RLS closure",
-        "A missing table/policy silently degrades report to success",
-        "A malformed command/role alias results in empty validation",
-        "Unscoped snapshot points at an unintended production target",
-        "A passing static candidate masks worker or service_role access bypass"
+        "Stale main base or reused closed plan yields CI_TRANSACTION_BASE_MISMATCH before any meaningful build or acceptance evidence.",
+        "Billingo wording remains post-launch or new invoice requirement accidentally drops the previously accepted merchant-bound legal lifecycle.",
+        "A document says a feature is implemented or DONE merely because an adapter or route exists, creating a false completion claim.",
+        "A roadmap edit changes item identifiers, statuses or other phases unexpectedly, corrupting canonical roadmap authority.",
+        "Cross-package marketing or refund workflow language accidentally gates basic safe Alap merchant operations behind Pro.",
+        "Unscoped additions to implementation or provider systems bypass the expected two-file change and require new authorities/proofs.",
+        "Reference, knowledge, failure-selection or quality regression breaks even though the JSON syntax is valid."
       ],
       "edgeCases": [
-        "All three tables have permissive ALL and old support-only condition",
-        "Two tables are modern but office_tasks remains stale",
-        "Helper exists but exposure closure migration absent",
-        "Matching policies but no authenticated role",
-        "Snapshot is expired/invalid timestamp",
-        "One migration missing, others present",
-        "Only service_role policies are present",
-        "Case/whitespace differences in role and SQL policy text",
-        "Valid modern snapshot still cannot assert full plan/tenant proof"
+        "Only the audit document changes but the invoice roadmap still says Billingo is post-launch.",
+        "A matching but stale main SHA has been superseded by another merge before the new PR is opened.",
+        "An accepted invoice connector is described as included in Alap while its provider subscription fee is incorrectly promised free.",
+        "New rows correctly describe defects but are erroneously marked proved by the source-only inspection.",
+        "The audit reports an unconfirmed admin-order endpoint as definitely absent rather than unproven in the scoped review.",
+        "The diff adds audit text but removes a previously accepted product requirement from a roadmap item.",
+        "An unrelated documentation diff creeps into the release and bypasses planned-file scope."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-READONLY-DB-PREFLIGHT",
-        "summary": "Create deterministic, credential-free catalog snapshot evaluator with fail-closed negative readiness and nonauthoritative positive candidate.",
+        "id": "ALT-M3-CANONICAL-SCOPED-REPLAY",
+        "summary": "Use the generated high-risk Development Transaction to replay the previously reviewed two-file changes against exact main with an independent truthful verification path.",
         "disposition": "selected",
-        "reason": "Reveals real staging drift without applying selective SQL changes over unverified migration history."
+        "reason": "Preserves canonical roadmap authority and the completed commercial requirement audit while making transaction identity and evidence verifiable before merge."
       },
       {
-        "id": "ALT-BLIND-DB-PATCH",
-        "summary": "Immediately apply isolated Office RLS migration to staging.",
+        "id": "ALT-M3-REUSE-OLD-CLOSED-PLAN",
+        "summary": "Patch only the old closed DEV-CORE-1186 development transaction base and rerun the existing failed CI.",
         "disposition": "rejected",
-        "reason": "Real migration ledger lacks privacy prerequisites; may break staging and skip required ordered Fresh Install proof."
+        "reason": "The closed transaction governs different files and proof. Updating its SHA would falsify task identity and conceal missing planning authorization."
       },
       {
-        "id": "ALT-MARK-DONE",
-        "summary": "Treat repository SQL migration files as evidence that target policies are live.",
+        "id": "ALT-M3-SKIP-DOC-CHECKS",
+        "summary": "Merge the earlier draft documentation PR through a documentation-only CI skip or mark the change verified without a new Development Transaction.",
         "disposition": "rejected",
-        "reason": "The actual staging pg_policies result disproves this claim."
+        "reason": "The roadmap JSON is an authoritative quality-system input, so bypassing transaction and completion gates would weaken mandatory proof semantics."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Data Integrity",
+        "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Staging pg_policies still shows 3 permissive ALL policies and the desired privacy RLS helper is absent.",
-        "resolution": "Define strict expected policy/function/migration report contract and BLOCK legacy states.",
+        "finding": "The generated Atlas route assigns DOMAIN-QUALITY and quality-knowledge-system to the existing roadmap file while treating the new audit Markdown as a neutral unclassified document.",
+        "resolution": "Restrict material implementation to the exact roadmap JSON and audit Markdown; retain existing roadmap IDs and reuse the existing canonical planning, guard and truth systems.",
         "evidence": [
-          "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql"
-        ]
-      },
-      {
-        "role": "Security",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "A supplied snapshot could be forged, stale or show browser RLS while service_role APIs remain open.",
-        "resolution": "Make success only READY_FOR_VERIFICATION (not DONE); reject malformed/stale/missing evidence and require separate tenant/worker acceptance.",
-        "evidence": [
-          "src/lib/entitlements/access.ts"
+          "artifacts/shoperation-development-guard/development-guard.json",
+          "quality/knowledge/living-roadmap.v2.json"
         ]
       },
       {
         "role": "Release",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Schema target and source files are out of sync; a selective direct patch is unsafe.",
-        "resolution": "Keep staging/production untouched and record exact prerequisite failures in a machine-readable report.",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "The earlier PR 1235 is based on main 615700e but still carries the unrelated closed DEV-CORE-1186 plan. The CI_TRANSACTION_BASE_MISMATCH is a real transaction admission failure, not a harmless docs warning.",
+        "resolution": "Construct a fresh scoped plan before replaying any content; explicitly block merging or claiming CI pass until exact-base preflight, CI, Truth and lifecycle proofs succeed.",
         "evidence": [
-          "supabase/customer-baseline/manifest.json"
+          ".github/workflows/ci.yml",
+          "quality/development/active-plan.json",
+          "https://github.com/infowaterk-max/water-K-/actions/runs/38167587960"
         ]
       },
       {
-        "role": "Operations",
+        "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Alap ordinary emails and support must remain functional outside Digital Office.",
-        "resolution": "Read-only checks scope exclusively to Office data tables and privacy migrations.",
+        "finding": "The accepted change concerns documented merchant fiscal/stock/payment obligations; its audit describes incomplete tenant-scoped credentials, card refunds, guest retries and invoice lifecycle without treating source presence as live truth.",
+        "resolution": "Bind testable claims to the bounded documentation scope, preserve all existing roadmap statuses and explicitly leave live provider, tenant and financial proof PARTIAL until future implementation cycles.",
         "evidence": [
-          "src/lib/plans/catalog.ts"
+          "docs/audits/SHOPERATION_MODULE3_COMMERCE_CLOSURE_2026-10-11.md",
+          "quality/knowledge/living-roadmap.v2.json"
+        ]
+      },
+      {
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The generated guard activated 49 preventive failure records and flagged knowledge-infrastructure change requiring full replay; these are applicable protections, not evidence of 49 fresh failures.",
+        "resolution": "Read the prevention instructions before implementation and run preflight, edit-time guard and incremental replay after the coherent two-file edit batch; report any new failure without scope expansion.",
+        "evidence": [
+          "artifacts/shoperation-development-guard/development-guard.md",
+          "artifacts/shoperation-development-guard/development-guard.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-CORE-1186-U09-01",
-        "scenario": "Legacy ALL Office read policy during a staging catalog verification of Office tenant-specific authorization.",
-        "finding": "Authenticated support can read data under basic Alap grant This can lead to a dangerous false-positive readiness claim.",
-        "resolution": "BLOCK with policy identifier and command Test this as a negative case before accepting the release.",
+        "id": "CH-M3-01",
+        "scenario": "A documentation PR starts CI with a closed plan belonging to a previously completed Office readiness task.",
+        "finding": "The plan base, task and planned file scope do not match the actual PR; safety gates must prevent accidental admission.",
+        "resolution": "Generate a new exact-main module 3 Development Transaction before changes and demand independent PASS from canonical Plan Before Code.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U09-02",
-        "scenario": "Missing private read helper during a staging catalog verification of Office tenant-specific authorization.",
-        "finding": "Target lacks canonical participant-aware function This can lead to a dangerous false-positive readiness claim.",
-        "resolution": "BLOCK with missing function Test this as a negative case before accepting the release.",
+        "id": "CH-M3-02",
+        "scenario": "The audit calls Billingo a launch requirement but the roadmap retains Billingo in the postlaunch adapter program.",
+        "finding": "Conflicting authorities would mislead release prioritization and break accepted PO obligations.",
+        "resolution": "Update INVOICE-FOUNDATION and explicitly distinguish other future provider adapters in POSTLAUNCH-ADAPTER-ECOSYSTEM; inspect final two-file diff.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U09-03",
-        "scenario": "Missing ordered privacy migration during a staging catalog verification of Office tenant-specific authorization.",
-        "finding": "Repository SQL is not target execution evidence This can lead to a dangerous false-positive readiness claim.",
-        "resolution": "BLOCK with required migration version Test this as a negative case before accepting the release.",
+        "id": "CH-M3-03",
+        "scenario": "A source-only audit assumes that seeing an invoice route proves legal invoice corrections and merchant-scoped credentials in production.",
+        "finding": "Adapter presence cannot prove provider behavior, tenant isolation, fiscal correctness or customer flow closure.",
+        "resolution": "Keep PARTIAL and UNPROVEN findings with source inspection limitations; forbid roadmap DONE promotion until dedicated end-to-end evidence.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U09-04",
-        "scenario": "Modern candidate with no tenant tests during a staging catalog verification of Office tenant-specific authorization.",
-        "finding": "Static metadata alone cannot prove authorization This can lead to a dangerous false-positive readiness claim.",
-        "resolution": "READY_FOR_VERIFICATION only Test this as a negative case before accepting the release.",
+        "id": "CH-M3-04",
+        "scenario": "A well-intentioned docs edit changes unrelated statuses, IDs or dependencies in the canonical roadmap.",
+        "finding": "Schema-valid JSON may still produce authority drift or incorrectly reprioritize major capabilities.",
+        "resolution": "Compare selected entry identities and statuses against the exact main base and verify the PR diff contains only approved two-file semantic changes.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U09-05",
-        "scenario": "Policy on wrong database schema during a staging catalog verification of Office tenant-specific authorization.",
-        "finding": "Fake table identity cannot certify Office This can lead to a dangerous false-positive readiness claim.",
-        "resolution": "BLOCK missing required public table policy Test this as a negative case before accepting the release.",
+        "id": "CH-M3-05",
+        "scenario": "The Alap package unintentionally loses standard refund, error recovery or invoice integrations when advanced Pro workflow is specified.",
+        "finding": "The commercial split would violate accepted baseline safety and launch packaging decisions.",
+        "resolution": "Preserve essential financial safety and both invoices in Alap+Pro, assigning only nonessential configurable depth and analytics to Pro.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U09-06",
-        "scenario": "Mixed modern and legacy policies during a staging catalog verification of Office tenant-specific authorization.",
-        "finding": "Extra legacy ALL can permit broader access This can lead to a dangerous false-positive readiness claim.",
-        "resolution": "BLOCK if any broad policy remains Test this as a negative case before accepting the release.",
+        "id": "CH-M3-06",
+        "scenario": "Development proceeds even though the known-failure selection returns baseline-only and many template-related records.",
+        "finding": "A large guard inventory could be misconstrued as 49 live defects or tempt implementers to disable guard selection.",
+        "resolution": "Confirm DOMAIN-QUALITY authority and knowledge-infrastructure full replay, retain generated failure inventory and do not claim new defects without evidence.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U09-07",
-        "scenario": "Missing authenticated role during a staging catalog verification of Office tenant-specific authorization.",
-        "finding": "Service-only policy is not browser read proof This can lead to a dangerous false-positive readiness claim.",
-        "resolution": "BLOCK policy role missing Test this as a negative case before accepting the release.",
+        "id": "CH-M3-07",
+        "scenario": "A green guard or deploy preview is offered as proof that Billingo, card refund and chargeback are implemented.",
+        "finding": "Guard PASS only attests to the planned documentation transaction, not runtime/provider acceptance.",
+        "resolution": "Limit this transaction completion claim to roadmap/audit documentation. Track actual commerce closure separately through dependency and integration evidence.",
         "status": "resolved"
       },
       {
-        "id": "CH-CORE-1186-U09-08",
-        "scenario": "Malformed/old capture time during a staging catalog verification of Office tenant-specific authorization.",
-        "finding": "Evidence freshness unknown This can lead to a dangerous false-positive readiness claim.",
-        "resolution": "BLOCK stale/unparseable snapshot Test this as a negative case before accepting the release.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-CORE-1186-U09-09",
-        "scenario": "Service role bypass during a staging catalog verification of Office tenant-specific authorization.",
-        "finding": "Browser RLS cannot imply service role denial This can lead to a dangerous false-positive readiness claim.",
-        "resolution": "Explicitly out-of-scope and require separate proof Test this as a negative case before accepting the release.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-CORE-1186-U09-10",
-        "scenario": "Alap transactional email during a staging catalog verification of Office tenant-specific authorization.",
-        "finding": "Removing core support to fix Office would regress commerce This can lead to a dangerous false-positive readiness claim.",
-        "resolution": "No data or catalog modifications Test this as a negative case before accepting the release.",
+        "id": "CH-M3-08",
+        "scenario": "Another PR advances main before this plan reaches the repository and the earlier base identity becomes stale.",
+        "finding": "The exact target base SHA is no longer the release base, making existing evidence and transaction identity stale.",
+        "resolution": "Stop and regenerate or explicitly reconcile a fresh transaction on the new main; never simply overwrite the base SHA in a closed plan.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Critical Plan Before Code PASS before any implementation",
-      "Run deterministic negative and positive fixtures with no live database writes",
-      "Validate observable real staging 3 ALL policies/missing helper/migrations against BLOCK fixture",
-      "Run TypeScript, targeted quality tests, Knowledge/Atlas, Edit-Time/Reference Sync, Incremental Replay, Release Risk",
-      "Exact-head GitHub CI, Completion Truth and Lifecycle Closure before merge, without treating positive static results as DB acceptance",
-      "Compile the typed readiness consumer with strict TypeScript before exact-head acceptance."
+      "Run canonical shoperation-plan-before-code.mjs --check locally before replaying the two changed content files and inspect structured issues rather than ignoring warnings.",
+      "Check exact-main git identity and the two-file diff; require valid JSON, stable roadmap item IDs and statuses, accepted Billingo launch placement and no unrelated authority changes.",
+      "Run scripts/shoperation-edit-time-guard.mjs --check, scripts/shoperation-knowledge-preflight.mjs and scripts/shoperation-incremental-replay.mjs --check after the coherent edit batch.",
+      "Execute relevant capability-roadmap and quality-system regression tests plus the repository release-risk checker and full required CI; do not infer passing results in advance.",
+      "Verify the new Pull Request CI is green for its exact head and base, and that Completion Truth and Lifecycle Close to Learn have valid noncircular evidence before claiming this documentation transaction DONE.",
+      "Retain the remaining Module 3 runtime and provider gaps as PARTIAL or UNPROVEN in the roadmap and audit; do not claim legal, merchant, payment or invoicing certification from documentation checks."
     ],
     "semanticExecutionRoute": {
-      "request": "Core 1186 U09: read-only fail-closed Digital Office staging DB RLS and migration readiness gate, no schema changes",
+      "request": "PO-2026-10-11-MODULE3-CLOSURE",
       "authority": [
         "quality-knowledge-system"
       ],
       "mustEdit": [
-        "tests/pro-entitlement-guards.test.ts"
+        "quality/knowledge/living-roadmap.v2.json"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql",
-        "supabase/customer-baseline/manifest.json",
-        "src/lib/plans/catalog.ts"
+        "quality/knowledge/architecture-constitution.v1.json",
+        "quality/knowledge/codebase-atlas-policy.v2.json",
+        "quality/knowledge/development-guard-policy.v1.json",
+        "quality/knowledge/shoperation-quality-knowledge.v1.json",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        "scripts/lib/shoperation-reference-sync-runtime.mjs",
+        "scripts/template-factory-quality-gate.mjs",
+        "src/app/account-workflow.css",
+        "src/app/adatvedelem/page.tsx",
+        "src/app/admin/indulas/page.tsx",
+        "src/app/api/visual-fidelity/templates/route.ts",
+        "src/app/aszf/page.tsx",
+        "src/app/impresszum/page.tsx",
+        "src/app/kereses/page.tsx",
+        "src/app/oldal/[slug]/page.tsx",
+        "src/app/szallitas-es-fizetes/page.tsx",
+        "src/components/account/storefront-account-shell.tsx",
+        "src/components/admin/content-manager.tsx",
+        "src/components/admin/storefront-fidelity-layout-controls.tsx",
+        "src/components/admin/storefront-fidelity-node-controls.tsx",
+        "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
+        "src/components/admin/storefront-saved-blocks-panel.tsx",
+        "src/components/admin/storefront-visual-builder-production.tsx",
+        "src/components/admin/storefront-visual-builder-v3.tsx",
+        "src/components/admin/team-member-controls.tsx",
+        "src/components/builder/storefront-commerce-header.module.css",
+        "src/components/builder/storefront-commerce-header.tsx",
+        "src/components/builder/storefront-commerce.tsx",
+        "src/components/builder/storefront-primitives.tsx",
+        "src/components/builder/storefront-purchase-controls.tsx",
+        "src/components/builder/storefront-structured-product.tsx",
+        "src/components/builder/storefront-support.tsx",
+        "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+        "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
+        "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+        "src/lib/quality-system/architecture-constitution.ts",
+        "src/lib/quality-system/capability-evidence.ts",
+        "src/lib/quality-system/domain-foundations.ts",
+        "src/lib/quality-system/shoperation-knowledge.ts",
+        "tests/capability-roadmap-evidence.test.ts"
       ],
       "mustCreate": [
-        "scripts/shoperation-office-db-readiness.mjs",
-        "tests/shoperation-office-db-readiness.test.ts",
-        "scripts/shoperation-office-db-readiness.d.mts"
+        "docs/audits/SHOPERATION_MODULE3_COMMERCE_CLOSURE_2026-10-11.md"
       ],
-      "forbidden": [
-        "supabase/migrations/**",
-        "supabase/customer-baseline/**",
-        "src/app/**"
-      ],
+      "forbidden": [],
       "proof": [
-        "GUARD-QUALITY-TESTS",
-        "GUARD-PLAN-BEFORE-CODE",
-        "GUARD-EDIT-TIME",
-        "GUARD-INCREMENTAL-REPLAY",
-        "GUARD-RELEASE-RISK"
+        "tests/capability-roadmap-evidence.test.ts",
+        "tests/digital-commerce-builder-integration.test.tsx",
+        "tests/playroom-v20-canonical-shell-content.test.ts",
+        "tests/roadmap-block21-page-schema-templates.test.ts",
+        "tests/roadmap-block22-visual-builder.test.ts",
+        "tests/roadmap-block23-ai-builder-template-generation.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
+        "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
+        "tests/storefront-account-shell.test.ts",
+        "tests/storefront-beauty-lab-reference-v28.test.ts",
+        "tests/storefront-cart-presentation-contract.test.ts",
+        "tests/storefront-commerce-fidelity-slots.test.tsx",
+        "tests/storefront-commerce-header.test.tsx",
+        "tests/storefront-core-commerce.test.ts",
+        "tests/storefront-creator-station-wave36-reacceptance.test.ts",
+        "tests/storefront-fidelity-behavior.test.tsx",
+        "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
+        "tests/storefront-fidelity-diagnostics.test.ts",
+        "tests/storefront-fidelity-inspector.test.ts",
+        "tests/storefront-fidelity-layout.test.ts",
+        "tests/storefront-fidelity-primitive-renderers.test.tsx",
+        "tests/storefront-fidelity-security.test.ts",
+        "tests/storefront-global-styles.test.ts",
+        "tests/storefront-guided-fidelity-slots.test.tsx",
+        "tests/storefront-heritage-atelier-template.test.tsx",
+        "tests/storefront-heritage-atelier-wave28-reacceptance.test.tsx",
+        "tests/storefront-monarche-template.test.tsx",
+        "tests/storefront-monarche-wave43-reacceptance.test.ts",
+        "tests/storefront-performance-contract.test.ts",
+        "tests/storefront-playroom-reference-fidelity.test.ts",
+        "tests/storefront-playroom-reference-v2-fidelity.test.tsx",
+        "tests/storefront-playroom-template.test.tsx",
+        "tests/storefront-playroom-v18-image-slots.test.ts",
+        "tests/storefront-playroom-v19-complete.test.ts",
+        "tests/storefront-playroom-v19-page-family-presets.test.ts",
+        "tests/storefront-playroom-v19-subpage-parity.test.ts",
+        "tests/storefront-playroom-v19-visual-polish.test.ts",
+        "tests/storefront-playroom-v20-capability-consolidation.test.ts",
+        "tests/storefront-playroom-v20-functional-acceptance.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -325,16 +400,101 @@
       "phase": "PLAN",
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
-        "mustEdit": [],
+        "mustEdit": [
+          "quality/knowledge/living-roadmap.v2.json"
+        ],
         "mayEdit": [],
-        "impactedReadOnly": [],
+        "impactedReadOnly": [
+          "quality/knowledge/architecture-constitution.v1.json",
+          "quality/knowledge/codebase-atlas-policy.v2.json",
+          "quality/knowledge/development-guard-policy.v1.json",
+          "quality/knowledge/shoperation-quality-knowledge.v1.json",
+          "scripts/lib/shoperation-operational-intelligence.mjs",
+          "scripts/lib/shoperation-reference-sync-runtime.mjs",
+          "scripts/template-factory-quality-gate.mjs",
+          "src/app/account-workflow.css",
+          "src/app/adatvedelem/page.tsx",
+          "src/app/admin/indulas/page.tsx",
+          "src/app/api/visual-fidelity/templates/route.ts",
+          "src/app/aszf/page.tsx",
+          "src/app/impresszum/page.tsx",
+          "src/app/kereses/page.tsx",
+          "src/app/oldal/[slug]/page.tsx",
+          "src/app/szallitas-es-fizetes/page.tsx",
+          "src/components/account/storefront-account-shell.tsx",
+          "src/components/admin/content-manager.tsx",
+          "src/components/admin/storefront-fidelity-layout-controls.tsx",
+          "src/components/admin/storefront-fidelity-node-controls.tsx",
+          "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
+          "src/components/admin/storefront-saved-blocks-panel.tsx",
+          "src/components/admin/storefront-visual-builder-production.tsx",
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/components/admin/team-member-controls.tsx",
+          "src/components/builder/storefront-commerce-header.module.css",
+          "src/components/builder/storefront-commerce-header.tsx",
+          "src/components/builder/storefront-commerce.tsx",
+          "src/components/builder/storefront-primitives.tsx",
+          "src/components/builder/storefront-purchase-controls.tsx",
+          "src/components/builder/storefront-structured-product.tsx",
+          "src/components/builder/storefront-support.tsx",
+          "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+          "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
+          "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "src/lib/quality-system/architecture-constitution.ts",
+          "src/lib/quality-system/capability-evidence.ts",
+          "src/lib/quality-system/domain-foundations.ts",
+          "src/lib/quality-system/shoperation-knowledge.ts",
+          "tests/capability-roadmap-evidence.test.ts"
+        ],
         "mustCreate": [
-          "scripts/shoperation-office-db-readiness.mjs",
-          "tests/shoperation-office-db-readiness.test.ts"
+          "docs/audits/SHOPERATION_MODULE3_COMMERCE_CLOSURE_2026-10-11.md"
         ],
         "forbidden": [],
-        "proof": [],
-        "authority": [],
+        "proof": [
+          "tests/capability-roadmap-evidence.test.ts",
+          "tests/digital-commerce-builder-integration.test.tsx",
+          "tests/playroom-v20-canonical-shell-content.test.ts",
+          "tests/roadmap-block21-page-schema-templates.test.ts",
+          "tests/roadmap-block22-visual-builder.test.ts",
+          "tests/roadmap-block23-ai-builder-template-generation.test.ts",
+          "tests/shoperation-semantic-execution-intelligence.test.ts",
+          "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
+          "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
+          "tests/storefront-account-shell.test.ts",
+          "tests/storefront-beauty-lab-reference-v28.test.ts",
+          "tests/storefront-cart-presentation-contract.test.ts",
+          "tests/storefront-commerce-fidelity-slots.test.tsx",
+          "tests/storefront-commerce-header.test.tsx",
+          "tests/storefront-core-commerce.test.ts",
+          "tests/storefront-creator-station-wave36-reacceptance.test.ts",
+          "tests/storefront-fidelity-behavior.test.tsx",
+          "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
+          "tests/storefront-fidelity-diagnostics.test.ts",
+          "tests/storefront-fidelity-inspector.test.ts",
+          "tests/storefront-fidelity-layout.test.ts",
+          "tests/storefront-fidelity-primitive-renderers.test.tsx",
+          "tests/storefront-fidelity-security.test.ts",
+          "tests/storefront-global-styles.test.ts",
+          "tests/storefront-guided-fidelity-slots.test.tsx",
+          "tests/storefront-heritage-atelier-template.test.tsx",
+          "tests/storefront-heritage-atelier-wave28-reacceptance.test.tsx",
+          "tests/storefront-monarche-template.test.tsx",
+          "tests/storefront-monarche-wave43-reacceptance.test.ts",
+          "tests/storefront-performance-contract.test.ts",
+          "tests/storefront-playroom-reference-fidelity.test.ts",
+          "tests/storefront-playroom-reference-v2-fidelity.test.tsx",
+          "tests/storefront-playroom-template.test.tsx",
+          "tests/storefront-playroom-v18-image-slots.test.ts",
+          "tests/storefront-playroom-v19-complete.test.ts",
+          "tests/storefront-playroom-v19-page-family-presets.test.ts",
+          "tests/storefront-playroom-v19-subpage-parity.test.ts",
+          "tests/storefront-playroom-v19-visual-polish.test.ts",
+          "tests/storefront-playroom-v20-capability-consolidation.test.ts",
+          "tests/storefront-playroom-v20-functional-acceptance.test.ts"
+        ],
+        "authority": [
+          "quality-knowledge-system"
+        ],
         "unknown": []
       },
       "projectedReleaseRisk": {
@@ -352,16 +512,16 @@
         ],
         "files": [
           {
-            "file": "scripts/shoperation-office-db-readiness.mjs",
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "file": "tests/shoperation-office-db-readiness.test.ts",
+            "file": "docs/audits/SHOPERATION_MODULE3_COMMERCE_CLOSURE_2026-10-11.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
+          },
+          {
+            "file": "quality/knowledge/living-roadmap.v2.json",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
           }
         ],
         "violations": [],
@@ -386,16 +546,16 @@
           ],
           "files": [
             {
-              "file": "scripts/shoperation-office-db-readiness.mjs",
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "file": "tests/shoperation-office-db-readiness.test.ts",
+              "file": "docs/audits/SHOPERATION_MODULE3_COMMERCE_CLOSURE_2026-10-11.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
+            },
+            {
+              "file": "quality/knowledge/living-roadmap.v2.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
             }
           ],
           "violations": [],
@@ -407,7 +567,31 @@
           {
             "id": 0,
             "files": [
-              "scripts/shoperation-office-db-readiness.mjs"
+              "docs/audits/SHOPERATION_MODULE3_COMMERCE_CLOSURE_2026-10-11.md"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "docs/audits/SHOPERATION_MODULE3_COMMERCE_CLOSURE_2026-10-11.md",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 1,
+            "files": [
+              "quality/knowledge/living-roadmap.v2.json"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -424,34 +608,10 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-office-db-readiness.mjs",
+                  "file": "quality/knowledge/living-roadmap.v2.json",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 1,
-            "files": [
-              "tests/shoperation-office-db-readiness.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "tests/shoperation-office-db-readiness.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
                 }
               ],
               "violations": [],
@@ -465,36 +625,38 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "",
-              "developmentBaseSha": "68170dfb7d78bcf065a52540dda5bc9218009600"
+              "sourceRef": "PO-2026-10-11-MODULE3-CLOSURE",
+              "developmentBaseSha": "615700e74c25b0f87b33318402e24eeb5a44a032"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "68170dfb7d78bcf065a52540dda5bc9218009600",
+            "targetBaseSha": "615700e74c25b0f87b33318402e24eeb5a44a032",
             "lease": {
-              "expectedBaseSha": "68170dfb7d78bcf065a52540dda5bc9218009600",
+              "expectedBaseSha": "615700e74c25b0f87b33318402e24eeb5a44a032",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "scripts/shoperation-office-db-readiness.mjs",
-              "tests/shoperation-office-db-readiness.test.ts"
+              "docs/audits/SHOPERATION_MODULE3_COMMERCE_CLOSURE_2026-10-11.md",
+              "quality/knowledge/living-roadmap.v2.json"
             ],
             "operations": [
               {
                 "operation": "create",
-                "file": "scripts/shoperation-office-db-readiness.mjs",
+                "file": "docs/audits/SHOPERATION_MODULE3_COMMERCE_CLOSURE_2026-10-11.md",
                 "generated": null
               },
               {
-                "operation": "create",
-                "file": "tests/shoperation-office-db-readiness.test.ts",
+                "operation": "modify",
+                "file": "quality/knowledge/living-roadmap.v2.json",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [],
-            "authorities": [],
+            "authorities": [
+              "quality-knowledge-system"
+            ],
             "subsystems": [
               "quality-infrastructure"
             ],
@@ -513,16 +675,16 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-office-db-readiness.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "file": "tests/shoperation-office-db-readiness.test.ts",
+                  "file": "docs/audits/SHOPERATION_MODULE3_COMMERCE_CLOSURE_2026-10-11.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
+                },
+                {
+                  "file": "quality/knowledge/living-roadmap.v2.json",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "violations": [],
@@ -534,8 +696,7 @@
               "GUARD-KNOWLEDGE-PREFLIGHT",
               "GUARD-PLAN-BEFORE-CODE",
               "GUARD-QUALITY-TESTS",
-              "GUARD-RELEASE-RISK",
-              "GUARD-TYPECHECK"
+              "GUARD-RELEASE-RISK"
             ],
             "requiredEvidence": {
               "gateIds": [
@@ -544,23 +705,61 @@
                 "GUARD-KNOWLEDGE-PREFLIGHT",
                 "GUARD-PLAN-BEFORE-CODE",
                 "GUARD-QUALITY-TESTS",
-                "GUARD-RELEASE-RISK",
-                "GUARD-TYPECHECK"
+                "GUARD-RELEASE-RISK"
               ],
-              "proofFiles": [
-                "tests/shoperation-office-db-readiness.test.ts"
-              ],
+              "proofFiles": [],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
-            "readOnlyPaths": [],
+            "readOnlyPaths": [
+              "quality/knowledge/architecture-constitution.v1.json",
+              "quality/knowledge/codebase-atlas-policy.v2.json",
+              "quality/knowledge/development-guard-policy.v1.json",
+              "quality/knowledge/shoperation-quality-knowledge.v1.json",
+              "scripts/lib/shoperation-operational-intelligence.mjs",
+              "scripts/lib/shoperation-reference-sync-runtime.mjs",
+              "scripts/template-factory-quality-gate.mjs",
+              "src/app/account-workflow.css",
+              "src/app/adatvedelem/page.tsx",
+              "src/app/admin/indulas/page.tsx",
+              "src/app/api/visual-fidelity/templates/route.ts",
+              "src/app/aszf/page.tsx",
+              "src/app/impresszum/page.tsx",
+              "src/app/kereses/page.tsx",
+              "src/app/oldal/[slug]/page.tsx",
+              "src/app/szallitas-es-fizetes/page.tsx",
+              "src/components/account/storefront-account-shell.tsx",
+              "src/components/admin/content-manager.tsx",
+              "src/components/admin/storefront-fidelity-layout-controls.tsx",
+              "src/components/admin/storefront-fidelity-node-controls.tsx",
+              "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
+              "src/components/admin/storefront-saved-blocks-panel.tsx",
+              "src/components/admin/storefront-visual-builder-production.tsx",
+              "src/components/admin/storefront-visual-builder-v3.tsx",
+              "src/components/admin/team-member-controls.tsx",
+              "src/components/builder/storefront-commerce-header.module.css",
+              "src/components/builder/storefront-commerce-header.tsx",
+              "src/components/builder/storefront-commerce.tsx",
+              "src/components/builder/storefront-primitives.tsx",
+              "src/components/builder/storefront-purchase-controls.tsx",
+              "src/components/builder/storefront-structured-product.tsx",
+              "src/components/builder/storefront-support.tsx",
+              "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+              "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
+              "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+              "src/lib/quality-system/architecture-constitution.ts",
+              "src/lib/quality-system/capability-evidence.ts",
+              "src/lib/quality-system/domain-foundations.ts",
+              "src/lib/quality-system/shoperation-knowledge.ts",
+              "tests/capability-roadmap-evidence.test.ts"
+            ],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "scripts/shoperation-office-db-readiness.mjs",
-                "tests/shoperation-office-db-readiness.test.ts"
+                "docs/audits/SHOPERATION_MODULE3_COMMERCE_CLOSURE_2026-10-11.md",
+                "quality/knowledge/living-roadmap.v2.json"
               ],
               "filesAbsent": []
             },
@@ -575,7 +774,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "26ec9919",
+            "manifestDigest": "6315ede9",
             "decision": "PASS"
           }
         ],
@@ -593,8 +792,7 @@
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
           "GUARD-QUALITY-TESTS",
-          "GUARD-RELEASE-RISK",
-          "GUARD-TYPECHECK"
+          "GUARD-RELEASE-RISK"
         ],
         "currentPhaseGateIds": [
           "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -604,45 +802,18 @@
         "futureGateIds": [
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
-          "GUARD-QUALITY-TESTS",
-          "GUARD-TYPECHECK"
+          "GUARD-QUALITY-TESTS"
         ],
         "externalGateIds": [],
         "issues": [],
         "decision": "PASS"
       }
     },
-    "executionAuthorized": true,
-    "problemStatement": "The repository includes Digital Office restrictive participant read RLS migrations, but the real read-only staging catalog shows legacy ALL policies on office_threads, office_messages, office_tasks and no installed can_read_office_thread_v1 helper. The migration ledger lacks later Office privacy/RLS releases. A staged/production-like acceptance claim must fail closed on this drift before any data mutation.",
-    "observableOutcomes": [
-      "A credential-free, read-only snapshot analyzer reports exact missing canonical migration versions and RLS/function gaps against the actual Supabase pg_catalog evidence shape.",
-      "A legacy staging report with office_* ALL permissive policies, missing privacy migration/function must BLOCK, never certify Office as Pro/RLS ready.",
-      "A modern candidate with expected SELECT policies/function/migrations may only REPORT READY_FOR_VERIFICATION, not authoritative production closure; real tenant role and upgrade/downgrade behavior needs separate proof.",
-      "No database schema or data is modified, no production or staging migrations are applied and #1186 remains OPEN/PARTIAL."
-    ],
-    "unresolvedRisks": [
-      "An exported JSON snapshot is not cryptographically authoritative or a substitute for a live authenticated role proof.",
-      "Staging is behind multiple migrations and a selective policy patch could conflict with pending upstream schema changes.",
-      "Service-role RPC and per-tenant plan transitions remain outside this bounded preflight."
-    ],
-    "scope": {
-      "in": [
-        "scripts/shoperation-office-db-readiness.mjs deterministic command-line read-only readiness analyzer",
-        "tests/shoperation-office-db-readiness.test.ts negative legacy/unknown/partial and positive candidate fixtures",
-        "tests/pro-entitlement-guards.test.ts integrated Office authorization preflight regression",
-        "Typed JavaScript preflight module declaration for existing strict TypeScript consumers"
-      ],
-      "out": [
-        "SQL migration creation or application to any database",
-        "Changing Supabase project states, auth users, entitlements, policies, credentials or secrets",
-        "Declaring DB tenant RLS, worker and plan transition end-to-end closure",
-        "Builder/Template Factory development"
-      ]
-    }
+    "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U09-DB-READINESS",
+    "sourceRef": "PO-2026-10-11-MODULE3-CLOSURE",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -651,24 +822,23 @@
         "GUARD-EDIT-TIME",
         "GUARD-INCREMENTAL-REPLAY",
         "GUARD-QUALITY-TESTS",
-        "GUARD-RELEASE-RISK",
-        "GUARD-TYPECHECK"
+        "GUARD-RELEASE-RISK"
       ],
       "externalGuards": [],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-U09-DB-DRIFT-BLOCK",
-        "requirement": "Fail closed on actual legacy Office table broad SELECT/ALL policies, missing canonical privacy migrations or helper functions; no false-positive readiness.",
+        "id": "REQ-M3-SCOPE-BOUND",
+        "requirement": "The module 3 change is limited to the audit Markdown and existing canonical living-roadmap JSON with an exact scoped Development Transaction; no application, migration or secret changes are admitted.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "office-db-staging-readiness",
+          "breadth": "bounded-two-file-development-transaction",
           "strength": 2,
           "dimensions": [
             "scope",
-            "behavioral-proof",
-            "forbidden-state"
+            "forbidden-state",
+            "tests"
           ]
         },
         "requiredCapabilities": [
@@ -676,7 +846,8 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-EDIT-TIME"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS"
@@ -684,8 +855,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U09-STALE-RLS",
-            "statement": "Legacy staging permissive ALL policies must yield BLOCK, never READY.",
+            "id": "NEG-M3-OUT-OF-SCOPE",
+            "statement": "An unrelated runtime or governance file cannot be silently accepted as an in-scope edit.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -693,16 +864,16 @@
         ]
       },
       {
-        "id": "REQ-U09-NONAUTHORITATIVE-POSITIVE",
-        "requirement": "Even a clean metadata snapshot is only a readiness candidate, not full tenant and service-role proof; no mutation occurs.",
+        "id": "REQ-M3-ACCEPTED-ROADMAP",
+        "requirement": "The canonical roadmap preserves existing identities and statuses while recording the accepted 3.1-3.12 business obligations, both launch invoice adapters and Alap versus Pro entitlement boundaries.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "office-db-proof-boundary",
+          "breadth": "bounded-canonical-roadmap-regression",
           "strength": 2,
           "dimensions": [
-            "evidence-scope",
-            "regression",
-            "forbidden-state"
+            "scope",
+            "tests",
+            "regression"
           ]
         },
         "requiredCapabilities": [
@@ -718,8 +889,42 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U09-FALSE-DB-CLOSURE",
-            "statement": "Never report authoritative DONE for unverified DB RLS/tenant transitions.",
+            "id": "NEG-M3-FALSE-ROADMAP-STATUS",
+            "statement": "A roadmap item must not be marked done solely because this documentation audit states an accepted launch requirement.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-M3-TRUTH-BOUNDARY",
+        "requirement": "The audit remains explicitly source-bounded and records implementation gaps as partial or unproven, with no provider certification or false end-to-end completion claims.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "bounded-documentation-truth-semantics",
+          "strength": 2,
+          "dimensions": [
+            "scope",
+            "forbidden-state",
+            "tests"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-M3-UNPROVEN-AS-DONE",
+            "statement": "Source file existence alone must never be reported as verified merchant/provider runtime closure.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -728,14 +933,14 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
+  "notes": "Prepared for independent canonical Plan Before Code verification against main SHA 615700e. This is the bounded documentation transaction only; no commerce runtime acceptance or product completion implied. SpecialistReviews record role-based source-review analyses, not independent human attestations. On a changed main base, regenerate the transaction before execution. Completion Truth, required CI and lifecycle remain outstanding.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "bc9cf8e0e194e27ab9155b15c45282ceb2ca8d6a",
-    "closedAt": "2026-10-10T06:57:58.521Z",
+    "verifiedImplementationHead": "f8bfd8058716316f16e25791d17b02002a15be27",
+    "closedAt": "2026-10-11T20:29:15.747Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-10-CORE-1186-U09-DB-READINESS",
+    "sourceRef": "PO-2026-10-11-MODULE3-CLOSURE",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
