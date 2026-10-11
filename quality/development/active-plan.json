@@ -77,16 +77,18 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-004",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-011",
     "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015",
-    "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
     "SQ-NK-021",
     "SQ-NK-022",
     "SQ-NK-023"
@@ -402,5 +404,5 @@
       }
     ]
   },
-  "notes": "F34 bounded Quality runner fix stacked on F33 PR #1243 / F32 #1238 / F31 #1236. The preview login entrypoint legitimately redirects to the canonical Workforce login, but the old Product Owner Playwright proof still expects a legacy template-specific form. This unit validates exact workforce return-target identity, real authentication, role/MFA enforcement and actual candidate presentation rather than bypassing or changing any auth authority. Missing separate PO proof reconciliation is tracked as distinct subsequent dependency. No main merge, production, Vercel or Supabase mutation.\nF34 exact-head Plan Before Code expanded the execution-dependent impact envelope to 5 subsystems and all 49 known failures. The canonical guard digest and 13 negative-knowledge IDs below match remote gate diagnostics (run 38177436845); both specialist roles use allowed canonical terms. No runtime/auth production file was edited and no gate was waived."
+  "notes": "F34 bounded Quality runner fix stacked on F33 PR #1243 / F32 #1238 / F31 #1236. The preview login entrypoint legitimately redirects to the canonical Workforce login, but the old Product Owner Playwright proof still expects a legacy template-specific form. This unit validates exact workforce return-target identity, real authentication, role/MFA enforcement and actual candidate presentation rather than bypassing or changing any auth authority. Missing separate PO proof reconciliation is tracked as distinct subsequent dependency. No main merge, production, Vercel or Supabase mutation.\nF34 exact-head Plan Before Code expanded the execution-dependent impact envelope to 5 subsystems and all 49 known failures. The canonical guard digest and 13 negative-knowledge IDs below match remote gate diagnostics (run 38177436845); both specialist roles use allowed canonical terms. No runtime/auth production file was edited and no gate was waived.\nSecond canonical Plan Before Code diagnostics (run 38177528059) confirmed all 49 failure IDs, five subsystems and guard digest. Only exact matching negative knowledge remained: the five-subsystem intersection requires 15 SQ-NK IDs, now reconciled to expected current Plan Gate classification. No change to source/auth runtime and no waiver."
 }
