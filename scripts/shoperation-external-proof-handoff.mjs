@@ -176,22 +176,6 @@ export function requiredExternalCompletionGuards({activePlan,verificationPlan,gu
   return required.sort();
 }
 
-// An external LIVE proof from a PR is usable by source-branch CI only when both
-// the live GitHub PR and this run independently bind the exact head and base.
-export function selectExactPrTemplateFactoryProofRuns({runs=[],head='',branch='',baseSha='',prNumbers=[]}={}){
-  const sha=/^[a-f0-9]{40}$/i;
-  if(!sha.test(head)||!sha.test(baseSha)||/^0+$/.test(head)||/^0+$/.test(baseSha))return[];
-  const allowed=new Set(prNumbers.map(Number).filter(Number.isInteger));
-  if(!allowed.size)return[];
-  return runs.filter(run=>
-    run?.name==='Template Factory Quality Gate v2'&&run.head_sha===head&&
-    run.head_branch===branch&&run.event==='pull_request'&&
-    (run.pull_requests??[]).some(pr=>
-      allowed.has(pr.number)&&pr.head?.sha===head&&
-      pr.head?.ref===branch&&pr.base?.sha===baseSha)
-  ).sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at));
-}
-
 export function validateTemplateFactoryExternalProof({
   manifest,
   expectedHead,
