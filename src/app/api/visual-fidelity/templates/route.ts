@@ -75,6 +75,8 @@ export async function GET(){
       templateVersion:recipe.templateVersion,
       status:'candidate',
       factoryCandidate:true,
+      provenance:build.report.provenance,
+      showroomEvidence:[...build.report.showroomEvidence],
       sourcePrefixes:[
         'src/lib/builder/template-factory/recipes/'+recipe.templateKey.split('.').at(-1),
         'src/lib/builder/template-factory/scaffold.ts',

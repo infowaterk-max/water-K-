@@ -1,27 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-F32-CI-PR-PROOF-ORIGIN",
-  "task": "F32 CI cross-workflow PR-origin verification without accepting any push canary or non-equivalent proof",
-  "status": "closed",
-  "guardDigest": "a41cfd0c",
-  "changeBaseSha": "8caec2ab32e947156e6514bd2b01459c7285d258",
+  "taskId": "DEV-F33-FACTORY-CATALOG-PROVENANCE",
+  "task": "F33 template factory showroom compiler provenance and route catalog evidence projection, preserving true owner approval",
+  "status": "ready-for-implementation",
+  "guardDigest": "2ea57cdf",
+  "changeBaseSha": "bdcb77a9148e841397ce4b7b9b3e1bfc2811c60a",
   "plannedFilePatterns": [
-    ".github/workflows/ci.yml",
-    "docs/architecture/SHOPERATION_F32_CI_EXTERNAL_PR_PROOF_ORIGIN_20261011.md",
+    "docs/architecture/SHOPERATION_F33_FACTORY_CATALOG_PROOF_FIELDS_20261011.md",
     "quality/development/active-plan.json",
-    "scripts/release-external-proof-selection.mjs",
-    "tests/control-plane-ecosystem-chain.test.ts",
-    "tests/release-external-proof-selection.test.ts",
-    "tests/shoperation-external-proof-handoff.test.ts"
+    "src/app/api/visual-fidelity/templates/route.ts",
+    "tests/template-factory-catalog-proof-fields.test.ts"
   ],
   "expectedSubsystems": [
-    "release-infrastructure"
+    "builder-template-system",
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-RELEASE"
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
-    "release-infrastructure"
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -76,16 +75,18 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
-    "SQ-NK-005",
+    "SQ-NK-004",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012",
-    "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
     "SQ-NK-021",
     "SQ-NK-022",
     "SQ-NK-023"
@@ -93,11 +94,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-F32-CI-PR-ORIGIN",
+    "sourceRef": "PO-2026-10-11-F33-FACTORY-CATALOG-EVIDENCE",
     "riskTier": "high",
     "assuranceCeiling": {
-      "level": "scoped-external-proof-origin-validation",
-      "rationale": "A source-branch push canary cannot substitute for an exact-base PR producer. This bounded selector fixes custody and leaves browser, runtime and Product Owner acceptance gates independently authoritative.",
+      "level": "exact-candidate-source-and-browser-evidence-transport",
+      "rationale": "Candidate route provenance and showroom evidence are existing compiler outputs. Passing them to the browser gate is required but not sufficient for separate Preview owner-login proof and Product Owner approval; this unit must not invent rows or weaken acceptance criteria.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -112,20 +113,22 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "An exact-head, exact-base, open same-repository PR is required before resolving a Factory producer.",
-        "Only a successful exact matching pull_request run may supply external completion proof.",
-        "Push canaries, closed PRs, foreign repositories and stale or missing PR/base/run metadata fail closed.",
-        "All exact-head governance, source regression and build gates remain mandatory."
+        "QA catalog candidate provenance is exactly the canonical Factory compiler's own report object.",
+        "QA catalog showroom evidence is nonempty and exactly matches existing report rows for the same template key/version.",
+        "Production and legacy non-Factory template entries do not acquire misleading candidate provenance.",
+        "Browser acceptance and Product Owner login proof remain separate external requirements, never auto-passed by compiler metadata."
       ],
       "invariants": [
-        "CI plan base SHA matches the current PR base SHA.",
-        "Workflow producer metadata independently agrees with the selected open PR context.",
-        "Product Owner approval cannot be inferred from source proof selection."
+        "Factory catalog may only copy, not invent or reinterpret, compiler provenance and showroom evidence.",
+        "Every showroom row is tied to the genuine canonical package Page Schema and route.",
+        "The catalog remains gated behind VISUAL_FIDELITY_QA and its 404 behavior is retained.",
+        "No hidden auto-accept flag, runtime renderer change or production activation."
       ],
       "forbiddenStates": [
-        "Push canary becomes a trusted 42/42 external acceptance artifact.",
-        "A stale base or foreign PR is accepted as exact source authority.",
-        "Missing producer metadata silently falls back to weaker evidence."
+        "Synthetic showroom rows or fixed strings masquerade as compiler-generated proof.",
+        "Missing/failing showroom validation is accepted as pass.",
+        "A Factory candidate is released solely because its catalog has two metadata fields.",
+        "Unapproved production-facing template activation is introduced."
       ]
     },
     "model": {
@@ -157,180 +160,186 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Push-run preference masks successful full PR producer.",
-        "Head-only matching ignores PR base drift.",
-        "A closed or foreign PR impersonates current source authority.",
-        "No authorized PR exists but CI silently falls back to canary."
+        "The response serializer drops metadata fields despite the compiler's completed report.",
+        "Incorrect candidate identity maps metadata from a different template version.",
+        "Product Owner handoff is permitted from a fake metadata object without journey proof.",
+        "QA flag is disabled, but the route becomes public.",
+        "Extra or incomplete showroom rows obscure missing shopper routes."
       ],
       "edgeCases": [
-        "F31 head on exact F30 base with both push and PR runs.",
-        "Closed/merged PR or changed base/head/ref.",
-        "Same SHA on multiple base branches.",
-        "Missing producer pull_requests array and future pending run."
+        "Loot Vault v2 candidate exact report and 20 showroom surfaces.",
+        "Noncandidate Playroom and quality candidate catalog entries.",
+        "Disabled VISUAL_FIDELITY_QA environment returns 404.",
+        "A compiled Factory candidate fails productOwnerReady and should be excluded.",
+        "Showroom row lacks pageKey, presentationAuthority or entrypoint and must stay blocked."
       ]
     },
     "alternatives": [
       {
-        "id": "F32-PR-BOUND",
-        "summary": "Use an independent release-scoped helper to authorize only exact PR workflow producer evidence.",
+        "id": "F33-EXACT-REPORT-PROJECTION",
+        "summary": "Project compiled report provenance and showroom rows in the existing catalog response, with exact-copy tests.",
         "disposition": "selected",
-        "reason": "Preserves the existing manifest and PO validators and repairs only the producer selection root cause."
+        "reason": "Repairs the observable missing fields at the consumer boundary without changing source-of-truth or acceptance."
       },
       {
-        "id": "F32-PUSH-WAIVER",
-        "summary": "Accept a successful push canary as complete external approval.",
+        "id": "F33-FABRICATED-DEFAULT",
+        "summary": "Add default catalog provenance and synthetic showroom rows for missing data.",
         "disposition": "rejected",
-        "reason": "A push canary contains incomplete browser and provenance data, so it would weaken truth."
+        "reason": "Would produce counterfeit proof even when the compiled canonical package is incomplete."
       },
       {
-        "id": "F32-STATIC-RUN",
-        "summary": "Hardcode a historical full producer run identifier.",
+        "id": "F33-WAIVE-CHECKS",
+        "summary": "Mark candidates factory-identity-pinned or showroom-passed when browser cases pass.",
         "disposition": "rejected",
-        "reason": "A static run becomes invalid on any future source or base change and lacks reusable canonical identity."
+        "reason": "Lowers the Product Owner gate and loses the independent source/route provenance contract."
       }
     ],
     "specialistReviews": [
       {
+        "role": "Architecture",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "The Factory compile report is already canonical metadata authority, while the QA route drops its provenance and showroom rows.",
+        "resolution": "Project the original report properties unchanged, avoiding a parallel contract.",
+        "evidence": [
+          "src/app/api/visual-fidelity/templates/route.ts",
+          "src/lib/builder/template-factory/scaffold.ts"
+        ]
+      },
+      {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Head-only matching permits proof to cross PR base and repository boundaries.",
-        "resolution": "Require immutable pair of base/head, current open PR state and matching producer metadata.",
+        "finding": "Adding metadata might be wrongly interpreted as production readiness or Product Owner approval.",
+        "resolution": "Retain the QA feature gate, source-only projection, external buyer journey and PO independent approval requirements.",
         "evidence": [
-          "scripts/release-external-proof-selection.mjs",
-          "tests/release-external-proof-selection.test.ts"
+          "tests/template-factory-catalog-proof-fields.test.ts",
+          ".github/workflows/template-factory-quality-gate.yml"
         ]
       },
       {
-        "role": "Release",
+        "role": "Runtime",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The source-branch resolver wrongly prefers its push canary.",
-        "resolution": "Use exact open PR producer and retain independently validated manifest contract.",
+        "finding": "The browser quality runner consumes catalog data and refuses Factory targets missing exact provenance and showroom fields.",
+        "resolution": "Assert exact serializer output against compiled reports, then let full browser/E13 runtime proof independently validate.",
         "evidence": [
-          ".github/workflows/ci.yml"
-        ]
-      },
-      {
-        "role": "Operations",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Unnecessary reruns of visual proof are costly and do not cure the selector's faulty event authority.",
-        "resolution": "Isolate release source fix and avoid Vercel/Supabase writes.",
-        "evidence": [
-          "docs/architecture/SHOPERATION_F32_CI_EXTERNAL_PR_PROOF_ORIGIN_20261011.md"
+          "src/app/api/visual-fidelity/templates/route.ts",
+          "tests/template-factory-catalog-proof-fields.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "F32-CH1",
-        "scenario": "Push canary succeeds.",
-        "finding": "The resolver accepts an incomplete visual proof.",
-        "resolution": "Never accept a producer without pull_request event provenance.",
+        "id": "F33-CH1",
+        "scenario": "Factory compiler has correct provenance but catalog omits it.",
+        "finding": "The gate reports CANDIDATE_IDENTITY_NOT_PINNED.",
+        "resolution": "Expose report.provenance unchanged on Factory entries only.",
         "status": "resolved"
       },
       {
-        "id": "F32-CH2",
-        "scenario": "PR base changes.",
-        "finding": "Head-only evidence may refer to an old review context.",
-        "resolution": "Recheck current and producer base SHA against active plan.",
+        "id": "F33-CH2",
+        "scenario": "A generated showroom has 20 valid surface rows, none sent downstream.",
+        "finding": "The gate reports SHOWROOM_CONTRACT_NOT_PROVEN.",
+        "resolution": "Pass through report.showroomEvidence as a copied array of original rows.",
         "status": "resolved"
       },
       {
-        "id": "F32-CH3",
-        "scenario": "Another repository uses the same branch name.",
-        "finding": "Loose PR search could accept a foreign source.",
-        "resolution": "Require both head and base repositories match current repository.",
+        "id": "F33-CH3",
+        "scenario": "Another template version has different source metadata.",
+        "finding": "A hand-authored key or default could certify the wrong candidate.",
+        "resolution": "Bind metadata to the same build result and verify key/version through test.",
         "status": "resolved"
       },
       {
-        "id": "F32-CH4",
-        "scenario": "PR is now closed.",
-        "finding": "An obsolete PR could appear in historical run metadata.",
-        "resolution": "Require a live open PR lookup before run selection.",
+        "id": "F33-CH4",
+        "scenario": "QA endpoint is disabled outside gated environment.",
+        "finding": "Accidental exposure reveals internal candidate report.",
+        "resolution": "Preserve the existing VISUAL_FIDELITY_QA flag and assert 404 disabled.",
         "status": "resolved"
       },
       {
-        "id": "F32-CH5",
-        "scenario": "PR metadata absent.",
-        "finding": "A permissive fallback could resurrect the canary bug.",
-        "resolution": "Return no authorized candidates and explicit failure.",
+        "id": "F33-CH5",
+        "scenario": "Compiler identifies a structurally invalid candidate.",
+        "finding": "Adding transport must not override productOwnerReady filtering.",
+        "resolution": "Do not change compiler readiness or catalog exclusion guards.",
         "status": "resolved"
       },
       {
-        "id": "F32-CH6",
-        "scenario": "Full browser cases pass without PO journey.",
-        "finding": "A valid external run still does not prove a new candidate's acceptance.",
-        "resolution": "Preserve F31's downstream handoffReady checks and PO blockers.",
+        "id": "F33-CH6",
+        "scenario": "Candidate is catalog-pinned but Product Owner login journey has not run.",
+        "finding": "Gate may be misread as final acceptance.",
+        "resolution": "Retain separate owner Preview gate and honest PARTIALLY_VERIFIED until proof.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Pin F31 parent HEAD, stage bounded release-only source unit and keep original F31 draft unchanged.",
-      "Test exact PR selection and all negative context mismatches in source Vitest suite.",
-      "Check remotely executed Plan Before Code, known failure replay, Reference/Implementation Sync, TypeScript and CI.",
-      "Leave unproven Factory PO journey blocked and do not merge or deploy.",
-      "Keep historic F31 regression pinned to immutable Git source and update the CI selector regression to assert the stronger exact PR provenance contract without removing negative assertions."
+      "Test the actual QA GET route response under QA flag against immutable Factory compiler report provenance and showroom evidence.",
+      "Verify non-Factory entries unchanged and QA disabled returns 404, preserving fail-closed behavior.",
+      "Run Plan Before Code with full known-failure replay, Source tests, TypeScript, build, Factory Browser 14x3 and E13 proof where required.",
+      "Require independently verified Product Owner login and exact-head Preview before any end-to-end Factory closure; do not invent credentials.",
+      "Keep F31 and F32 draft, no merge to main, no production or Supabase mutations."
     ],
     "semanticExecutionRoute": {
-      "request": "F32 CI exact open PR producer evidence",
+      "request": "F33 compiler report metadata catalog projection",
       "authority": [
-        "release-infrastructure"
+        "builder-template-system"
       ],
       "mustEdit": [
-        ".github/workflows/ci.yml",
-        "tests/control-plane-ecosystem-chain.test.ts",
-        "tests/shoperation-external-proof-handoff.test.ts"
+        "src/app/api/visual-fidelity/templates/route.ts"
       ],
       "mayEdit": [
         "quality/development/active-plan.json"
       ],
       "impactedReadOnly": [
-        "scripts/shoperation-external-proof-handoff.mjs"
+        "src/lib/builder/template-factory/scaffold.ts",
+        "scripts/template-factory-quality-gate.mjs",
+        "scripts/template-factory-product-owner-handoff.mjs"
       ],
       "mustCreate": [
-        "scripts/release-external-proof-selection.mjs",
-        "tests/release-external-proof-selection.test.ts",
-        "docs/architecture/SHOPERATION_F32_CI_EXTERNAL_PR_PROOF_ORIGIN_20261011.md"
+        "tests/template-factory-catalog-proof-fields.test.ts",
+        "docs/architecture/SHOPERATION_F33_FACTORY_CATALOG_PROOF_FIELDS_20261011.md"
       ],
       "forbidden": [],
       "proof": [
         "GUARD-QUALITY-TESTS",
-        "GUARD-RELEASE-RISK"
+        "GUARD-TEMPLATE-FACTORY"
       ],
       "unknown": [],
       "plannedDeletions": []
     },
     "executionAuthorized": true,
-    "problemStatement": "The CI resolver selects a successful but incomplete push canary instead of the successful PR Factory proof for the exact same HEAD, resulting in a spurious evidence and lifecycle blockage.",
+    "problemStatement": "The canonical Factory candidate compiler returns accurate provenance and showroom evidence, but its quality-catalog API omits both, causing source-bound browser acceptance to reject the candidate as not pinned without running a Product Owner journey.",
     "observableOutcomes": [
-      "Current open native-repository PR identity is verified by branch, head SHA and base SHA.",
-      "Producer proof comes only from matching pull_request workflow-run metadata, never a push event.",
-      "Failures remain explicit and all existing downstream manifest, runtime and PO gates are retained."
+      "Factory catalog exposes the exact compiler provenance for gaming.loot-vault@2 with no inferred values.",
+      "Factory catalog exposes the complete exact compiler showroom rows and rejects placeholder or missing authority.",
+      "The Quality Gate still determines candidate identity and showroom validity from those rows; owner login and browser proofs remain independently required."
     ],
     "unresolvedRisks": [
-      "The parent F31 Factory candidate identity, showroom and PO journey remain not approved.",
-      "A new commit or base change invalidates exact-context evidence until reverified."
+      "A corrected QA catalog does not prove authenticated Vercel Product Owner preview without separately executed journey.",
+      "Changes to the catalog runtime can require exact-head Vercel Preview and fresh 14x3 browser evidence; no stale source is sufficient.",
+      "The existing Loot Vault visual fidelity and Product Owner sign-off are distinct from this transport repair."
     ],
     "scope": {
       "in": [
-        "CI external Factory producer selector",
-        "immutable PR provenance helper and tests",
-        "bounded plan"
+        "Factory compiler-to-QA-catalog metadata mapping",
+        "exact generated provenance and showroom rows",
+        "read-only QA catalog verification"
       ],
       "out": [
-        "Factory PO approval",
-        "browser threshold changes",
-        "Vercel Preview provisioning",
+        "fabrication of Factory metadata",
+        "Product Owner approval",
+        "golden-image acceptance",
+        "production catalog promotion",
         "Supabase",
-        "main merge"
+        "main merge",
+        "Vercel deployment changes"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-F32-CI-PR-ORIGIN",
+    "sourceRef": "PO-2026-10-11-F33-FACTORY-CATALOG-EVIDENCE",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -341,19 +350,21 @@
         "GUARD-QUALITY-TESTS",
         "GUARD-TYPECHECK",
         "GUARD-PRODUCTION-BUILD",
-        "GUARD-COMPLETION-TRUTH",
-        "GUARD-RELEASE-RISK"
+        "GUARD-RELEASE-RISK",
+        "GUARD-TEMPLATE-FACTORY"
       ],
-      "externalGuards": [],
+      "externalGuards": [
+        "GUARD-TEMPLATE-FACTORY"
+      ],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-F32-EXACT-PR-PROOF",
-        "requirement": "A successful Factory source may be selected only from exact-head, exact-base current same-repository open PR producer evidence; never from push canary.",
+        "id": "REQ-F33-EXACT-FACTORY-REPORT",
+        "requirement": "The QA candidate manifest must receive exact genuine compiler provenance and showroom route evidence without claiming separate Product Owner approval.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "release-source-CI-proof-selector-only",
+          "breadth": "Factory-QA-catalog-source-contract-only",
           "strength": 1,
           "dimensions": [
             "status",
@@ -369,13 +380,13 @@
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-TEMPLATE-FACTORY"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F32-PUSH-AS-ACCEPTANCE",
-            "statement": "Push canary and unpinned PR metadata cannot masquerade as full Factory completion evidence.",
+            "id": "NEG-F33-SYNTHETIC-ACCEPTANCE",
+            "statement": "Synthetic identity/showroom metadata or bypass of login and external Factory gates must never yield Product Owner approval.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -384,18 +395,5 @@
       }
     ]
   },
-  "notes": "F32 independent release-infrastructure source transaction stacked on F31 PR #1236. Does not claim Factory visual or PO approval. Exact head/base GitHub identity, CI gates and no production changes.\nExact-head Plan Before Code validated: docs/architecture is canonical knowledge-infrastructure, therefore F32 deliberately requires FULL global + Template Factory known-failure replay (49 failure IDs). Expected failure IDs and guard digest are taken from remote gate diagnostics; no failures or gates are waived.\nF32 first exact-head source suite: 3742 PASS, two old regressions require source-authority update. Keep F31 regression pinned to immutable F31 plan; replace old push-event text snapshot with stronger exact PR/base assertions. No waivers.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "4c008a453e77544b3bbc624c0ad7f56e3d428a0d",
-    "closedAt": "2026-10-11T21:01:07.404Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-11-F32-CI-PR-ORIGIN",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "F33 scoped supplier-to-consumer Factory proof handoff, stacked on F32 PR #1238 (and F31 #1236). An existing compiler creates provenance and showroom evidence but the QA catalog omits both. Transport only genuine report fields, never self-certify Product Owner journey or promote a template. No main/production/Supabase/Vercel changes. Full known-failure replay is mandatory because of architecture note."
 }
