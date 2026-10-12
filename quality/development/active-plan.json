@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1186-U10A-NAV-SCOPE",
   "task": "Core 1186 U10A navigation authority scope classification",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a41cfd0c",
   "changeBaseSha": "17f741dbe195aaabd6107595b8ce5036b3438117",
   "plannedFilePatterns": [
@@ -368,5 +368,18 @@
       }
     ]
   },
-  "notes": "Prerequisite governance release for the accepted Core #1186 Digital Office Pro-only entitlement closure. The real main was inspected at the exact declared SHA. Existing U01-U09 changes already reside on main; F35 remains separate draft and is not a base or dependency. No implementation source changes are authorized until canonical Development Guard and Plan Before Code both show PASS on this exact plan; keep this transaction draft otherwise."
+  "notes": "Prerequisite governance release for the accepted Core #1186 Digital Office Pro-only entitlement closure. The real main was inspected at the exact declared SHA. Existing U01-U09 changes already reside on main; F35 remains separate draft and is not a base or dependency. No implementation source changes are authorized until canonical Development Guard and Plan Before Code both show PASS on this exact plan; keep this transaction draft otherwise.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "fbd97ba70f13d19b533821a9bc79346852762601",
+    "closedAt": "2026-10-12T05:37:44.875Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-12-CORE-1186-U10A",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
