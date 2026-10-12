@@ -113,7 +113,9 @@
         "src/app/admin/**",
         "src/components/admin/**",
         "src/lib/admin/**",
-        "src/lib/communication/worker.ts"
+        "src/lib/communication/worker.ts",
+        "src/lib/navigation/admin-ia.ts",
+        "src/lib/navigation/entitlement-navigation.ts"
       ]
     },
     {

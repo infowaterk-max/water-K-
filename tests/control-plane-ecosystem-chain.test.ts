@@ -5,6 +5,7 @@ import {
   compileGateChain,
   deriveImplementationSkeleton,
   evaluateReleaseRiskFiles,
+  resolveDevelopmentScope,
 } from '../scripts/lib/shoperation-development-runtime.mjs';
 import {requiredExternalCompletionGuards} from '../scripts/shoperation-external-proof-handoff.mjs';
 
@@ -82,6 +83,23 @@ describe('Control Plane ecosystem chain',()=>{
     expect(isolatedDelegators.decision).toBe('PASS');
     expect(isolatedDelegators.score).toBe(5);
     expect(isolatedDelegators.subsystemCount).toBe(3);
+  });
+
+  it('retains both canonical admin-navigation ownership paths without expanding into storefront navigation',()=>{
+    const riskPolicy=JSON.parse(readFileSync('deploy/release-risk-policy.json','utf8'));
+    const domainRegistry=JSON.parse(readFileSync('quality/knowledge/domain-foundations.v1.json','utf8'));
+    const adminRisk=riskPolicy.subsystems.find((entry:any)=>entry.name==='admin-operations');
+    const adminDomain=domainRegistry.domains.find((entry:any)=>entry.id==='DOMAIN-ADMIN');
+    const paths=['src/lib/navigation/admin-ia.ts','src/lib/navigation/entitlement-navigation.ts'];
+    for(const path of paths){
+      expect(adminRisk.patterns).toContain(path);
+      expect(adminDomain.canonicalPaths).toContain(path);
+      expect(evaluateReleaseRiskFiles([path]).files[0]).toMatchObject({file:path,subsystem:'admin-operations',risk:'medium'});
+      expect(resolveDevelopmentScope({files:[path],task:'Navigation ownership review'}).unresolvedFiles).toEqual([]);
+    }
+    expect(adminRisk.patterns).not.toContain('src/lib/navigation/**');
+    expect(adminDomain.canonicalPaths).not.toContain('src/lib/navigation/**');
+    expect(evaluateReleaseRiskFiles(['src/lib/navigation/storefront-ia.ts']).files[0].subsystem).not.toBe('admin-operations');
   });
 
   it('turns non-existent exact planned paths into MUST_CREATE while retaining existing relationship categories',()=>{
