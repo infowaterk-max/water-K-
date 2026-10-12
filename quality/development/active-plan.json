@@ -3,7 +3,7 @@
   "taskId": "DEV-CORE-1186-U11A-OFFICE-STAGING-DB-PREFLIGHT",
   "task": "Core 1186 U11A read-only staging Office RLS and migration dependency preflight",
   "status": "ready-for-implementation",
-  "guardDigest": "52c0dec9",
+  "guardDigest": "d1aace61",
   "changeBaseSha": "00821465577ac0e586b08bf2d94b34e08d0f9fca",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -11,6 +11,8 @@
     "tests/shoperation-office-db-readiness.test.ts"
   ],
   "expectedSubsystems": [
+    "database-schema",
+    "dependency-contract",
     "quality-infrastructure"
   ],
   "expectedDomains": [
@@ -20,13 +22,20 @@
     "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-006",
+    "SQ-KF-009",
+    "SQ-KF-010",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-022"
+    "SQ-KF-018",
+    "SQ-KF-022",
+    "SQ-KF-023"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-005",
+    "SQ-NK-012",
+    "SQ-NK-014"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -220,7 +229,8 @@
       "Implement only additive snapshot fields and fail-closed readiness checks; preserve old error codes and REVIEW semantics.",
       "Add negative tests for missing participant table, conversation type column, private current-user helper and incorrect plan-sync basis.",
       "Run Edit-Time, Knowledge Preflight, Incremental Replay, full CI and exact-head Completion Truth/Lifecycle.",
-      "After U11A merge, prepare a separate staged SQL migration/rehearsal U11B, excluding obsolete entitlement sync, with explicit rollback and behavioral proof."
+      "After U11A merge, prepare a separate staged SQL migration/rehearsal U11B, excluding obsolete entitlement sync, with explicit rollback and behavioral proof.",
+      "Plan Before Code run 38225656739 projected both database-schema and dependency-contract for the canonical Office preflight script; expanded failure replay (8 records) and negative knowledge (3 records) are admitted before implementation."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-12-CORE-1186-U11A",
@@ -237,7 +247,9 @@
       "impactedReadOnly": [
         "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql",
         "supabase/migrations/20260908024000_digital_office_rls_helper_exposure_closure_v1.sql",
-        "supabase/migrations/20260910061815_customer_email_plan_split_v1.sql"
+        "supabase/migrations/20260910061815_customer_email_plan_split_v1.sql",
+        "src/lib/plans/access.ts",
+        "src/lib/entitlements/access.ts"
       ],
       "mustCreate": [],
       "forbidden": [
@@ -312,5 +324,5 @@
       }
     ]
   },
-  "notes": "U11A is a bounded data-security readiness prerequisite, not a DB rollout. Main observed at 00821465577ac0e586b08bf2d94b34e08d0f9fca, successful post-merge CI 38215283132 and Factory 38215283118. Staging has 113 migration history records, historical Office migrations absent, 3 legacy authenticated ALL policies, absent participant table, conversation_type and current-user read helper. Crucially existing private.sync_webshop_plan_entitlements uses normalized plan_capability_grants and the Alap/Pro grant matrix is aligned with accepted PO scope. Do not apply historical sync files. #1186 remains OPEN."
+  "notes": "U11A is a bounded data-security readiness prerequisite, not a DB rollout. Main observed at 00821465577ac0e586b08bf2d94b34e08d0f9fca, successful post-merge CI 38215283132 and Factory 38215283118. Staging has 113 migration history records, historical Office migrations absent, 3 legacy authenticated ALL policies, absent participant table, conversation_type and current-user read helper. Crucially existing private.sync_webshop_plan_entitlements uses normalized plan_capability_grants and the Alap/Pro grant matrix is aligned with accepted PO scope. Do not apply historical sync files. #1186 remains OPEN.\nPlan Before Code initial run 38225656739 BLOCK due to projected semantic dependency scope (database-schema and dependency-contract) and newly activated eight Known Failures / three negative rules. This revised plan binds exact canonical projected guardDigest d1aace61; no implementation has been edited yet."
 }
