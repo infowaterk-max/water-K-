@@ -27,7 +27,22 @@ export const OFFICE_CATALOG_READONLY_SQL=String.raw`select jsonb_build_object(
    and p.proname in ('can_read_office_thread_v1','office_pro_plan_allowed_v1')),'[]'::jsonb),
  'migrations',coalesce((select jsonb_agg(jsonb_build_object(
    'version',version,'name',name))
-   from supabase_migrations.schema_migrations),'[]'::jsonb)
+   from supabase_migrations.schema_migrations),'[]'::jsonb),
+ 'schemaPrerequisites',jsonb_build_object(
+   'participantTablePresent',to_regclass('public.office_thread_participants') is not null,
+   'threadConversationTypePresent',exists(
+     select 1 from information_schema.columns
+      where table_schema='public' and table_name='office_threads' and column_name='conversation_type'),
+   'privateCurrentUserReadHelperPresent',to_regprocedure('private.current_user_can_read_office_thread_v1(uuid,uuid)') is not null
+ ),
+ 'planAuthority',jsonb_build_object(
+   'normalizedGrantTablePresent',to_regclass('public.plan_capability_grants') is not null,
+   'tenantSyncPresent',to_regprocedure('private.sync_webshop_plan_entitlements(uuid)') is not null,
+   'tenantSyncUsesNormalizedGrants',coalesce((
+     select position('plan_capability_grants' in pg_get_functiondef(p.oid))>0
+       from pg_proc p where p.oid=to_regprocedure('private.sync_webshop_plan_entitlements(uuid)')
+   ),false)
+ )
 ) as catalog_snapshot;`;
 
 function rolesOf(policy){
@@ -62,8 +77,19 @@ export function evaluateOfficeDbReadiness(snapshot,{now=new Date(),maxAgeHours=2
   const ageMs=now.getTime()-observed;
   if(!Number.isFinite(observed)||!Number.isFinite(ageMs)||ageMs<0||ageMs>maxAgeHours*3600*1000)
     block('OFFICE_DB_SNAPSHOT_STALE_OR_INVALID',{capturedAt:snapshot.capturedAt??null});
-  if(!Array.isArray(snapshot.policies)||!Array.isArray(snapshot.functions)||!Array.isArray(snapshot.migrations))
+  if(!Array.isArray(snapshot.policies)||!Array.isArray(snapshot.functions)||!Array.isArray(snapshot.migrations)
+    || !snapshot.schemaPrerequisites || typeof snapshot.schemaPrerequisites!=='object' || Array.isArray(snapshot.schemaPrerequisites)
+    || !snapshot.planAuthority || typeof snapshot.planAuthority!=='object' || Array.isArray(snapshot.planAuthority))
     block('OFFICE_DB_SNAPSHOT_PARTIAL');
+  const prerequisites=snapshot.schemaPrerequisites??{};
+  if(prerequisites.participantTablePresent!==true)block('OFFICE_DB_PARTICIPANT_TABLE_MISSING');
+  if(prerequisites.threadConversationTypePresent!==true)block('OFFICE_DB_CONVERSATION_TYPE_MISSING');
+  if(prerequisites.privateCurrentUserReadHelperPresent!==true)block('OFFICE_DB_PRIVATE_CURRENT_USER_HELPER_MISSING');
+  const planAuthority=snapshot.planAuthority??{};
+  if(planAuthority.normalizedGrantTablePresent!==true||planAuthority.tenantSyncPresent!==true)
+    block('OFFICE_DB_PLAN_AUTHORITY_MISSING');
+  else if(planAuthority.tenantSyncUsesNormalizedGrants!==true)
+    block('OFFICE_DB_PLAN_SYNC_AUTHORITY_DIVERGED');
   const policies=Array.isArray(snapshot.policies)?snapshot.policies:[];
   const functions=Array.isArray(snapshot.functions)?snapshot.functions:[];
   const migrations=Array.isArray(snapshot.migrations)?snapshot.migrations:[];
@@ -102,7 +128,7 @@ export function evaluateOfficeDbReadiness(snapshot,{now=new Date(),maxAgeHours=2
     decision:findings.length?'BLOCK':'REVIEW',
     claim:findings.length?'DB_NOT_READY':'METADATA_CANDIDATE_ONLY',
     authoritative:false,
-    requires:['authenticated-role-behavioral-proof','tenant-plan-transition-proof','service-role-RPC-proof','migration-source-identity'],
+    requires:['authenticated-role-behavioral-proof','tenant-plan-transition-proof','service-role-RPC-proof','migration-source-identity','current-Block11-plan-sync-compatibility'],
     findings,
   };
 }
