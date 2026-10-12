@@ -3,7 +3,7 @@
   "taskId": "DEV-F35-LOOT-VAULT-COMMERCE-E10",
   "task": "F35 close the real Loot Vault Product Owner shopping-journey and E10 editorial runtime gaps without inventing published stock, bypassing cart invariants or weakening Factory proof",
   "status": "ready-for-implementation",
-  "guardDigest": "c0ffb5c2",
+  "guardDigest": "2ea57cdf",
   "changeBaseSha": "73c7ab2032337868fd42d266a8fbf8bb71e86a50",
   "plannedFilePatterns": [
     "docs/architecture/SHOPERATION_F35_LOOT_VAULT_CART_E10_20261012.md",
@@ -19,17 +19,17 @@
     "tests/loot-vault-v2-real-cart-and-e10.test.ts"
   ],
   "expectedSubsystems": [
-    "auth-access-authority",
     "builder-template-system",
-    "customer-account",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
+    "DOMAIN-BUILDER",
     "DOMAIN-QUALITY",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
+    "builder-template-system",
     "quality-knowledge-system",
     "shared-storefront"
   ],
@@ -84,7 +84,9 @@
     "TF-KF-024",
     "TF-KF-025"
   ],
-  "acknowledgedPoInstructionIds": [],
+  "acknowledgedPoInstructionIds": [
+    "PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE"
+  ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
     "SQ-NK-002",
@@ -135,7 +137,8 @@
         "Fail-closed product/variant/stock enforcement is unchanged on published storefronts.",
         "Only explicit isolated Loot Vault Preview may synthesize availability for demonstration.",
         "Confirmed cart target preserves exact template key, version, viewport and factory marker.",
-        "Human PO accepted=false until explicit acceptance, technical proof is separate."
+        "Human PO accepted=false until explicit acceptance, technical proof is separate.",
+        "PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE remains mandatory: retain the separate Szállítás és fizetés page and navigation proof."
       ],
       "forbiddenStates": [
         "Purchase control enabled for zero-stock, missing productId or missing slug.",
@@ -450,5 +453,5 @@
       }
     ]
   },
-  "notes": "F35 stacked on F34 draft PR #1245. Actual F34 QA proof run 38177932233 attempt 2 proved canonical Workforce login/return and 86 Factory cases, then blocked for missing home Kosárba button, disabled PDP Kosárba due missing Preview product/stock identity, and absent E10 story.feature. Address those actual runtime/dependency gaps. No main merge, production deploy, Vercel config, Supabase writes, invented published stock or PO acceptance.\nF35 first exact-head Knowledge preflight diagnosed SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED:src/components/cart/add-to-cart-confirmation.tsx. Map that exact shared cart presentation component to canonical DOMAIN-STOREFRONT, rather than weakening change-impact Atlas or using broad unproven wildcard ownership."
+  "notes": "F35 stacked on F34 draft PR #1245. Actual F34 QA proof run 38177932233 attempt 2 proved canonical Workforce login/return and 86 Factory cases, then blocked for missing home Kosárba button, disabled PDP Kosárba due missing Preview product/stock identity, and absent E10 story.feature. Address those actual runtime/dependency gaps. No main merge, production deploy, Vercel config, Supabase writes, invented published stock or PO acceptance.\nF35 first exact-head Knowledge preflight diagnosed SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED:src/components/cart/add-to-cart-confirmation.tsx. Map that exact shared cart presentation component to canonical DOMAIN-STOREFRONT, rather than weakening change-impact Atlas or using broad unproven wildcard ownership.\nExact-head F35 Plan Before Code (38198861573) expanded Atlas authority to builder-template-system and required explicit preaccepted PO instruction PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. F35 does not combine shipping/payment with other pages; confirms the separate original legal route must be preserved and continues to be proven by PO browser. The plan's domain/subsystem envelope and canonical guard digest are now bound to the machine-projected actual changed files, no waiver."
 }
