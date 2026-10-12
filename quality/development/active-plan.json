@@ -3,7 +3,7 @@
   "taskId": "DEV-CORE-1186-U10B-NAV",
   "task": "Core #1186 U10B Digital Office admin navigation and Alap support access",
   "status": "ready-for-implementation",
-  "guardDigest": "6a5adc3d",
+  "guardDigest": "1d1d5f53",
   "changeBaseSha": "edd8170e63faaa50e29b5ba057f2432da49ff3d8",
   "plannedFilePatterns": [
     "src/lib/navigation/admin-ia.ts",
@@ -16,7 +16,8 @@
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "admin-operations"
+    "admin-operations",
+    "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-ADMIN"
@@ -27,13 +28,15 @@
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-005",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-022"
+    "SQ-KF-022",
+    "TF-KF-006"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -367,5 +370,5 @@
       }
     ]
   },
-  "notes": "Scoped immediate successor to the merged U10A navigation-authority prerequisite, according to the Living Roadmap Core priority and accepted all-Pro Digital Office boundary. Alap normal email and support must survive. Previous #1186 U01-U09 changes are on main. No Builder, Template Factory, schema, tenant or payment modification. Only start product implementation after canonical plan-only gate PASS."
+  "notes": "Scoped immediate successor to the merged U10A navigation-authority prerequisite, according to the Living Roadmap Core priority and accepted all-Pro Digital Office boundary. Alap normal email and support must survive. Previous #1186 U01-U09 changes are on main. No Builder, Template Factory, schema, tenant or payment modification. Only start product implementation after canonical plan-only gate PASS.\nPlan Before Code first PR verification run 38209383695 resolved additional storefront-ui subsystem and two associated known-failure records due to src/app/admin/** files matching the shared src/app/** pattern. The canonical policy defines the added scope and risk; this plan now acknowledges it exactly before any implementation edits."
 }
