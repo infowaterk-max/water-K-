@@ -200,10 +200,10 @@
         ]
       },
       {
-        "role": "Proof Semantics",
+        "role": "Known Failure",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "The full Factory run intentionally emits both a 14x3 candidate proof and a 6x3 canary regression, but the external consumer currently treats every proof as a full acceptance candidate.",
+        "finding": "Known-failure proof semantics: The full Factory run intentionally emits both a 14x3 candidate proof and a 6x3 canary regression, but the external consumer currently treats every proof as a full acceptance candidate.",
         "resolution": "Use explicit source-record selection mode and bound case coverage to allow only canary regression as scoped nonacceptance evidence; require full acceptance proof and exact-head provenance.",
         "evidence": [
           "scripts/shoperation-external-proof-handoff.mjs",
