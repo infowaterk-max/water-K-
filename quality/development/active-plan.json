@@ -1,14 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CORE-1186-U11A-OFFICE-STAGING-DB-PREFLIGHT",
-  "task": "Core 1186 U11A read-only staging Office RLS and migration dependency preflight",
-  "status": "closed",
+  "taskId": "DEV-CORE-1186-U11B-OFFICE-STAGING-DEPENDENCY-REHEARSAL",
+  "task": "Core 1186 U11B: bounded staging Office RLS migration dependency reconciliation and rollback rehearsal",
+  "status": "ready-for-implementation",
   "guardDigest": "d1aace61",
-  "changeBaseSha": "00821465577ac0e586b08bf2d94b34e08d0f9fca",
+  "changeBaseSha": "6654cfefdb4f5b5521b017e87890cca4155c0bd3",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/shoperation-office-db-readiness.mjs",
-    "tests/shoperation-office-db-readiness.test.ts"
+    "scripts/shoperation-office-db-stage-rehearsal.mjs",
+    "tests/shoperation-office-db-stage-rehearsal.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema",
@@ -40,11 +40,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-12-CORE-1186-U11A",
+    "sourceRef": "PO-2026-10-12-CORE-1186-U11B",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "The staging Office RLS/entitlement schema is materially older than the repository, while its canonical plan sync and grants are already in the later Block 11 model. Any direct replay of the five missing historical Office migrations would overwrite the live plan-sync authority. This bounded release improves only the read-only catalog snapshot/checker and negative tests, before a separately authorized schema migration. No runtime/tenant/database mutations.",
+      "rationale": "The actual waterk-staging Office tables are empty but retain three broad authenticated ALL RLS policies, no participant table/current-user reader, and no browser/service table grants. The old privacy migration references evaluate_store_capability_v1, which is absent; the newer Block 11 plan-grant model is present. This release creates only a machine-verifiable dry-run dependency/rollback execution plan and negative role matrix, never applies stale migrations or alters database state. A separate deployment phase must prove staging role behavior and rollback before any DDL.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -60,24 +60,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Read-only Office catalog snapshot includes missing/privacy-sensitive schema prerequisites, private current-user read helper, tenant plan-grant authority and tenant-sync function presence without reading tenant identities, emails or data rows.",
-        "Readiness BLOCKs old broad authenticated ALL policies and missing Pro subscription predicates, participant table, privacy conversation column, current-user helper, and required migration lineage.",
-        "Readiness flags the existing Block 11 plan_capability_grants/sync authority and requires compatibility with it, rather than prescribing replay of an obsolete fixed-feature plan-sync function.",
-        "Staging observed legacy state stays BLOCK, full modeled security candidate remains REVIEW / METADATA_CANDIDATE_ONLY; never treat a clean catalog as proof of authenticated-user, plan transition, or service-role behavior.",
-        "Tests cover every new prerequisite, stale or partial catalog, and existing negative security outcomes, with exact-SHA Guard, Replay, CI, Truth and Lifecycle proof."
+        "Read-only staging and source-fact reconciliation blocks direct replay of any historical Office migration with missing SQL dependencies or an obsolete plan-sync body.",
+        "Release plan enumerates actor/nonparticipant/cross-tenant/Alap/Pro/downgrade/no-session/service-role cases and explicitly marks all unexecuted behavior NOT_VERIFIED.",
+        "Three legacy RLS ALL policies, missing participant table/current-user helper/role grants and missing evaluate_store_capability_v1 are surfaced separately as release prerequisites.",
+        "Output includes ordered prerequisite stages, rollback boundaries, backup checks, schema-migration ledger lineage, exact environment identity and follow-up test conditions.",
+        "Staging is not modified in U11B rehearsal; no false U11B 'RLS fixed' or #1186 DONE statement is emitted from metadata-only evidence.",
+        "All full CI, Development Guard, Truth and Lifecycle evidence passes on the exact implementation SHA before merging the rehearsal work."
       ],
       "invariants": [
-        "No SQL DDL or DML, Supabase migration application, plan-grant edits, browser role, tenant, credentials, environment setting or production deployment in U11A.",
-        "Never infer migration application from repository filenames; staging identity and actual source/target ancestry must be separately proven before U11B.",
-        "Do not replace Block 11 capability-grant entitlement authority with historical fixed arrays; Alap ordinary email and support must remain intact.",
-        "RLS metadata alone cannot verify a policy's effective authenticated role behavior, default privileges or service-role RPC isolation.",
-        "No #1186 or Market Ready DONE claim from metadata, even if report reaches REVIEW."
+        "Apply only to the explicitly selected waterk-staging project; never touch production, service role secrets, tenant data or live plan grants.",
+        "Do not overwrite private.sync_webshop_plan_entitlements; Block 11 plan_capability_grants is the authoritative tenant entitlement model.",
+        "Alap baseline support_tickets and transactional email paths are independent and must remain permitted.",
+        "No automatic RLS activation from static source checks; the actual DDL release requires rollback/role-behavior authority.",
+        "Public actor-parameter SECURITY DEFINER helpers must not be callable by ordinary authenticated or anon users.",
+        "Missing runtime functions, SQL grants or historical migration lineage causes BLOCK, never an implicit positive permission test."
       ],
       "forbiddenStates": [
-        "Historical migration files are blindly replayed over the staging schema or the current Block 11 sync function.",
-        "Readiness emits DONE or claims tenant isolation proved solely because an RLS expression contains expected text.",
-        "A missing helper, table, protection column or legacy ALL policy is ignored as a soft warning.",
-        "A development-stage or stale catalog artifact is used as authoritative evidence for a different environment."
+        "Stale 20260909204825/20260910061815 fixed-array plan-sync migrations are applied directly to staging.",
+        "The historical privacy foundation is replayed even though public.evaluate_store_capability_v1 does not exist in staging.",
+        "RLS success is asserted based solely on empty Office tables or on a query executed as a privileged SQL owner.",
+        "Authenticated user able to call actor-parameterized or privileged mutation RPC after migration.",
+        "Office table RLS repair hides or breaks independent Alap support tickets.",
+        "A planned rollback is claimed performed, despite no transactional rehearsal of the actual DDL."
       ]
     },
     "model": {
@@ -109,39 +113,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The missing Office privacy foundation depends on absent participant tables and altered thread schema; an isolated policy deployment would deny all support workflows.",
-        "The obsolete fixed-feature plan-sync migration overwrites a current normalized capability-grant authority and causes Alap/Pro entitlement drift.",
-        "The readiness script sees historical version numbers but misses runtime schema changes performed by later deployment timestamps.",
-        "An old ALL authenticated policy remains permissive and bypasses the intended participant and Pro checks.",
-        "A public SECURITY DEFINER read helper leaks cross-tenant visibility or permits arbitrary actor probes.",
-        "A schema-only green report overclaims runtime authenticated role and plan downgrade/expiry behavior."
+        "RLS read helper references an absent capability RPC and fails at runtime despite syntactically valid DDL.",
+        "Tenant plan-sync is replaced by a legacy fixed capability array, causing upgrade/downgrade drift.",
+        "Permissive OR RLS permits Alap or nonparticipants even with a restrictive-looking secondary policy.",
+        "Authenticated actor can impersonate another user by invoking a public SECURITY DEFINER actor-parameterized RPC.",
+        "Data API table grants are absent; Pro tenant browser never receives rows even with valid RLS.",
+        "Service-role bypass and function default privileges produce unobserved direct access paths.",
+        "A failed transactional deployment applies partial migrations or cannot restore policies.",
+        "Empty staging Office tables mask missing role-based allow/deny coverage."
       ],
       "edgeCases": [
-        "Staging has 113 applied migration records with newer execution timestamp/name identities while the repository contains over 400 historical SQL files.",
-        "Current plan grants are correct but underlying Office RLS is not, and these are separate truth dimensions.",
-        "Current private read helper absent; service-role Office RPC may exist but cannot be read by a browser.",
-        "One of the three tables lacks an expected column even if it has row level security switched on.",
-        "An otherwise complete metadata snapshot uses a stale timestamp, wrong target or missing catalog arrays."
+        "Staging has no Office rows but nonempty support_tickets; separate path must remain unaffected.",
+        "All three Office tables are RLS enabled, yet authenticated and service roles have no explicit table grants.",
+        "Cross-tenant attacker has valid platform or support role in an unrelated shop only.",
+        "Pro downgrades to Alap with cached feature_entitlements and active sessions.",
+        "Old migrations are absent from ledger despite future-dated applied migrations, so version order cannot establish provenance.",
+        "private.current_user_can_read_office_thread_v1 must call auth.uid, not accept arbitrary actor UUID.",
+        "Alap has teamChat and officeCommunication capability grants but not officeCommunicationAdvanced.",
+        "Support UI pages use separate ticket tables, while Pro Office threads and messages require stricter access."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-U11A-METADATA-FIRST",
-        "summary": "Add exact read-only database topology and plan-authority preflight to the existing Office readiness check with fail-closed tests; deploy nothing.",
+        "id": "ALT-U11B-DAG-FIRST",
+        "summary": "Derive a deterministic dependency/rollback rehearsal from canonical Office-readiness and actual staging schema, with explicit denial cases before a later DDL rollout.",
         "disposition": "selected",
-        "reason": "Safely identifies the dependency chain and preserves live canonical authority for a later independently gated schema release."
+        "reason": "Blocks stale migration replay and provides an auditable exact-source map without risking tenant access."
       },
       {
-        "id": "ALT-U11A-REPLAY-HISTORICAL",
-        "summary": "Immediately apply all five missing historical Office migrations in filename order.",
+        "id": "ALT-U11B-BLIND-REPLAY",
+        "summary": "Apply the archived 20260908 and 20260910 SQL files in lexical order.",
         "disposition": "rejected",
-        "reason": "One historical migration replaces the working normalized plan sync with stale fixed arrays; the staging schema lacks prerequisite privacy objects."
+        "reason": "The environment lacks capability RPC and old plan-sync is incompatible with canonical Block 11 grants."
       },
       {
-        "id": "ALT-U11A-WAIVE-RLS",
-        "summary": "Treat currently green Next.js UI/route gates as sufficient and waive database Pro-only evidence.",
+        "id": "ALT-U11B-RLS-ONLY",
+        "summary": "Replace only three RLS policies without participant table, grants and helper dependencies.",
         "disposition": "rejected",
-        "reason": "Service-role/RPC and authenticated RLS exposure remain unproven and must fail closed."
+        "reason": "Would either lock out Pro users or incorrectly permit Alap/cross-tenant traffic and overstate dependency closure."
       }
     ],
     "specialistReviews": [
@@ -149,114 +158,133 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The existing readiness script is the canonical U09 schema evidence boundary.",
-        "resolution": "Extend the same script and tests; do not create a second release or entitlement engine.",
+        "finding": "Office schema and runtime were built across multiple interdependent historical migrations, while staging is not aligned by version.",
+        "resolution": "Use source-to-target dependency matching and stage each missing object before planning any privileged SQL.",
         "evidence": [
           "scripts/shoperation-office-db-readiness.mjs",
-          "AGENTS.md"
+          "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql",
+          "supabase/migrations/20260910124500_block11_entitlement_contract_v1.sql"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A catalog-only script cannot prove RLS semantics or the confidentiality of SECURITY DEFINER RPCs.",
-        "resolution": "Keep metadata result non-authoritative; explicitly require authenticated role, tenant transition and service-role RPC behavioral proof.",
+        "finding": "A policy shape check cannot prove authenticated allow/deny and cannot validate bypass through public definer RPCs.",
+        "resolution": "List explicit role/tenant/plan/participant negative tests and prohibit readiness claims until executed in a disposable rehearsal and staging.",
         "evidence": [
           "scripts/shoperation-office-db-readiness.mjs",
-          "tests/shoperation-office-db-readiness.test.ts"
+          "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql",
+          "supabase/migrations/20260910124500_block11_entitlement_contract_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Staging retains Block 11 normalized plan grants and plan sync even though historical Office migration versions are absent.",
-        "resolution": "Flag plan-sync authority and schema prerequisites; do not apply historical plan-sync blindly or mutate actual subscriptions.",
+        "finding": "Staging Block 11 grants and sync function are live and must not be reverted by a historical migration.",
+        "resolution": "Exclude legacy plan-sync from permissible SQL actions and require rollback/ledger checkpoints.",
         "evidence": [
-          "supabase/migrations/20260910061815_customer_email_plan_split_v1.sql",
-          "src/lib/plans/catalog.ts"
+          "scripts/shoperation-office-db-readiness.mjs",
+          "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql",
+          "supabase/migrations/20260910124500_block11_entitlement_contract_v1.sql"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U11A-01",
-        "scenario": "The five missing migration files are applied directly.",
-        "finding": "One redefines canonical tenant plan sync and may remove or reactivate granted capabilities.",
-        "resolution": "Use read-only report and a later dependency-ordered adapted SQL release; never replay the obsolete sync.",
+        "id": "CH-U11B-01",
+        "scenario": "SQL migration is run against waterk-staging without knowing which dependency functions exist.",
+        "finding": "Legacy helper evaluate_store_capability_v1 missing, deployment may fail mid-transaction.",
+        "resolution": "Require catalog dependency signature match and reject source scripts until prerequisite synthesis.",
         "status": "resolved"
       },
       {
-        "id": "CH-U11A-02",
-        "scenario": "RLS is enabled but three old ALL policies still permit ordinary support reads.",
-        "finding": "A positive RLS enabled flag is misleading because the qual remains legacy.",
-        "resolution": "Keep broad policy and Pro predicate blockers mandatory.",
+        "id": "CH-U11B-02",
+        "scenario": "A legacy sync migrates Alap Team Chat and Office into fixed grants.",
+        "finding": "Current Block 11 entitlements become stale or inconsistent.",
+        "resolution": "Require normalized grant table and existing sync to remain untouched; compare hashes before/after.",
         "status": "resolved"
       },
       {
-        "id": "CH-U11A-03",
-        "scenario": "Privacy participant table or conversation_type does not exist.",
-        "finding": "A new thread-read policy may call absent objects and make the inbox inaccessible.",
-        "resolution": "Preflight both underlying objects and stop before any schema deployment.",
+        "id": "CH-U11B-03",
+        "scenario": "Privileged SQL owner reads no rows after RLS update.",
+        "finding": "An empty table is not evidence of correct tenant access.",
+        "resolution": "Require disposable actor/tenant fixtures and role-specific allow and deny assertions.",
         "status": "resolved"
       },
       {
-        "id": "CH-U11A-04",
-        "scenario": "A deployment had timestamp-renamed migration identity.",
-        "finding": "Version-based registry comparison can produce false positives or false negatives.",
-        "resolution": "Capture execution lineage separately; never infer deployed source from a filename alone.",
+        "id": "CH-U11B-04",
+        "scenario": "Service role can execute an actor-parameter function that browsers also inherit from PUBLIC.",
+        "finding": "RPC actor spoofing and cross-tenant leakage.",
+        "resolution": "Inspect ACL/default grants and test no anon/authenticated EXECUTE on such RPC.",
         "status": "resolved"
       },
       {
-        "id": "CH-U11A-05",
-        "scenario": "A catalog has plausible restrictive policy SQL but public RPC bypasses it.",
-        "finding": "Claiming authoritative completion from catalog overstates security.",
-        "resolution": "Retain REVIEW and require service-role/RPC and authenticated actor behavior proof.",
+        "id": "CH-U11B-05",
+        "scenario": "Staging table has no authenticated SELECT grant.",
+        "finding": "Even correct Pro RLS yields permission-denied user requests.",
+        "resolution": "Require both table grant and RLS tests in the same evidence chain.",
         "status": "resolved"
       },
       {
-        "id": "CH-U11A-06",
-        "scenario": "Updating Office schema would disrupt Alap emails or current Block 11 plan grants.",
-        "finding": "A security fix can become an entitlement regression.",
-        "resolution": "U11A only collects metadata and protects the approved Alap/Pro model for later migration design.",
+        "id": "CH-U11B-06",
+        "scenario": "Office reader remains allowed after downgrade because cache or stale entitlement row survives.",
+        "finding": "Alap accesses Pro mailbox after cancellation.",
+        "resolution": "Prove live subscription_plan against current normalized plan capability under expiry/revocation.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U11B-07",
+        "scenario": "Migration is marked applied in history without source identity proof.",
+        "finding": "Later deploy skips necessary security changes or replays them.",
+        "resolution": "Require exact migration SHA/content identity, backup and ledger check.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U11B-08",
+        "scenario": "Private participant drops membership yet retains browser reader.",
+        "finding": "Participant-only secrecy fails.",
+        "resolution": "Test joined/left and cross-tenant matrix after real policy deployment.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Read exact main and post-merge green CI before plan creation; collect credential-free staging-only catalog facts with the Supabase read-only SQL tool.",
-      "Confirm Development Guard known-failure scope and Plan Before Code PASS before editing script/tests.",
-      "Implement only additive snapshot fields and fail-closed readiness checks; preserve old error codes and REVIEW semantics.",
-      "Add negative tests for missing participant table, conversation type column, private current-user helper and incorrect plan-sync basis.",
-      "Run Edit-Time, Knowledge Preflight, Incremental Replay, full CI and exact-head Completion Truth/Lifecycle.",
-      "After U11A merge, prepare a separate staged SQL migration/rehearsal U11B, excluding obsolete entitlement sync, with explicit rollback and behavioral proof.",
-      "Plan Before Code run 38225656739 projected both database-schema and dependency-contract for the canonical Office preflight script; expanded failure replay (8 records) and negative knowledge (3 records) are admitted before implementation."
+      "Verify main SHA and merge/post-merge success before plan; read staging schema ACL, RLS, migration ledger and sample-free table counts.",
+      "Run exact Development Guard and Plan Before Code PASS for U11B dry-run files prior to implementation.",
+      "Implement a deterministic read-only staged-rehearsal resolver layered on U11A readiness report, not a new entitlement controller.",
+      "Add negative fixtures for missing dependency, grants, tables, service-role RPC exposures, incomplete role proof and stale lineage.",
+      "Report migration stages/stop conditions/rollback prerequisites; do not create or apply SQL in this phase.",
+      "Complete quality tests, typecheck, build, incremental replay, Truth, Lifecycle; mark U11B rehearsal closed only within its bounded claim.",
+      "Before actual DDL, generate a canonical migration via Supabase CLI when available, validate in disposable staging clone, then separately authorize target deployment and role-based proof."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-12-CORE-1186-U11A",
+      "request": "PO-2026-10-12-CORE-1186-U11B",
       "authority": [
         "quality-knowledge-system"
       ],
       "mustEdit": [
-        "scripts/shoperation-office-db-readiness.mjs",
-        "tests/shoperation-office-db-readiness.test.ts"
+        "scripts/shoperation-office-db-stage-rehearsal.mjs",
+        "tests/shoperation-office-db-stage-rehearsal.test.ts"
       ],
       "mayEdit": [
         "quality/development/active-plan.json"
       ],
       "impactedReadOnly": [
+        "scripts/shoperation-office-db-readiness.mjs",
         "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql",
-        "supabase/migrations/20260908024000_digital_office_rls_helper_exposure_closure_v1.sql",
-        "supabase/migrations/20260910061815_customer_email_plan_split_v1.sql",
-        "src/lib/plans/access.ts",
-        "src/lib/entitlements/access.ts"
+        "supabase/migrations/20260910124500_block11_entitlement_contract_v1.sql",
+        "src/app/admin/ugyfelszolgalat/page.tsx"
       ],
-      "mustCreate": [],
+      "mustCreate": [
+        "scripts/shoperation-office-db-stage-rehearsal.mjs",
+        "tests/shoperation-office-db-stage-rehearsal.test.ts"
+      ],
       "forbidden": [
         "supabase/migrations/**",
+        "src/app/**",
         "src/lib/entitlements/**",
-        "src/lib/plans/**",
-        "src/app/**"
+        "src/lib/plans/**"
       ],
       "proof": [
         "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -271,7 +299,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-12-CORE-1186-U11A",
+    "sourceRef": "PO-2026-10-12-CORE-1186-U11B",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -289,11 +317,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-CORE-1186-U11A-STAGING-PREFLIGHT",
-        "requirement": "Canonical Office DB readiness fail-closes on missing schema/privacy requirements and preserves Block 11 plan-authority while withholding all runtime completion claims.",
+        "id": "REQ-CORE-1186-U11B-DRYRUN-DAG",
+        "requirement": "Machine-readable Office staging dependency rehearsal blocks obsolete historical migration replay and enumerates role/rollback proof before any schema mutation.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "staging Office read-only schema and migration preflight",
+          "breadth": "read-only-U11B-staging-migration-rehearsal",
           "strength": 1,
           "dimensions": [
             "status",
@@ -314,8 +342,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U11A-FALSE-DONE",
-            "statement": "No metadata-only result or obsolete migration may mark Office RLS capability DONE or authorize plan sync overwrite.",
+            "id": "NEG-U11B-RLS-OVERCLAIM",
+            "statement": "RLS effective access cannot be claimed verified by metadata-only or empty-table inspection.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -324,18 +352,5 @@
       }
     ]
   },
-  "notes": "U11A is a bounded data-security readiness prerequisite, not a DB rollout. Main observed at 00821465577ac0e586b08bf2d94b34e08d0f9fca, successful post-merge CI 38215283132 and Factory 38215283118. Staging has 113 migration history records, historical Office migrations absent, 3 legacy authenticated ALL policies, absent participant table, conversation_type and current-user read helper. Crucially existing private.sync_webshop_plan_entitlements uses normalized plan_capability_grants and the Alap/Pro grant matrix is aligned with accepted PO scope. Do not apply historical sync files. #1186 remains OPEN.\nPlan Before Code initial run 38225656739 BLOCK due to projected semantic dependency scope (database-schema and dependency-contract) and newly activated eight Known Failures / three negative rules. This revised plan binds exact canonical projected guardDigest d1aace61; no implementation has been edited yet.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "cdd496f5eceb89a89c20031a84fe3978ee52d9e4",
-    "closedAt": "2026-10-12T08:54:50.488Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-12-CORE-1186-U11A",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Bounded U11B prerequisite of Core #1186; not the staging DDL itself. Main SHA 6654cfefdb4f5b5521b017e87890cca4155c0bd3. Post-merge CI 38227287785 SUCCESS. Waterk-staging 113 applied migrations; historical Office privacy and team split versions absent. All office_threads, office_messages and office_tasks empty, RLS enabled but 3 authenticated ALL policies; no participant/current-user helpers, and no authenticated/service table grants according to read-only catalog. public.evaluate_store_capability_v1 absent. Existing normalized Block 11 sync/grants present and must be preserved. No SQL writes, backfills, tenant or production actions in this unit. SQL release and role behavior proof remain required before #1186 completion."
 }
