@@ -6,14 +6,15 @@
   "guardDigest": "1d1d5f53",
   "changeBaseSha": "edd8170e63faaa50e29b5ba057f2432da49ff3d8",
   "plannedFilePatterns": [
-    "src/lib/navigation/admin-ia.ts",
-    "src/app/admin/ugyfelszolgalat/page.tsx",
-    "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
+    "quality/development/active-plan.json",
     "src/app/admin/marketing/tiltolista/page.tsx",
-    "tests/block4-ia-navigation-reporting.test.ts",
+    "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
+    "src/app/admin/ugyfelszolgalat/page.tsx",
+    "src/lib/navigation/admin-ia.ts",
     "tests/admin-link-integrity.test.ts",
-    "tests/pro-entitlement-guards.test.ts",
-    "quality/development/active-plan.json"
+    "tests/block4-ia-navigation-reporting.test.ts",
+    "tests/digital-office-support-ticket-integration.test.ts",
+    "tests/pro-entitlement-guards.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -72,7 +73,8 @@
         "Pro continues to discover its Digital Office workspace, Team Chat and advanced correspondence according to existing server-authoritative feature and role gates.",
         "Alap and Pro support tickets and ticket-detail back navigation use existing independent /admin/ugyfelszolgalat routes; ticket data remains scoped by tenant and support permission.",
         "Customer-email suppression remains reachable from the Alap marketing navigation at a new independently server-gated URL; reuse the existing data-scoped suppression page and API without weakening them.",
-        "All static admin link integrity, entitlement and navigation regression checks succeed, followed by Knowledge, Edit-Time, Replay, full CI, Completion Truth and Lifecycle gates at the exact source commit."
+        "All static admin link integrity, entitlement and navigation regression checks succeed, followed by Knowledge, Edit-Time, Replay, full CI, Completion Truth and Lifecycle gates at the exact source commit.",
+        "The former Digital Office support-link regression is updated to require the independent Alap-safe support list and detail back-links, while keeping Pro legacy route aliases and their layout security intact."
       ],
       "invariants": [
         "Do not grant Alap access to any /admin/kommunikacio page or Digital Office staff workflow; the existing Pro-only layout remains server-owned.",
@@ -238,7 +240,8 @@
       "Exercise Alap and Pro feature-resolution matrices and assert direct digital-office URL is absent for Alap without disabling officeCommunication.",
       "Check independent tenant-scoped support list and detail link paths and Alap suppression route against the existing safe API permission gate.",
       "Run targeted navigation, admin-link, Pro-entitlement and support tests plus full Quality, TypeScript, build, Edit-Time/Reference Sync, Replay and exact-head Truth/Lifecycle.",
-      "Do not merge or claim all #1186 capabilities closed merely because U10B navigation and link paths pass."
+      "Do not merge or claim all #1186 capabilities closed merely because U10B navigation and link paths pass.",
+      "Update the existing Digital Office support ticket integration regression to assert Alap-safe support navigation without deleting coverage for the legacy Pro-only aliases."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-12-CORE-1186-U10B",
@@ -251,7 +254,8 @@
         "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
         "tests/block4-ia-navigation-reporting.test.ts",
         "tests/admin-link-integrity.test.ts",
-        "tests/pro-entitlement-guards.test.ts"
+        "tests/pro-entitlement-guards.test.ts",
+        "tests/digital-office-support-ticket-integration.test.ts"
       ],
       "mayEdit": [
         "src/app/admin/marketing/tiltolista/page.tsx",
@@ -370,5 +374,5 @@
       }
     ]
   },
-  "notes": "Scoped immediate successor to the merged U10A navigation-authority prerequisite, according to the Living Roadmap Core priority and accepted all-Pro Digital Office boundary. Alap normal email and support must survive. Previous #1186 U01-U09 changes are on main. No Builder, Template Factory, schema, tenant or payment modification. Only start product implementation after canonical plan-only gate PASS.\nPlan Before Code first PR verification run 38209383695 resolved additional storefront-ui subsystem and two associated known-failure records due to src/app/admin/** files matching the shared src/app/** pattern. The canonical policy defines the added scope and risk; this plan now acknowledges it exactly before any implementation edits."
+  "notes": "Scoped immediate successor to the merged U10A navigation-authority prerequisite, according to the Living Roadmap Core priority and accepted all-Pro Digital Office boundary. Alap normal email and support must survive. Previous #1186 U01-U09 changes are on main. No Builder, Template Factory, schema, tenant or payment modification. Only start product implementation after canonical plan-only gate PASS.\nPlan Before Code first PR verification run 38209383695 resolved additional storefront-ui subsystem and two associated known-failure records due to src/app/admin/** files matching the shared src/app/** pattern. The canonical policy defines the added scope and risk; this plan now acknowledges it exactly before any implementation edits.\nU10B first full Core CI 38209757472 failed one known stale test: tests/digital-office-support-ticket-integration.test.ts expected support back-links inside the Pro-only Digital Office shell, contrary to the accepted Alap support baseline. Extend this planned file scope before test changes; retain the existing Pro alias assertions. No product behavior expansion is authorized."
 }
