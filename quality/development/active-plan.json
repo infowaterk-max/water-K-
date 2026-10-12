@@ -16,6 +16,7 @@
     "src/components/cart/add-to-cart-confirmation.tsx",
     "src/lib/builder/storefront-digital-commerce-preview.ts",
     "src/lib/builder/storefront-preview-cart-navigation.ts",
+    "src/lib/builder/storefront-story.ts",
     "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
     "tests/loot-vault-v2-real-cart-and-e10.test.ts"
   ],
@@ -132,7 +133,8 @@
         "Preview isolated product binding supplies coherent non-production ID/slug/unitPrice/quantity, never publishes or mutates inventory.",
         "Product and Home confirmation links return to same versioned Factory candidate cart page rather than public /kosar.",
         "The existing featured blog story renders as a real Story Feature, and the remaining story.index renders on the blog index.",
-        "E13, 14x3 Factory matrix and full original Product Owner checkout, account, route and engine proof remain required."
+        "E13, 14x3 Factory matrix and full original Product Owner checkout, account, route and engine proof remain required.",
+        "The canonical story.feature component contract accepts blog-index while retaining its existing allowed page types; the actual Loot Vault blog-index page passes runtime validation in Desktop, Tablet, and Mobile."
       ],
       "invariants": [
         "Fail-closed product/variant/stock enforcement is unchanged on published storefronts.",
@@ -313,7 +315,8 @@
       "Prove Preview-only stock/identity and real nonproduction cart redirect, with negative no-product/stock tests.",
       "Prove canonical Loot Vault blog-index features both story.index and story.feature with complete page validation.",
       "Run quality tests, typecheck, build, Template Factory 14x3, E13 and real PO browser. Keep remaining failures blocking.",
-      "Reconcile external manifest/handoff only after successful current SHA PO proof; no implied human acceptance."
+      "Reconcile external manifest/handoff only after successful current SHA PO proof; no implied human acceptance.",
+      "Verify the story.feature pageTypes manifest includes blog-index, validate the canonical blog-index runtime, and rerun all 14x3 browser cases without waiving the root or PO guards."
     ],
     "semanticExecutionRoute": {
       "request": "F35 real Loot Vault Preview shopping + E10 Story Feature",
@@ -331,7 +334,8 @@
         "src/lib/builder/storefront-digital-commerce-preview.ts",
         "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
         "quality/knowledge/domain-foundations.v1.json",
-        "src/app/storefront-template-preview/page.tsx"
+        "src/app/storefront-template-preview/page.tsx",
+        "src/lib/builder/storefront-story.ts"
       ],
       "mayEdit": [
         "quality/development/active-plan.json"
@@ -457,5 +461,5 @@
       }
     ]
   },
-  "notes": "F35 stacked on F34 draft PR #1245. Actual F34 QA proof run 38177932233 attempt 2 proved canonical Workforce login/return and 86 Factory cases, then blocked for missing home Kosárba button, disabled PDP Kosárba due missing Preview product/stock identity, and absent E10 story.feature. Address those actual runtime/dependency gaps. No main merge, production deploy, Vercel config, Supabase writes, invented published stock or PO acceptance.\nF35 first exact-head Knowledge preflight diagnosed SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED:src/components/cart/add-to-cart-confirmation.tsx. Map that exact shared cart presentation component to canonical DOMAIN-STOREFRONT, rather than weakening change-impact Atlas or using broad unproven wildcard ownership.\nExact-head F35 Plan Before Code (38198861573) expanded Atlas authority to builder-template-system and required explicit preaccepted PO instruction PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. F35 does not combine shipping/payment with other pages; confirms the separate original legal route must be preserved and continues to be proven by PO browser. The plan's domain/subsystem envelope and canonical guard digest are now bound to the machine-projected actual changed files, no waiver.\nF35 Edit-Time detected active PO Shipping/Payment route prohibition, which contradicts the existing combined storefront page; the Preview cart solution does not require any change to canonical route integrity. Restore the route-integrity source unchanged and move cart navigation overlay to an isolated preview-only helper consumed by storefront-template-preview/page.tsx. This keeps PO route authority unchanged and removes unrelated instruction-required changes; neither the PO registry nor gate semantics were modified.\nSentinel-integrity exact-head full quality tests (38199150053) identified an evidence producer semantic gap: GUARD-TEMPLATE-FACTORY lacks registry proofSemantics, so this requirement may not cite it as a direct semantic strength producer. Restore local GUARD-QUALITY-TESTS as the direct semantic implementation/outcome reference, while keeping GUARD-TEMPLATE-FACTORY required in canonical systemObligations and externalGuards. This does NOT remove, skip or mark the Factory browser/Product Owner external closure PASS; Truth and Completion remain BLOCK until its separately verified proof is present."
+  "notes": "F35 stacked on F34 draft PR #1245. Actual F34 QA proof run 38177932233 attempt 2 proved canonical Workforce login/return and 86 Factory cases, then blocked for missing home Kosárba button, disabled PDP Kosárba due missing Preview product/stock identity, and absent E10 story.feature. Address those actual runtime/dependency gaps. No main merge, production deploy, Vercel config, Supabase writes, invented published stock or PO acceptance.\nF35 first exact-head Knowledge preflight diagnosed SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED:src/components/cart/add-to-cart-confirmation.tsx. Map that exact shared cart presentation component to canonical DOMAIN-STOREFRONT, rather than weakening change-impact Atlas or using broad unproven wildcard ownership.\nExact-head F35 Plan Before Code (38198861573) expanded Atlas authority to builder-template-system and required explicit preaccepted PO instruction PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. F35 does not combine shipping/payment with other pages; confirms the separate original legal route must be preserved and continues to be proven by PO browser. The plan's domain/subsystem envelope and canonical guard digest are now bound to the machine-projected actual changed files, no waiver.\nF35 Edit-Time detected active PO Shipping/Payment route prohibition, which contradicts the existing combined storefront page; the Preview cart solution does not require any change to canonical route integrity. Restore the route-integrity source unchanged and move cart navigation overlay to an isolated preview-only helper consumed by storefront-template-preview/page.tsx. This keeps PO route authority unchanged and removes unrelated instruction-required changes; neither the PO registry nor gate semantics were modified.\nSentinel-integrity exact-head full quality tests (38199150053) identified an evidence producer semantic gap: GUARD-TEMPLATE-FACTORY lacks registry proofSemantics, so this requirement may not cite it as a direct semantic strength producer. Restore local GUARD-QUALITY-TESTS as the direct semantic implementation/outcome reference, while keeping GUARD-TEMPLATE-FACTORY required in canonical systemObligations and externalGuards. This does NOT remove, skip or mark the Factory browser/Product Owner external closure PASS; Truth and Completion remain BLOCK until its separately verified proof is present.\nF35 browser attempt 2 (38199491910) established E13 PASS and 83/86 browser cases, with 3 blog-index RUNTIME_ROOT_COUNT:0 failures. Root cause: canonical story.feature node added to blog-index, but src/lib/builder/storefront-story.ts story.feature manifest pageTypes excludes blog-index. This focused follow-up first amends the same F35 development plan, then extends the shared story.feature component contract and regression tests; no new template pages or unrelated feature scope."
 }
