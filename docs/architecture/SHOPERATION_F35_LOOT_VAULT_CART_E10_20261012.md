@@ -7,7 +7,7 @@ F34 exact-head Factory quality run 38177932233 attempt 2 passed the 14x3 matrix,
 ## Bounded architecture
 - The shared Product Grid opts into the existing identity/stock-guarded `StorefrontPurchaseControlsClient` only where the authored config asks for real card purchase actions.
 - Preview-only, Loot Vault-scoped demonstration fixtures supply stable fake-in-preview identifiers and stock that never flow into installed storefront authority. Preorder has zero quantity.
-- The original cart confirmation and `CartProvider.add` are used. Preview rewrites only the confirmation cart URL, preserving exact key/version/viewport/factory marker.
+- The original cart confirmation and `CartProvider.add` are used. The isolated Preview page injects the confirmation cart URL via its own typed navigation overlay, preserving exact key/version/viewport/factory marker. Canonical route-integrity and PO shipping/payment authority remain unchanged.
 - The existing featured Blog story maps to the canonical Story Feature renderer. The separate story index remains; no duplicate marketing section is added.
 
 ## Non-goals / release proof

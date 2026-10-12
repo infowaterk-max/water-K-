@@ -9,12 +9,13 @@
     "docs/architecture/SHOPERATION_F35_LOOT_VAULT_CART_E10_20261012.md",
     "quality/development/active-plan.json",
     "quality/knowledge/domain-foundations.v1.json",
+    "src/app/storefront-template-preview/page.tsx",
     "src/components/builder/storefront-commerce.tsx",
     "src/components/builder/storefront-purchase-controls-client.tsx",
     "src/components/builder/storefront-purchase-controls.tsx",
     "src/components/cart/add-to-cart-confirmation.tsx",
     "src/lib/builder/storefront-digital-commerce-preview.ts",
-    "src/lib/builder/storefront-template-route-integrity.ts",
+    "src/lib/builder/storefront-preview-cart-navigation.ts",
     "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
     "tests/loot-vault-v2-real-cart-and-e10.test.ts"
   ],
@@ -224,7 +225,7 @@
         "evidence": [
           "src/lib/builder/storefront-digital-commerce-preview.ts",
           "src/components/cart/add-to-cart-confirmation.tsx",
-          "src/lib/builder/storefront-template-route-integrity.ts"
+          "src/lib/builder/storefront-preview-cart-navigation.ts"
         ]
       },
       {
@@ -328,9 +329,9 @@
         "src/components/builder/storefront-purchase-controls.tsx",
         "src/components/cart/add-to-cart-confirmation.tsx",
         "src/lib/builder/storefront-digital-commerce-preview.ts",
-        "src/lib/builder/storefront-template-route-integrity.ts",
         "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
-        "quality/knowledge/domain-foundations.v1.json"
+        "quality/knowledge/domain-foundations.v1.json",
+        "src/app/storefront-template-preview/page.tsx"
       ],
       "mayEdit": [
         "quality/development/active-plan.json"
@@ -344,7 +345,8 @@
       ],
       "mustCreate": [
         "tests/loot-vault-v2-real-cart-and-e10.test.ts",
-        "docs/architecture/SHOPERATION_F35_LOOT_VAULT_CART_E10_20261012.md"
+        "docs/architecture/SHOPERATION_F35_LOOT_VAULT_CART_E10_20261012.md",
+        "src/lib/builder/storefront-preview-cart-navigation.ts"
       ],
       "forbidden": [
         "src/lib/commerce/cart-engine.ts",
@@ -372,7 +374,8 @@
       "Canonical JSON change can alter visual fidelity and requires complete Desktop/Tablet/Mobile Factory QA, not only source tests.",
       "Even when both PO branches pass, uploaded manifest must separately reconcile exact proof and checksum before external closure.",
       "Preview-only cart state persists in localStorage and does not prove production order/payment capture.",
-      "The shared grid may have other products that request purchase actions without valid inventory and will correctly remain disabled."
+      "The shared grid may have other products that request purchase actions without valid inventory and will correctly remain disabled.",
+      "Existing PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE forbids combined /szallitas-es-fizetes route despite repository exposing it; the discrepancy is out of scope for F35 cart/E10 and must be separately reconciled through PO authority review."
     ],
     "scope": {
       "in": [
@@ -453,5 +456,5 @@
       }
     ]
   },
-  "notes": "F35 stacked on F34 draft PR #1245. Actual F34 QA proof run 38177932233 attempt 2 proved canonical Workforce login/return and 86 Factory cases, then blocked for missing home Kosárba button, disabled PDP Kosárba due missing Preview product/stock identity, and absent E10 story.feature. Address those actual runtime/dependency gaps. No main merge, production deploy, Vercel config, Supabase writes, invented published stock or PO acceptance.\nF35 first exact-head Knowledge preflight diagnosed SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED:src/components/cart/add-to-cart-confirmation.tsx. Map that exact shared cart presentation component to canonical DOMAIN-STOREFRONT, rather than weakening change-impact Atlas or using broad unproven wildcard ownership.\nExact-head F35 Plan Before Code (38198861573) expanded Atlas authority to builder-template-system and required explicit preaccepted PO instruction PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. F35 does not combine shipping/payment with other pages; confirms the separate original legal route must be preserved and continues to be proven by PO browser. The plan's domain/subsystem envelope and canonical guard digest are now bound to the machine-projected actual changed files, no waiver."
+  "notes": "F35 stacked on F34 draft PR #1245. Actual F34 QA proof run 38177932233 attempt 2 proved canonical Workforce login/return and 86 Factory cases, then blocked for missing home Kosárba button, disabled PDP Kosárba due missing Preview product/stock identity, and absent E10 story.feature. Address those actual runtime/dependency gaps. No main merge, production deploy, Vercel config, Supabase writes, invented published stock or PO acceptance.\nF35 first exact-head Knowledge preflight diagnosed SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED:src/components/cart/add-to-cart-confirmation.tsx. Map that exact shared cart presentation component to canonical DOMAIN-STOREFRONT, rather than weakening change-impact Atlas or using broad unproven wildcard ownership.\nExact-head F35 Plan Before Code (38198861573) expanded Atlas authority to builder-template-system and required explicit preaccepted PO instruction PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. F35 does not combine shipping/payment with other pages; confirms the separate original legal route must be preserved and continues to be proven by PO browser. The plan's domain/subsystem envelope and canonical guard digest are now bound to the machine-projected actual changed files, no waiver.\nF35 Edit-Time detected active PO Shipping/Payment route prohibition, which contradicts the existing combined storefront page; the Preview cart solution does not require any change to canonical route integrity. Restore the route-integrity source unchanged and move cart navigation overlay to an isolated preview-only helper consumed by storefront-template-preview/page.tsx. This keeps PO route authority unchanged and removes unrelated instruction-required changes; neither the PO registry nor gate semantics were modified."
 }

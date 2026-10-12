@@ -303,19 +303,11 @@ export function rewriteStorefrontTemplatePreviewLinks(
     }
     return next;
   };
-  const rewriteNode=(node:StorefrontComponentNode):StorefrontComponentNode=>{
-    const config=rewriteValue(node.config) as Record<string,unknown>;
-    // Use the same cart engine and confirmation in Preview, but keep the
-    // navigation within the exact template/version/factory candidate.
-    if(node.componentKey==='commerce.purchase-controls'||node.componentKey==='commerce.product-grid'){
-      config.cartHref=rewritePreviewHref('/kosar',input);
-    }
-    return{
-      ...structuredClone(node),
-      config,
-      ...(node.children?{children:node.children.map(rewriteNode)}:{}),
-    };
-  };
+  const rewriteNode=(node:StorefrontComponentNode):StorefrontComponentNode=>({
+    ...structuredClone(node),
+    config:rewriteValue(node.config) as Record<string,unknown>,
+    ...(node.children?{children:node.children.map(rewriteNode)}:{}),
+  });
   return{...structuredClone(page),sections:page.sections.map(rewriteNode)};
 }
 

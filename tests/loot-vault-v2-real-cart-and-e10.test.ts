@@ -4,7 +4,7 @@ import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loo
 import {createStorefrontTemplatePreviewBindingContext} from '@/lib/builder/storefront-template-preview-demo';
 import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-template-preview-canonical';
 import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
-import {rewriteStorefrontTemplatePreviewLinks} from '@/lib/builder/storefront-template-route-integrity';
+import {attachStorefrontPreviewCartNavigation} from '@/lib/builder/storefront-preview-cart-navigation';
 const read=(p:string)=>readFileSync(p,'utf8');
 const template=LOOT_VAULT_V2_TEMPLATE_PACKAGE;
 function previewContext(pageType:'home'|'product'){
@@ -36,7 +36,7 @@ describe('F35 actual Loot Vault cart and editorial contract',()=>{
   });
   it('keeps confirmation navigation within the exact preview candidate, not the public cart route',()=>{
     const page=template.pages.find(p=>p.pageType==='product')!;
-    const rewritten=rewriteStorefrontTemplatePreviewLinks(page,{templateKey:'gaming.loot-vault',templateVersion:2,viewport:'mobile',factoryCandidate:true});
+    const rewritten=attachStorefrontPreviewCartNavigation(page,{templateKey:'gaming.loot-vault',templateVersion:2,viewport:'mobile',factoryCandidate:true});
     const nodes:typeof page.sections[number][]=[];
     const visit=(items:typeof page.sections)=>items.forEach(node=>{nodes.push(node);if(node.children)visit(node.children)});
     visit(rewritten.sections);
