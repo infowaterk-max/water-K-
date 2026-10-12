@@ -222,6 +222,37 @@ describe('cross-workflow external completion proof handoff',()=>{
     expect(result.evidence).toMatchObject({id:'GUARD-TEMPLATE-FACTORY',status:'PASS',sourceCommit:'head-1',branch:'feature/test',execution:'EXTERNAL'});
   });
 
+  it('accepts complete noncandidate canary regression alongside full factory acceptance without claiming the canary is full',()=>{
+    const pages=['home','product','account','content','legal','not-found'];
+    const viewports=['desktop','tablet','mobile'];
+    const canaryCases=pages.flatMap(pageType=>viewports.map(viewport=>({
+      templateKey:'gaming.playroom',templateVersion:20,pageType,viewport,errors:[],
+    })));
+    const mixed=manifest({
+      selection:[
+        {templateKey:'gaming.playroom',mode:'canary',reason:'default-canary',pages},
+        {templateKey:'gaming.loot-vault',mode:'full',reason:'factory-exact-head-full',pages:['home']},
+      ],
+      cases:canaryCases,
+      acceptanceProofs:[
+        {templateKey:'gaming.playroom',templateVersion:20,factoryCandidate:false,browserMatrixPassed:false,browserMatrixComplete:false,browserMatrixCaseCount:18},
+        {templateKey:'gaming.loot-vault',templateVersion:2,factoryCandidate:true,browserMatrixPassed:true,browserMatrixComplete:true,browserMatrixCaseCount:42},
+      ],
+    });
+    const input={expectedHead:'head-1',expectedBranch:'feature/test',runId:'123',workflowConclusion:'success',guardRegistry,runtimeOrigin,previewAnchorCandidates};
+    const accepted=validateTemplateFactoryExternalProof({manifest:mixed,...input});
+    expect(accepted.ok).toBe(true);
+    expect(accepted.evidence.details.browserMatrixCount).toBe(60);
+    const missingCase=manifest({...mixed,cases:canaryCases.slice(1),checksum:undefined});
+    expect(validateTemplateFactoryExternalProof({manifest:missingCase,...input}).issues.map(item=>item.code)).toContain('EXTERNAL_PROOF_CANARY_REGRESSION_INCOMPLETE');
+    const candidateCanary=manifest({...mixed,acceptanceProofs:[{...mixed.acceptanceProofs[0],factoryCandidate:true},mixed.acceptanceProofs[1]],checksum:undefined});
+    expect(validateTemplateFactoryExternalProof({manifest:candidateCanary,...input}).issues.map(item=>item.code)).toContain('EXTERNAL_PROOF_CANARY_REGRESSION_INCOMPLETE');
+    const canaryOnly=manifest({...mixed,acceptanceProofs:[mixed.acceptanceProofs[0]],checksum:undefined});
+    expect(validateTemplateFactoryExternalProof({manifest:canaryOnly,...input}).issues.map(item=>item.code)).toContain('EXTERNAL_PROOF_FULL_ACCEPTANCE_MISSING');
+    const missingFull=manifest({...mixed,acceptanceProofs:[mixed.acceptanceProofs[0],{...mixed.acceptanceProofs[1],browserMatrixComplete:false}],checksum:undefined});
+    expect(validateTemplateFactoryExternalProof({manifest:missingFull,...input}).issues.map(item=>item.code)).toContain('EXTERNAL_PROOF_BROWSER_MATRIX_INCOMPLETE');
+  });
+
   it.each([
     ['wrong head',{sourceCommit:'old-head'},'EXTERNAL_PROOF_HEAD_MISMATCH'],
     ['wrong branch',{branch:'other'},'EXTERNAL_PROOF_BRANCH_MISMATCH'],
