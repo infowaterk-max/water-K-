@@ -1,28 +1,39 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-F34-PO-WORKFORCE-AUTH",
-  "task": "F34 real Product Owner preview journey: converge to canonical Workforce login with exact template return and mandatory role/MFA, preserving all runtime, route and account checks",
-  "status": "ready-for-implementation",
-  "guardDigest": "c0ffb5c2",
-  "changeBaseSha": "b20ee4470b17fc1ccfe57026e12e5230acc103b6",
+  "taskId": "DEV-F35-LOOT-VAULT-COMMERCE-E10",
+  "task": "F35 close the real Loot Vault Product Owner shopping-journey and E10 editorial runtime gaps without inventing published stock, bypassing cart invariants or weakening Factory proof",
+  "status": "closed",
+  "guardDigest": "2ea57cdf",
+  "changeBaseSha": "73c7ab2032337868fd42d266a8fbf8bb71e86a50",
   "plannedFilePatterns": [
-    "docs/architecture/SHOPERATION_F34_WORKFORCE_PO_JOURNEY_20261011.md",
+    "docs/architecture/SHOPERATION_F35_LOOT_VAULT_CART_E10_20261012.md",
     "quality/development/active-plan.json",
-    "scripts/template-factory-product-owner-handoff.mjs",
-    "tests/template-factory-po-workforce-auth.test.ts"
+    "quality/knowledge/domain-foundations.v1.json",
+    "src/app/storefront-template-preview/page.tsx",
+    "src/components/builder/storefront-commerce.tsx",
+    "src/components/builder/storefront-purchase-controls-client.tsx",
+    "src/components/builder/storefront-purchase-controls.tsx",
+    "src/components/cart/add-to-cart-confirmation.tsx",
+    "src/lib/builder/storefront-digital-commerce-preview.ts",
+    "src/lib/builder/storefront-preview-cart-navigation.ts",
+    "src/lib/builder/storefront-story.ts",
+    "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+    "tests/loot-vault-v2-real-cart-and-e10.test.ts"
   ],
   "expectedSubsystems": [
-    "auth-access-authority",
     "builder-template-system",
-    "customer-account",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-BUILDER",
+    "DOMAIN-QUALITY",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "builder-template-system",
+    "quality-knowledge-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -75,7 +86,9 @@
     "TF-KF-024",
     "TF-KF-025"
   ],
-  "acknowledgedPoInstructionIds": [],
+  "acknowledgedPoInstructionIds": [
+    "PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE"
+  ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
     "SQ-NK-002",
@@ -96,11 +109,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-F34-WORKFORCE-PO-JOURNEY",
+    "sourceRef": "PO-2026-10-12-F35-LOOT-VAULT-COMMERCE-E10",
     "riskTier": "high",
     "assuranceCeiling": {
-      "level": "bound-workforce-po-real-journey",
-      "rationale": "Only the browser-runner expectation is updated to match canonical workforce auth. The same preview source, role checks, TOTP and browser route checks remain enforced; an authenticated session is necessary but insufficient for template technical acceptance.",
+      "level": "proof-bound-cart-e10-closure",
+      "rationale": "Shared cart controls enforce product ID, slug, nonnegative unit price and finite available stock; only isolated Preview creates demonstration IDs/stock; production data authority untouched. E10 is fulfilled by a real authored story.feature node and corresponding browser observation.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -115,23 +128,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "PO proof follows exact /api/auth/workforce-login?next=/storefront-template-preview identity, never expects removed custom auth shell.",
-        "Workforce login uses the existing staff form; successful navigation back to exact template version 2 Factory preview is required.",
-        "No credentials, mismatched next URL, missing real form, unverified MFA or denied role blocks proof.",
-        "All post-login candidate Page Schema, engine, showroom, account and route checks remain mandatory."
+        "Home Product Grid renders a real shared Kosárba control only when showPurchaseActions is requested, uses one canonical cart state handler and an actual confirmation with cart link.",
+        "Absent/invalid identity, negative price or unavailable stock blocks purchase; preorder demonstration items have zero availableQuantity.",
+        "Preview isolated product binding supplies coherent non-production ID/slug/unitPrice/quantity, never publishes or mutates inventory.",
+        "Product and Home confirmation links return to same versioned Factory candidate cart page rather than public /kosar.",
+        "The existing featured blog story renders as a real Story Feature, and the remaining story.index renders on the blog index.",
+        "E13, 14x3 Factory matrix and full original Product Owner checkout, account, route and engine proof remain required.",
+        "The canonical story.feature component contract accepts blog-index while retaining its existing allowed page types; the actual Loot Vault blog-index page passes runtime validation in Desktop, Tablet, and Mobile."
       ],
       "invariants": [
-        "No automation-side session fabrication or MFA bypass.",
-        "Template key, version, Factory marker and home page must survive login redirect.",
-        "Authenticated return must be observed in the browser, not inferred from HTTP 200 or server-side auth success.",
-        "Owner preview proof remains accepted:false without explicit human approval."
+        "Fail-closed product/variant/stock enforcement is unchanged on published storefronts.",
+        "Only explicit isolated Loot Vault Preview may synthesize availability for demonstration.",
+        "Confirmed cart target preserves exact template key, version, viewport and factory marker.",
+        "Human PO accepted=false until explicit acceptance, technical proof is separate.",
+        "PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE remains mandatory: retain the separate Szállítás és fizetés page and navigation proof."
       ],
       "forbiddenStates": [
-        "Legacy preview-specific form resurrected as a second auth authority.",
-        "A Workforce login to /admin/platform counts as exact Factory candidate proof.",
-        "Mismatched or external return destination can be used as a trust-equivalent proof.",
-        "Failed/timeout MFA is treated as a pass.",
-        "A technical screenshot implicitly marks final Product Owner acceptance."
+        "Purchase control enabled for zero-stock, missing productId or missing slug.",
+        "Fake button or synthetic success with no canonical CartProvider.add.",
+        "Preview link navigating to unproven template or production checkout.",
+        "Removing E10 proof assertion or hiding missing component.",
+        "Unapproved changes to installed template runtime payment/inventory."
       ]
     },
     "model": {
@@ -163,39 +180,41 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Legacy Playwright selectors skip the canonical Workforce login and cannot reach preview.",
-        "Workforce redirects to platform rather than preserving Factory preview context.",
-        "MFA is outstanding; browser remains in challenge state and fails closed.",
-        "Incorrect role lacks preview authorization, causing /fiokom forbidden redirect.",
-        "The deployed Preview lacks candidate v2 and cannot render exact stamp after login."
+        "showPurchaseActions exists in config but renderer shows no real button.",
+        "Card is shown without product identity or real available stock, attempting add-to-cart is unsafe.",
+        "Success dialog navigates to generic /kosar instead of versioned Factory candidate.",
+        "PDP binds inventory.availableQuantity default zero from missing Preview fixture.",
+        "Blog-index rendered only story.index, E10 story.feature missing.",
+        "A preorder item falsely receives in-stock Preview quantity."
       ],
       "edgeCases": [
-        "Next URL includes URL-encoded template, version, page, viewport and factory marker.",
-        "Preview requires Workforce user session and role but external PO credentials are missing.",
-        "MFA enabled on platform owner with two factors.",
-        "Login redirects to a wrong template version or non-Factory accepted template.",
-        "Auth form present without visible unique email/password/submit controls.",
-        "Existing valid storageState returns to correct template directly."
+        "Zero-stock and preorder preview items",
+        "Missing productId or slug in live template product cards",
+        "Invalid preview cartHref including protocol-relative // URLs",
+        "Mixed showCta and showPurchaseActions config",
+        "Missing price or non-finite numeric price",
+        "Real user inventory versus isolated demonstration fixture",
+        "14x3 responsive continuity of replacing featured blog index by feature"
       ]
     },
     "alternatives": [
       {
-        "id": "F34-CANONICAL-WORKFORCE",
-        "summary": "Use the existing Workforce auth screen and verify exact return-target and actual candidate display.",
+        "id": "F35-CANONICAL-CART",
+        "summary": "Reuse shared Stock/Identity-guarded StorefrontPurchaseControlsClient, plus Preview-only fixture and scoped cart route.",
         "disposition": "selected",
-        "reason": "Single auth authority, no secret changes, genuine browser evidence; aligns with E13 already proven."
+        "reason": "Actual cart state, stock safety and candidate navigation remain single-authority."
       },
       {
-        "id": "F34-LEGACY-AUTH",
-        "summary": "Restore a dedicated template login form or route-specific credential handling.",
+        "id": "F35-FAKE-ACTION",
+        "summary": "Render a decorative button or force-enable the existing disabled PDP control.",
         "disposition": "rejected",
-        "reason": "Creates duplicate auth authority and violates workforce identity/MFA convergence."
+        "reason": "Would fabricate proof and violate fail-closed inventory."
       },
       {
-        "id": "F34-BYPASS-LOGIN",
-        "summary": "Assume E13 platform login proves the candidate owner journey and skip candidate auth.",
+        "id": "F35-PO-PROOF-SKIP",
+        "summary": "Remove shopping and E10 assertions from Product Owner journey.",
         "disposition": "rejected",
-        "reason": "Would leave exact template identity, owner preview navigation and permissions unproven."
+        "reason": "Would weaken accepted mandatory capability closure."
       }
     ],
     "specialistReviews": [
@@ -203,152 +222,190 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Moving the proof runner to Workforce could mask an MFA-required challenge or unexpectedly accept platform login.",
-        "resolution": "Require exact next target, actual visible Workforce form, staff-auth browser navigation and original candidate-source/route checks; MFA timeout remains failure.",
+        "finding": "Preview-only inventory might escape into real storefronts, while cartHref may become open redirect.",
+        "resolution": "Limit fixture synthesis to the server-side representative Preview function and strict Loot Vault template; add only relative, same-origin cart target; shared renderer never fabricates stock.",
         "evidence": [
-          "scripts/template-factory-product-owner-handoff.mjs",
-          "src/lib/auth/workforce-auth-form.tsx"
+          "src/lib/builder/storefront-digital-commerce-preview.ts",
+          "src/components/cart/add-to-cart-confirmation.tsx",
+          "src/lib/builder/storefront-preview-cart-navigation.ts"
         ]
       },
       {
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The template-aware login route currently redirects to canonical Workforce, so the previous runner's login-shell assumptions are stale.",
-        "resolution": "Update only runner UI selectors, not Factory acceptance or showroom requirements.",
+        "finding": "A declared Product Grid purchase action is ignored; PDP data is incompletely bound; E10 is visually authored but not mapped to the canonical Story Feature component.",
+        "resolution": "Reuse existing cart control and StoryFeature and retain other installed component providers.",
         "evidence": [
-          "src/app/storefront-template-preview-login/page.tsx",
-          "scripts/template-factory-product-owner-handoff.mjs"
+          "src/components/builder/storefront-commerce.tsx",
+          "src/components/builder/storefront-purchase-controls-client.tsx",
+          "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Cross-workflow completion must remain blocked if the updated PO runner fails or runs without exact source identity.",
-        "resolution": "Retain original failed workflow outcome and independent final proof-assimilation requirement.",
+        "finding": "Change affects storefront UI and canonical Factory page, requiring an exact-head live runtime and 14x3/PO QA.",
+        "resolution": "Keep Factory and external closure gates mandatory, no merge or production changes.",
         "evidence": [
-          ".github/workflows/template-factory-quality-gate.yml"
+          ".github/workflows/template-factory-quality-gate.yml",
+          "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json"
+        ]
+      },
+      {
+        "role": "Architecture",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "An existing client component lacked an Atlas canonical domain path. The actual changed cart confirmation is a Storefront presentation surface.",
+        "resolution": "Bind the exact file to DOMAIN-STOREFRONT without assigning an unverified broad folder prefix.",
+        "evidence": [
+          "src/components/cart/add-to-cart-confirmation.tsx",
+          "quality/knowledge/domain-foundations.v1.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "F34-CH1",
-        "scenario": "Workforce login returns a valid 200 but is on the wrong route.",
-        "finding": "Old runner would report final identity mismatch.",
-        "resolution": "Assert workforce next candidate identity before entering credentials.",
+        "id": "F35-CH1",
+        "scenario": "Product Grid tries to add product with no identity.",
+        "finding": "No safe line item.",
+        "resolution": "Shared purchasable predicate disables button; no fallbacks in live product model.",
         "status": "resolved"
       },
       {
-        "id": "F34-CH2",
-        "scenario": "Preview URL loses factory=1 or template version.",
-        "finding": "Wrong template could be shown after authentication.",
-        "resolution": "Fail at next-target verification and final candidate root stamp.",
+        "id": "F35-CH2",
+        "scenario": "Featured product is preorder only.",
+        "finding": "Cannot misrepresent available stock.",
+        "resolution": "Preview fixture zero-quantity for Előrendelhető label.",
         "status": "resolved"
       },
       {
-        "id": "F34-CH3",
-        "scenario": "Staff MFA challenge is still outstanding.",
-        "finding": "Page will not return to candidate preview.",
-        "resolution": "Timeout with explicit auth/MFA failure; never inject bypass.",
+        "id": "F35-CH3",
+        "scenario": "PO adds item on Home and opens cart.",
+        "finding": "Real confirmation previously navigated to public /kosar.",
+        "resolution": "Preview Page Schema rewrites cartHref to exact versioned candidate; shared confirmation still uses original route elsewhere.",
         "status": "resolved"
       },
       {
-        "id": "F34-CH4",
-        "scenario": "Credential form is duplicated or not visible.",
-        "finding": "Automation might target a hidden/incorrect login.",
-        "resolution": "Require exactly one visible official form and inputs.",
+        "id": "F35-CH4",
+        "scenario": "Blog E10 mapped to multiple story.index nodes.",
+        "finding": "No Story Feature renderer is demonstrated.",
+        "resolution": "Replace existing authored featured story with genuine story.feature and retain separate story.index.",
         "status": "resolved"
       },
       {
-        "id": "F34-CH5",
-        "scenario": "Login succeeds but role disallows owner preview.",
-        "finding": "Preview access guard redirects to forbidden.",
-        "resolution": "Require genuine exact preview destination and full rendered candidate stamps.",
+        "id": "F35-CH5",
+        "scenario": "A runtime-only fix invalidates F33 Preview equivalence.",
+        "finding": "Old anchor cannot prove changed runtime.",
+        "resolution": "Require exact-head new Preview and Factory proof without weakening source identity.",
         "status": "resolved"
       },
       {
-        "id": "F34-CH6",
-        "scenario": "E13 functional proof is successful but PO candidate showroom fails.",
-        "finding": "Acceptance might be falsely considered complete.",
-        "resolution": "Do not modify existing per-page convergence, engine, account and placeholder checks; preserve separate PO handoff.",
+        "id": "F35-CH6",
+        "scenario": "PO runner passes login but fails shopping/checkout.",
+        "finding": "Technical PO proof remains blocked.",
+        "resolution": "Retain required route/engine checks, evaluate actual browser cart and account behavior.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Verify live CI's original browser diagnostic and canonical Workforce login implementation before changing runner.",
-      "Static and unit regressions verify exact return identity and the absence of legacy auth selectors in PO runner.",
-      "Run the real E13 and 14-page x 3-viewport Factory PR quality workflow without fabricated credentials, MFA or deployment.",
-      "Observe genuine Workforce credentials and exact source-stamped candidate Preview return; preserve failures if role or MFA denies.",
-      "Treat succeeding PO run as technical handoff evidence only; release closure remains blocked until separately verified manifest reconciliation."
+      "Use actual F34 run 38177932233 PO diagnostics as baseline.",
+      "Prove canonical product card action is actually wired to StorefrontPurchaseControlsClient, not an anchor placeholder.",
+      "Prove Preview-only stock/identity and real nonproduction cart redirect, with negative no-product/stock tests.",
+      "Prove canonical Loot Vault blog-index features both story.index and story.feature with complete page validation.",
+      "Run quality tests, typecheck, build, Template Factory 14x3, E13 and real PO browser. Keep remaining failures blocking.",
+      "Reconcile external manifest/handoff only after successful current SHA PO proof; no implied human acceptance.",
+      "Verify the story.feature pageTypes manifest includes blog-index, validate the canonical blog-index runtime, and rerun all 14x3 browser cases without waiving the root or PO guards."
     ],
     "semanticExecutionRoute": {
-      "request": "F34 canonical Workforce owner preview proof",
+      "request": "F35 real Loot Vault Preview shopping + E10 Story Feature",
       "authority": [
-        "quality-knowledge-system",
-        "auth-access-authority",
         "builder-template-system",
-        "shared-storefront"
+        "shared-storefront",
+        "storefront-ui",
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        "scripts/template-factory-product-owner-handoff.mjs"
+        "src/components/builder/storefront-commerce.tsx",
+        "src/components/builder/storefront-purchase-controls-client.tsx",
+        "src/components/builder/storefront-purchase-controls.tsx",
+        "src/components/cart/add-to-cart-confirmation.tsx",
+        "src/lib/builder/storefront-digital-commerce-preview.ts",
+        "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+        "quality/knowledge/domain-foundations.v1.json",
+        "src/app/storefront-template-preview/page.tsx",
+        "src/lib/builder/storefront-story.ts"
       ],
       "mayEdit": [
         "quality/development/active-plan.json"
       ],
       "impactedReadOnly": [
-        "src/app/storefront-template-preview-login/page.tsx",
-        "src/lib/auth/workforce-auth-form.tsx",
-        "scripts/template-factory-quality-gate.mjs"
+        "scripts/template-factory-product-owner-handoff.mjs",
+        "src/components/cart/cart-provider.tsx",
+        "src/lib/commerce/cart-engine.ts",
+        "src/lib/builder/storefront-template-preview-demo.ts",
+        ".github/workflows/template-factory-quality-gate.yml"
       ],
       "mustCreate": [
-        "tests/template-factory-po-workforce-auth.test.ts",
-        "docs/architecture/SHOPERATION_F34_WORKFORCE_PO_JOURNEY_20261011.md"
+        "tests/loot-vault-v2-real-cart-and-e10.test.ts",
+        "docs/architecture/SHOPERATION_F35_LOOT_VAULT_CART_E10_20261012.md",
+        "src/lib/builder/storefront-preview-cart-navigation.ts"
       ],
-      "forbidden": [],
+      "forbidden": [
+        "src/lib/commerce/cart-engine.ts",
+        "src/lib/supabase/**"
+      ],
       "proof": [
         "GUARD-QUALITY-TESTS",
-        "GUARD-TEMPLATE-FACTORY"
+        "GUARD-TEMPLATE-FACTORY",
+        "GUARD-TYPECHECK",
+        "GUARD-PRODUCTION-BUILD"
       ],
       "unknown": [],
       "plannedDeletions": []
     },
     "executionAuthorized": true,
-    "problemStatement": "The exact PR Template Factory 42-case and E13 functional proof pass, but PO browser verification fails at FINAL_PREVIEW_IDENTITY_MISMATCH because its obsolete login-surface selector ignores canonical Workforce login redirect.",
+    "problemStatement": "The PO browser accepted exact Workforce return and source-stamped Loot Vault v2 Preview, but its real add-to-cart and E10 checks failed because product-grid ignores showPurchaseActions, preview product identity/quantity is absent, confirmation cart URL bypasses candidate preview, and blog-index uses story.index twice without story.feature.",
     "observableOutcomes": [
-      "Unauthenticated Factory preview preserves exact template key/version/factory/page in Workforce login 'next'.",
-      "Automation authenticates through the existing Workforce form and only passes after the actual app redirects to exact candidate preview.",
-      "MFA or role denial is not bypassed; failure is a blocking proof error, not a skipped or synthetic pass.",
-      "The original 20 showroom rows, 14x3 browser matrix, runtime source stamps, navigation, account and purchase checks are still executed."
+      "Home Product Grid renders a real shared Kosárba control only when showPurchaseActions is requested, uses one canonical cart state handler and an actual confirmation with cart link.",
+      "Absent/invalid identity, negative price or unavailable stock blocks purchase; preorder demonstration items have zero availableQuantity.",
+      "Preview isolated product binding supplies coherent non-production ID/slug/unitPrice/quantity, never publishes or mutates inventory.",
+      "Product and Home confirmation links return to same versioned Factory candidate cart page rather than public /kosar.",
+      "The existing featured blog story renders as a real Story Feature, and the remaining story.index renders on the blog index."
     ],
     "unresolvedRisks": [
-      "The existing Preview deployment can remain incompatible with current Factory candidate runtime even when E13 login passes.",
-      "The final manifest currently precedes separate PO proof and needs independent output reconciliation before cross-workflow external closure.",
-      "Human Product Owner approval is never implied by successful machine login."
+      "Canonical JSON change can alter visual fidelity and requires complete Desktop/Tablet/Mobile Factory QA, not only source tests.",
+      "Even when both PO branches pass, uploaded manifest must separately reconcile exact proof and checksum before external closure.",
+      "Preview-only cart state persists in localStorage and does not prove production order/payment capture.",
+      "The shared grid may have other products that request purchase actions without valid inventory and will correctly remain disabled.",
+      "Existing PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE forbids combined /szallitas-es-fizetes route despite repository exposing it; the discrepancy is out of scope for F35 cart/E10 and must be separately reconciled through PO authority review.",
+      "Template Factory external guard currently has no declared Sentinel proofSemantics, so technical Factory proof remains a distinct external closure condition rather than a local completion semantic claim."
     ],
     "scope": {
       "in": [
-        "existing Product Owner Playwright login verification flow",
-        "exact Workforce return destination and candidate identity assertions",
-        "narrow regression test for canonical auth path"
+        "actual shared ProductCards purchase actions",
+        "existing cart confirmation safe preview-scoped link",
+        "isolated Loot Vault preview fixtures",
+        "canonical Loot Vault blog featured node",
+        "PO regression tests",
+        "development plan"
       ],
       "out": [
-        "auth policy",
-        "MFA bypass",
-        "secrets",
-        "Preview deployment",
-        "Vercel settings",
-        "Factory quality thresholds",
+        "published inventory authority",
+        "Supabase",
+        "payment",
+        "fake cart events",
+        "gate threshold/skip",
         "main merge",
-        "Supabase schema",
-        "faking handoff readiness"
+        "production deployment",
+        "silent PO acceptance"
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-11-F34-WORKFORCE-PO-JOURNEY",
+    "sourceRef": "PO-2026-10-12-F35-LOOT-VAULT-COMMERCE-E10",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -369,11 +426,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F34-REAL-WORKFORCE-PO-JOURNEY",
-        "requirement": "Product Owner preview proof must use exact canonical Workforce login and prove authenticated return to the true Factory candidate without relaxing MFA or downstream route checks.",
+        "id": "REQ-F35-REAL-LOOT-VAULT-PURCHASE-E10",
+        "requirement": "Shopper Product Owner demonstration completes actual CartProvider-backed Home/PDP add-to-cart and E10 story feature on the exact Factory candidate while preserving zero-stock fail-closed semantics.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "source-level-product-owner-browser-runner-only",
+          "breadth": "preview-only-Loot-Vault-v2-and-shared-opt-in-purchase-card",
           "strength": 1,
           "dimensions": [
             "status",
@@ -394,8 +451,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F34-LOGIN-BYPASS",
-            "statement": "The PO runner cannot fake or skip Workforce login, MFA, role gating or candidate provenance.",
+            "id": "NEG-F35-FAKE-STOCK",
+            "statement": "Published inventory and missing product identity cannot be fabricated or bypassed.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -404,5 +461,18 @@
       }
     ]
   },
-  "notes": "F34 bounded Quality runner fix stacked on F33 PR #1243 / F32 #1238 / F31 #1236. The preview login entrypoint legitimately redirects to the canonical Workforce login, but the old Product Owner Playwright proof still expects a legacy template-specific form. This unit validates exact workforce return-target identity, real authentication, role/MFA enforcement and actual candidate presentation rather than bypassing or changing any auth authority. Missing separate PO proof reconciliation is tracked as distinct subsequent dependency. No main merge, production, Vercel or Supabase mutation.\nF34 exact-head Plan Before Code expanded the execution-dependent impact envelope to 5 subsystems and all 49 known failures. The canonical guard digest and 13 negative-knowledge IDs below match remote gate diagnostics (run 38177436845); both specialist roles use allowed canonical terms. No runtime/auth production file was edited and no gate was waived.\nSecond canonical Plan Before Code diagnostics (run 38177528059) confirmed all 49 failure IDs, five subsystems and guard digest. Only exact matching negative knowledge remained: the five-subsystem intersection requires 15 SQ-NK IDs, now reconciled to expected current Plan Gate classification. No change to source/auth runtime and no waiver.\nExact-head Edit-Time Guard in run 38177621459 identified Reference Sync data-attribute consumer drift on the 4 removed legacy login selectors; the repair does NOT waive/change provider contracts. Instead it actively verifies no parallel legacy preview auth shell exists on Workforce and verifies the actual versioned shared runtime GlobalStyles markers in the authenticated Factory preview. No unrelated CSS/Storefront providers are edited.\nThe second Edit-Time Guard 38177797494 narrowed remaining Reference Sync to eleven reviews of the legitimate redirect bridge /storefront-template-preview-login. The new real browser assertion confirms that the bridge cannot remain the final auth route: it must converge to the canonical Workforce login. All original route providers remain intact."
+  "notes": "F35 stacked on F34 draft PR #1245. Actual F34 QA proof run 38177932233 attempt 2 proved canonical Workforce login/return and 86 Factory cases, then blocked for missing home Kosárba button, disabled PDP Kosárba due missing Preview product/stock identity, and absent E10 story.feature. Address those actual runtime/dependency gaps. No main merge, production deploy, Vercel config, Supabase writes, invented published stock or PO acceptance.\nF35 first exact-head Knowledge preflight diagnosed SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED:src/components/cart/add-to-cart-confirmation.tsx. Map that exact shared cart presentation component to canonical DOMAIN-STOREFRONT, rather than weakening change-impact Atlas or using broad unproven wildcard ownership.\nExact-head F35 Plan Before Code (38198861573) expanded Atlas authority to builder-template-system and required explicit preaccepted PO instruction PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE. F35 does not combine shipping/payment with other pages; confirms the separate original legal route must be preserved and continues to be proven by PO browser. The plan's domain/subsystem envelope and canonical guard digest are now bound to the machine-projected actual changed files, no waiver.\nF35 Edit-Time detected active PO Shipping/Payment route prohibition, which contradicts the existing combined storefront page; the Preview cart solution does not require any change to canonical route integrity. Restore the route-integrity source unchanged and move cart navigation overlay to an isolated preview-only helper consumed by storefront-template-preview/page.tsx. This keeps PO route authority unchanged and removes unrelated instruction-required changes; neither the PO registry nor gate semantics were modified.\nSentinel-integrity exact-head full quality tests (38199150053) identified an evidence producer semantic gap: GUARD-TEMPLATE-FACTORY lacks registry proofSemantics, so this requirement may not cite it as a direct semantic strength producer. Restore local GUARD-QUALITY-TESTS as the direct semantic implementation/outcome reference, while keeping GUARD-TEMPLATE-FACTORY required in canonical systemObligations and externalGuards. This does NOT remove, skip or mark the Factory browser/Product Owner external closure PASS; Truth and Completion remain BLOCK until its separately verified proof is present.\nF35 browser attempt 2 (38199491910) established E13 PASS and 83/86 browser cases, with 3 blog-index RUNTIME_ROOT_COUNT:0 failures. Root cause: canonical story.feature node added to blog-index, but src/lib/builder/storefront-story.ts story.feature manifest pageTypes excludes blog-index. This focused follow-up first amends the same F35 development plan, then extends the shared story.feature component contract and regression tests; no new template pages or unrelated feature scope.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "d76079b3389cacccb46ffb65e1e937486204eed4",
+    "closedAt": "2026-10-12T04:09:56.344Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-12-F35-LOOT-VAULT-COMMERCE-E10",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }

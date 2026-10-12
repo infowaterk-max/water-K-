@@ -28,6 +28,7 @@ function PurchaseControlsRenderer({config,node,viewport}:StorefrontComponentRend
       orderMultiple={Math.max(1,Math.floor(number(config.orderMultiple,1)))}
       purchaseLabel={text(config.purchaseLabel,'Kosárba')}
       wishlistLabel={text(config.wishlistLabel,'Kedvencekhez')}
+      cartHref={text(config.cartHref,'/kosar')}
       currency={text(config.currency,'HUF')}
       styles={{root:slot('root'),quantity:slot('quantity'),step:slot('step'),value:slot('value'),purchase:slot('purchase'),wishlist:slot('wishlist')}}
     />

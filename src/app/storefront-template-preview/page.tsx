@@ -11,6 +11,7 @@ import {
 } from '@/lib/builder/storefront-template-preview-demo';
 import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-template-preview-canonical';
 import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
+import {attachStorefrontPreviewCartNavigation} from '@/lib/builder/storefront-preview-cart-navigation';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
@@ -61,11 +62,17 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   const embed=query.embed==='1';
   const noticedPage=demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
   const routedPage=rewriteStorefrontTemplatePreviewLinks(noticedPage,{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate});
-  const page=embed?routedPage:applyStorefrontTemplateOwnerShowroomNavigation(routedPage,{
+  const showroomPage=embed?routedPage:applyStorefrontTemplateOwnerShowroomNavigation(routedPage,{
     templateKey:template.manifest.templateKey,
     templateVersion:template.manifest.templateVersion,
     viewport,
     factory:factoryCandidate,
+  });
+  const page=attachStorefrontPreviewCartNavigation(showroomPage,{
+    templateKey:template.manifest.templateKey,
+    templateVersion:template.manifest.templateVersion,
+    viewport,
+    factoryCandidate,
   });
   const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
   if(demoPayload){
