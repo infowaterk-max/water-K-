@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1186-U11B-OFFICE-STAGING-DEPENDENCY-REHEARSAL",
   "task": "Core 1186 U11B: bounded staging Office RLS migration dependency reconciliation and rollback rehearsal",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "d1aace61",
   "changeBaseSha": "6654cfefdb4f5b5521b017e87890cca4155c0bd3",
   "plannedFilePatterns": [
@@ -357,5 +357,18 @@
       }
     ]
   },
-  "notes": "Bounded U11B prerequisite of Core #1186; not the staging DDL itself. Main SHA 6654cfefdb4f5b5521b017e87890cca4155c0bd3. Post-merge CI 38227287785 SUCCESS. Waterk-staging 113 applied migrations; historical Office privacy and team split versions absent. All office_threads, office_messages and office_tasks empty, RLS enabled but 3 authenticated ALL policies; no participant/current-user helpers, and no authenticated/service table grants according to read-only catalog. public.evaluate_store_capability_v1 absent. Existing normalized Block 11 sync/grants present and must be preserved. No SQL writes, backfills, tenant or production actions in this unit. SQL release and role behavior proof remain required before #1186 completion.\nExact-source PR CI 38229509769: quality tests 6/6 U11B PASS; TypeScript TS7016 missing declaration for scripts/shoperation-office-db-stage-rehearsal.mjs and downstream implicit any in test. Extend plan before creation of required .d.mts; no application/schema edits."
+  "notes": "Bounded U11B prerequisite of Core #1186; not the staging DDL itself. Main SHA 6654cfefdb4f5b5521b017e87890cca4155c0bd3. Post-merge CI 38227287785 SUCCESS. Waterk-staging 113 applied migrations; historical Office privacy and team split versions absent. All office_threads, office_messages and office_tasks empty, RLS enabled but 3 authenticated ALL policies; no participant/current-user helpers, and no authenticated/service table grants according to read-only catalog. public.evaluate_store_capability_v1 absent. Existing normalized Block 11 sync/grants present and must be preserved. No SQL writes, backfills, tenant or production actions in this unit. SQL release and role behavior proof remain required before #1186 completion.\nExact-source PR CI 38229509769: quality tests 6/6 U11B PASS; TypeScript TS7016 missing declaration for scripts/shoperation-office-db-stage-rehearsal.mjs and downstream implicit any in test. Extend plan before creation of required .d.mts; no application/schema edits.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "3b7437dbff48ed944ec049b87590f313088633c0",
+    "closedAt": "2026-10-12T09:34:01.164Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-12-CORE-1186-U11B",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
