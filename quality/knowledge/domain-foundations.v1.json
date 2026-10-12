@@ -337,12 +337,13 @@
         "ARCH-011"
       ],
       "canonicalPaths": [
-        "src/lib/storefront/**",
-        "src/components/storefront/**",
-        "src/lib/builder/storefront-**",
+        "src/app/fiokom/**",
         "src/components/account/storefront-account-shell.tsx",
         "src/components/builder/storefront-**",
-        "src/app/fiokom/**"
+        "src/components/cart/add-to-cart-confirmation.tsx",
+        "src/components/storefront/**",
+        "src/lib/builder/storefront-**",
+        "src/lib/storefront/**"
       ],
       "evidenceObligations": [
         "responsive isolation proof",
