@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1186-U11A-OFFICE-STAGING-DB-PREFLIGHT",
   "task": "Core 1186 U11A read-only staging Office RLS and migration dependency preflight",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "d1aace61",
   "changeBaseSha": "00821465577ac0e586b08bf2d94b34e08d0f9fca",
   "plannedFilePatterns": [
@@ -324,5 +324,18 @@
       }
     ]
   },
-  "notes": "U11A is a bounded data-security readiness prerequisite, not a DB rollout. Main observed at 00821465577ac0e586b08bf2d94b34e08d0f9fca, successful post-merge CI 38215283132 and Factory 38215283118. Staging has 113 migration history records, historical Office migrations absent, 3 legacy authenticated ALL policies, absent participant table, conversation_type and current-user read helper. Crucially existing private.sync_webshop_plan_entitlements uses normalized plan_capability_grants and the Alap/Pro grant matrix is aligned with accepted PO scope. Do not apply historical sync files. #1186 remains OPEN.\nPlan Before Code initial run 38225656739 BLOCK due to projected semantic dependency scope (database-schema and dependency-contract) and newly activated eight Known Failures / three negative rules. This revised plan binds exact canonical projected guardDigest d1aace61; no implementation has been edited yet."
+  "notes": "U11A is a bounded data-security readiness prerequisite, not a DB rollout. Main observed at 00821465577ac0e586b08bf2d94b34e08d0f9fca, successful post-merge CI 38215283132 and Factory 38215283118. Staging has 113 migration history records, historical Office migrations absent, 3 legacy authenticated ALL policies, absent participant table, conversation_type and current-user read helper. Crucially existing private.sync_webshop_plan_entitlements uses normalized plan_capability_grants and the Alap/Pro grant matrix is aligned with accepted PO scope. Do not apply historical sync files. #1186 remains OPEN.\nPlan Before Code initial run 38225656739 BLOCK due to projected semantic dependency scope (database-schema and dependency-contract) and newly activated eight Known Failures / three negative rules. This revised plan binds exact canonical projected guardDigest d1aace61; no implementation has been edited yet.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "cdd496f5eceb89a89c20031a84fe3978ee52d9e4",
+    "closedAt": "2026-10-12T08:54:50.488Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-12-CORE-1186-U11A",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
