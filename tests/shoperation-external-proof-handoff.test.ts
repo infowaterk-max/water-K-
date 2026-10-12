@@ -242,7 +242,10 @@ describe('cross-workflow external completion proof handoff',()=>{
     const input={expectedHead:'head-1',expectedBranch:'feature/test',runId:'123',workflowConclusion:'success',guardRegistry,runtimeOrigin,previewAnchorCandidates};
     const accepted=validateTemplateFactoryExternalProof({manifest:mixed,...input});
     expect(accepted.ok).toBe(true);
-    expect(accepted.evidence.externalProof.browserMatrixCount).toBe(60);
+    expect(accepted.evidence.externalProof.browserMatrixCount).toBe(42);
+    expect(accepted.evidence.externalProof.acceptanceProofCount).toBe(1);
+    expect(accepted.evidence.externalProof.canaryRegressionCaseCount).toBe(18);
+    expect(accepted.evidence.externalProof.canaryRegressionProofCount).toBe(1);
     const missingCase=manifest({...mixed,cases:canaryCases.slice(1),checksum:undefined});
     expect(validateTemplateFactoryExternalProof({manifest:missingCase,...input}).issues.map(item=>item.code)).toContain('EXTERNAL_PROOF_CANARY_REGRESSION_INCOMPLETE');
     const candidateCanary=manifest({...mixed,acceptanceProofs:[{...mixed.acceptanceProofs[0],factoryCandidate:true},mixed.acceptanceProofs[1]],checksum:undefined});
