@@ -1,64 +1,50 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CORE-1186-U10B-NAV",
-  "task": "Core #1186 U10B Digital Office admin navigation and Alap support access",
+  "taskId": "DEV-CORE-1186-U11A-OFFICE-STAGING-DB-PREFLIGHT",
+  "task": "Core 1186 U11A read-only staging Office RLS and migration dependency preflight",
   "status": "closed",
-  "guardDigest": "6d5c147e",
-  "changeBaseSha": "edd8170e63faaa50e29b5ba057f2432da49ff3d8",
+  "guardDigest": "d1aace61",
+  "changeBaseSha": "00821465577ac0e586b08bf2d94b34e08d0f9fca",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/shoperation-external-proof-handoff.mjs",
-    "src/app/admin/marketing/tiltolista/page.tsx",
-    "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
-    "src/app/admin/ugyfelszolgalat/page.tsx",
-    "src/lib/navigation/admin-ia.ts",
-    "tests/admin-link-integrity.test.ts",
-    "tests/block4-ia-navigation-reporting.test.ts",
-    "tests/digital-office-support-ticket-integration.test.ts",
-    "tests/pro-entitlement-guards.test.ts",
-    "tests/shoperation-external-proof-handoff.test.ts"
+    "scripts/shoperation-office-db-readiness.mjs",
+    "tests/shoperation-office-db-readiness.test.ts"
   ],
   "expectedSubsystems": [
-    "admin-operations",
-    "quality-infrastructure",
-    "storefront-ui"
+    "database-schema",
+    "dependency-contract",
+    "quality-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-ADMIN",
     "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "admin-operations",
     "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002",
-    "SQ-KF-005",
-    "SQ-KF-011",
-    "SQ-KF-012",
+    "SQ-KF-006",
+    "SQ-KF-009",
+    "SQ-KF-010",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-016",
-    "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-022",
-    "TF-KF-006"
+    "SQ-KF-023"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-006",
-    "SQ-NK-008",
-    "SQ-NK-012"
+    "SQ-NK-005",
+    "SQ-NK-012",
+    "SQ-NK-014"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-12-CORE-1186-U10B",
+    "sourceRef": "PO-2026-10-12-CORE-1186-U11A",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "This is a bounded Core #1186 admin-navigation and safe merchant support-link correction, not completion of the wider package-entitlement issue. Security proof must establish that Alap cannot discover or navigate the Pro-only Digital Office while retaining safe independent support tickets, customer notifications and suppression management. Source plus full CI, exact-head governance, route and permission regressions cover this scope only; live tenant, provider and cross-workflow acceptance remain separate.",
+      "rationale": "The staging Office RLS/entitlement schema is materially older than the repository, while its canonical plan sync and grants are already in the later Block 11 model. Any direct replay of the five missing historical Office migrations would overwrite the live plan-sync authority. This bounded release improves only the read-only catalog snapshot/checker and negative tests, before a separately authorized schema migration. No runtime/tenant/database mutations.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -74,29 +60,24 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Alap entitlement navigation never exposes the Digital Office section or its direct Pro workspace link, even while the Alap customer-email capability remains enabled.",
-        "Pro continues to discover its Digital Office workspace, Team Chat and advanced correspondence according to existing server-authoritative feature and role gates.",
-        "Alap and Pro support tickets and ticket-detail back navigation use existing independent /admin/ugyfelszolgalat routes; ticket data remains scoped by tenant and support permission.",
-        "Customer-email suppression remains reachable from the Alap marketing navigation at a new independently server-gated URL; reuse the existing data-scoped suppression page and API without weakening them.",
-        "All static admin link integrity, entitlement and navigation regression checks succeed, followed by Knowledge, Edit-Time, Replay, full CI, Completion Truth and Lifecycle gates at the exact source commit.",
-        "The former Digital Office support-link regression is updated to require the independent Alap-safe support list and detail back-links, while keeping Pro legacy route aliases and their layout security intact.",
-        "Core external factory evidence validation treats only explicitly selected noncandidate canary pages as regression signals with complete error-free scoped viewport cases; canonical acceptance still requires at least one full browser-matrix proof, and no incomplete full or candidate proof can pass."
+        "Read-only Office catalog snapshot includes missing/privacy-sensitive schema prerequisites, private current-user read helper, tenant plan-grant authority and tenant-sync function presence without reading tenant identities, emails or data rows.",
+        "Readiness BLOCKs old broad authenticated ALL policies and missing Pro subscription predicates, participant table, privacy conversation column, current-user helper, and required migration lineage.",
+        "Readiness flags the existing Block 11 plan_capability_grants/sync authority and requires compatibility with it, rather than prescribing replay of an obsolete fixed-feature plan-sync function.",
+        "Staging observed legacy state stays BLOCK, full modeled security candidate remains REVIEW / METADATA_CANDIDATE_ONLY; never treat a clean catalog as proof of authenticated-user, plan transition, or service-role behavior.",
+        "Tests cover every new prerequisite, stale or partial catalog, and existing negative security outcomes, with exact-SHA Guard, Replay, CI, Truth and Lifecycle proof."
       ],
       "invariants": [
-        "Do not grant Alap access to any /admin/kommunikacio page or Digital Office staff workflow; the existing Pro-only layout remains server-owned.",
-        "Preserve Alap normal customer transactional email, support.manage staff ticket workflows, communication suppression and marketing basics.",
-        "Keep the existing canonical plan catalogue and entitlement resolver authoritative; no second product-package or RBAC engine is introduced.",
-        "No changes to database migrations, RLS, tenant plan rows, secrets, scheduled jobs or production deployment are permitted in U10B.",
-        "The existing /admin/kommunikacio/tiltolista and support alias routes remain available only within the original Pro shell for backwards compatibility.",
-        "Canary proof never substitutes for a complete 14x3 acceptance proof; its page/viewport coverage and case evidence must be complete for the selected canary scope."
+        "No SQL DDL or DML, Supabase migration application, plan-grant edits, browser role, tenant, credentials, environment setting or production deployment in U11A.",
+        "Never infer migration application from repository filenames; staging identity and actual source/target ancestry must be separately proven before U11B.",
+        "Do not replace Block 11 capability-grant entitlement authority with historical fixed arrays; Alap ordinary email and support must remain intact.",
+        "RLS metadata alone cannot verify a policy's effective authenticated role behavior, default privileges or service-role RPC isolation.",
+        "No #1186 or Market Ready DONE claim from metadata, even if report reaches REVIEW."
       ],
       "forbiddenStates": [
-        "An Alap merchant is invited into a Pro-only Digital Office menu item that redirects to upgrade or denies access.",
-        "A support ticket link sends an Alap user from an allowed support inbox into a Pro-only shell.",
-        "An Alap merchant loses existing customer-email suppression or support actions because the Pro workspace is hidden.",
-        "A marketing suppression page is rendered without the existing tenant and marketing permission checks.",
-        "The U10B navigation proof is reported as overall #1186 closure without independent production-like entitlement, worker and DB/RLS evidence.",
-        "A success-status Factory run with incomplete candidate or full acceptance matrices is accepted as a Core Completion Truth proof."
+        "Historical migration files are blindly replayed over the staging schema or the current Block 11 sync function.",
+        "Readiness emits DONE or claims tenant isolation proved solely because an RLS expression contains expected text.",
+        "A missing helper, table, protection column or legacy ALL policy is ignored as a soft warning.",
+        "A development-stage or stale catalog artifact is used as authoritative evidence for a different environment."
       ]
     },
     "model": {
@@ -128,41 +109,39 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Shared Alap officeCommunication inadvertently appears as the Pro-only workspace feature in desktop or mobile admin navigation.",
-        "Support ticket links point into /admin/kommunikacio/ugyfelszolgalat and the Pro layout denies access to an otherwise authorized Alap support operator.",
-        "Relocating the suppression link makes the UI or API unreachable to Alap, leaving ordinary email safety controls inaccessible.",
-        "Removing an item from the Digital Office section unintentionally exposes its advanced server actions under a different route.",
-        "Entitlement-navigation resolver interprets a trial or a platform role as a cross-tenant Pro package grant.",
-        "New independent route forgets authorization and tenant scoping; the UI appears but fails or leaks data.",
-        "The external Factory proof handoff falsely requires a full 14x3 matrix from a default canary regression signal, blocking a valid full candidate proof or inviting an unsafe gate bypass."
+        "The missing Office privacy foundation depends on absent participant tables and altered thread schema; an isolated policy deployment would deny all support workflows.",
+        "The obsolete fixed-feature plan-sync migration overwrites a current normalized capability-grant authority and causes Alap/Pro entitlement drift.",
+        "The readiness script sees historical version numbers but misses runtime schema changes performed by later deployment timestamps.",
+        "An old ALL authenticated policy remains permissive and bypasses the intended participant and Pro checks.",
+        "A public SECURITY DEFINER read helper leaks cross-tenant visibility or permits arbitrary actor probes.",
+        "A schema-only green report overclaims runtime authenticated role and plan downgrade/expiry behavior."
       ],
       "edgeCases": [
-        "An Alap account has officeCommunication true and officeCommunicationAdvanced false, with marketing.manage and support.manage roles.",
-        "An Alap account has support permission but not marketing permission; ticket access remains allowed while suppression management remains hidden.",
-        "A Pro account has Team Chat disabled but advancedEmail enabled; Office remains discoverable without granting chat.",
-        "Legacy deep links into the Pro Digital Office should stay protected even though new Alap links use independent routes.",
-        "The document's exact base SHA changes after main merge and the Development Guard must reject stale plans.",
-        "Factory returned only canary data, or the canary scope is missing one viewport; both must BLOCK even if the workflow conclusion is SUCCESS."
+        "Staging has 113 applied migration records with newer execution timestamp/name identities while the repository contains over 400 historical SQL files.",
+        "Current plan grants are correct but underlying Office RLS is not, and these are separate truth dimensions.",
+        "Current private read helper absent; service-role Office RPC may exist but cannot be read by a browser.",
+        "One of the three tables lacks an expected column even if it has row level security switched on.",
+        "An otherwise complete metadata snapshot uses a stale timestamp, wrong target or missing catalog arrays."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-U10B-BOUND-ROUTES",
-        "summary": "Route basic Alap support and suppression through existing independent admin modules while filtering the Digital Office exclusively by the Pro entitlement.",
+        "id": "ALT-U11A-METADATA-FIRST",
+        "summary": "Add exact read-only database topology and plan-authority preflight to the existing Office readiness check with fail-closed tests; deploy nothing.",
         "disposition": "selected",
-        "reason": "Preserves a single canonical navigation catalogue and server permission chain while fixing both menu discovery and actual linked destinations."
+        "reason": "Safely identifies the dependency chain and preserves live canonical authority for a later independently gated schema release."
       },
       {
-        "id": "ALT-U10B-COSMETIC",
-        "summary": "Hide the Digitális Iroda label but retain its old ordinary-email feature and existing Pro-only support and suppression links.",
+        "id": "ALT-U11A-REPLAY-HISTORICAL",
+        "summary": "Immediately apply all five missing historical Office migrations in filename order.",
         "disposition": "rejected",
-        "reason": "Only masks the visible symptom; Alap users would still receive denied links and lose existing safe customer operations."
+        "reason": "One historical migration replaces the working normalized plan sync with stale fixed arrays; the staging schema lacks prerequisite privacy objects."
       },
       {
-        "id": "ALT-U10B-RELAX",
-        "summary": "Permit Alap to enter part of /admin/kommunikacio by adding layout bypasses for support, email and suppression child routes.",
+        "id": "ALT-U11A-WAIVE-RLS",
+        "summary": "Treat currently green Next.js UI/route gates as sufficient and waive database Pro-only evidence.",
         "disposition": "rejected",
-        "reason": "Violates the accepted all-Pro Digital Office workspace boundary and risks indirect advanced workflow access."
+        "reason": "Service-role/RPC and authenticated RLS exposure remain unproven and must fail closed."
       }
     ],
     "specialistReviews": [
@@ -170,147 +149,120 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "The U10A merged authority identifies the shared admin navigation manifest as an existing admin-operations-owned file.",
-        "resolution": "Move canonical menu metadata only and reuse the existing support and suppression page implementations rather than a new office or entitlement system.",
+        "finding": "The existing readiness script is the canonical U09 schema evidence boundary.",
+        "resolution": "Extend the same script and tests; do not create a second release or entitlement engine.",
         "evidence": [
-          "src/lib/navigation/admin-ia.ts",
-          "src/app/admin/kommunikacio/layout.tsx"
+          "scripts/shoperation-office-db-readiness.mjs",
+          "AGENTS.md"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "An Alap-safe menu that points to a Pro-only nested route is still a broken access path; simple visibility toggling is insufficient.",
-        "resolution": "Rewrite both support inbox and detail back-links to the independent tenant-scoped support route, and isolate suppression at a correctly gated independent URL.",
+        "finding": "A catalog-only script cannot prove RLS semantics or the confidentiality of SECURITY DEFINER RPCs.",
+        "resolution": "Keep metadata result non-authoritative; explicitly require authenticated role, tenant transition and service-role RPC behavioral proof.",
         "evidence": [
-          "src/app/admin/ugyfelszolgalat/page.tsx",
-          "src/app/admin/ugyfelszolgalat/[id]/page.tsx"
+          "scripts/shoperation-office-db-readiness.mjs",
+          "tests/shoperation-office-db-readiness.test.ts"
         ]
       },
       {
-        "role": "Release",
+        "role": "Data Integrity",
         "mode": "review",
         "verdict": "pass",
-        "finding": "An admin route and navigation change can affect all active packages even though it does not modify the plan catalogue or database.",
-        "resolution": "Use only the explicitly scoped admin and test paths with exact-base CI, source-bound Truth and closed Lifecycle evidence; avoid unrelated Builder/Factory work.",
+        "finding": "Staging retains Block 11 normalized plan grants and plan sync even though historical Office migration versions are absent.",
+        "resolution": "Flag plan-sync authority and schema prerequisites; do not apply historical plan-sync blindly or mutate actual subscriptions.",
         "evidence": [
-          "deploy/release-risk-policy.json",
-          "quality/knowledge/living-roadmap.v2.json"
-        ]
-      },
-      {
-        "role": "Known Failure",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Known-failure proof semantics: The full Factory run intentionally emits both a 14x3 candidate proof and a 6x3 canary regression, but the external consumer currently treats every proof as a full acceptance candidate.",
-        "resolution": "Use explicit source-record selection mode and bound case coverage to allow only canary regression as scoped nonacceptance evidence; require full acceptance proof and exact-head provenance.",
-        "evidence": [
-          "scripts/shoperation-external-proof-handoff.mjs",
-          "scripts/template-factory-quality-gate.mjs",
-          ".github/workflows/template-factory-quality-gate.yml"
+          "supabase/migrations/20260910061815_customer_email_plan_split_v1.sql",
+          "src/lib/plans/catalog.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U10B-01",
-        "scenario": "Alap merchant has enabled basic officeCommunication and clicks the canonical Digitális Iroda section.",
-        "finding": "The current navigation advertises a Pro-only server page based on the wrong feature grant.",
-        "resolution": "Bind the only Digital Office customer-email item to officeCommunicationAdvanced, and keep it outside Alap navigation.",
+        "id": "CH-U11A-01",
+        "scenario": "The five missing migration files are applied directly.",
+        "finding": "One redefines canonical tenant plan sync and may remove or reactivate granted capabilities.",
+        "resolution": "Use read-only report and a later dependency-ordered adapted SQL release; never replay the obsolete sync.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10B-02",
-        "scenario": "Alap support operator opens a ticket in the allowed independent support inbox.",
-        "finding": "The current ticket links jump under the Pro-only communication layout and block the basic support workflow.",
-        "resolution": "Use the independent support ticket and detail route for all links, preserving existing tenant-scoped access.",
+        "id": "CH-U11A-02",
+        "scenario": "RLS is enabled but three old ALL policies still permit ordinary support reads.",
+        "finding": "A positive RLS enabled flag is misleading because the qual remains legacy.",
+        "resolution": "Keep broad policy and Pro predicate blockers mandatory.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10B-03",
-        "scenario": "Alap marketing manager needs to block an address after a delivery complaint.",
-        "finding": "The existing suppression link is inside the Pro-only layout and is unreachable even with valid basic email privileges.",
-        "resolution": "Create one independent feature- and tenant-gated suppression route reusing the existing view, then place its navigation under Marketing.",
+        "id": "CH-U11A-03",
+        "scenario": "Privacy participant table or conversation_type does not exist.",
+        "finding": "A new thread-read policy may call absent objects and make the inbox inaccessible.",
+        "resolution": "Preflight both underlying objects and stop before any schema deployment.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10B-04",
-        "scenario": "A Pro user has advanced email but an internal Team Chat suspension.",
-        "finding": "Overly broad plan filtering could hide the permitted workspace or silently re-enable disabled chat.",
-        "resolution": "Use the current per-feature entitlement and team capability gates without changing Team Chat behavior.",
+        "id": "CH-U11A-04",
+        "scenario": "A deployment had timestamp-renamed migration identity.",
+        "finding": "Version-based registry comparison can produce false positives or false negatives.",
+        "resolution": "Capture execution lineage separately; never infer deployed source from a filename alone.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10B-05",
-        "scenario": "An Alap user guesses an old deep link to the legacy Digital Office aliases.",
-        "finding": "A new independent route must not weaken the inherited Pro-only layout guard.",
-        "resolution": "Keep original communication subtree and its requirePlanFeature officeCommunicationAdvanced unmodified.",
+        "id": "CH-U11A-05",
+        "scenario": "A catalog has plausible restrictive policy SQL but public RPC bypasses it.",
+        "finding": "Claiming authoritative completion from catalog overstates security.",
+        "resolution": "Retain REVIEW and require service-role/RPC and authenticated actor behavior proof.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10B-06",
-        "scenario": "A page link or back-link is updated without regression coverage for mobile and direct route navigation.",
-        "finding": "The UI may appear correct for one entry path while another links into the old gated shell.",
-        "resolution": "Extend static route integrity and package-specific navigation tests for support and suppression, with full CI and no waivers.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-U10B-07",
-        "scenario": "A full Factory run also includes noncandidate Playroom canary evidence; the external handoff treats it as failed full acceptance.",
-        "finding": "This creates a false-negative Completion Truth despite verified full candidate proof; simply relaxing the full matrix requirement would be unsafe.",
-        "resolution": "Partition trusted default-canary regression evidence from full acceptance, assert scoped canary cases are error-free and complete, and retain full 14x3 requirements for every non-canary acceptance.",
+        "id": "CH-U11A-06",
+        "scenario": "Updating Office schema would disrupt Alap emails or current Block 11 plan grants.",
+        "finding": "A security fix can become an entitlement regression.",
+        "resolution": "U11A only collects metadata and protects the approved Alap/Pro model for later migration design.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Verify the exact merged U10A main and its previous GREEN CI and Lifecycle before starting this new Core transaction.",
-      "Admit only the exact U10B file plan through Development Guard and Plan Before Code prior to any source implementation.",
-      "Exercise Alap and Pro feature-resolution matrices and assert direct digital-office URL is absent for Alap without disabling officeCommunication.",
-      "Check independent tenant-scoped support list and detail link paths and Alap suppression route against the existing safe API permission gate.",
-      "Run targeted navigation, admin-link, Pro-entitlement and support tests plus full Quality, TypeScript, build, Edit-Time/Reference Sync, Replay and exact-head Truth/Lifecycle.",
-      "Do not merge or claim all #1186 capabilities closed merely because U10B navigation and link paths pass.",
-      "Update the existing Digital Office support ticket integration regression to assert Alap-safe support navigation without deleting coverage for the legacy Pro-only aliases.",
-      "Reconcile the exact-root-cause handoff drift: Factory run 38210103415 SUCCESS proved 42 full Loot Vault cases plus 18 Playroom canary cases, but Core run 38210103529 attempt 2 rejected a non-acceptance canary. Test valid mixed evidence, missing canary evidence, missing full evidence and incomplete full evidence as separate states. Do not bypass or waive the Factory contract."
+      "Read exact main and post-merge green CI before plan creation; collect credential-free staging-only catalog facts with the Supabase read-only SQL tool.",
+      "Confirm Development Guard known-failure scope and Plan Before Code PASS before editing script/tests.",
+      "Implement only additive snapshot fields and fail-closed readiness checks; preserve old error codes and REVIEW semantics.",
+      "Add negative tests for missing participant table, conversation type column, private current-user helper and incorrect plan-sync basis.",
+      "Run Edit-Time, Knowledge Preflight, Incremental Replay, full CI and exact-head Completion Truth/Lifecycle.",
+      "After U11A merge, prepare a separate staged SQL migration/rehearsal U11B, excluding obsolete entitlement sync, with explicit rollback and behavioral proof.",
+      "Plan Before Code run 38225656739 projected both database-schema and dependency-contract for the canonical Office preflight script; expanded failure replay (8 records) and negative knowledge (3 records) are admitted before implementation."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-12-CORE-1186-U10B",
+      "request": "PO-2026-10-12-CORE-1186-U11A",
       "authority": [
-        "admin-operations"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        "src/lib/navigation/admin-ia.ts",
-        "src/app/admin/ugyfelszolgalat/page.tsx",
-        "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
-        "tests/block4-ia-navigation-reporting.test.ts",
-        "tests/admin-link-integrity.test.ts",
-        "tests/pro-entitlement-guards.test.ts",
-        "tests/digital-office-support-ticket-integration.test.ts",
-        "scripts/shoperation-external-proof-handoff.mjs",
-        "tests/shoperation-external-proof-handoff.test.ts"
+        "scripts/shoperation-office-db-readiness.mjs",
+        "tests/shoperation-office-db-readiness.test.ts"
       ],
       "mayEdit": [
-        "src/app/admin/marketing/tiltolista/page.tsx",
         "quality/development/active-plan.json"
       ],
       "impactedReadOnly": [
-        "src/app/admin/kommunikacio/layout.tsx",
-        "src/app/admin/kommunikacio/tiltolista/page.tsx",
-        "src/app/api/admin/communication/suppression/route.ts"
+        "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql",
+        "supabase/migrations/20260908024000_digital_office_rls_helper_exposure_closure_v1.sql",
+        "supabase/migrations/20260910061815_customer_email_plan_split_v1.sql",
+        "src/lib/plans/access.ts",
+        "src/lib/entitlements/access.ts"
       ],
-      "mustCreate": [
-        "src/app/admin/marketing/tiltolista/page.tsx"
-      ],
+      "mustCreate": [],
       "forbidden": [
-        "src/lib/plans/**",
+        "supabase/migrations/**",
         "src/lib/entitlements/**",
-        "supabase/**",
-        "src/app/admin/kommunikacio/layout.tsx"
+        "src/lib/plans/**",
+        "src/app/**"
       ],
       "proof": [
+        "GUARD-KNOWLEDGE-PREFLIGHT",
+        "GUARD-PLAN-BEFORE-CODE",
         "GUARD-QUALITY-TESTS",
-        "GUARD-TYPECHECK",
-        "GUARD-PRODUCTION-BUILD"
+        "GUARD-INCREMENTAL-REPLAY"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -319,7 +271,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-12-CORE-1186-U10B",
+    "sourceRef": "PO-2026-10-12-CORE-1186-U11A",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -337,79 +289,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-CORE-1186-U10B-NAV-BOUNDARY",
-        "requirement": "Alap never discovers the Pro-only Digital Office workspace, while Pro retains existing feature/permission gates.",
-        "claimScope": {
-          "capability": "CAP-ADMIN",
-          "breadth": "bounded-canonical-merchant-navigation",
-          "strength": 1,
-          "dimensions": [
-            "status",
-            "scope",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ADMIN"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-U10B-ALAP-OFFICE",
-            "statement": "An Alap user must not receive a navigable Digital Office workspace path based on ordinary email entitlement.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-CORE-1186-U10B-ALAP-ACCESS",
-        "requirement": "Existing independent support routes and Alap-safe communication suppression remain discoverable and permission-gated without duplicating their business logic.",
-        "claimScope": {
-          "capability": "CAP-ADMIN",
-          "breadth": "support-and-suppression-route-navigation",
-          "strength": 1,
-          "dimensions": [
-            "status",
-            "scope",
-            "limitations"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ADMIN"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-U10B-SUPPORT-BLOCK",
-            "statement": "Support and suppression must not depend on the Pro-only Digital Office layout or bypass tenant authorization.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-CORE-1186-U10B-EXTERNAL-PROOF-CANARY",
-        "requirement": "The external Factory proof handoff rejects incomplete full acceptance and partial canary regression cases while accepting exact-head full-candidate plus complete scoped noncandidate canary signals.",
+        "id": "REQ-CORE-1186-U11A-STAGING-PREFLIGHT",
+        "requirement": "Canonical Office DB readiness fail-closes on missing schema/privacy requirements and preserves Block 11 plan-authority while withholding all runtime completion claims.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "cross-workflow-factory-handoff-only",
+          "breadth": "staging Office read-only schema and migration preflight",
           "strength": 1,
           "dimensions": [
             "status",
@@ -430,8 +314,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U10B-EXTERNAL-OVERCLAIM",
-            "statement": "Canary-only or incomplete Factory evidence must not satisfy the full browser matrix claim.",
+            "id": "NEG-U11A-FALSE-DONE",
+            "statement": "No metadata-only result or obsolete migration may mark Office RLS capability DONE or authorize plan sync overwrite.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -440,14 +324,14 @@
       }
     ]
   },
-  "notes": "Scoped immediate successor to the merged U10A navigation-authority prerequisite, according to the Living Roadmap Core priority and accepted all-Pro Digital Office boundary. Alap normal email and support must survive. Previous #1186 U01-U09 changes are on main. No Builder, Template Factory, schema, tenant or payment modification. Only start product implementation after canonical plan-only gate PASS.\nPlan Before Code first PR verification run 38209383695 resolved additional storefront-ui subsystem and two associated known-failure records due to src/app/admin/** files matching the shared src/app/** pattern. The canonical policy defines the added scope and risk; this plan now acknowledges it exactly before any implementation edits.\nU10B first full Core CI 38209757472 failed one known stale test: tests/digital-office-support-ticket-integration.test.ts expected support back-links inside the Pro-only Digital Office shell, contrary to the accepted Alap support baseline. Extend this planned file scope before test changes; retain the existing Pro alias assertions. No product behavior expansion is authorized.\nU10B exact-head Core CI 38210103529 attempt 2: external proof handoff BLOCK EXTERNAL_PROOF_BROWSER_MATRIX_INCOMPLETE for gaming.playroom, a documented noncandidate default-canary selected 6/14 pages in Factory run 38210103415 attempt 2. Full gaming.loot-vault acceptance was 14x3. This bounded proof semantics repair must enforce canary case coverage and preserve complete full acceptance authority. Expand the Development Guard plan before touching the consumer or regression file.",
+  "notes": "U11A is a bounded data-security readiness prerequisite, not a DB rollout. Main observed at 00821465577ac0e586b08bf2d94b34e08d0f9fca, successful post-merge CI 38215283132 and Factory 38215283118. Staging has 113 migration history records, historical Office migrations absent, 3 legacy authenticated ALL policies, absent participant table, conversation_type and current-user read helper. Crucially existing private.sync_webshop_plan_entitlements uses normalized plan_capability_grants and the Alap/Pro grant matrix is aligned with accepted PO scope. Do not apply historical sync files. #1186 remains OPEN.\nPlan Before Code initial run 38225656739 BLOCK due to projected semantic dependency scope (database-schema and dependency-contract) and newly activated eight Known Failures / three negative rules. This revised plan binds exact canonical projected guardDigest d1aace61; no implementation has been edited yet.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "904478870e4902a3da44992386c360d1e0316ef4",
-    "closedAt": "2026-10-12T06:52:44.385Z",
+    "verifiedImplementationHead": "cdd496f5eceb89a89c20031a84fe3978ee52d9e4",
+    "closedAt": "2026-10-12T08:54:50.488Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-12-CORE-1186-U10B",
+    "sourceRef": "PO-2026-10-12-CORE-1186-U11A",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
