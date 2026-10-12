@@ -59,6 +59,26 @@ export function augmentStorefrontDigitalCommercePreviewContext(input:{
     digitalCommerce.documentsCenter=documentsCenter;
     digitalCommerce.postPurchase={state:'ready',mode:'mixed',paymentStatus:'paid',hasDocuments:true,documentCenterHref:'/fiokom/letoltesek'};
   }
+  // Only the isolated representative Preview may have demo product identity
+  // and stock. Never synthesize inventory in installed/published storefronts.
+  if(input.template?.manifest.templateKey==='gaming.loot-vault'){
+    if(input.page.pageType==='home'){
+      const catalog=rec(next.catalog);
+      const featured=Array.isArray(catalog.featured)?catalog.featured:[];
+      next.catalog={...catalog,featured:featured.map((item,index)=>{
+        const row=rec(item);
+        const id=typeof row.id==='string'&&/^[a-z0-9][a-z0-9._-]*$/i.test(row.id)?row.id:`preview-product-${index+1}`;
+        const price=typeof row.price==='number'&&Number.isFinite(row.price)&&row.price>=0?row.price:0;
+        const stockLabel=typeof row.stockLabel==='string'?row.stockLabel:'';
+        return {...row,productId:`preview-loot-vault-${id}`,slug:`preview-loot-vault-${id}`,unitPrice:price,availableQuantity:stockLabel==='Előrendelhető'?0:6,minimumQuantity:1,orderMultiple:1};
+      })};
+    }
+    if(input.page.pageType==='product'){
+      next.product={...rec(next.product),id:'preview-loot-vault-vault-sentinel',slug:'preview-loot-vault-vault-sentinel'};
+      next.pricing={...rec(next.pricing),unitPrice:59990};
+      next.inventory={...rec(next.inventory),availableQuantity:6,minimumQuantity:1,orderMultiple:1};
+    }
+  }
   next.commerce={...commerce,digitalCommerce};
   return next;
 }
