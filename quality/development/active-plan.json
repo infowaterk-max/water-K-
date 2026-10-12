@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1186-U10B-NAV",
   "task": "Core #1186 U10B Digital Office admin navigation and Alap support access",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "6d5c147e",
   "changeBaseSha": "edd8170e63faaa50e29b5ba057f2432da49ff3d8",
   "plannedFilePatterns": [
@@ -440,5 +440,18 @@
       }
     ]
   },
-  "notes": "Scoped immediate successor to the merged U10A navigation-authority prerequisite, according to the Living Roadmap Core priority and accepted all-Pro Digital Office boundary. Alap normal email and support must survive. Previous #1186 U01-U09 changes are on main. No Builder, Template Factory, schema, tenant or payment modification. Only start product implementation after canonical plan-only gate PASS.\nPlan Before Code first PR verification run 38209383695 resolved additional storefront-ui subsystem and two associated known-failure records due to src/app/admin/** files matching the shared src/app/** pattern. The canonical policy defines the added scope and risk; this plan now acknowledges it exactly before any implementation edits.\nU10B first full Core CI 38209757472 failed one known stale test: tests/digital-office-support-ticket-integration.test.ts expected support back-links inside the Pro-only Digital Office shell, contrary to the accepted Alap support baseline. Extend this planned file scope before test changes; retain the existing Pro alias assertions. No product behavior expansion is authorized.\nU10B exact-head Core CI 38210103529 attempt 2: external proof handoff BLOCK EXTERNAL_PROOF_BROWSER_MATRIX_INCOMPLETE for gaming.playroom, a documented noncandidate default-canary selected 6/14 pages in Factory run 38210103415 attempt 2. Full gaming.loot-vault acceptance was 14x3. This bounded proof semantics repair must enforce canary case coverage and preserve complete full acceptance authority. Expand the Development Guard plan before touching the consumer or regression file."
+  "notes": "Scoped immediate successor to the merged U10A navigation-authority prerequisite, according to the Living Roadmap Core priority and accepted all-Pro Digital Office boundary. Alap normal email and support must survive. Previous #1186 U01-U09 changes are on main. No Builder, Template Factory, schema, tenant or payment modification. Only start product implementation after canonical plan-only gate PASS.\nPlan Before Code first PR verification run 38209383695 resolved additional storefront-ui subsystem and two associated known-failure records due to src/app/admin/** files matching the shared src/app/** pattern. The canonical policy defines the added scope and risk; this plan now acknowledges it exactly before any implementation edits.\nU10B first full Core CI 38209757472 failed one known stale test: tests/digital-office-support-ticket-integration.test.ts expected support back-links inside the Pro-only Digital Office shell, contrary to the accepted Alap support baseline. Extend this planned file scope before test changes; retain the existing Pro alias assertions. No product behavior expansion is authorized.\nU10B exact-head Core CI 38210103529 attempt 2: external proof handoff BLOCK EXTERNAL_PROOF_BROWSER_MATRIX_INCOMPLETE for gaming.playroom, a documented noncandidate default-canary selected 6/14 pages in Factory run 38210103415 attempt 2. Full gaming.loot-vault acceptance was 14x3. This bounded proof semantics repair must enforce canary case coverage and preserve complete full acceptance authority. Expand the Development Guard plan before touching the consumer or regression file.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "904478870e4902a3da44992386c360d1e0316ef4",
+    "closedAt": "2026-10-12T06:52:44.385Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-12-CORE-1186-U10B",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
