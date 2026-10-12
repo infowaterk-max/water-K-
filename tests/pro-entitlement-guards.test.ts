@@ -119,9 +119,10 @@ describe('Pro entitlement entrypoint guards', () => {
     expect(officeSection).toContain("feature:'officeCommunicationAdvanced'");
     expect(officeSection).not.toContain("feature:'officeCommunication',");
     expect(officeSection).not.toContain("id:'support'");
-    expect(officeSection).not.toContain("id:'blocklist'");
+    expect(officeSection).toContain("id:'blocklist'");
     expect(catalog).toContain("id:'support',href:'/admin/ugyfelszolgalat'");
-    expect(catalog).toContain("id:'blocklist',href:'/admin/marketing/tiltolista'");
+    expect(catalog).toContain("id:'blocklist',href:'/admin/kommunikacio/tiltolista'");
+    expect(catalog).toContain("id:'basic-blocklist',href:'/admin/marketing/tiltolista'");
     const independentSuppression=source('src/app/admin/marketing/tiltolista/page.tsx');
     expect(independentSuppression).toContain("requirePlanFeature('officeCommunication')");
     expect(independentSuppression).toContain("from '@/app/admin/kommunikacio/tiltolista/page'");
