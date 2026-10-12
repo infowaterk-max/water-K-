@@ -8,7 +8,8 @@
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "scripts/shoperation-office-db-stage-rehearsal.mjs",
-    "tests/shoperation-office-db-stage-rehearsal.test.ts"
+    "tests/shoperation-office-db-stage-rehearsal.test.ts",
+    "scripts/shoperation-office-db-stage-rehearsal.d.mts"
   ],
   "expectedSubsystems": [
     "database-schema",
@@ -65,7 +66,8 @@
         "Three legacy RLS ALL policies, missing participant table/current-user helper/role grants and missing evaluate_store_capability_v1 are surfaced separately as release prerequisites.",
         "Output includes ordered prerequisite stages, rollback boundaries, backup checks, schema-migration ledger lineage, exact environment identity and follow-up test conditions.",
         "Staging is not modified in U11B rehearsal; no false U11B 'RLS fixed' or #1186 DONE statement is emitted from metadata-only evidence.",
-        "All full CI, Development Guard, Truth and Lifecycle evidence passes on the exact implementation SHA before merging the rehearsal work."
+        "All full CI, Development Guard, Truth and Lifecycle evidence passes on the exact implementation SHA before merging the rehearsal work.",
+        "The canonical .mjs rehearsal utility has a precise .d.mts declaration so importing TypeScript/Vitest code passes strict noImplicitAny without weakening compiler rules."
       ],
       "invariants": [
         "Apply only to the explicitly selected waterk-staging project; never touch production, service role secrets, tenant data or live plan grants.",
@@ -256,7 +258,8 @@
       "Add negative fixtures for missing dependency, grants, tables, service-role RPC exposures, incomplete role proof and stale lineage.",
       "Report migration stages/stop conditions/rollback prerequisites; do not create or apply SQL in this phase.",
       "Complete quality tests, typecheck, build, incremental replay, Truth, Lifecycle; mark U11B rehearsal closed only within its bounded claim.",
-      "Before actual DDL, generate a canonical migration via Supabase CLI when available, validate in disposable staging clone, then separately authorize target deployment and role-based proof."
+      "Before actual DDL, generate a canonical migration via Supabase CLI when available, validate in disposable staging clone, then separately authorize target deployment and role-based proof.",
+      "CI 38229509769 showed all six staged rehearsal tests passed, but TS7016 on the new .mjs module; add exact .d.mts declaration to the allowed implementation after Plan Before Code PASS."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-12-CORE-1186-U11B",
@@ -265,7 +268,8 @@
       ],
       "mustEdit": [
         "scripts/shoperation-office-db-stage-rehearsal.mjs",
-        "tests/shoperation-office-db-stage-rehearsal.test.ts"
+        "tests/shoperation-office-db-stage-rehearsal.test.ts",
+        "scripts/shoperation-office-db-stage-rehearsal.d.mts"
       ],
       "mayEdit": [
         "quality/development/active-plan.json"
@@ -278,7 +282,8 @@
       ],
       "mustCreate": [
         "scripts/shoperation-office-db-stage-rehearsal.mjs",
-        "tests/shoperation-office-db-stage-rehearsal.test.ts"
+        "tests/shoperation-office-db-stage-rehearsal.test.ts",
+        "scripts/shoperation-office-db-stage-rehearsal.d.mts"
       ],
       "forbidden": [
         "supabase/migrations/**",
@@ -352,5 +357,5 @@
       }
     ]
   },
-  "notes": "Bounded U11B prerequisite of Core #1186; not the staging DDL itself. Main SHA 6654cfefdb4f5b5521b017e87890cca4155c0bd3. Post-merge CI 38227287785 SUCCESS. Waterk-staging 113 applied migrations; historical Office privacy and team split versions absent. All office_threads, office_messages and office_tasks empty, RLS enabled but 3 authenticated ALL policies; no participant/current-user helpers, and no authenticated/service table grants according to read-only catalog. public.evaluate_store_capability_v1 absent. Existing normalized Block 11 sync/grants present and must be preserved. No SQL writes, backfills, tenant or production actions in this unit. SQL release and role behavior proof remain required before #1186 completion."
+  "notes": "Bounded U11B prerequisite of Core #1186; not the staging DDL itself. Main SHA 6654cfefdb4f5b5521b017e87890cca4155c0bd3. Post-merge CI 38227287785 SUCCESS. Waterk-staging 113 applied migrations; historical Office privacy and team split versions absent. All office_threads, office_messages and office_tasks empty, RLS enabled but 3 authenticated ALL policies; no participant/current-user helpers, and no authenticated/service table grants according to read-only catalog. public.evaluate_store_capability_v1 absent. Existing normalized Block 11 sync/grants present and must be preserved. No SQL writes, backfills, tenant or production actions in this unit. SQL release and role behavior proof remain required before #1186 completion.\nExact-source PR CI 38229509769: quality tests 6/6 U11B PASS; TypeScript TS7016 missing declaration for scripts/shoperation-office-db-stage-rehearsal.mjs and downstream implicit any in test. Extend plan before creation of required .d.mts; no application/schema edits."
 }
