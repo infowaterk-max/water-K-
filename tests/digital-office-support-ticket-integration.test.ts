@@ -47,10 +47,16 @@ describe('Digital Office support ticket integration',()=>{
     expect(layout).toContain('<DigitalOfficeSupportAlert enabled={supportAccess}/>');
   });
 
-  it('keeps ticket links inside Digital Office after opening the inbox',()=>{
+  it('keeps Alap ticket links outside the Pro-only Digital Office while retaining legacy aliases',()=>{
     const inbox=read('src/app/admin/ugyfelszolgalat/page.tsx');
     const detail=read('src/app/admin/ugyfelszolgalat/[id]/page.tsx');
-    expect(inbox).toContain('/admin/kommunikacio/ugyfelszolgalat/${r.id}');
-    expect(detail).toContain('href="/admin/kommunikacio/ugyfelszolgalat"');
+    expect(inbox).toContain('/admin/ugyfelszolgalat/${r.id}');
+    expect(detail).toContain('href="/admin/ugyfelszolgalat"');
+    expect(inbox).not.toContain('/admin/kommunikacio/ugyfelszolgalat/');
+    expect(detail).not.toContain('href="/admin/kommunikacio/ugyfelszolgalat"');
+    const legacyInbox=read('src/app/admin/kommunikacio/ugyfelszolgalat/page.tsx');
+    const legacyDetail=read('src/app/admin/kommunikacio/ugyfelszolgalat/[id]/page.tsx');
+    expect(legacyInbox).toContain('../../ugyfelszolgalat/page');
+    expect(legacyDetail).toContain('../../../ugyfelszolgalat/[id]/page');
   });
 });
