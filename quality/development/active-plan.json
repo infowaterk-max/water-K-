@@ -3,10 +3,11 @@
   "taskId": "DEV-CORE-1186-U10B-NAV",
   "task": "Core #1186 U10B Digital Office admin navigation and Alap support access",
   "status": "ready-for-implementation",
-  "guardDigest": "1d1d5f53",
+  "guardDigest": "6d5c147e",
   "changeBaseSha": "edd8170e63faaa50e29b5ba057f2432da49ff3d8",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
+    "scripts/shoperation-external-proof-handoff.mjs",
     "src/app/admin/marketing/tiltolista/page.tsx",
     "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
     "src/app/admin/ugyfelszolgalat/page.tsx",
@@ -14,17 +15,21 @@
     "tests/admin-link-integrity.test.ts",
     "tests/block4-ia-navigation-reporting.test.ts",
     "tests/digital-office-support-ticket-integration.test.ts",
-    "tests/pro-entitlement-guards.test.ts"
+    "tests/pro-entitlement-guards.test.ts",
+    "tests/shoperation-external-proof-handoff.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
+    "quality-infrastructure",
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-ADMIN"
+    "DOMAIN-ADMIN",
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "admin-operations"
+    "admin-operations",
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -74,21 +79,24 @@
         "Alap and Pro support tickets and ticket-detail back navigation use existing independent /admin/ugyfelszolgalat routes; ticket data remains scoped by tenant and support permission.",
         "Customer-email suppression remains reachable from the Alap marketing navigation at a new independently server-gated URL; reuse the existing data-scoped suppression page and API without weakening them.",
         "All static admin link integrity, entitlement and navigation regression checks succeed, followed by Knowledge, Edit-Time, Replay, full CI, Completion Truth and Lifecycle gates at the exact source commit.",
-        "The former Digital Office support-link regression is updated to require the independent Alap-safe support list and detail back-links, while keeping Pro legacy route aliases and their layout security intact."
+        "The former Digital Office support-link regression is updated to require the independent Alap-safe support list and detail back-links, while keeping Pro legacy route aliases and their layout security intact.",
+        "Core external factory evidence validation treats only explicitly selected noncandidate canary pages as regression signals with complete error-free scoped viewport cases; canonical acceptance still requires at least one full browser-matrix proof, and no incomplete full or candidate proof can pass."
       ],
       "invariants": [
         "Do not grant Alap access to any /admin/kommunikacio page or Digital Office staff workflow; the existing Pro-only layout remains server-owned.",
         "Preserve Alap normal customer transactional email, support.manage staff ticket workflows, communication suppression and marketing basics.",
         "Keep the existing canonical plan catalogue and entitlement resolver authoritative; no second product-package or RBAC engine is introduced.",
         "No changes to database migrations, RLS, tenant plan rows, secrets, scheduled jobs or production deployment are permitted in U10B.",
-        "The existing /admin/kommunikacio/tiltolista and support alias routes remain available only within the original Pro shell for backwards compatibility."
+        "The existing /admin/kommunikacio/tiltolista and support alias routes remain available only within the original Pro shell for backwards compatibility.",
+        "Canary proof never substitutes for a complete 14x3 acceptance proof; its page/viewport coverage and case evidence must be complete for the selected canary scope."
       ],
       "forbiddenStates": [
         "An Alap merchant is invited into a Pro-only Digital Office menu item that redirects to upgrade or denies access.",
         "A support ticket link sends an Alap user from an allowed support inbox into a Pro-only shell.",
         "An Alap merchant loses existing customer-email suppression or support actions because the Pro workspace is hidden.",
         "A marketing suppression page is rendered without the existing tenant and marketing permission checks.",
-        "The U10B navigation proof is reported as overall #1186 closure without independent production-like entitlement, worker and DB/RLS evidence."
+        "The U10B navigation proof is reported as overall #1186 closure without independent production-like entitlement, worker and DB/RLS evidence.",
+        "A success-status Factory run with incomplete candidate or full acceptance matrices is accepted as a Core Completion Truth proof."
       ]
     },
     "model": {
@@ -125,14 +133,16 @@
         "Relocating the suppression link makes the UI or API unreachable to Alap, leaving ordinary email safety controls inaccessible.",
         "Removing an item from the Digital Office section unintentionally exposes its advanced server actions under a different route.",
         "Entitlement-navigation resolver interprets a trial or a platform role as a cross-tenant Pro package grant.",
-        "New independent route forgets authorization and tenant scoping; the UI appears but fails or leaks data."
+        "New independent route forgets authorization and tenant scoping; the UI appears but fails or leaks data.",
+        "The external Factory proof handoff falsely requires a full 14x3 matrix from a default canary regression signal, blocking a valid full candidate proof or inviting an unsafe gate bypass."
       ],
       "edgeCases": [
         "An Alap account has officeCommunication true and officeCommunicationAdvanced false, with marketing.manage and support.manage roles.",
         "An Alap account has support permission but not marketing permission; ticket access remains allowed while suppression management remains hidden.",
         "A Pro account has Team Chat disabled but advancedEmail enabled; Office remains discoverable without granting chat.",
         "Legacy deep links into the Pro Digital Office should stay protected even though new Alap links use independent routes.",
-        "The document's exact base SHA changes after main merge and the Development Guard must reject stale plans."
+        "The document's exact base SHA changes after main merge and the Development Guard must reject stale plans.",
+        "Factory returned only canary data, or the canary scope is missing one viewport; both must BLOCK even if the workflow conclusion is SUCCESS."
       ]
     },
     "alternatives": [
@@ -188,6 +198,18 @@
           "deploy/release-risk-policy.json",
           "quality/knowledge/living-roadmap.v2.json"
         ]
+      },
+      {
+        "role": "Proof Semantics",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "The full Factory run intentionally emits both a 14x3 candidate proof and a 6x3 canary regression, but the external consumer currently treats every proof as a full acceptance candidate.",
+        "resolution": "Use explicit source-record selection mode and bound case coverage to allow only canary regression as scoped nonacceptance evidence; require full acceptance proof and exact-head provenance.",
+        "evidence": [
+          "scripts/shoperation-external-proof-handoff.mjs",
+          "scripts/template-factory-quality-gate.mjs",
+          ".github/workflows/template-factory-quality-gate.yml"
+        ]
       }
     ],
     "challenge": [
@@ -232,6 +254,13 @@
         "finding": "The UI may appear correct for one entry path while another links into the old gated shell.",
         "resolution": "Extend static route integrity and package-specific navigation tests for support and suppression, with full CI and no waivers.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-U10B-07",
+        "scenario": "A full Factory run also includes noncandidate Playroom canary evidence; the external handoff treats it as failed full acceptance.",
+        "finding": "This creates a false-negative Completion Truth despite verified full candidate proof; simply relaxing the full matrix requirement would be unsafe.",
+        "resolution": "Partition trusted default-canary regression evidence from full acceptance, assert scoped canary cases are error-free and complete, and retain full 14x3 requirements for every non-canary acceptance.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -241,7 +270,8 @@
       "Check independent tenant-scoped support list and detail link paths and Alap suppression route against the existing safe API permission gate.",
       "Run targeted navigation, admin-link, Pro-entitlement and support tests plus full Quality, TypeScript, build, Edit-Time/Reference Sync, Replay and exact-head Truth/Lifecycle.",
       "Do not merge or claim all #1186 capabilities closed merely because U10B navigation and link paths pass.",
-      "Update the existing Digital Office support ticket integration regression to assert Alap-safe support navigation without deleting coverage for the legacy Pro-only aliases."
+      "Update the existing Digital Office support ticket integration regression to assert Alap-safe support navigation without deleting coverage for the legacy Pro-only aliases.",
+      "Reconcile the exact-root-cause handoff drift: Factory run 38210103415 SUCCESS proved 42 full Loot Vault cases plus 18 Playroom canary cases, but Core run 38210103529 attempt 2 rejected a non-acceptance canary. Test valid mixed evidence, missing canary evidence, missing full evidence and incomplete full evidence as separate states. Do not bypass or waive the Factory contract."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-12-CORE-1186-U10B",
@@ -255,7 +285,9 @@
         "tests/block4-ia-navigation-reporting.test.ts",
         "tests/admin-link-integrity.test.ts",
         "tests/pro-entitlement-guards.test.ts",
-        "tests/digital-office-support-ticket-integration.test.ts"
+        "tests/digital-office-support-ticket-integration.test.ts",
+        "scripts/shoperation-external-proof-handoff.mjs",
+        "tests/shoperation-external-proof-handoff.test.ts"
       ],
       "mayEdit": [
         "src/app/admin/marketing/tiltolista/page.tsx",
@@ -371,8 +403,42 @@
             ]
           }
         ]
+      },
+      {
+        "id": "REQ-CORE-1186-U10B-EXTERNAL-PROOF-CANARY",
+        "requirement": "The external Factory proof handoff rejects incomplete full acceptance and partial canary regression cases while accepting exact-head full-candidate plus complete scoped noncandidate canary signals.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "cross-workflow-factory-handoff-only",
+          "strength": 1,
+          "dimensions": [
+            "status",
+            "scope",
+            "limitations"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-U10B-EXTERNAL-OVERCLAIM",
+            "statement": "Canary-only or incomplete Factory evidence must not satisfy the full browser matrix claim.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
       }
     ]
   },
-  "notes": "Scoped immediate successor to the merged U10A navigation-authority prerequisite, according to the Living Roadmap Core priority and accepted all-Pro Digital Office boundary. Alap normal email and support must survive. Previous #1186 U01-U09 changes are on main. No Builder, Template Factory, schema, tenant or payment modification. Only start product implementation after canonical plan-only gate PASS.\nPlan Before Code first PR verification run 38209383695 resolved additional storefront-ui subsystem and two associated known-failure records due to src/app/admin/** files matching the shared src/app/** pattern. The canonical policy defines the added scope and risk; this plan now acknowledges it exactly before any implementation edits.\nU10B first full Core CI 38209757472 failed one known stale test: tests/digital-office-support-ticket-integration.test.ts expected support back-links inside the Pro-only Digital Office shell, contrary to the accepted Alap support baseline. Extend this planned file scope before test changes; retain the existing Pro alias assertions. No product behavior expansion is authorized."
+  "notes": "Scoped immediate successor to the merged U10A navigation-authority prerequisite, according to the Living Roadmap Core priority and accepted all-Pro Digital Office boundary. Alap normal email and support must survive. Previous #1186 U01-U09 changes are on main. No Builder, Template Factory, schema, tenant or payment modification. Only start product implementation after canonical plan-only gate PASS.\nPlan Before Code first PR verification run 38209383695 resolved additional storefront-ui subsystem and two associated known-failure records due to src/app/admin/** files matching the shared src/app/** pattern. The canonical policy defines the added scope and risk; this plan now acknowledges it exactly before any implementation edits.\nU10B first full Core CI 38209757472 failed one known stale test: tests/digital-office-support-ticket-integration.test.ts expected support back-links inside the Pro-only Digital Office shell, contrary to the accepted Alap support baseline. Extend this planned file scope before test changes; retain the existing Pro alias assertions. No product behavior expansion is authorized.\nU10B exact-head Core CI 38210103529 attempt 2: external proof handoff BLOCK EXTERNAL_PROOF_BROWSER_MATRIX_INCOMPLETE for gaming.playroom, a documented noncandidate default-canary selected 6/14 pages in Factory run 38210103415 attempt 2. Full gaming.loot-vault acceptance was 14x3. This bounded proof semantics repair must enforce canary case coverage and preserve complete full acceptance authority. Expand the Development Guard plan before touching the consumer or regression file."
 }
