@@ -11,7 +11,11 @@ describe('Roadmap Block 4 IA, navigation and reporting contract',()=>{
     const pro=resolveMerchantNavigation('pro',allow,'active',allow).flatMap(section=>section.items);
     expect(alap.some(item=>item.href==='/admin/rendelesek')).toBe(true);
     expect(alap.some(item=>item.href==='/admin/kommunikacio/chat')).toBe(false);
-    expect(alap.some(item=>item.href==='/admin/kommunikacio')).toBe(true);
+    expect(alap.some(item=>item.href==='/admin/kommunikacio')).toBe(false);
+    expect(alap.some(item=>item.href==='/admin/ugyfelszolgalat')).toBe(true);
+    expect(alap.some(item=>item.href==='/admin/marketing/tiltolista')).toBe(true);
+    expect(pro.some(item=>item.href==='/admin/marketing/tiltolista')).toBe(true);
+    expect(pro.some(item=>item.href==='/admin/kommunikacio/tiltolista')).toBe(true);
     expect(alap.some(item=>item.href==='/admin/elemzes')).toBe(false);
     expect(alap.some(item=>item.href==='/admin/cashflow')).toBe(false);
     expect(pro.some(item=>item.href==='/admin/elemzes')).toBe(true);

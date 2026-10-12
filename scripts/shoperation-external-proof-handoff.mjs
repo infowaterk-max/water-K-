@@ -125,8 +125,24 @@ export function validateTemplateFactoryExternalProof({
   if((manifest?.errors??[]).length)issues.push({code:'EXTERNAL_PROOF_MANIFEST_ERRORS',count:manifest.errors.length});
   const proofs=Array.isArray(manifest?.acceptanceProofs)?manifest.acceptanceProofs:[];
   if(!proofs.length)issues.push({code:'EXTERNAL_PROOF_ACCEPTANCE_PROOF_MISSING'});
-  const incomplete=proofs.filter(item=>item?.browserMatrixPassed!==true||item?.browserMatrixComplete!==true);
+  // Factory's default noncandidate canaries are regression signals, not full template-acceptance claims.
+  // Every non-canary acceptance proof must still satisfy the canonical full 14x3 browser matrix.
+  const selections=Array.isArray(manifest?.selection)?manifest.selection:[];
+  const canaries=new Map(selections.filter(item=>item?.mode==='canary'&&item?.reason==='default-canary').map(item=>[item.templateKey,item]));
+  const fullProofs=proofs.filter(item=>!canaries.has(item?.templateKey));
+  if(!fullProofs.length)issues.push({code:'EXTERNAL_PROOF_FULL_ACCEPTANCE_MISSING'});
+  const incomplete=fullProofs.filter(item=>item?.browserMatrixPassed!==true||item?.browserMatrixComplete!==true);
   if(incomplete.length)issues.push({code:'EXTERNAL_PROOF_BROWSER_MATRIX_INCOMPLETE',templates:incomplete.map(item=>item?.templateKey??'unknown')});
+  const scopedCases=Array.isArray(manifest?.cases)?manifest.cases:[];
+  for(const [templateKey,selection] of canaries){
+    const proof=proofs.find(item=>item?.templateKey===templateKey);
+    const expectedKeys=new Set((selection.pages??[]).flatMap(page=>['desktop','tablet','mobile'].map(viewport=>page+':'+viewport)));
+    const matches=scopedCases.filter(item=>item?.templateKey===templateKey&&item?.templateVersion===proof?.templateVersion);
+    const passedKeys=new Set(matches.filter(item=>Array.isArray(item?.errors)&&item.errors.length===0).map(item=>item.pageType+':'+item.viewport));
+    if(!proof||proof.factoryCandidate!==false||!expectedKeys.size||proof.browserMatrixCaseCount!==expectedKeys.size||[...expectedKeys].some(key=>!passedKeys.has(key))){
+      issues.push({code:'EXTERNAL_PROOF_CANARY_REGRESSION_INCOMPLETE',templateKey,expectedCases:expectedKeys.size,observedPassingCases:passedKeys.size});
+    }
+  }
   if(manifest?.checksum){
     const actual=templateFactoryEvidenceChecksum(manifest);
     if(actual!==manifest.checksum)issues.push({code:'EXTERNAL_PROOF_CHECKSUM_INVALID',expected:manifest.checksum,actual});
@@ -195,8 +211,10 @@ export function validateTemplateFactoryExternalProof({
         workflow:workflowName,
         artifactContract:manifest.contract,
         artifactChecksum:manifest.checksum,
-        browserMatrixCount:proofs.reduce((sum,item)=>sum+Number(item?.browserMatrixCaseCount??0),0),
-        acceptanceProofCount:proofs.length,
+        browserMatrixCount:fullProofs.reduce((sum,item)=>sum+Number(item?.browserMatrixCaseCount??0),0),
+        acceptanceProofCount:fullProofs.length,
+        canaryRegressionCaseCount:proofs.filter(item=>canaries.has(item?.templateKey)).reduce((sum,item)=>sum+Number(item?.browserMatrixCaseCount??0),0),
+        canaryRegressionProofCount:canaries.size,
         liveProofMode:manifest.liveProof?.mode??null,
         liveProofOriginSourceCommit:manifest.liveProof?.originSourceCommit??null,
         liveProofOriginRunId:manifest.liveProof?.originRunId??null,

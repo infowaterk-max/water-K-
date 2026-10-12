@@ -113,4 +113,30 @@ describe('Pro entitlement entrypoint guards', () => {
   it('keeps standard commerce integrations in Alap while advanced operations remain Pro', () => { const catalog=source('src/lib/plans/catalog.ts'); expect(catalog).toContain("'commerceIntegrations'"); expect(catalog).toContain("'advancedIntegrations'"); const alapSection=catalog.slice(catalog.indexOf('const ALAP_FEATURES'),catalog.indexOf('const PRO_FEATURES')); expect(alapSection).toContain("'commerceIntegrations'"); expect(alapSection).not.toContain("'advancedIntegrations'"); });
   it('provides an API-safe entitlement-aware feature helper without redirect semantics', () => { const file=source('src/lib/plans/access.ts'); const helper=file.slice(file.indexOf('export async function hasCurrentPlanFeature'),file.indexOf('export async function requirePlanFeature')); expect(helper).toContain('getFeatureEntitlementDecision'); expect(helper).toContain('return explicit?.enabled===true'); expect(helper).toContain('return hasPlanFeature(await getCurrentPlan(),feature)'); expect(helper).not.toContain('return hasPlanFeature(instance.subscriptionPlan,feature)'); expect(helper).not.toContain('redirect('); });
   it('fails closed to Alap when no valid default plan is configured', () => { const file=source('src/lib/plans/access.ts'); expect(file).toContain("const fallback: PlanCode = isPlanCode(configuredDefault) ? configuredDefault : 'alap'"); expect(file).not.toContain("configuredDefault) ? configuredDefault : 'pro'"); });
+  it('enforces Pro-only Office menu discovery without hiding Alap support, transactional email or suppression controls',()=>{
+    const catalog=source('src/lib/navigation/admin-ia.ts');
+    const officeSection=catalog.slice(catalog.indexOf("{id:'digital-office',label:'Digitális Iroda'"),catalog.indexOf("{id:'content-appearance'"));
+    expect(officeSection).toContain("feature:'officeCommunicationAdvanced'");
+    expect(officeSection).not.toContain("feature:'officeCommunication',");
+    expect(officeSection).not.toContain("id:'support'");
+    expect(officeSection).toContain("id:'blocklist'");
+    expect(catalog).toContain("id:'support',href:'/admin/ugyfelszolgalat'");
+    expect(catalog).toContain("id:'blocklist',href:'/admin/kommunikacio/tiltolista'");
+    expect(catalog).toContain("id:'basic-blocklist',href:'/admin/marketing/tiltolista'");
+    const independentSuppression=source('src/app/admin/marketing/tiltolista/page.tsx');
+    expect(independentSuppression).toContain("requirePlanFeature('officeCommunication')");
+    expect(independentSuppression).toContain("from '@/app/admin/kommunikacio/tiltolista/page'");
+    const safeApi=source('src/app/api/admin/communication/suppression/route.ts');
+    expect(safeApi).toContain("hasCurrentPlanFeature('officeCommunication')");
+    expect(safeApi).not.toContain("hasCurrentPlanFeature('officeCommunicationAdvanced')");
+    const tickets=source('src/app/admin/ugyfelszolgalat/page.tsx');
+    const detail=source('src/app/admin/ugyfelszolgalat/[id]/page.tsx');
+    expect(tickets).toContain("/admin/ugyfelszolgalat/${r.id}");
+    expect(tickets).not.toContain('/admin/kommunikacio/ugyfelszolgalat/');
+    expect(detail).toContain('href="/admin/ugyfelszolgalat"');
+    expect(detail).not.toContain('href="/admin/kommunikacio/ugyfelszolgalat"');
+    expect(tickets).toContain("requireCurrentStoreContext('support.manage')");
+    expect(detail).toContain("requireCurrentStoreContext('support.manage')");
+  });
+
 });

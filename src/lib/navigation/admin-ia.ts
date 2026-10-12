@@ -47,6 +47,7 @@ export const MERCHANT_NAVIGATION:readonly AdminNavSection[]=[
   ]},
   {id:'customers',label:'Ügyfelek',items:[
     {id:'customers',href:'/admin/ugyfelek',label:'Ügyfelek',description:'Vásárlói és céges ügyféladatok az aktuális webshopon belül.',feature:'customers',permission:'sales.manage',group:'Ügyfélmunka'},
+    {id:'support',href:'/admin/ugyfelszolgalat',label:'Ügyfélszolgálat',description:'Ügyfélszolgálati esetek és támogatási munkafolyamatok.',feature:'support',permission:'support.manage',group:'Kiszolgálás'},
     {id:'crm',href:'/admin/ertekesites',label:'CRM és értékesítés',description:'Értékesítési kapcsolatok, ügyfélmunka és Pro CRM-folyamatok.',feature:'crm',permission:'sales.manage',group:'Ügyfélmunka'},
     {id:'customer-value',href:'/admin/ugyfelertek',label:'Ügyfélérték',description:'Ügyfélérték, aktivitás és megtartási mutatók döntéstámogatáshoz.',feature:'crm',permission:'analytics.read',group:'Ügyfélmunka',reportFamily:'customer',evidenceKinds:['calculation']},
     {id:'follow-up',href:'/admin/utanakovetes',label:'Utánkövetés',description:'Ügyfél- és értékesítési utánkövetési feladatok.',feature:'crm',permission:'sales.manage',group:'Ügyfélmunka'},
@@ -57,6 +58,7 @@ export const MERCHANT_NAVIGATION:readonly AdminNavSection[]=[
   ]},
   {id:'marketing',label:'Marketing',items:[
     {id:'marketing-basics',href:'/admin/marketing',label:'Marketing alapok',description:'Alap marketingeszközök és hozzájárulási állapotok.',feature:'marketingBasics',permission:'marketing.manage',group:'Marketing'},
+    {id:'basic-blocklist',href:'/admin/marketing/tiltolista',label:'E-mail tiltólista',description:'Alap és Pro levelezési tiltások, spam-panaszok és kézbesítési hibák kezelése.',feature:'officeCommunication',permission:'marketing.manage',group:'Kommunikáció'},
     {id:'campaigns',href:'/admin/kampanyok',label:'Kampányközpont',description:'Kampányok, célközönség, jóváhagyás és kiküldési életciklus.',feature:'advancedCampaigns',permission:'marketing.manage',group:'Marketing'},
     {id:'email-templates',href:'/admin/email-sablonok',label:'E-mail sablonok',description:'Tranzakciós és marketing e-mail sablonok, Brand Kit és verziók kezelése.',permission:'marketing.manage',group:'Kommunikáció'},
     {id:'coupons',href:'/admin/kuponok',label:'Kuponok és akciók',description:'Kuponok, kedvezmények és promóciós szabályok.',feature:'coupons',permission:'sales.manage',group:'Marketing'},
@@ -65,9 +67,8 @@ export const MERCHANT_NAVIGATION:readonly AdminNavSection[]=[
   ]},
   {id:'digital-office',label:'Digitális Iroda',items:[
     {id:'team-chat',href:'/admin/kommunikacio/chat',label:'Team Chat',description:'Belső munkatársi 1:1 és csoportos kommunikáció, @említésekkel és webshop-objektum hivatkozásokkal.',feature:'teamChat',capability:'office.internal_chat',group:'Belső kommunikáció'},
-    {id:'office',href:'/admin/kommunikacio',label:'Ügyféllevelezés',description:'A webshop és az ügyfelek közötti e-mailes kommunikáció és operatív munkafolyamatok.',feature:'officeCommunication',permission:'support.manage',group:'Ügyfélkommunikáció'},
-    {id:'blocklist',href:'/admin/kommunikacio/tiltolista',label:'Kommunikációs tiltólista',description:'Kommunikációból kizárt címzettek és tiltási állapotok.',feature:'officeCommunication',permission:'support.manage',group:'Ügyfélkommunikáció'},
-    {id:'support',href:'/admin/ugyfelszolgalat',label:'Ügyfélszolgálat',description:'Ügyfélszolgálati esetek és támogatási munkafolyamatok.',feature:'support',permission:'support.manage',group:'Kiszolgálás'},
+    {id:'office',href:'/admin/kommunikacio',label:'Ügyféllevelezés',description:'A webshop és az ügyfelek közötti e-mailes kommunikáció és operatív munkafolyamatok.',feature:'officeCommunicationAdvanced',permission:'support.manage',group:'Ügyfélkommunikáció'},
+    {id:'blocklist',href:'/admin/kommunikacio/tiltolista',label:'Kommunikációs tiltólista',description:'Kommunikációból kizárt címzettek és tiltási állapotok.',feature:'officeCommunicationAdvanced',permission:'support.manage',group:'Ügyfélkommunikáció'},
   ]},
   {id:'content-appearance',label:'Tartalom & Megjelenés',items:[
     {id:'content',href:'/admin/tartalom',label:'Tartalom és SEO',description:'Oldalak, tartalmak és keresőoptimalizálási alapadatok.',feature:'contentMarketing',permission:'marketing.manage',group:'Tartalom'},
