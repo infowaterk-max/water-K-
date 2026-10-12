@@ -467,7 +467,7 @@
     "truthStatus": "VERIFIED",
     "verifiedImplementationHead": "d76079b3389cacccb46ffb65e1e937486204eed4",
     "closedAt": "2026-10-12T04:09:56.344Z",
-    "truthContract": "shoporation.completion-truth-gate.v1",
+    "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "PO-2026-10-12-F35-LOOT-VAULT-COMMERCE-E10",
     "learning": {
       "state": "review-ready",
