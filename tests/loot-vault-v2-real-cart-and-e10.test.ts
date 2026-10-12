@@ -5,6 +5,15 @@ import {createStorefrontTemplatePreviewBindingContext} from '@/lib/builder/store
 import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-template-preview-canonical';
 import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
 import {attachStorefrontPreviewCartNavigation} from '@/lib/builder/storefront-preview-cart-navigation';
+import {STOREFRONT_STORY_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-story';
+import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
+import {validateStorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {normalizeStorefrontTemplateRuntimeComposition} from '@/lib/builder/storefront-template-runtime-normalization';
+import {ensureStorefrontResponsiveAuthority} from '@/lib/builder/storefront-responsive-isolation';
+import {materializeStorefrontFidelityPage} from '@/lib/builder/storefront-fidelity-engine';
+import {bindStorefrontExistingCommerceRuntime} from '@/lib/builder/storefront-existing-commerce-bindings';
+import {bindStorefrontGrowthMarketingRuntime} from '@/lib/builder/storefront-growth-marketing';
+import {PLANS} from '@/lib/plans/catalog';
 const read=(p:string)=>readFileSync(p,'utf8');
 const template=LOOT_VAULT_V2_TEMPLATE_PACKAGE;
 function previewContext(pageType:'home'|'product'){
@@ -56,4 +65,15 @@ describe('F35 actual Loot Vault cart and editorial contract',()=>{
     expect(nodes.some(n=>n.componentKey==='story.index')).toBe(true);
     expect(read('src/components/builder/storefront-story.tsx')).toContain('data-storefront-story="feature"');
   });
+  it('allows and actually validates the authored blog-index Story Feature through the shared runtime manifest',()=>{
+    const feature=STOREFRONT_STORY_COMPONENT_DEFINITIONS.find(definition=>definition.manifest.componentKey==='story.feature');
+    expect(feature?.manifest.pageTypes).toContain('blog-index');
+    const page=template.pages.find(candidate=>candidate.pageType==='blog-index')!;
+    const normalized=normalizeStorefrontTemplateRuntimeComposition(page);
+    const runtimePage=materializeStorefrontFidelityPage(bindStorefrontGrowthMarketingRuntime(bindStorefrontExistingCommerceRuntime(ensureStorefrontResponsiveAuthority(normalized))),'desktop');
+    const result=validateStorefrontPageDocument(runtimePage,createStorefrontVisualBuilderComponentRegistry(),{plan:'pro',features:[...PLANS.pro.features]});
+    expect(result.violations.filter(violation=>violation.severity==='error')).toEqual([]);
+    expect(result.ok).toBe(true);
+  });
+
 });
