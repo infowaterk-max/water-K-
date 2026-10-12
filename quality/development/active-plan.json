@@ -1,102 +1,55 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CORE-1186-U10A-NAV-SCOPE",
-  "task": "Core 1186 U10A navigation authority scope classification",
-  "status": "closed",
-  "guardDigest": "a41cfd0c",
-  "changeBaseSha": "17f741dbe195aaabd6107595b8ce5036b3438117",
+  "taskId": "DEV-CORE-1186-U10B-NAV",
+  "task": "Core #1186 U10B Digital Office admin navigation and Alap support access",
+  "status": "ready-for-implementation",
+  "guardDigest": "6a5adc3d",
+  "changeBaseSha": "edd8170e63faaa50e29b5ba057f2432da49ff3d8",
   "plannedFilePatterns": [
-    "deploy/release-risk-policy.json",
-    "quality/knowledge/domain-foundations.v1.json",
-    "tests/control-plane-ecosystem-chain.test.ts",
+    "src/lib/navigation/admin-ia.ts",
+    "src/app/admin/ugyfelszolgalat/page.tsx",
+    "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
+    "src/app/admin/marketing/tiltolista/page.tsx",
+    "tests/block4-ia-navigation-reporting.test.ts",
+    "tests/admin-link-integrity.test.ts",
+    "tests/pro-entitlement-guards.test.ts",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "release-infrastructure"
+    "admin-operations"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-ADMIN"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "admin-operations"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-005",
-    "SQ-KF-006",
-    "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
-    "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
-    "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
-    "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
-    "TF-KF-006",
-    "TF-KF-007",
-    "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "SQ-KF-022"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-016",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023"
+    "SQ-NK-001",
+    "SQ-NK-006",
+    "SQ-NK-008",
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-12-CORE-1186-U10A",
+    "sourceRef": "PO-2026-10-12-CORE-1186-U10B",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "These two canonical authorities must classify the same existing admin-navigation files before any #1186 product edit. The work changes only risk and Atlas ownership metadata plus regression coverage; it does not change tenant entitlements, SQL, route guards, operational permissions or production. Guard, semantic scope, replay, CI, Truth and lifecycle closure remain mandatory.",
+      "rationale": "This is a bounded Core #1186 admin-navigation and safe merchant support-link correction, not completion of the wider package-entitlement issue. Security proof must establish that Alap cannot discover or navigate the Pro-only Digital Office while retaining safe independent support tickets, customer notifications and suppression management. Source plus full CI, exact-head governance, route and permission regressions cover this scope only; live tenant, provider and cross-workflow acceptance remain separate.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -112,21 +65,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The canonical DOMAIN-ADMIN maps src/lib/navigation/admin-ia.ts and src/lib/navigation/entitlement-navigation.ts to the existing admin-operations owner without adding a parallel navigation authority.",
-        "The canonical release risk policy classifies those same two paths under existing medium-risk admin-operations and does not change any other subsystem risk classification.",
-        "The existing navigation behavior, Digital Office Pro route shell, Alap email and support operations, all entitlement grants and all tenant state remain unchanged in this prerequisite release.",
-        "A targeted regression proves both files resolve to DOMAIN-ADMIN and the admin-operations risk owner; full required knowledge and development gates complete on the exact SHA."
+        "Alap entitlement navigation never exposes the Digital Office section or its direct Pro workspace link, even while the Alap customer-email capability remains enabled.",
+        "Pro continues to discover its Digital Office workspace, Team Chat and advanced correspondence according to existing server-authoritative feature and role gates.",
+        "Alap and Pro support tickets and ticket-detail back navigation use existing independent /admin/ugyfelszolgalat routes; ticket data remains scoped by tenant and support permission.",
+        "Customer-email suppression remains reachable from the Alap marketing navigation at a new independently server-gated URL; reuse the existing data-scoped suppression page and API without weakening them.",
+        "All static admin link integrity, entitlement and navigation regression checks succeed, followed by Knowledge, Edit-Time, Replay, full CI, Completion Truth and Lifecycle gates at the exact source commit."
       ],
       "invariants": [
-        "Only canonical scope metadata and bounded regression tests change in this unit; product routes, access gates, database objects and tenant records are untouched.",
-        "No Pro-only Digital Office functionality becomes available to Alap as a side effect of classification; no new exemptions, aliases or shadow authorization systems are introduced.",
-        "The full knowledge-infrastructure known-failure replay stays mandatory because DOMAIN ownership mapping is canonical quality input.",
-        "U10A is only a scope prerequisite; it cannot be claimed to close the UI/navigation drift or #1186 overall."
+        "Do not grant Alap access to any /admin/kommunikacio page or Digital Office staff workflow; the existing Pro-only layout remains server-owned.",
+        "Preserve Alap normal customer transactional email, support.manage staff ticket workflows, communication suppression and marketing basics.",
+        "Keep the existing canonical plan catalogue and entitlement resolver authoritative; no second product-package or RBAC engine is introduced.",
+        "No changes to database migrations, RLS, tenant plan rows, secrets, scheduled jobs or production deployment are permitted in U10B.",
+        "The existing /admin/kommunikacio/tiltolista and support alias routes remain available only within the original Pro shell for backwards compatibility."
       ],
       "forbiddenStates": [
-        "Unclassified navigation files are edited as product code before the Development Guard has a stable authority and scope.",
-        "A new domain or duplicate entitlement controller is invented instead of extending DOMAIN-ADMIN and admin-operations.",
-        "Full quality and failure replay are skipped to force a misleading green result on a knowledge-authority change."
+        "An Alap merchant is invited into a Pro-only Digital Office menu item that redirects to upgrade or denies access.",
+        "A support ticket link sends an Alap user from an allowed support inbox into a Pro-only shell.",
+        "An Alap merchant loses existing customer-email suppression or support actions because the Pro workspace is hidden.",
+        "A marketing suppression page is rendered without the existing tenant and marketing permission checks.",
+        "The U10B navigation proof is reported as overall #1186 closure without independent production-like entitlement, worker and DB/RLS evidence."
       ]
     },
     "model": {
@@ -158,37 +115,39 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The Atlas derives DOMAIN-ADMIN for one file but leaves its companion navigation resolver unowned, allowing unsound scope drift.",
-        "A too-broad navigation glob inadvertently classifies storefront-only navigation code as admin security authority.",
-        "Changing the policy without a matching domain map leaves the next Development Guard blocked by unresolved architecture scope.",
-        "The knowledge-infrastructure change expands known-failure scope to 49 regression records; a partial replay would understate release risk.",
-        "A broader policy edit accidentally changes other subsystem risk weights or permits unbounded release changes."
+        "Shared Alap officeCommunication inadvertently appears as the Pro-only workspace feature in desktop or mobile admin navigation.",
+        "Support ticket links point into /admin/kommunikacio/ugyfelszolgalat and the Pro layout denies access to an otherwise authorized Alap support operator.",
+        "Relocating the suppression link makes the UI or API unreachable to Alap, leaving ordinary email safety controls inaccessible.",
+        "Removing an item from the Digital Office section unintentionally exposes its advanced server actions under a different route.",
+        "Entitlement-navigation resolver interprets a trial or a platform role as a cross-tenant Pro package grant.",
+        "New independent route forgets authorization and tenant scoping; the UI appears but fails or leaks data."
       ],
       "edgeCases": [
-        "The two navigation files exist but one does not have an Atlas import edge under the expected owner.",
-        "Only a test filename changes, yielding vacuous proof without verifying canonical machine-readable classification.",
-        "The main branch advances after plan creation, requiring explicit transaction base reconciliation before continuing.",
-        "An implementation adds a new navigation entry but never closes route-level permissions; U10A alone must not claim U10 is complete."
+        "An Alap account has officeCommunication true and officeCommunicationAdvanced false, with marketing.manage and support.manage roles.",
+        "An Alap account has support permission but not marketing permission; ticket access remains allowed while suppression management remains hidden.",
+        "A Pro account has Team Chat disabled but advancedEmail enabled; Office remains discoverable without granting chat.",
+        "Legacy deep links into the Pro Digital Office should stay protected even though new Alap links use independent routes.",
+        "The document's exact base SHA changes after main merge and the Development Guard must reject stale plans."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-U10A-EXTEND-CANONICAL",
-        "summary": "Extend DOMAIN-ADMIN exact path ownership and admin-operations classification for the two existing admin navigation authority modules.",
+        "id": "ALT-U10B-BOUND-ROUTES",
+        "summary": "Route basic Alap support and suppression through existing independent admin modules while filtering the Digital Office exclusively by the Pro entitlement.",
         "disposition": "selected",
-        "reason": "Correctly closes the previously unresolved scope while leaving storefront navigation outside admin and retaining original guard ownership."
+        "reason": "Preserves a single canonical navigation catalogue and server permission chain while fixing both menu discovery and actual linked destinations."
       },
       {
-        "id": "ALT-U10A-LOCAL-BYPASS",
-        "summary": "Patch only an admin-layout visibility branch and leave shared navigation modules outside Atlas classification.",
+        "id": "ALT-U10B-COSMETIC",
+        "summary": "Hide the Digitális Iroda label but retain its old ordinary-email feature and existing Pro-only support and suppression links.",
         "disposition": "rejected",
-        "reason": "Would bypass canonical authorization metadata, duplicate policy locally and violate the mandatory Plan Before Code classification prerequisite."
+        "reason": "Only masks the visible symptom; Alap users would still receive denied links and lose existing safe customer operations."
       },
       {
-        "id": "ALT-U10A-WIDE-GLOB",
-        "summary": "Assign every src/lib/navigation file to the admin domain and risk subsystem with a broad recursive wildcard.",
+        "id": "ALT-U10B-RELAX",
+        "summary": "Permit Alap to enter part of /admin/kommunikacio by adding layout bypasses for support, email and suppression child routes.",
         "disposition": "rejected",
-        "reason": "Would misclassify storefront navigation and silently expand business authority beyond the observed defect."
+        "reason": "Violates the accepted all-Pro Digital Office workspace boundary and risks indirect advanced workflow access."
       }
     ],
     "specialistReviews": [
@@ -196,119 +155,123 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "DOMAIN-ADMIN currently owns admin routes and components but not these shared navigation authority modules.",
-        "resolution": "Add the two exact files to the existing domain definition and preserve the current domain taxonomy.",
+        "finding": "The U10A merged authority identifies the shared admin navigation manifest as an existing admin-operations-owned file.",
+        "resolution": "Move canonical menu metadata only and reuse the existing support and suppression page implementations rather than a new office or entitlement system.",
         "evidence": [
-          "deploy/release-risk-policy.json",
-          "quality/knowledge/domain-foundations.v1.json",
-          "AGENTS.md"
+          "src/lib/navigation/admin-ia.ts",
+          "src/app/admin/kommunikacio/layout.tsx"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A broad src/lib/navigation wildcard could incorrectly place storefront routing behavior under the admin security owner.",
-        "resolution": "Use explicit paths; subsequent U10B must still prove Pro-only route and server authorization independently.",
+        "finding": "An Alap-safe menu that points to a Pro-only nested route is still a broken access path; simple visibility toggling is insufficient.",
+        "resolution": "Rewrite both support inbox and detail back-links to the independent tenant-scoped support route, and isolate suppression at a correctly gated independent URL.",
         "evidence": [
-          "deploy/release-risk-policy.json",
-          "quality/knowledge/domain-foundations.v1.json",
-          "AGENTS.md"
+          "src/app/admin/ugyfelszolgalat/page.tsx",
+          "src/app/admin/ugyfelszolgalat/[id]/page.tsx"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Changing the canonical domain foundations triggers full knowledge replay while the risk policy itself is release infrastructure.",
-        "resolution": "Keep release risk bounded to the two authority files and require exact-head CI and Truth evidence for this metadata-only release.",
+        "finding": "An admin route and navigation change can affect all active packages even though it does not modify the plan catalogue or database.",
+        "resolution": "Use only the explicitly scoped admin and test paths with exact-base CI, source-bound Truth and closed Lifecycle evidence; avoid unrelated Builder/Factory work.",
         "evidence": [
           "deploy/release-risk-policy.json",
-          "quality/knowledge/domain-foundations.v1.json",
-          "AGENTS.md"
+          "quality/knowledge/living-roadmap.v2.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U10A-01",
-        "scenario": "An Alap tenant can still see a Digital Office link after this scope patch.",
-        "finding": "The scope patch intentionally does not change user-visible behavior and must not be reported as the final fix.",
-        "resolution": "Keep #1186 open and require the following U10B navigation/runtime proof.",
+        "id": "CH-U10B-01",
+        "scenario": "Alap merchant has enabled basic officeCommunication and clicks the canonical Digitális Iroda section.",
+        "finding": "The current navigation advertises a Pro-only server page based on the wrong feature grant.",
+        "resolution": "Bind the only Digital Office customer-email item to officeCommunicationAdvanced, and keep it outside Alap navigation.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A-02",
-        "scenario": "A broad wildcard matches storefront navigation files that should not be owned by the admin domain.",
-        "finding": "Navigation authority may be incorrectly interpreted as tenant admin authorization.",
-        "resolution": "Map only the two already identified merchant admin navigation modules.",
+        "id": "CH-U10B-02",
+        "scenario": "Alap support operator opens a ticket in the allowed independent support inbox.",
+        "finding": "The current ticket links jump under the Pro-only communication layout and block the basic support workflow.",
+        "resolution": "Use the independent support ticket and detail route for all links, preserving existing tenant-scoped access.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A-03",
-        "scenario": "Only one of the canonical release and domain mappings is updated.",
-        "finding": "The next Plan Before Code still sees unresolved owner or subsystem classification.",
-        "resolution": "Update both authorities coherently and test both paths in the same regression.",
+        "id": "CH-U10B-03",
+        "scenario": "Alap marketing manager needs to block an address after a delivery complaint.",
+        "finding": "The existing suppression link is inside the Pro-only layout and is unreachable even with valid basic email privileges.",
+        "resolution": "Create one independent feature- and tenant-gated suppression route reusing the existing view, then place its navigation under Marketing.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A-04",
-        "scenario": "A release budget path is accidentally moved from medium to low risk.",
-        "finding": "The dependency chain would produce an unsafe release-risk assessment.",
-        "resolution": "Preserve existing admin-operations risk and assign exact navigation files to that current medium tier.",
+        "id": "CH-U10B-04",
+        "scenario": "A Pro user has advanced email but an internal Team Chat suspension.",
+        "finding": "Overly broad plan filtering could hide the permitted workspace or silently re-enable disabled chat.",
+        "resolution": "Use the current per-feature entitlement and team capability gates without changing Team Chat behavior.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A-05",
-        "scenario": "Knowledge policy modifications incorrectly reuse earlier green QA proof.",
-        "finding": "Known failure and Control Plane data products may be stale across the altered architecture registry.",
-        "resolution": "Force full incremental replay and exact-head knowledge preflight evidence.",
+        "id": "CH-U10B-05",
+        "scenario": "An Alap user guesses an old deep link to the legacy Digital Office aliases.",
+        "finding": "A new independent route must not weaken the inherited Pro-only layout guard.",
+        "resolution": "Keep original communication subtree and its requirePlanFeature officeCommunicationAdvanced unmodified.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A-06",
-        "scenario": "Other non-admin navigation files are silently reclassified.",
-        "finding": "Unexpected ownership can hide future storefront regressions and break implementation impact routing.",
-        "resolution": "Assert the unrelated storefront-ia path is not part of the new admin classification.",
+        "id": "CH-U10B-06",
+        "scenario": "A page link or back-link is updated without regression coverage for mobile and direct route navigation.",
+        "finding": "The UI may appear correct for one entry path while another links into the old gated shell.",
+        "resolution": "Extend static route integrity and package-specific navigation tests for support and suppression, with full CI and no waivers.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Inspect generated Development Guard and Atlas scope reports before any implementation change; require confirmed classification as a prerequisite.",
-      "Run Plan Before Code with the exact main transaction base and compare actual planned domain, authority, failure and negative-knowledge sets.",
-      "Add regression coverage to the existing Control Plane ecosystem test without editing authorization, runtime routes or grants.",
-      "Run edit-time and Reference Sync, Knowledge Preflight and full known-failure Incremental Replay after the coherent authority update.",
-      "Run typecheck, quality tests, CI, read-only Completion Truth and Lifecycle Closure on the exact resulting commit; do not merge or mark #1186 done from scope metadata alone."
+      "Verify the exact merged U10A main and its previous GREEN CI and Lifecycle before starting this new Core transaction.",
+      "Admit only the exact U10B file plan through Development Guard and Plan Before Code prior to any source implementation.",
+      "Exercise Alap and Pro feature-resolution matrices and assert direct digital-office URL is absent for Alap without disabling officeCommunication.",
+      "Check independent tenant-scoped support list and detail link paths and Alap suppression route against the existing safe API permission gate.",
+      "Run targeted navigation, admin-link, Pro-entitlement and support tests plus full Quality, TypeScript, build, Edit-Time/Reference Sync, Replay and exact-head Truth/Lifecycle.",
+      "Do not merge or claim all #1186 capabilities closed merely because U10B navigation and link paths pass."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-12-CORE-1186-U10A",
+      "request": "PO-2026-10-12-CORE-1186-U10B",
       "authority": [
-        "quality-knowledge-system",
-        "release-infrastructure"
+        "admin-operations"
       ],
       "mustEdit": [
-        "deploy/release-risk-policy.json",
-        "quality/knowledge/domain-foundations.v1.json",
-        "tests/control-plane-ecosystem-chain.test.ts"
+        "src/lib/navigation/admin-ia.ts",
+        "src/app/admin/ugyfelszolgalat/page.tsx",
+        "src/app/admin/ugyfelszolgalat/[id]/page.tsx",
+        "tests/block4-ia-navigation-reporting.test.ts",
+        "tests/admin-link-integrity.test.ts",
+        "tests/pro-entitlement-guards.test.ts"
       ],
       "mayEdit": [
+        "src/app/admin/marketing/tiltolista/page.tsx",
         "quality/development/active-plan.json"
       ],
       "impactedReadOnly": [
-        "src/lib/navigation/admin-ia.ts",
-        "src/lib/navigation/entitlement-navigation.ts"
+        "src/app/admin/kommunikacio/layout.tsx",
+        "src/app/admin/kommunikacio/tiltolista/page.tsx",
+        "src/app/api/admin/communication/suppression/route.ts"
       ],
-      "mustCreate": [],
+      "mustCreate": [
+        "src/app/admin/marketing/tiltolista/page.tsx"
+      ],
       "forbidden": [
         "src/lib/plans/**",
         "src/lib/entitlements/**",
-        "supabase/**"
+        "supabase/**",
+        "src/app/admin/kommunikacio/layout.tsx"
       ],
       "proof": [
-        "GUARD-KNOWLEDGE-PREFLIGHT",
-        "GUARD-PLAN-BEFORE-CODE",
         "GUARD-QUALITY-TESTS",
-        "GUARD-INCREMENTAL-REPLAY"
+        "GUARD-TYPECHECK",
+        "GUARD-PRODUCTION-BUILD"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -317,7 +280,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-12-CORE-1186-U10A",
+    "sourceRef": "PO-2026-10-12-CORE-1186-U10B",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -326,18 +289,20 @@
         "GUARD-EDIT-TIME",
         "GUARD-INCREMENTAL-REPLAY",
         "GUARD-RELEASE-RISK",
-        "GUARD-QUALITY-TESTS"
+        "GUARD-QUALITY-TESTS",
+        "GUARD-TYPECHECK",
+        "GUARD-PRODUCTION-BUILD"
       ],
       "externalGuards": [],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-CORE-1186-U10A-CLASSIFICATION",
-        "requirement": "Both existing merchant admin navigation modules are deterministically owned by the existing DOMAIN-ADMIN and admin-operations scopes in canonical machine-readable policy without a behavior change.",
+        "id": "REQ-CORE-1186-U10B-NAV-BOUNDARY",
+        "requirement": "Alap never discovers the Pro-only Digital Office workspace, while Pro retains existing feature/permission gates.",
         "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "two-existing-admin-navigation-files-only",
+          "capability": "CAP-ADMIN",
+          "breadth": "bounded-canonical-merchant-navigation",
           "strength": 1,
           "dimensions": [
             "status",
@@ -346,7 +311,7 @@
           ]
         },
         "requiredCapabilities": [
-          "CAP-QUALITY"
+          "CAP-ADMIN"
         ],
         "evidence": {
           "implementation": [
@@ -358,8 +323,42 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U10A-UNSCOPED",
-            "statement": "Navigation ownership must not be bypassed through a broad wildcard, an unrelated domain, or a parallel authorization controller.",
+            "id": "NEG-U10B-ALAP-OFFICE",
+            "statement": "An Alap user must not receive a navigable Digital Office workspace path based on ordinary email entitlement.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-CORE-1186-U10B-ALAP-ACCESS",
+        "requirement": "Existing independent support routes and Alap-safe communication suppression remain discoverable and permission-gated without duplicating their business logic.",
+        "claimScope": {
+          "capability": "CAP-ADMIN",
+          "breadth": "support-and-suppression-route-navigation",
+          "strength": 1,
+          "dimensions": [
+            "status",
+            "scope",
+            "limitations"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-ADMIN"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-U10B-SUPPORT-BLOCK",
+            "statement": "Support and suppression must not depend on the Pro-only Digital Office layout or bypass tenant authorization.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -368,18 +367,5 @@
       }
     ]
   },
-  "notes": "Prerequisite governance release for the accepted Core #1186 Digital Office Pro-only entitlement closure. The real main was inspected at the exact declared SHA. Existing U01-U09 changes already reside on main; F35 remains separate draft and is not a base or dependency. No implementation source changes are authorized until canonical Development Guard and Plan Before Code both show PASS on this exact plan; keep this transaction draft otherwise.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "fbd97ba70f13d19b533821a9bc79346852762601",
-    "closedAt": "2026-10-12T05:37:44.875Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-12-CORE-1186-U10A",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Scoped immediate successor to the merged U10A navigation-authority prerequisite, according to the Living Roadmap Core priority and accepted all-Pro Digital Office boundary. Alap normal email and support must survive. Previous #1186 U01-U09 changes are on main. No Builder, Template Factory, schema, tenant or payment modification. Only start product implementation after canonical plan-only gate PASS."
 }
