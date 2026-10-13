@@ -41,7 +41,7 @@ jobs:
           set +e
           node scripts/shoperation-development-guard.mjs \
             --task "Core #1272: scoped PO decision authority provenance and fail-closed plan verification" \
-            --files "quality/knowledge/po-instructions.v1.json;scripts/lib/shoperation-codebase-atlas-runtime.mjs;scripts/shoperation-plan-before-code.mjs;tests/shoperation-semantic-execution-intelligence.test.ts;quality/development/active-plan.json" \
+            --files "quality/knowledge/po-instructions.v1.json;scripts/lib/shoperation-codebase-atlas-runtime.mjs;scripts/lib/shoperation-codebase-atlas-runtime.d.mts;scripts/shoperation-plan-before-code.mjs;tests/shoperation-semantic-execution-intelligence.test.ts;quality/development/active-plan.json" \
             --risk high \
             --source-ref "PO-2026-10-13-CORE-1272" \
             --write-plan --check
