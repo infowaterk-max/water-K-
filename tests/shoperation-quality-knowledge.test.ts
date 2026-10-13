@@ -16,7 +16,7 @@ describe('Shoperation global quality knowledge',()=>{
     expect(fail?.invariantIds).toEqual(expect.arrayContaining(['SQ-AUTH-002','SQ-AUTH-007','SQ-AUTH-017']));
     expect(fail?.regressionTests).toEqual(expect.arrayContaining(['tests/shoperation-semantic-execution-intelligence.test.ts','tests/shoperation-development-guard.test.ts']));
     expect(fail?.sourceRecords).toContain('docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md');
-    expect(negative?.sourceRecords).toEqual(expect.arrayContaining(fail?.sourceRecords??[]));
+    expect(negative?.sourceRecords).toEqual(expect.arrayContaining([...(fail?.sourceRecords??[])]));
     expect(negative?.rule).toContain('UNKNOWN/REVIEW_REQUIRED');
     expect(negative?.rule).toContain('supersession');
     expect(SHOPERATION_GLOBAL_BASELINE_FAILURE_IDS).toContain('SQ-KF-025');
