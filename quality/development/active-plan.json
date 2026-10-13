@@ -10,6 +10,7 @@
     "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json",
     "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json",
     "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
+    "tests/shoperation-operational-intelligence.test.ts",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [],
@@ -52,7 +53,8 @@
         "Promote the provenance audit and the 16 machine-readable positive and negative fixture specifications as documentation, not as unexecuted proof of full semantic protection.",
         "Update the human-readable audit to distinguish the merged #1279 four-rule machine guard, successful CI, and remaining gaps and limits.",
         "Preserve the status of M2.18–19 original detail as unverified and M9.7 as NOT_PO_ACCEPTED.",
-        "Source-only changes remain separate from business capability development; complete Plan Before Code, CI, Completion Truth and Lifecycle without bypass."
+        "Source-only changes remain separate from business capability development; complete Plan Before Code, CI, Completion Truth and Lifecycle without bypass.",
+        "Correct existing critical semantic route test-fixture construction: source-neutral create-only active plans must not masquerade as implementation edit routes; test critical route authority with explicit synthetic target/proof independent of active plan."
       ],
       "invariants": [
         "Only source-safe, sanitized, nonsecret history appears in public repository files; no raw personal ChatGPT dialogue is copied.",
@@ -104,7 +106,8 @@
         "Docs mirror old pre-merge status as if no active PO rules exist, creating an inaccurate record.",
         "Source confidence statuses are lost during JSON import and uncertainty gets promoted to acceptance.",
         "Recorded case outcomes are confused with completed test run results.",
-        "Documentation provenance mismatch bypasses later PO decision source review."
+        "Documentation provenance mismatch bypasses later PO decision source review.",
+        "Critical semantic routing test harness accidentally reuses an actual docs-only plan with empty MUST_EDIT/PROOF, yielding a false failure unrelated to authority coherence."
       ],
       "edgeCases": [
         "M2.18/19 source points remain unverified while high-level module acceptance remains linked.",
@@ -226,6 +229,13 @@
         "finding": "Truth overclaim",
         "resolution": "State exact four-rule Phase 1 proof and separately label docs-only source data",
         "status": "resolved"
+      },
+      {
+        "id": "DOC-CH-09",
+        "scenario": "A critical-only test depends on whatever active plan is in main and assumes it has MUST_EDIT and PROOF.",
+        "finding": "Docs-only, create-only branch makes unrelated authority normalization test fail despite real Plan Before Code success.",
+        "resolution": "Extend scope using native Development Guard; build an independent critical-capable synthetic route fixture with exact target and proof inside the affected existing test.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -233,14 +243,15 @@
       "Run canonical Plan Before Code on reconciled #1273 draft PR before editing updated documentation status; no bypass of old stale CI transaction.",
       "Validate 108 index records, 67 Roadmap sources and 16 fixture semantics and negative-source statuses; verify no sensitive raw content copied.",
       "Run full exact-head CI, security, tests, typecheck, production build, truth and generated lifecycle closure artifact; close by canonical emitted file, not manual status.",
-      "After successful merge of #1273, run main exact-head CI and source presence verification. No next Core module business acceptance before #1272 closure review."
+      "After successful merge of #1273, run main exact-head CI and source presence verification. No next Core module business acceptance before #1272 closure review.",
+      "Prove critical-route authority normalization independently from active docs-only plan; validate both explicit neutral AUTHORITY=[] acceptance and non-matching authority drift, while leaving production operational-intelligence engine unchanged."
     ],
     "semanticExecutionRoute": {
       "request": "PO-2026-10-13-CORE-1272-PROVENANCE-DOCS",
-      "authority": [
-        "quality-knowledge-system"
+      "authority": [],
+      "mustEdit": [
+        "tests/shoperation-operational-intelligence.test.ts"
       ],
-      "mustEdit": [],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
@@ -260,7 +271,8 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "quality/development/active-plan.json"
+          "quality/development/active-plan.json",
+          "tests/shoperation-operational-intelligence.test.ts"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
@@ -314,6 +326,12 @@
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
+          },
+          {
+            "file": "tests/shoperation-operational-intelligence.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
           }
         ],
         "violations": [],
@@ -357,6 +375,12 @@
             },
             {
               "file": "quality/development/active-plan.json",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
+              "file": "tests/shoperation-operational-intelligence.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -487,6 +511,30 @@
               "violations": [],
               "decision": "PASS"
             }
+          },
+          {
+            "id": 5,
+            "files": [
+              "tests/shoperation-operational-intelligence.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/shoperation-operational-intelligence.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
           }
         ],
         "releaseUnits": [
@@ -512,7 +560,8 @@
               "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json",
               "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
               "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json",
-              "quality/development/active-plan.json"
+              "quality/development/active-plan.json",
+              "tests/shoperation-operational-intelligence.test.ts"
             ],
             "operations": [
               {
@@ -539,9 +588,17 @@
                 "operation": "modify",
                 "file": "quality/development/active-plan.json",
                 "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "tests/shoperation-operational-intelligence.test.ts",
+                "generated": null
               }
             ],
-            "requiredDependencyFiles": [],
+            "requiredDependencyFiles": [
+              "scripts/lib/shoperation-operational-intelligence.mjs",
+              "scripts/lib/shoperation-release-unit-runtime.mjs"
+            ],
             "authorities": [
               "quality-knowledge-system"
             ],
@@ -583,6 +640,12 @@
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
+                },
+                {
+                  "file": "tests/shoperation-operational-intelligence.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
                 }
               ],
               "violations": [],
@@ -611,7 +674,9 @@
                 "GUARD-RELEASE-RISK",
                 "GUARD-TYPECHECK"
               ],
-              "proofFiles": [],
+              "proofFiles": [
+                "tests/shoperation-operational-intelligence.test.ts"
+              ],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
@@ -625,7 +690,8 @@
                 "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json",
                 "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
                 "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json",
-                "quality/development/active-plan.json"
+                "quality/development/active-plan.json",
+                "tests/shoperation-operational-intelligence.test.ts"
               ],
               "filesAbsent": []
             },
@@ -640,7 +706,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "f80f27c9",
+            "manifestDigest": "b8a48faa",
             "decision": "PASS"
           }
         ],
@@ -774,5 +840,5 @@
       }
     ]
   },
-  "notes": "Docs-only provenance promotion #1273 from Product Owner accepted #1272 follow-up. Native exact-main guard https://github.com/infowaterk-max/water-K-/actions/runs/38385294127 PASS, guard digest 430b0bba; no product runtime modifications. The four files already existed on #1273 history before integration; scope checked prior to creating new status amendment. Keep #1279 merged Phase 1 verification separate from 108 historic source slots and 16 abstract fixtures. Corrected expectedDomains/expectedAuthorities for the actual projected docs-only files per canonical Plan Before Code: all 4 docs/po files are evidence-neutral. The Development Guard source expected DOMAIN-QUALITY solely because its --files input included quality/development/active-plan.json metadata. This is a plan-level reconciliation to actual implementation projection, with no source, code, risk or guard weakening. GitHub CI run 38385664899 precise findings DEV_PLAN_DOMAIN_SCOPE_DRIFT and DEV_PLAN_AUTHORITY_SCOPE_DRIFT."
+  "notes": "Docs-only provenance promotion #1273 from Product Owner accepted #1272 follow-up. Native exact-main guard https://github.com/infowaterk-max/water-K-/actions/runs/38385294127 PASS, guard digest 430b0bba; no product runtime modifications. The four files already existed on #1273 history before integration; scope checked prior to creating new status amendment. Keep #1279 merged Phase 1 verification separate from 108 historic source slots and 16 abstract fixtures. Corrected expectedDomains/expectedAuthorities for the actual projected docs-only files per canonical Plan Before Code: all 4 docs/po files are evidence-neutral. The Development Guard source expected DOMAIN-QUALITY solely because its --files input included quality/development/active-plan.json metadata. This is a plan-level reconciliation to actual implementation projection, with no source, code, risk or guard weakening. GitHub CI run 38385664899 precise findings DEV_PLAN_DOMAIN_SCOPE_DRIFT and DEV_PLAN_AUTHORITY_SCOPE_DRIFT. Native guard scope expanded on run 38386285777 to test operational-intelligence neutral/create-only proof expectations. Only tests/shoperation-operational-intelligence.test.ts added to material code MUST_EDIT; documentation remains mustCreate. The test harness wrongly reused an active plan with no critical MUST_EDIT/PROOF. Actual affected runtime scope is neutral, expectedDomains=[] expectedAuthorities=[]; active semantic route authority=[] is corrected. No guard or product runtime change."
 }
