@@ -3,6 +3,7 @@ import {describe,expect,it} from 'vitest';
 import {
   buildCodebaseAtlas,
   buildExecutionRoute,
+  evaluatePoDecisionClaims,
   classifyAtlasPath,
   impactForAtlasPattern,
   reconcileAuthorityDependencies,
@@ -417,6 +418,77 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
       confidence:0.95,
     }));
     expect(reality.learningCandidates[0].extractionStrategy).toMatch(/domain DAG|executionDependencyPolicies/);
+  });
+
+  it('registers four scoped, source-bound accepted PO decisions without replacing the older route authority',()=>{
+    const registry=JSON.parse(readFileSync('quality/knowledge/po-instructions.v1.json','utf8')) as any;
+    const accepted=[
+      'PO-INSTRUCTION-M4-B2B-RFQ-ALAP-PRO',
+      'PO-INSTRUCTION-M8-5-E7-COMPARE-ALAP-PRO',
+      'PO-INSTRUCTION-M8-9-RELEASE-ALAP-PRO',
+      'PO-INSTRUCTION-M9-6A-MANDATORY-CORE-UPDATE',
+    ];
+    expect(registry.instructions.map((item:any)=>item.id)).toEqual(expect.arrayContaining(accepted));
+    for(const id of accepted){
+      const instruction=registry.instructions.find((item:any)=>item.id===id);
+      expect(instruction.source.ref).toMatch(/^https:\/\/github\.com\/infowaterk-max\/water-K-\/issues\/12\d+$/);
+      expect(instruction.decisionContract.sourceStatus).toBe('VERIFIED_PO_ISSUE');
+      expect(instruction.decisionContract.claimKey).toBeTruthy();
+      expect(instruction.affectedPatterns.length).toBeGreaterThan(0);
+      expect(instruction.forbiddenStates).toEqual([]);
+    }
+    expect(registry.instructions.some((item:any)=>item.id.includes('9-7'))).toBe(false);
+    expect(registry.instructions.some((item:any)=>item.id.includes('2-18')||item.id.includes('2-19'))).toBe(false);
+  });
+
+  it('rejects conflicting or fabricated PO planning claims using sixteen explicit adversarial cases',()=>{
+    const registry=JSON.parse(readFileSync('quality/knowledge/po-instructions.v1.json','utf8')) as any;
+    const byId=(id:string)=>registry.instructions.find((item:any)=>item.id===id);
+    const e7=byId('PO-INSTRUCTION-M8-5-E7-COMPARE-ALAP-PRO');
+    const drop=byId('PO-INSTRUCTION-M8-9-RELEASE-ALAP-PRO');
+    const b2b=byId('PO-INSTRUCTION-M4-B2B-RFQ-ALAP-PRO');
+    const core=byId('PO-INSTRUCTION-M9-6A-MANDATORY-CORE-UPDATE');
+    const file='src/lib/plans/catalog.ts';
+    const claim=(rule:any,value?:string)=>({
+      instructionId:rule.id,sourceRef:rule.source.ref,key:rule.decisionContract.claimKey,
+      value:value??rule.decisionContract.requiredValue,
+    });
+    const synthetic=(id:string,path:string,key:string,value:string,sourceStatus='VERIFIED_PO_ISSUE')=>({
+      id,lifecycle:'active',supersededBy:null,affectedPatterns:[path],
+      source:{kind:'product-owner-decision',ref:'https://github.com/infowaterk-max/water-K-/issues/1269'},
+      decisionContract:{claimKey:key,requiredValue:value,sourceStatus},
+    });
+    const visual=synthetic('PO-TEST-VISUAL-FIRST','src/lib/builder/template-factory/reference-approval.ts','visual.reference','PO_APPROVED_REFERENCE_UNCHANGED');
+    const sourceUnknown=synthetic('PO-TEST-M2-UNVERIFIED','src/lib/commerce/product-operations.ts','product.m2.source','SOURCE_UNKNOWN','SOURCE_UNVERIFIED');
+    const emailOpen=synthetic('PO-TEST-EMAIL-PRICING-OPEN','src/lib/marketing/email-tariff.ts','email.tariff.status','OPEN_NOT_APPROVED');
+    const cases:{id:string;rules:any[];files:string[];claims:any[];expected:string}[]=[
+      {id:'CASE-E7-BLOCK',rules:[e7],files:[file],claims:[claim(e7,'PRO_ONLY')],expected:'BLOCK'},
+      {id:'CASE-E7-PASS',rules:[e7],files:[file],claims:[claim(e7)],expected:'PASS'},
+      {id:'CASE-E7-UNKNOWN',rules:[e7],files:[file],claims:[],expected:'REVIEW_REQUIRED'},
+      {id:'CASE-DROP-BLOCK',rules:[drop],files:[file],claims:[claim(drop,'PRO_ONLY')],expected:'BLOCK'},
+      {id:'CASE-DROP-PASS',rules:[drop],files:[file],claims:[claim(drop)],expected:'PASS'},
+      {id:'CASE-B2B-BLOCK',rules:[b2b],files:[file],claims:[claim(b2b,'PRO_ONLY')],expected:'BLOCK'},
+      {id:'CASE-B2B-PASS',rules:[b2b],files:[file],claims:[claim(b2b)],expected:'PASS'},
+      {id:'CASE-CORE-UPDATE-BLOCK',rules:[core],files:['scripts/release-unit-execute.mjs'],claims:[claim(core,'MERCHANT_OPT_OUT')],expected:'BLOCK'},
+      {id:'CASE-CORE-UPDATE-PASS',rules:[core],files:['scripts/release-unit-execute.mjs'],claims:[claim(core)],expected:'PASS'},
+      {id:'CASE-FACTORY-BLOCK',rules:[visual],files:['src/lib/builder/template-factory/reference-approval.ts'],claims:[claim(visual,'REDESIGN_TO_FIT_BUILDER')],expected:'BLOCK'},
+      {id:'CASE-FACTORY-PASS',rules:[visual],files:['src/lib/builder/template-factory/reference-approval.ts'],claims:[claim(visual)],expected:'PASS'},
+      {id:'CASE-M2-UNVERIFIED',rules:[sourceUnknown],files:['src/lib/commerce/product-operations.ts'],claims:[claim(sourceUnknown)],expected:'BLOCK'},
+      {id:'CASE-EMAIL-TARIFF-BLOCK',rules:[emailOpen],files:['src/lib/marketing/email-tariff.ts'],claims:[claim(emailOpen,'TARIFF_APPROVED_999_HUF')],expected:'BLOCK'},
+      {id:'CASE-EMAIL-TARIFF-PASS',rules:[emailOpen],files:['src/lib/marketing/email-tariff.ts'],claims:[claim(emailOpen)],expected:'PASS'},
+      {id:'CASE-NOT-ACCEPTED-BLOCK',rules:[core],files:['scripts/release-unit-execute.mjs'],claims:[{instructionId:'PO-M9-7-UNAPPROVED',sourceRef:'https://github.com/infowaterk-max/water-K-/issues/1271',key:'oncall',value:'ALWAYS'}],expected:'BLOCK'},
+      {id:'CASE-DOCS-ONLY-PASS',rules:[e7],files:['docs/po/README.md'],claims:[],expected:'NOT_APPLICABLE'},
+    ];
+    expect(cases.length).toBe(16);
+    for(const item of cases){
+      const result=evaluatePoDecisionClaims({poInstructions:item.rules}as any,item.files,item.claims);
+      expect(result.decision,item.id+' '+JSON.stringify(result.issues)).toBe(item.expected);
+    }
+    const falseScope=evaluatePoDecisionClaims({poInstructions:[e7,drop,b2b,core]}as any,['docs/po/README.md'],[]);
+    expect(falseScope.decision).toBe('NOT_APPLICABLE');
+    const omittedInPackage=evaluatePoDecisionClaims({poInstructions:[e7,drop,b2b]}as any,[file],[claim(e7)]);
+    expect(omittedInPackage.decision).toBe('REVIEW_REQUIRED');
+    expect(omittedInPackage.issues.filter(item=>item.code==='PO_DECISION_CLAIM_MISSING')).toHaveLength(2);
   });
 
   it('keeps durable Product Owner decisions as canonical machine-readable authority',()=>{

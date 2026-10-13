@@ -47,6 +47,148 @@
         "Stress regression PR #645 demonstrates the combined canonical route remained live after the decision.",
         "Repository search on 2026-10-01 confirms the combined public authority is implemented in src/app/szallitas-es-fizetes/page.tsx, sitemap authority, route integrity, and public-route regression tests."
       ]
+    },
+    {
+      "id": "PO-INSTRUCTION-M4-B2B-RFQ-ALAP-PRO",
+      "source": {
+        "kind": "product-owner-decision",
+        "ref": "https://github.com/infowaterk-max/water-K-/issues/1259",
+        "recordedAt": "2026-10-12"
+      },
+      "scope": "Module 4.4/4.10 basic B2B company/partner RFQ: Alap+Pro, advanced B2B workflows Pro",
+      "affectedDomains": [
+        "DOMAIN-COMMERCE",
+        "DOMAIN-BUILDER"
+      ],
+      "affectedPatterns": [
+        "src/lib/plans/catalog.ts",
+        "src/lib/b2b/**",
+        "src/app/api/b2b/**",
+        "src/lib/commerce/quote*.ts"
+      ],
+      "affectedRoutes": [],
+      "affectedComponentKeys": [],
+      "affectedContracts": [],
+      "positiveRequirement": "Module 4.4/4.10 basic B2B company/partner RFQ: Alap+Pro, advanced B2B workflows Pro",
+      "forbiddenStates": [],
+      "lifecycle": "active",
+      "supersededBy": null,
+      "decisionContract": {
+        "claimKey": "b2b.rfq.access",
+        "requiredValue": "ALAP_PRO_BASIC_PRO_ADVANCED",
+        "sourceStatus": "VERIFIED_PO_ISSUE",
+        "acceptedScope": "M4",
+        "note": "Only structured, source-bound future development-plan claims in affected files; runtime entitlement truth still requires separate implementation proof."
+      },
+      "evidence": [
+        "Accepted PO scope: https://github.com/infowaterk-max/water-K-/issues/1259"
+      ]
+    },
+    {
+      "id": "PO-INSTRUCTION-M8-5-E7-COMPARE-ALAP-PRO",
+      "source": {
+        "kind": "product-owner-decision",
+        "ref": "https://github.com/infowaterk-max/water-K-/issues/1269",
+        "recordedAt": "2026-10-13"
+      },
+      "scope": "Complete E7 Compare & Spec accepted for Alap and Pro equally; advanced E8 context profile stays Pro",
+      "affectedDomains": [
+        "DOMAIN-COMMERCE",
+        "DOMAIN-BUILDER"
+      ],
+      "affectedPatterns": [
+        "src/lib/plans/catalog.ts",
+        "src/lib/builder/storefront-template-capability-policy.ts",
+        "src/lib/builder/storefront-compare*.ts",
+        "src/lib/commerce/compare*.ts"
+      ],
+      "affectedRoutes": [],
+      "affectedComponentKeys": [],
+      "affectedContracts": [],
+      "positiveRequirement": "Complete E7 Compare & Spec accepted for Alap and Pro equally; advanced E8 context profile stays Pro",
+      "forbiddenStates": [],
+      "lifecycle": "active",
+      "supersededBy": null,
+      "decisionContract": {
+        "claimKey": "special.e7.packageScope",
+        "requiredValue": "ALAP_PRO",
+        "sourceStatus": "VERIFIED_PO_ISSUE",
+        "acceptedScope": "M8.5",
+        "note": "Only structured, source-bound future development-plan claims in affected files; runtime entitlement truth still requires separate implementation proof."
+      },
+      "evidence": [
+        "Accepted PO scope: https://github.com/infowaterk-max/water-K-/issues/1269"
+      ]
+    },
+    {
+      "id": "PO-INSTRUCTION-M8-9-RELEASE-ALAP-PRO",
+      "source": {
+        "kind": "product-owner-decision",
+        "ref": "https://github.com/infowaterk-max/water-K-/issues/1269",
+        "recordedAt": "2026-10-13"
+      },
+      "scope": "Base Release/Drop Alap+Pro, advanced Drop-specific financial/ROI analytics Pro",
+      "affectedDomains": [
+        "DOMAIN-COMMERCE",
+        "DOMAIN-BUILDER"
+      ],
+      "affectedPatterns": [
+        "src/lib/plans/catalog.ts",
+        "src/lib/commerce/release-commerce.ts",
+        "src/lib/builder/storefront-release-commerce*.ts",
+        "src/app/admin/tartalom/release-ek/**"
+      ],
+      "affectedRoutes": [],
+      "affectedComponentKeys": [],
+      "affectedContracts": [],
+      "positiveRequirement": "Base Release/Drop Alap+Pro, advanced Drop-specific financial/ROI analytics Pro",
+      "forbiddenStates": [],
+      "lifecycle": "active",
+      "supersededBy": null,
+      "decisionContract": {
+        "claimKey": "special.release.packageScope",
+        "requiredValue": "ALAP_PRO_RELEASE_PRO_FINANCE",
+        "sourceStatus": "VERIFIED_PO_ISSUE",
+        "acceptedScope": "M8.9",
+        "note": "Only structured, source-bound future development-plan claims in affected files; runtime entitlement truth still requires separate implementation proof."
+      },
+      "evidence": [
+        "Accepted PO scope: https://github.com/infowaterk-max/water-K-/issues/1269"
+      ]
+    },
+    {
+      "id": "PO-INSTRUCTION-M9-6A-MANDATORY-CORE-UPDATE",
+      "source": {
+        "kind": "product-owner-decision",
+        "ref": "https://github.com/infowaterk-max/water-K-/issues/1271",
+        "recordedAt": "2026-10-13"
+      },
+      "scope": "Shared Core security and critical updates centrally mandatory, with bounded compatibility checks and safe rollout, no indefinite merchant opt-out",
+      "affectedDomains": [
+        "DOMAIN-QUALITY"
+      ],
+      "affectedPatterns": [
+        "scripts/release-unit-execute.mjs",
+        "src/lib/platform/core-update*.ts",
+        "scripts/shoperation-core-update*.mjs"
+      ],
+      "affectedRoutes": [],
+      "affectedComponentKeys": [],
+      "affectedContracts": [],
+      "positiveRequirement": "Shared Core security and critical updates centrally mandatory, with bounded compatibility checks and safe rollout, no indefinite merchant opt-out",
+      "forbiddenStates": [],
+      "lifecycle": "active",
+      "supersededBy": null,
+      "decisionContract": {
+        "claimKey": "platform.coreUpdates",
+        "requiredValue": "MANDATORY_WITH_COMPATIBILITY_PROOF",
+        "sourceStatus": "VERIFIED_PO_ISSUE",
+        "acceptedScope": "M9.6/A",
+        "note": "Only structured, source-bound future development-plan claims in affected files; runtime entitlement truth still requires separate implementation proof."
+      },
+      "evidence": [
+        "Accepted PO scope: https://github.com/infowaterk-max/water-K-/issues/1271"
+      ]
     }
   ]
 }
