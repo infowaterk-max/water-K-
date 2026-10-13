@@ -1,0 +1,162 @@
+{
+  "contract": "shoperation.po-source-adversarial-fixtures.v1",
+  "date": "2026-10-13",
+  "classification": "SPECIFICATION_NOT_EXECUTED_TESTS",
+  "purpose": "Machine-readable plan-level negative and positive scenarios for extending existing PO Instruction Authority / Plan Before Code. These are not executable results and DO NOT mark a guard as proven.",
+  "authorityRule": "Canonical PO issue wins over historical summaries; later explicit PO decisions supersede earlier generic classification in its exact scope. Unverified source is not accepted as a fabricated subpoint. No automatic new PO decisions.",
+  "scopingNote": "Run only in relevant business domain; no retroactive global blocking of doc-only or unrelated changes. SOURCE_UNKNOWN requires governed review; for safety-critical affected work, fail closed.",
+  "fixtureCount": 16,
+  "fixtures": [
+    {
+      "id": "CASE-E7-BLOCK",
+      "ruleId": "PO-M8-5-E7-ALAP-PRO",
+      "source": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "scope": "product-comparison",
+      "candidatePlanText": "Pro only; Alap cannot access E7 comparison",
+      "expectedDecision": "BLOCK",
+      "reason": "Later explicit M8.5 grants full E7 comparison to Alap and Pro."
+    },
+    {
+      "id": "CASE-E7-PASS",
+      "ruleId": "PO-M8-5-E7-ALAP-PRO",
+      "source": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "scope": "product-comparison",
+      "candidatePlanText": "Alap and Pro both access full E7 comparison; server-side entitlement parity",
+      "expectedDecision": "PASS",
+      "reason": "Matches later explicit M8.5."
+    },
+    {
+      "id": "CASE-E7-UNKNOWN",
+      "ruleId": "PO-M8-5-E7-ALAP-PRO",
+      "source": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "scope": "product-comparison",
+      "candidatePlanText": "E7 package coverage unspecified",
+      "expectedDecision": "REVIEW_REQUIRED",
+      "reason": "Missing affirmative decision coverage cannot be treated as proven PASS."
+    },
+    {
+      "id": "CASE-DROP-BLOCK",
+      "ruleId": "PO-M8-9-RELEASE-ALAP-PRO",
+      "source": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "scope": "release-commerce",
+      "candidatePlanText": "Only Pro merchants can create or run Release/Drop",
+      "expectedDecision": "BLOCK",
+      "reason": "Later M8.9 explicitly Alap+Pro shared Release, advanced Drop P&L Pro."
+    },
+    {
+      "id": "CASE-DROP-PASS",
+      "ruleId": "PO-M8-9-RELEASE-ALAP-PRO",
+      "source": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "scope": "release-commerce",
+      "candidatePlanText": "Alap and Pro Release/Drop; Pro-only verified Drop-specific financial ROI reporting",
+      "expectedDecision": "PASS",
+      "reason": "Canonical accepted entitlement boundary."
+    },
+    {
+      "id": "CASE-B2B-BLOCK",
+      "ruleId": "PO-M4-4-10-B2B-ALAP",
+      "source": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "scope": "business-customers",
+      "candidatePlanText": "All RFQ and B2B offers require Pro",
+      "expectedDecision": "BLOCK",
+      "reason": "M4.4/4.10 allow basic Alap B2B/RFQ; advanced Pro."
+    },
+    {
+      "id": "CASE-B2B-PASS",
+      "ruleId": "PO-M4-4-10-B2B-ALAP",
+      "source": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "scope": "business-customers",
+      "candidatePlanText": "Basic B2B partner approval and RFQ in Alap and Pro; Pro advanced contracts and approvals",
+      "expectedDecision": "PASS",
+      "reason": "Matches accepted split."
+    },
+    {
+      "id": "CASE-CORE-UPDATE-BLOCK",
+      "ruleId": "PO-M9-6A-MANDATORY-CORE",
+      "source": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "scope": "release-management",
+      "candidatePlanText": "Each merchant can indefinitely reject mandatory Core security updates and retain an old engine version",
+      "expectedDecision": "BLOCK",
+      "reason": "Accepted centrally enforced shared Core releases."
+    },
+    {
+      "id": "CASE-CORE-UPDATE-PASS",
+      "ruleId": "PO-M9-6A-MANDATORY-CORE",
+      "source": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "scope": "release-management",
+      "candidatePlanText": "Central Core upgrades mandatory with bounded compatibility preflight and safe progressive rollout",
+      "expectedDecision": "PASS",
+      "reason": "Matches M9.6/A."
+    },
+    {
+      "id": "CASE-FACTORY-BLOCK",
+      "ruleId": "PO-TEMPLATE-VISUAL-AUTHORITY",
+      "source": "https://github.com/infowaterk-max/water-K-/pull/469",
+      "scope": "visual-reference",
+      "candidatePlanText": "Downgrade an already PO-accepted reference to fit current Builder limitations without new PO approval",
+      "expectedDecision": "BLOCK",
+      "reason": "Builder limitations are capability gaps, not redesign authority."
+    },
+    {
+      "id": "CASE-FACTORY-PASS",
+      "ruleId": "PO-TEMPLATE-VISUAL-AUTHORITY",
+      "source": "https://github.com/infowaterk-max/water-K-/pull/469",
+      "scope": "visual-reference",
+      "candidatePlanText": "Keep approved reference unchanged; document Builder gap and require shared closure before implementation",
+      "expectedDecision": "PASS",
+      "reason": "Preserves Visual First and guarded shared runtime."
+    },
+    {
+      "id": "CASE-M2-UNVERIFIED",
+      "ruleId": "PO-M2-18-19-ORIGINAL-SOURCE",
+      "source": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "scope": "product-operations",
+      "candidatePlanText": "Invent complete 2.18 and 2.19 specifications from a paraphrase, then mark PO accepted detail proven",
+      "expectedDecision": "BLOCK",
+      "reason": "Original detailed PO wording is currently unverified; approved status is not a license to invent content."
+    },
+    {
+      "id": "CASE-EMAIL-TARIFF-BLOCK",
+      "ruleId": "PO-M6-3-MANAGED-EMAIL-TARIFF",
+      "source": "https://github.com/infowaterk-max/water-K-/issues/1264",
+      "scope": "email-commercial",
+      "candidatePlanText": "Managed email included in fixed paid tariff 999 HUF/mo approved",
+      "expectedDecision": "BLOCK",
+      "reason": "This specific price is illustrative and NOT approved; tariff and quota remain OPEN."
+    },
+    {
+      "id": "CASE-EMAIL-TARIFF-PASS",
+      "ruleId": "PO-M6-3-MANAGED-EMAIL-TARIFF",
+      "source": "https://github.com/infowaterk-max/water-K-/issues/1264",
+      "scope": "email-commercial",
+      "candidatePlanText": "Email tariff and quota remain pending PO approval; no paid provider activation",
+      "expectedDecision": "PASS",
+      "reason": "Preserves open decision."
+    },
+    {
+      "id": "CASE-NOT-ACCEPTED-BLOCK",
+      "ruleId": "PO-M9-7-NOT-ACCEPTED",
+      "source": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "scope": "operations",
+      "candidatePlanText": "Create independent 9.7 human 24/7 on-call engine because it was accepted",
+      "expectedDecision": "BLOCK",
+      "reason": "The 9.7 discussion was retracted; no PO acceptance, duplicates M9.4/9.5/A."
+    },
+    {
+      "id": "CASE-DOCS-ONLY-PASS",
+      "ruleId": "PO-UNRELATED-SCOPE",
+      "source": "https://github.com/infowaterk-max/water-K-/blob/main/AGENTS.md",
+      "scope": "documentation",
+      "candidatePlanText": "Docs-only spelling correction unrelated to any scoped PO implementation rule",
+      "expectedDecision": "NOT_APPLICABLE",
+      "reason": "No synthetic PO rule should be attached to unrelated neutral documentation changes."
+    }
+  ],
+  "implementationConstraints": [
+    "Do not naively add all 108 source-index records as active po-instructions; existing validator requires lifecycle active and affectedPatterns.",
+    "Current forbiddenStates scanner looks for literal strings in scoped files, not natural-language contradictions in proposed plans.",
+    "Use existing PO Instruction Authority, Semantic Execution Route, Plan Before Code; don't introduce a competing guard.",
+    "Require source-specific, actual-head negative tests and run development guards before implementation. These fixtures alone do not provide protection.",
+    "Do not invoke GitHub CI or pay providers solely to publish fixture inventory."
+  ]
+}
