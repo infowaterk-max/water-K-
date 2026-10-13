@@ -1,6 +1,6 @@
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {activeDevelopmentPlanPath,compileGateChain,deriveImplementationSkeleton,evaluateReleaseRiskFiles,exactPlannedPaths,getAllFailures,getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
-import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,classifyAtlasPath,resolveAtlasArchitectureForPath,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
+import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,classifyAtlasPath,evaluatePoDecisionClaims,resolveAtlasArchitectureForPath,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
 import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
 import {bindReleaseUnitChildTransaction,decomposeReleaseScope,derivePlannedOperations,releaseUnitChildTask} from './lib/shoperation-release-unit-runtime.mjs';
 
@@ -151,6 +151,11 @@ const expectedInstructionIds=applicableInstructions.map(item=>item.id).sort();
 const acknowledgedInstructionIds=[...(plan.acknowledgedPoInstructionIds??[])].sort();
 const missingInstructionIds=expectedInstructionIds.filter(id=>!acknowledgedInstructionIds.includes(id));
 if(missingInstructionIds.length)issues.push({code:'DEV_PLAN_PO_INSTRUCTION_UNACKNOWLEDGED',instructionIds:missingInstructionIds});
+const poDecisionClaimEvaluation=evaluatePoDecisionClaims(atlas,projectedFiles,plan.operationalIntelligence?.poDecisionClaims??[]);
+for(const finding of poDecisionClaimEvaluation.issues){
+  // REVIEW_REQUIRED is fail-closed for the affected development plan; never silently PASS.
+  issues.push({code:'DEV_PLAN_'+finding.code,...finding});
+}
 
 
 const actualScope=resolveDevelopmentScope({files:changedFiles,task:plan.task});
@@ -330,6 +335,7 @@ const report={
       projected:projectedFiles.filter(file=>deletedFiles.includes(file)||declaredPlannedDeletions.includes(file)).map(file=>projectedArchitectureFor(file)),
     },
     applicablePoInstructionIds:expectedInstructionIds,
+    poDecisionClaimEvaluation,
   },
   guardDigest:digest,
   childPlanProjection,

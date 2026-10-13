@@ -760,6 +760,52 @@ export function applicablePoInstructions(atlas,files){
   return (atlas.poInstructions??[]).filter(item=>item.lifecycle==='active'&&(item.affectedPatterns??[]).some(pattern=>files.some(file=>globToRegExp(pattern).test(file))));
 }
 
+/**
+ * Scope-bounded, source-bound PO decision claims for Plan Before Code.
+ * This checks planning authority, not runtime entitlement implementation.
+ * Existing PO Instruction Authority remains the only canonical registry.
+ */
+export function evaluatePoDecisionClaims(atlas,files,claims=[]){
+  const applicable=applicablePoInstructions(atlas,files).filter(item=>item.decisionContract);
+  const issues=[];
+  if(!Array.isArray(claims))return{
+    contract:'shoporation.po-decision-plan-claims.v1',
+    decision:'BLOCK',
+    applicableInstructionIds:applicable.map(item=>item.id),
+    issues:[{code:'PO_DECISION_CLAIMS_INVALID',severity:'BLOCK'}],
+  };
+  const all=(atlas.poInstructions??[]);
+  for(const claim of claims){
+    if(!claim||typeof claim.instructionId!=='string'||!all.some(item=>item.lifecycle==='active'&&!item.supersededBy&&item.decisionContract&&item.id===claim.instructionId)){
+      issues.push({code:'PO_DECISION_UNKNOWN_OR_INACTIVE_CLAIM',severity:'BLOCK',instructionId:claim?.instructionId??null});
+    }else if(!applicable.some(item=>item.id===claim.instructionId)){
+      issues.push({code:'PO_DECISION_CLAIM_OUTSIDE_SCOPE',severity:'BLOCK',instructionId:claim.instructionId});
+    }
+  }
+  for(const rule of applicable){
+    const contract=rule.decisionContract;
+    if(contract.sourceStatus!=='VERIFIED_PO_ISSUE'||rule.source?.kind!=='product-owner-decision'||!/^https:\/\/github\.com\/[^/]+\/[^/]+\/issues\/\d+$/.test(rule.source?.ref??'')){
+      issues.push({code:'PO_DECISION_SOURCE_UNVERIFIED',severity:'BLOCK',instructionId:rule.id});
+      continue;
+    }
+    const matches=claims.filter(claim=>claim?.instructionId===rule.id);
+    if(matches.length===0){
+      issues.push({code:'PO_DECISION_CLAIM_MISSING',severity:'REVIEW_REQUIRED',instructionId:rule.id,expectedKey:contract.claimKey,sourceRef:rule.source.ref});
+      continue;
+    }
+    if(matches.length!==1){
+      issues.push({code:'PO_DECISION_CLAIM_DUPLICATE',severity:'BLOCK',instructionId:rule.id,actual:matches.length});
+      continue;
+    }
+    const claim=matches[0];
+    if(claim.sourceRef!==rule.source.ref||claim.key!==contract.claimKey||claim.value!==contract.requiredValue){
+      issues.push({code:'PO_DECISION_CLAIM_CONFLICT',severity:'BLOCK',instructionId:rule.id,expectedKey:contract.claimKey,expectedValue:contract.requiredValue,sourceRef:rule.source.ref,actualValue:claim.value??null});
+    }
+  }
+  const decision=issues.some(item=>item.severity==='BLOCK')?'BLOCK':issues.some(item=>item.severity==='REVIEW_REQUIRED')?'REVIEW_REQUIRED':applicable.length?'PASS':'NOT_APPLICABLE';
+  return{contract:'shoporation.po-decision-plan-claims.v1',decision,applicableInstructionIds:applicable.map(item=>item.id).sort(),issues};
+}
+
 export function evaluatePoInstructionStates(atlas,files){
   const applicable=applicablePoInstructions(atlas,files),violations=[];
   for(const instruction of applicable){

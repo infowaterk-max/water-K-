@@ -111,3 +111,30 @@ export function applicablePoInstructions(atlas:CodebaseAtlas,files:string[]):Arr
 export function evaluatePoInstructionStates(atlas:CodebaseAtlas,files:string[]):Record<string,unknown>;
 export function validateCodebaseAtlas(atlas:CodebaseAtlas):{issues:unknown[];[key:string]:unknown};
 export function writeCodebaseAtlasArtifacts(atlas:CodebaseAtlas):void;
+
+export type PoDecisionClaim={
+  instructionId:string;
+  sourceRef:string;
+  key:string;
+  value:string;
+};
+export type PoDecisionClaimFinding={
+  code:string;
+  severity:'BLOCK'|'REVIEW_REQUIRED';
+  instructionId?:string|null;
+  expectedKey?:string;
+  expectedValue?:string;
+  sourceRef?:string;
+  actualValue?:string|null;
+  actual?:number;
+};
+export function evaluatePoDecisionClaims(
+  atlas:CodebaseAtlas|Record<string,unknown>,
+  files:string[],
+  claims:PoDecisionClaim[]
+):{
+  contract:'shoporation.po-decision-plan-claims.v1';
+  decision:'BLOCK'|'REVIEW_REQUIRED'|'PASS'|'NOT_APPLICABLE';
+  applicableInstructionIds:string[];
+  issues:PoDecisionClaimFinding[];
+};
