@@ -8,6 +8,7 @@
   "plannedFilePatterns": [
     "quality/knowledge/po-instructions.v1.json",
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+    "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
     "scripts/shoperation-plan-before-code.mjs",
     "tests/shoperation-semantic-execution-intelligence.test.ts",
     "quality/development/active-plan.json"
@@ -305,6 +306,7 @@
       ],
       "mustEdit": [
         "quality/knowledge/po-instructions.v1.json",
+        "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
         "scripts/shoperation-plan-before-code.mjs",
         "tests/shoperation-semantic-execution-intelligence.test.ts"
@@ -445,6 +447,7 @@
         "mustEdit": [
           "quality/development/active-plan.json",
           "quality/knowledge/po-instructions.v1.json",
+          "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
           "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
           "scripts/shoperation-plan-before-code.mjs",
           "tests/shoperation-semantic-execution-intelligence.test.ts"
@@ -606,6 +609,12 @@
             "points": 2
           },
           {
+            "file": "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          },
+          {
             "file": "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
@@ -653,6 +662,12 @@
             },
             {
               "file": "quality/knowledge/po-instructions.v1.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
@@ -760,6 +775,36 @@
           {
             "id": 2,
             "files": [
+              "scripts/lib/shoperation-codebase-atlas-runtime.d.mts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 2,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "files": [
+                {
+                  "file": "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 3,
+            "files": [
               "scripts/shoperation-plan-before-code.mjs"
             ],
             "risk": {
@@ -788,7 +833,7 @@
             }
           },
           {
-            "id": 3,
+            "id": 4,
             "files": [
               "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
               "tests/shoperation-semantic-execution-intelligence.test.ts"
@@ -832,13 +877,13 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "PO-2026-10-13-CORE-1272",
-              "developmentBaseSha": "7910a82a957cd43a4a455b4326b203826817ac6c"
+              "developmentBaseSha": "962e27b2fc8ba38af16a11101a7def9fbbc3b8dc"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "7910a82a957cd43a4a455b4326b203826817ac6c",
+            "targetBaseSha": "962e27b2fc8ba38af16a11101a7def9fbbc3b8dc",
             "lease": {
-              "expectedBaseSha": "7910a82a957cd43a4a455b4326b203826817ac6c",
+              "expectedBaseSha": "962e27b2fc8ba38af16a11101a7def9fbbc3b8dc",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
@@ -846,6 +891,7 @@
             "intendedFiles": [
               "quality/development/active-plan.json",
               "quality/knowledge/po-instructions.v1.json",
+              "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
               "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
               "scripts/shoperation-plan-before-code.mjs",
               "tests/shoperation-semantic-execution-intelligence.test.ts"
@@ -859,6 +905,11 @@
               {
                 "operation": "modify",
                 "file": "quality/knowledge/po-instructions.v1.json",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
                 "generated": null
               },
               {
@@ -912,6 +963,12 @@
                 },
                 {
                   "file": "quality/knowledge/po-instructions.v1.json",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
+                {
+                  "file": "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -1036,6 +1093,7 @@
               "filesPresent": [
                 "quality/development/active-plan.json",
                 "quality/knowledge/po-instructions.v1.json",
+                "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
                 "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
                 "scripts/shoperation-plan-before-code.mjs",
                 "tests/shoperation-semantic-execution-intelligence.test.ts"
@@ -1053,7 +1111,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "e64e88e8",
+            "manifestDigest": "db417c1d",
             "decision": "PASS"
           }
         ],
@@ -1224,5 +1282,5 @@
       }
     ]
   },
-  "notes": "Native Development Guard source: GitHub Actions https://github.com/infowaterk-max/water-K-/actions/runs/38377811666; origin probe branch was read-only/no product code. New development transaction uses current canonical main base and only specified files; old closed U11/B retained on main. This is an implementation authorization after full definition/challenge, not a statement of functional completion. Edit-Time Guard intentionally treats quality/development/active-plan.json as non-material transaction metadata: it is in plannedFilePatterns for traceability, but cannot be part of semantic MUST_EDIT because getChangedFiles.materialFiles excludes it. The four actual code changes, rather than metadata, are required by Implementation Sync. This explicitly reconciles the verified CI finding from run 38379468879; no guard or test was disabled. Sentinel integration correction: completionContract.claimScope.dimensions enumerate only canonical proofSemantics dimensions from the referenced active guards; acceptance requirements, actual negative regressions and PO sources unchanged. This resolves the actual 3533/3534 CI test fail on run 38379828068 without suppressing the Sentinel."
+  "notes": "Native Development Guard source: GitHub Actions https://github.com/infowaterk-max/water-K-/actions/runs/38377811666; origin probe branch was read-only/no product code. New development transaction uses current canonical main base and only specified files; old closed U11/B retained on main. This is an implementation authorization after full definition/challenge, not a statement of functional completion. Edit-Time Guard intentionally treats quality/development/active-plan.json as non-material transaction metadata: it is in plannedFilePatterns for traceability, but cannot be part of semantic MUST_EDIT because getChangedFiles.materialFiles excludes it. The four actual code changes, rather than metadata, are required by Implementation Sync. This explicitly reconciles the verified CI finding from run 38379468879; no guard or test was disabled. Sentinel integration correction: completionContract.claimScope.dimensions enumerate only canonical proofSemantics dimensions from the referenced active guards; acceptance requirements, actual negative regressions and PO sources unchanged. This resolves the actual 3533/3534 CI test fail on run 38379828068 without suppressing the Sentinel.Native Development Guard source: GitHub Actions https://github.com/infowaterk-max/water-K-/actions/runs/38377811666; origin probe branch was read-only/no product code. New development transaction uses current canonical main base and only specified files; old closed U11/B retained on main. This is an implementation authorization after full definition/challenge, not a statement of functional completion. Edit-Time Guard intentionally treats quality/development/active-plan.json as non-material transaction metadata: it is in plannedFilePatterns for traceability, but cannot be part of semantic MUST_EDIT because getChangedFiles.materialFiles excludes it. The four actual code changes, rather than metadata, are required by Implementation Sync. This explicitly reconciles the verified CI finding from run 38379468879; no guard or test was disabled. Sentinel integration correction: completionContract.claimScope.dimensions enumerate only canonical proofSemantics dimensions from the referenced active guards; acceptance requirements, actual negative regressions and PO sources unchanged. This resolves the actual 3533/3534 CI test fail on run 38379828068 without suppressing the Sentinel. On GitHub Actions preflight 38380218229 the canonical Development Guard recomputed the same failure scope/guardDigest and risk score 2/5 including scripts/lib/shoperation-codebase-atlas-runtime.d.mts. This declaration is required for TypeScript to see the new exported evaluator; its addition is explicit in planned envelope, code MUST_EDIT and decomposition. quality/development/active-plan.json remains metadata-only in actual material diff."
 }
