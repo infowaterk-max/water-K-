@@ -1,0 +1,85 @@
+name: Core 1272 PO Authority Plan Preflight
+run-name: "Core #1272 read-only guarded plan preflight"
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/core-1272-po-authority-plan-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: core-1272-plan-probe-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  plan-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact proposed source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run existing Development Guard before any product-code edit
+        id: guard
+        shell: bash
+        run: |
+          set +e
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1272: scoped PO decision authority provenance and fail-closed plan verification" \
+            --files "quality/knowledge/po-instructions.v1.json;scripts/lib/shoperation-codebase-atlas-runtime.mjs;scripts/shoperation-plan-before-code.mjs;tests/shoperation-semantic-execution-intelligence.test.ts;quality/development/active-plan.json" \
+            --risk high \
+            --source-ref "PO-2026-10-13-CORE-1272" \
+            --write-plan --check
+          code="$?"
+          printf 'guard_exit_code=%s\n' "$code"
+          if test -f artifacts/shoperation-development-guard/development-guard.md; then
+            sed -n '1,200p' artifacts/shoperation-development-guard/development-guard.md
+          fi
+          if test -f artifacts/shoperation-development-guard/development-guard.json; then
+            node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const g=JSON.parse(readFileSync('artifacts/shoperation-development-guard/development-guard.json','utf8'));
+          const p=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
+          console.log('CORE_1272_GUARD_REPORT='+JSON.stringify({
+            decision:g.decision,
+            plannedFiles:g.plannedFiles,
+            projectedFiles:g.projectedFiles,
+            risk:g.projectedReleaseRisk,
+            gateChain:g.gateChain?.decision,
+            decomposition:g.releaseDecomposition?.decision,
+            sourceRef:p.operationalIntelligence?.sourceRef,
+            planStatus:p.status,
+            activeInstructions:p.acknowledgedPoInstructionIds,
+            changesExpected:p.operationalIntelligence?.semanticExecutionRoute?.mustEdit,
+          }));
+          NODE
+          fi
+          exit "$code"
+
+      - name: Upload preflight evidence, do not change repository
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-1272-po-authority-plan-preflight
+          path: |
+            quality/development/active-plan.json
+            artifacts/shoperation-development-guard/development-guard.json
+            artifacts/shoperation-development-guard/development-guard.md
+            artifacts/shoperation-atlas/**
+          retention-days: 7
+          if-no-files-found: warn
