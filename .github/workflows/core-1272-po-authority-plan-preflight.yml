@@ -22,7 +22,7 @@ jobs:
       - name: Checkout exact proposed source
         uses: actions/checkout@v4
         with:
-          ref: 47ea3c5606f0503498cd4d0125f9a74c8a3c1d97
+          ref: e0c7e1cb32fffe48b48c4f765e7359dc24c2b8e3
           fetch-depth: 0
           persist-credentials: false
 
@@ -40,10 +40,10 @@ jobs:
         run: |
           set +e
           node scripts/shoperation-development-guard.mjs \
-            --task "Core #1272 Phase 2: promote decision provenance source audit and 16 adversarial fixture specifications" \
-            --files "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md;docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json;docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json;docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json;tests/shoperation-operational-intelligence.test.ts;quality/development/active-plan.json" \
+            --task "Core #1272 final closure: learn PO decision provenance loss as General Known Failure with scoped prevention" \
+            --files "quality/knowledge/shoperation-quality-knowledge.v1.json;quality/knowledge/development-guard-policy.v1.json;tests/shoperation-quality-knowledge.test.ts;tests/shoperation-development-guard.test.ts;quality/development/active-plan.json" \
             --risk high \
-            --source-ref "PO-2026-10-13-CORE-1272-PROVENANCE-DOCS" \
+            --source-ref "PO-2026-10-13-CORE-1272-LEARN" \
             --write-plan --check
           code="$?"
           printf 'guard_exit_code=%s\n' "$code"
