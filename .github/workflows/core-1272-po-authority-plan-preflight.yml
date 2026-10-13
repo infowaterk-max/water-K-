@@ -22,7 +22,7 @@ jobs:
       - name: Checkout exact proposed source
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: 47ea3c5606f0503498cd4d0125f9a74c8a3c1d97
           fetch-depth: 0
           persist-credentials: false
 
