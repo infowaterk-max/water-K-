@@ -304,7 +304,6 @@
         "quality-knowledge-system"
       ],
       "mustEdit": [
-        "quality/development/active-plan.json",
         "quality/knowledge/po-instructions.v1.json",
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
         "scripts/shoperation-plan-before-code.mjs",
@@ -1226,5 +1225,5 @@
       }
     ]
   },
-  "notes": "Native Development Guard source: GitHub Actions https://github.com/infowaterk-max/water-K-/actions/runs/38377811666; origin probe branch was read-only/no product code. New development transaction uses current canonical main base and only specified files; old closed U11/B retained on main. This is an implementation authorization after full definition/challenge, not a statement of functional completion."
+  "notes": "Native Development Guard source: GitHub Actions https://github.com/infowaterk-max/water-K-/actions/runs/38377811666; origin probe branch was read-only/no product code. New development transaction uses current canonical main base and only specified files; old closed U11/B retained on main. This is an implementation authorization after full definition/challenge, not a statement of functional completion. Edit-Time Guard intentionally treats quality/development/active-plan.json as non-material transaction metadata: it is in plannedFilePatterns for traceability, but cannot be part of semantic MUST_EDIT because getChangedFiles.materialFiles excludes it. The four actual code changes, rather than metadata, are required by Implementation Sync. This explicitly reconciles the verified CI finding from run 38379468879; no guard or test was disabled."
 }
