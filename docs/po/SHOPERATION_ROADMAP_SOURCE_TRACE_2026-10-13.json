@@ -1,0 +1,954 @@
+{
+  "contract": "shoperation.roadmap-source-trace.v1",
+  "date": "2026-10-13",
+  "source": "quality/knowledge/living-roadmap.v2.json",
+  "sourceBlobSha": "be1bb4636e4a7577436a157e75f39eea7cf1d921",
+  "authority": "SUPPLEMENT_ONLY_DO_NOT_SUPERSEDE_ROADMAP",
+  "recordCount": 67,
+  "notes": [
+    "Source links are candidate related PO anchors, not proof that an item is fully covered by original chat or runtime evidence.",
+    "Item statuses are copied from roadmap; unchanged. No inference of current CI or release readiness.",
+    "No independent original transcript archive was created, and all unavailable chat source remains explicitly unavailable.",
+    "PO later explicit decisions for M4 baseline B2B and M8 E7/Release are stronger than generic stale Roadmap plan descriptions."
+  ],
+  "items": [
+    {
+      "id": "SYSTEM-SOUL",
+      "title": "Architecture Constitution + Global Foundation",
+      "roadmapOrder": 10,
+      "roadmapStatusAtSnapshot": "done",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "DOMAIN-FOUNDATIONS",
+      "title": "Domain Foundations v1",
+      "roadmapOrder": 20,
+      "roadmapStatusAtSnapshot": "done",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "SYSTEM-SELF-KNOWLEDGE",
+      "title": "Atlas 2.0 System Self-Knowledge",
+      "roadmapOrder": 30,
+      "roadmapStatusAtSnapshot": "done",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "CHANGE-IMPACT-CLOSURE",
+      "title": "Atlas Change Impact + Release Closure",
+      "roadmapOrder": 40,
+      "roadmapStatusAtSnapshot": "done",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "CAPABILITY-EVIDENCE",
+      "title": "Capability Registry + Evidence Ledger",
+      "roadmapOrder": 50,
+      "roadmapStatusAtSnapshot": "done",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "DRIFT-CONFIDENCE",
+      "title": "Architecture Drift + Confidence Model",
+      "roadmapOrder": 60,
+      "roadmapStatusAtSnapshot": "done",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "DEEP-ATLAS-SCAN",
+      "title": "Daily Deep Atlas Scan",
+      "roadmapOrder": 70,
+      "roadmapStatusAtSnapshot": "done",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "SHOPERATION-SENTINEL",
+      "title": "Shoperation Sentinel — Continuous System Observation & Improvement Intelligence",
+      "roadmapOrder": 75,
+      "roadmapStatusAtSnapshot": "in-progress",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "RELEASE-TRANSACTION",
+      "title": "Release Transaction + Risk Budget + Production Proof",
+      "roadmapOrder": 80,
+      "roadmapStatusAtSnapshot": "operational",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "INCIDENT-INTELLIGENCE",
+      "title": "Incident Intelligence + Governed Recovery",
+      "roadmapOrder": 85,
+      "roadmapStatusAtSnapshot": "foundation",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "CORE-ENGINE-2",
+      "title": "Core Engine 2.0 Commerce Baseline",
+      "roadmapOrder": 100,
+      "roadmapStatusAtSnapshot": "operational",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259",
+        "https://github.com/infowaterk-max/water-K-/issues/1261",
+        "https://github.com/infowaterk-max/water-K-/issues/1263",
+        "https://github.com/infowaterk-max/water-K-/issues/1267",
+        "https://github.com/infowaterk-max/water-K-/issues/1269"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "MR1-MULTITENANT-FOUNDATION",
+      "title": "Multi-tenant Context, Isolation and Platform-owner Tenant Access",
+      "roadmapOrder": 110,
+      "roadmapStatusAtSnapshot": "operational",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259",
+        "https://github.com/infowaterk-max/water-K-/issues/1267"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "MR1-WORKFORCE-IDENTITY",
+      "title": "Workforce Identity & Admin Authentication",
+      "roadmapOrder": 120,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "ADMIN-IA-V3",
+      "title": "Admin IA v3 + Navigation/Attention States",
+      "roadmapOrder": 130,
+      "roadmapStatusAtSnapshot": "hardening",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "NAVIGATION-ASSISTANT-V1",
+      "title": "Navigation Assistant v1",
+      "roadmapOrder": 135,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "GUIDED-LAUNCH-PRELAUNCH",
+      "title": "Guided Launch + Pre-Launch Validation",
+      "roadmapOrder": 140,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "MR1-PACKAGE-CAPABILITY-MATRIX",
+      "title": "Alap / Pro / Add-on Capability Matrix",
+      "roadmapOrder": 145,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259",
+        "https://github.com/infowaterk-max/water-K-/issues/1269",
+        "https://github.com/infowaterk-max/water-K-/issues/1271"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "PRODUCT-OPERATIONS",
+      "title": "Product Operations: Wizard, List, Quick Edit and CSV",
+      "roadmapOrder": 150,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "MR1-INVENTORY-OPS",
+      "title": "Inventory Operations + Multi-location Foundation",
+      "roadmapOrder": 160,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1261"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "DIGITAL-COMMERCE-DOCUMENTS",
+      "title": "Digital Commerce + Product Documents + Customer/Order Documents",
+      "roadmapOrder": 165,
+      "roadmapStatusAtSnapshot": "operational",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "STORE-FRONT-RUNTIME",
+      "title": "Shared Storefront Runtime + Page Schema Authority",
+      "roadmapOrder": 170,
+      "roadmapStatusAtSnapshot": "operational",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259",
+        "https://github.com/infowaterk-max/water-K-/issues/1269"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "MR1-COMMERCE-OPERATIONS",
+      "title": "Commerce Operations Maturity",
+      "roadmapOrder": 175,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "PAYMENT-HUB-1",
+      "title": "Pay 1.0 — Provider-agnostic Payment Hub",
+      "roadmapOrder": 180,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "SHIPPING-FOUNDATION",
+      "title": "Shipping / Fulfillment Foundation",
+      "roadmapOrder": 190,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "MR1-HUNGARY-TAX-VAT",
+      "title": "Hungary Tax / VAT Commerce Authority",
+      "roadmapOrder": 200,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "INVOICE-FOUNDATION",
+      "title": "Invoice Integration Foundation + Számlázz.hu and Billingo Launch Hardening",
+      "roadmapOrder": 210,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "B2B-MATURITY",
+      "title": "B2B Maturity Review",
+      "roadmapOrder": 220,
+      "roadmapStatusAtSnapshot": "hardening",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "EVENT-DRIVEN-WORKFLOW",
+      "title": "Event-driven Workflow Core",
+      "roadmapOrder": 225,
+      "roadmapStatusAtSnapshot": "hardening",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267",
+        "https://github.com/infowaterk-max/water-K-/issues/1271"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "DIGITAL-OFFICE-WORKFORCE",
+      "title": "Digital Office Workforce & Sales Operations",
+      "roadmapOrder": 230,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259",
+        "https://github.com/infowaterk-max/water-K-/issues/1267"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "EMAIL-BUILDER-MARKETING",
+      "title": "Email Builder / Marketing Operations",
+      "roadmapOrder": 235,
+      "roadmapStatusAtSnapshot": "hardening",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1263",
+        "https://github.com/infowaterk-max/water-K-/issues/1264"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "AI-SAFETY-SECURITY",
+      "title": "AI Safety / Security Boundary",
+      "roadmapOrder": 245,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "AI-ASSISTED-DECISIONING",
+      "title": "AI-assisted Decision Support",
+      "roadmapOrder": 250,
+      "roadmapStatusAtSnapshot": "hardening",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267",
+        "https://github.com/infowaterk-max/water-K-/issues/1269"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "PREDICTIVE-SUPERVISED-OPS",
+      "title": "Predictive / Supervised Operational Intelligence",
+      "roadmapOrder": 255,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "MIGRATION-ASSISTANT",
+      "title": "Migration Assistant",
+      "roadmapOrder": 260,
+      "roadmapStatusAtSnapshot": "hardening",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "CONTROLLED-INTEGRATION-FRAMEWORK",
+      "title": "Controlled Integration Framework",
+      "roadmapOrder": 270,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "DEVELOPER-INTEGRATION-SANDBOX",
+      "title": "Developer Integration Sandbox + Certification Kit",
+      "roadmapOrder": 275,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "SANDBOX-TEST-MODE",
+      "title": "Sandbox / Test Mode + Integration Self-test",
+      "roadmapOrder": 280,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "SCALE-COST-ARCHITECTURE",
+      "title": "Scale Architecture + Cost Architecture",
+      "roadmapOrder": 285,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1271"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "CORE-SECURITY-PRIVACY-RESILIENCE",
+      "title": "Core Security, Privacy, Backup & Observability Readiness",
+      "roadmapOrder": 290,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267",
+        "https://github.com/infowaterk-max/water-K-/issues/1271"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "SPECIAL-COMMERCE",
+      "title": "Shared Special Commerce / Add-on Engines",
+      "roadmapOrder": 295,
+      "roadmapStatusAtSnapshot": "hardening",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1269"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "SHOPERATION-CORE-CAPABILITY-COMPLETE",
+      "title": "Shoperation Core Capability Complete",
+      "roadmapOrder": 300,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259",
+        "https://github.com/infowaterk-max/water-K-/issues/1261",
+        "https://github.com/infowaterk-max/water-K-/issues/1263",
+        "https://github.com/infowaterk-max/water-K-/issues/1267",
+        "https://github.com/infowaterk-max/water-K-/issues/1269",
+        "https://github.com/infowaterk-max/water-K-/issues/1271"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "CORE-OPERATIONAL-ADVERSARIAL-PROOF",
+      "title": "Shoperation Core Operational / Adversarial Audit",
+      "roadmapOrder": 400,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259",
+        "https://github.com/infowaterk-max/water-K-/issues/1267",
+        "https://github.com/infowaterk-max/water-K-/issues/1271"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "UNIFIED-SHOPERATION-PRODUCT-EXPERIENCE",
+      "title": "Unified Shoperation Product Experience / Design & Operating System",
+      "roadmapOrder": 500,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267",
+        "https://github.com/infowaterk-max/water-K-/issues/1269"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "CONTEXTUAL-GUIDED-LEARNING",
+      "title": "Contextual Help + Guided Learning",
+      "roadmapOrder": 520,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "TEMPLATE-CAPABILITY-CENSUS-42",
+      "title": "42-template Builder Capability Census",
+      "roadmapOrder": 600,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [
+        "https://github.com/infowaterk-max/water-K-/pull/847",
+        "https://github.com/infowaterk-max/water-K-/pull/469",
+        "https://github.com/infowaterk-max/water-K-/pull/795"
+      ],
+      "historicalConversationEvidence": "RETRIEVED_THEMATIC_PO_CONTEXT_NO_FULL_VERBATIM",
+      "decisionSourceCoverage": "THEMATIC_PARTIAL",
+      "caution": "Do not mistake PR candidate/CI for PO visual acceptance."
+    },
+    {
+      "id": "MANAGED-TEMPLATE-QUICK-START",
+      "title": "Managed Template Quick Start / No-Builder Launch Mode",
+      "roadmapOrder": 650,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [
+        "https://github.com/infowaterk-max/water-K-/pull/847",
+        "https://github.com/infowaterk-max/water-K-/pull/469",
+        "https://github.com/infowaterk-max/water-K-/pull/795"
+      ],
+      "historicalConversationEvidence": "RETRIEVED_THEMATIC_PO_CONTEXT_NO_FULL_VERBATIM",
+      "decisionSourceCoverage": "THEMATIC_PARTIAL",
+      "caution": "Do not mistake PR candidate/CI for PO visual acceptance."
+    },
+    {
+      "id": "VISUAL-BUILDER",
+      "title": "Visual Builder Canonical Capability Stack — Production Completion",
+      "roadmapOrder": 700,
+      "roadmapStatusAtSnapshot": "hardening",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [
+        "https://github.com/infowaterk-max/water-K-/pull/847",
+        "https://github.com/infowaterk-max/water-K-/pull/469",
+        "https://github.com/infowaterk-max/water-K-/pull/795"
+      ],
+      "historicalConversationEvidence": "RETRIEVED_THEMATIC_PO_CONTEXT_NO_FULL_VERBATIM",
+      "decisionSourceCoverage": "THEMATIC_PARTIAL",
+      "caution": "Do not mistake PR candidate/CI for PO visual acceptance."
+    },
+    {
+      "id": "GUARDED-VISUAL-SECTION-LIBRARY",
+      "title": "Guarded Visual Section / Preset Library",
+      "roadmapOrder": 710,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [
+        "https://github.com/infowaterk-max/water-K-/pull/847",
+        "https://github.com/infowaterk-max/water-K-/pull/469",
+        "https://github.com/infowaterk-max/water-K-/pull/795"
+      ],
+      "historicalConversationEvidence": "RETRIEVED_THEMATIC_PO_CONTEXT_NO_FULL_VERBATIM",
+      "decisionSourceCoverage": "THEMATIC_PARTIAL",
+      "caution": "Do not mistake PR candidate/CI for PO visual acceptance."
+    },
+    {
+      "id": "BUILDER-PRODUCTION-COMPLETE",
+      "title": "Builder Production Complete",
+      "roadmapOrder": 720,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [
+        "https://github.com/infowaterk-max/water-K-/pull/847",
+        "https://github.com/infowaterk-max/water-K-/pull/469",
+        "https://github.com/infowaterk-max/water-K-/pull/795"
+      ],
+      "historicalConversationEvidence": "RETRIEVED_THEMATIC_PO_CONTEXT_NO_FULL_VERBATIM",
+      "decisionSourceCoverage": "THEMATIC_PARTIAL",
+      "caution": "Do not mistake PR candidate/CI for PO visual acceptance."
+    },
+    {
+      "id": "BUILDER-ADVERSARIAL-ACCEPTANCE",
+      "title": "Builder Adversarial Acceptance",
+      "roadmapOrder": 800,
+      "roadmapStatusAtSnapshot": "accepted",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [
+        "https://github.com/infowaterk-max/water-K-/pull/847",
+        "https://github.com/infowaterk-max/water-K-/pull/469",
+        "https://github.com/infowaterk-max/water-K-/pull/795"
+      ],
+      "historicalConversationEvidence": "RETRIEVED_THEMATIC_PO_CONTEXT_NO_FULL_VERBATIM",
+      "decisionSourceCoverage": "THEMATIC_PARTIAL",
+      "caution": "Do not mistake PR candidate/CI for PO visual acceptance."
+    },
+    {
+      "id": "AI-BUILDER-DARK-LAUNCH",
+      "title": "AI Builder Production-ready Dark Launch",
+      "roadmapOrder": 820,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [
+        "https://github.com/infowaterk-max/water-K-/pull/847",
+        "https://github.com/infowaterk-max/water-K-/pull/469",
+        "https://github.com/infowaterk-max/water-K-/pull/795"
+      ],
+      "historicalConversationEvidence": "RETRIEVED_THEMATIC_PO_CONTEXT_NO_FULL_VERBATIM",
+      "decisionSourceCoverage": "THEMATIC_PARTIAL",
+      "caution": "Do not mistake PR candidate/CI for PO visual acceptance."
+    },
+    {
+      "id": "TEMPLATE-PRODUCTION-SYSTEM",
+      "title": "Template Production System / Factory Revalidation & Improvement",
+      "roadmapOrder": 900,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [
+        "https://github.com/infowaterk-max/water-K-/pull/847",
+        "https://github.com/infowaterk-max/water-K-/pull/469",
+        "https://github.com/infowaterk-max/water-K-/pull/795"
+      ],
+      "historicalConversationEvidence": "RETRIEVED_THEMATIC_PO_CONTEXT_NO_FULL_VERBATIM",
+      "decisionSourceCoverage": "THEMATIC_PARTIAL",
+      "caution": "Do not mistake PR candidate/CI for PO visual acceptance."
+    },
+    {
+      "id": "TEMPLATE-PORTFOLIO-42",
+      "title": "42 Distinct Launch-quality Template Production",
+      "roadmapOrder": 1000,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [
+        "https://github.com/infowaterk-max/water-K-/pull/847",
+        "https://github.com/infowaterk-max/water-K-/pull/469",
+        "https://github.com/infowaterk-max/water-K-/pull/795"
+      ],
+      "historicalConversationEvidence": "RETRIEVED_THEMATIC_PO_CONTEXT_NO_FULL_VERBATIM",
+      "decisionSourceCoverage": "THEMATIC_PARTIAL",
+      "caution": "Do not mistake PR candidate/CI for PO visual acceptance."
+    },
+    {
+      "id": "SURFACE-REDUCTION",
+      "title": "Surface Reduction / Dead Code & Route Audit",
+      "roadmapOrder": 1100,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "MARKET-READY-1-0",
+      "title": "Full Market Ready 1.0 Closure & Certification",
+      "roadmapOrder": 1200,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "AI-SUPPORT-KNOWLEDGE",
+      "title": "AI Support over Shoperation Knowledge",
+      "roadmapOrder": 1300,
+      "roadmapStatusAtSnapshot": "planned",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "DYNAMIC-FAQ",
+      "title": "Dynamic FAQ / Customer Question Intelligence",
+      "roadmapOrder": 1310,
+      "roadmapStatusAtSnapshot": "post-launch",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "ATTENTION-SYSTEM",
+      "title": "Observation Layer / Attention System",
+      "roadmapOrder": 1320,
+      "roadmapStatusAtSnapshot": "post-launch",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "INTERACTIVE-DEMO-SIMULATOR",
+      "title": "Interactive Shoperation Demo Simulator",
+      "roadmapOrder": 1325,
+      "roadmapStatusAtSnapshot": "post-launch",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1267"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "SHOPERATION-PAY-2",
+      "title": "Pay 2.0 — Shoperation Pay",
+      "roadmapOrder": 1330,
+      "roadmapStatusAtSnapshot": "post-launch",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "POSTLAUNCH-ADAPTER-ECOSYSTEM",
+      "title": "Post-launch Provider / Adapter Ecosystem",
+      "roadmapOrder": 1340,
+      "roadmapStatusAtSnapshot": "post-launch",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "POSTLAUNCH-COMMERCE-EXPANSION",
+      "title": "Post-launch Commerce Growth Capabilities",
+      "roadmapOrder": 1350,
+      "roadmapStatusAtSnapshot": "post-launch",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1259",
+        "https://github.com/infowaterk-max/water-K-/issues/1269"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "BOUNDED-AUTONOMY-EVIDENCE-REVIEW",
+      "title": "Bounded / Autonomous Commerce Evidence Review",
+      "roadmapOrder": 1360,
+      "roadmapStatusAtSnapshot": "parked",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "PREMIUM-VISUAL-COMMERCE",
+      "title": "Premium Visual Commerce Expansion",
+      "roadmapOrder": 1370,
+      "roadmapStatusAtSnapshot": "post-launch",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [
+        "https://github.com/infowaterk-max/water-K-/issues/1269"
+      ],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "PO_ISSUE_RELATED_NOT_RAW_CHAT",
+      "decisionSourceCoverage": "RELATED_ISSUE_NOT_POINTWISE",
+      "caution": null
+    },
+    {
+      "id": "SHOPOPERATION-MARKET",
+      "title": "Shoperation Market Platform",
+      "roadmapOrder": 1400,
+      "roadmapStatusAtSnapshot": "post-launch",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "SHOPERATION-INVOICE",
+      "title": "Shoperation Invoice",
+      "roadmapOrder": 1410,
+      "roadmapStatusAtSnapshot": "parked",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [],
+      "historicalConversationEvidence": "NOT_YET_RECONCILED",
+      "decisionSourceCoverage": "ROADMAP_ONLY",
+      "caution": null
+    },
+    {
+      "id": "WEBSITE-BUILDER",
+      "title": "VISION VX Site Builder",
+      "roadmapOrder": 1500,
+      "roadmapStatusAtSnapshot": "parked",
+      "sourceAuthority": "quality/knowledge/living-roadmap.v2.json",
+      "relatedPOIssues": [],
+      "relatedVisualSources": [
+        "https://github.com/infowaterk-max/water-K-/pull/847",
+        "https://github.com/infowaterk-max/water-K-/pull/469",
+        "https://github.com/infowaterk-max/water-K-/pull/795"
+      ],
+      "historicalConversationEvidence": "RETRIEVED_THEMATIC_PO_CONTEXT_NO_FULL_VERBATIM",
+      "decisionSourceCoverage": "THEMATIC_PARTIAL",
+      "caution": "Do not mistake PR candidate/CI for PO visual acceptance."
+    }
+  ]
+}
