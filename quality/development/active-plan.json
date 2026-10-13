@@ -1,25 +1,74 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CORE-1272-PROVENANCE-DOCS",
-  "task": "Core #1272 provenance docs: governed promotion of decision-source audit, Roadmap trace and adversarial fixtures",
-  "status": "closed",
-  "guardDigest": "430b0bba",
-  "changeBaseSha": "47ea3c5606f0503498cd4d0125f9a74c8a3c1d97",
+  "taskId": "DEV-CORE-1272-PO-SOURCE-LOSS-LEARNING-V1",
+  "task": "Core #1272 CLOSE/LEARN: add canonical General Known Failure for PO decision provenance/supersession loss",
+  "status": "ready-for-implementation",
+  "guardDigest": "aa79c504",
+  "changeBaseSha": "e0c7e1cb32fffe48b48c4f765e7359dc24c2b8e3",
   "plannedFilePatterns": [
-    "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md",
-    "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json",
-    "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json",
-    "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
-    "tests/shoperation-operational-intelligence.test.ts",
+    "quality/knowledge/shoperation-quality-knowledge.v1.json",
+    "quality/knowledge/development-guard-policy.v1.json",
+    "tests/shoperation-quality-knowledge.test.ts",
+    "tests/shoperation-development-guard.test.ts",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [],
-  "expectedDomains": [],
-  "expectedAuthorities": [],
+  "expectedDomains": [
+    "DOMAIN-QUALITY"
+  ],
+  "expectedAuthorities": [
+    "quality-knowledge-system"
+  ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-022"
+    "SQ-KF-022",
+    "SQ-KF-001",
+    "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
+    "SQ-KF-005",
+    "SQ-KF-006",
+    "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
+    "SQ-KF-018",
+    "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
+    "SQ-KF-023",
+    "SQ-KF-024",
+    "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
+    "TF-KF-006",
+    "TF-KF-007",
+    "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
+    "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -28,11 +77,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-13-CORE-1272-PROVENANCE-DOCS",
+    "sourceRef": "PO-2026-10-13-CORE-1272-LEARN",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "High-assurance evidence normalization requested by Product Owner: audit sources are historical and heterogeneous. Documents must never be promoted as full verbatim transcript proof or automatically enforceable PO instructions. No application runtime, product entitlement, database, secrets, providers, tenant data or production changes. The old #1273 CI base was stale, so identity must be bound exactly to main after merged #1279. Maintain source quality and limited claim scope.",
+      "rationale": "High assurance needed because every subsequent Core module depends on correct, bounded Product Owner source and instruction precedence. Recurring provenance loss can silently cause incorrect Alap/Pro capabilities or merchant opt-outs. This changes only existing canonical Knowledge+Policy+tests, with global preventive reading but no global runtime blockage or speculative autoactivation. Exact-head negative/positive tests and full CI/lifecycle required.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -48,29 +97,29 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Promote the existing 108-entry Core source coverage index into main with historical confidence status unchanged; do not assert all 108 are verified or active PO instructions.",
-        "Promote the 67-entry Roadmap source trace without altering the canonical Living Roadmap decisions or order.",
-        "Promote the provenance audit and the 16 machine-readable positive and negative fixture specifications as documentation, not as unexecuted proof of full semantic protection.",
-        "Update the human-readable audit to distinguish the merged #1279 four-rule machine guard, successful CI, and remaining gaps and limits.",
-        "Preserve the status of M2.18–19 original detail as unverified and M9.7 as NOT_PO_ACCEPTED.",
-        "Source-only changes remain separate from business capability development; complete Plan Before Code, CI, Completion Truth and Lifecycle without bypass.",
-        "Correct existing critical semantic route test-fixture construction: source-neutral create-only active plans must not masquerade as implementation edit routes; test critical route authority with explicit synthetic target/proof independent of active plan."
+        "Add General Known Failure SQ-KF-025 recording PO decision provenance/source/supersession loss and source-to-scope-to-instruction chain, with explicit original #1272 source records.",
+        "Add a single canonical preventative directive in existing Development Guard Policy, forbidding unsourced plan contradictions, outdated generic overrides and unverified source autoactivation.",
+        "Add General Negative Knowledge SQ-NK-024 linked to authoritative #1272 audit, with applicability matched to the quality-system workflow.",
+        "Wire the new failure into global baseline preventive injection across unrelated Core module changes, without triggering unrelated capability modifications or auto-installing rules.",
+        "Add executable regression checks for knowledge integrity, source/scope/precedence rules, directive parity, global applicability and unrelated storefront/edit scope.",
+        "Retain the five existing machine PO instructions and the 16 adversarial PO plan tests unchanged; no new NLP claim, no runtime product entitlement adjustment.",
+        "Run exact-branch-plan guard before edits, then true CI 3534+ test/typecheck/build, Completion Truth and Lifecycle closure, and merge before resolving issue #1272."
       ],
       "invariants": [
-        "Only source-safe, sanitized, nonsecret history appears in public repository files; no raw personal ChatGPT dialogue is copied.",
-        "Four accepted rules in canonical PO Instruction Authority are not conflated with 108 heterogeneous history slots.",
-        "Issues #1259, #1269 and #1271 and later explicit PO supersession remain authoritative over historical generic narrative.",
-        "The four new docs files are informational; no new engine, alternate controller, code route, migration, provider call or runtime entitlement alteration.",
-        "Every reopened or new development transaction is independent of #1272 Phase 1 closed plan; its current main SHA is used exactly.",
-        "The documentation retains linked uncertainty and test evidence scope instead of laundering a source index into a functional gate PASS."
+        "No parallel PO authority, separate gate engine or source ingestion pipeline.",
+        "Only explicit PO-accepted source may create an active machine rule; historical 108 index slots with UNKNOWN/REJECTED remain reference-only.",
+        "Later explicit, scoped PO acceptance overrides earlier generic summaries; missing source context is REVIEW_REQUIRED/BLOCK for relevant plan, not fabricated acceptance.",
+        "General Known Failure knowledge injects a preventive directive and relevant tests, not unconditional rejection of unrelated code/doc changes.",
+        "Existing global baseline and dynamic Known Failure integrity schema remain valid; every global failure has exactly one directive.",
+        "No runtime/customer/tenant/migration/provider/funding resource, no Template Factory/Builder product work and no change of Core-first sequencing."
       ],
       "forbiddenStates": [
-        "Full verbatim chat archive falsely claimed recovered, despite missing detailed M2.18–2.19 source.",
-        "Removed M9.7 operational proposal promoted to PO accepted capability.",
-        "Historical 108 records described as 108 active machine-blocking PO instructions.",
-        "Existing #1279 completion proof represented as proof that all future natural-language decisions are semantically enforceable.",
-        "A docs-only source import bypasses the developer guard or rewrites old closed plan rather than a new scoped transaction.",
-        "New docs mention personal or sensitive source dialogue instead of sanitized links and grounded decision summaries."
+        "Future E7 or Release feature restricted to Pro due to stale generic package note.",
+        "Unverified M2.18–19 original or NOT_PO_ACCEPTED M9.7 promoted as approved requirement.",
+        "Generic policy ignores explicit approved PO source supersession or prohibits basic B2B RFQ in Alap.",
+        "Global Known Failure blocks unrelated docs-only change despite scoped PO rules.",
+        "Duplicate PO knowledge registry, new standalone validator or fresh external service introduced.",
+        "CI or evidence payload claims all 108 source slots are active machine rules or that arbitrary prose semantics are proven."
       ]
     },
     "model": {
@@ -102,40 +151,43 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Stale #1273 event compares against older main and misbinds closed #1272 transaction.",
-        "Docs mirror old pre-merge status as if no active PO rules exist, creating an inaccurate record.",
-        "Source confidence statuses are lost during JSON import and uncertainty gets promoted to acceptance.",
-        "Recorded case outcomes are confused with completed test run results.",
-        "Documentation provenance mismatch bypasses later PO decision source review.",
-        "Critical semantic routing test harness accidentally reuses an actual docs-only plan with empty MUST_EDIT/PROOF, yielding a false failure unrelated to authority coherence."
+        "Later module development reconstructs decisions from older summaries and silently loses explicit newer PO scope.",
+        "Missing conversation provenance is replaced with plausible but unapproved requirements.",
+        "Source confidence level/authority order lost while converting to machine PO instruction.",
+        "Overly broad Known Failure applicability blocks unrelated work.",
+        "Policy directive absent or mismatched, violating global Known Failure registry parity.",
+        "Existing tests validate only marker strings and miss source-authority/scope/regression consistency.",
+        "Exact-head verified implementation not promoted through canonical lifecycle and main CI."
       ],
       "edgeCases": [
-        "M2.18/19 source points remain unverified while high-level module acceptance remains linked.",
-        "M9.7 is explicitly NOT_PO_ACCEPTED even though issue discussions mention operations.",
-        "Roadmap-only source records are not labeled missing or unapproved simply for lack of Core issue anchor.",
-        "The existing four rule guard is merged to main but documents describe its historical pre-merge gap.",
-        "Old #1273 documentation branch diverges from main after #1279; integrate by exact preserved ancestry, not a force push.",
-        "Docs content has no product functional changes and should not trigger business entitlement PO instructions."
+        "M8.5 E7 and M8.9 Release Alap+Pro while E8 / advanced finance remain Pro-only.",
+        "M4.4/4.10 basic B2B RFQ Alap+Pro with only advanced features Pro.",
+        "Mandatory central Core security updates may use compatibility staging but cannot be optional forever.",
+        "M9.7 not accepted and M2.18/19 transcript unverified.",
+        "Docs-only unrelated edits do not gain fake PO intent from historical source index.",
+        "Roadmap entries without exact original transcript are traceable but not marked verbatim.",
+        "Known Failure global baseline must be included for unrelated Core implementation, but must not turn on unrelated package-scoped checks.",
+        "Preflight is sourced from latest main after #1273 merge, not closed docs transaction or old plan."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-DOC-1273-GOVERNED-MERGE",
-        "summary": "Reconcile original docs PR with current main ancestry, use new scoped Development Guard plan and preserve exact source history.",
+        "id": "ALT-1272-KF-CANONICAL",
+        "summary": "Record PO source-loss as SQ-KF-025 in existing global Knowledge registry with one policy directive, negative knowledge and tests.",
         "disposition": "selected",
-        "reason": "Retains existing #1273 discussion/history while avoiding a second source of truth, stale CI identity or data loss."
+        "reason": "Reuses Knowledge+Plan Before Code prevention and makes future Core work consult the failure before editing."
       },
       {
-        "id": "ALT-DOC-1273-FORCE-MERGE",
-        "summary": "Merge old #1273 as-is with old development transaction regardless of fail-closed CI.",
+        "id": "ALT-1272-SECOND-CHECKER",
+        "summary": "Implement a standalone LLM or regex PO consistency service that rebuilds prior chat history.",
         "disposition": "rejected",
-        "reason": "Explicitly violates canonical CI transaction binding and would mask scope mismatch."
+        "reason": "Second authority, uncertain historical data, high cost and risk of generating accepted decisions from speculation."
       },
       {
-        "id": "ALT-DOC-1273-COPY-REWRITE",
-        "summary": "Copy historical chat logs, invent unverified exact wording and autoactivate all 108 index records.",
+        "id": "ALT-1272-DOCS-ONLY",
+        "summary": "Append a warning to #1272 issue without machine-learning registry/directive and regression.",
         "disposition": "rejected",
-        "reason": "Untrusted sources and unverified acceptance pose source-authority and confidentiality risks."
+        "reason": "Would leave original Section 7 CLOSE/LEARN unmet and known-failure advice unavailable before future edits."
       }
     ],
     "specialistReviews": [
@@ -143,125 +195,262 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Current #1279 canonical registry is main authority; standalone source index remains informational.",
-        "resolution": "Add only four docs/po files and scoped active plan, no code or separate registry.",
+        "finding": "Canonical Shoperation Knowledge already has SQ-KF-001..024, global baseline and injectible policy directives; reuse that source rather than another registry.",
+        "resolution": "Add one SQ-KF-025 item, direct policy, NK item and unit tests in current quality files.",
         "evidence": [
-          "quality/knowledge/po-instructions.v1.json",
-          "https://github.com/infowaterk-max/water-K-/pull/1279"
+          "quality/knowledge/shoperation-quality-knowledge.v1.json",
+          "quality/knowledge/development-guard-policy.v1.json"
         ]
       },
       {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A historical ChatGPT archive could carry private content or mistaken normative acceptance.",
-        "resolution": "Use sanitized indexed sources, never raw chat transcripts; preserve explicit unverified source and rejected decision statuses.",
+        "finding": "A global failure could over-apply PO heuristics to all changes and unintentionally block valid unrelated Core work or launder unverified history.",
+        "resolution": "Global prevention is advisory until the existing scoped PO claim engine evaluates the actual affected files and explicit accepted instruction; unrelated scopes remain NOT_APPLICABLE.",
         "evidence": [
-          "https://github.com/infowaterk-max/water-K-/issues/1272",
-          "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json"
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+          "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
+          "https://github.com/infowaterk-max/water-K-/issues/1272"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Previous CI failure was stale U11/B transaction base mismatch, compounded by incorrect lifecycle reuse.",
-        "resolution": "Create fresh docs-only transaction with exact current main base, preserve Phase 1 closure in history and run full CI.",
+        "finding": "Known Failure closes only with a stable failure identity, invariant linkage, scoped replay, directive, regression authority and source records.",
+        "resolution": "Use SQ-KF-025 linked to SQ-AUTH-002/007/017 and SQ-NK-024; add parity and affected-scope proof.",
         "evidence": [
-          "https://github.com/infowaterk-max/water-K-/actions/runs/38374397275",
-          "https://github.com/infowaterk-max/water-K-/actions/runs/38383580429"
+          "tests/shoperation-development-guard.test.ts",
+          "tests/shoperation-quality-knowledge.test.ts",
+          "quality/knowledge/knowledge-scope-policy.v1.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "DOC-CH-01",
-        "scenario": "Raw historical chat copy into public repo",
-        "finding": "Privacy/confidentiality risk",
-        "resolution": "Keep sanitized provenance table and official issue references",
+        "id": "CH-KF-01",
+        "scenario": "Generic older plan note says all B2B is Pro",
+        "finding": "Newest explicit M4 rule would be overridden",
+        "resolution": "Directive requires original accepted source and explicit supersession checked before plan",
         "status": "resolved"
       },
       {
-        "id": "DOC-CH-02",
-        "scenario": "108 index records autoenforced as PO instructions",
-        "finding": "Unverified, superseded and rejected sources trigger false guards",
-        "resolution": "Keep index separate from 5 active main PO instructions; every new normative rule requires proof",
+        "id": "CH-KF-02",
+        "scenario": "Full historic transcript missing",
+        "finding": "Speculative reconstruction could create false business requirements",
+        "resolution": "UNKNOWN provenance remains review-only, no automatic activation",
         "status": "resolved"
       },
       {
-        "id": "DOC-CH-03",
-        "scenario": "Older M2.18–2.19 details considered verbatim source",
-        "finding": "Invented acceptance content",
-        "resolution": "Retain original conversation unverified status and authorized issue-level summary only",
+        "id": "CH-KF-03",
+        "scenario": "Known Failure applies globally to checkout/shipping unrelated work",
+        "finding": "Risk of false package-check blocking",
+        "resolution": "Pre-edit directive global; machine rule application still bounded by planned affected paths",
         "status": "resolved"
       },
       {
-        "id": "DOC-CH-04",
-        "scenario": "M9.7 marked approved",
-        "finding": "Withdrawn idea becomes implementation mandate",
-        "resolution": "Explicitly retain NOT_PO_ACCEPTED without new module",
+        "id": "CH-KF-04",
+        "scenario": "Known Failure added without directive",
+        "finding": "Knowledge Integrity tests/Development Guard fail",
+        "resolution": "One shared directive and regression evidence required; test exact keys parity",
         "status": "resolved"
       },
       {
-        "id": "DOC-CH-05",
-        "scenario": "Docs contain stale pre-merge status",
-        "finding": "Readers assume no machine guard implemented",
-        "resolution": "Append dated post-#1279 verified main state while preserving history",
+        "id": "CH-KF-05",
+        "scenario": "Negative knowledge is not loaded",
+        "finding": "Forget telephone game prohibition in upcoming modules",
+        "resolution": "Add SQ-NK-024 with explicit applicability to quality-knowledge-system",
         "status": "resolved"
       },
       {
-        "id": "DOC-CH-06",
-        "scenario": "PR #1273 inherits old main baseline",
-        "finding": "CI_TRANSACTION_BASE_MISMATCH",
-        "resolution": "Fresh plan binds current main after #1279 and Git merge ancestry includes both original #1273 and main",
+        "id": "CH-KF-06",
+        "scenario": "Source order hides later supersession",
+        "finding": "Old summary wins silently",
+        "resolution": "Rule requires latest explicit PO acceptance scope and recorded supersession identity",
         "status": "resolved"
       },
       {
-        "id": "DOC-CH-07",
-        "scenario": "Docs-only change blocked by wrong business rule scope",
-        "finding": "False-positive inability to progress",
-        "resolution": "Native Development Guard classifies docs evidence-neutral and machine rules remain domain-scoped",
+        "id": "CH-KF-07",
+        "scenario": "A previous fixture claims an unrelated docs edit is prohibited",
+        "finding": "False-positive blocks documentation review",
+        "resolution": "Add narrow regression for active Known Failure knowledge vs scoped claim enforcement",
         "status": "resolved"
       },
       {
-        "id": "DOC-CH-08",
-        "scenario": "Successful CI is called proof of all 108 active enforcement",
+        "id": "CH-KF-08",
+        "scenario": "A green feature CI is claimed as full chat memory guarantee",
         "finding": "Truth overclaim",
-        "resolution": "State exact four-rule Phase 1 proof and separately label docs-only source data",
-        "status": "resolved"
-      },
-      {
-        "id": "DOC-CH-09",
-        "scenario": "A critical-only test depends on whatever active plan is in main and assumes it has MUST_EDIT and PROOF.",
-        "finding": "Docs-only, create-only branch makes unrelated authority normalization test fail despite real Plan Before Code success.",
-        "resolution": "Extend scope using native Development Guard; build an independent critical-capable synthetic route fixture with exact target and proof inside the affected existing test.",
+        "resolution": "Limit proof to recorded knowledge failure/directive and four existing machine-scope rules",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Native Development Guard PASS #38385294127, checked out exact main 47ea3c5606f0503498cd4d0125f9a74c8a3c1d97, risk 0/5, gate PASS, 4 source docs planned creates.",
-      "Run canonical Plan Before Code on reconciled #1273 draft PR before editing updated documentation status; no bypass of old stale CI transaction.",
-      "Validate 108 index records, 67 Roadmap sources and 16 fixture semantics and negative-source statuses; verify no sensitive raw content copied.",
-      "Run full exact-head CI, security, tests, typecheck, production build, truth and generated lifecycle closure artifact; close by canonical emitted file, not manual status.",
-      "After successful merge of #1273, run main exact-head CI and source presence verification. No next Core module business acceptance before #1272 closure review.",
-      "Prove critical-route authority normalization independently from active docs-only plan; validate both explicit neutral AUTHORITY=[] acceptance and non-matching authority drift, while leaving production operational-intelligence engine unchanged."
+      "Observed native Development Guard PASS run https://github.com/infowaterk-max/water-K-/actions/runs/38391227756 at exact main e0c7e1cb32fffe48b48c4f765e7359dc24c2b8e3; five bounded planned files, risk and 49 existing failures sourced.",
+      "Run Plan Before Code on plan-only exact-base PR before edits. Confirm no stale closed docs plan or wrong base.",
+      "Add SQ-KF-025 with global preventive selection, related SQ-NK-024 with source and one matched directive; keep all other Knowledge and PO registries unchanged.",
+      "Run typed, valid source/regression, global applicability and unrelated-scope assertions in tests/shoperation-quality-knowledge.test.ts and tests/shoperation-development-guard.test.ts.",
+      "Run canonical Edit-Time Guard, incremental replay, Test, TypeScript, production build, Completion Truth, Lifecycle at exact head; commit generated closure artifact and verify again.",
+      "Controlled merge of PR into main preserving verified ancestry then successful exact-head main CI; close #1272 only after proving the learning chain end-to-end."
     ],
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-13-CORE-1272-PROVENANCE-DOCS",
-      "authority": [],
+      "request": "PO-2026-10-13-CORE-1272-LEARN",
+      "authority": [
+        "quality-knowledge-system"
+      ],
       "mustEdit": [
-        "tests/shoperation-operational-intelligence.test.ts"
+        "quality/knowledge/development-guard-policy.v1.json",
+        "quality/knowledge/shoperation-quality-knowledge.v1.json",
+        "tests/shoperation-development-guard.test.ts",
+        "tests/shoperation-quality-knowledge.test.ts"
       ],
       "mayEdit": [],
-      "impactedReadOnly": [],
-      "mustCreate": [
+      "impactedReadOnly": [
         "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md",
-        "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json",
-        "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
-        "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json"
+        "quality/knowledge/architecture-constitution.v1.json",
+        "quality/knowledge/codebase-atlas-policy.v2.json",
+        "quality/knowledge/living-roadmap.v2.json",
+        "scripts/lib/shoperation-architecture-health.mjs",
+        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+        "scripts/lib/shoperation-development-runtime.mjs",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        "scripts/lib/shoperation-reference-sync-runtime.mjs",
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+        "scripts/lib/shoperation-verification-reuse.mjs",
+        "scripts/release-risk-budget.mjs",
+        "scripts/release-unit-ci-context.mjs",
+        "scripts/release-unit-execute.mjs",
+        "scripts/release-unit-github-runtime.mjs",
+        "scripts/release-unit-materialize.mjs",
+        "scripts/release-unit-orchestrate.mjs",
+        "scripts/release-unit-parent-close.mjs",
+        "scripts/shoperation-close-development-plan.mjs",
+        "scripts/shoperation-codebase-atlas.mjs",
+        "scripts/shoperation-development-guard.mjs",
+        "scripts/shoperation-edit-time-guard.mjs",
+        "scripts/shoperation-external-proof-handoff.mjs",
+        "scripts/shoperation-incremental-replay.mjs",
+        "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+        "scripts/shoperation-knowledge-preflight.mjs",
+        "scripts/shoperation-plan-before-code.mjs",
+        "scripts/shoperation-sentinel-integrity-probe.mjs",
+        "scripts/shoperation-sentinel-scan.mjs",
+        "scripts/shoperation-truth-gate.mjs",
+        "scripts/template-factory-quality-gate.mjs",
+        "src/app/account-workflow.css",
+        "src/app/adatvedelem/page.tsx",
+        "src/app/admin/indulas/page.tsx",
+        "src/app/api/visual-fidelity/templates/route.ts",
+        "src/app/aszf/page.tsx",
+        "src/app/impresszum/page.tsx",
+        "src/app/kereses/page.tsx",
+        "src/app/oldal/[slug]/page.tsx",
+        "src/app/szallitas-es-fizetes/page.tsx",
+        "src/components/account/storefront-account-shell.tsx",
+        "src/components/admin/content-manager.tsx",
+        "src/components/admin/storefront-fidelity-layout-controls.tsx",
+        "src/components/admin/storefront-fidelity-node-controls.tsx",
+        "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
+        "src/components/admin/storefront-saved-blocks-panel.tsx",
+        "src/components/admin/storefront-visual-builder-production.tsx",
+        "src/components/admin/storefront-visual-builder-v3.tsx",
+        "src/components/admin/team-member-controls.tsx",
+        "src/components/builder/storefront-commerce-header.module.css",
+        "src/components/builder/storefront-commerce-header.tsx",
+        "src/components/builder/storefront-commerce.tsx",
+        "src/lib/builder/template-factory/procedural-memory.ts",
+        "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+        "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
+        "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+        "src/lib/quality-system/architecture-constitution.ts",
+        "src/lib/quality-system/capability-evidence.ts",
+        "src/lib/quality-system/domain-foundations.ts",
+        "src/lib/quality-system/failure-intake.ts",
+        "src/lib/quality-system/scope-resolver.ts",
+        "src/lib/quality-system/shoperation-knowledge.ts",
+        "tests/control-plane-ecosystem-chain.test.ts",
+        "tests/control-plane-release-unit-execution-binding.test.ts",
+        "tests/control-plane-release-unit-production-surface.test.ts",
+        "tests/deep-atlas-scan.test.ts",
+        "tests/dependency-security-contract.test.ts",
+        "tests/engine-authority-scope-classification.test.ts",
+        "tests/shoperation-change-impact-atlas.test.ts",
+        "tests/shoperation-codebase-atlas-v2.test.ts",
+        "tests/shoperation-external-proof-handoff.test.ts",
+        "tests/shoperation-historical-support-backfill.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/template-factory-engine-functional-proof.test.ts"
       ],
+      "mustCreate": [],
       "forbidden": [],
-      "proof": [],
+      "proof": [
+        "tests/architecture-health.test.ts",
+        "tests/control-plane-ecosystem-chain.test.ts",
+        "tests/control-plane-release-decomposition.test.ts",
+        "tests/control-plane-release-unit-execution-binding.test.ts",
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-release-unit-production-surface.test.ts",
+        "tests/deep-atlas-scan.test.ts",
+        "tests/dependency-security-contract.test.ts",
+        "tests/digital-commerce-builder-integration.test.tsx",
+        "tests/domain-foundations.test.ts",
+        "tests/engine-authority-scope-classification.test.ts",
+        "tests/playroom-v20-canonical-shell-content.test.ts",
+        "tests/release-unit-materialization.test.ts",
+        "tests/roadmap-block21-page-schema-templates.test.ts",
+        "tests/roadmap-block22-visual-builder.test.ts",
+        "tests/roadmap-block23-ai-builder-template-generation.test.ts",
+        "tests/shoperation-change-impact-atlas.test.ts",
+        "tests/shoperation-codebase-atlas-v2.test.ts",
+        "tests/shoperation-development-guard.test.ts",
+        "tests/shoperation-external-proof-handoff.test.ts",
+        "tests/shoperation-historical-support-backfill.test.ts",
+        "tests/shoperation-operational-intelligence.test.ts",
+        "tests/shoperation-proof-semantics.test.ts",
+        "tests/shoperation-quality-knowledge.test.ts",
+        "tests/shoperation-resumable-verification.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
+        "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
+        "tests/storefront-account-shell.test.ts",
+        "tests/storefront-beauty-lab-reference-v28.test.ts",
+        "tests/storefront-cart-presentation-contract.test.ts",
+        "tests/storefront-commerce-fidelity-slots.test.tsx",
+        "tests/storefront-commerce-header.test.tsx",
+        "tests/storefront-core-commerce.test.ts",
+        "tests/storefront-creator-station-wave36-reacceptance.test.ts",
+        "tests/storefront-fidelity-behavior.test.tsx",
+        "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
+        "tests/storefront-fidelity-diagnostics.test.ts",
+        "tests/storefront-fidelity-inspector.test.ts",
+        "tests/storefront-fidelity-layout.test.ts",
+        "tests/storefront-fidelity-primitive-renderers.test.tsx",
+        "tests/storefront-fidelity-security.test.ts",
+        "tests/storefront-global-styles.test.ts",
+        "tests/storefront-guided-fidelity-slots.test.tsx",
+        "tests/storefront-heritage-atelier-template.test.tsx",
+        "tests/storefront-heritage-atelier-wave28-reacceptance.test.tsx",
+        "tests/storefront-monarche-template.test.tsx",
+        "tests/storefront-monarche-wave43-reacceptance.test.ts",
+        "tests/storefront-performance-contract.test.ts",
+        "tests/storefront-pilot-acceptance-authority.test.ts",
+        "tests/storefront-playroom-reference-fidelity.test.ts",
+        "tests/storefront-playroom-reference-v2-fidelity.test.tsx",
+        "tests/storefront-playroom-template.test.tsx",
+        "tests/storefront-playroom-v18-image-slots.test.ts",
+        "tests/storefront-playroom-v19-complete.test.ts",
+        "tests/storefront-playroom-v19-page-family-presets.test.ts",
+        "tests/storefront-playroom-v19-subpage-parity.test.ts",
+        "tests/storefront-playroom-v19-visual-polish.test.ts",
+        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+        "tests/storefront-template-quality-gate-v2.test.ts",
+        "tests/template-factory-engine-functional-proof-entry.test.ts",
+        "tests/template-factory-engine-functional-proof-runner.test.ts",
+        "tests/template-factory-engine-functional-proof.test.ts",
+        "tests/template-factory-resumable-verification.test.ts",
+        "tests/template-factory-scaffold-v1.test.ts"
+      ],
       "unknown": [],
       "plannedDeletions": []
     },
@@ -272,18 +461,158 @@
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
           "quality/development/active-plan.json",
-          "tests/shoperation-operational-intelligence.test.ts"
+          "quality/knowledge/development-guard-policy.v1.json",
+          "quality/knowledge/shoperation-quality-knowledge.v1.json",
+          "tests/shoperation-development-guard.test.ts",
+          "tests/shoperation-quality-knowledge.test.ts"
         ],
         "mayEdit": [],
-        "impactedReadOnly": [],
-        "mustCreate": [
+        "impactedReadOnly": [
           "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md",
-          "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json",
-          "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
-          "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json"
+          "quality/knowledge/architecture-constitution.v1.json",
+          "quality/knowledge/codebase-atlas-policy.v2.json",
+          "quality/knowledge/living-roadmap.v2.json",
+          "scripts/lib/shoperation-architecture-health.mjs",
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+          "scripts/lib/shoperation-development-runtime.mjs",
+          "scripts/lib/shoperation-operational-intelligence.mjs",
+          "scripts/lib/shoperation-reference-sync-runtime.mjs",
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+          "scripts/lib/shoperation-verification-reuse.mjs",
+          "scripts/release-risk-budget.mjs",
+          "scripts/release-unit-ci-context.mjs",
+          "scripts/release-unit-execute.mjs",
+          "scripts/release-unit-github-runtime.mjs",
+          "scripts/release-unit-materialize.mjs",
+          "scripts/release-unit-orchestrate.mjs",
+          "scripts/release-unit-parent-close.mjs",
+          "scripts/shoperation-close-development-plan.mjs",
+          "scripts/shoperation-codebase-atlas.mjs",
+          "scripts/shoperation-development-guard.mjs",
+          "scripts/shoperation-edit-time-guard.mjs",
+          "scripts/shoperation-external-proof-handoff.mjs",
+          "scripts/shoperation-incremental-replay.mjs",
+          "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+          "scripts/shoperation-knowledge-preflight.mjs",
+          "scripts/shoperation-plan-before-code.mjs",
+          "scripts/shoperation-sentinel-integrity-probe.mjs",
+          "scripts/shoperation-sentinel-scan.mjs",
+          "scripts/shoperation-truth-gate.mjs",
+          "scripts/template-factory-quality-gate.mjs",
+          "src/app/account-workflow.css",
+          "src/app/adatvedelem/page.tsx",
+          "src/app/admin/indulas/page.tsx",
+          "src/app/api/visual-fidelity/templates/route.ts",
+          "src/app/aszf/page.tsx",
+          "src/app/impresszum/page.tsx",
+          "src/app/kereses/page.tsx",
+          "src/app/oldal/[slug]/page.tsx",
+          "src/app/szallitas-es-fizetes/page.tsx",
+          "src/components/account/storefront-account-shell.tsx",
+          "src/components/admin/content-manager.tsx",
+          "src/components/admin/storefront-fidelity-layout-controls.tsx",
+          "src/components/admin/storefront-fidelity-node-controls.tsx",
+          "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
+          "src/components/admin/storefront-saved-blocks-panel.tsx",
+          "src/components/admin/storefront-visual-builder-production.tsx",
+          "src/components/admin/storefront-visual-builder-v3.tsx",
+          "src/components/admin/team-member-controls.tsx",
+          "src/components/builder/storefront-commerce-header.module.css",
+          "src/components/builder/storefront-commerce-header.tsx",
+          "src/components/builder/storefront-commerce.tsx",
+          "src/lib/builder/template-factory/procedural-memory.ts",
+          "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+          "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
+          "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "src/lib/quality-system/architecture-constitution.ts",
+          "src/lib/quality-system/capability-evidence.ts",
+          "src/lib/quality-system/domain-foundations.ts",
+          "src/lib/quality-system/failure-intake.ts",
+          "src/lib/quality-system/scope-resolver.ts",
+          "src/lib/quality-system/shoperation-knowledge.ts",
+          "tests/control-plane-ecosystem-chain.test.ts",
+          "tests/control-plane-release-unit-execution-binding.test.ts",
+          "tests/control-plane-release-unit-production-surface.test.ts",
+          "tests/deep-atlas-scan.test.ts",
+          "tests/dependency-security-contract.test.ts",
+          "tests/engine-authority-scope-classification.test.ts",
+          "tests/shoperation-change-impact-atlas.test.ts",
+          "tests/shoperation-codebase-atlas-v2.test.ts",
+          "tests/shoperation-external-proof-handoff.test.ts",
+          "tests/shoperation-historical-support-backfill.test.ts",
+          "tests/shoperation-semantic-execution-intelligence.test.ts",
+          "tests/template-factory-engine-functional-proof.test.ts"
         ],
+        "mustCreate": [],
         "forbidden": [],
-        "proof": [],
+        "proof": [
+          "tests/architecture-health.test.ts",
+          "tests/control-plane-ecosystem-chain.test.ts",
+          "tests/control-plane-release-decomposition.test.ts",
+          "tests/control-plane-release-unit-execution-binding.test.ts",
+          "tests/control-plane-release-unit-orchestration.test.ts",
+          "tests/control-plane-release-unit-production-surface.test.ts",
+          "tests/deep-atlas-scan.test.ts",
+          "tests/dependency-security-contract.test.ts",
+          "tests/digital-commerce-builder-integration.test.tsx",
+          "tests/domain-foundations.test.ts",
+          "tests/engine-authority-scope-classification.test.ts",
+          "tests/playroom-v20-canonical-shell-content.test.ts",
+          "tests/release-unit-materialization.test.ts",
+          "tests/roadmap-block21-page-schema-templates.test.ts",
+          "tests/roadmap-block22-visual-builder.test.ts",
+          "tests/roadmap-block23-ai-builder-template-generation.test.ts",
+          "tests/shoperation-change-impact-atlas.test.ts",
+          "tests/shoperation-codebase-atlas-v2.test.ts",
+          "tests/shoperation-development-guard.test.ts",
+          "tests/shoperation-external-proof-handoff.test.ts",
+          "tests/shoperation-historical-support-backfill.test.ts",
+          "tests/shoperation-operational-intelligence.test.ts",
+          "tests/shoperation-proof-semantics.test.ts",
+          "tests/shoperation-quality-knowledge.test.ts",
+          "tests/shoperation-resumable-verification.test.ts",
+          "tests/shoperation-semantic-execution-intelligence.test.ts",
+          "tests/special-commerce-wave6-cross-engine-acceptance.test.ts",
+          "tests/special-commerce-wave8-growth-marketing-surfaces.test.tsx",
+          "tests/storefront-account-shell.test.ts",
+          "tests/storefront-beauty-lab-reference-v28.test.ts",
+          "tests/storefront-cart-presentation-contract.test.ts",
+          "tests/storefront-commerce-fidelity-slots.test.tsx",
+          "tests/storefront-commerce-header.test.tsx",
+          "tests/storefront-core-commerce.test.ts",
+          "tests/storefront-creator-station-wave36-reacceptance.test.ts",
+          "tests/storefront-fidelity-behavior.test.tsx",
+          "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
+          "tests/storefront-fidelity-diagnostics.test.ts",
+          "tests/storefront-fidelity-inspector.test.ts",
+          "tests/storefront-fidelity-layout.test.ts",
+          "tests/storefront-fidelity-primitive-renderers.test.tsx",
+          "tests/storefront-fidelity-security.test.ts",
+          "tests/storefront-global-styles.test.ts",
+          "tests/storefront-guided-fidelity-slots.test.tsx",
+          "tests/storefront-heritage-atelier-template.test.tsx",
+          "tests/storefront-heritage-atelier-wave28-reacceptance.test.tsx",
+          "tests/storefront-monarche-template.test.tsx",
+          "tests/storefront-monarche-wave43-reacceptance.test.ts",
+          "tests/storefront-performance-contract.test.ts",
+          "tests/storefront-pilot-acceptance-authority.test.ts",
+          "tests/storefront-playroom-reference-fidelity.test.ts",
+          "tests/storefront-playroom-reference-v2-fidelity.test.tsx",
+          "tests/storefront-playroom-template.test.tsx",
+          "tests/storefront-playroom-v18-image-slots.test.ts",
+          "tests/storefront-playroom-v19-complete.test.ts",
+          "tests/storefront-playroom-v19-page-family-presets.test.ts",
+          "tests/storefront-playroom-v19-subpage-parity.test.ts",
+          "tests/storefront-playroom-v19-visual-polish.test.ts",
+          "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+          "tests/storefront-template-quality-gate-v2.test.ts",
+          "tests/template-factory-engine-functional-proof-entry.test.ts",
+          "tests/template-factory-engine-functional-proof-runner.test.ts",
+          "tests/template-factory-engine-functional-proof.test.ts",
+          "tests/template-factory-resumable-verification.test.ts",
+          "tests/template-factory-scaffold-v1.test.ts"
+        ],
         "authority": [
           "quality-knowledge-system"
         ],
@@ -291,36 +620,18 @@
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 0,
+        "score": 2,
         "maxPoints": 5,
-        "subsystemCount": 0,
+        "subsystemCount": 1,
         "maxSubsystems": 3,
-        "subsystems": [],
+        "subsystems": [
+          {
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          }
+        ],
         "files": [
-          {
-            "file": "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
           {
             "file": "quality/development/active-plan.json",
             "subsystem": "evidence-neutral",
@@ -328,7 +639,25 @@
             "points": 0
           },
           {
-            "file": "tests/shoperation-operational-intelligence.test.ts",
+            "file": "quality/knowledge/development-guard-policy.v1.json",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          },
+          {
+            "file": "quality/knowledge/shoperation-quality-knowledge.v1.json",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          },
+          {
+            "file": "tests/shoperation-development-guard.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
+          },
+          {
+            "file": "tests/shoperation-quality-knowledge.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -343,36 +672,18 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 0,
+          "score": 2,
           "maxPoints": 5,
-          "subsystemCount": 0,
+          "subsystemCount": 1,
           "maxSubsystems": 3,
-          "subsystems": [],
+          "subsystems": [
+            {
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            }
+          ],
           "files": [
-            {
-              "file": "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
-            {
-              "file": "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
-            {
-              "file": "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
-            {
-              "file": "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
             {
               "file": "quality/development/active-plan.json",
               "subsystem": "evidence-neutral",
@@ -380,7 +691,25 @@
               "points": 0
             },
             {
-              "file": "tests/shoperation-operational-intelligence.test.ts",
+              "file": "quality/knowledge/development-guard-policy.v1.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "quality/knowledge/shoperation-quality-knowledge.v1.json",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "tests/shoperation-development-guard.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
+              "file": "tests/shoperation-quality-knowledge.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -394,102 +723,6 @@
         "atomicComponents": [
           {
             "id": 0,
-            "files": [
-              "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 1,
-            "files": [
-              "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 2,
-            "files": [
-              "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 3,
-            "files": [
-              "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 4,
             "files": [
               "quality/development/active-plan.json"
             ],
@@ -513,9 +746,69 @@
             }
           },
           {
-            "id": 5,
+            "id": 1,
             "files": [
-              "tests/shoperation-operational-intelligence.test.ts"
+              "quality/knowledge/development-guard-policy.v1.json"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 2,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "files": [
+                {
+                  "file": "quality/knowledge/development-guard-policy.v1.json",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 2,
+            "files": [
+              "quality/knowledge/shoperation-quality-knowledge.v1.json"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 2,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "files": [
+                {
+                  "file": "quality/knowledge/shoperation-quality-knowledge.v1.json",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 3,
+            "files": [
+              "tests/shoperation-development-guard.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -526,7 +819,31 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-operational-intelligence.test.ts",
+                  "file": "tests/shoperation-development-guard.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 4,
+            "files": [
+              "tests/shoperation-quality-knowledge.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/shoperation-quality-knowledge.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -543,47 +860,26 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "PO-2026-10-13-CORE-1272-PROVENANCE-DOCS",
-              "developmentBaseSha": "47ea3c5606f0503498cd4d0125f9a74c8a3c1d97"
+              "sourceRef": "PO-2026-10-13-CORE-1272-LEARN",
+              "developmentBaseSha": "e0c7e1cb32fffe48b48c4f765e7359dc24c2b8e3"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "47ea3c5606f0503498cd4d0125f9a74c8a3c1d97",
+            "targetBaseSha": "e0c7e1cb32fffe48b48c4f765e7359dc24c2b8e3",
             "lease": {
-              "expectedBaseSha": "47ea3c5606f0503498cd4d0125f9a74c8a3c1d97",
+              "expectedBaseSha": "e0c7e1cb32fffe48b48c4f765e7359dc24c2b8e3",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md",
-              "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json",
-              "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
-              "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json",
               "quality/development/active-plan.json",
-              "tests/shoperation-operational-intelligence.test.ts"
+              "quality/knowledge/development-guard-policy.v1.json",
+              "quality/knowledge/shoperation-quality-knowledge.v1.json",
+              "tests/shoperation-development-guard.test.ts",
+              "tests/shoperation-quality-knowledge.test.ts"
             ],
             "operations": [
-              {
-                "operation": "create",
-                "file": "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json",
-                "generated": null
-              },
               {
                 "operation": "modify",
                 "file": "quality/development/active-plan.json",
@@ -591,50 +887,51 @@
               },
               {
                 "operation": "modify",
-                "file": "tests/shoperation-operational-intelligence.test.ts",
+                "file": "quality/knowledge/development-guard-policy.v1.json",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "quality/knowledge/shoperation-quality-knowledge.v1.json",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "tests/shoperation-development-guard.test.ts",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "tests/shoperation-quality-knowledge.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [
-              "scripts/lib/shoperation-operational-intelligence.mjs",
-              "scripts/lib/shoperation-release-unit-runtime.mjs"
+              "src/lib/builder/template-factory/knowledge-registry.ts",
+              "src/lib/quality-system/failure-intake.ts",
+              "src/lib/quality-system/scope-resolver.ts",
+              "src/lib/quality-system/shoperation-knowledge.ts"
             ],
             "authorities": [
               "quality-knowledge-system"
             ],
-            "subsystems": [],
+            "subsystems": [
+              "quality-infrastructure"
+            ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
+              "score": 2,
               "maxPoints": 5,
-              "subsystemCount": 0,
+              "subsystemCount": 1,
               "maxSubsystems": 3,
-              "subsystems": [],
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
               "files": [
-                {
-                  "file": "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
                 {
                   "file": "quality/development/active-plan.json",
                   "subsystem": "evidence-neutral",
@@ -642,7 +939,25 @@
                   "points": 0
                 },
                 {
-                  "file": "tests/shoperation-operational-intelligence.test.ts",
+                  "file": "quality/knowledge/development-guard-policy.v1.json",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
+                {
+                  "file": "quality/knowledge/shoperation-quality-knowledge.v1.json",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
+                {
+                  "file": "tests/shoperation-development-guard.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                },
+                {
+                  "file": "tests/shoperation-quality-knowledge.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -675,23 +990,99 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-operational-intelligence.test.ts"
+                "tests/shoperation-development-guard.test.ts",
+                "tests/shoperation-quality-knowledge.test.ts"
               ],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
-            "readOnlyPaths": [],
+            "readOnlyPaths": [
+              "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md",
+              "quality/knowledge/architecture-constitution.v1.json",
+              "quality/knowledge/codebase-atlas-policy.v2.json",
+              "quality/knowledge/living-roadmap.v2.json",
+              "scripts/lib/shoperation-architecture-health.mjs",
+              "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+              "scripts/lib/shoperation-development-runtime.mjs",
+              "scripts/lib/shoperation-operational-intelligence.mjs",
+              "scripts/lib/shoperation-reference-sync-runtime.mjs",
+              "scripts/lib/shoperation-release-unit-runtime.mjs",
+              "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
+              "scripts/lib/shoperation-verification-reuse.mjs",
+              "scripts/release-risk-budget.mjs",
+              "scripts/release-unit-ci-context.mjs",
+              "scripts/release-unit-execute.mjs",
+              "scripts/release-unit-github-runtime.mjs",
+              "scripts/release-unit-materialize.mjs",
+              "scripts/release-unit-orchestrate.mjs",
+              "scripts/release-unit-parent-close.mjs",
+              "scripts/shoperation-close-development-plan.mjs",
+              "scripts/shoperation-codebase-atlas.mjs",
+              "scripts/shoperation-development-guard.mjs",
+              "scripts/shoperation-edit-time-guard.mjs",
+              "scripts/shoperation-external-proof-handoff.mjs",
+              "scripts/shoperation-incremental-replay.mjs",
+              "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+              "scripts/shoperation-knowledge-preflight.mjs",
+              "scripts/shoperation-plan-before-code.mjs",
+              "scripts/shoperation-sentinel-integrity-probe.mjs",
+              "scripts/shoperation-sentinel-scan.mjs",
+              "scripts/shoperation-truth-gate.mjs",
+              "scripts/template-factory-quality-gate.mjs",
+              "src/app/account-workflow.css",
+              "src/app/adatvedelem/page.tsx",
+              "src/app/admin/indulas/page.tsx",
+              "src/app/api/visual-fidelity/templates/route.ts",
+              "src/app/aszf/page.tsx",
+              "src/app/impresszum/page.tsx",
+              "src/app/kereses/page.tsx",
+              "src/app/oldal/[slug]/page.tsx",
+              "src/app/szallitas-es-fizetes/page.tsx",
+              "src/components/account/storefront-account-shell.tsx",
+              "src/components/admin/content-manager.tsx",
+              "src/components/admin/storefront-fidelity-layout-controls.tsx",
+              "src/components/admin/storefront-fidelity-node-controls.tsx",
+              "src/components/admin/storefront-responsive-layout-depth-controls.tsx",
+              "src/components/admin/storefront-saved-blocks-panel.tsx",
+              "src/components/admin/storefront-visual-builder-production.tsx",
+              "src/components/admin/storefront-visual-builder-v3.tsx",
+              "src/components/admin/team-member-controls.tsx",
+              "src/components/builder/storefront-commerce-header.module.css",
+              "src/components/builder/storefront-commerce-header.tsx",
+              "src/components/builder/storefront-commerce.tsx",
+              "src/lib/builder/template-factory/procedural-memory.ts",
+              "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+              "src/lib/builder/templates/gaming/loot-vault/v2/index.ts",
+              "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+              "src/lib/quality-system/architecture-constitution.ts",
+              "src/lib/quality-system/capability-evidence.ts",
+              "src/lib/quality-system/domain-foundations.ts",
+              "src/lib/quality-system/failure-intake.ts",
+              "src/lib/quality-system/scope-resolver.ts",
+              "src/lib/quality-system/shoperation-knowledge.ts",
+              "tests/control-plane-ecosystem-chain.test.ts",
+              "tests/control-plane-release-unit-execution-binding.test.ts",
+              "tests/control-plane-release-unit-production-surface.test.ts",
+              "tests/deep-atlas-scan.test.ts",
+              "tests/dependency-security-contract.test.ts",
+              "tests/engine-authority-scope-classification.test.ts",
+              "tests/shoperation-change-impact-atlas.test.ts",
+              "tests/shoperation-codebase-atlas-v2.test.ts",
+              "tests/shoperation-external-proof-handoff.test.ts",
+              "tests/shoperation-historical-support-backfill.test.ts",
+              "tests/shoperation-semantic-execution-intelligence.test.ts",
+              "tests/template-factory-engine-functional-proof.test.ts"
+            ],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md",
-                "docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json",
-                "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
-                "docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json",
                 "quality/development/active-plan.json",
-                "tests/shoperation-operational-intelligence.test.ts"
+                "quality/knowledge/development-guard-policy.v1.json",
+                "quality/knowledge/shoperation-quality-knowledge.v1.json",
+                "tests/shoperation-development-guard.test.ts",
+                "tests/shoperation-quality-knowledge.test.ts"
               ],
               "filesAbsent": []
             },
@@ -706,7 +1097,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "b8a48faa",
+            "manifestDigest": "a1e1c2b6",
             "decision": "PASS"
           }
         ],
@@ -751,7 +1142,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-13-CORE-1272-PROVENANCE-DOCS",
+    "sourceRef": "PO-2026-10-13-CORE-1272-LEARN",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -770,8 +1161,8 @@
     },
     "requirements": [
       {
-        "id": "REQ-1273-SOURCE-PROVENANCE",
-        "requirement": "Four sanitized documentation artifacts preserve source authority, confidence, 108 Core records, 67 Roadmap entries and not-yet-accepted distinctions.",
+        "id": "REQ-1272-KF-LEARN",
+        "requirement": "PO source loss is independently recorded as an active, globally injectable Known Failure with distinct original reference, invariant linkage, preventive directive and regression.",
         "claimScope": {
           "capability": "CAP-QUALITY",
           "strength": 1,
@@ -795,8 +1186,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-1273-SOURCE-FABRICATION",
-            "statement": "Unverified original chats or rejected M9.7 must not be presented as approved, implemented or verbatim proven.",
+            "id": "NEG-1272-KF-MISSING",
+            "statement": "A future Core task must not lose the explicit source/supersession pre-edit preventive directive.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -804,16 +1195,16 @@
         ]
       },
       {
-        "id": "REQ-1273-GUARDED-PROMOTION",
-        "requirement": "Existing documented scope integrates on current main with exact Development Transaction and full fail-closed development lifecycle.",
+        "id": "REQ-1272-SCOPE",
+        "requirement": "The new global knowledge remains nonblocking for unrelated product work, and real PO claim checks stay scoped to explicit active rules.",
         "claimScope": {
           "capability": "CAP-QUALITY",
           "strength": 1,
           "dimensions": [
             "plan",
             "scope",
-            "truth",
-            "regression"
+            "positive-state",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -830,8 +1221,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-1273-STALE-BASE-BYPASS",
-            "statement": "Old closed U11/B or older base metadata must not be reused to fake a successful promotion.",
+            "id": "NEG-1272-NO-FALSE-BLOCK",
+            "statement": "Global directive must not turn unrelated tasks into false PO-claim blockers.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -840,18 +1231,5 @@
       }
     ]
   },
-  "notes": "Docs-only provenance promotion #1273 from Product Owner accepted #1272 follow-up. Native exact-main guard https://github.com/infowaterk-max/water-K-/actions/runs/38385294127 PASS, guard digest 430b0bba; no product runtime modifications. The four files already existed on #1273 history before integration; scope checked prior to creating new status amendment. Keep #1279 merged Phase 1 verification separate from 108 historic source slots and 16 abstract fixtures. Corrected expectedDomains/expectedAuthorities for the actual projected docs-only files per canonical Plan Before Code: all 4 docs/po files are evidence-neutral. The Development Guard source expected DOMAIN-QUALITY solely because its --files input included quality/development/active-plan.json metadata. This is a plan-level reconciliation to actual implementation projection, with no source, code, risk or guard weakening. GitHub CI run 38385664899 precise findings DEV_PLAN_DOMAIN_SCOPE_DRIFT and DEV_PLAN_AUTHORITY_SCOPE_DRIFT. Native guard scope expanded on run 38386285777 to test operational-intelligence neutral/create-only proof expectations. Only tests/shoperation-operational-intelligence.test.ts added to material code MUST_EDIT; documentation remains mustCreate. The test harness wrongly reused an active plan with no critical MUST_EDIT/PROOF. Actual affected runtime scope is neutral, expectedDomains=[] expectedAuthorities=[]; active semantic route authority=[] is corrected. No guard or product runtime change.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "c7ef9bb64f5b2fefa1750b77202fee1ce7504ba1",
-    "closedAt": "2026-10-13T10:59:38.034Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-13-CORE-1272-PROVENANCE-DOCS",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Guard-generated basis recorded by live Actions run 38391227756 (exact main e0c7e1cb32fffe48b48c4f765e7359dc24c2b8e3), guardDigest aa79c504. Only five planned files including active-plan metadata. No main/tenant/provider/runtime or existing PO instruction content changes. #1272 original CLOSE/LEARN required this source-loss known failure, separate from already merged #1279/#1273 proof."
 }
