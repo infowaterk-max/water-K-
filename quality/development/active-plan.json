@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CORE-1272-PROVENANCE-DOCS",
   "task": "Core #1272 provenance docs: governed promotion of decision-source audit, Roadmap trace and adversarial fixtures",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "430b0bba",
   "changeBaseSha": "47ea3c5606f0503498cd4d0125f9a74c8a3c1d97",
   "plannedFilePatterns": [
@@ -840,5 +840,18 @@
       }
     ]
   },
-  "notes": "Docs-only provenance promotion #1273 from Product Owner accepted #1272 follow-up. Native exact-main guard https://github.com/infowaterk-max/water-K-/actions/runs/38385294127 PASS, guard digest 430b0bba; no product runtime modifications. The four files already existed on #1273 history before integration; scope checked prior to creating new status amendment. Keep #1279 merged Phase 1 verification separate from 108 historic source slots and 16 abstract fixtures. Corrected expectedDomains/expectedAuthorities for the actual projected docs-only files per canonical Plan Before Code: all 4 docs/po files are evidence-neutral. The Development Guard source expected DOMAIN-QUALITY solely because its --files input included quality/development/active-plan.json metadata. This is a plan-level reconciliation to actual implementation projection, with no source, code, risk or guard weakening. GitHub CI run 38385664899 precise findings DEV_PLAN_DOMAIN_SCOPE_DRIFT and DEV_PLAN_AUTHORITY_SCOPE_DRIFT. Native guard scope expanded on run 38386285777 to test operational-intelligence neutral/create-only proof expectations. Only tests/shoperation-operational-intelligence.test.ts added to material code MUST_EDIT; documentation remains mustCreate. The test harness wrongly reused an active plan with no critical MUST_EDIT/PROOF. Actual affected runtime scope is neutral, expectedDomains=[] expectedAuthorities=[]; active semantic route authority=[] is corrected. No guard or product runtime change."
+  "notes": "Docs-only provenance promotion #1273 from Product Owner accepted #1272 follow-up. Native exact-main guard https://github.com/infowaterk-max/water-K-/actions/runs/38385294127 PASS, guard digest 430b0bba; no product runtime modifications. The four files already existed on #1273 history before integration; scope checked prior to creating new status amendment. Keep #1279 merged Phase 1 verification separate from 108 historic source slots and 16 abstract fixtures. Corrected expectedDomains/expectedAuthorities for the actual projected docs-only files per canonical Plan Before Code: all 4 docs/po files are evidence-neutral. The Development Guard source expected DOMAIN-QUALITY solely because its --files input included quality/development/active-plan.json metadata. This is a plan-level reconciliation to actual implementation projection, with no source, code, risk or guard weakening. GitHub CI run 38385664899 precise findings DEV_PLAN_DOMAIN_SCOPE_DRIFT and DEV_PLAN_AUTHORITY_SCOPE_DRIFT. Native guard scope expanded on run 38386285777 to test operational-intelligence neutral/create-only proof expectations. Only tests/shoperation-operational-intelligence.test.ts added to material code MUST_EDIT; documentation remains mustCreate. The test harness wrongly reused an active plan with no critical MUST_EDIT/PROOF. Actual affected runtime scope is neutral, expectedDomains=[] expectedAuthorities=[]; active semantic route authority=[] is corrected. No guard or product runtime change.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "c7ef9bb64f5b2fefa1750b77202fee1ce7504ba1",
+    "closedAt": "2026-10-13T10:59:38.034Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-13-CORE-1272-PROVENANCE-DOCS",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
