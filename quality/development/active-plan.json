@@ -1124,11 +1124,10 @@
           "breadth": "four-sourced-PO-contracts",
           "strength": 1,
           "dimensions": [
-            "source",
             "scope",
-            "supersession",
-            "positive",
-            "negative"
+            "positive-state",
+            "forbidden-state",
+            "evidence-scope"
           ]
         },
         "requiredCapabilities": [
@@ -1160,10 +1159,10 @@
           "breadth": "plan-before-code-four-domain-scope",
           "strength": 1,
           "dimensions": [
-            "entitlements",
-            "release",
-            "B2B",
-            "security-updates"
+            "plan",
+            "authority",
+            "positive-state",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -1196,10 +1195,10 @@
           "breadth": "sixteen-adversarial-cases",
           "strength": 1,
           "dimensions": [
-            "BLOCK",
-            "PASS",
-            "REVIEW_REQUIRED",
-            "NOT_APPLICABLE"
+            "tests",
+            "regression",
+            "positive-state",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -1225,5 +1224,5 @@
       }
     ]
   },
-  "notes": "Native Development Guard source: GitHub Actions https://github.com/infowaterk-max/water-K-/actions/runs/38377811666; origin probe branch was read-only/no product code. New development transaction uses current canonical main base and only specified files; old closed U11/B retained on main. This is an implementation authorization after full definition/challenge, not a statement of functional completion. Edit-Time Guard intentionally treats quality/development/active-plan.json as non-material transaction metadata: it is in plannedFilePatterns for traceability, but cannot be part of semantic MUST_EDIT because getChangedFiles.materialFiles excludes it. The four actual code changes, rather than metadata, are required by Implementation Sync. This explicitly reconciles the verified CI finding from run 38379468879; no guard or test was disabled."
+  "notes": "Native Development Guard source: GitHub Actions https://github.com/infowaterk-max/water-K-/actions/runs/38377811666; origin probe branch was read-only/no product code. New development transaction uses current canonical main base and only specified files; old closed U11/B retained on main. This is an implementation authorization after full definition/challenge, not a statement of functional completion. Edit-Time Guard intentionally treats quality/development/active-plan.json as non-material transaction metadata: it is in plannedFilePatterns for traceability, but cannot be part of semantic MUST_EDIT because getChangedFiles.materialFiles excludes it. The four actual code changes, rather than metadata, are required by Implementation Sync. This explicitly reconciles the verified CI finding from run 38379468879; no guard or test was disabled. Sentinel integration correction: completionContract.claimScope.dimensions enumerate only canonical proofSemantics dimensions from the referenced active guards; acceptance requirements, actual negative regressions and PO sources unchanged. This resolves the actual 3533/3534 CI test fail on run 38379828068 without suppressing the Sentinel."
 }
