@@ -13,12 +13,8 @@
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [],
-  "expectedDomains": [
-    "DOMAIN-QUALITY"
-  ],
-  "expectedAuthorities": [
-    "quality-knowledge-system"
-  ],
+  "expectedDomains": [],
+  "expectedAuthorities": [],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
@@ -778,5 +774,5 @@
       }
     ]
   },
-  "notes": "Docs-only provenance promotion #1273 from Product Owner accepted #1272 follow-up. Native exact-main guard https://github.com/infowaterk-max/water-K-/actions/runs/38385294127 PASS, guard digest 430b0bba; no product runtime modifications. The four files already existed on #1273 history before integration; scope checked prior to creating new status amendment. Keep #1279 merged Phase 1 verification separate from 108 historic source slots and 16 abstract fixtures."
+  "notes": "Docs-only provenance promotion #1273 from Product Owner accepted #1272 follow-up. Native exact-main guard https://github.com/infowaterk-max/water-K-/actions/runs/38385294127 PASS, guard digest 430b0bba; no product runtime modifications. The four files already existed on #1273 history before integration; scope checked prior to creating new status amendment. Keep #1279 merged Phase 1 verification separate from 108 historic source slots and 16 abstract fixtures. Corrected expectedDomains/expectedAuthorities for the actual projected docs-only files per canonical Plan Before Code: all 4 docs/po files are evidence-neutral. The Development Guard source expected DOMAIN-QUALITY solely because its --files input included quality/development/active-plan.json metadata. This is a plan-level reconciliation to actual implementation projection, with no source, code, risk or guard weakening. GitHub CI run 38385664899 precise findings DEV_PLAN_DOMAIN_SCOPE_DRIFT and DEV_PLAN_AUTHORITY_SCOPE_DRIFT."
 }
