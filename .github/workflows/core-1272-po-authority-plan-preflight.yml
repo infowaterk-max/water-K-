@@ -40,10 +40,10 @@ jobs:
         run: |
           set +e
           node scripts/shoperation-development-guard.mjs \
-            --task "Core #1272: scoped PO decision authority provenance and fail-closed plan verification" \
-            --files "quality/knowledge/po-instructions.v1.json;scripts/lib/shoperation-codebase-atlas-runtime.mjs;scripts/lib/shoperation-codebase-atlas-runtime.d.mts;scripts/shoperation-plan-before-code.mjs;tests/shoperation-semantic-execution-intelligence.test.ts;quality/development/active-plan.json" \
+            --task "Core #1272 Phase 2: promote decision provenance source audit and 16 adversarial fixture specifications" \
+            --files "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md;docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json;docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json;docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json;quality/development/active-plan.json" \
             --risk high \
-            --source-ref "PO-2026-10-13-CORE-1272" \
+            --source-ref "PO-2026-10-13-CORE-1272-PROVENANCE-DOCS" \
             --write-plan --check
           code="$?"
           printf 'guard_exit_code=%s\n' "$code"
