@@ -22,7 +22,7 @@ jobs:
       - name: Checkout exact proposed source
         uses: actions/checkout@v4
         with:
-          ref: e0c7e1cb32fffe48b48c4f765e7359dc24c2b8e3
+          ref: ce1a202b9c21de6881e8a53c2dde4010f68f89cb
           fetch-depth: 0
           persist-credentials: false
 
