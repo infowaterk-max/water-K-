@@ -3,7 +3,7 @@
   "taskId": "DEV-CORE-1272-PO-SOURCE-LOSS-LEARNING-V1",
   "task": "Core #1272 CLOSE/LEARN: add canonical General Known Failure for PO decision provenance/supersession loss",
   "status": "ready-for-implementation",
-  "guardDigest": "aa79c504",
+  "guardDigest": "6b3ce3fb",
   "changeBaseSha": "e0c7e1cb32fffe48b48c4f765e7359dc24c2b8e3",
   "plannedFilePatterns": [
     "quality/knowledge/shoperation-quality-knowledge.v1.json",
@@ -23,6 +23,7 @@
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-022",
+    "SQ-KF-025",
     "SQ-KF-001",
     "SQ-KF-002",
     "SQ-KF-003",
@@ -72,7 +73,8 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-012",
+    "SQ-NK-024"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -1231,5 +1233,5 @@
       }
     ]
   },
-  "notes": "Guard-generated basis recorded by live Actions run 38391227756 (exact main e0c7e1cb32fffe48b48c4f765e7359dc24c2b8e3), guardDigest aa79c504. Only five planned files including active-plan metadata. No main/tenant/provider/runtime or existing PO instruction content changes. #1272 original CLOSE/LEARN required this source-loss known failure, separate from already merged #1279/#1273 proof."
+  "notes": "Guard-generated basis recorded by live Actions run 38391227756 (exact main e0c7e1cb32fffe48b48c4f765e7359dc24c2b8e3), guardDigest aa79c504. Only five planned files including active-plan metadata. No main/tenant/provider/runtime or existing PO instruction content changes. #1272 original CLOSE/LEARN required this source-loss known failure, separate from already merged #1279/#1273 proof. Canonical knowledge registration changed expected full replay selection: native Development Guard rerun against exact source commit ce1a202b9c21de6881e8a53c2dde4010f68f89cb (Actions run 38392011408) returned 50 expected failures including SQ-KF-025 and SQ-NK-024, canonical guardDigest 6b3ce3fb. Original base main e0c7e1cb32fffe48b48c4f765e7359dc24c2b8e3 retained; no lock, guard, risk or test suppressed."
 }
