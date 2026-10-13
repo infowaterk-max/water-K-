@@ -55,6 +55,7 @@ jobs:
           import {readFileSync} from 'node:fs';
           const g=JSON.parse(readFileSync('artifacts/shoperation-development-guard/development-guard.json','utf8'));
           const p=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
+          console.log('CORE_1272_PREPLAN_JSON='+JSON.stringify(p));
           console.log('CORE_1272_GUARD_REPORT='+JSON.stringify({
             decision:g.decision,
             plannedFiles:g.plannedFiles,
