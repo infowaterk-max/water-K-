@@ -41,7 +41,7 @@ jobs:
           set +e
           node scripts/shoperation-development-guard.mjs \
             --task "Core #1272 Phase 2: promote decision provenance source audit and 16 adversarial fixture specifications" \
-            --files "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md;docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json;docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json;docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json;quality/development/active-plan.json" \
+            --files "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md;docs/po/SHOPERATION_DECISION_SOURCE_COVERAGE_2026-10-13.json;docs/po/SHOPERATION_ROADMAP_SOURCE_TRACE_2026-10-13.json;docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json;tests/shoperation-operational-intelligence.test.ts;quality/development/active-plan.json" \
             --risk high \
             --source-ref "PO-2026-10-13-CORE-1272-PROVENANCE-DOCS" \
             --write-plan --check
