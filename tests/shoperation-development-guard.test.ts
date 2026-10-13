@@ -6,6 +6,31 @@ import {resolveShoperationKnowledgeScope} from '@/lib/quality-system/scope-resol
 const policy=JSON.parse(readFileSync('quality/knowledge/development-guard-policy.v1.json','utf8')) as {generalRules:string[];intentMatchers:{pattern:string;subsystems:string[]}[];directives:Record<string,{preventiveDirective:string;forbiddenApproaches:string[];requiredBeforeEdit:string[]}>;editRules:{id:string;severity:string;failureIds:string[]}[];negativeKnowledgeApplicability:Record<string,string[]>;};
 const scopePolicy=JSON.parse(readFileSync('quality/knowledge/knowledge-scope-policy.v1.json','utf8')) as {dependencies:Record<string,string[]>;knowledgeInfrastructurePrefixes:string[]};
 describe('Shoperation Development-Time Known Failure Guard',()=>{
+  it('injects source-loss prevention and negative knowledge into future plans without global business-rule overreach',()=>{
+    const failure=JSON.parse(readFileSync('quality/knowledge/shoperation-quality-knowledge.v1.json','utf8')) as {
+      globalBaselineFailureIds:string[];knownFailures:{id:string;applicability:{mode:string}}[];negativeKnowledge:{id:string;sourceRecords:string[]}[]
+    };
+    const learned=failure.knownFailures.find(x=>x.id==='SQ-KF-025');
+    expect(learned?.applicability.mode).toBe('always');
+    expect(failure.globalBaselineFailureIds).toContain('SQ-KF-025');
+    expect(failure.negativeKnowledge.some(x=>x.id==='SQ-NK-024'&&x.sourceRecords.length>0)).toBe(true);
+    const d=policy.directives['SQ-KF-025'];
+    expect(d?.preventiveDirective).toContain('Product Owner');
+    expect(d?.preventiveDirective).toContain('Plan Before Code');
+    expect(d?.preventiveDirective).toContain('bounded');
+    expect(d?.forbiddenApproaches.join(' ')).toContain('108');
+    expect(d?.requiredBeforeEdit.join(' ')).toContain('quality/knowledge/po-instructions.v1.json');
+    expect(policy.negativeKnowledgeApplicability['SQ-NK-024']).toEqual(['*']);
+    for(const file of ['src/lib/shipping/dpd-provider.ts','src/lib/plans/catalog.ts']){
+      const scope=resolveShoperationKnowledgeScope({changedFiles:[file]});
+      expect(scope.activeFailureIds).toContain('SQ-KF-025');
+    }
+    expect(resolveShoperationKnowledgeScope({changedFiles:['docs/po/README.md']}).activeFailureIds).toContain('SQ-KF-025');
+    const po=JSON.parse(readFileSync('quality/knowledge/po-instructions.v1.json','utf8')) as any;
+    expect(po.instructions.filter((x:any)=>x.lifecycle==='active').length).toBe(5);
+    expect(po.instructions.every((x:any)=>x.id!=='PO-INSTRUCTION-M2-18-UNVERIFIED')).toBe(true);
+  });
+
   it('resolves the exact communication worker send-time scope without broadening sibling libraries',()=>{
     const policy=JSON.parse(readFileSync('deploy/release-risk-policy.json','utf8')) as {subsystems:{name:string;patterns:string[]}[]};
     const admin=policy.subsystems.find(item=>item.name==='admin-operations');

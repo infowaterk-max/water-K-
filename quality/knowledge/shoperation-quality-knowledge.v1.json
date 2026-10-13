@@ -132,7 +132,8 @@
   "globalBaselineFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-022"
+    "SQ-KF-022",
+    "SQ-KF-025"
   ],
   "knownFailures": [
     {
@@ -839,6 +840,34 @@
           "quality-knowledge-system"
         ]
       }
+    },
+    {
+      "id": "SQ-KF-025",
+      "title": "Accepted Product Owner decision loses source or supersession authority during development",
+      "symptom": "A previously accepted capability, package entitlement or rollout decision is restated from an older generic summary, omitted or silently reinterpreted without source/scope proof; later implementation may contradict the latest accepted Product Owner decision.",
+      "rootCause": "Source-to-scope-to-instruction provenance and explicit supersession precedence were not consistently preserved and consulted before new development plans or code edits; incomplete historical conversations risk fabricated authority.",
+      "occurrences": 2,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-002",
+        "SQ-AUTH-007",
+        "SQ-AUTH-017"
+      ],
+      "regressionTests": [
+        "tests/shoperation-quality-knowledge.test.ts",
+        "tests/shoperation-development-guard.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md",
+        "docs/po/SHOPERATION_DECISION_CONVERSATION_PROVENANCE_2026-10-13.md"
+      ],
+      "applicability": {
+        "mode": "always",
+        "subsystems": []
+      }
     }
   ],
   "templateFactoryFailureApplicability": {
@@ -1115,6 +1144,14 @@
       "rule": "Do not let an external guard consumer derive proof for a scope that its authoritative producer workflow cannot be triggered to produce. External-gate semantic applicability and producer trigger scope must remain aligned; generic roadmap/knowledge-only changes must not inherit Template Factory proof merely through an over-broad knowledge wildcard.",
       "sourceRecords": [
         "quality/development/active-plan.json"
+      ]
+    },
+    {
+      "id": "SQ-NK-024",
+      "rule": "Do not implement or reclassify a Product Owner-accepted capability using an older generic summary when a later explicit PO decision exists. Before editing, retain source identity, current scope and supersession precedence; treat missing verbatim evidence as UNKNOWN/REVIEW_REQUIRED, never fabricate acceptance or autoactivate unverified historical source rows. The canonical scoped PO Instruction Authority/Plan Before Code, not a duplicate gate, determines applicable machine blockers.",
+      "sourceRecords": [
+        "docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md",
+        "docs/po/SHOPERATION_DECISION_CONVERSATION_PROVENANCE_2026-10-13.md"
       ]
     }
   ]

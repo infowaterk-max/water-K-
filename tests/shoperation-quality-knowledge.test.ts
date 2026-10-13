@@ -6,6 +6,35 @@ import {classifyShoperationFailureSignal,isUnresolvedFailureIntake} from '@/lib/
 import {TEMPLATE_FACTORY_KNOWN_FAILURES} from '@/lib/builder/template-factory/knowledge-registry';
 
 describe('Shoperation global quality knowledge',()=>{
+  it('learns PO decision-source loss as global preventive knowledge without inventing acceptance',()=>{
+    const fail=SHOPERATION_KNOWN_FAILURES.find(item=>item.id==='SQ-KF-025');
+    const negative=SHOPERATION_NEGATIVE_KNOWLEDGE.find(item=>item.id==='SQ-NK-024');
+    expect(fail?.provider).toBe('global');
+    expect(fail?.lifecycle).toBe('active');
+    expect(fail?.occurrences).toBeGreaterThanOrEqual(2);
+    expect(fail?.remediationPolicy).toBe('shared-root-cause-required');
+    expect(fail?.invariantIds).toEqual(expect.arrayContaining(['SQ-AUTH-002','SQ-AUTH-007','SQ-AUTH-017']));
+    expect(fail?.regressionTests).toEqual(expect.arrayContaining(['tests/shoperation-semantic-execution-intelligence.test.ts','tests/shoperation-development-guard.test.ts']));
+    expect(fail?.sourceRecords).toContain('docs/po/SHOPERATION_DECISION_PROVENANCE_RECONCILIATION_2026-10-13.md');
+    expect(negative?.sourceRecords).toEqual(expect.arrayContaining([...(fail?.sourceRecords??[])]));
+    expect(negative?.rule).toContain('UNKNOWN/REVIEW_REQUIRED');
+    expect(negative?.rule).toContain('supersession');
+    expect(SHOPERATION_GLOBAL_BASELINE_FAILURE_IDS).toContain('SQ-KF-025');
+
+    const checkout=resolveShoperationKnowledgeScope({changedFiles:['src/lib/shipping/dpd-provider.ts']});
+    const core=resolveShoperationKnowledgeScope({changedFiles:['src/lib/plans/catalog.ts']});
+    for(const s of [checkout,core]){
+      expect(s.activeFailureIds).toContain('SQ-KF-025');
+      expect(s.selection.find(x=>x.failureId==='SQ-KF-025')?.selected).toBe(true);
+      expect(s.selection.find(x=>x.failureId==='SQ-KF-025')?.reasons.length).toBeGreaterThan(0);
+    }
+    expect(checkout.activeFailureIds).not.toContain('TF-KF-003');
+    const machine=JSON.parse(readFileSync('quality/knowledge/po-instructions.v1.json','utf8')) as any;
+    expect(machine.instructions).toHaveLength(5);
+    expect(machine.instructions.some((x:any)=>x.id==='PO-INSTRUCTION-M8-5-E7-COMPARE-ALAP-PRO')).toBe(true);
+    expect(machine.instructions.some((x:any)=>x.id.includes('M2-18')||x.id.includes('M9-7'))).toBe(false);
+  });
+
   it('unifies global and Template Factory Known Failures under one integrity gate',()=>{const integrity=evaluateShoperationKnowledgeIntegrity();expect(integrity.ok,JSON.stringify(integrity.issues)).toBe(true);expect(SHOPERATION_KNOWN_FAILURES.length).toBeGreaterThan(TEMPLATE_FACTORY_KNOWN_FAILURES.length);for(const failure of TEMPLATE_FACTORY_KNOWN_FAILURES)expect(SHOPERATION_KNOWN_FAILURES.some(item=>item.id===failure.id&&item.provider==='template-factory')).toBe(true);expect(new Set(SHOPERATION_KNOWN_FAILURES.map(item=>item.id)).size).toBe(SHOPERATION_KNOWN_FAILURES.length);});
   it('keeps learned failures complete: invariant, regression, applicability and shared recurring repair',()=>{for(const failure of SHOPERATION_KNOWN_FAILURES){expect(failure.invariantIds.length,failure.id).toBeGreaterThan(0);expect(failure.regressionTests.length,failure.id).toBeGreaterThan(0);if(failure.applicability.mode==='subsystem')expect(failure.applicability.subsystems.length,failure.id).toBeGreaterThan(0);if(failure.occurrences>=2)expect(failure.remediationPolicy,failure.id).toBe('shared-root-cause-required');}expect(SHOPERATION_NEGATIVE_KNOWLEDGE.length).toBeGreaterThanOrEqual(5);expect(SHOPERATION_NEGATIVE_KNOWLEDGE.every(item=>item.sourceRecords.length>0)).toBe(true);});
   it('runs shipping/fulfillment knowledge without dragging Template Factory-only guards into the active set',()=>{const scope=resolveShoperationKnowledgeScope({changedFiles:['src/lib/shipping/dpd-provider.ts']});expect(scope.directSubsystems).toContain('inventory-fulfillment-authority');expect(scope.impactedSubsystems).toContain('payment-checkout-order-authority');expect(scope.activeFailureIds).toEqual(expect.arrayContaining([...SHOPERATION_GLOBAL_BASELINE_FAILURE_IDS,'SQ-KF-010']));expect(scope.activeFailureIds).not.toContain('TF-KF-003');expect(scope.activeFailureIds).not.toContain('TF-KF-016');const skipped=scope.selection.find(item=>item.failureId==='TF-KF-003');expect(skipped?.selected).toBe(false);expect(skipped?.reasons).toContain('not-applicable-to-current-scope');});
