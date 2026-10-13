@@ -1,0 +1,1138 @@
+{
+  "contract": "shoperation.decision-source-coverage.v1",
+  "generatedDate": "2026-10-13",
+  "classification": "NON_NORMATIVE_HISTORICAL_SOURCE_INDEX",
+  "scope": "Shoperation Core Modules 1–9; cross-cutting Builder/Factory/PO authority",
+  "sourceTrustLevels": {
+    "GITHUB_NORMATIVE_SECTION": "Normative approved business issue section; NOT implementation",
+    "GITHUB_SUMMARY_NOT_VERBATIM": "Normative aggregated approved scope but not full original chat",
+    "RECOVERED_PO_USER_MESSAGE_SUMMARY_NO_VERBATIM": "Retrieval of historical user-message summary with UTC timestamp, not certified verbatim",
+    "NO_SUBPOINT_VERBATIM_FOUND": "No authenticated original subpoint text located in this pass"
+  },
+  "warnings": [
+    "This index is supplementary and does not authorize changes, supersede a PO issue, or mark capabilities complete.",
+    "Original ChatGPT direct links, complete raw conversations and private source snapshots not available; do not invent them.",
+    "Number of records describes indexing coverage, NOT full verbatim historical recovery or implementation completion."
+  ],
+  "records": [
+    {
+      "id": "M1-BASELINE",
+      "label": "Trial/Alap/Pro storage, caps, Points; Module 1 consolidated baseline",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "PARTIAL_RECONSTRUCTED",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "note": "Full authoritative per-subpoint original transcript not verified; storage expansion tariff OPEN."
+    },
+    {
+      "id": "M2.1",
+      "label": "2.1 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.2",
+      "label": "2.2 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.3",
+      "label": "2.3 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.4",
+      "label": "2.4 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.5",
+      "label": "2.5 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.6",
+      "label": "2.6 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.7",
+      "label": "2.7 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.8",
+      "label": "2.8 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.9",
+      "label": "2.9 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.10",
+      "label": "2.10 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.11",
+      "label": "2.11 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.12",
+      "label": "2.12 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.13",
+      "label": "Kapcsolódó termékek, kiegészítők és alternatívák",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "RECOVERED_PO_USER_MESSAGE_SUMMARY_NO_VERBATIM",
+      "sourceTimestampUTC": "2026-10-10T22:32:12Z",
+      "observedDecisionFragment": "2026-10-10T22:32:12Z manual recommendation overrides auto; compatibility needs reliable data.",
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": true
+    },
+    {
+      "id": "M2.14",
+      "label": "Termékazonosítók, cikkszámok és vonalkódok",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "RECOVERED_PO_USER_MESSAGE_SUMMARY_NO_VERBATIM",
+      "sourceTimestampUTC": "2026-10-10T22:34:15Z",
+      "observedDecisionFragment": "2026-10-10T22:34:15Z generate unique SKU when not provided.",
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": true
+    },
+    {
+      "id": "M2.15",
+      "label": "Termékképek, videók és dokumentumok",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "RECOVERED_PO_USER_MESSAGE_SUMMARY_NO_VERBATIM",
+      "sourceTimestampUTC": "2026-10-10T22:40:20Z",
+      "observedDecisionFragment": "2026-10-10T22:40:20Z common reusable media library; per-variant gallery; reference check before deleting; Alap+Pro.",
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": true
+    },
+    {
+      "id": "M2.16",
+      "label": "Termékmásolás, importálás és tömeges szerkesztés",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "RECOVERED_PO_USER_MESSAGE_SUMMARY_NO_VERBATIM",
+      "sourceTimestampUTC": "2026-10-10T22:48:55Z",
+      "observedDecisionFragment": "2026-10-10T22:48:55Z copying creates new draft SKU with zero stock/no history; import/bulk preview.",
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": true
+    },
+    {
+      "id": "M2.17",
+      "label": "Import törlés- és tömeges műveleti biztonsági határ (recovered partial, original title not verified)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "RECOVERED_PO_USER_MESSAGE_SUMMARY_NO_VERBATIM",
+      "sourceTimestampUTC": "2026-10-11T07:46:54Z",
+      "observedDecisionFragment": "2026-10-11T07:46:54Z imports do not delete by default; archive/delete/inactivate require explicit preview, approval and audit.",
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": true
+    },
+    {
+      "id": "M2.18",
+      "label": "2.18 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "NO_SUBPOINT_VERBATIM_FOUND",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": true
+    },
+    {
+      "id": "M2.19",
+      "label": "2.19 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "NO_SUBPOINT_VERBATIM_FOUND",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": true
+    },
+    {
+      "id": "M2.20",
+      "label": "2.20 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.21",
+      "label": "2.21 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.22",
+      "label": "2.22 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.23",
+      "label": "2.23 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.24",
+      "label": "2.24 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.25",
+      "label": "2.25 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.26",
+      "label": "2.26 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.27",
+      "label": "2.27 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.28",
+      "label": "2.28 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.29",
+      "label": "2.29 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M2.30",
+      "label": "2.30 — see #1259 source; historical raw subpoint not revalidated",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_NOT_VERBATIM",
+      "sourceTimestampUTC": null,
+      "observedDecisionFragment": null,
+      "rawTranscriptURL": null,
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "needsFollowup": false
+    },
+    {
+      "id": "M3.1",
+      "label": "3.1 — normative scope in #1259 and PR #1237",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_AUDIT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1237"
+    },
+    {
+      "id": "M3.2",
+      "label": "3.2 — normative scope in #1259 and PR #1237",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_AUDIT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1237"
+    },
+    {
+      "id": "M3.3",
+      "label": "3.3 — normative scope in #1259 and PR #1237",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_AUDIT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1237"
+    },
+    {
+      "id": "M3.4",
+      "label": "3.4 — normative scope in #1259 and PR #1237",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_AUDIT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1237"
+    },
+    {
+      "id": "M3.5",
+      "label": "3.5 — normative scope in #1259 and PR #1237",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_AUDIT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1237"
+    },
+    {
+      "id": "M3.6",
+      "label": "3.6 — normative scope in #1259 and PR #1237",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_AUDIT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1237"
+    },
+    {
+      "id": "M3.7",
+      "label": "3.7 — normative scope in #1259 and PR #1237",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_AUDIT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1237"
+    },
+    {
+      "id": "M3.8",
+      "label": "3.8 — normative scope in #1259 and PR #1237",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_AUDIT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1237"
+    },
+    {
+      "id": "M3.9",
+      "label": "3.9 — normative scope in #1259 and PR #1237",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_AUDIT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1237"
+    },
+    {
+      "id": "M3.10",
+      "label": "3.10 — normative scope in #1259 and PR #1237",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_AUDIT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1237"
+    },
+    {
+      "id": "M3.11",
+      "label": "3.11 — normative scope in #1259 and PR #1237",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_AUDIT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1237"
+    },
+    {
+      "id": "M3.12",
+      "label": "3.12 — normative scope in #1259 and PR #1237",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_AUDIT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1237"
+    },
+    {
+      "id": "M4.1",
+      "label": "4.1 — detailed normative baseline #1259",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M4.2",
+      "label": "4.2 — detailed normative baseline #1259",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M4.3",
+      "label": "4.3 — detailed normative baseline #1259",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M4.4",
+      "label": "4.4 — detailed normative baseline #1259",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M4.5",
+      "label": "4.5 — detailed normative baseline #1259",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M4.6",
+      "label": "4.6 — detailed normative baseline #1259",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M4.7",
+      "label": "4.7 — detailed normative baseline #1259",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M4.8",
+      "label": "4.8 — detailed normative baseline #1259",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M4.9",
+      "label": "4.9 — detailed normative baseline #1259",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M4.10",
+      "label": "4.10 — detailed normative baseline #1259",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M4.11",
+      "label": "4.11 — detailed normative baseline #1259",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M4.12",
+      "label": "4.12 — detailed normative baseline #1259",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1259",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M5.1",
+      "label": "5.1 — normative baseline #1261 and draft PR #1262",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1261",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_DRAFT_PR",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1262"
+    },
+    {
+      "id": "M5.2",
+      "label": "5.2 — normative baseline #1261 and draft PR #1262",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1261",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_DRAFT_PR",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1262"
+    },
+    {
+      "id": "M5.3",
+      "label": "5.3 — normative baseline #1261 and draft PR #1262",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1261",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_DRAFT_PR",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1262"
+    },
+    {
+      "id": "M5.4",
+      "label": "5.4 — normative baseline #1261 and draft PR #1262",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1261",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_DRAFT_PR",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1262"
+    },
+    {
+      "id": "M5.5",
+      "label": "5.5 — normative baseline #1261 and draft PR #1262",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1261",
+      "authority": "PO_CONDITIONALLY_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_DRAFT_PR",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1262"
+    },
+    {
+      "id": "M5.6",
+      "label": "5.6 — normative baseline #1261 and draft PR #1262",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1261",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_SUMMARY_AND_DRAFT_PR",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1262"
+    },
+    {
+      "id": "M5.7",
+      "label": "5.7 — normative baseline #1261 and draft PR #1262",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1261",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1262"
+    },
+    {
+      "id": "M5.8",
+      "label": "5.8 — normative baseline #1261 and draft PR #1262",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1261",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1262"
+    },
+    {
+      "id": "M5.9",
+      "label": "5.9 — normative baseline #1261 and draft PR #1262",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1261",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1262"
+    },
+    {
+      "id": "M5.10",
+      "label": "5.10 — normative baseline #1261 and draft PR #1262",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1261",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_DETAIL_NOT_VERBATIM_CHAT",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "supplementalSource": "https://github.com/infowaterk-max/water-K-/pull/1262"
+    },
+    {
+      "id": "M6.1",
+      "label": "6.1. Kuponok és kedvezménykódok — PO ACCEPTED 2026-10-12",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1263",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M6.2",
+      "label": "6.2. Termékakciók és időzített promóciók — PO ACCEPTED 2026-10-12",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1263",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M6.3/A",
+      "label": "6.3/A — Hibrid e-mailküldési modell — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1263",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "note": "Commercial managed email tariff still OPEN in #1264."
+    },
+    {
+      "id": "M6.3/B",
+      "label": "6.3/B — Hírlevélküldés, kampányműveletek és fogyasztásmérés — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1263",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "note": "Commercial managed email tariff still OPEN in #1264."
+    },
+    {
+      "id": "M6.4",
+      "label": "6.4 — Termékajánlások, kosár cross-sell és értékesítésnövelés — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1263",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M6.5",
+      "label": "6.5 — Vásárlói értékelések és bizalomépítés — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1263",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M6.6",
+      "label": "6.6 — SEO és organikus látogatószerzés — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1263",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M6.7",
+      "label": "6.7 — Kampánymérés és hirdetési csatornák — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1263",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M6.8",
+      "label": "6.8 — Tartalommarketing és landing oldalak — PO ELFOGADVA 2026-10-12",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1263",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M6.9",
+      "label": "6.9 — Csomagkedvezmények és ajándéktermék-akciók — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1263",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M7.1",
+      "label": "7.1 — Irányított webshopindítás — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1267",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M7.2",
+      "label": "7.2 — Admin irányítópult és navigáció — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1267",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M7.3",
+      "label": "7.3 — Munkatársak és adminjogosultságok — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1267",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M7.4",
+      "label": "7.4 — Webshop-beállítások és változáskezelés — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1267",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M7.5",
+      "label": "7.5 — Tesztüzemmód és webshop-önellenőrzés — PO FELTÉTELLEL ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1267",
+      "authority": "PO_CONDITIONALLY_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M7.6",
+      "label": "7.6 — Automatizálások és munkafolyamatok — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1267",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M7.7",
+      "label": "7.7 — Adatmentés és üzletmenet-folytonosság — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1267",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M7.8",
+      "label": "7.8 — Teljesítményfigyelés, rendszerdiagnosztika és kontrollált önhelyreállítás — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1267",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M7.9",
+      "label": "7.9 — Külső integrációk és API-hozzáférések — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1267",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M7.10",
+      "label": "7.10 — Webshopköltöztetés és adatmigráció — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1267",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M7.11",
+      "label": "7.11 — Interaktív demó és próbaverzió – PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1267",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M7.12",
+      "label": "7.12 — Beépített segítség és vezetett tanulás — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1267",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M8.1",
+      "label": "8.1 — Termékfelfedezés és vezetett termékválasztás — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M8.2",
+      "label": "8.2 — Egyedi termékcsomagok összeállítása / Multi-Product Composer — PO ELFOGADVA (2026-10-12)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M8.3",
+      "label": "8.3 — Termékkonfigurátor (E5 Product Configurator) — PO ELFOGADVA KÖTELEZŐ PONTOSÍTÁSSAL (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M8.4",
+      "label": "8.4 — Kompatibilitás-ellenőrző motor (E6 Compatibility Engine) — PO ELFOGADVA (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M8.5",
+      "label": "8.5 — Termékösszehasonlító és strukturált műszaki specifikáció (E7 Compare & Spec) — PO ELFOGADVA, ALAP + PRO EGYENLŐ (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M8.6",
+      "label": "8.6 — Vásárlói kontextusprofilok / E8 Context Profile — PO ELFOGADVA: SZIGORÚAN PRO ONLY (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M8.7",
+      "label": "8.7 — Shop the Look / Shop the Room — E11 Interactive Scene — PO ELFOGADVA, TELJES INTERAKTÍV MOTOR PRO-ONLY (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M8.8",
+      "label": "8.8 — Receptalapú vásárlás / Recipe Commerce — PO ELFOGADVA (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M8.9",
+      "label": "8.9 — Drop / Release: időzített termékmegjelenés és Pro gazdasági eredménykimutatás — PO ELFOGADVA (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M8.10",
+      "label": "8.10 — Teljes értékű termékgaléria és speciális, nem-3D interaktív termékbemutatás — PO ELFOGADVA (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED"
+    },
+    {
+      "id": "M9.1",
+      "label": "9.1 — Skalability, infrastructure and TCO proof",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "note": "Provider architecture/TCO not accepted yet."
+    },
+    {
+      "id": "M9.2",
+      "label": "9.2 — Webshoponkénti erőforrásfigyelés, merchant performance change warnings és kétlépcsős számlaalapú költségbecslés — PO ELFOGADVA (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "note": null
+    },
+    {
+      "id": "M9.2/A",
+      "label": "9.2/A — A monitorozás saját költsége és terhelése — kötelező költség-haszon és önterhelési kapu (2026-10-13 PO KIEGÉSZÍTÉS, ELFOGADVA)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "note": null
+    },
+    {
+      "id": "M9.3",
+      "label": "9.3 — Kapacitáskezelés, forgalomhoz illeszkedő erőforrás-allokáció és terhelés alatti üzembiztonság — PO ELFOGADVA, architektúraválasztás MÉG NYITOTT (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "note": "Architecture choice OPEN"
+    },
+    {
+      "id": "M9.4",
+      "label": "9.4 — Hibakezelés, adatvédelem és üzletmenet-folytonosság — PO ELFOGADVA (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "note": null
+    },
+    {
+      "id": "M9.5",
+      "label": "9.5 — Adatbiztonság, jogosultság, GDPR és kritikus események azonnali, illetékes e-mailértesítése — PO ELFOGADVA (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "note": null
+    },
+    {
+      "id": "M9.5/A",
+      "label": "9.5/A — Kötelező, valóban azonnali üzemeltetési riasztás e-mailben — a PO új elfogadott kiegészítése",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "note": null
+    },
+    {
+      "id": "M9.6",
+      "label": "9.6 — Biztonságos verziókiadás, karbantartás és éles változáskezelés — PO ELFOGADVA (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "note": null
+    },
+    {
+      "id": "M9.6/A",
+      "label": "9.6/A — Központilag kötelező frissítések + automatikus, célzott webshop-kompatibilitási vizsgálat — PO ELFOGADVA (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "note": null
+    },
+    {
+      "id": "M9.6/B",
+      "label": "9.6/B — PO platformüzemeltetési értéksorrend: „biztonságos → jó → költséghatékony” — ELFOGADVA (2026-10-13)",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "authority": "PO_ACCEPTED_BUSINESS",
+      "historicalConversationStatus": "GITHUB_NORMATIVE_SECTION",
+      "implementationProof": "NOT_VERIFIED_OR_NOT_CHECKED",
+      "note": null
+    },
+    {
+      "id": "M9.7",
+      "label": "Not approved; earlier incident/shift proposal withdrawn due to overlap",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "authority": "NOT_PO_ACCEPTED",
+      "historicalConversationStatus": "CONTEMPORANEOUS_CONVERSATION_ONLY",
+      "implementationProof": "NOT_AUTHORIZED"
+    }
+  ],
+  "crossCutting": [
+    {
+      "id": "P-CORE-FIRST",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/pull/847",
+      "acceptedEvidence": "2026-10-09T05:33:06Z; 2026-10-12T03:21:09Z",
+      "rule": "Core Capability Complete → Core Adversarial Proof → UX → Builder → Factory/42 templates"
+    },
+    {
+      "id": "P-VISUAL-FIRST",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/pull/469",
+      "acceptedEvidence": "2026-09-28T19:32:54Z; 2026-10-03T07:50:58Z",
+      "rule": "Visual First → PO Visual Approval → shared Builder capability reconciliation → implementation → reference/fidelity proof, 14 pages × D/T/M"
+    },
+    {
+      "id": "P-GUARDED-FREEDOM",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/blob/main/docs/VISUAL_BUILDER_FIDELITY_ENGINE.md",
+      "acceptedEvidence": "2026-09-30T18:30:21Z and 20:00:21Z",
+      "rule": "No sidebar; Library/canvas/Inspector; 12-column grid, responsive integrity, bounded drag/resize, contextual +, tokens; desktop primary authoring and mobile inspection"
+    },
+    {
+      "id": "P-REFERENCE-AUTHORITY",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/pull/795",
+      "acceptedEvidence": "2026-10-07T00:00:00Z; 2026-10-07T21:43:50Z; 2026-10-08T06:25:23Z",
+      "rule": "Cannot weaken PO-approved visual reference to compensate for Builder limits. Expand shared capability; only PO-approved redesign."
+    },
+    {
+      "id": "P-MANAGED-TEMPLATE",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/blob/main/quality/knowledge/living-roadmap.v2.json",
+      "acceptedEvidence": "2026-10-05 to 2026-10-06 chat; precise raw quote unavailable",
+      "rule": "Managed/static-feel no-layout-edit mode + advanced Builder later, same canonical schema/runtime; no fork."
+    },
+    {
+      "id": "P-UNIFIED-CAPABILITY",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/blob/main/AGENTS.md",
+      "acceptedEvidence": "2026-10-06T21:16:19Z",
+      "rule": "No orphan capability; mandatory downstream chain + proof"
+    },
+    {
+      "id": "P-PACKAGE-DRIFT",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1269",
+      "acceptedEvidence": "2026-10-13 PO decision #1269",
+      "rule": "Latest explicit decisions override generic older roadmap: M8.5 E7 Alap+Pro, M8.9 Release Alap+Pro; E8 remains Pro-only"
+    },
+    {
+      "id": "P-SAFETY-COST",
+      "canonicalSource": "https://github.com/infowaterk-max/water-K-/issues/1271",
+      "acceptedEvidence": "2026-10-13 9.6/B",
+      "rule": "Safety → quality → cost-efficiency; measured TCO, not unapproved provider spend"
+    }
+  ],
+  "gaps": [
+    {
+      "id": "GAP-001",
+      "severity": "P0",
+      "topic": "Module 2 exact original text",
+      "detail": "M2.18–2.19 raw details missing; M2.13–2.17 partial recovered user messages but not auditable verbatim/full requirement. M1 full per-subpoint source also absent."
+    },
+    {
+      "id": "GAP-002",
+      "severity": "P0",
+      "topic": "Cross-cutting PO Registry machine coverage",
+      "detail": "quality/knowledge/po-instructions.v1.json has ONE rule, independent of ~100 per-point source-index records. Cannot claim all decisions are machine enforced."
+    },
+    {
+      "id": "GAP-003",
+      "severity": "P0",
+      "topic": "Preflight-to-issue provenance binding",
+      "detail": "AGENTS.md and plan-before-code require PO sourceRef/Completion Contract, but checked code does not prove mandatory retrieval/coverage of #1259–#1271 or this provenance file."
+    },
+    {
+      "id": "GAP-004",
+      "severity": "P0",
+      "topic": "Package entitlement drift",
+      "detail": "M4 B2B Alap baseline versus old RFQ Pro-only; M8.5 E7 Alap+Pro and M8.9 Release Alap+Pro versus old generic Special Commerce Pro-only; see #1270."
+    },
+    {
+      "id": "GAP-005",
+      "severity": "P1",
+      "topic": "Builder and Template per-rule source granularity",
+      "detail": "Original user decisions retrieved at timestamp granularity (2026-09-28, 09-30, 10-07), but no original transcript URL/complete artifact annex; no automatic 14×3 Visual First constraint-to-proof chain independently verified."
+    },
+    {
+      "id": "GAP-006",
+      "severity": "P1",
+      "topic": "Full conversation archive and confidentiality",
+      "detail": "No verified byte-for-byte chat archive or stable private source URLs. Public repo must never receive raw sensitive transcripts."
+    },
+    {
+      "id": "GAP-007",
+      "severity": "P1",
+      "topic": "Scope and pending commercial approvals",
+      "detail": "9.7 not accepted; M6.3 email price #1264 OPEN; M1 storage expansion pricing OPEN; M9 infrastructure provider/TCO selection OPEN."
+    },
+    {
+      "id": "GAP-008",
+      "severity": "P1",
+      "topic": "Trustworthy automatic guard proof",
+      "detail": "Need deliberate negative tests introducing a contradictory PO plan and proving fail-closed; no such end-to-end tests run in this documentation-only task."
+    }
+  ]
+}

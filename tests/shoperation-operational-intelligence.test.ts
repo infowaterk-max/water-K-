@@ -148,7 +148,15 @@ describe('Control Plane Operational Intelligence',()=>{
       plan.expectedAuthorities=expectedAuthorities;
       // This test validates critical-only routing independently of the active work item risk tier.
       plan.operationalIntelligence.riskTier='critical';
-      const route={...plan.operationalIntelligence.semanticExecutionRoute};
+      // Critical authority semantics must be tested using an explicitly valid
+      // critical route, regardless of whether the active Product Owner task is
+      // a source-only MUST_CREATE change with no MUST_EDIT or proof paths.
+      // Do not misrepresent the actual source-only development plan.
+      const route={
+        ...plan.operationalIntelligence.semanticExecutionRoute,
+        mustEdit:['scripts/shoperation-plan-before-code.mjs'],
+        proof:['tests/shoperation-operational-intelligence.test.ts'],
+      };
       if(routeAuthority===undefined)delete route.authority;
       else route.authority=routeAuthority;
       plan.operationalIntelligence.semanticExecutionRoute=route;
