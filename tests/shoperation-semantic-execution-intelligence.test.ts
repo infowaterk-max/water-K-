@@ -479,6 +479,21 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
       {id:'CASE-NOT-ACCEPTED-BLOCK',rules:[core],files:['scripts/release-unit-execute.mjs'],claims:[{instructionId:'PO-M9-7-UNAPPROVED',sourceRef:'https://github.com/infowaterk-max/water-K-/issues/1271',key:'oncall',value:'ALWAYS'}],expected:'BLOCK'},
       {id:'CASE-DOCS-ONLY-PASS',rules:[e7],files:['docs/po/README.md'],claims:[],expected:'NOT_APPLICABLE'},
     ];
+    // Bind the active registry to real checked-in Core files, not just synthetic fixture names.
+    const realRegistryAtlas:any={poInstructions:registry.instructions};
+    expect(evaluatePoDecisionClaims(realRegistryAtlas,['src/lib/commerce/b2b-account.ts'],[]).applicableInstructionIds)
+      .toContain('PO-INSTRUCTION-M4-B2B-RFQ-ALAP-PRO');
+    expect(evaluatePoDecisionClaims(realRegistryAtlas,['src/lib/commerce/professional-b2b.ts'],[]).applicableInstructionIds)
+      .toContain('PO-INSTRUCTION-M4-B2B-RFQ-ALAP-PRO');
+    expect(evaluatePoDecisionClaims(realRegistryAtlas,['src/lib/commerce/release-commerce.ts'],[]).applicableInstructionIds)
+      .toContain('PO-INSTRUCTION-M8-9-RELEASE-ALAP-PRO');
+    expect(evaluatePoDecisionClaims(realRegistryAtlas,['src/lib/plans/catalog.ts'],[]).applicableInstructionIds)
+      .toEqual(expect.arrayContaining([
+        'PO-INSTRUCTION-M4-B2B-RFQ-ALAP-PRO',
+        'PO-INSTRUCTION-M8-5-E7-COMPARE-ALAP-PRO',
+        'PO-INSTRUCTION-M8-9-RELEASE-ALAP-PRO',
+      ]));
+    expect(evaluatePoDecisionClaims(realRegistryAtlas,['docs/po/README.md'],[]).decision).toBe('NOT_APPLICABLE');
     expect(cases.length).toBe(16);
     for(const item of cases){
       const result=evaluatePoDecisionClaims({poInstructions:item.rules}as any,item.files,item.claims);

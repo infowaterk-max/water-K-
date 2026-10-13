@@ -64,7 +64,9 @@
         "src/lib/plans/catalog.ts",
         "src/lib/b2b/**",
         "src/app/api/b2b/**",
-        "src/lib/commerce/quote*.ts"
+        "src/lib/commerce/quote*.ts",
+        "src/lib/commerce/b2b-account*.ts",
+        "src/lib/commerce/professional-b2b.ts"
       ],
       "affectedRoutes": [],
       "affectedComponentKeys": [],
