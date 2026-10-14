@@ -9,7 +9,8 @@
     "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
     "supabase/customer-baseline/manifest.json",
     "tests/customer-baseline-team-permissions-prerequisites.test.ts",
-    "tests/shoperation-office-db-readiness.test.ts"
+    "tests/shoperation-office-db-readiness.test.ts",
+    "tests/customer-email-plan-split.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -251,6 +252,13 @@
         "finding": "Blind cherry-picking bypasses the required order and may damage an occupied database or create a false release completion claim.",
         "resolution": "Use a source-only customer-baseline migration branch, preserve staging unchanged, and require separate read-only lineage and approved deployment verification.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-U10A2-F1-HISTORICAL-ATTESTATION",
+        "scenario": "Historic 0046 attestation test hardcodes READY for a newer 0047 baseline.",
+        "finding": "Test falsely fails the new required reviewed lifecycle or encourages lying about proof status.",
+        "resolution": "Preserve historical 0046 CI proof and hash in notes; explicitly assert 0047 reviewed pending, never force READY; accept later proven future state only with new proof.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -261,7 +269,8 @@
       "Edit-Time Reference/Implementation Sync PASS, Knowledge and Incremental Replay PASS",
       "Release Risk 5/5 exact main base; no merge/real database mutation until subsequent 0048+ and disposable Fresh Install proof",
       "Where local PostgreSQL 18 can execute isolated snapshot+0047 with safely scoped fixtures, capture exact SQL failure/success; no hosted DB modification.",
-      "Update baseline count regression from 47 to 48 without changing negative Office source readiness semantics; preserve historical 0001-0046."
+      "Update baseline count regression from 47 to 48 without changing negative Office source readiness semantics; preserve historical 0001-0046.",
+      "Adapt historical 0046 baseline attestation test to preserve old proof while 0047 has snapshot-reviewed/pending proof status; no false READY."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
@@ -270,7 +279,8 @@
       ],
       "mustEdit": [
         "supabase/customer-baseline/manifest.json",
-        "tests/shoperation-office-db-readiness.test.ts"
+        "tests/shoperation-office-db-readiness.test.ts",
+        "tests/customer-email-plan-split.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
