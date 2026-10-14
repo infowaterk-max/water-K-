@@ -30,7 +30,7 @@ describe('Shoperation global quality knowledge',()=>{
     }
     expect(checkout.activeFailureIds).not.toContain('TF-KF-003');
     const machine=JSON.parse(readFileSync('quality/knowledge/po-instructions.v1.json','utf8')) as any;
-    expect(machine.instructions).toHaveLength(5);
+    expect(machine.instructions.map((x:any)=>x.id)).toEqual(expect.arrayContaining(['PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE','PO-INSTRUCTION-M4-B2B-RFQ-ALAP-PRO','PO-INSTRUCTION-M8-5-E7-COMPARE-ALAP-PRO','PO-INSTRUCTION-M8-9-RELEASE-ALAP-PRO','PO-INSTRUCTION-M9-6A-MANDATORY-CORE-UPDATE','PO-INSTRUCTION-M7-10-MIGRATION-ALAP-PRO','PO-INSTRUCTION-M7-10-MIGRATION-GUIDED-LAUNCH']));
     expect(machine.instructions.some((x:any)=>x.id==='PO-INSTRUCTION-M8-5-E7-COMPARE-ALAP-PRO')).toBe(true);
     expect(machine.instructions.some((x:any)=>x.id.includes('M2-18')||x.id.includes('M9-7'))).toBe(false);
   });

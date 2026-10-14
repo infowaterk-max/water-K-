@@ -109,10 +109,10 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
     expect(packageMatrix?.pro.capabilities).toContain('Multi-Product Composer (E4) entitlement');
     expect(packageMatrix?.pro.capabilities).toContain('Product Configurator (E5) entitlement');
     expect(packageMatrix?.pro.capabilities).toContain('Compatibility / Fitment (E6) entitlement');
-    expect(packageMatrix?.pro.capabilities).toContain('Compare & Spec (E7) entitlement');
+    expect(packageMatrix?.alap.capabilities.some(capability=>/Full E7 Compare & Spec/.test(capability))).toBe(true);
     expect(packageMatrix?.pro.capabilities).toContain('Profile / Context (E8) entitlement');
-    expect(packageMatrix?.pro.capabilities).toContain('Drop / Release Commerce entitlement');
-    expect(packageMatrix?.alap.capabilities.some(capability=>/Guided Finder|Composer|Configurator|Compatibility|Compare\/Spec|Profile\/Context|Drop\/Release/i.test(capability))).toBe(false);
+    expect(packageMatrix?.alap.capabilities.some(capability=>/Full time-gated Drop\/Release/.test(capability))).toBe(true);
+    expect(packageMatrix?.alap.capabilities.some(capability=>/Guided Finder|Composer|Configurator|Compatibility|Profile\/Context/i.test(capability))).toBe(false);
     expect(packageMatrix?.alap.capabilities.some(capability=>capability.includes('Digital Office'))).toBe(false);
     expect(packageMatrix?.explicitExclusionsFromAlap).toContain('Digital Office Team Chat');
     expect(packageMatrix?.explicitExclusionsFromAlap).toContain('Digital Office shared mailbox/inbox/thread workspace');

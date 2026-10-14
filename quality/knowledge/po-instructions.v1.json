@@ -191,6 +191,87 @@
       "evidence": [
         "Accepted PO scope: https://github.com/infowaterk-max/water-K-/issues/1271"
       ]
+    },
+    {
+      "id": "PO-INSTRUCTION-M7-10-MIGRATION-ALAP-PRO",
+      "source": {
+        "kind": "product-owner-decision",
+        "ref": "https://github.com/infowaterk-max/water-K-/issues/1267",
+        "recordedAt": "2026-10-14"
+      },
+      "scope": "M7.10/A PO accepted full supported built-in webshop/data migration in Alap+Pro; no Pro-only complex mapping, approved API connector, delta or diff paywall; no claim that an unsupported adapter is production-ready",
+      "affectedDomains": [
+        "DOMAIN-COMMERCE",
+        "DOMAIN-QUALITY"
+      ],
+      "affectedPatterns": [
+        "src/lib/plans/catalog.ts",
+        "src/lib/plans/access.ts",
+        "src/app/admin/migracio/**",
+        "src/components/admin/shopware-migration-assistant.tsx",
+        "src/app/api/admin/migration/**",
+        "src/app/admin/termekek/import-export/**",
+        "src/lib/commerce/**migration**",
+        "tests/block12-migration-assistant.test.ts"
+      ],
+      "affectedRoutes": [],
+      "affectedComponentKeys": [],
+      "affectedContracts": [],
+      "positiveRequirement": "All implemented and proven built-in Migration Assistant abilities are equally entitled in Alap and Pro, including complex transformation, verified source API adapters and guarded delta/diff; third-party API bills and bespoke services are separate approvals; no feature is displayed as supported before passing source-to-target conformance.",
+      "forbiddenStates": [],
+      "lifecycle": "active",
+      "supersededBy": null,
+      "decisionContract": {
+        "claimKey": "migration.packageScope",
+        "requiredValue": "ALAP_PRO_FULL_SUPPORTED",
+        "sourceStatus": "VERIFIED_PO_ISSUE",
+        "acceptedScope": "M7.10/A",
+        "note": "A scoped, accepted Product Owner source controls *future* structured development-plan claims only. This does not certify runtime entitlement or unproven source connectors."
+      },
+      "evidence": [
+        "Explicit PO superseding decision #1267 section 7.10/A dated 2026-10-14.",
+        "Older #1267 7.10 Pro-only mapping/adapter/delta descriptions are historical and superseded by 7.10/A."
+      ]
+    },
+    {
+      "id": "PO-INSTRUCTION-M7-10-MIGRATION-GUIDED-LAUNCH",
+      "source": {
+        "kind": "product-owner-decision",
+        "ref": "https://github.com/infowaterk-max/water-K-/issues/1267",
+        "recordedAt": "2026-10-14"
+      },
+      "scope": "M7.10/C nested 6-step Migration Assistant inside the already accepted 7-step Guided Launch; new vs migrating webshop use one canonical readiness and publish authority",
+      "affectedDomains": [
+        "DOMAIN-COMMERCE",
+        "DOMAIN-QUALITY"
+      ],
+      "affectedPatterns": [
+        "src/app/admin/indulas/**",
+        "src/app/admin/migracio/**",
+        "src/components/admin/shopware-migration-assistant.tsx",
+        "src/app/api/admin/migration/**",
+        "src/app/admin/termekek/import-export/**",
+        "src/lib/commerce/**migration**",
+        "tests/block12-migration-assistant.test.ts"
+      ],
+      "affectedRoutes": [],
+      "affectedComponentKeys": [],
+      "affectedContracts": [],
+      "positiveRequirement": "One resumable 7-step Guided Launch offers new webshop vs migrating webshop; latter nests six migration steps and reuses canonical tenant/RBAC, status/readiness/publish gates. Import success never automatically publishes the target, closes the source store, alters the merchant domain or triggers live commerce actions on historical orders.",
+      "forbiddenStates": [],
+      "lifecycle": "active",
+      "supersededBy": null,
+      "decisionContract": {
+        "claimKey": "migration.onboardingAuthority",
+        "requiredValue": "SHARED_GUIDED_LAUNCH_NO_AUTO_PUBLISH",
+        "sourceStatus": "VERIFIED_PO_ISSUE",
+        "acceptedScope": "M7.10/C",
+        "note": "Require clear scoped plan claim; historical Shopware-only staging is not full validated migration. Technical proof separate."
+      },
+      "evidence": [
+        "Explicit PO approval #1267 section 7.10/C dated 2026-10-14.",
+        "M7.1 shared guided launch prelaunch checkpoints and M7.5 blocking reliability gate remain authoritative."
+      ]
     }
   ]
 }

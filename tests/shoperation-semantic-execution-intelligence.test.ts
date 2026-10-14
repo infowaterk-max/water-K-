@@ -576,3 +576,45 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     expect(atlas.summary.semanticEdges).toBeGreaterThan(atlas.summary.importEdges);
   },60000);
 });
+
+describe('2026-10-14 accepted Core PO roadmap reconciliation',()=>{
+  const roadmap=JSON.parse(readFileSync('quality/knowledge/living-roadmap.v2.json','utf8')) as any;
+  const registry=JSON.parse(readFileSync('quality/knowledge/po-instructions.v1.json','utf8')) as any;
+  const item=(id:string)=>roadmap.items.find((entry:any)=>entry.id===id);
+  it('preserves exact Core-first gates, scope and 67 authoritative capabilities',()=>{
+    expect(roadmap.items).toHaveLength(67);
+    expect(roadmap.principles.coreMustBeProvenBeforeBuilder).toBe(true);
+    expect(item('MIGRATION-ASSISTANT').scope.join(' ')).toMatch(/WooCommerce, UNAS, Shoprenter, Shopify/);
+    expect(item('MIGRATION-ASSISTANT').scope.join(' ')).toMatch(/Shopware 6/);
+    expect(item('GUIDED-LAUNCH-PRELAUNCH').scope.join(' ')).toMatch(/nested 6-step Migration Assistant/);
+    expect(item('GUIDED-LAUNCH-PRELAUNCH').scope.join(' ')).toMatch(/No automated source shop shutdown/);
+    expect(item('SCALE-COST-ARCHITECTURE').scope.join(' ')).toMatch(/vendor selection is not final/);
+    expect(item('CORE-SECURITY-PRIVACY-RESILIENCE').scope.join(' ')).toMatch(/M9\.7 standalone.*NOT PO accepted/);
+  });
+  it('records precise Alap/Pro supersession without weakening Pro Digital Office or E8',()=>{
+    const p=item('MR1-PACKAGE-CAPABILITY-MATRIX').packageMatrix;
+    const alap=p.alap.capabilities.join(' ');
+    const pro=p.pro.capabilities.join(' ');
+    const excluded=p.explicitExclusionsFromAlap.join(' ');
+    expect(alap).toMatch(/full supported Migration Assistant/);
+    expect(alap).toMatch(/Full E7 Compare & Spec/);
+    expect(alap).toMatch(/Full time-gated Drop\/Release/);
+    expect(alap).toMatch(/Basic company\/partner B2B request for quotation/);
+    expect(pro).toMatch(/Advanced Drop\/Release-specific.*ROI/);
+    expect(excluded).toMatch(/Digital Office Team Chat/);
+    expect(excluded).toMatch(/Profile \/ Context \(E8\)/);
+    expect(excluded).not.toMatch(/Compare & Spec|Drop \/ Release Commerce/);
+    const migration=registry.instructions.filter((rule:any)=>rule.id.startsWith('PO-INSTRUCTION-M7-10-'));
+    expect(migration.map((rule:any)=>rule.id).sort()).toEqual([
+      'PO-INSTRUCTION-M7-10-MIGRATION-ALAP-PRO',
+      'PO-INSTRUCTION-M7-10-MIGRATION-GUIDED-LAUNCH',
+    ].sort());
+    for(const rule of migration){
+      expect(rule.source.ref).toBe('https://github.com/infowaterk-max/water-K-/issues/1267');
+      expect(rule.decisionContract.sourceStatus).toBe('VERIFIED_PO_ISSUE');
+      expect(rule.affectedPatterns.length).toBeGreaterThan(0);
+    }
+    expect(registry.instructions.some((rule:any)=>/M9-7/.test(rule.id))).toBe(false);
+  });
+});
+

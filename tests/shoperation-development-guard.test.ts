@@ -27,7 +27,7 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     }
     expect(resolveShoperationKnowledgeScope({changedFiles:['docs/po/README.md']}).activeFailureIds).toContain('SQ-KF-025');
     const po=JSON.parse(readFileSync('quality/knowledge/po-instructions.v1.json','utf8')) as any;
-    expect(po.instructions.filter((x:any)=>x.lifecycle==='active').length).toBe(5);
+    expect(po.instructions.filter((x:any)=>x.lifecycle==='active').map((x:any)=>x.id)).toEqual(expect.arrayContaining(['PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE','PO-INSTRUCTION-M4-B2B-RFQ-ALAP-PRO','PO-INSTRUCTION-M8-5-E7-COMPARE-ALAP-PRO','PO-INSTRUCTION-M8-9-RELEASE-ALAP-PRO','PO-INSTRUCTION-M9-6A-MANDATORY-CORE-UPDATE','PO-INSTRUCTION-M7-10-MIGRATION-ALAP-PRO','PO-INSTRUCTION-M7-10-MIGRATION-GUIDED-LAUNCH']));
     expect(po.instructions.every((x:any)=>x.id!=='PO-INSTRUCTION-M2-18-UNVERIFIED')).toBe(true);
   });
 
@@ -162,3 +162,18 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
   });
   it('makes the preventive protocol repository-level instructions for coding agents',()=>{const agents=readFileSync('AGENTS.md','utf8');expect(agents).toContain('BEFORE THE FIRST IMPLEMENTATION EDIT');expect(agents).toContain('development-guard.md');expect(agents).toContain('Plan Before Code');expect(agents).toContain('shoperation-incremental-replay.mjs --check');});
 });
+
+describe('source-bound PO synchronization guard',()=>{
+  it('does not promote the withdrawn standalone M9.7 proposal or lose M7 migration source authority',()=>{
+    const roadmap=JSON.parse(readFileSync('quality/knowledge/living-roadmap.v2.json','utf8')) as any;
+    const registry=JSON.parse(readFileSync('quality/knowledge/po-instructions.v1.json','utf8')) as any;
+    const migration=roadmap.items.find((item:any)=>item.id==='MIGRATION-ASSISTANT');
+    const security=roadmap.items.find((item:any)=>item.id==='CORE-SECURITY-PRIVACY-RESILIENCE');
+    expect(migration.status).toBe('hardening');
+    expect(migration.scope.join(' ')).toMatch(/Full supported built-in migration is identical in Alap and Pro/);
+    expect(security.scope.join(' ')).toMatch(/NOT PO accepted/);
+    expect(registry.instructions.some((rule:any)=>rule.id==='PO-INSTRUCTION-M7-10-MIGRATION-ALAP-PRO')).toBe(true);
+    expect(registry.instructions.some((rule:any)=>rule.id==='PO-INSTRUCTION-M7-10-MIGRATION-GUIDED-LAUNCH')).toBe(true);
+  });
+});
+
