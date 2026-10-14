@@ -8,6 +8,7 @@ export const REQUIRED_OFFICE_MIGRATIONS=Object.freeze([
   '20260908024000', // function exposure closure
   '20260909204825', // Alap/Pro Team Chat split
   '20260910061815', // Alap ordinary email / Pro advanced Office split
+  '20260910070200', // advanced Office guard / object-link dependency (presence is not tenant RLS proof)
 ]);
 
 // Execute this SELECT using the read-only connected Supabase SQL tool.
