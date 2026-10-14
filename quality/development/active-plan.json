@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-6B3CE3FB",
   "task": "PO Core 1-9 source-bound decision to Living Roadmap reconciliation #1286",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "6b3ce3fb",
   "changeBaseSha": "220a83e39d17ae9c597e1b7499973db75e570860",
   "plannedFilePatterns": [
@@ -1416,5 +1416,18 @@
     ]
   },
   "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
-  "executionAuthorized": true
+  "executionAuthorized": true,
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "3487a2c0b022584d5cc8a18304571aa4fcf02c17",
+    "closedAt": "2026-10-14T16:32:14.458Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1286",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
