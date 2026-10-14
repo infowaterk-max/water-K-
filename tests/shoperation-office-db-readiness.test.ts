@@ -28,6 +28,16 @@ describe('Core #1186 U09 read-only Office database deployment readiness',()=>{
     expect(r.findings.filter(x=>x.code==='OFFICE_DB_MIGRATION_MISSING')).toHaveLength(REQUIRED_OFFICE_MIGRATIONS.length);
     expect(r.findings.map(x=>x.code)).toContain('OFFICE_DB_PARTICIPANT_READ_HELPER_MISSING');
   });
+  it('BLOCKs missing advanced Office guard migration even with prior migrations and valid RLS metadata',()=>{
+    const version='20260910070200';
+    expect(REQUIRED_OFFICE_MIGRATIONS).toContain(version);
+    const s=fixture();
+    s.migrations=s.migrations.filter(entry=>entry.version!==version);
+    const r=evaluateOfficeDbReadiness(s,{now});
+    expect(r.decision).toBe('BLOCK');
+    expect(r.claim).toBe('DB_NOT_READY');
+    expect(r.findings).toContainEqual(expect.objectContaining({code:'OFFICE_DB_MIGRATION_MISSING',version}));
+  });
   it('never marks a clean metadata candidate as authoritative DONE',()=>{
     const r=evaluateOfficeDbReadiness(fixture(),{now});
     expect(r.decision).toBe('REVIEW');expect(r.claim).toBe('METADATA_CANDIDATE_ONLY');
