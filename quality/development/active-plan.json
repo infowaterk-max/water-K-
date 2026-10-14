@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-386A5ACE",
   "task": "Core #1186 U10A2 source-lineage fail-closed Office customer baseline gate",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "386a5ace",
   "changeBaseSha": "907ce393f86eab3a2787828fda980e5f526208c9",
   "plannedFilePatterns": [
@@ -662,5 +662,18 @@
       }
     ]
   },
-  "notes": "Bounded U10A2 source-provenance blocker on exact main 907ce393f86eab3a2787828fda980e5f526208c9. Does not implement 0047 or apply SQL. Full U10A2 and #1186 remain OPEN/PARTIAL; no false DB-complete."
+  "notes": "Bounded U10A2 source-provenance blocker on exact main 907ce393f86eab3a2787828fda980e5f526208c9. Does not implement 0047 or apply SQL. Full U10A2 and #1186 remain OPEN/PARTIAL; no false DB-complete.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "45a7e534291a7eead2fc61cc281f9c37cac48aea",
+    "closedAt": "2026-10-14T20:43:41.616Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
