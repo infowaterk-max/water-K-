@@ -673,7 +673,8 @@
       "Service-role paths may include functions and signing operations not covered by this bounded SQL release; parent issue remains PARTIAL.",
       "Platform administrative exception policy for cross-tenant operational support may require separate explicit scope; no blanket exception remains in staff Office content.",
       "SQL textual tests cannot replace live PostgreSQL policy, GRANT, SECURITY DEFINER and downgrade simulation; real DB acceptance remains required.",
-      "Customer Fresh Install baseline snapshot lacks modern Office privacy and advanced SQL helpers, so this main-only migration may not be merged/declared DONE until U10A2 resolves ordered baseline dependencies and verifies real Fresh Install proof."
+      "Customer Fresh Install baseline snapshot lacks modern Office privacy and advanced SQL helpers, so this main-only migration may not be merged/declared DONE until U10A2 resolves ordered baseline dependencies and verifies real Fresh Install proof.",
+      "Sentinel critical integrity review on implementation PR #1288 (run 38621835577) exposed invalid mapping of GUARD-CUSTOMER-BASELINE as source-only claim evidence without proof semantics; canonical system obligation still executes customer baseline guard, and controlled Fresh Install remains OPEN."
     ],
     "scope": {
       "in": [
@@ -744,14 +745,14 @@
       },
       {
         "id": "REQ-U10A-SHARED-RLS",
-        "requirement": "New main SQL migration guards shared Office read surfaces without mixing Team Chat and advanced customer Office. Separate Fresh Install/baseline U10A2 is an explicit blocker.",
+        "requirement": "Forward-only SQL SOURCE hardening describes tenant Pro and participant-split RLS contracts only; customer Fresh Install 0047+ lineage, real RLS execution, runtime Pro/Alap tenant cases and occupied staging proof remain independent mandatory BLOCKERS, not source-commit claims.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-rls-customer-vs-team-chat",
-          "strength": 2,
+          "breadth": "source-only-office-rls-customer-vs-team-chat",
+          "strength": 1,
           "dimensions": [
             "scope",
-            "behavioral-proof",
+            "limitations",
             "forbidden-state"
           ]
         },
@@ -760,7 +761,6 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-CUSTOMER-BASELINE",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
@@ -779,5 +779,5 @@
       }
     ]
   },
-  "notes": "Current main e0e25df16a37df93e8de242aceeca59a8601ed52 (post #1287). Plan controls source migration only, while customer baseline 0047 or later must be a separate planned release; no claim of staging/RLS runtime enforcement."
+  "notes": "Current main e0e25df16a37df93e8de242aceeca59a8601ed52 (post #1287). Plan controls source migration only, while customer baseline 0047 or later must be a separate planned release; no claim of staging/RLS runtime enforcement. Exact source-only evidence scope corrected after Sentinel REVIEW: removed GUARD-CUSTOMER-BASELINE from REQ-U10A-SHARED-RLS implementation evidence; retained canonical requiredGuard and separate U10A2 proof dependency. Never treat this PR as a DB deployment claim."
 }
