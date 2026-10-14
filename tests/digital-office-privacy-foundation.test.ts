@@ -77,4 +77,9 @@ describe('Digital Office privacy foundation',()=>{
     expect(actions).toContain("action:'add_internal_message'");
     expect(actions).not.toContain("ownerSelf:owner==='self'");
   });
+  it('preserves original participant helper after U10A1 adds an independent tenant Pro boundary',()=>{
+    const hardened=readFileSync(join(process.cwd(),'supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql'),'utf8');
+    expect(hardened).toContain('private.office_active_participant_v1(p_instance_id,p_thread_id,p_user_id)');
+    expect(hardened).toContain("private.office_effective_feature_enabled_v1(p_instance_id,'teamChat')");
+  });
 });

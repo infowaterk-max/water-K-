@@ -1,23 +1,23 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-2C614630",
-  "task": "Core #1186 U10A2: fail closed on absent advanced Office guard migration",
+  "taskId": "DEV-B55A7A31",
+  "task": "Core #1186 U10A1: forward-only strict tenant-Pro Office SQL guards",
   "status": "closed",
-  "guardDigest": "2c614630",
-  "changeBaseSha": "8c5f21132b32e0c0559c007a447aae8e54741fa4",
+  "guardDigest": "b55a7a31",
+  "changeBaseSha": "e0e25df16a37df93e8de242aceeca59a8601ed52",
   "plannedFilePatterns": [
-    "scripts/shoperation-office-db-readiness.mjs",
-    "tests/shoperation-office-db-readiness.test.ts"
+    "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql",
+    "tests/digital-office-privacy-foundation.test.ts",
+    "tests/digital-office-strict-pro-sql.test.ts"
   ],
   "expectedSubsystems": [
-    "database-schema",
-    "quality-infrastructure"
+    "database-schema"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-DATA"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "database-schema"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -40,35 +40,52 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-    "riskTier": "medium",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1227",
+    "riskTier": "critical",
     "assuranceCeiling": {
-      "level": "state-and-failure-review",
-      "rationale": "Medium-risk fail-closed reliability correction in the canonical read-only Office DB readiness checker. A modern migration without authenticated plan-guard SQL must not appear deploy-ready; read-only checks do not certify real RLS access.",
+      "level": "critical-practical",
+      "rationale": "Source-only critical SQL security fix against exact 2026-10-14 main e0e25df; existing U10A1 plan reviewed against #1186/#1227 and newly merged U10A2 readiness migration check; no schema deployment or customer baseline mutation in this independent bounded unit.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
         "state-model",
+        "what-if-matrix",
         "adversarial-scenarios",
-        "boundary-cases"
+        "boundary-cases",
+        "pairwise-interactions",
+        "threat-failure-model",
+        "fault-injection",
+        "finite-state-exhaustion"
       ],
       "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "Include 20260910070200 advanced Office guard migration as a required prerequisite for authoritative target catalog readiness.",
-        "Reject a catalog snapshot missing the advanced guard migration even when earlier Office privacy migrations and synthetic RLS fixtures are present.",
-        "Preserve Alap customer notification, separate Team Chat and Pro Office behavior; this changes no runtime entitlements, SQL schema or production tenant."
+        "The actual tenant subscription plan must be pro before private Office advanced and Team Chat SQL capability decisions are true; stale enabled row, organization override, manual/trial exceptions, missing current tenant, or platform operator alone may not bypass.",
+        "Active time-bounded entitlement must be present as a separate AND condition; revoked, disabled, expired or unknown rows fail closed.",
+        "All three browser Office table SELECT policies require current tenant Pro alongside existing per-user reader/participant restrictions, preserving internal Team Chat independent teamChat predicate and owner/participant semantics.",
+        "Customer Office thread access uses officeCommunicationAdvanced and support RBAC; internal chat uses teamChat and office.internal_chat capabilities. No credential-less public functions or extra Data API access.",
+        "No impact on basic Alap support, order/transactional emails, campaign and notifications outside Digitális Iroda. Existing tenant data preserved.",
+        "Existing privileged Office service-role RPCs, delegated actions, signed downloads and worker send paths must be mapped; any unproven path remains PARTIAL and separately tracked.",
+        "SQL syntax guard and privacy, Team Chat, entitlement tests PASS; current staging is not silently treated as migrated.",
+        "Full canonical Guard, Plan Before Code, edit-time Reference/Implementation Sync, Replay, Release Risk, CI, Truth, Lifecycle and postmerge main evidence required before U10A DONE.",
+        "The production migration is source-only until customer baseline parity U10A2, controlled target migration compatibility and Fresh Install are proven. This unit is PARTIAL, cannot be merged alone as final production closure."
       ],
       "invariants": [
-        "Missing required Office migration is BLOCK/NOT_VERIFIED.",
-        "Readiness is read-only; no catalog snapshot implies proof of real DB tenant-level RLS.",
-        "Existing migration identifiers and behavior remain unchanged except addition of a necessary existing dependency."
+        "Source of Pro truth is canonical webshop_instances subscription_plan plus active correct-instance entitlement; never profile, JWT user_metadata or default configured plan.",
+        "Tenant identity and actor support/team permission remain checked independently of plan.",
+        "Team Chat teamChat and office.internal_chat are not replaced by officeCommunicationAdvanced.",
+        "Revoke or downgrade fails closed immediately at SQL helper evaluation even if feature_entitlements rows stale.",
+        "No extra access for anon, authenticated, PUBLIC, or service_role outside specifically authorized existing pathways.",
+        "Production/staging schema and customer data are untouched by source-only development."
       ],
       "forbiddenStates": [
-        "READY claim with 20260910070200 omitted",
-        "An optimistic PASS based only on text fixture rather than live catalog",
-        "Any target DB or production modification as part of this unit"
+        "Stale manual Pro entitlement enables Office advanced on Alap.",
+        "Platform operator alone grants Office customer workspace on Alap.",
+        "Authenticated SELECT succeeds without tenant Pro and row participant/role guards.",
+        "Team Chat semantics are inadvertently tied to unrelated advanced e-mail entitlement.",
+        "Default Alap transactional mail/support is disabled or data deleted.",
+        "Partial/stale migration history or skipped Fresh Install proof reported as security DONE."
       ]
     },
     "model": {
@@ -100,118 +117,192 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Snapshot reflects older migration sequence but apparently acceptable policies",
-        "Stale fixture automatically regenerated from migration array and misses independent negative regression",
-        "Unrelated Team Chat or Alap notification path inadvertently changed"
+        "Alap downgraded tenant retains enabled officeCommunicationAdvanced entitlement",
+        "Stale organization-level null instance entitlement overrides current tenant",
+        "Platform operator bypasses Pro tenant scope",
+        "RLS public/anon or permissive OR path bypasses new restrictive policy",
+        "Customer Office and internal Team Chat share one table but have distinct feature checks",
+        "SECURITY DEFINER service_role path bypasses RLS and ignores revised entitlement",
+        "Invalid SQL body/grant/function signature passes marker test but fails real migration",
+        "Staging has old ALL policies, source newer; selective DB patch causes schema drift",
+        "Policy grants authenticated browser read unexpectedly when migration is applied"
       ],
       "edgeCases": [
-        "Advanced migration is installed but subscription plan semantics remain unsafe: separate SQL/RLS proof still blocked",
-        "Exact required migration set succeeds but other Office dependencies remain unproven",
-        "Snapshot current but migration ledger incomplete"
+        "No webshop instance or missing organization",
+        "Expired subscription/feature_entitlements valid_until boundary",
+        "Disabled override after valid plan row",
+        "Cross-organization row and instance null feature",
+        "Concurrent downgrade and queued customer reply",
+        "Internal_private conversation with Pro teamChat but advanced email disabled",
+        "Customer conversation with Pro advancedEmail but no support role",
+        "Unthreaded office_tasks, orphaned message threads",
+        "Platform operator on Alap tenant",
+        "Wrong schema/duplicate policy and missing current-user helper"
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-CANONICAL",
-        "summary": "Extend the existing Office catalog readiness required migrations and its regression tests.",
+        "id": "ALT-STRICT-CANONICAL-SQL",
+        "summary": "Extend canonical tenant-plan and feature SQL helper and add scoped restrictive Office read predicates, preserving separate Team Chat and customer Office semantics.",
         "disposition": "selected",
-        "reason": "Keeps canonical read-only validation and fail-closed proof boundary without adding a second checker."
+        "reason": "Closes stale rows and platform bypass at DB authority without inventing a new package controller."
       },
       {
-        "id": "ALT-SQL-REWRITE",
-        "summary": "Deploy SQL migration/RLS corrections directly in this unit.",
+        "id": "ALT-ROUTE-ONLY",
+        "summary": "Rely only on Next.js route/page and worker entitlement checks.",
         "disposition": "rejected",
-        "reason": "Would exceed this bounded quality release and requires Fresh Install dependency closure and explicit rollout authority."
+        "reason": "SECURITY DEFINER and authenticated SELECT can bypass page visibility; #1186 demands full dependency closure."
       },
       {
-        "id": "ALT-IGNORE",
-        "summary": "Trust existing five migrations as equivalent to current Pro semantics.",
+        "id": "ALT-BLANKET-ADVANCED-RLS",
+        "summary": "Require officeCommunicationAdvanced indiscriminately for customer and internal Office rows.",
         "disposition": "rejected",
-        "reason": "Current advanced guard migration is later, so this permits false-green catalog claims."
+        "reason": "Breaks independent Team Chat teamChat authority and participant checks."
+      },
+      {
+        "id": "ALT-CHERRY-PICK-STAGING",
+        "summary": "Apply only the newest SQL to occupied staging to make a checklist pass.",
+        "disposition": "rejected",
+        "reason": "Live staging migration provenance is incomplete; cannot safely cherry-pick or assert DB readiness."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Architecture",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Canonical readiness script already controls catalog-migration acceptance; no new engine is necessary.",
-        "resolution": "Add required migration to the same existing list and add a precise test.",
-        "evidence": [
-          "scripts/shoperation-office-db-readiness.mjs",
-          "tests/shoperation-office-db-readiness.test.ts"
-        ]
-      },
-      {
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Presence of migration 20260910070200 does not prove its function body enforces actual tenant subscription or protect service-role RPCs.",
-        "resolution": "Keep claim limited to catalog prerequisites; continue U10 SQL/RLS and Fresh Install proof separately, never mark #1186 DONE.",
+        "finding": "RLS restrictive tenant Pro predicate is not sufficient for service_role SECURITY DEFINER RPC and old platform-operator bypass.",
+        "resolution": "Require present subscription + active entitlement inside canonical SQL helper, audit all privilege and RPC surfaces, preserve separate direct server guards; do not claim complete DB proof until real staging fixture.",
         "evidence": [
-          "https://github.com/infowaterk-max/water-K-/issues/1227",
-          "https://github.com/infowaterk-max/water-K-/issues/1228"
+          "supabase/migrations/20260910070200_communication_hub_2_0_advanced_guards_and_object_links_v1.sql"
+        ]
+      },
+      {
+        "role": "Data Integrity",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Staging migration ledger is behind repository and has old ALL policies; cherry-picking risks incompatible schema.",
+        "resolution": "Author new ordered source and customer baseline migrations, run SQL syntax validation, leave staging untouched until provenance/rehearsal.",
+        "evidence": [
+          "supabase/migrations/20260908024000_digital_office_rls_helper_exposure_closure_v1.sql"
+        ]
+      },
+      {
+        "role": "Runtime",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Alap uses officeCommunication/support for standard commerce notifications; employee workspace must remain Pro.",
+        "resolution": "Keep base grants and non-Office transactional dispatch unmodified; preserve Team Chat independent teamChat checks.",
+        "evidence": [
+          "src/lib/entitlements/access.ts",
+          "src/lib/plans/catalog.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Generated synthetic happy-case fixture might mask missing migration if no fixed-string assertion exists.",
-        "resolution": "Add a named missing advanced migration negative test independent from fixture auto-generation.",
+        "finding": "Multi-domain U10 combined code exceeds risk ceiling, previous live U09 proves staging BLOCK.",
+        "resolution": "Decompose SQL+baseline U10A (5/5) then analyzer U10B (2/5), each exact-head CI and postmerge proof.",
         "evidence": [
-          "tests/shoperation-office-db-readiness.test.ts"
+          "scripts/shoperation-office-db-readiness.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-01",
-        "scenario": "Legacy catalog has earlier migration sequence but no advanced guard",
-        "finding": "Existing required list omits 20260910070200 and may falsely pass",
-        "resolution": "Enforce specific migration and negative case",
+        "id": "CH-U10A-01",
+        "scenario": "Manual/organization Pro entitlement survives Alap downgrade.",
+        "finding": "SQL helper previously trusted stale entitlement only.",
+        "resolution": "Check current webshop_instances.subscription_plan pro and active scoped grant; negative regression before deploy.",
         "status": "resolved"
       },
       {
-        "id": "CH-02",
-        "scenario": "Full list present, stale tenant entitlement Pro bypass still exists",
-        "finding": "Migration presence alone cannot close security issue",
-        "resolution": "Explicitly limit this unit to prerequisite readiness; #1227/#1228 remain open",
+        "id": "CH-U10A-02",
+        "scenario": "Platform operator calls a service-role advanced Office RPC for an Alap tenant.",
+        "finding": "Existing SQL OR bypass grants access independently of subscription.",
+        "resolution": "Remove unqualified platform exception on content RPC; preserve audited platform admin routes and deny Alap content.",
         "status": "resolved"
       },
       {
-        "id": "CH-03",
-        "scenario": "Positive fixture regenerated automatically",
-        "finding": "Could falsely satisfy only generic assertions",
-        "resolution": "Add test that removes fixed advanced migration identity and expects BLOCK",
+        "id": "CH-U10A-03",
+        "scenario": "RLS Pro predicate breaks internal Team Chat.",
+        "finding": "Chat and customer office share underlying tables but distinct features.",
+        "resolution": "Common strict tenant Pro and distinct type-specific teamChat/advancedEmail downstream checks.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U10A-04",
+        "scenario": "Pro migration is applied on outdated staging with no privacy helper.",
+        "finding": "Current staging lacks predecessor migrations.",
+        "resolution": "No target write; require ordered lineage real-rehearsal before production-like evidence.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U10A-05",
+        "scenario": "Direct browser reads a customer thread after a legacy GRANT is restored.",
+        "finding": "A PERMISSIVE SELECT predicate based on support role alone is insufficient.",
+        "resolution": "Compose restrictive current-tenant Pro predicate with participant check; run authenticated negative SQL regression.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U10A-06",
+        "scenario": "Team Chat participant belongs to Pro tenant but advanced-email feature disabled.",
+        "finding": "Blanket advanced-email guard would break teamChat contract.",
+        "resolution": "Tenant Pro common invariant plus internal-specific teamChat and office.internal_chat capability; negative/positive tests.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U10A-07",
+        "scenario": "Service-role RPC calls public can_read_office_thread_v1 on Alap.",
+        "finding": "RLS is bypassed for service_role.",
+        "resolution": "Put current tenant Pro/feature guard inside canonical read/advanced functions and keep caller RBAC checks.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U10A-08",
+        "scenario": "Migration contains signature mismatch or wrong policy ordering.",
+        "finding": "Marker-only tests would miss malformed PL/pgSQL, policy OR semantics and privilege drift.",
+        "resolution": "Use shared SQL parser/syntax guard plus ordered baseline parity and real DB rehearsal gate.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U10A1-09",
+        "scenario": "A main SQL migration is assumed complete even though empty-target customer baseline lacks its prerequisite functions.",
+        "finding": "Fresh Install snapshot lacks private/current-user Office functions; copying code into baseline 0047 would break ordered replay.",
+        "resolution": "Limit U10A1 to source migration and tests, mark dependent baseline parity U10A2 BLOCKED, no merge or DONE until full chain passes.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Independent missing-20260910070200 negative regression and baseline positive tests under Vitest.",
-      "Development Guard and Plan Before Code on exact main-derived transaction, edit-time Reference Sync and Incremental Replay.",
-      "Exact-head PR CI, Completion Truth, Lifecycle before any merger; no schema, provider or staging changes.",
-      "Explicit NOT_DONE for live staging RLS, customer Fresh Install and the parent #1186 U10 SQL/RPC closure."
+      "Re-run Development Guard on exact source + baseline migration and regression tests, projected release risk at or below 5/5.",
+      "Plan Before Code must PASS with explicit critical safety review, challenge and alternative before migration implementation.",
+      "Use unique forward-only canonical Supabase migration naming and track customer baseline 0047 parity as blocked U10A2 dependency; never rewrite historical migrations.",
+      "Run SQL migration syntax guard including PL/pgSQL delimiters and safe-role GRANT/REVOKE checks.",
+      "Test Alap stale/override/revoked, Pro valid, Team Chat Pro independently, platform actor and participant path, browser RLS and RPC negative cases.",
+      "Perform edit-time Guard, Reference/Implementation Sync, Knowledge/Deep Atlas, Incremental Replay and Release Risk checks.",
+      "Run one necessary exact-head CI and Completion Truth + Lifecycle; verify postmerge main CI.",
+      "Require separate nonmutating staging metadata and controlled real DB/RLS behavioral proof before parent #1186 DONE."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
+      "request": "https://github.com/infowaterk-max/water-K-/issues/1227",
       "authority": [
-        "quality-knowledge-system"
+        "database-schema"
       ],
       "mustEdit": [
-        "scripts/shoperation-office-db-readiness.mjs",
-        "tests/shoperation-office-db-readiness.test.ts"
+        "tests/digital-office-privacy-foundation.test.ts"
       ],
       "mayEdit": [],
-      "impactedReadOnly": [
-        "scripts/shoperation-office-db-stage-rehearsal.mjs",
-        "tests/shoperation-office-db-stage-rehearsal.test.ts"
+      "impactedReadOnly": [],
+      "mustCreate": [
+        "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql",
+        "tests/digital-office-strict-pro-sql.test.ts"
       ],
-      "mustCreate": [],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-office-db-readiness.test.ts",
-        "tests/shoperation-office-db-stage-rehearsal.test.ts"
+        "SQL migration syntax and guard tests",
+        "Alap/Pro direct row and RPC access boundary tests",
+        "customer-baseline parity and actual staging role proof BLOCK until U10A2"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -222,47 +313,47 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "scripts/shoperation-office-db-readiness.mjs",
-          "tests/shoperation-office-db-readiness.test.ts"
+          "tests/digital-office-privacy-foundation.test.ts"
         ],
         "mayEdit": [],
-        "impactedReadOnly": [
-          "scripts/shoperation-office-db-stage-rehearsal.mjs",
-          "tests/shoperation-office-db-stage-rehearsal.test.ts"
+        "impactedReadOnly": [],
+        "mustCreate": [
+          "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql",
+          "tests/digital-office-strict-pro-sql.test.ts"
         ],
-        "mustCreate": [],
         "forbidden": [],
-        "proof": [
-          "tests/shoperation-office-db-readiness.test.ts",
-          "tests/shoperation-office-db-stage-rehearsal.test.ts"
-        ],
-        "authority": [
-          "quality-knowledge-system"
-        ],
+        "proof": [],
+        "authority": [],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 2,
+        "score": 5,
         "maxPoints": 5,
         "subsystemCount": 1,
         "maxSubsystems": 3,
         "subsystems": [
           {
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
+            "subsystem": "database-schema",
+            "risk": "high",
+            "points": 5
           }
         ],
         "files": [
           {
-            "file": "scripts/shoperation-office-db-readiness.mjs",
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
+            "file": "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql",
+            "subsystem": "database-schema",
+            "risk": "high",
+            "points": 5
           },
           {
-            "file": "tests/shoperation-office-db-readiness.test.ts",
+            "file": "tests/digital-office-privacy-foundation.test.ts",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
+          },
+          {
+            "file": "tests/digital-office-strict-pro-sql.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -277,26 +368,32 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 2,
+          "score": 5,
           "maxPoints": 5,
           "subsystemCount": 1,
           "maxSubsystems": 3,
           "subsystems": [
             {
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
+              "subsystem": "database-schema",
+              "risk": "high",
+              "points": 5
             }
           ],
           "files": [
             {
-              "file": "scripts/shoperation-office-db-readiness.mjs",
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
+              "file": "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql",
+              "subsystem": "database-schema",
+              "risk": "high",
+              "points": 5
             },
             {
-              "file": "tests/shoperation-office-db-readiness.test.ts",
+              "file": "tests/digital-office-privacy-foundation.test.ts",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
+              "file": "tests/digital-office-strict-pro-sql.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -306,52 +403,77 @@
           "decision": "PASS"
         },
         "maxFilesPerUnit": 12,
-        "repositoryEdges": [
-          {
-            "from": "scripts/shoperation-office-db-readiness.mjs",
-            "to": "tests/shoperation-office-db-readiness.test.ts",
-            "type": "repository-dependency"
-          },
-          {
-            "from": "scripts/shoperation-office-db-readiness.mjs",
-            "to": "tests/shoperation-office-db-readiness.test.ts",
-            "type": "proof-ownership"
-          },
-          {
-            "from": "tests/shoperation-office-db-readiness.test.ts",
-            "to": "scripts/shoperation-office-db-readiness.mjs",
-            "type": "proof-ownership"
-          }
-        ],
+        "repositoryEdges": [],
         "atomicComponents": [
           {
             "id": 0,
             "files": [
-              "scripts/shoperation-office-db-readiness.mjs",
-              "tests/shoperation-office-db-readiness.test.ts"
+              "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 5,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "subsystem": "database-schema",
+                  "risk": "high",
+                  "points": 5
                 }
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-office-db-readiness.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
+                  "file": "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql",
+                  "subsystem": "database-schema",
+                  "risk": "high",
+                  "points": 5
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 1,
+            "files": [
+              "tests/digital-office-privacy-foundation.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
                 {
-                  "file": "tests/shoperation-office-db-readiness.test.ts",
+                  "file": "tests/digital-office-privacy-foundation.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 2,
+            "files": [
+              "tests/digital-office-strict-pro-sql.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/digital-office-strict-pro-sql.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -368,65 +490,73 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-              "developmentBaseSha": "8c5f21132b32e0c0559c007a447aae8e54741fa4"
+              "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1227",
+              "developmentBaseSha": "e0e25df16a37df93e8de242aceeca59a8601ed52"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "8c5f21132b32e0c0559c007a447aae8e54741fa4",
+            "targetBaseSha": "e0e25df16a37df93e8de242aceeca59a8601ed52",
             "lease": {
-              "expectedBaseSha": "8c5f21132b32e0c0559c007a447aae8e54741fa4",
+              "expectedBaseSha": "e0e25df16a37df93e8de242aceeca59a8601ed52",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "scripts/shoperation-office-db-readiness.mjs",
-              "tests/shoperation-office-db-readiness.test.ts"
+              "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql",
+              "tests/digital-office-privacy-foundation.test.ts",
+              "tests/digital-office-strict-pro-sql.test.ts"
             ],
             "operations": [
               {
-                "operation": "modify",
-                "file": "scripts/shoperation-office-db-readiness.mjs",
+                "operation": "create",
+                "file": "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": "tests/shoperation-office-db-readiness.test.ts",
+                "file": "tests/digital-office-privacy-foundation.test.ts",
+                "generated": null
+              },
+              {
+                "operation": "create",
+                "file": "tests/digital-office-strict-pro-sql.test.ts",
                 "generated": null
               }
             ],
-            "requiredDependencyFiles": [
-              "scripts/shoperation-office-db-readiness.mjs"
-            ],
-            "authorities": [
-              "quality-knowledge-system"
-            ],
+            "requiredDependencyFiles": [],
+            "authorities": [],
             "subsystems": [
-              "quality-infrastructure"
+              "database-schema"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 5,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "subsystem": "database-schema",
+                  "risk": "high",
+                  "points": 5
                 }
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-office-db-readiness.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
+                  "file": "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql",
+                  "subsystem": "database-schema",
+                  "risk": "high",
+                  "points": 5
                 },
                 {
-                  "file": "tests/shoperation-office-db-readiness.test.ts",
+                  "file": "tests/digital-office-privacy-foundation.test.ts",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                },
+                {
+                  "file": "tests/digital-office-strict-pro-sql.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -436,9 +566,11 @@
               "decision": "PASS"
             },
             "requiredGates": [
+              "GUARD-CUSTOMER-BASELINE",
               "GUARD-EDIT-TIME",
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-MARKET-READY",
               "GUARD-PLAN-BEFORE-CODE",
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK",
@@ -446,31 +578,32 @@
             ],
             "requiredEvidence": {
               "gateIds": [
+                "GUARD-CUSTOMER-BASELINE",
                 "GUARD-EDIT-TIME",
                 "GUARD-INCREMENTAL-REPLAY",
                 "GUARD-KNOWLEDGE-PREFLIGHT",
+                "GUARD-MARKET-READY",
                 "GUARD-PLAN-BEFORE-CODE",
                 "GUARD-QUALITY-TESTS",
                 "GUARD-RELEASE-RISK",
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-office-db-readiness.test.ts"
+                "tests/digital-office-privacy-foundation.test.ts",
+                "tests/digital-office-strict-pro-sql.test.ts"
               ],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
-            "readOnlyPaths": [
-              "scripts/shoperation-office-db-stage-rehearsal.mjs",
-              "tests/shoperation-office-db-stage-rehearsal.test.ts"
-            ],
+            "readOnlyPaths": [],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "scripts/shoperation-office-db-readiness.mjs",
-                "tests/shoperation-office-db-readiness.test.ts"
+                "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql",
+                "tests/digital-office-privacy-foundation.test.ts",
+                "tests/digital-office-strict-pro-sql.test.ts"
               ],
               "filesAbsent": []
             },
@@ -485,7 +618,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "5ba14aaa",
+            "manifestDigest": "388c57e6",
             "decision": "PASS"
           }
         ],
@@ -498,10 +631,12 @@
         "contract": "shoporation.gate-chain.v1",
         "phase": "PLAN",
         "orderedGateIds": [
+          "GUARD-CUSTOMER-BASELINE",
           "GUARD-KNOWLEDGE-PREFLIGHT",
           "GUARD-PLAN-BEFORE-CODE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-MARKET-READY",
           "GUARD-QUALITY-TESTS",
           "GUARD-RELEASE-RISK",
           "GUARD-TYPECHECK"
@@ -512,8 +647,10 @@
           "GUARD-RELEASE-RISK"
         ],
         "futureGateIds": [
+          "GUARD-CUSTOMER-BASELINE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
+          "GUARD-MARKET-READY",
           "GUARD-QUALITY-TESTS",
           "GUARD-TYPECHECK"
         ],
@@ -522,18 +659,48 @@
         "decision": "PASS"
       }
     },
-    "executionAuthorized": true
+    "executionAuthorized": true,
+    "problemStatement": "Live staging has legacy office_* RLS ALL policies and missing privacy migrations; repository SQL private.office_effective_feature_enabled_v1 treats stale enabled feature_entitlements as sufficient even after an Alap tenant downgrade, while office_advanced_actor_v1 lets platform operators bypass actual tenant Pro. On executing newer source migrations, direct authenticated SELECT policies and service-role RPC may allow out-of-package Digital Office access despite server-side Pro guards. This is NOT proof of a current exploitable staging browser SELECT since authenticated has no current direct table grant.",
+    "observableOutcomes": [
+      "On a reproducible SQL fixture, current plan alap plus stale Pro enabled feature is denied by both Office advanced and Team Chat SQL helpers; valid current Pro with appropriate entitlement and actor passes.",
+      "All three Office browser SELECT policy surfaces compose tenant Pro requirement with participant/support role predicate; anon remains denied, and service_role guard is checked separately at each RPC.",
+      "An Alap webshop continues to use support, officeCommunication, order and transactional emails outside staff Office; independent Team Chat teamChat capability and participant privacy are preserved.",
+      "New production-line SQL migration parses in shared syntax guard; customer-baseline 0047 parity is separately BLOCKED in U10A2; no deployment or closure until dependency passes.",
+      "No shared staging or production database writes occur in this task; actual DB acceptance requires separate environment lineage and runtime proof."
+    ],
+    "unresolvedRisks": [
+      "Real staging migration provenance is outdated; schema changes cannot be safely applied to staging until full canonical order and compatibility are established.",
+      "Service-role paths may include functions and signing operations not covered by this bounded SQL release; parent issue remains PARTIAL.",
+      "Platform administrative exception policy for cross-tenant operational support may require separate explicit scope; no blanket exception remains in staff Office content.",
+      "SQL textual tests cannot replace live PostgreSQL policy, GRANT, SECURITY DEFINER and downgrade simulation; real DB acceptance remains required.",
+      "Customer Fresh Install baseline snapshot lacks modern Office privacy and advanced SQL helpers, so this main-only migration may not be merged/declared DONE until U10A2 resolves ordered baseline dependencies and verifies real Fresh Install proof.",
+      "Sentinel critical integrity review on implementation PR #1288 (run 38621835577) exposed invalid mapping of GUARD-CUSTOMER-BASELINE as source-only claim evidence without proof semantics; canonical system obligation still executes customer baseline guard, and controlled Fresh Install remains OPEN."
+    ],
+    "scope": {
+      "in": [
+        "One new forward-only production-line migration with SQL subscription/entitlement matching and strict Office RLS",
+        "One targeted new SQL contract regression suite, extended existing privacy regression"
+      ],
+      "out": [
+        "No customer baseline migration 0047 in this bounded release: customer baseline parity U10A2 remains explicitly BLOCKED",
+        "No staging/production schema or data modification",
+        "No Vercel preview or production deployment",
+        "No U10B quality readiness analyzer edit; no parent DONE claims"
+      ]
+    }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1227",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
+        "GUARD-CUSTOMER-BASELINE",
         "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-EDIT-TIME",
         "GUARD-INCREMENTAL-REPLAY",
+        "GUARD-MARKET-READY",
         "GUARD-QUALITY-TESTS",
         "GUARD-RELEASE-RISK",
         "GUARD-TYPECHECK"
@@ -543,11 +710,23 @@
     },
     "requirements": [
       {
-        "id": "REQ-OFFICE-ADVANCED-PREREQUISITE",
-        "requirement": "Read-only readiness must fail closed if the canonical advanced Office guards migration 20260910070200 is missing, with explicit negative regression and no SQL rollout.",
+        "id": "REQ-U10A-TENANT-PRO",
+        "requirement": "No currently Alap, missing or downgraded tenant may access Pro-only Digital Office via stale grant or platform account; SQL helper must confirm actual Pro plan and current effective feature.",
+        "claimScope": {
+          "capability": "CAP-AUTH",
+          "breadth": "digital-office-sql-tenant-pro-boundary",
+          "strength": 2,
+          "dimensions": [
+            "scope",
+            "behavioral-proof",
+            "forbidden-state"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-AUTH"
+        ],
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
@@ -556,8 +735,42 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-FALSE-READY",
-            "statement": "Never declare Office catalog ready when required advanced migration is absent or pretend source migration presence establishes actual tenant isolation.",
+            "id": "NEG-U10A-STALE-PRO",
+            "statement": "Alap tenant with stale/override Pro entitlement or platform actor cannot access Office.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-U10A-SHARED-RLS",
+        "requirement": "Forward-only SQL SOURCE hardening describes tenant Pro and participant-split RLS contracts only; customer Fresh Install 0047+ lineage, real RLS execution, runtime Pro/Alap tenant cases and occupied staging proof remain independent mandatory BLOCKERS, not source-commit claims.",
+        "claimScope": {
+          "capability": "CAP-AUTH",
+          "breadth": "source-only-office-rls-customer-vs-team-chat",
+          "strength": 1,
+          "dimensions": [
+            "scope",
+            "limitations",
+            "forbidden-state"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-AUTH"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-U10A-CHAT-SPLIT",
+            "statement": "Team Chat cannot depend on advanced-email entitlement, and Alap transactional email must remain available.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -566,14 +779,14 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
+  "notes": "Current main e0e25df16a37df93e8de242aceeca59a8601ed52 (post #1287). Plan controls source migration only, while customer baseline 0047 or later must be a separate planned release; no claim of staging/RLS runtime enforcement. Exact source-only evidence scope corrected after Sentinel REVIEW: removed GUARD-CUSTOMER-BASELINE from REQ-U10A-SHARED-RLS implementation evidence; retained canonical requiredGuard and separate U10A2 proof dependency. Never treat this PR as a DB deployment claim.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "417c2fa20ee0ff416866590fe258a39e8349a27d",
-    "closedAt": "2026-10-14T18:06:41.177Z",
+    "verifiedImplementationHead": "530b301d6a2292d70be941a1885425730d3f7033",
+    "closedAt": "2026-10-14T19:28:52.756Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1227",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
