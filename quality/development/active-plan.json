@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-2C614630",
   "task": "Core #1186 U10A2: fail closed on absent advanced Office guard migration",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "2c614630",
   "changeBaseSha": "8c5f21132b32e0c0559c007a447aae8e54741fa4",
   "plannedFilePatterns": [
@@ -566,5 +566,18 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "417c2fa20ee0ff416866590fe258a39e8349a27d",
+    "closedAt": "2026-10-14T18:06:41.177Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
