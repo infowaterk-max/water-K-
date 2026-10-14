@@ -114,3 +114,110 @@ describe('Core #1186 U09 read-only Office database deployment readiness',()=>{
     expect(catalog).toContain("'officeCommunication'");expect(catalog).toContain("'officeCommunicationAdvanced'");
   });
 });
+
+import {createHash} from 'node:crypto';
+import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {spawnSync} from 'node:child_process';
+// @ts-ignore Intentional ESM JavaScript runtime module without a declaration file.
+import {evaluateOfficeBaselineLineage,OFFICE_BASELINE_MINIMUM_SOURCES} from '../scripts/shoperation-office-baseline-lineage.mjs';
+
+describe('Core #1186 U10A2 additive Office Fresh Install source lineage gate',()=>{
+  const a='20260908022500_privacy.sql';
+  const b='20261010093000_strict_pro.sql';
+  function base(){
+    const root=mkdtempSync(join(tmpdir(),'office-lineage-'));
+    const src=join(root,'supabase/migrations'),dst=join(root,'supabase/customer-baseline/migrations');
+    mkdirSync(src,{recursive:true});mkdirSync(dst,{recursive:true});
+    writeFileSync(join(dst,'0001_snapshot.sql'),'-- historical baseline\n');
+    writeFileSync(join(dst,'0026_legacy_a.sql'),'-- historical duplicate numbering\n');
+    writeFileSync(join(dst,'0026_legacy_b.sql'),'-- historical duplicate numbering\n');
+    writeFileSync(join(dst,'0046_alap_reconcile.sql'),'-- historical Alap contract\n');
+    const sql:Record<string,string>={
+      [a]:'create table if not exists public.office_dummy(id uuid);\n',
+      [b]:'create or replace function private.office_pro_dummy() returns boolean language sql as $$ select false $$;\n',
+    };
+    for(const [name,body] of Object.entries(sql))writeFileSync(join(src,name),body);
+    const add=(number:number,name:string,body=sql[name])=>{
+      const digest=createHash('sha256').update(sql[name]||'').digest('hex');
+      writeFileSync(join(dst,`${String(number).padStart(4,'0')}_office.sql`),`-- Shoperation-Office-Source: ${name} sha256=${digest}\n${body}`);
+    };
+    const scan=()=>evaluateOfficeBaselineLineage({root,requiredSources:[a,b]});
+    return {root,src,dst,add,scan,sql,cleanup:()=>rmSync(root,{recursive:true,force:true})};
+  }
+  it('reports current real baseline BLOCKED, not deployed Office ready',()=>{
+    const r=evaluateOfficeBaselineLineage();
+    expect(r.contract).toBe('shoporation.office-customer-baseline-lineage.v1');
+    expect(r.baselineMigrationCount).toBe(47);
+    expect(r.requiredSourceCount).toBeGreaterThanOrEqual(12);
+    expect(r.sourceLineageStatus).toBe('BLOCKED');
+    expect(r.releaseReady).toBe(false);
+    expect(r.realDatabaseProof).toBe('NOT_EVALUATED');
+    expect(r.findings.filter((x:{code:string,source?:string})=>x.code==='OFFICE_BASELINE_SOURCE_MISSING').length).toBeGreaterThanOrEqual(12);
+    expect(r.findings.some((x:{code:string,source?:string})=>x.code==='OFFICE_BASELINE_NEW_ORDINAL_DRIFT')).toBe(false);
+    expect(OFFICE_BASELINE_MINIMUM_SOURCES.at(-1)).toContain('digital_office_strict_pro_sql_guard');
+  });
+  it('accepts exact-body chronological source lineage as REVIEW, never DB ready',()=>{
+    const f=base();
+    try{
+      f.add(47,a);f.add(48,b);
+      const r=f.scan();
+      expect(r.sourceLineageStatus).toBe('SOURCE_PRESENT_UNPROVEN');
+      expect(r.decision).toBe('REVIEW');
+      expect(r.matchedSourceCount).toBe(2);
+      expect(r.releaseReady).toBe(false);
+      expect(r.realDatabaseProof).toBe('NOT_EVALUATED');
+    }finally{f.cleanup()}
+  });
+  it('denies a missing prerequisite, even when latest strict Pro SQL is present',()=>{
+    const f=base();
+    try{f.add(47,b);expect(f.scan().findings.some((x:{code:string,source?:string})=>x.code==='OFFICE_BASELINE_SOURCE_MISSING'&&x.source===a)).toBe(true)}finally{f.cleanup()}
+  });
+  it('denies forged provenance with only a matching hash and no SQL',()=>{
+    const f=base();
+    try{f.add(47,a,'');f.add(48,b);expect(f.scan().findings.some((x:{code:string,source?:string})=>x.code==='OFFICE_SOURCE_BODY_DRIFT')).toBe(true)}finally{f.cleanup()}
+  });
+  it('denies a tampered/truncated SQL body, regardless of provenance hash',()=>{
+    const f=base();
+    try{f.add(47,a,'select 1;\n');f.add(48,b);expect(f.scan().sourceLineageStatus).toBe('BLOCKED')}finally{f.cleanup()}
+  });
+  it('denies reverse source order and duplicate source replay',()=>{
+    const f=base();
+    try{
+      f.add(47,b);f.add(48,a);
+      expect(f.scan().findings.some((x:{code:string,source?:string})=>x.code==='OFFICE_SOURCE_ORDER_DRIFT')).toBe(true);
+      f.add(49,a);
+      expect(f.scan().findings.some((x:{code:string,source?:string})=>x.code==='OFFICE_SOURCE_DUPLICATE')).toBe(true);
+    }finally{f.cleanup()}
+  });
+  it('denies unreviewed migration claims and missing source SQL',()=>{
+    const f=base();
+    try{
+      f.add(47,a);f.add(48,b);
+      f.add(49,'not-a-reviewed-source.sql','');
+      expect(f.scan().findings.some((x:{code:string,source?:string})=>x.code==='OFFICE_UNREVIEWED_SOURCE_PROVENANCE')).toBe(true);
+      rmSync(join(f.src,b));
+      expect(f.scan().findings.some((x:{code:string,source?:string})=>x.code==='OFFICE_SOURCE_FILE_MISSING')).toBe(true);
+    }finally{f.cleanup()}
+  });
+  it('does not treat 0046 historic comments as imported Office migrations',()=>{
+    const f=base();
+    try{
+      const digest=createHash('sha256').update(f.sql[a]).digest('hex');
+      writeFileSync(join(f.dst,'0046_alap_reconcile.sql'),`-- Shoperation-Office-Source: ${a} sha256=${digest}\n${f.sql[a]}`);
+      expect(f.scan().sourceLineageStatus).toBe('BLOCKED');
+    }finally{f.cleanup()}
+  });
+  it('preserves explicit CLI fail-closed modes and non-mutating diagnostic mode',()=>{
+    const normal=spawnSync(process.execPath,['scripts/shoperation-office-baseline-lineage.mjs'],{cwd:process.cwd(),encoding:'utf8'});
+    expect(normal.status).toBe(0);
+    expect(JSON.parse(normal.stdout).sourceLineageStatus).toBe('BLOCKED');
+    const required=spawnSync(process.execPath,['scripts/shoperation-office-baseline-lineage.mjs','--require-source-parity'],{cwd:process.cwd(),encoding:'utf8'});
+    expect(required.status).toBe(1);
+    expect(required.stderr).toContain('OFFICE_SOURCE_LINEAGE_BLOCKED');
+    const deploy=spawnSync(process.execPath,['scripts/shoperation-office-baseline-lineage.mjs','--require-office-pro-ready'],{cwd:process.cwd(),encoding:'utf8'});
+    expect(deploy.status).toBe(1);
+    expect(deploy.stderr).toContain('OFFICE_DB_PROOF_REQUIRED');
+  });
+});
