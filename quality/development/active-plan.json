@@ -240,16 +240,16 @@
       },
       {
         "id": "CH-U03J-04",
-        "scenario": "A comment says CREATE TABLE but source never executes it.",
-        "finding": "Regex false positive.",
-        "resolution": "Use source DDL anchors and reviewed Git provenance with explicit limits; no full DAG claim.",
+        "scenario": "A commented-out SQL statement or a SQL string literal contains 'create table public.office_mailboxes' while the actual source never executes that DDL; a text search would mark the missing release dependency as present.",
+        "finding": "A false static positive makes F6-U03i 59-source baseline seem complete even though genuine PostgreSQL17 still fails ALTER TABLE office_mailboxes at migration 0055.",
+        "resolution": "Check only explicitly anchored DDL from canonical source; compare the actual source file to pinned Git blob and exclude SQL comments; no SQL executor, no acceptance claim from source parsing; real full replay remains blocked until separately verified.",
         "status": "resolved"
       },
       {
         "id": "CH-U03J-05",
-        "scenario": "Main source ordering wrong for mailbox/drafts/attachment.",
-        "finding": "Dependency order invalid.",
-        "resolution": "Require timestamp order and validated predecessor edges.",
+        "scenario": "The Office recipient-envelope migration 20260909203604 is placed before the mailbox/draft creators 20260908030000 and 20260908034000 in a proposed customer-baseline release package, despite referring to public.office_mailboxes and public.office_drafts.",
+        "finding": "The source-order inversion would make the first atomic SQL transaction fail on missing relations, even if all source files were eventually included by name.",
+        "resolution": "Record explicit predecessor-to-dependent edges anchored to DDL/ref usage for mailbox, drafts, attachments and Communication Hub 0055; compare canonical timestamp ordering, fail on inversion and maintain a distinct unresolved function/provider graph.",
         "status": "resolved"
       },
       {
@@ -268,9 +268,9 @@
       },
       {
         "id": "CH-U03J-08",
-        "scenario": "Source-only report is claimed to finish provider/TLS/RLS proof.",
-        "finding": "False release claim.",
-        "resolution": "Explicit hosted false, no DB proof, unresolved runtime/procedure/ACL graph.",
+        "scenario": "A code review sees a green Vitest/CI source-DAG inventory, treats it as proof that 59 original SQL migrated on a clean PostgreSQL17 Supabase-compatible provider and authorizes live Fresh Install schema reset.",
+        "finding": "A source-only negative dependency manifest cannot prove Postgres execution, cross-schema Auth/Storage events, TLS-bound target identity, rollback or logged-in tenant RLS; mispromotion creates a severe irreversible deployment risk.",
+        "resolution": "Emit mandatory BLOCKED_59_SOURCE_DAG and hostedDatabaseTouched=false/atomic59Proven=false/providerAuthProven=false fields; preserve F6-U03b abort-before-DROP unchanged, require a separate exact-head real Docker full transaction and hosted provider acceptance gate before release.",
         "status": "resolved"
       }
     ],
