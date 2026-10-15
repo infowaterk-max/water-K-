@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-386A5ACE",
   "task": "Core #1186 F6-U03a: reviewed source/connection guard only; no DB writes",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "386a5ace",
   "changeBaseSha": "ea059fd4ffd8e6aa260a1177a89adb445e3b8359",
   "plannedFilePatterns": [
@@ -773,5 +773,18 @@
       }
     ]
   },
-  "notes": "New F6-U03a discrete quality-infrastructure unit generated from actual exact GitHub checkout Development Guard PASS at ea059fd4ffd8e6aa260a1177a89adb445e3b8359; authorized ONLY inert source/TLS guard and negative tests, NEVER database/Storage reset or hosted migration. Full Plan Before Code and exact-head CI must pass before any implementation is claimed complete. Specialist role entries are engineering threat-model reviews, not independent external approvals. Plan Before Code projection from CI 38715312007 confirmed DOMAIN-QUALITY and quality-knowledge-system for planned existing/new files; corrected the generated preliminary atlasContext fallback (no actual implementation change). Exact-head CI run 38716233804: 16/16 new F6 tests and 3609/3610 total passed; the sole Sentinel integrity BLOCK was correctly produced because earlier Completion Contract used unregistered proof dimensions (source/negative/exact-head). Reconciled to exact proofSemantics advertised by GUARD-QUALITY-TESTS and GUARD-PLAN-BEFORE-CODE without weakening the verification authority."
+  "notes": "New F6-U03a discrete quality-infrastructure unit generated from actual exact GitHub checkout Development Guard PASS at ea059fd4ffd8e6aa260a1177a89adb445e3b8359; authorized ONLY inert source/TLS guard and negative tests, NEVER database/Storage reset or hosted migration. Full Plan Before Code and exact-head CI must pass before any implementation is claimed complete. Specialist role entries are engineering threat-model reviews, not independent external approvals. Plan Before Code projection from CI 38715312007 confirmed DOMAIN-QUALITY and quality-knowledge-system for planned existing/new files; corrected the generated preliminary atlasContext fallback (no actual implementation change). Exact-head CI run 38716233804: 16/16 new F6 tests and 3609/3610 total passed; the sole Sentinel integrity BLOCK was correctly produced because earlier Completion Contract used unregistered proof dimensions (source/negative/exact-head). Reconciled to exact proofSemantics advertised by GUARD-QUALITY-TESTS and GUARD-PLAN-BEFORE-CODE without weakening the verification authority.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "96589adb2de2811c86294e8e54db39dcca4f267a",
+    "closedAt": "2026-10-15T10:07:37.109Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1308",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
