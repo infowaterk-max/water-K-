@@ -25,7 +25,7 @@ The new guard performs:
 4. Iterates all owned application tables; requires zero customer/Office rows in all non-neutral tables; hashes each permitted neutral table's entire JSONB row set and compares historical expected digests, not merely counts.
 5. Fails closed on unexpected tables, row data, changed ACLs, provider event triggers, Auth/Storage objects, or lock contention.
 
-The guard **does not yet** verify the full historic 4621-item schema definition fingerprint. It also cannot freeze every Supabase-managed operation merely by locking application tables. Both are explicit future critical gates. Most importantly, the F6-U03b unconditional abort remains enabled and there is still no hosted reset runner, SQL connection or migration application in these changes.
+The guard also contains a **4621-item application schema definition hash check** for functions, RLS policies, triggers, indexes, constraints, relations and columns. This hash was revalidated separately on Fresh Install with a read-only Supabase query: `e312b40ad91150ce937f4aa00db587f3`. **The combined guard has not been executed successfully inside a real hosted transaction**, and application locks still cannot freeze every provider-managed write. These remain explicit critical gates. Most importantly, the F6-U03b unconditional abort remains enabled and there is still no hosted reset runner, SQL connection or migration application in these changes.
 
 ## Live execution remains blocked
 
@@ -36,7 +36,7 @@ The workflow has no hosted Supabase credentials. It does not run on the actual F
 ## Further mandatory proof before actual customer baseline replay
 
 - A separately governed connection path must certify the **exact Fresh Install endpoint and TLS peer** and ensure no inherited libpq address-selector/env redirects, independent of SQL `postgres` role and DB name.
-- Full 4621-item object-definition schema fingerprint and any provider-managed external dependencies/Storage activity must be validated under the same bounded transaction, with independently governed quiescence.
+- The now source-pinned 4621-item definition hash and provider-managed Auth/Storage/dependency snapshots must be exercised together in a controlled transaction, with independently governed quiescence. Its source inclusion alone is not hosted proof.
 - Source-pinned 59 reviewed migration files, Auth bootstrap, neutral seed, and exact public/private schema ACL regrant must all be assembled and tested for failure rollback on disposable exact-schema state before any live execution switch.
 - Provider-owned event triggers and PostgREST Data API schema cache/role access require genuine postflight evidence.
 - Signed-in Alap/Pro/tenant-isolated Office flows and RLS negative proof remain mandatory after eventual successful hosted replay.
