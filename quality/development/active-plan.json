@@ -17,14 +17,12 @@
     "release-infrastructure"
   ],
   "expectedDomains": [
+    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "auth-access-authority",
-    "database-schema",
     "quality-knowledge-system",
-    "release-infrastructure",
-    "tenant-context-authority"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -315,11 +313,8 @@
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/pull/1308",
       "authority": [
-        "auth-access-authority",
-        "database-schema",
         "quality-knowledge-system",
-        "release-infrastructure",
-        "tenant-context-authority"
+        "release-infrastructure"
       ],
       "mustEdit": [
         ".github/workflows/f6-u03-canonical-plan-capture.yml",
@@ -975,5 +970,5 @@
       }
     ]
   },
-  "notes": "F6-U03b development from F6-U03a closed exact commit ab5a155715156abb13a07796a8d44b8dcb3c226a. Development Guard PASS on GH full repo checkout run 38719526787 digest 074c4b63, risk 4/5. This plan authorizes ONLY construction and testing of guarded opt-in code/workflow, NOT the actual live Supabase schema deletion. Independent exact-target run requires explicit authorization after CI+rollback proof. Engineering specialist findings are threat-model reasoning, not externally signed human specialist approvals. Storage bucket upserts in canonical customer-baseline are historical known behavior and do not establish provider-virgin state."
+  "notes": "F6-U03b development from F6-U03a closed exact commit ab5a155715156abb13a07796a8d44b8dcb3c226a. Development Guard PASS on GH full repo checkout run 38719526787 digest 074c4b63, risk 4/5. This plan authorizes ONLY construction and testing of guarded opt-in code/workflow, NOT the actual live Supabase schema deletion. Independent exact-target run requires explicit authorization after CI+rollback proof. Engineering specialist findings are threat-model reasoning, not externally signed human specialist approvals. Storage bucket upserts in canonical customer-baseline are historical known behavior and do not establish provider-virgin state. CI planned-projection (run 38720010251) corrected expectedDomains to DOMAIN-QUALITY + DOMAIN-RELEASE and canonical modified-code owner authorities to quality-knowledge-system + release-infrastructure. Auth, DB and tenant safety remain explicit checked dependencies in the critical plan and negative proof, not edited owners. No capability or risk claim downgraded."
 }
