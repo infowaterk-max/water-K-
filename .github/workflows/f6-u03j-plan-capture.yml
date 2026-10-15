@@ -1,0 +1,55 @@
+name: F6-U03j canonical source-DAG plan capture
+on:
+  push:
+    branches:
+      - feature/core-1186-f6-u03j-office-dependency-dag
+    paths:
+      - .github/workflows/f6-u03j-plan-capture.yml
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --no-audit --no-fund
+      - name: Enforce Plan Before Code on canonical committed critical plan
+        run: node scripts/shoperation-plan-before-code.mjs --check
+      - name: Capture canonical guard and source-only plan
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186 F6-U03j: prove missing Office inbound/mailbox release DAG against frozen 59-file baseline" \
+            --files "scripts/shoperation-f6-u03j-office-dependency-dag.mjs;tests/shoperation-f6-u03j-office-dependency-dag.test.ts;.github/workflows/f6-u03j-office-dependency-proof.yml;.github/workflows/f6-u03j-plan-capture.yml;docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md;quality/development/active-plan.json" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/issues/1228" \
+            --write-plan --check
+      - name: Publish emitted plan as log payload
+        if: always()
+        run: |
+          cat artifacts/shoperation-development-guard/development-guard.md
+          node --input-type=module <<'NODE'
+          import {existsSync,readFileSync} from 'node:fs';
+          if(existsSync('quality/development/active-plan.json')){
+           const s=readFileSync('quality/development/active-plan.json').toString('base64');
+           for(let i=0;i<s.length;i+=1200)console.log('F6U03J_PLAN='+s.slice(i,i+1200));
+          }
+          NODE
+      - name: Upload canonical guard and plan
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03j-source-dag-plan-${{ github.sha }}
+          path: |
+            quality/development/active-plan.json
+            artifacts/shoperation-development-guard/development-guard.md
+            artifacts/shoperation-development-guard/development-guard.json
+          retention-days: 7
