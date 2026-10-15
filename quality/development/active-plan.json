@@ -13,7 +13,8 @@
     "tests/customer-baseline-communication-hub-prerequisites.test.ts",
     "tests/customer-baseline-team-permissions-prerequisites.test.ts",
     "tests/customer-baseline-office-privacy-prerequisites.test.ts",
-    "tests/customer-baseline-office-team-chat-prerequisites.test.ts"
+    "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
+    "tests/shoperation-office-db-readiness.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema",
@@ -89,7 +90,8 @@
         "Copy corrected canonical v2 source bytes with SHA256 identity as customer baseline 0058; mark old strict Pro v1 as superseded source and forbid direct or renamed replay of unsafe blanket RLS.",
         "Regression proof rejects Alap external customer denial, Alap internal chat grants, Pro unauthorized reads, wrong-tenant and stale provider/manual feature overrides and unsafe old SQL payload.",
         "Baseline 59 files and 11 corrected active source dependencies are source-present-unproven, never hosted database release-ready, with no Supabase/production writes.",
-        "U01 deliberately leaves source-checker and read-only readiness scripts untouched; both require separately verified U02 due Critical Release Risk 7/5 decomposition. No Source Present or Fresh Install ready claim."
+        "U01 deliberately leaves source-checker and read-only readiness scripts untouched; both require separately verified U02 due Critical Release Risk 7/5 decomposition. No Source Present or Fresh Install ready claim.",
+        "Keep the existing Office SQL-readiness regression baseline historical tests coherent with append-only 59 migration count in U01; deeper readiness policy redesign and test fixture updates remain U02."
       ],
       "invariants": [
         "Alap officeCommunication/support remains valid without advanced Office and Team Chat.",
@@ -319,7 +321,8 @@
         "tests/customer-baseline-communication-hub-prerequisites.test.ts",
         "tests/customer-baseline-team-permissions-prerequisites.test.ts",
         "tests/customer-baseline-office-privacy-prerequisites.test.ts",
-        "tests/customer-baseline-office-team-chat-prerequisites.test.ts"
+        "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
+        "tests/shoperation-office-db-readiness.test.ts"
       ],
       "mustCreate": [
         "supabase/migrations/20261015090000_digital_office_plan_scoped_sql_guard_v2.sql",
@@ -338,7 +341,8 @@
       "proof": [
         "tests/customer-baseline-office-plan-scoped-rls.test.ts",
         "CI Completion Truth",
-        "Lifecycle"
+        "Lifecycle",
+        "tests/shoperation-office-db-readiness.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -780,5 +784,5 @@
       }
     ]
   },
-  "notes": "F6 stacked on exact green F5 draft #1301 head 61d6080d. New canonical v2 forward-only source replacing unsafe immutable 20261010093000 strict Pro v1 authority. Alap customer Office still supported; Team Chat and advanced Pro; source-only and metadata-only proofs do not authorize live database action. Safety Release Risk decomposition required: F6-U01 database-schema changes only (<=5 points); U02 quality-infrastructure script/checker changes separate; no overlap of high-risk subsystem."
+  "notes": "F6 stacked on exact green F5 draft #1301 head 61d6080d. New canonical v2 forward-only source replacing unsafe immutable 20261010093000 strict Pro v1 authority. Alap customer Office still supported; Team Chat and advanced Pro; source-only and metadata-only proofs do not authorize live database action. Safety Release Risk decomposition required: F6-U01 database-schema changes only (<=5 points); U02 quality-infrastructure script/checker changes separate; no overlap of high-risk subsystem. U01 projection expanded to include only the existing Office test's ordered customer migration-count fixture (59), not its readiness implementation; U02 owns script policy/evaluator changes."
 }
