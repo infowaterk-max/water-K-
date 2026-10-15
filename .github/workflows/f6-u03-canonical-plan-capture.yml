@@ -32,7 +32,7 @@ jobs:
             --task "Core #1186 F6-U03e: actual isolated PostgreSQL17 schema ACL restore and DDL event-trigger rollback rehearsal" \
             --files "scripts/shoperation-f6-u03e-schema-restore.mjs;tests/shoperation-f6-u03e-schema-restore.test.ts;docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md;.github/workflows/f6-u03e-schema-restore-proof.yml;.github/workflows/f6-u03-canonical-plan-capture.yml" \
             --risk critical \
-            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1321" \
+            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1322" \
             --write-plan --check
       - name: Print canonical guard and draft-plan diagnostic
         if: always()
