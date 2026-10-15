@@ -151,3 +151,18 @@ it('never silently upgrades source-only verification to Fresh Install or tenant-
     assert.throws(()=>runReview({root:f.root,dbUrl:direct,env:{}}));
   }finally{f.cleanup();}
 });
+
+it('verifies all 59 actual customer-baseline files in the full Shoperation Git checkout',()=>{
+  const res=validateReviewedBaseline(process.cwd());
+  assert.equal(res.migrationCount,59);
+  assert.equal(res.fileCount,64);
+  assert.equal(res.decision,'REVIEW');
+  assert.equal(res.databaseTouched,false);
+  assert.equal(res.reviewedCommit,'6a29778b6ea971f42fe25eb26181b192a97ab23d');
+});
+
+it('does not allow external callers to substitute a different disposable target reference',()=>{
+  const different='ewdederyvnwmghlydbno';
+  const wrong=direct.replace(ref,different);
+  assert.throws(()=>assertDisposableDbUrl(wrong,{projectRef:different}),/TARGET_IDENTITY_MISMATCH/);
+});
