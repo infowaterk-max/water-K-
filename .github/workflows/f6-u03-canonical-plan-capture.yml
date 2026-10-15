@@ -3,7 +3,7 @@ name: F6-U03g canonical plan capture (development-only)
 on:
   push:
     branches:
-      - feature/core-1186-f6-u03g-schema-grants-event-rehearsal
+      - feature/core-1186-f6-u03g-historical-replay-acceptance
     paths:
       - .github/workflows/f6-u03-canonical-plan-capture.yml
       - quality/development/active-plan.json
