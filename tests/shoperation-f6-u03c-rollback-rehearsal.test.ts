@@ -40,7 +40,8 @@ describe('F6-U03c isolated real PostgreSQL rollback harness safety contract',()=
     expect(fixtureSql()).toContain('CREATE TRIGGER f6_u03c_external_auth_trigger');
     expect(fixtureSql()).toContain('EXECUTE FUNCTION f6_u03c_private.on_user()');
     expect(checkSql()).toContain('f6_u03c_external_auth_trigger');
-    expect(checkSql()).toContain('before-transaction');
+    expect(fixtureSql()).toContain('before-transaction');
+    expect(checkSql()).toContain('SELECT label FROM f6_u03c_app.orders WHERE id=7');
   });
   it('includes seven independently injectable fault phases, all before COMMIT',()=>{
     expect(FAILURE_POINTS).toEqual(['BEFORE_DROP','AFTER_DROP','MIGRATION_0001','MIGRATION_0058','AUTH_BOOTSTRAP','NEUTRAL_SEED','POSTFLIGHT']);
