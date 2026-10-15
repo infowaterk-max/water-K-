@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-074C4B63",
   "task": "Core #1186 F6-U03h: prove historical 0046 RLS policy role-OID portability without modifying canonical guard",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "074c4b63",
   "changeBaseSha": "54127f23b17c010a481a46ca675cddec9d1462ae",
   "plannedFilePatterns": [
@@ -1002,5 +1002,18 @@
       }
     ]
   },
-  "notes": "Critical plan DEV-074C4B63, 21 applicable Known Failures, risk 4/5; project hosted reference observed read-only 2026-10-15: anon oid 16484 (2 policy), authenticated oid 16485 (124 policies), role-name policy fingerprint e5dc03a08c272c6b993b45306c5f664d. This is local portability analysis, no hosted transactions. Reviews model engineering challenges, not external human approvals."
+  "notes": "Critical plan DEV-074C4B63, 21 applicable Known Failures, risk 4/5; project hosted reference observed read-only 2026-10-15: anon oid 16484 (2 policy), authenticated oid 16485 (124 policies), role-name policy fingerprint e5dc03a08c272c6b993b45306c5f664d. This is local portability analysis, no hosted transactions. Reviews model engineering challenges, not external human approvals. Closing metadata reconstructed explicitly from CI #38796183468 Completion Truth VERIFIED_DONE (pass=9, no stale/missing) and Lifecycle candidate-emitted at cf07aa5e2a344112b228a1f7f5adf72a8592cc53; original CI-emitted active-plan.closed.json was NOT downloadable in the uploaded artifact. The next exact-head CI is authoritative for persisted closure PASS; no byte-identical provenance assertion.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "cf07aa5e2a344112b228a1f7f5adf72a8592cc53",
+    "closedAt": "2026-10-15T19:48:43.871Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1335",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
