@@ -84,3 +84,13 @@ Against synthetic disposable Git fixtures the hardening now:
 ## Sign-off
 
 This document records the PO's continuing intent and a candidate safe plan. It does **not** assert approval of a specific executable SQL reset, passing Plan Before Code, verification of the candidate replay implementation, or any database modification.
+
+## F6-U03a implementation boundary and authentic CI gate (2026-10-15)
+
+The **actual** original `scripts/shoperation-development-guard.mjs` ran with full GitHub checkout and PASS at run [38714837513](https://github.com/infowaterk-max/water-K-/actions/runs/38714837513), scoped to `scripts/shoperation-disposable-fresh-replay.mjs`, `tests/shoperation-disposable-fresh-replay.test.ts` and this document. Guard digest `386a5ace`; four active failures `SQ-KF-013`, `SQ-KF-014`, `SQ-KF-022`, `SQ-KF-025`; risk 2/5 for this **source-validation-only** subunit. The first Plan Before Code projection identified `DOMAIN-QUALITY` and `quality-knowledge-system` missing from the draft declaration, and they were reconciled to exact CI-detected values. Subsequently the canonical Plan Before Code gate PASS was observed on the F6-U03a branch (run [38715472975](https://github.com/infowaterk-max/water-K-/actions/runs/38715472975)).
+
+The first implementation consists only of **inert** Git-reviewed source integrity validation and read-only connection configuration validation, with 14 new regression scenarios. It has **no** `psql` invocation, `DROP SCHEMA` execution, migration execution, Storage mutation, automatic cleanup or Supabase credentials in the source. Its `runReview` output is `REVIEW / SOURCE_ONLY_NOT_DB_PROOF`. Current tests additionally exercise the exact real 59-file Git ancestor under full repository checkout. The next separate release unit will need its own approved Plan Before Code for any hosted schema repair and transactional fault injection.
+
+CI [38715882490](https://github.com/infowaterk-max/water-K-/actions/runs/38715882490) rejected the first two-file change with `DEV-BLOCK-IMPLEMENTATION-SYNC-MISSING-REQUIRED` because this document had not yet changed in the current transaction. This amendment is the required actual `mustEdit` and repairs that missing shared implementation edge; it does **not** weaken or except the guard.
+
+**Claim scope:** F6-U03a source/connection validation implementation only. Exact-head quality/tests, typecheck and Truth Gate must still be proven. The live target remains 175 public and two private tables, the old 0046 schema, no customer/Auth/Storage objects, and **not** a clean-target Fresh Install. No real database change has been performed.
