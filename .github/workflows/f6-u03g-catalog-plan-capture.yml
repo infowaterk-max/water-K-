@@ -1,0 +1,56 @@
+name: F6-U03g historical catalog drift Development Guard (plan only)
+# PLAN ONLY: no database transport, no migration execution, no hosted credentials.
+on:
+  push:
+    branches:
+      - feature/core-1186-f6-u03g-historical-catalog-diff
+    paths:
+      - .github/workflows/f6-u03g-catalog-plan-capture.yml
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  development-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Canonical Development Guard and plan generation
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186 F6-U03g: isolated historical 0046 catalog-type drift diagnosis against pinned read-only Fresh Install snapshot" \
+            --files "scripts/shoperation-f6-u03g-catalog-drift.mjs;tests/shoperation-f6-u03g-catalog-drift.test.ts;.github/workflows/f6-u03g-catalog-drift-proof.yml;.github/workflows/f6-u03g-catalog-plan-capture.yml;docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md;quality/development/active-plan.json" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1332" \
+            --write-plan --check
+      - name: Print full plan for approved critical-risk preparation
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import {existsSync,readFileSync} from 'node:fs';
+          for(const [label,path] of [['GUARD','artifacts/shoperation-development-guard/development-guard.json'],['PLAN','quality/development/active-plan.json']]){
+            if(!existsSync(path)){console.log(label+'_MISSING');continue}
+            const raw=readFileSync(path,'utf8');
+            if(label==='GUARD'){let x=JSON.parse(raw);console.log('CATALOG_GUARD='+JSON.stringify({decision:x.decision,guardDigest:x.guardDigest,projectedReleaseRisk:x.projectedReleaseRisk,atlasContext:x.atlasContext,gateChain:x.gateChain}));}
+            else {const b=Buffer.from(raw).toString('base64');console.log('CATALOG_PLAN_BEGIN');for(let i=0;i<b.length;i+=1200)console.log('CATALOG_PLAN_CHUNK='+b.slice(i,i+1200));console.log('CATALOG_PLAN_END');}
+          }
+          NODE
+      - name: Preserve canonical guard evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03g-catalog-development-guard-${{ github.sha }}
+          path: |
+            quality/development/active-plan.json
+            artifacts/shoperation-development-guard/development-guard.json
+            artifacts/shoperation-development-guard/development-guard.md
+          retention-days: 7
