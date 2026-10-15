@@ -30,7 +30,7 @@ jobs:
         run: |
           node scripts/shoperation-development-guard.mjs \
             --task "Core #1186 F6-U03g: positive isolated PostgreSQL17 transaction guard fixture, no hosted writes" \
-            --files "scripts/shoperation-f6-u03g-target-transaction-guard.mjs;tests/shoperation-f6-u03g-target-transaction-guard.test.ts;scripts/shoperation-fresh-disposable-reprovision.mjs;docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md;.github/workflows/f6-u03g-transaction-guard-proof.yml;.github/workflows/f6-u03-canonical-plan-capture.yml" \
+            --files "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs;tests/shoperation-f6-u03g-positive-guard-fixture.test.ts;docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md;.github/workflows/f6-u03g-positive-guard-proof.yml;.github/workflows/f6-u03-canonical-plan-capture.yml" \
             --risk critical \
             --source-ref "https://github.com/infowaterk-max/water-K-/pull/1323" \
             --write-plan --check
