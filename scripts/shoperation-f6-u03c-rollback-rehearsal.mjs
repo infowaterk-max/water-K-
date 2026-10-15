@@ -23,7 +23,10 @@ export function assertIsolatedHarnessEnvironment(env){
     fail('F6U03C_INHERITED_PG_CONNECTION_SELECTOR');
   if(Object.keys(env).some(k=>/^(DATABASE_URL|SHOPERATION_FRESH_INSTALL_DB_URL|SUPABASE_DB_URL|SUPABASE_DATABASE_URL)$/i.test(k)))
     fail('F6U03C_HOSTED_CONNECTION_PRESENT');
-  return Object.freeze({host:FIXTURE_HOST,port:FIXTURE_PORT,database:FIXTURE_DATABASE,user:'postgres'});
+  const expectedIp=env.F6_U03C_EXPECTED_SERVICE_IP;
+  if(typeof expectedIp!=='string'||!/^(?:10\.|172\.(?:1[6-9]|2[0-9]|3[01])\.|192\.168\.)\d{1,3}(?:\.\d{1,3}){2}$/.test(expectedIp))
+    fail('F6U03C_SERVICE_IP_NOT_BOUND');
+  return Object.freeze({host:FIXTURE_HOST,port:FIXTURE_PORT,database:FIXTURE_DATABASE,user:'postgres',expectedServiceIp:expectedIp});
 }
 
 export function fixtureSql(){
@@ -91,7 +94,7 @@ function assertPostgresServer(env){
   const query="SELECT current_database() || '|' || current_user || '|' || host(inet_server_addr()) || '|' || current_setting('server_version_num');";
   const x=psql(query,env);
   const [database,user,host,version]=x.stdout.split('|');
-  if(database!==FIXTURE_DATABASE||user!=='postgres'||host!==FIXTURE_HOST||!/^16[0-9]{4}$/.test(version))
+  if(database!==FIXTURE_DATABASE||user!=='postgres'||host!==env.F6_U03C_EXPECTED_SERVICE_IP||!/^16[0-9]{4}$/.test(version))
     fail('F6U03C_CONNECTED_TO_UNEXPECTED_SERVER');
   return {database,user,host,postgresVersion:version};
 }
