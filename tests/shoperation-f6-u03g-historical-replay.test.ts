@@ -3,7 +3,7 @@ import {spawnSync} from 'node:child_process';
 // @ts-expect-error Deliberately JS-only fixture harness with no ambient ts declaration.
 import {
  PROOF_SCOPE,FIXTURE_DB,HOSTED_EXECUTION_ENABLED,HISTORICAL_FINGERPRINT,
- historicalSource,bootstrapSql,applicationFingerprintSql,positiveApplicationPreflightSql,
+ historicalSource,bootstrapSql,applicationFingerprintSql,positiveApplicationPreflightSql,HISTORICAL_SEMANTIC_HASHES,
  assertLocalFixture,runHistoricalProof,
 } from '../scripts/shoperation-f6-u03g-historical-replay.mjs';
 const safe={GITHUB_ACTIONS:'true',F6_U03G_EPHEMERAL:'yes',F6_U03G_POSTGRES_CONTAINER_IP:'172.18.0.2',PATH:'/usr/bin'};
@@ -53,8 +53,11 @@ describe('Core F6-U03g historical 0046 local replay source and boundary',()=>{
   expect(sql).toContain('ACCESS EXCLUSIVE MODE NOWAIT');
   expect(sql).toContain('F6U03G_CUSTOMER_ROW_PRESENT');
   expect(sql).toContain('F6U03G_AUTH_NOT_EMPTY');
+  expect(sql).toContain("to_jsonb(x) - ''created_at'' - ''updated_at''");
+  expect(Object.keys(HISTORICAL_SEMANTIC_HASHES)).toHaveLength(7);
+  expect(HISTORICAL_SEMANTIC_HASHES.addon_entitlement_catalog).toBe('5473d5997c31315a35079931e7dd02a4');
   expect(sql).toContain('F6U03G_TABLE_SET_MISMATCH');
-  expect(sql).toContain('F6U03G_NEUTRAL_DRIFT:plan_capability_grants');
+  expect(sql).toContain('F6U03G_SEMANTIC_NEUTRAL_DRIFT:plan_capability_grants');
   expect(sql.trimStart().startsWith('BEGIN;')).toBe(true);
   expect(sql.trimEnd().endsWith('ROLLBACK;')).toBe(true);
  });
