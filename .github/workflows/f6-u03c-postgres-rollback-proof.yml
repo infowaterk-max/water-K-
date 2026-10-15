@@ -8,6 +8,8 @@ on:
       - .github/workflows/f6-u03c-postgres-rollback-proof.yml
       - scripts/shoperation-f6-u03c-rollback-rehearsal.mjs
       - tests/shoperation-f6-u03c-rollback-rehearsal.test.ts
+      - docs/po/CORE_1186_F6_U03C_POSTGRES_ROLLBACK_PROOF_2026-10-15.md
+      - .github/workflows/f6-u03-canonical-plan-capture.yml
       - quality/development/active-plan.json
   workflow_dispatch:
 
