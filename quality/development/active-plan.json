@@ -1,16 +1,16 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-074C4B63",
-  "task": "Core #1186 F6-U03i: complete isolated Docker PostgreSQL17 atomic 59-file baseline replay and rollback proof without hosted execution",
+  "task": "Core #1186 F6-U03j: prove missing Office inbound/mailbox release DAG against frozen 59-file baseline",
   "status": "ready-for-implementation",
   "guardDigest": "074c4b63",
-  "changeBaseSha": "11f011c3a9d649e09ff80ea208f4412e5e22721f",
+  "changeBaseSha": "3e1b94ee5829b934febf409c135f274a3054d8f0",
   "plannedFilePatterns": [
-    "scripts/shoperation-f6-u03i-local-59-proof.mjs",
-    "tests/shoperation-f6-u03i-local-59-proof.test.ts",
-    ".github/workflows/f6-u03i-local-59-proof.yml",
-    ".github/workflows/f6-u03i-plan-capture.yml",
-    "docs/po/CORE_1186_F6_U03I_LOCAL_59_PROOF_2026-10-15.md",
+    "scripts/shoperation-f6-u03j-office-dependency-dag.mjs",
+    "tests/shoperation-f6-u03j-office-dependency-dag.test.ts",
+    ".github/workflows/f6-u03j-office-dependency-proof.yml",
+    ".github/workflows/f6-u03j-plan-capture.yml",
+    "docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
@@ -67,11 +67,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1347",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical isolated transaction proof only: approved immutable 59 reviewed source blobs and 4 companions, real Docker PostgreSQL17, source-authentic preflight/seed/postflight. No hosted connection, schema reset, endpoint identity, provider-backed Auth/Storage or signed-in RLS is authorized.",
+      "rationale": "Source-only F6-U03j migration dependency inventory with fail-closed static/digest evidence. NO customer baseline SQL migration changes, no live/fixture SQL execution or provider simulation.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -88,28 +88,26 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "59 migration SQL files exactly match the REVIEWED_SOURCE_COMMIT Git blob ids and canonical list, with 0001 start and 0058 terminal and both 0026 entries.",
-        "Emitted fresh-only SQL opens one transaction before source target-preflight, applies all 59 untouched migrations, auth-bootstrap, neutral seed, and source target-postflight before COMMIT.",
-        "PostgreSQL17 Docker service host/port/peer, local DB name and role are verified with no inherited PG*/DATABASE_URL/SUPABASE_DB_URL selectors; neither workflow nor composer accesses network/hybrid hosted credentials.",
-        "Successful 59-file local replay has preflight and postflight PASS, key app objects and expected final Office SQL functions; after commit, atomically persisted schema proven via read-only query.",
-        "An injection before COMMIT intentionally aborts the same 59-file transaction on a second fresh local database with 0 app-owned public/private relations, functions and policies afterward; guard reports TEST_ABORT_EXPECTED, not a success without rollback.",
-        "Every dry-run/negative/positive report explicitly disclaims hosted reset authorization, managed Auth/Storage, TLS identity and authenticated tenant RLS.",
-        "Run exact-head real PG17 workflow and all required canonical CI/Truth/Lifecycle gates to close scoped unit only."
+        "Validate exact 59-file baseline using original reviewed source verifier (SHA and filename identity), including 0055 source content.",
+        "Pin modern upstream SQL against actual unmodified canonical main Git blob sha and enumerate at least missing office_mailboxes, office_thread_email_routes, office_drafts, office_attachments creators with dependency order.",
+        "Enforce absence of those creation definitions from the frozen 59-file replay, with failure if baseline/source evolves without renewed review.",
+        "Generate an explicit BLOCKED conclusion for unready baseline, no user data or external network and no fake green app capability.",
+        "Adversarial tests reject unexpected source, tampered creator, missing prerequisite, reordered dependency, spoofed source set and accidental hosted guard change.",
+        "Development Guard, critical Plan Before Code, Edit-Time Guard, Quality/TS/Build, Completion Truth, Lifecycle and dedicated proof workflow at exact HEAD must pass before closure of only this diagnostic unit."
       ],
       "invariants": [
-        "All 59 original approved migration and companion SQL bytes are identical to reviewed commit; no security guard altered to make a test pass.",
-        "Source-only compiler cannot invoke psql, libpq, network, Docker or Supabase; CI executes exclusively a verified Docker PG17 local database.",
-        "F6-U03b original hosted compiler hard stops with FRESH_REPROVISION_HOSTED_EXECUTION_NOT_AUTHORIZED before DROP SCHEMA, unchanged and tested.",
-        "Preflight before first migration, postflight after all migration files and neutral seed and before COMMIT in one transaction.",
-        "Fault injection happens before COMMIT and uses a separate local fixture target; SQL fails and rollback empties only app-owned schemas.",
-        "Any real original SQL replay failure is BLOCKED; do not fabricate pass, substitute SQL, weaken original migrations or omit failures."
+        "Canonical F6-U03f strict live guard and 59-file F6-U03b review SQL remain identical and unconditional FRESH_REPROVISION_HOSTED_EXECUTION_NOT_AUTHORIZED occurs before DROP.",
+        "Source-only diagnostic never executes SQL and never edits canonical old SQL bytes.",
+        "Original timestamped source blob ids are read from Git at pinned canonical main, and source content must equal pinned immutable blob.",
+        "Unknown function/trigger dependencies must remain unresolved, not inferred complete from table-only scan.",
+        "Existing PO Alap customer communication/support and Pro-only internal Team Chat policy is preserved as release acceptance authority."
       ],
       "forbiddenStates": [
-        "Running, connecting or sending any SQL to waterk-platform, waterk-staging or hosted Fresh Install.",
-        "Any shell, code, SQL or CI path that removes the hosted review abort or modifies migration content instead of reporting failure.",
-        "A local 59-file pass used to imply managed Supabase provider, TLS endpoint or authenticated Alap/Pro access proof.",
-        "Fault injection produces success without test exit failure, or test's public/private app schema is nonempty after rollback.",
-        "57/58/59 hand-picked SQL files pass as '59' without reviewed list identity, companion postflight or real transaction."
+        "A compiler reports current 59 migration set PASS despite missing Office mailbox foundation.",
+        "A synthetic Office mailbox/attachment table is added to Docker to bypass an unreviewed source-lineage hole.",
+        "Arbitrary main Office timestamp migrations copied without canonical dependency/supersession/security review.",
+        "An old blanket-Pro Office source overrides Alap customer communication or an old broad role grant is reintroduced.",
+        "Any live platform/staging/Fresh SQL write, 59-file hosted execution or changing the pre-DROP abort."
       ]
     },
     "model": {
@@ -141,42 +139,39 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "One of 0055–0058 Office/RLS SQL statements depends on real Supabase provider internals, requiring an explicit diagnostic blocker instead of a fake shim pass.",
-        "The fresh target already has a public function, causing target-preflight to abort; no unconditional DROP may be used.",
-        "Migration 0026 is missing one of the two source files but totals are misreported.",
-        "psql returns zero after ignored individual SQL errors; force ON_ERROR_STOP=1 and fail the whole CI proof.",
-        "Injected fault occurs after COMMIT and cannot establish rollback integrity.",
-        "CI connection is redirected through libpq environment to a hosted database.",
-        "Postflight does not inspect some newly added Office object while the test incorrectly claims production readiness."
+        "Only one missing table is detected, hiding drafts/attachments and missing dependent functions.",
+        "A regex matches a commented CREATE TABLE or function string and incorrectly marks table present.",
+        "The candidate source blobs drift from canonical main or duplicate source file is omitted.",
+        "A timestamped source predates the canonical baseline but is superseded and should not be replayed.",
+        "CI reports 59-file complete based on number of SQL files, ignoring missing upstream sources."
       ],
       "edgeCases": [
-        "59 files but 0058 is stale or modified compared to the source-reviewed Git commit.",
-        "Role/syntax mismatch in provider mock causes RLS creation failure on 0048+, preserving the failure artifact.",
-        "Rollback DB shares the same postgres:17 server but is isolated from the successfully committed fresh DB.",
-        "Functions created before abort persist due to unintentional autocommit, so rollback count must include relations, functions and policies.",
-        "Seed is deliberately customer-neutral and must never create a user profile or business tenant.",
-        "Storage/auth bootstrap trigger has dependencies on auth.users local shim; no claim it proves managed Auth API.",
-        "Review-only compiler includes intentional exception before DROP; tests must check its exact placement even though fresh-local composer has no DROP."
+        "mailbox/source table creator uses CREATE TABLE IF NOT EXISTS while dependent file uses ALTER TABLE.",
+        "A missing table is referenced only inside a function body; source-only scan may not validate runtime dependency until integration proof.",
+        "The same legacy Office table name appears in comments and actual DDL; verify provenance, not loose text.",
+        "A reviewed source already migrated via a different numbered filename; detect source header equivalence before declaring all old sources absent.",
+        "The customer baseline has 59 files with both 0026s, but source hash is stale or 0055 edited.",
+        "A source's dependencies on managed Auth and Storage cannot be reconstructed safely from Docker fixture tables."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-U03I-NEW-EMPTY-DB",
-        "summary": "Construct an entirely new source-only local fresh 59-file transaction and fault-injection branch in disposable Docker PG17, using reviewed source selection and original preflight/seed/postflight.",
+        "id": "ALT-U03J-SOURCE-DAG",
+        "summary": "Create bounded source-authentic missing Office dependency ledger and negative tests without changing SQL.",
         "disposition": "selected",
-        "reason": "Proves release baseline as an atomic fresh installation without bypassing destructive hosted guard."
+        "reason": "Establishes release DAG prerequisites before separately guarded schema work."
       },
       {
-        "id": "ALT-U03I-DISABLE-ABORT",
-        "summary": "Execute existing hosted review SQL by removing FRESH_REPROVISION_HOSTED_EXECUTION_NOT_AUTHORIZED before DROP.",
+        "id": "ALT-U03J-SYNTHETIC-STUB",
+        "summary": "Add missing office_mailboxes and attachments as Docker-only fixture tables, mark 59-file full replay passed.",
         "disposition": "rejected",
-        "reason": "Violates existing explicit fail-closed authority, and would risk destructive execution if redirected."
+        "reason": "Masks real hosted and baseline missing dependency; fails truth semantics."
       },
       {
-        "id": "ALT-U03I-REUSE-47-PLUS-12",
-        "summary": "Commit 47 historical files, then apply the final 12 in a second transaction, and call result atomic 59.",
+        "id": "ALT-U03J-BULK-CHERRY-PICK",
+        "summary": "Copy all chronological main Office migrations into reviewed 59-set immediately.",
         "disposition": "rejected",
-        "reason": "Would falsely attest one-transaction atomicity; not acceptable."
+        "reason": "Violates frozen source authority; includes superseded security semantics; needs a gated versioned release contract."
       }
     ],
     "specialistReviews": [
@@ -184,133 +179,129 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A local replay can be mistaken for hosted reset authorization; actual Docker redirection may target a remote DB.",
-        "resolution": "No connection code inside compiler, no libpq selectors inherited, verify real Docker IP and database, and retain hosted abort-before-DROP with negative tests.",
+        "finding": "Legacy upstream SQL may contain broader browser access than later corrected plan-scoped source.",
+        "resolution": "No release migration copy in this unit; explicitly keep old blanket-Pro/grants excluded from acceptance, require separate SQL/RLS review.",
         "evidence": [
-          "scripts/shoperation-f6-u03i-local-59-proof.mjs",
-          ".github/workflows/f6-u03i-local-59-proof.yml"
+          "scripts/shoperation-f6-u03j-office-dependency-dag.mjs"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A green migration count does not prove atomic persistence or rollback.",
-        "resolution": "One BEGIN/COMMIT for complete 59 and postflight; separate injected fault after postflight before COMMIT, assert no app-owned object state afterward.",
+        "finding": "Static table-name matches cannot certify complete foreign-key/function dependency DAG.",
+        "resolution": "Scope as candidate ordered table-creator lineage with unresolved provider/semantic edges; real 59-file PostgreSQL proof stays blocked.",
         "evidence": [
-          "tests/shoperation-f6-u03i-local-59-proof.test.ts",
-          ".github/workflows/f6-u03i-local-59-proof.yml"
+          "docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A new duplicate guard or independent source selector could drift away from canonical reviewed baseline.",
-        "resolution": "Call the existing validateReviewedBaseline for migration list and content verification; preserve original F6-U03f authority and existing CI/Truth gates.",
+        "finding": "Synthetic fixture DDL might make 0055 pass without representing release schema.",
+        "resolution": "No SQL execution or fixture injection; fail-closed source-only results and negative evidence.",
         "evidence": [
-          "scripts/shoperation-disposable-fresh-replay.mjs",
-          "scripts/shoperation-f6-u03i-local-59-proof.mjs"
+          "tests/shoperation-f6-u03j-office-dependency-dag.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Docker PG17 does not supply hosted Auth/Storage event triggers or prove customer login and RLS integration.",
-        "resolution": "Result is labeled ONLY as local source + transaction scope; remaining hosted, provider and tenant-authenticated truth stays BLOCKED.",
+        "finding": "A successful diagnostics workflow could be misreported as live install approval.",
+        "resolution": "Mandatory verdict BLOCKED_59_SOURCE_DAG and explicit hosted false/rollback not proven fields.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03I_LOCAL_59_PROOF_2026-10-15.md"
+          ".github/workflows/f6-u03j-office-dependency-proof.yml"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U03I-01",
-        "scenario": "Source 0058 has changed but 59 filenames still match.",
-        "finding": "A filename-count gate can pass a modified RLS guard migration.",
-        "resolution": "Use existing source-reviewed Git blob byte verifier for all 59 plus companions and record digest.",
+        "id": "CH-U03J-01",
+        "scenario": "Existing 59 SQL source accidentally changed while audit runs.",
+        "finding": "Source inventory not authoritative.",
+        "resolution": "Call unchanged validateReviewedBaseline and assert 59 original SQL Git blobs.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03I-02",
-        "scenario": "Target contains pre-existing public objects.",
-        "finding": "App migrations could overwrite non-empty customer target.",
-        "resolution": "Original target-preflight must fail before first migration; never run DROP against occupied database.",
+        "id": "CH-U03J-02",
+        "scenario": "One historic Office source creator removed.",
+        "finding": "Missing source provenance disappears.",
+        "resolution": "Git blob sha check against pinned main and fail closed.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03I-03",
-        "scenario": "Fault injection is after COMMIT or outside transaction.",
-        "finding": "Rollback test creates irreversible schema changes.",
-        "resolution": "Compile a second copy with an exception inserted before COMMIT; assert database app schemas empty after psql fails.",
+        "id": "CH-U03J-03",
+        "scenario": "Synthetic Docker mailbox table injected to pass 0055.",
+        "finding": "Fake positive SQL proof.",
+        "resolution": "No SQL execution and hard negative verdict.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03I-04",
-        "scenario": "psql ON_ERROR_STOP is disabled or exit status ignored.",
-        "finding": "Partial schema may be reported as successful full baseline.",
-        "resolution": "Use ON_ERROR_STOP=1, explicit exit code checking and independent post-commit persistent object queries.",
+        "id": "CH-U03J-04",
+        "scenario": "A comment says CREATE TABLE but source never executes it.",
+        "finding": "Regex false positive.",
+        "resolution": "Use source DDL anchors and reviewed Git provenance with explicit limits; no full DAG claim.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03I-05",
-        "scenario": "Container endpoint resolves to another PostgreSQL instance.",
-        "finding": "A 59-file SQL test could target an unapproved environment.",
-        "resolution": "Compare docker inspect peer IP, local DB, postgres role and version 17; disallow env selectors.",
+        "id": "CH-U03J-05",
+        "scenario": "Main source ordering wrong for mailbox/drafts/attachment.",
+        "finding": "Dependency order invalid.",
+        "resolution": "Require timestamp order and validated predecessor edges.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03I-06",
-        "scenario": "One test simulates historical 47 files then subsequent 12 as two commits.",
-        "finding": "Not one atomic transaction.",
-        "resolution": "Validate one and only one BEGIN/COMMIT enclosing all 59 and postflight.",
+        "id": "CH-U03J-06",
+        "scenario": "Modern older blanket-Pro overwrites corrected 0058 policy.",
+        "finding": "Alap customer access regression.",
+        "resolution": "Do not execute any SQL; mark superseded and forbid release acceptance.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03I-07",
-        "scenario": "Provider bootstrap shim overstates Auth/Storage behavior.",
-        "finding": "Fake managed provider closure despite Docker-only run.",
-        "resolution": "Persist explicit hostedFalse/providerFalse/JwtFalse scope fields; no RLS runtime claim.",
+        "id": "CH-U03J-07",
+        "scenario": "Named Office dependency is already in baseline under different filename.",
+        "finding": "Double source replay risk.",
+        "resolution": "Cross-check the specific creator DDL against each reviewed baseline file before declaring missing.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03I-08",
-        "scenario": "All original SQL runs but postflight fails and test ignores it.",
-        "finding": "Invalid baseline certified positive.",
-        "resolution": "Full original postflight is included before commit with ON_ERROR_STOP and forced failure if any condition fails.",
+        "id": "CH-U03J-08",
+        "scenario": "Source-only report is claimed to finish provider/TLS/RLS proof.",
+        "finding": "False release claim.",
+        "resolution": "Explicit hosted false, no DB proof, unresolved runtime/procedure/ACL graph.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Pass canonical Development Guard and critical Plan Before Code before touching implementation files; 20 applicable Known Failures and PO/negative knowledge retained.",
-      "Pure compiler validates reviewed original 59 migration bytes and order and companions, produces fresh-only PG17 positive and pre-COMMIT fault-injection transaction files.",
-      "Unit tests reject incomplete source sets, wrong target, forged statements, missing abort-before-DROP, fake rollback and missing transaction structural guards.",
-      "Actual GitHub Docker PostgreSQL17 service applies original managed fixture shim then source-authentic one-transaction target preflight, migrations, auth-bootstrap, seed, postflight; verifies committed objects.",
-      "Separate fresh DB runs fault transaction, confirms expected psql failure and verifies all app functions/policies/relations rolled back.",
-      "Re-run exact-head CI security, Edit-Time, Quality, TS/production build, Completion Truth and Lifecycle; no hosted reset or merge."
+      "Run critical canonical Development Guard and Plan Before Code on exact branch before touching implementation.",
+      "Check frozen 59 SQL Git identity and pinned main Office source Git blob identities; report ordered creator/dependency edges.",
+      "Validate source-only negative results on current baseline and tampering tests; assert no migrations/hosted guard changed.",
+      "Run dedicated proof workflow + full exact-head Shoperation CI and Security Audit; Completion Truth/Lifecycle for diagnostic only.",
+      "Keep issue #1228 and 59-file failure open for next separately planned release-package corrective migration unit."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/pull/1347",
+      "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03i-plan-capture.yml"
+        ".github/workflows/f6-u03j-plan-capture.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        ".github/workflows/f6-u03i-local-59-proof.yml",
-        "docs/po/CORE_1186_F6_U03I_LOCAL_59_PROOF_2026-10-15.md",
-        "scripts/shoperation-f6-u03i-local-59-proof.mjs",
-        "tests/shoperation-f6-u03i-local-59-proof.test.ts"
+        ".github/workflows/f6-u03j-office-dependency-proof.yml",
+        "docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md",
+        "scripts/shoperation-f6-u03j-office-dependency-dag.mjs",
+        "tests/shoperation-f6-u03j-office-dependency-dag.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-f6-u03i-local-59-proof.test.ts",
-        ".github/workflows/f6-u03i-local-59-proof.yml"
+        "tests/shoperation-f6-u03j-office-dependency-dag.test.ts",
+        ".github/workflows/f6-u03j-office-dependency-proof.yml"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -321,16 +312,16 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          ".github/workflows/f6-u03i-plan-capture.yml",
+          ".github/workflows/f6-u03j-plan-capture.yml",
           "quality/development/active-plan.json"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          ".github/workflows/f6-u03i-local-59-proof.yml",
-          "docs/po/CORE_1186_F6_U03I_LOCAL_59_PROOF_2026-10-15.md",
-          "scripts/shoperation-f6-u03i-local-59-proof.mjs",
-          "tests/shoperation-f6-u03i-local-59-proof.test.ts"
+          ".github/workflows/f6-u03j-office-dependency-proof.yml",
+          "docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md",
+          "scripts/shoperation-f6-u03j-office-dependency-dag.mjs",
+          "tests/shoperation-f6-u03j-office-dependency-dag.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -363,19 +354,19 @@
         ],
         "files": [
           {
-            "file": ".github/workflows/f6-u03i-local-59-proof.yml",
+            "file": ".github/workflows/f6-u03j-office-dependency-proof.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": ".github/workflows/f6-u03i-plan-capture.yml",
+            "file": ".github/workflows/f6-u03j-plan-capture.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "docs/po/CORE_1186_F6_U03I_LOCAL_59_PROOF_2026-10-15.md",
+            "file": "docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -387,13 +378,13 @@
             "points": 0
           },
           {
-            "file": "scripts/shoperation-f6-u03i-local-59-proof.mjs",
+            "file": "scripts/shoperation-f6-u03j-office-dependency-dag.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/shoperation-f6-u03i-local-59-proof.test.ts",
+            "file": "tests/shoperation-f6-u03j-office-dependency-dag.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -426,19 +417,19 @@
           ],
           "files": [
             {
-              "file": ".github/workflows/f6-u03i-local-59-proof.yml",
+              "file": ".github/workflows/f6-u03j-office-dependency-proof.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": ".github/workflows/f6-u03i-plan-capture.yml",
+              "file": ".github/workflows/f6-u03j-plan-capture.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "docs/po/CORE_1186_F6_U03I_LOCAL_59_PROOF_2026-10-15.md",
+              "file": "docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -450,13 +441,13 @@
               "points": 0
             },
             {
-              "file": "scripts/shoperation-f6-u03i-local-59-proof.mjs",
+              "file": "scripts/shoperation-f6-u03j-office-dependency-dag.mjs",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/shoperation-f6-u03i-local-59-proof.test.ts",
+              "file": "tests/shoperation-f6-u03j-office-dependency-dag.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -471,7 +462,7 @@
           {
             "id": 0,
             "files": [
-              ".github/workflows/f6-u03i-local-59-proof.yml"
+              ".github/workflows/f6-u03j-office-dependency-proof.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -488,7 +479,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03i-local-59-proof.yml",
+                  "file": ".github/workflows/f6-u03j-office-dependency-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -501,7 +492,7 @@
           {
             "id": 1,
             "files": [
-              ".github/workflows/f6-u03i-plan-capture.yml"
+              ".github/workflows/f6-u03j-plan-capture.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -518,7 +509,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03i-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03j-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -531,7 +522,7 @@
           {
             "id": 2,
             "files": [
-              "docs/po/CORE_1186_F6_U03I_LOCAL_59_PROOF_2026-10-15.md"
+              "docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -542,7 +533,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/po/CORE_1186_F6_U03I_LOCAL_59_PROOF_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -579,7 +570,7 @@
           {
             "id": 4,
             "files": [
-              "scripts/shoperation-f6-u03i-local-59-proof.mjs"
+              "scripts/shoperation-f6-u03j-office-dependency-dag.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -596,7 +587,7 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-f6-u03i-local-59-proof.mjs",
+                  "file": "scripts/shoperation-f6-u03j-office-dependency-dag.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -609,7 +600,7 @@
           {
             "id": 5,
             "files": [
-              "tests/shoperation-f6-u03i-local-59-proof.test.ts"
+              "tests/shoperation-f6-u03j-office-dependency-dag.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -620,7 +611,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-f6-u03i-local-59-proof.test.ts",
+                  "file": "tests/shoperation-f6-u03j-office-dependency-dag.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -637,40 +628,40 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1347",
-              "developmentBaseSha": "11f011c3a9d649e09ff80ea208f4412e5e22721f"
+              "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+              "developmentBaseSha": "3e1b94ee5829b934febf409c135f274a3054d8f0"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "11f011c3a9d649e09ff80ea208f4412e5e22721f",
+            "targetBaseSha": "3e1b94ee5829b934febf409c135f274a3054d8f0",
             "lease": {
-              "expectedBaseSha": "11f011c3a9d649e09ff80ea208f4412e5e22721f",
+              "expectedBaseSha": "3e1b94ee5829b934febf409c135f274a3054d8f0",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              ".github/workflows/f6-u03i-local-59-proof.yml",
-              ".github/workflows/f6-u03i-plan-capture.yml",
-              "docs/po/CORE_1186_F6_U03I_LOCAL_59_PROOF_2026-10-15.md",
+              ".github/workflows/f6-u03j-office-dependency-proof.yml",
+              ".github/workflows/f6-u03j-plan-capture.yml",
+              "docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md",
               "quality/development/active-plan.json",
-              "scripts/shoperation-f6-u03i-local-59-proof.mjs",
-              "tests/shoperation-f6-u03i-local-59-proof.test.ts"
+              "scripts/shoperation-f6-u03j-office-dependency-dag.mjs",
+              "tests/shoperation-f6-u03j-office-dependency-dag.test.ts"
             ],
             "operations": [
               {
                 "operation": "create",
-                "file": ".github/workflows/f6-u03i-local-59-proof.yml",
+                "file": ".github/workflows/f6-u03j-office-dependency-proof.yml",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": ".github/workflows/f6-u03i-plan-capture.yml",
+                "file": ".github/workflows/f6-u03j-plan-capture.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "docs/po/CORE_1186_F6_U03I_LOCAL_59_PROOF_2026-10-15.md",
+                "file": "docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md",
                 "generated": null
               },
               {
@@ -680,12 +671,12 @@
               },
               {
                 "operation": "create",
-                "file": "scripts/shoperation-f6-u03i-local-59-proof.mjs",
+                "file": "scripts/shoperation-f6-u03j-office-dependency-dag.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/shoperation-f6-u03i-local-59-proof.test.ts",
+                "file": "tests/shoperation-f6-u03j-office-dependency-dag.test.ts",
                 "generated": null
               }
             ],
@@ -718,19 +709,19 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03i-local-59-proof.yml",
+                  "file": ".github/workflows/f6-u03j-office-dependency-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": ".github/workflows/f6-u03i-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03j-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "docs/po/CORE_1186_F6_U03I_LOCAL_59_PROOF_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -742,13 +733,13 @@
                   "points": 0
                 },
                 {
-                  "file": "scripts/shoperation-f6-u03i-local-59-proof.mjs",
+                  "file": "scripts/shoperation-f6-u03j-office-dependency-dag.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/shoperation-f6-u03i-local-59-proof.test.ts",
+                  "file": "tests/shoperation-f6-u03j-office-dependency-dag.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -781,7 +772,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-f6-u03i-local-59-proof.test.ts"
+                "tests/shoperation-f6-u03j-office-dependency-dag.test.ts"
               ],
               "externalGateIds": []
             },
@@ -792,12 +783,12 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                ".github/workflows/f6-u03i-local-59-proof.yml",
-                ".github/workflows/f6-u03i-plan-capture.yml",
-                "docs/po/CORE_1186_F6_U03I_LOCAL_59_PROOF_2026-10-15.md",
+                ".github/workflows/f6-u03j-office-dependency-proof.yml",
+                ".github/workflows/f6-u03j-plan-capture.yml",
+                "docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md",
                 "quality/development/active-plan.json",
-                "scripts/shoperation-f6-u03i-local-59-proof.mjs",
-                "tests/shoperation-f6-u03i-local-59-proof.test.ts"
+                "scripts/shoperation-f6-u03j-office-dependency-dag.mjs",
+                "tests/shoperation-f6-u03j-office-dependency-dag.test.ts"
               ],
               "filesAbsent": []
             },
@@ -812,7 +803,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "5563e85d",
+            "manifestDigest": "9b0fc7b8",
             "decision": "PASS"
           }
         ],
@@ -854,37 +845,36 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The 47-file historical 0046 PostgreSQL17 transaction and role-name-normalized 126-policy source parity pass, but the complete reviewed 59-file 0001–0058 customer baseline—including Digital Office SQL and Communication Hub—has not been executed atomically on an isolated PG17 database or tested for rollback. The canonical hosted compiler intentionally aborts before destructive DROP and must never be executed.",
+    "problemStatement": "Real PostgreSQL17 59-file customer baseline run #38800810206 fails at immutable 0055 Communication Hub SQL because public.office_mailboxes is missing. Hosted Fresh Install read-only also lacks office_mailboxes, office_drafts, office_attachments and office_thread_email_routes. Main canonical timestamped Office migrations already contain these creators but are not part of frozen 59-file baseline lineage. Source authority/ordered prerequisites must be proven before release-package code changes.",
     "observableOutcomes": [
-      "Local 59 SQL source manifest is exactly the canonical source-verified immutable 59 files from REVIEWED_SOURCE_COMMIT, plus preflight/auth-bootstrap/seed/postflight companions, SHA fingerprints preserved.",
-      "A local-only single BEGIN/COMMIT PostgreSQL17 transaction runs authentic target-preflight, all 59 source SQL files in reviewed order, auth-bootstrap, neutral seed and target-postflight, with independent exact target DB, role, version and actual Docker peer checks.",
-      "A separate clean Docker database receives an injected postflight-after-migrations fault inside the same 59-file transaction and demonstrably rolls back all application tables, functions and policies, rather than misreporting success.",
-      "Negative unit and actual PG17 tests fail on migration file modification, file-order drift, missing local target signature, incorrect DB, incomplete postflight, and unauthorized hosted compilation.",
-      "Local normal and injected rollback artifacts are exact-head, expose real SQL errors rather than masking failures, and never state provider-managed Supabase production success.",
-      "Canonical Plan Before Code, Development Guard, Edit-Time/Incremental Replay, Quality, TS, Build, Completion Truth and Lifecycle evidence are required."
+      "A source-authentic, reproducible Git SHA-pinned list identifies missing Office table creators and their dependent source SQL in canonical main.",
+      "A deterministic negative report refuses to classify frozen 59 files as fresh-source-complete and binds the failing 0055 SQL usage to absent public.office_mailboxes.",
+      "The report provides explicit candidate chronological prerequisites for Office inbound, mailbox normalization/grants, drafts, recipient envelope and private attachment foundations without guessing approval to cherry-pick.",
+      "Tampering source blob, removing/renumbering a baseline migration, missing creator or duplicate/future prerequisite, or claiming 59-file production readiness fails closed.",
+      "Full PR exact-head Plan Before Code/Development Guard and CI checks test source proof only; no hosted SQL or migration modification."
     ],
     "unresolvedRisks": [
-      "The real Supabase Auth and Storage schemas include provider-maintained triggers, internal tables and roles absent from the local Docker shims; full hosted compatibility remains unresolved.",
-      "A 59-file fresh-empty replay does not prove occupied-host reset locks, point-in-time restore, TLS endpoint identity or actual managed provider event behavior.",
-      "Authorized Alap/Pro logged-in cross-tenant JWT/RLS workflows remain untested against real Supabase Auth sessions.",
-      "A failure in one source SQL statement must block the unit and be recorded; automated fixture adjustment must not hide drift."
+      "Static table dependency scans do not prove all function/procedure, trigger, ACL, provider-Auth and operational RLS semantics; source DAG must be classified incomplete until exact versioned baseline gets PostgreSQL integration proof.",
+      "Main timestamped Office lineage can include superseded unsafe blanket-Pro or older Team Chat sync; must exclude these from release candidate rather than naively timestamp replay.",
+      "59 file source digest authority must remain unchanged until separately guarded, forward-safe baseline evolution.",
+      "No authorization for hosted Fresh Install reset, provider-managed Auth/Storage, signed-in Alap/Pro RLS or staging reactivation."
     ],
     "scope": {
       "in": [
-        "Pure source compiler for reviewed 59 original migrations with exact file hashes and original baseline companion SQL, fixed local-only DB identity and no actual SQL connections.",
-        "Disposable Docker PostgreSQL17 execution on clean schemas with preflight, migration transaction, postflight; independent expected-failure rollback on separate database.",
-        "Unit and CI negative proofs for source immutability, unsafe connection selectors and destructive hosted compiler abort retained."
+        "Read-only comparison of 59 frozen customer-baseline SQL against immutable main Office historical source blobs and ordered missing creator/dependency requirements.",
+        "Deterministic source-only JSON diagnostic, negative unit tests and CI evidence.",
+        "Existing #1228 issue and stacked #1350; no duplicate owner."
       ],
       "out": [
-        "No hosted execution, direct connection to a Supabase project, creation/unpausing of an active project, credentials or production schema mutation.",
-        "No removing or modifying F6-U03f strict transaction guard or F6-U03b abort-before-DROP; no host DROP/reprovision.",
-        "No full managed provider, TLS identity, app Data API or authenticated tenant Alap/Pro RLS proof claims."
+        "No actual new migration SQL or baseline manifest/source-hash changes in this unit.",
+        "No database connections, Docker SQL transactions, provider state changes, hosted reset, or replacing F6-U03f guard.",
+        "No claim static catalog evidence makes 59-file replay, managed provider, or tenant RLS PASS."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1347",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -903,11 +893,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-U03I-BYTES",
-        "requirement": "Exactly 59 reviewed SQL file bytes and original companion SQL, preflight first, postflight before COMMIT, source identity unaltered.",
+        "id": "REQ-U03J-SOURCE",
+        "requirement": "Immutable frozen 59-source identity and main timestamped Office source creator lineage correctly identified.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "source-authentic-fresh-59-replay",
+          "breadth": "read-only-office-source-dag",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -928,8 +918,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U03I-REWRITE",
-            "statement": "Any reviewed SQL/guard bytes modified, skipped or replaced by simplified fixture SQL.",
+            "id": "NEG-U03J-SOURCE",
+            "statement": "Missing source creators or changed 59 files wrongly classified as accepted source.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -937,11 +927,11 @@
         ]
       },
       {
-        "id": "REQ-U03I-TRANSACTION",
-        "requirement": "Execute all 59 source-authentic SQL in one real isolated PG17 transaction, assert postflight and persistent objects and complete rollback on injected pre-COMMIT failure.",
+        "id": "REQ-U03J-GAP",
+        "requirement": "Actual mailbox/drafts/attachment release gaps explicitly reported BLOCKED, dependency candidates ordered, not fabricated fixture SQL.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "real-local-pg17-fresh-atomicity",
+          "breadth": "bounded-negative-source-proof",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -962,8 +952,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U03I-PARTIAL",
-            "statement": "A failed source replay or incomplete rollback is labeled successful.",
+            "id": "NEG-U03J-FAKE",
+            "statement": "Static DAG report is called successful 59-file migration transaction or provider proof.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -971,11 +961,11 @@
         ]
       },
       {
-        "id": "REQ-U03I-SCOPE",
-        "requirement": "The complete hosted destructive 59-file compiler is not executed or altered; local fixture has no live managed provider, TLS or authenticated tenant authority.",
+        "id": "REQ-U03J-NOLIVE",
+        "requirement": "No hosted SQL, schema mutation, stale blanket-Pro RLS, or removal of pre-DROP abort.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "disposable-no-hosted-sql",
+          "breadth": "no-hosted-execution",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -996,8 +986,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U03I-HOSTED",
-            "statement": "A Docker-only replay authorizes or triggers a hosted schema reset.",
+            "id": "NEG-U03J-HOSTED",
+            "statement": "Non-destructive diagnosis authorizes Fresh Install reset or modifies frozen SQL.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1006,5 +996,5 @@
       }
     ]
   },
-  "notes": "F6-U03i source-only 59-file fresh baseline with real Docker PG17 proof; task DEV-074C4B63, critical score 4/5, negative and known-failure challenge complete. Real hosted Fresh Install remains unmodified and reset forbidden; 47 historical fixture previously authentic, now extend to all 59 in one independent transaction. Specialist reviews are model-generated challenge roles, not humans."
+  "notes": "F6-U03j source DAG 4/5 scoped diagnostic; no migration copy or write. Existing real run #38800810206 shows 0055 absent office_mailboxes, actual Fresh Install missing same. Preserve #1228 authority, #1350 BLOCKED. Model-generated specialist challenges not human approvals."
 }
